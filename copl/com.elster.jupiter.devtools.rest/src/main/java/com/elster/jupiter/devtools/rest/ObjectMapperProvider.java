@@ -1,11 +1,5 @@
 package com.elster.jupiter.devtools.rest;
 
-import java.io.IOException;
-import java.time.Instant;
-
-import javax.ws.rs.ext.ContextResolver;
-
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -20,6 +14,9 @@ import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
+import java.io.IOException;
+import java.time.Instant;
+import javax.ws.rs.ext.ContextResolver;
 
 public class ObjectMapperProvider implements ContextResolver<ObjectMapper> {
 	
@@ -30,7 +27,6 @@ public class ObjectMapperProvider implements ContextResolver<ObjectMapper> {
 		AnnotationIntrospector primary = new JacksonAnnotationIntrospector();
 	    AnnotationIntrospector secondary = new JaxbAnnotationIntrospector(mapper.getTypeFactory());
 	    AnnotationIntrospector pair = new AnnotationIntrospectorPair(primary, secondary);
-		mapper.setSerializationInclusion(Include.NON_NULL);
 		mapper.setAnnotationIntrospector(pair);
 		mapper.registerModule(new SimpleModule("Instant", new Version(1,0,0,null, "com.elster.jupiter", "devtools.rest"))
 			.addSerializer(new InstantSerializer())
