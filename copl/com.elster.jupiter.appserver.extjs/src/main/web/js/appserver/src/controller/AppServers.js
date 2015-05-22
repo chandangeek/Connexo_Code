@@ -93,7 +93,7 @@ Ext.define('Apr.controller.AppServers', {
             appServerName = record.get('name'),
             previewForm = page.down('appservers-preview-form');
 
-        preview.setTitle(appServerName);
+        preview.setTitle(Ext.String.htmlEncode(appServerName));
         previewForm.loadRecord(record);
         preview.down('appservers-action-menu').record = record;
         me.setupMenuItems(record);
@@ -250,7 +250,7 @@ Ext.define('Apr.controller.AppServers', {
                     view.down('message-services-grid').hide();
                     view.down('#empty-text-grid').show();
                 }
-                view.down('#add-appserver-form').setTitle(Uni.I18n.translate('general.edit', 'APR', 'Edit') + " '" + appServerName + "'");
+                view.down('#add-appserver-form').setTitle(Uni.I18n.translate('general.edit', 'APR', 'Edit') + " '" + Ext.String.htmlEncode(appServerName) + "'");
                 view.down('#appserver-name').setValue(appServerName);
                 view.down('#appserver-name').disable();
                 unservedStore.getProxy().setUrl(appServerName);
