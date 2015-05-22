@@ -26,7 +26,6 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Arrays;
@@ -205,7 +204,9 @@ public class DeviceLifeCycleCommands {
     }
 
     private void execute(ExecutableAction action, Device device, Instant effectiveTimestamp) {
-        action.execute(Arrays.asList(new EffectiveTimestampPropertyValue(effectiveTimestamp)));
+        action.execute(Arrays.asList(
+                new EffectiveTimestampPropertyValue(effectiveTimestamp),
+                new LastCheckedTimestampPropertyValue(effectiveTimestamp)));
     }
 
     @SuppressWarnings("unused")
@@ -316,6 +317,29 @@ public class DeviceLifeCycleCommands {
         @Override
         public Object getValue() {
             return this.effectiveTimestamp;
+        }
+    }
+
+    private class LastCheckedTimestampPropertyValue implements ExecutableActionProperty {
+
+        private final Instant lastCheckedTimestamp;
+
+        public LastCheckedTimestampPropertyValue(Instant lastCheckedTimestamp) {
+            super();
+            this.lastCheckedTimestamp = lastCheckedTimestamp;
+        }
+
+        @Override
+        public PropertySpec getPropertySpec() {
+            return propertySpecService.basicPropertySpec(
+                    DeviceLifeCycleService.MicroActionPropertyName.LAST_CHECKED.key(),
+                    true,
+                    new InstantFactory());
+        }
+
+        @Override
+        public Object getValue() {
+            return this.lastCheckedTimestamp;
         }
     }
 
