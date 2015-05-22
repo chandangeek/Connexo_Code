@@ -572,7 +572,7 @@ div.x-form-spinner-down {
 
 /* line 21, ../../sass/src/form/field/Base.scss */
 .x-form-invalid-field {
-  border-color: #eb5642;
+  border-color: #eb5642 !important;
 }
 
 /* line 25, ../../sass/src/form/field/Base.scss */
