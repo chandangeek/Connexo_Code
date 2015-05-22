@@ -185,7 +185,7 @@ Ext.define('Uni.I18n', {
             //</debug>
         }
 
-        return translation;
+        return Ext.String.htmlEncode(translation);
     },
 
     /**
@@ -217,7 +217,7 @@ Ext.define('Uni.I18n', {
             }
         }
 
-        return translation;
+        return Ext.String.htmlEncode(translation);
     },
 
     /**
@@ -243,7 +243,7 @@ Ext.define('Uni.I18n', {
             translation = Uni.util.String.replaceAll(translation, 0, amount);
         }
 
-        return translation;
+        return Ext.String.htmlEncode(translation);
     },
 
     /**
