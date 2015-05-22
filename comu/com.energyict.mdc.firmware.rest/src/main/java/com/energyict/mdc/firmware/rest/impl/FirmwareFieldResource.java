@@ -72,7 +72,7 @@ public class FirmwareFieldResource extends FieldResource {
     @RolesAllowed({com.energyict.mdc.device.config.security.Privileges.VIEW_DEVICE_TYPE})
     public Response getUploadOptionSpecForDeviceType(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("firmwareOption") String firmwareOption, @QueryParam("firmwareType") String firmwareType) {
         DeviceType deviceType = resourceHelper.findDeviceTypeOrElseThrowException(deviceTypeId);
-        DeviceMessageSpec firmwareMessageSpec = resourceHelper.getFirmwareMessageSpecOrThrowException(deviceType, firmwareOption);
+        DeviceMessageSpec firmwareMessageSpec = resourceHelper.findFirmwareMessageSpecOrThrowException(deviceType, firmwareOption);
         return Response.ok(firmwareMessageInfoFactory.from(firmwareMessageSpec, deviceType, firmwareOption, firmwareType)).build();
     }
 }

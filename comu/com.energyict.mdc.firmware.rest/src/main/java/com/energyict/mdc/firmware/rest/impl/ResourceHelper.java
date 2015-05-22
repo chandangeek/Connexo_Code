@@ -61,14 +61,14 @@ public class ResourceHelper {
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.DEVICE_GROUP_NOT_FOUND, id));
     }
 
-    public ProtocolSupportedFirmwareOptions getProtocolSupportedFirmwareOptionsOrThrowException(String uploadOption) {
+    public ProtocolSupportedFirmwareOptions findProtocolSupportedFirmwareOptionsOrThrowException(String uploadOption) {
         return ProtocolSupportedFirmwareOptions.from(uploadOption)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.SUPPORTED_FIRMWARE_UPGRADE_OPTIONS_NOT_FOUND));
     }
 
     /** Returns the appropriate DeviceMessageId which corresponds with the uploadOption */
-    public DeviceMessageId geFirmwareMessageIdOrThrowException(DeviceType deviceType, String firmwareOption) {
-        ProtocolSupportedFirmwareOptions targetFirmwareOptions = getProtocolSupportedFirmwareOptionsOrThrowException(firmwareOption);
+    public DeviceMessageId findFirmwareMessageIdOrThrowException(DeviceType deviceType, String firmwareOption) {
+        ProtocolSupportedFirmwareOptions targetFirmwareOptions = findProtocolSupportedFirmwareOptionsOrThrowException(firmwareOption);
         return deviceType.getDeviceProtocolPluggableClass().getDeviceProtocol().getSupportedMessages()
                 .stream()
                 .filter(firmwareMessageCandidate -> {
@@ -79,12 +79,12 @@ public class ResourceHelper {
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.SUPPORTED_FIRMWARE_UPGRADE_OPTIONS_NOT_FOUND));
     }
 
-    public DeviceMessageSpec getFirmwareMessageSpecOrThrowException(DeviceType deviceType, String firmwareOption) {
-        DeviceMessageId firmwareMessageId = geFirmwareMessageIdOrThrowException(deviceType, firmwareOption);
-        return this.getFirmwareMessageSpecOrThrowException(firmwareMessageId);
+    public DeviceMessageSpec findFirmwareMessageSpecOrThrowException(DeviceType deviceType, String firmwareOption) {
+        DeviceMessageId firmwareMessageId = findFirmwareMessageIdOrThrowException(deviceType, firmwareOption);
+        return this.findFirmwareMessageSpecOrThrowException(firmwareMessageId);
     }
 
-    public DeviceMessageSpec getFirmwareMessageSpecOrThrowException(DeviceMessageId firmwareMessageId) {
+    public DeviceMessageSpec findFirmwareMessageSpecOrThrowException(DeviceMessageId firmwareMessageId) {
         return deviceMessageSpecificationService.findMessageSpecById(firmwareMessageId.dbValue())
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.SUPPORTED_FIRMWARE_UPGRADE_OPTIONS_NOT_FOUND));
     }

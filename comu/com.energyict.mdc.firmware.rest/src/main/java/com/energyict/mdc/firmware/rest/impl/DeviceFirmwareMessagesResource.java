@@ -81,7 +81,7 @@ public class DeviceFirmwareMessagesResource {
     @RolesAllowed({com.energyict.mdc.device.data.security.Privileges.VIEW_DEVICE})
     public Response getMessageAttributes(@PathParam("mrid") String mrid, @PathParam("uploadOption") String uploadOption, @QueryParam("firmwareType") String firmwareType){
         Device device = resourceHelper.findDeviceByMridOrThrowException(mrid);
-        DeviceMessageSpec firmwareMessageSpec = resourceHelper.getFirmwareMessageSpecOrThrowException(device.getDeviceType(), uploadOption);
+        DeviceMessageSpec firmwareMessageSpec = resourceHelper.findFirmwareMessageSpecOrThrowException(device.getDeviceType(), uploadOption);
         return Response.ok(firmwareMessageInfoFactory.from(firmwareMessageSpec, device, uploadOption, firmwareType)).build();
     }
 
@@ -94,8 +94,8 @@ public class DeviceFirmwareMessagesResource {
         Device device = resourceHelper.findDeviceByMridOrThrowException(mrid);
         checkFirmwareUpgradeOption(device.getDeviceType(), info.uploadOption);
 
-        DeviceMessageId firmwareMessageId = resourceHelper.geFirmwareMessageIdOrThrowException(device.getDeviceType(), info.uploadOption);
-        DeviceMessageSpec firmwareMessageSpec = resourceHelper.getFirmwareMessageSpecOrThrowException(firmwareMessageId);
+        DeviceMessageId firmwareMessageId = resourceHelper.findFirmwareMessageIdOrThrowException(device.getDeviceType(), info.uploadOption);
+        DeviceMessageSpec firmwareMessageSpec = resourceHelper.findFirmwareMessageSpecOrThrowException(firmwareMessageId);
         Map<String, Object> convertedProperties = getConvertedProperties(firmwareMessageSpec, info);
         Instant releaseDate = info.releaseDate == null ? this.clock.instant() : info.releaseDate;
 
@@ -158,27 +158,17 @@ public class DeviceFirmwareMessagesResource {
         if (!fuComTaskExecutionRef.isPresent()){
             createFirmwareComTaskExecution(device);
         } else {
-            cancelOldFirmwareUpgrades(device, convertedProperties);
+            cancelOldFirmwareUpdates(device, convertedProperties);
         }
     }
 
-    private void cancelOldFirmwareUpgrades(Device device, Map<String, Object> convertedProperties) {
+    private void cancelOldFirmwareUpdates(Device device, Map<String, Object> convertedProperties) {
         String firmwareVersionPropertyName = DeviceMessageConstants.firmwareUpdateFileAttributeName;
         FirmwareVersion requestedFirmwareVersion = (FirmwareVersion) convertedProperties.get(firmwareVersionPropertyName);
-        FirmwareManagementDeviceUtils versionUtils = utilProvider.get().onDevice(device);
-        if (requestedFirmwareVersion != null && versionUtils.getComTaskExecution() != null) {
-            versionUtils.getFirmwareMessages().stream()
-                    .filter(message -> FirmwareManagementDeviceUtils.PENDING_STATUSES.contains(message.getStatus())) // only pending firmware upgrade messages
-                    .filter(candidate -> { // only messages which have the same firmware type
-                        Optional<FirmwareVersion> candidateFirmwareVersion = versionUtils.getFirmwareVersionFromMessage(candidate);
-                        return candidateFirmwareVersion.isPresent() && requestedFirmwareVersion.getFirmwareType().equals(candidateFirmwareVersion.get().getFirmwareType());
-                    })
-                    .forEach(message -> {
-                        message.revoke();
-                        message.save();
-                    });
-        }
-    }
+        utilProvider.get()
+                .onDevice(device)
+                .cancelPendingFirmwareUpdates(requestedFirmwareVersion.getFirmwareType());
+     }
 
     @DELETE
     @Path("/firmwaremessages/{msgId}")
@@ -232,7 +222,7 @@ public class DeviceFirmwareMessagesResource {
 
     /** Checks that device type allows the requested firmware upgrade option */
     private void checkFirmwareUpgradeOption(DeviceType deviceType, String uploadOption) {
-        ProtocolSupportedFirmwareOptions requestedFUOption = resourceHelper.getProtocolSupportedFirmwareOptionsOrThrowException(uploadOption);
+        ProtocolSupportedFirmwareOptions requestedFUOption = resourceHelper.findProtocolSupportedFirmwareOptionsOrThrowException(uploadOption);
         Set<ProtocolSupportedFirmwareOptions> deviceTypeFUAllowedOptions = firmwareService.getAllowedFirmwareManagementOptionsFor(deviceType);
         if (deviceTypeFUAllowedOptions.isEmpty()){ // firmware upgrade is not allowed for the device type
             throw exceptionFactory.newException(MessageSeeds.FIRMWARE_UPGRADE_OPTIONS_ARE_DISABLED_FOR_DEVICE_TYPE);

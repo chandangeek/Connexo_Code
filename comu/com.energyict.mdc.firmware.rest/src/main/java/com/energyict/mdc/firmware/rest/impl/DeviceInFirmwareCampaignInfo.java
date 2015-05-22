@@ -6,8 +6,7 @@ import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
 import java.time.Instant;
 
 public class DeviceInFirmwareCampaignInfo {
-    public long id;
-    public String name;
+    public String mrid;
     public com.energyict.mdc.common.rest.IdWithNameInfo status;
     public Instant startedOn;
     public Instant finishedOn;
@@ -16,8 +15,7 @@ public class DeviceInFirmwareCampaignInfo {
     }
 
     public DeviceInFirmwareCampaignInfo(DeviceInFirmwareCampaign device, Thesaurus thesaurus) {
-        this.id = device.getDevice().getId();
-        this.name = device.getDevice().getmRID();
+        this.mrid = device.getDevice().getmRID();
         if (device.getStatus() != null) {
             this.status = new com.energyict.mdc.common.rest.IdWithNameInfo();
             this.status.id = device.getStatus().key();
