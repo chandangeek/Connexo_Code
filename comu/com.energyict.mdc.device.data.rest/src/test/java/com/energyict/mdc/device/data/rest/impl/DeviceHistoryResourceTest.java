@@ -66,7 +66,8 @@ public class DeviceHistoryResourceTest extends DeviceDataRestApplicationJerseyTe
         JsonModel model = JsonModel.model(response);
 
         assertThat(model.<Number> get("$.total")).isEqualTo(2);
-        assertThat(model.<List<String>> get("$.deviceLifeCycleStateChanges[*].fromState")).containsExactly(null, "In Stock");
+        assertThat(model.<String>get("$.deviceLifeCycleStateChanges[0].fromState")).isNull();
+        assertThat(model.<String>get("$.deviceLifeCycleStateChanges[1].fromState")).isEqualTo("In Stock");
         assertThat(model.<List<String>> get("$.deviceLifeCycleStateChanges[*].toState")).containsExactly("In Stock", "commissioning");
         assertThat(model.<List<Number>> get("$.deviceLifeCycleStateChanges[*].modTime")).containsExactly(now.minusMillis(1000).toEpochMilli(), now.toEpochMilli());
         assertThat(model.<List<Number>> get("$.deviceLifeCycleStateChanges[*].author.id")).containsExactly(1, 2);
