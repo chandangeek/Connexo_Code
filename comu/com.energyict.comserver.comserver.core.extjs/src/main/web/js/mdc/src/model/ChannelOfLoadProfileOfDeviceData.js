@@ -7,27 +7,12 @@ Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
     fields: [
         {name: 'interval', type: 'auto'},
         {name: 'readingTime', dateFormat: 'time', type: 'date'},
-        {name: 'value', type: 'auto'
-//            convert: function (v) {
-//                if(!Ext.isEmpty(v)) {
-//                    return Uni.Number.formatNumber(v, -1);
-//                }
-//            }
-        },
+        {name: 'value', type: 'auto' },
         {name: 'rawValue', type: 'auto'},
         {name: 'delta', type: 'auto'},
         {name: 'isBulk', type: 'boolean'},
-        {name: 'collectedValue', type: 'auto'
-//            convert: function (v) {
-//                if(!Ext.isEmpty(v)) {
-//                    return Uni.Number.formatNumber(v, -1);
-//                }
-//            }
-        },
+        {name: 'collectedValue', type: 'auto'},
         {name: 'intervalFlags', type: 'auto'},
-        {name: 'dataValidated', type: 'auto'},
-//        {name: 'suspectReason', type: 'auto'},
-        {name: 'validationResult', type: 'auto'},
         {name: 'validationStatus', type: 'auto'},
 
         /*{
@@ -142,6 +127,58 @@ Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
             }
         },
         {
+            name: 'readingProperties',
+            persist: false,
+            mapping: function (data) {
+                var result = {
+                        delta: {},
+                        bulk: {}
+                    },
+                    delta = data.deltaValidationInfo,
+                    bulk = data.bulkValidationInfo;
+                if (delta && delta.validationRules) {
+                    _.each(delta.validationRules, function (item) {
+                        if (item.action == 'FAIL') {
+                            result.delta.suspect = true;
+                            result.delta['informative'] = false;
+                        }
+                        if (item.action == 'WARN_ONLY') {
+                            result.delta.suspect ?
+                                result.delta['informative'] = false :
+                                result.delta['informative'] = true;
+                        }
+                        console.log(result);
+                    });
+                }
+                if (delta) {
+                    delta.validationResult == 'validationStatus.notValidated' ?
+                        result.delta.notValidated = true :
+                        result.delta.notValidated = false
+                }
+
+                if (bulk && bulk.validationRules) {
+                    _.each(bulk.validationRules, function (item) {
+                        if (item.action == 'FAIL') {
+                            result.bulk.suspect = true;
+                            result.bulk.informative = false;
+                        }
+                        if (item.action == 'WARN_ONLY') {
+                            result.bulk.suspect ?
+                                result.bulk.informative = false :
+                                result.bulk.informative = true;
+                        }
+                    });
+                }
+                if (bulk) {
+                    bulk.validationResult == 'validationStatus.notValidated' ?
+                        result.bulk.notValidated = true :
+                        result.bulk.notValidated = false
+                }
+
+                return result;
+            }
+        },
+        {
             name: 'deltaValidationInformation',
             persist: false,
             mapping: function (data) {
@@ -160,7 +197,7 @@ Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
                 if (data.bulkValidationInfo) {
                     result = data.bulkValidationInfo
                 }
-               return result;
+                return result;
             }
         },
         {
@@ -189,13 +226,15 @@ Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
     associations: [
         {
             type: 'hasOne',
-            name: 'deltaValidationInfo',
+            associatedName: 'deltaValidationInfo',
+            associationKey: 'deltaValidationInfo',
             model: 'Mdc.model.ChannelReadingValidationResult',
             getterName: 'getDeltaValidationInfo'
         },
         {
             type: 'hasOne',
-            name: 'bulkValidationInfo',
+            associatedName: 'bulkValidationInfo',
+            associationKey: 'bulkValidationInfo',
             model: 'Mdc.model.ChannelReadingValidationResult',
             getterName: 'getBulkValidationInfo'
         }

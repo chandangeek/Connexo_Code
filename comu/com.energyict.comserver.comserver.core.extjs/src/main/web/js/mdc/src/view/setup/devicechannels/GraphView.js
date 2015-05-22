@@ -108,38 +108,46 @@ Ext.define('Mdc.view.setup.devicechannels.GraphView', {
                 formatter: function (tooltip) {
                     var html = '<b>' + Highcharts.dateFormat('%A, %e %B %Y', this.x);
                     var point = this.points[0].point,
+                        deltaIcon,
+                        bulkIcon,
                         bgColor,
                         iconSpan = '<span class="{icon}" ' +
                             'style="height: 16px; ' +
                             'width: 16px; ' +
                             'display: inline-block; ' +
                             'vertical-align: top; ' +
-                            'margin-left: 4px"></span>',
-                        iconMap = {
-                            suspect: 'icon-validation-red',
-                            edited: 'icon-pencil2',
-                            editedNotSaved: 'icon-pencil2',
-                            confirmed: 'icon-checkmark'
-                        };
+                            'margin-left: 4px"></span>';
+
+//                     suspect: 'icon-validation-red',
+//                     edited: 'icon-pencil2',
+//                     editedNotSaved: 'icon-pencil2',
+//                     confirmed: 'icon-checkmark'
+
+                    if (point.delta.suspect) {
+                        deltaIcon = 'icon-validation-red'
+                    }
+                    if (point.bulk.suspect)  {
+                        bulkIcon = 'icon-validation-red'
+                    }
+
 
                     html += '<br/>Interval ' + Highcharts.dateFormat('%H:%M', point.x);
                     html += ' - ' + Highcharts.dateFormat('%H:%M', point.intervalEnd) + '<br>';
                     html += '<table style="margin-top: 10px"><tbody>';
                     bgColor = point.tooltipColor;
-
                     html += '<tr><td><b>' +
                         point.series.name +
                         ':</b></td><td>' +
                         point.y + ' ' +
                         point.mesurementType +
-                        iconSpan.replace('{icon}', iconMap[point.deltaProperty]) +
+                        iconSpan.replace('{icon}', deltaIcon) +
                         '</td></tr>';
                     html += '<tr><td><b>' +
                         'Bulk value:' +
                         '</b></td><td>' +
                         point.collectedValue + ' ' +
                         point.mesurementType +
-                        iconSpan.replace('{icon}', iconMap[point.bulkProperty]) +
+                        iconSpan.replace('{icon}', bulkIcon) +
                         '</td></tr>';
 
                     html += '</tbody></table>';

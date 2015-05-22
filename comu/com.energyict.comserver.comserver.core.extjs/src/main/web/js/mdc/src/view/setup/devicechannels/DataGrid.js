@@ -46,15 +46,13 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                 flex: 1,
                 align: 'right',
                 renderer: function (v, metaData, record) {
-                    var validationInfo = record.getDeltaValidationInfo(),
-                        validationResult = validationInfo ? validationInfo.get('validationResult') : null,
+                    var validationInfo = record.get('readingProperties'),
                         cls = 'icon-validation-cell';
-                    if (validationResult) {
-                        var status = validationResult.split('.')[1];
-                        if (status === 'suspect') {
+                    if (validationInfo.delta) {
+                        if (validationInfo.delta.suspect) {
                             cls += ' icon-validation-red'
                         }
-                        if (status === 'notValidated') {
+                        if (validationInfo.delta.notValidated) {
                             cls += ' icon-validation-black'
                         }
                     }
@@ -85,15 +83,13 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                 align: 'right',
                 hidden: Ext.isEmpty(calculatedReadingType),
                 renderer: function (v, metaData, record) {
-                    var validationInfo = record.getBulkValidationInfo(),
-                        validationResult = validationInfo ? validationInfo.get('validationResult') : null,
+                    var validationInfo = record.get('readingProperties'),
                         cls = 'icon-validation-cell';
-                    if (validationResult) {
-                        var status = validationResult.split('.')[1];
-                        if (status === 'suspect') {
+                    if (validationInfo.bulk) {
+                        if (validationInfo.bulk.suspect) {
                             cls += ' icon-validation-red'
                         }
-                        if (status === 'notValidated') {
+                        if (validationInfo.bulk.notValidated) {
                             cls += ' icon-validation-black'
                         }
                     }

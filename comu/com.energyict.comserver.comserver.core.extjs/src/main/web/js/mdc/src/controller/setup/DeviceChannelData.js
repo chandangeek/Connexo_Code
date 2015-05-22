@@ -276,31 +276,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             var confirmed = false;
             var estimated = false;
             var edited = deltaModificationFlag || bulkModificationFlag;
-            var dataValidated = (deltaValidationInfo && deltaValidationInfo.get('dataValidated')) &&
-                (bulkValidationInfo && bulkValidationInfo.get('dataValidated'));
-
-            if (deltaValidationInfo) {
-                var deltaValidationRules = deltaValidationInfo.validationRules();
-                if (deltaValidationRules && deltaValidationRules.findRecord('action', 'WARN_ONLY')) {
-                    informative = true;
-                }
-                if (deltaValidationRules && deltaValidationRules.findRecord('action', 'FAIL')) {
-                    suspect = true;
-                    point.deltaProperty ='suspect';
-                }
-            }
-            if (bulkValidationInfo) {
-                var bulkValidationRules = bulkValidationInfo.validationRules();
-                if (bulkValidationRules && bulkValidationRules.findRecord('action', 'WARN_ONLY')) {
-                    informative = true;
-                }
-                if (bulkValidationRules && bulkValidationRules.findRecord('action', 'FAIL')) {
-                    suspect = true;
-                    point.bulkProperty = 'suspect';
-                }
-            }
-
-
+            var properties = record.get('readingProperties');
 
             point.x = record.get('interval').start;
             point.y = parseFloat(record.get('value'));
@@ -310,15 +286,15 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             point.color = okColor;
             point.tooltipColor = tokColor;
 
-            if (informative) {
+            if (properties.delta.informative || properties.bulk.informative) {
                 point.color = infColor;
                 point.tooltipColor = tinfColor
             }
-            if (suspect) {
+            if (properties.delta.suspect || properties.bulk.suspect) {
                 point.color = susColor;
                 point.tooltipColor = tsusColor
             }
-            if (!dataValidated) {
+            if (properties.delta.notValidated || properties.bulk.notValidated) {
                 point.color = nvalColor;
                 point.tooltipColor = tnvalColor
             }
@@ -334,7 +310,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 point.color = okColor;
                 point.tooltipColor = tokColor
             }
-
+            Ext.merge(point, properties);
             data.unshift(point);
             if (!point.y) {
                 missedValues.push({

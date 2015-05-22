@@ -45,9 +45,14 @@
             "collectedValue": "1431984441",
             "isBulk": true,
             "validationStatus": true,
-            "dataValidated": false,
-            "validationResult": "validationStatus.notValidated",
-            "suspectReason": []
+            "bulkValidationInfo": {
+                "dataValidated": true,
+                "validationResult": "validationStatus.suspect"
+            },
+            "deltaValidationInfo": {
+                "dataValidated": false,
+                "validationResult": "validationStatus.notValidated"
+            }
         },
         {
             "interval": {
@@ -61,9 +66,14 @@
             "collectedValue": "1431983624",
             "isBulk": true,
             "validationStatus": true,
-            "dataValidated": false,
-            "validationResult": "validationStatus.notValidated",
-            "suspectReason": []
+            "bulkValidationInfo": {
+                "dataValidated": false,
+                "validationResult": "validationStatus.notValidated"
+            },
+            "deltaValidationInfo": {
+                "dataValidated": false,
+                "validationResult": "validationStatus.notValidated"
+            }
         },
         {
             "interval": {
@@ -78,8 +88,10 @@
             "isBulk": true,
             "validationStatus": true,
             "dataValidated": false,
-            "validationResult": "validationStatus.notValidated",
-            "suspectReason": []
+            "deltaValidationInfo": {
+                "dataValidated": false,
+                "validationResult": "validationStatus.notValidated"
+            }
         },
         {
             "interval": {
@@ -93,9 +105,10 @@
             "collectedValue": "1431981889",
             "isBulk": true,
             "validationStatus": true,
-            "dataValidated": false,
-            "validationResult": "validationStatus.notValidated",
-            "suspectReason": []
+            "deltaValidationInfo": {
+                "dataValidated": false,
+                "validationResult": "validationStatus.notValidated"
+            }
         },
         {
             "interval": {
@@ -109,9 +122,10 @@
             "collectedValue": "1431981063",
             "isBulk": true,
             "validationStatus": true,
-            "dataValidated": false,
-            "validationResult": "validationStatus.notValidated",
-            "suspectReason": []
+            "deltaValidationInfo": {
+                "dataValidated": false,
+                "validationResult": "validationStatus.notValidated"
+            }
         },
         {
             "interval": {
