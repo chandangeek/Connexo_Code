@@ -2,6 +2,7 @@ package com.energyict.mdc.firmware.rest.impl;
 
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.firmware.FirmwareService;
+import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 
 import javax.annotation.security.RolesAllowed;
@@ -34,7 +35,7 @@ public class DeviceFirmwareVersionResource {
     public Response getFirmwareVersionsOnDevice(@PathParam("mRID") String mRID) {
         Device device = resourceHelper.findDeviceByMridOrThrowException(mRID);
         return Response.ok(versionInfoFactory.from(device,
-                firmwareService.getCurrentMeterFirmwareVersionFor(device),
-                firmwareService.getCurrentCommunicationFirmwareVersionFor(device))).build();
+                firmwareService.getActiveFirmwareVersion(device, FirmwareType.METER),
+                firmwareService.getActiveFirmwareVersion(device, FirmwareType.COMMUNICATION))).build();
     }
 }

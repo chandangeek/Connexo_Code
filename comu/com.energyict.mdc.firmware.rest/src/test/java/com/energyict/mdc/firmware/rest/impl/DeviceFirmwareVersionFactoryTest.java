@@ -105,8 +105,8 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         when(activatedCommunicationVersion.getDevice()).thenReturn(device);
         when(activatedCommunicationVersion.getFirmwareVersion()).thenReturn(communicationVersion);
         when(activatedCommunicationVersion.getLastChecked()).thenReturn(TIME);
-        when(firmwareService.getCurrentMeterFirmwareVersionFor(device)).thenReturn(Optional.<ActivatedFirmwareVersion>empty());
-        when(firmwareService.getCurrentCommunicationFirmwareVersionFor(device)).thenReturn(Optional.of(activatedCommunicationVersion));
+        when(firmwareService.getActiveFirmwareVersion(this.device, FirmwareType.METER)).thenReturn(Optional.<ActivatedFirmwareVersion>empty());
+        when(firmwareService.getActiveFirmwareVersion(this.device, FirmwareType.COMMUNICATION)).thenReturn(Optional.of(activatedCommunicationVersion));
         when(firmwareCategory.getId()).thenReturn(1);
         when(deviceMessageSpecificationService.getFirmwareCategory()).thenReturn(firmwareCategory);
         when(deviceMessageSpecificationService.getProtocolSupportedFirmwareOptionFor(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_IMMEDIATE))

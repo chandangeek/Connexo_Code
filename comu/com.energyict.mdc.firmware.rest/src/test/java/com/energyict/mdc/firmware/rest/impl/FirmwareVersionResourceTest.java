@@ -116,7 +116,7 @@ public class FirmwareVersionResourceTest extends BaseFirmwareTest {
 
         Response response = target("devicetypes/1/firmwares").request().post(Entity.entity(formDataMultiPart, MediaType.MULTIPART_FORM_DATA_TYPE));
 
-        verify(firmwareService).saveFirmwareVersion(firmwareVersion);
+        verify(firmwareVersion).save();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
 
@@ -148,7 +148,7 @@ public class FirmwareVersionResourceTest extends BaseFirmwareTest {
 
         Response response = target("devicetypes/1/firmwares/1").request().post(Entity.entity(formDataMultiPart, MediaType.MULTIPART_FORM_DATA_TYPE));
 
-        verify(firmwareService).saveFirmwareVersion(firmwareVersion);
+        verify(firmwareVersion).save();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
     
@@ -160,7 +160,7 @@ public class FirmwareVersionResourceTest extends BaseFirmwareTest {
         
         Response response = target("devicetypes/1/firmwares/1").request().put(Entity.json(info));
         
-        verify(firmwareService).deprecateFirmwareVersion(firmwareVersion);
+        verify(firmwareVersion).deprecate();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
     
@@ -173,7 +173,7 @@ public class FirmwareVersionResourceTest extends BaseFirmwareTest {
         Response response = target("devicetypes/1/firmwares/1").request().put(Entity.json(info));
         
         verify(firmwareVersion).setFirmwareStatus(FirmwareStatus.FINAL);
-        verify(firmwareService).saveFirmwareVersion(firmwareVersion);
+        verify(firmwareVersion).save();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
 }

@@ -79,7 +79,7 @@ public class FirmwareManagementOptionsResource {
         }
         FirmwareManagementOptions options = firmwareService.getFirmwareManagementOptions(deviceType);
         options.setOptions(allowedFirmwareMgtOptions);
-        firmwareService.saveFirmwareManagementOptions(options);
+        options.save();
 
         supportedFirmwareMgtOptions.stream().forEach(op -> firmwareManagementOptionsInfo.supportedOptions.add(new ManagementOptionInfo(op.getId(), thesaurus.getString(op.getId(), op.getId()))));
         allowedFirmwareMgtOptions.stream().forEach(op -> firmwareManagementOptionsInfo.allowedOptions.add(new ManagementOptionInfo(op.getId(), thesaurus.getString(op.getId(), op.getId()))));

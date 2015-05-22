@@ -116,8 +116,8 @@ public class FirmwareVersionResource {
 
         FirmwareVersion versionToSave = firmwareService.newFirmwareVersion(deviceType, firmwareVersion, firmwareStatus, firmwareType);
         setFirmwareFile(versionToSave, fileInputStream);
-        firmwareService.saveFirmwareVersion(versionToSave);
-        
+        versionToSave.save();
+
         return Response.ok().header(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_PLAIN).build();
     }
 
@@ -157,7 +157,7 @@ public class FirmwareVersionResource {
         firmwareVersion.setFirmwareVersion(getStringValueFromStream(versionInputStream));
         parseFirmwareStatusField(statusInputStream).ifPresent(firmwareVersion::setFirmwareStatus);
         setFirmwareFile(firmwareVersion, fileInputStream);
-        firmwareService.saveFirmwareVersion(firmwareVersion);
+        firmwareVersion.save();
         
         return Response.ok().header(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_PLAIN).build();
     }
@@ -172,11 +172,11 @@ public class FirmwareVersionResource {
 
         switch (firmwareVersionInfo.firmwareStatus.id) {
         case DEPRECATED:
-            firmwareService.deprecateFirmwareVersion(firmwareVersion);
+            firmwareVersion.deprecate();
             break;
         case FINAL:
             firmwareVersion.setFirmwareStatus(FirmwareStatus.FINAL);
-            firmwareService.saveFirmwareVersion(firmwareVersion);
+            firmwareVersion.save();
             break;
         default:
         }

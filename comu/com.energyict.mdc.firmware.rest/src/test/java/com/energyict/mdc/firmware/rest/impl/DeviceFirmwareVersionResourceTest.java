@@ -47,8 +47,8 @@ public class DeviceFirmwareVersionResourceTest extends BaseFirmwareTest {
         when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
         when(device.getDeviceProtocolPluggableClass()).thenReturn(deviceProtocolPluggableClass);
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
-        when(firmwareService.getCurrentMeterFirmwareVersionFor(device)).thenReturn(Optional.of(activatedMeterFirmwareVersion));
-        when(firmwareService.getCurrentCommunicationFirmwareVersionFor(device)).thenReturn(Optional.empty());
+        when(firmwareService.getActiveFirmwareVersion(this.device, FirmwareType.METER)).thenReturn(Optional.of(activatedMeterFirmwareVersion));
+        when(firmwareService.getActiveFirmwareVersion(this.device, FirmwareType.COMMUNICATION)).thenReturn(Optional.empty());
 
         when(activatedMeterFirmwareVersion.getFirmwareVersion()).thenReturn(meterFirmwareVersion);
 
@@ -90,7 +90,7 @@ public class DeviceFirmwareVersionResourceTest extends BaseFirmwareTest {
     @Test
     public void getMeterAndCommunicationFirmwareVersionsOnDeviceWhenCommunicationIsAlsoDefinedTest() {
         when(deviceProtocol.supportsCommunicationFirmwareVersion()).thenReturn(true);
-        when(firmwareService.getCurrentCommunicationFirmwareVersionFor(device)).thenReturn(Optional.of(activatedCommunicationFirmwareVersion));
+        when(firmwareService.getActiveFirmwareVersion(this.device, FirmwareType.COMMUNICATION)).thenReturn(Optional.of(activatedCommunicationFirmwareVersion));
 
         when(activatedCommunicationFirmwareVersion.getFirmwareVersion()).thenReturn(communicationFirmwareVersion);
 

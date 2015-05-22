@@ -73,7 +73,7 @@ public class FirmwareManagementOptionsResourceTest extends BaseFirmwareTest {
 
         target(URI).request().put(Entity.json(firmwareManagementOptionsInfo));
 
-        verify(firmwareService).saveFirmwareManagementOptions(options);
+        verify(options).save();
     }
 
     @Test
