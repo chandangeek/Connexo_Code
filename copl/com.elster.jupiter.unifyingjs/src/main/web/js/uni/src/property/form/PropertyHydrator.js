@@ -11,14 +11,13 @@ Ext.define('Uni.property.form.PropertyHydrator', {
         record.properties().each(function (property) {
             var value,
                 propertyValue;
-            if (property.get('isInheritedOrDefaultValue') === true) {
-                if (property.get('required') === true && property.get('hasDefaultValue')) {
-                    value = values[property.get('key')];
-                    propertyValue = Ext.create('Uni.property.model.PropertyValue');
-                    property.setPropertyValue(propertyValue);
-                    propertyValue.set('value', value);
-                    propertyValue.set('defaultValue', property.get('default'));
-                }
+
+            if (property.get('isInheritedOrDefaultValue') === true && property.get('hasDefaultValue') === true) {
+                value = values[property.get('key')];
+                propertyValue = Ext.create('Uni.property.model.PropertyValue');
+                property.setPropertyValue(propertyValue);
+                propertyValue.set('value', value);
+                propertyValue.set('defaultValue', property.get('default'));
             } else {
                 value = values[property.get('key')];
                 if (!property.raw['propertyValueInfo']) {
