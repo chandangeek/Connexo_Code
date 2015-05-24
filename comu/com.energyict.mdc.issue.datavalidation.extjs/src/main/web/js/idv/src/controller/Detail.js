@@ -4,7 +4,8 @@ Ext.define('Idv.controller.Detail', {
     stores: [
         'Idv.store.Issues',
         'Isu.store.IssueActions',
-        'Isu.store.Clipboard'
+        'Isu.store.Clipboard',
+        'Idv.store.NonEstimatedDataStore'
     ],
 
     views: [
@@ -50,6 +51,22 @@ Ext.define('Idv.controller.Detail', {
     },
 
     showOverview: function (id) {
-        this.callParent([id, 'Idv.model.Issue', 'Idv.store.Issues', 'data-validation-issue-detail', 'workspace/datavalidationissues', 'datavalidation']);
+        var me = this;
+        me.callParent([id, 'Idv.model.Issue', 'Idv.store.Issues', 'data-validation-issue-detail', 'workspace/datavalidationissues', 'datavalidation']);
+        me.getApplication().on('issueLoad', function(record) {
+            var data = [];
+            record.raw.nonEstimatedData.map(function(item) {
+                item.nonEstimatedBlocks.map(function(block) {
+                    data.push(Ext.apply({}, {
+                        channelId: item.channelId,
+                        readingType: item.readingType
+                    }, block))
+                });
+            });
+
+            var store = Ext.create('Idv.store.NonEstimatedDataStore', {data: data});
+            //store.group('readingType');
+            me.getPage().down('no-estimated-data-grid').reconfigure(store);
+        });
     }
 });

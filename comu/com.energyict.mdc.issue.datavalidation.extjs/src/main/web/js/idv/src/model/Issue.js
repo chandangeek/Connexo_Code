@@ -11,10 +11,7 @@ Ext.define('Idv.model.Issue', {
 
     proxy: {
         type: 'rest',
-        url: '/api/idc/issue',
-        reader: {
-            type: 'json',
-            root: 'data'
-        }
+        url: '/api/idv/issues',
+        reader: 'json'
     }
 });

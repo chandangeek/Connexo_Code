@@ -5,10 +5,12 @@ Ext.define('Idv.view.Detail', {
         'Isu.view.issues.DetailTop',
         'Idv.view.DetailForm',
         'Isu.view.issues.CommentsList',
-        'Uni.view.toolbar.PreviousNextNavigation'
+        'Uni.view.toolbar.PreviousNextNavigation',
+        'Idv.view.NonEstimatedDataGrid'
     ],
     router: null,
     issuesListLink: null,
+
     initComponent: function () {
         var me = this;
 
@@ -29,6 +31,11 @@ Ext.define('Idv.view.Detail', {
             {
                 xtype: 'data-validation-issue-detail-form',
                 itemId: 'data-validation-issue-detail-form',
+                router: me.router
+            },
+            {
+                xtype: 'no-estimated-data-grid',
+                itemId: 'no-estimated-data-grid',
                 router: me.router
             },
             {

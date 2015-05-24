@@ -7,6 +7,15 @@ Ext.define('Idv.store.Issues', {
     pageSize: 10,
     autoLoad: false,
 
+    proxy: {
+        type: 'rest',
+        url: '/api/idv/issues',
+        reader: {
+            type: 'json',
+            root: 'dataValidationIssues'
+        }
+    },
+
     setFilterModel: function (model) {
         var proxy = this.getProxy(),
             sorting = [];
@@ -28,7 +37,6 @@ Ext.define('Idv.store.Issues', {
                         if (Ext.isArray(value)) {
                             Ext.Array.each(value, function (sort) {
                                 var direction = sort.value === Uni.component.sort.model.Sort.DESC ? '-' : '';
-
                                 sorting.push(direction + sort.type);
                             });
                             if (sorting.length) {
