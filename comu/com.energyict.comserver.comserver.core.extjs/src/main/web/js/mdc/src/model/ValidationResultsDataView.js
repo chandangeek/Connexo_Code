@@ -76,15 +76,22 @@ Ext.define('Mdc.model.ValidationResultsDataView', {
             var storeProxy = this;
             storeProxy.setExtraParam('intervalLoadProfile', encodedJson);
         },
-        setFilterModel: function (model, router) {
+        setFilterModel: function (model, isDefaultFilter) {
             var data = model.getData(),
                 storeProxy = this;
 				durationStore = Ext.getStore('Mdc.store.ValidationResultsDurations'),
                 duration = durationStore.getById(data.duration);
 			
             if (!Ext.isEmpty(data.intervalStart)) {
-                storeProxy.setExtraParam('intervalRegisterStart', data.intervalStart.getTime());
-                storeProxy.setExtraParam('intervalRegisterEnd', moment(data.intervalStart).add(duration.get('timeUnit'), duration.get('count')).valueOf());
+                if (!isDefaultFilter) {
+                    storeProxy.setExtraParam('intervalRegisterStart', data.intervalStart.getTime());
+                    storeProxy.setExtraParam('intervalRegisterEnd', moment(data.intervalStart).add(duration.get('timeUnit'), duration.get('count')).valueOf());
+                }
+                else
+                {
+                    storeProxy.setExtraParam('intervalRegisterStart', moment(data.intervalStart).subtract(duration.get('timeUnit'), duration.get('count')).toDate().getTime());
+                    storeProxy.setExtraParam('intervalRegisterEnd', data.intervalStart.getTime());//moment(data.intervalStart).add(duration.get('timeUnit'), duration.get('count')).valueOf());
+                }
 
             }
         }
