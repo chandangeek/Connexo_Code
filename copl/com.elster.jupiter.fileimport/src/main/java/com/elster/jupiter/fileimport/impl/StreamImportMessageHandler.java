@@ -47,7 +47,7 @@ class StreamImportMessageHandler implements MessageHandler {
     }
 
     private Object getDefaultValue(FileImporterFactory fileImporterFactory, FileImporterProperty property) {
-        return fileImporterFactory.getProperties().stream().filter(dep -> dep.getName().equals(property.getName()))
+        return fileImporterFactory.getPropertySpecs().stream().filter(dep -> dep.getName().equals(property.getName()))
                 .findFirst().orElseThrow(IllegalArgumentException::new).getPossibleValues().getDefault();
     }
 

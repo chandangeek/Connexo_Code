@@ -1,5 +1,7 @@
 package com.elster.jupiter.fileimport.impl;
 
+import com.elster.jupiter.domain.util.DefaultFinder;
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.fileimport.*;
@@ -17,6 +19,8 @@ import com.elster.jupiter.time.PeriodicalScheduleExpressionParser;
 import com.elster.jupiter.time.TemporalExpressionParser;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.CompositeScheduleExpressionParser;
@@ -36,6 +40,8 @@ import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+
+import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(name = "com.elster.jupiter.fileimport", service = {InstallService.class, FileImportService.class}, property = {"name=" + FileImportService.COMPONENT_NAME}, immediate = true)
 public class FileImportServiceImpl implements InstallService, FileImportService {
@@ -90,7 +96,6 @@ public class FileImportServiceImpl implements InstallService, FileImportService 
 
     @Override
     public List<String> getPrerequisiteModules() {
-        return Arrays.asList("ORM", "NLS");
         return Arrays.asList("ORM", "NLS", "USR");
     }
 
@@ -210,7 +215,7 @@ public class FileImportServiceImpl implements InstallService, FileImportService 
 
     @Override
     public ImportScheduleBuilder newBuilder() {
-        return new DefaultImportScheduleBuilder(dataModel);
+        return new DefaultImportScheduleBuilder(dataModel, this);
     }
 
     @Override
@@ -244,10 +249,23 @@ public class FileImportServiceImpl implements InstallService, FileImportService 
     }
 
     @Override
+    public Finder<ImportSchedule> findImportSchedules(String applicationName) {
+        List importers = getAvailableImporters(applicationName).stream().map(FileImporterFactory::getName).collect(Collectors.toList());
+        Condition condition = importers.isEmpty() ? Condition.FALSE : Where.where("importerName").in(importers);
+        return DefaultFinder.of(ImportSchedule.class, condition, dataModel);
+    }
+
+    @Override
     public List<PropertySpec> getPropertiesSpecsForImporter(String importerName) {
         return getImportFactory(importerName)
-                .map(FileImporterFactory::getProperties)
+                .map(FileImporterFactory::getPropertySpecs)
                 .orElse(Collections.emptyList());
+    }
+
+    @Override
+    public Optional<ImportSchedule> getImportSchedule(String name) {
+        return getImportSchedulesQuery().select(where("name").isEqualTo(name)).stream()
+                .findFirst();
     }
 
 }

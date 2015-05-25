@@ -1,21 +1,20 @@
 package com.elster.jupiter.fileimport.impl;
 
 import com.elster.jupiter.fileimport.FileImportService;
+import com.elster.jupiter.fileimport.FileImporterFactory;
 import com.elster.jupiter.fileimport.ImportSchedule;
-import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.util.cron.CronExpression;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.time.ScheduleExpression;
 import com.elster.jupiter.util.time.ScheduleExpressionParser;
-import com.google.inject.matcher.Matchers;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -58,12 +57,15 @@ public class ImportScheduleImplTest {
     private FileSystem fileSystem;
     @Mock
     private Thesaurus thesaurus;
+    @Mock
+    private FileImporterFactory fileImporterFactory;
 
     @Before
     public void setUp() {
         when(dataModel.mapper(ImportSchedule.class)).thenReturn(importScheduleFactory);
+        when(fileImportService.getImportFactory(Matchers.any())).thenReturn(Optional.of(fileImporterFactory));
+        when(fileImporterFactory.getDestinationName()).thenReturn("DEST_1");
         when(dataModel.getInstance(ImportScheduleImpl.class)).thenReturn(new ImportScheduleImpl(dataModel, fileImportService, messageService, cronParser, nameResolver, fileSystem, thesaurus));
-        when(fileImportService.getImportFactory("importerName")).thenReturn(Optional.empty());
         importSchedule = ImportScheduleImpl.from(dataModel, "TEST_IMPORT_SCHEDULE", false, scheduleExpression, "importerName", DESTINATION_NAME, importDir, ".", inProcessDir, failureDir, successDir);
     }
 

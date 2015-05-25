@@ -23,23 +23,32 @@ import java.util.stream.Collectors;
 /**
  * ImportSchedule implementation.
  */
+@UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_IMPORT_SCHEDULE + "}")
 class ImportScheduleImpl implements ImportSchedule {
 
     private long id;
+    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
     private String destinationName;
+
     private transient DestinationSpec destination;
+
+
     private File importDirectory;
     private File inProcessDirectory;
     private File successDirectory;
     private File failureDirectory;
     private String pathMatcher;
     private transient ScheduleExpression scheduleExpression;
+
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
     private String importerName;
+
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
     private String cronString;
+
     private final MessageService messageService;
     private final DataModel dataModel;
     private final ScheduleExpressionParser scheduleExpressionParser;
@@ -162,7 +171,7 @@ class ImportScheduleImpl implements ImportSchedule {
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        return fileImportService.getImportFactory(importerName).orElseThrow(() -> new IllegalArgumentException("No such file importer: " + importerName)).getProperties();
+        return fileImportService.getImportFactory(importerName).orElseThrow(() -> new IllegalArgumentException("No such file importer: " + importerName)).getPropertySpecs();
     }
 
     @Override
@@ -286,11 +295,23 @@ class ImportScheduleImpl implements ImportSchedule {
         return FileImportImpl.create(fileSystem, dataModel, fileNameCollisionresolver, thesaurus, this, file);
     }
 
+    private void checkRequiredProperty(String propertyName, Map<String, Object> properties) {
+        if (!properties.containsKey(propertyName)) {
+            throw new MissingRequiredProperty(thesaurus, propertyName);
+        }
+    }
+
+
     @Override
     public void save() {
 
         Optional<FileImporterFactory> optional = fileImportService.getImportFactory(importerName);
         optional.ifPresent(factory->factory.validateProperties(properties));
+        optional.ifPresent(factory -> factory.getRequiredProperties()
+                .forEach(propertyName -> checkRequiredProperty(propertyName,properties
+                        .stream()
+                        .filter(p->p.getValue()==null)
+                        .collect(Collectors.toMap(FileImporterProperty::getName, FileImporterProperty::getValue)))));
 
         if (id == 0) {
             persist();

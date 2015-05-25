@@ -1,6 +1,7 @@
 package com.elster.jupiter.fileimport.impl;
 
 import com.elster.jupiter.fileimport.FileImportService;
+import com.elster.jupiter.fileimport.FileImporterFactory;
 import com.elster.jupiter.fileimport.ImportSchedule;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
@@ -12,10 +13,12 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.File;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -42,6 +45,9 @@ public class DefaultImportScheduleBuilderTest {
     private ScheduleExpressionParser scheduleExpressionParser;
 
     @Mock
+    private FileImporterFactory fileImporterFactory;
+
+    @Mock
     private FileNameCollisionResolver nameResolver;
     @Mock
     private FileSystem fileSystem;
@@ -50,6 +56,8 @@ public class DefaultImportScheduleBuilderTest {
 
     @Before
     public void setUp() {
+        when(fileImportService.getImportFactory(Matchers.any())).thenReturn(Optional.of(fileImporterFactory));
+        when(fileImporterFactory.getDestinationName()).thenReturn("DEST_1");
         when(dataModel.getInstance(ImportScheduleImpl.class)).thenReturn(
                 new ImportScheduleImpl(dataModel, fileImportService, messageService, scheduleExpressionParser, nameResolver, fileSystem, thesaurus));
     }
@@ -61,7 +69,7 @@ public class DefaultImportScheduleBuilderTest {
 
     @Test
     public void testCronExpression() {
-        ImportSchedule schedule = new DefaultImportScheduleBuilder(dataModel)
+        ImportSchedule schedule = new DefaultImportScheduleBuilder(dataModel, fileImportService)
                 .setDestination(DESTINATION_NAME)
                 .setScheduleExpression(scheduleExpression)
                 .setProcessingDirectory(PROCESSING_DIRECTORY)
@@ -75,7 +83,7 @@ public class DefaultImportScheduleBuilderTest {
 
     @Test
     public void testProcessingDirectory() {
-        ImportSchedule schedule = new DefaultImportScheduleBuilder(dataModel)
+        ImportSchedule schedule = new DefaultImportScheduleBuilder(dataModel, fileImportService)
                 .setDestination(DESTINATION_NAME)
                 .setScheduleExpression(scheduleExpression)
                 .setProcessingDirectory(PROCESSING_DIRECTORY)
@@ -89,7 +97,7 @@ public class DefaultImportScheduleBuilderTest {
 
     @Test
     public void testImportDirectory() {
-        ImportSchedule schedule = new DefaultImportScheduleBuilder(dataModel)
+        ImportSchedule schedule = new DefaultImportScheduleBuilder(dataModel, fileImportService)
                 .setDestination(DESTINATION_NAME)
                 .setScheduleExpression(scheduleExpression)
                 .setProcessingDirectory(PROCESSING_DIRECTORY)
@@ -103,7 +111,7 @@ public class DefaultImportScheduleBuilderTest {
 
     @Test
     public void testSuccessDirectory() {
-        ImportSchedule schedule = new DefaultImportScheduleBuilder(dataModel)
+        ImportSchedule schedule = new DefaultImportScheduleBuilder(dataModel, fileImportService)
                 .setDestination(DESTINATION_NAME)
                 .setScheduleExpression(scheduleExpression)
                 .setProcessingDirectory(PROCESSING_DIRECTORY)
@@ -117,7 +125,7 @@ public class DefaultImportScheduleBuilderTest {
 
     @Test
     public void testFailureDirectory() {
-        ImportSchedule schedule = new DefaultImportScheduleBuilder(dataModel)
+        ImportSchedule schedule = new DefaultImportScheduleBuilder(dataModel, fileImportService)
                 .setDestination(DESTINATION_NAME)
                 .setScheduleExpression(scheduleExpression)
                 .setProcessingDirectory(PROCESSING_DIRECTORY)
