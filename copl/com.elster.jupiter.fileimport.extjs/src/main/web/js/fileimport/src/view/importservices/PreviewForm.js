@@ -11,40 +11,37 @@ Ext.define('Fim.view.importservices.PreviewForm', {
     myTooltip: Ext.create('Ext.tip.ToolTip', {
         renderTo: Ext.getBody()
     }),
-
+    defaults: {
+        labelWidth: 250
+    },
     initComponent: function () {
         var me = this;
         me.items = [
             {
                 xtype: 'displayfield',
                 fieldLabel: Uni.I18n.translate('importService.name', 'FIM', 'Name'),
-                name: 'name',
-                labelWidth: 250
+                name: 'name'
             },
             {
                 xtype: 'displayfield',
                 fieldLabel: Uni.I18n.translate('importService.fileImporter', 'FIM', 'File importer'),
-                name: 'fileImporter',
-                labelWidth: 250
+                name: 'fileImporter'
             },
             {
                 xtype: 'displayfield',
                 fieldLabel: Uni.I18n.translate('importService.status', 'FIM', 'Status'),
-                name: 'statusDisplay',
-                labelWidth: 250
+                name: 'statusDisplay'
             },
             {
                 xtype: 'displayfield',
                 fieldLabel: Uni.I18n.translate('importService.application', 'FIM', 'Application'),
                 name: 'applicationDisplay',
-                hidden: !Fim.privileges.DataImport.getAdmin(),
-                labelWidth: 250
+                hidden: !Fim.privileges.DataImport.getAdmin()
             },
             {
                 xtype: 'displayfield',
                 fieldLabel: Uni.I18n.translate('importService.importFolder', 'FIM', 'Import folder'),
-                name: 'importDirectory',
-                labelWidth: 250
+                name: 'importDirectory'
             },
             {
                 xtype: 'container',
@@ -88,26 +85,22 @@ Ext.define('Fim.view.importservices.PreviewForm', {
             {
                 xtype: 'displayfield',
                 fieldLabel: Uni.I18n.translate('importService.folderScanFrequency', 'FIM', 'Folder scan frequency'),
-                name: 'scanFrequencyDisplay',
-                labelWidth: 250
+                name: 'scanFrequencyDisplay'
             },
             {
                 xtype: 'displayfield',
                 fieldLabel: Uni.I18n.translate('importService.inProgressFolder', 'FIM', 'In progress folder'),
-                name: 'inProcessDirectory',
-                labelWidth: 250
+                name: 'inProcessDirectory'
             },
             {
                 xtype: 'displayfield',
                 fieldLabel: Uni.I18n.translate('importService.successFolder', 'FIM', 'Success folder'),
-                name: 'successDirectory',
-                labelWidth: 250
+                name: 'successDirectory'
             },
             {
                 xtype: 'displayfield',
                 fieldLabel: Uni.I18n.translate('importService.failureFolder', 'DES', 'Failure folder'),
-                name: 'failureDirectory',
-                labelWidth: 250
+                name: 'failureDirectory'
             },
             {
                 xtype: 'grouped-property-form',

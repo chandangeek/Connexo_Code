@@ -64,9 +64,9 @@ Ext.define('Fim.view.importservices.Grid', {
                 xtype: 'pagingtoolbartop',
                 store: me.store,
                 dock: 'top',
-                displayMsg: Uni.I18n.translate('importservices.pagingtoolbartop.displayMsg', 'FIM', '{0} - {1} of {2} import services'),
-                displayMoreMsg: Uni.I18n.translate('importservices.pagingtoolbartop.displayMoreMsg', 'FIM', '{0} - {1} of more than {2} import services'),
-                emptyMsg: Uni.I18n.translate('importservices.pagingtoolbartop.emptyMsg', 'FIM', 'There are no import services to display'),
+                displayMsg: Uni.I18n.translate('importServices.pagingtoolbartop.displayMsg', 'FIM', '{0} - {1} of {2} import services'),
+                displayMoreMsg: Uni.I18n.translate('importServices.pagingtoolbartop.displayMoreMsg', 'FIM', '{0} - {1} of more than {2} import services'),
+                emptyMsg: Uni.I18n.translate('importServices.pagingtoolbartop.emptyMsg', 'FIM', 'There are no import services to display'),
                 items: [
                     {
                         xtype: 'button',
@@ -79,7 +79,7 @@ Ext.define('Fim.view.importservices.Grid', {
             {
                 xtype: 'pagingtoolbarbottom',
                 store: me.store,
-                itemsPerPageMsg: Uni.I18n.translate('importservices.pagingtoolbarbottom.itemsPerPage', 'FIM', 'Import services per page'),
+                itemsPerPageMsg: Uni.I18n.translate('importServices.pagingtoolbarbottom.itemsPerPage', 'FIM', 'Import services per page'),
                 dock: 'bottom'
             }
         ];

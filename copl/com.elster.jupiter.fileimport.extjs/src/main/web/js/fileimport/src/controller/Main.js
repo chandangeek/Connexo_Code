@@ -44,7 +44,7 @@ Ext.define('Fim.controller.Main', {
                 portal: 'administration',
                 items: [
                     {
-                        text: Uni.I18n.translate('general.importservices', 'FIM', 'Import services'),
+                        text: Uni.I18n.translate('general.importServices', 'FIM', 'Import services'),
                         href: '#/administration/importservices',
                         route: 'importservices'
                     }

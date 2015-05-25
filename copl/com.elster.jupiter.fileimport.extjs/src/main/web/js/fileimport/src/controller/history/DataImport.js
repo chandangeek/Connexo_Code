@@ -13,7 +13,7 @@ Ext.define('Fim.controller.history.DataImport', {
             disabled: true,
             items: {
                 importservices: {
-                    title: Uni.I18n.translate('general.importservices', 'FIM', 'Import services'),
+                    title: Uni.I18n.translate('general.importServices', 'FIM', 'Import services'),
                     route: 'importservices',
                     controller: 'Fim.controller.ImportServices',
                     privileges: Fim.privileges.DataImport.canView,
@@ -23,7 +23,7 @@ Ext.define('Fim.controller.history.DataImport', {
                             title: Uni.I18n.translate('general.addImportService', 'FIM', 'Add import service'),
                             route: 'add',
                             controller: 'Fim.controller.ImportServices',
-                            privileges: Fim.privileges.DataImport.admin,
+                            privileges: Fim.privileges.DataImport.getAdmin,
                             action: 'showAddImportService'
                         },
                         importservice: {
@@ -43,7 +43,7 @@ Ext.define('Fim.controller.history.DataImport', {
                                     title: Uni.I18n.translate('general.edit', 'FIM', 'Edit'),
                                     route: 'edit',
                                     controller: 'Fim.controller.ImportServices',
-                                    privileges: Fim.privileges.DataImport.update,
+                                    privileges: Fim.privileges.DataImport.getAdmin,
                                     action: 'showEditImportService'
                                 }
                             }

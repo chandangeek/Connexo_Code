@@ -76,11 +76,10 @@ Ext.define('Fim.view.importservices.AddImportService', {
                                 valueField: 'name'
                             },
                             {
-                                xtype: 'displayfield',
+                                xtype: 'container',
                                 itemId: 'no-file-importer',
                                 hidden: true,
-                                value: '<div style="color: #FF0000">' + Uni.I18n.translate('general.noFileImporter', 'FIM', 'No file importer defined yet.') + '</div>',
-                                width: 250,
+                                html: '<div style="color: #EB5642">' + Uni.I18n.translate('general.noFileImporter', 'FIM', 'No file importer defined yet.') + '</div>',
                                 margin: '0 0 0 265'
                             }
                         ]
