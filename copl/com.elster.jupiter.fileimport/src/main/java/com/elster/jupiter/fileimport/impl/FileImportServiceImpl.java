@@ -90,7 +90,6 @@ public class FileImportServiceImpl implements InstallService, FileImportService 
 
     @Override
     public List<String> getPrerequisiteModules() {
-        return Arrays.asList("ORM", "NLS");
         return Arrays.asList("ORM", "NLS", "USR");
     }
 
