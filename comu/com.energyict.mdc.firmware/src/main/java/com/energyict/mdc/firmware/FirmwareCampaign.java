@@ -55,4 +55,6 @@ public interface FirmwareCampaign extends HasId, HasName{
     void delete();
 
     void start();
+
+    Map<String, Long> getDevicesStatusMap();
 }

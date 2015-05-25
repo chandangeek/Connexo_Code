@@ -1,9 +1,9 @@
 package com.energyict.mdc.firmware;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.FirmwareComTaskExecution;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
@@ -14,6 +14,7 @@ import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.StatusInformationTask;
+import com.energyict.mdc.tasks.TaskService;
 
 import javax.inject.Inject;
 import java.time.Instant;
@@ -39,9 +40,10 @@ public class FirmwareManagementDeviceUtils {
     private final Thesaurus thesaurus;
     private final DeviceMessageSpecificationService deviceMessageSpecificationService;
     private final FirmwareService firmwareService;
+    private final TaskService taskService;
 
     private final Device device;
-    private FirmwareComTaskExecution comTaskExecution;
+    private Optional<ComTaskExecution> firmwareExecution;
     private List<DeviceMessage<Device>> firmwareMessages;
     private Map<DeviceMessageId, Optional<ProtocolSupportedFirmwareOptions>> uploadOptionsCache;
 
@@ -49,31 +51,29 @@ public class FirmwareManagementDeviceUtils {
         private final Thesaurus thesaurus;
         private final DeviceMessageSpecificationService deviceMessageSpecificationService;
         private final FirmwareService firmwareService;
+        private final TaskService taskService;
 
         @Inject
-        public Factory(Thesaurus thesaurus, DeviceMessageSpecificationService deviceMessageSpecificationService, FirmwareService firmwareService) {
+        public Factory(Thesaurus thesaurus, DeviceMessageSpecificationService deviceMessageSpecificationService, FirmwareService firmwareService, TaskService taskService) {
             this.thesaurus = thesaurus;
             this.deviceMessageSpecificationService = deviceMessageSpecificationService;
             this.firmwareService = firmwareService;
+            this.taskService = taskService;
         }
 
         public FirmwareManagementDeviceUtils onDevice(Device device){
-            return new FirmwareManagementDeviceUtils(thesaurus, deviceMessageSpecificationService, firmwareService, device);
+            return new FirmwareManagementDeviceUtils(thesaurus, deviceMessageSpecificationService, firmwareService, taskService, device);
         }
     }
 
-    private FirmwareManagementDeviceUtils(Thesaurus thesaurus, DeviceMessageSpecificationService deviceMessageSpecificationService, FirmwareService firmwareService, Device device) {
+    private FirmwareManagementDeviceUtils(Thesaurus thesaurus, DeviceMessageSpecificationService deviceMessageSpecificationService, FirmwareService firmwareService, TaskService taskService, Device device) {
         this.thesaurus = thesaurus;
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
         this.firmwareService = firmwareService;
+        this.taskService = taskService;
         this.device = device;
-        this.comTaskExecution = (FirmwareComTaskExecution) device.getComTaskExecutions()
-                .stream()
-                .filter(comTaskExecution -> comTaskExecution instanceof FirmwareComTaskExecution)
-                .findFirst()
-                .orElse(null);
-        this.firmwareMessages = new ArrayList<>();
         this.uploadOptionsCache = new HashMap<>();
+        this.firmwareMessages = new ArrayList<>();
         Map<FirmwareType, DeviceMessage<Device>> uploadMessages = new HashMap<>();
         Map<String , DeviceMessage<Device>> activationMessages = new HashMap<>();
         for (DeviceMessage<Device> candidate : device.getMessages()) {
@@ -107,14 +107,6 @@ public class FirmwareManagementDeviceUtils {
         }
     }
 
-    public boolean taskIsBusy(){
-        return getComTaskExecution() != null && BUSY_TASK_STATUSES.contains(this.comTaskExecution.getStatus());
-    }
-
-    public boolean taskIsFailed(){
-        return getComTaskExecution() != null && getComTaskExecution().isLastExecutionFailed();
-    }
-
     public Optional<DeviceMessage<Device>> getUploadMessageForActivationMessage(DeviceMessage<Device> activationMessage){
         return getFirmwareMessages().stream()
                 .filter(candidate -> DeviceMessageStatus.CONFIRMED.equals(candidate.getStatus()))
@@ -142,6 +134,15 @@ public class FirmwareManagementDeviceUtils {
         return uploadOption;
     }
 
+    public Optional<Instant> getActivationDateFromMessage(DeviceMessage<Device> message){
+        Optional<DeviceMessageAttribute> activationDateMessageAttr = message.getAttributes().stream()
+                .filter(attr -> DeviceMessageConstants.firmwareUpdateActivationDateAttributeName.equals(attr.getName()))
+                .findFirst();
+        return activationDateMessageAttr.isPresent() ?
+                Optional.of(((Date) activationDateMessageAttr.get().getValue()).toInstant()):
+                Optional.<Instant>empty();
+    }
+
     public Optional<FirmwareVersion> getFirmwareVersionFromMessage(DeviceMessage<Device> message){
         Optional<DeviceMessageAttribute> firmwareVersionMessageAttr = message.getAttributes().stream()
                 .filter(attr -> DeviceMessageConstants.firmwareUpdateFileAttributeName.equals(attr.getName()))
@@ -157,43 +158,6 @@ public class FirmwareManagementDeviceUtils {
                 Optional.empty();
     }
 
-    public Optional<Instant> getActivationDateFromMessage(DeviceMessage<Device> message){
-        Optional<DeviceMessageAttribute> activationDateMessageAttr = message.getAttributes().stream()
-                .filter(attr -> DeviceMessageConstants.firmwareUpdateActivationDateAttributeName.equals(attr.getName()))
-                .findFirst();
-        return activationDateMessageAttr.isPresent() ?
-                Optional.of(((Date) activationDateMessageAttr.get().getValue()).toInstant()):
-                Optional.<Instant>empty();
-    }
-
-    public String translate(String key){
-        return this.thesaurus.getString(key, key);
-    }
-
-    public FirmwareComTaskExecution getComTaskExecution() {
-        return comTaskExecution;
-    }
-
-    public Optional<ComTaskExecution> getStatusCheckExecution(){
-        return device.getComTaskExecutions().stream()
-                .filter(execution -> execution.getComTasks().stream().filter(getComTaskHasStatusCheckAction()).findAny().isPresent())
-                .findFirst();
-    }
-
-    public Optional<ComTask> getStatusCheckComTask(){
-        return device.getComTaskExecutions().stream()
-                .flatMap(execution -> execution.getComTasks().stream())
-                .filter(getComTaskHasStatusCheckAction())
-                .findFirst();
-    }
-    private Predicate<ComTask> getComTaskHasStatusCheckAction() {
-        return task -> task.getProtocolTasks().stream().filter(action -> action instanceof StatusInformationTask).findAny().isPresent();
-    }
-
-    public List<DeviceMessage<Device>> getFirmwareMessages() {
-        return this.firmwareMessages;
-    }
-
     public boolean messageContainsActiveFirmwareVersion(DeviceMessage<Device> message){
         Optional<FirmwareVersion> versionFromMessage = getFirmwareVersionFromMessage(message);
         if (versionFromMessage.isPresent()){
@@ -202,6 +166,50 @@ public class FirmwareManagementDeviceUtils {
                     && activeFirmwareVersion.get().getFirmwareVersion().getFirmwareVersion().equals(versionFromMessage.get().getFirmwareVersion());
         }
         return false;
+    }
+
+    public boolean taskIsBusy(){
+        return getFirmwareExecution().isPresent() && BUSY_TASK_STATUSES.contains(getFirmwareExecution().get().getStatus());
+    }
+
+    public boolean taskIsFailed(){
+        return getFirmwareExecution().isPresent() && getFirmwareExecution().get().isLastExecutionFailed();
+    }
+
+    public String translate(String key){
+        return this.thesaurus.getString(key, key);
+    }
+
+    public Optional<ComTaskExecution> getFirmwareExecution() {
+        if (this.firmwareExecution == null){
+            Optional<ComTask> firmwareComTask = taskService.findFirmwareComTask();
+            Predicate<ComTask> comTaskIsFirmwareComTask = comTask -> comTask.getId() == (firmwareComTask.isPresent() ? firmwareComTask.get().getId() : 0);
+            Predicate<ComTaskExecution> executionContainsFirmwareComTask = exec -> exec.getComTasks().stream().filter(comTaskIsFirmwareComTask).count() > 0;
+            this.firmwareExecution = this.device.getComTaskExecutions().stream()
+                    .filter(executionContainsFirmwareComTask)
+                    .findFirst();
+        }
+        return this.firmwareExecution;
+    }
+
+    public Optional<ComTask> getFirmwareTask(){
+        return taskService.findFirmwareComTask();
+    }
+
+    public Optional<ComTaskExecution> getFirmwareCheckExecution(){
+        return getFirmwareCheckExecution(this.device);
+    }
+
+    public Optional<ComTaskEnablement> getFirmwareCheckEnablement(){
+        return getFirmwareCheckEnablement(this.device);
+    }
+
+    public Optional<ComTask> getFirmwareCheckTask(){
+        return getFirmwareCheckTask(this.device);
+    }
+
+    public List<DeviceMessage<Device>> getFirmwareMessages() {
+        return this.firmwareMessages;
     }
 
     public Instant getCurrentInstant(){
@@ -224,5 +232,22 @@ public class FirmwareManagementDeviceUtils {
             }
         }
         return !someUpdatesAreOngoing;
+    }
+
+    public static Optional<ComTaskExecution> getFirmwareCheckExecution(Device device){
+        return device.getComTaskExecutions().stream()
+                .filter(ComTaskExecution::isConfiguredToReadStatusInformation)
+                .findFirst();
+    }
+
+    public static Optional<ComTaskEnablement> getFirmwareCheckEnablement(Device device) {
+        return device.getDeviceConfiguration().getComTaskEnablements()
+                .stream()
+                .filter(candidate -> candidate.getComTask().getProtocolTasks().stream().anyMatch(action -> action instanceof StatusInformationTask))
+                .findFirst();
+    }
+
+    public static Optional<ComTask> getFirmwareCheckTask(Device device){
+        return getFirmwareCheckEnablement(device).map(ComTaskEnablement::getComTask);
     }
 }

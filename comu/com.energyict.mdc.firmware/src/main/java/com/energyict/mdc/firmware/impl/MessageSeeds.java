@@ -4,7 +4,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.mdc.firmware.FirmwareManagementDeviceStatus;
 import com.energyict.mdc.firmware.FirmwareService;
 
 import java.text.MessageFormat;
@@ -18,12 +17,6 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     STATE_TRANSFER_NOT_ALLOWED(5, Keys.STATE_TRANSFER_NOT_ALLOWED, "Transfer to requested state is not allowed", Level.SEVERE),
     DEVICE_TYPE_SHOULD_SUPPORT_FIRMWARE_UPGRADE(6, Keys.DEVICE_TYPE_SHOULD_SUPPORT_FIRMWARE_UPGRADE, "Device type should support firmware upgrade", Level.SEVERE),
     MESSAGE_SUBSCRIBER_NAME(7, FirmwareCampaignsHandlerFactory.FIRMWARE_CAMPAIGNS_SUBSCRIBER, "Process firmware campaigns", Level.INFO),
-
-    FIRMWARE_MANAGEMENT_DEVICE_STATUS_SUCCESS(101, Keys.FIRMWARE_MANAGEMENT_DEVICE_STATUS_PREFIX + FirmwareManagementDeviceStatus.Constants.SUCCESS, "Success", Level.INFO),
-    FIRMWARE_MANAGEMENT_DEVICE_STATUS_FAILED(102, Keys.FIRMWARE_MANAGEMENT_DEVICE_STATUS_PREFIX + FirmwareManagementDeviceStatus.Constants.FAILED, "Failed", Level.INFO),
-    FIRMWARE_MANAGEMENT_DEVICE_STATUS_ONGOING(103, Keys.FIRMWARE_MANAGEMENT_DEVICE_STATUS_PREFIX + FirmwareManagementDeviceStatus.Constants.ONGOING, "Ongoing", Level.INFO),
-    FIRMWARE_MANAGEMENT_DEVICE_STATUS_PENDING(104, Keys.FIRMWARE_MANAGEMENT_DEVICE_STATUS_PREFIX + FirmwareManagementDeviceStatus.Constants.PENDING, "Pending", Level.INFO),
-    FIRMWARE_MANAGEMENT_DEVICE_STATUS_CONFIGURATION_ERROR(105, Keys.FIRMWARE_MANAGEMENT_DEVICE_STATUS_PREFIX + FirmwareManagementDeviceStatus.Constants.CONFIGURATION_ERROR, "Configuration error", Level.INFO),
     ;
     private final int number;
     private final String key;
@@ -77,6 +70,5 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
         public static final String MAX_FILE_SIZE_EXCEEDED = "MaxFileSizeExceeded";
         public static final String STATE_TRANSFER_NOT_ALLOWED = "StateTransferNotAllowed";
         public static final String DEVICE_TYPE_SHOULD_SUPPORT_FIRMWARE_UPGRADE = "DeviceTypeShouldSupportFirmwareUpgrade";
-        public static final String FIRMWARE_MANAGEMENT_DEVICE_STATUS_PREFIX = "FirmwareManagementDeviceStatus.";
     }
 }

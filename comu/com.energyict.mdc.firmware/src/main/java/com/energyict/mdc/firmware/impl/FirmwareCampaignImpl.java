@@ -17,7 +17,6 @@ import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaignProperty;
 import com.energyict.mdc.firmware.FirmwareCampaignStatus;
-import com.energyict.mdc.firmware.FirmwareManagementDeviceStatus;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.FirmwareVersion;
@@ -58,6 +57,7 @@ public class FirmwareCampaignImpl implements FirmwareCampaign, HasUniqueName {
         FINISHED_ON ("finishedOn"),
         DEVICES ("devices"),
         PROPERTIES ("properties"),
+        DEVICES_STATUS ("devicesStatus"),
         ;
 
         private String name;
@@ -78,8 +78,13 @@ public class FirmwareCampaignImpl implements FirmwareCampaign, HasUniqueName {
     private FirmwareCampaignStatus status;
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private Reference<DeviceType> deviceType = ValueReference.absent();
+
+    /* ================== */
+    /* TODO decide should we store it, or device group will be passed for #cloneDeviceList() as a parameter */
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private Reference<EndDeviceGroup> deviceGroup = ValueReference.absent();
+    /* ================== */
+
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private ProtocolSupportedFirmwareOptions upgradeOption;
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
@@ -91,6 +96,7 @@ public class FirmwareCampaignImpl implements FirmwareCampaign, HasUniqueName {
     private List<DeviceInFirmwareCampaign> devices = new ArrayList<>();
     @Valid
     private List<FirmwareCampaignProperty> properties = new ArrayList<>();
+    private Reference<DevicesInFirmwareCampaignStatusImpl> devicesStatus = ValueReference.absent();
 
     @SuppressWarnings("unused")
     private long version;
@@ -122,12 +128,21 @@ public class FirmwareCampaignImpl implements FirmwareCampaign, HasUniqueName {
         this.status = FirmwareCampaignStatus.NOT_STARTED;
         this.deviceType.set(deviceType);
         this.deviceGroup.set(group);
+
+        DevicesInFirmwareCampaignStatusImpl devicesStatus = dataModel.getInstance(DevicesInFirmwareCampaignStatusImpl.class);
+        devicesStatus.init(this);
+        this.devicesStatus.set(devicesStatus);
+
         return this;
     }
 
     public void cloneDeviceList(){
-        List<Device> devices = Collections.emptyList();
+        /* ================== */
+        /* TODO decide should we used the stored value or pass a parameter to the method */
         EndDeviceGroup group = this.deviceGroup.get();
+        /* ================== */
+
+        List<Device> devices = Collections.emptyList();
         if (group instanceof QueryEndDeviceGroup){
             Condition deviceQuery = ((QueryEndDeviceGroup) group).getCondition();
             deviceQuery = deviceQuery.and(where("deviceConfiguration.deviceType").isEqualTo(deviceType.get()));
@@ -333,13 +348,20 @@ public class FirmwareCampaignImpl implements FirmwareCampaign, HasUniqueName {
         save();
     }
 
-    public void updateStatus(){
-        List<FirmwareManagementDeviceStatus> deviceStatusList = this.devices.stream().map(DeviceInFirmwareCampaign::updateStatus).collect(Collectors.toList());
-        calculateStatusBasedOnDeviceStatuses(deviceStatusList);
-        save();
+    @Override
+    public Map<String, Long> getDevicesStatusMap() {
+        return this.devicesStatus.get().getStatusMap();
     }
 
-    private void calculateStatusBasedOnDeviceStatuses(List<FirmwareManagementDeviceStatus> statuses){
-
+    public void updateStatus(){
+        this.devices.stream().map(DeviceInFirmwareCampaign::updateStatus).collect(Collectors.toList());
+        save();
+        DevicesInFirmwareCampaignStatusImpl devicesStatus = this.devicesStatus.get();
+        devicesStatus.update();
+        if (devicesStatus.getOngoing() == 0 && devicesStatus.getPending() == 0){
+            setStatus(FirmwareCampaignStatus.COMPLETE);
+            this.finishedOn = clock.instant();
+            save();
+        }
     }
 }

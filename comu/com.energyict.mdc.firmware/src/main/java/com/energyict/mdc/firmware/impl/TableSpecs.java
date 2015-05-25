@@ -40,7 +40,7 @@ public enum TableSpecs {
     FWC_FIRMWAREMANAGEMENTOPTIONS {
         @Override
         void addTo(DataModel dataModel) {
-            Table<FirmwareManagementOptions> table = dataModel.addTable(name(),FirmwareManagementOptions.class);
+            Table<FirmwareManagementOptions> table = dataModel.addTable(name(), FirmwareManagementOptions.class);
             table.map(FirmwareManagementOptionsImpl.class);
             Column deviceTypeColumn = table.column("DEVICETYPE").number().notNull().add();
             table.column("INSTALL").type("char(1)").conversion(ColumnConversion.CHAR2BOOLEAN).map(FirmwareManagementOptionsImpl.Fields.INSTALL.fieldName()).add();
@@ -173,6 +173,31 @@ public enum TableSpecs {
                     .composition()
                     .add();
             table.primaryKey("PK_FWC_CAMPAIGN_PROPS").on(campaign, key).add();
+        }
+    },
+
+    FWC_CAMPAIGN_STATUS {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<DevicesInFirmwareCampaignStatusImpl> table = dataModel.addTable(name(), DevicesInFirmwareCampaignStatusImpl.class);
+            table.map(DevicesInFirmwareCampaignStatusImpl.class);
+
+            Column campaign = table.column("CAMPAIGN").number().notNull().add();
+            table.column("ONGOING").number().map(DevicesInFirmwareCampaignStatusImpl.Fields.STATUS_ONGOING.fieldName()).conversion(ColumnConversion.NUMBER2LONG).add();
+            table.column("SUCCESS").number().map(DevicesInFirmwareCampaignStatusImpl.Fields.STATUS_SUCCESS.fieldName()).conversion(ColumnConversion.NUMBER2LONG).add();
+            table.column("PENDING").number().map(DevicesInFirmwareCampaignStatusImpl.Fields.STATUS_PENDING.fieldName()).conversion(ColumnConversion.NUMBER2LONG).add();
+            table.column("FAILED").number().map(DevicesInFirmwareCampaignStatusImpl.Fields.STATUS_FAILED.fieldName()).conversion(ColumnConversion.NUMBER2LONG).add();
+            table.column("CONFIGURATIONERROR").number().map(DevicesInFirmwareCampaignStatusImpl.Fields.STATUS_CONFIGURATION_ERROR.fieldName()).conversion(ColumnConversion.NUMBER2LONG).add();
+
+            table.addAuditColumns();
+            table.foreignKey("FK_FWC_STATUS_TO_CAMPAIGN")
+                    .on(campaign)
+                    .references(FWC_CAMPAIGN.name())
+                    .map(DevicesInFirmwareCampaignStatusImpl.Fields.CAMPAIGN.fieldName())
+                    .reverseMap(FirmwareCampaignImpl.Fields.DEVICES_STATUS.fieldName())
+                    .composition()
+                    .add();
+            table.primaryKey("PK_FWC_CAMPAIGN_STATUS").on(campaign).add();
         }
     },
     ;

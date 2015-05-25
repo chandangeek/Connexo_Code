@@ -121,8 +121,8 @@ public class DeviceInFirmwareCampaignImpl implements DeviceInFirmwareCampaign {
         return this.device.get();
     }
 
-    public FirmwareCampaign getFirmwareCampaign() {
-        return this.campaign.get();
+    public FirmwareCampaignImpl getFirmwareCampaign() {
+        return (FirmwareCampaignImpl) this.campaign.get();
     }
 
     @Override
@@ -132,7 +132,7 @@ public class DeviceInFirmwareCampaignImpl implements DeviceInFirmwareCampaign {
             setStatus(FirmwareManagementDeviceStatus.CONFIGURATION_ERROR);
             return;
         }
-        Optional<DeviceMessageId> firmwareMessageId = getFirmwareMessageId();
+        Optional<DeviceMessageId> firmwareMessageId = getFirmwareCampaign().getFirmwareMessageId();
         if (!firmwareMessageId.isPresent()) {
             setStatus(FirmwareManagementDeviceStatus.CONFIGURATION_ERROR);
             return;
@@ -150,7 +150,7 @@ public class DeviceInFirmwareCampaignImpl implements DeviceInFirmwareCampaign {
     @Override
     public FirmwareManagementDeviceStatus updateStatus() {
         FirmwareManagementDeviceStatus currentStatus = getStatus();
-        if (currentStatus != null || NON_FINAL_STATUSES.contains(currentStatus.key())) {
+        if (currentStatus == null || NON_FINAL_STATUSES.contains(currentStatus.key())) {
             FirmwareManagementDeviceUtils helper = helperProvider.get().onDevice(getDevice());
             Optional<DeviceMessage<Device>> firmwareMessage = helper.getFirmwareMessages()
                     .stream()
@@ -169,6 +169,16 @@ public class DeviceInFirmwareCampaignImpl implements DeviceInFirmwareCampaign {
             save();
         }
         return getStatus();
+    }
+
+    @Override
+    public Instant getStartedOn() {
+        return this.startedOn;
+    }
+
+    @Override
+    public Instant getFinishedOn() {
+        return this.finishedOn;
     }
 
     private void createFirmwareMessage(Optional<DeviceMessageId> firmwareMessageId) {
@@ -214,16 +224,6 @@ public class DeviceInFirmwareCampaignImpl implements DeviceInFirmwareCampaign {
                     ComTaskEnablement comTaskEnablement = getDevice().getDeviceConfiguration().getComTaskEnablementFor(firmwareComTask).get();
                     return getDevice().newFirmwareComTaskExecution(comTaskEnablement).add();
                 });
-    }
-
-    private Optional<DeviceMessageId> getFirmwareMessageId() {
-        return getDevice().getDeviceProtocolPluggableClass().getDeviceProtocol().getSupportedMessages()
-                .stream()
-                .filter(firmwareMessageCandidate -> {
-                    Optional<ProtocolSupportedFirmwareOptions> firmwareOptionForCandidate = deviceMessageSpecificationService.getProtocolSupportedFirmwareOptionFor(firmwareMessageCandidate);
-                    return firmwareOptionForCandidate.isPresent() && getFirmwareCampaign().getFirmwareManagementOption().equals(firmwareOptionForCandidate.get());
-                })
-                .findFirst();
     }
 
     private boolean deviceAlreadyHasTheSameVersion() {

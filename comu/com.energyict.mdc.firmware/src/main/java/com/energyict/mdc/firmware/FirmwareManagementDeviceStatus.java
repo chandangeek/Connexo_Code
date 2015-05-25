@@ -1,9 +1,7 @@
 package com.energyict.mdc.firmware;
 
-import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.firmware.impl.MessageSeeds;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
@@ -72,7 +70,10 @@ public enum FirmwareManagementDeviceStatus {
         }
 
         private boolean taskFailedButMessageNot(DeviceMessage<Device> message, FirmwareManagementDeviceUtils helper){
-            return helper.getComTaskExecution().isLastExecutionFailed() && FirmwareManagementDeviceUtils.PENDING_STATUSES.contains(message.getStatus());
+            Optional<ComTaskExecution> firmwareExecution = helper.getFirmwareExecution();
+            return firmwareExecution.isPresent()
+                    && firmwareExecution.get().isLastExecutionFailed()
+                    && FirmwareManagementDeviceUtils.PENDING_STATUSES.contains(message.getStatus());
         }
 
         private boolean messageFailed(DeviceMessage<Device> message, FirmwareManagementDeviceUtils helper){
@@ -101,7 +102,7 @@ public enum FirmwareManagementDeviceStatus {
         private boolean messageWithoutActivateOnDateOption(DeviceMessage<Device> message, FirmwareManagementDeviceUtils helper){
             Optional<ProtocolSupportedFirmwareOptions> firmwareOption = helper.getUploadOptionFromMessage(message);
             return !firmwareOption.isPresent()
-                    || ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_WITH_DATE.equals(firmwareOption.get());
+                    || !ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_WITH_DATE.equals(firmwareOption.get());
         }
 
         private boolean messageWithInstallOptionHasNoActivateMessageYet(DeviceMessage<Device> message, FirmwareManagementDeviceUtils helper){
@@ -199,7 +200,10 @@ public enum FirmwareManagementDeviceStatus {
         }
 
         private boolean taskFailedButMessageNot(DeviceMessage<Device> message, FirmwareManagementDeviceUtils helper){
-            return helper.getComTaskExecution().isLastExecutionFailed() && FirmwareManagementDeviceUtils.PENDING_STATUSES.contains(message.getStatus());
+            Optional<ComTaskExecution> firmwareExecution = helper.getFirmwareExecution();
+            return firmwareExecution.isPresent()
+                    && firmwareExecution.get().isLastExecutionFailed()
+                    && FirmwareManagementDeviceUtils.PENDING_STATUSES.contains(message.getStatus());
         }
 
         private boolean messageFailed(DeviceMessage<Device> message, FirmwareManagementDeviceUtils helper){
@@ -274,7 +278,7 @@ public enum FirmwareManagementDeviceStatus {
     VERIFICATION_ONGOING(Constants.SUCCESS) {
         @Override
         public boolean validateMessage(DeviceMessage<Device> message, FirmwareManagementDeviceUtils helper) {
-            Optional<ComTaskExecution> statusInformationTask = helper.getStatusCheckExecution();
+            Optional<ComTaskExecution> statusInformationTask = helper.getFirmwareCheckExecution();
             return isOneOfVerificationStatuses(message, helper)
                     && statusInformationTask.isPresent()
                     && FirmwareManagementDeviceUtils.BUSY_TASK_STATUSES.contains(statusInformationTask.get().getStatus());
@@ -303,7 +307,7 @@ public enum FirmwareManagementDeviceStatus {
     VERIFICATION_TASK_FAILED(Constants.SUCCESS) {
         @Override
         public boolean validateMessage(DeviceMessage<Device> message, FirmwareManagementDeviceUtils helper) {
-            Optional<ComTaskExecution> statusInformationTask = helper.getStatusCheckExecution();
+            Optional<ComTaskExecution> statusInformationTask = helper.getFirmwareCheckExecution();
             return isOneOfVerificationStatuses(message, helper)
                     && statusInformationTask.isPresent()
                     && statusInformationTask.get().isLastExecutionFailed()
@@ -333,7 +337,7 @@ public enum FirmwareManagementDeviceStatus {
     VERIFICATION_FAILED(Constants.SUCCESS) {
         @Override
         public boolean validateMessage(DeviceMessage<Device> message, FirmwareManagementDeviceUtils helper) {
-            Optional<ComTaskExecution> statusInformationTask = helper.getStatusCheckExecution();
+            Optional<ComTaskExecution> statusInformationTask = helper.getFirmwareCheckExecution();
             return isOneOfVerificationStatuses(message, helper)
                     && statusInformationTask.isPresent()
                     && !statusInformationTask.get().isLastExecutionFailed()
@@ -362,7 +366,7 @@ public enum FirmwareManagementDeviceStatus {
     VERIFICATION_SUCCESS(Constants.SUCCESS) {
         @Override
         public boolean validateMessage(DeviceMessage<Device> message, FirmwareManagementDeviceUtils helper) {
-            Optional<ComTaskExecution> statusInformationTask = helper.getStatusCheckExecution();
+            Optional<ComTaskExecution> statusInformationTask = helper.getFirmwareCheckExecution();
             return isOneOfVerificationStatuses(message, helper)
                     && statusInformationTask.isPresent()
                     && helper.messageContainsActiveFirmwareVersion(message);
@@ -377,11 +381,6 @@ public enum FirmwareManagementDeviceStatus {
 
     FirmwareManagementDeviceStatus(String statusKey) {
         this.statusKey = statusKey;
-    }
-    
-    public String translate(Thesaurus thesaurus){
-        String translationKey = MessageSeeds.Keys.FIRMWARE_MANAGEMENT_DEVICE_STATUS_PREFIX + this.statusKey;
-        return thesaurus.getStringBeyondComponent(translationKey, this.statusKey);
     }
 
     public String key(){
@@ -398,9 +397,9 @@ public enum FirmwareManagementDeviceStatus {
 
     protected boolean releaseDateInPast(DeviceMessage<Device> message, FirmwareManagementDeviceUtils helper){
         return !helper.getCurrentInstant().isBefore(message.getReleaseDate())
-                && helper.getComTaskExecution() != null
-                && helper.getComTaskExecution().getLastExecutionStartTimestamp() != null
-                && !helper.getComTaskExecution().getLastExecutionStartTimestamp().isBefore(message.getReleaseDate());
+                && helper.getFirmwareExecution().isPresent()
+                && helper.getFirmwareExecution().get().getLastExecutionStartTimestamp() != null
+                && !helper.getFirmwareExecution().get().getLastExecutionStartTimestamp().isBefore(message.getReleaseDate());
     }
 
     protected boolean uploadMessageHasConfirmedStatus(DeviceMessage<Device> message, FirmwareManagementDeviceUtils helper){
@@ -506,10 +505,10 @@ public enum FirmwareManagementDeviceStatus {
     }
 
     public static class Constants {
-        public static final String SUCCESS = "Success";
-        public static final String FAILED = "Failed";
-        public static final String ONGOING = "Ongoing";
-        public static final String PENDING = "Pending";
-        public static final String CONFIGURATION_ERROR = "ConfigurationError";
+        public static final String SUCCESS = "success";
+        public static final String FAILED = "failed";
+        public static final String ONGOING = "ongoing";
+        public static final String PENDING = "pending";
+        public static final String CONFIGURATION_ERROR = "configurationError";
     }
 }
