@@ -71,7 +71,7 @@ Ext.define('Uni.property.view.property.AdvanceReadingsSettingsWithoutNone', {
 
     customHandlerLogic: function(){
         var field = this.getField();
-        if(field.getValue().advanceRbNone==='2'){
+        if(field.getValue().advanceRb==='2'){
             this.down('combobox').setDisabled(true);
         } else {
             this.down('combobox').setDisabled(false);
@@ -92,12 +92,13 @@ Ext.define('Uni.property.view.property.AdvanceReadingsSettingsWithoutNone', {
             }
         } else {
             if (value.bulk) {
-                this.down('radiogroup').setValue({advanceRbNone:2});
+                this.down('radiogroup').setValue({advanceRb:2});
                 this.down('combobox').setDisabled(true);
             } else {
-                this.down('radiogroup').setValue({advanceRbNone:3});
+                this.down('radiogroup').setValue({advanceRb:3});
                 var readingTypeStore = me.down('#readingTypeCombo').getStore();
                 readingTypeStore.load({
+                    params: {like: value.readingType.aliasName},
                     callback: function () {
                         var model = Ext.create('Mdc.model.ReadingType',value.readingType);
                         me.down('#readingTypeCombo').setValue(model);
@@ -109,16 +110,18 @@ Ext.define('Uni.property.view.property.AdvanceReadingsSettingsWithoutNone', {
 
     getValue: function () {
         var me = this;
-        if(me.down('#readingRadioGroup').getValue().advanceRbNone==='2'){
+        if(me.down('#readingRadioGroup').getValue().advanceRb==='2'){
             return {
                 bulk: true
             }
         } else {
+            var value = me.down('#readingTypeCombo').getValue(),
+                record = me.down('#readingTypeCombo').findRecordByValue(value),
+                readingType = record ? record.getData() : { mRID: value };
+
             return {
                 bulk: false,
-                readingType: {
-                    mRID: me.down('#readingTypeCombo').getValue()
-                }
+                readingType: readingType
             }
         }
 
@@ -136,7 +139,6 @@ Ext.define('Uni.property.view.property.AdvanceReadingsSettingsWithoutNone', {
             msgTarget: 'under'
         }
     },
-
 
     getDisplayField: function () {
         return this.down('displayfield');
