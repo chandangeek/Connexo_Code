@@ -6,6 +6,7 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
+import com.energyict.mdc.firmware.FirmwareManagementDeviceStatus;
 import com.energyict.mdc.firmware.FirmwareManagementDeviceUtils;
 import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.FirmwareVersion;
@@ -93,7 +94,7 @@ public class DeviceFirmwareVersionInfoFactory {
                 .map(Optional::get)
                 .forEach(info::addActiveVersion);
         FirmwareManagementDeviceUtils versionUtils = utilProvider.get().onDevice(device);
-        if (versionUtils.getComTaskExecution() != null) {
+        if (versionUtils.getFirmwareExecution() != null) {
             for (DeviceMessage<Device> message : versionUtils.getFirmwareMessages()) {
                 from(info, message, versionUtils);
             }
@@ -217,7 +218,7 @@ public class DeviceFirmwareVersionInfoFactory {
         @Override
         public Map<String, Object> getFirmwareUpgradeProperties(DeviceMessage<Device> message, FirmwareManagementDeviceUtils helper) {
             Map<String, Object> properties = super.getFirmwareUpgradeProperties(message, helper);
-            Instant startedTimestamp = helper.getComTaskExecution().getExecutionStartedTimestamp();
+            Instant startedTimestamp = helper.getFirmwareExecution().get().getExecutionStartedTimestamp();
             if (startedTimestamp != null) {
                 properties.put(UPLOAD_START_DATE, startedTimestamp.toEpochMilli());
             }
@@ -259,8 +260,8 @@ public class DeviceFirmwareVersionInfoFactory {
         @Override
         public Map<String, Object> getFirmwareUpgradeProperties(DeviceMessage<Device> message, FirmwareManagementDeviceUtils helper) {
             Map<String, Object> properties = super.getFirmwareUpgradeProperties(message, helper);
-            properties.put(FIRMWARE_COM_TASK_ID, helper.getComTaskExecution().getComTask().getId());
-            Optional<ComTaskExecutionSession> lastSession = helper.getComTaskExecution().getLastSession();
+            properties.put(FIRMWARE_COM_TASK_ID, helper.getFirmwareTask().get().getId());
+            Optional<ComTaskExecutionSession> lastSession = helper.getFirmwareExecution().get().getLastSession();
             if (lastSession.isPresent()) {
                 properties.put(FIRMWARE_COM_TASK_SESSION_ID, lastSession.get().getId());
             }
@@ -306,7 +307,7 @@ public class DeviceFirmwareVersionInfoFactory {
         @Override
         public Map<String, Object> getFirmwareUpgradeProperties(DeviceMessage<Device> message, FirmwareManagementDeviceUtils helper) {
             Map<String, Object> properties = super.getFirmwareUpgradeProperties(message, helper);
-            Optional<ComTaskExecution> statusCheckExecution = helper.getStatusCheckExecution();
+            Optional<ComTaskExecution> statusCheckExecution = helper.getFirmwareCheckExecution();
             if (statusCheckExecution.isPresent() && statusCheckExecution.get().getNextExecutionTimestamp() != null) {
                 properties.put(CHECK_DATE, statusCheckExecution.get().getNextExecutionTimestamp().toEpochMilli());
             }
@@ -446,7 +447,7 @@ public class DeviceFirmwareVersionInfoFactory {
                         return true;
                     case UPLOAD_FIRMWARE_AND_ACTIVATE_WITH_DATE:
                         Optional<Instant> activationDate = helper.getActivationDateFromMessage(message);
-                        Optional<ComTaskExecution> statusCheckExecution = helper.getStatusCheckExecution();
+                        Optional<ComTaskExecution> statusCheckExecution = helper.getFirmwareCheckExecution();
                         if (statusCheckExecution.isPresent()) {
                             ComTaskExecution execution = statusCheckExecution.get();
                             if (execution.getLastExecutionStartTimestamp() != null) {
@@ -463,7 +464,7 @@ public class DeviceFirmwareVersionInfoFactory {
         }
 
         protected boolean messageFinishedBeforeLastStatusCheck(DeviceMessage<Device> message, FirmwareManagementDeviceUtils helper) {
-            Optional<ComTaskExecution> statusCheckExecution = helper.getStatusCheckExecution();
+            Optional<ComTaskExecution> statusCheckExecution = helper.getFirmwareCheckExecution();
             if (statusCheckExecution.isPresent()) {
                 ComTaskExecution execution = statusCheckExecution.get();
                 if (execution.getLastExecutionStartTimestamp() != null) {
@@ -476,7 +477,7 @@ public class DeviceFirmwareVersionInfoFactory {
         }
 
         protected boolean lastStatusCheckWasSuccessful(FirmwareManagementDeviceUtils helper) {
-            Optional<ComTaskExecution> check = helper.getStatusCheckExecution();
+            Optional<ComTaskExecution> check = helper.getFirmwareCheckExecution();
             return check.isPresent()
                     && check.get().getLastSuccessfulCompletionTimestamp() != null
                     && !check.get().getLastSuccessfulCompletionTimestamp().isBefore(check.get().getLastExecutionStartTimestamp());
@@ -487,7 +488,7 @@ public class DeviceFirmwareVersionInfoFactory {
         @Override
         public boolean validateMessage(DeviceMessage<Device> message, FirmwareManagementDeviceUtils helper) {
             return super.validateMessage(message, helper)
-                    && TaskStatus.Busy.equals(helper.getStatusCheckExecution().get().getStatus());
+                    && TaskStatus.Busy.equals(helper.getFirmwareCheckExecution().get().getStatus());
         }
 
         @Override
@@ -500,8 +501,8 @@ public class DeviceFirmwareVersionInfoFactory {
         @Override
         public boolean validateMessage(DeviceMessage<Device> message, FirmwareManagementDeviceUtils helper) {
             return super.validateMessage(message, helper)
-                    && !TaskStatus.Busy.equals(helper.getStatusCheckExecution().get())
-                    && helper.getStatusCheckExecution().get().isLastExecutionFailed();
+                    && !TaskStatus.Busy.equals(helper.getFirmwareCheckExecution().get())
+                    && helper.getFirmwareCheckExecution().get().isLastExecutionFailed();
         }
 
         @Override
@@ -512,8 +513,8 @@ public class DeviceFirmwareVersionInfoFactory {
         @Override
         public Map<String, Object> getFirmwareUpgradeProperties(DeviceMessage<Device> message, FirmwareManagementDeviceUtils helper) {
             Map<String, Object> properties = super.getFirmwareUpgradeProperties(message, helper);
-            properties.put(FIRMWARE_COM_TASK_ID, helper.getStatusCheckComTask().get().getId());
-            Optional<ComTaskExecutionSession> lastSession = helper.getComTaskExecution().getLastSession();
+            properties.put(FIRMWARE_COM_TASK_ID, helper.getFirmwareCheckTask().get().getId());
+            Optional<ComTaskExecutionSession> lastSession = helper.getFirmwareExecution().get().getLastSession();
             if (lastSession.isPresent()) {
                 properties.put(FIRMWARE_COM_TASK_SESSION_ID, lastSession.get().getId());
             }

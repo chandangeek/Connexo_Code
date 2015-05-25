@@ -17,12 +17,12 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class FirmwareCampaignInfo {
@@ -38,6 +38,7 @@ public class FirmwareCampaignInfo {
     public Instant startedOn;
     public Instant finishedOn;
     public List<PropertyInfo> properties;
+    public List<DeviceInFirmwareCampaignStatusInfo> devicesStatus;
 
     public FirmwareCampaignInfo() {}
 
@@ -74,6 +75,10 @@ public class FirmwareCampaignInfo {
             this.firmwareVersion = FirmwareVersionInfo.from(campaign.getFirmwareVersion(), thesaurus);
             this.properties = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(firmwareMessageSpec.get().getPropertySpecs(), typedProperties, provider);
         }
+        this.devicesStatus = campaign.getDevicesStatusMap().entrySet()
+                .stream()
+                .map(status -> new DeviceInFirmwareCampaignStatusInfo(status.getKey(), status.getValue(), thesaurus))
+                .collect(Collectors.toList());
     }
 
     public void writeTo(FirmwareCampaign campaign){

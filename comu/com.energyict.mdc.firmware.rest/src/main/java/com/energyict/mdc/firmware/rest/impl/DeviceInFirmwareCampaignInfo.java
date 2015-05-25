@@ -19,7 +19,9 @@ public class DeviceInFirmwareCampaignInfo {
         if (device.getStatus() != null) {
             this.status = new com.energyict.mdc.common.rest.IdWithNameInfo();
             this.status.id = device.getStatus().key();
-            this.status.name = device.getStatus().translate(thesaurus);
+            this.status.name = thesaurus.getString(MessageSeeds.Keys.FIRMWARE_MANAGEMENT_DEVICE_STATUS_PREFIX + device.getStatus().key(), device.getStatus().key());
         }
+        this.startedOn = device.getStartedOn();
+        this.finishedOn = device.getFinishedOn();
     }
 }

@@ -3,6 +3,7 @@ package com.energyict.mdc.firmware.rest.impl;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.firmware.FirmwareManagementDeviceStatus;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.rest.FirmwareApplication;
 import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
@@ -46,6 +47,13 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     FIRMWARE_CAMPAIGN_STATUS_CANCELLED(54, Keys.FIRMWARE_CAMPAIGN_STATUS_CANCELLED , "Cancelled"),
     FIRMWARE_CAMPAIGN_STATUS_FAILED(55, Keys.FIRMWARE_CAMPAIGN_STATUS_FAILED , "Failed"),
 
+    FIRMWARE_MANAGEMENT_DEVICE_STATUS_SUCCESS(101, Keys.FIRMWARE_MANAGEMENT_DEVICE_STATUS_PREFIX + FirmwareManagementDeviceStatus.Constants.SUCCESS, "Success"),
+    FIRMWARE_MANAGEMENT_DEVICE_STATUS_FAILED(102, Keys.FIRMWARE_MANAGEMENT_DEVICE_STATUS_PREFIX + FirmwareManagementDeviceStatus.Constants.FAILED, "Failed"),
+    FIRMWARE_MANAGEMENT_DEVICE_STATUS_ONGOING(103, Keys.FIRMWARE_MANAGEMENT_DEVICE_STATUS_PREFIX + FirmwareManagementDeviceStatus.Constants.ONGOING, "Ongoing"),
+    FIRMWARE_MANAGEMENT_DEVICE_STATUS_PENDING(104, Keys.FIRMWARE_MANAGEMENT_DEVICE_STATUS_PREFIX + FirmwareManagementDeviceStatus.Constants.PENDING, "Pending"),
+    FIRMWARE_MANAGEMENT_DEVICE_STATUS_CONFIGURATION_ERROR(105, Keys.FIRMWARE_MANAGEMENT_DEVICE_STATUS_PREFIX + FirmwareManagementDeviceStatus.Constants.CONFIGURATION_ERROR, "Configuration error"),
+
+
     SUPPORTED_FIRMWARE_UPGRADE_OPTIONS_NOT_FOUND(1001, "SupportedFirmwareUpgradeOptionsNotFound", "There is no such supported firmware upgrade option"),
     FIRMWARE_UPGRADE_OPTIONS_ARE_DISABLED_FOR_DEVICE_TYPE(1002, "FirmwareUpgradeOptionsAreDisabledForDeviceType", "Firmware upgrade options are disabled for device type"),
     DEFAULT_FIRMWARE_MANAGEMENT_TASK_CAN_NOT_BE_FOUND(1003, "DefaultFirmwareManagementTaskCanNotBeFound", "The default firmware management communication task cannot be found"),
@@ -54,6 +62,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     FIRMWARE_UPLOAD_HAS_BEEN_STARTED_CANNOT_BE_CANCELED(1006, "FirmwareUploadHasBeenStartedCannotBeCanceled", "Firmware upload has been started and cannot be canceled"),
     FIRMWARE_UPLOAD_NOT_FOUND(1007, "FirmwareUploadNotFound", "No firmware upload process with id {0} could be found"),
     FIRMWARE_CANNOT_BE_ACTIVATED(1008, "FirmwareCannotBeActivated", "Firmware version cannot be activated"),
+    FIRMWARE_CHECK_TASK_IS_NOT_ACTIVE(1009, "FirmwareCheckTaskIsNotActive", "It is impossible to check firmware version because Check firmware version communication task is not active on device configuration"),
 
 
     
@@ -62,7 +71,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     private final String key;
     private final String format;
 
-    private MessageSeeds(int number, String key, String format) {
+    MessageSeeds(int number, String key, String format) {
         this.number = number;
         this.key = key;
         this.format = format;
@@ -128,6 +137,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
         public static final String FIRMWARE_CAMPAIGN_NOT_FOUND = "firmwareCampaignNotFound";
         public static final String FIRMWARE_VERSION_NOT_FOUND = "firmwareVersionNotFound";
         public static final String DEVICE_GROUP_NOT_FOUND = "deviceGroupNotFound";
+        public static final String FIRMWARE_MANAGEMENT_DEVICE_STATUS_PREFIX = "FirmwareManagementDeviceStatus.";
 
     }
 }

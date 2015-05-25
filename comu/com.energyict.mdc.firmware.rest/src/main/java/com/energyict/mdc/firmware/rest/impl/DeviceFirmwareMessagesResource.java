@@ -7,11 +7,15 @@ import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
 import com.energyict.mdc.device.data.tasks.FirmwareComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.firmware.FirmwareManagementDeviceUtils;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.FirmwareVersion;
@@ -22,6 +26,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.tasks.StatusInformationTask;
 import com.energyict.mdc.tasks.TaskService;
 
 import javax.annotation.security.RolesAllowed;
@@ -48,6 +53,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 @Path("/device/{mrid}")
@@ -204,19 +210,76 @@ public class DeviceFirmwareMessagesResource {
                     .map(option -> new DeviceFirmwareActionInfo(option.getId(), thesaurus.getString(option.getId(), option.getId())))
                     .collect(Collectors.toList());
         }
-        Optional<ComTask> statusCheckComTask = helper.getStatusCheckComTask();
-        if (statusCheckComTask.isPresent()){
-            deviceFirmwareActions.add(new DeviceFirmwareActionInfo("run", thesaurus.getString(MessageSeeds.FIRMWARE_ACTION_CHECK_VERSION.getKey(), MessageSeeds.FIRMWARE_ACTION_CHECK_VERSION.getDefaultFormat()), statusCheckComTask.get().getId()));
-            deviceFirmwareActions.add(new DeviceFirmwareActionInfo("runnow", thesaurus.getString(MessageSeeds.FIRMWARE_ACTION_CHECK_VERSION_NOW.getKey(), MessageSeeds.FIRMWARE_ACTION_CHECK_VERSION_NOW.getDefaultFormat()), statusCheckComTask.get().getId()));
+
+        Optional<ScheduledConnectionTask> defaultConnectionTask = device.getScheduledConnectionTasks()
+                .stream()
+                .filter(conTask -> conTask.isDefault())
+                .findFirst();
+        if (defaultConnectionTask.isPresent() && ConnectionStrategy.MINIMIZE_CONNECTIONS.equals(defaultConnectionTask.get().getConnectionStrategy())){
+            deviceFirmwareActions.add(new DeviceFirmwareActionInfo("run", thesaurus.getString(MessageSeeds.FIRMWARE_ACTION_CHECK_VERSION.getKey(), MessageSeeds.FIRMWARE_ACTION_CHECK_VERSION.getDefaultFormat())));
         }
+        deviceFirmwareActions.add(new DeviceFirmwareActionInfo("runnow", thesaurus.getString(MessageSeeds.FIRMWARE_ACTION_CHECK_VERSION_NOW.getKey(), MessageSeeds.FIRMWARE_ACTION_CHECK_VERSION_NOW.getDefaultFormat())));
         return Response.ok(PagedInfoList.fromPagedList("firmwareactions", deviceFirmwareActions, queryParameters)).build();
     }
 
+    @GET
+    @Path("/status/run")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed({com.energyict.mdc.device.data.security.Privileges.VIEW_DEVICE})
+    public Response runFirmwareVersionCheck(@PathParam("mrid") String mrid, @BeanParam JsonQueryParameters queryParameters){
+        Device device = resourceHelper.findDeviceByMridOrThrowException(mrid);
+        launchFirmwareCheck(device, ComTaskExecution::scheduleNow);
+        return Response.ok().build();
+    }
+
+
+    @GET
+    @Path("/status/runnow")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed({com.energyict.mdc.device.data.security.Privileges.VIEW_DEVICE})
+    public Response runFirmwareVersionCheckNow(@PathParam("mrid") String mrid, @BeanParam JsonQueryParameters queryParameters){
+        Device device = resourceHelper.findDeviceByMridOrThrowException(mrid);
+        launchFirmwareCheck(device, ComTaskExecution::runNow);
+        return Response.ok().build();
+    }
+
+    private void launchFirmwareCheck(Device device, Consumer<ComTaskExecution> requestedActionOnExec) {
+        Optional<ComTaskExecution> firmwareCheckExecution = device.getComTaskExecutions()
+                .stream()
+                .filter(ComTaskExecution::isConfiguredToReadStatusInformation)
+                .findFirst();
+        if (!firmwareCheckExecution.isPresent()){
+            firmwareCheckExecution = createFirmwareCheckExecution(device);
+        }
+        if (!firmwareCheckExecution.isPresent()){
+            throw exceptionFactory.newException(MessageSeeds.FIRMWARE_CHECK_TASK_IS_NOT_ACTIVE);
+        }
+        requestedActionOnExec.accept(firmwareCheckExecution.get());
+    }
+
+
+    private Optional<ComTaskExecution> createFirmwareCheckExecution(Device device) {
+        Optional<ComTaskEnablement> firmwareCheckEnablementRef = FirmwareManagementDeviceUtils.getFirmwareCheckEnablement(device);
+        if (firmwareCheckEnablementRef.isPresent()) {
+            ComTaskEnablement firmwareCheckEnablement = firmwareCheckEnablementRef.get();
+            ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> firmwareCheckExecutionBuilder = device.newAdHocComTaskExecution(firmwareCheckEnablement);
+            if (firmwareCheckEnablement.hasPartialConnectionTask()) {
+                device.getConnectionTasks().stream()
+                        .filter(connectionTask -> connectionTask.getPartialConnectionTask().getId() == firmwareCheckEnablement.getPartialConnectionTask().get().getId())
+                        .forEach(firmwareCheckExecutionBuilder::connectionTask);
+            }
+            ManuallyScheduledComTaskExecution manuallyScheduledComTaskExecution = firmwareCheckExecutionBuilder.add();
+            device.save();
+            return Optional.of(manuallyScheduledComTaskExecution);
+        }
+        return Optional.empty();
+    }
+
     private boolean isDeviceFirmwareUpgradeAllowed(FirmwareManagementDeviceUtils helper) {
-        FirmwareComTaskExecution firmwareUpgradeExecution = helper.getComTaskExecution();
+        Optional<ComTaskExecution> firmwareUpgradeExecution = helper.getFirmwareExecution();
         return helper.getFirmwareMessages().stream()
                 .filter(message -> FirmwareManagementDeviceUtils.PENDING_STATUSES.contains(message.getStatus()))
-                .filter(message -> firmwareUpgradeExecution == null || firmwareUpgradeExecution.getLastExecutionStartTimestamp() == null || !message.getReleaseDate().isBefore(firmwareUpgradeExecution.getLastExecutionStartTimestamp()))
+                .filter(message -> !firmwareUpgradeExecution.isPresent()|| firmwareUpgradeExecution.get().getLastExecutionStartTimestamp() == null || !message.getReleaseDate().isBefore(firmwareUpgradeExecution.get().getLastExecutionStartTimestamp()))
                 .count() == 0 && !helper.taskIsBusy();
     }
 
