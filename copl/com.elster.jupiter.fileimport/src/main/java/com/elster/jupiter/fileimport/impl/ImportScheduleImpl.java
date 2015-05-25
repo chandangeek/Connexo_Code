@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
  * ImportSchedule implementation.
  */
 @UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_IMPORT_SCHEDULE + "}")
+@HasValidProperties(groups = {Save.Create.class, Save.Update.class})
 class ImportScheduleImpl implements ImportSchedule {
 
     private long id;
@@ -307,12 +308,14 @@ class ImportScheduleImpl implements ImportSchedule {
 
         Optional<FileImporterFactory> optional = fileImportService.getImportFactory(importerName);
         optional.ifPresent(factory->factory.validateProperties(properties));
-        optional.ifPresent(factory -> factory.getRequiredProperties()
-                .forEach(propertyName -> checkRequiredProperty(propertyName,properties
-                        .stream()
-                        .filter(p->p.getValue()==null)
-                        .collect(Collectors.toMap(FileImporterProperty::getName, FileImporterProperty::getValue)))));
+        /*Map<String, Object> propertiesWithValuesMap =  properties
+                .stream()
+                .filter(p->!p.useDefault())
+                .collect(Collectors.toMap(FileImporterProperty::getName, FileImporterProperty::getValue));
 
+        optional.ifPresent(factory -> factory.getRequiredProperties()
+                .forEach(propertyName -> checkRequiredProperty(propertyName,propertiesWithValuesMap)));
+*/
         if (id == 0) {
             persist();
         } else {
