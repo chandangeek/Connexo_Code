@@ -3,8 +3,11 @@ package com.energyict.mdc.device.lifecycle.impl;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 import com.energyict.mdc.device.data.impl.DeviceDataModule;
+import com.energyict.mdc.device.data.impl.events.DeviceLifeCycleChangeEventHandler;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
 import com.energyict.mdc.device.topology.impl.TopologyModule;
 import com.energyict.mdc.dynamic.PropertySpecService;
@@ -25,6 +28,9 @@ import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.impl.TasksModule;
 
+import com.elster.jupiter.appserver.AppService;
+import com.elster.jupiter.appserver.impl.AppServiceModule;
+import com.elster.jupiter.appserver.impl.MessageHandlerLauncherService;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
@@ -33,6 +39,7 @@ import com.elster.jupiter.estimation.impl.EstimationModule;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.impl.EventServiceImpl;
 import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.fileimport.impl.FileImportModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.fsm.impl.StateTransitionTriggerEventTopicHandler;
@@ -41,7 +48,9 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.kpi.impl.KpiModule;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
+import com.elster.jupiter.messaging.h2.impl.TransientMessageService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
@@ -127,6 +136,8 @@ public class InMemoryIntegrationPersistence {
                 new MockModule(),
                 bootstrapModule,
                 new ThreadSecurityModule(this.principal),
+                new FileImportModule(),
+                new AppServiceModule(),
                 new EventsModule(),
                 new PubSubModule(),
                 new TransactionModule(showSqlLogging),
@@ -165,6 +176,7 @@ public class InMemoryIntegrationPersistence {
         this.transactionService = this.injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = this.transactionService.getContext()) {
             this.transactionService = this.injector.getInstance(TransactionService.class);
+            this.injector.getInstance(FiniteStateMachineService.class);
             ProtocolPluggableServiceImpl protocolPluggableService = (ProtocolPluggableServiceImpl) this.injector.getInstance(ProtocolPluggableService.class);
             protocolPluggableService.addLicensedProtocolService(licensedProtocolService);
             this.injector.getInstance(SchedulingService.class);
@@ -185,6 +197,11 @@ public class InMemoryIntegrationPersistence {
                         this.injector.getInstance(MeteringService.class),
                         this.clock);
             ((EventServiceImpl) this.injector.getInstance(EventService.class)).addTopicHandler(stateTransitionChangeEventTopicHandler);
+            DeviceLifeCycleChangeEventHandler deviceLifeCycleChangeEventHandler = new DeviceLifeCycleChangeEventHandler(
+                    this.injector.getInstance(DeviceConfigurationService.class),
+                    this.injector.getInstance(DeviceDataModelService.class),
+                    this.injector.getInstance(MeteringService.class));
+            ((EventServiceImpl) this.injector.getInstance(EventService.class)).addTopicHandler(deviceLifeCycleChangeEventHandler);
             ctx.commit();
         }
     }
@@ -199,6 +216,10 @@ public class InMemoryIntegrationPersistence {
         this.licenseService = mock(LicenseService.class);
         when(this.licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.<License>empty());
         this.bpmService = mock(BpmService.class);
+    }
+
+    public BundleContext getBundleContext() {
+        return bundleContext;
     }
 
     public void cleanUpDataBase() throws SQLException {
@@ -233,8 +254,20 @@ public class InMemoryIntegrationPersistence {
         return this.injector.getInstance(DeviceLifeCycleService.class);
     }
 
+    public DeviceLifeCycleConfigurationService getDeviceLifeCycleConfigurationService() {
+        return this.injector.getInstance(DeviceLifeCycleConfigurationService.class);
+    }
+
     public ProtocolPluggableService getProtocolPluggableService() {
         return this.injector.getInstance(ProtocolPluggableService.class);
+    }
+
+    public AppService getAppService() {
+        return this.injector.getInstance(AppService.class);
+    }
+
+    public <T> T getService(Class<T> serviceClass) {
+        return this.injector.getInstance(serviceClass);
     }
 
     private class MockModule extends AbstractModule {
