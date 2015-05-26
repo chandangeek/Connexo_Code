@@ -17,7 +17,8 @@ Ext.define('Dsh.controller.ConnectionOverview', {
         { ref: 'overview', selector: '#overview' },
         { ref: 'breakdown', selector: '#breakdown' },
         { ref: 'kpi', selector: '#connection-overview read-outs-over-time' },
-        { ref: 'quickLinks', selector: '#connection-overview #quick-links' }
+        { ref: 'quickLinks', selector: '#connection-overview #quick-links' },
+        { ref: 'heatmap', selector: '#connection-overview #heatmap' }
     ],
 
     init: function () {
@@ -45,6 +46,7 @@ Ext.define('Dsh.controller.ConnectionOverview', {
         model.setFilter(router.filter);
         me.getConnectionOverview().setLoading();
         me.getCommunicationServers().reload();
+        me.getHeatmap().reload();
         model.load(null, {
                 success: function (record) {
                     me.getSummary().setRecord(record.getSummary());
