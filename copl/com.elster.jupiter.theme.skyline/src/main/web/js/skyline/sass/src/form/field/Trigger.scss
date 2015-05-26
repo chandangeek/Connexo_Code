@@ -18,12 +18,12 @@ div.#{$prefix}form-spinner-down {
 }
 
 div.#{$prefix}form-spinner-up {
-  background: url("images/form/trigger-up.png") no-repeat scroll center center #71adc7 !important;
+  background: url("images/form/trigger-up.png") no-repeat scroll center center $button-default-background-color !important;
   @include border-radius(3px 3px 0 0);
 }
 
 div.#{$prefix}form-spinner-down {
-  background: url("images/form/trigger.png") no-repeat scroll center center #71adc7;
+  background: url("images/form/trigger.png") no-repeat scroll center center $button-default-background-color;
   @include border-radius(0 0 3px 3px);
 }
 
@@ -31,7 +31,7 @@ div.#{$prefix}form-spinner-down {
   height: $form-field-trigger-height;
   margin: 2px 2px 2px 8px;
   width: 16px;
-  background: url("images/form/trigger.png") no-repeat scroll center center #71adc7 !important;
+  background: url("images/form/trigger.png") no-repeat scroll center center $button-default-background-color !important;
 }
 
 .#{$prefix}form-trigger-wrap, .#{$prefix}form-trigger {
@@ -40,10 +40,18 @@ div.#{$prefix}form-spinner-down {
 
 .#{$prefix}form-date-trigger {
   background-color: #FFFFFF !important;
-  background-image: url("images/form/date-trigger.png") !important;
   border-radius: 0;
   width: 22px !important;
   margin: 2px !important;
+
+  &:before {
+    font-family: 'icomoon';
+    content: "\e113";
+    font-size: 21px;
+    color: $button-default-background-color;
+    position: absolute;
+    right: 1px;
+  }
 }
 
 /*.#{$prefix}form-trigger-over,

@@ -5266,10 +5266,18 @@ div.x-form-spinner-down {
 /* line 41, ../../sass/src/form/field/Trigger.scss */
 .x-form-date-trigger {
   background-color: #FFFFFF !important;
-  background-image: url("images/form/date-trigger.png") !important;
   border-radius: 0;
   width: 22px !important;
   margin: 2px !important;
+}
+/* line 47, ../../sass/src/form/field/Trigger.scss */
+.x-form-date-trigger:before {
+  font-family: 'icomoon';
+  content: "\e113";
+  font-size: 21px;
+  color: #71adc7;
+  position: absolute;
+  right: 1px;
 }
 
 /*.#{$prefix}form-trigger-over,
@@ -5280,34 +5288,34 @@ div.x-form-spinner-down {
 .#{$prefix}form-trigger-click {
   background-position: 0 0 center !important;
 }*/
-/* line 60, ../../sass/src/form/field/Trigger.scss */
+/* line 68, ../../sass/src/form/field/Trigger.scss */
 .x-form-trigger-over,
 .x-form-trigger-wrap-focus
 .x-form-trigger-over {
   opacity: 0.8 !important;
 }
 
-/* line 66, ../../sass/src/form/field/Trigger.scss */
+/* line 74, ../../sass/src/form/field/Trigger.scss */
 .x-form-trigger-click,
 .x-form-trigger-wrap-focus
 .x-form-trigger-click {
   opacity: 1 !important;
 }
 
-/* line 70, ../../sass/src/form/field/Trigger.scss */
+/* line 78, ../../sass/src/form/field/Trigger.scss */
 .x-item-disabled .x-form-trigger-wrap {
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=30);
   opacity: 0.3;
 }
 
-/* line 75, ../../sass/src/form/field/Trigger.scss */
+/* line 83, ../../sass/src/form/field/Trigger.scss */
 .x-item-disabled .x-form-trigger {
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);
   opacity: 1;
   cursor: default;
 }
 
-/* line 81, ../../sass/src/form/field/Trigger.scss */
+/* line 89, ../../sass/src/form/field/Trigger.scss */
 .x-form-trigger-wrap .x-form-text {
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);
   opacity: 1;
@@ -5336,7 +5344,7 @@ div.x-form-spinner-down {
 
 /* line 21, ../../sass/src/form/field/Base.scss */
 .x-form-invalid-field {
-  border-color: #eb5642;
+  border-color: #eb5642 !important;
 }
 
 /* line 25, ../../sass/src/form/field/Base.scss */
@@ -12718,10 +12726,18 @@ div.x-form-spinner-down {
 /* line 41, ../../sass/src/form/field/Trigger.scss */
 .x-form-date-trigger {
   background-color: #FFFFFF !important;
-  background-image: url("images/form/date-trigger.png") !important;
   border-radius: 0;
   width: 22px !important;
   margin: 2px !important;
+}
+/* line 47, ../../sass/src/form/field/Trigger.scss */
+.x-form-date-trigger:before {
+  font-family: 'icomoon';
+  content: "\e113";
+  font-size: 21px;
+  color: #71adc7;
+  position: absolute;
+  right: 1px;
 }
 
 /*.#{$prefix}form-trigger-over,
@@ -12732,34 +12748,34 @@ div.x-form-spinner-down {
 .#{$prefix}form-trigger-click {
   background-position: 0 0 center !important;
 }*/
-/* line 60, ../../sass/src/form/field/Trigger.scss */
+/* line 68, ../../sass/src/form/field/Trigger.scss */
 .x-form-trigger-over,
 .x-form-trigger-wrap-focus
 .x-form-trigger-over {
   opacity: 0.8 !important;
 }
 
-/* line 66, ../../sass/src/form/field/Trigger.scss */
+/* line 74, ../../sass/src/form/field/Trigger.scss */
 .x-form-trigger-click,
 .x-form-trigger-wrap-focus
 .x-form-trigger-click {
   opacity: 1 !important;
 }
 
-/* line 70, ../../sass/src/form/field/Trigger.scss */
+/* line 78, ../../sass/src/form/field/Trigger.scss */
 .x-item-disabled .x-form-trigger-wrap {
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=30);
   opacity: 0.3;
 }
 
-/* line 75, ../../sass/src/form/field/Trigger.scss */
+/* line 83, ../../sass/src/form/field/Trigger.scss */
 .x-item-disabled .x-form-trigger {
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);
   opacity: 1;
   cursor: default;
 }
 
-/* line 81, ../../sass/src/form/field/Trigger.scss */
+/* line 89, ../../sass/src/form/field/Trigger.scss */
 .x-form-trigger-wrap .x-form-text {
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);
   opacity: 1;
