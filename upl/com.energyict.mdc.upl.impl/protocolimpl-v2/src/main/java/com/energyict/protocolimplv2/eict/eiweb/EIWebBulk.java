@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.eict.eiweb;
 
 import com.energyict.cpo.PropertySpec;
+import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.meterdata.CollectedData;
 import com.energyict.mdc.protocol.exceptions.CommunicationException;
@@ -11,7 +12,9 @@ import com.energyict.mdc.protocol.inbound.ServletBasedInboundDeviceProtocol;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -23,6 +26,9 @@ import java.util.List;
  * @since 2012-10-12 (10:27:03)
  */
 public class EIWebBulk implements ServletBasedInboundDeviceProtocol {
+
+    private static final String MAX_IDLE_TIME = "maxIdleTime";
+    private static final BigDecimal MAX_IDLE_TIME_DEFAULT_VALUE = BigDecimal.valueOf(200000);
 
     private HttpServletRequest request;
     private HttpServletResponse response;
@@ -59,12 +65,14 @@ public class EIWebBulk implements ServletBasedInboundDeviceProtocol {
 
     @Override
     public List<PropertySpec> getOptionalProperties() {
-        return new ArrayList<>(0);
+        PropertySpec maxIdleTimePropertySpec = PropertySpecFactory.bigDecimalPropertySpec(MAX_IDLE_TIME, MAX_IDLE_TIME_DEFAULT_VALUE);
+        return Arrays.asList(maxIdleTimePropertySpec);
     }
 
     @Override
     public void addProperties(TypedProperties properties) {
-        // No pluggable properties so ignore this call
+        // Properties are not used in this class.
+        // Note that the maxIdleTime property is used while setting up the Jetty servlet.
     }
 
     @Override
