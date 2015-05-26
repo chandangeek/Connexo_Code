@@ -18,6 +18,7 @@ import com.elster.jupiter.util.cron.CronExpressionParser;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import javax.inject.Inject;
 import java.security.Principal;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -61,6 +62,22 @@ public class AppServiceConsoleService {
     private volatile CronExpressionParser cronExpressionParser;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile MessageHandlerLauncherService messageHandlerLauncherService;
+
+    public AppServiceConsoleService() {
+        super();
+    }
+
+    @Inject
+    public AppServiceConsoleService(IAppService appService, TransactionService transactionService, MessageService messageService, FileImportService fileImportService, CronExpressionParser cronExpressionParser, ThreadPrincipalService threadPrincipalService, MessageHandlerLauncherService messageHandlerLauncherService) {
+        this();
+        this.appService = appService;
+        this.transactionService = transactionService;
+        this.messageService = messageService;
+        this.fileImportService = fileImportService;
+        this.cronExpressionParser = cronExpressionParser;
+        this.threadPrincipalService = threadPrincipalService;
+        this.messageHandlerLauncherService = messageHandlerLauncherService;
+    }
 
     public void serve(final String appServerName, final String subscriberName, final String destinationName, final int threads) {
         final Optional<AppServer> found = findAppServer(appServerName);

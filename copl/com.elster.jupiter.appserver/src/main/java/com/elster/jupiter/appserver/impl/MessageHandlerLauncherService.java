@@ -19,6 +19,7 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
+import javax.inject.Inject;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -57,6 +58,14 @@ public class MessageHandlerLauncherService implements IAppService.CommandListene
     private Registration commandRegistration;
 
     public MessageHandlerLauncherService() {
+    }
+
+    @Inject
+    MessageHandlerLauncherService(IAppService appService, ThreadPrincipalService threadPrincipalService, UserService userService, TransactionService transactionService) {
+        this.appService = appService;
+        this.threadPrincipalService = threadPrincipalService;
+        this.userService = userService;
+        this.transactionService = transactionService;
     }
 
     public AppService getAppService() {

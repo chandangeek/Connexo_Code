@@ -11,6 +11,7 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.json.JsonService;
 import com.google.inject.AbstractModule;
+import com.google.inject.Scopes;
 import org.osgi.framework.BundleContext;
 
 public class AppServiceModule extends AbstractModule {
@@ -28,8 +29,8 @@ public class AppServiceModule extends AbstractModule {
         requireBinding(UserService.class);
         requireBinding(BundleContext.class);
 
-
-        bind(AppService.class).to(AppServiceImpl.class);
+        bind(AppService.class).to(AppServiceImpl.class).in(Scopes.SINGLETON);
+        bind(IAppService.class).to(AppServiceImpl.class).in(Scopes.SINGLETON);
 
     }
 }
