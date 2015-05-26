@@ -17,7 +17,7 @@ public class StandardCsvDataProcessorFactoryTest {
         StandardCsvDataProcessorFactory factory = new StandardCsvDataProcessorFactory();
         factory.setPropertySpecService(new PropertySpecServiceImpl());
 
-        List<PropertySpec> properties = factory.getProperties();
+        List<PropertySpec> properties = factory.getPropertySpecs();
         assertThat(properties).hasSize(4);
 
         // Order IS important
