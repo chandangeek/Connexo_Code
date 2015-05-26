@@ -70,7 +70,7 @@ public enum TableSpecs {
             table.column("NAME").varChar().notNull().map(DeviceFields.NAME.fieldName()).add();
             table.column("SERIALNUMBER").varChar().map(DeviceFields.SERIALNUMBER.fieldName()).add();
             table.column("TIMEZONE").varChar().map(DeviceFields.TIMEZONE.fieldName()).add();
-            Column externid = table.column("MRID").varChar().map(DeviceFields.MRID.fieldName()).add();
+            Column mRID = table.column("MRID").varChar().map(DeviceFields.MRID.fieldName()).add();
             table.column("CERTIF_YEAR").number().map("yearOfCertification").conversion(ColumnConversion.NUMBER2INT).add();
             Column deviceType = table.column("DEVICETYPE").number().notNull().add();
             Column configuration = table.column("DEVICECONFIGID").number().notNull().add();
@@ -84,7 +84,7 @@ public enum TableSpecs {
                     references(DeviceConfigurationService.COMPONENTNAME, "DTC_DEVICETYPE").
                     map(DeviceFields.DEVICETYPE.fieldName()).
                     add();
-            table.unique("UK_DDC_DEVICE_MRID").on(externid).add();
+            table.unique("UK_DDC_DEVICE_MRID").on(mRID).add();
             table.primaryKey("PK_DDC_DEVICE").on(id).add();
         }
     },
@@ -591,7 +591,7 @@ public enum TableSpecs {
             table.unique("UK_DDC_DEVMESATTR_NAME").on(deviceMessage, name).add();
         }
     },
-    
+
     DDC_DEVICEESTACTIVATION {
         @Override
         void addTo(DataModel dataModel) {
@@ -600,7 +600,7 @@ public enum TableSpecs {
             Column device = table.column("DEVICE").number().conversion(NUMBER2LONG).notNull().add();
             table.column("ACTIVE").type("char(1)").notNull().conversion(CHAR2BOOLEAN).map(DeviceEstimationImpl.Fields.ACTIVE.fieldName()).add();
             table.addAuditColumns();
-            
+
             table.primaryKey("PK_DDC_DEVESTACTIVATION").on(device).add();
             table.foreignKey("FK_DDC_DEVESTACTIVATION_DEVICE")
                  .on(device)
@@ -611,18 +611,18 @@ public enum TableSpecs {
                  .add();
         }
     },
-    
+
     DDC_DEVICEESTRULESETACTIVATION {
         @Override
         void addTo(DataModel dataModel) {
             Table<DeviceEstimationRuleSetActivation> table = dataModel.addTable(name(), DeviceEstimationRuleSetActivation.class);
             table.map(DeviceEstimationRuleSetActivationImpl.class);
-            
+
             Column estimationActivationColumn = table.column("ESTIMATIONACTIVATION").number().conversion(NUMBER2LONG).notNull().add();
             Column estimationRuleSetColumn = table.column("ESTIMATIONRULESET").number().conversion(NUMBER2LONG).notNull().add();
             table.column("ACTIVE").type("char(1)").notNull().conversion(CHAR2BOOLEAN).map(DeviceEstimationRuleSetActivationImpl.Fields.ACTIVE.fieldName()).add();
             table.addAuditColumns();
-            
+
             table.primaryKey("PK_DDC_DEVICEESTRULESETACT").on(estimationActivationColumn, estimationRuleSetColumn).add();
             table.foreignKey("FK_DDC_ESTRSACTIVATION_RULESET")
                  .on(estimationRuleSetColumn)
@@ -639,7 +639,7 @@ public enum TableSpecs {
                  .add();
         }
     },
-    
+
     ;
 
     abstract void addTo(DataModel component);
