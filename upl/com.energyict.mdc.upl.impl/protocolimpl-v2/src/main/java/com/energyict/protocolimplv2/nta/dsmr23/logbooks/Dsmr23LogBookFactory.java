@@ -46,12 +46,20 @@ public class Dsmr23LogBookFactory implements DeviceLogBookSupport {
             supportedLogBooks.add(getMeterConfig().getControlLogObject().getObisCode());
             supportedLogBooks.add(getMeterConfig().getPowerFailureLogObject().getObisCode());
             supportedLogBooks.add(getMeterConfig().getFraudDetectionLogObject().getObisCode());
+            addMbusLogBooksIfSupported(supportedLogBooks, protocol);
+        } catch (ProtocolException e) {   //Object not found in IOL, should never happen
+            throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e);
+        }
+    }
+
+    private void addMbusLogBooksIfSupported(List<ObisCode> supportedLogBooks, AbstractDlmsProtocol protocol) {
+        try {
             supportedLogBooks.add(getMeterConfig().getMbusEventLogObject().getObisCode());
             for (DeviceMapping mbusMeter : ((MeterTopology) protocol.getMeterTopology()).getMbusMeterMap()) {
                 supportedLogBooks.add(getMeterConfig().getMbusControlLog(mbusMeter.getPhysicalAddress() - 1).getObisCode());
             }
-        } catch (ProtocolException e) {   //Object not found in IOL, should never happen
-            throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e);
+        } catch (ProtocolException e) { //Object not found in IOL
+            return; // Then the device has no support for MBus
         }
     }
 
