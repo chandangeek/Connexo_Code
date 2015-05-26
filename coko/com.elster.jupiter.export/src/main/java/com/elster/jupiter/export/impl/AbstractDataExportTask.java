@@ -39,19 +39,19 @@ import java.util.stream.Collectors;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 public abstract class AbstractDataExportTask implements IExportTask {
-    protected final TaskService taskService;
-    protected final DataModel dataModel;
-    protected final IDataExportService dataExportService;
-    protected final Thesaurus thesaurus;
+    private final TaskService taskService;
+    private final DataModel dataModel;
+    private final IDataExportService dataExportService;
+    private final Thesaurus thesaurus;
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     @Size(min = 1, max = Table.NAME_LENGTH, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_NAME_LENGTH + "}")
     protected String name;
     @NotNull
     @IsExistingProcessor
-    protected String dataProcessor;
-    protected String dataSelector;
-    protected transient ScheduleExpression scheduleExpression;
-    protected transient Instant nextExecution;
+    private String dataProcessor;
+    private String dataSelector;
+    private transient ScheduleExpression scheduleExpression;
+    private transient Instant nextExecution;
     private long id;
     private Reference<RecurrentTask> recurrentTask = ValueReference.absent();
     private List<DataExportProperty> properties = new ArrayList<>();
@@ -321,6 +321,18 @@ public abstract class AbstractDataExportTask implements IExportTask {
     public History<ExportTask> getHistory() {
         List<JournalEntry<IReadingTypeExportTask>> journal = dataModel.mapper(IReadingTypeExportTask.class).getJournal(getId());
         return new History<>(journal, this);
+    }
+
+    DataModel getDataModel() {
+        return dataModel;
+    }
+
+    void init(String name, String dataProcessor, String dataSelector, ScheduleExpression scheduleExpression, Instant nextExecution) {
+        setName(name);
+        this.dataProcessor = dataProcessor;
+        this.dataSelector = dataSelector;
+        this.scheduleExpression = scheduleExpression;
+        this.nextExecution = nextExecution;
     }
 
     private class CannotDeleteWhileBusy extends CannotDeleteWhileBusyException {

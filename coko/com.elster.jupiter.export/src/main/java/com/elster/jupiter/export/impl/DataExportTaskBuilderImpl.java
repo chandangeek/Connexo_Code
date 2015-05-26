@@ -22,6 +22,7 @@ class DataExportTaskBuilderImpl implements DataExportTaskBuilder {
     private Instant nextExecution;
     private boolean scheduleImmediately;
     private String name;
+    private String dataSelector;
     private String dataProcessor;
     private RelativePeriod exportPeriod;
     private RelativePeriod updatePeriod;
@@ -99,7 +100,7 @@ class DataExportTaskBuilderImpl implements DataExportTaskBuilder {
 
     @Override
     public ReadingTypeDataExportTask build() {
-        ReadingTypeExportTaskImpl exportTask = ReadingTypeExportTaskImpl.from(dataModel, name, exportPeriod, dataProcessor, scheduleExpression, endDeviceGroup, nextExecution);
+        ReadingTypeExportTaskImpl exportTask = ReadingTypeExportTaskImpl.from(dataModel, name, exportPeriod, dataProcessor, dataSelector, scheduleExpression, endDeviceGroup, nextExecution);
         exportTask.setScheduleImmediately(scheduleImmediately);
         exportTask.setUpdatePeriod(updatePeriod);
         exportTask.setValidatedDataOption(validatedDataOption);
@@ -119,6 +120,12 @@ class DataExportTaskBuilderImpl implements DataExportTaskBuilder {
     @Override
     public DataExportTaskBuilder setDataProcessorName(String dataProcessor) {
         this.dataProcessor = dataProcessor;
+        return this;
+    }
+
+    @Override
+    public DataExportTaskBuilder setDataSelectorName(String dataSelector) {
+        this.dataSelector = dataSelector;
         return this;
     }
 

@@ -25,6 +25,8 @@ public interface DataExportTaskBuilder {
 
     DataExportTaskBuilder setDataProcessorName(String dataProcessor);
 
+    DataExportTaskBuilder setDataSelectorName(String dataSelector);
+
     DataExportTaskBuilder setExportPeriod(RelativePeriod relativePeriod);
 
     DataExportTaskBuilder setUpdatePeriod(RelativePeriod relativePeriod);

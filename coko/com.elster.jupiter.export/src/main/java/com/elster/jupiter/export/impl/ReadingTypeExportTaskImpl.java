@@ -52,8 +52,8 @@ class ReadingTypeExportTaskImpl extends AbstractDataExportTask implements IReadi
         this.meteringService = meteringService;
     }
 
-    static ReadingTypeExportTaskImpl from(DataModel dataModel, String name, RelativePeriod exportPeriod, String dataProcessor, ScheduleExpression scheduleExpression, EndDeviceGroup endDeviceGroup, Instant nextExecution) {
-        return dataModel.getInstance(ReadingTypeExportTaskImpl.class).init(name, exportPeriod, dataProcessor, scheduleExpression, endDeviceGroup, nextExecution);
+    static ReadingTypeExportTaskImpl from(DataModel dataModel, String name, RelativePeriod exportPeriod, String dataProcessor, String dataSelector, ScheduleExpression scheduleExpression, EndDeviceGroup endDeviceGroup, Instant nextExecution) {
+        return dataModel.getInstance(ReadingTypeExportTaskImpl.class).init(name, exportPeriod, dataProcessor, dataSelector, scheduleExpression, endDeviceGroup, nextExecution);
     }
 
     @Override
@@ -114,7 +114,7 @@ class ReadingTypeExportTaskImpl extends AbstractDataExportTask implements IReadi
         if (getReadingTypes().contains(readingType)) {
             return;
         }
-        readingTypes.add(ReadingTypeInExportTask.from(dataModel, this, readingType));
+        readingTypes.add(ReadingTypeInExportTask.from(getDataModel(), this, readingType));
 
     }
 
@@ -144,41 +144,37 @@ class ReadingTypeExportTaskImpl extends AbstractDataExportTask implements IReadi
     }
 
     public IReadingTypeDataExportItem addExportItem(Meter meter, ReadingType readingType) {
-        ReadingTypeDataExportItemImpl item = ReadingTypeDataExportItemImpl.from(dataModel, this, meter, readingType);
+        ReadingTypeDataExportItemImpl item = ReadingTypeDataExportItemImpl.from(getDataModel(), this, meter, readingType);
         exportItems.add(item);
         return item;
     }
 
     @Override
     public Set<ReadingType> getReadingTypes(Instant at) {
-        List<JournalEntry<ReadingTypeInExportTask>> readingTypes = dataModel.mapper(ReadingTypeInExportTask.class).at(at).find(ImmutableMap.of("readingTypeDataExportTask", this));
+        List<JournalEntry<ReadingTypeInExportTask>> readingTypes = getDataModel().mapper(ReadingTypeInExportTask.class).at(at).find(ImmutableMap.of("readingTypeDataExportTask", this));
         return readingTypes.stream()
                 .map(JournalEntry::get)
                 .map(ReadingTypeInExportTask::getReadingType)
                 .collect(Collectors.toSet());
     }
 
-    private ReadingTypeExportTaskImpl init(String name, RelativePeriod exportPeriod, String dataProcessor, ScheduleExpression scheduleExpression, EndDeviceGroup endDeviceGroup, Instant nextExecution) {
-        setName(name);
-        this.name = name;
+    private ReadingTypeExportTaskImpl init(String name, RelativePeriod exportPeriod, String dataProcessor, String dataSelector, ScheduleExpression scheduleExpression, EndDeviceGroup endDeviceGroup, Instant nextExecution) {
+        init(name, dataProcessor, dataSelector, scheduleExpression, nextExecution);
         this.exportPeriod.set(exportPeriod);
-        this.dataProcessor = dataProcessor;
-        this.scheduleExpression = scheduleExpression;
         this.endDeviceGroup.set(endDeviceGroup);
-        this.nextExecution = nextExecution;
         return this;
     }
 
     private ReadingTypeInExportTask toReadingTypeInExportTask(String mRID) {
         return meteringService.getReadingType(mRID)
-                .map(r -> ReadingTypeInExportTask.from(dataModel, this, r))
+                .map(r -> ReadingTypeInExportTask.from(getDataModel(), this, r))
                 .orElseGet(() -> readingTypeInValidationRuleFor(mRID));
     }
 
     private ReadingTypeInExportTask readingTypeInValidationRuleFor(String mRID) {
-        ReadingTypeInExportTask empty = ReadingTypeInExportTask.from(dataModel, this, mRID);
+        ReadingTypeInExportTask empty = ReadingTypeInExportTask.from(getDataModel(), this, mRID);
         if (getId() != 0) {
-            Save.UPDATE.validate(dataModel, empty);
+            Save.UPDATE.validate(getDataModel(), empty);
         }
         return empty;
     }
