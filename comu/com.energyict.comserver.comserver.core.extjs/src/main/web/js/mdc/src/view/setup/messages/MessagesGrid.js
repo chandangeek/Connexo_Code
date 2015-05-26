@@ -84,8 +84,7 @@ Ext.define('Mdc.view.setup.messages.MessagesGrid', {
             emptyMsg: Uni.I18n.translate('commands.pagingtoolbartop.emptyMsg', 'MDC', 'There are no commands'),
             items: [
                 {
-                    xtype: 'component',
-                    flex: 1
+                    xtype: 'component'
                 },
                 {
                     xtype: 'button',
