@@ -4,6 +4,7 @@ import com.elster.dlms.cosem.simpleobjectmodel.Ek280Defs;
 import com.elster.dlms.types.basic.ObisCode;
 import com.elster.protocolimpl.dlms.registers.DlmsRegisterMapping;
 import com.elster.protocolimpl.dlms.registers.RegisterMap;
+import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MissingPropertyException;
 
@@ -203,6 +204,7 @@ public class EK280 extends Dlms {
 
         List result = new ArrayList();
         result.add(EK280.ARCHIVESTRUCTUREVERSION);
+        result.add(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME);
         return result;
     }
 

@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.edmi.mk10;
 
-import com.energyict.cpo.Environment;
+import com.energyict.cbo.TimeDuration;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.cpo.TypedProperties;
@@ -31,10 +31,11 @@ import java.util.List;
  */
 public class MK10InboundDeviceProtocol implements BinaryInboundDeviceProtocol {
 
-    private static final int TIMEOUT_DEFAULT = 10000;
-    private static final int RETRIES_DEFAULT = 2;
-    private static final String TIMEOUT_KEY = Environment.getDefault().getTranslation("protocol.timeout");
-    private static final String RETRIES_KEY = Environment.getDefault().getTranslation("protocol.retries");
+    private static final String TIMEOUT_KEY = "Timeout";
+    private static final String RETRIES_KEY = "Retries";
+
+    private static final TimeDuration TIMEOUT_DEFAULT = TimeDuration.seconds(10);
+    private static final BigDecimal RETRIES_DEFAULT = new BigDecimal(2);
 
     private DeviceIdentifier deviceIdentifier;
     private InboundDiscoveryContext context;
@@ -141,7 +142,7 @@ public class MK10InboundDeviceProtocol implements BinaryInboundDeviceProtocol {
 
     @Override
     public String getVersion() {
-        return "$Date: 2012-10-26 14:42:27 +0200 (vr, 26 okt 2012) $";
+        return "$Date$";
     }
 
     @Override
@@ -166,17 +167,17 @@ public class MK10InboundDeviceProtocol implements BinaryInboundDeviceProtocol {
     @Override
     public List<PropertySpec> getOptionalProperties() {
         List<PropertySpec> propertySpecs = new ArrayList<>();
-        propertySpecs.add(PropertySpecFactory.bigDecimalPropertySpec(TIMEOUT_KEY));
-        propertySpecs.add(PropertySpecFactory.bigDecimalPropertySpec(RETRIES_KEY));
+        propertySpecs.add(PropertySpecFactory.timeDurationPropertySpecWithSmallUnitsAndDefaultValue(TIMEOUT_KEY, TIMEOUT_DEFAULT));
+        propertySpecs.add(PropertySpecFactory.bigDecimalPropertySpec(RETRIES_KEY, RETRIES_DEFAULT));
         return propertySpecs;
     }
 
     public int getTimeOutProperty() {
-        return getTypedProperties().getIntegerProperty(TIMEOUT_KEY, new BigDecimal(TIMEOUT_DEFAULT)).intValue();
+        return (int) getTypedProperties().getTypedProperty(TIMEOUT_KEY, TIMEOUT_DEFAULT).getMilliSeconds();
     }
 
     public int getRetriesProperty() {
-        return getTypedProperties().getIntegerProperty(RETRIES_KEY, new BigDecimal(RETRIES_DEFAULT)).intValue();
+        return getTypedProperties().getIntegerProperty(RETRIES_KEY, RETRIES_DEFAULT).intValue();
     }
 
     public TypedProperties getTypedProperties() {

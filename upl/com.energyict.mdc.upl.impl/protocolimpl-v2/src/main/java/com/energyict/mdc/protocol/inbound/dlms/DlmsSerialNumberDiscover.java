@@ -40,8 +40,8 @@ public class DlmsSerialNumberDiscover extends AbstractDiscover {
 
     private static final String DEVICE_ID_OBISCODE_KEY = "DeviceIdObisCode";
 
-    private static final int DEFAULT_PUBLIC_CLIENT_MAC_ADDRESS = 16;
-    private static final int DEFAULT_SERVER_ADDRESS = 1;
+    private static final BigDecimal DEFAULT_PUBLIC_CLIENT_MAC_ADDRESS = new BigDecimal(16);
+    private static final BigDecimal DEFAULT_SERVER_ADDRESS = new BigDecimal(1);
     private static final ObisCode DEFAULT_DEVICE_ID_OBISCODE = ObisCode.fromString("0.0.96.1.0.255");
 
     private static final int DEFAULT_FORCED_DELAY = 0;
@@ -183,18 +183,18 @@ public class DlmsSerialNumberDiscover extends AbstractDiscover {
     @Override
     public List<PropertySpec> getOptionalProperties() {
         List<PropertySpec> propertySpecs = super.getOptionalProperties();
-        propertySpecs.add(PropertySpecFactory.bigDecimalPropertySpec(DlmsProtocolProperties.CLIENT_MAC_ADDRESS));
-        propertySpecs.add(PropertySpecFactory.bigDecimalPropertySpec(DlmsProtocolProperties.SERVER_MAC_ADDRESS));
-        propertySpecs.add(PropertySpecFactory.obisCodePropertySpec(DEVICE_ID_OBISCODE_KEY));
+        propertySpecs.add(PropertySpecFactory.bigDecimalPropertySpec(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, DEFAULT_PUBLIC_CLIENT_MAC_ADDRESS));
+        propertySpecs.add(PropertySpecFactory.bigDecimalPropertySpec(DlmsProtocolProperties.SERVER_MAC_ADDRESS, DEFAULT_SERVER_ADDRESS));
+        propertySpecs.add(PropertySpecFactory.obisCodePropertySpecWithDefaultValue(DEVICE_ID_OBISCODE_KEY, DEFAULT_DEVICE_ID_OBISCODE));
         return propertySpecs;
     }
 
     public int getClientMacAddressProperty() {
-        return getTypedProperties().getIntegerProperty(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, new BigDecimal(DEFAULT_PUBLIC_CLIENT_MAC_ADDRESS)).intValue();
+        return getTypedProperties().getIntegerProperty(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, DEFAULT_PUBLIC_CLIENT_MAC_ADDRESS).intValue();
     }
 
     public int getServerMacAddressProperty() {
-        return getTypedProperties().getIntegerProperty(DlmsProtocolProperties.SERVER_MAC_ADDRESS, new BigDecimal(DEFAULT_SERVER_ADDRESS)).intValue();
+        return getTypedProperties().getIntegerProperty(DlmsProtocolProperties.SERVER_MAC_ADDRESS, DEFAULT_SERVER_ADDRESS).intValue();
     }
 
     public ObisCode getDeviceIdObisCodeProperty() {
@@ -203,7 +203,7 @@ public class DlmsSerialNumberDiscover extends AbstractDiscover {
 
     @Override
     public String getVersion() {
-        return "$Date: 2013-04-05 15:41:18 +0200 (vr, 05 apr 2013) $";
+        return "$Date$";
     }
 
     public DLMSConnection getDLMSConnection() {

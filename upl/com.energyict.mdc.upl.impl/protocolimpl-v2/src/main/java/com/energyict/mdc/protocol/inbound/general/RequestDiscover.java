@@ -24,8 +24,8 @@ public class RequestDiscover extends AbstractDiscover {
                 this.setSerialNumber(fullFrame.getSerialNumber());
                 addCollectedData(fullFrame);
 
-                if (fullFrame.isRequest() && fullFrame.getInboundParameters().getComPort() != null) {
-                    //TODO send ESC commands?
+                if (fullFrame.isRequest() && (getCollectedData() == null || getCollectedData().isEmpty())) { // In case first frame is a 'request', then handle as identifier
+                    return DiscoverResultType.IDENTIFIER;                                                    // instead of waiting for timeout
                 }
             } catch (InboundTimeOutException e) {
                 notTimedOut = false;

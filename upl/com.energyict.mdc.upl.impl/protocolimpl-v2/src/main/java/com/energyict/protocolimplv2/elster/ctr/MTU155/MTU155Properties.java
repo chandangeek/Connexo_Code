@@ -3,6 +3,7 @@ package com.energyict.protocolimplv2.elster.ctr.MTU155;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.cpo.TypedProperties;
+import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdw.core.TimeZoneInUse;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -82,7 +83,12 @@ public class MTU155Properties {
         optional.add(channelBacklogPropertySpec());
         optional.add(extractInstallationDatePropertySpec());
         optional.add(removeDayProfileOffsetPropertySpec());
+        optional.add(callHomeIdPropertySpec());
         return optional;
+    }
+
+    protected PropertySpec callHomeIdPropertySpec() {
+        return  PropertySpecFactory.stringPropertySpec(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME);
     }
 
     private PropertySpec timeZonePropertySpec() {

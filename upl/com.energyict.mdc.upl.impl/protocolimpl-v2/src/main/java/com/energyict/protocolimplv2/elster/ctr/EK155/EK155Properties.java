@@ -13,7 +13,7 @@ public class EK155Properties extends MTU155Properties {
         super(typedProperties);
     }
 
-    public boolean  isLogObjectIDs() {
+    public boolean isLogObjectIDs() {
         return false;
     }
 }

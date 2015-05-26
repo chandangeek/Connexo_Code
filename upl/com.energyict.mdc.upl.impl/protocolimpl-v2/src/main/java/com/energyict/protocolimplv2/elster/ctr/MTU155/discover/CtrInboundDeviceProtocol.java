@@ -27,7 +27,7 @@ import java.util.TimeZone;
  */
 public class CtrInboundDeviceProtocol extends AbstractDiscover {
 
-    private static final String DEVICE_TYPE_KEY ="Device type";
+    private static final String DEVICE_TYPE_KEY ="DeviceType";
     private static final String MTU155_DEVICE_TYPE = "MTU155";
     private static final String EK155_DEVICE_TYPE = "EK155";
 
