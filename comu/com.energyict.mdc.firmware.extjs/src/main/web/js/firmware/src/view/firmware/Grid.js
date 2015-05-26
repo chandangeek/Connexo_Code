@@ -14,12 +14,13 @@ Ext.define('Fwc.view.firmware.Grid', {
             dataIndex: 'firmwareVersion'
         },
         {
-            text: Uni.I18n.translate('firmware.field.type', 'FWC', 'Type'),
+            text: Uni.I18n.translate('firmware.field.type', 'FWC', 'Firmware type'),
             flex: 1,
             dataIndex: 'type'
         },
         {
-            text: Uni.I18n.translate('firmware.field.status', 'FWC', 'Status'),
+            text: Uni.I18n.translate('firmware.field.status', 'FWC', 'Firmware status'),
+            flex: 1,
             dataIndex: 'status'
         },
         {

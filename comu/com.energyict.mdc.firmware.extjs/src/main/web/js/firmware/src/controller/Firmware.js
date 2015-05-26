@@ -286,7 +286,7 @@ Ext.define('Fwc.controller.Firmware', {
                 if (success) {
                     form.router.getRoute('administration/devicetypes/view/firmwareversions').forward();
 
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('firmware.edit.save.success', 'FWC', 'Firmware version saved'));
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('firmware.edit.added.success', 'FWC', 'Firmware version added'));
                 } else {
                     me.setFormErrors(response, form);
                 }
@@ -349,7 +349,7 @@ Ext.define('Fwc.controller.Firmware', {
                 if (success) {
                     form.router.getRoute('administration/devicetypes/view/firmwareversions').forward();
 
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('firmware.edit.save.success', 'FWC', 'Firmware version updated'));
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('firmware.edit.updated.success', 'FWC', 'Firmware version updated'));
                 } else {
                     me.setFormErrors(response, form);
                 }

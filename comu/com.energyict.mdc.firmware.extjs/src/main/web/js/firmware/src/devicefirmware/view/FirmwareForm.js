@@ -25,7 +25,6 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
             {
                 xtype: 'button',
                 text: Uni.I18n.translate('general.actions', 'FWC', Uni.I18n.translate('general.actions', 'FWC', 'Actions')),
-                itemId: null,
                 iconCls: 'x-uni-action-iconD',
                 menu: {
                     xtype: 'device-firmware-action-menu'
@@ -222,8 +221,6 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
         formPending = me.down('#message-pending');
         formFailed = me.down('#message-failed');
         formOngoing = me.down('#message-ongoing');
-
-        me.getHeader().items[0].menu.record = me.record;
 
         if (status === 'pendingVersion') {
             formPending.record = record;
