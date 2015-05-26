@@ -81,7 +81,7 @@ public class DeviceLifeCycleChangeEventHandler implements TopicHandler {
                 .dataModel()
                 .query(Device.class)
                 .asSubquery(
-                    where(DeviceFields.DEVICETYPE.name()).isEqualTo(event.getDeviceType()),
+                    where(DeviceFields.DEVICETYPE.name()).isEqualTo(event.getDeviceType().getId()),
                     "id");  // Selects only the id field
         try {
             this.meteringService.changeStateMachine(
