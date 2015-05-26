@@ -8,6 +8,8 @@ import com.elster.jupiter.util.json.JsonService;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import javax.inject.Inject;
+
 /**
  * Provides factory services for the component that will
  * handle {@link SwitchStateMachineEvent}s.
@@ -34,8 +36,10 @@ public class SwitchStateMachineEventHandlerFactory implements MessageHandlerFact
     }
 
     // For testing purposes
+    @Inject
     public SwitchStateMachineEventHandlerFactory(JsonService jsonService, FiniteStateMachineService finiteStateMachineService, EventService eventService, ServerMeteringService meteringService) {
         this();
+        this.setEventService(eventService);
         this.setJsonService(jsonService);
         this.setFiniteStateMachineService(finiteStateMachineService);
         this.setMeteringService(meteringService);

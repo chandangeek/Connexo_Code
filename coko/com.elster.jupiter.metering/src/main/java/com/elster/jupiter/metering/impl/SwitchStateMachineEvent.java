@@ -60,10 +60,10 @@ public class SwitchStateMachineEvent {
                 .category("Crud")
                 .scope("System")
                 .withProperty("now", ValueType.LONG, "now")
-                .withProperty("deviceTypeId", ValueType.LONG, "deviceTypeId")
                 .withProperty("oldFiniteStateMachineId", ValueType.LONG, "oldFiniteStateMachineId")
                 .withProperty("newFiniteStateMachineId", ValueType.LONG, "newFiniteStateMachineId")
                 .withProperty("deviceIds", ValueType.STRING, "deviceIds")
+                .shouldPublish()
                 .create()
                 .save();
     }
