@@ -293,10 +293,14 @@ public enum Categories {
                         loadProfilesTask.setCreateMeterEventsFromStatusFlags((Boolean) parameterInfo.value);
                         break;
                     case ComTaskInfo.MIN_CLOCK_DIFF_BEFORE_BAD_TIME:
-                        ParameterInfo parameterInfoValue = ParameterInfo.from((Map<String, Object>) parameterInfo.value);
-                        RestHelper restHelper = new RestHelper();
-                        TimeDuration timeDuration = restHelper.getTimeDuration(parameterInfoValue.name, (Integer) parameterInfoValue.value);
-                        loadProfilesTask.setMinClockDiffBeforeBadTime(timeDuration);
+                        if (parameterInfo.value == null){
+                            loadProfilesTask.setMinClockDiffBeforeBadTime(null);
+                        }else{
+                            ParameterInfo parameterInfoValue = ParameterInfo.from((Map<String, Object>) parameterInfo.value);
+                            RestHelper restHelper = new RestHelper();
+                            TimeDuration timeDuration = restHelper.getTimeDuration(parameterInfoValue.name, (Integer) parameterInfoValue.value);
+                            loadProfilesTask.setMinClockDiffBeforeBadTime(timeDuration);
+                        }
                 }
             }
             loadProfilesTask.save();
