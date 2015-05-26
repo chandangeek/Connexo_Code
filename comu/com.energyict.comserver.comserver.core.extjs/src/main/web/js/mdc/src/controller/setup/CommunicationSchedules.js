@@ -200,11 +200,12 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
         previewForm.loadRecord(communicationSchedule);
         previewForm.down('#comTaskPreviewContainer').removeAll();
         Ext.each(communicationSchedule.comTaskUsages().data.items, function (comTaskUsage) {
-            taskList += comTaskUsage.get('name') + '<br/>'
+            taskList += Ext.String.htmlEncode(comTaskUsage.get('name')) + '<br/>'
         });
         previewForm.down('#comTaskPreviewContainer').add({
             xtype: 'displayfield',
-            value: taskList
+            value: taskList,
+            htmlEncode: false
         })
     },
 
