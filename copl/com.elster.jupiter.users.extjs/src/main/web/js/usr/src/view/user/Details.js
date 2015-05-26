@@ -70,7 +70,8 @@ Ext.define('Usr.view.user.Details', {
                                 {
                                     xtype: 'displayfield',
                                     name: 'roles',
-                                    fieldLabel: Uni.I18n.translate('user.roles', 'USR', 'Roles')
+                                    fieldLabel: Uni.I18n.translate('user.roles', 'USR', 'Roles'),
+                                    htmlEncode: false
                                 },
                                 {
                                     xtype: 'component',

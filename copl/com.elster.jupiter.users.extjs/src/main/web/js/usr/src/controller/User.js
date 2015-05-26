@@ -63,7 +63,7 @@ Ext.define('Usr.controller.User', {
         page.down('userDetails').setTitle(record.get('name'));
         form.loadRecord(record);
         for (var i = 0; i < currentGroups.length; i++) {
-            roles += currentGroups[i].data.name + '<br/>';
+            roles += Ext.String.htmlEncode(currentGroups[i].data.name) + '<br/>';
         }
         detailsRoles.setValue(roles);
     }
