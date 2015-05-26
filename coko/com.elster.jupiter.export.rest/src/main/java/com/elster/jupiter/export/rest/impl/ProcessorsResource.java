@@ -41,7 +41,7 @@ public class ProcessorsResource {
         PropertyUtils propertyUtils = new PropertyUtils();
         for (DataProcessorFactory processor : processors) {
             infos.add(processor.getName(), thesaurus.getStringBeyondComponent(processor.getName(), processor.getName()),
-                    propertyUtils.convertPropertySpecsToPropertyInfos(processor.getProperties()));
+                    propertyUtils.convertPropertySpecsToPropertyInfos(processor.getPropertySpecs()));
         }
         infos.total = processors.size();
         return infos;
