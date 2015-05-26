@@ -11,16 +11,15 @@ Ext.define('Cfg.model.ValidationRuleSetVersion', {
 
                 startDate = data.startDate;
                 endDate = data.endDate;
-                if (startDate && endDate) {
-                    result = Uni.I18n.translate('validation.version.from', 'CFG', 'From') + ' '+ Uni.DateTime.formatDateTimeLong(new Date(startDate)) + ' - ' +
-                    Uni.I18n.translate('validation.version.until', 'CFG', 'Until') + ' '+ Uni.DateTime.formatDateTimeLong(new Date(endDate));
-                } else if (data.startDate) {
-                    result = Uni.I18n.translate('validation.version.from', 'CFG', 'From') + ' ' + Uni.DateTime.formatDateTimeLong(new Date(startDate));
-                } else if (data.endDate) {
-                    result = Uni.I18n.translate('validation.version.until', 'CFG', 'Until') + ' ' + Uni.DateTime.formatDateTimeLong(new Date(endDate));
-                }else {
-                    result = Uni.I18n.translate('validation.version.notStart', 'CFG', 'Always')
-                }
+				if (startDate && endDate) {
+						result = Ext.String.format(Uni.I18n.translate('validation.version.display.fromUntil', 'CFG', "From {0} - Until {1}"), Uni.DateTime.formatDateTimeLong(new Date(startDate)), Uni.DateTime.formatDateTimeLong(new Date(endDate)));
+				} else if (data.startDate) {
+					result = Ext.String.format(Uni.I18n.translate('validation.version.display.from', 'CFG', "From {0}"), Uni.DateTime.formatDateTimeLong(new Date(startDate)));						
+				} else if (data.endDate) {
+					result = Ext.String.format(Uni.I18n.translate('validation.version.display.until', 'CFG', "Until {0}"), Uni.DateTime.formatDateTimeLong(new Date(endDate)));												
+				} else {
+					result = Uni.I18n.translate('validation.version.display.always', 'CFG', 'Always')
+				}               
 
                 return '<a href="#/administration/validation/rulesets/' + data.ruleSet.id + '/versions/' + data.id + '">' + result + '</a>';
             }
@@ -34,15 +33,14 @@ Ext.define('Cfg.model.ValidationRuleSetVersion', {
                 startDate = data.startDate;
                 endDate = data.endDate;
                 if (startDate && endDate) {
-                    result = Uni.I18n.translate('validation.version.from', 'CFG', 'From') + ' '+ Uni.DateTime.formatDateTimeLong(new Date(startDate)) + ' - ' +
-                             Uni.I18n.translate('validation.version.until', 'CFG', 'Until') + ' '+ Uni.DateTime.formatDateTimeLong(new Date(endDate));
-                } else if (data.startDate) {
-                    result = Uni.I18n.translate('validation.version.from', 'CFG', 'From') + ' ' + Uni.DateTime.formatDateTimeLong(new Date(startDate));
-                } else if (data.endDate) {
-                    result = Uni.I18n.translate('validation.version.until', 'CFG', 'Until') + ' ' + Uni.DateTime.formatDateTimeLong(new Date(endDate));
-                }else {
-                    result = Uni.I18n.translate('validation.version.notStart', 'CFG', 'Always')
-                }
+						result = Ext.String.format(Uni.I18n.translate('validation.version.display.fromUntil', 'CFG', "From {0} - Until {1}"), Uni.DateTime.formatDateTimeLong(new Date(startDate)), Uni.DateTime.formatDateTimeLong(new Date(endDate)));
+				} else if (data.startDate) {
+					result = Ext.String.format(Uni.I18n.translate('validation.version.display.from', 'CFG', "From {0}"), Uni.DateTime.formatDateTimeLong(new Date(startDate)));						
+				} else if (data.endDate) {
+					result = Ext.String.format(Uni.I18n.translate('validation.version.display.until', 'CFG', "Until {0}"), Uni.DateTime.formatDateTimeLong(new Date(endDate)));												
+				}else {
+					result = Uni.I18n.translate('validation.version.always', 'CFG', 'Always')
+				}
                 return result;
             }
         },
@@ -91,7 +89,7 @@ Ext.define('Cfg.model.ValidationRuleSetVersion', {
 		'numberOfInactiveRules',
         'numberOfRules',
         {
-            name: 'activeRules',
+            name: 'numberOfActiveRules',
             persist: false,
             mapping: function (data) {
                return data.numberOfRules - data.numberOfInactiveRules;

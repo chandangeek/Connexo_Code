@@ -11,21 +11,20 @@ Ext.define('Cfg.model.ValidationRuleSet', {
             mapping: function (data) {
                 var result, startDate, endDate;
 				
-				if (data.numberOfVersions == 0){
+				if (data.numberOfVersions === 0){
 					result = Uni.I18n.translate('validation.version.noVersion', 'CFG', '-')
 				}
 				else {
 					startDate = data.startDate;
 					endDate = data.endDate;
 					if (startDate && endDate) {
-						result = Uni.I18n.translate('validation.version.from', 'CFG', 'From') + ' '+ Uni.DateTime.formatDateTimeLong(new Date(startDate)) + ' - ' +
-						Uni.I18n.translate('validation.version.until', 'CFG', 'Until') + ' '+ Uni.DateTime.formatDateTimeLong(new Date(endDate));
+						result = Ext.String.format(Uni.I18n.translate('validation.version.display.fromUntil', 'CFG', "From {0} - Until {1}"), Uni.DateTime.formatDateTimeLong(new Date(startDate)), Uni.DateTime.formatDateTimeLong(new Date(endDate)));
 					} else if (data.startDate) {
-						result = Uni.I18n.translate('validation.version.from', 'CFG', 'From') + ' ' + Uni.DateTime.formatDateTimeLong(new Date(startDate));
+						result = Ext.String.format(Uni.I18n.translate('validation.version.display.from', 'CFG', "From {0}"), Uni.DateTime.formatDateTimeLong(new Date(startDate)));						
 					} else if (data.endDate) {
-						result = Uni.I18n.translate('validation.version.until', 'CFG', 'Until') + ' ' + Uni.DateTime.formatDateTimeLong(new Date(endDate));
+						result = Ext.String.format(Uni.I18n.translate('validation.version.display.until', 'CFG', "Until {0}"), Uni.DateTime.formatDateTimeLong(new Date(endDate)));												
 					}else {
-						result = Uni.I18n.translate('validation.version.notStart', 'CFG', 'Always')
+						result = Uni.I18n.translate('validation.version.display.always', 'CFG', 'Always')
 					}
 				}
 

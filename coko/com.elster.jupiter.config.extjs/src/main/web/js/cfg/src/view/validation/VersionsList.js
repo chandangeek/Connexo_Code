@@ -38,7 +38,7 @@ Ext.define('Cfg.view.validation.VersionsList', {
             },			
 			{
                 header: Uni.I18n.translate('validation.activeRules', 'CFG', 'Active rules'),
-                dataIndex: 'numberOfRules',
+                dataIndex: 'numberOfActiveRules',
                 flex: 1,
                 align: 'left',
                 sortable: false,

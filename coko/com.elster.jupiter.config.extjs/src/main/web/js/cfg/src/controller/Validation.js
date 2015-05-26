@@ -281,7 +281,7 @@ Ext.define('Cfg.controller.Validation', {
 
         record.readingTypes().add(arrReadingTypes);
 
-        me.getAddRule().setLoading('Loading...');
+        me.getAddRule().setLoading(Uni.I18n.translate('general.loading', 'CFG', 'Loading...'));
         record.getProxy().setUrl(router.arguments.ruleSetId, router.arguments.versionId);
         record.save({
             success: function (record) {
@@ -619,14 +619,9 @@ Ext.define('Cfg.controller.Validation', {
             form;
 
 		//refresh breadcrumb 
-		var rulesSetsStore = me.getValidationRuleSetsStore();		
-		rulesSetsStore.load({
-			params: {
-				ruleSetId: ruleSetId
-			},
-			callback: function (records, operation, success) {			
-				var rulesSet = rulesSetsStore.getById(parseInt(ruleSetId));
-				me.getApplication().fireEvent('loadRuleSet', rulesSet);
+		Cfg.model.ValidationRuleSet.load(ruleSetId, {
+            success: function (ruleSet) {
+				me.getApplication().fireEvent('loadRuleSet', ruleSet);
 				
 				var versionStore = me.getValidationRuleSetVersionsStore();
 				versionStore.load({
@@ -686,7 +681,7 @@ Ext.define('Cfg.controller.Validation', {
         }
         var values = form.getValues();
         record.set(values);
-        createEditRuleSetPanel.setLoading('Loading...');
+        createEditRuleSetPanel.setLoading(Uni.I18n.translate('general.loading', 'CFG', 'Loading...'));
 
         record.save({
             success: function (record, operation) {
@@ -751,7 +746,7 @@ Ext.define('Cfg.controller.Validation', {
             formPanel = view.down('#newRuleSetForm'),
             form = formPanel.getForm(),
             ruleSet;
-        view.setLoading('Loading...');
+        view.setLoading(Uni.I18n.translate('general.loading', 'CFG', 'Loading...'));
         ruleSetsStore.load({
             callback: function () {
                 view.setLoading(false);
@@ -956,7 +951,7 @@ Ext.define('Cfg.controller.Validation', {
         if (record) {
             loadRecordToForm(record);
         } else {
-            editRulePanel.setLoading();
+            editRulePanel.setLoading(Uni.I18n.translate('general.loading', 'CFG', 'Loading...'));
             rulesStore.load({
                 params: {
                     ruleSetId: ruleSetId,
@@ -1032,9 +1027,9 @@ Ext.define('Cfg.controller.Validation', {
         record.endEdit(true);
 
         if (!versionsGrid) {
-            view.setLoading('Loading...');
+            view.setLoading(Uni.I18n.translate('general.loading', 'CFG', 'Loading...'));
         } else {
-            versionsGrid.setLoading();
+            versionsGrid.setLoading(Uni.I18n.translate('general.loading', 'CFG', 'Loading...'));
         }
 
         record.save({
@@ -1090,7 +1085,7 @@ Ext.define('Cfg.controller.Validation', {
             router = this.getController('Uni.controller.history.Router'),
             view = self.getRulePreviewContainer() || self.getRuleSetBrowsePanel() || self.getRuleOverview() || self.getVersionsContainer() || self.getRulePreviewContainerPanel();
 
-        view.setLoading();
+        view.setLoading(Uni.I18n.translate('general.loading', 'CFG', 'Loading...'));
 
         rule.getProxy().setUrl(rule.get('ruleSetVersion').ruleSet.id, rule.get('ruleSetVersionId'));
         rule.destroy({
@@ -1180,7 +1175,8 @@ Ext.define('Cfg.controller.Validation', {
         var me = this,
             view = me.getRuleSetBrowsePanel() || me.getRuleSetOverview(),
             grid = view.down('grid');
-        view.setLoading('Removing...');
+			
+        view.setLoading(Uni.I18n.translate('general.removing', 'CFG', 'Removing...'));
         ruleSet.destroy({
             callback: function () {
                 view.setLoading(false);
@@ -1372,7 +1368,7 @@ Ext.define('Cfg.controller.Validation', {
             view = me.getVersionsContainer() || me.getVersionOverview() || me.getRuleSetsGrid(),
             grid = me.getVersionsGrid();
 
-        view.setLoading();
+        view.setLoading(Uni.I18n.translate('general.loading', 'CFG', 'Loading...'));
 
         version.getProxy().setUrl(version.get('ruleSetId'), version.get('id'));
         version.destroy({
@@ -1443,14 +1439,9 @@ Ext.define('Cfg.controller.Validation', {
         });
 
 		// refresh breadcrumb
-		var rulesSetsStore = me.getValidationRuleSetsStore();		
-		rulesSetsStore.load({
-			params: {
-				ruleSetId: ruleSetId
-			},
-			callback: function (records, operation, success) {
-				var rulesSet = rulesSetsStore.getById(parseInt(ruleSetId));
-				me.getApplication().fireEvent('loadRuleSet', rulesSet);
+		Cfg.model.ValidationRuleSet.load(ruleSetId, {
+            success: function (ruleSet) {
+				me.getApplication().fireEvent('loadRuleSet', ruleSet);
 			}
 		});
 				
@@ -1527,7 +1518,7 @@ Ext.define('Cfg.controller.Validation', {
             id: router.arguments.ruleSetId
         });
 
-        me.getAddVersion().setLoading();
+        me.getAddVersion().setLoading(Uni.I18n.translate('general.loading', 'CFG', 'Loading...'));
         record.getProxy().setUrl(router.arguments.ruleSetId, router.arguments.versionId, record.get('isClone'));
 
         record.save({
@@ -1565,20 +1556,15 @@ Ext.define('Cfg.controller.Validation', {
 				ruleSetId: ruleSetId,
 				versionId: versionId
 			}
-		),
-		rulesSetsStore = me.getValidationRuleSetsStore();
+		);
+		
 		me.getApplication().fireEvent('changecontentevent', versionContainerWidget);
 	
 		versionContainerWidget.setLoading(true);
 		
-		rulesSetsStore.load({
-			params: {
-				ruleSetId: ruleSetId
-			},
-			callback: function (records, operation, success) {
-			
-				var rulesSet = rulesSetsStore.getById(parseInt(ruleSetId));
-				me.getApplication().fireEvent('loadRuleSet', rulesSet);
+		Cfg.model.ValidationRuleSet.load(ruleSetId, {
+            success: function (ruleSet) {
+				me.getApplication().fireEvent('loadRuleSet', ruleSet);
 
 				var versionStore = me.getValidationRuleSetVersionsStore();
 				versionStore.load({
@@ -1606,16 +1592,10 @@ Ext.define('Cfg.controller.Validation', {
 
     showVersionRules: function (ruleSetId, versionId) {
  		var me = this;
-			rulesSetsStore = me.getValidationRuleSetsStore();
 		
-		rulesSetsStore.load({
-			params: {
-				ruleSetId: ruleSetId
-			},
-			callback: function (records, operation, success) {
-			
-				var rulesSet = rulesSetsStore.getById(parseInt(ruleSetId));
-				me.getApplication().fireEvent('loadRuleSet', rulesSet);
+		Cfg.model.ValidationRuleSet.load(ruleSetId, {
+            success: function (ruleSet) {
+				me.getApplication().fireEvent('loadRuleSet', ruleSet);
 
 				var versionStore = me.getValidationRuleSetVersionsStore();
 				versionStore.load({
