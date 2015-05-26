@@ -1,11 +1,22 @@
 Ext.define('Mdc.model.ValidationResultsLoadProfile', {
     extend: 'Ext.data.Model',
 	requires: [
-        'Uni.property.model.Property'
+        'Uni.property.model.Property',
+        'Mdc.store.DataIntervalAndZoomLevels'
     ],
     fields: [
         'id',
         'name',
+        'interval',
+        'intervalEnd',
+        'intervalInMs',
+        'intervalRecord',
+        {
+            name: 'intervalStart',
+            convert: function (value, record) {
+                return value;
+            }
+        },
         {
             name: 'total',
             convert: function (value, record) {

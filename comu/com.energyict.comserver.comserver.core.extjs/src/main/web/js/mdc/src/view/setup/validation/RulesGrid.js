@@ -23,16 +23,17 @@ Ext.define('Mdc.view.setup.validation.RulesGrid', {
             {
                 header: Uni.I18n.translate('validation.ruleName', 'MDC', 'Validation rule'),
                 dataIndex: 'name',
-                flex: 1,
+                flex: 3,
                 renderer: function (value, b, record) {
-                    return '<a href="#/administration/validation/rulesets/' + record.get('ruleSet').id
+					return '<a href="#/administration/validation/rulesets/' + record.get('ruleSetId') 
+                        + '/versions/' + record.get('ruleSetVersionId') 
                         + '/rules/' + record.getId() + '">' + Ext.String.htmlEncode(value) + '</a>';
                 }
             },
             {
                 header: Uni.I18n.translate('validation.status', 'CFG', 'Status'),
                 dataIndex: 'active',
-                flex: 1,
+                flex: 5,
                 renderer: function (value) {
                     if (value) {
                         return Uni.I18n.translate('validation.active', 'CFG', 'Active')
@@ -76,7 +77,7 @@ Ext.define('Mdc.view.setup.validation.RulesGrid', {
 
     updateValidationRuleSetId: function (validationRuleSetId) {
         var me = this;
-
+		
         me.validationRuleSetId = validationRuleSetId;
         me.down('pagingtoolbarbottom').params = {
             id: me.validationRuleSetId

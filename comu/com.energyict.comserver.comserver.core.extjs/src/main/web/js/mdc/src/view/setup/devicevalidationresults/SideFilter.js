@@ -41,18 +41,6 @@ Ext.define('Mdc.view.setup.devicevalidationresults.SideFilter', {
                 ]
             },
             {
-                xtype: 'combobox',
-                itemId: 'cbo-side-filter-duration',
-                name: 'duration',
-                fieldLabel: Uni.I18n.translate('deviceloadprofiles.filter.duration', 'MDC', 'Duration'),
-                labelAlign: 'top',
-                store: 'Mdc.store.ValidationResultsDurations',
-                displayField: 'localizeValue',
-                valueField: 'id',
-                queryMode: 'local',
-                anchor: '100%'
-            },
-			 {
                 xtype: 'fieldcontainer',
 				hidden: true,
                 itemId: 'fco-item-type',
