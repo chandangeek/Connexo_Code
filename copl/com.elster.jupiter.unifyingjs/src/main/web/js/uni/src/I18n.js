@@ -213,11 +213,12 @@ Ext.define('Uni.I18n', {
         if (typeof translation !== 'undefined' && translation !== null
             && typeof values !== 'undefined') {
             for (var i = 0; i < values.length; i++) {
-                translation = Uni.util.String.replaceAll(translation, i, values[i]);
+                var value = Ext.String.htmlEncode(values[i]);
+                translation = Uni.util.String.replaceAll(translation, i, value);
             }
         }
 
-        return Ext.String.htmlEncode(translation);
+        return translation;
     },
 
     /**
@@ -243,7 +244,7 @@ Ext.define('Uni.I18n', {
             translation = Uni.util.String.replaceAll(translation, 0, amount);
         }
 
-        return Ext.String.htmlEncode(translation);
+        return translation;
     },
 
     /**
