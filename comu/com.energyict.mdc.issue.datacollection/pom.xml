@@ -12,7 +12,7 @@
     </parent>
 
     <artifactId>mdc.issue.datacollection</artifactId>
-    <version>1.0.3-SNAPSHOT</version>
+    <version>1.0.3</version>
     <packaging>bundle</packaging>
     <name>[MDC] mdc.issue.datacollection [init IDC]</name>
     <description>
