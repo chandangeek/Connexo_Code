@@ -23,7 +23,8 @@ Ext.define('Apr.view.appservers.PreviewForm', {
             },
             {
                 fieldLabel: Uni.I18n.translate('general.messageServices', 'APR', 'Message services'),
-                name: 'messageServices'
+                name: 'messageServices',
+                htmlEncode: false
             }
         ];
         me.callParent(arguments);
