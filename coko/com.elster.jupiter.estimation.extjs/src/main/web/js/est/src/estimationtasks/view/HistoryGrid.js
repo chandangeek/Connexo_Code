@@ -50,9 +50,9 @@ Ext.define('Est.estimationtasks.view.HistoryGrid', {
                 xtype: 'pagingtoolbartop',
                 store: me.store,
                 dock: 'top',
-                displayMsg: Uni.I18n.translate('estimationtasks.pagingtoolbartop.displayMsg', 'EST', '{0} - {1} of {2} history lines per page'),
-                displayMoreMsg: Uni.I18n.translate('estimationtasks.pagingtoolbartop.displayMoreMsg', 'EST', '{0} - {1} of more than {2} history lines'),
-                emptyMsg: Uni.I18n.translate('estimationtasks.pagingtoolbartop.emptyMsg', 'EST', 'There are no history lines to display')
+                displayMsg: Uni.I18n.translate('estimationtasks.history.pagingtoolbartop.displayMsg', 'EST', '{0} - {1} of {1} history lines'),
+                displayMoreMsg: Uni.I18n.translate('estimationtasks.history.pagingtoolbartop.displayMoreMsg', 'EST', '{0} - {1} of more than {1} history lines'),
+                emptyMsg: Uni.I18n.translate('estimationtasks.history.pagingtoolbartop.emptyMsg', 'EST', 'There are no history lines to display')
             },
             {
                 xtype: 'pagingtoolbarbottom',
