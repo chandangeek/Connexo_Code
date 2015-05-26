@@ -13,4 +13,5 @@ public interface DataSelectorFactory extends HasDynamicProperties, HasName {
 
     void validateProperties(List<DataExportProperty> properties);
 
+    String getDisplayName();
 }

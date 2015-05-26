@@ -134,7 +134,7 @@ public class DataExportTaskExecutorTest {
         when(dataExportService.createExportOccurrence(occurrence)).thenReturn(dataExportOccurrence);
         when(dataExportService.findDataExportOccurrence(occurrence)).thenReturn(Optional.of(dataExportOccurrence));
         when(dataExportService.getDataProcessorFactory("CSV")).thenReturn(Optional.of(dataProcessorFactory));
-        when(dataExportService.getDataSelectorFactory(DataExportService.STANDARD_DATA_SELECTOR)).thenReturn(Optional.of(new StandardDataSelectorFactory(transactionService)));
+        when(dataExportService.getDataSelectorFactory(DataExportService.STANDARD_DATA_SELECTOR)).thenReturn(Optional.of(new StandardDataSelectorFactory(transactionService, thesaurus)));
         when(dataExportOccurrence.getTask()).thenReturn(task);
         when(dataExportOccurrence.getExportedDataInterval()).thenReturn(exportPeriod);
         when(dataExportOccurrence.getTriggerTime()).thenReturn(triggerTime.toInstant());

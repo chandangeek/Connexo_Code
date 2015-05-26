@@ -5,6 +5,7 @@ import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataExportTaskBuilder;
 import com.elster.jupiter.export.DataProcessorFactory;
+import com.elster.jupiter.export.DataSelectorFactory;
 import com.elster.jupiter.export.ReadingTypeDataExportTask;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
@@ -31,7 +32,16 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.Optional;
 
-@Component(name = "com.elster.jupiter.export.console", service = ConsoleCommands.class, property = {"osgi.command.scope=export", "osgi.command.function=createDataExportTask", "osgi.command.function=dataProcessors", "osgi.command.function=dataExportTasks", "osgi.command.function=setDefaultExportDir", "osgi.command.function=getDefaultExportDir"}, immediate = true)
+@Component(name = "com.elster.jupiter.export.console", service = ConsoleCommands.class,
+        property = {
+                "osgi.command.scope=export",
+                "osgi.command.function=createDataExportTask",
+                "osgi.command.function=dataProcessors",
+                "osgi.command.function=dataSelectors",
+                "osgi.command.function=dataExportTasks",
+                "osgi.command.function=setDefaultExportDir",
+                "osgi.command.function=getDefaultExportDir"
+        }, immediate = true)
 public class ConsoleCommands {
 
     private volatile IDataExportService dataExportService;
@@ -69,6 +79,12 @@ public class ConsoleCommands {
     public void dataProcessors() {
         dataExportService.getAvailableProcessors().stream()
                 .map(DataProcessorFactory::getName)
+                .forEach(System.out::println);
+    }
+
+    public void dataSelectors() {
+        dataExportService.getAvailableSelectors().stream()
+                .map(DataSelectorFactory::getName)
                 .forEach(System.out::println);
     }
 

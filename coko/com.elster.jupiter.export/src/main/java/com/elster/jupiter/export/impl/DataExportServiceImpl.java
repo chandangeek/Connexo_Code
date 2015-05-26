@@ -109,6 +109,11 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
     }
 
     @Override
+    public List<DataSelectorFactory> getAvailableSelectors() {
+        return Collections.unmodifiableList(dataSelectorFactories);
+    }
+
+    @Override
     public DataExportTaskBuilder newBuilder() {
         return new DataExportTaskBuilderImpl(dataModel);
     }
@@ -217,7 +222,7 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
                     bind(UserService.class).toInstance(userService);
                 }
             });
-            addSelector(new StandardDataSelectorFactory(transactionService));
+            addSelector(new StandardDataSelectorFactory(transactionService, thesaurus));
         } catch (RuntimeException e) {
             e.printStackTrace();
             throw e;
