@@ -30,7 +30,7 @@ Ext.define('Uni.override.panel.Header', {
         me.subtitle = subtitle;
 
         if (titleCmp.rendered) {
-            titleCmp.subTextEl.update(me.subtitle || '&#160;');
+            titleCmp.subTextEl.update(me.subtitle || ' ');
             titleCmp.updateLayout();
         } else {
             me.titleCmp.on({
