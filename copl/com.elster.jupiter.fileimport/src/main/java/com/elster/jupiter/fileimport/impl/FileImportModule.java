@@ -31,8 +31,6 @@ public class FileImportModule extends AbstractModule {
         requireBinding(UserService.class);
         requireBinding(MessageService.class);
         requireBinding(JsonService.class);
-        requireBinding(Thesaurus.class);
-        requireBinding(MessageInterpolator.class);
         bind(FileImportService.class).to(FileImportServiceImpl.class).in(Scopes.SINGLETON);
     }
 }
