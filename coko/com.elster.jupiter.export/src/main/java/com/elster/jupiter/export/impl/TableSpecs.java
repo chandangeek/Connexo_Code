@@ -1,5 +1,6 @@
 package com.elster.jupiter.export.impl;
 
+import com.elster.jupiter.export.DataExportDestination;
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportProperty;
 import com.elster.jupiter.metering.MeteringService;
@@ -139,6 +140,13 @@ enum TableSpecs {
 
             table.primaryKey("DES_PK_DIR4APPSERVER").on(idColumn).add();
             table.foreignKey("DES_FK_DIR4APPSERVER_APS").on(idColumn).references("APS", "APS_APPSERVER").map("appServer").add();
+        }
+    },
+    DES_DESTINATION(ReadingTypeInExportTask.class) {
+        @Override
+        void describeTable(Table table) {
+            table.map(DataExportDestination.class);
+
         }
     };
 
