@@ -51,7 +51,11 @@ public final class LoggingContext implements AutoCloseable {
 
     @Override
     public void close() {
-        context.set(parent);
+        if (parent != null) {
+            context.set(parent);
+        } else {
+            context.remove();
+        }
     }
 
     public void log(Level level, Object logger, String message, Throwable throwable, Object... args) {
