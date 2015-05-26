@@ -5,6 +5,7 @@ import com.elster.jupiter.devtools.tests.fakes.LogRecorder;
 import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.export.DataExportException;
 import com.elster.jupiter.export.DataExportProperty;
+import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataExportStrategy;
 import com.elster.jupiter.export.DataProcessor;
 import com.elster.jupiter.export.DataProcessorFactory;
@@ -20,6 +21,7 @@ import com.elster.jupiter.metering.groups.EndDeviceMembership;
 import com.elster.jupiter.metering.readings.IntervalReading;
 import com.elster.jupiter.metering.readings.Reading;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.tasks.TaskLogHandler;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
@@ -110,6 +112,8 @@ public class DataExportTaskExecutorTest {
     private Thesaurus thesaurus;
     @Mock
     private ReadingContainer readingContainer;
+    @Mock
+    private PropertySpec propertySpec;
 
     public static final Predicate<IntervalReading> READING_1 = r -> r.getSource().equals("reading1");
     public static final Predicate<IntervalReading> READING_2 = r -> r.getSource().equals("reading2");
@@ -130,6 +134,7 @@ public class DataExportTaskExecutorTest {
         when(dataExportService.createExportOccurrence(occurrence)).thenReturn(dataExportOccurrence);
         when(dataExportService.findDataExportOccurrence(occurrence)).thenReturn(Optional.of(dataExportOccurrence));
         when(dataExportService.getDataProcessorFactory("CSV")).thenReturn(Optional.of(dataProcessorFactory));
+        when(dataExportService.getDataSelectorFactory(DataExportService.STANDARD_DATA_SELECTOR)).thenReturn(Optional.of(new StandardDataSelectorFactory(transactionService)));
         when(dataExportOccurrence.getTask()).thenReturn(task);
         when(dataExportOccurrence.getExportedDataInterval()).thenReturn(exportPeriod);
         when(dataExportOccurrence.getTriggerTime()).thenReturn(triggerTime.toInstant());
@@ -137,6 +142,7 @@ public class DataExportTaskExecutorTest {
         when(task.getReadingTypes()).thenReturn(ImmutableSet.of(readingType1));
         when(task.addExportItem(meter1, readingType1)).thenReturn(newItem);
         when(task.getDataFormatter()).thenReturn("CSV");
+        when(task.getDataSelector()).thenReturn(DataExportService.STANDARD_DATA_SELECTOR);
         when(task.getDataExportProperties()).thenReturn(Arrays.asList(dataExportProperty));
         when(task.getStrategy()).thenReturn(strategy);
         when(dataExportProperty.getName()).thenReturn("name");
@@ -168,6 +174,7 @@ public class DataExportTaskExecutorTest {
         Map<String, Object> propertyMap = new HashMap<>();
         propertyMap.put(dataExportProperty.getName(), dataExportProperty.getValue());
         when(dataProcessorFactory.createDataFormatter(propertyMap)).thenReturn(dataProcessor);
+        when(dataProcessorFactory.getPropertySpec("name")).thenReturn(propertySpec);
         when(strategy.isExportContinuousData()).thenReturn(false);
         doReturn(Arrays.asList(reading1)).when(meter1).getReadings(exportPeriod, readingType1);
         doReturn(Arrays.asList(reading2)).when(meter2).getReadings(exportPeriod, readingType1);

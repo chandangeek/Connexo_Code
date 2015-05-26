@@ -6,7 +6,6 @@ import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportOccurrenceFinder;
 import com.elster.jupiter.export.DataExportProperty;
 import com.elster.jupiter.export.DataExportStatus;
-import com.elster.jupiter.export.DataProcessorFactory;
 import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
@@ -50,6 +49,7 @@ public abstract class AbstractDataExportTask implements IExportTask {
     @NotNull
     @IsExistingProcessor
     protected String dataProcessor;
+    protected String dataSelector;
     protected transient ScheduleExpression scheduleExpression;
     protected transient Instant nextExecution;
     private long id;
@@ -118,11 +118,11 @@ public abstract class AbstractDataExportTask implements IExportTask {
     }
 
     public void save() {
-        Optional<DataProcessorFactory> optional = dataExportService.getDataProcessorFactory(dataProcessor);
-        if (optional.isPresent()) {
-            DataProcessorFactory dataProcessorFactory = optional.get();
-            dataProcessorFactory.validateProperties(properties);
-        }
+        // TODO  : separate properties per Factory
+        dataExportService.getDataProcessorFactory(dataProcessor)
+                .ifPresent(dataProcessorFactory -> dataProcessorFactory.validateProperties(properties));
+        dataExportService.getDataSelectorFactory(dataSelector)
+                .ifPresent(dataSelectorFactory -> dataSelectorFactory.validateProperties(properties));
         if (id == 0) {
             persist();
         } else {
@@ -183,8 +183,13 @@ public abstract class AbstractDataExportTask implements IExportTask {
         return dataProcessor;
     }
 
+    @Override
+    public String getDataSelector() {
+        return dataSelector;
+    }
+
     public List<PropertySpec> getPropertySpecs() {
-        return dataExportService.getDataProcessorFactory(dataProcessor).orElseThrow(()->new IllegalArgumentException("No such data processor: "+dataProcessor)).getProperties();
+        return dataExportService.getDataProcessorFactory(dataProcessor).orElseThrow(()->new IllegalArgumentException("No such data processor: "+dataProcessor)).getPropertySpecs();
     }
 
     public ScheduleExpression getScheduleExpression() {

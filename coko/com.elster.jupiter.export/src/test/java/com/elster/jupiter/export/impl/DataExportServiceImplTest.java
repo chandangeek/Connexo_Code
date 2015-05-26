@@ -137,7 +137,7 @@ public class DataExportServiceImplTest {
         dataExportService.setQueryService(queryService);
         dataExportService.setClock(clock);
         dataExportService.setUserService(userService);
-        dataExportService.addResource(dataProcessorFactory);
+        dataExportService.addProcessor(dataProcessorFactory);
     }
 
     @Test
@@ -200,7 +200,7 @@ public class DataExportServiceImplTest {
     @Test
     public void testGetPropertiesSpecsForProcessor() {
         when(dataProcessorFactory.getName()).thenReturn("factory");
-        when(dataProcessorFactory.getProperties()).thenReturn(Arrays.asList(propertySpec1, propertySpec2, propertySpec3));
+        when(dataProcessorFactory.getPropertySpecs()).thenReturn(Arrays.asList(propertySpec1, propertySpec2, propertySpec3));
 
         assertThat(dataExportService.getPropertiesSpecsForProcessor("factory")).isEqualTo(Arrays.asList(propertySpec1, propertySpec2, propertySpec3));
     }

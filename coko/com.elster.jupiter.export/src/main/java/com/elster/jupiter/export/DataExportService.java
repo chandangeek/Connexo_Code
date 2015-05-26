@@ -13,6 +13,7 @@ import java.util.Optional;
 public interface DataExportService {
 
     String COMPONENTNAME = "DES";
+    String STANDARD_DATA_SELECTOR = "Standard Data Selector";
 
     Optional<DataProcessorFactory> getDataFormatterFactory(String name);
 

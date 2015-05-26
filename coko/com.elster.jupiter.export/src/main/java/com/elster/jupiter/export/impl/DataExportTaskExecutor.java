@@ -6,9 +6,12 @@ import com.elster.jupiter.export.DataExportProperty;
 import com.elster.jupiter.export.DataExportStatus;
 import com.elster.jupiter.export.DataProcessor;
 import com.elster.jupiter.export.DataProcessorFactory;
+import com.elster.jupiter.export.DataSelector;
+import com.elster.jupiter.export.DataSelectorFactory;
 import com.elster.jupiter.export.ExportData;
 import com.elster.jupiter.export.FatalDataExportException;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.HasDynamicProperties;
 import com.elster.jupiter.tasks.TaskExecutor;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -16,11 +19,11 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 class DataExportTaskExecutor implements TaskExecutor {
@@ -80,31 +83,13 @@ class DataExportTaskExecutor implements TaskExecutor {
     private void doExecute(IDataExportOccurrence occurrence, Logger logger) {
         IExportTask task = occurrence.getTask();
 
-        DataProcessor dataFormatter = getDataProcessor(task);
+        Stream<ExportData> data = getDataSelector(task, logger).selectData(occurrence);
 
-        Stream<ExportData> data = new ReadingTypeDataSelector(transactionService, logger).selectData(occurrence);
+        DataProcessor dataFormatter = getDataProcessor(task);
 
         catchingUnexpected(loggingExceptions(logger, () -> dataFormatter.startExport(occurrence, logger))).run();
 
-        ItemExporter itemExporter = new ItemExporter() {
-
-            private ItemExporter lazy;
-
-            @Override
-            public Range<Instant> exportItem(DataExportOccurrence occurrence, MeterReadingData item) {
-                if (lazy == null) {
-                    lazy = getItemExporter(dataFormatter, logger);
-                }
-                return lazy.exportItem(occurrence, item);
-            }
-
-            @Override
-            public void done() {
-                if (lazy != null) {
-                    lazy.done();
-                }
-            }
-        };
+        ItemExporter itemExporter = new LazyItemExporter(dataFormatter, logger);
 
         catchingUnexpected(() -> data.forEach(exportData -> doProcess(dataFormatter, occurrence, exportData, itemExporter))).run();
 
@@ -130,22 +115,34 @@ class DataExportTaskExecutor implements TaskExecutor {
     }
 
     private DataProcessor getDataProcessor(IExportTask task) {
-        Map<String, Object> propertyMap = new HashMap<>();
         List<DataExportProperty> dataExportProperties = task.getDataExportProperties();
         DataProcessorFactory dataProcessorFactory = getDataProcessorFactory(task.getDataFormatter());
-        for (DataExportProperty property : dataExportProperties) {
-            propertyMap.put(property.getName(), property.useDefault() ? getDefaultValue(dataProcessorFactory, property) : property.getValue());
-        }
+        Map<String, Object> propertyMap = dataExportProperties.stream()
+                .filter(dataExportProperty -> dataProcessorFactory.getPropertySpec(dataExportProperty.getName()) != null)
+                .collect(Collectors.toMap(DataExportProperty::getName, property -> property.useDefault() ? getDefaultValue(dataProcessorFactory, property) : property.getValue()));
         return dataProcessorFactory.createDataFormatter(propertyMap);
     }
 
-    private Object getDefaultValue(DataProcessorFactory dataProcessorFactory, DataExportProperty property) {
-        return dataProcessorFactory.getProperties().stream().filter(dep -> dep.getName().equals(property.getName()))
+    private DataSelector getDataSelector(IExportTask task, Logger logger) {
+        List<DataExportProperty> dataExportProperties = task.getDataExportProperties();
+        DataSelectorFactory dataSelectorFactory = getDataSelectorFactory(task.getDataSelector());
+        Map<String, Object> propertyMap = dataExportProperties.stream()
+                .filter(dataExportProperty -> dataSelectorFactory.getPropertySpec(dataExportProperty.getName()) != null)
+                .collect(Collectors.toMap(DataExportProperty::getName, property -> property.useDefault() ? getDefaultValue(dataSelectorFactory, property) : property.getValue()));
+        return dataSelectorFactory.createDataSelector(propertyMap, logger);
+    }
+
+    private Object getDefaultValue(HasDynamicProperties dataProcessorFactory, DataExportProperty property) {
+        return dataProcessorFactory.getPropertySpecs().stream().filter(dep -> dep.getName().equals(property.getName()))
                 .findFirst().orElseThrow(IllegalArgumentException::new).getPossibleValues().getDefault();
     }
 
     private DataProcessorFactory getDataProcessorFactory(String dataFormatter) {
         return dataExportService.getDataProcessorFactory(dataFormatter).orElseThrow(() -> new NoSuchDataProcessor(thesaurus, dataFormatter));
+    }
+
+    private DataSelectorFactory getDataSelectorFactory(String dataSelector) {
+        return dataExportService.getDataSelectorFactory(dataSelector).orElseThrow(() -> new NoSuchDataSelector(thesaurus, dataSelector));
     }
 
     private void doProcess(DataProcessor dataProcessor, DataExportOccurrence occurrence, ExportData exportData, ItemExporter itemExporter) {
@@ -208,4 +205,30 @@ class DataExportTaskExecutor implements TaskExecutor {
         }
     }
 
+    private class LazyItemExporter implements ItemExporter {
+
+        private final DataProcessor dataFormatter;
+        private final Logger logger;
+        private ItemExporter lazy;
+
+        public LazyItemExporter(DataProcessor dataFormatter, Logger logger) {
+            this.dataFormatter = dataFormatter;
+            this.logger = logger;
+        }
+
+        @Override
+        public Range<Instant> exportItem(DataExportOccurrence occurrence, MeterReadingData item) {
+            if (lazy == null) {
+                lazy = getItemExporter(dataFormatter, logger);
+            }
+            return lazy.exportItem(occurrence, item);
+        }
+
+        @Override
+        public void done() {
+            if (lazy != null) {
+                lazy.done();
+            }
+        }
+    }
 }

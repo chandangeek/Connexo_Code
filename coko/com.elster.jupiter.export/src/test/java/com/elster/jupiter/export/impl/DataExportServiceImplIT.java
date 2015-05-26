@@ -205,9 +205,9 @@ public class DataExportServiceImplIT {
         });
         readingType = meteringService.getReadingType("0.0.5.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
         anotherReadingType = meteringService.getReadingType("0.0.2.1.19.1.12.0.0.0.0.0.0.0.0.0.72.0").get();
-        dataExportService.addResource(dataProcessorFactory);
+        dataExportService.addProcessor(dataProcessorFactory);
         when(dataProcessorFactory.getName()).thenReturn(FORMATTER);
-        when(dataProcessorFactory.getProperties()).thenReturn(Arrays.asList(propertySpec));
+        when(dataProcessorFactory.getPropertySpecs()).thenReturn(Arrays.asList(propertySpec));
         when(propertySpec.getName()).thenReturn("propy");
         when(propertySpec.getValueFactory()).thenReturn(new BigDecimalFactory());
         try (TransactionContext context = transactionService.getContext()) {

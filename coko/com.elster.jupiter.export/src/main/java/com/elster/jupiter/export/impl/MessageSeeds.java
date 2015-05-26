@@ -23,7 +23,7 @@ public enum MessageSeeds implements MessageSeed {
     RELATIVE_PERIOD_USED(1010, "dataexport.using.relativeperiod", "Relative period is still in use by the following data export tasks: {0}", Level.SEVERE),
     VETO_DEVICEGROUP_DELETION(1013, "deviceGroupXstillInUseByTask", "Device group {0} is still in use by an export task", Level.SEVERE),
     MUST_SELECT_READING_TYPE(1012, Keys.MUST_SELECT_AT_LEAST_ONE_READING_TYPE, "At least one reading type has to be selected", Level.SEVERE),
-    ;
+    NO_SUCH_SELECTOR(1014, Keys.NO_SUCH_SELECTOR, "Selector {0} does not exist", Level.SEVERE);
 
     private final int number;
     private final String key;
@@ -80,6 +80,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String FIELD_SIZE_BETWEEN_1_AND_NAME_LENGTH = "FieldSizeBetween1and80";
         public static final String NO_SUCH_PROCESSOR = "NoSuchProcessor";
         public static final String NAME_MUST_BE_UNIQUE = "NameMustBeUnique";
+        public static final String NO_SUCH_SELECTOR = "NoSuchSelector";
     }
 
 

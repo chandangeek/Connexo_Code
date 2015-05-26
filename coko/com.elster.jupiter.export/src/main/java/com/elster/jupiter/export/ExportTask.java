@@ -43,6 +43,8 @@ public interface ExportTask extends HasName, HasAuditInfo {
 
     String getDataFormatter();
 
+    String getDataSelector();
+
     List<PropertySpec> getPropertySpecs();
 
     ScheduleExpression getScheduleExpression();

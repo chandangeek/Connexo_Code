@@ -2,6 +2,7 @@ package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataProcessorFactory;
+import com.elster.jupiter.export.DataSelectorFactory;
 import com.elster.jupiter.export.ReadingTypeDataExportTask;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.nls.Thesaurus;
@@ -24,4 +25,6 @@ interface IDataExportService extends DataExportService {
     Thesaurus getThesaurus();
 
     List<ReadingTypeDataExportTask> findExportTaskUsing(RelativePeriod relativePeriod);
+
+    Optional<DataSelectorFactory> getDataSelectorFactory(String dataSelector);
 }

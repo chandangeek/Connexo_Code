@@ -1,10 +1,7 @@
 package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportStrategy;
-import com.elster.jupiter.export.DataSelector;
-import com.elster.jupiter.export.ExportData;
 import com.elster.jupiter.export.ValidatedDataOption;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
@@ -31,10 +28,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @UniqueName(groups = {Save.Create.class, Save.Update.class})
-class ReadingTypeExportTaskImpl extends AbstractDataExportTask implements IReadingTypeExportTask, DataSelector {
+class ReadingTypeExportTaskImpl extends AbstractDataExportTask implements IReadingTypeExportTask {
 
     private final MeteringService meteringService;
 
@@ -185,13 +181,6 @@ class ReadingTypeExportTaskImpl extends AbstractDataExportTask implements IReadi
             Save.UPDATE.validate(dataModel, empty);
         }
         return empty;
-    }
-
-
-    @Override
-    public Stream<ExportData> selectData(DataExportOccurrence dataExportOccurrence) {
-        //TODO automatically generated method body, provide implementation.
-        return null;
     }
 
     void clearChildrenForDelete() {
