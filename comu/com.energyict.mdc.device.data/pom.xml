@@ -11,7 +11,7 @@
   </parent>
 
   <artifactId>mdc.device.data</artifactId>
-  <version>1.0.3</version>
+  <version>1.0.4-SNAPSHOT</version>
   <packaging>bundle</packaging>
   <name>[MDC] mdc.device.data [init DDC]</name>
   <description>
