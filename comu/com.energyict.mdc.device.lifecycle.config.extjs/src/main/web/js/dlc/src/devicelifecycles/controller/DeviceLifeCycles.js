@@ -142,10 +142,11 @@ Ext.define('Dlc.devicelifecycles.controller.DeviceLifeCycles', {
         previewForm.down('#used-by').removeAll();
         Ext.Array.each(record.get('deviceTypes'), function (deviceType) {
             var url = router.getRoute('administration/devicetypes/view').buildUrl({deviceTypeId: deviceType.id});
-            deviceTypesList += '- <a href="' + url + '">' + deviceType.name + '</a><br/>';
+            deviceTypesList += '- <a href="' + url + '">' + Ext.String.htmlEncode(deviceType.name) + '</a><br/>';
         });
         previewForm.down('#used-by').add({
             xtype: 'displayfield',
+            htmlEncode: false,
             value: deviceTypesList
         });
         preview.down('device-life-cycles-action-menu').record = record;
@@ -299,11 +300,12 @@ Ext.define('Dlc.devicelifecycles.controller.DeviceLifeCycles', {
                 view.down('#device-life-cycle-link').setText(deviceLifeCycleRecord.get('name'));
                 Ext.Array.each(deviceLifeCycleRecord.get('deviceTypes'), function (deviceType) {
                     var url = router.getRoute('administration/devicetypes/view').buildUrl({deviceTypeId: deviceType.id});
-                    deviceTypesList += '- <a href="' + url + '">' + deviceType.name + '</a><br/>';
+                    deviceTypesList += '- <a href="' + url + '">' + Ext.String.htmlEncode(deviceType.name) + '</a><br/>';
                 });
                 form.down('#used-by').add({
                     xtype: 'displayfield',
-                    value: deviceTypesList
+                    value: deviceTypesList,
+                    htmlEncode: false
                 });
                 view.down('device-life-cycles-action-menu').record = deviceLifeCycleRecord;
                 me.getApplication().fireEvent('devicelifecycleload', deviceLifeCycleRecord);
