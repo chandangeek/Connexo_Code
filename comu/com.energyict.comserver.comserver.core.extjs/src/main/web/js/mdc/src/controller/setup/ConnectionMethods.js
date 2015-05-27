@@ -19,7 +19,8 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
         'ConnectionTypes',
         'ConnectionStrategies',
         'TimeUnits',
-        'ComPortPools'
+        'ComPortPools',
+        'ComPortPoolsWithoutPaging'
     ],
 
     refs: [
@@ -168,7 +169,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
     showAddConnectionMethodView: function (deviceTypeId, deviceConfigId, direction, a, b) {
         var connectionTypesStore = Ext.StoreManager.get('ConnectionTypes'),
             timeUnitsStore = Ext.StoreManager.get('TimeUnits');
-        this.comPortPoolStore = Ext.StoreManager.get('ComPortPools');
+        this.comPortPoolStore = Ext.StoreManager.get('ComPortPoolsWithoutPaging');
         var connectionStrategiesStore = Ext.StoreManager.get('ConnectionStrategies');
         var me = this;
         this.deviceTypeId = deviceTypeId;
@@ -383,8 +384,8 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
         var properties = objectWithProperties.properties();
         var form = this.getConnectionMethodEditView().down('property-form');
 
+        form.loadRecordAsNotRequired(objectWithProperties);
         if (properties.count()) {
-            form.loadRecordAsNotRequired(objectWithProperties);
             form.show();
         } else {
             form.hide();
@@ -394,7 +395,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
 
     showConnectionMethodEditView: function (deviceTypeId, deviceConfigId, connectionMethodId) {
         var connectionTypesStore = Ext.StoreManager.get('ConnectionTypes');
-        this.comPortPoolStore = Ext.StoreManager.get('ComPortPools');
+        this.comPortPoolStore = Ext.StoreManager.get('ComPortPoolsWithoutPaging');
         var connectionStrategiesStore = Ext.StoreManager.get('ConnectionStrategies');
         this.deviceTypeId = deviceTypeId;
         this.deviceConfigurationId = deviceConfigId;
