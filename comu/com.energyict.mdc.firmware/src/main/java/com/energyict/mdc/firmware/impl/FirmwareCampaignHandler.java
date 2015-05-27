@@ -31,8 +31,6 @@ public class FirmwareCampaignHandler implements MessageHandler {
         if (handler.isPresent()){
             handler.get().handle(messageProperties, this.handlerContext);
         }
-
-        System.out.println(" == HANDLER " + topic);
     }
 
     private static class HandlerContext {

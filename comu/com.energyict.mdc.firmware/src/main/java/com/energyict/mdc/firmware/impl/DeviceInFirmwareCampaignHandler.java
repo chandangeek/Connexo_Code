@@ -35,8 +35,6 @@ public class DeviceInFirmwareCampaignHandler extends EventHandler<LocalEvent> {
 
     @Override
     protected void onEvent(LocalEvent event, Object... eventDetails) {
-
-        System.out.println(" == PUB/SUB " + event.getType().getTopic());
         if (KNOWN_TOPICS.contains(event.getType().getTopic())) {
             FirmwareComTaskExecution comTaskExecution = (FirmwareComTaskExecution) event.getSource();
             this.firmwareService.getDeviceInFirmwareCampaignsFor(comTaskExecution.getDevice())

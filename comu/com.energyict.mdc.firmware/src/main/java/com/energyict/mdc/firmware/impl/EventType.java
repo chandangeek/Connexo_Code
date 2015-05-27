@@ -37,11 +37,6 @@ public enum EventType {
             return super.addCustomProperties(eventTypeBuilder).shouldPublish();
         }
     },
-    /*
-    FIRMWARE_CAMPAIGN_UPDATED("firmwarecampaign/UPDATED"),
-    FIRMWARE_CAMPAIGN_DELETED("firmwarecampaign/DELETED"),
-    FIRMWARE_CAMPAIGN_STARTED("firmwarecampaign/STARTED"),
-    */
     ;
 
     private static final String NAMESPACE = "com/energyict/mdc/firmware/";

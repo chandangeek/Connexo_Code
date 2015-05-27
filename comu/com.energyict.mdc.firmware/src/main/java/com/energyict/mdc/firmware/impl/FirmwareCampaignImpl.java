@@ -339,7 +339,7 @@ public class FirmwareCampaignImpl implements FirmwareCampaign, HasUniqueName {
 
     @Override
     public void cancel() {
-        if (this.status == null){
+        if (this.startedOn == null){
             this.startedOn = clock.instant();
         }
         if (this.finishedOn == null){
