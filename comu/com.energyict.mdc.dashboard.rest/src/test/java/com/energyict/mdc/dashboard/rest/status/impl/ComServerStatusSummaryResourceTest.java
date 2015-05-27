@@ -1,6 +1,6 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
-import com.energyict.mdc.common.services.Finder;
+import com.elster.jupiter.domain.util.Finder;
 import com.energyict.mdc.dashboard.rest.status.ComServerStatusInfo;
 import com.energyict.mdc.dashboard.rest.status.ComServerStatusSummaryInfo;
 import com.energyict.mdc.engine.config.ComServer;
