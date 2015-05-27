@@ -165,7 +165,7 @@ Ext.define('Fwc.controller.Firmware', {
 
         var data = firmware.getAssociatedData().firmwareType;
         Ext.create('Uni.view.window.Confirmation', {
-            confirmText: Uni.I18n.translate('firmware.deprecate.button', 'FWC', 'Deprecate'),
+            confirmText: Uni.I18n.translate('firmware.deprecate.button', 'FWC', 'Deprecate')
         }).show({
             msg: Uni.I18n.translate('firmware.deprecate.msg', 'FWC', 'It will not be possible to upload this firmware version on devices.'),
             title: Uni.I18n.translate('firmware.deprecate.title.' + data.id, 'FWC', 'Deprecate') + " '" + firmware.get('firmwareVersion') + "'?",
@@ -349,7 +349,7 @@ Ext.define('Fwc.controller.Firmware', {
                 if (success) {
                     form.router.getRoute('administration/devicetypes/view/firmwareversions').forward();
 
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('firmware.edit.updated.success', 'FWC', 'Firmware version updated'));
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('firmware.edit.updated.success', 'FWC', 'Firmware version saved'));
                 } else {
                     me.setFormErrors(response, form);
                 }

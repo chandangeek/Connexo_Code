@@ -13,18 +13,8 @@ Ext.define('Fwc.view.firmware.Form', {
         'Fwc.view.firmware.field.FirmwareType',
         'Fwc.view.firmware.field.FirmwareStatus'
     ],
-    record: null,
 
-    dockedItems: [{
-        xtype: 'toolbar',
-        dock: 'top',
-        border: true,
-        items: {
-            xtype: 'uni-form-error-message',
-            itemId: 'form-errors',
-            hidden: true
-        }
-    }],
+    record: null,
 
     initComponent: function () {
         var me = this;

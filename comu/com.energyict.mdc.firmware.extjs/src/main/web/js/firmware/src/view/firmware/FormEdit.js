@@ -5,6 +5,12 @@ Ext.define('Fwc.view.firmware.FormEdit', {
     hydrator: 'Fwc.form.Hydrator',
     items: [
         {
+            xtype: 'uni-form-error-message',
+            itemId: 'form-errors',
+            margin: '0 0 10 0',
+            hidden: true
+        },
+        {
             xtype: 'textfield',
             name: 'firmwareVersion',
             itemId: 'text-firmware-version',

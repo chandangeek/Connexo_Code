@@ -33,7 +33,7 @@ Ext.define('Fwc.controller.History', {
                     action: 'editFirmware',
                     callback: function (route) {
                         this.getApplication().on('loadFirmware', function (record) {
-                            route.setTitle('Edit \'' + record.get('type') + '-' + record.get('firmwareVersion') + '\'');
+                            route.setTitle('Edit \'' + record.get('firmwareVersion') + '\'');
                             return true;
                         }, {single: true});
 

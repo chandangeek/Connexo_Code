@@ -6,6 +6,12 @@ Ext.define('Fwc.view.firmware.FormAdd', {
 
     items: [
         {
+            xtype: 'uni-form-error-message',
+            itemId: 'form-errors',
+            margin: '0 0 10 0',
+            hidden: true
+        },
+        {
             xtype: 'firmware-field-file',
             itemId: 'firmware-field-file',
             anchor: '60%'
@@ -42,7 +48,7 @@ Ext.define('Fwc.view.firmware.FormAdd', {
             xtype: 'firmware-type',
             itemId: 'radio-firmware-type',
             defaultType: 'radiofield',
-            value: {id: 'communication'},
+            value: {id: 'meter'},
             required: true
         },
         {
