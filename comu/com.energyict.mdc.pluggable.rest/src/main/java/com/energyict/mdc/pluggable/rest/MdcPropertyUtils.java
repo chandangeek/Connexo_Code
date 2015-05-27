@@ -113,7 +113,7 @@ public class MdcPropertyUtils {
     }
 
     private String getTranslatedPropertyName(PropertySpec propertySpec) {
-        return thesaurus.getStringBeyondComponent(propertySpec.getName(), propertySpec.getName());
+        return propertySpec.getName();
     }
 
     private PropertyValueInfo<Object> getThePropertyValueInfo(TypedProperties properties, PropertySpec propertySpec, ValueVisibility valueVisibility, PrivilegePresence privilegePresence) {
