@@ -1,5 +1,6 @@
 package com.elster.jupiter.appserver;
 
+import com.elster.jupiter.fileimport.ImportSchedule;
 import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.util.cron.CronExpression;
 
@@ -13,7 +14,11 @@ public interface AppServer {
 
 	List<? extends SubscriberExecutionSpec> getSubscriberExecutionSpecs();
 
+    List<? extends ImportScheduleOnAppServer> getImportSchedulesOnAppServer();
+
 	SubscriberExecutionSpec createSubscriberExecutionSpec(SubscriberSpec subscriberSpec, int threadCount);
+
+    ImportScheduleOnAppServer addImportScheduleOnAppServer(ImportSchedule importSchedule);
 
     void sendCommand(AppServerCommand command);
 
@@ -22,6 +27,8 @@ public interface AppServer {
     boolean isRecurrentTaskActive();
 
     void removeSubscriberExecutionSpec(SubscriberExecutionSpec subscriberExecutionSpec);
+
+    void removeImportScheduleOnAppServer(ImportScheduleOnAppServer importScheduleOnAppServer);
 
     boolean isActive();
 
@@ -40,6 +47,10 @@ public interface AppServer {
         SubscriberExecutionSpec createSubscriberExecutionSpec(SubscriberSpec subscriberSpec, int threadCount);
 
         void removeSubscriberExecutionSpec(SubscriberExecutionSpec subscriberExecutionSpec);
+
+        ImportScheduleOnAppServer addImportScheduleOnAppServer(ImportSchedule importSchedule);
+
+        void removeImportScheduleOnAppServer(ImportScheduleOnAppServer importScheduleOnAppServer);
 
         void setRecurrentTaskActive(boolean recurrentTaskActive);
 

@@ -11,7 +11,7 @@ import com.elster.jupiter.orm.DataModel;
 import javax.inject.Inject;
 import java.util.Properties;
 
-public final class ImportScheduleOnAppServerImpl implements ImportScheduleOnAppServer {
+public class ImportScheduleOnAppServerImpl implements ImportScheduleOnAppServer {
 
     private long importScheduleId;
     private transient ImportSchedule importSchedule;

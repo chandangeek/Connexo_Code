@@ -3,6 +3,8 @@ package com.elster.jupiter.appserver.impl;
 import com.elster.jupiter.appserver.*;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.domain.util.UniqueCaseInsensitive;
+import com.elster.jupiter.fileimport.FileImportService;
+import com.elster.jupiter.fileimport.ImportSchedule;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.SubscriberSpec;
@@ -20,6 +22,7 @@ import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @UniqueCaseInsensitive(fields = "name", groups = Save.Create.class, message = "{" + MessageSeeds.Keys.NAME_MUST_BE_UNIQUE + "}")
 public class AppServerImpl implements AppServer {
@@ -36,15 +39,18 @@ public class AppServerImpl implements AppServer {
     private boolean active;
     private final DataModel dataModel;
     private final CronExpressionParser cronExpressionParser;
+    private final FileImportService fileImportService;
     private final MessageService messageService;
     private final JsonService jsonService;
     private final Thesaurus thesaurus;
     private List<SubscriberExecutionSpecImpl> executionSpecs;
+    private List<ImportScheduleOnAppServerImpl> importSchedulesOnAppServer;
 
     @Inject
-	AppServerImpl(DataModel dataModel, CronExpressionParser cronExpressionParser, MessageService messageService, JsonService jsonService, Thesaurus thesaurus) {
+	AppServerImpl(DataModel dataModel, CronExpressionParser cronExpressionParser, FileImportService fileImportService, MessageService messageService, JsonService jsonService, Thesaurus thesaurus) {
         this.dataModel = dataModel;
         this.cronExpressionParser = cronExpressionParser;
+        this.fileImportService = fileImportService;
         this.messageService = messageService;
         this.jsonService = jsonService;
         this.thesaurus = thesaurus;
@@ -68,19 +74,39 @@ public class AppServerImpl implements AppServer {
         }
     }
 
+    @Override
+    public ImportScheduleOnAppServerImpl addImportScheduleOnAppServer(ImportSchedule importSchedule) {
+        try(BatchUpdateImpl updater = forBatchUpdate()) {
+            return updater.addImportScheduleOnAppServer(importSchedule);
+        }
+    }
+
     private DataMapper<SubscriberExecutionSpecImpl> getSubscriberExecutionSpecFactory() {
         return dataModel.mapper(SubscriberExecutionSpecImpl.class);
     }
 
+    private DataMapper<ImportScheduleOnAppServerImpl> getImportScheduleOnAppServerFactory() {
+        return dataModel.mapper(ImportScheduleOnAppServerImpl.class);
+    }
+
     @Override
 	public List<SubscriberExecutionSpecImpl> getSubscriberExecutionSpecs() {
-        List<SubscriberExecutionSpec> specs = null;
         if (executionSpecs == null) {
             executionSpecs = getSubscriberExecutionSpecFactory().find("appServer", this);
         }
         return executionSpecs;
     }
-    
+
+    @Override
+    public List<ImportScheduleOnAppServerImpl> getImportSchedulesOnAppServer() {
+        if(importSchedulesOnAppServer == null) {
+            importSchedulesOnAppServer = getImportScheduleOnAppServerFactory().find("appServer", this).stream()
+                    .filter(importService -> importService.getAppServer().getName().equals(this.getName()))
+                    .collect(Collectors.toList());
+        }
+        return importSchedulesOnAppServer;
+    }
+
     @Override
     public CronExpression getScheduleFrequency() {
         if (scheduleFrequency == null) {
@@ -179,6 +205,20 @@ public class AppServerImpl implements AppServer {
         }
 
         @Override
+        public ImportScheduleOnAppServerImpl addImportScheduleOnAppServer(ImportSchedule importSchedule){
+            ImportScheduleOnAppServerImpl importScheduleOnAppServer = ImportScheduleOnAppServerImpl.from(dataModel,AppServerImpl.this.fileImportService, importSchedule, AppServerImpl.this);
+            getImportScheduleOnAppServerFactory().persist(importScheduleOnAppServer);
+            return importScheduleOnAppServer;
+        }
+
+        @Override
+        public void removeImportScheduleOnAppServer(ImportScheduleOnAppServer importScheduleOnAppServer){
+            ImportScheduleOnAppServerImpl found = getImportScheduleOnAppServer(importScheduleOnAppServer);
+            getImportScheduleOnAppServerFactory().remove(found);
+            importSchedulesOnAppServer.remove(found);
+        }
+
+        @Override
         public void setRecurrentTaskActive(boolean recurrentTaskActive) {
             AppServerImpl.this.recurrentTaskActive = recurrentTaskActive;
             needsUpdate = true;
@@ -228,12 +268,25 @@ public class AppServerImpl implements AppServer {
         }
     }
 
+    @Override
+    public void removeImportScheduleOnAppServer(ImportScheduleOnAppServer importScheduleOnAppServer) {
+        try(BatchUpdate updater = forBatchUpdate()) {
+            updater.removeImportScheduleOnAppServer(importScheduleOnAppServer);
+        }
+    }
+
     private SubscriberExecutionSpecImpl getSubscriberExecutionSpec(SubscriberExecutionSpec subscriberExecutionSpec) {
         return getSubscriberExecutionSpecs().stream()
                     .filter(sp -> sp.getSubscriberSpec().getDestination().getName().equals(subscriberExecutionSpec.getSubscriberSpec().getDestination().getName()))
                     .filter(sp -> sp.getSubscriberSpec().getName().equals(subscriberExecutionSpec.getSubscriberSpec().getName()))
                     .findFirst()
                     .orElseThrow(IllegalArgumentException::new);
+    }
+
+    private ImportScheduleOnAppServerImpl getImportScheduleOnAppServer(ImportScheduleOnAppServer importScheduleOnAppServer) {
+        return getImportSchedulesOnAppServer().stream().filter(importSchedule -> importSchedule.getImportSchedule().equals(importScheduleOnAppServer.getImportSchedule()))
+                .findFirst()
+                .orElseThrow(IllegalArgumentException::new);
     }
 
     // for future use in the appserver's shut down request

@@ -39,6 +39,7 @@ import java.util.logging.Logger;
                 "osgi.command.function=activate",
                 "osgi.command.function=deactivate",
                 "osgi.command.function=activateFileImport",
+                "osgi.command.function=listFileImport",
                 "osgi.command.function=appServers",
                 "osgi.command.function=identify",
                 "osgi.command.function=stopAppServer",
@@ -139,6 +140,17 @@ public class AppServiceConsoleService {
                 doActivateFileImport(foundAppServer.get(), importSchedule);
             }
         });
+    }
+
+    public void listFileImport(String appServerName) {
+        Optional<AppServer> foundAppServer = findAppServer(appServerName);
+        if (!foundAppServer.isPresent()) {
+            System.out.println("AppServer not found.");
+            return;
+        }
+
+        foundAppServer.get().getImportSchedulesOnAppServer().stream().
+                forEach(importSchedule -> System.out.println(importSchedule.getImportSchedule().getName()));
     }
 
     private void doActivateFileImport(AppServer appServerToActivateOn, ImportSchedule importSchedule) {
