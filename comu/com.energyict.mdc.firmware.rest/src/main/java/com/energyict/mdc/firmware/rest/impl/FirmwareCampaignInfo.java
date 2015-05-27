@@ -48,7 +48,8 @@ public class FirmwareCampaignInfo {
         FirmwareCampaignStatus campaignStatus = campaign.getStatus();
         this.status = new com.energyict.mdc.common.rest.IdWithNameInfo();
         this.status.id = campaignStatus.name();
-        this.status.name = new FirmwareCampaignStatusAdapter().marshal(campaignStatus);
+        String statusTranslationKey = new FirmwareCampaignStatusAdapter().marshal(campaignStatus);
+        this.status.name = thesaurus.getString(statusTranslationKey, statusTranslationKey);
         this.deviceType = new IdWithNameInfo(campaign.getDeviceType());
         String managementOptionId = campaign.getFirmwareManagementOption().getId();
         this.managementOption = new ManagementOptionInfo(managementOptionId, thesaurus.getString(managementOptionId, managementOptionId));
