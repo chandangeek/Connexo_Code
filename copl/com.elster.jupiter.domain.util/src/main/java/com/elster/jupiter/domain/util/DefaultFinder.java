@@ -1,5 +1,8 @@
 package com.elster.jupiter.domain.util;
 
+import com.elster.jupiter.domain.util.impl.MessageSeeds;
+import com.elster.jupiter.nls.LocalizedException;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.util.conditions.Condition;
@@ -22,6 +25,8 @@ public class DefaultFinder<T> implements Finder<T> {
     private Integer pageSize;
     private List<Order> sortingColumns = new ArrayList<>();
     private Order defaultSort;
+    private Integer maxPageSize = null;
+    private Thesaurus thesaurus;
 
     public static <T> DefaultFinder<T> of(Class<T> clazz, DataModel dataModel, Class<?> ... eagers) {
         return of(clazz, Condition.TRUE, dataModel, eagers);
@@ -62,8 +67,15 @@ public class DefaultFinder<T> implements Finder<T> {
             sortingColumns.add(defaultSort);
         }
         if (start==null || pageSize ==null) {
+            if (maxPageSize!=null) {
+                throw new MaxPageSizeExceeded(thesaurus, maxPageSize);
+            }
             return query.select(condition, sortingColumns.toArray(new Order[sortingColumns.size()]));
         } else {
+            if (maxPageSize!=null && pageSize>this.maxPageSize) {
+                throw new MaxPageSizeExceeded(thesaurus, maxPageSize);
+            }
+
             return query.select(condition, sortingColumns.toArray(new Order[sortingColumns.size()]), true, new String[0], this.start + 1, this.start + this.pageSize + 1);
         }
     }
@@ -81,6 +93,16 @@ public class DefaultFinder<T> implements Finder<T> {
     }
 
     @Override
+    public Finder<T> maxPageSize(Thesaurus thesaurus, int maxPageSize) {
+        this.thesaurus = thesaurus;
+        if (maxPageSize<=0) {
+            throw new IllegalArgumentException("Maximum page size must be greater than 0");
+        }
+        this.maxPageSize = maxPageSize;
+        return this;
+    }
+
+    @Override
     public Subquery asSubQuery(String... fieldNames) {
         return query.asSubquery(condition,fieldNames);
     }
@@ -88,5 +110,13 @@ public class DefaultFinder<T> implements Finder<T> {
     @Override
     public SqlFragment asFragment(String... fieldNames) {
         return query.asFragment(condition, fieldNames);
+    }
+
+}
+
+class MaxPageSizeExceeded extends LocalizedException {
+
+    protected MaxPageSizeExceeded(Thesaurus thesaurus, int size) {
+        super(thesaurus, MessageSeeds.MAX_PAGE_SIZE_EXCEEDED, size);
     }
 }

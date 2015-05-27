@@ -1,5 +1,6 @@
 package com.elster.jupiter.domain.util;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.sql.SqlFragment;
 import java.util.List;
@@ -53,4 +54,6 @@ public interface Finder<T> {
      * For the use of Subquery, see the documentation there
      */
     SqlFragment asFragment(String... fieldNames);
+
+    default Finder<T> maxPageSize(Thesaurus thesaurus, int maxPageSize) { return this; }
 }
