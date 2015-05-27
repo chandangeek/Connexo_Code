@@ -221,7 +221,9 @@ Ext.define('Uni.property.form.Property', {
         var me = this;
 
         Ext.each(errors, function (error) {
-            me.getPropertyField(error.id).markInvalid(error.msg);
+            if (!!me.getPropertyField(error.id)) {
+                me.getPropertyField(error.id).markInvalid(error.msg);
+            }
         });
     }
 });
