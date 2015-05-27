@@ -41,7 +41,7 @@ Ext.define('Est.estimationrules.view.PreviewContainer', {
 
         me.previewComponent = {
             xtype: 'estimation-rules-detail-form',
-            itemId: '#estimation-rule-preview',
+            itemId: 'estimation-rule-preview',
             actionMenuItemId: me.actionMenuItemId,
             frame: true,
             ui: 'default',
