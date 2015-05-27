@@ -26,6 +26,8 @@ Ext.define('Fwc.view.firmware.FirmwareOptionsEdit', {
                 loadRecord: function (record) {
                     this.getForm().loadRecord(record);
                     var checkboxgroup = this.down('#firmwareUpgradeOptions');
+                    var radiogroup = this.down('#allowedRadioGroup');
+                    if (!record.get('isAllowed')) radiogroup.setValue({'isAllowed': 0});
                     // remove the unsupported options.
                     checkboxgroup.items.each(function (item) {
                         if (record.get('supportedOptions')
