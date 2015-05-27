@@ -5,6 +5,12 @@ Ext.define('Fwc.view.firmware.FormEditGhost', {
     edit: true,
     items: [
         {
+            xtype: 'uni-form-error-message',
+            itemId: 'form-errors',
+            margin: '0 0 10 0',
+            hidden: true
+        },
+        {
             xtype: 'displayfield',
             itemId: 'displayFirmwareVersion',
             name: 'firmwareVersion',
