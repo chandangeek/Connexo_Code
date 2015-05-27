@@ -44,7 +44,7 @@ Ext.define('Cfg.privileges.Validation', {
         return Uni.Auth.checkPrivileges(Cfg.privileges.Validation.fineTuneOnDevice);
     },
     canUpdateDeviceConfigurationValidation : function (){
-        return Uni.Auth.checkPrivileges(Cfg.privileges.alidation.fineTuneOnDeviceConfiguration);
+        return Uni.Auth.checkPrivileges(Cfg.privileges.Validation.fineTuneOnDeviceConfiguration);
     }
 
 });
