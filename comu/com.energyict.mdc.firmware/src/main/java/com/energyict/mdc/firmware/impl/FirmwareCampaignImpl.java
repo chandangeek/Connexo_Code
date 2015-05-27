@@ -42,6 +42,7 @@ import java.util.stream.Collectors;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 @UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_MUST_BE_UNIQUE + "}")
+@HasValidFirmwareCampaignAttributes(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
 public class FirmwareCampaignImpl implements FirmwareCampaign, HasUniqueName {
 
     public enum Fields {
@@ -49,8 +50,7 @@ public class FirmwareCampaignImpl implements FirmwareCampaign, HasUniqueName {
         NAME ("name"),
         STATUS ("status"),
         DEVICE_TYPE ("deviceType"),
-        DEVICE_GROUP ("deviceGroup"),
-        UPGRADE_OPTION ("upgradeOption"),
+        UPGRADE_OPTION ("managementOption"),
         FIRMWARE_TYPE ("firmwareType"),
         PLANNED_DATE ("plannedDate"),
         STARTED_ON ("startedOn"),
@@ -78,15 +78,11 @@ public class FirmwareCampaignImpl implements FirmwareCampaign, HasUniqueName {
     private FirmwareCampaignStatus status;
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private Reference<DeviceType> deviceType = ValueReference.absent();
-
-    /* ================== */
-    /* TODO decide should we store it, or device group will be passed for #cloneDeviceList() as a parameter */
-    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
-    private Reference<EndDeviceGroup> deviceGroup = ValueReference.absent();
-    /* ================== */
+    @NotNull(groups = {Save.Create.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
+    private EndDeviceGroup deviceGroup;
 
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
-    private ProtocolSupportedFirmwareOptions upgradeOption;
+    private ProtocolSupportedFirmwareOptions managementOption;
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private FirmwareType firmwareType;
     private Instant plannedDate;
@@ -94,7 +90,6 @@ public class FirmwareCampaignImpl implements FirmwareCampaign, HasUniqueName {
     private Instant finishedOn;
     @Valid
     private List<DeviceInFirmwareCampaign> devices = new ArrayList<>();
-    @Valid
     private List<FirmwareCampaignProperty> properties = new ArrayList<>();
     private Reference<DevicesInFirmwareCampaignStatusImpl> devicesStatus = ValueReference.absent();
 
@@ -125,9 +120,9 @@ public class FirmwareCampaignImpl implements FirmwareCampaign, HasUniqueName {
     }
 
     FirmwareCampaign init(DeviceType deviceType, EndDeviceGroup group) {
-        this.status = FirmwareCampaignStatus.NOT_STARTED;
+        this.status = FirmwareCampaignStatus.PROCESSING;
         this.deviceType.set(deviceType);
-        this.deviceGroup.set(group);
+        this.deviceGroup = group;
 
         DevicesInFirmwareCampaignStatusImpl devicesStatus = dataModel.getInstance(DevicesInFirmwareCampaignStatusImpl.class);
         devicesStatus.init(this);
@@ -136,12 +131,7 @@ public class FirmwareCampaignImpl implements FirmwareCampaign, HasUniqueName {
         return this;
     }
 
-    public void cloneDeviceList(){
-        /* ================== */
-        /* TODO decide should we used the stored value or pass a parameter to the method */
-        EndDeviceGroup group = this.deviceGroup.get();
-        /* ================== */
-
+    public void cloneDeviceList(EndDeviceGroup group){
         List<Device> devices = Collections.emptyList();
         if (group instanceof QueryEndDeviceGroup){
             Condition deviceQuery = ((QueryEndDeviceGroup) group).getCondition();
@@ -161,8 +151,14 @@ public class FirmwareCampaignImpl implements FirmwareCampaign, HasUniqueName {
                     FirmwareCampaignImpl.this.devices.add(dataModel.getInstance(DeviceInFirmwareCampaignImpl.class)
                             .init(FirmwareCampaignImpl.this, device));
                 });
-        setStatus(FirmwareCampaignStatus.SCHEDULED);
-        save();
+        if (devices.isEmpty()){
+            cancel();
+            save();
+        } else {
+            setStatus(FirmwareCampaignStatus.ONGOING);
+            save();
+            this.eventService.postEvent(EventType.FIRMWARE_CAMPAIGN_PROCESSED.topic(), this);
+        }
     }
 
     @Override
@@ -186,9 +182,6 @@ public class FirmwareCampaignImpl implements FirmwareCampaign, HasUniqueName {
     }
 
     void setStatus(FirmwareCampaignStatus status){
-        if (!this.status.isValidStatusTransition(status)){
-            // TODO throw exception
-        }
         this.status = status;
     }
 
@@ -214,16 +207,12 @@ public class FirmwareCampaignImpl implements FirmwareCampaign, HasUniqueName {
 
     @Override
     public ProtocolSupportedFirmwareOptions getFirmwareManagementOption() {
-        return upgradeOption;
+        return managementOption;
     }
 
     @Override
-    public void setUpgradeOption(ProtocolSupportedFirmwareOptions upgradeOption) {
-        if (!FirmwareCampaignStatus.NOT_STARTED.equals(this.status)
-                && !FirmwareCampaignStatus.SCHEDULED.equals(this.status)){
-            // TODO throw exception (upgrade already in progress)
-        }
-        this.upgradeOption = upgradeOption;
+    public void setManagementOption(ProtocolSupportedFirmwareOptions managementOption) {
+        this.managementOption = managementOption;
     }
 
     @Override
@@ -327,7 +316,7 @@ public class FirmwareCampaignImpl implements FirmwareCampaign, HasUniqueName {
             Save.UPDATE.save(dataModel, this);
         } else {
             Save.CREATE.save(dataModel, this);
-//            this.eventService.postEvent(EventType.FIRMWARE_CAMPAIGN_CREATED.topic(), this);
+            this.eventService.postEvent(EventType.FIRMWARE_CAMPAIGN_CREATED.topic(), this);
         }
     }
 
@@ -349,13 +338,25 @@ public class FirmwareCampaignImpl implements FirmwareCampaign, HasUniqueName {
     }
 
     @Override
+    public void cancel() {
+        if (this.status == null){
+            this.startedOn = clock.instant();
+        }
+        if (this.finishedOn == null){
+            this.finishedOn = clock.instant();
+        }
+        setStatus(FirmwareCampaignStatus.CANCELLED);
+        if (!this.devices.isEmpty()){
+            // TODO cancel firmware process on devices
+        }
+    }
+
+    @Override
     public Map<String, Long> getDevicesStatusMap() {
         return this.devicesStatus.get().getStatusMap();
     }
 
     public void updateStatus(){
-        this.devices.stream().map(DeviceInFirmwareCampaign::updateStatus).collect(Collectors.toList());
-        save();
         DevicesInFirmwareCampaignStatusImpl devicesStatus = this.devicesStatus.get();
         devicesStatus.update();
         if (devicesStatus.getOngoing() == 0 && devicesStatus.getPending() == 0){
@@ -363,5 +364,15 @@ public class FirmwareCampaignImpl implements FirmwareCampaign, HasUniqueName {
             this.finishedOn = clock.instant();
             save();
         }
+    }
+
+    @SuppressWarnings("unused")
+    /** We need this getter for successful event serialization */
+    public EndDeviceGroup getDeviceGroup() {
+        return deviceGroup;
+    }
+
+    public Instant getModTime() {
+        return modTime;
     }
 }

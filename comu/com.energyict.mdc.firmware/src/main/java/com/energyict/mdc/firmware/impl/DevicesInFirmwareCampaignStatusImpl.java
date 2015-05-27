@@ -18,6 +18,7 @@ import java.sql.SQLException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -27,12 +28,13 @@ public class DevicesInFirmwareCampaignStatusImpl{
     private static final String STATUS = "STATUS";
 
     public Map<String, Long> getStatusMap() {
-        Map<String, Long> result = new HashMap<>();
+        // Order of this statuses is important for FE
+        Map<String, Long> result = new LinkedHashMap<>();
         result.put(FirmwareManagementDeviceStatus.Constants.SUCCESS, this.success);
         result.put(FirmwareManagementDeviceStatus.Constants.FAILED, this.failed);
+        result.put(FirmwareManagementDeviceStatus.Constants.CONFIGURATION_ERROR, this.configurationError);
         result.put(FirmwareManagementDeviceStatus.Constants.ONGOING, this.ongoing);
         result.put(FirmwareManagementDeviceStatus.Constants.PENDING, this.pending);
-        result.put(FirmwareManagementDeviceStatus.Constants.CONFIGURATION_ERROR, this.configurationError);
         return result;
     }
 
@@ -63,15 +65,6 @@ public class DevicesInFirmwareCampaignStatusImpl{
     private long ongoing = 0;
     private long pending = 0;
     private long configurationError = 0;
-
-    @SuppressWarnings("unused")
-    private long version;
-    @SuppressWarnings("unused")
-    private Instant createTime;
-    @SuppressWarnings("unused")
-    private Instant modTime;
-    @SuppressWarnings("unused")
-    private String userName;
 
     private final DataModel dataModel;
 

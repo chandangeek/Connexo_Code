@@ -3,13 +3,11 @@ package com.energyict.mdc.firmware.impl;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.tasks.RecurrentTask;
-import com.elster.jupiter.tasks.RecurrentTaskBuilder;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.util.exception.ExceptionCatcher;
 
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -33,7 +31,7 @@ public class Installer {
     void install() {
         ExceptionCatcher.executing(
                 this::installDataModel,
-                this::createDestinationAndSubscriber
+                this::createJupiterEventsSubscriber
         ).andHandleExceptionsWith(Throwable::printStackTrace)
                 .execute();
         createEventTypesIfNotExist();
@@ -43,26 +41,14 @@ public class Installer {
         dataModel.install(true, true);
     }
 
-    private void createDestinationAndSubscriber() {
-        QueueTableSpec queueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
-        Optional<DestinationSpec> destinationSpec = messageService.getDestinationSpec(FirmwareCampaignsHandlerFactory.FIRMWARE_CAMPAIGNS_DESTINATION);
-        if (!destinationSpec.isPresent()) {
-            DestinationSpec spec = queueTableSpec.createDestinationSpec(FirmwareCampaignsHandlerFactory.FIRMWARE_CAMPAIGNS_DESTINATION, 60);
-            spec.save();
-            spec.activate();
-            spec.subscribe(FirmwareCampaignsHandlerFactory.FIRMWARE_CAMPAIGNS_SUBSCRIBER);
-            destinationSpec = Optional.of(spec);
-        }
-
-        Optional<RecurrentTask> recurrentTask = taskService.getRecurrentTask(FirmwareCampaignsHandlerFactory.FIRMWARE_CAMPAIGNS_TASK);
-        if (!recurrentTask.isPresent()) {
-            RecurrentTaskBuilder builder = taskService.newBuilder()
-                    .setName(FirmwareCampaignsHandlerFactory.FIRMWARE_CAMPAIGNS_TASK)
-                    .setScheduleExpression(FirmwareCampaignsHandlerFactory.FIRMWARE_CAMPAIGNS_SCHEDULE_EXPRESSION)
-                    .setDestination(destinationSpec.get())
-                    .setPayLoad(FirmwareCampaignsHandlerFactory.class.getName());
-            builder.scheduleImmediately();
-            builder.build().save();
+    private void createJupiterEventsSubscriber() {
+        Optional<DestinationSpec> destinationSpec = this.messageService.getDestinationSpec(EventService.JUPITER_EVENTS);
+        if(destinationSpec.isPresent()){
+            DestinationSpec jupiterEvents = destinationSpec.get();
+            Arrays.asList(FirmwareCampaignsHandlerFactory.FIRMWARE_CAMPAIGNS_SUBSCRIBER)
+                    .stream()
+                    .filter(subscriber -> !jupiterEvents.getSubscribers().stream().anyMatch(s -> s.getName().equals(subscriber)))
+                    .forEach(jupiterEvents::subscribe);
         }
     }
 
@@ -75,5 +61,4 @@ public class Installer {
             }
         }
     }
-
 }

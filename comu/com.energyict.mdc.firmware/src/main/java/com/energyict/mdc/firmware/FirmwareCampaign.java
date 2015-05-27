@@ -26,7 +26,7 @@ public interface FirmwareCampaign extends HasId, HasName{
 
     ProtocolSupportedFirmwareOptions getFirmwareManagementOption();
 
-    void setUpgradeOption(ProtocolSupportedFirmwareOptions upgradeOption);
+    void setManagementOption(ProtocolSupportedFirmwareOptions upgradeOption);
 
     Instant getPlannedDate();
 
@@ -55,6 +55,8 @@ public interface FirmwareCampaign extends HasId, HasName{
     void delete();
 
     void start();
+
+    void cancel();
 
     Map<String, Long> getDevicesStatusMap();
 }

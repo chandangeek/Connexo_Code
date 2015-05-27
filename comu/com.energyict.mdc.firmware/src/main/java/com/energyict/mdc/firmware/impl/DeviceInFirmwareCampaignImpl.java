@@ -1,6 +1,7 @@
 package com.energyict.mdc.firmware.impl;
 
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
@@ -8,6 +9,7 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.FirmwareComTaskExecution;
 import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
 import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaign;
@@ -69,28 +71,19 @@ public class DeviceInFirmwareCampaignImpl implements DeviceInFirmwareCampaign {
     private Instant startedOn;
     private Instant finishedOn;
 
-    @SuppressWarnings("unused")
-    private long version;
-    @SuppressWarnings("unused")
-    private Instant createTime;
-    @SuppressWarnings("unused")
-    private Instant modTime;
-    @SuppressWarnings("unused")
-    private String userName;
-
     private final DataModel dataModel;
     private final FirmwareService firmwareService;
     private final TaskService taskService;
-    private final DeviceMessageSpecificationService deviceMessageSpecificationService;
+    private final EventService eventService;
     private final Provider<FirmwareManagementDeviceUtils.Factory> helperProvider;
     private final Clock clock;
 
     @Inject
-    public DeviceInFirmwareCampaignImpl(DataModel dataModel, FirmwareService firmwareService, TaskService taskService, DeviceMessageSpecificationService deviceMessageSpecificationService, Provider<FirmwareManagementDeviceUtils.Factory> helperProvider, Clock clock) {
+    public DeviceInFirmwareCampaignImpl(DataModel dataModel, FirmwareService firmwareService, TaskService taskService, EventService eventService, Provider<FirmwareManagementDeviceUtils.Factory> helperProvider, Clock clock) {
         this.dataModel = dataModel;
         this.firmwareService = firmwareService;
         this.taskService = taskService;
-        this.deviceMessageSpecificationService = deviceMessageSpecificationService;
+        this.eventService = eventService;
         this.helperProvider = helperProvider;
         this.clock = clock;
     }
@@ -130,11 +123,13 @@ public class DeviceInFirmwareCampaignImpl implements DeviceInFirmwareCampaign {
         this.startedOn = clock.instant();
         if (!checkDeviceType() || !checkDeviceConfiguration() || !cancelPendingFirmwareUpdates()) {
             setStatus(FirmwareManagementDeviceStatus.CONFIGURATION_ERROR);
+            save();
             return;
         }
         Optional<DeviceMessageId> firmwareMessageId = getFirmwareCampaign().getFirmwareMessageId();
         if (!firmwareMessageId.isPresent()) {
             setStatus(FirmwareManagementDeviceStatus.CONFIGURATION_ERROR);
+            save();
             return;
         }
         if (deviceAlreadyHasTheSameVersion()) {
@@ -167,6 +162,7 @@ public class DeviceInFirmwareCampaignImpl implements DeviceInFirmwareCampaign {
                 setStatus(FirmwareManagementDeviceStatus.CANCELLED);
             }
             save();
+            eventService.postEvent(EventType.DEVICE_IN_FIRMWARE_CAMPAIGN_UPDATED.topic(), getFirmwareCampaign());
         }
         return getStatus();
     }
@@ -222,7 +218,9 @@ public class DeviceInFirmwareCampaignImpl implements DeviceInFirmwareCampaign {
                 .findFirst()
                 .orElseGet(() -> {
                     ComTaskEnablement comTaskEnablement = getDevice().getDeviceConfiguration().getComTaskEnablementFor(firmwareComTask).get();
-                    return getDevice().newFirmwareComTaskExecution(comTaskEnablement).add();
+                    FirmwareComTaskExecution firmwareComTaskExecution = getDevice().newFirmwareComTaskExecution(comTaskEnablement).add();
+                    getDevice().save();
+                    return firmwareComTaskExecution;
                 });
     }
 

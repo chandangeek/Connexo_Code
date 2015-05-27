@@ -19,8 +19,25 @@ public enum EventType {
     ACTIVATED_FIRMWARE_VERSION_CREATED("activatedfirmwareversion/CREATED"),
     ACTIVATED_FIRMWARE_VERSION_UPDATED("activatedfirmwareversion/UPDATED"),
     ACTIVATED_FIRMWARE_VERSION_DELETED("activatedfirmwareversion/DELETED"),
+    FIRMWARE_CAMPAIGN_CREATED("firmwarecampaign/CREATED"){
+        @Override
+        protected EventTypeBuilder addCustomProperties(EventTypeBuilder eventTypeBuilder) {
+            return super.addCustomProperties(eventTypeBuilder).withProperty("deviceGroupId", ValueType.LONG, "deviceGroup.id").shouldPublish();
+        }
+    },
+    FIRMWARE_CAMPAIGN_PROCESSED("firmwarecampaign/PROCESSED"){
+        @Override
+        protected EventTypeBuilder addCustomProperties(EventTypeBuilder eventTypeBuilder) {
+            return super.addCustomProperties(eventTypeBuilder).shouldPublish();
+        }
+    },
+    DEVICE_IN_FIRMWARE_CAMPAIGN_UPDATED("firmwarecampaign/device/UPDATED"){
+        @Override
+        protected EventTypeBuilder addCustomProperties(EventTypeBuilder eventTypeBuilder) {
+            return super.addCustomProperties(eventTypeBuilder).shouldPublish();
+        }
+    },
     /*
-    FIRMWARE_CAMPAIGN_CREATED("firmwarecampaign/CREATED"),
     FIRMWARE_CAMPAIGN_UPDATED("firmwarecampaign/UPDATED"),
     FIRMWARE_CAMPAIGN_DELETED("firmwarecampaign/DELETED"),
     FIRMWARE_CAMPAIGN_STARTED("firmwarecampaign/STARTED"),

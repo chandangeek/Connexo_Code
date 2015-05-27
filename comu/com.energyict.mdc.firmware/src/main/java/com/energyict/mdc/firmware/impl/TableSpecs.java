@@ -97,7 +97,6 @@ public enum TableSpecs {
             Column name = table.column("CAMPAIGN_NAME").varChar(NAME_LENGTH).map(FirmwareCampaignImpl.Fields.NAME.fieldName()).notNull().add();
             table.column("STATUS").number().conversion(ColumnConversion.NUMBER2ENUM).map(FirmwareCampaignImpl.Fields.STATUS.fieldName()).notNull().add();
             Column deviceType = table.column("DEVICE_TYPE").number().notNull().add();
-            Column deviceGroup = table.column("DEVICE_GROUP").number().notNull().add();
             table.column("UPGRADE_OPTION").number().conversion(ColumnConversion.NUMBER2ENUM).map(FirmwareCampaignImpl.Fields.UPGRADE_OPTION.fieldName()).notNull().add();
             table.column("FIRMWARE_TYPE").number().conversion(ColumnConversion.NUMBER2ENUM).map(FirmwareCampaignImpl.Fields.FIRMWARE_TYPE.fieldName()).notNull().add();
             table.column("PLANNED_DATE").number().map(FirmwareCampaignImpl.Fields.PLANNED_DATE.fieldName()).conversion(ColumnConversion.NUMBER2INSTANT).add();
@@ -111,12 +110,6 @@ public enum TableSpecs {
                     .on(deviceType)
                     .references(DeviceConfigurationService.COMPONENTNAME, "DTC_DEVICETYPE")
                     .map(FirmwareCampaignImpl.Fields.DEVICE_TYPE.fieldName())
-                    .onDelete(DeleteRule.CASCADE)
-                    .add();
-            table.foreignKey("FK_FWC_CAMPAIGN_TO_D_GROUP")
-                    .on(deviceGroup)
-                    .references(MeteringGroupsService.COMPONENTNAME, "MTG_ED_GROUP")
-                    .map(FirmwareCampaignImpl.Fields.DEVICE_GROUP.fieldName())
                     .onDelete(DeleteRule.CASCADE)
                     .add();
             table.primaryKey("PK_FWC_CAMPAIGN").on(idColumn).add();
@@ -136,7 +129,6 @@ public enum TableSpecs {
             table.column("STARTED_ON").number().conversion(ColumnConversion.NUMBER2INSTANT).map(DeviceInFirmwareCampaignImpl.Fields.STARTED_ON.fieldName()).add();
             table.column("FINISHED_ON").number().conversion(ColumnConversion.NUMBER2INSTANT).map(DeviceInFirmwareCampaignImpl.Fields.FINISHED_ON.fieldName()).add();
 
-            table.addAuditColumns();
             table.foreignKey("FK_FWC_DEVICE_TO_CAMPAIGN")
                     .on(campaign)
                     .references(FWC_CAMPAIGN.name())
@@ -164,7 +156,6 @@ public enum TableSpecs {
             Column key = table.column("KEY").varChar(NAME_LENGTH).map(FirmwareCampaignPropertyImpl.Fields.KEY.fieldName()).notNull().add();
             table.column("VALUE").varChar(DESCRIPTION_LENGTH).map(FirmwareCampaignPropertyImpl.Fields.VALUE.fieldName()).notNull().add();
 
-            table.addAuditColumns();
             table.foreignKey("FK_FWC_PROPS_TO_CAMPAIGN")
                     .on(campaign)
                     .references(FWC_CAMPAIGN.name())
@@ -189,7 +180,6 @@ public enum TableSpecs {
             table.column("FAILED").number().map(DevicesInFirmwareCampaignStatusImpl.Fields.STATUS_FAILED.fieldName()).conversion(ColumnConversion.NUMBER2LONG).add();
             table.column("CONFIGURATIONERROR").number().map(DevicesInFirmwareCampaignStatusImpl.Fields.STATUS_CONFIGURATION_ERROR.fieldName()).conversion(ColumnConversion.NUMBER2LONG).add();
 
-            table.addAuditColumns();
             table.foreignKey("FK_FWC_STATUS_TO_CAMPAIGN")
                     .on(campaign)
                     .references(FWC_CAMPAIGN.name())

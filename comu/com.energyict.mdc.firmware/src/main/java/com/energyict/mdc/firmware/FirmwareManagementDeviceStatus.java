@@ -108,8 +108,8 @@ public enum FirmwareManagementDeviceStatus {
         private boolean messageWithInstallOptionHasNoActivateMessageYet(DeviceMessage<Device> message, FirmwareManagementDeviceUtils helper){
             Optional<ProtocolSupportedFirmwareOptions> firmwareOption = helper.getUploadOptionFromMessage(message);
             return firmwareOption.isPresent()
-                    && ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_LATER.equals(firmwareOption.get())
-                    && !helper.getActivationMessageForUploadMessage(message).isPresent();
+                    && (!ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_LATER.equals(firmwareOption.get())
+                    || !helper.getActivationMessageForUploadMessage(message).isPresent());
         }
     },
 

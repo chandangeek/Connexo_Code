@@ -276,21 +276,10 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Tra
         return DefaultFinder.of(DeviceInFirmwareCampaign.class, condition, dataModel);
     }
 
-    public List<FirmwareCampaignImpl> getFirmwareCampaignsForDeviceCloning(){
-        return dataModel.query(FirmwareCampaignImpl.class, EndDeviceGroup.class, DeviceInFirmwareCampaignImpl.class, Device.class)
-                .select(where(FirmwareCampaignImpl.Fields.STATUS.fieldName()).isEqualTo(FirmwareCampaignStatus.NOT_STARTED));
-    }
-
-    public List<FirmwareCampaignImpl> getFirmwareCampaignsForProcessing(){
-        Condition scheduledTimePassed = where(FirmwareCampaignImpl.Fields.PLANNED_DATE.fieldName()).isNull()
-                .or(where(FirmwareCampaignImpl.Fields.PLANNED_DATE.fieldName()).isLessThanOrEqual(dataModel.getInstance(Clock.class).instant()));
-        return dataModel.query(FirmwareCampaignImpl.class, EndDeviceGroup.class, DeviceInFirmwareCampaignImpl.class, Device.class)
-                .select(where(FirmwareCampaignImpl.Fields.STATUS.fieldName()).isEqualTo(FirmwareCampaignStatus.SCHEDULED).and(scheduledTimePassed));
-    }
-
-    public List<FirmwareCampaignImpl> getFirmwareCampaignsForStatusUpdate(){
-        return dataModel.query(FirmwareCampaignImpl.class, EndDeviceGroup.class, DeviceInFirmwareCampaignImpl.class, Device.class)
-                .select(where(FirmwareCampaignImpl.Fields.STATUS.fieldName()).isEqualTo(FirmwareCampaignStatus.ONGOING));
+    public List<DeviceInFirmwareCampaign> getDeviceInFirmwareCampaignsFor(Device device){
+        return dataModel.query(DeviceInFirmwareCampaign.class, FirmwareCampaign.class, Device.class)
+                .select(where(DeviceInFirmwareCampaignImpl.Fields.DEVICE.fieldName()).isEqualTo(device).and(
+                        where(DeviceInFirmwareCampaignImpl.Fields.CAMPAIGN.fieldName() + "." + FirmwareCampaignImpl.Fields.STATUS.fieldName()).isEqualTo(FirmwareCampaignStatus.ONGOING)));
     }
 
     @Activate
