@@ -76,6 +76,7 @@ Ext.define('Mdc.view.setup.comportpool.ComPortPoolPreview', {
                     },
                     {
                         fieldLabel: Uni.I18n.translate('comPortPool.preview.communicationPorts', 'MDC', 'Communication ports'),
+                        htmlEncode: false,
                         name: 'comportslink'
                     }
                 ]
