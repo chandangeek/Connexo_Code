@@ -34,10 +34,16 @@ Ext.define('Idv.view.Detail', {
                 router: me.router
             },
             {
-                xtype: 'no-estimated-data-grid',
-                itemId: 'no-estimated-data-grid',
+                xtype: 'container',
+                layout: 'fit',
+                itemId: 'no-estimated-data-panel',
                 router: me.router
             },
+            //{
+            //    xtype: 'no-estimated-data-grid',
+            //    itemId: 'no-estimated-data-grid',
+            //    router: me.router
+            //},
             {
                 xtype: 'issue-comments',
                 itemId: 'data-validation-issue-comments'

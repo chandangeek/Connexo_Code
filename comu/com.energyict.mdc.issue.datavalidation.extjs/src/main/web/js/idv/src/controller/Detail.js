@@ -9,7 +9,8 @@ Ext.define('Idv.controller.Detail', {
     ],
 
     views: [
-        'Idv.view.Detail'
+        'Idv.view.Detail',
+        'Idv.view.NonEstimatedDataGrid'
     ],
 
     refs: [
@@ -46,12 +47,28 @@ Ext.define('Idv.controller.Detail', {
             },
             'data-validation-issue-detail #issue-detail-action-menu': {
                 click: this.chooseAction
+            },
+            'no-estimated-data-grid uni-actioncolumn': {
+                viewData: function(record) {
+                    this.getController('Uni.controller.history.Router').getRoute('devices/channels/validationblocks').forward(
+                        {
+                            mRID: record.get('readingType').mRID,
+                            channelId: record.get('channelId'),
+                            issueId: record.getId()
+                        },
+                        {
+                            validationBlock: record.get('startTime')
+                        }
+                    );
+                }
             }
         });
     },
 
     showOverview: function (id) {
-        var me = this;
+        var me = this,
+            router = this.getController('Uni.controller.history.Router');
+
         me.callParent([id, 'Idv.model.Issue', 'Idv.store.Issues', 'data-validation-issue-detail', 'workspace/datavalidationissues', 'datavalidation']);
         me.getApplication().on('issueLoad', function(record) {
             var data = [];
@@ -65,8 +82,8 @@ Ext.define('Idv.controller.Detail', {
             });
 
             var store = Ext.create('Idv.store.NonEstimatedDataStore', {data: data});
-            //store.group('readingType');
-            me.getPage().down('no-estimated-data-grid').reconfigure(store);
+            var widget = Ext.widget('no-estimated-data-grid', {store: store, router: router});
+            me.getPage().getCenterContainer().down('#no-estimated-data-panel').add(widget);
         });
     }
 });

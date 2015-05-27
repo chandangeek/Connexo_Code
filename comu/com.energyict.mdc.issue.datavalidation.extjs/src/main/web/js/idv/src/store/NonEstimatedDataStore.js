@@ -1,5 +1,5 @@
 Ext.define('Idv.store.NonEstimatedDataStore', {
     extend: 'Ext.data.Store',
     fields: ['channelId','readingType', 'startTime', 'endTime', 'amountOfSuspects'],
-    groupField : 'channelId'
+    groupField : 'channelId' //'channelId'//'readingType'
 });
