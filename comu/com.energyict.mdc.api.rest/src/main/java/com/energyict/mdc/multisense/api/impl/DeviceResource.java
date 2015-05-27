@@ -2,6 +2,7 @@ package com.energyict.mdc.multisense.api.impl;
 
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.util.conditions.Condition;
+import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.Device;
@@ -50,13 +51,15 @@ public class DeviceResource {
     private final DeviceInfoFactory deviceInfoFactory;
     private final DeviceConfigurationService deviceConfigurationService;
     private final DeviceImportService deviceImportService;
+    private final ExceptionFactory exceptionFactory;
 
     @Inject
-    public DeviceResource(DeviceService deviceService, DeviceInfoFactory deviceInfoFactory, DeviceConfigurationService deviceConfigurationService, DeviceImportService deviceImportService) {
+    public DeviceResource(DeviceService deviceService, DeviceInfoFactory deviceInfoFactory, DeviceConfigurationService deviceConfigurationService, DeviceImportService deviceImportService, ExceptionFactory exceptionFactory) {
         this.deviceService = deviceService;
         this.deviceInfoFactory = deviceInfoFactory;
         this.deviceConfigurationService = deviceConfigurationService;
         this.deviceImportService = deviceImportService;
+        this.exceptionFactory = exceptionFactory;
     }
 
     @GET
@@ -125,6 +128,14 @@ public class DeviceResource {
         Device device = deviceService.findByUniqueMrid(mrid).orElseThrow(() -> new WebApplicationException(Response.Status.CONFLICT));
         device.delete();
         return Response.ok().build();
+    }
+
+    @GET
+    @Path("/fields")
+    @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
+    @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
+    public Response getFields() {
+        return Response.ok(deviceInfoFactory.getAvailableFields().stream().sorted().collect(toList())).build();
     }
 
 }

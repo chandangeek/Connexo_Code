@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.ws.rs.core.Link;
@@ -44,12 +45,16 @@ public class DeviceInfoFactory {
 
     public DeviceInfo asHypermedia(Device device, UriInfo uriInfo, List<String> fields) {
         DeviceInfo deviceInfo = new DeviceInfo();
-        getSelectedFields(fields).stream().forEach(copier -> copier.copy(deviceInfo, device, Optional.of(uriInfo)));
+        getSelectedFields(fields).stream().forEach(copier -> copier.copy(deviceInfo, device, uriInfo));
         return deviceInfo;
     }
 
+    public Set<String> getAvailableFields() {
+        return buildFieldMap().keySet();
+    }
+
     private List<PropertyCopier<DeviceInfo, Device>> getSelectedFields(Collection<String> fields) {
-        Map<String, PropertyCopier<DeviceInfo, Device>> fieldSelectionMap = buildFieldSelectionMap();
+        Map<String, PropertyCopier<DeviceInfo, Device>> fieldSelectionMap = buildFieldMap();
         if (fields==null || fields.isEmpty()) {
             fields = fieldSelectionMap.keySet();
         }
@@ -60,11 +65,11 @@ public class DeviceInfoFactory {
         return uriInfo.getBaseUriBuilder().path(DeviceResource.class).path("{mrid}");
     }
 
-    private Map<String, PropertyCopier<DeviceInfo,Device>> buildFieldSelectionMap() {
+    private Map<String, PropertyCopier<DeviceInfo,Device>> buildFieldMap() {
         Map<String, PropertyCopier<DeviceInfo, Device>> map = new HashMap<>();
         map.put("id", (deviceInfo, device, uriInfo) -> deviceInfo.id = device.getId());
-        map.put("link", (deviceInfo, device, uriInfo) -> deviceInfo.link = Link.fromUriBuilder(getUriTemplate(uriInfo.get())).rel("self").title("self reference").build(device.getmRID()));
-        map.put("link", (deviceInfo, device, uriInfo) -> deviceInfo.name = device.getName());
+        map.put("link", (deviceInfo, device, uriInfo) -> deviceInfo.link = Link.fromUriBuilder(getUriTemplate(uriInfo)).rel("self").title("self reference").build(device.getmRID()));
+        map.put("name", (deviceInfo, device, uriInfo) -> deviceInfo.name = device.getName());
         map.put("mRID", (deviceInfo, device, uriInfo) -> deviceInfo.mRID = device.getmRID());
         map.put("serialNumber", (deviceInfo, device, uriInfo) -> deviceInfo.serialNumber = device.getSerialNumber());
         map.put("deviceProtocolPluggeableClassId", (deviceInfo, device, uriInfo) -> deviceInfo.deviceProtocolPluggeableClassId = device.getDeviceType().getDeviceProtocolPluggableClass().getId());
@@ -81,10 +86,8 @@ public class DeviceInfoFactory {
             if (physicalGateway.isPresent()) {
                 deviceInfo.masterDevice = new DeviceInfo();
                 deviceInfo.masterDevice.mRID = physicalGateway.get().getmRID();
-                if (uriInfo.isPresent()) {
-                    UriBuilder uriBuilder = uriInfo.get().getBaseUriBuilder().path(DeviceResource.class).path("{mrid}").resolveTemplate("mrid", physicalGateway.get().getmRID());
-                    deviceInfo.masterDevice.link = Link.fromUriBuilder(uriBuilder).rel("related").title("gateway").build();
-                }
+                UriBuilder uriBuilder = uriInfo.getBaseUriBuilder().path(DeviceResource.class).path("{mrid}").resolveTemplate("mrid", physicalGateway.get().getmRID());
+                deviceInfo.masterDevice.link = Link.fromUriBuilder(uriBuilder).rel("related").title("gateway").build();
             }
         });
         map.put("slaveDevices", (deviceInfo, device, uriInfo) -> {
@@ -106,16 +109,14 @@ public class DeviceInfoFactory {
                 LinkInfo linkInfo = new LinkInfo();
                 deviceInfo.logBooks.add(linkInfo);
                 linkInfo.id = logBook.getId();
-                if (uriInfo.isPresent()) {
-                    UriBuilder uriBuilder = uriInfo.get().getBaseUriBuilder().
-                            path(LogBookResource.class).
-                            path(LogBookResource.class, "getLogBook").
-                            resolveTemplate("deviceTypeId", device.getDeviceType().getId()).
-                            resolveTemplate("deviceConfigurationId", device.getDeviceConfiguration().getId()).
-                            resolveTemplate("deviceId", device.getmRID()).
-                            resolveTemplate("id", logBook.getId());
-                    linkInfo.link = Link.fromUriBuilder(uriBuilder).rel("related").title("log book").build();
-                }
+                UriBuilder uriBuilder = uriInfo.getBaseUriBuilder().
+                        path(LogBookResource.class).
+                        path(LogBookResource.class, "getLogBook").
+                        resolveTemplate("deviceTypeId", device.getDeviceType().getId()).
+                        resolveTemplate("deviceConfigurationId", device.getDeviceConfiguration().getId()).
+                        resolveTemplate("deviceId", device.getmRID()).
+                        resolveTemplate("id", logBook.getId());
+                linkInfo.link = Link.fromUriBuilder(uriBuilder).rel("related").title("log book").build();
             }
         });
         map.put("loadProfiles", (deviceInfo, device, uriInfo) -> {
@@ -124,38 +125,31 @@ public class DeviceInfoFactory {
                 LinkInfo linkInfo = new LinkInfo();
                 deviceInfo.loadProfiles.add(linkInfo);
                 linkInfo.id = loadProfile.getId();
-                if (uriInfo.isPresent()) {
-                    UriBuilder uriBuilder = uriInfo.get().getBaseUriBuilder().
-                            path(LoadProfileResource.class).
-                            path(LoadProfileResource.class, "getLoadProfile").
-                            resolveTemplate("deviceTypeId", device.getDeviceType().getId()).
-                            resolveTemplate("deviceConfigurationId", device.getDeviceConfiguration().getId()).
-                            resolveTemplate("deviceId", device.getmRID()).
-                            resolveTemplate("id", loadProfile.getId());
-                    linkInfo.link = Link.fromUriBuilder(uriBuilder).rel("related").title("load profile").build();
-                }
+                UriBuilder uriBuilder = uriInfo.getBaseUriBuilder().
+                        path(LoadProfileResource.class).
+                        path(LoadProfileResource.class, "getLoadProfile").
+                        resolveTemplate("deviceTypeId", device.getDeviceType().getId()).
+                        resolveTemplate("deviceConfigurationId", device.getDeviceConfiguration().getId()).
+                        resolveTemplate("deviceId", device.getmRID()).
+                        resolveTemplate("id", loadProfile.getId());
+                linkInfo.link = Link.fromUriBuilder(uriBuilder).rel("related").title("load profile").build();
             }
         });
         map.put("deviceConfiguration", (deviceInfo, device, uriInfo) -> {
             deviceInfo.deviceConfiguration = new DeviceConfigurationInfo();
             deviceInfo.deviceConfiguration.id = device.getDeviceConfiguration().getId();
-            deviceInfo.deviceConfiguration.id = device.getDeviceConfiguration().getId();
-            if (uriInfo.isPresent()) {
-                deviceInfo.deviceConfiguration.link = Link.fromUriBuilder(uriInfo.get().getBaseUriBuilder().path(DeviceConfigurationResource.class).path("{id}")).rel("up").title("Device configuration").build(device.getDeviceType().getId(), device.getDeviceConfiguration().getId());
-            }
+            deviceInfo.deviceConfiguration.link = Link.fromUriBuilder(uriInfo.getBaseUriBuilder().path(DeviceConfigurationResource.class).path("{id}")).rel("up").title("Device configuration").build(device.getDeviceType().getId(), device.getDeviceConfiguration().getId());
             deviceInfo.deviceConfiguration.deviceType = new DeviceTypeInfo();
             deviceInfo.deviceConfiguration.deviceType.id = device.getDeviceType().getId();
-            if (uriInfo.isPresent()) {
-                deviceInfo.deviceConfiguration.deviceType.link = Link.fromUriBuilder(uriInfo.get().getBaseUriBuilder().path(DeviceTypeResource.class).path("{id}")).rel("up").title("Device type").build(device.getDeviceType().getId());
-            }
+            deviceInfo.deviceConfiguration.deviceType.link = Link.fromUriBuilder(uriInfo.getBaseUriBuilder().path(DeviceTypeResource.class).path("{id}")).rel("up").title("Device type").build(device.getDeviceType().getId());
         });
         return map;
     }
 
-    private LinkInfo newSlaveDeviceLinkInfo(Device device, Optional<UriInfo> uriInfo) {
+    private LinkInfo newSlaveDeviceLinkInfo(Device device, UriInfo uriInfo) {
         LinkInfo linkInfo = new LinkInfo();
         linkInfo.id = device.getId();
-        UriBuilder uriBuilder = uriInfo.get().getBaseUriBuilder().
+        UriBuilder uriBuilder = uriInfo.getBaseUriBuilder().
                 path(DeviceResource.class).
                 path(DeviceResource.class, "getDevice").
                 resolveTemplate("mrid", device.getmRID());
@@ -172,16 +166,9 @@ public class DeviceInfoFactory {
 
         @Override
         public int compare(Device d1, Device d2) {
-            Optional<Instant> d1AddTime = this.timeline.mostRecentlyAddedOn(d1);
-            Optional<Instant> d2AddTime = this.timeline.mostRecentlyAddedOn(d2);
-            if (d1AddTime.isPresent() && d2AddTime.isPresent()){
-                return d2AddTime.get().compareTo(d1AddTime.get());
-            } else if (d2AddTime.isPresent()){
-                return 1;
-            } else if (d1AddTime.isPresent()){
-                return -1;
-            }
-            return 0;
+            Instant d1AddTime = this.timeline.mostRecentlyAddedOn(d1).orElse(Instant.MIN);
+            Instant d2AddTime = this.timeline.mostRecentlyAddedOn(d2).orElse(Instant.MIN);
+            return d2AddTime.compareTo(d1AddTime);
         }
     }
 }

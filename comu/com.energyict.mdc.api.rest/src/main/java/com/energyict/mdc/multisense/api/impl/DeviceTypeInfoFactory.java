@@ -7,7 +7,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import javax.inject.Inject;
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.UriBuilder;
@@ -34,7 +33,7 @@ public class DeviceTypeInfoFactory {
 
     public DeviceTypeInfo asHypermedia(DeviceType deviceType, UriInfo uriInfo, List<String> fields) {
         DeviceTypeInfo deviceTypeInfo = new DeviceTypeInfo();
-        getSelectedFields(fields).stream().forEach(copier -> copier.copy(deviceTypeInfo, deviceType, Optional.of(uriInfo)));
+        getSelectedFields(fields).stream().forEach(copier -> copier.copy(deviceTypeInfo, deviceType, uriInfo));
         return deviceTypeInfo;
     }
 
@@ -47,10 +46,8 @@ public class DeviceTypeInfoFactory {
             deviceTypeInfo.name = deviceType.getName();
         });
         map.put("link", (deviceTypeInfo, deviceType, uriInfo) -> {
-            if (uriInfo.isPresent()) {
-                UriBuilder uriBuilder = uriInfo.get().getBaseUriBuilder().path(DeviceTypeResource.class).path("{id}");
-                deviceTypeInfo.link = Link.fromUriBuilder(uriBuilder).rel("self").title("self reference").build(deviceType.getId());
-            }
+            UriBuilder uriBuilder = uriInfo.getBaseUriBuilder().path(DeviceTypeResource.class).path("{id}");
+            deviceTypeInfo.link = Link.fromUriBuilder(uriBuilder).rel("self").title("self reference").build(deviceType.getId());
         });
         map.put("description", (deviceTypeInfo, deviceType, uriInfo) -> {
             deviceTypeInfo.description = deviceType.getDescription();
@@ -60,9 +57,7 @@ public class DeviceTypeInfoFactory {
             for (DeviceConfiguration deviceConfiguration : deviceType.getConfigurations()) {
                 DeviceConfigurationInfo deviceConfigurationInfo = new DeviceConfigurationInfo();
                 deviceConfigurationInfo.id = deviceConfiguration.getId();
-                if (uriInfo.isPresent()) {
-                    deviceConfigurationInfo.link = Link.fromUriBuilder(uriInfo.get().getBaseUriBuilder().path(DeviceConfigurationResource.class).path("{id}")).rel("child").title("Device configuration").build(deviceType.getId(), deviceConfiguration.getId());
-                }
+                deviceConfigurationInfo.link = Link.fromUriBuilder(uriInfo.getBaseUriBuilder().path(DeviceConfigurationResource.class).path("{id}")).rel("child").title("Device configuration").build(deviceType.getId(), deviceConfiguration.getId());
                 deviceTypeInfo.deviceConfigurations.add(deviceConfigurationInfo);
             }
         });

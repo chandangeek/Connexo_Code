@@ -6,7 +6,7 @@ import java.util.List;
 import javax.ws.rs.QueryParam;
 
 /**
- * Created by bvn on 5/13/15.
+ * Converts CSV string to list of individual field names
  */
 public class SelectedFields {
 
