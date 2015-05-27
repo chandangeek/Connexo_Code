@@ -40,12 +40,11 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     FIRMWARE_CAMPAIGN_NOT_FOUND(17, Keys.FIRMWARE_CAMPAIGN_NOT_FOUND, "No firmware campaign with id {0} could be found"),
     DEVICE_GROUP_NOT_FOUND(18, Keys.DEVICE_GROUP_NOT_FOUND, "No device group with id {0} could be found"),
 
-    FIRMWARE_CAMPAIGN_STATUS_NOT_STARTED(50, Keys.FIRMWARE_CAMPAIGN_STATUS_NOT_STARTED , "Not started"),
+    FIRMWARE_CAMPAIGN_STATUS_PROCESSING(50, Keys.FIRMWARE_CAMPAIGN_STATUS_PROCESSING, "Processing"),
     FIRMWARE_CAMPAIGN_STATUS_SCHEDULED(51, Keys.FIRMWARE_CAMPAIGN_STATUS_SCHEDULED , "Scheduled"),
     FIRMWARE_CAMPAIGN_STATUS_ONGOING(52, Keys.FIRMWARE_CAMPAIGN_STATUS_ONGOING , "Ongoing"),
     FIRMWARE_CAMPAIGN_STATUS_COMPLETE(53, Keys.FIRMWARE_CAMPAIGN_STATUS_COMPLETE , "Complete"),
     FIRMWARE_CAMPAIGN_STATUS_CANCELLED(54, Keys.FIRMWARE_CAMPAIGN_STATUS_CANCELLED , "Cancelled"),
-    FIRMWARE_CAMPAIGN_STATUS_FAILED(55, Keys.FIRMWARE_CAMPAIGN_STATUS_FAILED , "Failed"),
 
     FIRMWARE_MANAGEMENT_DEVICE_STATUS_SUCCESS(101, Keys.FIRMWARE_MANAGEMENT_DEVICE_STATUS_PREFIX + FirmwareManagementDeviceStatus.Constants.SUCCESS, "Success"),
     FIRMWARE_MANAGEMENT_DEVICE_STATUS_FAILED(102, Keys.FIRMWARE_MANAGEMENT_DEVICE_STATUS_PREFIX + FirmwareManagementDeviceStatus.Constants.FAILED, "Failed"),
@@ -128,12 +127,11 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
         public static final String FILE_IO = "FileIO";
         public static final String FIRMWARE_ACTION_CHECK_VERSION = "FirmwareActionCheckVersion";
         public static final String FIRMWARE_ACTION_CHECK_VERSION_NOW = "FirmwareActionCheckVersionNow";
-        public static final String FIRMWARE_CAMPAIGN_STATUS_NOT_STARTED = "FirmwareCampaignStatusNotStarted";
+        public static final String FIRMWARE_CAMPAIGN_STATUS_PROCESSING = "FirmwareCampaignStatusProcessing";
         public static final String FIRMWARE_CAMPAIGN_STATUS_SCHEDULED = "FirmwareCampaignStatusScheduled";
         public static final String FIRMWARE_CAMPAIGN_STATUS_ONGOING = "FirmwareCampaignStatusOngoing";
         public static final String FIRMWARE_CAMPAIGN_STATUS_COMPLETE = "FirmwareCampaignStatusComplete";
         public static final String FIRMWARE_CAMPAIGN_STATUS_CANCELLED = "FirmwareCampaignStatusCancelled";
-        public static final String FIRMWARE_CAMPAIGN_STATUS_FAILED = "FirmwareCampaignStatusFailed";
         public static final String FIRMWARE_CAMPAIGN_NOT_FOUND = "firmwareCampaignNotFound";
         public static final String FIRMWARE_VERSION_NOT_FOUND = "firmwareVersionNotFound";
         public static final String DEVICE_GROUP_NOT_FOUND = "deviceGroupNotFound";

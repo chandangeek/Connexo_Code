@@ -84,8 +84,8 @@ public class FirmwareCampaignInfo {
     public void writeTo(FirmwareCampaign campaign){
         campaign.setName(this.name);
         if (this.managementOption != null) {
-            ProtocolSupportedFirmwareOptions.from(this.managementOption.id).ifPresent(upgradeOption ->
-                campaign.setUpgradeOption(upgradeOption)
+            ProtocolSupportedFirmwareOptions.from(this.managementOption.id).ifPresent(managementOption ->
+                campaign.setManagementOption(managementOption)
             );
         }
         if (this.firmwareType != null) {
