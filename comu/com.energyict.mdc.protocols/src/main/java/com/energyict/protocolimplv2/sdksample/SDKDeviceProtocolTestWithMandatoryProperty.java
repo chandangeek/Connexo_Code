@@ -134,7 +134,7 @@ public class SDKDeviceProtocolTestWithMandatoryProperty extends SDKDeviceProtoco
     @Override
     public List<PropertySpec> getPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>();
-        propertySpecs.add(this.propertySpecService.basicPropertySpec("SDKStringProperty", false, new StringFactory()));
+        propertySpecs.add(this.propertySpecService.basicPropertySpec("SDKStringProperty", true, new StringFactory()));
         propertySpecs.add(
                 this.propertySpecService.
                         obisCodePropertySpecWithValuesExhaustive(

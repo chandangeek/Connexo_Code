@@ -238,6 +238,7 @@ public enum LicensedProtocolRule implements LicensedProtocol {
 
     //test with all properties
     SDK_SAMPLE_PROTOCOL_TEST_WITH_ALL_PROPERTIES(5001, "com.energyict.protocolimplv2.sdksample.SDKDeviceProtocolTestWithAllProperties", ProtocolFamily.TEST), // need to make sure we don't run into duplicates with legacy development
+    SDK_SAMPLE_PROTOCOL_TEST_WITH_MANDATORY_PROPERTY(5002, "com.energyict.protocolimplv2.sdksample.SDKDeviceProtocolTestWithMandatoryProperty", ProtocolFamily.TEST), // need to make sure we don't run into duplicates with legacy development
 //    SDK_SMART_SAMPLE_PROTOCOL(215, "test.com.energyict.smartmeterprotocolimpl.sdksample.SDKSmartMeterProtocol", ProtocolFamily.TEST),
 
     ELSTER_AM540(219, "com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.AM540", ProtocolFamily.DSMR_NTA),
