@@ -10,7 +10,6 @@ import com.energyict.mdc.protocol.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.protocol.security.SecurityProperty;
 import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.MTU155Properties;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
@@ -21,7 +20,6 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -73,12 +71,11 @@ public class ProximusSMSInboundDeviceProtocol extends AbstractSMSServletBasedInb
     public DiscoverResultType doDiscovery() {
         try {
             Sms sms = readParameters(this.request);
-            this.deviceIdentifier = new CTRPhoneNumberDeviceIdentifier(sms.getFrom());
 
             TypedProperties allRelevantProperties = TypedProperties.empty();
-            TypedProperties deviceProtocolProperties = getDeviceProtocolProperties();
-            TypedProperties deviceConnectionTypeProperties = getDeviceConnectionTypeProperties();
-            if (deviceConnectionTypeProperties == null || deviceConnectionTypeProperties == null) {
+            TypedProperties deviceProtocolProperties = getContext().getInboundDAO().getDeviceProtocolProperties(getDeviceIdentifier());
+            TypedProperties deviceConnectionTypeProperties = getContext().getInboundDAO().getDeviceConnectionTypeProperties(getDeviceIdentifier(), getContext().getComPort());
+            if (deviceProtocolProperties == null || deviceConnectionTypeProperties == null) {
                 throw new NotFoundException("Device [" + getDeviceIdentifier() + "] not found.");
             }
 
@@ -106,15 +103,16 @@ public class ProximusSMSInboundDeviceProtocol extends AbstractSMSServletBasedInb
      *
      * @param request: containing the parameters
      * @return the sms object
-     * @throws java.io.UnsupportedEncodingException
-     *
      */
     private Sms readParameters(HttpServletRequest request) {
+        setDeviceIdentifier(new CTRPhoneNumberDeviceIdentifier(checkParameter(request.getParameter(SENDER), SENDER)));
         String auth = checkParameter(request.getParameter(AUTH), AUTH);
         String source = checkParameter(request.getParameter(SOURCE), SOURCE);
 
         if (!auth.equals(authenticationPropertyValue()) || !source.equals(sourcePropertyValue())) {
             setResultType(ResultType.AUTHENTICATION_FAILURE);
+            IOException e = new IOException("Authentication failure: the API_source (" + source + ") and API_authentication (" + auth + ") of the received SMS do not match the credentials stored in EIMaster.");
+            throw MdcManager.getComServerExceptionFactory().createCipheringException(e);
         }
 
         String dcsString = isValidHexString(checkParameter(request.getParameter(DCS), DCS), DCS);
@@ -140,23 +138,18 @@ public class ProximusSMSInboundDeviceProtocol extends AbstractSMSServletBasedInb
      * @param text:      the url
      * @param parameter: the name of the parameter in the url
      * @return the decoded text
-     * @throws UnsupportedEncodingException
      */
     private String checkParameter(String text, String parameter) {
-        if (text == null) {
-            text = "";
-            if (TYPE.equals(parameter)) {
-                text = TEXT;     //default type
-            }
+        if (text == null && TYPE.equals(parameter)) {
+            return TEXT;     //default type
         }
-        if ("".equals(text) && isRequiredParameter(parameter)) {
+
+        if (text == null && isRequiredParameter(parameter)) {
             setResultType(ResultType.MISSING_PARAMETER);
-            if (resultTypeIs(ResultType.MISSING_PARAMETER)) {
-                resultType.addAdditionInformation(parameter);
-            }
-            return "";
+            resultType.addAdditionInformation(parameter);
+            throw MdcManager.getComServerExceptionFactory().missingProperty(parameter);
         }
-        return text;
+        return text != null ? text : "";
     }
 
     private boolean isRequiredParameter(String parameter) {
@@ -232,14 +225,6 @@ public class ProximusSMSInboundDeviceProtocol extends AbstractSMSServletBasedInb
         }
     }
 
-    private TypedProperties getDeviceProtocolProperties() {
-        return getContext().getInboundDAO().getDeviceProtocolProperties(getDeviceIdentifier());
-    }
-
-    private TypedProperties getDeviceConnectionTypeProperties() {
-        return getContext().getInboundDAO().getDeviceConnectionTypeProperties(getDeviceIdentifier(), getContext().getComPort());
-    }
-
     private String getDeviceSerialNumber() {
         OfflineDevice device = getContext().getInboundDAO().findOfflineDevice(getDeviceIdentifier());
         if (device != null) {
@@ -268,7 +253,7 @@ public class ProximusSMSInboundDeviceProtocol extends AbstractSMSServletBasedInb
      * @return the http 1.1 response
      */
     private String getReply() {
-        String reply = "";
+        String reply;
         if (resultTypeIs(ResultType.OK) && (additionalInformationIs("")) || additionalInformationIs(ResultType.OK.getDescription())) {
             reply = XML_PREFIX + "\n    <" + ResultType.OK.getDescription() + "\">" + XML_SUFFIX;
         } else {
@@ -286,6 +271,10 @@ public class ProximusSMSInboundDeviceProtocol extends AbstractSMSServletBasedInb
         return deviceIdentifier;
     }
 
+    private void setDeviceIdentifier(DeviceIdentifier deviceIdentifier) {
+        this.deviceIdentifier = deviceIdentifier;
+    }
+
     @Override
     public List<CollectedData> getCollectedData() {
         return collectedDataList;
@@ -301,9 +290,9 @@ public class ProximusSMSInboundDeviceProtocol extends AbstractSMSServletBasedInb
 
     public void setResultType(ResultType resultType) {
         if (resultTypeIs(ResultType.OK)) {
-            this.resultType = resultType;
             this.resultType.setAdditionInformation(""); //Clear the additional information section
         }
+        this.resultType = resultType;
     }
 
     public enum ResultType {
@@ -323,7 +312,7 @@ public class ProximusSMSInboundDeviceProtocol extends AbstractSMSServletBasedInb
         private String description;
         private String additionInformation;
 
-        private ResultType(int code, String description) {
+        ResultType(int code, String description) {
             this.code = code;
             this.description = description;
         }
@@ -353,13 +342,13 @@ public class ProximusSMSInboundDeviceProtocol extends AbstractSMSServletBasedInb
         }
 
         public String getMessage() {
-            StringBuffer buffer = new StringBuffer();
-            buffer.append(getDescription());
+            StringBuilder builder = new StringBuilder();
+            builder.append(getDescription());
             if (getAdditionInformation() != null && !getAdditionInformation().isEmpty()) {
-                buffer.append(": ");
-                buffer.append(additionInformation);
+                builder.append(": ");
+                builder.append(additionInformation);
             }
-            return buffer.toString();
+            return builder.toString();
         }
 
     }
