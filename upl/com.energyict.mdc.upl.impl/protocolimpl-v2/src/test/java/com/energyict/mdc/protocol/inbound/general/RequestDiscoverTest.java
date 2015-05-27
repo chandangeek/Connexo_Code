@@ -1,18 +1,32 @@
 package com.energyict.mdc.protocol.inbound.general;
 
 import com.energyict.cbo.Quantity;
+import com.energyict.cbo.TimeDuration;
 import com.energyict.cbo.Unit;
-import com.energyict.cpo.Environment;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.issues.Issue;
-import com.energyict.mdc.meterdata.*;
+import com.energyict.mdc.meterdata.CollectedData;
+import com.energyict.mdc.meterdata.CollectedDataFactory;
+import com.energyict.mdc.meterdata.CollectedDataFactoryProvider;
+import com.energyict.mdc.meterdata.CollectedLogBook;
+import com.energyict.mdc.meterdata.CollectedRegister;
+import com.energyict.mdc.meterdata.CollectedRegisterList;
+import com.energyict.mdc.meterdata.CollectedTopology;
+import com.energyict.mdc.meterdata.NoLogBooksCollectedData;
+import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdc.meterdata.identifiers.LogBookIdentifier;
 import com.energyict.mdc.meterdata.identifiers.RegisterIdentifier;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.inbound.InboundDeviceProtocol;
-import com.energyict.mdw.core.*;
+import com.energyict.mdw.core.Device;
+import com.energyict.mdw.core.DeviceFactory;
+import com.energyict.mdw.core.DeviceFactoryProvider;
+import com.energyict.mdw.core.LogBook;
+import com.energyict.mdw.core.LogBookFactory;
+import com.energyict.mdw.core.LogBookFactoryProvider;
+import com.energyict.mdw.core.LogBookSpec;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterProtocolEvent;
 import com.energyict.util.IssueCollector;
@@ -77,8 +91,6 @@ public class RequestDiscoverTest {
     protected byte[] inboundFrame;
 
     private static final int LOGBOOK_ID = 10;
-    private static final String TIMEOUT_KEY = Environment.getDefault().getTranslation("protocol.timeout");
-    private static final String RETRIES_KEY = Environment.getDefault().getTranslation("protocol.retries");
 
     @Before
     public void initialize() {
@@ -153,8 +165,8 @@ public class RequestDiscoverTest {
         requestDiscover.initComChannel(comChannel);
         InboundDeviceProtocol.DiscoverResultType discoverResultType = requestDiscover.doDiscovery();
 
-        assertThat(discoverResultType).isEqualTo(InboundDeviceProtocol.DiscoverResultType.DATA);
-        assertThat(requestDiscover.getCollectedData()).isNotNull();
+        assertThat(discoverResultType).isEqualTo(InboundDeviceProtocol.DiscoverResultType.IDENTIFIER);
+        assertThat(requestDiscover.getCollectedData()).isNullOrEmpty();
         assertThat(requestDiscover.getDeviceIdentifier().toString()).contains("1234567890");
     }
 
@@ -295,8 +307,8 @@ public class RequestDiscoverTest {
 
     private RequestDiscover getProtocolInstance() {
         TypedProperties properties = TypedProperties.empty();
-        properties.setProperty(TIMEOUT_KEY, new BigDecimal(1000));
-        properties.setProperty(RETRIES_KEY, BigDecimal.ZERO);
+        properties.setProperty(AbstractDiscover.TIMEOUT_KEY, TimeDuration.seconds(1));
+        properties.setProperty(AbstractDiscover.RETRIES_KEY, BigDecimal.ZERO);
         RequestDiscover requestDiscover = new RequestDiscover();
         requestDiscover.addProperties(properties);
         return requestDiscover;

@@ -32,8 +32,8 @@ import java.util.List;
  */
 public abstract class AbstractDiscover implements BinaryInboundDeviceProtocol {
 
-    private static final String TIMEOUT_KEY = "Timeout";
-    private static final String RETRIES_KEY = "Retries";
+    protected static final String TIMEOUT_KEY = "Timeout";
+    protected static final String RETRIES_KEY = "Retries";
 
     private static final TimeDuration TIMEOUT_DEFAULT = TimeDuration.seconds(10);
     private static final BigDecimal RETRIES_DEFAULT = new BigDecimal(2);
