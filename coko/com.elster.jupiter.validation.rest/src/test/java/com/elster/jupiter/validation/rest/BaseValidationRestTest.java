@@ -2,6 +2,7 @@ package com.elster.jupiter.validation.rest;
 
 
 //import com.elster.jupiter.appserver.AppService;
+
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
@@ -14,11 +15,12 @@ import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.util.time.Never;
 import com.elster.jupiter.validation.DataValidationTask;
 import com.elster.jupiter.validation.DataValidationTaskBuilder;
 import com.elster.jupiter.validation.ValidationService;
-import javax.ws.rs.core.Application;
+import com.elster.jupiter.validation.rest.impl.DataValidationTaskResource;
+import com.elster.jupiter.validation.rest.impl.ValidationApplication;
+import com.elster.jupiter.validation.rest.impl.ValidationResource;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.jackson.JacksonFeature;
@@ -36,14 +38,13 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
+import javax.ws.rs.core.Application;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.time.Instant;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-import static org.mockito.Matchers.matches;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 

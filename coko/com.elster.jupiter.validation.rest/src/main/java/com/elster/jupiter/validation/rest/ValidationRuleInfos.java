@@ -12,21 +12,21 @@ public class ValidationRuleInfos {
     public int total;
     public List<ValidationRuleInfo> rules = new ArrayList<ValidationRuleInfo>();
 
-    ValidationRuleInfos() {
+    public ValidationRuleInfos() {
     }
 
-    ValidationRuleInfos(ValidationRule validationRule) {
+    public ValidationRuleInfos(ValidationRule validationRule) {
         add(validationRule);
     }
 
-    ValidationRuleInfo add(ValidationRule validationRule) {
+    public ValidationRuleInfo add(ValidationRule validationRule) {
         ValidationRuleInfo result = new ValidationRuleInfo(validationRule);
         rules.add(result);
         total++;
         return result;
     }
 
-    void addAll(Iterable<? extends ValidationRule> validationRules) {
+    public void addAll(Iterable<? extends ValidationRule> validationRules) {
         for (ValidationRule each : validationRules) {
             add(each);
         }
