@@ -42,7 +42,7 @@ Ext.define('Fwc.view.firmware.FormAdd', {
             xtype: 'firmware-type',
             itemId: 'radio-firmware-type',
             defaultType: 'radiofield',
-            value: {id: 'communication'},
+            value: {id: 'meter'},
             required: true
         },
         {
