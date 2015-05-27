@@ -7,6 +7,8 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.device.data.imp.Batch;
+import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.jayway.jsonpath.JsonModel;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -16,7 +18,6 @@ import java.util.List;
 import java.util.Optional;
 import javax.ws.rs.core.Response;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -59,11 +60,10 @@ public class ApiTest extends DeviceDataPublicApiJerseyTest {
         Device mock = mock(Device.class);
         when(mock.getmRID()).thenReturn(mrid);
         when(mock.getName()).thenReturn(mrid);
-        when(mock.getId()).thenReturn((long) mrid.hashCode());
+        long deviceId = (long) mrid.hashCode();
+        when(mock.getId()).thenReturn(deviceId);
         when(mock.getSerialNumber()).thenReturn(serial);
-        DeviceType deviceType = mock(DeviceType.class);
-        when(deviceType.getName()).thenReturn("device type X1");
-        when(deviceType.getId()).thenReturn(31L);
+        DeviceType deviceType = mockDeviceType(31L, "X1");
         when(mock.getDeviceType()).thenReturn(deviceType);
         DeviceConfiguration deviceConfig = mock(DeviceConfiguration.class);
         when(deviceConfig.getName()).thenReturn("Default configuration");
@@ -72,6 +72,10 @@ public class ApiTest extends DeviceDataPublicApiJerseyTest {
         Register register = mock(Register.class);
         when(register.getRegisterSpecId()).thenReturn(666L);
         when(mock.getRegisters()).thenReturn(Collections.singletonList(register));
+        Batch batch = mock(Batch.class);
+        when(batch.getName()).thenReturn("BATCH A");
+        when(deviceImportService.findBatch(deviceId)).thenReturn(Optional.of(batch));
+        when(topologyService.getPhysicalGateway(mock)).thenReturn(Optional.empty());
         return mock;
     }
 
@@ -81,6 +85,10 @@ public class ApiTest extends DeviceDataPublicApiJerseyTest {
         when(mock.getName()).thenReturn(name);
         DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(1000 + id, "Default");
         when(mock.getConfigurations()).thenReturn(Collections.singletonList(deviceConfiguration));
+        DeviceProtocolPluggableClass pluggableClass = mock(DeviceProtocolPluggableClass.class);
+        when(pluggableClass.getId()).thenReturn(id*id);
+        when(mock.getDeviceProtocolPluggableClass()).thenReturn(pluggableClass);
+        when(deviceConfigurationService.findDeviceType(id)).thenReturn(Optional.of(mock));
         return mock;
     }
 
@@ -98,7 +106,7 @@ public class ApiTest extends DeviceDataPublicApiJerseyTest {
         Response response = target("/devicetypes").queryParam("start",0).queryParam("limit",10).request("application/json").get();
         JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
         assertThat(model.<List>get("$.data")).hasSize(7);
-        assertThat(model.<List>get("$.links")).hasSize(1);
+        assertThat(model.<List>get("$.link")).hasSize(1);
 
     }
 
@@ -108,12 +116,12 @@ public class ApiTest extends DeviceDataPublicApiJerseyTest {
         Response response = target("/devicetypes").queryParam("start",2).queryParam("limit",2).request("application/json").get();
         JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
         assertThat(model.<List>get("$.data")).hasSize(2);
-        assertThat(model.<List>get("$.links")).hasSize(3);
+        assertThat(model.<List>get("$.link")).hasSize(3);
 
     }
 
     @Test
-    public void testHalJsonCallSingle() throws Exception {
+    public void testJsonCallSingle() throws Exception {
 
         Response response = target("/devicetypes/10").request("application/json").get();
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
@@ -132,15 +140,6 @@ public class ApiTest extends DeviceDataPublicApiJerseyTest {
     public void testHypermediaLinkWithFieldsCallSingle() throws Exception {
 
         Response response = target("/devices/XAS").queryParam("fields", "id,serialNumber").request("application/json").get();
-        JsonModel model = JsonModel.model((InputStream) response.getEntity());
-
-    }
-
-    @Test
-    @Ignore
-    public void testLinkJsonCallSingleRegister() throws Exception {
-
-        Response response = target("/devices/XAS/registers/0").request("application/json").get();
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
 
     }

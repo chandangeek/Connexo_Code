@@ -2,7 +2,6 @@ package com.energyict.mdc.multisense.api.impl;
 
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.util.conditions.Condition;
-import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.Device;
@@ -10,17 +9,10 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.imp.DeviceImportService;
 import com.energyict.mdc.device.data.security.Privileges;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.validation.ConstraintViolation;
-import javax.validation.ConstraintViolationException;
-import javax.validation.ElementKind;
-import javax.validation.metadata.ConstraintDescriptor;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -39,7 +31,6 @@ import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
 import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toSet;
 
 /**
  * Created by bvn on 4/22/15.
@@ -51,15 +42,13 @@ public class DeviceResource {
     private final DeviceInfoFactory deviceInfoFactory;
     private final DeviceConfigurationService deviceConfigurationService;
     private final DeviceImportService deviceImportService;
-    private final ExceptionFactory exceptionFactory;
 
     @Inject
-    public DeviceResource(DeviceService deviceService, DeviceInfoFactory deviceInfoFactory, DeviceConfigurationService deviceConfigurationService, DeviceImportService deviceImportService, ExceptionFactory exceptionFactory) {
+    public DeviceResource(DeviceService deviceService, DeviceInfoFactory deviceInfoFactory, DeviceConfigurationService deviceConfigurationService, DeviceImportService deviceImportService) {
         this.deviceService = deviceService;
         this.deviceInfoFactory = deviceInfoFactory;
         this.deviceConfigurationService = deviceConfigurationService;
         this.deviceImportService = deviceImportService;
-        this.exceptionFactory = exceptionFactory;
     }
 
     @GET
@@ -86,7 +75,7 @@ public class DeviceResource {
     @RolesAllowed(Privileges.ADD_DEVICE)
     public Response createDevice(DeviceInfo info, @Context UriInfo uriInfo, @BeanParam SelectedFields fields) {
         Optional<DeviceConfiguration> deviceConfiguration = Optional.empty();
-        if (info.deviceConfiguration.id != null) {
+        if (info.deviceConfiguration != null && info.deviceConfiguration.id != null) {
             deviceConfiguration = deviceConfigurationService.findDeviceConfiguration(info.deviceConfiguration.id);
         }
 
@@ -95,7 +84,7 @@ public class DeviceResource {
         newDevice.setYearOfCertification(info.yearOfCertification);
         newDevice.save();
 
-        if (info.batch!=null) {
+        if (info.batch != null) {
             deviceImportService.addDeviceToBatch(newDevice, info.batch);
         }
         URI uri = uriInfo.getBaseUriBuilder().
@@ -140,120 +129,3 @@ public class DeviceResource {
 
 }
 
-class LegacyConstraintViolationException extends ConstraintViolationException {
-
-    public LegacyConstraintViolationException(ConstraintViolationException original, Map<String, String> propertyRenames) {
-        super(original.getMessage(), original.getConstraintViolations().stream().map(cv -> new LegacyConstraintViolation<>(cv, propertyRenames)).collect(toSet()));
-    }
-
-}
-
-class LegacyConstraintViolation<T> implements ConstraintViolation<T> {
-    private final ConstraintViolation<T> violation;
-    private final Map<String, String> renames = new HashMap<>();
-    private final javax.validation.Path rewrittenPath;
-
-    public LegacyConstraintViolation(ConstraintViolation<T> violation, Map<String, String> renames) {
-        this.violation = violation;
-        this.renames.putAll(renames);
-        RewrittenPath nodes = new RewrittenPath();
-        for (javax.validation.Path.Node node : violation.getPropertyPath()) {
-            if (renames.containsKey(node.getName())) {
-                nodes.add(new javax.validation.Path.Node() {
-                    @Override
-                    public String getName() {
-                        return renames.get(node.getName());
-                    }
-
-                    @Override
-                    public boolean isInIterable() {
-                        return false;
-                    }
-
-                    @Override
-                    public Integer getIndex() {
-                        return null;
-                    }
-
-                    @Override
-                    public Object getKey() {
-                        return null;
-                    }
-
-                    @Override
-                    public ElementKind getKind() {
-                        return null;
-                    }
-
-                    @Override
-                    public <T extends javax.validation.Path.Node> T as(Class<T> aClass) {
-                        return null;
-                    }
-                });
-            } else {
-                nodes.add(node);
-            }
-        }
-        this.rewrittenPath = nodes;
-
-    }
-
-    class RewrittenPath extends ArrayList<javax.validation.Path.Node> implements javax.validation.Path {
-
-    }
-
-    @Override
-    public String getMessage() {
-        return violation.getMessage();
-    }
-
-    @Override
-    public String getMessageTemplate() {
-        return violation.getMessageTemplate();
-    }
-
-    @Override
-    public T getRootBean() {
-        return violation.getRootBean();
-    }
-
-    @Override
-    public Class<T> getRootBeanClass() {
-        return violation.getRootBeanClass();
-    }
-
-    @Override
-    public Object getLeafBean() {
-        return violation.getLeafBean();
-    }
-
-    @Override
-    public Object[] getExecutableParameters() {
-        return violation.getExecutableParameters();
-    }
-
-    @Override
-    public Object getExecutableReturnValue() {
-        return violation.getExecutableReturnValue();
-    }
-
-    @Override
-    public javax.validation.Path getPropertyPath() {
-        return this.rewrittenPath;
-    }
-
-    @Override
-    public Object getInvalidValue() {
-        return violation.getInvalidValue();
-    }
-
-    @Override
-    public ConstraintDescriptor<?> getConstraintDescriptor() {
-        return violation.getConstraintDescriptor();
-    }
-
-    @Override
-    public <U> U unwrap(Class<U> aClass) {
-        return violation.unwrap(aClass);
-    }
-}
