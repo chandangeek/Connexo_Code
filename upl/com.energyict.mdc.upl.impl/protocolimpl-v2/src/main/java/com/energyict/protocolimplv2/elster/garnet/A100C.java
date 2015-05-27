@@ -63,6 +63,9 @@ public class A100C extends AbstractMbusDevice {
         return "Elster A100C Garnet";
     }
 
+    /**
+     * The version date
+     */
     @Override
     public String getVersion() {
         return "$Date$";

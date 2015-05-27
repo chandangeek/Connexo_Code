@@ -7,6 +7,7 @@ import com.energyict.protocolimplv2.elster.garnet.structure.field.BitMapCollecti
 import com.energyict.protocolimplv2.elster.garnet.structure.field.ContactorMode;
 import com.energyict.protocolimplv2.elster.garnet.structure.field.MeterSerialNumber;
 import com.energyict.protocolimplv2.elster.garnet.structure.field.PaddingData;
+import com.energyict.protocolimplv2.elster.garnet.structure.field.bitMaskField.ContactorReconnectStatus;
 import com.energyict.protocolimplv2.elster.garnet.structure.field.bitMaskField.ContactorShutdownStatus;
 import com.energyict.protocolimplv2.elster.garnet.structure.field.bitMaskField.ContactorStatus;
 import com.energyict.protocolimplv2.elster.garnet.structure.field.bitMaskField.MeterInstallationStatusBitMaskField;
@@ -63,12 +64,12 @@ public class ContactorOperationViaSerialNumberEvent extends AbstractField<Contac
         ptr += meterSerialNumber.getLength();
 
         this.contactorMode.parse(rawData, ptr + contactorStatusMask.getLength());
-
         if (contactorMode.getContactorModeCode() == 0) {
             this.contactorStatusMask = new BitMapCollection<>(LENGTH_OF_CONTACTOR_STATUSES, NR_OF_METERS, ContactorShutdownStatus.class);
         } else {
-            this.contactorStatusMask = new BitMapCollection<>(LENGTH_OF_CONTACTOR_STATUSES, NR_OF_METERS, ContactorShutdownStatus.class);
+            this.contactorStatusMask = new BitMapCollection<>(LENGTH_OF_CONTACTOR_STATUSES, NR_OF_METERS, ContactorReconnectStatus.class);
         }
+        this.contactorStatusMask.parse(rawData, ptr);
         ptr += contactorStatusMask.getLength();
         ptr += contactorMode.getLength();
 
@@ -78,7 +79,6 @@ public class ContactorOperationViaSerialNumberEvent extends AbstractField<Contac
         this.paddingData.parse(rawData, ptr);
         ptr += paddingData.getLength();
 
-        this.contactorStatusMask.parse(rawData, ptr);
         ptr += contactorStatusMask.getLength();
 
         this.paddingData.parse(rawData, ptr);

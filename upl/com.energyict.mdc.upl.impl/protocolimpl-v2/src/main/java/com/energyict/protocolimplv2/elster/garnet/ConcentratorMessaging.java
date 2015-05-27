@@ -143,9 +143,9 @@ public class ConcentratorMessaging implements DeviceMessageSupport {
         builder.append(nrOfPhases > 1 ? ", Phase 2: " + statusPhase2.getContactorInfo() : "");
         builder.append(nrOfPhases > 2 ? ", Phase 3: " + statusPhase3.getContactorInfo() : "");
 
-        if (nrOfPhases == 0 && statusPhase1.getContactorCode() != 1 ||
-                nrOfPhases == 1 && (statusPhase1.getContactorCode() != 1 || statusPhase2.getContactorCode() != 1) ||
-                nrOfPhases == 2 && (statusPhase1.getContactorCode() != 1 || statusPhase2.getContactorCode() != 1 || statusPhase3.getContactorCode() != 1)) {
+        if (nrOfPhases == 1 && statusPhase1.getContactorCode() != 1 ||
+                nrOfPhases == 2 && (statusPhase1.getContactorCode() != 1 || statusPhase2.getContactorCode() != 1) ||
+                nrOfPhases == 3 && (statusPhase1.getContactorCode() != 1 || statusPhase2.getContactorCode() != 1 || statusPhase3.getContactorCode() != 1)) {
             // Adapt the error code to reflect non technical loss - this error code will be used in the state machine that is executed after this method
             setErrorCodeToNonTechnicalLoss();
         }

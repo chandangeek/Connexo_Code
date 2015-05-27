@@ -250,6 +250,9 @@ public class GarnetConcentrator implements DeviceProtocol {
         return getTopologyMaintainer().getDeviceTopology();
     }
 
+    /**
+     * The version date
+     */
     @Override
     public String getVersion() {
         return "$Date$";
