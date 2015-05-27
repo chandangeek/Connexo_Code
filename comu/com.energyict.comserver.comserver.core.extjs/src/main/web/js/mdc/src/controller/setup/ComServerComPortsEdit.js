@@ -185,7 +185,9 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
         } else {
             this.restorePools = undefined;
         }
-        this.restoreState();
+        if (!this.currentUrl.includes('edit')) {
+            this.restoreState();
+        }
         this.filterStore();
     },
 
@@ -385,7 +387,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
         }
 
 
-        me.currentUrl = 'administration/comservers/detail/comports/edit'
+        me.currentUrl = 'administration/comservers/detail/comports/edit';
         me.comServerId = id;
         me.comPortId = parseInt(comPortId);
         me.comportEdit = widget;

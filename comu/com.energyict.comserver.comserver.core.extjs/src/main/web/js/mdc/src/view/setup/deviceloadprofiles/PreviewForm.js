@@ -31,7 +31,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.PreviewForm', {
                             var res = '';
                             if (value && value.id && value.name) {
                                 var url = me.router.getRoute('devices/device/loadprofiles/loadprofiledata').buildUrl({mRID: me.mRID, loadProfileId: value.id});
-                                res = '<a href="' + url + '">' + value.name + '</a>'
+                                res = '<a href="' + url + '">' + Ext.String.htmlEncode(value.name) + '</a>'
                             }
                             return res;
                         }
@@ -66,7 +66,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.PreviewForm', {
                                 id = form.getRecord().getId();
                                 Ext.isArray(value) && Ext.Array.each(value, function (channel) {
                                     url = me.router.getRoute('devices/device/channels/channeldata').buildUrl({mRID: me.mRID, channelId: channel.id});
-                                    result += '<a href="' + url + '"> ' + channel.name + '</a><br>';
+                                    result += '<a href="' + url + '"> ' + Ext.String.htmlEncode(channel.name) + '</a><br>';
                                 });
                             }
                             return result;

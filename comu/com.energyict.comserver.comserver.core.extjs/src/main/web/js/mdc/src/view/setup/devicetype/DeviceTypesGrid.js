@@ -18,7 +18,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesGrid', {
                 header: Uni.I18n.translate('devicetype.name', 'MDC', 'Name'),
                 dataIndex: 'name',
                 renderer: function (value, b, record) {
-                    return '<a href="#/administration/devicetypes/' + record.get('id') + '">' + value + '</a>';
+                    return '<a href="#/administration/devicetypes/' + record.get('id') + '">' + Ext.String.htmlEncode(value) + '</a>';
                 },
                 flex: 1
             },

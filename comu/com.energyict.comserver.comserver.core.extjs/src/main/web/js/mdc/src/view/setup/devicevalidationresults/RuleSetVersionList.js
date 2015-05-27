@@ -16,23 +16,15 @@ Ext.define('Mdc.view.setup.devicevalidationresults.RuleSetVersionList', {
 				sortable: false, 
 				fixed: true,
                 renderer: function (value, metaData, record) {                 					
-                    return '<a href="#/administration/validation/rulesets/' + record.get('ruleSetId') + '/versions/' + record.getId() + '">' + value + '</a>';
+                    return '<a href="#/administration/validation/rulesets/' + record.get('ruleSetId') + '/versions/' + record.getId() + '">' + Ext.String.htmlEncode(value) + '</a>';
                 }
             },	
             { 
 				header: Uni.I18n.translate('validationResults.result', 'MDC', 'Result'), 
 				dataIndex: 'total', 
 				sortable: false, 
-				fixed: true,
-				renderer: function (value, meta, record) {					
-					var me = this,
-						href = me.router.getRoute('devices/device/validationresultsdataversion').buildUrl(
-								{ mRID: record.get('mRID'), 
-									ruleSetId: record.get('ruleSetId'), 
-									ruleSetVersionId: record.get('id')}, 
-							me.router.queryParams );
-					return '<a href="' + href + '">' + value + '</a>'
-				}
+				fixed: true
+
             }
         ]
     }

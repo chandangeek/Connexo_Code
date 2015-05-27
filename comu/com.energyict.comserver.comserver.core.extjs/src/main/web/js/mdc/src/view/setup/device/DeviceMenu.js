@@ -16,12 +16,12 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
             {
                 text: mRID,
                 itemId: 'deviceOverviewLink',
-                href: '#/devices/' + mRID
+                href: '#/devices/' + encodeURIComponent(mRID)
             },
             {
                 text: Uni.I18n.translate('general.history', 'MDC', 'History'),
                 itemId: 'device-history-link',
-                href: '#/devices/' + mRID + '/history'
+                href: '#/devices/' + encodeURIComponent(mRID) + '/history'
             },
             {
                 title: 'Data sources',
@@ -30,32 +30,32 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
                     {
                         text: Uni.I18n.translate('devicemenu.loadProfiles', 'MDC', 'Load profiles'),
                         itemId: 'loadProfilesLink',
-                        href: '#/devices/' + mRID + '/loadprofiles',
+                        href: '#/devices/' + encodeURIComponent(mRID) + '/loadprofiles',
                         showCondition: me.device.get('hasLoadProfiles')
                     },
                     {
                         text: Uni.I18n.translate('devicemenu.channels', 'MDC', 'Channels'),
                         privileges:Mdc.privileges.Device.viewDevice,
                         itemId: 'channelsLink',
-                        href: '#/devices/' + mRID + '/channels',
+                        href: '#/devices/' + encodeURIComponent(mRID) + '/channels',
                         showCondition: me.device.get('hasLoadProfiles')
                     },
                     {
                         text: Uni.I18n.translate('devicemenu.logbooks', 'MDC', 'Logbooks'),
                         itemId: 'logbooksLink',
-                        href: '#/devices/' + mRID + '/logbooks',
+                        href: '#/devices/' + encodeURIComponent(mRID) + '/logbooks',
                         showCondition: me.device.get('hasLogBooks')
                     },
                     {
                         text: Uni.I18n.translate('devicemenu.events', 'MDC', 'Events'),
                         itemId: 'events',
-                        href: '#/devices/' + mRID + '/events',
+                        href: '#/devices/' + encodeURIComponent(mRID) + '/events',
                         showCondition: me.device.get('hasLogBooks')
                     },
                     {
                         text: Uni.I18n.translate('devicemenu.registerTypes', 'MDC', 'Registers'),
                         itemId: 'registersLink',
-                        href: '#/devices/' + mRID + '/registers',
+                        href: '#/devices/' + encodeURIComponent(mRID) + '/registers',
                         showCondition: me.device.get('hasRegisters')
                     }
                 ]
@@ -66,42 +66,42 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
                     {
                         text: Uni.I18n.translate('deviceconfigurationmenu.generalAttributes', 'MDC', 'General attributes'),
                         itemId: 'deviceGeneralAttributesLink',
-                        href: '#/devices/' + mRID + '/generalattributes'
+                        href: '#/devices/' + encodeURIComponent(mRID) + '/generalattributes'
                     },
                     {
                         text: Uni.I18n.translate('devicemenu.communicationPlanning', 'MDC', 'Communication planning'),
                         itemId: 'communicationSchedulesLink',
-                        href: '#/devices/' + mRID + '/communicationplanning'
+                        href: '#/devices/' + encodeURIComponent(mRID) + '/communicationplanning'
                     },
                     {
                         text: Uni.I18n.translate('devicemenu.communicationTasks', 'MDC', 'Communication tasks'),
                         itemId: 'communicationTasksLink',
-                        href: '#/devices/' + mRID + '/communicationtasks',
+                        href: '#/devices/' + encodeURIComponent(mRID) + '/communicationtasks',
                     },
                     {
                         text: Uni.I18n.translate('devicemenu.connectionMethods', 'MDC', 'Connection methods'),
                         itemId: 'connectionMethodsLink',
-                        href: '#/devices/' + mRID + '/connectionmethods'
+                        href: '#/devices/' + encodeURIComponent(mRID) + '/connectionmethods'
                     },
                     {
                         text: Uni.I18n.translate('devicemenu.security', 'MDC', 'Security settings'),
                         itemId: 'securitySettingLink',
-                        href: '#/devices/' + mRID + '/securitysettings'
+                        href: '#/devices/' + encodeURIComponent(mRID) + '/securitysettings'
                     },
                     {
                         text: Uni.I18n.translate('devicemenu.protocols', 'MDC', 'Protocol dialects'),
                         itemId: 'protocolLink',
-                        href: '#/devices/' + mRID + '/protocols'
+                        href: '#/devices/' + encodeURIComponent(mRID) + '/protocols'
                     },
                     {
                         text: Uni.I18n.translate('devicemenu.commands', 'MDC', 'Commands'),
                         itemId: 'deviceCommands',
-                        href: '#/devices/' + mRID + '/commands'
+                        href: '#/devices/' + encodeURIComponent(mRID) + '/commands'
                     },
                     {
                         text: Uni.I18n.translate('deviceCommunicationTopology.topologyTitle', 'MDC', 'Communication topology'),
                         itemId: 'topologyLink',
-                        href: '#/devices/' + mRID + '/topology',
+                        href: '#/devices/' + encodeURIComponent(mRID) + '/topology',
                         showCondition: me.device.get('gatewayType') === 'LAN'
                             || me.device.get('gatewayType') === 'HAN'
                     }
@@ -114,7 +114,7 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
                         text: Uni.I18n.translate('devicemenu.dataValidation', 'MDC', 'Validation configuration'),
                         itemId: 'dataValidationLink',
                         privileges: Cfg.privileges.Validation.fineTuneValidation,
-                        href: '#/devices/' + mRID + '/datavalidation',
+                        href: '#/devices/' + encodeURIComponent(mRID) + '/datavalidation',
                         showCondition: me.device.get('hasLogBooks')
                         || me.device.get('hasLoadProfiles')
                         || me.device.get('hasRegisters')
@@ -123,7 +123,7 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
                         text: Uni.I18n.translate('devicemenu.validationResults', 'MDC', 'Validation results'),
                         itemId: 'validationResultsLink',
                         hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.validationConfiguration', 'privilege.view.validationConfiguration', 'privilege.view.fineTuneValidationConfiguration']),
-                        href: '#/devices/' + mRID + '/validationresults/configuration',
+                        href: '#/devices/' + encodeURIComponent(mRID) + '/validationresults/data',
                         showCondition: me.device.get('hasLogBooks')
                         || me.device.get('hasLoadProfiles')
                         || me.device.get('hasRegisters')
@@ -131,7 +131,7 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
                     {
                         text: Uni.I18n.translate('general.dataEstimation', 'MDC', 'Data estimation'),
                         itemId: 'dataEstimationLink',
-                        href: '#/devices/' + mRID + '/dataestimation',
+                        href: '#/devices/' + encodeURIComponent(mRID) + '/dataestimation',
                         showCondition: me.device.get('hasLogBooks')
                         || me.device.get('hasLoadProfiles')
                         || me.device.get('hasRegisters'),

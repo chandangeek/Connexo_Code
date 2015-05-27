@@ -70,7 +70,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
             '#loadProfileConfigurationDetailRulesGrid': {
                 selectionchange: this.previewValidationRule
             },
-            'validation-rule-actionmenu': {
+            'loadProfileConfigurationDetailSetup validation-rule-actionmenu': {
                 click: this.chooseRuleAction
             }
         });
@@ -92,7 +92,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
     editRecord: function () {
         var grid = this.getChannelsGrid(),
             lastSelected = grid.getView().getSelectionModel().getLastSelected();
-        window.location.href = '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/loadprofiles/' + this.loadProfileConfigurationId + '/channels/' + lastSelected.getData().id + '/edit';
+        window.location.href = '#/administration/devicetypes/' + encodeURIComponent(this.deviceTypeId) + '/deviceconfigurations/' + encodeURIComponent(this.deviceConfigurationId) + '/loadprofiles/' + encodeURIComponent(this.loadProfileConfigurationId) + '/channels/' + encodeURIComponent(lastSelected.getData().id) + '/edit';
     },
 
     showConfirmationPanel: function () {
@@ -599,6 +599,6 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
 
     chooseRuleAction: function (menu, item) {
         var record = menu.record || this.getPage().down('#loadProfileConfigurationDetailRulesGrid').getSelectionModel().getLastSelected();
-        location.href = '#/administration/validation/rulesets/' + record.get('ruleSet').id + '/rules/' + record.getId();
+        location.href = '#/administration/validation/rulesets/' + encodeURIComponent(record.get('ruleSet').id) + '/rules/' + encodeURIComponent(record.getId());
     }
 });

@@ -60,7 +60,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
     editRecord: function () {
         var grid = this.getLoadTypeGrid(),
             lastSelected = grid.getView().getSelectionModel().getLastSelected();
-        window.location.href = '#/administration/loadprofiletypes/' + lastSelected.getData().id + '/edit';
+        window.location.href = '#/administration/loadprofiletypes/' + encodeURIComponent(lastSelected.getData().id) + '/edit';
     },
 
     showConfirmationPanel: function () {
@@ -157,7 +157,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
                 loadTypesWord = ' load profile types'
             }
             var widget = Ext.widget('container', {
-                html: loadTypeCount + loadTypesWord
+                html: Ext.String.htmlEncode(loadTypeCount + loadTypesWord)
             });
             Ext.suspendLayouts();
             numberOfLoadTypesContainer.removeAll(true);

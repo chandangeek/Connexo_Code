@@ -20,33 +20,18 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RulesSetGrid', {
                     if (record.raw.description) {
                         metaData.tdAttr = 'data-qtip="' + record.raw.description + '"';
                     }
-                    return '<a href="#/administration/validation/rulesets/' + record.getId() + '">' + value + '</a>';
+                    return '<a href="#/administration/validation/rulesets/' + record.getId() + '">' + Ext.String.htmlEncode(value) + '</a>';
                 },
-                flex: 1
+                flex: 3
             },
             {
-                header: Uni.I18n.translate('device.dataValidation.rulesSetGrid.columnHeader.status', 'MDC', 'Status'),
-                dataIndex: 'isActive',
-                align: 'center',
-                flex: 1,
-                renderer: function (value) {
-                    return value ?
-                        Uni.I18n.translate('general.active', 'MDC', 'Active') :
-                        Uni.I18n.translate('general.inactive', 'MDC', 'Inctive');
-                }
-            },
-            {
-                header: Uni.I18n.translate('device.dataValidation.rulesSetGrid.columnHeader.activeRules', 'MDC', 'Active rules'),
-                dataIndex: 'numberOfActiveRules',
-                align: 'right',
-                flex: 1
-            },
-            {
-                header: Uni.I18n.translate('device.dataValidation.rulesSetGrid.columnHeader.inactiveRules', 'MDC', 'Inactive rules'),
-                dataIndex: 'numberOfInactiveRules',
-                align: 'right',
-                flex: 1
-            },
+                header: Uni.I18n.translate('validation.activeVersion', 'CFG', 'Active version'),
+                dataIndex: 'activeVersion',
+                flex: 5,
+                align: 'left',
+                sortable: false,
+                fixed: true
+            },	        
             {
                 xtype: 'uni-actioncolumn',
                 privileges:Cfg.privileges.Validation.device,

@@ -16,7 +16,7 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step4', {
     },
     showMessage: function (message) {
         var widget = {
-            html: '<h3>' + message.title + '</h3><br>' + message.body
+            html: '<h3>' + Ext.String.htmlEncode(message.title) + '</h3><br>' + Ext.String.htmlEncode(message.body)
         };
         Ext.suspendLayouts();
         this.removeAll();

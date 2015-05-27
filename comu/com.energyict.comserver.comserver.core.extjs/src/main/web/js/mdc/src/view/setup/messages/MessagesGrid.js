@@ -37,7 +37,7 @@ Ext.define('Mdc.view.setup.messages.MessagesGrid', {
 
                 if (Ext.isArray(value)) {
                     Ext.each(value, function (item) {
-                        result += item.name.toString();
+                        result += Ext.String.htmlEncode(item.name.toString());
                         if (value.indexOf(item) != value.length - 1) result += ' - ';
                     });
                 }
@@ -84,8 +84,7 @@ Ext.define('Mdc.view.setup.messages.MessagesGrid', {
             emptyMsg: Uni.I18n.translate('commands.pagingtoolbartop.emptyMsg', 'MDC', 'There are no commands'),
             items: [
                 {
-                    xtype: 'component',
-                    flex: 1
+                    xtype: 'component'
                 },
                 {
                     xtype: 'button',

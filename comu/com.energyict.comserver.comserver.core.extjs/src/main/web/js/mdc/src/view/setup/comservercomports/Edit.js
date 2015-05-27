@@ -46,7 +46,7 @@ Ext.define('Mdc.view.setup.comservercomports.Edit', {
                     hidden: true,
                     name: 'direction',
                     renderer: function (value) {
-                        return value.charAt(0).toUpperCase() + value.slice(1);
+                        return Ext.String.htmlEncode(value.charAt(0).toUpperCase() + value.slice(1));
                     }
                 },
                 {

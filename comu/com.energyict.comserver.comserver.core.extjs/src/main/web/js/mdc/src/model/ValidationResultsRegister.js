@@ -6,10 +6,23 @@ Ext.define('Mdc.model.ValidationResultsRegister', {
     fields: [
         'id',
         'name',
+        'interval',
+        'intervalEnd',
+        'intervalInMs',
+        'intervalRecord',
+        {
+            name: 'intervalStart',
+            convert: function (value, record) {
+                return value;
+            }
+        },
 		{
             name: 'total',            
             convert: function (value, record) {
-                return  Ext.String.format(Uni.I18n.translate('validationResults.suspects', 'MDC', '{0} suspects'), value);                       
+                if (value) {
+                    return Ext.String.format(Uni.I18n.translate('validationResults.suspects', 'MDC', '{0} suspects'), value);
+                }
+                return '';
             }
         }
     ]

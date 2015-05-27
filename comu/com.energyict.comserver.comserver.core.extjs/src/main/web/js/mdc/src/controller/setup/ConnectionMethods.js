@@ -151,15 +151,15 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
     },
 
     addOutboundConnectionMethodHistory: function () {
-        location.href = '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/connectionmethods/addoutbound';
+        location.href = '#/administration/devicetypes/' + encodeURIComponent(this.deviceTypeId) + '/deviceconfigurations/' + encodeURIComponent(this.deviceConfigurationId) + '/connectionmethods/addoutbound';
     },
 
     addInboundConnectionMethodHistory: function () {
-        location.href = '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/connectionmethods/addinbound';
+        location.href = '#/administration/devicetypes/' + encodeURIComponent(this.deviceTypeId) + '/deviceconfigurations/' + encodeURIComponent(this.deviceConfigurationId) + '/connectionmethods/addinbound';
     },
 
     editConnectionMethodHistory: function (record) {
-        location.href = '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/connectionmethods/' + record.get('id') + '/edit';
+        location.href = '#/administration/devicetypes/' + encodeURIComponent(this.deviceTypeId) + '/deviceconfigurations/' + encodeURIComponent(this.deviceConfigurationId) + '/connectionmethods/' + encodeURIComponent(record.get('id')) + '/edit';
     },
 
     editConnectionMethodHistoryFromPreview: function () {
@@ -176,7 +176,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
         this.deviceConfigurationId = deviceConfigId;
         var widget = Ext.widget('connectionMethodEdit', {
             edit: false,
-            returnLink: '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/connectionmethods',
+            returnLink: '#/administration/devicetypes/' + encodeURIComponent(this.deviceTypeId) + '/deviceconfigurations/' + encodeURIComponent(this.deviceConfigurationId) + '/connectionmethods',
             connectionTypes: connectionTypesStore,
             comPortPools: this.comPortPoolStore,
             connectionStrategies: connectionStrategiesStore,
@@ -317,7 +317,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
             record.getProxy().extraParams = ({deviceType: me.deviceTypeId, deviceConfig: me.deviceConfigurationId});
             record.save({
                 success: function (record) {
-                    location.href = '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/connectionmethods';
+                    location.href = '#/administration/devicetypes/' + encodeURIComponent(me.deviceTypeId) + '/deviceconfigurations/' + encodeURIComponent(me.deviceConfigurationId) + '/connectionmethods';
                     if (isNewRecord === true) {
                         me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('connectionmethod.acknowlegment.add', 'MDC', 'Connection method added'));
                     } else {
@@ -368,7 +368,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
             connectionMethodToDelete.getProxy().extraParams = ({deviceType: me.deviceTypeId, deviceConfig: me.deviceConfigurationId});
             connectionMethodToDelete.destroy({
                 success: function () {
-                    location.href = '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/connectionmethods';
+                    location.href = '#/administration/devicetypes/' + encodeURIComponent(me.deviceTypeId) + '/deviceconfigurations/' + encodeURIComponent(me.deviceConfigurationId) + '/connectionmethods';
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('connectionmethod.acknowlegment.remove', 'MDC', 'Connection method removed'));
                 }
             });

@@ -18,7 +18,7 @@ Ext.define('Mdc.view.setup.device.DeviceCommunicationTopologyPanel', {
         var me = this,
             element = {
                 tag: tag ? tag : 'a',
-                html: html
+                html: Ext.String.htmlEncode(html)
             };
         if (link) {
             element.href = link;
@@ -57,7 +57,7 @@ Ext.define('Mdc.view.setup.device.DeviceCommunicationTopologyPanel', {
                         flex: 1,
                         renderer: function (value, meta, record) {
                             var href = me.router.getRoute('devices/device').buildUrl({mRID: record.get('mRID')});
-                            return '<a href="' + href + '">' + value + '</a>'
+                            return '<a href="' + href + '">' + Ext.String.htmlEncode(value) + '</a>'
                         }
                     },
                     {

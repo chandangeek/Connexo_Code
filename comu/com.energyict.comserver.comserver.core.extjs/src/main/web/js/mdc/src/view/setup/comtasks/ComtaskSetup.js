@@ -23,6 +23,7 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskSetup', {
                     },
                     emptyComponent: {
                         xtype: 'no-items-found-panel',
+                        itemId: 'empty-grid-comtasks',
                         title: Uni.I18n.translate('comtask.empty.title', 'MDC', 'No communication tasks found'),
                         reasons: [
                             Uni.I18n.translate('comtask.empty.list.item1', 'MDC', 'No communication tasks have been added yet.')

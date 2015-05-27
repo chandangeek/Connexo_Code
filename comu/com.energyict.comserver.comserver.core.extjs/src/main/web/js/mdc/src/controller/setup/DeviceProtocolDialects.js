@@ -53,7 +53,7 @@ Ext.define('Mdc.controller.setup.DeviceProtocolDialects', {
     },
 
     editProtocolDialectHistory: function (record) {
-        location.href = '#/devices/' + this.mRID + '/protocols/' + record.get('id') + '/edit';
+        location.href = '#/devices/' + encodeURIComponent(this.mRID) + '/protocols/' + encodeURIComponent(record.get('id')) + '/edit';
     },
 
     showProtocolDialectsView: function (mRID) {
@@ -112,7 +112,7 @@ Ext.define('Mdc.controller.setup.DeviceProtocolDialects', {
         var returnlink;
 
         if (me.getApplication().getController('Mdc.controller.history.Setup').tokenizePreviousTokens().indexOf('null') > -1) {
-            returnlink = '#/devices/' + mRID + '/protocols';
+            returnlink = '#/devices/' + encodeURIComponent(mRID) + '/protocols';
         } else {
             returnlink = me.getApplication().getController('Mdc.controller.history.Setup').tokenizePreviousTokens();
         }
@@ -156,7 +156,7 @@ Ext.define('Mdc.controller.setup.DeviceProtocolDialects', {
             record.propertiesStore = propertyForm.getRecord().properties();
             record.save({
                 success: function (record) {
-                    location.href = '#/devices/' + me.mRID + '/protocols';
+                    location.href = '#/devices/' + encodeURIComponent(me.mRID) + '/protocols';
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceProtocolDialect.acknowlegment', 'MDC', 'Protocol dialect saved') );
                 },
                 failure: function (record, operation) {

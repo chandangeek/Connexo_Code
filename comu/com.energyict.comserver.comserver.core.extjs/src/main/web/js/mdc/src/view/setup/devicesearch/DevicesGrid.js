@@ -31,7 +31,7 @@ Ext.define('Mdc.view.setup.devicesearch.DevicesGrid', {
                 sortable: false,
                 hideable: false,
                 renderer: function (value, b, record) {
-                    return '<a href="#/devices/' + record.get('mRID') + '">' + value + '</a>';
+                    return '<a href="#/devices/' + encodeURIComponent(record.get('mRID')) + '">' + Ext.String.htmlEncode(value) + '</a>';
                 },
                 fixed: true,
                 flex: 3

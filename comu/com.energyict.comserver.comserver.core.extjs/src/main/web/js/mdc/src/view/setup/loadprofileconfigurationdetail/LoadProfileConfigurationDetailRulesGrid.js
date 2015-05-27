@@ -19,8 +19,10 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
         var me = this;
         me.columns = [
             { header: Uni.I18n.translate('validation.validationRule', 'CFG', 'Validation rule'), dataIndex: 'name', flex: 1,
-                renderer: function (value, b, record) {
-                    return '<a href="#/administration/validation/rulesets/' + record.get('ruleSet').id + '/rules/' + record.getId() + '">' + value + '</a>'
+                renderer: function (value, b, record) {					
+					return '<a href="#/administration/validation/rulesets/' + record.get('ruleSetId') 
+                        + '/versions/' + record.get('ruleSetVersionId') 
+                        + '/rules/' + record.getId() + '">' +  Ext.String.htmlEncode(value) + '</a>';
                 }
             },
             { header: Uni.I18n.translate('validation.status', 'CFG', 'Status'), dataIndex: 'active', flex: 1,
@@ -36,10 +38,16 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                 header: Uni.I18n.translate('validation.validationRuleSet', 'CFG', 'Validation rule set'),
                 dataIndex: 'ruleSetName',
                 renderer: function (value, metaData, record) {
-                    if (record.data.ruleSet.description) {
-                        metaData.tdAttr = 'data-qtip="' + record.data.ruleSet.description + '"';
-                    }
-                    return '<a href="#/administration/validation/rulesets/' + record.data.ruleSet.id + '">' + record.data.ruleSet.name + '</a>';
+					var ruleSetVersion = record.get('ruleSetVersion');
+					if (ruleSetVersion){
+						var ruleSet = ruleSetVersion.ruleSet;
+						if (ruleSet){
+							metaData.tdAttr = 'data-qtip="' + ruleSet.description + '"';
+							return '<a href="#/administration/validation/rulesets/' + ruleSet.id + '">' + Ext.String.htmlEncode(ruleSet.name) + '</a>';
+						}
+					}
+                    
+                    return '';
                 },
                 flex: 1
             },
