@@ -13,8 +13,7 @@ Ext.define('Mdc.view.setup.comservercomports.Grid', {
         items: [
             {
                 header: Uni.I18n.translate('comServerComPorts.communicationPort', 'MDC', 'Communication port'),
-                xtype: 'templatecolumn',
-                tpl: '{name}',
+                dataIndex: 'name',
                 flex: 1
             },
             {
