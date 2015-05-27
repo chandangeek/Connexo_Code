@@ -28,12 +28,18 @@ public class MonitorValidationInfo {
     public MonitorValidationInfo(Map<LoadProfile, List<DataValidationStatus>> loadProfileStatus , Map<NumericalRegister, List<DataValidationStatus>> registerStatus, ValidationStatusInfo validationStatus) {
         total = loadProfileStatus.entrySet().stream().flatMap(m -> m.getValue().stream()).collect(Collectors.counting()) +
                 registerStatus.entrySet().stream().flatMap(m -> m.getValue().stream()).collect(Collectors.counting());
-        List<DataValidationStatus> dataValidationStatuses = loadProfileStatus.entrySet().stream().flatMap(m -> m.getValue().stream()).collect(Collectors.toList());
-        dataValidationStatuses.addAll(registerStatus.entrySet().stream().flatMap(m -> m.getValue().stream()).collect(Collectors.toList()));
+
+        List<DataValidationStatus> dataValidationStatuses = loadProfileStatus.entrySet().stream()
+                .sorted((lp1, lp2) -> lp1.getKey().getLoadProfileSpec().getLoadProfileType().getName().compareTo(lp2.getKey().getLoadProfileSpec().getLoadProfileType().getName()))
+                .flatMap(m -> m.getValue().stream()).collect(Collectors.toList());
+        dataValidationStatuses.addAll(registerStatus.entrySet().stream()
+                .sorted((reg1, reg2) -> reg1.getKey().getRegisterSpec().getReadingType().getFullAliasName().compareTo(reg1.getKey().getRegisterSpec().getReadingType().getFullAliasName()))
+                .flatMap(m -> m.getValue().stream()).collect(Collectors.toList()));
+
         this.validationStatus = validationStatus;
         this.detailedValidationLoadProfile = new ArrayList<>();
         this.detailedValidationRegister = new ArrayList<>();
-        loadProfileStatus.entrySet().stream().forEach( lp -> {
+        loadProfileStatus.entrySet().stream().forEach(lp -> {
             this.detailedValidationLoadProfile.add(new DetailedValidationLoadProfileInfo(lp.getKey(),new Long(lp.getValue().size())));
         });
         registerStatus.entrySet().stream().forEach( lp -> {
