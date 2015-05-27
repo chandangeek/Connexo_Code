@@ -20,7 +20,7 @@ Ext.define('Fwc.view.firmware.FirmwareOptionsXTemplate', {
                                      '  <tbody>',
                                             '<tr>',
                                                 '<td>',
-                                                    Uni.I18n.translate('deviceType.firmwaremanagementoptions.off', 'FWC', 'Firmware management is off'),
+                                                    Uni.I18n.translate('deviceType.firmwaremanagementoptions.off', 'FWC', 'Firmware management is not allowed'),
                                                 '</td>',
                                             '</tr>',
                                         '</tbody>',

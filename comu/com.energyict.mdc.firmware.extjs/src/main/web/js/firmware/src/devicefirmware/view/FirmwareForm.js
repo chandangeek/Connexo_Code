@@ -133,7 +133,7 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
             fieldLabel: Uni.I18n.translate('device.firmware.field.status', 'FWC', 'Firmware version status'),
             beforeRenderer: function (value) {
                 if (value && value.id === 'deprecated') {
-                    this.infoTooltip = Uni.I18n.translate('device.firmware.field.status.deprecated.tooltip', 'FWC', 'Active firmware version is deprecated. Consider firmware upgrade');
+                    this.infoTooltip = Uni.I18n.translate('device.firmware.field.status.deprecated.tooltip', 'FWC', 'Firmware version is deprecated. Consider uploading new firmware version.');
                 }
                 return value.localizedValue || null;
             },
