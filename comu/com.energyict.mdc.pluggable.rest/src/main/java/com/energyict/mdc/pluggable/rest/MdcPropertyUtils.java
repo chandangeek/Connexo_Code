@@ -93,8 +93,6 @@ public class MdcPropertyUtils {
                     possibleValues = device.getLogBooks();
                 } else if (simplePropertyType.equals(SimplePropertyType.REGISTER)) {
                     possibleValues = device.getRegisters();
-                } else if (simplePropertyType.equals(SimplePropertyType.FIRMWAREVERSION)) {
-                    possibleValues = this.firmwareService.getAllUpgradableFirmwareVersionsFor(device);
                 }
             }
             return possibleValues;
