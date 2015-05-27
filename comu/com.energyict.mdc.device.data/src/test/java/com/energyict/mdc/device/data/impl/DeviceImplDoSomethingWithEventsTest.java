@@ -38,12 +38,13 @@ import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.impl.TasksModule;
-
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
+import com.elster.jupiter.estimation.EstimationService;
+import com.elster.jupiter.estimation.impl.EstimationModule;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.EventType;
 import com.elster.jupiter.events.EventTypeBuilder;
@@ -51,6 +52,7 @@ import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
+import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.kpi.impl.KpiModule;
 import com.elster.jupiter.license.License;
@@ -73,6 +75,7 @@ import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.tasks.impl.TaskModule;
+import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
@@ -90,6 +93,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Provider;
 import com.google.inject.Scopes;
+
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.log.LogService;
@@ -132,7 +136,7 @@ public class DeviceImplDoSomethingWithEventsTest {
     private static final String DEVICE_TYPE_NAME = DeviceImplDoSomethingWithEventsTest.class.getName() + "Type";
     private static final String DEVICE_CONFIGURATION_NAME = DeviceImplDoSomethingWithEventsTest.class.getName() + "Config";
     private static final long DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID = 139;
-    private static final String DEVICENAME = "deviceName";
+    private static final String DEVICE_NAME = "deviceName";
     private static final String MRID = "MyUniquemRID";
 
     private DeviceType deviceType;
@@ -177,7 +181,7 @@ public class DeviceImplDoSomethingWithEventsTest {
     }
 
     private Device createSimpleDevice() {
-        return createSimpleDeviceWithName(DEVICENAME);
+        return createSimpleDeviceWithName(DEVICE_NAME);
     }
 
     private Device createSimpleDeviceWithName(String name) {
@@ -236,6 +240,7 @@ public class DeviceImplDoSomethingWithEventsTest {
         private EventService eventService;
         private NlsService nlsService;
         private ValidationService validationService;
+        private EstimationService estimationService;
         private DeviceConfigurationService deviceConfigurationService;
         private MeteringService meteringService;
         private DataModel dataModel;
@@ -278,6 +283,8 @@ public class DeviceImplDoSomethingWithEventsTest {
                     new EngineModelModule(),
                     new MasterDataModule(),
                     new ValidationModule(),
+                    new EstimationModule(),
+                    new TimeModule(),
                     new DeviceLifeCycleConfigurationModule(),
                     new DeviceConfigurationModule(),
                     new MdcIOModule(),
@@ -299,6 +306,7 @@ public class DeviceImplDoSomethingWithEventsTest {
                 this.readingTypeUtilService = injector.getInstance(MdcReadingTypeUtilService.class);
                 injector.getInstance(MasterDataService.class);
                 this.validationService = injector.getInstance(ValidationService.class);
+                this.estimationService = injector.getInstance(EstimationService.class);
                 this.deviceConfigurationService = injector.getInstance(DeviceConfigurationService.class);
                 this.engineConfigurationService = injector.getInstance(EngineConfigurationService.class);
                 this.relationService = injector.getInstance(RelationService.class);
@@ -307,11 +315,13 @@ public class DeviceImplDoSomethingWithEventsTest {
                 this.deviceDataModelService =
                         new DeviceDataModelServiceImpl(
                                 this.bundleContext,
-                                this.ormService, this.eventService, this.nlsService, this.clock,
+                                this.ormService, this.eventService,
+                                this.nlsService, this.clock,
                                 injector.getInstance(KpiService.class),
                                 injector.getInstance(TaskService.class),
+                                mock(IssueService.class),
                                 this.relationService, this.protocolPluggableService, this.engineConfigurationService,
-                                this.deviceConfigurationService, this.meteringService, this.validationService, this.schedulingService,
+                                this.deviceConfigurationService, this.meteringService, this.validationService, this.estimationService, this.schedulingService,
                                 injector.getInstance(MessageService.class),
                                 injector.getInstance(SecurityPropertyService.class),
                                 injector.getInstance(UserService.class),
@@ -367,6 +377,7 @@ public class DeviceImplDoSomethingWithEventsTest {
 
             @Override
             protected void configure() {
+                bind(com.elster.jupiter.issue.share.service.IssueService.class).toInstance(mock(com.elster.jupiter.issue.share.service.IssueService.class));
                 bind(JsonService.class).toInstance(new JsonServiceImpl());
                 bind(BeanService.class).toInstance(new BeanServiceImpl());
                 bind(Clock.class).toInstance(clock);

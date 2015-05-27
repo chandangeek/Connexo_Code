@@ -1,9 +1,11 @@
 package com.energyict.mdc.device.data;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationResult;
+import com.energyict.mdc.device.data.exceptions.InvalidLastCheckedException;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
@@ -14,6 +16,7 @@ import java.util.Optional;
 /**
  * Created by tgr on 9/09/2014.
  */
+@ProviderType
 public interface DeviceValidation {
 
     Device getDevice();
@@ -21,6 +24,27 @@ public interface DeviceValidation {
     public ValidationResult getValidationResult(Collection<? extends ReadingQuality> qualities);
 
     boolean isValidationActive();
+
+    boolean isValidationOnStorage();
+
+    /**
+     * Activates the validation on the Device and sets the last checked
+     * date to the specified instant in time.
+     * Note that the last checked timestamp is only required
+     * when the Device already has data.
+     *
+     * @param lastChecked The last checked timestamp
+     * @throws InvalidLastCheckedException Thrown when lastChecked timestamp is <code>null</code>
+     *                                     or after the last checked timestamp of the Device's current meter activation
+     */
+    void activateValidation(Instant lastChecked);
+
+    void activateValidationOnStorage(Instant lastChecked);
+
+    /**
+     * Deactivates the validation on the Device.
+     */
+    void deactivateValidation();
 
     boolean isValidationActive(Channel channel, Instant when);
 
@@ -40,21 +64,16 @@ public interface DeviceValidation {
 
     List<DataValidationStatus> getValidationStatus(Register<?> register, List<? extends BaseReading> readings, Range<Instant> interval);
 
-    List<DataValidationStatus> getValidationStatus(Channel channel, List<? extends BaseReading> readings);
+    void validateData();
 
-    List<DataValidationStatus> getValidationStatus(Register<?> register, List<? extends BaseReading> readings);
-
-    void validateLoadProfile(LoadProfile loadProfile); 
+    void validateLoadProfile(LoadProfile loadProfile);
 
     void validateChannel(Channel channel);
 
     void validateRegister(Register<?> register);
 
-    boolean hasData(Channel c);
-
-    boolean hasData(Register<?> register);
-
     void setLastChecked(Channel c, Instant start);
 
     void setLastChecked(Register<?> c, Instant start);
+
 }

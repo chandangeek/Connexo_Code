@@ -21,7 +21,6 @@ import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.RegisterType;
-import org.fest.assertions.core.Condition;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -30,7 +29,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import org.assertj.core.api.Condition;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests the persistent {@link LoadProfileImpl} component.
@@ -140,9 +141,9 @@ public class LoadProfileImplTest extends PersistenceTestWithMockedDeviceProtocol
 
         LoadProfile reloadedLoadProfile = getReloadedLoadProfile(deviceWithLoadProfile);
         assertThat(reloadedLoadProfile.getChannels()).hasSize(2);
-        assertThat(reloadedLoadProfile.getChannels()).has(new Condition<List<Channel>>() {
+        assertThat(reloadedLoadProfile.getChannels()).has(new Condition<List<? extends Channel>>() {
             @Override
-            public boolean matches(List<Channel> value) {
+            public boolean matches(List<? extends Channel> value) {
                 boolean bothMatch = true;
                 for (Channel channel : value) {
                     bothMatch &= (channel.getRegisterTypeObisCode().equals(obisCode1) || channel.getRegisterTypeObisCode().equals(obisCode2));
@@ -257,9 +258,9 @@ public class LoadProfileImplTest extends PersistenceTestWithMockedDeviceProtocol
     public void channelTest() {
         final Device device = createSimpleDeviceWithLoadProfiles();
         final LoadProfile reloadedLoadProfile = getReloadedLoadProfile(device);
-        assertThat(reloadedLoadProfile.getChannels()).has(new Condition<List<Channel>>() {
+        assertThat(reloadedLoadProfile.getChannels()).has(new Condition<List<? extends Channel>>() {
             @Override
-            public boolean matches(List<Channel> value) {
+            public boolean matches(List<? extends Channel> value) {
                 int count = 0;
                 for (Channel channel : value) {
                     if (channel.getRegisterTypeObisCode().equals(obisCode1)) {

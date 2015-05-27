@@ -9,8 +9,8 @@ import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.HasId;
-import com.energyict.mdc.common.services.DefaultFinder;
-import com.energyict.mdc.common.services.Finder;
+import com.elster.jupiter.domain.util.DefaultFinder;
+import com.elster.jupiter.domain.util.Finder;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
@@ -157,6 +157,11 @@ public class DeviceServiceImpl implements ServerDeviceService {
     @Override
     public Optional<Device> findDeviceById(long id) {
         return this.deviceDataModelService.dataModel().mapper(Device.class).getUnique("id", id);
+    }
+    
+    @Override
+    public Optional<Device> findAndLockDeviceByIdAndVersion(long id, long version) {
+        return this.deviceDataModelService.dataModel().mapper(Device.class).lockObjectIfVersion(version, id);
     }
 
     @Override

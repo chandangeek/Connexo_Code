@@ -1,13 +1,12 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.elster.jupiter.metering.ReadingRecord;
-import com.elster.jupiter.metering.readings.ReadingQuality;
-import com.google.common.collect.Range;
-
 import com.energyict.mdc.device.data.BillingReading;
 
+import com.elster.jupiter.metering.ReadingRecord;
+import com.elster.jupiter.validation.DataValidationStatus;
+import com.google.common.collect.Range;
+
 import java.time.Instant;
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -22,8 +21,8 @@ public class BillingReadingImpl extends NumericalReadingImpl implements BillingR
         super(actualReading);
     }
 
-    protected BillingReadingImpl(ReadingRecord actualReading, List<ReadingQuality> readingQualities) {
-        super(actualReading, readingQualities);
+    protected BillingReadingImpl(ReadingRecord actualReading, DataValidationStatus validationStatus) {
+        super(actualReading, validationStatus);
     }
 
     @Override

@@ -28,7 +28,8 @@ public interface SecurityPropertyService {
     public List<SecurityProperty> getSecurityProperties(Device device, Instant when, SecurityPropertySet securityPropertySet);
 
     /**
-     * Gets the List of {@link SecurityProperty SecurityProperties}
+     * Gets the List of {@link SecurityProperty SecurityProperties},
+     * ignoring the user's privileges,
      * that have been created for the specified {@link Device}
      * and that were active on the specified Date.
      *
@@ -36,13 +37,11 @@ public interface SecurityPropertyService {
      * @param securityPropertySet The SecurityPropertySet
      * @return The List of SecurityProperties
      */
-    public List<SecurityProperty> getAllSecurityProperties(Device device, Instant when, SecurityPropertySet securityPropertySet);
-
+    public List<SecurityProperty> getSecurityPropertiesIgnoringPrivileges(Device device, Instant when, SecurityPropertySet securityPropertySet);
 
     /**
      * Tests if the {@link Device} has properties for the specified {@link SecurityPropertySet}
-     * on the specified Date
-     * but without testing the userprivileges (to get the status)
+     * on the specified Date regardless of the user's privileges.
      *
      * @param device The Device
      * @param when The Date
@@ -50,5 +49,19 @@ public interface SecurityPropertyService {
      * @return A flag that indicates if the Device has security properties on the specified Date
      */
     public boolean hasSecurityProperties(Device device, Instant when, SecurityPropertySet securityPropertySet);
+
+    /**
+     * Tests if all the security properties that are define in the configuration level
+     * are valid for the specified {@link Device}.
+     * Security properties for a SecurityPropertySet can be invalid for the following reasons:
+     * <ul>
+     * <li>No properties have been defined</li>
+     * <li>Some or all of the required properties have not been specified yet</li>
+     * </ul>
+     *
+     * @param device The Device
+     * @return A flag that indicates if all security properties are valid for the Device
+     */
+    public boolean securityPropertiesAreValid(Device device);
 
 }

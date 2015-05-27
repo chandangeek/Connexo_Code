@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.ObisCode;
@@ -17,6 +18,7 @@ import java.util.Optional;
  * Date: 3/14/14
  * Time: 11:43 AM
  */
+@ProviderType
 public interface Channel extends BaseChannel {
 
     @Override
@@ -55,13 +57,17 @@ public interface Channel extends BaseChannel {
     ReadingType getReadingType();
 
     /**
-     * Returns the data of all of this channels
+     * Returns the data of this Channel.
      *
-     * @param interval The interval over which data will be returned
+     * @param interval The interval for which data will be returned
      * @return data for this channel
      */
     List<LoadProfileReading> getChannelData(Range<Instant> interval);
 
     Optional<Instant> getLastDateTime();
+
+    public boolean hasData();
+
+    public ChannelDataUpdater startEditingData();
 
 }

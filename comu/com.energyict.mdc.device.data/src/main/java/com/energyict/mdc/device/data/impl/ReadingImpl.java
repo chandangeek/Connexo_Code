@@ -2,15 +2,13 @@ package com.energyict.mdc.device.data.impl;
 
 import com.energyict.mdc.device.data.Reading;
 
-import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.validation.DataValidationStatus;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.Optional;
 
 /**
  * Provides code reuse opportunities for components
@@ -22,8 +20,7 @@ import java.util.List;
 public abstract class ReadingImpl implements Reading {
 
     private final ReadingRecord actualReading;
-    private final boolean validated;
-    private final List<ReadingQuality> readingQualities;
+    private final Optional<DataValidationStatus> validationStatus;
 
     /**
      * Creates a new Reading that is marked as not validated.
@@ -33,21 +30,19 @@ public abstract class ReadingImpl implements Reading {
     protected ReadingImpl(ReadingRecord actualReading) {
         super();
         this.actualReading = actualReading;
-        this.validated = false;
-        this.readingQualities = new ArrayList<>();
+        this.validationStatus = Optional.empty();
     }
 
     /**
      * Creates a new Reading that is marked as validated.
      *
      * @param actualReading The actual ReadingRecord from the Jupiter Kore bundle
-     * @param readingQualities The List of ReadingQuality
+     * @param validationStatus The List of ReadingQuality
      */
-    protected ReadingImpl(ReadingRecord actualReading, List<ReadingQuality> readingQualities) {
+    protected ReadingImpl(ReadingRecord actualReading, DataValidationStatus validationStatus) {
         super();
         this.actualReading = actualReading;
-        this.validated = true;
-        this.readingQualities = readingQualities;
+        this.validationStatus = Optional.of(validationStatus);
     }
 
     @Override
@@ -81,13 +76,8 @@ public abstract class ReadingImpl implements Reading {
     }
 
     @Override
-    public boolean isValidated() {
-        return this.validated;
-    }
-
-    @Override
-    public List<ReadingQuality> getReadingQualities() {
-        return Collections.unmodifiableList(this.readingQualities);
+    public Optional<DataValidationStatus> getValidationStatus() {
+        return this.validationStatus;
     }
 
 }

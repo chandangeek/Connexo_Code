@@ -16,8 +16,8 @@ import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.sql.Fetcher;
 import com.elster.jupiter.util.sql.SqlBuilder;
-import com.energyict.mdc.common.services.DefaultFinder;
-import com.energyict.mdc.common.services.Finder;
+import com.elster.jupiter.domain.util.DefaultFinder;
+import com.elster.jupiter.domain.util.Finder;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
@@ -647,7 +647,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
         SqlBuilder sqlBuilder = new SqlBuilder("update ");
         sqlBuilder.append(TableSpecs.DDC_COMTASKEXEC.name());
         sqlBuilder.append(" set nextExecutionTimestamp = null");
-        sqlBuilder.append("   and device in (select id from ");
+        sqlBuilder.append("   where device in (select id from ");
         sqlBuilder.append(TableSpecs.DDC_DEVICE.name());
         sqlBuilder.append(" where deviceConfigId =");  // Match device of the specified DeviceConfiguration
         sqlBuilder.addLong(deviceConfiguration.getId());
@@ -668,7 +668,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
         SqlBuilder sqlBuilder = new SqlBuilder("update ");
         sqlBuilder.append(TableSpecs.DDC_COMTASKEXEC.name());
         sqlBuilder.append(" set nextExecutionTimestamp = plannedNextExecutionTimestamp");
-        sqlBuilder.append("   and device in (select id from ");
+        sqlBuilder.append("   where device in (select id from ");
         sqlBuilder.append(TableSpecs.DDC_DEVICE.name());
         sqlBuilder.append(" where deviceConfigId =");  // Match device of the specified DeviceConfiguration
         sqlBuilder.addLong(deviceConfiguration.getId());

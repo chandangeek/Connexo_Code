@@ -1,10 +1,11 @@
 package com.energyict.mdc.device.data.kpi;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.time.TimeDuration;
+import com.energyict.mdc.common.HasId;
 import com.google.common.collect.Range;
 
-import com.energyict.mdc.common.HasId;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.temporal.TemporalAmount;
@@ -22,6 +23,7 @@ import java.util.Optional;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-10-06 (10:12)
  */
+@ProviderType
 public interface DataCollectionKpi extends HasId {
 
     /**

@@ -1,7 +1,8 @@
 package com.energyict.mdc.device.data.tasks.history;
 
+import aQute.bnd.annotation.ProviderType;
+import com.elster.jupiter.domain.util.Finder;
 import com.energyict.mdc.common.HasId;
-import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -9,7 +10,6 @@ import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.tasks.ComTask;
-
 import com.google.common.collect.Range;
 
 import java.time.Duration;
@@ -24,6 +24,7 @@ import java.util.Set;
  * Date: 23/04/12
  * Time: 14:25
  */
+@ProviderType
 public interface ComSession extends HasId, TaskExecutionSummary {
 
     void save();

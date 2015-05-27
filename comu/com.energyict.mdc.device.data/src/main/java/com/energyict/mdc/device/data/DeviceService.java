@@ -1,13 +1,12 @@
 package com.energyict.mdc.device.data;
 
-import com.energyict.mdc.common.services.Finder;
+import aQute.bnd.annotation.ProviderType;
+import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.scheduling.model.ComSchedule;
-import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.util.conditions.Condition;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,6 +17,7 @@ import java.util.Optional;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-03-07 (14:27)
  */
+@ProviderType
 public interface DeviceService {
 
     /**
@@ -37,6 +37,15 @@ public interface DeviceService {
      * @return the requested Device or null if none was found
      */
     public Optional<Device> findDeviceById(long id);
+
+    /**
+     * Finds and locks the Device based on his unique ID and VERSION.
+     *
+     * @param id      the unique ID of the device
+     * @param version the version of the device
+     * @return the requested Device or null if none was found
+     */
+    public Optional<Device> findAndLockDeviceByIdAndVersion(long id, long version);
 
     /**
      * Finds the Device based on his unique External name.
@@ -86,6 +95,7 @@ public interface DeviceService {
      * @return a list of all devices matching the given criteria
      */
     public List<Device> findDevicesByConnectionTypeAndProperty(Class<? extends ConnectionType> connectionTypeClass, String propertyName, String propertyValue);
+
     public Query<Device> deviceQuery();
 
 }
