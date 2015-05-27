@@ -56,7 +56,7 @@ Ext.define('Uni.property.view.property.Multiselect', {
                         cls: 'x-form-invalid-under',
                         hidden: true,
                         height: 36,
-                        html: '<div id="multiselect-invalid-id-' + me.id + '"></div>'
+                        html: '<div id="multiselect-invalid-id-' + Ext.String.htmlEncode(me.id) + '"></div>'
                     }
                 ]
             }
@@ -77,7 +77,7 @@ Ext.define('Uni.property.view.property.Multiselect', {
                 Ext.isArray(data) && Ext.Array.each(data, function (item) {
                     var flag = store.getById(item);
 
-                    flag && (result += flag.get('name') + '<br>');
+                    flag && (result += Ext.String.htmlEncode(flag.get('name')) + '<br>');
                 });
 
                 return result;

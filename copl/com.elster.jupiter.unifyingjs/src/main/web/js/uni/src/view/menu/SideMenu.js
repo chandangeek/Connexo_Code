@@ -123,10 +123,12 @@ Ext.define('Uni.view.menu.SideMenu', {
             if (typeof condition === 'undefined'
                 || (Ext.isFunction(condition) && condition() || condition)) {
 
+                item.text = Ext.String.htmlEncode(item.text);
+
                 if (me.router && item.route) {
                     var route = me.router.getRoute(item.route);
                     item.href = route.buildUrl();
-                    item.text = item.text || route.getTitle();
+                    item.text = Ext.String.htmlEncode(item.text || route.getTitle());
                 }
 
                 item.tooltip = item.text;

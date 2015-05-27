@@ -1,7 +1,7 @@
 Ext.define('Uni.property.view.property.Date', {
     extend: 'Uni.property.view.property.Base',
 
-    format: 'd M \'y',
+    format: Uni.DateTime.dateShortDefault,
     formats: [
         'd.m.Y',
         'd m Y'
@@ -20,8 +20,23 @@ Ext.define('Uni.property.view.property.Date', {
             required: me.required,
             readOnly: me.isReadOnly,
             inputType: me.inputType,
-            allowBlank: me.allowBlank
+            allowBlank: me.allowBlank,
+            listeners: {
+                change: {
+                    fn: me.checkValidDate,
+                    scope: me
+                }
+            }
         };
+    },
+
+    checkValidDate: function () {
+        var me = this,
+            date = me.getField().getValue();
+
+        if (!Ext.isDate(date)) {
+            me.getField().setValue(null);
+        }
     },
 
     getField: function () {
@@ -41,7 +56,7 @@ Ext.define('Uni.property.view.property.Date', {
             value = new Date(value);
 
             if (!this.isEdit) {
-                value = value.toLocaleDateString();
+                value = Uni.DateTime.formatDateShort(value);
             }
         }
         this.callParent([value]);

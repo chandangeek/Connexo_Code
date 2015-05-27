@@ -33,6 +33,6 @@ Ext.define('Uni.form.field.DisplayFieldWithInfoIcon', {
         if (me.infoTooltip) {
             icon  = '<span class="uni-icon-info-small" style="width: 16px; height: 16px; display: inline-block;float: none;margin-left: 10px;vertical-align: top" data-qtip="' + me.infoTooltip + '"></span>'
         }
-        return value + icon;
+        return Ext.String.htmlEncode(value) + icon;
     }
 });

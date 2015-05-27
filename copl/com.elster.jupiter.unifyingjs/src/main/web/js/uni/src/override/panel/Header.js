@@ -7,9 +7,9 @@ Ext.define('Uni.override.panel.Header', {
         '<tpl if="headerRole">',
         ' role="{headerRole}"',
         '</tpl>',
-        '>{title}</span>',
+        '>{title:htmlEncode}</span>',
         '<span id="{id}-subTextEl" class="{headerCls}-sub-text {cls}-sub-text {cls}-sub-text-{ui}" unselectable="on"',
-        '>{subtitle}</span>'
+        '>{subtitle:htmlEncode}</span>'
     ],
 
     initComponent: function() {
@@ -30,7 +30,7 @@ Ext.define('Uni.override.panel.Header', {
         me.subtitle = subtitle;
 
         if (titleCmp.rendered) {
-            titleCmp.subTextEl.update(me.subtitle || '&#160;');
+            titleCmp.subTextEl.update(me.subtitle || ' ');
             titleCmp.updateLayout();
         } else {
             me.titleCmp.on({
