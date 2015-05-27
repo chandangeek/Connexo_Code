@@ -16,7 +16,7 @@ import java.util.List;
  * Builder for paged, sortable queries using the datamapper's Query
  * @param <T>
  */
-public class DefaultFinder<T> implements Finder<T> {
+public final class DefaultFinder<T> implements Finder<T> {
 
     private final Condition condition;
     private final QueryExecutor<T> query;
