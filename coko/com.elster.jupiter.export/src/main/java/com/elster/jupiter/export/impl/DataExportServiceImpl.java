@@ -307,4 +307,5 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
     private Optional<IReadingTypeDataExportTask> getReadingTypeDataExportTaskForRecurrentTask(RecurrentTask recurrentTask) {
         return dataModel.mapper(IReadingTypeDataExportTask.class).getUnique("recurrentTask", recurrentTask);
     }
+
 }

@@ -6,4 +6,8 @@ package com.elster.jupiter.export;
 public interface DataExportDestination {
 
     ReadingTypeDataExportTask getTask();
+
+    long getId();
+
+    void save();
 }

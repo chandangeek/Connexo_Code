@@ -146,6 +146,19 @@ enum TableSpecs {
         @Override
         void describeTable(Table table) {
             table.map(DataExportDestination.class);
+            table.setJournalTableName("DES_DESTINATIONJRNL");
+            Column idColumn = table.addAutoIdColumn();
+            table.addDiscriminatorColumn("DISCRIMINATOR", "char(5)");
+
+            table.column("FILENAME").varChar(Table.NAME_LENGTH).notNull().map("fileName").add();
+            table.column("FILEEXTENSION").varChar(Table.NAME_LENGTH).notNull().map("fileExtension").add();
+            table.column("FILELOCATION").varChar(Table.DESCRIPTION_LENGTH).notNull().map("fileLocation").add();
+
+            table.column("RECIPIENTS").varChar(Table.DESCRIPTION_LENGTH).notNull().map("recipients").add();
+            table.column("SUBJECT").varChar(Table.NAME_LENGTH).notNull().map("subject").add();
+            table.column("ATTACHMENTNAME").varChar(Table.NAME_LENGTH).notNull().map("attachmentName").add();
+
+            table.primaryKey("DES_PK_DESTINATION").on(idColumn).add();
 
         }
     };
