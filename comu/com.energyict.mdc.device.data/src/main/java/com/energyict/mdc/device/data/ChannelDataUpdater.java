@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.google.common.collect.Range;
 
@@ -14,6 +15,7 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-04-21 (09:07)
  */
+@ProviderType
 public interface ChannelDataUpdater {
 
     public ChannelDataUpdater removeChannelData(Range<Instant> interval);

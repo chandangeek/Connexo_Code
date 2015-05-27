@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTimeline;
 import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
@@ -49,6 +50,7 @@ import java.util.TimeZone;
  * Date: 19/12/12
  * Time: 10:35
  */
+@ProviderType
 public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasId, HasName {
 
     void save();
