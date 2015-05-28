@@ -16,7 +16,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
-import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.json.JsonService;
@@ -36,7 +35,6 @@ import com.energyict.mdc.device.data.kpi.rest.KpiResource;
 import com.energyict.mdc.device.data.rest.DeviceConnectionTaskInfoFactory;
 import com.energyict.mdc.device.data.rest.DeviceInfoFactory;
 import com.energyict.mdc.device.data.rest.SecurityPropertySetInfoFactory;
-import com.energyict.mdc.device.data.rest.impl.DeviceLifeCycleStateHistoryInfoFactory;
 import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleStateFactory;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
@@ -373,7 +371,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(firmwareService).to(FirmwareService.class);
             bind(DeviceLifeCycleStateFactory.class).to(DeviceLifeCycleStateFactory.class);
             bind(DeviceInfoFactory.class).to(DeviceInfoFactory.class);
-            bind(DeviceLifeCycleStateHistoryInfoFactory.class).to(DeviceLifeCycleStateHistoryInfoFactory.class);
+            bind(DeviceLifeCycleHistoryInfoFactory.class).to(DeviceLifeCycleHistoryInfoFactory.class);
         }
     }
 

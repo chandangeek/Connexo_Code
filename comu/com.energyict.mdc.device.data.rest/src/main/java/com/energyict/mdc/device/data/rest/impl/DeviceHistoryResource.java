@@ -10,29 +10,27 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import com.elster.jupiter.rest.util.QueryParameters;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.rest.impl.DeviceLifeCycleStateHistoryInfoFactory;
 import com.energyict.mdc.device.lifecycle.config.Privileges;
 
 public class DeviceHistoryResource {
 
     private ResourceHelper resourceHelper;
-    private DeviceLifeCycleStateHistoryInfoFactory deviceLifeCycleStatesHistoryInfoFactory;
+    private DeviceLifeCycleHistoryInfoFactory deviceLifeCycleHistoryInfoFactory;
 
     @Inject
-    public DeviceHistoryResource(ResourceHelper resourceHelper, DeviceLifeCycleStateHistoryInfoFactory deviceLifeCycleStatesHistoryInfoFactory) {
+    public DeviceHistoryResource(ResourceHelper resourceHelper, DeviceLifeCycleHistoryInfoFactory deviceLifeCycleStatesHistoryInfoFactory) {
         this.resourceHelper = resourceHelper;
-        this.deviceLifeCycleStatesHistoryInfoFactory = deviceLifeCycleStatesHistoryInfoFactory;
+        this.deviceLifeCycleHistoryInfoFactory = deviceLifeCycleStatesHistoryInfoFactory;
     }
 
     @GET
-    @Path("/devicelifecyclestates")
+    @Path("/devicelifecyclechanges")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({ Privileges.VIEW_DEVICE_LIFE_CYCLE, Privileges.CONFIGURE_DEVICE_LIFE_CYCLE })
-    public Response getDeviceLifeCycleStatesHistory(@PathParam("mRID") String mRID, @BeanParam QueryParameters queryParameters) {
+    public Response getDeviceLifeCycleStatesHistory(@PathParam("mRID") String mRID, @BeanParam JsonQueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
-        return Response.ok(deviceLifeCycleStatesHistoryInfoFactory.asInfo(device.getStateTimeline())).build();
+        return Response.ok(deviceLifeCycleHistoryInfoFactory.createDeviceLifeCycleChangeInfos(device)).build();
     }
-
 }
