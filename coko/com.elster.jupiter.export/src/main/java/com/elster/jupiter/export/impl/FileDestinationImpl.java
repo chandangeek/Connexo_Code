@@ -35,11 +35,9 @@ public class FileDestinationImpl extends AbstractDataExportDestination implement
     private String fileLocation;
 
 
-    private final FileSystem fileSystem = FileSystems.getDefault();
-
     @Inject
-    FileDestinationImpl(DataModel dataModel, Thesaurus thesaurus, DataExportService dataExportService, AppService appService) {
-        super(dataModel, thesaurus, dataExportService, appService);
+    FileDestinationImpl(DataModel dataModel, Thesaurus thesaurus, DataExportService dataExportService, AppService appService, FileSystem fileSystem) {
+        super(dataModel, thesaurus, dataExportService, appService, fileSystem);
     }
 
     FileDestinationImpl init(String fileName, String fileExtension, String fileLocation) {
@@ -50,7 +48,7 @@ public class FileDestinationImpl extends AbstractDataExportDestination implement
     }
 
     public void send(List<FormattedExportData> data) {
-        FileUtils fileUtils = new FileUtils(this.getThesaurus(), this.getDataExportService(), this.getAppService());
+        FileUtils fileUtils = new FileUtils(this.getFileSystem(), this.getThesaurus(), this.getDataExportService(), this.getAppService());
         fileUtils.createFile(data, fileName, fileExtension, fileLocation);
     }
 

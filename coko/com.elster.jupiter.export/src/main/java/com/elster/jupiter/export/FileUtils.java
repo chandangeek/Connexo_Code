@@ -25,9 +25,10 @@ public class FileUtils {
     private final DataExportService dataExportService;
     private final AppService appService;
 
-    private final FileSystem fileSystem = FileSystems.getDefault();
+    private final FileSystem fileSystem;
 
-    public FileUtils(Thesaurus thesaurus, DataExportService dataExportService, AppService appService) {
+    public FileUtils(FileSystem fileSystem, Thesaurus thesaurus, DataExportService dataExportService, AppService appService) {
+        this.fileSystem = fileSystem;
         this.thesaurus = thesaurus;
         this.dataExportService = dataExportService;
         this.appService = appService;
@@ -36,7 +37,7 @@ public class FileUtils {
     public Path createTemporaryFile(List<FormattedExportData> data, String fileName, String fileExtension) {
         try {
             String tempFileName = new StringBuilder(fileName).append('.').append(fileExtension).toString();
-            Path tempFile = Files.createTempFile(getTempDir(), tempFileName, null);
+            Path tempFile = Files.createTempFile(getTempDir(), tempFileName, fileExtension);
             try (BufferedWriter writer = Files.newBufferedWriter(tempFile)) {
                 for (FormattedExportData dataPart : data) {
                     writer.write(dataPart.getAppendablePayload());
@@ -49,7 +50,7 @@ public class FileUtils {
     }
 
     public Path createTemporaryFile(List<FormattedExportData> data) {
-        return createTemporaryFile(data, "tempfile", "");
+        return createTemporaryFile(data, "tempfile", "tmp");
     }
 
     public Path createFile(List<FormattedExportData> data, String fileName, String fileExtension, String fileLocation) {

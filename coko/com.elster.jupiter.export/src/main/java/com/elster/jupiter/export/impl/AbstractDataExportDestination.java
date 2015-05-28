@@ -13,6 +13,7 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.google.common.collect.ImmutableMap;
 
+import java.nio.file.FileSystem;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,13 +34,15 @@ public abstract class AbstractDataExportDestination implements DataExportDestina
     private final Thesaurus thesaurus;
     private final DataExportService dataExportService;
     private final AppService appService;
+    private final FileSystem fileSystem;
 
     @Inject
-    AbstractDataExportDestination(DataModel dataModel, Thesaurus thesaurus, DataExportService dataExportService, AppService appService) {
+    AbstractDataExportDestination(DataModel dataModel, Thesaurus thesaurus, DataExportService dataExportService, AppService appService, FileSystem fileSystem) {
         this.dataModel = dataModel;
         this.thesaurus = thesaurus;
         this.dataExportService = dataExportService;
         this.appService = appService;
+        this.fileSystem = fileSystem;
     }
 
 
@@ -94,5 +97,9 @@ public abstract class AbstractDataExportDestination implements DataExportDestina
 
     protected DataExportService getDataExportService() {
         return dataExportService;
+    }
+
+    protected FileSystem getFileSystem() {
+        return fileSystem;
     }
 }

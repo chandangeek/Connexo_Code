@@ -15,6 +15,7 @@ import javax.mail.*;
 import javax.mail.internet.*;
 import javax.activation.*;
 
+import java.nio.file.FileSystem;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
@@ -35,8 +36,8 @@ public class EmailDestinationImpl extends AbstractDataExportDestination implemen
     private String from = "";
 
     @Inject
-    EmailDestinationImpl(DataModel dataModel, Thesaurus thesaurus, DataExportService dataExportService, AppService appService) {
-        super(dataModel, thesaurus, dataExportService, appService);
+    EmailDestinationImpl(DataModel dataModel, Thesaurus thesaurus, DataExportService dataExportService, AppService appService, FileSystem fileSystem) {
+        super(dataModel, thesaurus, dataExportService, appService, fileSystem);
     }
 
     EmailDestinationImpl init(String recipients, String subject, String attachmentName, String attachmentExtension) {
@@ -48,7 +49,7 @@ public class EmailDestinationImpl extends AbstractDataExportDestination implemen
     }
 
     public void send(List<FormattedExportData> data) {
-        FileUtils fileUtils = new FileUtils(this.getThesaurus(), this.getDataExportService(), this.getAppService());
+        FileUtils fileUtils = new FileUtils(this.getFileSystem(), this.getThesaurus(), this.getDataExportService(), this.getAppService());
         Path file = fileUtils.createTemporaryFile(data, attachmentName, attachmentExtension);
         sendMail(file);
     }
