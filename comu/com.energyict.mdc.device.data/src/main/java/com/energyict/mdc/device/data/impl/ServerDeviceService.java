@@ -6,7 +6,9 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
 
+import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.search.SearchProvider;
 
 /**
  * Adds behavior to {@link DeviceService} that is specific
@@ -15,7 +17,7 @@ import com.elster.jupiter.properties.PropertySpec;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-04-28 (11:24)
  */
-public interface ServerDeviceService extends DeviceService, ReferencePropertySpecFinderProvider {
+public interface ServerDeviceService extends DeviceService, ReferencePropertySpecFinderProvider, SearchProvider {
 
     /**
      * Tests if there are {@link Device}s that were created
@@ -47,5 +49,7 @@ public interface ServerDeviceService extends DeviceService, ReferencePropertySpe
      * @return <code>true</code> iff there is at least one Device with overruling properties
      */
     public long countDevicesThatRelyOnRequiredProperty(ProtocolDialectConfigurationProperties configurationProperties, PropertySpec propertySpec);
+
+    public Query<Device> deviceQuery();
 
 }

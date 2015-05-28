@@ -18,6 +18,8 @@ import java.util.stream.Stream;
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 
+import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.search.SearchProvider;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.annotations.Activate;
@@ -95,6 +97,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     private volatile com.elster.jupiter.tasks.TaskService taskService;
     private volatile Clock clock;
     private volatile KpiService kpiService;
+    private volatile PropertySpecService propertySpecService;
 
     private volatile RelationService relationService;
     private volatile ProtocolPluggableService protocolPluggableService;
@@ -121,7 +124,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     // For unit testing purposes only
     @Inject
     public DeviceDataModelServiceImpl(BundleContext bundleContext,
-                                      OrmService ormService, EventService eventService, NlsService nlsService, Clock clock, KpiService kpiService, com.elster.jupiter.tasks.TaskService taskService, IssueService issueService,
+                                      OrmService ormService, EventService eventService, NlsService nlsService, Clock clock, KpiService kpiService, com.elster.jupiter.tasks.TaskService taskService, IssueService issueService, PropertySpecService propertySpecService,
                                       RelationService relationService, ProtocolPluggableService protocolPluggableService,
                                       EngineConfigurationService engineConfigurationService, DeviceConfigurationService deviceConfigurationService,
                                       MeteringService meteringService, ValidationService validationService, EstimationService estimationService,
@@ -136,6 +139,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
         this.setKpiService(kpiService);
         this.setTaskService(taskService);
         this.setIssueService(issueService);
+        this.setPropertySpecService(propertySpecService);
         this.setProtocolPluggableService(protocolPluggableService);
         this.setEngineConfigurationService(engineConfigurationService);
         this.setDeviceConfigurationService(deviceConfigurationService);
@@ -210,6 +214,11 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     }
 
     @Reference
+    public void setPropertySpecService(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
+
+    @Reference
     public void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(DeviceDataServices.COMPONENT_NAME, Layer.DOMAIN);
     }
@@ -238,7 +247,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     public void setValidationService(ValidationService validationService) {
         this.validationService = validationService;
     }
-    
+
     @Reference
     public void setEstimationService(EstimationService estimationService) {
         this.estimationService = estimationService;
@@ -360,6 +369,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
                 bind(DataModel.class).toInstance(dataModel);
                 bind(EventService.class).toInstance(eventService);
                 bind(IssueService.class).toInstance(issueService);
+                bind(PropertySpecService.class).toInstance(propertySpecService);
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(Clock.class).toInstance(clock);
                 bind(MeteringService.class).toInstance(meteringService);
@@ -397,7 +407,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     private void createRealServices() {
         this.connectionTaskService = new ConnectionTaskServiceImpl(this, eventService, meteringService);
         this.communicationTaskService = new CommunicationTaskServiceImpl(this, meteringService);
-        this.deviceService = new DeviceServiceImpl(this, protocolPluggableService, queryService);
+        this.deviceService = new DeviceServiceImpl(this, protocolPluggableService, this.propertySpecService, this.queryService);
         this.loadProfileService = new LoadProfileServiceImpl(this);
         this.logBookService = new LogBookServiceImpl(this);
         this.dataCollectionKpiService = new DataCollectionKpiServiceImpl(this);
@@ -425,6 +435,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     private void registerDeviceService(BundleContext bundleContext) {
         this.serviceRegistrations.add(bundleContext.registerService(DeviceService.class, deviceService, null));
         this.serviceRegistrations.add(bundleContext.registerService(ServerDeviceService.class, deviceService, null));
+        this.serviceRegistrations.add(bundleContext.registerService(SearchProvider.class, deviceService, null));
     }
 
     private void registerLogBookService(BundleContext bundleContext) {
@@ -441,9 +452,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
 
     @Deactivate
     public void stop() throws Exception {
-        for (ServiceRegistration serviceRegistration : this.serviceRegistrations) {
-            serviceRegistration.unregister();
-        }
+        this.serviceRegistrations.forEach(org.osgi.framework.ServiceRegistration::unregister);
     }
 
     @Override
@@ -466,8 +475,8 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
         return Arrays.asList(MessageSeeds.values());
     }
 
-    private void install(boolean exeuteDdl) {
-        new Installer(this.dataModel, this.eventService, messagingService, this.userService, thesaurus).install(exeuteDdl);
+    private void install(boolean executeDdl) {
+        new Installer(this.dataModel, this.eventService, messagingService, this.userService, thesaurus).install(executeDdl);
     }
 
     @Override
@@ -486,8 +495,8 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     @Override
     public Map<TaskStatus, Long> fetchTaskStatusCounters(ClauseAwareSqlBuilder builder) {
         Map<TaskStatus, Long> counters = new HashMap<>();
-        try (PreparedStatement stmnt = builder.prepare(this.dataModel.getConnection(true))) {
-            this.fetchTaskStatusCounters(stmnt, counters);
+        try (PreparedStatement statement = builder.prepare(this.dataModel.getConnection(true))) {
+            this.fetchTaskStatusCounters(statement, counters);
         }
         catch (SQLException ex) {
             throw new UnderlyingSQLFailedException(ex);
@@ -508,8 +517,8 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     @Override
     public Map<Long, Map<TaskStatus, Long>> fetchTaskStatusBreakdown(ClauseAwareSqlBuilder builder) {
         Map<Long, Map<TaskStatus, Long>> counters = new HashMap<>();
-        try (PreparedStatement stmnt = builder.prepare(this.dataModel.getConnection(true))) {
-            this.fetchTaskStatusBreakdown(stmnt, counters);
+        try (PreparedStatement statement = builder.prepare(this.dataModel.getConnection(true))) {
+            this.fetchTaskStatusBreakdown(statement, counters);
         }
         catch (SQLException ex) {
             throw new UnderlyingSQLFailedException(ex);
@@ -552,7 +561,4 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     }
 
 
-    public void testSearch(){
-        this.deviceService.findDevicesByConnectionTypeAndProperty(null, "", "");
-    }
 }

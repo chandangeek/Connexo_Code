@@ -3,6 +3,7 @@ package com.energyict.mdc.device.data.impl;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -43,6 +44,7 @@ public class DeviceDataModule extends AbstractModule {
         requireBinding(DeviceConfigurationService.class);
         requireBinding(MeteringService.class);
         requireBinding(ValidationService.class);
+        requireBinding(PropertySpecService.class);
         requireBinding(Clock.class);
         requireBinding(RelationService.class);
         requireBinding(ProtocolPluggableService.class);

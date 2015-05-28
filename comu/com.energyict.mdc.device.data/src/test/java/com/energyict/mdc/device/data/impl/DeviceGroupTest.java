@@ -236,7 +236,7 @@ public class DeviceGroupTest {
 
             MeteringGroupsService meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
             MeteringService meteringService = injector.getInstance(MeteringService.class);
-            DeviceService deviceService = injector.getInstance(DeviceServiceImpl.class);
+            DeviceServiceImpl deviceService = injector.getInstance(DeviceServiceImpl.class);
 
             DeviceEndDeviceQueryProvider endDeviceQueryProvider = new DeviceEndDeviceQueryProvider();
             endDeviceQueryProvider.setMeteringService(meteringService);

@@ -4,14 +4,12 @@ import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.EndDeviceQueryProvider;
-import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.conditions.Where;
 import com.energyict.mdc.device.data.DeviceDataServices;
-import com.energyict.mdc.device.data.DeviceService;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -21,21 +19,13 @@ import java.util.List;
 
 @Component(name = "com.energyict.mdc.device.data.impl.DeviceEndDeviceQueryProvider", service = {EndDeviceQueryProvider.class}, property = "name=" + DeviceDataServices.COMPONENT_NAME, immediate = true)
 public class DeviceEndDeviceQueryProvider implements EndDeviceQueryProvider {
-    private static final int ORACLE_IN_LIMIT = 1000; // 1000 is the Oracle default limit for static 'IN' condition
-    
-    private volatile MeteringGroupsService meteringGroupsService;
+
     private volatile MeteringService meteringService;
-    private volatile DeviceService deviceService;
+    private volatile ServerDeviceService deviceService;
 
     @Reference
-    public void setDeviceService(DeviceService deviceService) {
+    public void setDeviceService(ServerDeviceService deviceService) {
         this.deviceService = deviceService;
-    }
-
-
-    @Reference
-    public void setMeteringGroupsService(MeteringGroupsService meteringGroupsService) {
-        this.meteringGroupsService = meteringGroupsService;
     }
 
     @Reference
@@ -54,7 +44,7 @@ public class DeviceEndDeviceQueryProvider implements EndDeviceQueryProvider {
     public List<EndDevice> findEndDevices(Condition conditions) {
         return findEndDevices(Instant.now(), conditions);
     }
-    
+
     @Override
     public List<EndDevice> findEndDevices(Instant instant, Condition conditions) {
         return this.findEndDevices(instant, conditions, -1, 0);//no pagination
@@ -70,7 +60,7 @@ public class DeviceEndDeviceQueryProvider implements EndDeviceQueryProvider {
             return meteringService.getEndDeviceQuery().select(amrCondition , start + 1, start + limit  + 1, order);
         } else {
         	return meteringService.getEndDeviceQuery().select(amrCondition, order);
-        }        
+        }
     }
 
 }

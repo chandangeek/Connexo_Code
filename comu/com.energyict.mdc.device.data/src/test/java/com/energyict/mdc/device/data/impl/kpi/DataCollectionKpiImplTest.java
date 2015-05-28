@@ -47,11 +47,11 @@ import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.json.impl.JsonServiceImpl;
 import com.elster.jupiter.validation.impl.ValidationModule;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
-import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.device.data.impl.DeviceDataModelServiceImpl;
 import com.energyict.mdc.device.data.impl.DeviceDataModule;
 import com.energyict.mdc.device.data.impl.DeviceEndDeviceQueryProvider;
+import com.energyict.mdc.device.data.impl.ServerDeviceService;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiScore;
@@ -141,10 +141,9 @@ public class DataCollectionKpiImplTest {
     private static DeviceDataModelServiceImpl deviceDataModelService;
     private static QueryEndDeviceGroup endDeviceGroup;
     private static CronExpressionParser cronExpressionParser;
-    private static CronExpression cronExpression;
     private static MeteringGroupsService meteringGroupsService;
     private static MeteringService meteringService;
-    private static DeviceService deviceService;
+    private static ServerDeviceService deviceService;
 
     @Rule
     public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
@@ -179,7 +178,7 @@ public class DataCollectionKpiImplTest {
     @BeforeClass
     public static void setUp() {
         cronExpressionParser = mock(CronExpressionParser.class, RETURNS_DEEP_STUBS);
-        cronExpression = mock(CronExpression.class);
+        CronExpression cronExpression = mock(CronExpression.class);
         when(cronExpression.encoded()).thenReturn("0 0 0/1 * * ? *");
         when(cronExpressionParser.parse(anyString())).thenReturn(Optional.of(cronExpression));
         doReturn(Optional.of(ZonedDateTime.now())).when(cronExpression).nextOccurrence(any());
@@ -292,8 +291,7 @@ public class DataCollectionKpiImplTest {
         DataCollectionKpi kpi = builder.displayPeriod(TimeDuration.days(1)).save();
 
         // Business method
-        java.util.Optional<DataCollectionKpi> found = deviceDataModelService.dataCollectionKpiService().findDataCollectionKpi(kpi.getId());
-
+        deviceDataModelService.dataCollectionKpiService().findDataCollectionKpi(kpi.getId());
     }
 
     @Test
@@ -565,7 +563,7 @@ public class DataCollectionKpiImplTest {
         builder.frequency(unsupported).calculateConnectionSetupKpi().expectingAsMaximum(BigDecimal.ONE);
 
         // Business method
-        DataCollectionKpiImpl kpi = (DataCollectionKpiImpl) builder.displayPeriod(TimeDuration.days(1)).save();
+        builder.displayPeriod(TimeDuration.days(1)).save();
 
         // Asserts: see expected exception rule
     }
@@ -833,8 +831,7 @@ public class DataCollectionKpiImplTest {
         kpi.dropComTaskExecutionKpi();
 
         // must reload to trigger postLoad and init strategies
-        kpi = (DataCollectionKpiImpl) deviceDataModelService.dataCollectionKpiService().findDataCollectionKpi(kpi.getId()).get();
-
+        deviceDataModelService.dataCollectionKpiService().findDataCollectionKpi(kpi.getId()).get();
     }
 
     @Test

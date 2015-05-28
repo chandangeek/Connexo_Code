@@ -96,6 +96,4 @@ public interface DeviceService {
      */
     public List<Device> findDevicesByConnectionTypeAndProperty(Class<? extends ConnectionType> connectionTypeClass, String propertyName, String propertyValue);
 
-    public Query<Device> deviceQuery();
-
 }
