@@ -7,6 +7,7 @@ import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.ScheduleExpression;
 import com.elster.jupiter.util.time.ScheduleExpressionParser;
 import org.junit.After;
@@ -53,13 +54,15 @@ public class DefaultImportScheduleBuilderTest {
     private FileSystem fileSystem;
     @Mock
     private Thesaurus thesaurus;
+    @Mock
+    private JsonService jsonService;
 
     @Before
     public void setUp() {
         when(fileImportService.getImportFactory(Matchers.any())).thenReturn(Optional.of(fileImporterFactory));
         when(fileImporterFactory.getDestinationName()).thenReturn("DEST_1");
         when(dataModel.getInstance(ImportScheduleImpl.class)).thenReturn(
-                new ImportScheduleImpl(dataModel, fileImportService, messageService, scheduleExpressionParser, nameResolver, fileSystem, thesaurus));
+                new ImportScheduleImpl(dataModel, fileImportService, messageService, scheduleExpressionParser, nameResolver, fileSystem,jsonService, thesaurus));
     }
 
     @After

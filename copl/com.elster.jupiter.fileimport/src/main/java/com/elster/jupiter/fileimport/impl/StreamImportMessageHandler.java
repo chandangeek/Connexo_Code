@@ -30,19 +30,19 @@ class StreamImportMessageHandler implements MessageHandler {
 
     @Override
     public void process(Message message) {
-        FileImport fileImport = getFileImport(message);
-        if (fileImport != null) {
-            String importerName = fileImport.getImportSchedule().getImporterName();
+        FileImportOccurrence fileImportOccurrence = getFileImport(message);
+        if (fileImportOccurrence != null) {
+            String importerName = fileImportOccurrence.getImportSchedule().getImporterName();
             Map<String, Object> propertyMap = new HashMap<>();
 
             FileImporterFactory fileImporterFactory =  fileImportService.getImportFactory(importerName)
                     .orElseThrow(() -> new NoSuchDataImporter(thesaurus, importerName));
-            List<FileImporterProperty> importerProperties = fileImport.getImportSchedule().getImporterProperties();
+            List<FileImporterProperty> importerProperties = fileImportOccurrence.getImportSchedule().getImporterProperties();
             for (FileImporterProperty property : importerProperties) {
                 propertyMap.put(property.getName(), property.useDefault() ? getDefaultValue(fileImporterFactory, property) : property.getValue());
             }
             FileImporter importer = fileImporterFactory.createImporter(propertyMap);
-            importer.process(fileImport);
+            importer.process(fileImportOccurrence);
         }
     }
 
@@ -51,13 +51,13 @@ class StreamImportMessageHandler implements MessageHandler {
                 .findFirst().orElseThrow(IllegalArgumentException::new).getPossibleValues().getDefault();
     }
 
-    private FileImport getFileImport(Message message) {
-        FileImport fileImport = null;
+    private FileImportOccurrence getFileImport(Message message) {
+        FileImportOccurrence fileImportOccurrence = null;
         FileImportMessage fileImportMessage = getFileImportMessage(message);
         if (fileImportMessage != null) {
-            fileImport = dataModel.mapper(FileImport.class).getOptional(fileImportMessage.fileImportId).get();
+            fileImportOccurrence = dataModel.mapper(FileImportOccurrence.class).getOptional(fileImportMessage.fileImportId).get();
         }
-        return fileImport;
+        return fileImportOccurrence;
     }
 
     private FileImportMessage getFileImportMessage(Message message) {

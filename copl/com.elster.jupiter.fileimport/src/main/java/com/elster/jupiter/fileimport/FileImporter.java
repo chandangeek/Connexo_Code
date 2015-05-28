@@ -11,8 +11,8 @@ public interface FileImporter {
      * Any exception thrown from this method will cause the dequeue of the message to be rolled back.
      * Care should be taken not to throw any exceptions out of this method after a call to markSuccess() or markFailure() as this will rollback the state change, but not the location of the file.
      *
-     * @param fileImport
+     * @param fileImportOccurrence
      */
-    void process(FileImport fileImport);
+    void process(FileImportOccurrence fileImportOccurrence);
 
 }

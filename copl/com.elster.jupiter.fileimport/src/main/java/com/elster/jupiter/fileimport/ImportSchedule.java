@@ -1,9 +1,8 @@
 package com.elster.jupiter.fileimport;
 
 import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.orm.History;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.time.PeriodicalScheduleExpression;
-import com.elster.jupiter.util.cron.CronExpression;
 import com.elster.jupiter.util.time.ScheduleExpression;
 
 import java.io.File;
@@ -75,7 +74,7 @@ public interface ImportSchedule {
      * @param file
      * @return creates a new FileImport instance for the given file.
      */
-    FileImport createFileImport(File file);
+    FileImportOccurrence createFileImportOccurrence(File file);
 
     /**
      * @return returns the type of the importer
@@ -130,4 +129,5 @@ public interface ImportSchedule {
     String getApplicationName();
 
     void setActive(Boolean active);
+
 }

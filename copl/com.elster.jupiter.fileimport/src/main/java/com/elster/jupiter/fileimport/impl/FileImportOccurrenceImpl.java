@@ -1,9 +1,6 @@
 package com.elster.jupiter.fileimport.impl;
 
-import com.elster.jupiter.fileimport.FileIOException;
-import com.elster.jupiter.fileimport.FileImport;
-import com.elster.jupiter.fileimport.ImportSchedule;
-import com.elster.jupiter.fileimport.State;
+import com.elster.jupiter.fileimport.*;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
@@ -13,47 +10,59 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
+import java.time.Clock;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.logging.Level;
 
-final class FileImportImpl implements FileImport {
+final class FileImportOccurrenceImpl implements FileImportOccurrence {
 
     private long id;
     private ImportSchedule importSchedule;
     private long importScheduleId;
     private File file;
-    private State state;
+    private Status status;
+    private String message;
+    private Instant startDate;
+    private Instant endDate;
     private transient InputStream inputStream;
     private final FileSystem fileSystem;
     private final DataModel dataModel;
     private final FileNameCollisionResolver fileNameCollisionResolver;
     private final Thesaurus thesaurus;
+    private Clock clock;
+    private List<FileImportLogEntry> logEntries = new ArrayList<>();
 
     @Inject
-    private FileImportImpl(FileSystem fileSystem, DataModel dataModel, FileNameCollisionResolver fileNameCollisionResolver, Thesaurus thesaurus) {
+    private FileImportOccurrenceImpl(FileSystem fileSystem, DataModel dataModel, FileNameCollisionResolver fileNameCollisionResolver, Thesaurus thesaurus) {
         this.fileSystem = fileSystem;
         this.dataModel = dataModel;
         this.fileNameCollisionResolver = fileNameCollisionResolver;
         this.thesaurus = thesaurus;
     }
 
-    public static FileImportImpl create(FileSystem fileSystem, DataModel dataModel, FileNameCollisionResolver fileNameCollisionResolver, Thesaurus thesaurus, ImportSchedule importSchedule, File file) {
-        return new FileImportImpl(fileSystem, dataModel, fileNameCollisionResolver, thesaurus).init(importSchedule, file);
+    public static FileImportOccurrenceImpl create(FileSystem fileSystem, DataModel dataModel, FileNameCollisionResolver fileNameCollisionResolver, Thesaurus thesaurus, ImportSchedule importSchedule, File file) {
+        return new FileImportOccurrenceImpl(fileSystem, dataModel, fileNameCollisionResolver, thesaurus).init(importSchedule, file);
     }
 
     @Override
     public void prepareProcessing() {
-        if (!State.NEW.equals(getState())) {
+        if (!Status.NEW.equals(getStatus())) {
             throw new IllegalStateException();
         }
-        this.state = State.PROCESSING;
+        this.status = Status.PROCESSING;
         moveFile();
         save();
     }
 
-    private FileImportImpl init(ImportSchedule importSchedule, File file) {
+    private FileImportOccurrenceImpl init(ImportSchedule importSchedule, File file) {
         this.file = file;
         this.importSchedule = importSchedule;
         this.importScheduleId = importSchedule.getId();
-        this.state = State.NEW;
+        this.status = Status.NEW;
         return this;
     }
 
@@ -83,14 +92,14 @@ final class FileImportImpl implements FileImport {
     }
 
     @Override
-    public State getState() {
-        return state;
+    public Status getStatus() {
+        return status;
     }
 
     @Override
     public void markFailure() {
-        validateState();
-        state = State.FAILURE;
+        validateStatus();
+        status = Status.FAILURE;
         ensureStreamClosed();
         moveFile();
         save();
@@ -98,8 +107,8 @@ final class FileImportImpl implements FileImport {
 
     @Override
     public void markSuccess() {
-        validateState();
-        state = State.SUCCESS;
+        validateStatus();
+        status = Status.SUCCESS;
         ensureStreamClosed();
         moveFile();
         save();
@@ -110,6 +119,35 @@ final class FileImportImpl implements FileImport {
         return file.toPath().getFileName().toString();
     }
 
+    @Override
+    public Optional<Instant> getStartDate() {
+        return Optional.ofNullable(startDate);
+    }
+
+    @Override
+    public Optional<Instant> getEndDate() {
+        return Optional.ofNullable(endDate);
+    }
+
+    @Override
+    public List<FileImportLogEntry> getLogs() {
+        return Collections.unmodifiableList(logEntries);
+    }
+
+    @Override
+    public FileImportLogHandler createTaskLogHandler() {
+        return new FileImportLogHandlerImpl(this);
+    }
+
+    @Override
+    public void setClock(Clock clock){
+        this.clock = clock;
+    }
+
+    void log(Level level, Instant timestamp, String message) {
+        logEntries.add(dataModel.getInstance(FileImportLogEntryImpl.class).init(this, timestamp, level, message));
+    }
+
     void save() {
         if (id == 0) {
             fileImportFactory().persist(this);
@@ -118,8 +156,8 @@ final class FileImportImpl implements FileImport {
         }
     }
 
-    private DataMapper<FileImport> fileImportFactory() {
-        return dataModel.mapper(FileImport.class);
+    private DataMapper<FileImportOccurrence> fileImportFactory() {
+        return dataModel.mapper(FileImportOccurrence.class);
     }
 
     private void moveFile() {
@@ -136,7 +174,7 @@ final class FileImportImpl implements FileImport {
     }
 
     private Path getTargetDirectory() {
-        switch (state) {
+        switch (status) {
             case SUCCESS:
                 return getImportSchedule().getSuccessDirectory().toPath();
             case FAILURE:
@@ -159,9 +197,11 @@ final class FileImportImpl implements FileImport {
         }
     }
 
-    private void validateState() {
-        if (!State.PROCESSING.equals(state)) {
+    private void validateStatus() {
+        if (!Status.PROCESSING.equals(status)) {
             throw new IllegalStateException();
         }
     }
+
+
 }
