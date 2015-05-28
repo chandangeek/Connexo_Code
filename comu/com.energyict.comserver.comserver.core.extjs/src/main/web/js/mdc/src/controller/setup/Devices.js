@@ -293,7 +293,7 @@ Ext.define('Mdc.controller.setup.Devices', {
             success: function (record) {
                 me.getApplication().fireEvent('acknowledge',
                     Uni.I18n.translatePlural('deviceAdd.added', record.get('mRID'), 'USM', 'Device \'{0}\' added.'));
-                location.href = "#/devices/" + record.get('mRID');
+                location.href = "#/devices/" + encodeURIComponent(record.get('mRID'));
             },
             failure: function (record, operation) {
                 var json = Ext.decode(operation.response.responseText);
