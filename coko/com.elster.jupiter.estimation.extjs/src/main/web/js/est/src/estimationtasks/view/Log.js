@@ -16,13 +16,14 @@ Ext.define('Est.estimationtasks.view.Log', {
         me.side = [
             {
                 xtype: 'panel',
-                title: Uni.I18n.translate('estimationtasks.general.estimationtasks', 'EST', 'Estimation task'),
                 ui: 'medium',
                 items: [
                     {
                         xtype: 'estimationtasks-log-menu',
                         itemId: 'estimationtasks-log-menu',
-                        toggle: 0
+                        taskId: me.taskId,
+                        router: me.router,
+                        occurence: me.occurenceId
                     }
                 ]
             }
