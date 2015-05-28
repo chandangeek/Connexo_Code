@@ -1,6 +1,7 @@
 package com.elster.jupiter.appserver.rest.impl;
 
 import com.elster.jupiter.appserver.AppService;
+import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
@@ -31,6 +32,7 @@ public class AppServerApplication extends Application implements InstallService 
     private volatile AppService appService;
     private volatile MessageService messageService;
     private volatile TransactionService transactionService;
+    private volatile FileImportService fileImportService;
     private volatile CronExpressionParser cronExpressionParser;
 
     private NlsService nlsService;
@@ -58,6 +60,11 @@ public class AppServerApplication extends Application implements InstallService 
     @Reference
     public void setTransactionService(TransactionService transactionService) {
         this.transactionService = transactionService;
+    }
+
+    @Reference
+    public void setFileImportService(FileImportService fileImportService) {
+        this.fileImportService = fileImportService;
     }
 
     @Reference
@@ -90,7 +97,7 @@ public class AppServerApplication extends Application implements InstallService 
 
     @Override
     public List<String> getPrerequisiteModules() {
-        return Arrays.asList("ORM", "NLS", "DES");
+        return Arrays.asList("ORM", "NLS", "DES", "FIM", "MSG");
     }
 
     @Override
@@ -108,6 +115,7 @@ public class AppServerApplication extends Application implements InstallService 
                 bind(cronExpressionParser).to(CronExpressionParser.class);
                 bind(nlsService).to(NlsService.class);
                 bind(thesaurus).to(Thesaurus.class);
+                bind(fileImportService).to(FileImportService.class);
             }
         });
         return Collections.unmodifiableSet(hashSet);

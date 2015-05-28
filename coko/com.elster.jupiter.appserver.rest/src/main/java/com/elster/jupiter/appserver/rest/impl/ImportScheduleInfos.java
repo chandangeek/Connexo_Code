@@ -1,34 +1,30 @@
 package com.elster.jupiter.appserver.rest.impl;
 
-
-
-import com.elster.jupiter.appserver.ImportScheduleOnAppServer;
-import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.fileimport.ImportSchedule;
 
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by mandr on 5/25/2015.
- */
 public class ImportScheduleInfos {
     public int total;
-    public List<ImportScheduleInfo> importSchedules = new ArrayList<>();
+    public List<ImportScheduleInfo> importServices = new ArrayList<>();
 
-    public ImportScheduleInfos(List<? extends ImportScheduleOnAppServer> importSchedules, Thesaurus thesaurus) {
-        addAll(importSchedules,thesaurus);
+    ImportScheduleInfos(){
     }
 
-    public ImportScheduleInfo add(ImportScheduleOnAppServer importSchedule, Thesaurus thesaurus) {
-        ImportScheduleInfo result = new ImportScheduleInfo(importSchedule, thesaurus);
-        importSchedules.add(result);
+    public ImportScheduleInfos(Iterable<ImportSchedule> importSchedules) {
+        addAll(importSchedules);
+    }
+
+    public void add(ImportSchedule importSchedule) {
+        ImportScheduleInfo result = ImportScheduleInfo.of(importSchedule);
+        importServices.add(result);
         total++;
-        return result;
     }
 
-    public void addAll(Iterable<? extends ImportScheduleOnAppServer> importSchedules, Thesaurus thesaurus) {
-        for (ImportScheduleOnAppServer each : importSchedules) {
-            add(each, thesaurus);
+    public void addAll(Iterable<ImportSchedule> importSchedules) {
+        for (ImportSchedule importSchedule : importSchedules) {
+            add(importSchedule);
         }
     }
 }
