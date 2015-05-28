@@ -2,13 +2,16 @@ package com.energyict.mdc.multisense.api.impl;
 
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.util.conditions.Condition;
+import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.imp.DeviceImportService;
 import com.energyict.mdc.device.data.security.Privileges;
+import com.energyict.mdc.device.topology.TopologyService;
 import java.net.URI;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import javax.annotation.security.RolesAllowed;
@@ -42,13 +45,18 @@ public class DeviceResource {
     private final DeviceInfoFactory deviceInfoFactory;
     private final DeviceConfigurationService deviceConfigurationService;
     private final DeviceImportService deviceImportService;
+    private final ExceptionFactory exceptionFactory;
+    private final TopologyService topologyService;
+
 
     @Inject
-    public DeviceResource(DeviceService deviceService, DeviceInfoFactory deviceInfoFactory, DeviceConfigurationService deviceConfigurationService, DeviceImportService deviceImportService) {
+    public DeviceResource(DeviceService deviceService, DeviceInfoFactory deviceInfoFactory, DeviceConfigurationService deviceConfigurationService, DeviceImportService deviceImportService, ExceptionFactory exceptionFactory, TopologyService topologyService) {
         this.deviceService = deviceService;
         this.deviceInfoFactory = deviceInfoFactory;
         this.deviceConfigurationService = deviceConfigurationService;
         this.deviceImportService = deviceImportService;
+        this.exceptionFactory = exceptionFactory;
+        this.topologyService = topologyService;
     }
 
     @GET
@@ -95,18 +103,33 @@ public class DeviceResource {
         return Response.created(uri).build();
     }
 
-    @PUT//the method designed like 'PATCH'
-    @Path("/{id}")
+    @PUT
+    @Path("/{mrid}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_COMMUNICATION)
-    public DeviceInfo updateDevice(@PathParam("id") long id, DeviceInfo info, @Context SecurityContext securityContext) {
-        Device device = deviceService.findAndLockDeviceByIdAndVersion(id, info.version).orElseThrow(() -> new WebApplicationException(Response.Status.CONFLICT));
-//        updateGateway(info, device);
-//        if (info.estimationStatus != null) {
-//            updateEstimationStatus(info.estimationStatus, device);
-//        }
-        return null;
+    public Response updateDevice(@PathParam("mrid") String mrid, DeviceInfo info, @Context SecurityContext securityContext, @Context UriInfo uriInfo) {
+        Device device = deviceService.findAndLockDeviceBymRIDAndVersion(mrid, info.version).orElseThrow(() -> new WebApplicationException(Response.Status.CONFLICT));
+        if (info.masterDevice!=null && info.masterDevice.mRID != null) {
+            if (device.getDeviceConfiguration().isDirectlyAddressable()) {
+                throw exceptionFactory.newException(MessageSeeds.IMPOSSIBLE_TO_SET_MASTER_DEVICE, device.getmRID());
+            }
+            Optional<Device> currentGateway = topologyService.getPhysicalGateway(device);
+            if (!currentGateway.isPresent() || !currentGateway.get().getmRID().equals(info.masterDevice.mRID)) {
+                Device newGateway = deviceService.findByUniqueMrid(info.masterDevice.mRID).orElseThrow(() -> new WebApplicationException("Unknown gateway mRID", Response.Status.BAD_REQUEST));
+                topologyService.setPhysicalGateway(device, newGateway);
+            }
+        } else {
+            if (topologyService.getPhysicalGateway(device).isPresent()) {
+                topologyService.clearPhysicalGateway(device);
+            }
+        }
+        device.setName(info.name);
+        device.setSerialNumber(info.serialNumber);
+        device.setYearOfCertification(info.yearOfCertification);
+        device.save();
+        DeviceInfo deviceInfo = deviceService.findByUniqueMrid(mrid).map(d -> deviceInfoFactory.asHypermedia(d, uriInfo, Collections.emptyList())).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND.getStatusCode()));
+        return Response.ok(deviceInfo).build();
     }
 
     @DELETE
