@@ -1,10 +1,6 @@
 package com.elster.jupiter.appserver.impl;
 
-import com.elster.jupiter.appserver.AppServer;
-import com.elster.jupiter.appserver.AppServerCommand;
-import com.elster.jupiter.appserver.AppService;
-import com.elster.jupiter.appserver.Command;
-import com.elster.jupiter.appserver.SubscriberExecutionSpec;
+import com.elster.jupiter.appserver.*;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fileimport.ImportSchedule;
 import com.elster.jupiter.messaging.MessageService;
@@ -39,6 +35,7 @@ import java.util.logging.Logger;
                 "osgi.command.function=activate",
                 "osgi.command.function=deactivate",
                 "osgi.command.function=activateFileImport",
+                "osgi.command.function=deactivateFileImport",
                 "osgi.command.function=listFileImport",
                 "osgi.command.function=appServers",
                 "osgi.command.function=identify",
@@ -137,7 +134,28 @@ public class AppServiceConsoleService {
         transactionService.execute(new VoidTransaction() {
             @Override
             public void doPerform() {
-                doActivateFileImport(foundAppServer.get(), importSchedule);
+                foundAppServer.get().addImportScheduleOnAppServer(importSchedule);
+            }
+        });
+    }
+
+    public void deactivateFileImport(long id, String appServerName) {
+        Optional<AppServer> foundAppServer = findAppServer(appServerName);
+        if (!foundAppServer.isPresent()) {
+            System.out.println("AppServer not found.");
+            return;
+        }
+        Optional<? extends ImportScheduleOnAppServer> found = foundAppServer.get().getImportSchedulesOnAppServer().stream().filter(schedule -> schedule.getImportSchedule().getId() == id).findFirst();
+        if (!found.isPresent()) {
+            System.out.println("ImportScheduleOnAppServer not found.");
+            return;
+        }
+        final ImportScheduleOnAppServer importSchedule = found.get();
+        transactionService.execute(new VoidTransaction() {
+            @Override
+            public void doPerform() {
+
+                foundAppServer.get().removeImportScheduleOnAppServer(importSchedule);
             }
         });
     }
@@ -152,12 +170,6 @@ public class AppServiceConsoleService {
         foundAppServer.get().getImportSchedulesOnAppServer().stream().
                 forEach(importSchedule -> System.out.println(importSchedule.getImportSchedule().getName()));
     }
-
-    private void doActivateFileImport(AppServer appServerToActivateOn, ImportSchedule importSchedule) {
-        ImportScheduleOnAppServerImpl importScheduleOnAppServer = ImportScheduleOnAppServerImpl.from(getDataModel(), fileImportService, importSchedule, appServerToActivateOn);
-        importScheduleOnAppServer.save();
-    }
-
 
 //    private Optional<AppServer> getAppServerForActivation(String appServerName) {
 //        final Optional<AppServer> current = appService.getAppServer();
