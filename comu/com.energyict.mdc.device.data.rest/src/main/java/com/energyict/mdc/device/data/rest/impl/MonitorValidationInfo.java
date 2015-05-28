@@ -30,21 +30,23 @@ public class MonitorValidationInfo {
                 registerStatus.entrySet().stream().flatMap(m -> m.getValue().stream()).collect(Collectors.counting());
 
         List<DataValidationStatus> dataValidationStatuses = loadProfileStatus.entrySet().stream()
-                .sorted((lp1, lp2) -> lp1.getKey().getLoadProfileSpec().getLoadProfileType().getName().compareTo(lp2.getKey().getLoadProfileSpec().getLoadProfileType().getName()))
                 .flatMap(m -> m.getValue().stream()).collect(Collectors.toList());
         dataValidationStatuses.addAll(registerStatus.entrySet().stream()
-                .sorted((reg1, reg2) -> reg1.getKey().getRegisterSpec().getReadingType().getFullAliasName().compareTo(reg1.getKey().getRegisterSpec().getReadingType().getFullAliasName()))
                 .flatMap(m -> m.getValue().stream()).collect(Collectors.toList()));
 
         this.validationStatus = validationStatus;
         this.detailedValidationLoadProfile = new ArrayList<>();
         this.detailedValidationRegister = new ArrayList<>();
-        loadProfileStatus.entrySet().stream().forEach(lp -> {
-            this.detailedValidationLoadProfile.add(new DetailedValidationLoadProfileInfo(lp.getKey(),new Long(lp.getValue().size())));
-        });
-        registerStatus.entrySet().stream().forEach( lp -> {
-            this.detailedValidationRegister.add(new DetailedValidationRegisterInfo(lp.getKey(),new Long(lp.getValue().size())));
-        });
+        loadProfileStatus.entrySet().stream()
+                .sorted((lps1, lps2) -> lps1.getKey().getLoadProfileSpec().getLoadProfileType().getName().compareTo(lps2.getKey().getLoadProfileSpec().getLoadProfileType().getName()))
+                .forEach(lp -> {
+                    this.detailedValidationLoadProfile.add(new DetailedValidationLoadProfileInfo(lp.getKey(), new Long(lp.getValue().size())));
+                });
+        registerStatus.entrySet().stream()
+                .sorted((regs1, regs2) -> regs1.getKey().getRegisterSpec().getReadingType().getFullAliasName().compareTo(regs2.getKey().getRegisterSpec().getReadingType().getFullAliasName()))
+                .forEach( reg -> {
+                    this.detailedValidationRegister.add(new DetailedValidationRegisterInfo(reg.getKey(),new Long(reg.getValue().size())));
+                });
     }
 
     public MonitorValidationInfo() {
