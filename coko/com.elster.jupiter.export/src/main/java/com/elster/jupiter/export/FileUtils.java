@@ -4,9 +4,7 @@ import com.elster.jupiter.appserver.AppServer;
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.fileimport.FileIOException;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
 
-import javax.inject.Inject;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.file.FileSystem;
