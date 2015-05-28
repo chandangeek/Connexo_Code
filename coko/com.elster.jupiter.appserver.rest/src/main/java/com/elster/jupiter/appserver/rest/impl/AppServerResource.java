@@ -2,8 +2,11 @@ package com.elster.jupiter.appserver.rest.impl;
 
 import com.elster.jupiter.appserver.AppServer;
 import com.elster.jupiter.appserver.AppService;
+import com.elster.jupiter.appserver.ImportScheduleOnAppServer;
 import com.elster.jupiter.appserver.SubscriberExecutionSpec;
 import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.fileimport.FileImportService;
+import com.elster.jupiter.fileimport.ImportSchedule;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.nls.Thesaurus;
@@ -19,6 +22,7 @@ import com.elster.jupiter.util.cron.CronExpressionParser;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -41,15 +45,17 @@ public class AppServerResource {
     private final RestQueryService queryService;
     private final AppService appService;
     private final MessageService messageService;
+    private final FileImportService fileImportService;
     private final Thesaurus thesaurus;
     private final TransactionService transactionService;
     private final CronExpressionParser cronExpressionParser;
 
     @Inject
-    public AppServerResource(RestQueryService queryService, AppService appService, MessageService messageService, TransactionService transactionService, CronExpressionParser cronExpressionParser, Thesaurus thesaurus) {
+    public AppServerResource(RestQueryService queryService, AppService appService, MessageService messageService, FileImportService fileImportService, TransactionService transactionService, CronExpressionParser cronExpressionParser, Thesaurus thesaurus) {
         this.queryService = queryService;
         this.appService = appService;
         this.messageService = messageService;
+        this.fileImportService = fileImportService;
         this.transactionService = transactionService;
         this.cronExpressionParser = cronExpressionParser;
         this.thesaurus = thesaurus;
@@ -88,6 +94,15 @@ public class AppServerResource {
                         .forEach(spec -> {
                             SubscriberSpec subscriberSpec = messageService.getSubscriberSpec(spec.subscriberSpec.destination, spec.subscriberSpec.subscriber).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
                             underConstruction.createSubscriberExecutionSpec(subscriberSpec, spec.numberOfThreads);
+                        });
+            }
+            if(info.importServices != null) {
+                info.importServices.stream()
+                        .forEach(service -> {
+                            Optional<ImportSchedule> found =  fileImportService.getImportSchedule(service.id);
+                            if(found.isPresent()) {
+                                underConstruction.addImportScheduleOnAppServer(found.get());
+                            }
                         });
             }
             if (info.active) {
@@ -157,13 +172,19 @@ public class AppServerResource {
     }
 
     private void doUpdateAppServer(AppServerInfo info, AppServer appServer) {
-        Zipper<SubscriberExecutionSpec, SubscriberExecutionSpecInfo> zipper = new Zipper<>((s, i) -> i.matches(s));
-        List<Pair<SubscriberExecutionSpec, SubscriberExecutionSpecInfo>> pairs = zipper.zip(appServer.getSubscriberExecutionSpecs(), info.executionSpecs);
+        Zipper<SubscriberExecutionSpec, SubscriberExecutionSpecInfo> zipperMessageServices = new Zipper<>((s, i) -> i.matches(s));
+        List<Pair<SubscriberExecutionSpec, SubscriberExecutionSpecInfo>> pairsMessageServices = zipperMessageServices.zip(appServer.getSubscriberExecutionSpecs(), info.executionSpecs);
+
+        Zipper<ImportScheduleOnAppServer, ImportScheduleInfo> zipperImportServices = new Zipper<>((s, i) -> i.id == s.getImportSchedule().getId());
+        List<Pair<ImportScheduleOnAppServer, ImportScheduleInfo>> pairsImportServices = zipperImportServices.zip(appServer.getImportSchedulesOnAppServer().stream().collect(Collectors.toList()), info.importServices);
 
         try (AppServer.BatchUpdate updater = appServer.forBatchUpdate()) {
-            doThreadUpdates(pairs, updater);
-            doRemovals(pairs, updater);
-            doAdditions(pairs, updater);
+            doThreadUpdates(pairsMessageServices, updater);
+            doMessageServicesRemovals(pairsMessageServices, updater);
+            doMessageServicesAdditions(pairsMessageServices, updater);
+
+            doImportServicesRemovals(pairsImportServices, updater);
+            doImportServicesAdditions(pairsImportServices, updater);
 
             if (info.active) {
                 updater.activate();
@@ -173,7 +194,7 @@ public class AppServerResource {
         }
     }
 
-    private void doAdditions(List<Pair<SubscriberExecutionSpec, SubscriberExecutionSpecInfo>> pairs, AppServer.BatchUpdate updater) {
+    private void doMessageServicesAdditions(List<Pair<SubscriberExecutionSpec, SubscriberExecutionSpecInfo>> pairs, AppServer.BatchUpdate updater) {
         List<Pair<SubscriberSpec, SubscriberExecutionSpecInfo>> toAdd = pairs.stream()
                 .filter(pair -> pair.getFirst() == null)
                 .map(pair -> pair.withFirst((f, l) -> messageService.getSubscriberSpec(l.subscriberSpec.destination, l.subscriberSpec.subscriber).orElse(null)))
@@ -186,11 +207,31 @@ public class AppServerResource {
         toAdd.forEach(pair -> updater.createSubscriberExecutionSpec(pair.getFirst(), pair.getLast().numberOfThreads));
     }
 
-    private void doRemovals(List<Pair<SubscriberExecutionSpec, SubscriberExecutionSpecInfo>> pairs, AppServer.BatchUpdate updater) {
+    private void doMessageServicesRemovals(List<Pair<SubscriberExecutionSpec, SubscriberExecutionSpecInfo>> pairs, AppServer.BatchUpdate updater) {
         pairs.stream()
                 .filter(pair -> pair.getLast() == null)
                 .map(Pair::getFirst)
                 .forEach(updater::removeSubscriberExecutionSpec);
+    }
+
+    private void doImportServicesAdditions(List<Pair<ImportScheduleOnAppServer, ImportScheduleInfo>> pairs, AppServer.BatchUpdate updater) {
+        List<Pair<ImportSchedule, ImportScheduleInfo>> toAdd = pairs.stream()
+                .filter(pair -> pair.getFirst() == null)
+                .map(pair -> pair.withFirst((f, l) -> fileImportService.getImportSchedule(l.id).orElse(null)))
+                .collect(Collectors.toList());
+
+        if (toAdd.stream().anyMatch(pair -> pair.getFirst() == null)) {
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        }
+
+        toAdd.forEach(pair -> updater.addImportScheduleOnAppServer(pair.getFirst()));
+    }
+
+    private void doImportServicesRemovals(List<Pair<ImportScheduleOnAppServer, ImportScheduleInfo>> pairs, AppServer.BatchUpdate updater) {
+        pairs.stream()
+                .filter(pair -> pair.getLast() == null)
+                .map(Pair::getFirst)
+                .forEach(updater::removeImportScheduleOnAppServer);
     }
 
     private void doThreadUpdates(List<Pair<SubscriberExecutionSpec, SubscriberExecutionSpecInfo>> pairs, AppServer.BatchUpdate updater) {
@@ -229,11 +270,48 @@ public class AppServerResource {
         return subscriberSpecInfos;
     }
 
+    @GET
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Path("/{appserverName}/servedimport")
+    public ImportScheduleInfos getServedImportSchedules(@PathParam("appserverName") String appServerName) {
+        List<ImportSchedule> served = getImportSchedulesOnAppServer(appServerName);
+
+        ImportScheduleInfos importScheduleInfos = new ImportScheduleInfos(served);
+        importScheduleInfos.importServices.sort(Comparator.comparing(ImportScheduleInfo::getName));
+        return importScheduleInfos;
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Path("/{appserverName}/unservedimport")
+    public ImportScheduleInfos getUnservedImportSchedules(@PathParam("appserverName") String appServerName) {
+        List<ImportSchedule> served = getImportSchedulesOnAppServer(appServerName);
+
+        List<ImportSchedule> unserved = fileImportService.getImportSchedules().stream()
+                .filter(schedule -> served.stream()
+                                .noneMatch(s -> schedule.getName().equals(s.getName()))
+                )
+                .collect(Collectors.toList());
+
+        ImportScheduleInfos importScheduleInfos = new ImportScheduleInfos(unserved);
+
+        importScheduleInfos.importServices.sort(Comparator.comparing(ImportScheduleInfo::getName));
+        return importScheduleInfos;
+    }
+
     private List<AppServer> queryAppServers(QueryParameters queryParameters) {
         Query<AppServer> query = appService.getAppServerQuery();
         RestQuery<AppServer> restQuery = queryService.wrap(query);
         return restQuery.select(queryParameters, Order.ascending("name").toUpperCase());
     }
 
+    private List<ImportSchedule> getImportSchedulesOnAppServer(@PathParam("appserverName") String appServerName) {
+        return appService.findAppServer(appServerName)
+                .map(AppServer::getImportSchedulesOnAppServer)
+                .orElseGet(Collections::emptyList)
+                .stream()
+                .map(ImportScheduleOnAppServer::getImportSchedule)
+                .collect(Collectors.toList());
+    }
 
 }

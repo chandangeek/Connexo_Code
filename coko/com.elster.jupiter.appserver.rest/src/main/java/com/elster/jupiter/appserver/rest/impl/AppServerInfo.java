@@ -1,9 +1,11 @@
 package com.elster.jupiter.appserver.rest.impl;
 
 import com.elster.jupiter.appserver.AppServer;
+import com.elster.jupiter.appserver.ImportScheduleOnAppServer;
 import com.elster.jupiter.nls.Thesaurus;
 
 import java.util.List;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 public class AppServerInfo {
@@ -11,6 +13,7 @@ public class AppServerInfo {
     public String name;
     public boolean active;
     public List<SubscriberExecutionSpecInfo> executionSpecs;
+    public List<ImportScheduleInfo> importServices;
 
     public AppServerInfo() {}
 
@@ -23,6 +26,9 @@ public class AppServerInfo {
         active = appServer.isActive();
         executionSpecs = appServer.getSubscriberExecutionSpecs().stream()
                 .map(spec -> SubscriberExecutionSpecInfo.of(spec, thesaurus))
+                .collect(Collectors.toList());
+        importServices = appServer.getImportSchedulesOnAppServer().stream()
+                .map(service -> ImportScheduleInfo.of(service.getImportSchedule()))
                 .collect(Collectors.toList());
     }
 
