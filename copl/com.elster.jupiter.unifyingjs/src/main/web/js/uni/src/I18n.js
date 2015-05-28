@@ -185,7 +185,7 @@ Ext.define('Uni.I18n', {
             //</debug>
         }
 
-        return Ext.String.htmlEncode(translation);
+        return translation;
     },
 
     /**
