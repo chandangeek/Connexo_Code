@@ -1,51 +1,70 @@
 package com.elster.jupiter.search;
 
+import com.elster.jupiter.domain.util.Finder;
+
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Models a set of possible values for searching purposes.
  * It was named after the mathematical concept of a domain
  * that is defined as a set of possible values of the
  * independent variable or variables of a function.
- * Values of a SearchDomain can be dependent on the
- * value of another SearchDomain.
- * Consider the animal life on our planet as an
- * example of a SearchDomain. It could have "class" and "subclass"
- * as a SearcheableProperty. When the user selects
- * value "Vertebrates" in UI as possible value to filter on
- * then the list of possible values for "subclass"
- * will need to be updated. Also, as long as the user
- * has not made any specification on the "class"
- * it is not possible for the UI to compile a
- * list of "subclasses".
+ * Typically, a domain class or a hierarchy of domain classes
+ * maps onto a single SearchDomain.
+ * Note however that when a SearchDomain represents
+ * a hierarchy of domain classes, it is currently
+ * <strong>NOT</strong> supported to search
+ * for instances of only a part of the domain hierarchy.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-05-26 (13:25)
  */
 public interface SearchDomain {
 
+    /**
+     * Gets a unique identifier for this SearchDomain.
+     *
+     * @return The unique identifier
+     */
+    public String getId();
+
+    /**
+     * Tests if this SearchDomain supports
+     * searches for the specified domain class.
+     * In other words, tests if this SearchDomain
+     * searches for objects of the specified java class.
+     * When this SearchDomain represents a hierarchy
+     * of domain classes then this will only return
+     * <code>true</code> if the specified class
+     * is the root of that class hierarchy.
+     *
+     * @return true iff this SearchDomain searches for objects of the specified java class
+     */
+    public boolean supports(Class domainClass);
+
     public SearchProvider getProvider();
 
     /**
-     * Gets the List of {@link SearcheableProperty}
+     * Gets the List of {@link SearchableProperty}
      * that can be used to specify criteria
      * to search for values of this SearchDomain.
      *
-     * @return The list of SearcheableProperty
+     * @return The list of SearchableProperty
      */
-    public List<SearcheableProperty> getProperties();
+    public List<SearchableProperty> getProperties();
 
     /**
-     * Gets the parent SearchDomain on which values
-     * of this SearchDomain are dependent.
-     * Referring back to the animal example used
-     * in the class javadoc, the "subclass" SearchDomain
-     * would return the "class" SearchDomain and the
-     * "class" SearchDomain would return Optional.empty().
+     * Creates a Finder for instances of this SearchDomain
+     * for the specified {@link SearchablePropertyCondition}s.
+     * Will throw an IllegalArgumentException when
+     * at least one of the conditions is expressed
+     * against a {@link SearchableProperty} that was
+     * not produced by this SearchDomain.
      *
-     * @return The parent SearchDomain
+     * @param conditions The condition
+     * @return The Finder
+     * @throws IllegalArgumentException
      */
-    public Optional<SearchDomain> getParent();
+    public Finder<?> finderFor(List<SearchablePropertyCondition> conditions);
 
 }
