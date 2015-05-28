@@ -3,7 +3,7 @@ package com.elster.jupiter.export.impl;
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.export.DataExportService;
-import com.elster.jupiter.export.ReadingTypeDataExportTask;
+import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.time.EventType;
 import com.elster.jupiter.time.RelativePeriod;
@@ -22,7 +22,7 @@ public class RelativePeriodDeletionEventHandler implements TopicHandler {
     @Override
     public void handle(LocalEvent localEvent) {
         RelativePeriod relativePeriod = (RelativePeriod) localEvent.getSource();
-        List<ReadingTypeDataExportTask> using = dataExportService.findExportTaskUsing(relativePeriod);
+        List<ExportTask> using = dataExportService.findExportTaskUsing(relativePeriod);
         if (!using.isEmpty()) {
             throw new RelativePeriodInUseException(getThesaurus(), using);
         }

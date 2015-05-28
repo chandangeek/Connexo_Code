@@ -6,7 +6,7 @@ import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataExportTaskBuilder;
 import com.elster.jupiter.export.DataProcessorFactory;
 import com.elster.jupiter.export.DataSelectorFactory;
-import com.elster.jupiter.export.ReadingTypeDataExportTask;
+import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
@@ -56,17 +56,18 @@ public class ConsoleCommands {
     public void createDataExportTask(String name, String dataProcessor, String exportPeriodName, long nextExecution, String scheduleExpression, long groupId, String... readingTypes) {
         threadPrincipalService.set(() -> "console");
         try (TransactionContext context = transactionService.getContext()) {
-            DataExportTaskBuilder builder = dataExportService.newBuilder()
+            DataExportTaskBuilder.StandardSelectorBuilder builder = dataExportService.newBuilder()
                     .setName(name)
-                    .setExportPeriod(relativePeriodByName(exportPeriodName))
                     .setDataProcessorName(dataProcessor)
                     .setNextExecution(Instant.ofEpochMilli(nextExecution))
-                    .setEndDeviceGroup(endDeviceGroup(groupId))
-                    .setScheduleExpression(parse(scheduleExpression));
+                    .setScheduleExpression(parse(scheduleExpression))
+                    .selectingStandard()
+                    .fromExportPeriod(relativePeriodByName(exportPeriodName))
+                    .fromEndDeviceGroup(endDeviceGroup(groupId));
             Arrays.stream(readingTypes)
                     .map(mrid -> meteringService.getReadingType(mrid).get())
-                    .forEach(builder::addReadingType);
-            ReadingTypeDataExportTask dataExportTask = builder.build();
+                    .forEach(builder::fromReadingType);
+            ExportTask dataExportTask = builder.endSelection().build();
             dataExportTask.save();
             context.commit();
         } catch (RuntimeException e) {

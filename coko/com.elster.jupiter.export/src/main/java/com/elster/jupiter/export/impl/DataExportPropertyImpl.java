@@ -46,7 +46,7 @@ final class DataExportPropertyImpl implements DataExportProperty, PersistenceAwa
 
     @Override
     public void postLoad() {
-        propertySpec = ((IReadingTypeExportTask) task.get()).getPropertySpec(name);
+        propertySpec = task.get().getPropertySpec(name);
     }
 
     @Override

@@ -1,7 +1,8 @@
 package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.export.DataExportTaskBuilder;
-import com.elster.jupiter.export.ReadingTypeDataExportTask;
+import com.elster.jupiter.export.ExportTask;
+import com.elster.jupiter.export.ReadingTypeDataSelector;
 import com.elster.jupiter.export.ValidatedDataOption;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
@@ -17,6 +18,7 @@ class DataExportTaskBuilderImpl implements DataExportTaskBuilder {
 
     private final DataModel dataModel;
 
+    private boolean defaultSelector = true;
     private List<PropertyBuilderImpl> properties = new ArrayList<>();
     private ScheduleExpression scheduleExpression;
     private Instant nextExecution;
@@ -33,7 +35,7 @@ class DataExportTaskBuilderImpl implements DataExportTaskBuilder {
     private boolean exportContinuousData;
 
     private interface ReadingTypeDefinition {
-        public void addTo(ReadingTypeExportTaskImpl task);
+        public void addTo(ReadingTypeDataSelector readingTypeDataSelector);
     }
 
     public class ReadingTypeByMrid implements ReadingTypeDefinition {
@@ -44,8 +46,8 @@ class DataExportTaskBuilderImpl implements DataExportTaskBuilder {
         }
 
         @Override
-        public void addTo(ReadingTypeExportTaskImpl task) {
-            task.addReadingType(mrid);
+        public void addTo(ReadingTypeDataSelector dataSelector) {
+            dataSelector.addReadingType(mrid);
         }
     }
 
@@ -58,7 +60,7 @@ class DataExportTaskBuilderImpl implements DataExportTaskBuilder {
         }
 
         @Override
-        public void addTo(ReadingTypeExportTaskImpl task) {
+        public void addTo(ReadingTypeDataSelector task) {
             task.addReadingType(readingType);
         }
     }
@@ -69,120 +71,156 @@ class DataExportTaskBuilderImpl implements DataExportTaskBuilder {
     }
 
     @Override
-    public DataExportTaskBuilder setScheduleExpression(ScheduleExpression scheduleExpression) {
+    public DataExportTaskBuilderImpl setScheduleExpression(ScheduleExpression scheduleExpression) {
         this.scheduleExpression = scheduleExpression;
         return this;
     }
 
     @Override
-    public DataExportTaskBuilder setNextExecution(Instant nextExecution) {
+    public DataExportTaskBuilderImpl setNextExecution(Instant nextExecution) {
         this.nextExecution = nextExecution;
         return this;
     }
 
     @Override
-    public DataExportTaskBuilder scheduleImmediately() {
+    public DataExportTaskBuilderImpl scheduleImmediately() {
         this.scheduleImmediately = true;
         return this;
     }
 
     @Override
-    public DataExportTaskBuilder exportUpdate(boolean value) {
-        this.exportUpdate = value;
-        return this;
-    }
-
-    @Override
-    public DataExportTaskBuilder exportContinuousData(boolean value) {
-        this.exportContinuousData = value;
-        return this;
-    }
-
-    @Override
-    public ReadingTypeDataExportTask build() {
-        ReadingTypeExportTaskImpl exportTask = ReadingTypeExportTaskImpl.from(dataModel, name, exportPeriod, dataProcessor, dataSelector, scheduleExpression, endDeviceGroup, nextExecution);
+    public ExportTask build() {
+        ExportTaskImpl exportTask = ExportTaskImpl.from(dataModel, name, dataProcessor, dataSelector, scheduleExpression, nextExecution);
         exportTask.setScheduleImmediately(scheduleImmediately);
-        exportTask.setUpdatePeriod(updatePeriod);
-        exportTask.setValidatedDataOption(validatedDataOption);
-        exportTask.setExportUpdate(exportUpdate);
-        exportTask.setExportContinuousData(exportContinuousData);
-        readingTypes.stream().forEach(d -> d.addTo(exportTask));
+        if (defaultSelector) {
+            ReadingTypeDataSelectorImpl readingTypeDataSelector = ReadingTypeDataSelectorImpl.from(dataModel, exportTask, exportPeriod, endDeviceGroup);
+            readingTypeDataSelector.setUpdatePeriod(updatePeriod);
+            readingTypeDataSelector.setValidatedDataOption(validatedDataOption);
+            readingTypeDataSelector.setExportUpdate(exportUpdate);
+            readingTypeDataSelector.setExportContinuousData(exportContinuousData);
+            readingTypes.stream().forEach(d -> d.addTo(readingTypeDataSelector));
+            readingTypeDataSelector.save();
+            exportTask.setReadingTypeDataSelector(readingTypeDataSelector);
+        }
         properties.stream().forEach(p -> exportTask.setProperty(p.name, p.value));
+        exportTask.save();
         return exportTask;
     }
 
     @Override
-    public DataExportTaskBuilder setName(String name) {
+    public DataExportTaskBuilderImpl setName(String name) {
         this.name = name;
         return this;
     }
 
     @Override
-    public DataExportTaskBuilder setDataProcessorName(String dataProcessor) {
+    public DataExportTaskBuilderImpl setDataProcessorName(String dataProcessor) {
         this.dataProcessor = dataProcessor;
         return this;
     }
 
     @Override
-    public DataExportTaskBuilder setDataSelectorName(String dataSelector) {
-        this.dataSelector = dataSelector;
-        return this;
+    public StandardSelectorBuilderImpl selectingStandard() {
+        defaultSelector = true;
+        return new StandardSelectorBuilderImpl();
     }
 
-    @Override
-    public DataExportTaskBuilder setExportPeriod(RelativePeriod exportPeriod) {
-        this.exportPeriod = exportPeriod;
-        return this;
-    }
-
-    @Override
-    public DataExportTaskBuilder setUpdatePeriod(RelativePeriod updatePeriod) {
-        this.updatePeriod = updatePeriod;
-        return this;
-    }
-
-    @Override
-    public DataExportTaskBuilder addReadingType(ReadingType readingType) {
-        this.readingTypes.add(new ReadingTypeHolder(readingType));
-        return this;
-    }
-
-    @Override
-    public DataExportTaskBuilder addReadingType(String readingType) {
-        this.readingTypes.add(new ReadingTypeByMrid(readingType));
-        return this;
-    }
-
-    @Override
-    public DataExportTaskBuilder setValidatedDataOption(ValidatedDataOption validatedDataOption) {
-        this.validatedDataOption = validatedDataOption;
-        return this;
-    }
-
-    @Override
-    public DataExportTaskBuilder setEndDeviceGroup(EndDeviceGroup endDeviceGroup) {
-        this.endDeviceGroup = endDeviceGroup;
-        return this;
-    }
-
-    @Override
-    public PropertyBuilder addProperty(String name) {
-        return new PropertyBuilderImpl(name);
-    }
-
-    private class PropertyBuilderImpl implements PropertyBuilder {
-        private final String name;
-        private Object value;
-
-        private PropertyBuilderImpl(String name) {
-            this.name = name;
+    class StandardSelectorBuilderImpl implements StandardSelectorBuilder {
+        @Override
+        public StandardSelectorBuilderImpl fromExportPeriod(RelativePeriod relativePeriod) {
+            exportPeriod = relativePeriod;
+            return this;
         }
 
         @Override
-        public DataExportTaskBuilder withValue(Object value) {
-            this.value = value;
-            properties.add(this);
+        public StandardSelectorBuilderImpl fromUpdatePeriod(RelativePeriod relativePeriod) {
+            updatePeriod = relativePeriod;
+            return this;
+        }
+
+        @Override
+        public StandardSelectorBuilderImpl fromReadingType(ReadingType readingType) {
+            readingTypes.add(new ReadingTypeHolder(readingType));
+            return null;
+        }
+
+        @Override
+        public StandardSelectorBuilderImpl fromReadingType(String readingType) {
+            readingTypes.add(new ReadingTypeByMrid(readingType));
+            return this;
+        }
+
+        @Override
+        public StandardSelectorBuilderImpl withValidatedDataOption(ValidatedDataOption option) {
+            validatedDataOption = option;
+            return this;
+        }
+
+        @Override
+        public StandardSelectorBuilderImpl fromEndDeviceGroup(EndDeviceGroup group) {
+            endDeviceGroup = group;
+            return this;
+        }
+
+        @Override
+        public StandardSelectorBuilderImpl exportUpdate(boolean update) {
+            exportUpdate = update;
+            return this;
+        }
+
+        @Override
+        public StandardSelectorBuilderImpl continuousData(boolean continuous) {
+            exportContinuousData = continuous;
+            return this;
+        }
+
+        @Override
+        public DataExportTaskBuilderImpl endSelection() {
             return DataExportTaskBuilderImpl.this;
         }
     }
+
+    @Override
+    public CustomSelectorBuilder selectingCustom(String dataSelector) {
+        this.dataSelector = dataSelector;
+        defaultSelector = false;
+        return new CustomSelectorBuilderImpl();
+    }
+
+    private class CustomSelectorBuilderImpl implements CustomSelectorBuilder {
+        @Override
+        public PropertyBuilder<CustomSelectorBuilder> addProperty(String name) {
+            return new PropertyBuilderImpl<>(this, name);
+        }
+
+        @Override
+        public DataExportTaskBuilder endSelection() {
+            return DataExportTaskBuilderImpl.this;
+        }
+    }
+
+    @Override
+    public PropertyBuilder<DataExportTaskBuilder> addProperty(String name) {
+        return new PropertyBuilderImpl<>(this, name);
+    }
+
+    private class PropertyBuilderImpl<T> implements PropertyBuilder<T> {
+        private final String name;
+        private final T source;
+        private Object value;
+
+        private PropertyBuilderImpl(T source, String name) {
+            this.name = name;
+            this.source = source;
+        }
+
+        @Override
+        public T withValue(Object value) {
+            this.value = value;
+            properties.add(this);
+            return source;
+        }
+    }
+
+
 }

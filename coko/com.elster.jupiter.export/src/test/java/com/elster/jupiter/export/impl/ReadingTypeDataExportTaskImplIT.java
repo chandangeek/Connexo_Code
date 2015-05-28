@@ -13,7 +13,6 @@ import com.elster.jupiter.export.DataProcessor;
 import com.elster.jupiter.export.DataProcessorFactory;
 import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
-import com.elster.jupiter.export.ReadingTypeDataExportTask;
 import com.elster.jupiter.export.ValidatedDataOption;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
@@ -233,26 +232,27 @@ public class ReadingTypeDataExportTaskImplIT {
     @Test
     public void testCreation() {
 
-        ReadingTypeDataExportTask exportTask = createAndSaveTask();
+        ExportTask exportTask = createAndSaveTask();
 
-        Optional<? extends ReadingTypeDataExportTask> found = dataExportService.findExportTask(exportTask.getId());
+        Optional<? extends ExportTask> found = dataExportService.findExportTask(exportTask.getId());
 
         assertThat(found).isPresent();
 
-        ReadingTypeDataExportTask readingTypeDataExportTask = found.get();
+        ExportTask readingTypeDataExportTask = found.get();
 
-        assertThat(readingTypeDataExportTask.getEndDeviceGroup().getId()).isEqualTo(endDeviceGroup.getId());
-        assertThat(readingTypeDataExportTask.getExportPeriod().getId()).isEqualTo(lastYear.getId());
-        assertThat(readingTypeDataExportTask.getUpdatePeriod()).isPresent();
-        assertThat(readingTypeDataExportTask.getUpdatePeriod().get().getId()).isEqualTo(oneYearBeforeLastYear.getId());
+        assertThat(readingTypeDataExportTask.getReadingTypeDataSelector()).isPresent();
+        assertThat(readingTypeDataExportTask.getReadingTypeDataSelector().get().getEndDeviceGroup().getId()).isEqualTo(endDeviceGroup.getId());
+        assertThat(readingTypeDataExportTask.getReadingTypeDataSelector().get().getExportPeriod().getId()).isEqualTo(lastYear.getId());
+        assertThat(readingTypeDataExportTask.getReadingTypeDataSelector().get().getUpdatePeriod()).isPresent();
+        assertThat(readingTypeDataExportTask.getReadingTypeDataSelector().get().getUpdatePeriod().get().getId()).isEqualTo(oneYearBeforeLastYear.getId());
         assertThat(readingTypeDataExportTask.getLastRun()).isEmpty();
         assertThat(readingTypeDataExportTask.getNextExecution()).isEqualTo(NOW.truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant());
         assertThat(readingTypeDataExportTask.getOccurrences(/*Range.<Instant>all()*/)).isEmpty();
-        assertThat(readingTypeDataExportTask.getStrategy()).isNotNull();
-        assertThat(readingTypeDataExportTask.getStrategy().getValidatedDataOption()).isEqualTo(ValidatedDataOption.INCLUDE_ALL);
-        assertThat(readingTypeDataExportTask.getStrategy().isExportContinuousData()).isTrue();
-        assertThat(readingTypeDataExportTask.getStrategy().isExportUpdate()).isTrue();
-        assertThat(readingTypeDataExportTask.getReadingTypes()).containsExactly(readingType);
+        assertThat(readingTypeDataExportTask.getReadingTypeDataSelector().get().getStrategy()).isNotNull();
+        assertThat(readingTypeDataExportTask.getReadingTypeDataSelector().get().getStrategy().getValidatedDataOption()).isEqualTo(ValidatedDataOption.INCLUDE_ALL);
+        assertThat(readingTypeDataExportTask.getReadingTypeDataSelector().get().getStrategy().isExportContinuousData()).isTrue();
+        assertThat(readingTypeDataExportTask.getReadingTypeDataSelector().get().getStrategy().isExportUpdate()).isTrue();
+        assertThat(readingTypeDataExportTask.getReadingTypeDataSelector().get().getReadingTypes()).containsExactly(readingType);
         assertThat(readingTypeDataExportTask.getProperties()).hasSize(1).contains(entry("propy", BigDecimal.valueOf(100, 0)));
     }
 
@@ -270,7 +270,7 @@ public class ReadingTypeDataExportTaskImplIT {
                 NOW.plusSeconds(8).toInstant()
         );
 
-        ReadingTypeDataExportTask exportTask = createAndSaveTask();
+        ExportTask exportTask = createAndSaveTask();
 
         exportTask.setName("NEWNAME");
         BigDecimal value1 = new BigDecimal("101");
@@ -313,7 +313,7 @@ public class ReadingTypeDataExportTaskImplIT {
             assertThat(ex.getConstraintViolations()).hasSize(1);
             assertThat(ex.getConstraintViolations().iterator().next().getPropertyPath().iterator().next().getName()).isEqualTo("name");
         }
-        ReadingTypeDataExportTask task = createAndSaveTask("NAME2");
+        ExportTask task = createAndSaveTask("NAME2");
         task.setName(NAME);
         try (TransactionContext context = transactionService.getContext()) {
             task.save();
@@ -327,25 +327,25 @@ public class ReadingTypeDataExportTaskImplIT {
     @Test
     public void testUpdate() {
 
-        ReadingTypeDataExportTask exportTask = createAndSaveTask();
+        ExportTask exportTask = createAndSaveTask();
 
-        Optional<? extends ReadingTypeDataExportTask> found = dataExportService.findExportTask(exportTask.getId());
+        Optional<? extends ExportTask> found = dataExportService.findExportTask(exportTask.getId());
 
         assertThat(found).isPresent();
 
         Instant instant = ZonedDateTime.of(2019, 4, 18, 2, 47, 14, 124000000, ZoneId.of("UTC")).toInstant();
 
         try (TransactionContext context = transactionService.getContext()) {
-            ReadingTypeDataExportTask readingTypeDataExportTask = found.get();
+            ExportTask readingTypeDataExportTask = found.get();
             readingTypeDataExportTask.setNextExecution(instant);
             readingTypeDataExportTask.setScheduleExpression(Never.NEVER);
-            readingTypeDataExportTask.setExportPeriod(oneYearBeforeLastYear);
-            readingTypeDataExportTask.setUpdatePeriod(null);
-            readingTypeDataExportTask.setEndDeviceGroup(anotherEndDeviceGroup);
+            readingTypeDataExportTask.getReadingTypeDataSelector().get().setExportPeriod(oneYearBeforeLastYear);
+            readingTypeDataExportTask.getReadingTypeDataSelector().get().setUpdatePeriod(null);
+            readingTypeDataExportTask.getReadingTypeDataSelector().get().setEndDeviceGroup(anotherEndDeviceGroup);
             readingTypeDataExportTask.setProperty("propy", BigDecimal.valueOf(20000, 2));
             readingTypeDataExportTask.setName("New name!");
-            readingTypeDataExportTask.addReadingType(anotherReadingType);
-            readingTypeDataExportTask.removeReadingType(readingType);
+            readingTypeDataExportTask.getReadingTypeDataSelector().get().addReadingType(anotherReadingType);
+            readingTypeDataExportTask.getReadingTypeDataSelector().get().removeReadingType(readingType);
             readingTypeDataExportTask.save();
             context.commit();
         }
@@ -356,20 +356,20 @@ public class ReadingTypeDataExportTaskImplIT {
 
         assertThat(found.get().getNextExecution()).isEqualTo(instant);
         assertThat(found.get().getScheduleExpression()).isEqualTo(Never.NEVER);
-        assertThat(found.get().getExportPeriod().getId()).isEqualTo(oneYearBeforeLastYear.getId());
-        assertThat(found.get().getUpdatePeriod()).isEmpty();
-        assertThat(found.get().getEndDeviceGroup().getId()).isEqualTo(anotherEndDeviceGroup.getId());
+        assertThat(found.get().getReadingTypeDataSelector().get().getExportPeriod().getId()).isEqualTo(oneYearBeforeLastYear.getId());
+        assertThat(found.get().getReadingTypeDataSelector().get().getUpdatePeriod()).isEmpty();
+        assertThat(found.get().getReadingTypeDataSelector().get().getEndDeviceGroup().getId()).isEqualTo(anotherEndDeviceGroup.getId());
         assertThat(found.get().getProperties().get("propy")).isEqualTo(BigDecimal.valueOf(20000, 2));
-        assertThat(found.get().getReadingTypes()).containsExactly(anotherReadingType);
+        assertThat(found.get().getReadingTypeDataSelector().get().getReadingTypes()).containsExactly(anotherReadingType);
         assertThat(found.get().getName()).isEqualTo("New name!");
     }
 
-    private ReadingTypeDataExportTask createAndSaveTask() {
+    private ExportTask createAndSaveTask() {
         return createAndSaveTask(NAME);
     }
 
-    private ReadingTypeDataExportTask createAndSaveTask(String name) {
-        ReadingTypeDataExportTask exportTask = null;
+    private ExportTask createAndSaveTask(String name) {
+        ExportTask exportTask = null;
         try (TransactionContext context = transactionService.getContext()) {
             exportTask = createExportTask(lastYear, oneYearBeforeLastYear, endDeviceGroup, name);
 
@@ -380,33 +380,35 @@ public class ReadingTypeDataExportTaskImplIT {
     }
 
 
-    private ReadingTypeDataExportTask createExportTask(RelativePeriod lastYear, RelativePeriod oneYearBeforeLastYear, EndDeviceGroup endDeviceGroup) {
+    private ExportTask createExportTask(RelativePeriod lastYear, RelativePeriod oneYearBeforeLastYear, EndDeviceGroup endDeviceGroup) {
         return createExportTask(lastYear, oneYearBeforeLastYear, endDeviceGroup, NAME);
     }
 
-    private ReadingTypeDataExportTask createExportTask(RelativePeriod lastYear, RelativePeriod oneYearBeforeLastYear, EndDeviceGroup endDeviceGroup, String name) {
+    private ExportTask createExportTask(RelativePeriod lastYear, RelativePeriod oneYearBeforeLastYear, EndDeviceGroup endDeviceGroup, String name) {
         return dataExportService.newBuilder()
-                .setExportPeriod(lastYear)
                 .scheduleImmediately()
                 .setDataProcessorName(FORMATTER)
                 .setName(name)
-                .setEndDeviceGroup(endDeviceGroup)
-                .addReadingType(readingType)
                 .setScheduleExpression(new TemporalExpression(TimeDuration.TimeUnit.DAYS.during(1), TimeDuration.TimeUnit.HOURS.during(0)))
-                .setUpdatePeriod(oneYearBeforeLastYear)
-                .setValidatedDataOption(ValidatedDataOption.INCLUDE_ALL)
-                .addProperty("propy").withValue(BigDecimal.valueOf(100, 0))
+                .selectingStandard()
+                .fromExportPeriod(lastYear)
+                .fromEndDeviceGroup(endDeviceGroup)
+                .fromReadingType(readingType)
+                .fromUpdatePeriod(oneYearBeforeLastYear)
+                .withValidatedDataOption(ValidatedDataOption.INCLUDE_ALL)
                 .exportUpdate(true)
-                .exportContinuousData(true)
+                .continuousData(true)
+                .endSelection()
+                .addProperty("propy").withValue(BigDecimal.valueOf(100, 0))
                 .build();
     }
 
     @Test
     public void testCreateOccurrence() throws Exception {
-        ReadingTypeDataExportTask exportTask = createAndSaveTask();
+        ExportTask exportTask = createAndSaveTask();
 
-        Optional<? extends ReadingTypeDataExportTask> found = dataExportService.findExportTask(exportTask.getId());
-        ReadingTypeExportTaskImpl task = (ReadingTypeExportTaskImpl) found.get();
+        Optional<? extends ExportTask> found = dataExportService.findExportTask(exportTask.getId());
+        ExportTaskImpl task = (ExportTaskImpl) found.get();
 
         RecurrentTask recurrentTask = task.getRecurrentTask();
         try (TransactionContext context = transactionService.getContext()) {
@@ -426,21 +428,21 @@ public class ReadingTypeDataExportTaskImplIT {
     public void testReadingTypeDataExportItemPersistence() throws Exception {
         Meter meter = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).orElseThrow(IllegalArgumentException::new).newMeter("test");
 
-        ReadingTypeExportTaskImpl task = createDataExportTask();
+        ExportTaskImpl task = createDataExportTask();
         try (TransactionContext context = transactionService.getContext()) {
             meter.save();
-            task.addExportItem(meter, readingType);
+            task.getReadingTypeDataSelector().get().addExportItem(meter, readingType);
             task.save();
             context.commit();
         }
 
-        ReadingTypeDataExportTask retrievedTask = dataExportService.findExportTask(task.getId()).orElseThrow(Exception::new);
-        List<? extends ReadingTypeDataExportItem> readingTypeDataExportItems = retrievedTask.getExportItems();
+        ExportTask retrievedTask = dataExportService.findExportTask(task.getId()).orElseThrow(Exception::new);
+        List<? extends ReadingTypeDataExportItem> readingTypeDataExportItems = retrievedTask.getReadingTypeDataSelector().get().getExportItems();
         assertThat(readingTypeDataExportItems).hasSize(1);
         ReadingTypeDataExportItem exportItem = readingTypeDataExportItems.get(0);
         assertThat(exportItem.getReadingContainer()).isNotNull();
         assertThat(exportItem.getReadingContainer()).isEqualTo(meter);
-        assertThat(exportItem.getTask().getId()).isEqualTo(task.getId());
+        assertThat(exportItem.getSelector().getId()).isEqualTo(task.getId());
         assertThat(exportItem.getReadingType()).isEqualTo(readingType);
         assertThat(exportItem.getLastRun()).isEmpty();
         assertThat(exportItem.getLastExportedDate()).isEmpty();
@@ -451,17 +453,17 @@ public class ReadingTypeDataExportTaskImplIT {
     public void testReadingTypeDataExportItemInactivePersistence() throws Exception {
         Meter meter = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).orElseThrow(IllegalArgumentException::new).newMeter("test");
 
-        ReadingTypeExportTaskImpl task = createDataExportTask();
+        ExportTaskImpl task = createDataExportTask();
         try (TransactionContext context = transactionService.getContext()) {
             meter.save();
-            IReadingTypeDataExportItem item = task.addExportItem(meter, readingType);
+            IReadingTypeDataExportItem item = (IReadingTypeDataExportItem) task.getReadingTypeDataSelector().get().addExportItem(meter, readingType);
             item.deactivate();
             task.save();
             context.commit();
         }
 
-        ReadingTypeDataExportTask retrievedTask = dataExportService.findExportTask(task.getId()).orElseThrow(Exception::new);
-        List<? extends ReadingTypeDataExportItem> readingTypeDataExportItems = retrievedTask.getExportItems();
+        ExportTask retrievedTask = dataExportService.findExportTask(task.getId()).orElseThrow(Exception::new);
+        List<? extends ReadingTypeDataExportItem> readingTypeDataExportItems = retrievedTask.getReadingTypeDataSelector().get().getExportItems();
         assertThat(readingTypeDataExportItems).hasSize(1);
         ReadingTypeDataExportItem exportItem = readingTypeDataExportItems.get(0);
         assertThat(exportItem.isActive()).isFalse();
@@ -470,10 +472,10 @@ public class ReadingTypeDataExportTaskImplIT {
     @Test
     @Ignore // generated query does not work on H2 DB : Karel will look into it
     public void testGetLastOccurrence() throws Exception {
-        ReadingTypeDataExportTask exportTask = createAndSaveTask();
+        ExportTask exportTask = createAndSaveTask();
 
-        Optional<? extends ReadingTypeDataExportTask> found = dataExportService.findExportTask(exportTask.getId());
-        ReadingTypeExportTaskImpl task = (ReadingTypeExportTaskImpl) found.get();
+        Optional<? extends ExportTask> found = dataExportService.findExportTask(exportTask.getId());
+        ExportTaskImpl task = (ExportTaskImpl) found.get();
 
         RecurrentTask recurrentTask = task.getRecurrentTask();
         IDataExportOccurrence dataExportOccurrence = null;
@@ -493,10 +495,10 @@ public class ReadingTypeDataExportTaskImplIT {
     }
 
 
-    private ReadingTypeExportTaskImpl createDataExportTask() {
-        ReadingTypeExportTaskImpl exportTask;
+    private ExportTaskImpl createDataExportTask() {
+        ExportTaskImpl exportTask;
         try (TransactionContext context = transactionService.getContext()) {
-            exportTask = (ReadingTypeExportTaskImpl) createExportTask(lastYear, oneYearBeforeLastYear, endDeviceGroup);
+            exportTask = (ExportTaskImpl) createExportTask(lastYear, oneYearBeforeLastYear, endDeviceGroup);
             context.commit();
         }
         return exportTask;

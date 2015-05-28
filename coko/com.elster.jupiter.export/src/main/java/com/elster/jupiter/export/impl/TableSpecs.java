@@ -2,6 +2,7 @@ package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportProperty;
+import com.elster.jupiter.export.ReadingTypeDataSelector;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.orm.Column;
@@ -13,66 +14,89 @@ import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.time.TimeService;
 
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INSTANT;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 import static com.elster.jupiter.orm.Table.DESCRIPTION_LENGTH;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 
 enum TableSpecs {
 
-    DES_RTDATAEXPORTTASK(IExportTask.class) {
+    DES_RTDATASELECTOR(ReadingTypeDataSelector.class) {
         @Override
         void describeTable(Table table) {
-            table.map(ReadingTypeExportTaskImpl.class);
-            table.setJournalTableName("DES_RTDATAEXPORTTASKJRNL");
+            table.map(ReadingTypeDataSelectorImpl.class);
+            table.setJournalTableName("DES_RTDATASELECTORJRNL");
             Column idColumn = table.addAutoIdColumn();
-            table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
-            table.column("dataProcessor").varChar(NAME_LENGTH).notNull().map("dataProcessor").add();
             Column exportPeriod = table.column("EXPORT_PERIOD").number().notNull().add();
             Column updatePeriod = table.column("UPDATE_PERIOD").number().add();
-            Column recurrentTaskId = table.column("RECURRENTTASK").number().notNull().conversion(ColumnConversion.NUMBER2LONG).add();
             Column endDeviceGroupId = table.column("ENDDEVICEGROUP").number().notNull().conversion(ColumnConversion.NUMBER2LONG).add();
             table.column("EXPORT_UPDATE").bool().map("exportUpdate").add();
             table.column("EXPORT_CONTINUOUS_DATA").bool().map("exportContinuousData").add();
             table.column("VALIDATED_DATA_OPTION").number().conversion(ColumnConversion.NUMBER2ENUM).map("validatedDataOption").add();
 
-            table.column("LASTRUN").number().conversion(NUMBER2INSTANT).map("lastRun").add();
             table.addAuditColumns();
 
-            table.foreignKey("DES_FK_RTET_EXPORTPERIOD")
+            table.foreignKey("DES_FK_RTDS_EXPORTPERIOD")
                     .on(exportPeriod)
                     .references(TimeService.COMPONENT_NAME, "TME_RELATIVEPERIOD")
                     .map("exportPeriod")
                     .add();
-            table.foreignKey("DES_FK_RTET_UPDATEPERIOD")
+            table.foreignKey("DES_FK_RTDS_UPDATEPERIOD")
                     .on(updatePeriod)
                     .references(TimeService.COMPONENT_NAME, "TME_RELATIVEPERIOD")
                     .map("updatePeriod")
                     .add();
+            table.foreignKey("DES_FK_RTDS_ENDDEVICEFROUP")
+                    .on(endDeviceGroupId)
+                    .references(MeteringGroupsService.COMPONENTNAME, "MTG_ED_GROUP")
+                    .map("endDeviceGroup")
+                    .add();
+            table.primaryKey("DES_PK_RTDATASELECTOR").on(idColumn).add();
+        }
+
+    },
+    DES_DATAEXPORTTASK(IExportTask.class) {
+        @Override
+        void describeTable(Table table) {
+            table.map(ExportTaskImpl.class);
+            table.setJournalTableName("DES_DATAEXPORTTASKJRNL");
+            Column idColumn = table.addAutoIdColumn();
+            table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
+            table.column("dataProcessor").varChar(NAME_LENGTH).notNull().map("dataProcessor").add();
+            table.column("dataSelector").varChar(NAME_LENGTH).notNull().map("dataProcessor").add();
+            Column recurrentTaskId = table.column("RECURRENTTASK").number().notNull().conversion(ColumnConversion.NUMBER2LONG).add();
+            Column dataSelectorColumn = table.column("RTDATASELECTOR").number().conversion(NUMBER2LONG).add();
+
+            table.column("LASTRUN").number().conversion(NUMBER2INSTANT).map("lastRun").add();
+            table.addAuditColumns();
+
             table.foreignKey("DES_FK_RTET_RECURRENTTASK")
                     .on(recurrentTaskId)
                     .references(TaskService.COMPONENTNAME, "TSK_RECURRENT_TASK")
                     .map("recurrentTask")
                     .add();
-            table.foreignKey("DES_FK_RTET_ENDDEVICEFROUP")
-                    .on(endDeviceGroupId)
-                    .references(MeteringGroupsService.COMPONENTNAME, "MTG_ED_GROUP")
-                    .map("endDeviceGroup")
+            table.foreignKey("DES_FK_ET_RTDATASELECTOR")
+                    .on(dataSelectorColumn)
+                    .references("DES_RTDATASELECTOR")
+                    .reverseMap("exportTask")
+                    .map("readingTypeDataSelector")
+                    .composition()
                     .add();
-            table.primaryKey("DES_PK_RTDATAEXPORTTASK").on(idColumn).add();
+            table.primaryKey("DES_PK_DATAEXPORTTASK").on(idColumn).add();
         }
 
     },
-    DES_READINGTYPE_IN_TASK(ReadingTypeInExportTask.class) {
+    DES_READINGTYPE_IN_SELECTOR(ReadingTypeInDataSelector.class) {
         @Override
         void describeTable(Table table) {
-            table.map(ReadingTypeInExportTask.class);
+            table.map(ReadingTypeInDataSelector.class);
             table.setJournalTableName("DES_READINGTYPE_IN_TASKJRNL");
-            Column exportTask = table.column("RTEXPORTTASK").number().notNull().add();
+            Column dataSelector = table.column("RTDATASELECTOR").number().notNull().add();
             Column readingType = table.column("READINGTYPE").varChar(Table.NAME_LENGTH).notNull().map("readingTypeMRID").add();
             table.addAuditColumns();
 
-            table.primaryKey("DES_PK_RT_RTEXPORTTASK").on(exportTask, readingType).add();
-            table.foreignKey("DES_FK_RTINET_RTEXPORTTASK").on(exportTask).references(DES_RTDATAEXPORTTASK.name())
-                    .map("readingTypeDataExportTask").reverseMap("readingTypes").composition().add();
+            table.primaryKey("DES_PK_RT_RTDATASELECTOR").on(dataSelector, readingType).add();
+            table.foreignKey("DES_FK_RTINDS_RTSELECTOR").on(dataSelector).references(DES_RTDATASELECTOR.name())
+                    .map("readingTypeDataSelector").reverseMap("readingTypes").composition().add();
             table.foreignKey("DES_FK_RTINET_READINGTYPE").on(readingType).references(MeteringService.COMPONENTNAME, "MTR_READINGTYPE").onDelete(DeleteRule.RESTRICT)
                     .map("readingType").add();
         }
@@ -88,7 +112,7 @@ enum TableSpecs {
             table.addAuditColumns();
 
             table.primaryKey("DES_PK_RTETPROPERTY").on(taskColumn, nameColumn).add();
-            table.foreignKey("DES_FK_PRPINET_RTEXPORTTASK").on(taskColumn).references(DES_RTDATAEXPORTTASK.name())
+            table.foreignKey("DES_FK_PRPINET_RTEXPORTTASK").on(taskColumn).references(DES_DATAEXPORTTASK.name())
                     .map("task").reverseMap("properties").composition().add();
         }
     },
@@ -106,9 +130,8 @@ enum TableSpecs {
             table.primaryKey("DES_PK_EXPOCC").on(taskOccurrence).add();
             table.foreignKey("DES_FK_EXPOCC_TSKOCC").on(taskOccurrence).references(TaskService.COMPONENTNAME, "TSK_TASK_OCCURRENCE")
                     .map("taskOccurrence").refPartition().add();
-            table.foreignKey("DES_FK_EXPOCC_RTEXPORTTASK").on(task).references(DES_RTDATAEXPORTTASK.name())
+            table.foreignKey("DES_FK_EXPOCC_RTEXPORTTASK").on(task).references(DES_DATAEXPORTTASK.name())
                     .map("readingTask").add();
-
         }
     },
     DES_RTDATAEXPORTITEM(IReadingTypeDataExportItem.class) {
@@ -118,15 +141,15 @@ enum TableSpecs {
 
             Column idColumn = table.addAutoIdColumn();
             table.addRefAnyColumns("READINGCONT", true, "readingContainer");
-            Column task = table.column("TASK").number().notNull().add();
+            Column selector = table.column("SELECTOR").number().notNull().add();
             table.column("LASTRUN").number().conversion(ColumnConversion.NUMBER2INSTANT).map("lastRun").add();
             table.column("LASTEXPORTED").number().conversion(ColumnConversion.NUMBER2INSTANT).map("lastExportedDate").add();
             table.column("READINGTYPEMRID").varChar(NAME_LENGTH).notNull().map("readingTypeMRId").add();
             table.column("ACTIVE").bool().notNull().map("active").add();
 
             table.primaryKey("DES_PK_RTEXPITEM").on(idColumn).add();
-            table.foreignKey("DES_FK_RTEXPITEM_TASK").on(task).references(DES_RTDATAEXPORTTASK.name())
-                    .map("task").reverseMap("exportItems").composition().add();
+            table.foreignKey("DES_FK_RTEXPITEM_SELECTOR").on(selector).references(DES_RTDATASELECTOR.name())
+                    .map("selector").reverseMap("exportItems").composition().add();
         }
     },
     DES_DIR4APPSERVER(DirectoryForAppServer.class) {

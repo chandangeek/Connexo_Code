@@ -3,16 +3,17 @@ package com.elster.jupiter.export.impl;
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.export.DataExportService;
-import com.elster.jupiter.export.ReadingTypeDataExportTask;
+import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.EndDeviceGroupEventData;
 import com.elster.jupiter.metering.groups.EventType;
-import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.streams.Functions;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+
 import javax.inject.Inject;
 import java.util.List;
 
@@ -52,12 +53,15 @@ public class EndDeviceGroupDeletionVetoEventHandler implements TopicHandler {
     public void handle(LocalEvent localEvent) {
         EndDeviceGroupEventData eventSource = (EndDeviceGroupEventData) localEvent.getSource();
         EndDeviceGroup endDeviceGroup = eventSource.getEndDeviceGroup();
-        List<? extends ReadingTypeDataExportTask> tasks = dataExportService.findReadingTypeDataExportTasks();
-        for (ReadingTypeDataExportTask task : tasks) {
-            if (task.getEndDeviceGroup().getId() == endDeviceGroup.getId()) {
-                throw new VetoDeleteDeviceGroupException(thesaurus, endDeviceGroup);
-            }
-        }
+        List<? extends ExportTask> tasks = dataExportService.findReadingTypeDataExportTasks();
+        tasks.stream()
+                .map(ExportTask::getReadingTypeDataSelector)
+                .flatMap(Functions.asStream())
+                .filter(selector -> selector.getEndDeviceGroup().getId() == endDeviceGroup.getId())
+                .findAny()
+                .ifPresent(readingTypeDataSelector -> {
+                    throw new VetoDeleteDeviceGroupException(thesaurus, endDeviceGroup);
+                });
     }
 
     @Override

@@ -10,8 +10,10 @@ import com.elster.jupiter.export.DataExportStrategy;
 import com.elster.jupiter.export.DataProcessor;
 import com.elster.jupiter.export.DataProcessorFactory;
 import com.elster.jupiter.export.FatalDataExportException;
+import com.elster.jupiter.export.ReadingTypeDataSelector;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingContainer;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
@@ -85,7 +87,7 @@ public class DataExportTaskExecutorTest {
     @Mock
     private IDataExportOccurrence dataExportOccurrence;
     @Mock
-    private IReadingTypeExportTask task;
+    private IExportTask task;
     @Mock
     private EndDeviceGroup group;
     @Mock
@@ -114,6 +116,10 @@ public class DataExportTaskExecutorTest {
     private ReadingContainer readingContainer;
     @Mock
     private PropertySpec propertySpec;
+    @Mock
+    private ReadingTypeDataSelector readingTypeDataSelector;
+    @Mock
+    private MeteringService meteringService;
 
     public static final Predicate<IntervalReading> READING_1 = r -> r.getSource().equals("reading1");
     public static final Predicate<IntervalReading> READING_2 = r -> r.getSource().equals("reading2");
@@ -129,22 +135,23 @@ public class DataExportTaskExecutorTest {
 
         transactionService = new TransactionVerifier(dataProcessor, newItem, existingItem);
 
+        when(task.getReadingTypeDataSelector()).thenReturn(Optional.of(readingTypeDataSelector));
         when(occurrence.createTaskLogHandler()).thenReturn(taskLogHandler);
         when(taskLogHandler.asHandler()).thenReturn(logRecorder);
         when(dataExportService.createExportOccurrence(occurrence)).thenReturn(dataExportOccurrence);
         when(dataExportService.findDataExportOccurrence(occurrence)).thenReturn(Optional.of(dataExportOccurrence));
         when(dataExportService.getDataProcessorFactory("CSV")).thenReturn(Optional.of(dataProcessorFactory));
-        when(dataExportService.getDataSelectorFactory(DataExportService.STANDARD_DATA_SELECTOR)).thenReturn(Optional.of(new StandardDataSelectorFactory(transactionService, thesaurus)));
+        when(dataExportService.getDataSelectorFactory(DataExportService.STANDARD_DATA_SELECTOR)).thenReturn(Optional.of(new StandardDataSelectorFactory(transactionService, meteringService, thesaurus)));
         when(dataExportOccurrence.getTask()).thenReturn(task);
         when(dataExportOccurrence.getExportedDataInterval()).thenReturn(exportPeriod);
         when(dataExportOccurrence.getTriggerTime()).thenReturn(triggerTime.toInstant());
-        when(task.getEndDeviceGroup()).thenReturn(group);
-        when(task.getReadingTypes()).thenReturn(ImmutableSet.of(readingType1));
-        when(task.addExportItem(meter1, readingType1)).thenReturn(newItem);
+        when(readingTypeDataSelector.getEndDeviceGroup()).thenReturn(group);
+        when(readingTypeDataSelector.getReadingTypes()).thenReturn(ImmutableSet.of(readingType1));
+        when(readingTypeDataSelector.addExportItem(meter1, readingType1)).thenReturn(newItem);
         when(task.getDataFormatter()).thenReturn("CSV");
         when(task.getDataSelector()).thenReturn(DataExportService.STANDARD_DATA_SELECTOR);
         when(task.getDataExportProperties()).thenReturn(Arrays.asList(dataExportProperty));
-        when(task.getStrategy()).thenReturn(strategy);
+        when(readingTypeDataSelector.getStrategy()).thenReturn(strategy);
         when(dataExportProperty.getName()).thenReturn("name");
         when(dataExportProperty.getValue()).thenReturn("CSV");
         when(meter1.is(meter1)).thenReturn(true);
@@ -153,7 +160,7 @@ public class DataExportTaskExecutorTest {
         when(meter1.getMeter(any())).thenReturn(Optional.of(meter1));
         when(meter2.getMeter(any())).thenReturn(Optional.of(meter2));
         when(meter3.getMeter(any())).thenReturn(Optional.of(meter3));
-        doReturn(Arrays.asList(existingItem, obsoleteItem)).when(task).getExportItems();
+        doReturn(Arrays.asList(existingItem, obsoleteItem)).when(readingTypeDataSelector).getExportItems();
         when(existingItem.getReadingType()).thenReturn(readingType1);
         when(existingItem.getReadingContainer()).thenReturn(meter2);
         when(meter2.getMeter(any())).thenReturn(Optional.of(meter2));

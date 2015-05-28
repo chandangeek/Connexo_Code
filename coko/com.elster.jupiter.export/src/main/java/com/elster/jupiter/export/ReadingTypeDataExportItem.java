@@ -6,13 +6,8 @@ import com.elster.jupiter.metering.ReadingType;
 import java.time.Instant;
 import java.util.Optional;
 
-/**
- * Copyrights EnergyICT
- * Date: 5/11/2014
- * Time: 13:49
- */
 public interface ReadingTypeDataExportItem {
-    ReadingTypeDataExportTask getTask();
+    ReadingTypeDataSelector getSelector();
 
     ReadingContainer getReadingContainer();
 

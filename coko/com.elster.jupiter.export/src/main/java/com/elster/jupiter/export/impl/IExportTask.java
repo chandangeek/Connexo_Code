@@ -15,4 +15,6 @@ public interface IExportTask extends ExportTask, HasAuditInfo {
     void setScheduleImmediately(boolean scheduleImmediately);
 
     List<DataExportProperty> getDataExportProperties();
+
+    void setReadingTypeDataSelector(ReadingTypeDataSelectorImpl readingTypeDataSelector);
 }

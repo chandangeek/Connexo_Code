@@ -22,7 +22,6 @@ import java.util.Optional;
 
 import static com.elster.jupiter.export.impl.IntervalReadingImpl.intervalReading;
 import static com.elster.jupiter.export.impl.ReadingImpl.reading;
-import static com.elster.jupiter.util.Ranges.copy;
 
 enum DefaultItemDataSelector implements ItemDataSelector {
 
@@ -47,8 +46,9 @@ enum DefaultItemDataSelector implements ItemDataSelector {
     }
 
     private Range<Instant> determineExportInterval(DataExportOccurrence occurrence, ReadingTypeDataExportItem item) {
-        return item.getLastExportedDate()
-                .map(last -> occurrence.getTask().getStrategy().isExportContinuousData() ? copy(occurrence.getExportedDataInterval()).withOpenLowerBound(last) : occurrence.getExportedDataInterval())
+        return occurrence.getTask().getReadingTypeDataSelector()
+                .map(IReadingTypeDataSelector.class::cast)
+                .map(selector -> selector.adjustedExportPeriod(occurrence, item))
                 .orElse(occurrence.getExportedDataInterval());
     }
 

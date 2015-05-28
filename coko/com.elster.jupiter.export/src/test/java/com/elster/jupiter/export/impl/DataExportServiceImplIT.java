@@ -9,7 +9,7 @@ import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataProcessor;
 import com.elster.jupiter.export.DataProcessorFactory;
-import com.elster.jupiter.export.ReadingTypeDataExportTask;
+import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.export.ValidatedDataOption;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
@@ -228,20 +228,22 @@ public class DataExportServiceImplIT {
 
     @Test
     public void testCreateExportTaskWithoutReadingTypes() throws Exception {
-        ReadingTypeDataExportTask exportTask1 = null;
+        ExportTask exportTask1 = null;
         try (TransactionContext context = transactionService.getContext()) {
             exportTask1 = dataExportService.newBuilder()
-                    .setExportPeriod(lastYear)
                     .scheduleImmediately()
                     .setDataProcessorName(FORMATTER)
                     .setName(NAME)
-                    .setEndDeviceGroup(endDeviceGroup)
                     .setScheduleExpression(new TemporalExpression(TimeDuration.TimeUnit.DAYS.during(1), TimeDuration.TimeUnit.HOURS.during(0)))
-                    .setUpdatePeriod(oneYearBeforeLastYear)
-                    .setValidatedDataOption(ValidatedDataOption.INCLUDE_ALL)
                     .addProperty("propy").withValue(BigDecimal.valueOf(100, 0))
+                    .selectingStandard()
+                    .fromExportPeriod(lastYear)
+                    .fromEndDeviceGroup(endDeviceGroup)
+                    .fromUpdatePeriod(oneYearBeforeLastYear)
+                    .withValidatedDataOption(ValidatedDataOption.INCLUDE_ALL)
                     .exportUpdate(true)
-                    .exportContinuousData(true)
+                    .continuousData(true)
+                    .endSelection()
                     .build();
 
             exportTask1.save();
@@ -255,7 +257,7 @@ public class DataExportServiceImplIT {
     @Test
     public void testCreation() {
 
-        IReadingTypeExportTask exportTask = (IReadingTypeExportTask) createAndSaveTask();
+        IExportTask exportTask = (IExportTask) createAndSaveTask();
 
         TaskOccurrence occurrence;
 
@@ -277,37 +279,39 @@ public class DataExportServiceImplIT {
 
     }
 
-    private RecurrentTask extractOccurrence(IReadingTypeExportTask exportTask) {
+    private RecurrentTask extractOccurrence(IExportTask exportTask) {
         return (RecurrentTask) field("recurrentTask").ofType(Reference.class).in(exportTask).get().get();
     }
 
-    private ReadingTypeDataExportTask createExportTask(RelativePeriod lastYear, RelativePeriod oneYearBeforeLastYear, EndDeviceGroup endDeviceGroup) {
+    private ExportTask createExportTask(RelativePeriod lastYear, RelativePeriod oneYearBeforeLastYear, EndDeviceGroup endDeviceGroup) {
         return createExportTask(lastYear, oneYearBeforeLastYear, endDeviceGroup, NAME);
     }
 
-    private ReadingTypeDataExportTask createExportTask(RelativePeriod lastYear, RelativePeriod oneYearBeforeLastYear, EndDeviceGroup endDeviceGroup, String name) {
+    private ExportTask createExportTask(RelativePeriod lastYear, RelativePeriod oneYearBeforeLastYear, EndDeviceGroup endDeviceGroup, String name) {
         return dataExportService.newBuilder()
-                .setExportPeriod(lastYear)
                 .scheduleImmediately()
                 .setDataProcessorName(FORMATTER)
-                .setName(name)
-                .setEndDeviceGroup(endDeviceGroup)
-                .addReadingType(readingType)
                 .setScheduleExpression(new TemporalExpression(TimeDuration.TimeUnit.DAYS.during(1), TimeDuration.TimeUnit.HOURS.during(0)))
-                .setUpdatePeriod(oneYearBeforeLastYear)
-                .setValidatedDataOption(ValidatedDataOption.INCLUDE_ALL)
+                .setName(name)
                 .addProperty("propy").withValue(BigDecimal.valueOf(100, 0))
+                .selectingStandard()
+                .fromExportPeriod(lastYear)
+                .fromEndDeviceGroup(endDeviceGroup)
+                .fromReadingType(readingType)
+                .fromUpdatePeriod(oneYearBeforeLastYear)
+                .withValidatedDataOption(ValidatedDataOption.INCLUDE_ALL)
                 .exportUpdate(true)
-                .exportContinuousData(true)
+                .continuousData(true)
+                .endSelection()
                 .build();
     }
 
-    private ReadingTypeDataExportTask createAndSaveTask() {
+    private ExportTask createAndSaveTask() {
         return createAndSaveTask(NAME);
     }
 
-    private ReadingTypeDataExportTask createAndSaveTask(String name) {
-        ReadingTypeDataExportTask exportTask = null;
+    private ExportTask createAndSaveTask(String name) {
+        ExportTask exportTask = null;
         try (TransactionContext context = transactionService.getContext()) {
             exportTask = createExportTask(lastYear, oneYearBeforeLastYear, endDeviceGroup, name);
 
@@ -317,10 +321,10 @@ public class DataExportServiceImplIT {
         return exportTask;
     }
 
-    private ReadingTypeExportTaskImpl createDataExportTask() {
-        ReadingTypeExportTaskImpl exportTask;
+    private ExportTaskImpl createDataExportTask() {
+        ExportTaskImpl exportTask;
         try (TransactionContext context = transactionService.getContext()) {
-            exportTask = (ReadingTypeExportTaskImpl) createExportTask(lastYear, oneYearBeforeLastYear, endDeviceGroup);
+            exportTask = (ExportTaskImpl) createExportTask(lastYear, oneYearBeforeLastYear, endDeviceGroup);
             context.commit();
         }
         return exportTask;

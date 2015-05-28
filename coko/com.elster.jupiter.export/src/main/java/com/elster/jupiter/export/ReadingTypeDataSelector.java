@@ -1,7 +1,10 @@
 package com.elster.jupiter.export;
 
+import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.orm.HasAuditInfo;
+import com.elster.jupiter.orm.History;
 import com.elster.jupiter.time.RelativePeriod;
 
 import java.time.Instant;
@@ -9,7 +12,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-public interface ReadingTypeDataExportTask extends ExportTask {
+public interface ReadingTypeDataSelector extends DataSelector, HasAuditInfo {
+
+    long getId();
 
     RelativePeriod getExportPeriod();
 
@@ -37,4 +42,17 @@ public interface ReadingTypeDataExportTask extends ExportTask {
 
     Set<ReadingType> getReadingTypes(Instant at);
 
+    void setValidatedDataOption(ValidatedDataOption validatedDataOption);
+
+    void setExportUpdate(boolean exportUpdate);
+
+    void setExportContinuousData(boolean exportContinuousData);
+
+    void save();
+
+    ReadingTypeDataExportItem addExportItem(Meter meter, ReadingType readingType);
+
+    History<ReadingTypeDataSelector> getHistory();
+
+    ExportTask getExportTask();
 }

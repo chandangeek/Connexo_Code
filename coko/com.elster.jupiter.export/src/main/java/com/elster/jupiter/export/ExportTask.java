@@ -73,4 +73,8 @@ public interface ExportTask extends HasName, HasAuditInfo {
     Map<String, Object> getProperties(Instant at);
 
     Optional<ScheduleExpression> getScheduleExpression(Instant at);
+
+    Optional<ReadingTypeDataSelector> getReadingTypeDataSelector();
+
+    Optional<ReadingTypeDataSelector> getReadingTypeDataSelector(Instant at);
 }

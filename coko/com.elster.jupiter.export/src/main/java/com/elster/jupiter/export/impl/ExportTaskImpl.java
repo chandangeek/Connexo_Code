@@ -7,6 +7,7 @@ import com.elster.jupiter.export.DataExportOccurrenceFinder;
 import com.elster.jupiter.export.DataExportProperty;
 import com.elster.jupiter.export.DataExportStatus;
 import com.elster.jupiter.export.ExportTask;
+import com.elster.jupiter.export.ReadingTypeDataSelector;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.History;
@@ -24,6 +25,7 @@ import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.time.ScheduleExpression;
 import com.google.common.collect.ImmutableMap;
+import com.google.inject.Inject;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -38,11 +40,12 @@ import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
-public abstract class AbstractDataExportTask implements IExportTask {
+public class ExportTaskImpl implements IExportTask {
     private final TaskService taskService;
     private final DataModel dataModel;
     private final IDataExportService dataExportService;
     private final Thesaurus thesaurus;
+
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     @Size(min = 1, max = Table.NAME_LENGTH, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_NAME_LENGTH + "}")
     protected String name;
@@ -63,12 +66,18 @@ public abstract class AbstractDataExportTask implements IExportTask {
     private Instant createTime;
     private Instant modTime;
     private String userName;
+    private Reference<ReadingTypeDataSelector> readingTypeDataSelector = Reference.empty();
 
-    public AbstractDataExportTask(IDataExportService dataExportService, DataModel dataModel, TaskService taskService, Thesaurus thesaurus) {
+    @Inject
+    ExportTaskImpl(DataModel dataModel, IDataExportService dataExportService, TaskService taskService, Thesaurus thesaurus) {
         this.dataExportService = dataExportService;
         this.dataModel = dataModel;
         this.taskService = taskService;
         this.thesaurus = thesaurus;
+    }
+
+    static ExportTaskImpl from(DataModel dataModel, String name, String dataProcessor, String dataSelector, ScheduleExpression scheduleExpression, Instant nextExecution) {
+        return dataModel.getInstance(ExportTaskImpl.class).init(name, dataProcessor, dataSelector, scheduleExpression, nextExecution);
     }
 
     public long getId() {
@@ -148,7 +157,9 @@ public abstract class AbstractDataExportTask implements IExportTask {
         }
     }
 
-    abstract void clearChildrenForDelete();
+    void clearChildrenForDelete() {
+        // TODO
+    }
 
     public boolean canBeDeleted() {
         return !hasUnfinishedOccurrences();
@@ -319,25 +330,42 @@ public abstract class AbstractDataExportTask implements IExportTask {
     }
 
     public History<ExportTask> getHistory() {
-        List<JournalEntry<IReadingTypeExportTask>> journal = dataModel.mapper(IReadingTypeExportTask.class).getJournal(getId());
+        List<JournalEntry<IExportTask>> journal = dataModel.mapper(IExportTask.class).getJournal(getId());
         return new History<>(journal, this);
+    }
+
+    @Override
+    public Optional<ReadingTypeDataSelector> getReadingTypeDataSelector() {
+        return readingTypeDataSelector.getOptional();
+    }
+
+    @Override
+    public Optional<ReadingTypeDataSelector> getReadingTypeDataSelector(Instant at) {
+        return getReadingTypeDataSelector().flatMap(selector -> selector.getHistory().getVersionAt(at));
     }
 
     DataModel getDataModel() {
         return dataModel;
     }
 
-    void init(String name, String dataProcessor, String dataSelector, ScheduleExpression scheduleExpression, Instant nextExecution) {
+    private ExportTaskImpl init(String name, String dataProcessor, String dataSelector, ScheduleExpression scheduleExpression, Instant nextExecution) {
         setName(name);
         this.dataProcessor = dataProcessor;
         this.dataSelector = dataSelector;
         this.scheduleExpression = scheduleExpression;
         this.nextExecution = nextExecution;
+        return this;
+    }
+
+    @Override
+    public void setReadingTypeDataSelector(ReadingTypeDataSelectorImpl readingTypeDataSelector) {
+        this.readingTypeDataSelector.set(readingTypeDataSelector);
+
     }
 
     private class CannotDeleteWhileBusy extends CannotDeleteWhileBusyException {
         CannotDeleteWhileBusy() {
-            super(AbstractDataExportTask.this.thesaurus, MessageSeeds.CANNOT_DELETE_WHILE_RUNNING, AbstractDataExportTask.this);
+            super(ExportTaskImpl.this.thesaurus, MessageSeeds.CANNOT_DELETE_WHILE_RUNNING, ExportTaskImpl.this);
         }
     }
 }

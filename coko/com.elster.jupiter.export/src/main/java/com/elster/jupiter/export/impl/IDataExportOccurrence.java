@@ -10,7 +10,7 @@ interface IDataExportOccurrence extends DataExportOccurrence {
 
     void update();
 
-    IReadingTypeExportTask getTask();
+    IExportTask getTask();
 
     TaskOccurrence getTaskOccurrence();
 

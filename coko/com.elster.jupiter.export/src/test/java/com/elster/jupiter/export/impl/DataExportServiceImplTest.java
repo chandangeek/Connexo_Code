@@ -70,9 +70,9 @@ public class DataExportServiceImplTest {
     @Mock
     private BundleContext bundleContext;
     @Mock
-    private DataMapper<ReadingTypeDataExportTask> readingTypeDataExportTaskFactory;
+    private DataMapper<ExportTask> readingTypeDataExportTaskFactory;
     @Mock
-    private DataMapper<IReadingTypeExportTask> iReadingTypeDataExportTaskFactory;
+    private DataMapper<IExportTask> iReadingTypeDataExportTaskFactory;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private Table table;
     @Mock
@@ -92,9 +92,9 @@ public class DataExportServiceImplTest {
     @Mock
     private TransactionService transactionService;
     @Mock
-    private ReadingTypeDataExportTask exportTask;
+    private ExportTask exportTask;
     @Mock
-    private IReadingTypeExportTask iExportTask;
+    private IExportTask iExportTask;
     @Mock
     private RecurrentTask recurrentTask;
     @Mock
@@ -105,20 +105,22 @@ public class DataExportServiceImplTest {
     private RelativePeriod relativePeriod;
     @Mock
     private PropertySpec propertySpec1, propertySpec2, propertySpec3;
-
-
+    @Mock
+    private ReadingTypeDataSelector readingTypeDataSelector;
     @Mock
     private EndDeviceGroup endDeviceGroup;
+
     private static final Instant nextExecution = ZonedDateTime.of(2013, 9, 10, 14, 47, 24, 0, ZoneId.of("Europe/Paris")).toInstant();
     private static String NAME = "task";
     private static String DATA_PROCESSOR = "factory";
 
     @Before
     public void setUp() throws SQLException {
+        when(iExportTask.getReadingTypeDataSelector()).thenReturn(Optional.of(readingTypeDataSelector));
         when(ormService.newDataModel(anyString(), anyString())).thenReturn(dataModel);
         when(dataModel.addTable(anyString(), any())).thenReturn(table);
-        when(dataModel.<ReadingTypeDataExportTask>mapper(any())).thenReturn(readingTypeDataExportTaskFactory);
-        when(dataModel.<IReadingTypeExportTask>mapper(any())).thenReturn(iReadingTypeDataExportTaskFactory);
+        when(dataModel.<ExportTask>mapper(any())).thenReturn(readingTypeDataExportTaskFactory);
+        when(dataModel.<IExportTask>mapper(any())).thenReturn(iReadingTypeDataExportTaskFactory);
         when(transactionService.execute(any())).thenAnswer(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
@@ -142,14 +144,16 @@ public class DataExportServiceImplTest {
 
     @Test
     public void testNewBuilder() {
-        ReadingTypeExportTaskImpl readingTypeDataExportTaskImpl = new ReadingTypeExportTaskImpl(dataModel, taskService, dataExportService, meteringService, thesaurus);
-        when(dataModel.getInstance(ReadingTypeExportTaskImpl.class)).thenReturn(readingTypeDataExportTaskImpl);
-        DataExportTaskBuilderImpl dataExportTaskBuilder = new DataExportTaskBuilderImpl(dataModel);
-        dataExportTaskBuilder.setEndDeviceGroup(endDeviceGroup);
-        dataExportTaskBuilder.setNextExecution(nextExecution);
-        dataExportTaskBuilder.setExportPeriod(relativePeriod);
-        dataExportTaskBuilder.setName(NAME);
-        dataExportTaskBuilder.setDataProcessorName(DATA_PROCESSOR);
+        ExportTaskImpl readingTypeDataExportTaskImpl = new ExportTaskImpl(dataModel, dataExportService, taskService, thesaurus);
+        when(dataModel.getInstance(ExportTaskImpl.class)).thenReturn(readingTypeDataExportTaskImpl);
+        DataExportTaskBuilderImpl dataExportTaskBuilder = new DataExportTaskBuilderImpl(dataModel)
+                .setName(NAME)
+                .setDataProcessorName(DATA_PROCESSOR)
+                .setNextExecution(nextExecution)
+                .selectingStandard()
+                .fromEndDeviceGroup(endDeviceGroup)
+                .fromExportPeriod(relativePeriod)
+                .endSelection();
         assertThat(dataExportService.newBuilder()).isInstanceOf(DataExportTaskBuilder.class);
         assertThat(dataExportTaskBuilder.build()).isEqualTo(readingTypeDataExportTaskImpl);
         assertThat(readingTypeDataExportTaskImpl.getName()).isEqualTo(NAME);
@@ -163,7 +167,7 @@ public class DataExportServiceImplTest {
         DataExportOccurrenceImpl dataExportOccurrence1 = new DataExportOccurrenceImpl(dataModel, clock);
         when(dataModel.getInstance(DataExportOccurrenceImpl.class)).thenReturn(dataExportOccurrence1);
         when(taskOccurrence.getTriggerTime()).thenReturn(NOW);
-        when(iExportTask.getExportPeriod()).thenReturn(relativePeriod);
+        when(readingTypeDataSelector.getExportPeriod()).thenReturn(relativePeriod);
         when(relativePeriod.getInterval(any())).thenReturn(Range.openClosed(ZonedDateTime.ofInstant(NOW, ZoneId.of("Europe/Paris")), ZonedDateTime.ofInstant(NOW, ZoneId.of("Europe/Paris"))));
 
         assertThat(dataExportService.createExportOccurrence(taskOccurrence)).isEqualTo(dataExportOccurrence1);
@@ -180,7 +184,7 @@ public class DataExportServiceImplTest {
 
     @Test
     public void testGetExportTaskByIdNotFound() {
-        when(iReadingTypeDataExportTaskFactory.getOptional(ID)).thenReturn(Optional.<IReadingTypeExportTask>empty());
+        when(iReadingTypeDataExportTaskFactory.getOptional(ID)).thenReturn(Optional.<IExportTask>empty());
 
         assertThat(dataExportService.findExportTask(ID).isPresent()).isFalse();
     }
