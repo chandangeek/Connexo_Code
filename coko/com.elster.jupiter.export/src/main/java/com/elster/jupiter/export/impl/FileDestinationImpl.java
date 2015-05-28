@@ -54,4 +54,15 @@ public class FileDestinationImpl extends AbstractDataExportDestination implement
         fileUtils.createFile(data, fileName, fileExtension, fileLocation);
     }
 
+    public String getFileName() {
+        return fileName;
+    }
+
+    public String getFileExtension() {
+        return fileExtension;
+    }
+
+    public String getFileLocation() {
+        return fileLocation;
+    }
 }

@@ -97,6 +97,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>devtools.persistence</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.google.jimfs</groupId>
+            <artifactId>jimfs</artifactId>
+        </dependency>
 
     </dependencies>
 </project>
