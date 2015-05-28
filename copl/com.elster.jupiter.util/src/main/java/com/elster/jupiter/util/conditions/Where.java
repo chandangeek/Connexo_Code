@@ -73,7 +73,7 @@ public final class Where {
      * Supported wildcards are Astrix (*) and question mark(?), corresponding to the sql like operators % and _.
      * All known like operators will be escaped to avoid sql injection. Not sure that is enough for security.
      */
-    String toOracleSql(String value) {
+    public static String toOracleSql(String value) {
         // escape sql like operators
         for (String keyword: Arrays.asList("\\", "_", "%")) {
             value=value.replace(keyword,"\\"+keyword);
