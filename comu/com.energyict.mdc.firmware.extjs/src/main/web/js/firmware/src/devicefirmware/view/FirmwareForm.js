@@ -90,7 +90,7 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
                     margin: 0,
                     padding: 10,
                     cls: Uni.About.baseCssPrefix + 'panel-no-items-found',
-                    defaultErrorIcon: 'x-message-box-warning',
+                    defaultErrorIcon: 'icon-info',
                     hidden: true,
                     buttonAlign: 'left',
                     layout: {
@@ -111,7 +111,7 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
                     margin: 0,
                     padding: 10,
                     cls: Uni.About.baseCssPrefix + 'panel-no-items-found',
-                    defaultErrorIcon: 'x-message-box-warning',
+                    defaultErrorIcon: 'icon-info',
                     hidden: true,
                     layout: {
                         type: 'hbox',
