@@ -17,7 +17,8 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         'Mdc.store.ChannelOfLoadProfileOfDeviceData',
         'Mdc.store.DataIntervalAndZoomLevels',
         'Mdc.store.LoadProfileDataDurations',
-        'Mdc.store.Clipboard'
+        'Mdc.store.Clipboard',
+        'Mdc.store.ValidationBlocks'
     ],
 
     refs: [
@@ -80,23 +81,24 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
     showSpecifications: function (mRID, channelId) {
         var me = this,
             router = me.getController('Uni.controller.history.Router');
-        me.showOverview(mRID, channelId, 0, 'Mdc.store.ChannelsOfLoadProfilesOfDevice', me.makeLinkToChannels(router))
+        me.showOverview(mRID, channelId, 0, 'Mdc.store.ChannelsOfLoadProfilesOfDevice', me.makeLinkToChannels(router), 'channelId', 'arguments')
     },
 
     showData: function (mRID, channelId) {
         var me = this,
             router = me.getController('Uni.controller.history.Router');
-        me.showOverview(mRID, channelId, 1, 'Mdc.store.ChannelsOfLoadProfilesOfDevice', me.makeLinkToChannels(router))
+        me.showOverview(mRID, channelId, 1, 'Mdc.store.ChannelsOfLoadProfilesOfDevice', me.makeLinkToChannels(router), 'channelId', 'arguments')
     },
 
     showValidationData: function (mRID, channelId, issueId) {
         var me = this,
             router = me.getController('Uni.controller.history.Router');
         // todo Replace 'Mdc.store.ChannelsOfLoadProfilesOfDevice' with validation blocks store
-        me.showOverview(mRID, channelId, 1, 'Mdc.store.ChannelsOfLoadProfilesOfDevice', me.makeLinkToIssue(router, issueId))
+        me.getStore( 'Mdc.store.ValidationBlocks').load();
+        me.showOverview(mRID, channelId, 1, 'Mdc.store.ValidationBlocks', me.makeLinkToIssue(router, issueId), 'validationBlock', 'queryParams');
     },
 
-    showOverview: function (mRID, channelId, activeTab, prevNextstore, prevNextListLink) {
+    showOverview: function (mRID, channelId, activeTab, prevNextstore, prevNextListLink, routerIdArgument, indexLocation) {
         var me = this,
             device = me.getModel('Mdc.model.Device'),
             viewport = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
@@ -116,10 +118,11 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                             router: router,
                             channel: channel,
                             device: device,
+                            indexLocation: indexLocation,
                             prevNextListLink: prevNextListLink,
                             activeTab: activeTab,
                             prevNextstore: prevNextstore,
-                            routerIdArgument: 'channelId'
+                            routerIdArgument: routerIdArgument
                         });
                         widget.down('#channelTabPanel').setTitle(channel.get('name'));
                         me.getApplication().fireEvent('changecontentevent', widget);

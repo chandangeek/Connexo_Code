@@ -1406,9 +1406,9 @@ Ext.define('Mdc.controller.history.Setup', {
                                         return this;
                                     }
                                 },
-                                channelvalidationdata: {
+                                channelvalidationblocks: {
                                     title: Uni.I18n.translate('routing.channelData', 'MDC', 'Channel data'),
-                                    route: '{channelId}/validationdata/{issueId}/{validationBlockId}',
+                                    route: '{channelId}/validationblocks/{issueId}',
                                     controller: 'Mdc.controller.setup.DeviceChannelData',
                                     privileges: Mdc.privileges.Device.viewDeviceCommunication,
                                     action: 'showValidationData',

@@ -17,6 +17,7 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
     device: null,
     prevNextListLink: null,
     activeTab: null,
+    indexLocation: null,
 
     setFilterView: function (filter, durationsStore) {
         var me = this,
@@ -88,7 +89,8 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
                                 store: me.prevNextstore,
                                 router: me.router,
                                 routerIdArgument: me.routerIdArgument,
-                                itemsName: me.prevNextListLink
+                                itemsName: me.prevNextListLink,
+                                indexLocation: me.indexLocation
                             }
                         ]);
                     }
