@@ -1845,6 +1845,11 @@ public class DeviceImpl implements Device, CanLock {
     public long getVersion() {
         return version;
     }
+    
+    @Override
+    public Instant getCreateTime() {
+        return createTime;
+    }
 
     private class InternalDeviceMessageBuilder implements DeviceMessageBuilder{
 
