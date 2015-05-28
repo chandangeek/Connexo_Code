@@ -155,11 +155,11 @@ public class FileImportServiceImpl implements InstallService, FileImportService 
 
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
-    public void addResource(FileImporterFactory fileImporterFactory) {
+    public void addFileImporter(FileImporterFactory fileImporterFactory) {
         importerFactories.add(fileImporterFactory);
     }
 
-    public void removeResource(FileImporterFactory fileImporterFactory) {
+    public void removeFileImporter(FileImporterFactory fileImporterFactory) {
         importerFactories.remove(fileImporterFactory);
     }
 

@@ -15,8 +15,6 @@ public interface FileImporterFactory extends HasDynamicProperties, HasName {
 
     FileImporter createImporter(Map<String, Object> properties);
 
-    String getName();
-
     String getDisplayName();
 
     String getDisplayName(String property);
@@ -37,8 +35,6 @@ public interface FileImporterFactory extends HasDynamicProperties, HasName {
     String getDefaultFormat();
 
     String getPropertyDefaultFormat(String property);
-
-    List<Pair<? extends NlsKey, String>> getExtraTranslations();
 
     List<String> getRequiredProperties();
 

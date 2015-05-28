@@ -112,11 +112,6 @@ public abstract class FileImporterAbstractFactory  implements FileImporterFactor
         return null;
     }
 
-    @Override
-    public List<Pair<? extends NlsKey, String>> getExtraTranslations() {
-        return Collections.emptyList();
-    }
-
 
     public void setPropertySpecService(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
