@@ -1,10 +1,13 @@
 package com.elster.jupiter.export.impl;
 
+import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.export.DataExportDestination;
+import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.EmailDestination;
 import com.elster.jupiter.export.FileDestination;
 import com.elster.jupiter.export.ReadingTypeDataExportTask;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
@@ -20,17 +23,23 @@ import javax.inject.Inject;
 /**
  * Created by igh on 22/05/2015.
  */
-public class AbstractDataExportDestination implements DataExportDestination {
+public abstract class AbstractDataExportDestination implements DataExportDestination {
 
     static final Map<String, Class<? extends DataExportDestination>> IMPLEMENTERS = ImmutableMap.<String, Class<? extends DataExportDestination>>of(FileDestination.TYPE_IDENTIFIER, FileDestinationImpl.class, EmailDestination.TYPE_IDENTIFIER, EmailDestinationImpl.class);
 
     private long id;
     private Reference<ReadingTypeDataExportTask> task = ValueReference.absent();
     private final DataModel dataModel;
+    private final Thesaurus thesaurus;
+    private final DataExportService dataExportService;
+    private final AppService appService;
 
     @Inject
-    AbstractDataExportDestination(DataModel dataModel) {
+    AbstractDataExportDestination(DataModel dataModel, Thesaurus thesaurus, DataExportService dataExportService, AppService appService) {
         this.dataModel = dataModel;
+        this.thesaurus = thesaurus;
+        this.dataExportService = dataExportService;
+        this.appService = appService;
     }
 
 
@@ -75,4 +84,15 @@ public class AbstractDataExportDestination implements DataExportDestination {
         doUpdate();
     }
 
+    protected Thesaurus getThesaurus() {
+        return this.thesaurus;
+    }
+
+    protected AppService getAppService() {
+        return appService;
+    }
+
+    protected DataExportService getDataExportService() {
+        return dataExportService;
+    }
 }

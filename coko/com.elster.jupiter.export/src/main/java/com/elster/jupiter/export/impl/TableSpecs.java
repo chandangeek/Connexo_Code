@@ -157,6 +157,7 @@ enum TableSpecs {
             table.column("RECIPIENTS").varChar(Table.DESCRIPTION_LENGTH).notNull().map("recipients").add();
             table.column("SUBJECT").varChar(Table.NAME_LENGTH).notNull().map("subject").add();
             table.column("ATTACHMENTNAME").varChar(Table.NAME_LENGTH).notNull().map("attachmentName").add();
+            table.column("ATTACHMENTEXTENSION").varChar(Table.NAME_LENGTH).notNull().map("attachmentExtension").add();
 
             table.primaryKey("DES_PK_DESTINATION").on(idColumn).add();
 
