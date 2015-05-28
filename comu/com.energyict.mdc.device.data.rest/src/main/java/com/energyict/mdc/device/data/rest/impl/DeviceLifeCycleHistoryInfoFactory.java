@@ -29,17 +29,17 @@ public class DeviceLifeCycleHistoryInfoFactory {
 
     public DeviceLifeCycleChangeInfos createDeviceLifeCycleChangeInfos(Device device) {
         DeviceLifeCycleChangeInfos infos = new DeviceLifeCycleChangeInfos();
-        Optional<State> lastState = Optional.empty();
-        Optional<DeviceLifeCycle> lastDeviceLifeCycle = device.getDeviceType().getDeviceLifeCycle(device.getCreateTime());
+        Optional<State> previousState = Optional.empty();
+        Optional<DeviceLifeCycle> previousLifeCycle = device.getDeviceType().getDeviceLifeCycle(device.getCreateTime());
         for (DeviceLifeCycleChangeEvent event : device.getDeviceLifeCycleChangeEvents()) {
             switch (event.getType()) {
             case STATE:
-                infos.deviceLifeCycleChanges.add(createStateChangeInfo(event, lastState));
-                lastState = Optional.of(event.getState());
+                infos.deviceLifeCycleChanges.add(createStateChangeInfo(event, previousState));
+                previousState = Optional.of(event.getState());
                 break;
             case LIFE_CYCLE:
-                infos.deviceLifeCycleChanges.add(createDeviceLifeCycleChangeInfo(event, lastDeviceLifeCycle));
-                lastDeviceLifeCycle = Optional.of(event.getDeviceLifeCycle());
+                infos.deviceLifeCycleChanges.add(createDeviceLifeCycleChangeInfo(event, previousLifeCycle));
+                previousLifeCycle = Optional.of(event.getDeviceLifeCycle());
                 break;
             default:
                 break;
