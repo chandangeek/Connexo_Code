@@ -1,6 +1,6 @@
 package com.elster.jupiter.fileimport.impl;
 
-import com.elster.jupiter.fileimport.FileImport;
+import com.elster.jupiter.fileimport.FileImportOccurrence;
 import com.elster.jupiter.fileimport.ImportSchedule;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
@@ -26,13 +26,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class FileImportImplTest {
+public class FileImportOccurrenceImplTest {
 
     private static final long ID = 5564;
     private static final String FILE_NAME = "fileName";
     private static final String CONTENTS = "CONTENTS";
     @Mock
-    private DataMapper<FileImport> fileImportFactory;
+    private DataMapper<FileImportOccurrence> fileImportFactory;
     @Mock
     private File file, newFile, successFile, failureFile, inProcessDirectory, successDirectory, failureDirectory;
     @Mock
@@ -53,7 +53,7 @@ public class FileImportImplTest {
 
 //        when(serviceLocator.getFileNameCollisionResollver()).thenReturn(fileNameCollisionResolver);
         when(file.toPath()).thenReturn(path);
-        when(dataModel.mapper(FileImport.class)).thenReturn(fileImportFactory);
+        when(dataModel.mapper(FileImportOccurrence.class)).thenReturn(fileImportFactory);
         when(importSchedule.getId()).thenReturn(ID);
         when(importSchedule.getInProcessDirectory()).thenReturn(inProcessDirectory);
         when(importSchedule.getSuccessDirectory()).thenReturn(successDirectory);
@@ -94,7 +94,7 @@ public class FileImportImplTest {
 
     @Test
     public void testCreateKeepsReferenceToImportSchedule() {
-        FileImportImpl fileImport = FileImportImpl.create(fileSystem, dataModel, fileNameCollisionResolver, thesaurus, importSchedule, file);
+        FileImportOccurrenceImpl fileImport = FileImportOccurrenceImpl.create(fileSystem, dataModel, fileNameCollisionResolver, thesaurus, importSchedule, file);
         fileImport.prepareProcessing();
 
         assertThat(fileImport.getImportSchedule()).isEqualTo(importSchedule);
@@ -104,37 +104,37 @@ public class FileImportImplTest {
     public void testCreateKeepsReferenceToFile() {
         when(path.getFileName()).thenReturn(path);
 
-        FileImport fileImport = FileImportImpl.create(fileSystem, dataModel, fileNameCollisionResolver, thesaurus, importSchedule, file);
-        fileImport.prepareProcessing();
+        FileImportOccurrence fileImportOccurrence = FileImportOccurrenceImpl.create(fileSystem, dataModel, fileNameCollisionResolver, thesaurus, importSchedule, file);
+        fileImportOccurrence.prepareProcessing();
 
-        assertThat(fileImport.getFileName()).isEqualTo("newPath");
+        assertThat(fileImportOccurrence.getFileName()).isEqualTo("newPath");
     }
 
     @Test
     public void testGetContents() {
-        FileImport fileImport = FileImportImpl.create(fileSystem, dataModel, fileNameCollisionResolver, thesaurus, importSchedule, file);
+        FileImportOccurrence fileImportOccurrence = FileImportOccurrenceImpl.create(fileSystem, dataModel, fileNameCollisionResolver, thesaurus, importSchedule, file);
 
-        InputStream contents = fileImport.getContents();
+        InputStream contents = fileImportOccurrence.getContents();
 
         assertThat(contents).hasContentEqualTo(contentsAsStream());
     }
 
     @Test
     public void testMovedToProcessing() {
-        FileImport fileImport = FileImportImpl.create(fileSystem, dataModel, fileNameCollisionResolver, thesaurus, importSchedule, file);
-        fileImport.prepareProcessing();
+        FileImportOccurrence fileImportOccurrence = FileImportOccurrenceImpl.create(fileSystem, dataModel, fileNameCollisionResolver, thesaurus, importSchedule, file);
+        fileImportOccurrence.prepareProcessing();
 
         verify(fileSystem).move(path, newPath);
     }
 
     @Test
     public void testMarkSuccessMovedToSuccessFolder() {
-        FileImport fileImport = FileImportImpl.create(fileSystem, dataModel, fileNameCollisionResolver, thesaurus, importSchedule, file);
-        fileImport.prepareProcessing();
+        FileImportOccurrence fileImportOccurrence = FileImportOccurrenceImpl.create(fileSystem, dataModel, fileNameCollisionResolver, thesaurus, importSchedule, file);
+        fileImportOccurrence.prepareProcessing();
 
         Mockito.reset(fileSystem);
 
-        fileImport.markSuccess();
+        fileImportOccurrence.markSuccess();
 
         verify(fileSystem).move(newPath, successPath);
     }
@@ -144,25 +144,25 @@ public class FileImportImplTest {
         ByteArrayInputStream spiedStream = spy(contentsAsStream());
         when(fileSystem.getInputStream(any(File.class))).thenReturn(spiedStream);
 
-        FileImport fileImport = FileImportImpl.create(fileSystem, dataModel, fileNameCollisionResolver, thesaurus, importSchedule, file);
-        fileImport.prepareProcessing();
-        fileImport.getContents();
+        FileImportOccurrence fileImportOccurrence = FileImportOccurrenceImpl.create(fileSystem, dataModel, fileNameCollisionResolver, thesaurus, importSchedule, file);
+        fileImportOccurrence.prepareProcessing();
+        fileImportOccurrence.getContents();
 
         Mockito.reset(fileSystem);
 
-        fileImport.markSuccess();
+        fileImportOccurrence.markSuccess();
 
         verify(spiedStream).close();
     }
 
     @Test
     public void testMarkFailureMovedToFailureFolder() {
-        FileImport fileImport = FileImportImpl.create(fileSystem, dataModel, fileNameCollisionResolver, thesaurus, importSchedule, file);
-        fileImport.prepareProcessing();
+        FileImportOccurrence fileImportOccurrence = FileImportOccurrenceImpl.create(fileSystem, dataModel, fileNameCollisionResolver, thesaurus, importSchedule, file);
+        fileImportOccurrence.prepareProcessing();
 
         Mockito.reset(fileSystem);
 
-        fileImport.markFailure();
+        fileImportOccurrence.markFailure();
 
         verify(fileSystem).move(newPath, failurePath);
     }
@@ -172,13 +172,13 @@ public class FileImportImplTest {
         ByteArrayInputStream spiedStream = spy(contentsAsStream());
         when(fileSystem.getInputStream(any(File.class))).thenReturn(spiedStream);
 
-        FileImport fileImport = FileImportImpl.create(fileSystem, dataModel, fileNameCollisionResolver, thesaurus, importSchedule, file);
-        fileImport.prepareProcessing();
-        fileImport.getContents();
+        FileImportOccurrence fileImportOccurrence = FileImportOccurrenceImpl.create(fileSystem, dataModel, fileNameCollisionResolver, thesaurus, importSchedule, file);
+        fileImportOccurrence.prepareProcessing();
+        fileImportOccurrence.getContents();
 
         Mockito.reset(fileSystem);
 
-        fileImport.markFailure();
+        fileImportOccurrence.markFailure();
 
         verify(spiedStream).close();
     }

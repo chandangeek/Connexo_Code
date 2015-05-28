@@ -8,6 +8,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.ScheduleExpression;
 import com.elster.jupiter.util.time.ScheduleExpressionParser;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -18,6 +19,7 @@ import javax.validation.constraints.Size;
 import java.io.File;
 import java.time.Instant;
 import java.util.*;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
@@ -25,6 +27,8 @@ import java.util.stream.Collectors;
  */
 class ImportScheduleImpl implements ImportSchedule {
 
+    private final JsonService jsonService;
+    private static final Logger LOGGER = Logger.getLogger(ImportScheduleImpl.class.getName());
     private long id;
     private String destinationName;
     private transient DestinationSpec destination;
@@ -65,9 +69,10 @@ class ImportScheduleImpl implements ImportSchedule {
 
     @SuppressWarnings("unused")
     @Inject
-	ImportScheduleImpl(DataModel dataModel, FileImportService fileImportService, MessageService messageService, ScheduleExpressionParser scheduleExpressionParser, FileNameCollisionResolver fileNameCollisionresolver, FileSystem fileSystem, Thesaurus thesaurus) {
+	ImportScheduleImpl(DataModel dataModel, FileImportService fileImportService, MessageService messageService, ScheduleExpressionParser scheduleExpressionParser, FileNameCollisionResolver fileNameCollisionresolver, FileSystem fileSystem,JsonService jsonService, Thesaurus thesaurus) {
         this.messageService = messageService;
         this.dataModel = dataModel;
+        this.jsonService = jsonService;
         this.scheduleExpressionParser = scheduleExpressionParser;
         this.fileNameCollisionresolver = fileNameCollisionresolver;
         this.fileSystem = fileSystem;
@@ -279,11 +284,11 @@ class ImportScheduleImpl implements ImportSchedule {
 
 
     @Override
-    public FileImportImpl createFileImport(File file) {
+    public FileImportOccurrenceImpl createFileImportOccurrence(File file) {
         if (!file.exists()) {
             throw new IllegalArgumentException();
         }
-        return FileImportImpl.create(fileSystem, dataModel, fileNameCollisionresolver, thesaurus, this, file);
+        return FileImportOccurrenceImpl.create(fileSystem, dataModel, fileNameCollisionresolver, thesaurus, this, file);
     }
 
     @Override
@@ -312,6 +317,5 @@ class ImportScheduleImpl implements ImportSchedule {
         }
         Save.UPDATE.save(dataModel, this);
     }
-
 
 }

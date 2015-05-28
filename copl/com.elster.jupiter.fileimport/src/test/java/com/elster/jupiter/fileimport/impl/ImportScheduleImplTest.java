@@ -2,16 +2,14 @@ package com.elster.jupiter.fileimport.impl;
 
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fileimport.ImportSchedule;
-import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.util.cron.CronExpression;
 import com.elster.jupiter.util.cron.CronExpressionParser;
+import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.ScheduleExpression;
 import com.elster.jupiter.util.time.ScheduleExpressionParser;
-import com.google.inject.matcher.Matchers;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -58,11 +56,13 @@ public class ImportScheduleImplTest {
     private FileSystem fileSystem;
     @Mock
     private Thesaurus thesaurus;
+    @Mock
+    private JsonService jsonService;
 
     @Before
     public void setUp() {
         when(dataModel.mapper(ImportSchedule.class)).thenReturn(importScheduleFactory);
-        when(dataModel.getInstance(ImportScheduleImpl.class)).thenReturn(new ImportScheduleImpl(dataModel, fileImportService, messageService, cronParser, nameResolver, fileSystem, thesaurus));
+        when(dataModel.getInstance(ImportScheduleImpl.class)).thenReturn(new ImportScheduleImpl(dataModel, fileImportService, messageService, cronParser, nameResolver, fileSystem,jsonService, thesaurus));
         when(fileImportService.getImportFactory("importerName")).thenReturn(Optional.empty());
         importSchedule = ImportScheduleImpl.from(dataModel, "TEST_IMPORT_SCHEDULE", false, scheduleExpression, "importerName", DESTINATION_NAME, importDir, ".", inProcessDir, failureDir, successDir);
     }
@@ -100,7 +100,7 @@ public class ImportScheduleImplTest {
     public void testCreateFileImport() {
         when(file.exists()).thenReturn(true);
 
-        FileImportImpl fileImport = importSchedule.createFileImport(file);
+        FileImportOccurrenceImpl fileImport = importSchedule.createFileImportOccurrence(file);
 
         assertThat(fileImport.getImportSchedule()).isEqualTo(importSchedule);
     }
@@ -109,6 +109,6 @@ public class ImportScheduleImplTest {
     public void testCannotCreateFileImportIfFileDoesNotExist() {
         when(file.exists()).thenReturn(false);
 
-        importSchedule.createFileImport(file);
+        importSchedule.createFileImportOccurrence(file);
     }
 }

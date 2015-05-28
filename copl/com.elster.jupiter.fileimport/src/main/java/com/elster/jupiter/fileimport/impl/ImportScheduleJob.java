@@ -1,6 +1,7 @@
 package com.elster.jupiter.fileimport.impl;
 
 import java.nio.file.Path;
+import java.time.Clock;
 import java.util.function.Predicate;
 
 import com.elster.jupiter.fileimport.ImportSchedule;
@@ -24,11 +25,11 @@ class ImportScheduleJob implements CronJob {
     private final Thesaurus thesaurus;
 
     @Inject
-    public ImportScheduleJob(Predicate<Path> filter, FileSystem fileSystem, JsonService jsonService, ImportSchedule importSchedule, TransactionService transactionService, Thesaurus thesaurus, CronExpressionParser cronExpressionParser) {
+    public ImportScheduleJob(Predicate<Path> filter, FileSystem fileSystem, JsonService jsonService, ImportSchedule importSchedule, TransactionService transactionService, Thesaurus thesaurus, CronExpressionParser cronExpressionParser, Clock clock) {
         this.importSchedule = importSchedule;
         this.thesaurus = thesaurus;
         this.cronExpressionParser = cronExpressionParser;
-        folderScanningJob = new FolderScanningJob(new PollingFolderScanner(filter, fileSystem, importSchedule.getImportDirectory().toPath(), importSchedule.getPathMatcher(), this.thesaurus), new DefaultFileHandler(importSchedule, jsonService, transactionService));
+        folderScanningJob = new FolderScanningJob(new PollingFolderScanner(filter, fileSystem, importSchedule.getImportDirectory().toPath(), importSchedule.getPathMatcher(), this.thesaurus), new DefaultFileHandler(importSchedule, jsonService, transactionService, clock));
     }
 
     @Override

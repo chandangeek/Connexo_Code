@@ -189,7 +189,7 @@ public class FileImportServiceImpl implements InstallService, FileImportService 
 
     @Override
     public void schedule(ImportSchedule importSchedule) {
-        cronExpressionScheduler.submit(new ImportScheduleJob(path -> !Files.isDirectory(path), defaultFileSystem, jsonService, importSchedule, transactionService, thesaurus, cronExpressionParser));
+        cronExpressionScheduler.submit(new ImportScheduleJob(path -> !Files.isDirectory(path), defaultFileSystem, jsonService, importSchedule, transactionService, thesaurus, cronExpressionParser, clock));
     }
 
     @Override

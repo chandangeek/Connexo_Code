@@ -1,12 +1,10 @@
 package com.elster.jupiter.fileimport.impl;
 
-import com.elster.jupiter.fileimport.FileImport;
+import com.elster.jupiter.fileimport.FileImportLogEntry;
+import com.elster.jupiter.fileimport.FileImportOccurrence;
 import com.elster.jupiter.fileimport.FileImporterProperty;
 import com.elster.jupiter.fileimport.ImportSchedule;
-import com.elster.jupiter.orm.Column;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.DeleteRule;
-import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.*;
 
 import static com.elster.jupiter.orm.ColumnConversion.*;
 import static com.elster.jupiter.orm.Table.*;
@@ -34,16 +32,35 @@ enum TableSpecs {
         }
 
     },
-    FIM_FILE_IMPORT(FileImport.class) {
+    FIM_FILE_IMPORT_OCCURRENCE(FileImportOccurrence.class) {
         @Override
         void describeTable(Table table) {
-            table.map(FileImportImpl.class);
+            table.map(FileImportOccurrenceImpl.class);
             Column idColumn = table.addAutoIdColumn();
             Column importScheduleColumn = table.column("IMPORTSCHEDULE").type("number").notNull().conversion(NUMBER2LONG).map("importScheduleId").add();
             table.column("FILENAME").varChar(NAME_LENGTH).notNull().conversion(CHAR2FILE).map("file").add();
-            table.column("STATE").type("number").notNull().conversion(NUMBER2ENUM).map("state").add();
+            table.column("STATUS").type("number").notNull().conversion(NUMBER2ENUM).map("status").add();
+            table.column("STARTDATE").number().conversion(ColumnConversion.NUMBER2INSTANT).map("startDate").add();
+            table.column("ENDDATE").number().conversion(ColumnConversion.NUMBER2INSTANT).map("endDate").add();
+            table.column("MESSAGE").varChar(Table.DESCRIPTION_LENGTH).map("message").add();
             table.primaryKey("FIM_PK_FILE_IMPORT").on(idColumn).add();
             table.foreignKey("FIM_FKFILEIMPORT_SCHEDULE").references(FIM_IMPORT_SCHEDULE.name()).onDelete(DeleteRule.CASCADE).map("importSchedule").on(importScheduleColumn).add();
+        }
+    },
+
+    FIM_FILE_IMPORT_LOG(FileImportLogEntry.class) {
+        @Override
+        void describeTable(Table table) {
+            table.map(FileImportLogEntryImpl.class);
+            Column fileImportOccurrenceColumn = table.column("FILEIMPORTOCCURRENCE").number().notNull().conversion(NUMBER2LONG).add();
+            Column position = table.column("POSITION").number().notNull().map("position").conversion(NUMBER2INT).add();
+            table.column("TIMESTAMP").number().notNull().conversion(NUMBER2INSTANT).map("timeStamp").add();
+            table.column("LOGLEVEL").number().notNull().conversion(NUMBER2INT).map("level").add();
+            table.column("MESSAGE").varChar(DESCRIPTION_LENGTH).map("message").add();
+            table.column("STACKTRACE").type("CLOB").conversion(CLOB2STRING).map("stackTrace").add();
+            table.primaryKey("FIM_PK_LOG_ENTRY").on(fileImportOccurrenceColumn, position).add();
+            table.foreignKey("FIM_PKFILOG_OCCURRENCE").references(FIM_FILE_IMPORT_OCCURRENCE.name()).on(fileImportOccurrenceColumn).onDelete(DeleteRule.CASCADE)
+                    .map("fileImportOccurrenceReference").reverseMap("logEntries").reverseMapOrder("position").composition().refPartition().add();
         }
     },
 
