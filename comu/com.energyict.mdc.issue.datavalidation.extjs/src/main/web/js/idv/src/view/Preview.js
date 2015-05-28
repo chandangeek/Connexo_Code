@@ -107,6 +107,14 @@ Ext.define('Idv.view.Preview', {
                         }
                     },
                     {
+                        itemId: 'data-validation-issue-preview-modification-date',
+                        fieldLabel: Uni.I18n.translate('general.title.modificationDate', 'ISU', 'Modification date'),
+                        name: 'modificationDate',
+                        renderer: function (value) {
+                            return value ? Uni.DateTime.formatDateShort(value) : '';
+                        }
+                    },
+                    {
                         xtype: 'filter-display',
                         itemId: 'data-validation-issue-preview-assignee',
                         fieldLabel: Uni.I18n.translate('general.title.assignee', 'ISU', 'Assignee'),

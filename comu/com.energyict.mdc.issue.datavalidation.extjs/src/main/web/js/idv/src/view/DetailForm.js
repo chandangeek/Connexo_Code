@@ -79,6 +79,14 @@ Ext.define('Idv.view.DetailForm', {
                         }
                     },
                     {
+                        itemId: 'data-validation-issue-detail-modification-date',
+                        fieldLabel: Uni.I18n.translate('general.title.modificationDate', 'ISU', 'Modification date'),
+                        name: 'modificationDate',
+                        renderer: function (value) {
+                            return value ? Uni.DateTime.formatDateLong(value) : '';
+                        }
+                    },
+                    {
                         itemId: 'data-validation-issue-detail-assignee',
                         fieldLabel: Uni.I18n.translate('general.title.assignee', 'ISU', 'Assignee'),
                         name: 'assignee',
