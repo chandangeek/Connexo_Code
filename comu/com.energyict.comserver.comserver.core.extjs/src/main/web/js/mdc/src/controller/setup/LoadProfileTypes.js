@@ -190,7 +190,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
             recordData = record.getData();
 
         this.displayedItemId = recordData.id;
-        previewPanel.setTitle(recordData.name);
+        previewPanel.setTitle(Ext.String.htmlEncode(recordData.name));
         previewPanel.updateRegisterTypes(record);
         form.loadRecord(record);
     },

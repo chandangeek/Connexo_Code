@@ -18,7 +18,7 @@ Ext.define('Mdc.view.setup.device.DeviceCommunicationTopologyPanel', {
         var me = this,
             element = {
                 tag: tag ? tag : 'a',
-                html: Ext.String.htmlEncode(html)
+                html: html
             };
         if (link) {
             element.href = link;
