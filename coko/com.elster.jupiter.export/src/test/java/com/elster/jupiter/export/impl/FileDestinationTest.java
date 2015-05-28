@@ -16,7 +16,9 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -77,6 +79,7 @@ public class FileDestinationTest {
         fileDestination.send(data);
         Path file = fileSystem.getPath(ABSOLUTE_DIR, FILENAME + "." + EXTENSION);
         assertThat(Files.exists(file)).isTrue();
+        assertThat(getContent(file).equals(DATA1 + DATA2));
     }
 
     @Test
@@ -86,6 +89,20 @@ public class FileDestinationTest {
         fileDestination.send(data);
         Path file = fileSystem.getPath(APPSERVER_PATH, RELATIVE_DIR, FILENAME + "." + EXTENSION);
         assertThat(Files.exists(file)).isTrue();
+        assertThat(getContent(file).equals(DATA1 + DATA2));
+    }
+
+    private String getContent(Path file) {
+        try {
+            StringBuffer content = new StringBuffer();
+            List<String> lines = Files.readAllLines(file);
+            for (String line : lines) {
+                content.append(line);
+            }
+            return content.toString();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 
