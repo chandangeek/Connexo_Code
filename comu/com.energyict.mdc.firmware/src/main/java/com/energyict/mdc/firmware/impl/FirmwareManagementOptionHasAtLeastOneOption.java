@@ -13,7 +13,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 @Target({TYPE, ANNOTATION_TYPE})
 @Retention(RUNTIME)
-@Constraint(validatedBy = UniqueFirmwareVersionValidator.class)
+@Constraint(validatedBy = FirmwareManagementOptionHasAtLeastOneOptionValidator.class)
 @Documented
 
 public @interface FirmwareManagementOptionHasAtLeastOneOption {

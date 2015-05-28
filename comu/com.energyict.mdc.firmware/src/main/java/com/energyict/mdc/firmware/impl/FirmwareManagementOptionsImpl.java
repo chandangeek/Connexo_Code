@@ -15,7 +15,7 @@ import java.time.Instant;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-@FirmwareManagementOptionHasAtLeastOneOption(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.UPGRADE_OPTIONS_REQUIRED + "}")
+@FirmwareManagementOptionHasAtLeastOneOption(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
 public class FirmwareManagementOptionsImpl implements FirmwareManagementOptions {
 
     enum Fields {
