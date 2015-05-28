@@ -166,6 +166,16 @@ public class DeviceServiceImpl implements ServerDeviceService {
     }
 
     @Override
+    public Optional<Device> findAndLockDeviceBymRIDAndVersion(String mrid, long version) {
+        Optional<Device> deviceOptional = this.deviceDataModelService.dataModel().mapper(Device.class).getUnique(DeviceFields.MRID.fieldName(), mrid);
+        if (deviceOptional.isPresent()) {
+            return this.deviceDataModelService.dataModel().mapper(Device.class).lockObjectIfVersion(version, deviceOptional.get().getId());
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    @Override
     public Optional<Device> findByUniqueMrid(String mrId) {
         return this.deviceDataModelService.dataModel().mapper(Device.class).getUnique(DeviceFields.MRID.fieldName(), mrId);
     }

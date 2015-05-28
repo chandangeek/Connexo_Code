@@ -46,6 +46,7 @@ public interface DeviceService {
      * @return the requested Device or null if none was found
      */
     public Optional<Device> findAndLockDeviceByIdAndVersion(long id, long version);
+    public Optional<Device> findAndLockDeviceBymRIDAndVersion(String mrid, long version);
 
     /**
      * Finds the Device based on his unique External name.
