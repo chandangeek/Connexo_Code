@@ -128,7 +128,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
             previewForm = itemPanel.down('#comtaskPreviewFieldsPanel'),
             model = this.getModel('Mdc.model.CommunicationTask');
 
-        itemPanel.setTitle(record.get('name'));
+        itemPanel.setTitle(Ext.String.htmlEncode(record.get('name')));
         previewForm.setLoading(true);
         model.load(record.get('id'), {
             success: function (record) {
