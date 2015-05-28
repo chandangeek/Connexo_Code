@@ -50,7 +50,7 @@ public interface FileImportService {
     List<FileImporterFactory> getAvailableImporters(String applicationName);
 
     /**
-     * @return the list of import schedules
+     * @return query to the import schedules
      */
 
     Query<ImportSchedule> getImportSchedulesQuery();
@@ -60,5 +60,10 @@ public interface FileImportService {
      */
     List<PropertySpec> getPropertiesSpecsForImporter(String importerName);
 
+    /**
+     * @return the list of import schedules
+     */
+
+    List<ImportSchedule> getImportSchedules();
 
 }

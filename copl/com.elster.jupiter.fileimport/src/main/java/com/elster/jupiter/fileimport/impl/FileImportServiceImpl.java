@@ -249,4 +249,9 @@ public class FileImportServiceImpl implements InstallService, FileImportService 
                 .orElse(Collections.emptyList());
     }
 
+    @Override
+    public List<ImportSchedule> getImportSchedules() {
+        return dataModel.mapper(ImportSchedule.class).find();
+    }
+
 }
