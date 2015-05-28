@@ -7,9 +7,6 @@ import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import java.time.Instant;
 import java.util.Optional;
 
-/**
- * Created by igh on 24/11/2014.
- */
 public class DataSourceInfo {
 
     public String mRID;

@@ -3,7 +3,6 @@ package com.elster.jupiter.export.rest.impl;
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportStatus;
 import com.elster.jupiter.export.ExportTask;
-import com.elster.jupiter.export.ReadingTypeDataExportTask;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.nls.Thesaurus;
@@ -75,8 +74,8 @@ public class DataExportTaskHistoryInfo {
                         .orElseGet(dataExportOccurrence::getTask));
         task = new DataExportTaskInfo();
         task.populate(version, thesaurus, timeService);
-        if (version instanceof ReadingTypeDataExportTask) {
-            populateForReadingTypeDataExportTask((ReadingTypeDataExportTask) version, dataExportOccurrence);
+        if (version != null) {
+            populateForReadingTypeDataExportTask(version, dataExportOccurrence, thesaurus);
         }
         Optional<ScheduleExpression> foundSchedule = version.getScheduleExpression(dataExportOccurrence.getTriggerTime());
         if (!foundSchedule.isPresent() || Never.NEVER.equals(foundSchedule.get())) {
@@ -93,10 +92,14 @@ public class DataExportTaskHistoryInfo {
 
     }
 
-    private void populateForReadingTypeDataExportTask(ReadingTypeDataExportTask version, DataExportOccurrence dataExportOccurrence) {
-        for (ReadingType readingType : version.getReadingTypes(dataExportOccurrence.getTriggerTime())) {
-            task.readingTypes.add(new ReadingTypeInfo(readingType));
-        }
+    private void populateForReadingTypeDataExportTask(ExportTask version, DataExportOccurrence dataExportOccurrence, Thesaurus thesaurus) {
+        version.getReadingTypeDataSelector(dataExportOccurrence.getTriggerTime()).ifPresent(readingTypeDataSelector -> {
+            task.dataSelectorInfo = new DataSelectorInfo();
+            task.dataSelectorInfo.populate(readingTypeDataSelector, thesaurus);
+            for (ReadingType readingType : readingTypeDataSelector.getReadingTypes(dataExportOccurrence.getTriggerTime())) {
+                task.dataSelectorInfo.readingTypes.add(new ReadingTypeInfo(readingType));
+            }
+        });
     }
 
     private void setStatusOnDate(DataExportOccurrence dataExportOccurrence, Thesaurus thesaurus) {

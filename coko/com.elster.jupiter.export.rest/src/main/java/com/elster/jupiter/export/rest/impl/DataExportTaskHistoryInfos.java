@@ -2,7 +2,6 @@ package com.elster.jupiter.export.rest.impl;
 
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.ExportTask;
-import com.elster.jupiter.export.ReadingTypeDataExportTask;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.History;
 import com.elster.jupiter.time.TimeService;
@@ -17,7 +16,7 @@ public class DataExportTaskHistoryInfos {
     public DataExportTaskHistoryInfos() {
     }
 
-    public DataExportTaskHistoryInfos(ReadingTypeDataExportTask task, Iterable<? extends DataExportOccurrence> occurrences, Thesaurus thesaurus, TimeService timeService) {
+    public DataExportTaskHistoryInfos(ExportTask task, Iterable<? extends DataExportOccurrence> occurrences, Thesaurus thesaurus, TimeService timeService) {
         addAll(task, occurrences, thesaurus, timeService);
     }
 
@@ -35,7 +34,7 @@ public class DataExportTaskHistoryInfos {
         return result;
     }
 
-    private void addAll(ReadingTypeDataExportTask task, Iterable<? extends DataExportOccurrence> occurrences, Thesaurus thesaurus, TimeService timeService) {
+    private void addAll(ExportTask task, Iterable<? extends DataExportOccurrence> occurrences, Thesaurus thesaurus, TimeService timeService) {
         History<ExportTask> history = task.getHistory();
         for (DataExportOccurrence each : occurrences) {
             add(history, each, thesaurus, timeService);

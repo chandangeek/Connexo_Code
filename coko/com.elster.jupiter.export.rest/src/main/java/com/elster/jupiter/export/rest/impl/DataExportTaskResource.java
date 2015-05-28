@@ -6,7 +6,8 @@ import com.elster.jupiter.export.DataExportOccurrenceFinder;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataExportTaskBuilder;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
-import com.elster.jupiter.export.ReadingTypeDataExportTask;
+import com.elster.jupiter.export.ExportTask;
+import com.elster.jupiter.export.ReadingTypeDataSelector;
 import com.elster.jupiter.export.security.Privileges;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
@@ -53,6 +54,7 @@ import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Path("/dataexporttask")
@@ -76,11 +78,11 @@ public class DataExportTaskResource {
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DATA_EXPORT_TASK, Privileges.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.UPDATE_DATA_EXPORT_TASK, Privileges.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.RUN_DATA_EXPORT_TASK})
     public DataExportTaskInfos getDataExportTasks(@Context UriInfo uriInfo) {
         QueryParameters params = QueryParameters.wrap(uriInfo.getQueryParameters());
-        List<? extends ReadingTypeDataExportTask> list = queryTasks(params);
+        List<? extends ExportTask> list = queryTasks(params);
 
         DataExportTaskInfos infos = new DataExportTaskInfos(params.clipToLimit(list), thesaurus, timeService);
         infos.total = params.determineTotal(list.size());
@@ -88,15 +90,15 @@ public class DataExportTaskResource {
         return infos;
     }
 
-    private List<? extends ReadingTypeDataExportTask> queryTasks(QueryParameters queryParameters) {
-        Query<? extends ReadingTypeDataExportTask> query = dataExportService.getReadingTypeDataExportTaskQuery();
-        RestQuery<? extends ReadingTypeDataExportTask> restQuery = queryService.wrap(query);
+    private List<? extends ExportTask> queryTasks(QueryParameters queryParameters) {
+        Query<? extends ExportTask> query = dataExportService.getReadingTypeDataExportTaskQuery();
+        RestQuery<? extends ExportTask> restQuery = queryService.wrap(query);
         return restQuery.select(queryParameters, Order.descending("lastRun").nullsLast());
     }
 
     @GET
     @Path("/{id}/")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DATA_EXPORT_TASK, Privileges.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.UPDATE_DATA_EXPORT_TASK, Privileges.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.RUN_DATA_EXPORT_TASK})
     public DataExportTaskInfo getDataExportTask(@PathParam("id") long id, @Context SecurityContext securityContext) {
         return new DataExportTaskInfo(fetchDataExportTask(id), thesaurus, timeService);
@@ -104,7 +106,7 @@ public class DataExportTaskResource {
 
     @POST
     @Path("/{id}/trigger")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DATA_EXPORT_TASK, Privileges.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.UPDATE_DATA_EXPORT_TASK, Privileges.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.RUN_DATA_EXPORT_TASK})
     public Response triggerDataExportTask(@PathParam("id") long id, @Context SecurityContext securityContext) {
         transactionService.execute(VoidTransaction.of(() -> fetchDataExportTask(id).triggerNow()));
@@ -112,21 +114,31 @@ public class DataExportTaskResource {
     }
 
     @POST
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.ADMINISTRATE_DATA_EXPORT_TASK)
-    public Response addReadingTypeDataExportTask(DataExportTaskInfo info) {
+    public Response addExportTask(DataExportTaskInfo info) {
         DataExportTaskBuilder builder = dataExportService.newBuilder()
                 .setName(info.name)
                 .setDataProcessorName(info.dataProcessor.name)
                 .setScheduleExpression(getScheduleExpression(info))
-                .setNextExecution(info.nextRun == null ? null : Instant.ofEpochMilli(info.nextRun))
-                .setExportPeriod(getRelativePeriod(info.exportperiod))
-                .setUpdatePeriod(getRelativePeriod(info.updatePeriod))
-                .setValidatedDataOption(info.validatedDataOption)
-                .setEndDeviceGroup(endDeviceGroup(info.deviceGroup.id))
-                .exportContinuousData(info.exportContinuousData)
-                .exportUpdate(info.exportUpdate);
+                .setNextExecution(info.nextRun == null ? null : Instant.ofEpochMilli(info.nextRun));
+
+        if (info.dataSelectorInfo == null) {
+            builder.selectingCustom(info.dataSelector.name).endSelection();
+        } else {
+            DataExportTaskBuilder.StandardSelectorBuilder selectorBuilder = builder.selectingStandard()
+                    .fromExportPeriod(getRelativePeriod(info.dataSelectorInfo.exportPeriod))
+                    .fromUpdatePeriod(getRelativePeriod(info.dataSelectorInfo.updatePeriod))
+                    .withValidatedDataOption(info.dataSelectorInfo.validatedDataOption)
+                    .fromEndDeviceGroup(endDeviceGroup(info.dataSelectorInfo.deviceGroup.id))
+                    .continuousData(info.dataSelectorInfo.exportContinuousData)
+                    .exportUpdate(info.dataSelectorInfo.exportUpdate);
+            info.dataSelectorInfo.readingTypes.stream()
+                    .map(r -> r.mRID)
+                    .forEach(selectorBuilder::fromReadingType);
+            selectorBuilder.endSelection();
+        }
 
         List<PropertySpec> propertiesSpecs = dataExportService.getPropertiesSpecsForProcessor(info.dataProcessor.name);
         PropertyUtils propertyUtils = new PropertyUtils();
@@ -137,11 +149,8 @@ public class DataExportTaskResource {
                     builder.addProperty(spec.getName()).withValue(value);
                 });
 
-        info.readingTypes.stream()
-                .map(r -> r.mRID)
-                .forEach(builder::addReadingType);
 
-        ReadingTypeDataExportTask dataExportTask = builder.build();
+        ExportTask dataExportTask = builder.build();
         try (TransactionContext context = transactionService.getContext()) {
             dataExportTask.save();
             context.commit();
@@ -151,10 +160,10 @@ public class DataExportTaskResource {
 
     @DELETE
     @Path("/{id}/")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_DATA_EXPORT_TASK)
     public Response removeDataExportTask(@PathParam("id") long id, @Context SecurityContext securityContext) {
-        ReadingTypeDataExportTask task = fetchDataExportTask(id);
+        ExportTask task = fetchDataExportTask(id);
 
         if (!task.canBeDeleted()) {
             throw new LocalizedFieldValidationException(MessageSeeds.DELETE_TASK_STATUS_BUSY, "status");
@@ -170,11 +179,11 @@ public class DataExportTaskResource {
 
     @PUT
     @Path("/{id}/")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.UPDATE_DATA_EXPORT_TASK, Privileges.UPDATE_SCHEDULE_DATA_EXPORT_TASK})
-    public Response updateReadingTypeDataExportTask(@PathParam("id") long id, DataExportTaskInfo info) {
+    public Response updateExportTask(@PathParam("id") long id, DataExportTaskInfo info) {
 
-        ReadingTypeDataExportTask task = findTaskOrThrowException(info);
+        ExportTask task = findTaskOrThrowException(info);
 
         try (TransactionContext context = transactionService.getContext()) {
             task.setName(info.name);
@@ -184,9 +193,13 @@ public class DataExportTaskResource {
             } else {
                 task.setNextExecution(info.nextRun == null ? null : Instant.ofEpochMilli(info.nextRun));
             }
-            task.setExportPeriod(getRelativePeriod(info.exportperiod));
-            task.setUpdatePeriod(getRelativePeriod(info.updatePeriod));
-            task.setEndDeviceGroup(endDeviceGroup(info.deviceGroup.id));
+            if (info.dataSelectorInfo != null) {
+                ReadingTypeDataSelector selector = task.getReadingTypeDataSelector().orElseThrow(() -> new WebApplicationException(Response.Status.CONFLICT));
+                selector.setExportPeriod(getRelativePeriod(info.dataSelectorInfo.exportPeriod));
+                selector.setUpdatePeriod(getRelativePeriod(info.dataSelectorInfo.updatePeriod));
+                selector.setEndDeviceGroup(endDeviceGroup(info.dataSelectorInfo.deviceGroup.id));
+                selector.save();
+            }
 
             updateProperties(info, task);
             updateReadingTypes(info, task);
@@ -199,12 +212,12 @@ public class DataExportTaskResource {
 
     @GET
     @Path("/{id}/history")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     public DataExportTaskHistoryInfos getDataExportTaskHistory(@PathParam("id") long id, @Context SecurityContext securityContext,
                                                                @BeanParam JsonQueryFilter filter, @Context UriInfo uriInfo) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
-        ReadingTypeDataExportTask task = fetchDataExportTask(id);
+        ExportTask task = fetchDataExportTask(id);
         DataExportOccurrenceFinder occurrencesFinder = task.getOccurrencesFinder()
                 .setStart(queryParameters.getStartInt())
                 .setLimit(queryParameters.getLimit() + 1);
@@ -234,11 +247,17 @@ public class DataExportTaskResource {
 
     @GET
     @Path("/{id}/datasources")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public DataSourceInfos getDataSources(@PathParam("id") long id, @Context SecurityContext securityContext, @Context UriInfo uriInfo) {
-        ReadingTypeDataExportTask task = fetchDataExportTask(id);
+        ExportTask task = fetchDataExportTask(id);
+        return task.getReadingTypeDataSelector()
+                .map(readingTypeDataSelector -> buildDataSourceInfos(readingTypeDataSelector, uriInfo))
+                .orElse(new DataSourceInfos(Collections.emptyList()));
+    }
+
+    private DataSourceInfos buildDataSourceInfos(ReadingTypeDataSelector readingTypeDataSelector, @Context UriInfo uriInfo) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
-        List<? extends ReadingTypeDataExportItem> allExportItems = task.getExportItems();
+        List<? extends ReadingTypeDataExportItem> allExportItems = readingTypeDataSelector.getExportItems();
         List<ReadingTypeDataExportItem> activeExportItems = new ArrayList<>();
         for (ReadingTypeDataExportItem item : allExportItems) {
             if (item.isActive()) {
@@ -255,11 +274,11 @@ public class DataExportTaskResource {
 
     @GET
     @Path("/{id}/history/{occurrenceId}")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public DataExportOccurrenceLogInfos getDataExportTaskHistory(@PathParam("id") long id, @PathParam("occurrenceId") long occurrenceId,
                                                                  @Context SecurityContext securityContext, @Context UriInfo uriInfo) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
-        ReadingTypeDataExportTask task = fetchDataExportTask(id);
+        ExportTask task = fetchDataExportTask(id);
         DataExportOccurrence occurrence = fetchDataExportOccurrence(occurrenceId, task);
         LogEntryFinder finder = occurrence.getLogsFinder()
                 .setStart(queryParameters.getStartInt())
@@ -272,21 +291,22 @@ public class DataExportTaskResource {
         return infos;
     }
 
-    private ReadingTypeDataExportTask findTaskOrThrowException(DataExportTaskInfo info) {
+    private ExportTask findTaskOrThrowException(DataExportTaskInfo info) {
         return dataExportService.findExportTask(info.id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 
-    private void updateReadingTypes(DataExportTaskInfo info, ReadingTypeDataExportTask task) {
-        task.getReadingTypes().stream()
-                .filter(t -> info.readingTypes.stream().map(r -> r.mRID).noneMatch(m -> t.getMRID().equals(m)))
-                .forEach(task::removeReadingType);
-        info.readingTypes.stream()
+    private void updateReadingTypes(DataExportTaskInfo info, ExportTask task) {
+        ReadingTypeDataSelector selector = task.getReadingTypeDataSelector().orElseThrow(() -> new WebApplicationException(Response.Status.CONFLICT));
+        selector.getReadingTypes().stream()
+                .filter(t -> info.dataSelectorInfo.readingTypes.stream().map(r -> r.mRID).noneMatch(m -> t.getMRID().equals(m)))
+                .forEach(selector::removeReadingType);
+        info.dataSelectorInfo.readingTypes.stream()
                 .map(r -> r.mRID)
-                .filter(m -> task.getReadingTypes().stream().map(ReadingType::getMRID).noneMatch(s -> s.equals(m)))
-                .forEach(task::addReadingType);
+                .filter(m -> selector.getReadingTypes().stream().map(ReadingType::getMRID).noneMatch(s -> s.equals(m)))
+                .forEach(selector::addReadingType);
     }
 
-    private void updateProperties(DataExportTaskInfo info, ReadingTypeDataExportTask task) {
+    private void updateProperties(DataExportTaskInfo info, ExportTask task) {
         List<PropertySpec> propertiesSpecs = dataExportService.getPropertiesSpecsForProcessor(info.dataProcessor.name);
         PropertyUtils propertyUtils = new PropertyUtils();
         propertiesSpecs.stream()
@@ -312,11 +332,11 @@ public class DataExportTaskResource {
         return timeService.findRelativePeriod(relativePeriodInfo.id).orElse(null);
     }
 
-    private ReadingTypeDataExportTask fetchDataExportTask(long id) {
+    private ExportTask fetchDataExportTask(long id) {
         return dataExportService.findExportTask(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 
-    private DataExportOccurrence fetchDataExportOccurrence(long id, ReadingTypeDataExportTask task) {
+    private DataExportOccurrence fetchDataExportOccurrence(long id, ExportTask task) {
         return task.getOccurrence(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 

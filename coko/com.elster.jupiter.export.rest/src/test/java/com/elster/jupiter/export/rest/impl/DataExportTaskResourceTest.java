@@ -34,7 +34,7 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
         Response response1 = target("/dataexporttask/"+TASK_ID+"/trigger").request().post(Entity.json(null));
         assertThat(response1.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
 
-        verify(readingTypeDataExportTask).triggerNow();
+        verify(exportTask).triggerNow();
     }
 
 
@@ -43,8 +43,9 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
         DataExportTaskInfo info = new DataExportTaskInfo();
         info.name = "newName";
         info.nextRun = 250L;
-        info.deviceGroup = new MeterGroupInfo();
-        info.deviceGroup.id = 5;
+        info.dataSelectorInfo = new DataSelectorInfo();
+        info.dataSelectorInfo.deviceGroup = new MeterGroupInfo();
+        info.dataSelectorInfo.deviceGroup.id = 5;
         info.dataProcessor = new ProcessorInfo();
         info.dataProcessor.name = "dataProcessor";
 
@@ -59,8 +60,9 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
     public void updateTasksTest() {
         DataExportTaskInfo info = new DataExportTaskInfo();
         info.id = TASK_ID;
-        info.deviceGroup = new MeterGroupInfo();
-        info.deviceGroup.id = 5;
+        info.dataSelectorInfo = new DataSelectorInfo();
+        info.dataSelectorInfo.deviceGroup = new MeterGroupInfo();
+        info.dataSelectorInfo.deviceGroup.id = 5;
         info.dataProcessor = new ProcessorInfo();
         info.dataProcessor.name = "dataProcessor";
 
