@@ -34,6 +34,7 @@ Ext.define('Uni.util.FormErrorMessage', {
                 xtype: 'box',
                 height: 22,
                 width: 26,
+                style: 'font-size: 22px',
                 cls: me.errorIcon
             },
             {
