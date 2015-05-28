@@ -1,6 +1,5 @@
 package com.energyict.mdc.firmware.impl;
 
-import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;

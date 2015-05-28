@@ -18,7 +18,7 @@ public class UniqueNameValidator implements ConstraintValidator<UniqueName, HasU
         if (!value.isValidName(this.caseSensitive)) {
             context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate(context.getDefaultConstraintMessageTemplate())
-                    .addPropertyNode("name")
+                    .addPropertyNode(FirmwareCampaignImpl.Fields.NAME.fieldName())
                     .addConstraintViolation();
             return false;
         } else {

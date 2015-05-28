@@ -92,8 +92,6 @@ public class FirmwareCampaignHandler implements MessageHandler {
                     Instant eventTimestamp = Instant.ofEpochMilli(((Number) properties.get(EventConstants.TIMESTAMP)).longValue());
                     if (!firmwareCampaignImpl.getModTime().isAfter(eventTimestamp)){
                         firmwareCampaignImpl.updateStatus();
-                    } else {
-                        System.out.println(" == HANDLER DEVICE_IN_FIRMWARE_CAMPAIGN_UPDATED event was before modification");
                     }
                 }
             }
