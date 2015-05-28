@@ -177,6 +177,7 @@ public class AppServerImpl implements AppServer {
     public void delete() {
         try (BatchUpdate updater = forBatchUpdate()) {
             new ArrayList<>(getSubscriberExecutionSpecs()).forEach(updater::removeSubscriberExecutionSpec);
+            new ArrayList<>(getImportSchedulesOnAppServer()).forEach(updater::removeImportScheduleOnAppServer);
             updater.delete();
         }
     }
