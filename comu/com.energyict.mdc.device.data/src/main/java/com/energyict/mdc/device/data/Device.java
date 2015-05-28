@@ -361,6 +361,8 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
     public Optional<State> getState(Instant instant);
 
     public long getVersion();
+    
+    public Instant getCreateTime();
 
     /**
      * Gets the {@link StateTimeline} for this Device.
