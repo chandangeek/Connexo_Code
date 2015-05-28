@@ -17,6 +17,7 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
         {
             xtype: 'displayfield',
             fieldLabel: 'Device configuration',
+            htmlEncode: false,
             name: 'deviceConfigurationName'
         },
         {
