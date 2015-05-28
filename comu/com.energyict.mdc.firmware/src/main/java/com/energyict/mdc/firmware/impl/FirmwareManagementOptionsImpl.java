@@ -15,6 +15,7 @@ import java.time.Instant;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+@FirmwareManagementOptionHasAtLeastOneOption(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.UPGRADE_OPTIONS_REQUIRED + "}")
 public class FirmwareManagementOptionsImpl implements FirmwareManagementOptions {
 
     enum Fields {
@@ -57,13 +58,9 @@ public class FirmwareManagementOptionsImpl implements FirmwareManagementOptions 
         this.dataModel = dataModel;
     }
 
-    private FirmwareManagementOptions init(DeviceType deviceType) {
+    public FirmwareManagementOptions init(DeviceType deviceType) {
         this.deviceType.set(deviceType);
         return this;
-    }
-
-    public static FirmwareManagementOptions from(DataModel dataModel, DeviceType deviceType) {
-        return dataModel.getInstance(FirmwareManagementOptionsImpl.class).init(deviceType);
     }
 
     @Override
@@ -79,6 +76,11 @@ public class FirmwareManagementOptionsImpl implements FirmwareManagementOptions 
             allowedOptions.add(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_WITH_DATE);
         }
         return allowedOptions;
+    }
+
+    @Override
+    public void delete() {
+        dataModel.remove(this);
     }
 
     @Override
@@ -98,6 +100,7 @@ public class FirmwareManagementOptionsImpl implements FirmwareManagementOptions 
         });
     }
 
+    @Override
     public void save() {
         if (dataModel.mapper(FirmwareManagementOptions.class).getUnique("deviceType", deviceType.get()).isPresent()) {
             doUpdate();

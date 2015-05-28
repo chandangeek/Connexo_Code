@@ -46,10 +46,10 @@ import java.util.Set;
     Set<ProtocolSupportedFirmwareOptions> getSupportedFirmwareOptionsFor(DeviceType deviceType);
 
     Set<ProtocolSupportedFirmwareOptions> getAllowedFirmwareManagementOptionsFor(DeviceType deviceType);
+    FirmwareManagementOptions newFirmwareManagementOptions(DeviceType deviceType);
 
-    FirmwareManagementOptions getFirmwareManagementOptions(DeviceType deviceType);
+    Optional<FirmwareManagementOptions> getFirmwareManagementOptions(DeviceType deviceType);
 
-    void saveFirmwareManagementOptions(FirmwareManagementOptions firmwareOptions);
 
     // Firmware versions on a device
 
