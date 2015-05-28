@@ -9,9 +9,8 @@ import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataExportStrategy;
 import com.elster.jupiter.export.DataProcessor;
 import com.elster.jupiter.export.DataProcessorFactory;
-import com.elster.jupiter.export.DefaultStructureMarker;
-import com.elster.jupiter.export.ExportData;
 import com.elster.jupiter.export.FatalDataExportException;
+import com.elster.jupiter.export.ReadingTypeDataSelector;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
@@ -23,8 +22,6 @@ import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.EndDeviceMembership;
 import com.elster.jupiter.metering.readings.IntervalReading;
 import com.elster.jupiter.metering.readings.Reading;
-import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
-import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpec;
@@ -70,7 +67,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class DataExportTaskExecutorTest {
+public class ReadingTypeDataSelectorTest {
 
     @Rule
     public TestRule timeZone = Using.timeZoneOfMcMurdo();
@@ -121,8 +118,7 @@ public class DataExportTaskExecutorTest {
     private ReadingContainer readingContainer;
     @Mock
     private PropertySpec propertySpec;
-    @Mock
-    private IReadingTypeDataSelector readingTypeDataSelector;
+    private ReadingTypeDataSelector readingTypeDataSelector;
     @Mock
     private MeteringService meteringService;
     @Mock
@@ -144,9 +140,11 @@ public class DataExportTaskExecutorTest {
 
         transactionService = new TransactionVerifier(dataProcessor, newItem, existingItem);
 
+        when(dataModel.getInstance(ReadingTypeDataSelectorImpl.class)).thenAnswer(inv -> new ReadingTypeDataSelectorImpl(dataModel, transactionService, meteringService));
         when(readingTypeDataSelector.getEndDeviceGroup()).thenReturn(group);
         when(readingTypeDataSelector.getReadingTypes()).thenReturn(ImmutableSet.of(readingType1));
         when(readingTypeDataSelector.addExportItem(meter1, readingType1)).thenReturn(newItem);
+        readingTypeDataSelector = ReadingTypeDataSelectorImpl.from(dataModel, task, exportRelativePeriod, group);
         when(task.getReadingTypeDataSelector()).thenReturn(Optional.of(readingTypeDataSelector));
         when(occurrence.createTaskLogHandler()).thenReturn(taskLogHandler);
         when(taskLogHandler.asHandler()).thenReturn(logRecorder);
@@ -197,11 +195,6 @@ public class DataExportTaskExecutorTest {
         when(dataProcessor.processData(any())).thenReturn(Optional.of(exportPeriodEnd.toInstant()));
         when(reading1.getSource()).thenReturn("reading1");
         when(reading2.getSource()).thenReturn("reading2");
-        MeterReadingImpl meterReading = MeterReadingImpl.of(ReadingImpl.reading(reading1, readingType1));
-        MeterReadingImpl.newInstance().addIntervalBlock(IntervalBlockImpl.);
-        MeterReadingData newItemData = new MeterReadingData(this.newItem, meterReading, DefaultStructureMarker.createRoot("newItem"));
-        MeterReadingData existItemData = new MeterReadingData(this.existingItem, MeterReadingImpl.of(ReadingImpl.reading(reading2, readingType1)), DefaultStructureMarker.createRoot("newItem"));
-        when(readingTypeDataSelector.selectData(dataExportOccurrence)).thenReturn(Arrays.<ExportData>asList(newItemData, existItemData).stream());
     }
 
     @After
@@ -430,7 +423,6 @@ public class DataExportTaskExecutorTest {
         verify(dataProcessor, never()).endExport();
 
         transactionService.assertThatTransaction(3).wasCommitted();
-        transactionService.inTransaction(3).verify();
         transactionService.assertThatTransaction(4).wasCommitted();
         transactionService.assertThatTransaction(5).wasNotCommitted();
 

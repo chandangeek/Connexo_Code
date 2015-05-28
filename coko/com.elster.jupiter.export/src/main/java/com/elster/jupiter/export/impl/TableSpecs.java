@@ -14,18 +14,41 @@ import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.time.TimeService;
 
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INSTANT;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 import static com.elster.jupiter.orm.Table.DESCRIPTION_LENGTH;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 
 enum TableSpecs {
 
+    DES_DATAEXPORTTASK(IExportTask.class) {
+        @Override
+        void describeTable(Table table) {
+            table.map(ExportTaskImpl.class);
+            table.setJournalTableName("DES_DATAEXPORTTASKJRNL");
+            Column idColumn = table.addAutoIdColumn();
+            table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
+            table.column("DATAPROCESSOR").varChar(NAME_LENGTH).notNull().map("dataProcessor").add();
+            table.column("DATASELECTOR").varChar(NAME_LENGTH).notNull().map("dataSelector").add();
+            Column recurrentTaskId = table.column("RECURRENTTASK").number().notNull().conversion(ColumnConversion.NUMBER2LONG).add();
+
+            table.column("LASTRUN").number().conversion(NUMBER2INSTANT).map("lastRun").add();
+            table.addAuditColumns();
+
+            table.foreignKey("DES_FK_RTET_RECURRENTTASK")
+                    .on(recurrentTaskId)
+                    .references(TaskService.COMPONENTNAME, "TSK_RECURRENT_TASK")
+                    .map("recurrentTask")
+                    .add();
+            table.primaryKey("DES_PK_DATAEXPORTTASK").on(idColumn).add();
+        }
+
+    },
     DES_RTDATASELECTOR(ReadingTypeDataSelector.class) {
         @Override
         void describeTable(Table table) {
             table.map(ReadingTypeDataSelectorImpl.class);
             table.setJournalTableName("DES_RTDATASELECTORJRNL");
             Column idColumn = table.addAutoIdColumn();
+            Column taskColumn = table.column("EXPORTTASK").number().notNull().add();
             Column exportPeriod = table.column("EXPORT_PERIOD").number().notNull().add();
             Column updatePeriod = table.column("UPDATE_PERIOD").number().add();
             Column endDeviceGroupId = table.column("ENDDEVICEGROUP").number().notNull().conversion(ColumnConversion.NUMBER2LONG).add();
@@ -35,6 +58,14 @@ enum TableSpecs {
 
             table.addAuditColumns();
 
+            table.unique("DES_UK_RTDS_TASK").on(taskColumn).add();
+            table.foreignKey("DES_FK_RTDS_TASK")
+                    .on(taskColumn)
+                    .references("DES_DATAEXPORTTASK")
+                    .map("exportTask")
+                    .reverseMap("readingTypeDataSelector")
+                    .composition()
+                    .add();
             table.foreignKey("DES_FK_RTDS_EXPORTPERIOD")
                     .on(exportPeriod)
                     .references(TimeService.COMPONENT_NAME, "TME_RELATIVEPERIOD")
@@ -51,37 +82,6 @@ enum TableSpecs {
                     .map("endDeviceGroup")
                     .add();
             table.primaryKey("DES_PK_RTDATASELECTOR").on(idColumn).add();
-        }
-
-    },
-    DES_DATAEXPORTTASK(IExportTask.class) {
-        @Override
-        void describeTable(Table table) {
-            table.map(ExportTaskImpl.class);
-            table.setJournalTableName("DES_DATAEXPORTTASKJRNL");
-            Column idColumn = table.addAutoIdColumn();
-            table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
-            table.column("dataProcessor").varChar(NAME_LENGTH).notNull().map("dataProcessor").add();
-            table.column("dataSelector").varChar(NAME_LENGTH).notNull().map("dataProcessor").add();
-            Column recurrentTaskId = table.column("RECURRENTTASK").number().notNull().conversion(ColumnConversion.NUMBER2LONG).add();
-            Column dataSelectorColumn = table.column("RTDATASELECTOR").number().conversion(NUMBER2LONG).add();
-
-            table.column("LASTRUN").number().conversion(NUMBER2INSTANT).map("lastRun").add();
-            table.addAuditColumns();
-
-            table.foreignKey("DES_FK_RTET_RECURRENTTASK")
-                    .on(recurrentTaskId)
-                    .references(TaskService.COMPONENTNAME, "TSK_RECURRENT_TASK")
-                    .map("recurrentTask")
-                    .add();
-            table.foreignKey("DES_FK_ET_RTDATASELECTOR")
-                    .on(dataSelectorColumn)
-                    .references("DES_RTDATASELECTOR")
-                    .reverseMap("exportTask")
-                    .map("readingTypeDataSelector")
-                    .composition()
-                    .add();
-            table.primaryKey("DES_PK_DATAEXPORTTASK").on(idColumn).add();
         }
 
     },

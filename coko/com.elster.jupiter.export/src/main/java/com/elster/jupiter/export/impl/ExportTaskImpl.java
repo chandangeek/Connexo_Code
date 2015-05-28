@@ -27,6 +27,7 @@ import com.elster.jupiter.util.time.ScheduleExpression;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.Instant;
@@ -66,6 +67,7 @@ public class ExportTaskImpl implements IExportTask {
     private Instant createTime;
     private Instant modTime;
     private String userName;
+    @Valid
     private Reference<ReadingTypeDataSelector> readingTypeDataSelector = Reference.empty();
 
     @Inject

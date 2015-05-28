@@ -77,7 +77,7 @@ public class DataExportServiceImplTest {
     private Table table;
     @Mock
     private DataProcessorFactory dataProcessorFactory;
-    @Mock
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private TaskService taskService;
     @Mock
     private TimeService timeService;
@@ -116,6 +116,7 @@ public class DataExportServiceImplTest {
 
     @Before
     public void setUp() throws SQLException {
+        when(dataProcessorFactory.getName()).thenReturn(DATA_PROCESSOR);
         when(iExportTask.getReadingTypeDataSelector()).thenReturn(Optional.of(readingTypeDataSelector));
         when(ormService.newDataModel(anyString(), anyString())).thenReturn(dataModel);
         when(dataModel.addTable(anyString(), any())).thenReturn(table);
@@ -146,6 +147,8 @@ public class DataExportServiceImplTest {
     public void testNewBuilder() {
         ExportTaskImpl readingTypeDataExportTaskImpl = new ExportTaskImpl(dataModel, dataExportService, taskService, thesaurus);
         when(dataModel.getInstance(ExportTaskImpl.class)).thenReturn(readingTypeDataExportTaskImpl);
+        ReadingTypeDataSelectorImpl selectorImpl = new ReadingTypeDataSelectorImpl(dataModel, transactionService, meteringService);
+        when(dataModel.getInstance(ReadingTypeDataSelectorImpl.class)).thenReturn(selectorImpl);
         DataExportTaskBuilderImpl dataExportTaskBuilder = new DataExportTaskBuilderImpl(dataModel)
                 .setName(NAME)
                 .setDataProcessorName(DATA_PROCESSOR)

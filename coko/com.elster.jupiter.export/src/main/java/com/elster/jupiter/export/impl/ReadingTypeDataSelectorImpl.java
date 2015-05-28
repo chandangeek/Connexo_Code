@@ -24,8 +24,8 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.streams.Functions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
-import com.google.inject.Inject;
 
+import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.Size;
 import java.time.Instant;
@@ -35,14 +35,12 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class ReadingTypeDataSelectorImpl implements IReadingTypeDataSelector {
 
     private final TransactionService transactionService;
-    private final Logger logger;
     private final MeteringService meteringService;
     private final DataModel dataModel;
 
@@ -68,11 +66,10 @@ public class ReadingTypeDataSelectorImpl implements IReadingTypeDataSelector {
     private String userName;
 
     @Inject
-    ReadingTypeDataSelectorImpl(DataModel dataModel, TransactionService transactionService, MeteringService meteringService, Logger logger) {
+    ReadingTypeDataSelectorImpl(DataModel dataModel, TransactionService transactionService, MeteringService meteringService) {
         this.dataModel = dataModel;
         this.transactionService = transactionService;
         this.meteringService = meteringService;
-        this.logger = logger;
     }
 
     public static ReadingTypeDataSelectorImpl from(DataModel dataModel, IExportTask exportTask, RelativePeriod exportPeriod, EndDeviceGroup endDeviceGroup) {
@@ -118,11 +115,11 @@ public class ReadingTypeDataSelectorImpl implements IReadingTypeDataSelector {
                 .map(EndDeviceMembership::getEndDevice)
                 .filter(device -> device instanceof Meter)
                 .map(Meter.class::cast)
-                .flatMap(meter -> readingTypeDataExportItems(task, meter))
+                .flatMap(this::readingTypeDataExportItems)
                 .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
-    private Stream<IReadingTypeDataExportItem> readingTypeDataExportItems(IExportTask task, Meter meter) {
+    private Stream<IReadingTypeDataExportItem> readingTypeDataExportItems(Meter meter) {
         return getReadingTypes().stream()
                 .map(r -> getExportItems().stream()
                                 .map(IReadingTypeDataExportItem.class::cast)

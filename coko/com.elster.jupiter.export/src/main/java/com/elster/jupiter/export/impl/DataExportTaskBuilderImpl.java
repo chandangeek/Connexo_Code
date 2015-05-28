@@ -1,5 +1,6 @@
 package com.elster.jupiter.export.impl;
 
+import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataExportTaskBuilder;
 import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.export.ReadingTypeDataSelector;
@@ -24,7 +25,7 @@ class DataExportTaskBuilderImpl implements DataExportTaskBuilder {
     private Instant nextExecution;
     private boolean scheduleImmediately;
     private String name;
-    private String dataSelector;
+    private String dataSelector = DataExportService.STANDARD_DATA_SELECTOR;
     private String dataProcessor;
     private RelativePeriod exportPeriod;
     private RelativePeriod updatePeriod;
@@ -99,11 +100,9 @@ class DataExportTaskBuilderImpl implements DataExportTaskBuilder {
             readingTypeDataSelector.setExportUpdate(exportUpdate);
             readingTypeDataSelector.setExportContinuousData(exportContinuousData);
             readingTypes.stream().forEach(d -> d.addTo(readingTypeDataSelector));
-            readingTypeDataSelector.save();
             exportTask.setReadingTypeDataSelector(readingTypeDataSelector);
         }
         properties.stream().forEach(p -> exportTask.setProperty(p.name, p.value));
-        exportTask.save();
         return exportTask;
     }
 
@@ -141,7 +140,7 @@ class DataExportTaskBuilderImpl implements DataExportTaskBuilder {
         @Override
         public StandardSelectorBuilderImpl fromReadingType(ReadingType readingType) {
             readingTypes.add(new ReadingTypeHolder(readingType));
-            return null;
+            return this;
         }
 
         @Override
