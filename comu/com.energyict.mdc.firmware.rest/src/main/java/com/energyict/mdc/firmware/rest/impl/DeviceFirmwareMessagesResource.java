@@ -26,7 +26,6 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.tasks.ComTask;
-import com.energyict.mdc.tasks.StatusInformationTask;
 import com.energyict.mdc.tasks.TaskService;
 
 import javax.annotation.security.RolesAllowed;
@@ -56,6 +55,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+/** TODO replace by /devices*/
 @Path("/device/{mrid}")
 public class DeviceFirmwareMessagesResource {
     private final ResourceHelper resourceHelper;
@@ -112,7 +112,7 @@ public class DeviceFirmwareMessagesResource {
         }
         deviceMessageBuilder.add();
         rescheduleFirmwareUpgradeTask(device);
-        return Response.ok().build();
+        return Response.status(Response.Status.CREATED).build();
     }
 
 
@@ -222,7 +222,7 @@ public class DeviceFirmwareMessagesResource {
         return Response.ok(PagedInfoList.fromPagedList("firmwareactions", deviceFirmwareActions, queryParameters)).build();
     }
 
-    @GET
+    @PUT
     @Path("/status/run")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({com.energyict.mdc.device.data.security.Privileges.VIEW_DEVICE})
@@ -233,7 +233,7 @@ public class DeviceFirmwareMessagesResource {
     }
 
 
-    @GET
+    @PUT
     @Path("/status/runnow")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({com.energyict.mdc.device.data.security.Privileges.VIEW_DEVICE})

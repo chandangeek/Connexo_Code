@@ -2,7 +2,6 @@ package com.energyict.mdc.firmware.rest.impl;
 
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.firmware.FirmwareService;
-import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 
 import javax.annotation.security.RolesAllowed;
@@ -34,8 +33,6 @@ public class DeviceFirmwareVersionResource {
     @RolesAllowed({com.energyict.mdc.device.data.security.Privileges.VIEW_DEVICE, com.energyict.mdc.device.data.security.Privileges.OPERATE_DEVICE_COMMUNICATION, com.energyict.mdc.device.data.security.Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, com.energyict.mdc.device.data.security.Privileges.ADMINISTRATE_DEVICE_DATA})
     public Response getFirmwareVersionsOnDevice(@PathParam("mRID") String mRID) {
         Device device = resourceHelper.findDeviceByMridOrThrowException(mRID);
-        return Response.ok(versionInfoFactory.from(device,
-                firmwareService.getActiveFirmwareVersion(device, FirmwareType.METER),
-                firmwareService.getActiveFirmwareVersion(device, FirmwareType.COMMUNICATION))).build();
+        return Response.ok(versionInfoFactory.from(device)).build();
     }
 }

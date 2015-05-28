@@ -1,7 +1,5 @@
 package com.energyict.mdc.firmware.rest.impl;
 
-import com.elster.jupiter.metering.groups.EndDeviceGroup;
-import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
@@ -24,16 +22,14 @@ public class ResourceHelper {
     private final DeviceMessageSpecificationService deviceMessageSpecificationService;
     private final DeviceService deviceService;
     private final FirmwareService firmwareService;
-    private final MeteringGroupsService meteringGroupsService;
 
     @Inject
-    public ResourceHelper(ExceptionFactory exceptionFactory, DeviceConfigurationService deviceConfigurationService, DeviceMessageSpecificationService deviceMessageSpecificationService, DeviceService deviceService, FirmwareService firmwareService, MeteringGroupsService meteringGroupsService) {
+    public ResourceHelper(ExceptionFactory exceptionFactory, DeviceConfigurationService deviceConfigurationService, DeviceMessageSpecificationService deviceMessageSpecificationService, DeviceService deviceService, FirmwareService firmwareService) {
         this.exceptionFactory = exceptionFactory;
         this.deviceConfigurationService = deviceConfigurationService;
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
         this.deviceService = deviceService;
         this.firmwareService = firmwareService;
-        this.meteringGroupsService = meteringGroupsService;
     }
 
     public DeviceType findDeviceTypeOrElseThrowException(long deviceTypeId) {
@@ -55,12 +51,6 @@ public class ResourceHelper {
         return firmwareService.getFirmwareCampaignById(id)
                     .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.FIRMWARE_CAMPAIGN_NOT_FOUND, id));
     }
-
-    public EndDeviceGroup findDeviceGroupOrThrowException(long id){
-        return meteringGroupsService.findEndDeviceGroup(id)
-                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.DEVICE_GROUP_NOT_FOUND, id));
-    }
-
     public ProtocolSupportedFirmwareOptions findProtocolSupportedFirmwareOptionsOrThrowException(String uploadOption) {
         return ProtocolSupportedFirmwareOptions.from(uploadOption)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.SUPPORTED_FIRMWARE_UPGRADE_OPTIONS_NOT_FOUND));

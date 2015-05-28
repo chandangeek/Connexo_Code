@@ -5,9 +5,8 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
-import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
-import com.energyict.mdc.firmware.FirmwareManagementDeviceStatus;
 import com.energyict.mdc.firmware.FirmwareManagementDeviceUtils;
+import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
@@ -30,13 +29,15 @@ import java.util.Set;
 public class DeviceFirmwareVersionInfoFactory {
     private final Thesaurus thesaurus;
     private final Provider<FirmwareManagementDeviceUtils.Factory> utilProvider;
+    private final FirmwareService firmwareService;
 
     private final Map<ProtocolSupportedFirmwareOptions, List<FirmwareUpgradeState>> states;
 
     @Inject
-    public DeviceFirmwareVersionInfoFactory(Thesaurus thesaurus, Provider<FirmwareManagementDeviceUtils.Factory> utilProvider) {
+    public DeviceFirmwareVersionInfoFactory(Thesaurus thesaurus, Provider<FirmwareManagementDeviceUtils.Factory> utilProvider, FirmwareService firmwareService) {
         this.thesaurus = thesaurus;
         this.utilProvider = utilProvider;
+        this.firmwareService = firmwareService;
         states = new HashMap<>();
 
         initStatesForActivateOnDate();
@@ -87,9 +88,11 @@ public class DeviceFirmwareVersionInfoFactory {
         states.put(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_LATER, install);
     }
 
-    public DeviceFirmwareVersionInfos from(Device device, Optional<ActivatedFirmwareVersion>... activatedVersions) {
+    public DeviceFirmwareVersionInfos from(Device device) {
         DeviceFirmwareVersionInfos info = new DeviceFirmwareVersionInfos(thesaurus, getSupportedFirmwareTypesFor(device));
-        Arrays.asList(activatedVersions).stream()
+        Arrays.asList(firmwareService.getActiveFirmwareVersion(device, FirmwareType.METER),
+                firmwareService.getActiveFirmwareVersion(device, FirmwareType.COMMUNICATION))
+                .stream()
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .forEach(info::addActiveVersion);

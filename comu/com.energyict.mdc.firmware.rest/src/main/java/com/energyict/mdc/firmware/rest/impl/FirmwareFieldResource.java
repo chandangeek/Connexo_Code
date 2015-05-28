@@ -46,12 +46,14 @@ public class FirmwareFieldResource extends FieldResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({com.energyict.mdc.device.config.security.Privileges.VIEW_DEVICE_TYPE, com.energyict.mdc.device.config.security.Privileges.ADMINISTRATE_DEVICE_TYPE})
     public Object getFirmwareTypes(@QueryParam("deviceType") Long deviceTypeId) {
-        boolean needSupportCommunicationFirmware = true;
+        List<String> firmwareTypes = new FirmwareTypeFieldAdapter().getClientSideValues();
         if (deviceTypeId != null){
             DeviceType deviceType = resourceHelper.findDeviceTypeOrElseThrowException(deviceTypeId);
-            needSupportCommunicationFirmware = deviceType.getDeviceProtocolPluggableClass().getDeviceProtocol().supportsCommunicationFirmwareVersion();
+            if (!deviceType.getDeviceProtocolPluggableClass().getDeviceProtocol().supportsCommunicationFirmwareVersion()){
+                firmwareTypes.remove(MessageSeeds.Keys.TYPE_COMMUNICATION);
+            }
         }
-        return asJsonArrayObjectWithTranslation("firmwareTypes", "id", new FirmwareTypeFieldAdapter(needSupportCommunicationFirmware).getClientSideValues());
+        return asJsonArrayObjectWithTranslation("firmwareTypes", "id", firmwareTypes);
     }
 
     @GET
@@ -59,9 +61,9 @@ public class FirmwareFieldResource extends FieldResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({com.energyict.mdc.device.config.security.Privileges.VIEW_DEVICE_TYPE})
     public Response getDeviceTypesWhichSupportFirmwareUpgrade() {
-        List<IdWithNameInfo> deviceTypes = firmwareService.getDeviceTypesWhichSupportFirmwareManagement()
+        List<IdWithLocalizedValue> deviceTypes = firmwareService.getDeviceTypesWhichSupportFirmwareManagement()
                 .stream()
-                .map(IdWithNameInfo::new)
+                .map(IdWithLocalizedValue::from)
                 .collect(Collectors.toList());
         return Response.ok(deviceTypes).build();
     }

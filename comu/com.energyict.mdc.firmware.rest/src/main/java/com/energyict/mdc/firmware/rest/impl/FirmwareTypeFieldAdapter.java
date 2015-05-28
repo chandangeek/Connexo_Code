@@ -9,11 +9,4 @@ public class FirmwareTypeFieldAdapter extends MapBasedXmlAdapter<FirmwareType> {
         register(MessageSeeds.Keys.TYPE_METER, FirmwareType.METER);
         register(MessageSeeds.Keys.TYPE_COMMUNICATION, FirmwareType.COMMUNICATION);
     }
-
-    public FirmwareTypeFieldAdapter(boolean needSupportCommunicationFirmware) {
-        register(MessageSeeds.Keys.TYPE_METER, FirmwareType.METER);
-        if (needSupportCommunicationFirmware) {
-            register(MessageSeeds.Keys.TYPE_COMMUNICATION, FirmwareType.COMMUNICATION);
-        }
-    }
 }
