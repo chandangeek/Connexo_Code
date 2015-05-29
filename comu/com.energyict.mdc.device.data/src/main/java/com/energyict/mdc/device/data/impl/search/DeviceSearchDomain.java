@@ -4,7 +4,6 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.DeviceServiceImpl;
 import com.energyict.mdc.dynamic.PropertySpecService;
 
-import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchProvider;
@@ -12,6 +11,7 @@ import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyCondition;
 import com.elster.jupiter.util.conditions.Condition;
 
+import java.time.Clock;
 import java.util.Arrays;
 import java.util.List;
 
@@ -26,11 +26,13 @@ public class DeviceSearchDomain implements SearchDomain {
 
     private final DeviceServiceImpl deviceService;
     private final PropertySpecService propertySpecService;
+    private final Clock clock;
 
-    public DeviceSearchDomain(DeviceServiceImpl deviceService, PropertySpecService propertySpecService) {
+    public DeviceSearchDomain(DeviceServiceImpl deviceService, PropertySpecService propertySpecService, Clock clock) {
         super();
         this.deviceService = deviceService;
         this.propertySpecService = propertySpecService;
+        this.clock = clock;
     }
 
     @Override
@@ -59,33 +61,9 @@ public class DeviceSearchDomain implements SearchDomain {
 
     @Override
     public Finder<Device> finderFor(List<SearchablePropertyCondition> conditions) {
-        return DefaultFinder.of(Device.class, this.toCondition(conditions), this.deviceService.dataModel());
-    }
-
-    private Condition toCondition(List<SearchablePropertyCondition> conditions) {
-        return conditions
-                .stream()
-                .map(ConditionBuilder::new)
-                .reduce(
-                    Condition.TRUE,
-                    (underConstruction, builder) -> underConstruction.and(builder.build()),
-                    Condition::and);
-    }
-
-    private class ConditionBuilder {
-        private final SearchablePropertyCondition spec;
-        private final SearchableDeviceProperty property;
-
-        private ConditionBuilder(SearchablePropertyCondition spec) {
-            super();
-            this.spec = spec;
-            this.property = (SearchableDeviceProperty) spec.getProperty();
-        }
-
-        private Condition build() {
-            return this.property.toCondition(this.spec.getCondition());
-        }
-
+        return new DeviceFinder(
+                new DeviceSearchSqlBuilder(this.deviceService.dataModel(), conditions, this.clock.instant()),
+                this.deviceService.dataModel());
     }
 
 }

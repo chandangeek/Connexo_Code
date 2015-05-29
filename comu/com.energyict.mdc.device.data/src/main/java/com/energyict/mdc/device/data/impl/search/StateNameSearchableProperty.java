@@ -9,10 +9,14 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
-import com.elster.jupiter.util.conditions.Comparison;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Operator;
+import com.elster.jupiter.util.sql.SqlBuilder;
+import com.elster.jupiter.util.sql.SqlFragment;
 import com.elster.jupiter.util.streams.Predicates;
 
+import java.text.MessageFormat;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -89,15 +93,28 @@ public class StateNameSearchableProperty extends AbstractSearchableDevicePropert
     }
 
     @Override
-    public Condition toCondition(Condition specification) {
-        specification.visit(this);
-        return this.constructed();
+    public void appendJoinClauses(JoinClauseBuilder builder) {
+        builder
+            .addEndDevice()
+            .addEndDeviceStatus()
+            .addFiniteState();
     }
 
     @Override
-    public void visitComparison(Comparison comparison) {
-        // mRID is simple enough such that the specification can also serve as actual condition
-        this.and(comparison);
+    public SqlFragment toSqlFragment(Condition condition, Instant now) {
+        SqlBuilder sqlBuilder = new SqlBuilder();
+        sqlBuilder.spaceOpenBracket();
+        sqlBuilder.openBracket();
+        sqlBuilder.append(MessageFormat.format(Operator.LESSTHANOREQUAL.getFormat(), "eds.starttime"));
+        sqlBuilder.add(this.toSqlFragment(now));
+        sqlBuilder.append(" AND ");
+        sqlBuilder.append(MessageFormat.format(Operator.GREATERTHAN.getFormat(), "eds.endtime"));
+        sqlBuilder.add(this.toSqlFragment(now));
+        sqlBuilder.closeBracket();
+        sqlBuilder.append(" AND ");
+        sqlBuilder.add(this.toSqlFragment("fs.name", condition, now));
+        sqlBuilder.closeBracket();
+        return sqlBuilder;
     }
 
 }

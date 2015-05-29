@@ -79,7 +79,7 @@ public class DeviceServiceImpl implements ServerDeviceService {
     @Override
     public List<CanFindByLongPrimaryKey<? extends HasId>> finders() {
         List<CanFindByLongPrimaryKey<? extends HasId>> finders = new ArrayList<>();
-        finders.add(new DeviceFinder(this.deviceDataModelService.dataModel()));
+        finders.add(new DeviceFinder(this));
         finders.add(new ProtocolDialectPropertiesFinder(this.deviceDataModelService.dataModel()));
         finders.add(new SecuritySetFinder(this.deviceDataModelService.deviceConfigurationService()));
         return finders;
@@ -225,7 +225,7 @@ public class DeviceServiceImpl implements ServerDeviceService {
 
     @Override
     public List<SearchDomain> getDomains() {
-        return Arrays.asList(new DeviceSearchDomain(this, this.propertySpecService));
+        return Arrays.asList(new DeviceSearchDomain(this, this.propertySpecService, this.deviceDataModelService.clock()));
     }
 
 }

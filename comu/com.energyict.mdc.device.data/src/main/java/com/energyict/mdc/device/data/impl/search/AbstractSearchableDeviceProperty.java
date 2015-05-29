@@ -13,6 +13,16 @@ import com.elster.jupiter.util.conditions.Not;
 import com.elster.jupiter.util.conditions.Or;
 import com.elster.jupiter.util.conditions.Text;
 import com.elster.jupiter.util.conditions.Visitor;
+import com.elster.jupiter.util.conditions.Where;
+import com.elster.jupiter.util.sql.SqlBuilder;
+import com.elster.jupiter.util.sql.SqlFragment;
+
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.time.Instant;
+import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * Serves as the root for all {@link SearchableDeviceProperty SearchableDeviceProperties}.
@@ -24,38 +34,57 @@ import com.elster.jupiter.util.conditions.Visitor;
  */
 public abstract class AbstractSearchableDeviceProperty implements SearchableDeviceProperty, Visitor {
 
-    private Condition underConstruction = Condition.TRUE;
+    private SqlBuilder underConstruction = new SqlBuilder();
+    private String columnName;
+    private Instant now;
 
-    protected void and(Condition condition) {
-        this.underConstruction = this.underConstruction.and(condition);
+    protected SqlFragment toSqlFragment(String columnName, Condition condition, Instant now) {
+        this.columnName = columnName;
+        this.now = now;
+        this.underConstruction = new SqlBuilder();
+        this.underConstruction.openBracket();
+        condition.visit(this);
+        this.underConstruction.closeBracket();
+        return this.underConstruction;
     }
 
-    protected void or(Condition condition) {
-        this.underConstruction = this.underConstruction.or(condition);
+    protected SqlFragment toSqlFragment(Instant instant) {
+        return new InstantFragment(instant);
     }
 
-    @Override
-    public void visitOr(Or or) {
-        throw unsupportedCondition("OR");
-    }
-
-    @Override
     public void visitAnd(And and) {
-        throw unsupportedCondition("AND");
+        this.visitAll(and.getConditions(), " AND ");
     }
 
-    protected Condition constructed() {
-        return underConstruction;
+    public void visitOr(Or or) {
+        this.visitAll(or.getConditions(), " OR ");
+    }
+
+    private void visitAll(List<Condition> conditions , String separator) {
+        String sep = "";
+        this.underConstruction.openBracket();
+        for (Condition each : conditions) {
+            this.underConstruction.append(sep);
+            this.underConstruction.append(separator);
+            each.visit(this);
+        }
+        this.underConstruction.closeBracket();
     }
 
     @Override
     public void visitComparison(Comparison comparison) {
-        throw unsupportedCondition("COMPARE");
+        this.underConstruction.append(comparison.getText(this.columnName));
+        Stream
+            .of(comparison.getValues())
+            .forEach(this.underConstruction::addObject);
     }
 
     @Override
     public void visitNot(Not not) {
-        throw unsupportedCondition("NOT");
+        this.underConstruction.append(" NOT");
+        this.underConstruction.openBracket();
+        not.getNegated().visit(this);
+        this.underConstruction.closeBracket();
     }
 
     @Override
@@ -70,36 +99,68 @@ public abstract class AbstractSearchableDeviceProperty implements SearchableDevi
 
     @Override
     public void visitContains(Contains contains) {
-        throw unsupportedCondition("IN (list)");
+        this.underConstruction.append(this.columnName);
+        this.underConstruction.append(" ");
+        this.underConstruction.append(contains.getOperator().getSymbol());
+        this.underConstruction.spaceOpenBracket();
+        String separator = "";
+        for (Object each : contains.getCollection()) {
+            this.underConstruction.append(separator);
+            this.underConstruction.append("?");
+            separator = ",";
+        }
+        this.underConstruction.closeBracket();
     }
 
     @Override
-    public void visitMembership(Membership member) {
-        throw unsupportedCondition("IN (subquery)");
+    public void visitMembership(Membership membership) {
+        this.underConstruction.append(this.columnName);
+        this.underConstruction.append(membership.getOperator().getSymbol());
+        this.underConstruction.spaceOpenBracket();
+        this.underConstruction.add(membership.getSubquery().toFragment());
+        this.underConstruction.closeBracket();
     }
 
     @Override
     public void visitExists(Exists empty) {
-        throw unsupportedCondition("EXISTS");
+        this.underConstruction.append(" EXISTS ");
+        this.underConstruction.openBracket();
+        this.underConstruction.add(empty.getSubquery().toFragment());
+        this.underConstruction.closeBracket();
     }
 
     @Override
     public void visitText(Text expression) {
-        throw unsupportedCondition("TEXT");
+        this.underConstruction.append(expression.getText());
     }
 
     @Override
     public void visitFragmentExpression(FragmentExpression expression) {
-        throw unsupportedCondition("FRAGMENT");
+        this.underConstruction.add(expression.getFragment());
     }
 
     @Override
     public void visitEffective(Effective effective) {
-        throw unsupportedCondition("EFFECTIVE");
+        Where.where(this.columnName).isEffective(this.now).visit(this);
     }
 
-    private UnsupportedOperationException unsupportedCondition(String conditionType) {
-        return new UnsupportedOperationException(conditionType + " condition not expected");
-    }
+    private static class InstantFragment implements SqlFragment {
+        private final Instant instant;
 
+        public InstantFragment(Instant instant) {
+            this.instant = instant;
+        }
+
+        @Override
+        public String getText() {
+            return "";
+        }
+
+        @Override
+        public int bind(PreparedStatement statement, int position) throws SQLException {
+            Date sqlDate = instant == null ? null : new Date(instant.toEpochMilli());
+            statement.setDate(position, sqlDate);
+            return position + 1;
+        }
+    }
 }

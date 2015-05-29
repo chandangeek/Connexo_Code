@@ -473,7 +473,7 @@ public class SecurityPropertyServiceImplTest {
             this.propertySpecService.addFactoryProvider(() -> {
                 List<CanFindByLongPrimaryKey<? extends HasId>> finders = new ArrayList<>();
                 finders.add(new ConnectionTaskFinder(ormService.getDataModels().get(0)));
-                finders.add(new DeviceFinder(ormService.getDataModels().get(0)));
+                finders.add(new DeviceFinder(ormService.getDataModels().get(0), deviceService));
                 finders.add(new SecuritySetFinder(deviceConfigurationService));
                 return finders;
             });

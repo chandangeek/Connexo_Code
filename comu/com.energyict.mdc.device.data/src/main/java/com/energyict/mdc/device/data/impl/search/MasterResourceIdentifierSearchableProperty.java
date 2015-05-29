@@ -8,9 +8,10 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
-import com.elster.jupiter.util.conditions.Comparison;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.sql.SqlFragment;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -56,15 +57,13 @@ public class MasterResourceIdentifierSearchableProperty extends AbstractSearchab
     }
 
     @Override
-    public Condition toCondition(Condition specification) {
-        specification.visit(this);
-        return this.constructed();
+    public void appendJoinClauses(JoinClauseBuilder builder) {
+        // No join clauses required
     }
 
     @Override
-    public void visitComparison(Comparison comparison) {
-        // mRID is simple enough such that the specification can also serve as actual condition
-        this.and(comparison);
+    public SqlFragment toSqlFragment(Condition condition, Instant now) {
+        return this.toSqlFragment("dev.mRID", condition, now);
     }
 
 }

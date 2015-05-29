@@ -2,6 +2,9 @@ package com.energyict.mdc.device.data.impl.search;
 
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.sql.SqlFragment;
+
+import java.time.Instant;
 
 /**
  * Adds behavior to {@link SearchableProperty} that applies
@@ -14,12 +17,22 @@ import com.elster.jupiter.util.conditions.Condition;
 public interface SearchableDeviceProperty extends SearchableProperty {
 
     /**
-     * Creates an actual query {@link Condition}
-     * from the specified specification.
+     * Appends the join clauses that are required to support
+     * the condition for this SearchableDeviceProperty.
      *
-     * @param specification The condition specification
-     * @return The Condition
+     * @param builder The JoinClauseBuilder
      */
-    public Condition toCondition(Condition specification);
+    public void appendJoinClauses(JoinClauseBuilder builder);
+
+    /**
+     * Converts the {@link Condition} that is expected to be
+     * expressed against this SearchableDeviceProperty
+     * to a {@link SqlFragment} that can be added to a SqlBuilder.
+     *
+     * @param condition The Condition
+     * @param now The current timestamp
+     * @return The SqlFragment
+     */
+    public SqlFragment toSqlFragment(Condition condition, Instant now);
 
 }

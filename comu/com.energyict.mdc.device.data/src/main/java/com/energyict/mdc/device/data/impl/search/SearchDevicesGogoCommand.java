@@ -9,11 +9,15 @@ import com.elster.jupiter.search.SearchBuilder;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.search.SearchableProperty;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Condition;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import javax.inject.Inject;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -37,10 +41,32 @@ import static com.elster.jupiter.util.conditions.Where.where;
 public class SearchDevicesGogoCommand {
 
     private volatile SearchService searchService;
+    private volatile TransactionService transactionService;
+
+    public SearchDevicesGogoCommand() {
+        super();
+    }
+
+    @Inject
+    public SearchDevicesGogoCommand(SearchService searchService, TransactionService transactionService) {
+        this();
+        this.searchService = searchService;
+        this.transactionService = transactionService;
+    }
 
     @Reference
     public void setSearchService(SearchService searchService) {
         this.searchService = searchService;
+    }
+
+    @Reference
+    public void setTransactionService(TransactionService transactionService) {
+        this.transactionService = transactionService;
+    }
+
+    @Activate
+    public void activate() {
+        System.out.println("Device meta search layer is open for business");
     }
 
     /**
@@ -57,11 +83,12 @@ public class SearchDevicesGogoCommand {
      */
     @SuppressWarnings("unused")
     public void listOptions() {
-        System.out.println("Usage mdc-search:search <condition>[ <condition]*");
+        System.out.println("Usage mdc.device.search:search <condition>[ <condition]*");
         System.out.println("      where condition is: <key>=<value>");
         System.out.println("      and key is one of the following");
         System.out.println("         " + this.getDeviceSearchDomain().getProperties().stream().map(this::toString).collect(Collectors.joining("\n         ")));
         System.out.println("      and value is the String representation of the type of the key that was used");
+        System.out.println("      Note that when the value type is String, wildcards * and ? are allowed");
     }
 
     private String toString(SearchableProperty property) {
@@ -91,12 +118,14 @@ public class SearchDevicesGogoCommand {
             .of(conditions)
             .map(this::toKeyValuePair)
             .forEach(p -> this.addCondition(builder, p.getFirst(), p.getLast()));
-        System.out.println(
-                builder
-                    .complete()
-                    .stream()
-                    .map(this::toString)
-                    .collect(Collectors.joining("\n")));
+        this.transactionService.execute(
+                VoidTransaction.of(() ->
+                        System.out.println(
+                                builder
+                                        .complete()
+                                        .stream()
+                                        .map(this::toString)
+                                        .collect(Collectors.joining("\n")))));
     }
 
     private SearchBuilder<Device> addCondition(SearchBuilder<Device> builder, String key, Object value) {
@@ -134,8 +163,8 @@ public class SearchDevicesGogoCommand {
                         .search(Device.class)
                         .where("mRID").isEqualTo(mRID)
                         .and("statusName").in(
-                        DefaultState.IN_STOCK.getKey(),
-                        DefaultState.DECOMMISSIONED.getKey())
+                            DefaultState.IN_STOCK.getKey(),
+                            DefaultState.DECOMMISSIONED.getKey())
                         .and("deviceConfigId").isEqualTo(97L)
                         .complete()
                         .stream()
