@@ -72,7 +72,7 @@ Ext.define('Est.estimationrules.controller.Overview', {
 
                 me.getApplication().fireEvent('changecontentevent', widget);
                 Ext.suspendLayouts();
-                me.getSideMenu().down('#estimation-rule-set-link').setText(record.get('name'));
+                me.getSideMenu().down('#estimation-rule-set-link').setText(Ext.String.htmlEncode(record.get('name')));
                 rules.totalCount = rules.getCount();
                 if (rules.totalCount) {
                     widget.down('preview-container').bindStore(rules);

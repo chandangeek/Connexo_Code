@@ -32,7 +32,7 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksDetails', {
             success: function (record) {
                 me.getApplication().fireEvent('changecontentevent', widget);
                 me.getApplication().fireEvent('estimationTaskLoaded', record);
-                me.getOverviewLink().setText(record.get('name'));
+                me.getOverviewLink().setText(Ext.String.htmlEncode(record.get('name')));
                 me.getDetailForm().getForm().loadRecord(record);
                 me.getActionMenu().record = record;
                 if (record.get('status') !== 'Busy') {

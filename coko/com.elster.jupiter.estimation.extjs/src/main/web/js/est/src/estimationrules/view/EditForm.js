@@ -165,7 +165,7 @@ Ext.define('Est.estimationrules.view.EditForm', {
 
         Ext.suspendLayouts();
         if (record.getId()) {
-            me.setTitle(Uni.I18n.translate('general.edit', 'EST', 'Edit') + ' \'' + record.get('name') + '\'');
+            me.setTitle(Uni.I18n.translate('general.edit', 'EST', 'Edit') + ' \'' + Ext.String.htmlEncode(record.get('name')) + '\'');
         }
         if (record.readingTypes().count()) {
             me.down('#reading-types-grid').reconfigure(record.readingTypes());
