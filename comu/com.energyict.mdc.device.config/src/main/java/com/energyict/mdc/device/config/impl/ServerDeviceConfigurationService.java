@@ -7,6 +7,7 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
 import com.energyict.mdc.tasks.ComTask;
 
 import com.elster.jupiter.nls.Thesaurus;
@@ -20,7 +21,7 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-02-18 (16:36)
  */
-public interface ServerDeviceConfigurationService extends DeviceConfigurationService {
+public interface ServerDeviceConfigurationService extends DeviceConfigurationService, ReferencePropertySpecFinderProvider {
 
     public Thesaurus getThesaurus();
 
