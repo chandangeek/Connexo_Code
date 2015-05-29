@@ -7,11 +7,13 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.FirmwareStatus;
 import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.FirmwareVersion;
+import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
@@ -43,7 +45,7 @@ public class FirmwareVersionImpl implements FirmwareVersion {
     }
 
     private long id;
-    @NotNull(message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
+    @NotEmpty(message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     @Size(min = 1, max = Table.NAME_LENGTH, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_NAME_LENGTH + "}")
     private String firmwareVersion;
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
@@ -91,7 +93,7 @@ public class FirmwareVersionImpl implements FirmwareVersion {
 
     private FirmwareVersion init(DeviceType deviceType, String firmwareVersion, FirmwareStatus firmwareStatus, FirmwareType firmwareType) {
         this.deviceType.set(deviceType);
-        this.firmwareVersion = firmwareVersion;
+        setFirmwareVersion(firmwareVersion);
         this.firmwareStatus = firmwareStatus;
         this.firmwareType = firmwareType;
         return this;
@@ -138,8 +140,10 @@ public class FirmwareVersionImpl implements FirmwareVersion {
     }
 
     @Override
-    public void setFirmwareVersion(String firmwareVersion) {
-        this.firmwareVersion = firmwareVersion != null ? firmwareVersion.trim() : firmwareVersion;
+    public final void setFirmwareVersion(String firmwareVersion) {
+        if (!Checks.is(firmwareVersion).emptyOrOnlyWhiteSpace()) {
+            this.firmwareVersion = firmwareVersion.trim();
+        }
     }
 
     @Override
