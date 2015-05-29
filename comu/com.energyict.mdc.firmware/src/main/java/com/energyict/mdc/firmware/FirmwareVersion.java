@@ -25,6 +25,8 @@ public interface FirmwareVersion extends HasId{
 
     void setFirmwareFile(byte[] firmwareFile);
 
+    void setExpectedFirmwareSize(long fileSize);
+
     void validate();
 
 }
