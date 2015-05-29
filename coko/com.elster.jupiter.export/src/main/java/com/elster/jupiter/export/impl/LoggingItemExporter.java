@@ -3,6 +3,7 @@ package com.elster.jupiter.export.impl;
 import com.elster.jupiter.export.DataExportException;
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.FatalDataExportException;
+import com.elster.jupiter.export.MeterReadingData;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.nls.Thesaurus;

@@ -10,6 +10,7 @@ import com.elster.jupiter.export.DataExportStrategy;
 import com.elster.jupiter.export.DataProcessor;
 import com.elster.jupiter.export.DataProcessorFactory;
 import com.elster.jupiter.export.FatalDataExportException;
+import com.elster.jupiter.export.MeterReadingData;
 import com.elster.jupiter.export.ReadingTypeDataSelector;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.Meter;

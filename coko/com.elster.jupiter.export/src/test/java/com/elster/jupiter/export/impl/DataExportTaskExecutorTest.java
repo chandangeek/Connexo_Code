@@ -12,10 +12,14 @@ import com.elster.jupiter.export.DataProcessorFactory;
 import com.elster.jupiter.export.DefaultStructureMarker;
 import com.elster.jupiter.export.ExportData;
 import com.elster.jupiter.export.FatalDataExportException;
+import com.elster.jupiter.export.MeterReadingData;
+import com.elster.jupiter.export.ReadingTypeDataExportItem;
+import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingContainer;
+import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
@@ -37,6 +41,7 @@ import com.google.common.collect.Range;
 import org.assertj.core.api.Condition;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -51,6 +56,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -61,6 +67,7 @@ import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
 import static com.elster.jupiter.devtools.tests.Matcher.matches;
+import static com.elster.jupiter.export.impl.IntervalReadingImpl.intervalReading;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Matchers.any;
@@ -113,7 +120,7 @@ public class DataExportTaskExecutorTest {
     @Mock
     private DataExportStrategy strategy;
     @Mock(extraInterfaces = {IntervalReadingRecord.class})
-    private Reading reading1, reading2;
+    private ReadingRecord reading1, reading2;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private Thesaurus thesaurus;
     @Mock
@@ -196,16 +203,8 @@ public class DataExportTaskExecutorTest {
         when(dataProcessor.processData(any())).thenReturn(Optional.of(exportPeriodEnd.toInstant()));
         when(reading1.getSource()).thenReturn("reading1");
         when(reading2.getSource()).thenReturn("reading2");
-        MeterReadingImpl meterReading1 = MeterReadingImpl.newInstance();
-        IntervalBlockImpl intervalBlock1 = IntervalBlockImpl.of("");
-        intervalBlock1.addIntervalReading((IntervalReading) reading1);
-        meterReading1.addIntervalBlock(intervalBlock1);
-        MeterReadingData newItemData = new MeterReadingData(this.newItem, meterReading1, DefaultStructureMarker.createRoot("newItem"));
-        MeterReadingImpl meterReading2 = MeterReadingImpl.newInstance();
-        IntervalBlockImpl intervalBlock2 = IntervalBlockImpl.of("");
-        intervalBlock2.addIntervalReading((IntervalReading) reading1);
-        meterReading1.addIntervalBlock(intervalBlock2);
-        MeterReadingData existItemData = new MeterReadingData(this.existingItem, meterReading2, DefaultStructureMarker.createRoot("newItem"));
+        MeterReadingData newItemData = new MeterReadingData(this.newItem, MeterReadingImpl.of(ReadingImpl.reading(reading1, readingType1)), DefaultStructureMarker.createRoot("newItem"));
+        MeterReadingData existItemData = new MeterReadingData(this.existingItem, MeterReadingImpl.of(ReadingImpl.reading(reading2, readingType1)), DefaultStructureMarker.createRoot("newItem"));
         when(readingTypeDataSelector.selectData(dataExportOccurrence)).thenReturn(Arrays.<ExportData>asList(newItemData, existItemData).stream());
     }
 
@@ -214,6 +213,7 @@ public class DataExportTaskExecutorTest {
 
     }
 
+    @Ignore // move to ReadingTypeDataSelectorTest
     @Test
     public void testExecuteObsoleteItemIsDeactivated() {
         DataExportTaskExecutor executor = new DataExportTaskExecutor(dataExportService, transactionService, thesaurus);
@@ -228,6 +228,7 @@ public class DataExportTaskExecutorTest {
         inOrder.verify(obsoleteItem).update();
     }
 
+    @Ignore // move to ReadingTypeDataSelectorTest
     @Test
     public void testExecuteExistingItemIsUpdated() {
         DataExportTaskExecutor executor = new DataExportTaskExecutor(dataExportService, transactionService, thesaurus);
@@ -244,6 +245,7 @@ public class DataExportTaskExecutorTest {
         inOrder.verify(existingItem).update();
     }
 
+    @Ignore // move to ReadingTypeDataSelectorTest
     @Test
     public void testNewItemIsUpdated() {
         DataExportTaskExecutor executor = new DataExportTaskExecutor(dataExportService, transactionService, thesaurus);
@@ -296,6 +298,11 @@ public class DataExportTaskExecutorTest {
     @Test
     public void testDataProcessorGetsTheRightNotificationsForIntervalReadings() {
         when(readingType1.isRegular()).thenReturn(true);
+        MeterReadingImpl meterReading1 = getMeterReadingWithIntervalBlock(newItem, Collections.singletonList(reading1));
+        MeterReadingData newItemData = new MeterReadingData(this.newItem, meterReading1, DefaultStructureMarker.createRoot("newItem"));
+        MeterReadingImpl meterReading2 = getMeterReadingWithIntervalBlock(existingItem, Collections.singletonList(reading2));
+        MeterReadingData existItemData = new MeterReadingData(this.existingItem, meterReading2, DefaultStructureMarker.createRoot("newItem"));
+        when(readingTypeDataSelector.selectData(dataExportOccurrence)).thenReturn(Arrays.<ExportData>asList(newItemData, existItemData).stream());
 
         DataExportTaskExecutor executor = new DataExportTaskExecutor(dataExportService, transactionService, thesaurus);
 
@@ -692,4 +699,26 @@ public class DataExportTaskExecutorTest {
             return intervalReadings.stream().anyMatch(r -> r.getSource().equals(reading.getSource()));
         }
     }
+
+    private MeterReadingImpl getMeterReadingWithIntervalBlock(IReadingTypeDataExportItem item, List<? extends BaseReadingRecord> readings) {
+        MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
+        meterReading.addIntervalBlock(buildIntervalBlock(item, readings));
+        return meterReading;
+    }
+
+    private IntervalBlockImpl buildIntervalBlock(ReadingTypeDataExportItem item, List<? extends BaseReadingRecord> readings) {
+        return readings.stream()
+                .map(IntervalReadingRecord.class::cast)
+                .collect(
+                        () -> IntervalBlockImpl.of(item.getReadingType().getMRID()),
+                        (block, reading) -> block.addIntervalReading(forReadingType(reading, item.getReadingType())),
+                        (b1, b2) -> b1.addAllIntervalReadings(b2.getIntervals())
+                );
+    }
+
+    private IntervalReading forReadingType(IntervalReadingRecord readingRecord, ReadingType readingType) {
+        return intervalReading(readingRecord, readingType);
+    }
+
+
 }

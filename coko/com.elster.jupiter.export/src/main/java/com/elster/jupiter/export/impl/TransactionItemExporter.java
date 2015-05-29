@@ -1,6 +1,7 @@
 package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.export.DataExportOccurrence;
+import com.elster.jupiter.export.MeterReadingData;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.google.common.collect.Range;

@@ -1,8 +1,5 @@
-package com.elster.jupiter.export.impl;
+package com.elster.jupiter.export;
 
-import com.elster.jupiter.export.AbstractExportData;
-import com.elster.jupiter.export.ReadingTypeDataExportItem;
-import com.elster.jupiter.export.StructureMarker;
 import com.elster.jupiter.metering.readings.MeterReading;
 
 public class MeterReadingData extends AbstractExportData<MeterReading> {

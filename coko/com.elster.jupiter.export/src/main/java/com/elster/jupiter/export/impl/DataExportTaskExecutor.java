@@ -10,6 +10,7 @@ import com.elster.jupiter.export.DataSelector;
 import com.elster.jupiter.export.DataSelectorFactory;
 import com.elster.jupiter.export.ExportData;
 import com.elster.jupiter.export.FatalDataExportException;
+import com.elster.jupiter.export.MeterReadingData;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.HasDynamicProperties;
 import com.elster.jupiter.tasks.TaskExecutor;
