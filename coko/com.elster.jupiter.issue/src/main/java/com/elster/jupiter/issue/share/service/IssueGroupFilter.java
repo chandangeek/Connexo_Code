@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-public class IssueGroupFilter {
+public final class IssueGroupFilter {
     private Object key;
     private long to;
     private long from;

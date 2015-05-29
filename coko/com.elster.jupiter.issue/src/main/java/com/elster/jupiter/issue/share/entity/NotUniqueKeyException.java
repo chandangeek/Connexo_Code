@@ -6,6 +6,8 @@ import com.elster.jupiter.nls.Thesaurus;
 
 public class NotUniqueKeyException extends LocalizedException {
 
+    private static final long serialVersionUID = 1L;
+
     public NotUniqueKeyException(Thesaurus thesaurus, Object... args) {
         super(thesaurus, MessageSeeds.NOT_UNIQUE_KEY, args);
     }

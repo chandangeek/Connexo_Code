@@ -1,12 +1,15 @@
 package com.elster.jupiter.issue.share.entity;
 
 import java.time.Instant;
+import java.util.Optional;
+
+import aQute.bnd.annotation.ConsumerType;
 
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.users.User;
-import java.util.Optional;
 
+@ConsumerType
 public interface Issue extends Entity {
 
     String getTitle();

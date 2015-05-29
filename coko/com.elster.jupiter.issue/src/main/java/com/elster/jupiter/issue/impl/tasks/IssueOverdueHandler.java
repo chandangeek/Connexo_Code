@@ -2,10 +2,10 @@ package com.elster.jupiter.issue.impl.tasks;
 
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
+import com.elster.jupiter.issue.share.IssueProvider;
 import com.elster.jupiter.issue.share.entity.CreationRuleActionPhase;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueActionService;
-import com.elster.jupiter.issue.share.service.IssueProvider;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.tasks.TaskExecutor;

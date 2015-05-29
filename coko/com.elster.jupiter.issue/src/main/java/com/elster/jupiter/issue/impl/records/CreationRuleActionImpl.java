@@ -1,66 +1,126 @@
 package com.elster.jupiter.issue.impl.records;
 
-import com.elster.jupiter.issue.impl.module.MessageSeeds;
-import com.elster.jupiter.issue.share.entity.*;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import java.util.ArrayList;
-import java.util.List;
 
-import static com.elster.jupiter.util.Checks.is;
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.issue.impl.module.MessageSeeds;
+import com.elster.jupiter.issue.share.IssueAction;
+import com.elster.jupiter.issue.share.entity.CreationRule;
+import com.elster.jupiter.issue.share.entity.CreationRuleAction;
+import com.elster.jupiter.issue.share.entity.CreationRuleActionPhase;
+import com.elster.jupiter.issue.share.entity.CreationRuleActionProperty;
+import com.elster.jupiter.issue.share.entity.IssueActionType;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.IsPresent;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.properties.PropertySpec;
 
-public class CreationRuleActionImpl extends EntityImpl implements CreationRuleAction{
+@HasValidActionProperties(groups = {Save.Create.class, Save.Update.class})
+public class CreationRuleActionImpl implements CreationRuleAction {
 
+    @SuppressWarnings("unused")
+    private long id;
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     private CreationRuleActionPhase phase;
+    @IsPresent
     private Reference<CreationRule> rule = ValueReference.absent();
-    private Reference<IssueActionType> type = ValueReference.absent();
-    private List<ActionParameter> parameters = new ArrayList<>();
+    @IsPresent(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
+    private Reference<IssueActionType> action = ValueReference.absent();
+    @Valid
+    private List<CreationRuleActionProperty> properties = new ArrayList<>();
 
+    // Audit fields
+    @SuppressWarnings("unused")
+    private Instant createTime;
+    @SuppressWarnings("unused")
+    private Instant modTime;
+    @SuppressWarnings("unused")
+    private String userName;
+    @SuppressWarnings("unused")
+    private long version;
+    
+    private final DataModel dataModel;
+    
     @Inject
     public CreationRuleActionImpl(DataModel dataModel) {
-        super(dataModel);
+        this.dataModel = dataModel;
     }
 
+    @Override
+    public IssueActionType getAction() {
+        return action.get();
+    }
+
+    @Override
     public CreationRuleActionPhase getPhase() {
         return phase;
     }
 
-    public void setPhase(CreationRuleActionPhase phase) {
+    @Override
+    public List<CreationRuleActionProperty> getProperties() {
+        return Collections.unmodifiableList(properties);
+    }
+
+    @Override
+    public CreationRule getRule() {
+        return rule.get();
+    }
+
+    @Override
+    public String getDisplayName(String propertyName) {
+        return getAction().createIssueAction().map(action -> action.getDisplayName(propertyName)).orElse(null);
+    }
+
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        if (action.isPresent()) {
+            Optional<IssueAction> issueAction = getAction().createIssueAction();
+            if(issueAction.isPresent()) {
+                return issueAction.get().getPropertySpecs();
+            }
+        }
+        return Collections.emptyList();
+    }
+
+    @Override
+    public PropertySpec getPropertySpec(String propertyName) {
+        return getPropertySpecs().stream()
+                .filter(p -> propertyName.equals(p.getName()))
+                .findFirst()
+                .orElse(null);
+    }
+
+    @Override
+    public Map<String, Object> getProps() {
+        return this.properties.stream().collect(Collectors.toMap(CreationRuleActionProperty::getName, CreationRuleActionProperty::getValue));
+    }
+
+    void setAction(IssueActionType type) {
+        this.action.set(type);
+    }
+
+    void setPhase(CreationRuleActionPhase phase) {
         this.phase = phase;
     }
 
-    public CreationRule getRule() {
-        return rule.orNull();
+    CreationRuleActionProperty addProperty(String name, Object value) {
+        CreationRuleActionProperty newProperty = dataModel.getInstance(CreationRuleActionPropertyImpl.class).init(this, name, value);
+        properties.add(newProperty);
+        return newProperty;
     }
 
-    public void setRule(CreationRule rule) {
+    void setRule(CreationRule rule) {
         this.rule.set(rule);
-    }
-
-    public IssueActionType getType() {
-        return type.orNull();
-    }
-
-    public void setType(IssueActionType type) {
-        this.type.set(type);
-    }
-
-    public List<ActionParameter> getParameters() {
-        return parameters;
-    }
-
-    public void addParameter(String key, String value){
-        if (!is(key).emptyOrOnlyWhiteSpace() && !is(value).emptyOrOnlyWhiteSpace()) {
-            ActionParameterImpl parameter = getDataModel().getInstance(ActionParameterImpl.class);
-            parameter.setKey(key);
-            parameter.setValue(value);
-            parameter.setAction(this);
-            getParameters().add(parameter);
-        }
     }
 }

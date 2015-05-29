@@ -12,8 +12,6 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
-import com.elster.jupiter.users.UserService;
-
 import org.drools.compiler.compiler.RuleBaseLoader;
 import org.drools.core.common.ProjectClassLoader;
 import org.kie.api.KieBaseConfiguration;
@@ -29,13 +27,13 @@ import org.kie.internal.runtime.StatefulKnowledgeSession;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.issue.impl.module.DroolsValidationException;
+import com.elster.jupiter.issue.impl.records.CreationRuleBuilderImpl;
 import com.elster.jupiter.issue.impl.records.CreationRuleImpl;
 import com.elster.jupiter.issue.impl.records.OpenIssueImpl;
 import com.elster.jupiter.issue.impl.tasks.IssueActionExecutor;
-import com.elster.jupiter.issue.share.cep.CreationRuleTemplate;
-import com.elster.jupiter.issue.share.cep.IssueEvent;
+import com.elster.jupiter.issue.share.CreationRuleTemplate;
+import com.elster.jupiter.issue.share.IssueEvent;
 import com.elster.jupiter.issue.share.entity.CreationRule;
-import com.elster.jupiter.issue.share.entity.CreationRuleAction;
 import com.elster.jupiter.issue.share.entity.CreationRuleActionPhase;
 import com.elster.jupiter.issue.share.entity.Entity;
 import com.elster.jupiter.issue.share.entity.Issue;
@@ -46,6 +44,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 
 @SuppressWarnings("deprecation")
@@ -87,15 +86,20 @@ public class IssueCreationServiceImpl implements IssueCreationService {
         this.resourceFactoryService = resourceFactoryService;
         this.thesaurus = thesaurus;
     }
-
+    
     @Override
-    public CreationRule createRule() {
-        return dataModel.getInstance(CreationRuleImpl.class);
+    public CreationRuleBuilder newCreationRule() {
+        return new CreationRuleBuilderImpl(dataModel, dataModel.getInstance(CreationRuleImpl.class));
     }
 
     @Override
-    public Optional<CreationRule> findCreationRule(long id) {
+    public Optional<CreationRule> findCreationRuleById(long id) {
         return find(CreationRule.class, id);
+    }
+    
+    @Override
+    public Optional<CreationRule> findAndLockCreationRuleByIdAndVersion(long id, long version) {
+        return dataModel.mapper(CreationRule.class).lockObjectIfVersion(version, id);
     }
 
     private <T extends Entity> Optional<T> find(Class<T> clazz, Object... key) {
@@ -110,22 +114,12 @@ public class IssueCreationServiceImpl implements IssueCreationService {
     }
 
     @Override
-    public Optional<CreationRuleAction> findCreationRuleAction(long id) {
-        return find(CreationRuleAction.class, id);
-    }
-
-    @Override
-    public Query<CreationRuleAction> getCreationRuleActionQuery() {
-        return query(CreationRuleAction.class);
-    }
-
-    @Override
-    public Optional<CreationRuleTemplate> findCreationRuleTemplate(String uuid) {
-        CreationRuleTemplate template = issueService.getCreationRuleTemplates().get(uuid);
-        if (template == null) {
-            return Optional.empty();
+    public Optional<CreationRuleTemplate> findCreationRuleTemplate(String name) {
+        if (name != null) {
+            CreationRuleTemplate template = issueService.getCreationRuleTemplates().get(name);
+            return Optional.ofNullable(template);
         }
-        return Optional.of(template);
+        return Optional.empty();
     }
 
     @Override
@@ -160,8 +154,8 @@ public class IssueCreationServiceImpl implements IssueCreationService {
     }
 
     @Override
-    public void processIssueEvent(long ruleId, IssueEvent event) {
-        CreationRule firedRule = findCreationRule(ruleId).orElse(null);
+    public void processIssueCreationEvent(long ruleId, IssueEvent event) {
+        CreationRule firedRule = findCreationRuleById(ruleId).orElse(null);
         CreationRuleTemplate template = firedRule.getTemplate();
         Issue baseIssue = dataModel.getInstance(OpenIssueImpl.class);
         baseIssue.setReason(firedRule.getReason());
@@ -179,10 +173,8 @@ public class IssueCreationServiceImpl implements IssueCreationService {
     }
 
     @Override
-    public void processIssueResolveEvent(long ruleId, IssueEvent event) {
-        CreationRule firedRule = findCreationRule(ruleId).orElse(null);
-        CreationRuleTemplate template = firedRule.getTemplate();
-        template.resolveIssue(firedRule, event);
+    public void processIssueResolutionEvent(long ruleId, IssueEvent event) {
+        findCreationRuleById(ruleId).get().getTemplate().resolveIssue(event);
     }
 
     @Override
@@ -209,7 +201,7 @@ public class IssueCreationServiceImpl implements IssueCreationService {
 
             List<CreationRule> allRules = getCreationRules();
             for (CreationRule rule : allRules) {
-                if (issueService.getCreationRuleTemplates().get(rule.getTemplateUuid()) != null) {
+                if (issueService.getCreationRuleTemplates().get(rule.getTemplateImpl()) != null) {
                     kbuilder.add(resourceFactoryService.newByteArrayResource(rule.getData()), ResourceType.DRL);
                 }
             }

@@ -17,7 +17,7 @@ public abstract class EntityImpl implements Entity {
 
     private DataModel dataModel;
 
-    protected EntityImpl(DataModel dataModel){
+    protected EntityImpl(DataModel dataModel) {
         this.dataModel = dataModel;
     }
 
@@ -71,7 +71,7 @@ public abstract class EntityImpl implements Entity {
     }
 
     @Override
-    public void save(){
+    public void save() {
         if (this.createTime == null) {
             Save.CREATE.save(dataModel, this);
         } else {
@@ -80,7 +80,7 @@ public abstract class EntityImpl implements Entity {
     }
 
     @Override
-    public void delete(){
+    public void delete() {
         dataModel.remove(this);
     }
 }

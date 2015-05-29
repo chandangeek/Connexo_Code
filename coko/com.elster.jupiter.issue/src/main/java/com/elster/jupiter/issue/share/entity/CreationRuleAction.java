@@ -1,22 +1,29 @@
 package com.elster.jupiter.issue.share.entity;
 
 import java.util.List;
+import java.util.Map;
 
-public interface CreationRuleAction extends Entity {
+import com.elster.jupiter.properties.PropertySpec;
+
+import aQute.bnd.annotation.ProviderType;
+
+@ProviderType
+public interface CreationRuleAction {
+
+    IssueActionType getAction();
 
     CreationRuleActionPhase getPhase();
 
-    void setPhase(CreationRuleActionPhase phase);
+    List<CreationRuleActionProperty> getProperties();
 
     CreationRule getRule();
 
-    void setRule(CreationRule rule);
+    List<PropertySpec> getPropertySpecs();
 
-    IssueActionType getType();
+    PropertySpec getPropertySpec(String propertyName);
 
-    void setType(IssueActionType type);
+    String getDisplayName(String propertyName);
 
-    List<ActionParameter> getParameters();
+    Map<String, Object> getProps();
 
-    void addParameter(String key, String value);
 }

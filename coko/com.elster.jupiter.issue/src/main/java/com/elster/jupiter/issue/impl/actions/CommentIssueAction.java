@@ -1,38 +1,39 @@
 package com.elster.jupiter.issue.impl.actions;
 
-import com.elster.jupiter.issue.impl.actions.parameters.IssueCommentParameter;
-import com.elster.jupiter.issue.impl.actions.parameters.Parameter;
-import com.elster.jupiter.issue.impl.module.MessageSeeds;
-import com.elster.jupiter.issue.share.cep.AbstractIssueAction;
-import com.elster.jupiter.issue.share.cep.IssueActionResult;
-import com.elster.jupiter.issue.share.cep.controls.DefaultActionResult;
-import com.elster.jupiter.issue.share.entity.Issue;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.users.User;
+import java.util.Arrays;
+import java.util.List;
 
 import javax.inject.Inject;
 
-import java.util.Map;
+import com.elster.jupiter.issue.share.AbstractIssueAction;
+import com.elster.jupiter.issue.share.IssueActionResult;
+import com.elster.jupiter.issue.share.entity.Issue;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.users.User;
+import com.google.common.collect.ImmutableList;
 
 public class CommentIssueAction extends AbstractIssueAction {
-    private ThreadPrincipalService threadPrincipalService;
+    
+    public static final String ISSUE_COMMENT = "commentIssueAction.comment";
+
+    private final ThreadPrincipalService threadPrincipalService;
 
     @Inject
-    public CommentIssueAction(NlsService nlsService, Thesaurus thesaurus, ThreadPrincipalService threadPrincipalService) {
-        super(nlsService, thesaurus);
+    public CommentIssueAction(DataModel dataModel, Thesaurus thesaurus, PropertySpecService propertySpecService, ThreadPrincipalService threadPrincipalService) {
+        super(dataModel, thesaurus, propertySpecService);
         this.threadPrincipalService = threadPrincipalService;
-        initParameterDefinitions();
     }
 
     @Override
-    public IssueActionResult execute(Issue issue, Map<String, String> actionParameters) {
-        validateParametersOrThrowException(actionParameters);
-        
-        DefaultActionResult result = new DefaultActionResult();
+    public IssueActionResult execute(Issue issue) {
+        IssueActionResult.DefaultActionResult result = new IssueActionResult.DefaultActionResult();
         User author = (User) threadPrincipalService.getPrincipal();
-        issue.addComment(actionParameters.get(Parameter.COMMENT.getKey()), author);
+        String comment = getPropertySpec(ISSUE_COMMENT).getValueFactory().toStringValue(properties.get(ISSUE_COMMENT));
+        issue.addComment(comment, author);
         result.success();
         return result;
     }
@@ -43,12 +44,19 @@ public class CommentIssueAction extends AbstractIssueAction {
     }
 
     @Override
-    public String getLocalizedName() {
-        return MessageSeeds.ACTION_COMMENT_ISSUE.getTranslated(getThesaurus());
+    public List<PropertySpec> getPropertySpecs() {
+        ImmutableList.Builder<PropertySpec> builder = ImmutableList.builder();
+        builder.add(getPropertySpecService().stringPropertySpec(ISSUE_COMMENT, true, ""));
+        return builder.build();
     }
 
-    private void initParameterDefinitions() {
-        IssueCommentParameter comment = new IssueCommentParameter(getThesaurus());
-        parameterDefinitions.put(comment.getKey(), comment);
+    @Override
+    public String getNameDefaultFormat() {
+        return "Comment";
+    }
+
+    @Override
+    public String getPropertyDefaultFormat(String property) {
+        return ISSUE_COMMENT.equals(property) ? "Comment" : null;
     }
 }

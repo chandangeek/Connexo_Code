@@ -1,5 +1,28 @@
 package com.elster.jupiter.issue.impl.service;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.time.Instant;
+import java.util.Collections;
+import java.util.logging.Level;
+
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.rules.TestRule;
+import org.kie.api.KieBaseConfiguration;
+import org.kie.api.io.KieResources;
+import org.kie.internal.KnowledgeBase;
+import org.kie.internal.KnowledgeBaseFactoryService;
+import org.kie.internal.builder.KnowledgeBuilder;
+import org.kie.internal.builder.KnowledgeBuilderConfiguration;
+import org.kie.internal.builder.KnowledgeBuilderFactoryService;
+import org.kie.internal.runtime.StatefulKnowledgeSession;
+import org.mockito.Matchers;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.event.EventAdmin;
+
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
@@ -9,20 +32,32 @@ import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.issue.impl.module.IssueModule;
+import com.elster.jupiter.issue.impl.records.CreationRuleBuilderImpl;
+import com.elster.jupiter.issue.impl.records.CreationRuleImpl;
 import com.elster.jupiter.issue.impl.records.OpenIssueImpl;
-import com.elster.jupiter.issue.impl.service.IssueServiceImpl;
-import com.elster.jupiter.issue.share.cep.CreationRuleTemplate;
-import com.elster.jupiter.issue.share.cep.IssueAction;
-import com.elster.jupiter.issue.share.cep.IssueActionFactory;
-import com.elster.jupiter.issue.share.cep.IssueEvent;
-import com.elster.jupiter.issue.share.entity.*;
-import com.elster.jupiter.issue.share.service.*;
+import com.elster.jupiter.issue.share.CreationRuleTemplate;
+import com.elster.jupiter.issue.share.IssueAction;
+import com.elster.jupiter.issue.share.IssueActionFactory;
+import com.elster.jupiter.issue.share.IssueEvent;
+import com.elster.jupiter.issue.share.entity.CreationRule;
+import com.elster.jupiter.issue.share.entity.DueInType;
+import com.elster.jupiter.issue.share.entity.IssueStatus;
+import com.elster.jupiter.issue.share.entity.IssueType;
+import com.elster.jupiter.issue.share.entity.OpenIssue;
+import com.elster.jupiter.issue.share.service.IssueActionService;
+import com.elster.jupiter.issue.share.service.IssueAssignmentService;
+import com.elster.jupiter.issue.share.service.IssueCreationService;
+import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleBuilder;
+import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
+import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
@@ -40,29 +75,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Rule;
-import org.junit.rules.TestRule;
-import org.kie.api.KieBaseConfiguration;
-import org.kie.api.io.KieResources;
-import org.kie.internal.KnowledgeBase;
-import org.kie.internal.KnowledgeBaseFactoryService;
-import org.kie.internal.builder.KnowledgeBuilder;
-import org.kie.internal.builder.KnowledgeBuilderConfiguration;
-import org.kie.internal.builder.KnowledgeBuilderFactoryService;
-import org.kie.internal.runtime.StatefulKnowledgeSession;
-import org.mockito.Matchers;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.event.EventAdmin;
-
-import java.util.logging.Level;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-@Ignore("Base functionality for all tests")
+@SuppressWarnings("deprecation")
 public class BaseTest {
     public static final String ISSUE_DEFAULT_TYPE_UUID = "datacollection";
     public static final String ISSUE_DEFAULT_REASON = "reason.default";
@@ -137,7 +150,8 @@ public class BaseTest {
                 new NlsModule(),
                 new UserModule(),
                 new FiniteStateMachineModule(),
-                new IssueModule()
+                new IssueModule(),
+                new BasicPropertiesModule()
         );
 
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
@@ -186,32 +200,38 @@ public class BaseTest {
     protected ThreadPrincipalService getThreadPrincipalService() {
         return injector.getInstance(ThreadPrincipalService.class);
     }
-
-    protected CreationRule getSimpleCreationRule() {
-        CreationRule rule = getIssueCreationService().createRule();
-        rule.setName("Simple Rule " + (1 + Math.random() * 10000));
-        rule.setComment("Comment for rule");
-        rule.setContent("Empty content");
-        rule.setReason(getIssueService().findReason(ISSUE_DEFAULT_REASON).orElse(null));
-        rule.setDueInValue(15L);
-        rule.setDueInType(DueInType.DAY);
-        rule.setTemplateUuid("Parent template uuid");
-        rule.save();
-        return rule;
+    
+    protected PropertySpecService getPropertySpecService() {
+        return injector.getInstance(PropertySpecService.class);
     }
 
     protected OpenIssue createIssueMinInfo() {
-        try (TransactionContext context = getContext()) {
-            OpenIssue issue = getDataModel().getInstance(OpenIssueImpl.class);
-            issue.setReason(getIssueService().findReason(ISSUE_DEFAULT_REASON).orElse(null));
-            issue.setStatus(getIssueService().findStatus(IssueStatus.OPEN).orElse(null));
-            CreationRule rule = getSimpleCreationRule();
-            rule.setName("create-issue-min-info");
-            issue.setRule(rule);
-            issue.save();
-            context.commit();
-            return issue;
-        }
+        OpenIssue issue = getDataModel().getInstance(OpenIssueImpl.class);
+        issue.setReason(getIssueService().findReason(ISSUE_DEFAULT_REASON).orElse(null));
+        issue.setStatus(getIssueService().findStatus(IssueStatus.OPEN).orElse(null));
+        CreationRule rule = createCreationRule("creation rule" + Instant.now());
+        issue.setRule(rule);
+        issue.save();
+        return issue;
+    }
+    
+    private CreationRule createCreationRule(String name) {
+        CreationRuleBuilder builder = getIssueCreationService().newCreationRule();
+        builder.setName(name);
+        builder.setTemplate(mockCreationRuleTemplate().getName());
+        builder.setReason(getIssueService().findReason(ISSUE_DEFAULT_REASON).orElse(null));
+        CreationRule creationRule = builder.complete();
+        creationRule.save();
+        return creationRule;
+    }
+    
+    private CreationRuleTemplate mockCreationRuleTemplate() {
+        CreationRuleTemplate creationRuleTemplate = mock(CreationRuleTemplate.class);
+        when(creationRuleTemplate.getPropertySpecs()).thenReturn(Collections.emptyList());
+        when(creationRuleTemplate.getName()).thenReturn("Template");
+        when(creationRuleTemplate.getContent()).thenReturn("Content");
+        ((IssueServiceImpl)getIssueService()).addCreationRuleTemplate(creationRuleTemplate);
+        return creationRuleTemplate;
     }
 
     protected DataModel getDataModel() {
@@ -247,12 +267,6 @@ public class BaseTest {
 
     protected static StatefulKnowledgeSession mockStatefulKnowledgeSession() {
         return mock(StatefulKnowledgeSession.class);
-    }
-
-    protected CreationRuleTemplate getMockCreationRuleTemplate() {
-        CreationRuleTemplate mock = mock(CreationRuleTemplate.class);
-        when(mock.getUUID()).thenReturn("uuid");
-        return mock;
     }
 
     protected IssueEvent getMockIssueEvent() {

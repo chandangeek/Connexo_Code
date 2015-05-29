@@ -1,9 +1,11 @@
 package com.elster.jupiter.issue.share.service;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.issue.share.cep.IssueAction;
-import com.elster.jupiter.issue.share.cep.IssueActionFactory;
-import com.elster.jupiter.issue.share.cep.IssueActionResult;
+import com.elster.jupiter.issue.share.IssueAction;
+import com.elster.jupiter.issue.share.IssueActionFactory;
+import com.elster.jupiter.issue.share.IssueActionResult;
 import com.elster.jupiter.issue.share.entity.CreationRuleActionPhase;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueActionType;
@@ -14,11 +16,14 @@ import java.util.Optional;
 import java.util.List;
 import java.util.Map;
 
+@ProviderType
 public interface IssueActionService {
     
-    Optional<IssueAction> createIssueAction(String factoryUuid, String issueActionClassName);
+    Optional<IssueAction> createIssueAction(String factoryId, String issueActionImpl);
     
-    IssueActionResult executeAction(IssueActionType type, Issue issue, Map<String, String> actionParams);
+    List<IssueActionFactory> getRegisteredFactories();
+    
+    IssueActionResult executeAction(IssueActionType type, Issue issue, Map<String, Object> props);
     
     IssueActionType createActionType(String factoryId, String className, IssueType issueType);
     
@@ -31,6 +36,4 @@ public interface IssueActionService {
     Optional<IssueActionType> findActionType(long id);
     
     Query<IssueActionType> getActionTypeQuery();
-    
-    List<IssueActionFactory> getRegisteredFactories();
 }

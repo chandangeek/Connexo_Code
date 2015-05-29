@@ -1,8 +1,11 @@
 package com.elster.jupiter.issue.share.service;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.issue.share.cep.CreationRuleTemplate;
-import com.elster.jupiter.issue.share.cep.IssueActionFactory;
+import com.elster.jupiter.issue.share.CreationRuleTemplate;
+import com.elster.jupiter.issue.share.IssueActionFactory;
+import com.elster.jupiter.issue.share.IssueProvider;
 import com.elster.jupiter.issue.share.entity.Entity;
 import com.elster.jupiter.issue.share.entity.HistoricalIssue;
 import com.elster.jupiter.issue.share.entity.Issue;
@@ -19,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+@ProviderType
 public interface IssueService {
     
     String COMPONENT_NAME = "ISU";

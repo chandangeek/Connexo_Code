@@ -1,5 +1,8 @@
 package com.elster.jupiter.issue.share.entity;
 
+import aQute.bnd.annotation.ProviderType;
+
+@ProviderType
 public interface IssueAssignee {
 
     long getId();

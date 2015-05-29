@@ -1,28 +1,82 @@
 package com.elster.jupiter.issue.share.service;
 
-import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.issue.share.cep.CreationRuleTemplate;
-import com.elster.jupiter.issue.share.cep.IssueEvent;
-import com.elster.jupiter.issue.share.entity.CreationRule;
-import com.elster.jupiter.issue.share.entity.CreationRuleAction;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
-import java.util.List;
+import aQute.bnd.annotation.ProviderType;
 
+import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.issue.share.CreationRuleTemplate;
+import com.elster.jupiter.issue.share.IssueEvent;
+import com.elster.jupiter.issue.share.entity.CreationRule;
+import com.elster.jupiter.issue.share.entity.CreationRuleAction;
+import com.elster.jupiter.issue.share.entity.CreationRuleActionPhase;
+import com.elster.jupiter.issue.share.entity.DueInType;
+import com.elster.jupiter.issue.share.entity.IssueActionType;
+import com.elster.jupiter.issue.share.entity.IssueReason;
+
+@ProviderType
 public interface IssueCreationService {
-    CreationRule createRule();
+    
+    CreationRuleBuilder newCreationRule();
 
-    Optional<CreationRule> findCreationRule(long id);
+    Optional<CreationRule> findCreationRuleById(long id);
+    
+    Optional<CreationRule> findAndLockCreationRuleByIdAndVersion(long id, long version);
+
     Query<CreationRule> getCreationRuleQuery(Class<?>... eagers);
 
-    Optional<CreationRuleAction> findCreationRuleAction(long id);
-    Query<CreationRuleAction> getCreationRuleActionQuery();
+    Optional<CreationRuleTemplate> findCreationRuleTemplate(String name);
 
-    Optional<CreationRuleTemplate> findCreationRuleTemplate(String uuid);
     List<CreationRuleTemplate> getCreationRuleTemplates();
 
     void dispatchCreationEvent(List<IssueEvent> events);
-    void processIssueEvent(long ruleId, IssueEvent event);
-    void processIssueResolveEvent(long ruleId, IssueEvent event);
+
+    void processIssueCreationEvent(long ruleId, IssueEvent event);
+
+    void processIssueResolutionEvent(long ruleId, IssueEvent event);
+
     boolean reReadRules();
+    
+    @ProviderType
+    interface CreationRuleBuilder {
+        
+        CreationRuleBuilder setName(String name);
+        
+        CreationRuleBuilder setComment(String comment);
+        
+        CreationRuleBuilder setReason(IssueReason reason);
+        
+        CreationRuleBuilder setDueInTime(DueInType dueInType, long dueInValue);
+        
+        CreationRuleBuilder setTemplate(String name);
+        
+        CreationRuleBuilder setProperties(Map<String, Object> props);
+        
+        CreationRuleActionBuilder newCreationRuleAction();
+        
+        CreationRule complete();
+        
+    }
+    
+    @ProviderType
+    interface CreationRuleUpdater extends CreationRuleBuilder {
+        
+        CreationRuleUpdater removeActions();
+        
+    }
+    
+    @ProviderType
+    interface CreationRuleActionBuilder {
+        
+        CreationRuleActionBuilder setActionType(IssueActionType issueActionType);
+        
+        CreationRuleActionBuilder setPhase(CreationRuleActionPhase phase);
+        
+        CreationRuleActionBuilder addProperty(String name, Object value);
+        
+        CreationRuleAction complete();
+        
+    }
 }

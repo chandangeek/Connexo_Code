@@ -10,8 +10,9 @@ import com.elster.jupiter.issue.impl.records.IssueReasonImpl;
 import com.elster.jupiter.issue.impl.records.IssueStatusImpl;
 import com.elster.jupiter.issue.impl.records.IssueTypeImpl;
 import com.elster.jupiter.issue.impl.records.assignee.types.AssigneeType;
-import com.elster.jupiter.issue.share.cep.CreationRuleTemplate;
-import com.elster.jupiter.issue.share.cep.IssueActionFactory;
+import com.elster.jupiter.issue.share.CreationRuleTemplate;
+import com.elster.jupiter.issue.share.IssueActionFactory;
+import com.elster.jupiter.issue.share.IssueProvider;
 import com.elster.jupiter.issue.share.entity.Entity;
 import com.elster.jupiter.issue.share.entity.HistoricalIssue;
 import com.elster.jupiter.issue.share.entity.Issue;
@@ -27,7 +28,6 @@ import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueAssignmentService;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueGroupFilter;
-import com.elster.jupiter.issue.share.service.IssueProvider;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.EndDevice;
@@ -52,6 +52,7 @@ import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
+
 import org.kie.api.io.KieResources;
 import org.kie.internal.KnowledgeBaseFactoryService;
 import org.kie.internal.builder.KnowledgeBuilderFactoryService;
@@ -63,6 +64,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -260,14 +262,14 @@ public class IssueServiceImpl implements IssueService, InstallService, Translati
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addCreationRuleTemplate(CreationRuleTemplate ruleTemplate) {
-        creationRuleTemplates.put(ruleTemplate.getUUID(), ruleTemplate);
+        creationRuleTemplates.put(ruleTemplate.getName(), ruleTemplate);
         if (issueCreationService != null) {
             issueCreationService.reReadRules();
         }
     }
 
     public void removeCreationRuleTemplate(CreationRuleTemplate template) {
-        creationRuleTemplates.values().remove(template);
+        creationRuleTemplates.remove(template.getName());
         if (issueCreationService != null) {
             issueCreationService.reReadRules();
         }

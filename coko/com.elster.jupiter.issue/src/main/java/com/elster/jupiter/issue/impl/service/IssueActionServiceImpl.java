@@ -14,10 +14,9 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
 import com.elster.jupiter.issue.impl.records.IssueActionTypeImpl;
-import com.elster.jupiter.issue.share.cep.IssueAction;
-import com.elster.jupiter.issue.share.cep.IssueActionFactory;
-import com.elster.jupiter.issue.share.cep.IssueActionResult;
-import com.elster.jupiter.issue.share.cep.controls.DefaultActionResult;
+import com.elster.jupiter.issue.share.IssueAction;
+import com.elster.jupiter.issue.share.IssueActionFactory;
+import com.elster.jupiter.issue.share.IssueActionResult;
 import com.elster.jupiter.issue.share.entity.CreationRuleActionPhase;
 import com.elster.jupiter.issue.share.entity.Entity;
 import com.elster.jupiter.issue.share.entity.Issue;
@@ -29,8 +28,6 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.QueryExecutor;
-import com.elster.jupiter.transaction.TransactionContext;
-import com.elster.jupiter.transaction.TransactionService;
 
 public class IssueActionServiceImpl implements IssueActionService {
     private static final Logger LOG = Logger.getLogger(IssueActionService.class.getName());
@@ -38,15 +35,13 @@ public class IssueActionServiceImpl implements IssueActionService {
     private volatile DataModel dataModel;
     private volatile IssueService issueService;
     private volatile QueryService queryService;
-    private volatile TransactionService transactionService;
     private volatile Thesaurus thesaurus;
 
     @Inject
-    public IssueActionServiceImpl(DataModel dataModel, IssueService issueService, QueryService queryService, TransactionService transactionService, Thesaurus thesaurus) {
+    public IssueActionServiceImpl(DataModel dataModel, IssueService issueService, QueryService queryService, Thesaurus thesaurus) {
         this.dataModel = dataModel;
         this.issueService = issueService;
         this.queryService = queryService;
-        this.transactionService = transactionService;
         this.thesaurus = thesaurus;
     }
 
@@ -120,18 +115,15 @@ public class IssueActionServiceImpl implements IssueActionService {
     }
 
     @Override
-    public IssueActionResult executeAction(IssueActionType type, Issue issue, Map<String, String> actionParams) {
+    public IssueActionResult executeAction(IssueActionType type, Issue issue, Map<String, Object> props) {
         IssueActionResult result = null;
-        try(TransactionContext context = transactionService.getContext()){
-            Optional<IssueAction> issueAction = createIssueAction(type.getFactoryId(), type.getClassName());
-            if (issueAction.isPresent()) {
-                result = issueAction.get().execute(issue, actionParams);
-            } else {
-                DefaultActionResult failedResult = new DefaultActionResult();
-                failedResult.fail(MessageSeeds.ISSUE_ACTION_CLASS_LOAD_FAIL.getTranslated(thesaurus, type.getClassName(), type.getId()));
-                result = failedResult;
-            }
-            context.commit();
+        Optional<IssueAction> issueAction = createIssueAction(type.getFactoryId(), type.getClassName());
+        if (issueAction.isPresent()) {
+            result = issueAction.get().initAndValidate(props).execute(issue);
+        } else {
+            IssueActionResult.DefaultActionResult failedResult = new IssueActionResult.DefaultActionResult();
+            failedResult.fail(MessageSeeds.ISSUE_ACTION_CLASS_LOAD_FAIL.getTranslated(thesaurus, type.getClassName(), type.getId()));
+            result = failedResult;
         }
         return result;
     }

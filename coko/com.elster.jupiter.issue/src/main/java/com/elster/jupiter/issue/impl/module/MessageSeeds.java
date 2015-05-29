@@ -65,6 +65,9 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     ISSUE_CREATION_RULE_INVALID_NUMBER_PARAMETER(9010, "issue.creation.invalid.number.parameter", "%s is not a number", Level.SEVERE),
     NOT_UNIQUE_KEY(9011, "issue.not.unique.key", "The key '{0}' is already in use", Level.SEVERE),
     CREATION_RULE_UNIQUE_NAME(9012, Keys.CREATION_RULE_UNIQUE_NAME, "The name should be unique", Level.SEVERE),
+    PROPERTY_NOT_IN_PROPERTYSPECS(9013, Keys.PROPERTY_NOT_IN_PROPERTYSPECS, "Property is not in property specs", Level.SEVERE),
+    PROPERTY_INVALID_VALUE(9014, Keys.PROPERTY_INVALID_VALUE, "Property invalid value", Level.SEVERE),
+    PROPERTY_MISSING(9015, Keys.PROPERTY_MISSING, "Required property with key ''{0}'' was not found.", Level.SEVERE);
     ;
 
     private final int number;
@@ -144,5 +147,8 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
         public static final String ISSUE_COMMENT_COMMENT_SIZE   = "IssueCommentCommentSize";
         public static final String ACTION_TYPE_DESCRIPTION_SIZE = "ActionTypeDescriptionSize";
         public static final String CREATION_RULE_UNIQUE_NAME    = "CreationRuleUniqueName";
+        public static final String PROPERTY_NOT_IN_PROPERTYSPECS = "PropertyNotInPropertySpecs";
+        public static final String PROPERTY_INVALID_VALUE = "PropertyInvalidValue";
+        public static final String PROPERTY_MISSING = "PropertyMissing";
     }
 }

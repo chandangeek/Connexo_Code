@@ -1,42 +1,49 @@
 package com.elster.jupiter.issue.share.entity;
 
-import com.elster.jupiter.issue.share.cep.CreationRuleTemplate;
 import java.time.Instant;
-
 import java.util.List;
+import java.util.Map;
 
+import aQute.bnd.annotation.ProviderType;
+
+import com.elster.jupiter.issue.share.CreationRuleTemplate;
+import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleUpdater;
+import com.elster.jupiter.properties.PropertySpec;
+
+@ProviderType
 public interface CreationRule extends Entity {
 
     String getName();
-    void setName(String name);
 
     String getComment();
-    void setComment(String comment);
 
     String getContent();
+
     byte[] getData();
-    void setContent(String content);
 
     IssueReason getReason();
-    void setReason(IssueReason reason);
 
     long getDueInValue();
-    void setDueInValue(long dueInValue);
 
     DueInType getDueInType();
-    void setDueInType(DueInType dueInType);
 
-    String getTemplateUuid();
+    String getTemplateImpl();
+
     CreationRuleTemplate getTemplate();
-    void setTemplateUuid(String templateName);
+
+    List<PropertySpec> getPropertySpecs();
+    
+    PropertySpec getPropertySpec(String propertyName);
+    
+    String getDisplayName(String propertyName);
+
+    List<CreationRuleProperty> getProperties();
+
+    List<CreationRuleAction> getActions();
 
     Instant getObsoleteTime();
-    void setObsoleteTime(Instant obsoleteTime);
 
-    List<CreationRuleParameter> getParameters();
-    List<CreationRuleAction> getActions();
-    void addParameter(String key, String value);
-    CreationRuleAction addAction(IssueActionType type, CreationRuleActionPhase phase);
-    void updateContent();
-    void validate();
+    CreationRuleUpdater startUpdate();
+
+    Map<String, Object> getProps();
 }

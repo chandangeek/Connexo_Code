@@ -3,7 +3,7 @@ package com.elster.jupiter.issue.impl.records;
 import java.util.Optional;
 
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
-import com.elster.jupiter.issue.share.cep.IssueAction;
+import com.elster.jupiter.issue.share.IssueAction;
 import com.elster.jupiter.issue.share.entity.CreationRuleActionPhase;
 import com.elster.jupiter.issue.share.entity.IssueActionType;
 import com.elster.jupiter.issue.share.entity.IssueReason;

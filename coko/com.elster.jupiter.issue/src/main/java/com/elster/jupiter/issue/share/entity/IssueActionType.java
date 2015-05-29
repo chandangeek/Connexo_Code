@@ -2,14 +2,23 @@ package com.elster.jupiter.issue.share.entity;
 
 import java.util.Optional;
 
-import com.elster.jupiter.issue.share.cep.IssueAction;
+import com.elster.jupiter.issue.share.IssueAction;
 
+import aQute.bnd.annotation.ProviderType;
+
+@ProviderType
 public interface IssueActionType extends Entity {
 
-    String getClassName();
-    String getFactoryId();
-    IssueType getIssueType();
-    IssueReason getIssueReason();
     CreationRuleActionPhase getPhase();
+
     Optional<IssueAction> createIssueAction();
+
+    IssueReason getIssueReason();
+
+    IssueType getIssueType();
+
+    String getFactoryId();
+
+    String getClassName();
+
 }

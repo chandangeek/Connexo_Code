@@ -1,12 +1,13 @@
 package com.elster.jupiter.issue.impl.tasks;
 
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
-import com.elster.jupiter.issue.share.cep.IssueAction;
+import com.elster.jupiter.issue.share.IssueAction;
 import com.elster.jupiter.issue.share.entity.*;
 import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.nls.Thesaurus;
-import java.util.Optional;
 
+import java.util.Collections;
+import java.util.Optional;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,29 +44,29 @@ public class IssueActionExecutor implements Runnable {
         }
     }
 
-    private Map<String, String> getActionParameters (CreationRuleAction ruleAction) {
-        Map<String, String> parametersMap = new HashMap<>();
-        List<ActionParameter> actionParameters = ruleAction.getParameters();
-        if (actionParameters.size() == 0){
-            return parametersMap;
+    private Map<String, Object> getActionProperties(CreationRuleAction ruleAction) {
+        Map<String, Object> propertiesMap = new HashMap<>();
+        List<CreationRuleActionProperty> properties = ruleAction.getProperties();
+        if (properties.isEmpty()){
+            return Collections.emptyMap();
         }
-        for (ActionParameter actionParameter : actionParameters) {
-            parametersMap.put(actionParameter.getKey(), actionParameter.getValue());
+        for (CreationRuleActionProperty property : properties) {
+            propertiesMap.put(property.getName(), property.getValue());
         }
-        return parametersMap;
+        return propertiesMap;
     }
 
     private void executeAction(CreationRuleAction action) {
-        Optional<IssueActionType> actionTypeRef = issueActionService.findActionType(action.getType().getId());
+        Optional<IssueActionType> actionTypeRef = issueActionService.findActionType(action.getAction().getId());
         if (!actionTypeRef.isPresent()) {
             throw new IllegalArgumentException("Rule action type doesn't exist");
         }
         Optional<IssueAction> realAction = actionTypeRef.get().createIssueAction();
         if (realAction.isPresent()) {
             try {
-                realAction.get().execute(issue, getActionParameters(action));
+                realAction.get().initAndValidate(getActionProperties(action)).execute(issue);
             } catch (RuntimeException e) {
-                MessageSeeds.ISSUE_ACTION_FAIL.log(LOG, thesaurus, e, action.getId(), issue.getTitle());
+                MessageSeeds.ISSUE_ACTION_FAIL.log(LOG, thesaurus, e, issue.getTitle());
             }
         }
     }

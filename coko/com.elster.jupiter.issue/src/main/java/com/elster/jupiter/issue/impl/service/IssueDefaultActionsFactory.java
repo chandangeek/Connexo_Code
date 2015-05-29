@@ -1,17 +1,18 @@
 package com.elster.jupiter.issue.impl.service;
 
-import com.elster.jupiter.issue.impl.actions.AssignIssueAction;
 import com.elster.jupiter.issue.impl.actions.CloseIssueAction;
-import com.elster.jupiter.issue.share.cep.ActionLoadFailedException;
-import com.elster.jupiter.issue.share.cep.IssueAction;
-import com.elster.jupiter.issue.share.cep.IssueActionFactory;
+import com.elster.jupiter.issue.share.IssueAction;
+import com.elster.jupiter.issue.share.IssueActionFactory;
+import com.elster.jupiter.issue.share.entity.IssueActionClassLoadFailedException;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.UserService;
 import com.google.inject.*;
+
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -19,6 +20,7 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.validation.MessageInterpolator;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -33,6 +35,7 @@ public class IssueDefaultActionsFactory implements IssueActionFactory {
     private volatile UserService userService;
     private volatile IssueService issueService;
     private volatile ThreadPrincipalService threadPrincipalService;
+    private volatile PropertySpecService propertySpecService;
 
     private Injector injector;
     private Map<String, Provider<? extends IssueAction>> actionProviders = new HashMap<>();
@@ -61,6 +64,7 @@ public class IssueDefaultActionsFactory implements IssueActionFactory {
                 bind(UserService.class).toInstance(userService);
                 bind(IssueService.class).toInstance(issueService);
                 bind(ThreadPrincipalService.class).toInstance(threadPrincipalService);
+                bind(PropertySpecService.class).toInstance(propertySpecService);
             }
         });
 
@@ -70,7 +74,7 @@ public class IssueDefaultActionsFactory implements IssueActionFactory {
     public IssueAction createIssueAction(String issueActionClassName) {
         Provider<? extends IssueAction> provider = actionProviders.get(issueActionClassName);
         if (provider == null) {
-            throw new ActionLoadFailedException(thesaurus);
+            throw new IssueActionClassLoadFailedException(thesaurus);
         }
         return provider.get();
     }
@@ -100,11 +104,16 @@ public class IssueDefaultActionsFactory implements IssueActionFactory {
     public final void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
         this.threadPrincipalService = threadPrincipalService;
     }
+    
+    @Reference
+    public void setPropertySpecService(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
 
     private void addDefaultActions() {
         try {
             actionProviders.put(CloseIssueAction.class.getName(), injector.getProvider(CloseIssueAction.class));
-            actionProviders.put(AssignIssueAction.class.getName(), injector.getProvider(AssignIssueAction.class));
+//            actionProviders.put(AssignIssueAction.class.getName(), injector.getProvider(AssignIssueAction.class));
         } catch (ConfigurationException | ProvisionException e) {
             LOG.warning(e.getMessage());
         }

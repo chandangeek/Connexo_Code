@@ -1,71 +1,75 @@
 package com.elster.jupiter.issue.impl.records;
 
-import static com.elster.jupiter.util.Checks.is;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 import java.nio.charset.Charset;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
-import javax.validation.ConstraintViolation;
-import javax.validation.Validator;
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
-import com.elster.jupiter.issue.share.cep.CreationRuleOrActionValidationException;
-import com.elster.jupiter.issue.share.cep.CreationRuleTemplate;
-import com.elster.jupiter.issue.share.cep.IssueAction;
+import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.CreationRuleAction;
-import com.elster.jupiter.issue.share.entity.CreationRuleActionPhase;
-import com.elster.jupiter.issue.share.entity.CreationRuleParameter;
+import com.elster.jupiter.issue.share.entity.CreationRuleProperty;
 import com.elster.jupiter.issue.share.entity.DueInType;
 import com.elster.jupiter.issue.share.entity.Issue;
-import com.elster.jupiter.issue.share.entity.IssueActionType;
 import com.elster.jupiter.issue.share.entity.IssueReason;
+import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleUpdater;
 import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.util.HasName;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.util.collections.ArrayDiffList;
+import com.elster.jupiter.util.collections.DiffList;
 import com.elster.jupiter.util.conditions.Condition;
 
 @HasUniqueName(message = "{" + MessageSeeds.Keys.CREATION_RULE_UNIQUE_NAME + "}")
+@HasValidRuleProperties(groups = {Save.Create.class, Save.Update.class})
 public class CreationRuleImpl extends EntityImpl implements CreationRule, UniqueNamed {
+    
     private static final String PARAM_RULE_ID = "ruleId";
-
+    
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
-    @Size(min=1, max = 80, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
+    @Size(min = 1, max = 80, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
     private String name;
     private String comment;
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
-    private String content;
-    @NotNull(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
+    private String content = "no content";
+    @IsPresent(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     private Reference<IssueReason> reason = ValueReference.absent();
     private long dueInValue;
     private DueInType dueInType;
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
-    @Size(min = 1, max = 128, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_128 + "}")
-    private String templateUuid;
+    @Size(min = 1, max = 1024, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_1024 + "}")
+    private String template;//creation rule template class name
     private Instant obsoleteTime;
-
-    private List<CreationRuleParameter> parameters = new ArrayList<>();
-    private List<CreationRuleAction> actions = new ArrayList<>();
-
-    private IssueService issueService;
-    private Thesaurus thesaurus;
+    
+    @Valid
+    private List<CreationRuleProperty> properties = new ArrayList<>();
+    @Valid
+    private List<CreationRuleAction> actions = new ArrayList<>();//for validation
+    private List<CreationRuleAction> persistentActions = new ArrayList<>();
+    
+    private final IssueService issueService;
 
     @Inject
-    public CreationRuleImpl(DataModel dataModel, IssueService issueService, Thesaurus thesaurus) {
+    public CreationRuleImpl(DataModel dataModel, IssueService issueService) {
         super(dataModel);
         this.issueService = issueService;
-        this.thesaurus = thesaurus;
     }
 
     @Override
@@ -73,8 +77,7 @@ public class CreationRuleImpl extends EntityImpl implements CreationRule, Unique
         return name;
     }
 
-    @Override
-    public void setName(String name) {
+    void setName(String name) {
         this.name = name;
     }
 
@@ -83,8 +86,7 @@ public class CreationRuleImpl extends EntityImpl implements CreationRule, Unique
         return comment;
     }
 
-    @Override
-    public void setComment(String comment) {
+    void setComment(String comment) {
         this.comment = comment;
     }
 
@@ -98,18 +100,16 @@ public class CreationRuleImpl extends EntityImpl implements CreationRule, Unique
         return content != null ? content.getBytes(Charset.defaultCharset()) : new byte[]{};
     }
 
-    @Override
-    public void setContent(String content) {
+    private void setContent(String content) {
         this.content = content;
     }
 
     @Override
     public IssueReason getReason() {
-        return reason.orNull();
+        return reason.get();
     }
 
-    @Override
-    public void setReason(IssueReason reason) {
+    void setReason(IssueReason reason) {
         this.reason.set(reason);
     }
 
@@ -118,8 +118,7 @@ public class CreationRuleImpl extends EntityImpl implements CreationRule, Unique
         return dueInValue;
     }
 
-    @Override
-    public void setDueInValue(long dueInValue) {
+    void setDueInValue(long dueInValue) {
         this.dueInValue = dueInValue;
     }
 
@@ -128,24 +127,22 @@ public class CreationRuleImpl extends EntityImpl implements CreationRule, Unique
         return dueInType;
     }
 
-    @Override
-    public void setDueInType(DueInType dueInType) {
+    void setDueInType(DueInType dueInType) {
         this.dueInType = dueInType;
     }
 
     @Override
-    public String getTemplateUuid() {
-        return templateUuid;
+    public String getTemplateImpl() {
+        return template;
     }
 
     @Override
     public CreationRuleTemplate getTemplate() {
-        return issueService.getIssueCreationService().findCreationRuleTemplate(getTemplateUuid()).orElse(null);
+        return issueService.getIssueCreationService().findCreationRuleTemplate(getTemplateImpl()).orElse(null);
     }
 
-    @Override
-    public void setTemplateUuid(String templateName) {
-        this.templateUuid = templateName;
+    void setTemplate(String template) {
+        this.template = template;
     }
 
     @Override
@@ -154,100 +151,23 @@ public class CreationRuleImpl extends EntityImpl implements CreationRule, Unique
     }
 
     @Override
-    public void setObsoleteTime(Instant obsoleteTime) {
-        this.obsoleteTime = obsoleteTime;
+    public List<CreationRuleProperty> getProperties() {
+        return Collections.unmodifiableList(properties);
     }
 
-    public List<CreationRuleParameter> getParameters() {
-        return parameters;
-    }
-
+    @Override
     public List<CreationRuleAction> getActions() {
-        return actions;
+        return Collections.unmodifiableList(persistentActions);
     }
 
-    public void addParameter(String key, String value){
-        if (!is(key).emptyOrOnlyWhiteSpace() && !is(value).emptyOrOnlyWhiteSpace()) {
-            CreationRuleParameterImpl parameter = getDataModel().getInstance(CreationRuleParameterImpl.class);
-            parameter.setKey(key);
-            parameter.setValue(value);
-            parameter.setRule(this);
-            getParameters().add(parameter);
-        }
+    CreationRuleProperty addProperty(String name, Object value) {
+        CreationRuleProperty newProperty = getDataModel().getInstance(CreationRulePropertyImpl.class).init(this, name, value);
+        properties.add(newProperty);
+        return newProperty;
     }
 
-    @Override
-    public CreationRuleAction addAction(IssueActionType type, CreationRuleActionPhase phase){
-        if (type == null || phase == null) {
-            throw new IllegalArgumentException("Type and phase parameters for rule action can't be null");
-        }
-        CreationRuleActionImpl action = getDataModel().getInstance(CreationRuleActionImpl.class);
-        action.setRule(this);
-        action.setPhase(phase);
-        action.setType(type);
-        getActions().add(action);
-        return action;
-    }
-
-    @Override
-    public void updateContent() {
-        if(getId() == 0){
-            throw new IllegalStateException("You can't call updateContent for CreationRule before it will be saved");
-        }
-        CreationRuleTemplate template = getTemplate();
-        if (template != null) {
-            String rawContent = template.getContent();
-            for (CreationRuleParameter parameter : parameters) {
-                rawContent = replaceParameterInConetent(rawContent, parameter.getKey(), parameter.getValue());
-            }
-            rawContent = replaceParameterInConetent(rawContent, PARAM_RULE_ID, getId());
-            setContent(rawContent);
-        }
-    }
-
-    private String replaceParameterInConetent(String source, String key, Object value){
-        String result = source;
-        key = "@{" + key + "}";
-        if (result != null && result.contains(key)) {
-            result = result.replace(key, String.valueOf(value));
-        }
-        return result;
-    }
-
-    @Override
-    public void delete() {
-        Condition condition = where("rule").isEqualTo(this);
-        List<Issue> referencedIssues = issueService.query(Issue.class).select(condition);
-        if (referencedIssues.size() == 0){
-            super.delete(); // delete from table
-        } else {
-            this.setObsoleteTime(Instant.now()); // mark obsolete
-            this.save();
-        }
-    }
-
-    @Override
-    public void validate() {
-        CreationRuleOrActionValidationException exception = new CreationRuleOrActionValidationException(thesaurus, MessageSeeds.ISSUE_CREATION_RULE_VALIDATION_FAILED);
-
-        Validator validator = getDataModel().getValidatorFactory().getValidator();
-        for (ConstraintViolation<?> violation : validator.validate(this)) {
-            exception.addError(violation.getPropertyPath().toString(), violation.getMessage(), IssueService.COMPONENT_NAME);
-        }
-
-        CreationRuleTemplate template = getTemplate();
-        exception.addErrors(template.validate(this));
-
-        for (CreationRuleAction action : actions) {
-            IssueActionType actionType = action.getType();
-            Optional<IssueAction> issueAction = actionType.createIssueAction();
-            if (issueAction.isPresent()) {
-                exception.addErrors(issueAction.get().validate(action));
-            }
-        }
-        if (!exception.getErrors().isEmpty()) {
-            throw exception;
-        }
+    void addAction(CreationRuleAction action) {
+        actions.add(action);
     }
 
     @Override
@@ -259,4 +179,105 @@ public class CreationRuleImpl extends EntityImpl implements CreationRule, Unique
     private Condition getUniqueNameWhereCondition(boolean caseSensitive) {
         return caseSensitive ? where("name").isEqualTo(this.getName()) : where("name").isEqualToIgnoreCase(this.getName());
     }
+    
+    @Override
+    public PropertySpec getPropertySpec(String propertyName) {
+        return getPropertySpecs().stream()
+                .filter(p -> propertyName.equals(p.getName()))
+                .findFirst()
+                .orElse(null);
+    }
+    
+    @Override
+    public String getDisplayName(String propertyName) {
+        return getTemplate().getDisplayName(propertyName);
+    }
+    
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        CreationRuleTemplate template = getTemplate();
+        return template != null ? template.getPropertySpecs() : Collections.emptyList();
+    }
+    
+    @Override
+    public CreationRuleUpdater startUpdate() {
+        return new CreationRuleUpdaterImpl(getDataModel(), this);
+    }
+    
+    @Override
+    public Map<String, Object> getProps() {
+        return properties.stream().collect(Collectors.toMap(CreationRuleProperty::getName, CreationRuleProperty::getValue));
+    }
+    
+    void setProperties(Map<String, Object> propertyMap) {
+        Map<String, CreationRuleProperty> originalProps = properties.stream().collect(Collectors.toMap(CreationRuleProperty::getName, Function.identity()));
+        DiffList<String> entryDiff = ArrayDiffList.fromOriginal(originalProps.keySet());
+        entryDiff.clear();
+        entryDiff.addAll(propertyMap.keySet());
+
+        for (String property : entryDiff.getRemovals()) {
+            CreationRuleProperty creationRuleProperty = originalProps.get(property);
+            properties.remove(creationRuleProperty);
+        }
+
+        for (String property : entryDiff.getRemaining()) {
+            CreationRuleProperty creationRuleProperty = originalProps.get(property);
+            creationRuleProperty.setValue(propertyMap.get(property));
+            getDataModel().mapper(CreationRuleProperty.class).update(creationRuleProperty);
+        }
+
+        for (String property : entryDiff.getAdditions()) {
+            addProperty(property, propertyMap.get(property));
+        }
+    }
+    
+    void removeActions() {
+        persistentActions.clear();
+        actions.clear();
+    }
+    
+    @Override
+    public void save() {
+        if (this.getCreateTime() == null) {
+            Save.CREATE.save(getDataModel(), this);
+        }
+        updateContent();
+        Save.UPDATE.save(getDataModel(), this);
+        persistentActions.addAll(actions);
+    }
+    
+    @Override
+    public void delete() {
+        Condition condition = where("rule").isEqualTo(this);
+        List<Issue> referencedIssues = issueService.query(Issue.class).select(condition);
+        if (referencedIssues.size() == 0) {
+            super.delete(); // delete from table
+        } else {
+            this.setObsoleteTime(Instant.now()); // mark obsolete
+            this.save();
+        }
+    }
+
+    private void updateContent() {
+        String rawContent = getTemplate().getContent();
+        for (CreationRuleProperty property : properties) {
+            // TODO use mapping between raw object to drools engine parameter for the rule
+            rawContent = replaceParameterInContent(rawContent, property.getName(), property.getValue().toString());
+        }
+        rawContent = replaceParameterInContent(rawContent, PARAM_RULE_ID, String.valueOf(getId()));
+        setContent(rawContent);
+    }
+
+    private String replaceParameterInContent(String source, String key, String value) {
+        String result = source;
+        key = "@{" + key + "}";
+        if (result != null && result.contains(key)) {
+            result = result.replace(key, value);
+        }
+        return result;
+    }
+
+    private void setObsoleteTime(Instant obsoleteTime) {
+        this.obsoleteTime = obsoleteTime;
+    };
 }

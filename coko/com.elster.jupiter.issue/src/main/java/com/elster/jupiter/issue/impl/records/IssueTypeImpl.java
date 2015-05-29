@@ -41,17 +41,12 @@ public class IssueTypeImpl extends EntityImpl implements IssueType {
     }
 
     @Override
-    public String getUUID() {
+    public String getKey() {
         return key;
     }
 
     @Override
     public String getName() {
         return this.thesaurus.getString(this.key, this.defaultName);
-    }
-
-    @Override
-    public long getId() {
-        return getUUID().hashCode();
     }
 }
