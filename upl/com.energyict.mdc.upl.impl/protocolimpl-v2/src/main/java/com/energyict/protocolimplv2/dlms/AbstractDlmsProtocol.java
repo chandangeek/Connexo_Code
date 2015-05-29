@@ -21,8 +21,6 @@ import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 import com.energyict.protocolimplv2.nta.dsmr23.ComposedMeterInfo;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsConfigurationSupport;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsProperties;
-import com.energyict.protocolimplv2.nta.dsmr23.profiles.LoadProfileBuilder;
-import com.energyict.protocolimplv2.nta.dsmr23.registers.Dsmr23RegisterFactory;
 import com.energyict.protocolimplv2.nta.dsmr23.topology.MeterTopology;
 import com.energyict.protocolimplv2.security.DlmsSecuritySupport;
 import com.energyict.protocolimplv2.security.DsmrSecuritySupport;
@@ -350,5 +348,9 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
 
     public OfflineDevice getOfflineDevice() {
         return offlineDevice;
+    }
+
+    public DLMSCache getDlmsCache() {
+        return dlmsCache;
     }
 }

@@ -1,11 +1,13 @@
 package com.energyict.protocolimplv2.nta.elster;
 
+import com.energyict.cbo.ConfigurationSupport;
 import com.energyict.mdc.channels.serial.modem.rxtx.RxTxAtModemConnectionType;
 import com.energyict.mdc.channels.serial.modem.serialio.SioAtModemConnectionType;
 import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.protocolimplv2.nta.dsmr23.eict.WebRTUKP;
 
 import java.util.List;
+import java.util.logging.Level;
 
 /**
  * The AM100 implementation of the NTA spec
@@ -14,6 +16,38 @@ import java.util.List;
  * @since 30/10/12 (9:58)
  */
 public class AM100 extends WebRTUKP {
+
+    private AM100DlmsProperties dlmsProperties;
+    private ConfigurationSupport configurationSupport;
+
+    @Override
+    protected void checkCacheObjects() {
+        boolean readCache = getDlmsSessionProperties().isReadCache();
+
+        if (getDlmsCache() == null && getDlmsCache().getObjectList() == null || readCache) {
+            getLogger().log(Level.INFO, readCache ? "ReadCache property is true, reading cache!" : "Cache does not exist, configuration is forced to be read.");
+            readObjectList();
+            getDlmsCache().saveObjectList(getDlmsSession().getMeterConfig().getInstantiatedObjectList());
+        } else {
+            getLogger().log(Level.INFO, "Cache exist, will not be read!");
+            getDlmsSession().getMeterConfig().setInstantiatedObjectList(getDlmsCache().getObjectList());
+
+        }
+    }
+
+    protected ConfigurationSupport getDlmsConfigurationSupport() {
+        if (configurationSupport == null) {
+            configurationSupport = new AM100ConfigurationSupport();
+        }
+        return configurationSupport;
+    }
+
+    public AM100DlmsProperties getDlmsSessionProperties() {
+         if (dlmsProperties == null) {
+             dlmsProperties = new AM100DlmsProperties();
+         }
+         return dlmsProperties;
+     }
 
     @Override
     public String getProtocolDescription() {
