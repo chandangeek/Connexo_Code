@@ -1,6 +1,5 @@
 package com.energyict.mdc.issue.datacollection.rest;
 
-import com.elster.jupiter.issue.rest.response.cep.CreationRuleOrActionValidationExceptionMapper;
 import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.license.License;
@@ -50,8 +49,7 @@ public class IssueDataCollectionApplication extends Application implements Trans
     @Override
     public Set<Class<?>> getClasses() {
         return ImmutableSet.<Class<?>>of(
-                IssueResource.class,
-                CreationRuleOrActionValidationExceptionMapper.class);
+                IssueResource.class);
     }
 
     @Reference

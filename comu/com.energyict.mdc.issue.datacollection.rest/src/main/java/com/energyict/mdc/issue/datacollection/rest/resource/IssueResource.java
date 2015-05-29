@@ -1,46 +1,28 @@
 package com.energyict.mdc.issue.datacollection.rest.resource;
 
-import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.issue.rest.request.AssignIssueRequest;
-import com.elster.jupiter.issue.rest.request.BulkIssueRequest;
-import com.elster.jupiter.issue.rest.request.CloseIssueRequest;
-import com.elster.jupiter.issue.rest.request.CreateCommentRequest;
-import com.elster.jupiter.issue.rest.request.EntityReference;
-import com.elster.jupiter.issue.rest.request.PerformActionRequest;
-import com.elster.jupiter.issue.rest.resource.StandardParametersBean;
-import com.elster.jupiter.issue.rest.response.ActionInfo;
-import com.elster.jupiter.issue.rest.response.IssueCommentInfo;
-import com.elster.jupiter.issue.rest.response.IssueGroupInfo;
-import com.elster.jupiter.issue.rest.response.cep.CreationRuleActionTypeInfo;
-import com.elster.jupiter.issue.rest.response.device.DeviceInfo;
-import com.elster.jupiter.issue.rest.transactions.AssignIssueTransaction;
-import com.elster.jupiter.issue.rest.transactions.CreateCommentTransaction;
-import com.elster.jupiter.issue.security.Privileges;
-import com.elster.jupiter.issue.share.cep.IssueAction;
-import com.elster.jupiter.issue.share.cep.IssueActionResult;
-import com.elster.jupiter.issue.share.entity.HistoricalIssue;
-import com.elster.jupiter.issue.share.entity.Issue;
-import com.elster.jupiter.issue.share.entity.IssueActionType;
-import com.elster.jupiter.issue.share.entity.IssueComment;
-import com.elster.jupiter.issue.share.entity.IssueGroup;
-import com.elster.jupiter.issue.share.entity.IssueReason;
-import com.elster.jupiter.issue.share.entity.IssueStatus;
-import com.elster.jupiter.issue.share.entity.IssueType;
-import com.elster.jupiter.issue.share.entity.OpenIssue;
-import com.elster.jupiter.issue.share.service.IssueGroupFilter;
-import com.elster.jupiter.metering.EndDevice;
-import com.elster.jupiter.transaction.TransactionContext;
-import com.elster.jupiter.users.User;
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Order;
-import com.elster.jupiter.rest.util.PagedInfoList;
-import com.elster.jupiter.rest.util.JsonQueryParameters;
-import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
-import com.energyict.mdc.issue.datacollection.entity.HistoricalIssueDataCollection;
-import com.energyict.mdc.issue.datacollection.entity.IssueDataCollection;
-import com.energyict.mdc.issue.datacollection.entity.OpenIssueDataCollection;
-import com.energyict.mdc.issue.datacollection.rest.i18n.MessageSeeds;
-import com.energyict.mdc.issue.datacollection.rest.response.DataCollectionIssueInfoFactory;
+import static com.elster.jupiter.issue.rest.request.RequestHelper.ASSIGNEE_ID;
+import static com.elster.jupiter.issue.rest.request.RequestHelper.ASSIGNEE_TYPE;
+import static com.elster.jupiter.issue.rest.request.RequestHelper.FIELD;
+import static com.elster.jupiter.issue.rest.request.RequestHelper.ID;
+import static com.elster.jupiter.issue.rest.request.RequestHelper.ISSUE_TYPE;
+import static com.elster.jupiter.issue.rest.request.RequestHelper.KEY;
+import static com.elster.jupiter.issue.rest.request.RequestHelper.LIMIT;
+import static com.elster.jupiter.issue.rest.request.RequestHelper.METER;
+import static com.elster.jupiter.issue.rest.request.RequestHelper.REASON;
+import static com.elster.jupiter.issue.rest.request.RequestHelper.START;
+import static com.elster.jupiter.issue.rest.request.RequestHelper.STATUS;
+import static com.elster.jupiter.issue.rest.response.ResponseHelper.entity;
+import static com.elster.jupiter.util.conditions.Where.where;
+import static com.energyict.mdc.issue.datacollection.rest.i18n.MessageSeeds.getString;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -57,27 +39,50 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
-import static com.elster.jupiter.issue.rest.request.RequestHelper.ASSIGNEE_ID;
-import static com.elster.jupiter.issue.rest.request.RequestHelper.ASSIGNEE_TYPE;
-import static com.elster.jupiter.issue.rest.request.RequestHelper.FIELD;
-import static com.elster.jupiter.issue.rest.request.RequestHelper.ID;
-import static com.elster.jupiter.issue.rest.request.RequestHelper.ISSUE_TYPE;
-import static com.elster.jupiter.issue.rest.request.RequestHelper.KEY;
-import static com.elster.jupiter.issue.rest.request.RequestHelper.LIMIT;
-import static com.elster.jupiter.issue.rest.request.RequestHelper.METER;
-import static com.elster.jupiter.issue.rest.request.RequestHelper.REASON;
-import static com.elster.jupiter.issue.rest.request.RequestHelper.START;
-import static com.elster.jupiter.issue.rest.request.RequestHelper.STATUS;
-import static com.elster.jupiter.issue.rest.response.ResponseHelper.entity;
-import static com.elster.jupiter.util.conditions.Where.where;
-import static com.energyict.mdc.issue.datacollection.rest.i18n.MessageSeeds.getString;
+import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.issue.rest.request.AssignIssueRequest;
+import com.elster.jupiter.issue.rest.request.BulkIssueRequest;
+import com.elster.jupiter.issue.rest.request.CloseIssueRequest;
+import com.elster.jupiter.issue.rest.request.CreateCommentRequest;
+import com.elster.jupiter.issue.rest.request.EntityReference;
+import com.elster.jupiter.issue.rest.request.PerformActionRequest;
+import com.elster.jupiter.issue.rest.resource.StandardParametersBean;
+import com.elster.jupiter.issue.rest.response.ActionInfo;
+import com.elster.jupiter.issue.rest.response.IssueCommentInfo;
+import com.elster.jupiter.issue.rest.response.IssueGroupInfo;
+import com.elster.jupiter.issue.rest.response.PropertyUtils;
+import com.elster.jupiter.issue.rest.response.cep.CreationRuleActionTypeInfo;
+import com.elster.jupiter.issue.rest.response.device.DeviceInfo;
+import com.elster.jupiter.issue.rest.transactions.AssignIssueTransaction;
+import com.elster.jupiter.issue.rest.transactions.CreateCommentTransaction;
+import com.elster.jupiter.issue.security.Privileges;
+import com.elster.jupiter.issue.share.IssueAction;
+import com.elster.jupiter.issue.share.IssueActionResult;
+import com.elster.jupiter.issue.share.entity.HistoricalIssue;
+import com.elster.jupiter.issue.share.entity.Issue;
+import com.elster.jupiter.issue.share.entity.IssueActionType;
+import com.elster.jupiter.issue.share.entity.IssueComment;
+import com.elster.jupiter.issue.share.entity.IssueGroup;
+import com.elster.jupiter.issue.share.entity.IssueReason;
+import com.elster.jupiter.issue.share.entity.IssueStatus;
+import com.elster.jupiter.issue.share.entity.IssueType;
+import com.elster.jupiter.issue.share.entity.OpenIssue;
+import com.elster.jupiter.issue.share.service.IssueGroupFilter;
+import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.transaction.TransactionContext;
+import com.elster.jupiter.users.User;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Order;
+import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
+import com.energyict.mdc.issue.datacollection.entity.HistoricalIssueDataCollection;
+import com.energyict.mdc.issue.datacollection.entity.IssueDataCollection;
+import com.energyict.mdc.issue.datacollection.entity.OpenIssueDataCollection;
+import com.energyict.mdc.issue.datacollection.rest.i18n.MessageSeeds;
+import com.energyict.mdc.issue.datacollection.rest.response.DataCollectionIssueInfoFactory;
 
 @Path("/issue")
 public class IssueResource extends BaseResource {
@@ -295,11 +300,8 @@ public class IssueResource extends BaseResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_ISSUE,Privileges.ASSIGN_ISSUE,Privileges.CLOSE_ISSUE,Privileges.COMMENT_ISSUE,Privileges.ACTION_ISSUE})
     public Response getActionTypeById(@PathParam(KEY) long id){
-        Optional<IssueActionType> actionTypeRef = getIssueActionService().findActionType(id);
-        if (!actionTypeRef.isPresent()){
-            throw new WebApplicationException(Response.Status.NOT_FOUND);
-        }
-        return entity(new CreationRuleActionTypeInfo(actionTypeRef.get())).build();
+        IssueActionType actionType = getIssueActionService().findActionType(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        return entity(new CreationRuleActionTypeInfo(actionType)).build();
     }
 
 
@@ -309,16 +311,21 @@ public class IssueResource extends BaseResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.ACTION_ISSUE)
     public Response performAction(@PathParam(ID) long id, PerformActionRequest request) {
-        Optional<IssueDataCollection> issueRef = getIssueDataCollectionService().findIssue(id);
-        if (!issueRef.isPresent()) {
-            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        IssueDataCollection issue = getIssueDataCollectionService().findIssue(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        IssueActionType action = getIssueActionService().findActionType(request.id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        PropertyUtils propertyUtils = new PropertyUtils();
+        Map<String, Object> properties = new HashMap<>();
+        for (PropertySpec propertySpec : action.createIssueAction().get().getPropertySpecs()) {
+            Object value = propertyUtils.findPropertyValue(propertySpec, request.properties);
+            if (value != null) {
+                properties.put(propertySpec.getName(), value);
+            }
         }
-        Optional<IssueActionType> action = getIssueActionService().findActionType(request.getId());
-        if (!action.isPresent()) {
-            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        IssueActionResult actionResult;
+        try (TransactionContext context = getTransactionService().getContext()) {
+            actionResult = getIssueActionService().executeAction(action, issue, properties);
+            context.commit();
         }
-
-        IssueActionResult actionResult = getIssueActionService().executeAction(action.get(), issueRef.get(), request.getParameters());
         return entity(actionResult).build();
     }
 
@@ -391,7 +398,7 @@ public class IssueResource extends BaseResource {
         conditionReason = conditionReason == Condition.FALSE ? Condition.TRUE : conditionReason;
         final Condition finalConditionReason = conditionReason;
         return getIssueService()
-                .findIssueType(IssueDataCollectionService.ISSUE_TYPE_UUID)
+                .findIssueType(IssueDataCollectionService.DATA_COLLECTION_ISSUE)
                 .map(it -> finalConditionReason.and(where("baseIssue.reason.issueType").isEqualTo(it))).get();
     }
 

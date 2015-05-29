@@ -1,9 +1,7 @@
 package com.energyict.mdc.issue.issue.datacollection.rest;
 
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
-import com.elster.jupiter.issue.share.cep.CreationRuleTemplate;
-import com.elster.jupiter.issue.share.cep.IssueAction;
-import com.elster.jupiter.issue.share.cep.ParameterDefinition;
+import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.entity.AssignmentRule;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.CreationRuleAction;
@@ -31,9 +29,11 @@ import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.entity.OpenIssueDataCollection;
 import com.energyict.mdc.issue.datacollection.rest.IssueDataCollectionApplication;
 import com.energyict.mdc.issue.datacollection.rest.i18n.MessageSeeds;
+
 import org.mockito.Mock;
 
 import javax.ws.rs.core.Application;
+
 import java.time.Instant;
 import java.util.Collections;
 import java.util.Map;
@@ -93,9 +93,9 @@ public class IssueDataCollectionApplicationJerseyTest extends FelixRestApplicati
         return mockStatus("1", "open", false);
     }
 
-    protected IssueType mockIssueType(String uuid, String name) {
+    protected IssueType mockIssueType(String key, String name) {
         IssueType issueType = mock(IssueType.class);
-        when(issueType.getUUID()).thenReturn(uuid);
+        when(issueType.getKey()).thenReturn(key);
         when(issueType.getName()).thenReturn(name);
         return issueType;
     }
@@ -162,7 +162,6 @@ public class IssueDataCollectionApplicationJerseyTest extends FelixRestApplicati
 
     protected CreationRuleTemplate mockCreationRuleTemplate(String uuid, String name, String description, IssueType issueType, Map<String, ParameterDefinition> parameters) {
         CreationRuleTemplate template = mock(CreationRuleTemplate.class);
-        when(template.getUUID()).thenReturn(uuid);
         when(template.getName()).thenReturn(name);
         when(template.getDescription()).thenReturn(description);
         if (issueType != null) {
@@ -200,8 +199,8 @@ public class IssueDataCollectionApplicationJerseyTest extends FelixRestApplicati
         return mockIssueAction("Send To Inspect");
     }
 
-    protected IssueActionType mockIssueActionType(long id, String name, IssueType issueType) {
-        IssueActionType type = mock(IssueActionType.class);
+    protected IssueAction mockIssueActionType(long id, String name, IssueType issueType) {
+        IssueAction type = mock(IssueAction.class);
         IssueAction action = mockIssueAction(name);
         when(type.getId()).thenReturn(id);
         when(type.createIssueAction()).thenReturn(Optional.of(action));
@@ -209,7 +208,7 @@ public class IssueDataCollectionApplicationJerseyTest extends FelixRestApplicati
         return type;
     }
 
-    protected IssueActionType getDefaultIssueActionType() {
+    protected IssueAction getDefaultIssueActionType() {
         IssueType issueType = getDefaultIssueType();
         return mockIssueActionType(1, "send", issueType);
     }

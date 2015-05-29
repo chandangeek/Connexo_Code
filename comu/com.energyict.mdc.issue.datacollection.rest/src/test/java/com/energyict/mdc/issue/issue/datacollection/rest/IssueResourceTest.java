@@ -5,7 +5,7 @@ import com.elster.jupiter.issue.rest.request.AssignIssueRequest;
 import com.elster.jupiter.issue.rest.request.CloseIssueRequest;
 import com.elster.jupiter.issue.rest.request.EntityReference;
 import com.elster.jupiter.issue.rest.request.PerformActionRequest;
-import com.elster.jupiter.issue.share.entity.IssueActionType;
+import com.elster.jupiter.issue.share.entity.IssueAction;
 import com.elster.jupiter.issue.share.entity.IssueAssignee;
 import com.elster.jupiter.issue.share.entity.IssueComment;
 import com.elster.jupiter.issue.share.entity.IssueGroup;
@@ -182,7 +182,7 @@ public class IssueResourceTest extends IssueDataCollectionApplicationJerseyTest 
         Optional<IssueDataCollection> issue = Optional.of(getDefaultIssue());
         when(issueDataCollectionService.findIssue(1)).thenReturn(issue);
 
-        Optional<IssueActionType> mockActionType = Optional.of(getDefaultIssueActionType());
+        Optional<IssueAction> mockActionType = Optional.of(getDefaultIssueActionType());
         when(issueActionService.findActionType(1)).thenReturn(mockActionType);
 
         PerformActionRequest request = new PerformActionRequest();
