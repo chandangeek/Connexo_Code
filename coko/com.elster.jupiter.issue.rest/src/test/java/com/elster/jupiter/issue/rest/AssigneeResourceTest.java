@@ -22,7 +22,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @SuppressWarnings("unchecked")
-public class AssigneeResourceTest extends Mocks {
+public class AssigneeResourceTest extends IssueRestApplicationJerseyTest {
     
     @Test
     public void testGetAllAssigneesWithoutLike() {

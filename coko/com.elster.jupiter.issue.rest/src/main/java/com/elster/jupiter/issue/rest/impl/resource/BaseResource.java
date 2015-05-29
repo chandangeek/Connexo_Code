@@ -26,7 +26,7 @@ public abstract class BaseResource {
 
     private Thesaurus thesaurus;
 
-    public BaseResource(){
+    public BaseResource() {
     }
 
     protected RestQueryService getQueryService() {
@@ -42,20 +42,25 @@ public abstract class BaseResource {
     public void setIssueService(IssueService issueService) {
         this.issueService = issueService;
     }
+
     protected IssueService getIssueService() {
         return issueService;
     }
+
     @Inject
     public void setTransactionService(TransactionService transactionService) {
         this.transactionService = transactionService;
     }
+
     protected TransactionService getTransactionService() {
         return transactionService;
     }
+
     @Inject
     public void setUserService(UserService userService) {
         this.userService = userService;
     }
+
     protected UserService getUserService() {
         return userService;
     }
@@ -64,6 +69,7 @@ public abstract class BaseResource {
     public void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
     }
+
     protected MeteringService getMeteringService() {
         return meteringService;
     }
@@ -72,6 +78,7 @@ public abstract class BaseResource {
     public void setIssueCreationService(IssueCreationService issueCreationService) {
         this.issueCreationService = issueCreationService;
     }
+
     protected IssueCreationService getIssueCreationService() {
         return issueCreationService;
     }
@@ -80,6 +87,7 @@ public abstract class BaseResource {
     public void setIssueActionService(IssueActionService issueActionService) {
         this.issueActionService = issueActionService;
     }
+
     protected IssueActionService getIssueActionService() {
         return issueActionService;
     }
@@ -88,11 +96,12 @@ public abstract class BaseResource {
     public void setThesaurus(Thesaurus thesaurus) {
         this.thesaurus = thesaurus;
     }
+
     protected Thesaurus getThesaurus() {
         return thesaurus;
     }
 
-    protected void validateMandatory(StandardParametersBean params, String... mandatoryParameters){
+    protected void validateMandatory(StandardParametersBean params, String... mandatoryParameters) {
         if (mandatoryParameters != null) {
             for (String mandatoryParameter : mandatoryParameters) {
                 String value = params.getFirst(mandatoryParameter);

@@ -19,7 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class ReasonResourceTest extends Mocks {
+public class ReasonResourceTest extends IssueRestApplicationJerseyTest {
 
     @Test
     public void testGetReasonsWithoutParams(){
@@ -35,9 +35,9 @@ public class ReasonResourceTest extends Mocks {
         Query<IssueReason> query = mock(Query.class);
         when(query.select(Matchers.<Condition>anyObject())).thenReturn(reasons);
         when(issueService.query(IssueReason.class)).thenReturn(query);
-        when(issueService.findIssueType(issueType.getUUID())).thenReturn(Optional.of(issueType));
+        when(issueService.findIssueType(issueType.getKey())).thenReturn(Optional.of(issueType));
 
-        Map<String, Object> map = target("/reasons").queryParam(ISSUE_TYPE, issueType.getUUID()).request().get(Map.class);
+        Map<String, Object> map = target("/reasons").queryParam(ISSUE_TYPE, issueType.getKey()).request().get(Map.class);
         assertThat(map.get("total")).isEqualTo(0);
         assertThat((List) map.get("data")).isEmpty();
     }
@@ -52,10 +52,10 @@ public class ReasonResourceTest extends Mocks {
         Query<IssueReason> query = mock(Query.class);
         when(query.select(Matchers.<Condition>anyObject())).thenReturn(reasons);
         when(issueService.query(IssueReason.class)).thenReturn(query);
-        when(issueService.findIssueType(issueType.getUUID())).thenReturn(Optional.of(issueType));
+        when(issueService.findIssueType(issueType.getKey())).thenReturn(Optional.of(issueType));
 
         Map<String, Object> map = target("/reasons")
-                .queryParam(ISSUE_TYPE, issueType.getUUID())
+                .queryParam(ISSUE_TYPE, issueType.getKey())
                 .queryParam(LIKE, "ame").request().get(Map.class);
         assertThat(map.get("total")).isEqualTo(2);
         List data = (List) map.get("data");
