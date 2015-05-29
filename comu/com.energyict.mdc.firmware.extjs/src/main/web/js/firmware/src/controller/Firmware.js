@@ -243,6 +243,9 @@ Ext.define('Fwc.controller.Firmware', {
                         'firmware-edit',
                         {deviceType: deviceType, record: firmware}
                     );
+                    if (firmware.getFirmwareStatus().getId() === 'ghost') {
+                        me.getFirmwareForm().down('firmware-status').setValue({id: 'final'});
+                    }
                 },
                 callback: function () {
                     container.setLoading(false);

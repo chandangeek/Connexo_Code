@@ -29,7 +29,8 @@ Ext.define('Fwc.view.firmware.FormEditGhost', {
             xtype: 'firmware-status',
             defaultType: 'radiofield',
             value: {id: 'final'},
-            required: true
+            required: true,
+            msgTarget: 'under'
         },
         {
             xtype: 'textfield',
