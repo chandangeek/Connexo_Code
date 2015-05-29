@@ -47,6 +47,7 @@ public class SioAtModemConnectionType extends SioSerialConnectionType {
 
     @Override
     public void disconnect(ComChannel comChannel) throws ConnectionException {
+        super.disconnect(comChannel);
         if (this.atModemComponent != null) {
             this.atModemComponent.disconnectModem(comChannel);
         }

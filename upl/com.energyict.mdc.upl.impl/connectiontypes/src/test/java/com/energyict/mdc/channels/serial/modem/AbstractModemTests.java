@@ -3,7 +3,9 @@ package com.energyict.mdc.channels.serial.modem;
 import com.energyict.mdc.channels.serial.SerialComChannel;
 import com.energyict.mdc.channels.serial.ServerSerialPort;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Copyrights EnergyICT
@@ -35,7 +37,7 @@ public class AbstractModemTests {
         }
 
         @Override
-        public int available() {
+        protected int doAvailable() {
             if (responses.size() > counter) {
                 int availabilities = responses.get(counter).length() - index;
                 if (availabilities == 0) {
@@ -72,8 +74,8 @@ public class AbstractModemTests {
         }
 
         @Override
-        public int available() {
-            int available = super.available();
+        protected int doAvailable() {
+            int available = super.doAvailable();
             if (available <= 0) {
                 try {
                     Thread.sleep(sleepTime);

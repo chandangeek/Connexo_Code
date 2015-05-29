@@ -47,6 +47,7 @@ public class SioPaknetModemConnectionType extends SioSerialConnectionType {
 
     @Override
     public void disconnect(ComChannel comChannel) throws ConnectionException {
+        super.disconnect(comChannel);
         if (paknetModemComponent != null) {
             paknetModemComponent.disconnectModem(comChannel);
         }

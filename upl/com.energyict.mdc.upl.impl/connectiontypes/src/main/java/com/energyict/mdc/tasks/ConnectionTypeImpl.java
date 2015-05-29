@@ -66,7 +66,11 @@ public abstract class ConnectionTypeImpl implements ConnectionType {
 
     @Override
     public void disconnect(ComChannel comChannel) throws ConnectionException {
-        // For most connectionTypes disconnect is not needed, so do nothing.
+        // Prepare the comChannel for disconnect
+        comChannel.prepareForDisConnect();
+
+        // Do the actual disconnect
+        // Note: For most connectionTypes actual disconnect is not needed, so do nothing.
         // Should be overridden in those connectionTypes requiring a disconnect.
     }
 

@@ -47,6 +47,7 @@ public class SioCaseModemConnectionType extends SioSerialConnectionType {
 
     @Override
     public void disconnect(ComChannel comChannel) throws ConnectionException {
+        super.disconnect(comChannel);
         if (caseModemComponent != null) {
             caseModemComponent.disconnectModem(comChannel);
         }

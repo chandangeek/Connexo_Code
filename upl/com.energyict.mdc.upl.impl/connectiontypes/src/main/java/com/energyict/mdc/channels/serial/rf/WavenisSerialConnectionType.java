@@ -9,7 +9,9 @@ import com.energyict.dynamicattributes.StringFactory;
 import com.energyict.mdc.ManagerFactory;
 import com.energyict.mdc.SerialComponentFactory;
 import com.energyict.mdc.channels.ComChannelType;
-import com.energyict.mdc.channels.serial.*;
+import com.energyict.mdc.channels.serial.BaudrateValue;
+import com.energyict.mdc.channels.serial.FlowControl;
+import com.energyict.mdc.channels.serial.SerialPortConfiguration;
 import com.energyict.mdc.channels.serial.direct.serialio.SioSerialConnectionType;
 import com.energyict.mdc.channels.serial.direct.serialio.SioSerialPort;
 import com.energyict.mdc.ports.ComPort;
@@ -76,6 +78,7 @@ public class WavenisSerialConnectionType extends SioSerialConnectionType {
      */
     @Override
     public void disconnect(ComChannel comChannel) throws ConnectionException {
+        super.disconnect(comChannel);
         if (wavenisStack != null) {
             wavenisStack.stop();
         }

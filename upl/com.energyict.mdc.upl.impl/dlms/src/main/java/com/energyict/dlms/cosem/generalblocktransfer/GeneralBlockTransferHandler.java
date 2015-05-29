@@ -8,7 +8,7 @@ import com.energyict.dlms.cosem.AbstractCosemObject;
 import com.energyict.dlms.cosem.ExceptionResponseException;
 import com.energyict.dlms.protocolimplv2.connection.DlmsV2Connection;
 import com.energyict.dlms.protocolimplv2.connection.SecureConnection;
-import com.energyict.mdc.protocol.exceptions.ConnectionTimeOutException;
+import com.energyict.mdc.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.ProtocolException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
@@ -134,7 +134,7 @@ public class GeneralBlockTransferHandler {
                 byte[] cosemResponse = doHandleGeneralBlockTransfer(rawResponse);
                 return addLegacyHDLCHeadersToCosemApdu(cosemResponse);  // Re-add the 3 bytes, who represent the legacy HDLC header
 
-            } catch (IOException | ConnectionTimeOutException e) {
+            } catch (IOException | ConnectionCommunicationException e) {
                 if (currentRetryCount++ >= this.maxRetries) {
                     IOException ioException = (e instanceof IOException) ? (IOException) e : new IOException(e.getMessage(), e);
                     throw MdcManager.getComServerExceptionFactory().createNumberOfRetriesReached(ioException, maxRetries + 1);
@@ -214,7 +214,7 @@ public class GeneralBlockTransferHandler {
                     getDlmsV2Connection().prepareComChannelForReceiveOfNextPacket(); // To ensure logging of next received packet is correct
                 }
             }
-        } catch (ConnectionTimeOutException | IOException e) {
+        } catch (ConnectionCommunicationException | IOException e) {
             if (!checkForMissingBlocks) {
                 throw e;    // went wrong during missing block receive, do throw the error
             } else {

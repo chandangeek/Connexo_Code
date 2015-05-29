@@ -47,6 +47,7 @@ public class SioPEMPModemConnectionType extends SioSerialConnectionType {
 
     @Override
     public void disconnect(ComChannel comChannel) throws ConnectionException {
+        super.disconnect(comChannel);
         if (pempModemComponent != null) {
             pempModemComponent.disconnectModem(comChannel);
         }

@@ -3,7 +3,9 @@ package com.energyict.mdc.channels.sms;
 import com.energyict.mdc.protocol.AbstractComChannel;
 import com.energyict.mdc.protocol.exceptions.CommunicationException;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 /**
  * @author sva
@@ -92,7 +94,7 @@ public class ProximusSmsComChannel extends AbstractComChannel {
     }
 
     @Override
-    public int available() {
+    protected int doAvailable() {
         return byteArrayInputStream.available();
     }
 }

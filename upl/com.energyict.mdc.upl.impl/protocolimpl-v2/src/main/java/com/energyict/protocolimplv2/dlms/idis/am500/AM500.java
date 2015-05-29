@@ -9,11 +9,15 @@ import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.meterdata.*;
+import com.energyict.mdc.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.meterdata.CollectedLogBook;
+import com.energyict.mdc.meterdata.CollectedMessageList;
+import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.DeviceProtocolCache;
 import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
-import com.energyict.mdc.protocol.exceptions.ConnectionTimeOutException;
+import com.energyict.mdc.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.mdc.protocol.exceptions.DataEncryptionException;
 import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
@@ -109,7 +113,7 @@ public class AM500 extends AbstractDlmsProtocol {
             } catch (ComServerRuntimeException e) {
                 if (e.getCause() != null && e.getCause() instanceof DataAccessResultException) {
                     throw e;        //Throw real errors, e.g. unsupported security mechanism, wrong password...
-                } else if (e instanceof ConnectionTimeOutException) {
+                } else if (e instanceof ConnectionCommunicationException) {
                     throw e;
                 } else if (e instanceof DataEncryptionException) {
                     throw e;
