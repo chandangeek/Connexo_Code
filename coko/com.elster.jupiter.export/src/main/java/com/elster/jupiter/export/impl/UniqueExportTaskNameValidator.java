@@ -1,6 +1,6 @@
 package com.elster.jupiter.export.impl;
 
-import com.elster.jupiter.export.ReadingTypeDataExportTask;
+import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.util.conditions.Where;
 
 import javax.inject.Inject;
@@ -8,17 +8,12 @@ import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- * Date: 17/11/2014
- * Time: 10:44
- */
-public class UniqueReadingTypeDataExportTaskNameValidator implements ConstraintValidator<UniqueName, ReadingTypeDataExportTask> {
+public class UniqueExportTaskNameValidator implements ConstraintValidator<UniqueName, ExportTask> {
 
     private final IDataExportService dataExportService;
 
     @Inject
-    public UniqueReadingTypeDataExportTaskNameValidator(IDataExportService dataExportService) {
+    public UniqueExportTaskNameValidator(IDataExportService dataExportService) {
         this.dataExportService = dataExportService;
     }
 
@@ -28,8 +23,8 @@ public class UniqueReadingTypeDataExportTaskNameValidator implements ConstraintV
     }
 
     @Override
-    public boolean isValid(ReadingTypeDataExportTask readingTypeDataExportTask, ConstraintValidatorContext context) {
-        List<? extends ReadingTypeDataExportTask> existing = dataExportService.getReadingTypeDataExportTaskQuery().select(Where.where("name").isEqualTo(readingTypeDataExportTask.getName()));
+    public boolean isValid(ExportTask readingTypeDataExportTask, ConstraintValidatorContext context) {
+        List<? extends ExportTask> existing = dataExportService.getReadingTypeDataExportTaskQuery().select(Where.where("name").isEqualTo(readingTypeDataExportTask.getName()));
         if (existing.isEmpty()) {
             return true;
         } else if (existing.size() == 1 && readingTypeDataExportTask.getId() == existing.get(0).getId()) {

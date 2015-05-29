@@ -1,11 +1,8 @@
 package com.elster.jupiter.export;
 
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.orm.HasAuditInfo;
 import com.elster.jupiter.orm.History;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.util.HasName;
 import com.elster.jupiter.util.time.ScheduleExpression;
 
@@ -13,23 +10,20 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
-public interface ReadingTypeDataExportTask extends HasName, HasAuditInfo {
-
+/**
+ * Copyrights EnergyICT
+ * Date: 8/05/2015
+ * Time: 14:53
+ */
+public interface ExportTask extends HasName, HasAuditInfo {
     long getId();
 
     void activate(); // resume
 
     void deactivate(); // suspend
 
-    RelativePeriod getExportPeriod();
-
-    Optional<RelativePeriod> getUpdatePeriod(); // checks for updates in this period
-
     Optional<Instant> getLastRun();
-
-    EndDeviceGroup getEndDeviceGroup();
 
     Map<String, Object> getProperties();
 
@@ -38,10 +32,6 @@ public interface ReadingTypeDataExportTask extends HasName, HasAuditInfo {
     List<? extends DataExportOccurrence> getOccurrences();
 
     DataExportOccurrenceFinder getOccurrencesFinder();
-
-    DataExportStrategy getStrategy();
-
-    Set<ReadingType> getReadingTypes();
 
     void save();
 
@@ -53,6 +43,8 @@ public interface ReadingTypeDataExportTask extends HasName, HasAuditInfo {
 
     String getDataFormatter();
 
+    String getDataSelector();
+
     List<PropertySpec> getPropertySpecs();
 
     ScheduleExpression getScheduleExpression();
@@ -61,27 +53,13 @@ public interface ReadingTypeDataExportTask extends HasName, HasAuditInfo {
 
     Optional<? extends DataExportOccurrence> getOccurrence(Long id);
 
-    List<? extends ReadingTypeDataExportItem> getExportItems();
-
     void setNextExecution(Instant instant);
 
     void setScheduleExpression(ScheduleExpression scheduleExpression);
 
     void setName(String name);
 
-    void setExportPeriod(RelativePeriod relativePeriod);
-
     void setProperty(String key, Object value);
-
-    void setEndDeviceGroup(EndDeviceGroup endDeviceGroup);
-
-    void removeReadingType(ReadingType readingType);
-
-    void addReadingType(ReadingType readingType);
-
-    void addReadingType(String readingTypeMrid);
-
-    void setUpdatePeriod(RelativePeriod relativePeriod);
 
     void triggerNow();
 
@@ -90,11 +68,13 @@ public interface ReadingTypeDataExportTask extends HasName, HasAuditInfo {
     /**
      * @since v1.1
      */
-    History<ReadingTypeDataExportTask> getHistory();
+    History<ExportTask> getHistory();
 
     Map<String, Object> getProperties(Instant at);
 
-    Set<ReadingType> getReadingTypes(Instant at);
-
     Optional<ScheduleExpression> getScheduleExpression(Instant at);
+
+    Optional<ReadingTypeDataSelector> getReadingTypeDataSelector();
+
+    Optional<ReadingTypeDataSelector> getReadingTypeDataSelector(Instant at);
 }

@@ -5,6 +5,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.tasks.TaskOccurrence;
+import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.logging.LogEntry;
 import com.elster.jupiter.util.logging.LogEntryFinder;
 import com.elster.jupiter.util.time.Interval;
@@ -21,8 +22,8 @@ import java.util.Optional;
 class DataExportOccurrenceImpl implements IDataExportOccurrence {
 
     private Reference<TaskOccurrence> taskOccurrence = ValueReference.absent();
-    private Reference<IReadingTypeDataExportTask> readingTask = ValueReference.absent();
-    private Interval exportedDataInterval;
+    private Reference<IExportTask> readingTask = ValueReference.absent();
+    private Interval exportedDataInterval = Interval.forever();
     private Interval.EndpointBehavior exportedDataBoundaryType;
     private DataExportStatus status = DataExportStatus.BUSY;
     private String failureReason;
@@ -38,17 +39,22 @@ class DataExportOccurrenceImpl implements IDataExportOccurrence {
         this.clock = clock;
     }
 
-    static DataExportOccurrenceImpl from(DataModel model, TaskOccurrence occurrence, IReadingTypeDataExportTask task) {
+    static DataExportOccurrenceImpl from(DataModel model, TaskOccurrence occurrence, IExportTask task) {
         return model.getInstance(DataExportOccurrenceImpl.class).init(occurrence, task);
     }
 
-    private DataExportOccurrenceImpl init(TaskOccurrence occurrence, IReadingTypeDataExportTask task) {
+    private DataExportOccurrenceImpl init(TaskOccurrence occurrence, IExportTask task) {
         taskOccurrence.set(occurrence);
         readingTask.set(task);
         //TODO ZoneId !!
-        Range<ZonedDateTime> interval = task.getExportPeriod().getInterval(occurrence.getTriggerTime().atZone(ZoneId.systemDefault()));
-        exportedDataInterval = Interval.of(interval.lowerEndpoint().toInstant(), interval.upperEndpoint().toInstant());
-        exportedDataBoundaryType = Interval.EndpointBehavior.fromRange(interval);
+
+        task.getReadingTypeDataSelector()
+                .map(selector -> selector.getExportPeriod().getInterval(occurrence.getTriggerTime().atZone(ZoneId.systemDefault())))
+                .map(zonedDateTimeRange -> Ranges.map(zonedDateTimeRange, ZonedDateTime::toInstant))
+                .ifPresent(instantRange -> {
+                    exportedDataInterval = Interval.of(instantRange);
+                    exportedDataBoundaryType = Interval.EndpointBehavior.fromRange(instantRange);
+                });
         return this;
     }
 
@@ -90,7 +96,7 @@ class DataExportOccurrenceImpl implements IDataExportOccurrence {
     }
 
     @Override
-    public IReadingTypeDataExportTask getTask() {
+    public IExportTask getTask() {
         return readingTask.orElseThrow(IllegalStateException::new);
     }
 

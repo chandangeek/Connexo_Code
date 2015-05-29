@@ -11,7 +11,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Target({java.lang.annotation.ElementType.TYPE})
 @Retention(RUNTIME)
 @Documented
-@Constraint(validatedBy = {UniqueReadingTypeDataExportTaskNameValidator.class})
+@Constraint(validatedBy = {UniqueExportTaskNameValidator.class})
 public @interface UniqueName {
 
     String message() default "{" + MessageSeeds.Keys.NAME_MUST_BE_UNIQUE + "}";

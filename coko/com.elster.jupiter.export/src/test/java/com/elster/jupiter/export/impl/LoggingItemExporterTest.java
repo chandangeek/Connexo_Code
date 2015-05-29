@@ -6,6 +6,7 @@ import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.export.DataExportException;
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.FatalDataExportException;
+import com.elster.jupiter.export.MeterReadingData;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.NlsMessageFormat;
@@ -67,6 +68,8 @@ public class LoggingItemExporterTest {
     private Meter meter;
     @Mock
     private NlsMessageFormat successFormat, failedFormat, fatallyFailedFormat;
+    @Mock
+    private MeterReadingData meterReadingData;
 
     public LoggingItemExporterTest() {
     }
@@ -82,7 +85,8 @@ public class LoggingItemExporterTest {
         to = ZonedDateTime.of(2013, 4, 18, 18, 2, 19, 0, ZoneId.systemDefault());
         range =  Range.closed(from.toInstant(), to.toInstant());
 
-        when(decorated.exportItem(occurrence, item)).thenReturn(range);
+        when(meterReadingData.getItem()).thenReturn(item);
+        when(decorated.exportItem(occurrence, meterReadingData)).thenReturn(range);
         when(item.getReadingType()).thenReturn(readingType);
         when(readingType.getAliasName()).thenReturn("The Speed Of Pain");
         when(item.getReadingContainer()).thenReturn(meter);
@@ -114,7 +118,7 @@ public class LoggingItemExporterTest {
     @Test
     public void testExportItem() throws Exception {
 
-        loggingItemExporter.exportItem(occurrence, item);
+        loggingItemExporter.exportItem(occurrence, meterReadingData);
 
         assertThat(logRecorder.getRecords()).hasSize(1);
 
@@ -126,10 +130,10 @@ public class LoggingItemExporterTest {
 
     @Test
     public void testExportItemFails() throws Exception {
-        doThrow(DataExportException.class).when(decorated).exportItem(occurrence, item);
+        doThrow(DataExportException.class).when(decorated).exportItem(occurrence, meterReadingData);
 
         try {
-            loggingItemExporter.exportItem(occurrence, item);
+            loggingItemExporter.exportItem(occurrence, meterReadingData);
         } catch (Exception e) {
             //expected
         }
@@ -145,10 +149,10 @@ public class LoggingItemExporterTest {
 
     @Test
     public void testExportItemFailsFatally() throws Exception {
-        doThrow(FatalDataExportException.class).when(decorated).exportItem(occurrence, item);
+        doThrow(FatalDataExportException.class).when(decorated).exportItem(occurrence, meterReadingData);
 
         try {
-            loggingItemExporter.exportItem(occurrence, item);
+            loggingItemExporter.exportItem(occurrence, meterReadingData);
         } catch (Exception e) {
             //expected
         }

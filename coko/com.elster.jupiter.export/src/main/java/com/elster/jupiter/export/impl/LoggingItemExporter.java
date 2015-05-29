@@ -3,6 +3,8 @@ package com.elster.jupiter.export.impl;
 import com.elster.jupiter.export.DataExportException;
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.FatalDataExportException;
+import com.elster.jupiter.export.MeterReadingData;
+import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.transaction.TransactionService;
@@ -31,11 +33,12 @@ class LoggingItemExporter implements ItemExporter {
     }
 
     @Override
-    public Range<Instant> exportItem(DataExportOccurrence occurrence, IReadingTypeDataExportItem item) {
+    public Range<Instant> exportItem(DataExportOccurrence occurrence, MeterReadingData meterReadingData) {
+        ReadingTypeDataExportItem item = meterReadingData.getItem();
         String mrid = item.getReadingContainer().getMeter(occurrence.getTriggerTime()).map(Meter::getMRID).orElse("");
         String readingType = item.getReadingType().getAliasName();
         try {
-            Range<Instant> range = decorated.exportItem(occurrence, item);
+            Range<Instant> range = decorated.exportItem(occurrence, meterReadingData);
             String fromDate = range.hasLowerBound() ? timeFormatter.format(range.lowerEndpoint()) : "";
             String toDate = range.hasUpperBound() ? timeFormatter.format(range.upperEndpoint()) : "";
             transactionService.execute(VoidTransaction.of(() -> MessageSeeds.ITEM_EXPORTED_SUCCESFULLY.log(logger, thesaurus, mrid, readingType, fromDate, toDate)));
@@ -47,5 +50,10 @@ class LoggingItemExporter implements ItemExporter {
             transactionService.execute(VoidTransaction.of(() -> MessageSeeds.ITEM_FATALLY_FAILED.log(logger, thesaurus, e.getCause(), mrid, readingType)));
             throw e;
         }
+    }
+
+    @Override
+    public void done() {
+        decorated.done();
     }
 }

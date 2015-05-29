@@ -15,33 +15,48 @@ public interface DataExportTaskBuilder {
 
     DataExportTaskBuilder scheduleImmediately();
 
-    DataExportTaskBuilder exportUpdate(boolean exportUpdate);
-
-    DataExportTaskBuilder exportContinuousData(boolean exportContinuousData);
-
-    ReadingTypeDataExportTask build();
+    ExportTask build();
 
     DataExportTaskBuilder setName(String string);
 
     DataExportTaskBuilder setDataProcessorName(String dataProcessor);
 
-    DataExportTaskBuilder setExportPeriod(RelativePeriod relativePeriod);
+    StandardSelectorBuilder selectingStandard();
 
-    DataExportTaskBuilder setUpdatePeriod(RelativePeriod relativePeriod);
+    CustomSelectorBuilder selectingCustom(String dataSelector);
 
-    DataExportTaskBuilder addReadingType(ReadingType readingType);
+    PropertyBuilder<DataExportTaskBuilder> addProperty(String name);
 
-    DataExportTaskBuilder addReadingType(String readingType);
+    interface PropertyBuilder<T> {
 
-    DataExportTaskBuilder setValidatedDataOption(ValidatedDataOption validatedDataOption);
+        T withValue(Object value);
 
-    PropertyBuilder addProperty(String name);
+    }
 
-    DataExportTaskBuilder setEndDeviceGroup(EndDeviceGroup endDeviceGroup);
+    interface CustomSelectorBuilder {
+        PropertyBuilder<CustomSelectorBuilder> addProperty(String name);
 
-    interface PropertyBuilder {
+        DataExportTaskBuilder endSelection();
+    }
 
-        DataExportTaskBuilder withValue(Object value);
+    interface StandardSelectorBuilder {
 
+        StandardSelectorBuilder fromExportPeriod(RelativePeriod relativePeriod);
+
+        StandardSelectorBuilder fromUpdatePeriod(RelativePeriod relativePeriod);
+
+        StandardSelectorBuilder fromReadingType(ReadingType readingType);
+
+        StandardSelectorBuilder fromReadingType(String readingType);
+
+        StandardSelectorBuilder withValidatedDataOption(ValidatedDataOption validatedDataOption);
+
+        StandardSelectorBuilder fromEndDeviceGroup(EndDeviceGroup endDeviceGroup);
+
+        StandardSelectorBuilder exportUpdate(boolean exportUpdate);
+
+        StandardSelectorBuilder continuousData(boolean exportContinuousData);
+
+        DataExportTaskBuilder endSelection();
     }
 }

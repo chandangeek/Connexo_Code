@@ -13,22 +13,25 @@ import java.util.Optional;
 public interface DataExportService {
 
     String COMPONENTNAME = "DES";
+    String STANDARD_DATA_SELECTOR = "Standard Data Selector";
 
     Optional<DataProcessorFactory> getDataFormatterFactory(String name);
 
     DataExportTaskBuilder newBuilder();
 
-    Optional<? extends ReadingTypeDataExportTask> findExportTask(long id);
+    Optional<? extends ExportTask> findExportTask(long id);
 
-    Query<? extends ReadingTypeDataExportTask> getReadingTypeDataExportTaskQuery();
+    Query<? extends ExportTask> getReadingTypeDataExportTaskQuery();
 
     List<PropertySpec> getPropertiesSpecsForProcessor(String name);
 
+    List<DataSelectorFactory> getAvailableSelectors();
+
     List<DataProcessorFactory> getAvailableProcessors();
 
-    List<? extends ReadingTypeDataExportTask> findReadingTypeDataExportTasks();
+    List<? extends ExportTask> findReadingTypeDataExportTasks();
 
-    Optional<? extends DataExportOccurrence> findDataExportOccurrence(ReadingTypeDataExportTask task, Instant triggerTime);
+    Optional<? extends DataExportOccurrence> findDataExportOccurrence(ExportTask task, Instant triggerTime);
 
     void setExportDirectory(AppServer appServer, Path path);
 

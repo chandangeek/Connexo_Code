@@ -1,13 +1,16 @@
 package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.export.DataExportOccurrence;
-import com.elster.jupiter.export.DataProcessor;
+import com.elster.jupiter.export.DefaultStructureMarker;
 import com.elster.jupiter.export.MeterReadingData;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
+import com.elster.jupiter.export.StructureMarker;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.readings.IntervalReading;
 import com.elster.jupiter.metering.readings.Reading;
 import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
@@ -15,38 +18,32 @@ import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import static com.elster.jupiter.export.impl.IntervalReadingImpl.intervalReading;
 import static com.elster.jupiter.export.impl.ReadingImpl.reading;
 
-class DefaultItemExporter implements ItemExporter {
+enum DefaultItemDataSelector implements ItemDataSelector {
 
-    private final DataProcessor dataFormatter;
-    private final List<IReadingTypeDataExportItem> exportItems = new ArrayList<>();
-
-    public DefaultItemExporter(DataProcessor dataProcessor) {
-        this.dataFormatter = dataProcessor;
-    }
+    INSTANCE;
 
     @Override
-    public Range<Instant> exportItem(DataExportOccurrence occurrence, MeterReadingData meterReadingData) {
-        IReadingTypeDataExportItem item = (IReadingTypeDataExportItem) meterReadingData.getItem();
-        dataFormatter.startItem(item);
-        item.setLastRun(occurrence.getTriggerTime());
+    public Optional<MeterReadingData> selectData(DataExportOccurrence occurrence, IReadingTypeDataExportItem item) {
         Range<Instant> exportInterval = determineExportInterval(occurrence, item);
-        Optional<Instant> lastExported = dataFormatter.processData(meterReadingData);
-        lastExported.ifPresent(item::setLastExportedDate);
-        dataFormatter.endItem(item);
-        exportItems.add(item);
-        return exportInterval;
+        List<? extends BaseReadingRecord> readings = item.getReadingContainer().getReadings(exportInterval, item.getReadingType());
+
+        if (!readings.isEmpty()) {
+            MeterReadingImpl meterReading = asMeterReading(item, readings);
+            return Optional.of(new MeterReadingData(item, meterReading, structureMarker(item, readings.get(0).getTimeStamp())));
+        }
+        return Optional.empty();
     }
 
-    @Override
-    public void done() {
-        exportItems.forEach(IReadingTypeDataExportItem::update);
+    private StructureMarker structureMarker(IReadingTypeDataExportItem item, Instant instant) {
+        return DefaultStructureMarker.createRoot(item.getReadingContainer().getMeter(instant).map(Meter::getMRID).orElse(""))
+                .child(item.getReadingContainer().getUsagePoint(instant).map(UsagePoint::getMRID).orElse(""))
+                .child(item.getReadingType().getMRID() == null ? "" : item.getReadingType().getMRID());
     }
 
     private Range<Instant> determineExportInterval(DataExportOccurrence occurrence, ReadingTypeDataExportItem item) {

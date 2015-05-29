@@ -1,7 +1,7 @@
 package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.export.ReadingTypeDataExportTask;
+import com.elster.jupiter.export.ReadingTypeDataSelector;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.orm.DataModel;
@@ -13,7 +13,7 @@ import java.time.Instant;
 import java.util.Objects;
 import java.util.Optional;
 
-class ReadingTypeInExportTask {
+class ReadingTypeInDataSelector {
 
     private final MeteringService meteringService;
 
@@ -21,7 +21,7 @@ class ReadingTypeInExportTask {
     private String readingTypeMRID;
 
     private transient ReadingType readingType;
-    private Reference<IReadingTypeDataExportTask> readingTypeDataExportTask = ValueReference.absent();
+    private Reference<ReadingTypeDataSelector> readingTypeDataSelector = ValueReference.absent();
 
     private long version;
     private Instant createTime;
@@ -29,30 +29,30 @@ class ReadingTypeInExportTask {
     private String userName;
 
     @Inject
-    ReadingTypeInExportTask(MeteringService meteringService) {
+    ReadingTypeInDataSelector(MeteringService meteringService) {
         this.meteringService = meteringService;
     }
 
-    ReadingTypeInExportTask init(IReadingTypeDataExportTask task, ReadingType readingType) {
-        this.readingTypeDataExportTask.set(task);
+    ReadingTypeInDataSelector init(ReadingTypeDataSelector readingTypeDataSelector, ReadingType readingType) {
+        this.readingTypeDataSelector.set(readingTypeDataSelector);
         this.readingType = readingType;
         this.readingTypeMRID = readingType.getMRID();
         return this;
     }
 
-    static ReadingTypeInExportTask from(DataModel dataModel, IReadingTypeDataExportTask task, ReadingType readingType) {
-        return dataModel.getInstance(ReadingTypeInExportTask.class).init(task, readingType);
+    static ReadingTypeInDataSelector from(DataModel dataModel, ReadingTypeDataSelector readingTypeDataSelector, ReadingType readingType) {
+        return dataModel.getInstance(ReadingTypeInDataSelector.class).init(readingTypeDataSelector, readingType);
     }
 
-    static ReadingTypeInExportTask from(DataModel dataModel, IReadingTypeDataExportTask task, String readingTypeMRID) {
-        ReadingTypeInExportTask readingTypeInExportTask = dataModel.getInstance(ReadingTypeInExportTask.class);
-        readingTypeInExportTask.readingTypeDataExportTask.set(task);
-        readingTypeInExportTask.readingTypeMRID = readingTypeMRID;
-        return readingTypeInExportTask;
+    static ReadingTypeInDataSelector from(DataModel dataModel, ReadingTypeDataSelector readingTypeDataSelector, String readingTypeMRID) {
+        ReadingTypeInDataSelector readingTypeInDataSelector = dataModel.getInstance(ReadingTypeInDataSelector.class);
+        readingTypeInDataSelector.readingTypeDataSelector.set(readingTypeDataSelector);
+        readingTypeInDataSelector.readingTypeMRID = readingTypeMRID;
+        return readingTypeInDataSelector;
     }
 
-    public ReadingTypeDataExportTask getReadingTypeDataExportTask() {
-        return readingTypeDataExportTask.get();
+    public ReadingTypeDataSelector getReadingTypeDataSelector() {
+        return readingTypeDataSelector.get();
     }
 
     public ReadingType getReadingType() {
@@ -72,14 +72,14 @@ class ReadingTypeInExportTask {
             return false;
         }
 
-        ReadingTypeInExportTask that = (ReadingTypeInExportTask) o;
+        ReadingTypeInDataSelector that = (ReadingTypeInDataSelector) o;
 
-        return readingTypeDataExportTask.get().getId() == that.readingTypeDataExportTask.get().getId() && readingTypeMRID.equals(that.readingTypeMRID);
+        return readingTypeDataSelector.get().getId() == that.readingTypeDataSelector.get().getId() && readingTypeMRID.equals(that.readingTypeMRID);
 
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(readingTypeDataExportTask.get().getId(), readingTypeMRID);
+        return Objects.hash(readingTypeDataSelector.get().getId(), readingTypeMRID);
     }
 }

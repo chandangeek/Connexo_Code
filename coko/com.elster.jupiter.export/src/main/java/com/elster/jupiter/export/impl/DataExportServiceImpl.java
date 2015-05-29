@@ -7,7 +7,8 @@ import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataExportTaskBuilder;
 import com.elster.jupiter.export.DataProcessorFactory;
-import com.elster.jupiter.export.ReadingTypeDataExportTask;
+import com.elster.jupiter.export.DataSelectorFactory;
+import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
@@ -24,6 +25,7 @@ import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
@@ -64,8 +66,10 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
     private volatile Clock clock;
     private volatile UserService userService;
     private volatile AppService appService;
+    private volatile TransactionService transactionService;
 
     private List<DataProcessorFactory> dataProcessorFactories = new CopyOnWriteArrayList<>();
+    private List<DataSelectorFactory> dataSelectorFactories = new CopyOnWriteArrayList<>();
     private Optional<DestinationSpec> destinationSpec = Optional.empty();
     private QueryService queryService;
 
@@ -73,7 +77,7 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
     }
 
     @Inject
-    public DataExportServiceImpl(OrmService ormService, TimeService timeService, TaskService taskService, MeteringGroupsService meteringGroupsService, MessageService messageService, NlsService nlsService, MeteringService meteringService, QueryService queryService, Clock clock, UserService userService, AppService appService) {
+    public DataExportServiceImpl(OrmService ormService, TimeService timeService, TaskService taskService, MeteringGroupsService meteringGroupsService, MessageService messageService, NlsService nlsService, MeteringService meteringService, QueryService queryService, Clock clock, UserService userService, AppService appService, TransactionService transactionService) {
         setOrmService(ormService);
         setTimeService(timeService);
         setTaskService(taskService);
@@ -85,6 +89,7 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
         setClock(clock);
         setUserService(userService);
         setAppService(appService);
+        setTransactionService(transactionService);
         activate();
         if (!dataModel.isInstalled()) {
             install();
@@ -104,24 +109,29 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
     }
 
     @Override
+    public List<DataSelectorFactory> getAvailableSelectors() {
+        return Collections.unmodifiableList(dataSelectorFactories);
+    }
+
+    @Override
     public DataExportTaskBuilder newBuilder() {
         return new DataExportTaskBuilderImpl(dataModel);
     }
 
     @Override
-    public Optional<? extends ReadingTypeDataExportTask> findExportTask(long id) {
-        return dataModel.mapper(IReadingTypeDataExportTask.class).getOptional(id);
+    public Optional<? extends ExportTask> findExportTask(long id) {
+        return dataModel.mapper(IExportTask.class).getOptional(id);
     }
 
     @Override
-    public Query<? extends ReadingTypeDataExportTask> getReadingTypeDataExportTaskQuery() {
-        return queryService.wrap(dataModel.query(IReadingTypeDataExportTask.class));
+    public Query<? extends ExportTask> getReadingTypeDataExportTaskQuery() {
+        return queryService.wrap(dataModel.query(ExportTask.class));
     }
 
     @Override
     public List<PropertySpec> getPropertiesSpecsForProcessor(String name) {
         return getDataProcessorFactory(name)
-                .map(DataProcessorFactory::getProperties)
+                .map(DataProcessorFactory::getPropertySpecs)
                 .orElse(Collections.emptyList());
     }
 
@@ -152,8 +162,8 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
     }
 
     @Override
-    public List<IReadingTypeDataExportTask> findReadingTypeDataExportTasks() {
-        return dataModel.mapper(IReadingTypeDataExportTask.class).find();
+    public List<IExportTask> findReadingTypeDataExportTasks() {
+        return dataModel.mapper(IExportTask.class).find();
     }
 
     @Reference
@@ -165,8 +175,13 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
-    public void addResource(DataProcessorFactory dataProcessorFactory) {
+    public void addProcessor(DataProcessorFactory dataProcessorFactory) {
         dataProcessorFactories.add(dataProcessorFactory);
+    }
+
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addSelector(DataSelectorFactory dataSelectorFactory) {
+        dataSelectorFactories.add(dataSelectorFactory);
     }
 
     @Reference
@@ -184,8 +199,12 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
         this.userService = userService;
     }
 
-    public void removeResource(DataProcessorFactory dataProcessorFactory) {
+    public void removeProcessor(DataProcessorFactory dataProcessorFactory) {
         dataProcessorFactories.remove(dataProcessorFactory);
+    }
+
+    public void removeSelector(DataSelectorFactory selectorFactory) {
+        dataSelectorFactories.remove(selectorFactory);
     }
 
     @Activate
@@ -201,8 +220,10 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
                     bind(Thesaurus.class).toInstance(thesaurus);
                     bind(Clock.class).toInstance(clock);
                     bind(UserService.class).toInstance(userService);
+                    bind(TransactionService.class).toInstance(transactionService);
                 }
             });
+            addSelector(new StandardDataSelectorFactory(transactionService, meteringService, thesaurus));
         } catch (RuntimeException e) {
             e.printStackTrace();
             throw e;
@@ -229,6 +250,11 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
     }
 
     @Reference
+    public void setTransactionService(TransactionService transactionService) {
+        this.transactionService = transactionService;
+    }
+
+    @Reference
     public void setMeteringGroupsService(MeteringGroupsService meteringGroupsService) {
         this.meteringGroupsService = meteringGroupsService;
     }
@@ -250,18 +276,18 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
 
     @Override
     public IDataExportOccurrence createExportOccurrence(TaskOccurrence taskOccurrence) {
-        IReadingTypeDataExportTask task = getReadingTypeDataExportTaskForRecurrentTask(taskOccurrence.getRecurrentTask()).orElseThrow(IllegalArgumentException::new);
+        IExportTask task = getReadingTypeDataExportTaskForRecurrentTask(taskOccurrence.getRecurrentTask()).orElseThrow(IllegalArgumentException::new);
         return DataExportOccurrenceImpl.from(dataModel, taskOccurrence, task);
     }
 
     @Override
     public Optional<IDataExportOccurrence> findDataExportOccurrence(TaskOccurrence occurrence) {
-        return dataModel.query(IDataExportOccurrence.class, IReadingTypeDataExportTask.class).select(EQUAL.compare("taskOccurrence", occurrence)).stream().findFirst();
+        return dataModel.query(IDataExportOccurrence.class, IExportTask.class).select(EQUAL.compare("taskOccurrence", occurrence)).stream().findFirst();
     }
 
     @Override
-    public Optional<IDataExportOccurrence> findDataExportOccurrence(ReadingTypeDataExportTask task, Instant triggerTime) {
-        return dataModel.stream(IDataExportOccurrence.class).join(TaskOccurrence.class).join(IReadingTypeDataExportTask.class)
+    public Optional<IDataExportOccurrence> findDataExportOccurrence(ExportTask task, Instant triggerTime) {
+        return dataModel.stream(IDataExportOccurrence.class).join(TaskOccurrence.class).join(IExportTask.class)
                 .filter(EQUAL.compare("readingTask", task))
                 .filter(EQUAL.compare("taskOccurrence.triggerTime", triggerTime))
                 .findFirst();
@@ -298,14 +324,21 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
     }
 
     @Override
-    public List<ReadingTypeDataExportTask> findExportTaskUsing(RelativePeriod relativePeriod) {
-        return dataModel.stream(IReadingTypeDataExportTask.class)
+    public List<ExportTask> findExportTaskUsing(RelativePeriod relativePeriod) {
+        return dataModel.stream(IExportTask.class)
                 .filter(EQUAL.compare("exportPeriod", relativePeriod).or(EQUAL.compare("updatePeriod", relativePeriod)))
                 .collect(Collectors.toList());
     }
 
-    private Optional<IReadingTypeDataExportTask> getReadingTypeDataExportTaskForRecurrentTask(RecurrentTask recurrentTask) {
-        return dataModel.mapper(IReadingTypeDataExportTask.class).getUnique("recurrentTask", recurrentTask);
+    @Override
+    public Optional<DataSelectorFactory> getDataSelectorFactory(String name) {
+        return dataSelectorFactories.stream()
+                .filter(factory -> factory.getName().equals(name))
+                .findAny();
+    }
+
+    private Optional<IExportTask> getReadingTypeDataExportTaskForRecurrentTask(RecurrentTask recurrentTask) {
+        return dataModel.mapper(IExportTask.class).getUnique("recurrentTask", recurrentTask);
     }
 
 
