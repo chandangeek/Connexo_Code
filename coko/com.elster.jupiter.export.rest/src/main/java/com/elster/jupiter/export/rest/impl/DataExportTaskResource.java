@@ -198,7 +198,7 @@ public class DataExportTaskResource {
                 selector.setExportPeriod(getRelativePeriod(info.dataSelectorInfo.exportPeriod));
                 selector.setUpdatePeriod(getRelativePeriod(info.dataSelectorInfo.updatePeriod));
                 selector.setEndDeviceGroup(endDeviceGroup(info.dataSelectorInfo.deviceGroup.id));
-                selector.save();
+                selector.update();
             }
 
             updateProperties(info, task);

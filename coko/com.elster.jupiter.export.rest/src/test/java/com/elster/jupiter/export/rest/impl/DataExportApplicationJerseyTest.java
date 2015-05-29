@@ -32,10 +32,11 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.time.Instant;
-import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 
+import static java.util.Arrays.asList;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
@@ -74,16 +75,17 @@ public class DataExportApplicationJerseyTest extends FelixRestApplicationJerseyT
     protected DataExportTaskBuilder builder = initBuilderStub();
 
     private DataExportTaskBuilder initBuilderStub() {
-        final Object proxyInstance = Proxy.newProxyInstance(DataExportTaskBuilder.class.getClassLoader(), new Class<?>[]{DataExportTaskBuilder.class, DataExportTaskBuilder.PropertyBuilder.class}, new InvocationHandler() {
+        final Object proxyInstance = Proxy.newProxyInstance(DataExportTaskBuilder.class.getClassLoader(), new Class<?>[]{DataExportTaskBuilder.class, DataExportTaskBuilder.PropertyBuilder.class, DataExportTaskBuilder.CustomSelectorBuilder.class, DataExportTaskBuilder.StandardSelectorBuilder.class}, new InvocationHandler() {
             @Override
             public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-                if (DataExportTaskBuilder.class.isAssignableFrom(method.getReturnType())) {
-                    return builderGetter.get();
-                }
-                if (DataExportTaskBuilder.PropertyBuilder.class.isAssignableFrom(method.getReturnType())) {
+                if (hasReturnType(method, asList(DataExportTaskBuilder.class, DataExportTaskBuilder.PropertyBuilder.class, DataExportTaskBuilder.CustomSelectorBuilder.class, DataExportTaskBuilder.StandardSelectorBuilder.class))) {
                     return builderGetter.get();
                 }
                 return taskGetter.get();
+            }
+
+            boolean hasReturnType(Method method, List<Class<?>> classes) {
+                return classes.stream().anyMatch(clazz -> clazz.isAssignableFrom(method.getReturnType()));
             }
 
             private Supplier<ExportTask> taskGetter = () -> exportTask;
@@ -118,7 +120,7 @@ public class DataExportApplicationJerseyTest extends FelixRestApplicationJerseyT
         when(transactionService.execute(any())).thenAnswer(invocation -> ((Transaction<?>) invocation.getArguments()[0]).perform());
         doReturn(query).when(dataExportService).getReadingTypeDataExportTaskQuery();
         doReturn(restQuery).when(restQueryService).wrap(query);
-        doReturn(Arrays.asList(exportTask)).when(restQuery).select(any(), any());
+        doReturn(asList(exportTask)).when(restQuery).select(any(), any());
         when(exportTask.getReadingTypeDataSelector()).thenReturn(Optional.of(readingTypeDataSelector));
         when(readingTypeDataSelector.getEndDeviceGroup()).thenReturn(endDeviceGroup);
         when(readingTypeDataSelector.getExportPeriod()).thenReturn(exportPeriod);
