@@ -18,6 +18,7 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
     prevNextListLink: null,
     activeTab: null,
     indexLocation: null,
+    contentName: null,
 
     setFilterView: function (filter, durationsStore) {
         var me = this,
@@ -120,6 +121,7 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
                     },
                     {
                         xtype: 'deviceLoadProfileChannelDataSideFilter',
+                        contentName: me.contentName,
                         hidden: (me.activeTab === 0)
                     }
                 ]

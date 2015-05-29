@@ -79,31 +79,39 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
     },
 
     showSpecifications: function (mRID, channelId) {
-        var me = this,
-            router = me.getController('Uni.controller.history.Router');
-        me.showOverview(mRID, channelId, 0, 'Mdc.store.ChannelsOfLoadProfilesOfDevice', me.makeLinkToChannels(router), 'channelId', 'arguments')
+        var me = this;
+        me.showOverview({mRID: mRID, channelId: channelId}, 'spec')
     },
 
     showData: function (mRID, channelId) {
-        var me = this,
-            router = me.getController('Uni.controller.history.Router');
-        me.showOverview(mRID, channelId, 1, 'Mdc.store.ChannelsOfLoadProfilesOfDevice', me.makeLinkToChannels(router), 'channelId', 'arguments')
+        var me = this;
+        me.showOverview({mRID: mRID, channelId: channelId}, 'data')
     },
 
-    showValidationData: function (mRID, channelId, issueId) {
-        var me = this,
-            router = me.getController('Uni.controller.history.Router');
-        // todo Replace 'Mdc.store.ChannelsOfLoadProfilesOfDevice' with validation blocks store
-        me.getStore( 'Mdc.store.ValidationBlocks').load();
-        me.showOverview(mRID, channelId, 1, 'Mdc.store.ValidationBlocks', me.makeLinkToIssue(router, issueId), 'validationBlock', 'queryParams');
+    showValidationBlocks: function (mRID, channelId, issueId) {
+        var me = this;
+        me.getStore('Mdc.store.ValidationBlocks').load({
+            callback: function () {
+                me.showOverview({mRID: mRID, channelId: channelId, issueId: issueId}, 'block');
+            }
+        });
     },
 
-    showOverview: function (mRID, channelId, activeTab, prevNextstore, prevNextListLink, routerIdArgument, indexLocation) {
+    showOverview: function (params, contentName) {
         var me = this,
+            mRID = params['mRID'],
+            channelId = params['channelId'],
+            issueId = params['issueId'],
             device = me.getModel('Mdc.model.Device'),
             viewport = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
             channel = me.getModel('Mdc.model.ChannelOfLoadProfilesOfDevice'),
-            router = me.getController('Uni.controller.history.Router');
+            router = me.getController('Uni.controller.history.Router'),
+            prevNextstore = contentName == 'block' ? 'Mdc.store.ValidationBlocks' : 'Mdc.store.ChannelsOfLoadProfilesOfDevice',
+            prevNextListLink = contentName == 'block' ? me.makeLinkToIssue(router, issueId) : me.makeLinkToChannels(router),
+            indexLocation = contentName == 'block' ? 'queryParams' : 'arguments',
+            routerIdArgument = contentName == 'block' ? 'validationBlock' : 'channelId',
+            activeTab = contentName == 'spec' ? 0 : 1;
+
         viewport.setLoading(true);
         device.load(mRID, {
             success: function (device) {
@@ -113,11 +121,26 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 });
                 channel.load(channelId, {
                     success: function (channel) {
+                        debugger;
+                        if (contentName == 'block' &&
+                            router.filter &&
+                            router.filter.get('duration').length == 0 &&
+                            router.queryParams['validationBlock']) {
+                            var intervalStore = me.getStore('Mdc.store.DataIntervalAndZoomLevels'),
+                                intervalRecord = intervalStore.getIntervalRecord(channel.get('interval')),
+                                all = intervalRecord.get('all'),
+                                duration =  intervalStore.getIntervalRecord(intervalRecord.get('all')).get('intervalInMs');
+                            var startDate = parseInt(router.queryParams['validationBlock']) - Math.floor(duration / 2),
+                                intervalStart = Ext.Date.format(new Date(startDate), 'Y-m-dTH:i:s');
+                            router.filter.set('intervalStart', intervalStart);
+                            router.filter.set('duration', all.count + all.timeUnit);
+                        }
                         me.getApplication().fireEvent('channelOfLoadProfileOfDeviceLoad', channel);
                         var widget = Ext.widget('tabbedDeviceChannelsView', {
                             router: router,
                             channel: channel,
                             device: device,
+                            contentName: contentName,
                             indexLocation: indexLocation,
                             prevNextListLink: prevNextListLink,
                             activeTab: activeTab,
@@ -370,7 +393,9 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         Ext.ComponentQuery.query('viewport > #contentPanel')[0].setLoading();
         var filterForm = this.getSideFilterForm();
         filterForm.updateRecord();
-        filterForm.getRecord().save();
+        filterForm.getRecord().save({
+
+        });
     },
 
     clearFilter: function () {
