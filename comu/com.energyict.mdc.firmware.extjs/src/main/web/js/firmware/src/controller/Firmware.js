@@ -470,16 +470,34 @@ Ext.define('Fwc.controller.Firmware', {
     saveOptionsAction: function () {
         var me = this,
             router = this.getController('Uni.controller.history.Router'),
-            form = me.getFirmwareOptionsEditForm();
+            form = me.getFirmwareOptionsEditForm(),
+            allowedOptionsError = form.down('#allowedOptionsError');
 
         form.updateRecord();
+        allowedOptionsError.removeAll();
         form.getRecord().save({
             success: function () {
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('firmware.options.save.success', 'FWC', 'Firmware management options saved'));
                 router.getRoute('administration/devicetypes/view/firmwareoptions').forward();
             },
             failure: function (record, operation) {
-                me.setFormErrors(operation.response, form);
+                form.down('uni-form-error-message').show();
+                var json = Ext.decode(operation.response.responseText);
+                if (json && json.errors) {
+                    form.getForm().markInvalid(json.errors);
+                    Ext.each(json.errors, function(error) {
+                        if (error.id === "allowedOptions") {
+                            allowedOptionsError.add({
+                                xtype: 'container',
+                                html: error.msg,
+                                style: {
+                                    'color': '#eb5642'
+                                },
+                                margin: '0 0 -10 0'
+                            })
+                        }
+                    });
+                }
             },
             callback: function () {
                 form.setLoading(false);
