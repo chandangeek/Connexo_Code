@@ -136,7 +136,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
             this.getConnectionMethodPreviewForm().loadRecord(connectionMethod[0]);
             var connectionMethodName = connectionMethod[0].get('name');
             this.getConnectionMethodPreview().getLayout().setActiveItem(1);
-            this.getConnectionMethodPreview().setTitle(connectionMethodName);
+            this.getConnectionMethodPreview().setTitle(Ext.String.htmlEncode(connectionMethodName));
             var menuItem =  this.getConnectionMethodPreview().down('#toggleDefaultMenuItem');
             menuItem && menuItem.setText(connectionMethod[0].get('isDefault') === true ? Uni.I18n.translate('connectionmethod.unsetAsDefault', 'MDC', 'Remove as default') : Uni.I18n.translate('connectionmethod.setAsDefault', 'MDC', 'Set as default'));
             this.getConnectionMethodPreview().down('property-form').loadRecord(connectionMethod[0]);
