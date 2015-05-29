@@ -11,9 +11,16 @@ Ext.define('Mdc.view.setup.devicehistory.LifeCycle', {
             tpl: new Ext.XTemplate(
                 '<tpl for=".">',
                 '{[xindex > 1 ? "<hr>" : ""]}',
-                '<p><b>{[Uni.I18n.translate("searchItems.bulk.state", "MDC", "State") + " " + (values.fromState ? Uni.I18n.translate("deviceHistory.changedFrom", "MDC", "changed from") + " " + values.fromState : Uni.I18n.translate("deviceHistory.set", "MDC", "set")) + " " + Uni.I18n.translate("general.unitTo", "MDC", "to") + " " + values.toState]}</b></p>',
+                '<p><b>{[(values.type == "lifeCycle" ? Uni.I18n.translate("general.deviceLifeCycle", "MDC", "Device life cycle") : Uni.I18n.translate("searchItems.bulk.state", "MDC", "State")) + " " + (values.from ? Uni.I18n.translate("deviceHistory.changedFrom", "MDC", "changed from") + " " + this.formatHref(values, true) : Uni.I18n.translate("deviceHistory.set", "MDC", "set")) + " " + Uni.I18n.translate("general.unitTo", "MDC", "to") + " " + this.formatHref(values, false)]}</b></p>',
                 '<p>{[Uni.I18n.translate("deviceHistory.byOn", "MDC", "by {0} on {1}", [values.author.name, Uni.DateTime.formatDateTimeShort(new Date(values.modTime))])]}</br></p>',
-                '</tpl>'
+                '</tpl>',
+                {
+                    formatHref: function (values, isFrom) {
+                        var id = isFrom ? values.from.id : values.to.id,
+                            value = isFrom ? values.from.name : values.to.name;
+                        return values.type == 'lifeCycle' ? '<a href="#/administration/devicelifecycles/' + id + '">' + value + '</a>' : value;
+                    }
+                }
             )
         }
     ]

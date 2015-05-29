@@ -1,15 +1,16 @@
 Ext.define('Mdc.model.DeviceLifeCycleStatesHistory', {
     extend: 'Ext.data.Model',
     fields: [
-        'fromState',
-        'toState',
+        'from',
+        'to',
         'author',
-        'modTime'
+        'modTime',
+        'type'
     ],
 
     proxy: {
         type: 'rest',
-        urlTpl: '/api/ddr/devices/{mrid}/history/devicelifecyclestates',
+        urlTpl: '/api/ddr/devices/{mrid}/history/devicelifecyclechanges',
         reader: {
             type: 'json'
         },

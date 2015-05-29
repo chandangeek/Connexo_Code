@@ -4,10 +4,10 @@ Ext.define('Mdc.store.DeviceLifeCycleStatesHistory', {
     autoLoad: false,
     proxy: {
         type: 'rest',
-        urlTpl: '/api/ddr/devices/{mrid}/history/devicelifecyclestates',
+        urlTpl: '/api/ddr/devices/{mrid}/history/devicelifecyclechanges',
         reader: {
             type: 'json',
-            root: 'deviceLifeCycleStateChanges'
+            root: 'deviceLifeCycleChanges'
         },
         setUrl: function (params) {
             this.url = this.urlTpl.replace('{mrid}', params.mRID);
