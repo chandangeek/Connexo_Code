@@ -16,7 +16,6 @@ import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingContainer;
-import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
@@ -114,7 +113,7 @@ public class DataExportTaskExecutorTest {
     @Mock
     private DataExportStrategy strategy;
     @Mock(extraInterfaces = {IntervalReadingRecord.class})
-    private ReadingRecord reading1, reading2;
+    private Reading reading1, reading2;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private Thesaurus thesaurus;
     @Mock
@@ -197,10 +196,16 @@ public class DataExportTaskExecutorTest {
         when(dataProcessor.processData(any())).thenReturn(Optional.of(exportPeriodEnd.toInstant()));
         when(reading1.getSource()).thenReturn("reading1");
         when(reading2.getSource()).thenReturn("reading2");
-        MeterReadingImpl meterReading = MeterReadingImpl.of(ReadingImpl.reading(reading1, readingType1));
-        MeterReadingImpl.newInstance().addIntervalBlock(IntervalBlockImpl.);
-        MeterReadingData newItemData = new MeterReadingData(this.newItem, meterReading, DefaultStructureMarker.createRoot("newItem"));
-        MeterReadingData existItemData = new MeterReadingData(this.existingItem, MeterReadingImpl.of(ReadingImpl.reading(reading2, readingType1)), DefaultStructureMarker.createRoot("newItem"));
+        MeterReadingImpl meterReading1 = MeterReadingImpl.newInstance();
+        IntervalBlockImpl intervalBlock1 = IntervalBlockImpl.of("");
+        intervalBlock1.addIntervalReading((IntervalReading) reading1);
+        meterReading1.addIntervalBlock(intervalBlock1);
+        MeterReadingData newItemData = new MeterReadingData(this.newItem, meterReading1, DefaultStructureMarker.createRoot("newItem"));
+        MeterReadingImpl meterReading2 = MeterReadingImpl.newInstance();
+        IntervalBlockImpl intervalBlock2 = IntervalBlockImpl.of("");
+        intervalBlock2.addIntervalReading((IntervalReading) reading1);
+        meterReading1.addIntervalBlock(intervalBlock2);
+        MeterReadingData existItemData = new MeterReadingData(this.existingItem, meterReading2, DefaultStructureMarker.createRoot("newItem"));
         when(readingTypeDataSelector.selectData(dataExportOccurrence)).thenReturn(Arrays.<ExportData>asList(newItemData, existItemData).stream());
     }
 
@@ -335,21 +340,21 @@ public class DataExportTaskExecutorTest {
         executor.postExecute(occurrence);
 
         verify(dataProcessor, transactionService.notInTransaction()).startExport(eq(dataExportOccurrence), any());
-        verify(dataProcessor, transactionService.inTransaction(3)).startItem(newItem);
-        verify(dataProcessor, transactionService.inTransaction(3)).processData(argThat(matches(r -> ((MeterReadingData) r).getMeterReading().getReadings().stream().anyMatch(rd -> rd.getSource().equals("reading1")))));
-        verify(dataProcessor, transactionService.inTransaction(3)).endItem(newItem);
-        verify(dataProcessor, transactionService.inTransaction(5)).startItem(existingItem);
-        verify(dataProcessor, transactionService.inTransaction(5)).processData(argThat(matches(r -> ((MeterReadingData) r).getMeterReading().getReadings().stream().anyMatch(rd -> rd.getSource().equals("reading2")))));
-        verify(dataProcessor, transactionService.inTransaction(5)).endItem(existingItem);
+        verify(dataProcessor, transactionService.inTransaction(2)).startItem(newItem);
+        verify(dataProcessor, transactionService.inTransaction(2)).processData(argThat(matches(r -> ((MeterReadingData) r).getMeterReading().getReadings().stream().anyMatch(rd -> rd.getSource().equals("reading1")))));
+        verify(dataProcessor, transactionService.inTransaction(2)).endItem(newItem);
+        verify(dataProcessor, transactionService.inTransaction(4)).startItem(existingItem);
+        verify(dataProcessor, transactionService.inTransaction(4)).processData(argThat(matches(r -> ((MeterReadingData) r).getMeterReading().getReadings().stream().anyMatch(rd -> rd.getSource().equals("reading2")))));
+        verify(dataProcessor, transactionService.inTransaction(4)).endItem(existingItem);
         verify(dataProcessor, transactionService.notInTransaction()).endExport();
 
-        verify(newItem, transactionService.inTransaction(7)).update();
-        verify(existingItem, transactionService.inTransaction(7)).update();
+        verify(newItem, transactionService.inTransaction(6)).update();
+        verify(existingItem, transactionService.inTransaction(6)).update();
 
+        transactionService.assertThatTransaction(2).wasCommitted();
         transactionService.assertThatTransaction(3).wasCommitted();
         transactionService.assertThatTransaction(4).wasCommitted();
         transactionService.assertThatTransaction(5).wasCommitted();
-        transactionService.assertThatTransaction(7).wasCommitted();
     }
 
     @Test
@@ -429,10 +434,10 @@ public class DataExportTaskExecutorTest {
         verify(dataProcessor, never()).endItem(existingItem);
         verify(dataProcessor, never()).endExport();
 
-        transactionService.assertThatTransaction(3).wasCommitted();
-        transactionService.inTransaction(3).verify();
-        transactionService.assertThatTransaction(4).wasCommitted();
-        transactionService.assertThatTransaction(5).wasNotCommitted();
+        transactionService.assertThatTransaction(2).wasCommitted(); // newItem
+        transactionService.assertThatTransaction(3).wasCommitted(); // log success of newItem
+        transactionService.assertThatTransaction(4).wasNotCommitted(); // existingItem
+        transactionService.assertThatTransaction(5).wasCommitted(); // log failure of existingItem
 
     }
 
@@ -461,9 +466,9 @@ public class DataExportTaskExecutorTest {
         verify(dataProcessor, never()).endItem(existingItem);
         verify(dataProcessor, never()).endExport();
 
+        transactionService.assertThatTransaction(2).wasCommitted();
         transactionService.assertThatTransaction(3).wasCommitted();
-        transactionService.assertThatTransaction(4).wasCommitted();
-        transactionService.assertThatTransaction(5).wasNotCommitted();
+        transactionService.assertThatTransaction(4).wasNotCommitted();
 
     }
 
@@ -487,9 +492,8 @@ public class DataExportTaskExecutorTest {
         verify(dataProcessor).endItem(existingItem);
         verify(dataProcessor).endExport();
 
-        transactionService.assertThatTransaction(2).wasCommitted();
-        transactionService.assertThatTransaction(3).wasNotCommitted();
-        transactionService.assertThatTransaction(4).wasCommitted();
+        transactionService.assertThatTransaction(2).wasNotCommitted();
+        transactionService.assertThatTransaction(3).wasCommitted();
     }
 
     @Test
@@ -517,9 +521,9 @@ public class DataExportTaskExecutorTest {
         verify(dataProcessor, never()).endItem(existingItem);
         verify(dataProcessor, never()).endExport();
 
+        transactionService.assertThatTransaction(2).wasCommitted();
         transactionService.assertThatTransaction(3).wasCommitted();
-        transactionService.assertThatTransaction(4).wasCommitted();
-        transactionService.assertThatTransaction(5).wasNotCommitted();
+        transactionService.assertThatTransaction(4).wasNotCommitted();
     }
 
     @Test
@@ -547,9 +551,10 @@ public class DataExportTaskExecutorTest {
         verify(dataProcessor, never()).endItem(existingItem);
         verify(dataProcessor, never()).endExport();
 
+        transactionService.assertThatTransaction(2).wasCommitted();
         transactionService.assertThatTransaction(3).wasCommitted();
-        transactionService.assertThatTransaction(4).wasCommitted();
-        transactionService.assertThatTransaction(5).wasNotCommitted();
+        transactionService.assertThatTransaction(4).wasNotCommitted();
+        transactionService.assertThatTransaction(5).wasCommitted();
     }
 
     @Test
@@ -572,9 +577,8 @@ public class DataExportTaskExecutorTest {
         verify(dataProcessor).endItem(existingItem);
         verify(dataProcessor).endExport();
 
-        transactionService.assertThatTransaction(2).wasCommitted();
-        transactionService.assertThatTransaction(3).wasNotCommitted();
-        transactionService.assertThatTransaction(4).wasCommitted();
+        transactionService.assertThatTransaction(2).wasNotCommitted();
+        transactionService.assertThatTransaction(3).wasCommitted();
     }
 
     @Test
@@ -602,9 +606,10 @@ public class DataExportTaskExecutorTest {
         verify(dataProcessor).endItem(existingItem);
         verify(dataProcessor, never()).endExport();
 
+        transactionService.assertThatTransaction(2).wasCommitted();
         transactionService.assertThatTransaction(3).wasCommitted();
-        transactionService.assertThatTransaction(4).wasCommitted();
-        transactionService.assertThatTransaction(5).wasNotCommitted();
+        transactionService.assertThatTransaction(4).wasNotCommitted();
+        transactionService.assertThatTransaction(5).wasCommitted();
     }
 
     @Test
@@ -632,9 +637,10 @@ public class DataExportTaskExecutorTest {
         verify(dataProcessor).endItem(existingItem);
         verify(dataProcessor, never()).endExport();
 
+        transactionService.assertThatTransaction(2).wasCommitted();
         transactionService.assertThatTransaction(3).wasCommitted();
-        transactionService.assertThatTransaction(4).wasCommitted();
-        transactionService.assertThatTransaction(5).wasNotCommitted();
+        transactionService.assertThatTransaction(4).wasNotCommitted();
+        transactionService.assertThatTransaction(5).wasCommitted();
     }
 
     @Test
@@ -657,9 +663,8 @@ public class DataExportTaskExecutorTest {
         verify(dataProcessor).endItem(existingItem);
         verify(dataProcessor).endExport();
 
-        transactionService.assertThatTransaction(2).wasCommitted();
-        transactionService.assertThatTransaction(3).wasNotCommitted();
-        transactionService.assertThatTransaction(4).wasCommitted();
+        transactionService.assertThatTransaction(2).wasNotCommitted();
+        transactionService.assertThatTransaction(3).wasCommitted();
     }
 
     private static class IntervalReadingFor extends Condition<List<? extends IntervalReading>> {
