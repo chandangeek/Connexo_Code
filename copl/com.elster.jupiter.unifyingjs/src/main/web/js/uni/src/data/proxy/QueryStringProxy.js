@@ -115,7 +115,7 @@ Ext.define('Uni.data.proxy.QueryStringProxy', {
      */
     setQueryParams: function (operation, callback, model) {
         var router = this.router,
-            queryParams = {};
+            queryParams = Ext.merge({}, router.queryParams);
         operation.setStarted();
         var data = this.hydrator
             ? this.hydrator.extract(model)
