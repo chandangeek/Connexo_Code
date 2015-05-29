@@ -69,18 +69,6 @@ public final class DefaultFinder<T> implements Finder<T> {
     }
 
     @Override
-    public Finder<T> from(QueryParameters queryParameters) {
-        if (queryParameters.getStart().isPresent() && queryParameters.getLimit().isPresent()) {
-            this.paged(queryParameters.getStart().get(), queryParameters.getLimit().get());
-        }
-        for (Order columnSort : queryParameters.getSortingColumns()) {
-            this.sorted(columnSort.getName(), columnSort.ascending());
-        }
-
-        return this;
-    }
-
-    @Override
     public Subquery asSubQuery(String... fieldNames) {
         return query.asSubquery(condition,fieldNames);
     }

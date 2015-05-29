@@ -1,5 +1,6 @@
 package com.elster.jupiter.domain.util;
 
+import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.sql.SqlFragment;
 import java.util.List;
@@ -23,20 +24,17 @@ public interface Finder<T> {
 
     public Finder<T> sorted(String sortColumn, boolean ascending);
 
-    /**
-     * adds paging information to the query. Paging information will be automatically
-     * set when using the from(QueryParameters) method. One additional element will be
-     * returned to indicate a next page exists.
-     *
-     * @param start first line from the query to return
-     * @param pageSize the number of lines to return.
-     * @return A Finder that will return the requested page when asked.
-     */
-//    Finder<T> defaultSortColumn(String sortColumn);
-
     public List<T> find();
 
-    public Finder<T> from(QueryParameters queryParameters);
+    public default Finder<T> from(QueryParameters queryParameters) {
+        if (queryParameters.getStart().isPresent() && queryParameters.getLimit().isPresent()) {
+            this.paged(queryParameters.getStart().get(), queryParameters.getLimit().get());
+        }
+        for (Order columnSort : queryParameters.getSortingColumns()) {
+            this.sorted(columnSort.getName(), columnSort.ascending());
+        }
+        return this;
+    }
 
     default Stream<T> stream() {
         return this.find().stream();
@@ -53,4 +51,5 @@ public interface Finder<T> {
      * For the use of Subquery, see the documentation there
      */
     SqlFragment asFragment(String... fieldNames);
+
 }
