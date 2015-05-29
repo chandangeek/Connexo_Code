@@ -93,9 +93,9 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTaskHistory', {
 
     viewCommunicationLog: function () {
         var communicationTaskHistory = this.getDeviceCommunicationTaskHistoryGrid().getSelectionModel().getSelection()[0];
-        location.href = '#/devices/' + communicationTaskHistory.get('device').id
-            + '/communicationtasks/' + communicationTaskHistory.get('comTasks')[0].id
-            + '/history/' + communicationTaskHistory.get('id')
+        location.href = '#/devices/' + encodeURIComponent(communicationTaskHistory.get('device').id)
+            + '/communicationtasks/' + encodeURIComponent(communicationTaskHistory.get('comTasks')[0].id)
+            + '/history/' + encodeURIComponent(communicationTaskHistory.get('id'))
             + '/viewlog' +
             '?filter=%7B%22logLevels%22%3A%5B%22Error%22%2C%22Warning%22%2C%22Information%22%5D%2C%22id%22%3Anull%7D';
 
@@ -103,9 +103,9 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTaskHistory', {
 
     viewConnectionLog: function () {
         var communicationTaskHistory = this.getDeviceCommunicationTaskHistoryGrid().getSelectionModel().getSelection()[0];
-        location.href = '#/devices/' + communicationTaskHistory.getComSession().get('device').id
-            + '/connectionmethods/' + communicationTaskHistory.getComSession().get('connectionMethod').id
-            + '/history/' + communicationTaskHistory.getComSession().get('id')
+        location.href = '#/devices/' + encodeURIComponent(communicationTaskHistory.getComSession().get('device').id)
+            + '/connectionmethods/' + encodeURIComponent(communicationTaskHistory.getComSession().get('connectionMethod').id)
+            + '/history/' + encodeURIComponent(communicationTaskHistory.getComSession().get('id'))
             + '/viewlog' +
             '?filter=%7B%22logLevels%22%3A%5B%22Error%22%2C%22Warning%22%2C%22Information%22%5D%2C%22logTypes%22%3A%5B%22connections%22%2C%22communications%22%5D%7D'
     },

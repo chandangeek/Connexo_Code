@@ -45,7 +45,7 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingPreview', {
                             labelWidth: 200,
                             name: 'authenticationLevel',
                             renderer: function (value) {
-                                return value.name;
+                                return Ext.String.htmlEncode(value.name);
                             }
                         },
                         {
@@ -54,7 +54,7 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingPreview', {
                             labelWidth: 200,
                             name: 'encryptionLevel',
                             renderer: function (value) {
-                                return value.name;
+                                return Ext.String.htmlEncode(value.name);
                             }
                         }
                     ]

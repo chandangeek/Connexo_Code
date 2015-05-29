@@ -17,7 +17,7 @@ Ext.define('Mdc.view.setup.devicevalidationresults.RuleSetList', {
 				sortable: false, 
 				fixed: true,
                 renderer: function (value, metaData, record) {					                    
-                    return '<a href="#/administration/validation/rulesets/' + record.getId() + '">' + value + '</a>';
+                    return '<a href="#/administration/validation/rulesets/' + record.getId() + '">' + Ext.String.htmlEncode(value) + '</a>';
                 }
             },            
             { 

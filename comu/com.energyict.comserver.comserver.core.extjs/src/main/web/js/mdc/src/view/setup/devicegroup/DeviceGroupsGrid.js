@@ -21,15 +21,15 @@ Ext.define('Mdc.view.setup.devicegroup.DeviceGroupsGrid', {
                 dataIndex: 'name',
                 renderer: function (value, b, record) {
                     if(Mdc.privileges.DeviceGroup.canAdministrateDeviceGroup() || Mdc.privileges.DeviceGroup.canViewGroupDetails()){
-                        return '<a href="#/devices/devicegroups/' + record.get('id') + '">' + value + '</a>';
+                        return '<a href="#/devices/devicegroups/' + record.get('id') + '">' + Ext.String.htmlEncode(value) + '</a>';
                     } else if(Mdc.privileges.DeviceGroup.canAdministrateDeviceOfEnumeratedGroup()) {
                         if (record.get('dynamic')) {
-                            return value;
+                            return Ext.String.htmlEncode(value);
                         } else {
-                            return '<a href="#/devices/devicegroups/' + record.get('id') + '">' + value + '</a>';
+                            return '<a href="#/devices/devicegroups/' + record.get('id') + '">' + Ext.String.htmlEncode(value) + '</a>';
                         }
                     } else {
-                            return value;
+                            return Ext.String.htmlEncode(value);
                     }
                 },
                 flex: 1

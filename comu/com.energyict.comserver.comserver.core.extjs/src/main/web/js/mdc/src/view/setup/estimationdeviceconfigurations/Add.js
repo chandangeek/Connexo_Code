@@ -47,7 +47,7 @@ Ext.define('Mdc.view.setup.estimationdeviceconfigurations.Add', {
                                     dataIndex: 'name',
                                     renderer: function (value, metaData, record) {
                                         var url = me.router.getRoute('administration/devicetypes/view/deviceconfigurations/view').buildUrl({deviceTypeId: record.get('deviceTypeId'), deviceConfigurationId: record.get('id')});
-                                        return '<a href="' + url + '">' + value + '</a>';
+                                        return '<a href="' + url + '">' + Ext.String.htmlEncode(value) + '</a>';
                                     },
                                     flex: 1
                                 },

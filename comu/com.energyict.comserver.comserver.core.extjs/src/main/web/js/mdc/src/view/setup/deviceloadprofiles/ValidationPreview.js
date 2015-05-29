@@ -63,7 +63,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.ValidationPreview', {
                             if (!Ext.isEmpty(value)) {
                                 field.up('#lastCheckedCont').show();
                                 this.nextSibling('button').setVisible(value ? true : false);
-                                return value;
+                                return Ext.String.htmlEncode(value);
                             } else {
                                 field.up('#lastCheckedCont').hide();
                             }

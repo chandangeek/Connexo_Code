@@ -85,7 +85,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.numerical.Preview', {
                                 name: 'overflow',
                                 renderer: function (value) {
                                     if (!Ext.isEmpty(value)) {
-                                        return value;
+                                        return Ext.String.htmlEncode(value);
                                     }
 
                                     return Uni.I18n.translate('deviceregisterconfiguration.overflow.notspecified', 'MDC', 'Not specified')

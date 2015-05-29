@@ -104,6 +104,15 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
                         msg: ''
                     });
                 } else {
+                    confirmationWindow.insert(1,[{
+                        xtype: 'checkboxfield',
+                        boxLabel: Uni.I18n.translate('device.dataValidation.activateConfirmation.onStorage', 'MDC', 'Validate data on storage'),
+                        itemId: 'validationOnStorage',
+                        checked: me.validationOnStorage,
+                        labelWidth: 175,
+                        labelPad: 1,
+                        padding: '0 0 15px 48px'
+                    }]);
                     confirmationWindow.show({
                         title: Uni.I18n.translatePlural('device.dataValidation.activateConfirmation.title', me.mRID, 'MDC', 'Activate data validation on device {0}?'),
                         msg: Uni.I18n.translate('device.dataValidation.activateMsg', 'MDC', 'There are currently no readings for this device')
@@ -289,14 +298,14 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
                     html: ''
                 },
 				{
-					xtype: 'checkboxfield',                
+					xtype: 'checkboxfield',
 					boxLabel: Uni.I18n.translate('device.dataValidation.activateConfirmation.onStorage', 'MDC', 'Validate data on storage'),
 					itemId: 'validationOnStorage',
 					checked: me.validationOnStorage,
 					labelWidth: 175,
                     labelPad: 1,
 					padding: '0 0 15px 48px'
-				},				
+				},
                 {
                     xtype: 'panel',
                     itemId: 'validationProgress',

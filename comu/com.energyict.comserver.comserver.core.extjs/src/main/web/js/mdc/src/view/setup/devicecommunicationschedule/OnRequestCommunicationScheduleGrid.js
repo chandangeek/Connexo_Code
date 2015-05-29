@@ -19,7 +19,7 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.OnRequestCommunicationSch
                     renderer: function (value) {
                         var resultArray = [];
                         Ext.Array.each(value, function (comTask) {
-                            resultArray.push(comTask.name);
+                            resultArray.push(Ext.String.htmlEncode(comTask.name));
                         });
                         return resultArray.join('<br>');
                     }

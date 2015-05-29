@@ -37,7 +37,7 @@ Ext.define('Mdc.controller.setup.EditLogbookConfiguration', {
                     text: 'Cancel',
                     cls: 'isu-btn-link',
                     hnd: function () {
-                        window.location = '#/administration/devicetypes/' + editView.deviceTypeId + '/deviceconfigurations/' + editView.deviceConfigurationId + '/logbookconfigurations';
+                        window.location = '#/administration/devicetypes/' + encodeURIComponent(editView.deviceTypeId) + '/deviceconfigurations/' + encodeURIComponent(editView.deviceConfigurationId) + '/logbookconfigurations';
                     }
                 }
             ],
@@ -77,7 +77,7 @@ Ext.define('Mdc.controller.setup.EditLogbookConfiguration', {
                 method: 'PUT',
                 jsonData: jsonValues,
                 success: function () {
-                    window.location.href = '#/administration/devicetypes/' + editView.deviceTypeId + '/deviceconfigurations/' + editView.deviceConfigurationId + '/logbookconfigurations';
+                    window.location.href = '#/administration/devicetypes/' + encodeURIComponent(editView.deviceTypeId) + '/deviceconfigurations/' + encodeURIComponent(editView.deviceConfigurationId) + '/logbookconfigurations';
                     self.getApplication().fireEvent('acknowledge', 'Logbook configuration saved');
                 },
                 failure: function (response) {

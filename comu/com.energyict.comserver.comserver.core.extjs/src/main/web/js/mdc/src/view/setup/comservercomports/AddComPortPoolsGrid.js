@@ -63,7 +63,7 @@ Ext.define('Mdc.view.setup.comservercomports.AddComPortPoolsGrid', {
     },
 
     updateCancelHref: function (comServerId, comportId) {
-        var href = '#/administration/comservers/' + comServerId + '/comports/';
+        var href = '#/administration/comservers/' + Ext.String.htmlEncode(comServerId) + '/comports/';
         if (comportId !== undefined) {
             href += 'outbound/' + comportId + '/edit';
         } else {

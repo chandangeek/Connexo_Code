@@ -17,7 +17,7 @@ Ext.define('Mdc.view.setup.devicetopology.Grid', {
                 dataIndex: 'mRID',
                 renderer: function (value, meta, record) {
                     var href = me.router.getRoute('devices/device').buildUrl({mRID: record.get('mRID')});
-                    return '<a href="' + href + '">' + value + '</a>'
+                    return '<a href="' + href + '">' + Ext.String.htmlEncode(value) + '</a>'
                 },
                 flex: 1
             },

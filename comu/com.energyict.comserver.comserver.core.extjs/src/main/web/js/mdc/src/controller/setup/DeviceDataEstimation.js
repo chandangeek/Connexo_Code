@@ -171,8 +171,8 @@ Ext.define('Mdc.controller.setup.DeviceDataEstimation', {
                 var router = me.getController('Uni.controller.history.Router');
                 router.getRoute().forward();
                 me.getApplication().fireEvent('acknowledge', ruleSetIsActive ?
-                    Uni.I18n.translatePlural('device.dataValidation.ruleSet.deactivated', ruleSetName, 'MDC', 'Rule set {0} was deactivated successfully') :
-                    Uni.I18n.translatePlural('device.dataValidation.ruleSet.activated', ruleSetName, 'MDC', 'Rule set {0} was activated successfully'));
+                    Uni.I18n.translatePlural('device.dataEstimation.ruleSet.deactivated', ruleSetName, 'MDC', 'Estimation rule set deactivated') :
+                    Uni.I18n.translatePlural('device.dataEstimation.ruleSet.activated', ruleSetName, 'MDC', 'Estimation rule set activated'));
             }
         });
     }
