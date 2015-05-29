@@ -22,14 +22,6 @@ Ext.define('Idv.view.DetailForm', {
                 },
                 items: [
                     {
-                        itemId: 'data-validation-issue-detail-reason',
-                        fieldLabel: Uni.I18n.translate('general.title.reason', 'ISU', 'Reason'),
-                        name: 'reason',
-                        renderer: function (value) {
-                            return value.name ? value.name : '';
-                        }
-                    },
-                    {
                         itemId: 'data-validation-issue-detail-usage-point',
                         fieldLabel: Uni.I18n.translate('general.title.usagePoint', 'ISU', 'Usage point'),
                         name: 'usage_point'

@@ -1,7 +1,7 @@
 Ext.define('Idv.view.NonEstimatedDataGrid', {
     extend: 'Ext.grid.Panel',
     xtype: 'no-estimated-data-grid',
-    title: 'Non Estimated Data', //todo: translate
+    title: Uni.I18n.translate('issues.NonEstimatedDataGrid.title', 'IDV', 'Non estimated data'),
     ui: 'medium',
     requires: [
         'Ext.grid.feature.Grouping',
