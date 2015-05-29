@@ -100,7 +100,6 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
                     buttons: [{
                         margin: '0 0 0 46',
                         text: Uni.I18n.translate('device.firmware.pending.cancel', 'MDC', 'Cancel upload'),
-                        ui: 'action',
                         action: 'cancelUpgrade',
                         itemId: 'cancelBtn'
                     }]
