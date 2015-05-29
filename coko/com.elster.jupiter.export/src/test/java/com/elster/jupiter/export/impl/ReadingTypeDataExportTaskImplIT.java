@@ -13,6 +13,7 @@ import com.elster.jupiter.export.DataProcessor;
 import com.elster.jupiter.export.DataProcessorFactory;
 import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
+import com.elster.jupiter.export.ReadingTypeDataSelector;
 import com.elster.jupiter.export.ValidatedDataOption;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
@@ -339,13 +340,15 @@ public class ReadingTypeDataExportTaskImplIT {
             ExportTask readingTypeDataExportTask = found.get();
             readingTypeDataExportTask.setNextExecution(instant);
             readingTypeDataExportTask.setScheduleExpression(Never.NEVER);
-            readingTypeDataExportTask.getReadingTypeDataSelector().get().setExportPeriod(oneYearBeforeLastYear);
-            readingTypeDataExportTask.getReadingTypeDataSelector().get().setUpdatePeriod(null);
-            readingTypeDataExportTask.getReadingTypeDataSelector().get().setEndDeviceGroup(anotherEndDeviceGroup);
             readingTypeDataExportTask.setProperty("propy", BigDecimal.valueOf(20000, 2));
             readingTypeDataExportTask.setName("New name!");
-            readingTypeDataExportTask.getReadingTypeDataSelector().get().addReadingType(anotherReadingType);
-            readingTypeDataExportTask.getReadingTypeDataSelector().get().removeReadingType(readingType);
+            ReadingTypeDataSelector selector = readingTypeDataExportTask.getReadingTypeDataSelector().get();
+            selector.setExportPeriod(oneYearBeforeLastYear);
+            selector.setUpdatePeriod(null);
+            selector.setEndDeviceGroup(anotherEndDeviceGroup);
+            selector.addReadingType(anotherReadingType);
+            selector.removeReadingType(readingType);
+            selector.update();
             readingTypeDataExportTask.save();
             context.commit();
         }

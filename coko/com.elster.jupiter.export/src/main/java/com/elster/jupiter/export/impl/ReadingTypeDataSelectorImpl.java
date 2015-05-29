@@ -258,9 +258,9 @@ public class ReadingTypeDataSelectorImpl implements IReadingTypeDataSelector {
     }
 
     @Override
-    public void save() {
+    public void update() {
         if (id == 0) {
-            dataModel.mapper(ReadingTypeDataSelector.class).persist(this);
+            throw new IllegalStateException();
         } else {
             dataModel.mapper(ReadingTypeDataSelector.class).update(this);
         }

@@ -48,7 +48,7 @@ public interface ReadingTypeDataSelector extends DataSelector, HasAuditInfo {
 
     void setExportContinuousData(boolean exportContinuousData);
 
-    void save();
+    void update();
 
     ReadingTypeDataExportItem addExportItem(Meter meter, ReadingType readingType);
 
