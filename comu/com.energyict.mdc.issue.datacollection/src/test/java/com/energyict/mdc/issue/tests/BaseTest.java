@@ -32,10 +32,11 @@ import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.issue.impl.module.IssueModule;
 import com.elster.jupiter.issue.impl.service.IssueServiceImpl;
-import com.elster.jupiter.issue.share.cep.IssueEvent;
+import com.elster.jupiter.issue.share.IssueEvent;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.DueInType;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
+import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleBuilder;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.kpi.impl.KpiModule;
 import com.elster.jupiter.license.LicenseService;
@@ -240,14 +241,13 @@ public abstract class BaseTest {
 
 
     protected CreationRule getCreationRule(String name, String reasonKey) {
-        CreationRule rule = getIssueService().getIssueCreationService().createRule();
-        rule.setName(name);
-        rule.setComment("Comment for rule");
-        rule.setContent("Empty content");
-        rule.setReason(getIssueService().findReason(reasonKey).orElse(null));
-        rule.setDueInValue(15L);
-        rule.setDueInType(DueInType.DAY);
-        rule.setTemplateUuid("Parent template uuid");
+        CreationRuleBuilder builder = getIssueService().getIssueCreationService().newCreationRule();
+        builder.setName(name);
+        builder.setComment("Comment for rule");
+        builder.setReason(getIssueService().findReason(reasonKey).orElse(null));
+        builder.setDueInTime(DueInType.DAY, 15L);
+        builder.setTemplate("Template");
+        CreationRule rule = builder.complete();
         rule.save();
         return rule;
     }

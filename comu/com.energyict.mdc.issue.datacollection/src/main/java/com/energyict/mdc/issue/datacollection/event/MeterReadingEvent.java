@@ -1,6 +1,6 @@
 package com.energyict.mdc.issue.datacollection.event;
 
-import com.elster.jupiter.issue.share.cep.IssueEvent;
+import com.elster.jupiter.issue.share.IssueEvent;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.EndDevice;
@@ -9,6 +9,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.issue.datacollection.impl.TrendPeriodUnit;
 import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;
+
 import org.joda.time.DateTimeConstants;
 
 import java.math.BigDecimal;

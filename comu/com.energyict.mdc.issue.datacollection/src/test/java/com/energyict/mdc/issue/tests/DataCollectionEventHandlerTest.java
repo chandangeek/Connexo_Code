@@ -1,7 +1,7 @@
 package com.energyict.mdc.issue.tests;
 
 import com.elster.jupiter.issue.impl.service.IssueCreationServiceImpl;
-import com.elster.jupiter.issue.share.cep.IssueEvent;
+import com.elster.jupiter.issue.share.IssueEvent;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueService;

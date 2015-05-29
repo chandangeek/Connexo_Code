@@ -1,7 +1,7 @@
 package com.energyict.mdc.issue.datacollection.impl.event;
 
 import com.energyict.mdc.issue.datacollection.event.MeterReadingEvent;
-import com.elster.jupiter.issue.share.cep.IssueEvent;
+import com.elster.jupiter.issue.share.IssueEvent;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;

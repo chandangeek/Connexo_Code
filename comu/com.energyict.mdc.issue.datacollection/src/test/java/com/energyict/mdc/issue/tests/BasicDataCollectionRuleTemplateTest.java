@@ -1,10 +1,24 @@
 package com.energyict.mdc.issue.tests;
 
-import com.elster.jupiter.issue.impl.records.CreationRuleParameterImpl;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import org.junit.Test;
+import org.mockito.Matchers;
+import org.osgi.service.event.EventConstants;
+
 import com.elster.jupiter.issue.impl.records.OpenIssueImpl;
-import com.elster.jupiter.issue.share.cep.IssueEvent;
+import com.elster.jupiter.issue.share.IssueEvent;
 import com.elster.jupiter.issue.share.entity.CreationRule;
-import com.elster.jupiter.issue.share.entity.CreationRuleParameter;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.metering.AmrSystem;
@@ -20,23 +34,7 @@ import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
 import com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventDescription;
 import com.energyict.mdc.issue.datacollection.impl.records.OpenIssueDataCollectionImpl;
 import com.energyict.mdc.issue.datacollection.impl.templates.BasicDatacollectionRuleTemplate;
-import com.energyict.mdc.issue.datacollection.impl.templates.params.AutoResolutionParameter;
-import com.energyict.mdc.issue.datacollection.impl.templates.params.EventTypeParameter;
 import com.google.inject.Injector;
-
-import org.junit.Test;
-import org.mockito.Matchers;
-import org.osgi.service.event.EventConstants;
-
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
 
 public class BasicDataCollectionRuleTemplateTest extends BaseTest {
 

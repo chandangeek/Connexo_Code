@@ -82,7 +82,7 @@ public class Installer {
     }
 
     private IssueType setSupportedIssueType() {
-        return issueService.createIssueType(IssueDataCollectionService.ISSUE_TYPE_UUID, MessageSeeds.ISSUE_TYPE_DATA_COLELCTION);
+        return issueService.createIssueType(IssueDataCollectionService.DATA_COLLECTION_ISSUE, MessageSeeds.ISSUE_TYPE_DATA_COLELCTION);
     }
 
     private void addTranslation(String componentName, String subscriberName, String subscriberDisplayName) {
