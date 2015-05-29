@@ -26,7 +26,7 @@ import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.DeviceProtocolCache;
 import com.energyict.mdc.protocol.SerialPortComChannel;
 import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
-import com.energyict.mdc.protocol.exceptions.ConnectionTimeOutException;
+import com.energyict.mdc.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.v2migration.MigrateFromV1Protocol;
 import com.energyict.mdc.tasks.ConnectionType;
@@ -181,7 +181,7 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
             } catch (ComServerRuntimeException e) {
                 if (e.getCause() != null && e.getCause() instanceof DataAccessResultException) {
                     throw e;        //Throw real errors, e.g. unsupported security mechanism, wrong password...
-                } else if (e instanceof ConnectionTimeOutException) {
+                } else if (e instanceof ConnectionCommunicationException) {
                     throw e;
                 }
                 exception = e;
