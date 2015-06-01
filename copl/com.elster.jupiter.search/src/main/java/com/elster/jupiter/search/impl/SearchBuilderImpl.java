@@ -1,6 +1,8 @@
 package com.elster.jupiter.search.impl;
 
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.properties.InvalidValueException;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.search.SearchBuilder;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
@@ -73,7 +75,8 @@ public class SearchBuilderImpl<T> implements SearchBuilder<T> {
         }
 
         @Override
-        public SearchBuilder<T> in(List<Object> values) {
+        public SearchBuilder<T> in(List<Object> values) throws InvalidValueException {
+            this.validateValues(values, this.property.getSpecification());
             addCondition(
                     this,
                     new SearchablePropertyContains(
@@ -83,7 +86,8 @@ public class SearchBuilderImpl<T> implements SearchBuilder<T> {
         }
 
         @Override
-        public SearchBuilder<T> isEqualTo(Object value) {
+        public SearchBuilder<T> isEqualTo(Object value) throws InvalidValueException {
+            this.validateValue(value, this.property.getSpecification());
             addCondition(
                     this,
                     new SearchablePropertyComparison(
@@ -93,7 +97,8 @@ public class SearchBuilderImpl<T> implements SearchBuilder<T> {
         }
 
         @Override
-        public SearchBuilder<T> isEqualToIgnoreCase(String value) {
+        public SearchBuilder<T> isEqualToIgnoreCase(String value) throws InvalidValueException {
+            this.validateValue(value, this.property.getSpecification());
             addCondition(
                     this,
                     new SearchablePropertyComparison(
@@ -103,7 +108,8 @@ public class SearchBuilderImpl<T> implements SearchBuilder<T> {
         }
 
         @Override
-        public SearchBuilder<T> like(String wildCardPattern) {
+        public SearchBuilder<T> like(String wildCardPattern) throws InvalidValueException {
+            this.validateValue(wildCardPattern, this.property.getSpecification());
             addCondition(
                     this,
                     new SearchablePropertyComparison(
@@ -113,13 +119,24 @@ public class SearchBuilderImpl<T> implements SearchBuilder<T> {
         }
 
         @Override
-        public SearchBuilder<T> likeIgnoreCase(String wildCardPattern) {
+        public SearchBuilder<T> likeIgnoreCase(String wildCardPattern) throws InvalidValueException {
+            this.validateValue(wildCardPattern, this.property.getSpecification());
             addCondition(
                     this,
                     new SearchablePropertyComparison(
                             Operator.LIKEIGNORECASE.compare(this.property.getSpecification().getName(), toOracleSql(wildCardPattern)),
                             this.property));
             return SearchBuilderImpl.this;
+        }
+
+        private void validateValues(List<Object> values, PropertySpec specification) throws InvalidValueException {
+            for (Object value : values) {
+                this.validateValue(value, specification);
+            }
+        }
+
+        private void validateValue(Object value, PropertySpec specification) throws InvalidValueException {
+            specification.validateValueIgnoreRequired(value);
         }
 
     }

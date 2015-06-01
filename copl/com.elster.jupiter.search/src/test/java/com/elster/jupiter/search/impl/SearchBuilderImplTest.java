@@ -1,6 +1,7 @@
 package com.elster.jupiter.search.impl;
 
 import com.elster.jupiter.properties.BigDecimalFactory;
+import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecPossibleValuesImpl;
 import com.elster.jupiter.properties.StringFactory;
@@ -27,6 +28,8 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -125,7 +128,7 @@ public class SearchBuilderImplTest {
     }
 
     @Test
-    public void whereIdEqualTo() {
+    public void whereIdEqualTo() throws InvalidValueException {
         SearchBuilderImpl<Example> builder = this.getTestInstance();
         builder.where(ID_PROPERTY_NAME).isEqualTo(ID1_VALUE);
 
@@ -146,7 +149,7 @@ public class SearchBuilderImplTest {
     }
 
     @Test
-    public void whereIdIn() {
+    public void whereIdIn() throws InvalidValueException {
         SearchBuilderImpl<Example> builder = this.getTestInstance();
         builder.where(ID_PROPERTY_NAME).in(ID1_VALUE, ID2_VALUE, ID3_VALUE);
 
@@ -167,7 +170,7 @@ public class SearchBuilderImplTest {
     }
 
     @Test
-    public void whereIdInList() {
+    public void whereIdInList() throws InvalidValueException {
         SearchBuilderImpl<Example> builder = this.getTestInstance();
         builder.where(ID_PROPERTY_NAME).in(Arrays.asList(ID1_VALUE, ID2_VALUE, ID3_VALUE));
 
@@ -188,7 +191,7 @@ public class SearchBuilderImplTest {
     }
 
     @Test
-    public void whereNameEqualTo() {
+    public void whereNameEqualTo() throws InvalidValueException {
         SearchBuilderImpl<Example> builder = this.getTestInstance();
         builder.where(NAME_PROPERTY_NAME).isEqualTo("Hello");
 
@@ -209,7 +212,7 @@ public class SearchBuilderImplTest {
     }
 
     @Test
-    public void whereNameEqualToIgnoreCase() {
+    public void whereNameEqualToIgnoreCase() throws InvalidValueException {
         SearchBuilderImpl<Example> builder = this.getTestInstance();
         builder.where(NAME_PROPERTY_NAME).isEqualToIgnoreCase("Hello");
 
@@ -229,7 +232,7 @@ public class SearchBuilderImplTest {
     }
 
     @Test
-    public void whereNameLike() {
+    public void whereNameLike() throws InvalidValueException {
         SearchBuilderImpl<Example> builder = this.getTestInstance();
         builder.where(NAME_PROPERTY_NAME).like("Hello*");
 
@@ -250,7 +253,7 @@ public class SearchBuilderImplTest {
     }
 
     @Test
-    public void whereNameLikeIgnoreCase() {
+    public void whereNameLikeIgnoreCase() throws InvalidValueException {
         SearchBuilderImpl<Example> builder = this.getTestInstance();
         builder.where(NAME_PROPERTY_NAME).likeIgnoreCase("Hello*");
 
@@ -270,7 +273,7 @@ public class SearchBuilderImplTest {
     }
 
     @Test
-    public void whereIdEqualToAndNameLike() {
+    public void whereIdEqualToAndNameLike() throws InvalidValueException {
         SearchBuilderImpl<Example> builder = this.getTestInstance();
         builder
             .where(ID_PROPERTY_NAME).isEqualTo(ID2_VALUE)
@@ -286,7 +289,7 @@ public class SearchBuilderImplTest {
     }
 
     @Test
-    public void whereIdEqualToAndNameLikeUsingSearchableProperty() {
+    public void whereIdEqualToAndNameLikeUsingSearchableProperty() throws InvalidValueException {
         SearchBuilderImpl<Example> builder = this.getTestInstance();
         builder
             .where(this.idSearchProperty).isEqualTo(ID2_VALUE)
@@ -299,6 +302,82 @@ public class SearchBuilderImplTest {
         verify(this.searchDomain).finderFor(this.conditionsArgumentCaptor.capture());
         List<SearchablePropertyCondition> capturedSearchablePropertyConditions = this.conditionsArgumentCaptor.getValue();
         assertThat(capturedSearchablePropertyConditions).hasSize(2);
+    }
+
+    @Test(expected = InvalidValueException.class)
+    public void whereIdEqualToString() throws InvalidValueException {
+        PropertySpec idPropertySpec = this.idSearchProperty.getSpecification();
+        doThrow(new InvalidValueException("whatever", "don't care", "id")).when(idPropertySpec).validateValue(anyString());
+        doThrow(new InvalidValueException("whatever", "don't care", "id")).when(idPropertySpec).validateValueIgnoreRequired(anyString());
+        SearchBuilderImpl<Example> builder = this.getTestInstance();
+        String valueOfWrongType = "wrong type";
+        builder.where(ID_PROPERTY_NAME).isEqualTo(valueOfWrongType);
+
+        // Business method
+        builder.toFinder();
+
+        // Asserts
+        verify(this.searchDomain).finderFor(this.conditionsArgumentCaptor.capture());
+        List<SearchablePropertyCondition> capturedSearchablePropertyConditions = this.conditionsArgumentCaptor.getValue();
+        assertThat(capturedSearchablePropertyConditions).hasSize(1);
+        SearchablePropertyCondition searchablePropertyCondition = capturedSearchablePropertyConditions.get(0);
+        assertThat(searchablePropertyCondition.getProperty()).isEqualTo(this.idSearchProperty);
+        assertThat(searchablePropertyCondition.getCondition()).isInstanceOf(Comparison.class);
+        Comparison comparison = (Comparison) searchablePropertyCondition.getCondition();
+        assertThat(comparison.getFieldName()).isEqualTo(ID_PROPERTY_NAME);
+        assertThat(comparison.getOperator()).isEqualTo(Operator.EQUAL);
+        assertThat(comparison.getValues()).containsOnly(ID1_VALUE);
+    }
+
+    @Test(expected = InvalidValueException.class)
+    public void whereIdEqualToIgnoreCase() throws InvalidValueException {
+        PropertySpec idPropertySpec = this.idSearchProperty.getSpecification();
+        doThrow(new InvalidValueException("whatever", "don't care", "id")).when(idPropertySpec).validateValue(anyString());
+        doThrow(new InvalidValueException("whatever", "don't care", "id")).when(idPropertySpec).validateValueIgnoreRequired(anyString());
+        SearchBuilderImpl<Example> builder = this.getTestInstance();
+        String valueOfWrongType = "wrong type";
+        builder.where(ID_PROPERTY_NAME).isEqualToIgnoreCase(valueOfWrongType);
+
+        // Business method
+        builder.toFinder();
+
+        // Asserts
+        verify(this.searchDomain).finderFor(this.conditionsArgumentCaptor.capture());
+        List<SearchablePropertyCondition> capturedSearchablePropertyConditions = this.conditionsArgumentCaptor.getValue();
+        assertThat(capturedSearchablePropertyConditions).hasSize(1);
+        SearchablePropertyCondition searchablePropertyCondition = capturedSearchablePropertyConditions.get(0);
+        assertThat(searchablePropertyCondition.getProperty()).isEqualTo(this.idSearchProperty);
+        assertThat(searchablePropertyCondition.getCondition()).isInstanceOf(Comparison.class);
+        Comparison comparison = (Comparison) searchablePropertyCondition.getCondition();
+        assertThat(comparison.getFieldName()).isEqualTo(ID_PROPERTY_NAME);
+        assertThat(comparison.getOperator()).isEqualTo(Operator.EQUAL);
+        assertThat(comparison.getValues()).containsOnly(ID1_VALUE);
+    }
+
+    @Test(expected = InvalidValueException.class)
+    public void whereIdInListOfStrings() throws InvalidValueException {
+        PropertySpec idPropertySpec = this.idSearchProperty.getSpecification();
+        doThrow(new InvalidValueException("whatever", "don't care", "id")).when(idPropertySpec).validateValue(anyString());
+        doThrow(new InvalidValueException("whatever", "don't care", "id")).when(idPropertySpec).validateValueIgnoreRequired(anyString());
+        SearchBuilderImpl<Example> builder = this.getTestInstance();
+        String s1 = "Hello";
+        String s2 = "world";
+        builder.where(ID_PROPERTY_NAME).in(s1, 2);
+
+        // Business method
+        builder.toFinder();
+
+        // Asserts
+        verify(this.searchDomain).finderFor(this.conditionsArgumentCaptor.capture());
+        List<SearchablePropertyCondition> capturedSearchablePropertyConditions = this.conditionsArgumentCaptor.getValue();
+        assertThat(capturedSearchablePropertyConditions).hasSize(1);
+        SearchablePropertyCondition searchablePropertyCondition = capturedSearchablePropertyConditions.get(0);
+        assertThat(searchablePropertyCondition.getProperty()).isEqualTo(this.idSearchProperty);
+        assertThat(searchablePropertyCondition.getCondition()).isInstanceOf(Comparison.class);
+        Comparison comparison = (Comparison) searchablePropertyCondition.getCondition();
+        assertThat(comparison.getFieldName()).isEqualTo(ID_PROPERTY_NAME);
+        assertThat(comparison.getOperator()).isEqualTo(Operator.EQUAL);
+        assertThat(comparison.getValues()).containsOnly(ID1_VALUE);
     }
 
     private SearchBuilderImpl<Example> getTestInstance() {

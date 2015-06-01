@@ -2,6 +2,7 @@ package com.elster.jupiter.search;
 
 import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.properties.InvalidValueException;
 
 import java.util.Arrays;
 import java.util.List;
@@ -100,8 +101,10 @@ public interface SearchBuilder<T> {
          *
          * @param values The List of value
          * @return The same SearchBuilder to support method chaining
+         * @throws InvalidValueException Thrown on the first value that is not compatible
+         *         with the property's specification
          */
-        public default SearchBuilder<T> in(Object... values) {
+        public default SearchBuilder<T> in(Object... values) throws InvalidValueException {
             return in(Arrays.asList(values));
         }
 
@@ -116,8 +119,10 @@ public interface SearchBuilder<T> {
          *
          * @param values The List of value
          * @return The same SearchBuilder to support method chaining
+         * @throws InvalidValueException Thrown on the first value that is not compatible
+         *         with the property's specification
          */
-        public SearchBuilder<T> in(List<Object> values);
+        public SearchBuilder<T> in(List<Object> values) throws InvalidValueException;
 
         /**
          * Builds a criterion that checks that the target
@@ -130,8 +135,10 @@ public interface SearchBuilder<T> {
          *
          * @param value The value
          * @return The same SearchBuilder to support method chaining
+         * @throws InvalidValueException Thrown on the first value that is not compatible
+         *         with the property's specification
          */
-        public SearchBuilder<T> isEqualTo(Object value);
+        public SearchBuilder<T> isEqualTo(Object value) throws InvalidValueException;
 
         /**
          * Builds a criterion that checks that the target {@link SearchableProperty}
@@ -144,8 +151,10 @@ public interface SearchBuilder<T> {
          *
          * @param value The value
          * @return The same SearchBuilder to support method chaining
+         * @throws InvalidValueException Thrown on the first value that is not compatible
+         *         with the property's specification
          */
-        public SearchBuilder<T> isEqualToIgnoreCase(String value);
+        public SearchBuilder<T> isEqualToIgnoreCase(String value) throws InvalidValueException;
 
         /**
          * Builds a criterion that checks that the target {@link SearchableProperty}
@@ -158,8 +167,10 @@ public interface SearchBuilder<T> {
          *
          * @param wildCardPattern The wild card pattern
          * @return The same SearchBuilder to support method chaining
+         * @throws InvalidValueException Thrown on the first value that is not compatible
+         *         with the property's specification
          */
-        public SearchBuilder<T> like(String wildCardPattern);
+        public SearchBuilder<T> like(String wildCardPattern) throws InvalidValueException;
 
         /**
          * Builds a criterion that checks that the target {@link SearchableProperty}
@@ -172,8 +183,10 @@ public interface SearchBuilder<T> {
          *
          * @param wildCardPattern The wild card pattern
          * @return The same SearchBuilder to support method chaining
+         * @throws InvalidValueException Thrown on the first value that is not compatible
+         *         with the property's specification
          */
-        public SearchBuilder<T> likeIgnoreCase(String wildCardPattern);
+        public SearchBuilder<T> likeIgnoreCase(String wildCardPattern) throws InvalidValueException;
 
     }
 
