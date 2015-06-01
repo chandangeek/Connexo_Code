@@ -117,7 +117,6 @@ public class DeviceInFirmwareCampaignImpl implements DeviceInFirmwareCampaign {
         return (FirmwareCampaignImpl) this.campaign.get();
     }
 
-    @Override
     public void startFirmwareProcess() {
         this.startedOn = clock.instant();
         if (!checkDeviceType() || !checkDeviceConfiguration() || !cancelPendingFirmwareUpdates()) {
@@ -138,6 +137,7 @@ public class DeviceInFirmwareCampaignImpl implements DeviceInFirmwareCampaign {
             setStatus(FirmwareManagementDeviceStatus.UPLOAD_PENDING);
             scheduleFirmwareTask();
         }
+        eventService.postEvent(EventType.DEVICE_IN_FIRMWARE_CAMPAIGN_UPDATED.topic(), getFirmwareCampaign());
         save();
     }
 
@@ -177,7 +177,9 @@ public class DeviceInFirmwareCampaignImpl implements DeviceInFirmwareCampaign {
     }
 
     private void createFirmwareMessage(Optional<DeviceMessageId> firmwareMessageId) {
-        Device.DeviceMessageBuilder deviceMessageBuilder = getDevice().newDeviceMessage(firmwareMessageId.get()).setReleaseDate(getFirmwareCampaign().getPlannedDate());
+        Device.DeviceMessageBuilder deviceMessageBuilder = getDevice()
+                .newDeviceMessage(firmwareMessageId.get())
+                .setReleaseDate(getFirmwareCampaign().getStartedOn());
         for (Map.Entry<String, Object> property : getFirmwareCampaign().getProperties().entrySet()) {
             deviceMessageBuilder.addProperty(property.getKey(), property.getValue());
         }
@@ -188,8 +190,8 @@ public class DeviceInFirmwareCampaignImpl implements DeviceInFirmwareCampaign {
     private void scheduleFirmwareTask() {
         ComTaskExecution firmwareComTaskExec = getFirmwareComTaskExec();
         if (firmwareComTaskExec.getNextExecutionTimestamp() == null ||
-                firmwareComTaskExec.getNextExecutionTimestamp().isAfter(getFirmwareCampaign().getPlannedDate())) {
-            firmwareComTaskExec.schedule(getFirmwareCampaign().getPlannedDate());
+                firmwareComTaskExec.getNextExecutionTimestamp().isAfter(getFirmwareCampaign().getStartedOn())) {
+            firmwareComTaskExec.schedule(getFirmwareCampaign().getStartedOn());
         }
     }
 

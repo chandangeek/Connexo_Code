@@ -17,6 +17,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
@@ -82,7 +83,7 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Tra
     private volatile EventService eventService;
     private volatile TaskService taskService;
     private volatile MessageService messageService;
-    private volatile com.elster.jupiter.tasks.TaskService platformTaskService;
+    private volatile UserService userService;
 
 
     // For OSGI
@@ -99,7 +100,7 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Tra
                                EventService eventService,
                                TaskService taskService,
                                MessageService messageService,
-                               com.elster.jupiter.tasks.TaskService platformTaskService) {
+                               UserService userService) {
         setOrmService(ormService);
         setNlsService(nlsService);
         setQueryService(queryService);
@@ -109,7 +110,7 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Tra
         setEventService(eventService);
         setTaskService(taskService);
         setMessageService(messageService);
-        setPlatformTaskService(platformTaskService);
+        setUserService(userService);
         if (!dataModel.isInstalled()) {
             install();
         }
@@ -177,8 +178,14 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Tra
     }
 
     @Override
+    // TODO check that it is correct logic
     public boolean isFirmwareVersionInUse(long firmwareVersionId) {
-        // TODO what this method should do???
+        Optional<FirmwareVersion> firmwareVersion = getFirmwareVersionById(firmwareVersionId);
+        if (firmwareVersion.isPresent()){
+            return dataModel.query(ActivatedFirmwareVersion.class)
+                    .select(where(ActivatedFirmwareVersionImpl.Fields.FIRMWARE_VERSION.fieldName()).isEqualTo(firmwareVersion.get()))
+                    .isEmpty();
+        }
         return false;
     }
 
@@ -302,7 +309,7 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Tra
                     bind(EventService.class).toInstance(eventService);
                     bind(TaskService.class).toInstance(taskService);
                     bind(MessageService.class).toInstance(messageService);
-                    bind(com.elster.jupiter.tasks.TaskService.class).toInstance(platformTaskService);
+                    bind(UserService.class).toInstance(userService);
                 }
             });
         } catch (RuntimeException e) {
@@ -359,8 +366,8 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Tra
     }
 
     @Reference
-    public void setPlatformTaskService(com.elster.jupiter.tasks.TaskService platformTaskService) {
-        this.platformTaskService = platformTaskService;
+    public void setUserService(UserService userService) {
+        this.userService = userService;
     }
 
     @Override
@@ -373,14 +380,14 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Tra
                 EventService.COMPONENTNAME,
                 TaskService.COMPONENT_NAME,
                 MessageService.COMPONENTNAME,
-                com.elster.jupiter.tasks.TaskService.COMPONENTNAME,
+                UserService.COMPONENTNAME,
                 MeteringGroupsService.COMPONENTNAME
         );
     }
 
     @Override
     public void install() {
-        Installer installer = new Installer(dataModel, eventService, messageService, platformTaskService);
+        Installer installer = new Installer(dataModel, eventService, messageService, userService);
         installer.install();
     }
 

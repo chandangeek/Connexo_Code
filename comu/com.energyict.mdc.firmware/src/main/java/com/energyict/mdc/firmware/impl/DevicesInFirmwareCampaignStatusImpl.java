@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 @LiteralSql
@@ -92,7 +93,10 @@ public class DevicesInFirmwareCampaignStatusImpl{
                 }
             }
         } catch (SQLException sqlEx) {
-
+            long campaignId = campaign.isPresent() ? campaign.get().getId() : 0;
+            Logger.getLogger(DevicesInFirmwareCampaignStatusImpl.class.getSimpleName())
+                    .warning("Unable to update a device statistic for firmware campaign (id = " + campaignId + "), reason: " + sqlEx.getMessage());
+            sqlEx.printStackTrace();
         }
     }
 

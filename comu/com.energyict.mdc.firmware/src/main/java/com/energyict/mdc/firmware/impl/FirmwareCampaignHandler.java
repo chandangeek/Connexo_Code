@@ -3,24 +3,31 @@ package com.energyict.mdc.firmware.impl;
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
-import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
+import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.json.JsonService;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.firmware.FirmwareCampaign;
 import org.osgi.service.event.EventConstants;
 
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static com.elster.jupiter.util.conditions.Where.where;
 
 public class FirmwareCampaignHandler implements MessageHandler {
 
     private final JsonService jsonService;
-    private final HandlerContext handlerContext;
+    private final FirmwareCampaignHandlerContext handlerContext;
 
-    public FirmwareCampaignHandler(JsonService jsonService, FirmwareServiceImpl firmwareService, MeteringGroupsService meteringGroupsService) {
+    public FirmwareCampaignHandler(JsonService jsonService, FirmwareCampaignHandlerContext context) {
         this.jsonService = jsonService;
-        this.handlerContext = new HandlerContext(firmwareService, meteringGroupsService);
+        this.handlerContext = context;
     }
 
     @Override
@@ -33,35 +40,41 @@ public class FirmwareCampaignHandler implements MessageHandler {
         }
     }
 
-    private static class HandlerContext {
-        private final FirmwareServiceImpl firmwareService;
-        private final MeteringGroupsService meteringGroupsService;
-
-        public HandlerContext(FirmwareServiceImpl firmwareService, MeteringGroupsService meteringGroupsService) {
-            this.firmwareService = firmwareService;
-            this.meteringGroupsService = meteringGroupsService;
-        }
-
-        public FirmwareServiceImpl getFirmwareService() {
-            return firmwareService;
-        }
-
-        public MeteringGroupsService getMeteringGroupsService() {
-            return meteringGroupsService;
-        }
-    }
-
-    private enum Handler {
+    enum Handler {
         FIRMWARE_CAMPAIGN_CREATED(EventType.FIRMWARE_CAMPAIGN_CREATED.topic()){
             @Override
-            public void handle(Map<String, Object> properties, HandlerContext context) {
+            public void handle(Map<String, Object> properties, FirmwareCampaignHandlerContext context) {
                 long firmwareCampaignId = ((Number) properties.get("id")).longValue();
                 long deviceGroupId = ((Number) properties.get("deviceGroupId")).longValue();
                 Optional<FirmwareCampaign> firmwareCampaign = context.getFirmwareService().getFirmwareCampaignById(firmwareCampaignId);
                 if (firmwareCampaign.isPresent()) {
-                    Optional<EndDeviceGroup> deviceGroup = context.getMeteringGroupsService().findEndDeviceGroup(deviceGroupId);
-                    if (deviceGroup.isPresent()){
-                        ((FirmwareCampaignImpl) firmwareCampaign.get()).cloneDeviceList(deviceGroup.get());
+                    Optional<EndDeviceGroup> deviceGroupRef = context.getMeteringGroupsService().findEndDeviceGroup(deviceGroupId);
+                    if (deviceGroupRef.isPresent()){
+                        List<Device> devices = Collections.emptyList();
+                        EndDeviceGroup deviceGroup = deviceGroupRef.get();
+                        if (deviceGroup instanceof QueryEndDeviceGroup){
+                            Condition deviceQuery = ((QueryEndDeviceGroup) deviceGroup).getCondition();
+                            deviceQuery = deviceQuery.and(where("deviceConfiguration.deviceType").isEqualTo(firmwareCampaign.get().getDeviceType()));
+                            devices = context.getDeviceService().findAllDevices(deviceQuery).find();
+                        } else {
+                            devices = deviceGroup.getMembers(context.getClock().instant())
+                                    .stream()
+                                    .map(endDevice -> context.getDeviceService().findDeviceById(Long.parseLong(endDevice.getAmrId())))
+                                    .filter(Optional::isPresent)
+                                    .map(Optional::get)
+                                    .filter(device -> device.getDeviceConfiguration().getDeviceType().getId() == firmwareCampaign.get().getDeviceType().getId())
+                                    .collect(Collectors.toList());
+                        }
+                        if (devices.isEmpty()){
+                            firmwareCampaign.get().cancel();
+                        } else {
+                            for (Device device : devices) {
+                                // Just a managed bean wrapper, no actual creation
+                                DeviceInFirmwareCampaignImpl wrapper = context.getFirmwareService().getDataModel().getInstance(DeviceInFirmwareCampaignImpl.class);
+                                wrapper.init(firmwareCampaign.get(), device);
+                                context.getEventService().postEvent(EventType.DEVICE_IN_FIRMWARE_CAMPAIGN_CREATED.topic(), wrapper);
+                            }
+                        }
                     } else {
                         firmwareCampaign.get().cancel();
                     }
@@ -69,35 +82,36 @@ public class FirmwareCampaignHandler implements MessageHandler {
             }
         },
 
-        FIRMWARE_CAMPAIGN_PROCESSED(EventType.FIRMWARE_CAMPAIGN_PROCESSED.topic()){
+        DEVICE_IN_FIRMWARE_CAMPAIGN_CREATED(EventType.DEVICE_IN_FIRMWARE_CAMPAIGN_CREATED.topic()){
             @Override
-            public void handle(Map<String, Object> properties, HandlerContext context) {
-                long firmwareCampaignId = ((Number) properties.get("id")).longValue();
-                Optional<FirmwareCampaign> firmwareCampaign = context.getFirmwareService().getFirmwareCampaignById(firmwareCampaignId);
-                if (firmwareCampaign.isPresent()) {
-                    FirmwareCampaignImpl firmwareCampaignImpl = (FirmwareCampaignImpl) firmwareCampaign.get();
-                    firmwareCampaignImpl.start();
-                    firmwareCampaignImpl.updateStatus();
+            public void handle(Map<String, Object> properties, FirmwareCampaignHandlerContext context) {
+                long firmwareCampaignId = ((Number) properties.get("firmwareCampaignId")).longValue();
+                long deviceId = ((Number) properties.get("deviceId")).longValue();
+                Optional<FirmwareCampaign> firmwareCampaignRef = context.getFirmwareService().getFirmwareCampaignById(firmwareCampaignId);
+                Optional<Device> deviceRef = context.getDeviceService().findDeviceById(deviceId);
+                if (firmwareCampaignRef.isPresent() && deviceRef.isPresent()) {
+                    DeviceInFirmwareCampaignImpl deviceInFirmwareCampaign = context.getFirmwareService().getDataModel().getInstance(DeviceInFirmwareCampaignImpl.class);
+                    deviceInFirmwareCampaign.init(firmwareCampaignRef.get(), deviceRef.get());
+                    context.getFirmwareService().getDataModel().persist(deviceInFirmwareCampaign);
+                    deviceInFirmwareCampaign.startFirmwareProcess();
                 }
             }
         },
 
         DEVICE_IN_FIRMWARE_CAMPAIGN_UPDATED(EventType.DEVICE_IN_FIRMWARE_CAMPAIGN_UPDATED.topic()){
             @Override
-            public void handle(Map<String, Object> properties, HandlerContext context) {
+            public void handle(Map<String, Object> properties, FirmwareCampaignHandlerContext context) {
                 long firmwareCampaignId = ((Number) properties.get("id")).longValue();
                 Optional<FirmwareCampaign> firmwareCampaign = context.getFirmwareService().getFirmwareCampaignById(firmwareCampaignId);
                 if (firmwareCampaign.isPresent()) {
                     FirmwareCampaignImpl firmwareCampaignImpl = (FirmwareCampaignImpl) firmwareCampaign.get();
                     Instant eventTimestamp = Instant.ofEpochMilli(((Number) properties.get(EventConstants.TIMESTAMP)).longValue());
                     if (!firmwareCampaignImpl.getModTime().isAfter(eventTimestamp)){
-                        firmwareCampaignImpl.updateStatus();
+                        firmwareCampaignImpl.updateStatistic();
                     }
                 }
             }
         },
-
-
         ;
 
         private String topic;
@@ -106,7 +120,7 @@ public class FirmwareCampaignHandler implements MessageHandler {
             this.topic = topic;
         }
 
-        public abstract void handle(Map<String, Object> properties, HandlerContext context);
+        public abstract void handle(Map<String, Object> properties, FirmwareCampaignHandlerContext context);
 
         public static Optional<Handler> getHandlerForTopic(String topic){
             return Arrays.stream(Handler.values())

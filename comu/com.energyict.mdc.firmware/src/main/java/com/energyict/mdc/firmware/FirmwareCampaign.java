@@ -28,10 +28,6 @@ public interface FirmwareCampaign extends HasId, HasName{
 
     void setManagementOption(ProtocolSupportedFirmwareOptions upgradeOption);
 
-    Instant getPlannedDate();
-
-    void setPlannedDate(Instant plannedDate);
-
     Instant getStartedOn();
 
     void setStartedOn(Instant startedOn);
@@ -53,8 +49,6 @@ public interface FirmwareCampaign extends HasId, HasName{
     void save();
 
     void delete();
-
-    void start();
 
     void cancel();
 

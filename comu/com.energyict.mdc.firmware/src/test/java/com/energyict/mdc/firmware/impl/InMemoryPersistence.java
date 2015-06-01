@@ -41,9 +41,7 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.DeviceDataModelServiceImpl;
 import com.energyict.mdc.device.data.impl.DeviceDataModule;
 import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
-import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
-import com.energyict.mdc.dynamic.impl.PropertySpecServiceImpl;
 import com.energyict.mdc.engine.config.impl.EngineModelModule;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.issues.impl.IssuesModule;
@@ -130,8 +128,7 @@ public class InMemoryPersistence {
                 new MasterDataModule(),
                 new DeviceDataModule(),
                 new FirmwareModule(),
-                new KpiModule(),
-                new com.elster.jupiter.tasks.impl.TaskModule());
+                new KpiModule());
         this.transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = this.transactionService.getContext()) {
             injector.getInstance(OrmService.class);

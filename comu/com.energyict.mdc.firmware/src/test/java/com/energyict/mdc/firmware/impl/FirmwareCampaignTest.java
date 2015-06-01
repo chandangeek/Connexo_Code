@@ -5,6 +5,7 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.FactoryIds;
@@ -29,7 +30,9 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -40,6 +43,7 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 // Unfortunately we cannot create a device type here, because the protocols bundle has a reference to firmware
@@ -112,7 +116,7 @@ public class FirmwareCampaignTest extends PersistenceTest {
     public void testDefaultStatus(){
         FirmwareServiceImpl firmwareService = inMemoryPersistence.getFirmwareService();
         FirmwareCampaign firmwareCampaign = firmwareService.newFirmwareCampaign(getDeviceTypeMock(), mock(EndDeviceGroup.class));
-        assertThat(firmwareCampaign.getStatus()).isEqualTo(FirmwareCampaignStatus.PROCESSING);
+        assertThat(firmwareCampaign.getStatus()).isEqualTo(FirmwareCampaignStatus.ONGOING);
     }
 
     @Test
@@ -165,7 +169,6 @@ public class FirmwareCampaignTest extends PersistenceTest {
                 dataModel,
                 inMemoryPersistence.getInjector().getInstance(Clock.class),
                 inMemoryPersistence.getFirmwareService(),
-                deviceService,
                 inMemoryPersistence.getInjector().getInstance(DeviceMessageSpecificationService.class),
                 inMemoryPersistence.getInjector().getInstance(EventService.class)
         );
@@ -179,11 +182,21 @@ public class FirmwareCampaignTest extends PersistenceTest {
         firmwareCampaign.setManagementOption(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE);
         firmwareCampaign.setFirmwareType(FirmwareType.METER);
         firmwareCampaign.addProperty("FirmwareDeviceMessage.upgrade.firwareversion", "1");
-        firmwareCampaign.cloneDeviceList(deviceGroup);
+        doReturn(Optional.of(firmwareCampaign)).when(inMemoryPersistence.getFirmwareService()).getFirmwareCampaignById(1L);
+        MeteringGroupsService meteringGroupsService = mock(MeteringGroupsService.class);
+        when(meteringGroupsService.findEndDeviceGroup(1L)).thenReturn(Optional.of(deviceGroup));
+        FirmwareCampaignHandlerContext context = new FirmwareCampaignHandlerContext(inMemoryPersistence.getFirmwareService(),
+                meteringGroupsService,
+                deviceService,
+                inMemoryPersistence.getInjector().getInstance(Clock.class),
+                inMemoryPersistence.getInjector().getInstance(EventService.class));
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("id", 1L);
+        properties.put("deviceGroupId", 1L);
+        FirmwareCampaignHandler.Handler.FIRMWARE_CAMPAIGN_CREATED.handle(properties, context);
         assertThat(firmwareCampaign.getStatus()).isEqualTo(FirmwareCampaignStatus.CANCELLED);
     }
 
-    @Test
     public void testCloneDeviceListForGroup(){
         DeviceService deviceService = spy(inMemoryPersistence.getInjector().getInstance(DeviceService.class));
         DataModel dataModel = spy(inMemoryPersistence.getFirmwareService().getDataModel());
@@ -191,7 +204,6 @@ public class FirmwareCampaignTest extends PersistenceTest {
                 dataModel,
                 inMemoryPersistence.getInjector().getInstance(Clock.class),
                 inMemoryPersistence.getFirmwareService(),
-                deviceService,
                 inMemoryPersistence.getInjector().getInstance(DeviceMessageSpecificationService.class),
                 inMemoryPersistence.getInjector().getInstance(EventService.class)
         );
@@ -209,12 +221,24 @@ public class FirmwareCampaignTest extends PersistenceTest {
         when(device.getDeviceType()).thenReturn(deviceType);
         when(deviceConfiguration.getDeviceType()).thenReturn(deviceType);
         doReturn(Optional.of(device)).when(deviceService).findDeviceById(1L);
-        firmwareCampaign.init(deviceType, deviceGroup);
+        firmwareCampaign.init(getDeviceTypeMock(), deviceGroup);
         firmwareCampaign.setName("firmware campaign 1");
         firmwareCampaign.setManagementOption(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE);
         firmwareCampaign.setFirmwareType(FirmwareType.METER);
         firmwareCampaign.addProperty("FirmwareDeviceMessage.upgrade.firwareversion", "1");
-        firmwareCampaign.cloneDeviceList(deviceGroup);
+        doReturn(Optional.of(firmwareCampaign)).when(inMemoryPersistence.getFirmwareService()).getFirmwareCampaignById(1L);
+        MeteringGroupsService meteringGroupsService = mock(MeteringGroupsService.class);
+        when(meteringGroupsService.findEndDeviceGroup(1L)).thenReturn(Optional.of(deviceGroup));
+        FirmwareCampaignHandlerContext context = new FirmwareCampaignHandlerContext(inMemoryPersistence.getFirmwareService(),
+                meteringGroupsService,
+                deviceService,
+                inMemoryPersistence.getInjector().getInstance(Clock.class),
+                inMemoryPersistence.getInjector().getInstance(EventService.class));
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("id", 1L);
+        properties.put("deviceGroupId", 1L);
+        FirmwareCampaignHandler.Handler.FIRMWARE_CAMPAIGN_CREATED.handle(properties, context);
         assertThat(firmwareCampaign.getStatus()).isEqualTo(FirmwareCampaignStatus.ONGOING);
+        verify(dataModel).getInstance(DeviceInFirmwareCampaignImpl.class);
     }
 }

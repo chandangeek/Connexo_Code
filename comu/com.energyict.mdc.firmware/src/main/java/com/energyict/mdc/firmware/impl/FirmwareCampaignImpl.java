@@ -3,7 +3,6 @@ package com.energyict.mdc.firmware.impl;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
-import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
@@ -11,8 +10,6 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaignProperty;
@@ -37,7 +34,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -50,9 +46,8 @@ public class FirmwareCampaignImpl implements FirmwareCampaign, HasUniqueName {
         NAME ("name"),
         STATUS ("status"),
         DEVICE_TYPE ("deviceType"),
-        UPGRADE_OPTION ("managementOption"),
+        MANAGEMENT_OPTION("managementOption"),
         FIRMWARE_TYPE ("firmwareType"),
-        PLANNED_DATE ("plannedDate"),
         STARTED_ON ("startedOn"),
         FINISHED_ON ("finishedOn"),
         DEVICES ("devices"),
@@ -85,7 +80,6 @@ public class FirmwareCampaignImpl implements FirmwareCampaign, HasUniqueName {
     private ProtocolSupportedFirmwareOptions managementOption;
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private FirmwareType firmwareType;
-    private Instant plannedDate;
     private Instant startedOn;
     private Instant finishedOn;
     @Valid
@@ -105,60 +99,30 @@ public class FirmwareCampaignImpl implements FirmwareCampaign, HasUniqueName {
     private final DataModel dataModel;
     private final Clock clock;
     private final FirmwareService firmwareService;
-    private final DeviceService deviceService;
     private final DeviceMessageSpecificationService deviceMessageSpecificationService;
     private final EventService eventService;
 
     @Inject
-    public FirmwareCampaignImpl(DataModel dataModel, Clock clock, FirmwareService firmwareService, DeviceService deviceService, DeviceMessageSpecificationService deviceMessageSpecificationService, EventService eventService) {
+    public FirmwareCampaignImpl(DataModel dataModel, Clock clock, FirmwareService firmwareService, DeviceMessageSpecificationService deviceMessageSpecificationService, EventService eventService) {
         this.dataModel = dataModel;
         this.clock = clock;
         this.firmwareService = firmwareService;
-        this.deviceService = deviceService;
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
         this.eventService = eventService;
     }
 
     FirmwareCampaign init(DeviceType deviceType, EndDeviceGroup group) {
-        this.status = FirmwareCampaignStatus.PROCESSING;
+        this.startedOn = clock.instant();
+        setStatus(FirmwareCampaignStatus.ONGOING);
         this.deviceType.set(deviceType);
         this.deviceGroup = group;
+        this.startedOn = clock.instant();
 
         DevicesInFirmwareCampaignStatusImpl devicesStatus = dataModel.getInstance(DevicesInFirmwareCampaignStatusImpl.class);
         devicesStatus.init(this);
         this.devicesStatus.set(devicesStatus);
 
         return this;
-    }
-
-    public void cloneDeviceList(EndDeviceGroup group){
-        List<Device> devices = Collections.emptyList();
-        if (group instanceof QueryEndDeviceGroup){
-            Condition deviceQuery = ((QueryEndDeviceGroup) group).getCondition();
-            deviceQuery = deviceQuery.and(where("deviceConfiguration.deviceType").isEqualTo(deviceType.get()));
-            devices = deviceService.findAllDevices(deviceQuery).find();
-        } else {
-            devices = group.getMembers(this.clock.instant())
-                    .stream()
-                    .map(endDevice -> deviceService.findDeviceById(Long.parseLong(endDevice.getAmrId())))
-                    .filter(Optional::isPresent)
-                    .map(Optional::get)
-                    .filter(device -> device.getDeviceConfiguration().getDeviceType().getId() == deviceType.get().getId())
-                    .collect(Collectors.toList());
-        }
-        devices.stream()
-                .forEach(device -> {
-                    FirmwareCampaignImpl.this.devices.add(dataModel.getInstance(DeviceInFirmwareCampaignImpl.class)
-                            .init(FirmwareCampaignImpl.this, device));
-                });
-        if (devices.isEmpty()){
-            cancel();
-            save();
-        } else {
-            setStatus(FirmwareCampaignStatus.ONGOING);
-            save();
-            this.eventService.postEvent(EventType.FIRMWARE_CAMPAIGN_PROCESSED.topic(), this);
-        }
     }
 
     @Override
@@ -213,16 +177,6 @@ public class FirmwareCampaignImpl implements FirmwareCampaign, HasUniqueName {
     @Override
     public void setManagementOption(ProtocolSupportedFirmwareOptions managementOption) {
         this.managementOption = managementOption;
-    }
-
-    @Override
-    public Instant getPlannedDate() {
-        return plannedDate;
-    }
-
-    @Override
-    public void setPlannedDate(Instant plannedDate) {
-        this.plannedDate = plannedDate;
     }
 
     @Override
@@ -323,32 +277,17 @@ public class FirmwareCampaignImpl implements FirmwareCampaign, HasUniqueName {
     @Override
     public void delete(){
         dataModel.remove(this);
-//        this.eventService.postEvent(EventType.FIRMWARE_CAMPAIGN_DELETED.topic(), this);
-    }
-
-    @Override
-    public void start(){
-        this.startedOn = clock.instant();
-        if (this.plannedDate == null){
-            this.plannedDate = this.startedOn;
-        }
-        setStatus(FirmwareCampaignStatus.ONGOING);
-        this.devices.stream().forEach(DeviceInFirmwareCampaign::startFirmwareProcess);
-        save();
     }
 
     @Override
     public void cancel() {
-        if (this.startedOn == null){
-            this.startedOn = clock.instant();
-        }
         if (this.finishedOn == null){
             this.finishedOn = clock.instant();
         }
         setStatus(FirmwareCampaignStatus.CANCELLED);
-        if (!this.devices.isEmpty()){
-            // TODO cancel firmware process on devices
-        }
+        save();
+//        TODO: cancel campaign
+//        this.eventService.postEvent(EventType.FIRMWARE_CAMPAIGN_CANCELLED.topic(), this);
     }
 
     @Override
@@ -356,7 +295,7 @@ public class FirmwareCampaignImpl implements FirmwareCampaign, HasUniqueName {
         return this.devicesStatus.get().getStatusMap();
     }
 
-    public void updateStatus(){
+    public void updateStatistic(){
         DevicesInFirmwareCampaignStatusImpl devicesStatus = this.devicesStatus.get();
         devicesStatus.update();
         if (devicesStatus.getOngoing() == 0 && devicesStatus.getPending() == 0){

@@ -5,34 +5,41 @@ import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.util.json.JsonService;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.firmware.FirmwareService;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import java.time.Clock;
 
 @Component(name = "com.energyict.mdc.firmware.campaigns.handler",
         service = MessageHandlerFactory.class,
-        property = {"subscriber=" + FirmwareCampaignsHandlerFactory.FIRMWARE_CAMPAIGNS_SUBSCRIBER, "destination=" + EventService.JUPITER_EVENTS},
+        property = {"subscriber=" + FirmwareCampaignHandlerFactory.FIRMWARE_CAMPAIGNS_SUBSCRIBER, "destination=" + EventService.JUPITER_EVENTS},
         immediate = true)
-public class FirmwareCampaignsHandlerFactory implements MessageHandlerFactory {
+public class FirmwareCampaignHandlerFactory implements MessageHandlerFactory {
     public static final String FIRMWARE_CAMPAIGNS_SUBSCRIBER = "FirmwareCampaignsSubscriber";
     private volatile JsonService jsonService;
     private volatile FirmwareService firmwareService;
     private volatile MeteringGroupsService meteringGroupsService;
+    private volatile DeviceService deviceService;
+    private volatile Clock clock;
+    private volatile EventService eventService;
 
     // OSGI
     @SuppressWarnings("unused")
-    public FirmwareCampaignsHandlerFactory() {}
+    public FirmwareCampaignHandlerFactory() {
+    }
 
     @Inject
-    public FirmwareCampaignsHandlerFactory(FirmwareService firmwareService) {
+    public FirmwareCampaignHandlerFactory(FirmwareService firmwareService) {
         setFirmwareService(firmwareService);
     }
 
     @Override
     public MessageHandler newMessageHandler() {
-        return new FirmwareCampaignHandler(jsonService, (FirmwareServiceImpl) firmwareService, meteringGroupsService);
+        FirmwareCampaignHandlerContext handlerContext = new FirmwareCampaignHandlerContext((FirmwareServiceImpl) firmwareService, meteringGroupsService, deviceService, clock, eventService);
+        return new FirmwareCampaignHandler(jsonService, handlerContext);
     }
 
     @Reference
@@ -48,5 +55,20 @@ public class FirmwareCampaignsHandlerFactory implements MessageHandlerFactory {
     @Reference
     public void setMeteringGroupsService(MeteringGroupsService meteringGroupsService) {
         this.meteringGroupsService = meteringGroupsService;
+    }
+
+    @Reference
+    public void setDeviceService(DeviceService deviceService) {
+        this.deviceService = deviceService;
+    }
+
+    @Reference
+    public void setClock(Clock clock) {
+        this.clock = clock;
+    }
+
+    @Reference
+    public void setEventService(EventService eventService) {
+        this.eventService = eventService;
     }
 }

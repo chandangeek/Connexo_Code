@@ -20,13 +20,30 @@ import java.util.Optional;
 
 public class ActivatedFirmwareVersionImpl implements ActivatedFirmwareVersion {
 
+    public enum Fields {
+        FIRMWARE_VERSION ("firmwareVersion"),
+        DEVICE ("device"),
+        LAST_CHECKED("lastChecked"),
+        INTERVAL("interval"),
+        ;
+
+        private String name;
+
+        Fields(String name) {
+            this.name = name;
+        }
+
+        public String fieldName(){
+            return this.name;
+        }
+    }
+
     private long id;
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private Reference<FirmwareVersion> firmwareVersion = ValueReference.absent();
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private Reference<Device> device = ValueReference.absent();
     private  Instant lastChecked;
-
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private Interval interval;
 

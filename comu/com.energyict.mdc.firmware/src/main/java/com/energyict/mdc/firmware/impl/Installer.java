@@ -5,7 +5,9 @@ import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.tasks.TaskService;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.ExceptionCatcher;
+import com.energyict.mdc.firmware.security.Privileges;
 
 import java.util.Arrays;
 import java.util.Optional;
@@ -19,18 +21,19 @@ public class Installer {
     private final DataModel dataModel;
     private final EventService eventService;
     private final MessageService messageService;
-    private final TaskService taskService;
+    private final UserService userService;
 
-    Installer(DataModel dataModel, EventService eventService, MessageService messageService, TaskService taskService) {
+    Installer(DataModel dataModel, EventService eventService, MessageService messageService, UserService userService) {
         this.dataModel = dataModel;
         this.eventService = eventService;
         this.messageService = messageService;
-        this.taskService = taskService;
+        this.userService = userService;
     }
 
     void install() {
         ExceptionCatcher.executing(
                 this::installDataModel,
+                this::createPrivileges,
                 this::createJupiterEventsSubscriber
         ).andHandleExceptionsWith(Throwable::printStackTrace)
                 .execute();
@@ -41,11 +44,16 @@ public class Installer {
         dataModel.install(true, true);
     }
 
+    private void createPrivileges() {
+        userService.createResourceWithPrivileges("FWC", "firmware.campaigns", "firmware.campaigns.description", new String[]
+                {Privileges.VIEW_FIRMWARE_CAMPAIGN, Privileges.ADMINISTRATE_FIRMWARE_CAMPAIGN});
+    }
+
     private void createJupiterEventsSubscriber() {
         Optional<DestinationSpec> destinationSpec = this.messageService.getDestinationSpec(EventService.JUPITER_EVENTS);
         if(destinationSpec.isPresent()){
             DestinationSpec jupiterEvents = destinationSpec.get();
-            Arrays.asList(FirmwareCampaignsHandlerFactory.FIRMWARE_CAMPAIGNS_SUBSCRIBER)
+            Arrays.asList(FirmwareCampaignHandlerFactory.FIRMWARE_CAMPAIGNS_SUBSCRIBER)
                     .stream()
                     .filter(subscriber -> !jupiterEvents.getSubscribers().stream().anyMatch(s -> s.getName().equals(subscriber)))
                     .forEach(jupiterEvents::subscribe);

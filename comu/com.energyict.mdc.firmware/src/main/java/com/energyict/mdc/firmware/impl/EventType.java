@@ -25,10 +25,19 @@ public enum EventType {
             return super.addCustomProperties(eventTypeBuilder).withProperty("deviceGroupId", ValueType.LONG, "deviceGroup.id").shouldPublish();
         }
     },
-    FIRMWARE_CAMPAIGN_PROCESSED("firmwarecampaign/PROCESSED"){
+    FIRMWARE_CAMPAIGN_CANCELLED("firmwarecampaign/CANCELLED"){
         @Override
         protected EventTypeBuilder addCustomProperties(EventTypeBuilder eventTypeBuilder) {
-            return super.addCustomProperties(eventTypeBuilder).shouldPublish();
+            return super.addCustomProperties(eventTypeBuilder).withProperty("deviceGroupId", ValueType.LONG, "deviceGroup.id").shouldPublish();
+        }
+    },
+    DEVICE_IN_FIRMWARE_CAMPAIGN_CREATED("firmwarecampaign/device/CREATED"){
+        @Override
+        protected EventTypeBuilder addCustomProperties(EventTypeBuilder eventTypeBuilder) {
+            return eventTypeBuilder
+                    .withProperty("deviceId", ValueType.LONG, "device.id")
+                    .withProperty("firmwareCampaignId", ValueType.LONG, "firmwareCampaign.id")
+                    .shouldPublish();
         }
     },
     DEVICE_IN_FIRMWARE_CAMPAIGN_UPDATED("firmwarecampaign/device/UPDATED"){
