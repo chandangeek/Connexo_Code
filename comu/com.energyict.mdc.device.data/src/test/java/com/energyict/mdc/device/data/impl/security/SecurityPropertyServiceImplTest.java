@@ -9,6 +9,7 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.finders.ConnectionTaskFinder;
 import com.energyict.mdc.device.data.impl.finders.DeviceFinder;
 import com.energyict.mdc.device.data.impl.finders.SecuritySetFinder;
@@ -399,8 +400,7 @@ public class SecurityPropertyServiceImplTest {
         private EventAdmin eventAdmin;
         private TransactionService transactionService;
         private OrmService ormService;
-        private EventService eventService;
-        private NlsService nlsService;
+        private DeviceService deviceService;
         private RelationService relationService;
         private InMemoryBootstrapModule bootstrapModule;
         private PropertySpecService propertySpecService;
@@ -438,6 +438,7 @@ public class SecurityPropertyServiceImplTest {
                             bind(LicensedProtocolService.class).toInstance(licensedProtocolService);
                             bind(DeviceCacheMarshallingService.class).toInstance(deviceCacheMarshallingService);
                             bind(DeviceConfigurationService.class).toInstance(deviceConfigurationService);
+                            bind(DeviceService.class).toInstance(deviceService);
                         }
                     },
                     this.bootstrapModule,
@@ -457,8 +458,8 @@ public class SecurityPropertyServiceImplTest {
             try (TransactionContext ctx = this.transactionService.getContext()) {
                 this.ormService = injector.getInstance(OrmService.class);
                 this.transactionService = injector.getInstance(TransactionService.class);
-                this.eventService = injector.getInstance(EventService.class);
-                this.nlsService = injector.getInstance(NlsService.class);
+                injector.getInstance(EventService.class);
+                injector.getInstance(NlsService.class);
                 this.relationService = injector.getInstance(RelationService.class);
                 this.ormService = injector.getInstance(OrmService.class);
                 this.propertySpecService = injector.getInstance(PropertySpecService.class);
@@ -472,8 +473,8 @@ public class SecurityPropertyServiceImplTest {
         private void initializeFactoryProviders() {
             this.propertySpecService.addFactoryProvider(() -> {
                 List<CanFindByLongPrimaryKey<? extends HasId>> finders = new ArrayList<>();
-                finders.add(new ConnectionTaskFinder(ormService.getDataModels().get(0)));
-                finders.add(new DeviceFinder(ormService.getDataModels().get(0), deviceService));
+                finders.add(new ConnectionTaskFinder(this.ormService.getDataModels().get(0)));
+                finders.add(new DeviceFinder(this.deviceService));
                 finders.add(new SecuritySetFinder(deviceConfigurationService));
                 return finders;
             });
@@ -484,6 +485,7 @@ public class SecurityPropertyServiceImplTest {
             this.eventAdmin = mock(EventAdmin.class);
             this.principal = mock(Principal.class);
             this.deviceConfigurationService = mock(DeviceConfigurationService.class);
+            this.deviceService = mock(DeviceService.class);
             when(this.principal.getName()).thenReturn("SecurityPropertyServiceImplTest");
             this.licenseService = mock(LicenseService.class);
             when(this.licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.<License>empty());

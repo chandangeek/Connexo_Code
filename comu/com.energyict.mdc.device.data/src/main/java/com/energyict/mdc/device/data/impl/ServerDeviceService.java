@@ -8,7 +8,6 @@ import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
 
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.search.SearchProvider;
 
 /**
  * Adds behavior to {@link DeviceService} that is specific
@@ -17,7 +16,7 @@ import com.elster.jupiter.search.SearchProvider;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-04-28 (11:24)
  */
-public interface ServerDeviceService extends DeviceService, ReferencePropertySpecFinderProvider, SearchProvider {
+public interface ServerDeviceService extends DeviceService, ReferencePropertySpecFinderProvider {
 
     /**
      * Tests if there are {@link Device}s that were created

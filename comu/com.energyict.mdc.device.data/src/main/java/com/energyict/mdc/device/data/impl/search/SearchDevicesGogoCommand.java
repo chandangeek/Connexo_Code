@@ -102,11 +102,9 @@ public class SearchDevicesGogoCommand {
     }
 
     private SearchDomain getDeviceSearchDomain() {
-        return this.searchService.getProviders()
+        return this.searchService.getDomains()
                 .stream()
                 .filter(p -> p.supports(Device.class))
-                .flatMap(p -> p.getDomains().stream())
-                .filter(d -> d.supports(Device.class))
                 .findAny()
                 .orElseThrow(() -> new RuntimeException("SearchDomain for com.energyict.mdc.device.data.Device not found"));
     }

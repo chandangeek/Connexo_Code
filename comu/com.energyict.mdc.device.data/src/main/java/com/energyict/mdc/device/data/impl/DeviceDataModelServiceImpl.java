@@ -18,7 +18,6 @@ import java.util.stream.Stream;
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 
-import com.elster.jupiter.search.SearchProvider;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.annotations.Activate;
@@ -407,7 +406,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     private void createRealServices() {
         this.connectionTaskService = new ConnectionTaskServiceImpl(this, eventService, meteringService);
         this.communicationTaskService = new CommunicationTaskServiceImpl(this, meteringService);
-        this.deviceService = new DeviceServiceImpl(this, protocolPluggableService, this.propertySpecService, this.queryService);
+        this.deviceService = new DeviceServiceImpl(this, protocolPluggableService, this.queryService);
         this.loadProfileService = new LoadProfileServiceImpl(this);
         this.logBookService = new LogBookServiceImpl(this);
         this.dataCollectionKpiService = new DataCollectionKpiServiceImpl(this);
@@ -435,7 +434,6 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     private void registerDeviceService(BundleContext bundleContext) {
         this.serviceRegistrations.add(bundleContext.registerService(DeviceService.class, deviceService, null));
         this.serviceRegistrations.add(bundleContext.registerService(ServerDeviceService.class, deviceService, null));
-        this.serviceRegistrations.add(bundleContext.registerService(SearchProvider.class, deviceService, null));
     }
 
     private void registerLogBookService(BundleContext bundleContext) {
