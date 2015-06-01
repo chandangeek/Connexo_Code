@@ -41,7 +41,9 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.DeviceDataModelServiceImpl;
 import com.energyict.mdc.device.data.impl.DeviceDataModule;
 import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
+import com.energyict.mdc.dynamic.impl.PropertySpecServiceImpl;
 import com.energyict.mdc.engine.config.impl.EngineModelModule;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.issues.impl.IssuesModule;
@@ -67,6 +69,7 @@ import java.util.Optional;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 /**
@@ -144,7 +147,7 @@ public class InMemoryPersistence {
             injector.getInstance(DeviceService.class);
             injector.getInstance(EventService.class);
 
-            this.firmwareService = (FirmwareServiceImpl) injector.getInstance(FirmwareService.class);
+            this.firmwareService = spy((FirmwareServiceImpl) injector.getInstance(FirmwareService.class));
             this.dataModel = firmwareService.getDataModel();
             ctx.commit();
         }
