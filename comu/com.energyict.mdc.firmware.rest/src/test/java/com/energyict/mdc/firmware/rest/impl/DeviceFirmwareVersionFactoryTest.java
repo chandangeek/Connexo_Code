@@ -313,6 +313,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
 
         when(firmwareMessage.getStatus()).thenReturn(DeviceMessageStatus.CONFIRMED);
         when(firmwareMessage.getReleaseDate()).thenReturn(TIME);
+        when(firmwareMessage.getModTime()).thenReturn(TIME);
         when(firmwareExecution.getStatus()).thenReturn(TaskStatus.Waiting);
         when(firmwareExecution.getExecutionStartedTimestamp()).thenReturn(TIME.minusSeconds(1));
         when(firmwareExecution.getLastSuccessfulCompletionTimestamp()).thenReturn(TIME.minusSeconds(1));

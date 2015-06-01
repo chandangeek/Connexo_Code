@@ -36,7 +36,7 @@ public class FirmwareManagementOptionsResourceTest extends BaseFirmwareTest {
         when(firmwareService.getSupportedFirmwareOptionsFor(deviceType)).thenReturn(set);
         when(firmwareService.getAllowedFirmwareManagementOptionsFor(deviceType)).thenReturn(set);
 
-        when(firmwareService.getFirmwareManagementOptions(deviceType)).thenReturn(options);
+        when(firmwareService.getFirmwareManagementOptions(deviceType)).thenReturn(Optional.of(options));
 
     }
 
@@ -73,7 +73,7 @@ public class FirmwareManagementOptionsResourceTest extends BaseFirmwareTest {
 
         target(URI).request().put(Entity.json(firmwareManagementOptionsInfo));
 
-        verify(options).save();
+        verify(options).delete();
     }
 
     @Test

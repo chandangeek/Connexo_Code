@@ -90,7 +90,7 @@ public class FirmwareVersionResource {
                 firmwareVersionInfo.firmwareStatus.id, firmwareVersionInfo.firmwareType.id);
 
         if (firmwareVersionInfo.fileSize != null) {
-            versionToValidate.setFirmwareFile(new byte[firmwareVersionInfo.fileSize]);
+            versionToValidate.setExpectedFirmwareSize(firmwareVersionInfo.fileSize);
         }
         versionToValidate.validate();
         return Response.ok().build();
@@ -132,7 +132,7 @@ public class FirmwareVersionResource {
         firmwareVersion.setFirmwareVersion(firmwareVersionInfo.firmwareVersion);
         firmwareVersion.setFirmwareStatus(firmwareVersionInfo.firmwareStatus.id);
         if (firmwareVersionInfo.fileSize != null) {
-            firmwareVersion.setFirmwareFile(new byte[firmwareVersionInfo.fileSize]);
+            firmwareVersion.setExpectedFirmwareSize(firmwareVersionInfo.fileSize);
         }
         firmwareVersion.validate();
         return Response.ok().build();
