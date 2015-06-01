@@ -11,6 +11,8 @@ import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.validation.ValidationService;
+import com.elster.jupiter.validation.rest.PropertyUtils;
+import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
 import com.google.common.collect.ImmutableSet;
 import java.util.Set;
 import javax.ws.rs.core.Application;
@@ -82,6 +84,8 @@ public class ValidationApplication extends Application implements BinderProvider
             protected void configure() {
                 bind(restQueryService).to(RestQueryService.class);
                 bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
+                bind(ValidationRuleInfoFactory.class).to(ValidationRuleInfoFactory.class);
+                bind(PropertyUtils.class).to(PropertyUtils.class);
                 bind(nlsService).to(NlsService.class);
                 bind(validationService).to(ValidationService.class);
                 bind(transactionService).to(TransactionService.class);

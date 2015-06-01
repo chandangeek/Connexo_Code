@@ -129,7 +129,7 @@ public class BaseValidationRestTest extends JerseyTest {
     
     private void init() {
         restQueryService = mock(RestQueryService.class);
-        propertyUtils = new PropertyUtils();
+        propertyUtils = new PropertyUtils(nlsService);
         thesaurus = mock(Thesaurus.class);
     }
 

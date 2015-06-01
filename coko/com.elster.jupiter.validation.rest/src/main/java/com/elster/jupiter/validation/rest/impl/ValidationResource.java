@@ -8,7 +8,6 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.rest.util.RestQueryService;
-import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.util.conditions.Order;
@@ -19,15 +18,7 @@ import com.elster.jupiter.validation.ValidationRuleSetVersion;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.Validator;
 import com.elster.jupiter.validation.ValidatorNotFoundException;
-import com.elster.jupiter.validation.rest.PropertyUtils;
-import com.elster.jupiter.validation.rest.ValidationActionInfos;
-import com.elster.jupiter.validation.rest.ValidationRuleInfo;
-import com.elster.jupiter.validation.rest.ValidationRuleInfos;
-import com.elster.jupiter.validation.rest.ValidationRuleSetInfo;
-import com.elster.jupiter.validation.rest.ValidationRuleSetInfos;
-import com.elster.jupiter.validation.rest.ValidationRuleSetVersionInfo;
-import com.elster.jupiter.validation.rest.ValidationRuleSetVersionInfos;
-import com.elster.jupiter.validation.rest.ValidatorInfos;
+import com.elster.jupiter.validation.rest.*;
 import com.elster.jupiter.validation.security.Privileges;
 
 import javax.annotation.security.RolesAllowed;
@@ -47,14 +38,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -64,12 +49,16 @@ public class ValidationResource {
     private final RestQueryService queryService;
     private final ValidationService validationService;
     private final TransactionService transactionService;
+    private final ValidationRuleInfoFactory validationRuleInfoFactory;
+    private final PropertyUtils propertyUtils;
 
     @Inject
-    public ValidationResource(RestQueryService queryService, ValidationService validationService, TransactionService transactionService) {
+    public ValidationResource(RestQueryService queryService, ValidationService validationService, TransactionService transactionService, ValidationRuleInfoFactory validationRuleInfoFactory, PropertyUtils propertyUtils) {
         this.queryService = queryService;
         this.validationService = validationService;
         this.transactionService = transactionService;
+        this.validationRuleInfoFactory = validationRuleInfoFactory;
+        this.propertyUtils = propertyUtils;
     }
 
     @GET
@@ -294,8 +283,7 @@ public class ValidationResource {
         } else {
             rules = ruleSetVersion.getRules(queryParameters.getStartInt(), queryParameters.getLimit());
         }
-        ValidationRuleInfos infos = new ValidationRuleInfos();
-        infos.addAll(rules);
+        ValidationRuleInfos infos = validationRuleInfoFactory.createValidationRuleInfos(rules.stream().map(validationRuleInfoFactory::createValidationRuleInfo).collect(Collectors.toList()));
         return Response.ok(infos).build();
     }
 
@@ -317,7 +305,6 @@ public class ValidationResource {
                     for (ReadingTypeInfo readingTypeInfo : info.readingTypes) {
                         rule.addReadingType(readingTypeInfo.mRID);
                     }
-                    PropertyUtils propertyUtils = new PropertyUtils();
                     try {
                         for (PropertySpec propertySpec : rule.getPropertySpecs()) {
                             Object value = propertyUtils.findPropertyValue(propertySpec, info.properties);
@@ -327,7 +314,7 @@ public class ValidationResource {
                     } finally {
                         ruleSetVersion.save();
                     }
-                    return new ValidationRuleInfo(rule);
+                    return validationRuleInfoFactory.createValidationRuleInfo(rule);
                 });
         return Response.status(Response.Status.CREATED).entity(result).build();
     }
@@ -340,20 +327,15 @@ public class ValidationResource {
                                         @PathParam("ruleSetVersionId") final long ruleSetVersionId,
                                         @PathParam("ruleId") final long ruleId,
                                         final ValidationRuleInfo info, @Context SecurityContext securityContext) {
-        ValidationRuleInfos result = new ValidationRuleInfos();
-        result.add(transactionService.execute(() -> {
+        ValidationRule validationRule = transactionService.execute(() -> {
             ValidationRuleSet ruleSet = validationService.getValidationRuleSet(ruleSetId).orElseThrow(
                     () -> new WebApplicationException(Response.Status.NOT_FOUND));
 
             ValidationRuleSetVersion ruleSetVersion = getValidationRuleVersionFromSetOrThrowException(ruleSet, ruleSetVersionId);
             ValidationRule rule = getValidationRuleFromVersionOrThrowException(ruleSetVersion, ruleId);
 
-            List<String> mRIDs = new ArrayList<>();
-            for (ReadingTypeInfo readingTypeInfo : info.readingTypes) {
-                mRIDs.add(readingTypeInfo.mRID);
-            }
+            List<String> mRIDs = info.readingTypes.stream().map(readingTypeInfo -> readingTypeInfo.mRID).collect(Collectors.toList());
             Map<String, Object> propertyMap = new HashMap<>();
-            PropertyUtils propertyUtils = new PropertyUtils();
             for (PropertySpec propertySpec : rule.getPropertySpecs()) {
                 Object value = propertyUtils.findPropertyValue(propertySpec, info.properties);
                 if (value != null) {
@@ -363,7 +345,8 @@ public class ValidationResource {
             rule = ruleSetVersion.updateRule(ruleId, info.name, info.active, info.action, mRIDs, propertyMap);
             ruleSetVersion.save();
             return rule;
-        }));
+        });
+        ValidationRuleInfos result = validationRuleInfoFactory.createValidationRuleInfos(Collections.singletonList(validationRuleInfoFactory.createValidationRuleInfo(validationRule)));
         return Response.ok(result).build();
     }
 
@@ -389,7 +372,7 @@ public class ValidationResource {
     public Response getRule(@PathParam("ruleSetId") final long ruleSetId,
                             @PathParam("ruleSetVersionId") final long ruleSetVersionId,
                             @PathParam("ruleId") final long ruleId) {
-        ValidationRule rule = transactionService.execute((Transaction<ValidationRule>) () -> {
+        ValidationRule rule = transactionService.execute(() -> {
             Optional<? extends ValidationRuleSet> ruleSetRef = validationService.getValidationRuleSet(ruleSetId);
             if (!ruleSetRef.isPresent() || ruleSetRef.get().getObsoleteDate() != null) {
                 throw new WebApplicationException(Response.Status.NOT_FOUND);
@@ -398,7 +381,7 @@ public class ValidationResource {
             ValidationRuleSetVersion ruleSetVersion = getValidationRuleVersionFromSetOrThrowException(ruleSetRef.get(), ruleSetVersionId);
             return getValidationRuleFromVersionOrThrowException(ruleSetVersion, ruleId);
         });
-        return Response.ok(new ValidationRuleInfo(rule)).build();
+        return Response.ok(validationRuleInfoFactory.createValidationRuleInfo(rule)).build();
     }
 
     @DELETE
@@ -483,7 +466,6 @@ public class ValidationResource {
 
         List<Validator> toAdd = validationService.getAvailableValidators();
         Collections.sort(toAdd, Compare.BY_DISPLAY_NAME);
-        PropertyUtils propertyUtils = new PropertyUtils();
 
         ValidatorInfos infos = new ValidatorInfos();
         for (Validator validator : toAdd) {
