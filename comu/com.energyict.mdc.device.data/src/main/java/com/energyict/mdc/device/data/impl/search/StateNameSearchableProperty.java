@@ -10,6 +10,7 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
+import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.sql.SqlBuilder;
@@ -55,6 +56,21 @@ public class StateNameSearchableProperty extends AbstractSearchableDevicePropert
     @Override
     public SearchDomain getDomain() {
         return this.domain;
+    }
+
+    @Override
+    public Optional<SearchablePropertyGroup> getGroup() {
+        return Optional.empty();
+    }
+
+    @Override
+    public Visibility getVisibility() {
+        return Visibility.STICKY;
+    }
+
+    @Override
+    public SelectionMode getSelectionMode() {
+        return SelectionMode.MULTI;
     }
 
     @Override
