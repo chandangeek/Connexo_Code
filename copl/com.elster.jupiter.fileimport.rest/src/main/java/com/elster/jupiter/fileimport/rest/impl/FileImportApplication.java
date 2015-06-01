@@ -55,9 +55,6 @@ public class FileImportApplication extends Application implements InstallService
         this.cronExpressionParser = cronExpressionParser;
     }
 
-
-
-
     @Reference
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
@@ -96,6 +93,7 @@ public class FileImportApplication extends Application implements InstallService
             protected void configure() {
                 bind(restQueryService).to(RestQueryService.class);
                 bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
+                bind(PropertyUtils.class).to(PropertyUtils.class);
                 bind(nlsService).to(NlsService.class);
                 bind(fileImportService).to(FileImportService.class);
                 bind(cronExpressionParser).to(CronExpressionParser.class);

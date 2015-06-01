@@ -1,18 +1,12 @@
 package com.elster.jupiter.fileimport.rest.impl;
 
-import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fileimport.FileImporterFactory;
-import com.elster.jupiter.fileimport.ImportSchedule;
-import com.elster.jupiter.fileimport.security.Privileges;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.QueryParameters;
-import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.util.conditions.Order;
 
-import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -36,13 +30,15 @@ public class FileImportersResource {
     private final RestQueryService queryService;
     private final Thesaurus thesaurus;
     private final TransactionService transactionService;
+    private final PropertyUtils propertyUtils;
 
     @Inject
-    public FileImportersResource(RestQueryService queryService, FileImportService fileImportService, Thesaurus thesaurus, TransactionService transactionService) {
+    public FileImportersResource(RestQueryService queryService, FileImportService fileImportService, Thesaurus thesaurus, TransactionService transactionService, PropertyUtils propertyUtils) {
         this.queryService = queryService;
         this.fileImportService = fileImportService;
         this.thesaurus = thesaurus;
         this.transactionService = transactionService;
+        this.propertyUtils = propertyUtils;
     }
 
 
@@ -53,7 +49,7 @@ public class FileImportersResource {
         QueryParameters params = QueryParameters.wrap(uriInfo.getQueryParameters());
 
         List<FileImporterFactory> importers = fileImportService.getAvailableImporters(applicationName);
-        FileImporterInfos infos = new FileImporterInfos(params.clipToLimit(importers), thesaurus);
+        FileImporterInfos infos = new FileImporterInfos(params.clipToLimit(importers), thesaurus, propertyUtils);
         infos.total = params.determineTotal(importers.size());
         return Response.ok(infos).build();
     }

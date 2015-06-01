@@ -17,23 +17,23 @@ public class FileImporterInfos {
     public FileImporterInfos() {
     }
 
-    public FileImporterInfos(List<FileImporterFactory> fileImporterFactories, Thesaurus thesaurus) {
-        addAll(fileImporterFactories,thesaurus);
+    public FileImporterInfos(List<FileImporterFactory> fileImporterFactories, Thesaurus thesaurus, PropertyUtils propertyUtils) {
+        addAll(fileImporterFactories, thesaurus, propertyUtils);
     }
-    public FileImporterInfo add(FileImporterFactory fileImporter, Thesaurus thesaurus) {
+
+    private FileImporterInfo add(FileImporterFactory fileImporter, Thesaurus thesaurus, PropertyUtils propertyUtils) {
         FileImporterInfo result = new FileImporterInfo(fileImporter.getName(),
-                thesaurus.getStringBeyondComponent(fileImporter.getName(),fileImporter.getName()),
-                new PropertyUtils().convertPropertySpecsToPropertyInfos(fileImporter.getProperties()));
+                thesaurus.getStringBeyondComponent(fileImporter.getName(), fileImporter.getName()),
+                propertyUtils.convertPropertySpecsToPropertyInfos(fileImporter.getProperties()));
         fileImporters.add(result);
         total++;
         return result;
     }
 
 
-
-    public void addAll(Iterable<? extends FileImporterFactory> importSchedules, Thesaurus thesaurus) {
+    private void addAll(Iterable<? extends FileImporterFactory> importSchedules, Thesaurus thesaurus, PropertyUtils propertyUtils) {
         for (FileImporterFactory each : importSchedules) {
-            add(each, thesaurus);
+            add(each, thesaurus, propertyUtils);
         }
     }
 }

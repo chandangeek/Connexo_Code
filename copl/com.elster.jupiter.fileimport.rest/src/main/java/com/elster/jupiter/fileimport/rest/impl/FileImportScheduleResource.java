@@ -35,15 +35,17 @@ public class FileImportScheduleResource {
     private final Thesaurus thesaurus;
     private final TransactionService transactionService;
     private final CronExpressionParser cronExpressionParser;
+    private final PropertyUtils propertyUtils;
 
 
     @Inject
-    public FileImportScheduleResource(RestQueryService queryService, FileImportService fileImportService, Thesaurus thesaurus, TransactionService transactionService, CronExpressionParser cronExpressionParser) {
+    public FileImportScheduleResource(RestQueryService queryService, FileImportService fileImportService, Thesaurus thesaurus, TransactionService transactionService, CronExpressionParser cronExpressionParser, PropertyUtils propertyUtils) {
         this.queryService = queryService;
         this.fileImportService = fileImportService;
         this.thesaurus = thesaurus;
         this.transactionService = transactionService;
         this.cronExpressionParser = cronExpressionParser;
+        this.propertyUtils = propertyUtils;
     }
 
 
@@ -57,7 +59,7 @@ public class FileImportScheduleResource {
                 .filter(is -> applicationName != null && ("SYS".equals(applicationName) || applicationName.equals(is.getApplicationName())))
                 .collect(Collectors.toList());
 
-        FileImportScheduleInfos infos = new FileImportScheduleInfos(params.clipToLimit(list), thesaurus);
+        FileImportScheduleInfos infos = new FileImportScheduleInfos(params.clipToLimit(list), thesaurus, propertyUtils);
         infos.total = params.determineTotal(list.size());
 
         return Response.ok(infos).build();
@@ -75,7 +77,7 @@ public class FileImportScheduleResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_IMPORT_SERVICES, Privileges.VIEW_IMPORT_SERVICES, Privileges.VIEW_MDC_IMPORT_SERVICES})
     public FileImportScheduleInfo getImportSchedule(@PathParam("id") long id, @Context SecurityContext securityContext) {
-        return new FileImportScheduleInfo(fetchImportSchedule(id), thesaurus);
+        return new FileImportScheduleInfo(fetchImportSchedule(id), thesaurus, propertyUtils);
     }
 
 
@@ -100,7 +102,6 @@ public class FileImportScheduleResource {
 
 
         List<PropertySpec> propertiesSpecs = fileImportService.getPropertiesSpecsForImporter(info.importerInfo.name);
-        PropertyUtils propertyUtils = new PropertyUtils();
 
         propertiesSpecs.stream()
                 .forEach(spec -> {
@@ -114,7 +115,7 @@ public class FileImportScheduleResource {
             importSchedule.save();
             context.commit();
         }
-        return Response.status(Response.Status.CREATED).entity(new FileImportScheduleInfo(importSchedule, thesaurus)).build();
+        return Response.status(Response.Status.CREATED).entity(new FileImportScheduleInfo(importSchedule, thesaurus, propertyUtils)).build();
     }
 
     @DELETE
@@ -159,7 +160,7 @@ public class FileImportScheduleResource {
             importSchedule.save();
             context.commit();
         }
-        return Response.status(Response.Status.CREATED).entity(new FileImportScheduleInfo(importSchedule, thesaurus)).build();
+        return Response.status(Response.Status.CREATED).entity(new FileImportScheduleInfo(importSchedule, thesaurus, propertyUtils)).build();
     }
 
     /*private ScheduleExpression getScheduleExpression(FileImportScheduleInfo info) {
@@ -180,7 +181,6 @@ public class FileImportScheduleResource {
 
     private void updateProperties(FileImportScheduleInfo info, ImportSchedule importSchedule) {
         List<PropertySpec> propertiesSpecs = fileImportService.getPropertiesSpecsForImporter(info.importerInfo.name);
-        PropertyUtils propertyUtils = new PropertyUtils();
         propertiesSpecs.stream()
                 .forEach(spec -> {
                     Object value = propertyUtils.findPropertyValue(spec, info.properties);

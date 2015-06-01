@@ -16,11 +16,11 @@ public class FileImportScheduleInfos {
     public int total;
     public List<FileImportScheduleInfo> importSchedules = new ArrayList<>();
 
-    public FileImportScheduleInfos(List<? extends ImportSchedule> importSchedules, Thesaurus thesaurus) {
-        addAll(importSchedules,thesaurus);
+    public FileImportScheduleInfos(List<? extends ImportSchedule> importSchedules, Thesaurus thesaurus, PropertyUtils propertyUtils) {
+        addAll(importSchedules,thesaurus, propertyUtils);
     }
-    public FileImportScheduleInfo add(ImportSchedule importSchedule, Thesaurus thesaurus) {
-        FileImportScheduleInfo result = new FileImportScheduleInfo(importSchedule, thesaurus);
+    private FileImportScheduleInfo add(ImportSchedule importSchedule, Thesaurus thesaurus, PropertyUtils propertyUtils) {
+        FileImportScheduleInfo result = new FileImportScheduleInfo(importSchedule, thesaurus, propertyUtils);
         importSchedules.add(result);
         total++;
         return result;
@@ -30,9 +30,9 @@ public class FileImportScheduleInfos {
     }
 
 
-    public void addAll(Iterable<? extends ImportSchedule> importSchedules, Thesaurus thesaurus) {
+    private void addAll(Iterable<? extends ImportSchedule> importSchedules, Thesaurus thesaurus, PropertyUtils propertyUtils) {
         for (ImportSchedule each : importSchedules) {
-            add(each, thesaurus);
+            add(each, thesaurus, propertyUtils);
         }
     }
 }

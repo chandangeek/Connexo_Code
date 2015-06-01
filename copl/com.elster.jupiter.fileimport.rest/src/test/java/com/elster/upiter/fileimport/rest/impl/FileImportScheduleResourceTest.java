@@ -69,7 +69,7 @@ public class FileImportScheduleResourceTest  extends FileImportApplicationTest {
     @Test
     public void testAddImportSchedules() {
         ImportSchedule schedule = mockImportSchedule(1);
-        FileImportScheduleInfo info = new FileImportScheduleInfo(schedule, thesaurus);
+        FileImportScheduleInfo info = new FileImportScheduleInfo(schedule, thesaurus, propertyUtils);
         info.importerInfo = new FileImporterInfo();
         info.importerInfo.name = "Test importer";
         info.importerInfo.displayName = "Display test importer";
@@ -102,7 +102,7 @@ public class FileImportScheduleResourceTest  extends FileImportApplicationTest {
     public void testEditImportSchedule() {
         ImportSchedule schedule = mockImportSchedule(1);
 
-        FileImportScheduleInfo info = new FileImportScheduleInfo(schedule, thesaurus);
+        FileImportScheduleInfo info = new FileImportScheduleInfo(schedule, thesaurus, propertyUtils);
         info.importerInfo = new FileImporterInfo();
         info.name = "New name";
         info.importDirectory = "New folder";

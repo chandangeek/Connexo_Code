@@ -37,7 +37,7 @@ public class FileImportScheduleInfo {
     public FileImportScheduleInfo(){
 
     }
-    public FileImportScheduleInfo(ImportSchedule importSchedule, Thesaurus thesaurus) {
+    public FileImportScheduleInfo(ImportSchedule importSchedule, Thesaurus thesaurus, PropertyUtils propertyUtils) {
 
         id = importSchedule.getId();
         active = importSchedule.isActive();
@@ -71,7 +71,7 @@ public class FileImportScheduleInfo {
             }
         }
 
-        properties = new PropertyUtils().convertPropertySpecsToPropertyInfos(importSchedule.getPropertySpecs(), importSchedule.getProperties());
+        properties = propertyUtils.convertPropertySpecsToPropertyInfos(importSchedule.getPropertySpecs(), importSchedule.getProperties());
 
     }
 }

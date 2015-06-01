@@ -3,6 +3,7 @@ package com.elster.upiter.fileimport.rest.impl;
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fileimport.rest.impl.FileImportApplication;
+import com.elster.jupiter.fileimport.rest.impl.PropertyUtils;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.util.cron.CronExpressionParser;
@@ -25,6 +26,8 @@ public class FileImportApplicationTest extends FelixRestApplicationJerseyTest {
     protected CronExpressionParser cronExpressionParser;
     @Mock
     static SecurityContext securityContext;
+    @Mock
+    PropertyUtils propertyUtils;
 
     @Override
     protected MessageSeed[] getMessageSeeds() {
@@ -41,6 +44,7 @@ public class FileImportApplicationTest extends FelixRestApplicationJerseyTest {
         application.setTransactionService(transactionService);
         application.setCronExpressionParser(cronExpressionParser);
         application.setNlsService(nlsService);
+
         return application;
     }
 }
