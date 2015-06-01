@@ -218,7 +218,7 @@ public class MdcPropertyUtils {
     //find propertyValue in info
     public Object findPropertyValue(PropertySpec propertySpec, PropertyInfo[] propertyInfos) {
         for (PropertyInfo propertyInfo : propertyInfos) {
-            if (propertyInfo.translationKey.equals(propertySpec.getName())) {
+            if (propertyInfo.key.equals(propertySpec.getName())) {
                 if (propertyInfo.getPropertyValueInfo() != null && propertyInfo.getPropertyValueInfo().getValue() != null && !"".equals(propertyInfo.getPropertyValueInfo().getValue())) {
                     return convertPropertyInfoValueToPropertyValue(propertySpec, propertyInfo.getPropertyValueInfo().getValue());
                 } else {
