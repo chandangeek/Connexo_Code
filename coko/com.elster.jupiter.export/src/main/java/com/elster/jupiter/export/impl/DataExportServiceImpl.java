@@ -125,7 +125,7 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
 
     @Override
     public Query<? extends ExportTask> getReadingTypeDataExportTaskQuery() {
-        return queryService.wrap(dataModel.query(ExportTask.class));
+        return queryService.wrap(dataModel.query(IExportTask.class));
     }
 
     @Override
