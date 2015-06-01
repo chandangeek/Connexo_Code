@@ -81,10 +81,10 @@ public class DeviceFirmwareVersionResourceTest extends BaseFirmwareTest {
         JsonModel jsonModel = JsonModel.create(json);
 
         assertThat(jsonModel.<List<?>>get("$.firmwares")).hasSize(2);
-        assertThat(jsonModel.<String>get("$.firmwares[1].firmwareType.id")).isEqualTo("meter");
-        assertThat(jsonModel.<String>get("$.firmwares[1].activeVersion.firmwareVersion")).isEqualTo(meterVersion);
-        assertThat(jsonModel.<String>get("$.firmwares[0].firmwareType.id")).isEqualTo("communication");
-        assertThat(jsonModel.<String>get("$.firmwares[0].activeVersion")).isNull();
+        assertThat(jsonModel.<String>get("$.firmwares[0].firmwareType.id")).isEqualTo("meter");
+        assertThat(jsonModel.<String>get("$.firmwares[0].activeVersion.firmwareVersion")).isEqualTo(meterVersion);
+        assertThat(jsonModel.<String>get("$.firmwares[1].firmwareType.id")).isEqualTo("communication");
+        assertThat(jsonModel.<String>get("$.firmwares[1].activeVersion")).isNull();
     }
 
     @Test
@@ -104,10 +104,10 @@ public class DeviceFirmwareVersionResourceTest extends BaseFirmwareTest {
         JsonModel jsonModel = JsonModel.create(json);
 
         assertThat(jsonModel.<List<?>>get("$.firmwares")).hasSize(2);
-        assertThat(jsonModel.<String>get("$.firmwares[1].firmwareType.id")).isEqualTo("meter");
-        assertThat(jsonModel.<String>get("$.firmwares[1].activeVersion.firmwareVersion")).isEqualTo(meterVersion);
-        assertThat(jsonModel.<String>get("$.firmwares[0].firmwareType.id")).isEqualTo("communication");
-        assertThat(jsonModel.<String>get("$.firmwares[0].activeVersion.firmwareVersion")).isEqualTo(communicationVersion);
+        assertThat(jsonModel.<String>get("$.firmwares[0].firmwareType.id")).isEqualTo("meter");
+        assertThat(jsonModel.<String>get("$.firmwares[0].activeVersion.firmwareVersion")).isEqualTo(meterVersion);
+        assertThat(jsonModel.<String>get("$.firmwares[1].firmwareType.id")).isEqualTo("communication");
+        assertThat(jsonModel.<String>get("$.firmwares[1].activeVersion.firmwareVersion")).isEqualTo(communicationVersion);
     }
 
 }
