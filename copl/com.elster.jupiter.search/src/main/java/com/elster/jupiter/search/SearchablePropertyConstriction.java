@@ -1,6 +1,5 @@
 package com.elster.jupiter.search;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
