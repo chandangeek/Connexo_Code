@@ -13,7 +13,7 @@ public class DetailedValidationRegisterInfo {
 
     public DetailedValidationRegisterInfo(NumericalRegister register, Long count) {
         this.id = register.getRegisterSpecId();
-        this.name = register.getRegisterSpec().getReadingType().getAliasName();
+        this.name = register.getRegisterSpec().getReadingType().getFullAliasName();
         this.total = count;
     }
 
