@@ -13,6 +13,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
@@ -41,6 +42,14 @@ public class SearchServiceImpl implements SearchService {
     @Override
     public List<SearchDomain> getDomains() {
         return Collections.unmodifiableList(this.searchProviders);
+    }
+
+    @Override
+    public Optional<SearchDomain> findDomain(String id) {
+        return this.getDomains()
+                .stream()
+                .filter(searchDomain -> searchDomain.getId().equals(id))
+                .findAny();
     }
 
     @Override

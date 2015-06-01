@@ -4,6 +4,7 @@ import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.util.conditions.Condition;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Provides services that relate to searching.
@@ -40,6 +41,16 @@ public interface SearchService {
      * @return The List of SearchDomain
      */
     public List<SearchDomain> getDomains();
+
+    /**
+     * Finds the registered {@link SearchDomain}
+     * with the specified identifier.
+     *
+     * @param id The identifier
+     * @return The SearchDomain
+     * @see SearchDomain#getId()
+     */
+    public Optional<SearchDomain> findDomain(String id);
 
     /**
      * Starts the building process of a search for instances of the specified domain class.
