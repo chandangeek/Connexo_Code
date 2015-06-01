@@ -4,7 +4,6 @@ import com.elster.jupiter.properties.PropertySpec;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * Models a property of a {@link SearchDomain domain class}
@@ -14,8 +13,8 @@ import java.util.Optional;
  * that returns values of the SearchDomain
  * whose property is equal to a specified value.
  * <p>
- * Values of a SearchableProperty can be dependent on the
- * value of another SearchableProperty.
+ * Values of a SearchableProperty can be constraint by the
+ * value of other properties.
  * Consider the animal life on our planet as an
  * example of a SearchDomain.
  * It could have "class" and "subclass" as a SearchableProperty.
@@ -49,25 +48,25 @@ public interface SearchableProperty {
     }
 
     /**
-     * Gets the parent SearchableProperty on which values
-     * of this SearchableProperty are dependent.
+     * Gets the List of SearchableProperty that put
+     * constraints on the values of this SearchableProperty.
      * Referring back to the animal example used
      * in the class javadoc, the "subclass" SearchDomain
      * would return the "class" SearchDomain and the
-     * "class" SearchDomain would return Optional.empty().
+     * "class" SearchDomain would return an empty List.
      *
      * @return The parent SearchDomain
      */
-    public Optional<SearchableProperty> getParent();
+    public List<SearchableProperty> getConstraints();
 
     /**
      * Refreshes this SearchableProperty after the specified
-     * values for the parent SearchableProperty was selected.
+     * values for one of the constraining SearchableProperty was selected.
      * This will typically refresh the possible values
      * of the {@link PropertySpec}.
      *
-     * @param parentValues The values for the parent SearchableProperty
+     * @param constrictions The {@link SearchablePropertyConstriction}s
      */
-    public void refreshWithParents(List<Object> parentValues);
+    public void refreshWithConstrictions(List<SearchablePropertyConstriction> constrictions);
 
 }
