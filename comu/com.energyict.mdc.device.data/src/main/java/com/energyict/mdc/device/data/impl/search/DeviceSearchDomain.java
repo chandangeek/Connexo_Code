@@ -5,6 +5,7 @@ import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyCondition;
@@ -71,11 +72,13 @@ public class DeviceSearchDomain implements SearchDomain {
 
     @Override
     public List<SearchableProperty> getProperties() {
-        DeviceTypeSearchableProperty deviceTypeSearchableProperty = new DeviceTypeSearchableProperty(this, this.propertySpecService, this.deviceDataModelService.thesaurus());
+        Thesaurus thesaurus = this.deviceDataModelService.thesaurus();
+        DeviceTypeSearchableProperty deviceTypeSearchableProperty = new DeviceTypeSearchableProperty(this, this.propertySpecService, thesaurus);
         return Arrays.asList(
-                new MasterResourceIdentifierSearchableProperty(this, this.propertySpecService, this.deviceDataModelService.thesaurus()),
+                new MasterResourceIdentifierSearchableProperty(this, this.propertySpecService, thesaurus),
+                new SerialNumberSearchableProperty(this, this.propertySpecService, thesaurus),
                 deviceTypeSearchableProperty,
-                new StateNameSearchableProperty(this, deviceTypeSearchableProperty, this.propertySpecService, this.deviceDataModelService.thesaurus()));
+                new StateNameSearchableProperty(this, deviceTypeSearchableProperty, this.propertySpecService, thesaurus));
     }
 
     @Override
