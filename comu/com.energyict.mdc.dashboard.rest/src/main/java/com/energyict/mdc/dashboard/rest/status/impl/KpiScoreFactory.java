@@ -1,7 +1,7 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
 import com.elster.jupiter.util.Ranges;
-import com.energyict.mdc.common.rest.ExceptionFactory;
+import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiScore;
 import com.google.common.collect.Range;
 import java.math.BigDecimal;

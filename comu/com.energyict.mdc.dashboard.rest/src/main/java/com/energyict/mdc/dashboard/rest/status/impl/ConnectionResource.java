@@ -8,7 +8,7 @@ import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.Interval;
-import com.energyict.mdc.common.rest.ExceptionFactory;
+import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.JsonQueryParameters;

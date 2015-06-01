@@ -1,6 +1,6 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
-import com.energyict.mdc.common.rest.ExceptionFactory;
+import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.google.common.collect.Range;
 import java.time.Clock;
 import java.time.Duration;

@@ -13,7 +13,7 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.json.JsonService;
-import com.energyict.mdc.common.rest.ExceptionFactory;
+import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.energyict.mdc.common.rest.ExceptionLogger;
 import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.dashboard.DashboardService;
