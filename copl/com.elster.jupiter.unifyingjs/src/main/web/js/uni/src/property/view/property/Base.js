@@ -37,6 +37,7 @@ Ext.define('Uni.property.view.property.Base', {
     inputType: 'text',
     property: null,
     key: null,
+    name: null,
     passwordAsTextComponent: false,
     emptyText: '',
     userHasViewPrivilege: true,
@@ -57,9 +58,14 @@ Ext.define('Uni.property.view.property.Base', {
      */
     setKey: function (key) {
         this.key = key;
+    },
 
-        var label = Uni.I18n.translate(key, this.translationKey, key);
-        this.setFieldLabel(label);
+    /**
+     * Sets the translated name of the property which we received from the BackEnd
+     * @param name the translated name of the property
+     */
+    setLocalizedName: function(name) {
+        this.setFieldLabel(name);
     },
 
     /**
@@ -103,6 +109,7 @@ Ext.define('Uni.property.view.property.Base', {
 
         if (property) {
             this.setKey(property.get('key'));
+            this.setLocalizedName(property.get('name'));
             this.setValue(this.getProperty().get('value'));
             this.updateResetButton();
         }
@@ -151,8 +158,8 @@ Ext.define('Uni.property.view.property.Base', {
             confirmText: Uni.I18n.translate('general.yes', 'UNI', 'Yes'),
             cancelText: Uni.I18n.translate('general.no', 'UNI', 'No')
         }).show({
-            msg: Ext.String.format(Uni.I18n.translate('property.valueSameAsInherited', 'UNI', 'The value of \'{0}\' is the same as the default value.  Do you want to link the value to the default value?'), Uni.I18n.translate(key, me.translationKey, key)),
-            title: Ext.String.format(Uni.I18n.translate('property.valueSameAs', 'MDC', 'Set \'{0}\' to its default value?'), Uni.I18n.translate(key, me.translationKey, key)),
+            msg: Ext.String.format(Uni.I18n.translate('property.valueSameAsInherited', 'UNI', 'The value of \'{0}\' is the same as the default value.  Do you want to link the value to the default value?'), key),
+            title: Ext.String.format(Uni.I18n.translate('property.valueSameAs', 'MDC', 'Set \'{0}\' to its default value?'), key),
             config: {
                 property: me,
                 field: field
