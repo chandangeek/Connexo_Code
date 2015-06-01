@@ -43,7 +43,6 @@ public class DeviceMessageSpecificationServiceImpl implements DeviceMessageSpeci
         super();
         this.setPropertySpecService(propertySpecService);
         this.setNlsService(nlsService);
-//        this.install();
     }
 
     @Reference
@@ -57,16 +56,6 @@ public class DeviceMessageSpecificationServiceImpl implements DeviceMessageSpeci
     public void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(DeviceMessageSpecificationService.COMPONENT_NAME, Layer.DOMAIN);
     }
-//
-//    @Override
-//    public void install() {
-//        new Installer(this.thesaurus).install();
-//    }
-//
-//    @Override
-//    public List<String> getPrerequisiteModules() {
-//        return Arrays.asList("NLS", "DDC");
-//    }
 
     @Override
     public List<DeviceMessageCategory> filteredCategoriesForUserSelection() {
