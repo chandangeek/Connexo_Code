@@ -5,6 +5,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.search.SearchDomain;
@@ -44,13 +45,15 @@ public class StateNameSearchableProperty extends AbstractSearchableDevicePropert
     private final DeviceSearchDomain domain;
     private final SearchableProperty parent;
     private final PropertySpecService propertySpecService;
+    private final Thesaurus thesaurus;
     private String[] stateNames = new String[0];
 
-    public StateNameSearchableProperty(DeviceSearchDomain domain, SearchableProperty parent, PropertySpecService propertySpecService) {
+    public StateNameSearchableProperty(DeviceSearchDomain domain, SearchableProperty parent, PropertySpecService propertySpecService, Thesaurus thesaurus) {
         super();
         this.domain = domain;
         this.propertySpecService = propertySpecService;
         this.parent = parent;
+        this.thesaurus = thesaurus;
     }
 
     @Override
@@ -71,6 +74,11 @@ public class StateNameSearchableProperty extends AbstractSearchableDevicePropert
     @Override
     public SelectionMode getSelectionMode() {
         return SelectionMode.MULTI;
+    }
+
+    @Override
+    public String getDisplayName() {
+        return PropertyTranslationKeys.DEVICE_STATUS.getDisplayName(this.thesaurus);
     }
 
     @Override

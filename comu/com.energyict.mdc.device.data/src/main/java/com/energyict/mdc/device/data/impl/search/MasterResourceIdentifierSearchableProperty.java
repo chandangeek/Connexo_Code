@@ -3,6 +3,7 @@ package com.energyict.mdc.device.data.impl.search;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceFields;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.StringFactory;
@@ -29,11 +30,13 @@ public class MasterResourceIdentifierSearchableProperty extends AbstractSearchab
 
     private final DeviceSearchDomain domain;
     private final PropertySpecService propertySpecService;
+    private final Thesaurus thesaurus;
 
-    public MasterResourceIdentifierSearchableProperty(DeviceSearchDomain domain, PropertySpecService propertySpecService) {
+    public MasterResourceIdentifierSearchableProperty(DeviceSearchDomain domain, PropertySpecService propertySpecService, Thesaurus thesaurus) {
         super();
         this.domain = domain;
         this.propertySpecService = propertySpecService;
+        this.thesaurus = thesaurus;
     }
 
     @Override
@@ -54,6 +57,11 @@ public class MasterResourceIdentifierSearchableProperty extends AbstractSearchab
     @Override
     public SelectionMode getSelectionMode() {
         return SelectionMode.SINGLE;
+    }
+
+    @Override
+    public String getDisplayName() {
+        return PropertyTranslationKeys.DEVICE_MRID.getDisplayName(this.thesaurus);
     }
 
     @Override

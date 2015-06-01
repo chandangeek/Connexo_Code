@@ -5,6 +5,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceFields;
 import com.energyict.mdc.dynamic.PropertySpecService;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
@@ -31,11 +32,13 @@ public class DeviceTypeSearchableProperty extends AbstractSearchableDeviceProper
 
     private final DeviceSearchDomain domain;
     private final PropertySpecService mdcPropertySpecService;
+    private final Thesaurus thesaurus;
 
-    public DeviceTypeSearchableProperty(DeviceSearchDomain domain, PropertySpecService mdcPropertySpecService) {
+    public DeviceTypeSearchableProperty(DeviceSearchDomain domain, PropertySpecService mdcPropertySpecService, Thesaurus thesaurus) {
         super();
         this.domain = domain;
         this.mdcPropertySpecService = mdcPropertySpecService;
+        this.thesaurus = thesaurus;
     }
 
     @Override
@@ -56,6 +59,11 @@ public class DeviceTypeSearchableProperty extends AbstractSearchableDeviceProper
     @Override
     public SelectionMode getSelectionMode() {
         return SelectionMode.MULTI;
+    }
+
+    @Override
+    public String getDisplayName() {
+        return PropertyTranslationKeys.DEVICE_TYPE.getDisplayName(this.thesaurus);
     }
 
     @Override

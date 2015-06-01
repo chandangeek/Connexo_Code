@@ -71,11 +71,11 @@ public class DeviceSearchDomain implements SearchDomain {
 
     @Override
     public List<SearchableProperty> getProperties() {
-        DeviceTypeSearchableProperty deviceTypeSearchableProperty = new DeviceTypeSearchableProperty(this, this.propertySpecService);
+        DeviceTypeSearchableProperty deviceTypeSearchableProperty = new DeviceTypeSearchableProperty(this, this.propertySpecService, this.deviceDataModelService.thesaurus());
         return Arrays.asList(
-                new MasterResourceIdentifierSearchableProperty(this, this.propertySpecService),
+                new MasterResourceIdentifierSearchableProperty(this, this.propertySpecService, this.deviceDataModelService.thesaurus()),
                 deviceTypeSearchableProperty,
-                new StateNameSearchableProperty(this, deviceTypeSearchableProperty, this.propertySpecService));
+                new StateNameSearchableProperty(this, deviceTypeSearchableProperty, this.propertySpecService, this.deviceDataModelService.thesaurus()));
     }
 
     @Override
