@@ -8,7 +8,11 @@ import javax.mail.internet.MimeMessage;
 public interface IMailService extends MailService {
     Address getFrom();
 
-    MimeMessage createMessage();
+    MailSession getSession();
 
-    void send(MimeMessage message);
+    interface MailSession {
+        MimeMessage createMessage();
+
+        void send(MimeMessage message);
+    }
 }

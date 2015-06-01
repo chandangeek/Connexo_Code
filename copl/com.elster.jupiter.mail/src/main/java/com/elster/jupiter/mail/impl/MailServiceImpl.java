@@ -1,7 +1,6 @@
 package com.elster.jupiter.mail.impl;
 
 import com.elster.jupiter.mail.MailAddress;
-import com.elster.jupiter.mail.MailException;
 import com.elster.jupiter.mail.MailMessageBuilder;
 import com.elster.jupiter.mail.MailService;
 import org.osgi.framework.BundleContext;
@@ -25,16 +24,19 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-@Component(name = "com.elster.jupiter.export", service = {MailService.class}, property = "name=" + MailService.COMPONENT_NAME, immediate = true)
+@Component(name = "com.elster.jupiter.mail", service = {MailService.class}, property = "name=" + MailService.COMPONENT_NAME, immediate = true)
 public class MailServiceImpl implements IMailService {
 
     private static final String MAIL_SMTP_HOST_PROPERTY = "mail.smtp.host";
+    private static final String MAIL_SMTP_PORT_PROPERTY = "mail.smtp.port";
     private static final Logger LOGGER = Logger.getLogger(MailServiceImpl.class.getName());
 
     private String smtpHost;
+    private int port = 25;
     private Address from;
     private String user;
     private String password;
+    private String smtpPort;
 
     @Override
     public MailMessageBuilder messageBuilder(MailAddress first, MailAddress... other) {
@@ -53,6 +55,7 @@ public class MailServiceImpl implements IMailService {
     public final void activate(BundleContext bundleContext) {
         try {
             smtpHost = bundleContext.getProperty(MAIL_SMTP_HOST_PROPERTY);
+            smtpPort = bundleContext.getProperty(MAIL_SMTP_PORT_PROPERTY);
             from = new InternetAddress(bundleContext.getProperty("mail.from"));
             user = bundleContext.getProperty("mail.user");
             password = bundleContext.getProperty("mail.password");
@@ -75,22 +78,51 @@ public class MailServiceImpl implements IMailService {
     }
 
     @Override
-    public MimeMessage createMessage() {
+    public MailSession getSession() {
         Properties properties = new Properties();
         properties.setProperty(MAIL_SMTP_HOST_PROPERTY, getSmtpHost());
-        Session session = Session.getDefaultInstance(properties);
-        return new MimeMessage(session);
+        properties.setProperty(MAIL_SMTP_PORT_PROPERTY, getSmtpPort());
+        properties.setProperty("mail.smtp.user", user);
+        properties.setProperty("mail.smtp.password", password);
+        final Session session = Session.getDefaultInstance(properties);
+        return new MailSession() {
+            @Override
+            public MimeMessage createMessage() {
+                return new MimeMessage(session);
+            }
+
+            @Override
+            public void send(MimeMessage message) {
+                Transport transport = null;
+                MessagingException rootException = null;
+                try {
+                    transport = session.getTransport("smtp");
+                    transport.connect(smtpHost, user, password);
+                    transport.sendMessage(message, message.getAllRecipients());
+                } catch (MessagingException e) {
+                    rootException = e;
+                    // TODO
+                    throw new RuntimeException(e);
+                } finally {
+                    if (transport != null) {
+                        try {
+                            transport.close();
+                        } catch (MessagingException e) {
+                            if (rootException != null) {
+                                rootException.addSuppressed(e);
+                            } else {
+                                // TODO
+                                throw new RuntimeException(e);
+                            }
+                        }
+                    }
+                }
+            }
+        };
     }
 
-    @Override
-    public void send(MimeMessage message) {
-        try {
-            Transport.send(message);
-        } catch (MessagingException e) {
-            // TODO
-            throw new MailException(null, null, e);
-        }
+
+    public String getSmtpPort() {
+        return smtpPort;
     }
-
-
 }

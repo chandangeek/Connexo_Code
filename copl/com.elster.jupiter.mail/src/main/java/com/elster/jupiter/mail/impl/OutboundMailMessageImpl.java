@@ -33,6 +33,7 @@ public class OutboundMailMessageImpl implements OutboundMailMessage {
         body = origin.body;
         recipients = new ArrayList<>(origin.recipients);
         attachments = new ArrayList<>(origin.attachments);
+        replyTo = origin.replyTo;
     }
 
     OutboundMailMessageImpl(IMailService mailService) {
@@ -43,20 +44,21 @@ public class OutboundMailMessageImpl implements OutboundMailMessage {
 
     @Override
     public void send() {
-        mailService.send(toMessage());
+        IMailService.MailSession session = mailService.getSession();
+        session.send(toMessage(session));
     }
 
-    MimeMessage toMessage() {
+    MimeMessage toMessage(IMailService.MailSession session) {
         try {
-            return tryToMessage();
+            return tryToMessage(session);
         } catch (MessagingException e) {
             // TODO
             throw new MailException(null, null, e);
         }
     }
 
-    private MimeMessage tryToMessage() throws MessagingException {
-        MimeMessage message = mailService.createMessage();
+    private MimeMessage tryToMessage(IMailService.MailSession session) throws MessagingException {
+        MimeMessage message = session.createMessage();
         message.setFrom(mailService.getFrom());
         message.setReplyTo(new Address[]{replyTo.asAddress()});
         message.setSubject(subject);
