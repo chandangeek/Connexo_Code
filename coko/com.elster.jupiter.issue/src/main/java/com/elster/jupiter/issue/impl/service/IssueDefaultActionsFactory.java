@@ -8,6 +8,8 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.UserService;
@@ -36,6 +38,7 @@ public class IssueDefaultActionsFactory implements IssueActionFactory {
     private volatile IssueService issueService;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile PropertySpecService propertySpecService;
+    private volatile DataModel dataModel;
 
     private Injector injector;
     private Map<String, Provider<? extends IssueAction>> actionProviders = new HashMap<>();
@@ -44,11 +47,12 @@ public class IssueDefaultActionsFactory implements IssueActionFactory {
     }
 
     @Inject
-    public IssueDefaultActionsFactory(NlsService nlsService, UserService userService, IssueService issueService, ThreadPrincipalService threadPrincipalService) {
+    public IssueDefaultActionsFactory(NlsService nlsService, UserService userService, IssueService issueService, ThreadPrincipalService threadPrincipalService, OrmService ormService) {
         setThesaurus(nlsService);
         setUserService(userService);
         setIssueService(issueService);
         setThreadPrincipalService(threadPrincipalService);
+        setOrmService(ormService);
 
         activate();
     }
@@ -58,6 +62,7 @@ public class IssueDefaultActionsFactory implements IssueActionFactory {
         injector = Guice.createInjector(new AbstractModule() {
             @Override
             protected void configure() {
+                bind(DataModel.class).toInstance(dataModel);
                 bind(NlsService.class).toInstance(nlsService);
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
@@ -108,6 +113,11 @@ public class IssueDefaultActionsFactory implements IssueActionFactory {
     @Reference
     public void setPropertySpecService(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
+    }
+    
+    @Reference
+    public void setOrmService(OrmService ormService) {
+        this.dataModel = ormService.getDataModel(IssueService.COMPONENT_NAME).orElse(null);
     }
 
     private void addDefaultActions() {

@@ -1,8 +1,8 @@
 package com.elster.jupiter.issue.impl.actions;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.inject.Inject;
 
@@ -16,9 +16,11 @@ import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.properties.FindById;
+import com.elster.jupiter.properties.ListValueEntry;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
-import com.elster.jupiter.properties.StringFactory;
+import com.elster.jupiter.util.conditions.Where;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
 
@@ -28,6 +30,8 @@ public class CloseIssueAction extends AbstractIssueAction {
     private static final String CLOSESTATUS = NAME + ".status";
     private static final String COMMENT = NAME + ".comment";
 
+    private final PossibleStatuses statuses = new PossibleStatuses();
+    
     private final IssueService issueService;
 
     @Inject
@@ -57,12 +61,7 @@ public class CloseIssueAction extends AbstractIssueAction {
     @Override
     public List<PropertySpec> getPropertySpecs() {
         Builder<PropertySpec> builder = ImmutableList.builder();
-        builder.add(getPropertySpecService().newPropertySpecBuilder(new StringFactory())
-                                            .name(CLOSESTATUS)
-                                            .addValues(MessageSeeds.ISSUE_STATUS_RESOLVED.getKey(), 
-                                                       MessageSeeds.ISSUE_STATUS_WONT_FIX.getKey())
-                                             .markRequired()
-                                             .finish());
+        builder.add(getPropertySpecService().listValuePropertySpec(CLOSESTATUS, true, statuses, statuses.getStatuses()));
         builder.add(getPropertySpecService().stringPropertySpec(COMMENT, false, null));
         return builder.build();
     }
@@ -93,5 +92,37 @@ public class CloseIssueAction extends AbstractIssueAction {
     private IssueStatus getStatusFromParameters(Map<String, Object> properties){
         String statusKey = getPropertySpec(CLOSESTATUS).getValueFactory().toStringValue(properties.get(CLOSESTATUS));
         return issueService.findStatus(statusKey).orElse(null);
+    }
+    
+    private class PossibleStatuses implements FindById<IssueStatusEntry> {
+        
+        @Override
+        public Optional<IssueStatusEntry> findById(String id) {
+            return issueService.findStatus(id).map(status -> new IssueStatusEntry(status));
+        }
+        
+        public IssueStatusEntry[] getStatuses() {
+            List<IssueStatus> statuses = issueService.query(IssueStatus.class).select(Where.where("isHistorical").isEqualTo(Boolean.TRUE));
+            return statuses.stream().map(status -> new IssueStatusEntry(status)).toArray(IssueStatusEntry[]::new);
+        }
+    }
+    
+    private class IssueStatusEntry implements ListValueEntry {
+        
+        private IssueStatus issueStatus;
+        
+        public IssueStatusEntry(IssueStatus issueStatus) {
+            this.issueStatus = issueStatus;
+        }
+
+        @Override
+        public String getId() {
+            return issueStatus.getKey();
+        }
+        
+        @Override
+        public String getName() {
+            return issueStatus.getName();
+        }
     }
 }

@@ -261,8 +261,8 @@ public class CreationRuleImpl extends EntityImpl implements CreationRule, Unique
     private void updateContent() {
         String rawContent = getTemplate().getContent();
         for (CreationRuleProperty property : properties) {
-            // TODO use mapping between raw object to drools engine parameter for the rule
-            rawContent = replaceParameterInContent(rawContent, property.getName(), property.getValue().toString());
+            PropertySpec propertySpec = getPropertySpec(property.getName());
+            rawContent = replaceParameterInContent(rawContent, property.getName(), propertySpec.getValueFactory().toStringValue(property.getValue()));
         }
         rawContent = replaceParameterInContent(rawContent, PARAM_RULE_ID, String.valueOf(getId()));
         setContent(rawContent);
