@@ -24,6 +24,7 @@ import org.kie.internal.builder.KnowledgeBuilder;
 import org.kie.internal.builder.KnowledgeBuilderConfiguration;
 import org.kie.internal.builder.KnowledgeBuilderFactoryService;
 import org.kie.internal.runtime.StatefulKnowledgeSession;
+import org.kie.internal.utils.CompositeClassLoader;
 
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
@@ -77,7 +78,8 @@ public class IssueAssignmentServiceImpl implements IssueAssignmentService {
 
     private boolean createKnowledgeBase() {
         try {
-            KnowledgeBuilderConfiguration kbConf = knowledgeBuilderFactoryService.newKnowledgeBuilderConfiguration(null, getClass().getClassLoader());
+            ClassLoader classLoader = getRulesClassloader();
+            KnowledgeBuilderConfiguration kbConf = knowledgeBuilderFactoryService.newKnowledgeBuilderConfiguration(null, classLoader);
 
             KnowledgeBuilder kbuilder = knowledgeBuilderFactoryService.newKnowledgeBuilder(kbConf);
             List<AssignmentRule> allRules = getAssignRules();
@@ -89,7 +91,7 @@ public class IssueAssignmentServiceImpl implements IssueAssignmentService {
                 throw new DroolsValidationException(thesaurus, kbuilder.getErrors().toString());
             }
 
-            KieBaseConfiguration kbaseConf = knowledgeBaseFactoryService.newKnowledgeBaseConfiguration(null, getClass().getClassLoader(), ProjectClassLoader.class.getClassLoader());
+            KieBaseConfiguration kbaseConf = knowledgeBaseFactoryService.newKnowledgeBaseConfiguration(null, classLoader);
 
             knowledgeBase = knowledgeBaseFactoryService.newKnowledgeBase(kbaseConf);
             knowledgeBase.addKnowledgePackages(kbuilder.getKnowledgePackages());
@@ -98,6 +100,13 @@ public class IssueAssignmentServiceImpl implements IssueAssignmentService {
             return false;
         }
         return true;
+    }
+    
+    private ClassLoader getRulesClassloader() {
+        CompositeClassLoader classLoader = new CompositeClassLoader();
+        classLoader.addClassLoader(getClass().getClassLoader());
+        classLoader.addClassLoader(ProjectClassLoader.class.getClassLoader());
+        return classLoader;
     }
 
     private List<AssignmentRule> getAssignRules() {

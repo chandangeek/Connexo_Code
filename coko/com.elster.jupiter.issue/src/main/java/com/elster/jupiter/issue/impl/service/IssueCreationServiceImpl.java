@@ -4,15 +4,12 @@ import static com.elster.jupiter.util.conditions.Where.where;
 
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
-import org.drools.compiler.compiler.RuleBaseLoader;
 import org.drools.core.common.ProjectClassLoader;
 import org.kie.api.KieBaseConfiguration;
 import org.kie.api.io.KieResources;
@@ -23,6 +20,7 @@ import org.kie.internal.builder.KnowledgeBuilder;
 import org.kie.internal.builder.KnowledgeBuilderConfiguration;
 import org.kie.internal.builder.KnowledgeBuilderFactoryService;
 import org.kie.internal.runtime.StatefulKnowledgeSession;
+import org.kie.internal.utils.CompositeClassLoader;
 
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
@@ -195,7 +193,7 @@ public class IssueCreationServiceImpl implements IssueCreationService {
 
     boolean createKnowledgeBase() {
         try {
-            ClassLoader[] rulesClassloader = getRulesClassloader();
+            ClassLoader rulesClassloader = getRulesClassloader();
             KnowledgeBuilderConfiguration kbConf = knowledgeBuilderFactoryService.newKnowledgeBuilderConfiguration(null, rulesClassloader);
             KnowledgeBuilder kbuilder = knowledgeBuilderFactoryService.newKnowledgeBuilder(kbConf);
 
@@ -210,7 +208,6 @@ public class IssueCreationServiceImpl implements IssueCreationService {
             }
 
             KieBaseConfiguration kbaseConf = knowledgeBaseFactoryService.newKnowledgeBaseConfiguration(null, rulesClassloader);
-
             knowledgeBase = knowledgeBaseFactoryService.newKnowledgeBase(kbaseConf);
             knowledgeBase.addKnowledgePackages(kbuilder.getKnowledgePackages());
         } catch (IllegalStateException | DroolsValidationException ex) {
@@ -220,15 +217,14 @@ public class IssueCreationServiceImpl implements IssueCreationService {
         return true;
     }
 
-    private ClassLoader[] getRulesClassloader() {
-        Set<ClassLoader> rulesClassloader = new HashSet<>();
+    private ClassLoader getRulesClassloader() {
+        CompositeClassLoader classLoader = new CompositeClassLoader();
         for (CreationRuleTemplate template : issueService.getCreationRuleTemplates().values()) {
-            rulesClassloader.add(template.getClass().getClassLoader());
+            classLoader.addClassLoader(template.getClass().getClassLoader());
         }
-        rulesClassloader.add(getClass().getClassLoader());
-        rulesClassloader.add(ProjectClassLoader.class.getClassLoader());
-        rulesClassloader.add(RuleBaseLoader.class.getClassLoader());
-        return rulesClassloader.toArray(new ClassLoader[rulesClassloader.size()]);
+        classLoader.addClassLoader(getClass().getClassLoader());
+        classLoader.addClassLoader(ProjectClassLoader.class.getClassLoader());
+        return classLoader;
     }
 
     private List<CreationRule> getCreationRules() {
