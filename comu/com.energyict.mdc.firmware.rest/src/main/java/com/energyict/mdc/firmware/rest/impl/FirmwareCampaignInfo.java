@@ -18,7 +18,6 @@ public class FirmwareCampaignInfo {
     public ManagementOptionInfo managementOption;
     public FirmwareTypeInfo firmwareType;
     public FirmwareVersionInfo firmwareVersion;
-    public Instant plannedDate;
     public Instant startedOn;
     public Instant finishedOn;
     public List<PropertyInfo> properties;
@@ -36,7 +35,6 @@ public class FirmwareCampaignInfo {
         if (this.firmwareType != null) {
             campaign.setFirmwareType(this.firmwareType.id);
         }
-        campaign.setPlannedDate(this.plannedDate);
         campaign.clearProperties();
         if (this.properties != null){
             for (PropertyInfo property : this.properties) {

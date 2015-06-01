@@ -51,7 +51,6 @@ public class FirmwareCampaignInfoFactory {
         String managementOptionId = campaign.getFirmwareManagementOption().getId();
         info.managementOption = new ManagementOptionInfo(managementOptionId, thesaurus.getString(managementOptionId, managementOptionId));
         info.firmwareType = new FirmwareTypeInfo(campaign.getFirmwareType(), thesaurus);
-        info.plannedDate = campaign.getPlannedDate();
         info.startedOn = campaign.getStartedOn();
         info.finishedOn = campaign.getFinishedOn();
         Optional<DeviceMessageSpec> firmwareMessageSpec = campaign.getFirmwareMessageSpec();
