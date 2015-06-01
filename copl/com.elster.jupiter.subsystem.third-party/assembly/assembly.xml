@@ -23,7 +23,8 @@
                 <include>org.apache.servicemix.bundles:*</include>
                 <include>org.slf4j:*</include>
                 <include>com.google.protobuf:*</include>
-                <include>org.eclipse.jdt:*</include>
+                <include>org.eclipse.jdt.core.compiler:*</include>
+                <include>commons-codec:*</include>
                 <include>com.sun.xml.bind:jaxb-xjc:*</include>
             </includes>
 
