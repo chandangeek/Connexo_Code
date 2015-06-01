@@ -34,8 +34,8 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@Ignore("Base functionality for rest tests")
 @RunWith(MockitoJUnitRunner.class)
+@Ignore("Base functionality for rest tests")
 public class BaseEstimationRestTest extends JerseyTest {
 
     @Mock
@@ -90,7 +90,7 @@ public class BaseEstimationRestTest extends JerseyTest {
     
     private void init() {
         restQueryService = mock(RestQueryService.class);
-        propertyUtils = new PropertyUtils();
+        propertyUtils = new PropertyUtils(nlsService);
     }
 
     @Override

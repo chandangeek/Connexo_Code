@@ -105,6 +105,7 @@ public class EstimationApplication extends Application implements BinderProvider
                 bind(thesaurus).to(Thesaurus.class);
                 bind(meteringGroupsService).to(MeteringGroupsService.class);
                 bind(timeService).to(TimeService.class);
+                bind(PropertyUtils.class).to(PropertyUtils.class);
             }
         };
     }

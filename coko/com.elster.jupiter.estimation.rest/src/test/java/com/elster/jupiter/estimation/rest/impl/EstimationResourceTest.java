@@ -508,10 +508,10 @@ public class EstimationResourceTest extends BaseEstimationRestTest {
 
     private List<PropertyInfo> createPropertyInfos() {
         List<PropertyInfo> infos = new ArrayList<>();
-        PropertyInfo numberInfo = new PropertyInfo("number", new PropertyValueInfo<>(Double.valueOf(10), null), null, true);
-        PropertyInfo nullableInfo = new PropertyInfo("nullableboolean", new PropertyValueInfo<>(false, null), null, true);
-        PropertyInfo booleanInfo = new PropertyInfo("boolean", new PropertyValueInfo<>(true, null), null, true);
-        PropertyInfo textInfo = new PropertyInfo("text", new PropertyValueInfo<>("string", null), null, true);
+        PropertyInfo numberInfo = new PropertyInfo("number","number", new PropertyValueInfo<>(Double.valueOf(10), null), null, true);
+        PropertyInfo nullableInfo = new PropertyInfo("nullableboolean","nullableboolean", new PropertyValueInfo<>(false, null), null, true);
+        PropertyInfo booleanInfo = new PropertyInfo("boolean","boolean", new PropertyValueInfo<>(true, null), null, true);
+        PropertyInfo textInfo = new PropertyInfo("text", "text", new PropertyValueInfo<>("string", null), null, true);
         PropertyInfo listValueInfo = new PropertyInfo();
         listValueInfo.key = "listvalue";
         listValueInfo.propertyValueInfo = new PropertyValueInfo<>(new String[]{"1", "2"}, null);

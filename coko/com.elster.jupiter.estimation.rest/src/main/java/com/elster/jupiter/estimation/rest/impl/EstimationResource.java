@@ -80,15 +80,17 @@ public class EstimationResource {
     private final Thesaurus thesaurus;
     private final TimeService timeService;
     private final MeteringGroupsService meteringGroupsService;
+    private final PropertyUtils propertyUtils;
 
     @Inject
-    public EstimationResource(RestQueryService queryService, EstimationService estimationService, TransactionService transactionService, Thesaurus thesaurus, TimeService timeService, MeteringGroupsService meteringGroupsService) {
+    public EstimationResource(RestQueryService queryService, EstimationService estimationService, TransactionService transactionService, Thesaurus thesaurus, TimeService timeService, MeteringGroupsService meteringGroupsService, PropertyUtils propertyUtils) {
         this.queryService = queryService;
         this.estimationService = estimationService;
         this.transactionService = transactionService;
         this.thesaurus = thesaurus;
         this.timeService = timeService;
         this.meteringGroupsService = meteringGroupsService;
+        this.propertyUtils = propertyUtils;
     }
 
 
@@ -128,7 +130,7 @@ public class EstimationResource {
         QueryParameters params = QueryParameters.wrap(uriInfo.getQueryParameters());
         Optional<? extends EstimationRuleSet> optional = estimationService.getEstimationRuleSet(ruleSetId);
         if (optional.isPresent()) {
-            EstimationRuleInfos infos = new EstimationRuleInfos();
+            EstimationRuleInfos infos = new EstimationRuleInfos(propertyUtils);
             EstimationRuleSet set = optional.get();
             List<? extends EstimationRule> rules;
             if ((params.getLimit() > 0) && (params.getStartInt() >= 0)) {
@@ -142,7 +144,7 @@ public class EstimationResource {
             infos.total = set.getRules().size();
             return infos;
         } else {
-            return new EstimationRuleInfos();
+            return new EstimationRuleInfos(propertyUtils);
         }
     }
 
@@ -195,7 +197,7 @@ public class EstimationResource {
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION})
     public EstimationRuleSetInfo getEstimationRuleSet(@PathParam("ruleSetId") long ruleSetId, @Context SecurityContext securityContext) {
         EstimationRuleSet estimationRuleSet = fetchEstimationRuleSet(ruleSetId, securityContext);
-        return EstimationRuleSetInfo.withRules(estimationRuleSet);
+        return EstimationRuleSetInfo.withRules(estimationRuleSet, propertyUtils);
     }
 
     private EstimationRuleSet fetchEstimationRuleSet(long id, SecurityContext securityContext) {
@@ -227,7 +229,6 @@ public class EstimationResource {
         EstimatorInfos infos = new EstimatorInfos();
         List<Estimator> toAdd = estimationService.getAvailableEstimators();
         Collections.sort(toAdd, Compare.BY_DISPLAY_NAME);
-        PropertyUtils propertyUtils = new PropertyUtils();
         for (Estimator estimator : toAdd) {
             infos.add(estimator.getClass().getName(), estimator.getDisplayName(), propertyUtils.convertPropertySpecsToPropertyInfos(estimator.getPropertySpecs()));
         }
@@ -278,7 +279,6 @@ public class EstimationResource {
                     for (ReadingTypeInfo readingTypeInfo : info.readingTypes) {
                         rule.addReadingType(readingTypeInfo.mRID);
                     }
-                    PropertyUtils propertyUtils = new PropertyUtils();
                     try {
                         for (PropertySpec propertySpec : rule.getPropertySpecs()) {
                             Object value = propertyUtils.findPropertyValue(propertySpec, info.properties);
@@ -289,7 +289,7 @@ public class EstimationResource {
                     } finally {
                         set.save();
                     }
-                    return new EstimationRuleInfo(rule);
+                    return new EstimationRuleInfo(rule, propertyUtils);
                 });
         return Response.status(Response.Status.CREATED).entity(result).build();
     }
@@ -299,29 +299,22 @@ public class EstimationResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION)
     public EstimationRuleInfos editRule(@PathParam("ruleSetId") final long ruleSetId, @PathParam("ruleId") final long ruleId, final EstimationRuleInfo info, @Context SecurityContext securityContext) {
-        EstimationRuleInfos result = new EstimationRuleInfos();
-        result.add(transactionService.execute(new Transaction<EstimationRule>() {
-            @Override
-            public EstimationRule perform() {
-                EstimationRuleSet ruleSet = estimationService.getEstimationRuleSet(ruleSetId).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        EstimationRuleInfos result = new EstimationRuleInfos(propertyUtils);
+        result.add(transactionService.execute(() -> {
+            EstimationRuleSet ruleSet = estimationService.getEstimationRuleSet(ruleSetId).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
 
-                EstimationRule rule = getEstimationRuleFromSetOrThrowException(ruleSet, ruleId);
+            EstimationRule rule = getEstimationRuleFromSetOrThrowException(ruleSet, ruleId);
 
-                List<String> mRIDs = new ArrayList<>();
-                for (ReadingTypeInfo readingTypeInfo : info.readingTypes) {
-                    mRIDs.add(readingTypeInfo.mRID);
+            List<String> mRIDs = info.readingTypes.stream().map(readingTypeInfo -> readingTypeInfo.mRID).collect(Collectors.toList());
+            Map<String, Object> propertyMap = new HashMap<>();
+            for (PropertySpec propertySpec : rule.getPropertySpecs()) {
+                Object value = propertyUtils.findPropertyValue(propertySpec, info.properties);
+                if (value != null) {
+                    propertyMap.put(propertySpec.getName(), value);
                 }
-                Map<String, Object> propertyMap = new HashMap<>();
-                PropertyUtils propertyUtils = new PropertyUtils();
-                for (PropertySpec propertySpec : rule.getPropertySpecs()) {
-                    Object value = propertyUtils.findPropertyValue(propertySpec, info.properties);
-                    if (value != null) {
-                        propertyMap.put(propertySpec.getName(), value);
-                    }
-                }
-                rule = ruleSet.updateRule(ruleId, info.name, info.active, mRIDs, propertyMap);
-                return rule;
             }
+            rule = ruleSet.updateRule(ruleId, info.name, info.active, mRIDs, propertyMap);
+            return rule;
         }));
         return result;
     }
@@ -337,7 +330,7 @@ public class EstimationResource {
 
             return getEstimationRuleFromSetOrThrowException(ruleSet, ruleId);
         });
-        return Response.ok(new EstimationRuleInfo(rule)).build();
+        return Response.ok(new EstimationRuleInfo(rule, propertyUtils)).build();
     }
 
     @DELETE

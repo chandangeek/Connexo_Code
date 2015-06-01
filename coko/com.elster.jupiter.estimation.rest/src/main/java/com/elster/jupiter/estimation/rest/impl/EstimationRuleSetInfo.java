@@ -32,11 +32,11 @@ public class EstimationRuleSetInfo {
         }
     }
 
-    public static EstimationRuleSetInfo withRules(EstimationRuleSet estimationRuleSet) {
+    public static EstimationRuleSetInfo withRules(EstimationRuleSet estimationRuleSet, PropertyUtils propertyUtils) {
         EstimationRuleSetInfo estimationRuleSetInfo = new EstimationRuleSetInfo(estimationRuleSet);
         estimationRuleSetInfo.rules = new ArrayList<>();
         estimationRuleSet.getRules().stream()
-                .map(rule -> new EstimationRuleInfo(estimationRuleSetInfo, rule))
+                .map(rule -> new EstimationRuleInfo(rule, propertyUtils))
                 .forEach(estimationRuleSetInfo.rules::add);
         return estimationRuleSetInfo;
     }

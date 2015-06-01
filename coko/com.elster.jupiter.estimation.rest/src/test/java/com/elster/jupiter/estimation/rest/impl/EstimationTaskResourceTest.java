@@ -256,24 +256,6 @@ public class EstimationTaskResourceTest extends BaseEstimationRestTest {
     	return readingType;
     }
 
-    private List<PropertyInfo> createPropertyInfos() {
-        List<PropertyInfo> infos = new ArrayList<>();
-        PropertyInfo numberInfo = new PropertyInfo("number", new PropertyValueInfo<>(Double.valueOf(10), null), null, true);
-        PropertyInfo nullableInfo = new PropertyInfo("nullableboolean", new PropertyValueInfo<>(false, null), null, true);
-        PropertyInfo booleanInfo = new PropertyInfo("boolean", new PropertyValueInfo<>(true, null), null, true);
-        PropertyInfo textInfo = new PropertyInfo("text", new PropertyValueInfo<>("string", null), null, true);
-        PropertyInfo listValueInfo = new PropertyInfo();
-        listValueInfo.key = "listvalue";
-        listValueInfo.propertyValueInfo = new PropertyValueInfo<>(new String[]{"1", "2"}, null);
-
-        infos.add(numberInfo);
-        infos.add(nullableInfo);
-        infos.add(booleanInfo);
-        infos.add(textInfo);
-        infos.add(listValueInfo);
-        return infos;
-    }
-
     private PropertySpec mockPropertySpec(PropertyType propertyType, String name, boolean isRequired) {
         PropertySpec propertySpec = null;
         switch (propertyType) {

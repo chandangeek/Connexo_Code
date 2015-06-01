@@ -6,6 +6,7 @@ import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class EstimationRuleInfo {
 
@@ -19,7 +20,7 @@ public class EstimationRuleInfo {
     public List<ReadingTypeInfo> readingTypes = new ArrayList<ReadingTypeInfo>();
     public EstimationRuleSetInfo ruleSet;
 
-    public EstimationRuleInfo(EstimationRule estimationRule) {
+    public EstimationRuleInfo(EstimationRule estimationRule, PropertyUtils propertyUtils) {
         id = estimationRule.getId();
         active = estimationRule.isActive();
         implementation = estimationRule.getImplementation();
@@ -27,31 +28,8 @@ public class EstimationRuleInfo {
         name = estimationRule.getName();
         deleted = estimationRule.isObsolete();
         ruleSet = new EstimationRuleSetInfo(estimationRule.getRuleSet());
-        properties = new PropertyUtils().convertPropertySpecsToPropertyInfos(estimationRule.getPropertySpecs(), estimationRule.getProps());
-        for (ReadingType readingType : estimationRule.getReadingTypes()) {
-            readingTypes.add(new ReadingTypeInfo(readingType));
-        }
-    }
-
-    public EstimationRuleInfo(EstimationRuleSetInfo estimationRuleSetInfo, EstimationRule estimationRule) {
-        id = estimationRule.getId();
-        active = estimationRule.isActive();
-        implementation = estimationRule.getImplementation();
-        displayName = estimationRule.getDisplayName();
-        name = estimationRule.getName();
-        deleted = estimationRule.isObsolete();
-        properties = new PropertyUtils().convertPropertySpecsToPropertyInfos(estimationRule.getPropertySpecs(), estimationRule.getProps());
-        for (ReadingType readingType : estimationRule.getReadingTypes()) {
-            readingTypes.add(new ReadingTypeInfo(readingType));
-        }
-    }
-
-    public static List<EstimationRuleInfo> from(List<EstimationRule> estimationRules) {
-        List<EstimationRuleInfo> infos = new ArrayList<>(estimationRules.size());
-        for (EstimationRule estimationRule : estimationRules) {
-            infos.add(new EstimationRuleInfo(estimationRule));
-        }
-        return infos;
+        properties = propertyUtils.convertPropertySpecsToPropertyInfos(estimationRule.getPropertySpecs(), estimationRule.getProps());
+        readingTypes.addAll(estimationRule.getReadingTypes().stream().map(ReadingTypeInfo::new).collect(Collectors.toList()));
     }
 
     public EstimationRuleInfo() {

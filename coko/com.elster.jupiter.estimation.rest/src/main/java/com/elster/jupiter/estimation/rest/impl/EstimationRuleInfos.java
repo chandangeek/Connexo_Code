@@ -9,33 +9,23 @@ import java.util.List;
 @XmlRootElement
 public class EstimationRuleInfos {
 
+    private final PropertyUtils propertyUtils;
     public int total;
     public List<EstimationRuleInfo> rules = new ArrayList<EstimationRuleInfo>();
 
-    EstimationRuleInfos() {
-    }
-
-    EstimationRuleInfos(EstimationRule estimationRule) {
-        add(estimationRule);
+    EstimationRuleInfos(PropertyUtils propertyUtils) {
+        this.propertyUtils = propertyUtils;
     }
 
     EstimationRuleInfo add(EstimationRule estimationRule) {
-        EstimationRuleInfo result = new EstimationRuleInfo(estimationRule);
+        EstimationRuleInfo result = new EstimationRuleInfo(estimationRule, propertyUtils);
         rules.add(result);
         total++;
         return result;
     }
 
-    void addAll(Iterable<? extends EstimationRule> estimationRules) {
-        for (EstimationRule each : estimationRules) {
-            add(each);
-        }
-    }
-
     public void add(EstimationRuleInfo ruleInfo) {
         rules.add(ruleInfo);
         total++;
-        return;
-
     }
 }
