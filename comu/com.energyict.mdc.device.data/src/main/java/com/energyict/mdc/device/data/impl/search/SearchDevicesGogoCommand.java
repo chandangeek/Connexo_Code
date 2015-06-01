@@ -170,19 +170,6 @@ public class SearchDevicesGogoCommand {
                         .collect(Collectors.joining("\n")));
     }
 
-    @SuppressWarnings("unused")
-    public void complexSearch2(String mRID) {
-        Condition condition =
-                where("mRID").isEqualTo(mRID)
-                        .and(where("statusName").isEqualTo(DefaultState.IN_STOCK.getKey()))
-                        .and(where("deviceConfigId").isEqualTo(97L));
-        Finder<Device> deviceFinder = this.searchService.search(Device.class, condition);
-        deviceFinder
-                .stream()
-                .map(this::toString)
-                .collect(Collectors.joining("\n"));
-    }
-
     private String toString(Device device) {
         return device.getmRID() + " in state " + device.getState().getName();
     }
