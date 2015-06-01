@@ -78,14 +78,14 @@ public interface SearchBuilder<T> {
      *
      * @return The Finder
      */
-    public Finder<T> complete();
+    public Finder<T> toFinder();
 
     /**
      * Supports building criteria that must
      * hold for instances returned by the search
      * that is under construction.
      * All methods will return the same CriterionBuilder
-     * to support method chaning.
+     * to support method chaining.
      */
     public interface CriterionBuilder<T> {
 

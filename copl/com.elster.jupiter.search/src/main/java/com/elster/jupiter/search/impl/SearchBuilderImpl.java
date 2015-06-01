@@ -45,7 +45,7 @@ public class SearchBuilderImpl<T> implements SearchBuilder<T> {
 
     @Override
     @SuppressWarnings("unchecked")
-    public Finder<T> complete() {
+    public Finder<T> toFinder() {
         return (Finder<T>) this.searchDomain.finderFor(Collections.unmodifiableList(this.conditions));
     }
 
