@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.nta.elster;
 
 import com.energyict.cbo.ConfigurationSupport;
+import com.energyict.dlms.DLMSCache;
 import com.energyict.mdc.channels.serial.modem.rxtx.RxTxAtModemConnectionType;
 import com.energyict.mdc.channels.serial.modem.serialio.SioAtModemConnectionType;
 import com.energyict.mdc.tasks.ConnectionType;
@@ -24,8 +25,9 @@ public class AM100 extends WebRTUKP {
     protected void checkCacheObjects() {
         boolean readCache = getDlmsSessionProperties().isReadCache();
 
-        if (getDlmsCache() == null && getDlmsCache().getObjectList() == null || readCache) {
+        if (getDlmsCache() == null || getDlmsCache().getObjectList() == null || readCache) {
             getLogger().log(Level.INFO, readCache ? "ReadCache property is true, reading cache!" : "Cache does not exist, configuration is forced to be read.");
+            setDlmsCache(new DLMSCache());
             readObjectList();
             getDlmsCache().saveObjectList(getDlmsSession().getMeterConfig().getInstantiatedObjectList());
         } else {

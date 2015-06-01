@@ -353,4 +353,8 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
     public DLMSCache getDlmsCache() {
         return dlmsCache;
     }
+
+    protected void setDlmsCache(DLMSCache dlmsCache) {
+        this.dlmsCache = dlmsCache;
+    }
 }
