@@ -76,6 +76,7 @@ public class ConnectionMethodResourceTest extends DeviceConfigurationApplication
         info.properties = new ArrayList<>();
         PropertyInfo propertyInfo = new PropertyInfo();
         propertyInfo.key = "connectionTimeOut";
+        propertyInfo.name = "connectionTimeOut";
         propertyInfo.required = false;
         TimeDurationInfo timeDurationInfo = new TimeDurationInfo();
         timeDurationInfo.timeUnit="1"; // INVALID

@@ -15,6 +15,7 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.rest.PropertyUtils;
+import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.ExceptionLogger;
 import com.energyict.mdc.common.rest.TransactionWrapper;
@@ -243,6 +244,7 @@ public class DeviceConfigurationApplication extends Application implements Trans
             bind(deviceMessageSpecificationService).to(DeviceMessageSpecificationService.class);
             bind(firmwareService).to(FirmwareService.class);
             bind(deviceLifeCycleConfigurationService).to(DeviceLifeCycleConfigurationService.class);
+            bind(ValidationRuleInfoFactory.class).to(ValidationRuleInfoFactory.class);
         }
     }
 

@@ -7,6 +7,7 @@ import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.rest.ValidationRuleInfo;
+import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
 import com.elster.jupiter.validation.rest.ValidationRuleSetInfo;
 import com.elster.jupiter.validation.rest.ValidationRuleSetInfos;
 import com.energyict.mdc.common.TranslatableApplicationException;
@@ -41,6 +42,7 @@ import javax.ws.rs.core.UriInfo;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class DeviceConfigurationResource {
 
@@ -57,6 +59,7 @@ public class DeviceConfigurationResource {
     private final Provider<EstimationRuleSetResource> estimationRuleSetResourceProvider;
     private final Provider<DeviceMessagesResource> deviceMessagesResourceProvider;
     private final Provider<ProtocolPropertiesResource> deviceProtocolPropertiesResourceProvider;
+    private final ValidationRuleInfoFactory validationRuleInfoFactory;
     private final Thesaurus thesaurus;
 
     @Inject
@@ -71,7 +74,7 @@ public class DeviceConfigurationResource {
                                        Provider<ComTaskEnablementResource> comTaskEnablementResourceProvider,
                                        Provider<ValidationRuleSetResource> validationRuleSetResourceProvider,
                                        Provider<EstimationRuleSetResource> estimationRuleSetResourceProvider,
-                                       Provider<DeviceMessagesResource> deviceMessagesResourceProvider, Thesaurus thesaurus, Provider<ProtocolPropertiesResource> deviceProtocolPropertiesResourceProvider) {
+                                       Provider<DeviceMessagesResource> deviceMessagesResourceProvider, Thesaurus thesaurus, Provider<ProtocolPropertiesResource> deviceProtocolPropertiesResourceProvider, ValidationRuleInfoFactory validationRuleInfoFactory) {
         this.resourceHelper = resourceHelper;
         this.deviceConfigurationService = deviceConfigurationService;
         this.validationService = validationService;
@@ -86,6 +89,7 @@ public class DeviceConfigurationResource {
         this.deviceMessagesResourceProvider = deviceMessagesResourceProvider;
         this.thesaurus = thesaurus;
         this.deviceProtocolPropertiesResourceProvider = deviceProtocolPropertiesResourceProvider;
+        this.validationRuleInfoFactory = validationRuleInfoFactory;
     }
 
     @GET
@@ -335,7 +339,7 @@ public class DeviceConfigurationResource {
 
         List<ValidationRule> rules = resourceHelper.findRegisterSpec(registerId).getValidationRules();
         List<ValidationRule> rulesPage = ListPager.of(rules).from(queryParameters).find();
-        List<ValidationRuleInfo> infos = ValidationRuleInfo.from(rulesPage);
+        List<ValidationRuleInfo> infos = rulesPage.stream().map(validationRuleInfoFactory::createValidationRuleInfo).collect(Collectors.toList());
         return Response.ok(PagedInfoList.fromPagedList("validationRules", infos, queryParameters)).build();
     }
 
@@ -351,7 +355,7 @@ public class DeviceConfigurationResource {
 
         List<ValidationRule> rules = resourceHelper.findChannelSpec(channelId).getValidationRules();
         List<ValidationRule> rulesPage = ListPager.of(rules).from(queryParameters).find();
-        List<ValidationRuleInfo> infos = ValidationRuleInfo.from(rulesPage);
+        List<ValidationRuleInfo> infos = rulesPage.stream().map(validationRuleInfoFactory::createValidationRuleInfo).collect(Collectors.toList());
         return Response.ok(PagedInfoList.fromPagedList("validationRules", infos, queryParameters)).build();
     }
 
@@ -367,7 +371,7 @@ public class DeviceConfigurationResource {
 
         List<ValidationRule> rules = resourceHelper.findLoadProfileSpec(loadProfileId).getValidationRules();
         List<ValidationRule> rulesPage = ListPager.of(rules).from(queryParameters).find();
-        List<ValidationRuleInfo> infos = ValidationRuleInfo.from(rulesPage);
+        List<ValidationRuleInfo> infos = rulesPage.stream().map(validationRuleInfoFactory::createValidationRuleInfo).collect(Collectors.toList());
         return Response.ok(PagedInfoList.fromPagedList("validationRules", infos, queryParameters)).build();
     }
 
