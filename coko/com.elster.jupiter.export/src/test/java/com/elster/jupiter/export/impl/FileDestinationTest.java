@@ -3,14 +3,12 @@ package com.elster.jupiter.export.impl;
 import com.elster.jupiter.appserver.AppServer;
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.export.DataExportService;
-import com.elster.jupiter.export.FileDestination;
 import com.elster.jupiter.export.FormattedExportData;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -49,9 +47,7 @@ public class FileDestinationTest {
     @Mock
     private DataExportService dataExportService;
     @Mock
-    FormattedExportData data1;
-    @Mock
-    FormattedExportData data2;
+    private FormattedExportData data1, data2;
     @Mock
     DataModel dataModel;
 
@@ -77,7 +73,7 @@ public class FileDestinationTest {
         fileDestination.send(data);
         Path file = fileSystem.getPath(ABSOLUTE_DIR, FILENAME + "." + EXTENSION);
         assertThat(Files.exists(file)).isTrue();
-        assertThat(getContent(file).equals(DATA1 + DATA2));
+        assertThat(getContent(file)).isEqualTo(DATA1 + DATA2);
     }
 
     @Test
@@ -87,7 +83,7 @@ public class FileDestinationTest {
         fileDestination.send(data);
         Path file = fileSystem.getPath(APPSERVER_PATH, RELATIVE_DIR, FILENAME + "." + EXTENSION);
         assertThat(Files.exists(file)).isTrue();
-        assertThat(getContent(file).equals(DATA1 + DATA2));
+        assertThat(getContent(file)).isEqualTo(DATA1 + DATA2);
     }
 
     private String getContent(Path file) {

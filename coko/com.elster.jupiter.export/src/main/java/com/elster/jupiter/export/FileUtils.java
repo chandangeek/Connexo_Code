@@ -34,16 +34,22 @@ public class FileUtils {
 
     public Path createTemporaryFile(List<FormattedExportData> data, String fileName, String fileExtension) {
         try {
-            String tempFileName = new StringBuilder(fileName).append('.').append(fileExtension).toString();
+            String tempFileName = fileName + '.' + fileExtension;
             Path tempFile = Files.createTempFile(getTempDir(), tempFileName, fileExtension);
             try (BufferedWriter writer = Files.newBufferedWriter(tempFile)) {
-                for (FormattedExportData dataPart : data) {
-                    writer.write(dataPart.getAppendablePayload());
-                }
+                data.forEach(dataPart -> write(writer, dataPart));
             }
             return tempFile;
         } catch (IOException ex) {
             throw new FatalDataExportException(new FileIOException(ex, thesaurus));
+        }
+    }
+
+    private void write(BufferedWriter writer, FormattedExportData dataPart) {
+        try {
+            writer.write(dataPart.getAppendablePayload());
+        } catch (IOException e) {
+            throw new FileIOException(e, thesaurus);
         }
     }
 
@@ -63,7 +69,7 @@ public class FileUtils {
     }
 
     private Path createFile(String fileName, String fileExtension, String fileLocation) {
-        fileName = new StringBuilder(fileName).append('.').append(fileExtension).toString();
+        fileName = fileName + '.' + fileExtension;
         Path path = this.fileSystem.getPath(fileLocation);
         if (path.isAbsolute()) {
             return path.resolve(fileName);

@@ -5,20 +5,17 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.export.DataExportDestination;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.EmailDestination;
+import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.export.FileDestination;
-import com.elster.jupiter.export.ReadingTypeDataExportTask;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.google.common.collect.ImmutableMap;
 
-import java.nio.file.FileSystem;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 import javax.inject.Inject;
+import java.nio.file.FileSystem;
+import java.util.Map;
 
 
 /**
@@ -29,7 +26,7 @@ public abstract class AbstractDataExportDestination implements DataExportDestina
     static final Map<String, Class<? extends DataExportDestination>> IMPLEMENTERS = ImmutableMap.<String, Class<? extends DataExportDestination>>of(FileDestination.TYPE_IDENTIFIER, FileDestinationImpl.class, EmailDestination.TYPE_IDENTIFIER, EmailDestinationImpl.class);
 
     private long id;
-    private Reference<ReadingTypeDataExportTask> task = ValueReference.absent();
+    private Reference<ExportTask> task = ValueReference.absent();
     private final DataModel dataModel;
     private final Thesaurus thesaurus;
     private final DataExportService dataExportService;
@@ -46,7 +43,7 @@ public abstract class AbstractDataExportDestination implements DataExportDestina
     }
 
 
-    public ReadingTypeDataExportTask getTask() {
+    public ExportTask getTask() {
         return this.task.get();
     }
 

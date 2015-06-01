@@ -165,10 +165,10 @@ enum TableSpecs {
             table.foreignKey("DES_FK_DIR4APPSERVER_APS").on(idColumn).references("APS", "APS_APPSERVER").map("appServer").add();
         }
     },
-    DES_DESTINATION(ReadingTypeInExportTask.class) {
+    DES_DESTINATION(DataExportDestination.class) {
         @Override
         void describeTable(Table table) {
-            table.map(DataExportDestination.class);
+            table.map(AbstractDataExportDestination.IMPLEMENTERS);
             table.setJournalTableName("DES_DESTINATIONJRNL");
             Column idColumn = table.addAutoIdColumn();
             table.addDiscriminatorColumn("DISCRIMINATOR", "char(5)");

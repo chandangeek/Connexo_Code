@@ -7,7 +7,7 @@ import java.util.List;
  */
 public interface DataExportDestination {
 
-    ReadingTypeDataExportTask getTask();
+    ExportTask getTask();
 
     long getId();
 
