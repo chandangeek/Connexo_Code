@@ -102,7 +102,20 @@ Ext.define('Fwc.controller.Firmware', {
     initFilter: function () {
         var me = this,
             supportedFirmwareTypesStore = Ext.getStore('Fwc.store.SupportedFirmwareTypes'),
+            onFirmwareTypesLoad = function () {
+                var checked = me.getSideFilterForm().down('firmware-type').getChecked();
+                if (checked.length) {
+                    me.getFilterPanel().setFilter(
+                        'firmwareType',
+                        Uni.I18n.translate('firmware.filter.type', 'FWC', 'Type'),
+                        checked.map(function (ch) {
+                            return ch.boxLabel;
+                        }).join(', ')
+                    );
+                }
+            },
             router = this.getController('Uni.controller.history.Router');
+
         me.getSideFilterForm().loadRecord(router.filter);
 
         me.getFilterPanel().getContainer().removeAll();
@@ -119,18 +132,8 @@ Ext.define('Fwc.controller.Firmware', {
             }
         }, this, {single: true});
 
-        Ext.getStore('Fwc.store.FirmwareTypes').on('load', function () {
-            var checked = me.getSideFilterForm().down('firmware-type').getChecked();
-            if (checked.length) {
-                me.getFilterPanel().setFilter(
-                    'firmwareType',
-                    Uni.I18n.translate('firmware.filter.type', 'FWC', 'Type'),
-                    checked.map(function (ch) {
-                        return ch.boxLabel;
-                    }).join(', ')
-                );
-            }
-        }, this, {single: true});
+        Ext.getStore('Fwc.store.FirmwareTypes').on('load', onFirmwareTypesLoad, this, {single: true});
+        supportedFirmwareTypesStore.on('load', onFirmwareTypesLoad, this, {single: true});
 
         supportedFirmwareTypesStore.load({
             scope: this,
