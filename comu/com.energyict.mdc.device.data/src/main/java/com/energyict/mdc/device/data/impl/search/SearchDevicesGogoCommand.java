@@ -120,10 +120,10 @@ public class SearchDevicesGogoCommand {
                 VoidTransaction.of(() ->
                         System.out.println(
                                 builder
-                                        .toFinder()
-                                        .stream()
-                                        .map(this::toString)
-                                        .collect(Collectors.joining("\n")))));
+                                    .toFinder()
+                                    .stream()
+                                    .map(this::toString)
+                                    .collect(Collectors.joining("\n")))));
     }
 
     private SearchBuilder<Device> addCondition(SearchBuilder<Device> builder, String key, Object value) {

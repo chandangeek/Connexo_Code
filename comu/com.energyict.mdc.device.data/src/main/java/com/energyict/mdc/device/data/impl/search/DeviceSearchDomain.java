@@ -9,6 +9,7 @@ import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyCondition;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import java.time.Clock;
@@ -38,8 +39,23 @@ public class DeviceSearchDomain implements SearchDomain {
     @Inject
     public DeviceSearchDomain(DeviceDataModelService deviceDataModelService, PropertySpecService propertySpecService, Clock clock) {
         this();
+        this.setDeviceDataModelService(deviceDataModelService);
+        this.setPropertySpecService(propertySpecService);
+        this.setClock(clock);
+    }
+
+    @Reference
+    public void setDeviceDataModelService(DeviceDataModelService deviceDataModelService) {
         this.deviceDataModelService = deviceDataModelService;
+    }
+
+    @Reference
+    public void setPropertySpecService(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
+    }
+
+    @Reference
+    public void setClock(Clock clock) {
         this.clock = clock;
     }
 

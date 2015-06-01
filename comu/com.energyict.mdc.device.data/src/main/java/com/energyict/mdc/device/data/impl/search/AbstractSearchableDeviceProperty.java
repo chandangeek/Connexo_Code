@@ -22,7 +22,6 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.util.List;
-import java.util.stream.Stream;
 
 /**
  * Serves as the root for all {@link SearchableDeviceProperty SearchableDeviceProperties}.
@@ -73,10 +72,7 @@ public abstract class AbstractSearchableDeviceProperty implements SearchableDevi
 
     @Override
     public void visitComparison(Comparison comparison) {
-        this.underConstruction.append(comparison.getText(this.columnName));
-        Stream
-            .of(comparison.getValues())
-            .forEach(this.underConstruction::addObject);
+        this.underConstruction.add(new ComparisonFragment(this.columnName, comparison));
     }
 
     @Override
@@ -158,9 +154,35 @@ public abstract class AbstractSearchableDeviceProperty implements SearchableDevi
 
         @Override
         public int bind(PreparedStatement statement, int position) throws SQLException {
-            Date sqlDate = instant == null ? null : new Date(instant.toEpochMilli());
-            statement.setDate(position, sqlDate);
+            statement.setLong(position, this.instant.toEpochMilli());
             return position + 1;
         }
     }
+
+    private static class ComparisonFragment implements SqlFragment {
+        private final String columnName;
+        private final Comparison comparison;
+
+        private ComparisonFragment(String columnName, Comparison comparison) {
+            super();
+            this.columnName = columnName;
+            this.comparison = comparison;
+        }
+
+        @Override
+        public String getText() {
+            return this.comparison.getText(this.columnName);
+        }
+
+        @Override
+        public int bind(PreparedStatement statement, int position) throws SQLException {
+            int bindPosition = position;
+            for (Object value : this.comparison.getValues()) {
+                statement.setObject(bindPosition, value);
+                bindPosition++;
+            }
+            return bindPosition;
+        }
+    }
+
 }
