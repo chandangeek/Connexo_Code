@@ -1,8 +1,5 @@
 package com.elster.jupiter.search;
 
-import com.elster.jupiter.domain.util.Finder;
-import com.elster.jupiter.util.conditions.Condition;
-
 import java.util.List;
 import java.util.Optional;
 
