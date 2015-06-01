@@ -12,7 +12,7 @@ import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.rest.util.RestValidationExceptionMapper;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
-import com.energyict.mdc.common.rest.ExceptionFactory;
+import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;

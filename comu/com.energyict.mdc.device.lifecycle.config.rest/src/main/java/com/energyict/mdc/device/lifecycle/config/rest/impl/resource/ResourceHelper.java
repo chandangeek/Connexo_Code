@@ -5,7 +5,7 @@ import com.elster.jupiter.events.EventType;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransitionEventType;
-import com.energyict.mdc.common.rest.ExceptionFactory;
+import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
