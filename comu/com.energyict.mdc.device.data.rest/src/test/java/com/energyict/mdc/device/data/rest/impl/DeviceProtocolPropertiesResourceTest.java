@@ -96,7 +96,8 @@ public class DeviceProtocolPropertiesResourceTest extends DeviceDataRestApplicat
     @Test
     public void testSetDeviceProtocolProperty() {
         PropertyInfo propertyInfo = new PropertyInfo();
-        propertyInfo.key=DeviceProtocolProperty.callHomeId.name();
+        propertyInfo.key =DeviceProtocolProperty.callHomeId.name();
+        propertyInfo.name=DeviceProtocolProperty.callHomeId.name();
         propertyInfo.propertyValueInfo = new PropertyValueInfo<>("0x99", null, null, true);
         propertyInfo.propertyTypeInfo = new PropertyTypeInfo();
         propertyInfo.propertyTypeInfo.simplePropertyType= SimplePropertyType.TEXT;

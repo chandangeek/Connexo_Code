@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.data.NumericalReading;
 import com.energyict.mdc.device.data.NumericalRegister;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -18,12 +17,4 @@ public class NumericalRegisterInfo extends RegisterInfo<NumericalRegister, Numer
 
     public NumericalRegisterInfo() {}
 
-    public NumericalRegisterInfo(NumericalRegister register, DetailedValidationInfo registerValidationInfo) {
-        super(register);
-        NumericalRegisterSpec registerSpec = (NumericalRegisterSpec)register.getRegisterSpec();
-        this.numberOfDigits = registerSpec.getNumberOfDigits();
-        this.numberOfFractionDigits = registerSpec.getNumberOfFractionDigits();
-        this.overflow = registerSpec.getOverflowValue();
-        this.detailedValidationInfo = registerValidationInfo;
-    }
 }

@@ -150,7 +150,7 @@ public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerse
         info.name = "AS1440";
         info.status = ConnectionTaskLifecycleStatus.INCOMPLETE;
         info.properties = new ArrayList<>();
-        PropertyInfo propertyInfo = new PropertyInfo("connectionTimeout",new PropertyValueInfo<>(new TimeDuration("15 seconds"),null,null,null),new PropertyTypeInfo(SimplePropertyType.TIMEDURATION,null,null,null),false);
+        PropertyInfo propertyInfo = new PropertyInfo("connectionTimeout","connectionTimeout",new PropertyValueInfo<>(new TimeDuration("15 seconds"),null,null,null),new PropertyTypeInfo(SimplePropertyType.TIMEDURATION,null,null,null),false);
         info.properties.add(propertyInfo);
 
         Response response = target("/devices/ZABF0000000/connectionmethods/9").request().put(Entity.json(info));

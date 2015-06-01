@@ -1,0 +1,277 @@
+package com.energyict.mdc.device.data.rest.impl;
+
+import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.rest.ReadingTypeInfo;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.units.Quantity;
+import com.elster.jupiter.validation.DataValidationStatus;
+import com.elster.jupiter.validation.ValidationResult;
+import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
+import com.energyict.mdc.common.rest.IntervalInfo;
+import com.energyict.mdc.device.config.NumericalRegisterSpec;
+import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.device.data.*;
+
+import javax.inject.Inject;
+import java.math.BigDecimal;
+import java.time.Clock;
+import java.util.*;
+import java.util.stream.Collectors;
+
+/**
+ * Groups functionality to create info objects for different sorts of data of a device
+ */
+public class DeviceDataInfoFactory {
+
+    private final ValidationInfoFactory validationInfoFactory;
+    private final Thesaurus thesaurus;
+    private final Clock clock;
+    private final ValidationRuleInfoFactory validationRuleInfoFactory;
+
+    @Inject
+    public DeviceDataInfoFactory(ValidationInfoFactory validationInfoFactory, Thesaurus thesaurus, Clock clock, ValidationRuleInfoFactory validationRuleInfoFactory) {
+        this.validationInfoFactory = validationInfoFactory;
+        this.thesaurus = thesaurus;
+        this.clock = clock;
+        this.validationRuleInfoFactory = validationRuleInfoFactory;
+    }
+
+    public ChannelDataInfo createChannelDataInfo(LoadProfileReading loadProfileReading, boolean isValidationActive, DeviceValidation deviceValidation) {
+        ChannelDataInfo channelIntervalInfo = new ChannelDataInfo();
+        channelIntervalInfo.interval = IntervalInfo.from(loadProfileReading.getRange());
+        channelIntervalInfo.readingTime = loadProfileReading.getReadingTime();
+        channelIntervalInfo.intervalFlags = new ArrayList<>();
+        channelIntervalInfo.validationStatus = isValidationActive;
+        channelIntervalInfo.intervalFlags.addAll(loadProfileReading.getFlags().stream().map(flag -> thesaurus.getString(flag.name(), flag.name())).collect(Collectors.toList()));
+        for (Map.Entry<Channel, IntervalReadingRecord> entry : loadProfileReading.getChannelValues().entrySet()) {
+            channelIntervalInfo.isBulk = entry.getKey().getReadingType().isCumulative();
+            channelIntervalInfo.value = getRoundedBigDecimal(entry.getValue().getValue(), entry.getKey()); // There can be only one channel (or no channel at all if the channel has no dta for this interval)
+            Optional<ReadingType> calculatedReadingType = entry.getKey().getReadingType().getCalculatedReadingType();
+            if (channelIntervalInfo.isBulk && calculatedReadingType.isPresent()) {
+                channelIntervalInfo.collectedValue = channelIntervalInfo.value;
+                Quantity quantity = entry.getValue().getQuantity(calculatedReadingType.get());
+                channelIntervalInfo.value = getRoundedBigDecimal(quantity != null ? quantity.getValue() : null, entry.getKey());
+            }
+            channelIntervalInfo.modificationFlag = ReadingModificationFlag.getFlag(entry.getValue());
+            channelIntervalInfo.reportedDateTime = entry.getValue().getReportedDateTime();
+        }
+        if (loadProfileReading.getChannelValues().isEmpty() && loadProfileReading.getReadingTime() != null) {
+            channelIntervalInfo.modificationFlag = ReadingModificationFlag.REMOVED;
+            channelIntervalInfo.reportedDateTime = loadProfileReading.getReadingTime();
+        }
+
+        Set<Map.Entry<Channel, DataValidationStatus>> states = loadProfileReading.getChannelValidationStates().entrySet();    //  only one channel
+        for (Map.Entry<Channel, DataValidationStatus> entry : states) {
+            ValidationInfo validationInfo = validationInfoFactory.createValidationInfoFor(entry.getValue(), deviceValidation);
+            channelIntervalInfo.validationResult = validationInfo.validationResult;
+            channelIntervalInfo.suspectReason = validationInfo.validationRules;
+            channelIntervalInfo.dataValidated = validationInfo.dataValidated;
+        }
+        if (loadProfileReading.getChannelValues().isEmpty() && loadProfileReading.getChannelValidationStates().isEmpty()) {
+            // we have a reading with no data and no validation result => it's a placeholder (missing value) which hasn't validated ( = detected ) yet
+            channelIntervalInfo.validationResult = ValidationStatus.NOT_VALIDATED;
+            channelIntervalInfo.suspectReason = Collections.EMPTY_SET;
+            channelIntervalInfo.dataValidated = false;
+        }
+        return channelIntervalInfo;
+    }
+
+    private static BigDecimal getRoundedBigDecimal(BigDecimal value, Channel channel) {
+        return value != null ? value.setScale(channel.getChannelSpec().getNbrOfFractionDigits(), BigDecimal.ROUND_UP) : value;
+    }
+
+    public LoadProfileDataInfo createLoadProfileDataInfo(LoadProfileReading loadProfileReading, DeviceValidation deviceValidation, List<Channel> channels) {
+        LoadProfileDataInfo channelIntervalInfo = new LoadProfileDataInfo();
+        channelIntervalInfo.interval = IntervalInfo.from(loadProfileReading.getRange());
+        channelIntervalInfo.readingTime = loadProfileReading.getReadingTime();
+        channelIntervalInfo.intervalFlags = loadProfileReading
+                .getFlags()
+                .stream()
+                .map(flag -> thesaurus.getString(flag.name(), flag.name()))
+                .collect(Collectors.toList());
+        if (loadProfileReading.getChannelValues().isEmpty()) {
+            for (Channel channel : channels) {
+                channelIntervalInfo.channelData.put(channel.getId(), null);
+            }
+            channelIntervalInfo.channelCollectedData = channelIntervalInfo.channelData;
+        } else {
+            for (Map.Entry<Channel, IntervalReadingRecord> entry : loadProfileReading.getChannelValues().entrySet()) {
+                Channel channel = entry.getKey();
+                BigDecimal value = getRoundedBigDecimal(entry.getValue().getValue(), channel);
+                channelIntervalInfo.channelData.put(channel.getId(), value != null ? value.toString() : "");
+                if (channel.getReadingType().isCumulative()) {
+                    Quantity quantity = entry.getValue().getQuantity(channel.getReadingType());
+                    value = getRoundedBigDecimal(quantity != null ? quantity.getValue() : null, channel);
+                    channelIntervalInfo.channelCollectedData.put(channel.getId(), value != null ? value.toString() : "");
+                }
+            }
+        }
+
+        for (Map.Entry<Channel, DataValidationStatus> entry : loadProfileReading.getChannelValidationStates().entrySet()) {
+            channelIntervalInfo.channelValidationData.put(entry.getKey().getId(), validationInfoFactory.createValidationInfoFor(entry.getValue(), deviceValidation));
+        }
+
+        for (Channel channel : channels) {
+            if (channelIntervalInfo.channelData.containsKey(channel.getId()) && channelIntervalInfo.channelData.get(channel.getId()) == null
+                    && !channelIntervalInfo.channelValidationData.containsKey(channel.getId())) {
+                // This means it is a missing value what hasn't been validated( = detected ) yet
+                ValidationInfo notValidatedMissing = new ValidationInfo();
+                notValidatedMissing.dataValidated = false;
+                notValidatedMissing.validationResult = ValidationStatus.NOT_VALIDATED;
+                notValidatedMissing.validationRules = Collections.EMPTY_SET;
+                channelIntervalInfo.channelValidationData.put(channel.getId(), notValidatedMissing);
+            }
+        }
+
+        for (Channel channel : loadProfileReading.getChannelValues().keySet()) {
+            channelIntervalInfo.validationActive |= deviceValidation.isValidationActive(channel, clock.instant());
+        }
+
+        return channelIntervalInfo;
+    }
+
+    public List<ReadingInfo> asReadingsInfoList(List<? extends Reading> readings, RegisterSpec registerSpec, boolean isValidationStatusActive) {
+        return readings
+                .stream()
+                .map(r -> createReadingInfo(r, registerSpec, isValidationStatusActive))
+                .collect(Collectors.toList());
+    }
+
+    public ReadingInfo createReadingInfo(Reading reading, RegisterSpec registerSpec, boolean isValidationStatusActive) {
+        if (reading instanceof BillingReading) {
+            return createBillingReadingInfo((BillingReading) reading, (NumericalRegisterSpec) registerSpec, isValidationStatusActive);
+        } else if (reading instanceof NumericalReading) {
+            return createNumericalReadingInfo((NumericalReading) reading, (NumericalRegisterSpec) registerSpec, isValidationStatusActive);
+        } else if (reading instanceof TextReading) {
+            return createTextReadingInfo((TextReading) reading);
+        } else if (reading instanceof FlagsReading) {
+            return createFlagsReadingInfo((FlagsReading) reading);
+
+        }
+        throw new IllegalArgumentException("Unsupported reading type: " + reading.getClass().getSimpleName());
+    }
+
+    private void setCommonReadingInfo(Reading reading, ReadingInfo readingInfo) {
+        readingInfo.id = reading.getTimeStamp();
+        readingInfo.timeStamp = reading.getTimeStamp();
+        readingInfo.reportedDateTime = reading.getReportedDateTime();
+        readingInfo.modificationFlag = ReadingModificationFlag.getFlag(reading.getActualReading());
+    }
+
+    public BillingReadingInfo createBillingReadingInfo(BillingReading reading, NumericalRegisterSpec registerSpec, boolean isValidationStatusActive) {
+        BillingReadingInfo billingReadingInfo = new BillingReadingInfo();
+        setCommonReadingInfo(reading, billingReadingInfo);
+        if (reading.getQuantity() != null) {
+            billingReadingInfo.value = reading.getQuantity().getValue();
+        }
+        billingReadingInfo.unitOfMeasure = registerSpec.getUnit();
+        if (reading.getRange().isPresent()) {
+            billingReadingInfo.interval = IntervalInfo.from(reading.getRange().get());
+        }
+        billingReadingInfo.validationStatus = isValidationStatusActive;
+        reading.getValidationStatus().ifPresent(status -> {
+            billingReadingInfo.dataValidated = status.completelyValidated();
+            billingReadingInfo.validationResult = ValidationStatus.forResult(ValidationResult.getValidationResult(status.getReadingQualities()));
+            billingReadingInfo.suspectReason = validationRuleInfoFactory.createInfosForDataValidationStatus(status);
+        });
+        return billingReadingInfo;
+    }
+
+    public NumericalReadingInfo createNumericalReadingInfo(NumericalReading reading, NumericalRegisterSpec registerSpec, boolean isValidationStatusActive) {
+        NumericalReadingInfo numericalReadingInfo = new NumericalReadingInfo();
+        setCommonReadingInfo(reading, numericalReadingInfo);
+        if (reading.getQuantity() != null) {
+            numericalReadingInfo.value = reading.getQuantity().getValue();
+            numericalReadingInfo.rawValue = reading.getQuantity().getValue();
+        }
+        if (numericalReadingInfo.value != null) {
+            int numberOfFractionDigits = registerSpec.getNumberOfFractionDigits();
+            numericalReadingInfo.value = numericalReadingInfo.value.setScale(numberOfFractionDigits, BigDecimal.ROUND_UP);
+            numericalReadingInfo.rawValue = numericalReadingInfo.value;
+        }
+        numericalReadingInfo.unitOfMeasure = registerSpec.getUnit();
+
+        numericalReadingInfo.validationStatus = isValidationStatusActive;
+        reading.getValidationStatus().ifPresent(status -> {
+            numericalReadingInfo.dataValidated = status.completelyValidated();
+            numericalReadingInfo.validationResult = ValidationStatus.forResult(ValidationResult.getValidationResult(status.getReadingQualities()));
+            numericalReadingInfo.suspectReason = validationRuleInfoFactory.createInfosForDataValidationStatus(status);
+        });
+        return numericalReadingInfo;
+    }
+
+    public TextReadingInfo createTextReadingInfo(TextReading reading) {
+        TextReadingInfo textReadingInfo = new TextReadingInfo();
+        setCommonReadingInfo(reading, textReadingInfo);
+        textReadingInfo.value = reading.getValue();
+
+        return textReadingInfo;
+    }
+
+    public FlagsReadingInfo createFlagsReadingInfo(FlagsReading reading) {
+        FlagsReadingInfo flagsReadingInfo = new FlagsReadingInfo();
+        setCommonReadingInfo(reading, flagsReadingInfo);
+        flagsReadingInfo.value = reading.getFlags();
+        return flagsReadingInfo;
+    }
+
+    public RegisterInfo createRegisterInfo(Register register, DetailedValidationInfo registerValidationInfo){
+        if (register instanceof BillingRegister) {
+            return createBillingRegisterInfo((BillingRegister) register, registerValidationInfo);
+        } else if (register instanceof NumericalRegister) {
+            return createNumericalRegisterInfo((NumericalRegister) register, registerValidationInfo);
+        } else if (register instanceof TextRegister) {
+            return createTextRegisterInfo((TextRegister)register);
+        } else if (register instanceof FlagsRegister) {
+            return createFlagsRegisterInfo((FlagsRegister)register);
+        }
+
+        throw new IllegalArgumentException("Unsupported register type: " + register.getClass().getSimpleName());
+    }
+
+    private void addCommonRegisterInfo(Register register, RegisterInfo registerInfo) {
+        RegisterSpec registerSpec = register.getRegisterSpec();
+        registerInfo.id = registerSpec.getId();
+        registerInfo.registerType = registerSpec.getRegisterType().getId();
+        registerInfo.readingType = new ReadingTypeInfo(registerSpec.getRegisterType().getReadingType());
+        registerInfo.timeOfUse = registerSpec.getRegisterType().getTimeOfUse();
+        registerInfo.obisCode = registerSpec.getObisCode();
+        registerInfo.overruledObisCode = registerSpec.getDeviceObisCode();
+        registerInfo.obisCodeDescription = registerSpec.getObisCode().getDescription();
+        registerInfo.unitOfMeasure = registerSpec.getUnit();
+        registerInfo.isCumulative = registerSpec.getReadingType().isCumulative();
+        Optional<? extends Reading> lastReading = register.getLastReading();
+        lastReading.ifPresent(reading -> registerInfo.lastReading = createReadingInfo(reading, registerSpec, false));
+    }
+
+    public BillingRegisterInfo createBillingRegisterInfo(BillingRegister register, DetailedValidationInfo registerValidationInfo) {
+        BillingRegisterInfo billingRegisterInfo = new BillingRegisterInfo();
+        addCommonRegisterInfo(register, billingRegisterInfo);
+        billingRegisterInfo.detailedValidationInfo = registerValidationInfo;
+        return billingRegisterInfo;
+    }
+
+    public FlagsRegisterInfo createFlagsRegisterInfo(FlagsRegister flagsRegister){
+        FlagsRegisterInfo flagsRegisterInfo = new FlagsRegisterInfo();
+        addCommonRegisterInfo(flagsRegister, flagsRegisterInfo);
+        return flagsRegisterInfo;
+    }
+
+    public TextRegisterInfo createTextRegisterInfo(TextRegister textRegister){
+        TextRegisterInfo textRegisterInfo = new TextRegisterInfo();
+        addCommonRegisterInfo(textRegister, textRegisterInfo);
+        return textRegisterInfo;
+    }
+
+    public NumericalRegisterInfo createNumericalRegisterInfo(NumericalRegister numericalRegister, DetailedValidationInfo registerValidationInfo){
+        NumericalRegisterInfo numericalRegisterInfo = new NumericalRegisterInfo();
+        addCommonRegisterInfo(numericalRegister, numericalRegisterInfo);
+        NumericalRegisterSpec registerSpec = (NumericalRegisterSpec)numericalRegister.getRegisterSpec();
+        numericalRegisterInfo.numberOfDigits = registerSpec.getNumberOfDigits();
+        numericalRegisterInfo.numberOfFractionDigits = registerSpec.getNumberOfFractionDigits();
+        numericalRegisterInfo.overflow = registerSpec.getOverflowValue();
+        numericalRegisterInfo.detailedValidationInfo = registerValidationInfo;
+        return numericalRegisterInfo;
+    }
+}
