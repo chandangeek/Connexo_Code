@@ -50,6 +50,12 @@ Ext.define('Fwc.view.firmware.FirmwareOptionsEdit', {
                 },
                 items: [
                     {
+                        xtype: 'uni-form-error-message',
+                        itemId: 'form-errors',
+                        margin: '0 0 10 0',
+                        hidden: true
+                    },
+                    {
                         xtype: 'radiogroup',
                         fieldLabel: Uni.I18n.translate('deviceType.firmwaremanagementoptions.allowed', 'FWC', 'Firmware management allowed'),
                         itemId: 'allowedRadioGroup',
@@ -120,6 +126,11 @@ Ext.define('Fwc.view.firmware.FirmwareOptionsEdit', {
                                 afterSubTpl: '<span style="font-style:italic;color: grey;padding: 0 0 0 19px;">' + Uni.I18n.translate('general.upload.fw.ondate.comment', 'FWC', 'Firmware will be uploaded to the device. Firmware will be activated at date and time specified by user') + '</span>'
                             }
                         ]
+                    },
+                    {
+                        xtype: 'fieldcontainer',
+                        itemId: 'allowedOptionsError',
+                        fieldLabel: '&nbsp'
                     },
                     {
                         xtype: 'fieldcontainer',
