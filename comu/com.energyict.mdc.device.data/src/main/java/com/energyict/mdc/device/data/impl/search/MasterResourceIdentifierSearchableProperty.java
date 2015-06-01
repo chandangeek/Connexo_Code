@@ -8,12 +8,13 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
+import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.sql.SqlFragment;
 
 import java.time.Instant;
+import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Exposes the master resource identifier (mRID)
@@ -47,12 +48,12 @@ public class MasterResourceIdentifierSearchableProperty extends AbstractSearchab
     }
 
     @Override
-    public Optional<SearchableProperty> getParent() {
-        return Optional.empty();
+    public List<SearchableProperty> getConstraints() {
+        return Collections.emptyList();
     }
 
     @Override
-    public void refreshWithParents(List<Object> list) {
+    public void refreshWithConstrictions(List<SearchablePropertyConstriction> constrictions) {
         // Nothing to refresh
     }
 

@@ -9,6 +9,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
+import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.sql.SqlBuilder;
@@ -17,6 +18,7 @@ import com.elster.jupiter.util.streams.Predicates;
 
 import java.text.MessageFormat;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -64,12 +66,29 @@ public class StateNameSearchableProperty extends AbstractSearchableDevicePropert
     }
 
     @Override
-    public Optional<SearchableProperty> getParent() {
-        return Optional.of(this.parent);
+    public List<SearchableProperty> getConstraints() {
+        return Arrays.asList(this.parent);
     }
 
     @Override
-    public void refreshWithParents(List<Object> list) {
+    public void refreshWithConstrictions(List<SearchablePropertyConstriction> constrictions) {
+        // We have at most one constraint
+        if (constrictions.size() > 1) {
+            throw new IllegalArgumentException("Expecting at most 1 constriction, i.e. the constraint on the device type");
+        }
+        this.refreshWithConstrictions(constrictions.get(0));
+    }
+
+    private void refreshWithConstrictions(SearchablePropertyConstriction constriction) {
+        if (constriction.getConstrainingProperty().hasName(DeviceTypeSearchableProperty.PROPERTY_NAME)) {
+            this.refreshWithConstrictionValues(constriction.getConstrainingValues());
+        }
+        else {
+            throw new IllegalArgumentException("Unknown or unexpected constriction, was expecting the constraining property to be the device type");
+        }
+    }
+
+    private void refreshWithConstrictionValues(List<Object> list) {
         this.validateAllParentsAreDeviceTypes(list);
         Set<String> stateNames =
             list.stream()

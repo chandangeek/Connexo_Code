@@ -8,12 +8,13 @@ import com.energyict.mdc.dynamic.PropertySpecService;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
+import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.sql.SqlFragment;
 
 import java.time.Instant;
+import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Exposes the {@link }
@@ -23,6 +24,8 @@ import java.util.Optional;
  * @since 2015-05-26 (15:41)
  */
 public class DeviceTypeSearchableProperty extends AbstractSearchableDeviceProperty {
+
+    static final String PROPERTY_NAME = DeviceFields.DEVICETYPE.fieldName();
 
     private final DeviceSearchDomain domain;
     private final PropertySpecService mdcPropertySpecService;
@@ -41,18 +44,18 @@ public class DeviceTypeSearchableProperty extends AbstractSearchableDeviceProper
     @Override
     public PropertySpec getSpecification() {
         return this.mdcPropertySpecService.referencePropertySpec(
-                    DeviceFields.DEVICETYPE.fieldName(),
+                    PROPERTY_NAME,
                     false,
                     FactoryIds.DEVICE_TYPE);
     }
 
     @Override
-    public Optional<SearchableProperty> getParent() {
-        return Optional.empty();
+    public List<SearchableProperty> getConstraints() {
+        return Collections.emptyList();
     }
 
     @Override
-    public void refreshWithParents(List<Object> list) {
+    public void refreshWithConstrictions(List<SearchablePropertyConstriction> constrictions) {
         // Nothing to refresh
     }
 
