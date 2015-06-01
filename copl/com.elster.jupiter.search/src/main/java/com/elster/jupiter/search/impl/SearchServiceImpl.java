@@ -3,7 +3,7 @@ package com.elster.jupiter.search.impl;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.search.SearchBuilder;
 import com.elster.jupiter.search.SearchDomain;
-import com.elster.jupiter.search.SearchProvider;
+import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.util.conditions.Condition;
 import org.osgi.service.component.annotations.Component;
@@ -25,21 +25,21 @@ import java.util.concurrent.CopyOnWriteArrayList;
 @SuppressWarnings("unused")
 public class SearchServiceImpl implements SearchService {
 
-    private volatile List<SearchProvider> searchProviders = new CopyOnWriteArrayList<>();
+    private volatile List<SearchDomain> searchProviders = new CopyOnWriteArrayList<>();
 
     @Override
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
-    public void register(SearchProvider searchProvider) {
-        this.searchProviders.add(searchProvider);
+    public void register(SearchDomain searchDomain) {
+        this.searchProviders.add(searchDomain);
     }
 
     @Override
-    public void unregister(SearchProvider searchProvider) {
-        this.searchProviders.remove(searchProvider);
+    public void unregister(SearchDomain searchDomain) {
+        this.searchProviders.remove(searchDomain);
     }
 
     @Override
-    public List<SearchProvider> getProviders() {
+    public List<SearchDomain> getDomains() {
         return Collections.unmodifiableList(this.searchProviders);
     }
 

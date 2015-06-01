@@ -9,7 +9,7 @@ import java.util.List;
  * Provides services that relate to searching.
  * All searches are described with a meta-layer API.
  * The descriptive elements for this API are provided
- * by {@link SearchProvider}s that can register with
+ * by {@link SearchDomain}s that can register with
  * this service. In fact, the registration is done
  * automatically by the OSGi framework.
  *
@@ -21,29 +21,29 @@ public interface SearchService {
     public static String COMPONENT_NAME = "JSM";
 
     /**
-     * Registers the {@link SearchProvider} with this SearchService.
+     * Registers the {@link SearchDomain} with this SearchService.
      *
-     * @param searchProvider The SearchProvider
+     * @param searchDomain The SearchDomain
      */
-    public void register(SearchProvider searchProvider);
+    public void register(SearchDomain searchDomain);
 
     /**
-     * Unregisters the {@link SearchProvider} with this SearchService.
+     * Unregisters the {@link SearchDomain} with this SearchService.
      *
-     * @param searchProvider The SearchProvider
+     * @param searchDomain The SearchDomain
      */
-    public void unregister(SearchProvider searchProvider);
+    public void unregister(SearchDomain searchDomain);
 
     /**
-     * Gets all the registered {@link SearchProvider}s.
+     * Gets all the registered {@link SearchDomain}s.
      *
-     * @return The List of SearchProvider
+     * @return The List of SearchDomain
      */
-    public List<SearchProvider> getProviders();
+    public List<SearchDomain> getDomains();
 
     /**
      * Starts the building process of a search for instances of the specified domain class.
-     * Will throw an IllegalArgumentException if no registered {@link SearchProvider}
+     * Will throw an IllegalArgumentException if no registered {@link SearchDomain}
      * supports the specified domain class.
      * <p>
      * Example code:
@@ -66,22 +66,16 @@ public interface SearchService {
      *
      * @param domainClass The domain class
      * @return The SearchBuilder
-     * @see SearchProvider#supports(Class)
+     * @see SearchDomain#supports(Class)
      * @throws IllegalArgumentException
      */
     @SuppressWarnings("unchecked")
     public default <T> SearchBuilder<T> search(Class<T> domainClass) {
-        SearchProvider searchProvider = getProviders()
+        SearchDomain domain = getDomains()
                 .stream()
                 .filter(p -> p.supports(domainClass))
                 .findAny()
-                .orElseThrow(() -> new IllegalArgumentException("No registered provider for domain class " + domainClass.getName()));
-        SearchDomain domain = searchProvider
-                .getDomains()
-                .stream()
-                .filter(d -> d.supports(domainClass))
-                .findAny()
-                .orElseThrow(() -> new IllegalArgumentException("No registered provider for domain class " + domainClass.getName()));
+                .orElseThrow(() -> new IllegalArgumentException("No registered domain for class " + domainClass.getName()));
         return (SearchBuilder<T>) search(domain);
     }
 
@@ -96,17 +90,11 @@ public interface SearchService {
     @SuppressWarnings("unchecked")
     @Deprecated
     public default <T> Finder<T> search(Class<T> domainClass, Condition condition) {
-        SearchProvider searchProvider = getProviders()
+        SearchDomain domain = getDomains()
                 .stream()
                 .filter(p -> p.supports(domainClass))
                 .findAny()
-                .orElseThrow(() -> new IllegalArgumentException("No registered provider for domain class " + domainClass.getName()));
-        SearchDomain domain = searchProvider
-                .getDomains()
-                .stream()
-                .filter(d -> d.supports(domainClass))
-                .findAny()
-                .orElseThrow(() -> new IllegalArgumentException("No registered provider for domain class " + domainClass.getName()));
+                .orElseThrow(() -> new IllegalArgumentException("No registered domain for class " + domainClass.getName()));
         return (Finder<T>) search(domain, condition);
     }
 

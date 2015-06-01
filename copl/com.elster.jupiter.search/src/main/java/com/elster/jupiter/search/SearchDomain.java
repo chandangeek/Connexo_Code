@@ -42,8 +42,6 @@ public interface SearchDomain {
      */
     public boolean supports(Class domainClass);
 
-    public SearchProvider getProvider();
-
     /**
      * Gets the List of {@link SearchableProperty}
      * that can be used to specify criteria
