@@ -24,23 +24,29 @@ public class IsFileRequiredValidator implements ConstraintValidator<IsFileRequir
     @Override
     public boolean isValid(FirmwareVersionImpl firmwareVersion, ConstraintValidatorContext context) {
         if(FirmwareStatus.GHOST.equals(firmwareVersion.getOldFirmwareStatus())
-                && !FirmwareStatus.DEPRECATED.equals(firmwareVersion.getFirmwareStatus()) && firmwareVersion.getFirmwareFile() == null) {
+                && !FirmwareStatus.DEPRECATED.equals(firmwareVersion.getFirmwareStatus()) && !firmwareVersion.hasFirmwareFile()) {
             context.disableDefaultConstraintViolation();
-            context.buildConstraintViolationWithTemplate(context.getDefaultConstraintMessageTemplate()).addPropertyNode("firmwareFile").addConstraintViolation();
+            context.buildConstraintViolationWithTemplate(context.getDefaultConstraintMessageTemplate())
+                    .addPropertyNode("firmwareFile")
+                    .addConstraintViolation();
             return false;
         }
 
-        if(!FirmwareStatus.GHOST.equals(firmwareVersion.getFirmwareStatus()) && firmwareVersion.getFirmwareFile() == null) {
+        if(!FirmwareStatus.GHOST.equals(firmwareVersion.getFirmwareStatus()) && !firmwareVersion.hasFirmwareFile()) {
             if (firmwareVersion.getId() != 0) {
                 Optional<FirmwareVersion> versionOptional = firmwareService.getFirmwareVersionById(firmwareVersion.getId());
-                if (versionOptional.isPresent() && versionOptional.get().getFirmwareFile() == null) {
+                if (versionOptional.isPresent() && !((FirmwareVersionImpl)versionOptional.get()).hasFirmwareFile()) {
                     context.disableDefaultConstraintViolation();
-                    context.buildConstraintViolationWithTemplate(context.getDefaultConstraintMessageTemplate()).addPropertyNode("firmwareFile").addConstraintViolation();
+                    context.buildConstraintViolationWithTemplate(context.getDefaultConstraintMessageTemplate())
+                            .addPropertyNode("firmwareFile")
+                            .addConstraintViolation();
                     return false;
                 }
             } else {
                 context.disableDefaultConstraintViolation();
-                context.buildConstraintViolationWithTemplate(context.getDefaultConstraintMessageTemplate()).addPropertyNode("firmwareFile").addConstraintViolation();
+                context.buildConstraintViolationWithTemplate(context.getDefaultConstraintMessageTemplate())
+                        .addPropertyNode("firmwareFile")
+                        .addConstraintViolation();
                 return false;
             }
         }

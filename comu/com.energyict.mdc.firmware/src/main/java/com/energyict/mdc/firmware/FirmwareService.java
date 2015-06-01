@@ -34,7 +34,8 @@ public interface FirmwareService extends ReferencePropertySpecFinderProvider {
      */
     Set<ProtocolSupportedFirmwareOptions> getSupportedFirmwareOptionsFor(DeviceType deviceType);
     Set<ProtocolSupportedFirmwareOptions> getAllowedFirmwareManagementOptionsFor(DeviceType deviceType);
-    FirmwareManagementOptions getFirmwareManagementOptions(DeviceType deviceType);
+    FirmwareManagementOptions newFirmwareManagementOptions(DeviceType deviceType);
+    Optional<FirmwareManagementOptions> getFirmwareManagementOptions(DeviceType deviceType);
     Optional<FirmwareManagementOptions> findFirmwareManagementOptionsByDeviceType(DeviceType deviceType);
     List<DeviceType> getDeviceTypesWhichSupportFirmwareManagement();
 

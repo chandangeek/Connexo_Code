@@ -7,13 +7,17 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.orm.callback.PersistenceAware;
+import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.FirmwareStatus;
 import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.FirmwareVersion;
+import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.inject.Inject;
+import javax.validation.constraints.Max;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.Instant;
@@ -22,14 +26,14 @@ import java.time.Instant;
 @IsValidStatusTransfer(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.STATE_TRANSFER_NOT_ALLOWED + "}")
 @IsFileRequired(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
 @IsStatusRequired(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
-public class FirmwareVersionImpl implements FirmwareVersion {
+public class FirmwareVersionImpl implements FirmwareVersion, PersistenceAware {
 
     enum Fields {
         FIRMWAREVERSION("firmwareVersion"),
         DEVICETYPE("deviceType"),
         FIRMWARETYPE("firmwareType"),
         FIRMWARESTATUS("firmwareStatus"),
-        FIRMWAREFILE("firmwareFile");
+        FIRMWAREFILE("firmwareFileArray");
 
         private final String javaFieldName;
 
@@ -43,7 +47,7 @@ public class FirmwareVersionImpl implements FirmwareVersion {
     }
 
     private long id;
-    @NotNull(message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
+    @NotEmpty(message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     @Size(min = 1, max = Table.NAME_LENGTH, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_NAME_LENGTH + "}")
     private String firmwareVersion;
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
@@ -52,8 +56,11 @@ public class FirmwareVersionImpl implements FirmwareVersion {
     private FirmwareType firmwareType;
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private FirmwareStatus firmwareStatus;
-    @Size(max = FirmwareService.MAX_FIRMWARE_FILE_SIZE, message = "{" + MessageSeeds.Keys.MAX_FILE_SIZE_EXCEEDED + "}")
-    private byte[] firmwareFile;
+    private byte[] firmwareFileArray;
+
+    @Max(value = FirmwareService.MAX_FIRMWARE_FILE_SIZE, message = "{" + MessageSeeds.Keys.MAX_FILE_SIZE_EXCEEDED + "}")
+    private long firmwareFile; // set this name for validation reason
+
 
     @SuppressWarnings("unused")
     private Instant createTime;
@@ -93,7 +100,7 @@ public class FirmwareVersionImpl implements FirmwareVersion {
 
     private FirmwareVersion init(DeviceType deviceType, String firmwareVersion, FirmwareStatus firmwareStatus, FirmwareType firmwareType) {
         this.deviceType.set(deviceType);
-        this.firmwareVersion = firmwareVersion;
+        setFirmwareVersion(firmwareVersion);
         this.firmwareStatus = firmwareStatus;
         this.firmwareType = firmwareType;
         return this;
@@ -140,8 +147,10 @@ public class FirmwareVersionImpl implements FirmwareVersion {
     }
 
     @Override
-    public void setFirmwareVersion(String firmwareVersion) {
-        this.firmwareVersion = firmwareVersion != null ? firmwareVersion.trim() : firmwareVersion;
+    public final void setFirmwareVersion(String firmwareVersion) {
+        if (!Checks.is(firmwareVersion).emptyOrOnlyWhiteSpace()) {
+            this.firmwareVersion = firmwareVersion.trim();
+        }
     }
 
     @Override
@@ -167,12 +176,31 @@ public class FirmwareVersionImpl implements FirmwareVersion {
 
     @Override
     public byte[] getFirmwareFile() {
-        return firmwareFile;
+        return firmwareFileArray;
+    }
+
+    public boolean hasFirmwareFile(){
+        return this.firmwareFile > 0;
     }
 
     @Override
     public void setFirmwareFile(byte[] firmwareFile) {
-        this.firmwareFile = firmwareFile;
+        this.firmwareFileArray = firmwareFile;
+        if (this.firmwareFileArray != null) {
+            this.firmwareFile = firmwareFileArray.length;
+        }
+    }
+
+    @Override
+    public void setExpectedFirmwareSize(long fileSize) {
+        this.firmwareFile = fileSize;
+    }
+
+    @Override
+    public void postLoad() {
+        if (this.firmwareFileArray != null) {
+            this.firmwareFile = firmwareFileArray.length;
+        }
     }
 
     @Override
