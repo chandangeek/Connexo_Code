@@ -6,6 +6,9 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.imp.DeviceImportService;
+import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
+import com.energyict.mdc.device.lifecycle.ExecutableAction;
+import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.TopologyTimeline;
 import java.time.Instant;
@@ -35,12 +38,14 @@ public class DeviceInfoFactory {
     private final DeviceImportService deviceImportService;
     private final TopologyService topologyService;
     private final IssueService issueService;
+    private final DeviceLifeCycleService deviceLifeCycleService;
 
     @Inject
-    public DeviceInfoFactory(DeviceImportService deviceImportService, TopologyService topologyService, IssueService issueService) {
+    public DeviceInfoFactory(DeviceImportService deviceImportService, TopologyService topologyService, IssueService issueService, DeviceLifeCycleService deviceLifeCycleService) {
         this.deviceImportService = deviceImportService;
         this.topologyService = topologyService;
         this.issueService = issueService;
+        this.deviceLifeCycleService = deviceLifeCycleService;
     }
 
     public DeviceInfo asHypermedia(Device device, UriInfo uriInfo, List<String> fields) {
@@ -77,9 +82,15 @@ public class DeviceInfoFactory {
         map.put("batch", (deviceInfo, device, uriInfo) -> deviceImportService.findBatch(device.getId()).ifPresent(batch -> deviceInfo.batch = batch.getName()));
         map.put("gatewayType", (deviceInfo, device, uriInfo) -> deviceInfo.gatewayType=device.getConfigurationGatewayType());
         map.put("nbrOfDataCollectionIssues", (deviceInfo, device, uriInfo) -> deviceInfo.nbrOfDataCollectionIssues = issueService.countOpenDataCollectionIssues(device.getmRID()));
-        map.put("isDirectlyAddressed", (deviceInfo, device, uriInfo) -> deviceInfo.isDirectlyAddressed = device.getDeviceConfiguration().isDirectlyAddressable());
+        map.put("isDirectlyAddressable", (deviceInfo, device, uriInfo) -> deviceInfo.isDirectlyAddressable = device.getDeviceConfiguration().isDirectlyAddressable());
         map.put("isGateway", (deviceInfo, device, uriInfo) -> deviceInfo.isGateway = device.getDeviceConfiguration().canActAsGateway());
         map.put("version", (deviceInfo, device, uriInfo) -> deviceInfo.version = device.getVersion());
+        map.put("actions", (deviceInfo, device, uriInfo) -> deviceInfo.actions = deviceLifeCycleService.getExecutableActions(device).stream().
+                        map(ExecutableAction::getAction).
+                        filter(aa -> aa instanceof AuthorizedTransitionAction).
+                        flatMap(aa -> ((AuthorizedTransitionAction)aa).getActions().stream()).
+                        map(ma->ma.getClass().getName()).
+                        collect(toList()));
 
         map.put("physicalGateway", (deviceInfo, device, uriInfo) -> {
             Optional<Device> physicalGateway = topologyService.getPhysicalGateway(device);

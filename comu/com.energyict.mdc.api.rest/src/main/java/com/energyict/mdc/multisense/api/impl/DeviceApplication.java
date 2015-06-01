@@ -1,5 +1,6 @@
 package com.energyict.mdc.multisense.api.impl;
 
+import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.metering.MeteringService;
@@ -24,6 +25,7 @@ import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.imp.DeviceImportService;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
+import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.favorites.FavoritesService;
@@ -86,6 +88,8 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     private volatile DataCollectionKpiService dataCollectionKpiService;
     private volatile License license;
     private volatile FirmwareService firmwareService;
+    private volatile FiniteStateMachineService finiteStateMachineService;
+    private volatile DeviceLifeCycleService deviceLifeCycleService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -161,6 +165,11 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
         this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST);
+    }
+
+    @Reference
+    public void setFiniteStateMachineService(FiniteStateMachineService finiteStateMachineService) {
+        this.finiteStateMachineService = finiteStateMachineService;
     }
 
     @Override
@@ -253,6 +262,11 @@ public class DeviceApplication extends Application implements TranslationKeyProv
         this.firmwareService = firmwareService;
     }
 
+    @Reference
+    public void setDeviceLifeCycleService(DeviceLifeCycleService deviceLifeCycleService) {
+        this.deviceLifeCycleService = deviceLifeCycleService;
+    }
+
     class HK2Binder extends AbstractBinder {
 
         @Override
@@ -289,6 +303,8 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(DeviceInfoFactory.class).to(DeviceInfoFactory.class);
             bind(DeviceTypeInfoFactory.class).to(DeviceTypeInfoFactory.class);
             bind(DeviceConfigurationInfoFactory.class).to(DeviceConfigurationInfoFactory.class);
+            bind(finiteStateMachineService).to(FiniteStateMachineService.class);
+            bind(deviceLifeCycleService).to(DeviceLifeCycleService.class);
         }
     }
 

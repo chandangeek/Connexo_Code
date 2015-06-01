@@ -1,5 +1,7 @@
 package com.energyict.mdc.multisense.api.impl;
 
+import com.elster.jupiter.fsm.CustomStateTransitionEventType;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.common.rest.ExceptionFactory;
@@ -9,6 +11,8 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.imp.DeviceImportService;
 import com.energyict.mdc.device.data.security.Privileges;
+import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
+import com.energyict.mdc.device.lifecycle.ExecutableAction;
 import com.energyict.mdc.device.topology.TopologyService;
 import java.net.URI;
 import java.util.Collections;
@@ -47,16 +51,20 @@ public class DeviceResource {
     private final DeviceImportService deviceImportService;
     private final ExceptionFactory exceptionFactory;
     private final TopologyService topologyService;
+    private final FiniteStateMachineService finiteStateMachineService;
+    private final DeviceLifeCycleService deviceLifeCycleService;
 
 
     @Inject
-    public DeviceResource(DeviceService deviceService, DeviceInfoFactory deviceInfoFactory, DeviceConfigurationService deviceConfigurationService, DeviceImportService deviceImportService, ExceptionFactory exceptionFactory, TopologyService topologyService) {
+    public DeviceResource(DeviceService deviceService, DeviceInfoFactory deviceInfoFactory, DeviceConfigurationService deviceConfigurationService, DeviceImportService deviceImportService, ExceptionFactory exceptionFactory, TopologyService topologyService, FiniteStateMachineService finiteStateMachineService, DeviceLifeCycleService deviceLifeCycleService) {
         this.deviceService = deviceService;
         this.deviceInfoFactory = deviceInfoFactory;
         this.deviceConfigurationService = deviceConfigurationService;
         this.deviceImportService = deviceImportService;
         this.exceptionFactory = exceptionFactory;
         this.topologyService = topologyService;
+        this.finiteStateMachineService = finiteStateMachineService;
+        this.deviceLifeCycleService = deviceLifeCycleService;
     }
 
     @GET
@@ -109,7 +117,7 @@ public class DeviceResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_COMMUNICATION)
     public Response updateDevice(@PathParam("mrid") String mrid, DeviceInfo info, @Context SecurityContext securityContext, @Context UriInfo uriInfo) {
-        Device device = deviceService.findAndLockDeviceBymRIDAndVersion(mrid, info.version).orElseThrow(() -> new WebApplicationException(Response.Status.CONFLICT));
+        Device device = deviceService.findAndLockDeviceBymRIDAndVersion(mrid, info.version==null?0:info.version).orElseThrow(() -> new WebApplicationException(Response.Status.CONFLICT));
         if (info.masterDevice!=null && info.masterDevice.mRID != null) {
             if (device.getDeviceConfiguration().isDirectlyAddressable()) {
                 throw exceptionFactory.newException(MessageSeeds.IMPOSSIBLE_TO_SET_MASTER_DEVICE, device.getmRID());
@@ -127,9 +135,18 @@ public class DeviceResource {
         device.setName(info.name);
         device.setSerialNumber(info.serialNumber);
         device.setYearOfCertification(info.yearOfCertification);
+        if (info.lifecycleState!=null) {
+            triggerStateTransition(device, info.lifecycleState);
+        }
+
         device.save();
-        DeviceInfo deviceInfo = deviceService.findByUniqueMrid(mrid).map(d -> deviceInfoFactory.asHypermedia(d, uriInfo, Collections.emptyList())).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND.getStatusCode()));
-        return Response.ok(deviceInfo).build();
+        return Response.ok(deviceInfoFactory.asHypermedia(device, uriInfo, Collections.emptyList())).build();
+    }
+
+    private void triggerStateTransition(Device device, String lifecycleState) {
+        CustomStateTransitionEventType eventType = this.finiteStateMachineService.findCustomStateTransitionEventType(lifecycleState).orElseThrow(() -> new IllegalArgumentException("Custom state transition event type " + lifecycleState + " does not exist"));
+        ExecutableAction executableAction = this.deviceLifeCycleService.getExecutableActions(device, eventType).orElseThrow(()->new IllegalArgumentException("Current state of device with mRID " + device.getmRID() + " does not support the event type"));
+        executableAction.execute(Collections.emptyList());
     }
 
     @DELETE

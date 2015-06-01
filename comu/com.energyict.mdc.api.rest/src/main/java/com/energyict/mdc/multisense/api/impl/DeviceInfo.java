@@ -9,7 +9,6 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 @XmlRootElement
 public class DeviceInfo extends LinkInfo {
     public String mRID;
-    //    public DeviceEstimationStatusInfo estimationStatus;
     public Long version;
     public String serialNumber;
     public String name;
@@ -22,15 +21,13 @@ public class DeviceInfo extends LinkInfo {
     public Integer nbrOfDataCollectionIssues;
     @XmlJavaTypeAdapter(GatewayTypeAdapter.class)
     public GatewayType gatewayType;
-    public Boolean isDirectlyAddressed;
+    public Boolean isDirectlyAddressable;
     public Boolean isGateway;
-    public String serviceCategory;
-    public String usagePoint;
-    public List<LinkInfo> registers;
+    public String lifecycleState;
     public List<LinkInfo> logBooks;
     public List<LinkInfo> loadProfiles;
     public List<LinkInfo> slaveDevices;
-
+    public List<String> actions;
 
 
     public DeviceInfo() {
