@@ -303,14 +303,16 @@ public class DeviceFirmwareVersionInfoFactory {
         }
 
         private void addUpgradeFinishedDate(DeviceMessage<Device> message, DeviceFirmwareVersionUtils helper, Map<String, Object> properties) {
-            properties.put(UPGRADE_FINISHED_DATE, message.getReleaseDate().toEpochMilli());
+            properties.put(UPGRADE_FINISHED_DATE, message.getModTime().toEpochMilli());
             Optional<Instant> activationDate = helper.getActivationDateFromMessage(message);
             if (activationDate.isPresent()) {
-                properties.put(UPGRADE_FINISHED_DATE, activationDate.get().toEpochMilli());
+                if (activationDate.get().isAfter(message.getModTime())) {
+                    properties.put(UPGRADE_FINISHED_DATE, activationDate.get().toEpochMilli());
+                }
             }
             Optional<DeviceMessage<Device>> activationMessage = helper.getActivationMessageForUploadMessage(message);
             if (activationMessage.isPresent()) {
-                properties.put(UPGRADE_FINISHED_DATE, activationMessage.get().getReleaseDate().toEpochMilli());
+                properties.put(UPGRADE_FINISHED_DATE, activationMessage.get().getModTime().toEpochMilli());
             }
         }
     }

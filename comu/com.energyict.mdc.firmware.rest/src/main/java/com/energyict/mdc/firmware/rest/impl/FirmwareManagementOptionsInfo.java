@@ -8,7 +8,7 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class FirmwareManagementOptionsInfo {
     public Long id;
-    public Boolean isAllowed = false;
+    public boolean isAllowed = false;
     public List<ManagementOptionInfo> supportedOptions;
     public List<ManagementOptionInfo> allowedOptions;
 

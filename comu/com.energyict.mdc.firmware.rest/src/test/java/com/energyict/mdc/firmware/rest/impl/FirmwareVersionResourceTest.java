@@ -101,7 +101,7 @@ public class FirmwareVersionResourceTest extends BaseFirmwareTest {
         firmwareVersionInfo.fileSize = 1;
         response = target("devicetypes/1/firmwares/validate").request().post(Entity.json(firmwareVersionInfo));
 
-        verify(firmwareVersion).setFirmwareFile(new byte[firmwareVersionInfo.fileSize]);
+        verify(firmwareVersion).setExpectedFirmwareSize(firmwareVersionInfo.fileSize);
         assertThat(response.getEntity()).isNotNull();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
