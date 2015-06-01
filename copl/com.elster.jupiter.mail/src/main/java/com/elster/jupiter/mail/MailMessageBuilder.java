@@ -13,4 +13,6 @@ public interface MailMessageBuilder {
     MailMessageBuilder withBody(String body);
 
     MailMessageBuilder withAttachment(Path path);
+
+    MailMessageBuilder withReplyTo(MailAddress replyTo);
 }

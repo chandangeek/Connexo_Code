@@ -1,9 +1,9 @@
 package com.elster.jupiter.mail;
 
-import javax.mail.internet.InternetAddress;
+import javax.mail.Address;
 
 public interface MailAddress {
 
-    InternetAddress asInternetAddress();
+    Address asAddress();
 
 }
