@@ -1,16 +1,15 @@
 package com.elster.jupiter.issue.rest.response.cep;
 
-import java.util.Map;
+import com.elster.jupiter.issue.share.cep.CreationRuleOrActionValidationException;
+import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
+import java.util.Map;
 
-import com.elster.jupiter.issue.share.cep.CreationRuleOrActionValidationException;
-import com.elster.jupiter.rest.util.ConstraintViolationInfo;
-
-public class CreationRuleOrActionValidationExceptionMapper implements ExceptionMapper<CreationRuleOrActionValidationException> {
+public final class CreationRuleOrActionValidationExceptionMapper implements ExceptionMapper<CreationRuleOrActionValidationException> {
     private final Provider<ConstraintViolationInfo> infoProvider;
 
     @Inject
