@@ -5,7 +5,7 @@ import com.elster.jupiter.issue.rest.request.AssignIssueRequest;
 import com.elster.jupiter.issue.rest.request.CloseIssueRequest;
 import com.elster.jupiter.issue.rest.request.EntityReference;
 import com.elster.jupiter.issue.rest.request.PerformActionRequest;
-import com.elster.jupiter.issue.share.entity.IssueAction;
+import com.elster.jupiter.issue.share.entity.IssueActionType;
 import com.elster.jupiter.issue.share.entity.IssueAssignee;
 import com.elster.jupiter.issue.share.entity.IssueComment;
 import com.elster.jupiter.issue.share.entity.IssueGroup;
@@ -22,11 +22,13 @@ import com.elster.jupiter.util.conditions.Order;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.issue.datacollection.entity.IssueDataCollection;
 import com.energyict.mdc.issue.datacollection.entity.OpenIssueDataCollection;
+
 import org.junit.Test;
 import org.mockito.Matchers;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -182,11 +184,11 @@ public class IssueResourceTest extends IssueDataCollectionApplicationJerseyTest 
         Optional<IssueDataCollection> issue = Optional.of(getDefaultIssue());
         when(issueDataCollectionService.findIssue(1)).thenReturn(issue);
 
-        Optional<IssueAction> mockActionType = Optional.of(getDefaultIssueActionType());
+        Optional<IssueActionType> mockActionType = Optional.of(getDefaultIssueActionType());
         when(issueActionService.findActionType(1)).thenReturn(mockActionType);
 
         PerformActionRequest request = new PerformActionRequest();
-        request.setId(1);
+        request.id = 1;
 
         Response response = target("issue/1/actions/1").request().put(Entity.json(request));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -207,7 +209,7 @@ public class IssueResourceTest extends IssueDataCollectionApplicationJerseyTest 
         when(issueActionService.findActionType(1)).thenReturn(Optional.empty());
 
         PerformActionRequest request = new PerformActionRequest();
-        request.setId(1);
+        request.id = 1;
 
         Response response = target("issue/1/action").request().put(Entity.json(request));
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());

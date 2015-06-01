@@ -2,9 +2,9 @@ package com.energyict.mdc.issue.issue.datacollection.rest;
 
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
+import com.elster.jupiter.issue.share.IssueAction;
 import com.elster.jupiter.issue.share.entity.AssignmentRule;
 import com.elster.jupiter.issue.share.entity.CreationRule;
-import com.elster.jupiter.issue.share.entity.CreationRuleAction;
 import com.elster.jupiter.issue.share.entity.DueInType;
 import com.elster.jupiter.issue.share.entity.IssueActionType;
 import com.elster.jupiter.issue.share.entity.IssueAssignee;
@@ -20,6 +20,7 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
@@ -36,7 +37,7 @@ import javax.ws.rs.core.Application;
 
 import java.time.Instant;
 import java.util.Collections;
-import java.util.Map;
+import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.Mockito.doReturn;
@@ -160,15 +161,12 @@ public class IssueDataCollectionApplicationJerseyTest extends FelixRestApplicati
         return mockAssignmentRule(1, "Assignment Rule", "Description", 1, assignee);
     }
 
-    protected CreationRuleTemplate mockCreationRuleTemplate(String uuid, String name, String description, IssueType issueType, Map<String, ParameterDefinition> parameters) {
+    protected CreationRuleTemplate mockCreationRuleTemplate(String uuid, String name, String description, IssueType issueType, List<PropertySpec> propertySpecs) {
         CreationRuleTemplate template = mock(CreationRuleTemplate.class);
         when(template.getName()).thenReturn(name);
         when(template.getDescription()).thenReturn(description);
-        if (issueType != null) {
-            String itUuid = issueType.getUUID();
-            when(template.getIssueType()).thenReturn(itUuid);
-        }
-        when(template.getParameterDefinitions()).thenReturn(parameters);
+        when(template.getIssueType()).thenReturn(issueType);
+        when(template.getPropertySpecs()).thenReturn(propertySpecs);
         return template;
     }
 
@@ -190,8 +188,8 @@ public class IssueDataCollectionApplicationJerseyTest extends FelixRestApplicati
 
     protected IssueAction mockIssueAction(String name) {
         IssueAction action = mock(IssueAction.class);
-        when(action.getLocalizedName()).thenReturn(name);
-        when(action.getParameterDefinitions()).thenReturn(Collections.<String, ParameterDefinition>emptyMap());
+        when(action.getDisplayName()).thenReturn(name);
+        when(action.getPropertySpecs()).thenReturn(Collections.emptyList());
         return action;
     }
 
@@ -199,8 +197,8 @@ public class IssueDataCollectionApplicationJerseyTest extends FelixRestApplicati
         return mockIssueAction("Send To Inspect");
     }
 
-    protected IssueAction mockIssueActionType(long id, String name, IssueType issueType) {
-        IssueAction type = mock(IssueAction.class);
+    protected IssueActionType mockIssueActionType(long id, String name, IssueType issueType) {
+        IssueActionType type = mock(IssueActionType.class);
         IssueAction action = mockIssueAction(name);
         when(type.getId()).thenReturn(id);
         when(type.createIssueAction()).thenReturn(Optional.of(action));
@@ -208,7 +206,7 @@ public class IssueDataCollectionApplicationJerseyTest extends FelixRestApplicati
         return type;
     }
 
-    protected IssueAction getDefaultIssueActionType() {
+    protected IssueActionType getDefaultIssueActionType() {
         IssueType issueType = getDefaultIssueType();
         return mockIssueActionType(1, "send", issueType);
     }
@@ -228,8 +226,8 @@ public class IssueDataCollectionApplicationJerseyTest extends FelixRestApplicati
         when(rule.getReason()).thenReturn(reason);
         when(rule.getDueInType()).thenReturn(DueInType.DAY);
         when(rule.getDueInValue()).thenReturn(5L);
-        when(rule.getActions()).thenReturn(Collections.<CreationRuleAction>emptyList());
-        when(rule.getParameters()).thenReturn(null);
+        when(rule.getActions()).thenReturn(Collections.emptyList());
+        when(rule.getPropertySpecs()).thenReturn(Collections.emptyList());
         when(rule.getTemplate()).thenReturn(template);
         when(rule.getModTime()).thenReturn(now);
         when(rule.getCreateTime()).thenReturn(now);
