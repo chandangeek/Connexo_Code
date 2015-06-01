@@ -6,9 +6,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -16,6 +14,7 @@ import org.junit.Test;
 import org.mockito.Matchers;
 import org.osgi.service.event.EventConstants;
 
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.issue.impl.records.OpenIssueImpl;
 import com.elster.jupiter.issue.share.IssueEvent;
 import com.elster.jupiter.issue.share.entity.CreationRule;
@@ -24,7 +23,6 @@ import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.transaction.TransactionContext;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.topology.TopologyService;
@@ -39,118 +37,99 @@ import com.google.inject.Injector;
 public class BasicDataCollectionRuleTemplateTest extends BaseTest {
 
     @Test
+    @Transactional
     public void testCanCreateIssue() {
-        try (TransactionContext context = getContext()) {
-            CreationRule rule = getCreationRule("testCanCreateIssue", ModuleConstants.REASON_CONNECTION_FAILED);
-            Meter meter = createMeter("1", "mrid");
-            Issue baseIssue = getBaseIssue(rule, meter);
+        CreationRule rule = getCreationRule("testCanCreateIssue", ModuleConstants.REASON_CONNECTION_FAILED);
+        Meter meter = createMeter("1", "mrid");
+        Issue baseIssue = getBaseIssue(rule, meter);
 
-            BasicDatacollectionRuleTemplate template = getInjector().getInstance(BasicDatacollectionRuleTemplate.class);
-            UnknownSlaveDeviceEvent event = getUnknownDeviceEvent(1L);
+        BasicDatacollectionRuleTemplate template = getInjector().getInstance(BasicDatacollectionRuleTemplate.class);
+        UnknownSlaveDeviceEvent event = getUnknownDeviceEvent(1L);
 
-            assertThat(template.createIssue(baseIssue, event).isPresent()).isTrue();
-        }
+        assertThat(template.createIssue(baseIssue, event).isPresent()).isTrue();
     }
 
     @Test
+    @Transactional
     public void testCanCreateIssueOnAnotherDevice() {
-        try (TransactionContext context = getContext()) {
-            CreationRule rule = getCreationRule("testCanCreateIssueOnAnotherDevice", ModuleConstants.REASON_CONNECTION_FAILED);
-            Meter meter = createMeter("1", "mrid");
-            Issue baseIssue = getBaseIssue(rule, meter);
-            baseIssue.save();
-            OpenIssueDataCollectionImpl idcIssue = getDataModel().getInstance(OpenIssueDataCollectionImpl.class);
-            idcIssue.init(baseIssue);
-            idcIssue.setDeviceMRID("001234");
-            idcIssue.save();
+        CreationRule rule = getCreationRule("testCanCreateIssueOnAnotherDevice", ModuleConstants.REASON_CONNECTION_FAILED);
+        Meter meter = createMeter("1", "mrid");
+        Issue baseIssue = getBaseIssue(rule, meter);
+        baseIssue.save();
+        OpenIssueDataCollectionImpl idcIssue = getDataModel().getInstance(OpenIssueDataCollectionImpl.class);
+        idcIssue.init(baseIssue);
+        idcIssue.setDeviceMRID("001234");
+        idcIssue.save();
 
-            meter = createMeter("2", "mrid2");
-            baseIssue = getBaseIssue(rule, meter);
+        meter = createMeter("2", "mrid2");
+        baseIssue = getBaseIssue(rule, meter);
 
-            BasicDatacollectionRuleTemplate template = getInjector().getInstance(BasicDatacollectionRuleTemplate.class);
-            UnknownSlaveDeviceEvent event = getUnknownDeviceEvent(2L);
+        BasicDatacollectionRuleTemplate template = getInjector().getInstance(BasicDatacollectionRuleTemplate.class);
+        UnknownSlaveDeviceEvent event = getUnknownDeviceEvent(2L);
 
-            assertThat(template.createIssue(baseIssue, event).isPresent()).isTrue();
-        }
+        assertThat(template.createIssue(baseIssue, event).isPresent()).isTrue();
     }
 
     @Test
+    @Transactional
     public void testCanNotCreateIssue() {
-        try (TransactionContext context = getContext()) {
-            CreationRule rule = getCreationRule("testCanNotCreateIssue", ModuleConstants.REASON_UNKNOWN_INBOUND_DEVICE);
-            Meter meter = createMeter("1", "mrid");
-            Issue baseIssue = getBaseIssue(rule, meter);
-            baseIssue.save();
+        CreationRule rule = getCreationRule("testCanNotCreateIssue", ModuleConstants.REASON_UNKNOWN_INBOUND_DEVICE);
+        Meter meter = createMeter("1", "mrid");
+        Issue baseIssue = getBaseIssue(rule, meter);
+        baseIssue.save();
 
-            OpenIssueDataCollectionImpl idcIssue = getDataModel().getInstance(OpenIssueDataCollectionImpl.class);
-            idcIssue.init(baseIssue);
-            idcIssue.setDeviceMRID("1");
-            idcIssue.save();
-            baseIssue = getBaseIssue(rule, meter);
-            BasicDatacollectionRuleTemplate template = getInjector().getInstance(BasicDatacollectionRuleTemplate.class);
-            UnknownSlaveDeviceEvent event = getUnknownDeviceEvent(1L);
-            assertThat(template.createIssue(baseIssue, event).isPresent()).isFalse();
-        }
+        OpenIssueDataCollectionImpl idcIssue = getDataModel().getInstance(OpenIssueDataCollectionImpl.class);
+        idcIssue.init(baseIssue);
+        idcIssue.setDeviceMRID("1");
+        idcIssue.save();
+        baseIssue = getBaseIssue(rule, meter);
+        BasicDatacollectionRuleTemplate template = getInjector().getInstance(BasicDatacollectionRuleTemplate.class);
+        UnknownSlaveDeviceEvent event = getUnknownDeviceEvent(1L);
+        assertThat(template.createIssue(baseIssue, event).isPresent()).isFalse();
     }
 
-
     @Test
+    @Transactional
     public void testInProgressToOpenTransfer() {
-        try (TransactionContext context = getContext()) {
-            CreationRule rule = getCreationRule("testInProgressToOpenTransfer", ModuleConstants.REASON_UNKNOWN_INBOUND_DEVICE);
-            Meter meter = createMeter("1", "mrid");
-            Issue baseIssue = getBaseIssue(rule, meter);
-            baseIssue.save();
+        CreationRule rule = getCreationRule("testInProgressToOpenTransfer", ModuleConstants.REASON_UNKNOWN_INBOUND_DEVICE);
+        Meter meter = createMeter("1", "mrid");
+        Issue baseIssue = getBaseIssue(rule, meter);
+        baseIssue.save();
 
-            OpenIssueDataCollectionImpl idcIssue = getDataModel().getInstance(OpenIssueDataCollectionImpl.class);
-            idcIssue.init(baseIssue);
-            idcIssue.setDeviceMRID("1");
-            idcIssue.setStatus(getIssueService().findStatus(IssueStatus.IN_PROGRESS).get());
-            idcIssue.save();
-            baseIssue = getBaseIssue(rule, meter);
-            BasicDatacollectionRuleTemplate template = getInjector().getInstance(BasicDatacollectionRuleTemplate.class);
-            UnknownSlaveDeviceEvent event = getUnknownDeviceEvent(1L);
-            assertThat(template.createIssue(baseIssue, event).isPresent()).isFalse();
-            Optional<OpenIssueDataCollection> openIssue = getIssueDataCollectionService().findOpenIssue(idcIssue.getId());
-            assertThat(openIssue.isPresent()).isTrue();
-            assertThat(openIssue.get().getStatus().getKey()).isEqualTo(IssueStatus.OPEN);
-        }
+        OpenIssueDataCollectionImpl idcIssue = getDataModel().getInstance(OpenIssueDataCollectionImpl.class);
+        idcIssue.init(baseIssue);
+        idcIssue.setDeviceMRID("1");
+        idcIssue.setStatus(getIssueService().findStatus(IssueStatus.IN_PROGRESS).get());
+        idcIssue.save();
+        baseIssue = getBaseIssue(rule, meter);
+        BasicDatacollectionRuleTemplate template = getInjector().getInstance(BasicDatacollectionRuleTemplate.class);
+        UnknownSlaveDeviceEvent event = getUnknownDeviceEvent(1L);
+        assertThat(template.createIssue(baseIssue, event).isPresent()).isFalse();
+        Optional<OpenIssueDataCollection> openIssue = getIssueDataCollectionService().findOpenIssue(idcIssue.getId());
+        assertThat(openIssue.isPresent()).isTrue();
+        assertThat(openIssue.get().getStatus().getKey()).isEqualTo(IssueStatus.OPEN);
     }
 
     @Test
+    @Transactional
     public void testResolveIssue() {
-        try (TransactionContext context = getContext()) {
-            // Create base issue
-            CreationRule rule = getCreationRule("testResolveIssue", ModuleConstants.REASON_UNKNOWN_INBOUND_DEVICE);
-            Meter meter = createMeter("1", "mrid");
-            Issue baseIssue = getBaseIssue(rule, meter);
-            baseIssue.save();
-            // Create data-collection issue
-            OpenIssueDataCollectionImpl idcIssue = getDataModel().getInstance(OpenIssueDataCollectionImpl.class);
-            idcIssue.init(baseIssue);
-            idcIssue.setDeviceMRID("1");
-            idcIssue.save();
-            // Mock rule parameters
-            List<CreationRuleParameter> parameters = new ArrayList<>();
-            CreationRuleParameterImpl ruleParameter = new CreationRuleParameterImpl(getIssueDataModel());
-            ruleParameter.setKey(EventTypeParameter.EVENT_TYPE_PARAMETER_KEY);
-            ruleParameter.setValue(DataCollectionEventDescription.UNKNOWN_INBOUND_DEVICE.name());
-            parameters.add(ruleParameter);
-            ruleParameter = new CreationRuleParameterImpl(getIssueDataModel());
-            ruleParameter.setKey(AutoResolutionParameter.AUTO_RESOLUTION_PARAMETER_KEY);
-            ruleParameter.setValue("true");
-            parameters.add(ruleParameter);
-            //Mock rule
-            rule = mock(CreationRule.class);
-            when(rule.getParameters()).thenReturn(parameters);
-            // Mock event
-            IssueEvent event = mock(IssueEvent.class);
-            Optional<Issue> issueRef = Optional.of(idcIssue);
-            doReturn(issueRef).when(event).findExistingIssue();
-            // Test template
-            BasicDatacollectionRuleTemplate template = getInjector().getInstance(BasicDatacollectionRuleTemplate.class);
-            assertThat(template.resolveIssue(rule, event).isPresent()).isTrue();
-        }
+        // Create base issue
+        CreationRule rule = getCreationRule("testResolveIssue", ModuleConstants.REASON_UNKNOWN_INBOUND_DEVICE);
+        Meter meter = createMeter("1", "mrid");
+        Issue baseIssue = getBaseIssue(rule, meter);
+        baseIssue.save();
+        // Create data-collection issue
+        OpenIssueDataCollectionImpl idcIssue = getDataModel().getInstance(OpenIssueDataCollectionImpl.class);
+        idcIssue.init(baseIssue);
+        idcIssue.setDeviceMRID("1");
+        idcIssue.save();
+        // Mock event
+        IssueEvent event = mock(IssueEvent.class);
+        Optional<Issue> issueRef = Optional.of(idcIssue);
+        doReturn(issueRef).when(event).findExistingIssue();
+        // Test template
+        BasicDatacollectionRuleTemplate template = getInjector().getInstance(BasicDatacollectionRuleTemplate.class);
+        assertThat(template.resolveIssue(event).isPresent()).isTrue();
     }
 
     private Meter createMeter(String amrId, String mrid) {
@@ -177,7 +156,7 @@ public class BasicDataCollectionRuleTemplateTest extends BaseTest {
         when(device.getId()).thenReturn(amrId);
         when(mockDeviceDataService.findDeviceById(Matchers.anyLong())).thenReturn(Optional.of(device));
         UnknownSlaveDeviceEvent event = new UnknownSlaveDeviceEvent(getIssueDataCollectionService(), getMeteringService(), mockDeviceDataService, mockTopologyService, getCommunicationTaskService(), getThesaurus(), mock(Injector.class));
-        Map messageMap = new HashMap<>();
+        Map<String, Object> messageMap = new HashMap<>();
         messageMap.put(EventConstants.EVENT_TOPIC, "com/energyict/mdc/inboundcommunication/UNKNOWNDEVICE");
         messageMap.put(ModuleConstants.DEVICE_IDENTIFIER, amrId.toString());
         messageMap.put(EventConstants.TIMESTAMP, Instant.now().toEpochMilli());

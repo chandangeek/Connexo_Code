@@ -51,10 +51,6 @@
             <artifactId>appserver</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>issue</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.pluggable</artifactId>
         </dependency>
@@ -106,7 +102,6 @@
         <dependency>
             <groupId>com.sun.xml.bind</groupId>
             <artifactId>jaxb-xjc</artifactId>
-            <version>2.1.6</version>
             <scope>test</scope>
         </dependency>
         <dependency>
