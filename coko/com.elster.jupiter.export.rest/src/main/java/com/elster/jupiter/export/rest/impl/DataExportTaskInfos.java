@@ -18,20 +18,20 @@ public class DataExportTaskInfos {
 	public DataExportTaskInfos() {
     }
 
-    public DataExportTaskInfos(Iterable<? extends ReadingTypeDataExportTask> sets, Thesaurus thesaurus, TimeService timeService) {
-	    addAll(sets, thesaurus, timeService);
+    public DataExportTaskInfos(Iterable<? extends ReadingTypeDataExportTask> sets, Thesaurus thesaurus, TimeService timeService, PropertyUtils propertyUtils) {
+	    addAll(sets, thesaurus, timeService, propertyUtils);
 	}
 
-    public DataExportTaskInfo add(ReadingTypeDataExportTask ruleSet, Thesaurus thesaurus, TimeService timService) {
-        DataExportTaskInfo result = new DataExportTaskInfo(ruleSet, thesaurus, timService);
+    private DataExportTaskInfo add(ReadingTypeDataExportTask ruleSet, Thesaurus thesaurus, TimeService timService, PropertyUtils propertyUtils) {
+        DataExportTaskInfo result = new DataExportTaskInfo(ruleSet, thesaurus, timService, propertyUtils);
         dataExportTasks.add(result);
 	    total++;
 	    return result;
 	}
 
-    public void addAll(Iterable<? extends ReadingTypeDataExportTask> sets, Thesaurus thesaurus, TimeService timeService) {
+    private void addAll(Iterable<? extends ReadingTypeDataExportTask> sets, Thesaurus thesaurus, TimeService timeService, PropertyUtils propertyUtils) {
 	    for (ReadingTypeDataExportTask each : sets) {
-	        add(each, thesaurus, timeService);
+	        add(each, thesaurus, timeService, propertyUtils);
 	    }
 	}
 }

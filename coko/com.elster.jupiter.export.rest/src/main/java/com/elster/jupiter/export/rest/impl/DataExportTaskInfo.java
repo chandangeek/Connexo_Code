@@ -44,7 +44,7 @@ public class DataExportTaskInfo {
     public Long lastRun;
 
 
-    public DataExportTaskInfo(ReadingTypeDataExportTask dataExportTask, Thesaurus thesaurus, TimeService timeService) {
+    public DataExportTaskInfo(ReadingTypeDataExportTask dataExportTask, Thesaurus thesaurus, TimeService timeService, PropertyUtils propertyUtils) {
         doPopulate(dataExportTask, thesaurus, timeService);
         for (ReadingType readingType : dataExportTask.getReadingTypes()) {
             readingTypes.add(new ReadingTypeInfo(readingType));
@@ -59,8 +59,8 @@ public class DataExportTaskInfo {
                 schedule = PeriodicalExpressionInfo.from((PeriodicalScheduleExpression) scheduleExpression);
             }
         }
-        properties = new PropertyUtils().convertPropertySpecsToPropertyInfos(dataExportTask.getPropertySpecs(), dataExportTask.getProperties());
-        lastExportOccurence = dataExportTask.getLastOccurrence().map(oc -> new DataExportTaskHistoryInfo(oc, thesaurus, timeService)).orElse(null);
+        properties = propertyUtils.convertPropertySpecsToPropertyInfos(dataExportTask.getPropertySpecs(), dataExportTask.getProperties());
+        lastExportOccurence = dataExportTask.getLastOccurrence().map(oc -> new DataExportTaskHistoryInfo(oc, thesaurus, timeService, propertyUtils)).orElse(null);
 
     }
 

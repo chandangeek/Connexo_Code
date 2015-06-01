@@ -64,15 +64,17 @@ public class DataExportTaskResource {
     private final MeteringGroupsService meteringGroupsService;
     private final Thesaurus thesaurus;
     private final TransactionService transactionService;
+    private final PropertyUtils propertyUtils;
 
     @Inject
-    public DataExportTaskResource(RestQueryService queryService, DataExportService dataExportService, TimeService timeService, MeteringGroupsService meteringGroupsService, Thesaurus thesaurus, TransactionService transactionService) {
+    public DataExportTaskResource(RestQueryService queryService, DataExportService dataExportService, TimeService timeService, MeteringGroupsService meteringGroupsService, Thesaurus thesaurus, TransactionService transactionService, PropertyUtils propertyUtils) {
         this.queryService = queryService;
         this.dataExportService = dataExportService;
         this.timeService = timeService;
         this.meteringGroupsService = meteringGroupsService;
         this.thesaurus = thesaurus;
         this.transactionService = transactionService;
+        this.propertyUtils = propertyUtils;
     }
 
     @GET
@@ -82,7 +84,7 @@ public class DataExportTaskResource {
         QueryParameters params = QueryParameters.wrap(uriInfo.getQueryParameters());
         List<? extends ReadingTypeDataExportTask> list = queryTasks(params);
 
-        DataExportTaskInfos infos = new DataExportTaskInfos(params.clipToLimit(list), thesaurus, timeService);
+        DataExportTaskInfos infos = new DataExportTaskInfos(params.clipToLimit(list), thesaurus, timeService, propertyUtils);
         infos.total = params.determineTotal(list.size());
 
         return infos;
@@ -99,7 +101,7 @@ public class DataExportTaskResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DATA_EXPORT_TASK, Privileges.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.UPDATE_DATA_EXPORT_TASK, Privileges.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.RUN_DATA_EXPORT_TASK})
     public DataExportTaskInfo getDataExportTask(@PathParam("id") long id, @Context SecurityContext securityContext) {
-        return new DataExportTaskInfo(fetchDataExportTask(id), thesaurus, timeService);
+        return new DataExportTaskInfo(fetchDataExportTask(id), thesaurus, timeService, propertyUtils);
     }
 
     @POST
@@ -129,7 +131,6 @@ public class DataExportTaskResource {
                 .exportUpdate(info.exportUpdate);
 
         List<PropertySpec> propertiesSpecs = dataExportService.getPropertiesSpecsForProcessor(info.dataProcessor.name);
-        PropertyUtils propertyUtils = new PropertyUtils();
 
         propertiesSpecs.stream()
                 .forEach(spec -> {
@@ -146,7 +147,7 @@ public class DataExportTaskResource {
             dataExportTask.save();
             context.commit();
         }
-        return Response.status(Response.Status.CREATED).entity(new DataExportTaskInfo(dataExportTask, thesaurus, timeService)).build();
+        return Response.status(Response.Status.CREATED).entity(new DataExportTaskInfo(dataExportTask, thesaurus, timeService, propertyUtils)).build();
     }
 
     @DELETE
@@ -194,7 +195,7 @@ public class DataExportTaskResource {
             task.save();
             context.commit();
         }
-        return Response.status(Response.Status.CREATED).entity(new DataExportTaskInfo(task, thesaurus, timeService)).build();
+        return Response.status(Response.Status.CREATED).entity(new DataExportTaskInfo(task, thesaurus, timeService, propertyUtils)).build();
     }
 
     @GET
@@ -227,7 +228,7 @@ public class DataExportTaskResource {
 
         List<? extends DataExportOccurrence> occurrences = occurrencesFinder.find();
 
-        DataExportTaskHistoryInfos infos = new DataExportTaskHistoryInfos(task, queryParameters.clipToLimit(occurrences), thesaurus, timeService);
+        DataExportTaskHistoryInfos infos = new DataExportTaskHistoryInfos(task, queryParameters.clipToLimit(occurrences), thesaurus, timeService, propertyUtils);
         infos.total = queryParameters.determineTotal(occurrences.size());
         return infos;
     }
@@ -288,7 +289,6 @@ public class DataExportTaskResource {
 
     private void updateProperties(DataExportTaskInfo info, ReadingTypeDataExportTask task) {
         List<PropertySpec> propertiesSpecs = dataExportService.getPropertiesSpecsForProcessor(info.dataProcessor.name);
-        PropertyUtils propertyUtils = new PropertyUtils();
         propertiesSpecs.stream()
                 .forEach(spec -> {
                     Object value = propertyUtils.findPropertyValue(spec, info.properties);
