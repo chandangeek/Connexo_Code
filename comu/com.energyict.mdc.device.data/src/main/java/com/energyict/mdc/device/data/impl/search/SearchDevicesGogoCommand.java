@@ -120,7 +120,7 @@ public class SearchDevicesGogoCommand {
                 VoidTransaction.of(() ->
                         System.out.println(
                                 builder
-                                        .complete()
+                                        .toFinder()
                                         .stream()
                                         .map(this::toString)
                                         .collect(Collectors.joining("\n")))));
@@ -164,7 +164,7 @@ public class SearchDevicesGogoCommand {
                             DefaultState.IN_STOCK.getKey(),
                             DefaultState.DECOMMISSIONED.getKey())
                         .and("deviceConfigId").isEqualTo(97L)
-                        .complete()
+                        .toFinder()
                         .stream()
                         .map(this::toString)
                         .collect(Collectors.joining("\n")));
