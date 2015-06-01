@@ -92,24 +92,12 @@ public interface SearchService {
 
     /**
      * Starts the building process of a search for instances of the specified {@link SearchDomain}.
+     * Note that this will throw an IllegalArgumentException when
+     * the SearchDomain was not registered first.
      *
      * @param searchDomain The SearchDomain
      * @return The SearchBuilder
      */
     public SearchBuilder<Object> search(SearchDomain searchDomain);
-
-    @SuppressWarnings("unchecked")
-    @Deprecated
-    public default <T> Finder<T> search(Class<T> domainClass, Condition condition) {
-        SearchDomain domain = getDomains()
-                .stream()
-                .filter(p -> p.supports(domainClass))
-                .findAny()
-                .orElseThrow(() -> new IllegalArgumentException("No registered domain for class " + domainClass.getName()));
-        return (Finder<T>) search(domain, condition);
-    }
-
-    @Deprecated
-    public Finder<Object> search(SearchDomain searchDomain, Condition condition);
 
 }

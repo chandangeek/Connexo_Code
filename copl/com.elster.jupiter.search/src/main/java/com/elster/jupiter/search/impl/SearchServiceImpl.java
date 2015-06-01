@@ -1,11 +1,8 @@
 package com.elster.jupiter.search.impl;
 
-import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.search.SearchBuilder;
 import com.elster.jupiter.search.SearchDomain;
-import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchService;
-import com.elster.jupiter.util.conditions.Condition;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
@@ -54,12 +51,12 @@ public class SearchServiceImpl implements SearchService {
 
     @Override
     public SearchBuilder<Object> search(SearchDomain searchDomain) {
+        validateRegisteredDomain(searchDomain);
         return new SearchBuilderImpl<>(searchDomain);
     }
 
-    @Override
-    public Finder<Object> search(SearchDomain searchDomain, Condition condition) {
-        throw new UnsupportedOperationException("use search(SearchDomain) instead");
+    private void validateRegisteredDomain(SearchDomain searchDomain) {
+        this.findDomain(searchDomain.getId()).orElseThrow(() -> new IllegalArgumentException("Not a registered domain " + searchDomain.getId()));
     }
 
 }
