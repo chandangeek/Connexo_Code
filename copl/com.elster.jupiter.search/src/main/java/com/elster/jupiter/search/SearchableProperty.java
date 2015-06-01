@@ -93,6 +93,12 @@ public interface SearchableProperty {
 
     public SelectionMode getSelectionMode();
 
+    public default String getName() {
+        return getSpecification().getName();
+    }
+
+    public String getDisplayName();
+
     /**
      * Tests if the {@link PropertySpec specification}
      * of this SearchableProperty has the specified name.

@@ -27,6 +27,7 @@ public class SearchBuilderImpl<T> implements SearchBuilder<T> {
 
     private final SearchDomain searchDomain;
     private final List<SearchablePropertyCondition> conditions = new ArrayList<>();
+    private List<CriterionBuilder<T>> incompleteBuilders = new ArrayList<>();
 
     public SearchBuilderImpl(SearchDomain searchDomain) {
         super();
@@ -40,13 +41,27 @@ public class SearchBuilderImpl<T> implements SearchBuilder<T> {
 
     @Override
     public CriterionBuilder<T> where(SearchableProperty property) {
-        return new CriterionBuilderImpl(property);
+        CriterionBuilderImpl builder = new CriterionBuilderImpl(property);
+        this.incompleteBuilders.add(builder);
+        return builder;
+    }
+
+    private void addCondition(CriterionBuilder<T> builder, SearchablePropertyCondition condition) {
+        this.conditions.add(condition);
+        this.incompleteBuilders.remove(builder);
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public Finder<T> toFinder() {
+        this.validateNoIncompleteBuilders();
         return (Finder<T>) this.searchDomain.finderFor(Collections.unmodifiableList(this.conditions));
+    }
+
+    private void validateNoIncompleteBuilders() {
+        if (!this.incompleteBuilders.isEmpty()) {
+            throw new IllegalStateException("At least one criterion remains unspecified, please call one of the CriterionBuilder methods");
+        }
     }
 
     private class CriterionBuilderImpl implements CriterionBuilder<T> {
@@ -59,7 +74,8 @@ public class SearchBuilderImpl<T> implements SearchBuilder<T> {
 
         @Override
         public SearchBuilder<T> in(List<Object> values) {
-            conditions.add(
+            addCondition(
+                    this,
                     new SearchablePropertyContains(
                             ListOperator.IN.contains(this.property.getSpecification().getName(), values),
                             this.property));
@@ -68,7 +84,8 @@ public class SearchBuilderImpl<T> implements SearchBuilder<T> {
 
         @Override
         public SearchBuilder<T> isEqualTo(Object value) {
-            conditions.add(
+            addCondition(
+                    this,
                     new SearchablePropertyComparison(
                             Operator.EQUAL.compare(this.property.getSpecification().getName(), value),
                             this.property));
@@ -77,7 +94,8 @@ public class SearchBuilderImpl<T> implements SearchBuilder<T> {
 
         @Override
         public SearchBuilder<T> isEqualToIgnoreCase(String value) {
-            conditions.add(
+            addCondition(
+                    this,
                     new SearchablePropertyComparison(
                             Operator.EQUALIGNORECASE.compare(this.property.getSpecification().getName(), value),
                             this.property));
@@ -86,7 +104,8 @@ public class SearchBuilderImpl<T> implements SearchBuilder<T> {
 
         @Override
         public SearchBuilder<T> like(String wildCardPattern) {
-            conditions.add(
+            addCondition(
+                    this,
                     new SearchablePropertyComparison(
                             Operator.LIKE.compare(this.property.getSpecification().getName(), toOracleSql(wildCardPattern)),
                             this.property));
@@ -95,7 +114,8 @@ public class SearchBuilderImpl<T> implements SearchBuilder<T> {
 
         @Override
         public SearchBuilder<T> likeIgnoreCase(String wildCardPattern) {
-            conditions.add(
+            addCondition(
+                    this,
                     new SearchablePropertyComparison(
                             Operator.LIKEIGNORECASE.compare(this.property.getSpecification().getName(), toOracleSql(wildCardPattern)),
                             this.property));
