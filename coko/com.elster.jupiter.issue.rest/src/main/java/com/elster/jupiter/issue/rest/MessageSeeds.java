@@ -11,14 +11,14 @@ import java.util.logging.Level;
 
 public enum MessageSeeds implements MessageSeed, TranslationKey {
 
-    ISSUE_ASSIGNEE_ME (0001, "IssueAssigneeMe", "Me", Level.SEVERE),
-    ISSUE_ASSIGNEE_UNASSIGNED (0002, "IssueAssigneeUnassigned", "Unassigned", Level.SEVERE),
-    ISSUE_DOES_NOT_EXIST (0003, "IssueDoesNotExist", "Issue doesn't exist", Level.SEVERE),
-    ISSUE_ACTION_CLASS_LOAD_FAIL(0005, "IssueActionClassLoadFail", "Unable to load Action class \"{0}\" for \"{1}\" action type", Level.SEVERE),
-    ISSUE_ACTION_PHASE_CREATE(0006, "IssueActionPhaseCreation", "Issue creation", Level.INFO),
-    ISSUE_ACTION_PHASE_OVERDUE(0007, "IssueActionPhaseOverdue", "Issue overdue", Level.INFO),
-    ISSUE_ACTION_PHASE_CREATE_DESCRIPTION(0010, "IssueActionPhaseCreationDescription", "The action will be performed at the issue creation time", Level.INFO),
-    ISSUE_ACTION_PHASE_OVERDUE_DESCRIPTION(0011, "IssueActionPhaseOverdueDescription", "The action will be performed when the issue becomes overdue", Level.INFO)
+    ISSUE_ASSIGNEE_ME (1, "IssueAssigneeMe", "Me", Level.SEVERE),
+    ISSUE_ASSIGNEE_UNASSIGNED (2, "IssueAssigneeUnassigned", "Unassigned", Level.SEVERE),
+    ISSUE_DOES_NOT_EXIST (3, "IssueDoesNotExist", "Issue doesn't exist", Level.SEVERE),
+    ISSUE_ACTION_CLASS_LOAD_FAIL(5, "IssueActionClassLoadFail", "Unable to load Action class \"{0}\" for \"{1}\" action type", Level.SEVERE),
+    ISSUE_ACTION_PHASE_CREATE(6, "IssueActionPhaseCreation", "Issue creation", Level.INFO),
+    ISSUE_ACTION_PHASE_OVERDUE(7, "IssueActionPhaseOverdue", "Issue overdue", Level.INFO),
+    ISSUE_ACTION_PHASE_CREATE_DESCRIPTION(8, "IssueActionPhaseCreationDescription", "The action will be performed at the issue creation time", Level.INFO),
+    ISSUE_ACTION_PHASE_OVERDUE_DESCRIPTION(9, "IssueActionPhaseOverdueDescription", "The action will be performed when the issue becomes overdue", Level.INFO)
     ;
 
     private final int number;
