@@ -21,7 +21,7 @@ import javax.ws.rs.core.SecurityContext;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.users.User;
-import com.energyict.mdc.common.rest.ExceptionFactory;
+import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.energyict.mdc.device.data.Device;
