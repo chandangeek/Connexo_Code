@@ -23,7 +23,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     TYPE_METER(7, Keys.TYPE_METER, "Meter firmware"),
     TYPE_COMMUNICATION(8, Keys.TYPE_COMMUNICATION, "Communication firmware"),
     // firmware upgrade options translation
-    UPGRADE_OPTION_INSTALL(9, Keys.UPGRADE_OPTION_INSTALL, "Upload firmware"),
+    UPGRADE_OPTION_INSTALL(9, Keys.UPGRADE_OPTION_INSTALL, "Upload firmware and activate later"),
     UPGRADE_OPTION_ACTIVATE(10, Keys.UPGRADE_OPTION_ACTIVATE, "Upload firmware and activate immediately"),
     UPGRADE_OPTION_ACTIVATE_ON_DATE(11, Keys.UPGRADE_OPTION_ACTIVATE_ON_DATE, "Upload firmware with activation date"),
     // firmware upgrade options
