@@ -128,8 +128,18 @@ public interface SearchableProperty {
      * values for one of the constraining SearchableProperty was selected.
      * This will typically refresh the possible values
      * of the {@link PropertySpec}.
+     * <p>
+     * Note that implementation classes may throw an IllegalArgumentException
+     * if not all constraints are included in the List of {@link SearchablePropertyConstriction}s.
+     * Note that implementation classes may also throw an IllegalArgumentException
+     * if a SearchablePropertyConstriction is specified for a constraint
+     * that was not returned by this SearchableProperty.
+     * Note that implementation classes may also throw an IllegalArgumentException
+     * if the constraining values of a SearchablePropertyConstriction
+     * are not compatible with the specification of the constraining SearchableProperty.
+     * </p>
      *
-     * @param constrictions The {@link SearchablePropertyConstriction}s
+     * @param constrictions The List of SearchablePropertyConstriction
      */
     public void refreshWithConstrictions(List<SearchablePropertyConstriction> constrictions);
 
