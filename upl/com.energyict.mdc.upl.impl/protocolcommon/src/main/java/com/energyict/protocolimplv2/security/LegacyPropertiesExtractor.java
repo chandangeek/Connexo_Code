@@ -13,13 +13,13 @@ import java.util.List;
  */
 public class LegacyPropertiesExtractor {
 
-    static public TypedProperties getSecurityRelatedProperties(TypedProperties typedProperties, int currentDeviceAccessLevel, List<? extends DeviceAccessLevel> deviceAccessLevels) {
+    static public TypedProperties getSecurityRelatedProperties(TypedProperties oldTypedProperties, int currentDeviceAccessLevel, List<? extends DeviceAccessLevel> deviceAccessLevels) {
         TypedProperties securityRelatedTypedProperties = TypedProperties.empty();
         for (DeviceAccessLevel deviceAccessLevel : deviceAccessLevels) {
             if (deviceAccessLevel.getId() == currentDeviceAccessLevel) {
                 for (PropertySpec propertySpec : deviceAccessLevel.getSecurityProperties()) {
-                    if (typedProperties.hasValueFor(propertySpec.getName())) {
-                        securityRelatedTypedProperties.setProperty(propertySpec.getName(), typedProperties.getProperty(propertySpec.getName()));
+                    if (oldTypedProperties.hasValueFor(propertySpec.getName())) {
+                        securityRelatedTypedProperties.setProperty(propertySpec.getName(), oldTypedProperties.getProperty(propertySpec.getName()));
                     }
                 }
             }

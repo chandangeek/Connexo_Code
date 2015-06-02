@@ -58,8 +58,9 @@ public enum DeviceSecurityProperty {
      * 2: Phase 2 communication. The keys are never decrypted. Each frame in the communication is encrypted/decrypted by the Cryptoserver, using the encrypted keys.
      * S: Phase S has the same key format as for phase 0. The s indicates the meter has service keys injected.
      */
-    CRYPTOSERVER_PHASE(PropertySpecFactory.stringPropertySpecWithValues(
+    CRYPTOSERVER_PHASE(PropertySpecFactory.stringPropertySpecWithValuesAndDefaultValue(
             SecurityPropertySpecName.CRYPTOSERVER_PHASE.toString(),
+            "0",
             "0", "1", "2", "S")),
 
     SECURITY_LEVEL(PropertySpecFactory.stringPropertySpec(SecurityPropertySpecName.SECURITY_LEVEL.toString())),
@@ -123,6 +124,12 @@ public enum DeviceSecurityProperty {
             .name(SecurityPropertySpecName.ENCRYPTION_KEY_CUSTOMER.toString())
             .finish());
 
+    private final PropertySpec propertySpec;
+
+    private DeviceSecurityProperty(PropertySpec propertySpec) {
+        this.propertySpec = propertySpec;
+    }
+
     /**
      * Generates a list of possible values for the client mac address property spec
      */
@@ -132,12 +139,6 @@ public enum DeviceSecurityProperty {
             result.add(BigDecimal.valueOf(index));
         }
         return result;
-    }
-
-    private final PropertySpec propertySpec;
-
-    private DeviceSecurityProperty(PropertySpec propertySpec) {
-        this.propertySpec = propertySpec;
     }
 
     /**

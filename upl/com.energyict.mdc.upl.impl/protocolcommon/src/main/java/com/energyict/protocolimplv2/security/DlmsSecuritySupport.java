@@ -26,49 +26,6 @@ public class DlmsSecuritySupport implements LegacyDeviceProtocolSecurityCapabili
     private static final String authenticationTranslationKeyConstant = "DlmsSecuritySupport.authenticationlevel.";
     private static final String encryptionTranslationKeyConstant = "DlmsSecuritySupport.encryptionlevel.";
 
-    /**
-     * Summarizes the used ID for the AuthenticationLevels.
-     */
-    protected enum AuthenticationAccessLevelIds {
-        NO_AUTHENTICATION(0),
-        LOW_LEVEL_AUTHENTICATION(1),
-        MANUFACTURER_SPECIFIC_AUTHENTICATION(2),
-        MD5_AUTHENTICATION(3),
-        SHA1_AUTHENTICATION(4),
-        GMAC_AUTHENTICATION(5);
-
-        private final int accessLevel;
-
-        private AuthenticationAccessLevelIds(int accessLevel) {
-            this.accessLevel = accessLevel;
-        }
-
-        protected int getAccessLevel() {
-            return this.accessLevel;
-        }
-
-    }
-
-    /**
-     * Summarizes the used ID for the EncryptionLevels.
-     */
-    protected enum EncryptionAccessLevelIds {
-        NO_MESSAGE_ENCRYPTION(0),
-        MESSAGE_AUTHENTICATION(1),
-        MESSAGE_ENCRYPTION(2),
-        MESSAGE_ENCRYPTION_AUTHENTICATION(3);
-
-        private final int accessLevel;
-
-        private EncryptionAccessLevelIds(int accessLevel) {
-            this.accessLevel = accessLevel;
-        }
-
-        protected int getAccessLevel() {
-            return this.accessLevel;
-        }
-    }
-
     @Override
     public List<PropertySpec> getSecurityProperties() {
         return Arrays.asList(
@@ -157,8 +114,8 @@ public class DlmsSecuritySupport implements LegacyDeviceProtocolSecurityCapabili
     }
 
     @Override
-    public DeviceProtocolSecurityPropertySet convertFromTypedProperties(final TypedProperties typedProperties) {
-        String securityLevelProperty = typedProperties.getStringProperty(SECURITY_LEVEL_PROPERTY_NAME);
+    public DeviceProtocolSecurityPropertySet convertFromTypedProperties(final TypedProperties oldTypedProperties) {
+        String securityLevelProperty = oldTypedProperties.getStringProperty(SECURITY_LEVEL_PROPERTY_NAME);
         if (securityLevelProperty == null) {
             securityLevelProperty = "0:0";
         }
@@ -167,11 +124,26 @@ public class DlmsSecuritySupport implements LegacyDeviceProtocolSecurityCapabili
         }
         final int authenticationLevel = getAuthenticationLevel(securityLevelProperty);
         final int encryptionLevel = getEncryptionLevel(securityLevelProperty);
-        checkForCorrectClientMacAddressPropertySpecType(typedProperties);
-        final TypedProperties securityRelatedTypedProperties = TypedProperties.empty();
-        securityRelatedTypedProperties.setAllProperties(LegacyPropertiesExtractor.getSecurityRelatedProperties(typedProperties, authenticationLevel, getAuthenticationAccessLevels()));
-        securityRelatedTypedProperties.setAllProperties(LegacyPropertiesExtractor.getSecurityRelatedProperties(typedProperties, encryptionLevel, getEncryptionAccessLevels()));
+        checkForCorrectClientMacAddressPropertySpecType(oldTypedProperties);
 
+        final TypedProperties result = TypedProperties.empty();
+        result.setAllProperties(LegacyPropertiesExtractor.getSecurityRelatedProperties(oldTypedProperties, authenticationLevel, getAuthenticationAccessLevels()));
+        result.setAllProperties(LegacyPropertiesExtractor.getSecurityRelatedProperties(oldTypedProperties, encryptionLevel, getEncryptionAccessLevels()));
+
+        //Add properties that have a new key name or format (compared to EIServer 8.x)
+        boolean passwordRequired = isRequiredOnThisLevel(SecurityPropertySpecName.PASSWORD.toString(), authenticationLevel, encryptionLevel);
+        if (oldTypedProperties.hasValueFor(HLS_SECRET_LEGACY_PROPERTY_NAME) && passwordRequired) {
+            result.setProperty(SecurityPropertySpecName.PASSWORD.toString(), oldTypedProperties.getStringProperty(HLS_SECRET_LEGACY_PROPERTY_NAME));
+        }
+        if (oldTypedProperties.hasValueFor(HEX_PASSWORD_LEGACY_PROPERTY_NAME) && passwordRequired) {
+            result.setProperty(SecurityPropertySpecName.PASSWORD.toString(), oldTypedProperties.getStringProperty(HEX_PASSWORD_LEGACY_PROPERTY_NAME));
+        }
+        if (oldTypedProperties.hasValueFor(getDataTransportEncryptionKeyLegacyPropertyName()) && isRequiredOnThisLevel(SecurityPropertySpecName.ENCRYPTION_KEY.toString(), authenticationLevel, encryptionLevel)) {
+            result.setProperty(SecurityPropertySpecName.ENCRYPTION_KEY.toString(), oldTypedProperties.getStringProperty(getDataTransportEncryptionKeyLegacyPropertyName()));
+        }
+        if (oldTypedProperties.hasValueFor(getDataTransportAuthenticationKeyLegacyPropertyname()) && isRequiredOnThisLevel(SecurityPropertySpecName.AUTHENTICATION_KEY.toString(), authenticationLevel, encryptionLevel)) {
+            result.setProperty(SecurityPropertySpecName.AUTHENTICATION_KEY.toString(), oldTypedProperties.getStringProperty(getDataTransportAuthenticationKeyLegacyPropertyname()));
+        }
 
         return new DeviceProtocolSecurityPropertySet() {
             @Override
@@ -186,9 +158,33 @@ public class DlmsSecuritySupport implements LegacyDeviceProtocolSecurityCapabili
 
             @Override
             public TypedProperties getSecurityProperties() {
-                return securityRelatedTypedProperties;
+                return result;
             }
         };
+    }
+
+    private boolean isRequiredOnThisLevel(String newPropertyKey, int authenticationLevel, int encryptionLevel) {
+        for (DeviceAccessLevel deviceAccessLevel : getAuthenticationAccessLevels()) {
+            if (deviceAccessLevel.getId() == authenticationLevel) {
+                for (PropertySpec propertySpec : deviceAccessLevel.getSecurityProperties()) {
+                    if (propertySpec.getName().equals(newPropertyKey)) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        for (DeviceAccessLevel deviceAccessLevel : getEncryptionAccessLevels()) {
+            if (deviceAccessLevel.getId() == encryptionLevel) {
+                for (PropertySpec propertySpec : deviceAccessLevel.getSecurityProperties()) {
+                    if (propertySpec.getName().equals(newPropertyKey)) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
     }
 
     private void checkForCorrectClientMacAddressPropertySpecType(TypedProperties typedProperties) {
@@ -221,6 +217,49 @@ public class DlmsSecuritySupport implements LegacyDeviceProtocolSecurityCapabili
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException(String.format("Failed to extract AuthenticationDeviceAccessLevel from SecurityProperty '%s': %s could not be converted to int",
                     securityLevelProperty, authLevel));
+        }
+    }
+
+    /**
+     * Summarizes the used ID for the AuthenticationLevels.
+     */
+    protected enum AuthenticationAccessLevelIds {
+        NO_AUTHENTICATION(0),
+        LOW_LEVEL_AUTHENTICATION(1),
+        MANUFACTURER_SPECIFIC_AUTHENTICATION(2),
+        MD5_AUTHENTICATION(3),
+        SHA1_AUTHENTICATION(4),
+        GMAC_AUTHENTICATION(5);
+
+        private final int accessLevel;
+
+        private AuthenticationAccessLevelIds(int accessLevel) {
+            this.accessLevel = accessLevel;
+        }
+
+        protected int getAccessLevel() {
+            return this.accessLevel;
+        }
+
+    }
+
+    /**
+     * Summarizes the used ID for the EncryptionLevels.
+     */
+    protected enum EncryptionAccessLevelIds {
+        NO_MESSAGE_ENCRYPTION(0),
+        MESSAGE_AUTHENTICATION(1),
+        MESSAGE_ENCRYPTION(2),
+        MESSAGE_ENCRYPTION_AUTHENTICATION(3);
+
+        private final int accessLevel;
+
+        private EncryptionAccessLevelIds(int accessLevel) {
+            this.accessLevel = accessLevel;
+        }
+
+        protected int getAccessLevel() {
+            return this.accessLevel;
         }
     }
 

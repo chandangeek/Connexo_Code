@@ -23,7 +23,6 @@ import java.util.List;
 public class CryptoDlmsSecuritySupport implements LegacyDeviceProtocolSecurityCapabilities, LegacySecurityPropertyConverter {
 
     /* Legacy property names*/
-    private static final String SECURITY_LEVEL_PROPERTY_NAME = "SecurityLevel";
     private static final String DATA_TRANSPORT_AUTHENTICATION_KEY_LEGACY_PROPERTY_NAME = "DataTransportAuthenticationKey";
     private static final String DATA_TRANSPORT_ENCRYPTION_KEY_LEGACY_PROPERTY_NAME = "DataTransportEncryptionKey";
     private static final String HLS_SECRET_LEGACY_PROPERTY_NAME = "HlsSecret";
@@ -33,7 +32,6 @@ public class CryptoDlmsSecuritySupport implements LegacyDeviceProtocolSecurityCa
     @Override
     public List<String> getLegacySecurityProperties() {
         return Arrays.asList(
-                SECURITY_LEVEL_PROPERTY_NAME,
                 DATA_TRANSPORT_AUTHENTICATION_KEY_LEGACY_PROPERTY_NAME,
                 DATA_TRANSPORT_ENCRYPTION_KEY_LEGACY_PROPERTY_NAME,
                 HLS_SECRET_LEGACY_PROPERTY_NAME,
@@ -70,24 +68,6 @@ public class CryptoDlmsSecuritySupport implements LegacyDeviceProtocolSecurityCa
         List<EncryptionDeviceAccessLevel> levels = new ArrayList<>();
         levels.add(new DefinedByProperty());
         return levels;
-    }
-
-    private class DefinedByProperty implements AuthenticationDeviceAccessLevel, EncryptionDeviceAccessLevel {
-
-        @Override
-        public int getId() {
-            return 0;
-        }
-
-        @Override
-        public String getTranslationKey() {
-            return "definedByProperty";
-        }
-
-        @Override
-        public List<PropertySpec> getSecurityProperties() {
-            return CryptoDlmsSecuritySupport.this.getSecurityProperties();
-        }
     }
 
     @Override
@@ -129,10 +109,29 @@ public class CryptoDlmsSecuritySupport implements LegacyDeviceProtocolSecurityCa
     }
 
     @Override
-    public DeviceProtocolSecurityPropertySet convertFromTypedProperties(TypedProperties typedProperties) {
-        checkForCorrectClientMacAddressPropertySpecType(typedProperties);
-        final TypedProperties securityRelatedTypedProperties = TypedProperties.empty();
-        securityRelatedTypedProperties.setAllProperties(LegacyPropertiesExtractor.getSecurityRelatedProperties(typedProperties, 0, getAuthenticationAccessLevels()));
+    public DeviceProtocolSecurityPropertySet convertFromTypedProperties(TypedProperties oldTypedProperties) {
+        checkForCorrectClientMacAddressPropertySpecType(oldTypedProperties);
+        final TypedProperties result = TypedProperties.empty();
+        result.setAllProperties(LegacyPropertiesExtractor.getSecurityRelatedProperties(oldTypedProperties, 0, getAuthenticationAccessLevels()));
+
+        //Add properties that have a new key name or format (compared to EIServer 8.x)
+        if (oldTypedProperties.hasValueFor(HLS_SECRET_LEGACY_PROPERTY_NAME)) {
+            result.setProperty(SecurityPropertySpecName.PASSWORD.toString(), oldTypedProperties.getStringProperty(HLS_SECRET_LEGACY_PROPERTY_NAME));
+        }
+        if (oldTypedProperties.hasValueFor(HEX_PASSWORD_LEGACY_PROPERTY_NAME)) {
+            result.setProperty(SecurityPropertySpecName.PASSWORD.toString(), oldTypedProperties.getStringProperty(HEX_PASSWORD_LEGACY_PROPERTY_NAME));
+        }
+        if (oldTypedProperties.hasValueFor(DATA_TRANSPORT_ENCRYPTION_KEY_LEGACY_PROPERTY_NAME)) {
+            result.setProperty(SecurityPropertySpecName.ENCRYPTION_KEY.toString(), oldTypedProperties.getStringProperty(DATA_TRANSPORT_ENCRYPTION_KEY_LEGACY_PROPERTY_NAME));
+        }
+        if (oldTypedProperties.hasValueFor(DATA_TRANSPORT_AUTHENTICATION_KEY_LEGACY_PROPERTY_NAME)) {
+            result.setProperty(SecurityPropertySpecName.AUTHENTICATION_KEY.toString(), oldTypedProperties.getStringProperty(DATA_TRANSPORT_AUTHENTICATION_KEY_LEGACY_PROPERTY_NAME));
+        }
+        if (oldTypedProperties.hasValueFor(CRYPTOSERVER_LEGACY_PROPERTY_NAME)) {
+            result.setProperty(SecurityPropertySpecName.CRYPTOSERVER_PHASE.toString(), oldTypedProperties.getStringProperty(CRYPTOSERVER_LEGACY_PROPERTY_NAME));
+        } else {
+            result.setProperty(SecurityPropertySpecName.CRYPTOSERVER_PHASE.toString(), DeviceSecurityProperty.CRYPTOSERVER_PHASE.getPropertySpec().getPossibleValues().getDefault());
+        }
 
         return new DeviceProtocolSecurityPropertySet() {
             @Override
@@ -147,7 +146,7 @@ public class CryptoDlmsSecuritySupport implements LegacyDeviceProtocolSecurityCa
 
             @Override
             public TypedProperties getSecurityProperties() {
-                return securityRelatedTypedProperties;
+                return result;
             }
         };
     }
@@ -162,6 +161,24 @@ public class CryptoDlmsSecuritySupport implements LegacyDeviceProtocolSecurityCa
                 typedProperties.setProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString(), new BigDecimal("1"));
 
             }
+        }
+    }
+
+    private class DefinedByProperty implements AuthenticationDeviceAccessLevel, EncryptionDeviceAccessLevel {
+
+        @Override
+        public int getId() {
+            return 0;
+        }
+
+        @Override
+        public String getTranslationKey() {
+            return "definedByProperty";
+        }
+
+        @Override
+        public List<PropertySpec> getSecurityProperties() {
+            return CryptoDlmsSecuritySupport.this.getSecurityProperties();
         }
     }
 }
