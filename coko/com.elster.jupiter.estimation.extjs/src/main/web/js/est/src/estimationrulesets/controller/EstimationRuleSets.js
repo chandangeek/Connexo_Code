@@ -218,7 +218,7 @@ Ext.define('Est.estimationrulesets.controller.EstimationRuleSets', {
                 Ext.suspendLayouts();
                 me.getApplication().fireEvent('loadEstimationRuleSet', record);
                 widget.down('#rule-set-form').loadRecord(record);
-                widget.down('estimation-rule-set-side-menu #estimation-rule-set-link').setText(Ext.String.htmlEncode(record.get('name')));
+                widget.down('estimation-rule-set-side-menu #estimation-rule-set-link').setText(record.get('name'));
                 var actionBtn = widget.down('#action-button');
                 if (actionBtn) {
                     actionBtn.menu.record = record;
