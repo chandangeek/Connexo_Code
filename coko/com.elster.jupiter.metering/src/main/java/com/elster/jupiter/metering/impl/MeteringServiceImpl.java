@@ -59,8 +59,8 @@ import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-@Component(name = "com.elster.jupiter.metering", service = {MeteringService.class, InstallService.class}, property = "name=" + MeteringService.COMPONENTNAME)
-public class MeteringServiceImpl implements MeteringService, InstallService {
+@Component(name = "com.elster.jupiter.metering", service = {MeteringService.class, ServerMeteringService.class, InstallService.class}, property = "name=" + MeteringService.COMPONENTNAME)
+public class MeteringServiceImpl implements ServerMeteringService, InstallService {
 
     private volatile IdsService idsService;
     private volatile QueryService queryService;
@@ -300,6 +300,7 @@ public class MeteringServiceImpl implements MeteringService, InstallService {
             protected void configure() {
                 bind(ChannelBuilder.class).to(ChannelBuilderImpl.class);
                 bind(MeteringService.class).toInstance(MeteringServiceImpl.this);
+                bind(ServerMeteringService.class).toInstance(MeteringServiceImpl.this);
                 bind(DataModel.class).toInstance(dataModel);
                 bind(EventService.class).toInstance(eventService);
                 bind(IdsService.class).toInstance(idsService);
@@ -380,8 +381,14 @@ public class MeteringServiceImpl implements MeteringService, InstallService {
         return dataModel.mapper(AmrSystem.class).getOptional(id);
     }
 
-    DataModel getDataModel() {
+    @Override
+    public DataModel getDataModel() {
         return dataModel;
+    }
+
+    @Override
+    public Thesaurus getThesaurus() {
+        return thesaurus;
     }
 
     AmrSystemImpl createAmrSystem(int id, String name) {
