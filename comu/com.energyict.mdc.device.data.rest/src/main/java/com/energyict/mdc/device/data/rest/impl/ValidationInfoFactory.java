@@ -87,17 +87,25 @@ public class ValidationInfoFactory {
         MonitorValidationInfo monitorValidationInfo = new MonitorValidationInfo();
         monitorValidationInfo.total = loadProfileStatus.entrySet().stream().flatMap(m -> m.getValue().stream()).collect(Collectors.counting()) +
                 registerStatus.entrySet().stream().flatMap(m -> m.getValue().stream()).collect(Collectors.counting());
-        List<DataValidationStatus> dataValidationStatuses = loadProfileStatus.entrySet().stream().flatMap(m -> m.getValue().stream()).collect(Collectors.toList());
-        dataValidationStatuses.addAll(registerStatus.entrySet().stream().flatMap(m -> m.getValue().stream()).collect(Collectors.toList()));
+
+        List<DataValidationStatus> dataValidationStatuses = loadProfileStatus.entrySet().stream()
+                .flatMap(m -> m.getValue().stream()).collect(Collectors.toList());
+        dataValidationStatuses.addAll(registerStatus.entrySet().stream()
+                .flatMap(m -> m.getValue().stream()).collect(Collectors.toList()));
+
         monitorValidationInfo.validationStatus = validationStatus;
         monitorValidationInfo.detailedValidationLoadProfile = new ArrayList<>();
         monitorValidationInfo.detailedValidationRegister = new ArrayList<>();
-        loadProfileStatus.entrySet().stream().forEach(lp -> {
-            monitorValidationInfo.detailedValidationLoadProfile.add(new DetailedValidationLoadProfileInfo(lp.getKey(), new Long(lp.getValue().size())));
-        });
-        registerStatus.entrySet().stream().forEach(lp -> {
-            monitorValidationInfo.detailedValidationRegister.add(new DetailedValidationRegisterInfo(lp.getKey(), new Long(lp.getValue().size())));
-        });
+        loadProfileStatus.entrySet().stream()
+                .sorted((lps1, lps2) -> lps1.getKey().getLoadProfileSpec().getLoadProfileType().getName().compareTo(lps2.getKey().getLoadProfileSpec().getLoadProfileType().getName()))
+                .forEach(lp -> {
+                    monitorValidationInfo.detailedValidationLoadProfile.add(new DetailedValidationLoadProfileInfo(lp.getKey(), new Long(lp.getValue().size())));
+                });
+        registerStatus.entrySet().stream()
+                .sorted((regs1, regs2) -> regs1.getKey().getRegisterSpec().getReadingType().getFullAliasName().compareTo(regs2.getKey().getRegisterSpec().getReadingType().getFullAliasName()))
+                .forEach( reg -> {
+                    monitorValidationInfo.detailedValidationRegister.add(new DetailedValidationRegisterInfo(reg.getKey(),new Long(reg.getValue().size())));
+                });
         return monitorValidationInfo;
     }
 
