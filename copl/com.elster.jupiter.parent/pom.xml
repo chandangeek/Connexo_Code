@@ -598,6 +598,7 @@
                 <module>../com.elster.jupiter.rest.util</module>
                 <module>../com.elster.jupiter.rest.whiteboard</module>
                 <module>../com.elster.jupiter.search</module>
+                <module>../com.elster.jupiter.search.rest</module>
                 <module>../com.elster.jupiter.security.thread</module>
                 <module>../com.elster.jupiter.soap.whiteboard</module>
                 <module>../com.elster.jupiter.soap.whiteboard.cxf</module>
