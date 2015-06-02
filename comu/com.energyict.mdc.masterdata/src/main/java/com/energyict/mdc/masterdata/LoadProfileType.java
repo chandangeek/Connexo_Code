@@ -1,6 +1,6 @@
 package com.energyict.mdc.masterdata;
 
-import com.energyict.mdc.common.HasId;
+import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.common.ObisCode;
 import com.elster.jupiter.time.TimeDuration;
 
