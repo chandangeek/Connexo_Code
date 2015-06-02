@@ -1,6 +1,6 @@
 package com.energyict.mdc.device.data;
 
-import com.energyict.mdc.common.HasId;
+import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.time.TimeDuration;
 import com.google.common.collect.Range;
 
