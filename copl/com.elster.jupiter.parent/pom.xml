@@ -22,7 +22,6 @@
         <!-- property to include the source code in the bundles
              will be set to false by the release profile for releases -->
         <include.source>true</include.source>
-        <json.version>20090211</json.version>
     </properties>
 
     <dependencyManagement>
@@ -110,12 +109,6 @@
                 <artifactId>json-path</artifactId>
                 <version>0.9.1</version>
                 <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.json</groupId>
-                <artifactId>json</artifactId>
-                <version>${json.version}</version>
-                <scope>provided</scope>
             </dependency>
 
             <dependency>
