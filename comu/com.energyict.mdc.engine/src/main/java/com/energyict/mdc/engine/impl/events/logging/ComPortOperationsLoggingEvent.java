@@ -1,6 +1,6 @@
 package com.energyict.mdc.engine.impl.events.logging;
 
-import com.energyict.mdc.common.HasId;
+import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.engine.events.Category;
 import com.energyict.mdc.engine.events.ComPortPoolRelatedEvent;
 import com.energyict.mdc.engine.events.ComPortRelatedEvent;
