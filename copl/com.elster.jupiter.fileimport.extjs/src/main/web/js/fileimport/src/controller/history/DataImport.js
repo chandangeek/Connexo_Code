@@ -45,11 +45,48 @@ Ext.define('Fim.controller.history.DataImport', {
                                     controller: 'Fim.controller.ImportServices',
                                     privileges: Fim.privileges.DataImport.getAdmin,
                                     action: 'showEditImportService'
+                                },
+                                history: {
+                                    title: Uni.I18n.translate('general.history', 'FIM', 'History'),
+                                    route: 'history',
+                                    controller: 'Fim.controller.History',
+                                    action: 'showImportServicesHistory',
+                                    filter: 'Fim.model.HistoryFilter',
+                                    privileges: Fim.privileges.DataImport.canView,
+                                    items: {
+                                        occurrence: {
+                                            title: Uni.I18n.translate('general.log', 'FIM', 'Log'),
+                                            route: '{occurrenceId}',
+                                            controller: 'Fim.controller.Log',
+                                            action: 'showImportServicesHistoryLog',
+											filter: 'Fim.model.LogFilter',
+                                            privileges: Fim.privileges.DataImport.canView
+                                        }
+                                    }
                                 }
                             }
                         }
                     }
+                },
+                importhistory: {
+                    title: Uni.I18n.translate('general.importHistory', 'FIM', 'Import history'),
+                    route: 'importhistory',
+                    controller: 'Fim.controller.History',
+                    action: 'showImportServicesHistory',
+                    filter: 'Fim.model.HistoryFilter',
+                    privileges: Fim.privileges.DataImport.canView,
+                    items: {
+                        occurrence: {
+                            title: Uni.I18n.translate('general.log', 'FIM', 'Log'),
+                            route: '{occurrenceId}',
+                            controller: 'Fim.controller.Log',
+							filter: 'Fim.model.LogFilter',
+                            action: 'showImportServicesHistoryLog',
+                            privileges: Fim.privileges.DataImport.canView
+                        }
+                    }
                 }
+
             }
         }
     }

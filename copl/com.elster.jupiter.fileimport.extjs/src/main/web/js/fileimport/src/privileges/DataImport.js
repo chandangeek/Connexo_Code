@@ -24,7 +24,12 @@ Ext.define('Fim.privileges.DataImport', {
     canView: function () {
         return Uni.Auth.checkPrivileges(typeof(MdcApp) != 'undefined' ? Fim.privileges.DataImport.viewMdc : typeof(SystemApp) != 'undefined' ? Fim.privileges.DataImport.viewAdmin : []);
     },
-    getAdmin: function () {
+    getAdmin: function () {		
+		console.log(typeof(MdcApp) != 'undefined' ? false : typeof(SystemApp) != 'undefined' ? Uni.Auth.checkPrivileges(Fim.privileges.DataImport.admin) : false);
         return typeof(MdcApp) != 'undefined' ? false : typeof(SystemApp) != 'undefined' ? Uni.Auth.checkPrivileges(Fim.privileges.DataImport.admin) : false;
+    },
+	getAdminPrivilege: function () {				
+        return typeof(MdcApp) != 'undefined' ? false : typeof(SystemApp) != 'undefined' ? Fim.privileges.DataImport.admin : false;
     }
+	
 });

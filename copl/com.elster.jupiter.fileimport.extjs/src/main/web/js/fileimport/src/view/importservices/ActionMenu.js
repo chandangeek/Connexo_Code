@@ -22,6 +22,11 @@ Ext.define('Fim.view.importservices.ActionMenu', {
             text: Uni.I18n.translate('general.viewDetails', 'FIM', 'View details'),
             action: 'viewImportService'
         },
+		{
+            itemId: 'view-history-import-service',
+            text: Uni.I18n.translate('general.viewHistory', 'FIM', 'View history'),
+            action: 'viewImportServiceHistory'
+        },
         {
             itemId: 'activate-import-service',
             text: Uni.I18n.translate('general.activate', 'FIM', 'Activate'),
