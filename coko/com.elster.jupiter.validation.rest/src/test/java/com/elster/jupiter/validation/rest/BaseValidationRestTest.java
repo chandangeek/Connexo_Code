@@ -1,8 +1,5 @@
 package com.elster.jupiter.validation.rest;
 
-
-//import com.elster.jupiter.appserver.AppService;
-
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
@@ -45,6 +42,8 @@ import java.lang.reflect.Proxy;
 import java.util.Optional;
 import java.util.function.Supplier;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -68,16 +67,15 @@ public class BaseValidationRestTest extends JerseyTest {
     protected EndDeviceGroup endDeviceGroup;
     @Mock
     protected TimeService timeService;
-
-
-    protected DataValidationTaskBuilder builder = initBuilderStub();
-
+    @Mock
+    protected RestQueryService restQueryService;
     @Mock
     protected DataValidationTask dataValidationTask;
 
-    protected RestQueryService restQueryService;
+    protected DataValidationTaskBuilder builder = initBuilderStub();
     protected PropertyUtils propertyUtils;
     protected ValidationApplication serviceLocator;
+    private ValidationRuleInfoFactory validationRuleInfoFactory;
 
     private DataValidationTaskBuilder initBuilderStub() {
         final Object proxyInstance = Proxy.newProxyInstance(DataValidationTaskBuilder.class.getClassLoader(), new Class<?>[]{DataValidationTaskBuilder.class}, new InvocationHandler() {
@@ -98,6 +96,9 @@ public class BaseValidationRestTest extends JerseyTest {
 
     @Before
     public void setUp() throws Exception {
+        when(nlsService.getThesaurus(anyString(), any())).thenReturn(thesaurus);
+        propertyUtils = new PropertyUtils(nlsService);
+        validationRuleInfoFactory = new ValidationRuleInfoFactory(propertyUtils);
         super.setUp();
         serviceLocator = new ValidationApplication();
         serviceLocator.setValidationService(validationService);
@@ -126,17 +127,9 @@ public class BaseValidationRestTest extends JerseyTest {
     public void tearDown() throws Exception {
         super.tearDown();
     }
-    
-    private void init() {
-        restQueryService = mock(RestQueryService.class);
-        propertyUtils = new PropertyUtils(nlsService);
-        thesaurus = mock(Thesaurus.class);
-    }
 
     @Override
     protected Application configure() {
-        init();
-        
         enable(TestProperties.LOG_TRAFFIC);
         enable(TestProperties.DUMP_ENTITY);
 
@@ -155,7 +148,9 @@ public class BaseValidationRestTest extends JerseyTest {
                 bind(transactionService).to(TransactionService.class);
                 bind(meteringGroupsService).to(MeteringGroupsService.class);
                 bind(timeService).to(TimeService.class);
+                bind(nlsService).to(NlsService.class);
                 bind(thesaurus).to(Thesaurus.class);
+                bind(validationRuleInfoFactory).to(ValidationRuleInfoFactory.class);
 //              bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
             }
         });
