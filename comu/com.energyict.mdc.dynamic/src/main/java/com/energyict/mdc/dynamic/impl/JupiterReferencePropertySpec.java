@@ -1,7 +1,7 @@
 package com.energyict.mdc.dynamic.impl;
 
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
-import com.energyict.mdc.common.HasId;
+import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.dynamic.JupiterReferenceFactory;
 
 import com.elster.jupiter.properties.PropertySpecPossibleValuesImpl;
