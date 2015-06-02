@@ -1,5 +1,7 @@
 package com.elster.jupiter.fileimport.impl;
 
+import com.elster.jupiter.domain.util.DefaultFinder;
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.fileimport.*;
 import com.elster.jupiter.messaging.DestinationSpec;
@@ -8,6 +10,8 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.ScheduleExpression;
 import com.elster.jupiter.util.time.ScheduleExpressionParser;
@@ -292,6 +296,16 @@ class ImportScheduleImpl implements ImportSchedule {
         this.active = active;
     }
 
+    @Override
+    public Finder<FileImportOccurrence> getFileImportOccurrences() {
+        return DefaultFinder.of(FileImportOccurrence.class,  Where.where("importScheduleId").isEqualTo(getId()), dataModel);
+    }
+
+    @Override
+    public Optional<FileImportOccurrence>  getFileImportOccurrence(long occurrenceId) {
+        return dataModel.mapper(FileImportOccurrence.class).getOptional(occurrenceId);
+    }
+
 
     @Override
     public FileImportOccurrenceImpl createFileImportOccurrence(File file) {
@@ -300,6 +314,13 @@ class ImportScheduleImpl implements ImportSchedule {
         }
         return FileImportOccurrenceImpl.create(fileSystem, dataModel, fileNameCollisionresolver, thesaurus, this, file);
     }
+
+    public Logger getLogger(FileImportOccurrence occurrence) {
+        Logger logger = Logger.getAnonymousLogger();
+        logger.addHandler(occurrence.createFileImportLogHandler().asHandler());
+        return logger;
+    }
+
 
     private void checkRequiredProperty(String propertyName, Map<String, Object> properties) {
         if (!properties.containsKey(propertyName)) {

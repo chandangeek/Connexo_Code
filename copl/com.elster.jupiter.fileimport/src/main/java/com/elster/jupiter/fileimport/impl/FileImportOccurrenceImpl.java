@@ -1,9 +1,14 @@
 package com.elster.jupiter.fileimport.impl;
 
+import com.elster.jupiter.domain.util.DefaultFinder;
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.fileimport.*;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.conditions.Where;
 
 import javax.inject.Inject;
 import java.io.File;
@@ -17,6 +22,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import static com.elster.jupiter.util.conditions.Where.where;
 
 final class FileImportOccurrenceImpl implements FileImportOccurrence {
 
@@ -34,7 +42,9 @@ final class FileImportOccurrenceImpl implements FileImportOccurrence {
     private final FileNameCollisionResolver fileNameCollisionResolver;
     private final Thesaurus thesaurus;
     private Clock clock;
-    private List<FileImportLogEntry> logEntries = new ArrayList<>();
+    private List<ImportLogEntry> logEntries = new ArrayList<>();
+
+    Logger logger;
 
     @Inject
     private FileImportOccurrenceImpl(FileSystem fileSystem, DataModel dataModel, FileNameCollisionResolver fileNameCollisionResolver, Thesaurus thesaurus) {
@@ -54,6 +64,9 @@ final class FileImportOccurrenceImpl implements FileImportOccurrence {
             throw new IllegalStateException();
         }
         this.status = Status.PROCESSING;
+
+        MessageSeeds.FILE_IMPORT_STARTED.log(getLogger(),thesaurus);
+
         moveFile();
         save();
     }
@@ -112,6 +125,7 @@ final class FileImportOccurrenceImpl implements FileImportOccurrence {
         ensureStreamClosed();
         moveFile();
         save();
+        MessageSeeds.FILE_IMPORT_FINISHED.log(getLogger(),thesaurus);
     }
 
     @Override
@@ -130,13 +144,21 @@ final class FileImportOccurrenceImpl implements FileImportOccurrence {
     }
 
     @Override
-    public List<FileImportLogEntry> getLogs() {
+    public List<ImportLogEntry> getLogs() {
         return Collections.unmodifiableList(logEntries);
     }
 
     @Override
-    public FileImportLogHandler createTaskLogHandler() {
+    public FileImportLogHandler createFileImportLogHandler() {
         return new FileImportLogHandlerImpl(this);
+    }
+
+    public Logger getLogger() {
+        if(logger == null) {
+            logger = Logger.getAnonymousLogger();
+            logger.addHandler(createFileImportLogHandler().asHandler());
+        }
+        return logger;
     }
 
     @Override
@@ -144,8 +166,17 @@ final class FileImportOccurrenceImpl implements FileImportOccurrence {
         this.clock = clock;
     }
 
+    @Override
+    public Finder<ImportLogEntry> getLogsFinder() {
+        Condition condition = where("fileImportOccurrenceReference").isEqualTo(this);
+        //Order[] orders = new Order[]{Order.descending("timeStamp"), Order.ascending("position")};
+        return DefaultFinder.of(ImportLogEntry.class,condition , dataModel)
+                .sorted("timeStamp", false)
+                .sorted("position", true);
+    }
+
     void log(Level level, Instant timestamp, String message) {
-        logEntries.add(dataModel.getInstance(FileImportLogEntryImpl.class).init(this, timestamp, level, message));
+        logEntries.add(dataModel.getInstance(ImportLogEntryImpl.class).init(this, timestamp, level, message));
     }
 
     void save() {

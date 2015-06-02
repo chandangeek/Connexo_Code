@@ -1,6 +1,6 @@
 package com.elster.jupiter.fileimport.impl;
 
-import com.elster.jupiter.fileimport.FileImportLogEntry;
+import com.elster.jupiter.fileimport.ImportLogEntry;
 import com.elster.jupiter.fileimport.FileImportOccurrence;
 import com.elster.jupiter.fileimport.FileImporterProperty;
 import com.elster.jupiter.fileimport.ImportSchedule;
@@ -48,10 +48,10 @@ enum TableSpecs {
         }
     },
 
-    FIM_FILE_IMPORT_LOG(FileImportLogEntry.class) {
+    FIM_FILE_IMPORT_LOG(ImportLogEntry.class) {
         @Override
         void describeTable(Table table) {
-            table.map(FileImportLogEntryImpl.class);
+            table.map(ImportLogEntryImpl.class);
             Column fileImportOccurrenceColumn = table.column("FILEIMPORTOCCURRENCE").number().notNull().conversion(NUMBER2LONG).add();
             Column position = table.column("POSITION").number().notNull().map("position").conversion(NUMBER2INT).add();
             table.column("TIMESTAMP").number().notNull().conversion(NUMBER2INSTANT).map("timeStamp").add();

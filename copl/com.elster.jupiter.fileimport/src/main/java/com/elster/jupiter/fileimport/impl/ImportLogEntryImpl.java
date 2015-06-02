@@ -1,7 +1,7 @@
 package com.elster.jupiter.fileimport.impl;
 
 
-import com.elster.jupiter.fileimport.FileImportLogEntry;
+import com.elster.jupiter.fileimport.ImportLogEntry;
 import com.elster.jupiter.fileimport.FileImportOccurrence;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
@@ -11,7 +11,7 @@ import javax.inject.Inject;
 import java.time.Instant;
 import java.util.logging.Level;
 
-public class FileImportLogEntryImpl implements FileImportLogEntry{
+public class ImportLogEntryImpl implements ImportLogEntry {
 
     private Reference<FileImportOccurrence> fileImportOccurrenceReference = ValueReference.absent();
     private int position;
@@ -21,10 +21,10 @@ public class FileImportLogEntryImpl implements FileImportLogEntry{
     private int level;
 
     @Inject
-    FileImportLogEntryImpl() {
+    ImportLogEntryImpl() {
     }
 
-    FileImportLogEntryImpl init(FileImportOccurrence occurrence, Instant timeStamp, Level level, String message) {
+    ImportLogEntryImpl init(FileImportOccurrence occurrence, Instant timeStamp, Level level, String message) {
         this.fileImportOccurrenceReference.set(occurrence);
         this.timeStamp = timeStamp;
         this.level = level.intValue();

@@ -256,6 +256,21 @@ public class FileImportServiceImpl implements InstallService, FileImportService 
     }
 
     @Override
+    public FileImportOccurrenceFinderBuilder getFileImportOccurenceFinderBuilder(String applicationName, Long importScheduleId) {
+
+        List importers = getAvailableImporters(applicationName).stream().map(FileImporterFactory::getName).collect(Collectors.toList());
+        Condition conditionImportName = importers.isEmpty() ? Condition.FALSE : Where.where("importSchedule.importerName").in(importers);
+        Condition conditionImportSchedule = importScheduleId == null ? Condition.TRUE : Where.where("importScheduleId").isEqualTo(importScheduleId);
+        Condition condition = conditionImportName.and(conditionImportSchedule);
+        return new FileImportOccurrenceFinderBuilderImpl(dataModel, condition);
+    }
+
+    @Override
+    public Optional<FileImportOccurrence> getFileImportOccurrence(Long id){
+        return dataModel.mapper(FileImportOccurrence.class).getOptional(id);
+    }
+
+    @Override
     public List<PropertySpec> getPropertiesSpecsForImporter(String importerName) {
         return getImportFactory(importerName)
                 .map(FileImporterFactory::getPropertySpecs)

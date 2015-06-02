@@ -4,9 +4,7 @@ import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.util.conditions.Where;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -61,6 +59,16 @@ public interface FileImportService {
      * @return the list of import schedules
      */
     Finder<ImportSchedule> findImportSchedules(String applicationName);
+
+    /**
+     * @return the a file occurrence finder for specified application name and/or schedule id
+     */
+    FileImportOccurrenceFinderBuilder getFileImportOccurenceFinderBuilder(String applicationName, Long importScheduleId);
+
+    /**
+     * @return the file occurrece with specified id
+     */
+    Optional<FileImportOccurrence> getFileImportOccurrence(Long id);
 
     /**
      * @param importerName

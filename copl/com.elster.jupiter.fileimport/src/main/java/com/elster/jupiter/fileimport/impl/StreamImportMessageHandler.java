@@ -11,6 +11,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.elster.jupiter.util.conditions.Operator.EQUAL;
+
 /**
  * MessageHandler that interprets messages to contain FileImportMessages, and that consequently passes the matching FileImport instance to the configured FileImporter.
  */
@@ -30,7 +32,7 @@ class StreamImportMessageHandler implements MessageHandler {
 
     @Override
     public void process(Message message) {
-        FileImportOccurrence fileImportOccurrence = getFileImport(message);
+        FileImportOccurrence fileImportOccurrence = getFileImportOccurrence(message);
         if (fileImportOccurrence != null) {
             String importerName = fileImportOccurrence.getImportSchedule().getImporterName();
             Map<String, Object> propertyMap = new HashMap<>();
@@ -51,11 +53,11 @@ class StreamImportMessageHandler implements MessageHandler {
                 .findFirst().orElseThrow(IllegalArgumentException::new).getPossibleValues().getDefault();
     }
 
-    private FileImportOccurrence getFileImport(Message message) {
+    private FileImportOccurrence getFileImportOccurrence(Message message) {
         FileImportOccurrence fileImportOccurrence = null;
         FileImportMessage fileImportMessage = getFileImportMessage(message);
         if (fileImportMessage != null) {
-            fileImportOccurrence = dataModel.mapper(FileImportOccurrence.class).getOptional(fileImportMessage.fileImportId).get();
+            fileImportOccurrence = dataModel.mapper(FileImportOccurrence.class ).getOptional(fileImportMessage.fileImportId).get();
         }
         return fileImportOccurrence;
     }

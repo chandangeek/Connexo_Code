@@ -1,5 +1,6 @@
 package com.elster.jupiter.fileimport;
 
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.orm.History;
 import com.elster.jupiter.properties.PropertySpec;
@@ -8,6 +9,7 @@ import com.elster.jupiter.util.time.ScheduleExpression;
 import java.io.File;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Entity that models when a certain directory should be scanned for files to import and where to move them during different stages of the import cycle.
@@ -130,4 +132,7 @@ public interface ImportSchedule {
 
     void setActive(Boolean active);
 
+    Finder<FileImportOccurrence> getFileImportOccurrences();
+
+    Optional<FileImportOccurrence> getFileImportOccurrence(long occurrenceId);
 }

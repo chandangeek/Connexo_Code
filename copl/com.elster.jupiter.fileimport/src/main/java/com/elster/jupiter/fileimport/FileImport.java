@@ -1,13 +1,6 @@
 package com.elster.jupiter.fileimport;
 
-import com.elster.jupiter.domain.util.Finder;
-
 import java.io.InputStream;
-import java.time.Clock;
-import java.time.Instant;
-import java.util.List;
-import java.util.Optional;
-import java.util.logging.Logger;
 
 /**
  * A FileImport is an occurrence of one file being imported.
@@ -21,7 +14,7 @@ import java.util.logging.Logger;
  * FileImport shields the actual file from the code that does the actual processing of its contents,
  * allowing the underlying file system to vary as needed.
  */
-public interface FileImportOccurrence {
+public interface FileImport {
 
     /**
      * Opens a new inputStream of the contents of the file.
@@ -37,7 +30,7 @@ public interface FileImportOccurrence {
     /**
      * @return the current State
      */
-    Status getStatus();
+    State getState();
 
     /**
      * Marks the file as successfully imported
@@ -64,18 +57,4 @@ public interface FileImportOccurrence {
 
 
     ImportSchedule getImportSchedule();
-
-    Optional<Instant> getStartDate();
-
-    Optional<Instant> getEndDate();
-
-    List<ImportLogEntry> getLogs();
-
-    FileImportLogHandler createFileImportLogHandler();
-
-    Logger getLogger();
-
-    void setClock(Clock clock);
-
-    Finder<ImportLogEntry> getLogsFinder();
 }
