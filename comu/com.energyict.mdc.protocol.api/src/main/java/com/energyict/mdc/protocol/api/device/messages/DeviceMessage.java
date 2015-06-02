@@ -1,6 +1,6 @@
 package com.energyict.mdc.protocol.api.device.messages;
 
-import com.energyict.mdc.common.HasId;
+import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
