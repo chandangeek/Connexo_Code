@@ -2,7 +2,7 @@ package com.energyict.mdc.device.config;
 
 import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.util.HasName;
-import com.energyict.mdc.common.HasId;
+import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;

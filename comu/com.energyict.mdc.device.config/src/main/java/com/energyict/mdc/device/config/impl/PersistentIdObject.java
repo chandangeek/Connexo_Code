@@ -5,7 +5,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
-import com.energyict.mdc.common.HasId;
+import com.elster.jupiter.util.HasId;
 
 import java.util.Iterator;
 import java.util.List;
@@ -133,7 +133,7 @@ public abstract class PersistentIdObject<T> {
 
     /**
      * Checks whether the given list of HasId objects contains the given HasId object.
-     * (the match is made using the {@link #isSameIdObject(com.energyict.mdc.common.HasId, com.energyict.mdc.common.HasId)} method
+     * (the match is made using the {@link #isSameIdObject(HasId, HasId)} method
      *
      * @param hasIdList the list containing the HasId objects
      * @param idObject  the hasId object to check if it exists in the list
