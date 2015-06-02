@@ -10,7 +10,8 @@ import static java.util.stream.Collectors.toList;
 public class PropertyInfoFactory {
     public PropertyInfo asInfoObject(SearchableProperty property) {
         PropertyInfo propertyInfo = new PropertyInfo();
-        propertyInfo.name = property.getSpecification().getName();
+        propertyInfo.name = property.getName();
+        propertyInfo.displayValue = property.getDisplayName();
         propertyInfo.type = property.getSpecification().getValueFactory().getValueType().getSimpleName();
         property.getGroup().ifPresent(g->propertyInfo.group=g.getId());
         propertyInfo.selectionMode = property.getSelectionMode();

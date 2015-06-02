@@ -9,6 +9,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  */
 public class PropertyInfo {
     public String name;
+    public String displayValue;
     public String group;
     public String type;
     @XmlJavaTypeAdapter(SelectionModeAdapter.class)

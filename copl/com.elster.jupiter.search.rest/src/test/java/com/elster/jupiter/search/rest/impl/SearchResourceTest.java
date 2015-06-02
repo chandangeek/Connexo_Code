@@ -1,11 +1,14 @@
 package com.elster.jupiter.search.rest.impl;
 
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.PropertySpecPossibleValues;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyGroup;
+import com.elster.jupiter.util.HasId;
+import com.elster.jupiter.util.HasName;
 import com.jayway.jsonpath.JsonModel;
 import java.io.ByteArrayInputStream;
 import java.util.Arrays;
@@ -22,7 +25,7 @@ import static org.mockito.Mockito.when;
 /**
  * Created by bvn on 6/1/15.
  */
-public class SearchTest extends SearchApplicationTest {
+public class SearchResourceTest extends SearchApplicationTest {
 
     @Override
     @Before
@@ -39,28 +42,29 @@ public class SearchTest extends SearchApplicationTest {
     private SearchDomain mockDeviceSearchDomain() {
         SearchDomain devicesDomain = mock(SearchDomain.class);
         when(devicesDomain.getId()).thenReturn("devices");
-        SearchableProperty mRID = mockMRID();
-        SearchableProperty deviceType = mockDeviceType();
-        SearchableProperty deviceConfig = mockDeviceConfig();
+        SearchableProperty mRID = mockMRIDProperty();
+        SearchableProperty deviceType = mockDeviceTypeProperty();
+        SearchableProperty deviceConfig = mockDeviceConfigProperty();
         when(deviceConfig.getConstraints()).thenReturn(Arrays.asList(deviceType));
 
         when(devicesDomain.getProperties()).thenReturn(Arrays.asList(mRID, deviceType, deviceConfig));
         return devicesDomain;
     }
 
-    private SearchableProperty mockMRID() {
+    private SearchableProperty mockMRIDProperty() {
         SearchableProperty mRID = mock(SearchableProperty.class);
         when(mRID.getGroup()).thenReturn(Optional.<SearchablePropertyGroup>empty());
         when(mRID.getSelectionMode()).thenReturn(SearchableProperty.SelectionMode.MULTI);
         when(mRID.getVisibility()).thenReturn(SearchableProperty.Visibility.STICKY);
         PropertySpec propertySpec = mock(PropertySpec.class);
         when(propertySpec.getValueFactory()).thenReturn(new StringFactory());
-        when(propertySpec.getName()).thenReturn("mRID");
+        when(mRID.getName()).thenReturn("mRID");
+        when(mRID.getDisplayName()).thenReturn("mRID");
         when(mRID.getSpecification()).thenReturn(propertySpec);
         return mRID;
     }
 
-    private SearchableProperty mockDeviceType() {
+    private SearchableProperty mockDeviceTypeProperty() {
         SearchableProperty deviceType = mock(SearchableProperty.class);
         when(deviceType.getGroup()).thenReturn(Optional.<SearchablePropertyGroup>empty());
         when(deviceType.getSelectionMode()).thenReturn(SearchableProperty.SelectionMode.MULTI);
@@ -69,12 +73,13 @@ public class SearchTest extends SearchApplicationTest {
         ValueFactory valueFactory = mock(ValueFactory.class);
         when(valueFactory.getValueType()).thenReturn(DeviceType.class);
         when(propertySpec.getValueFactory()).thenReturn(valueFactory);
-        when(propertySpec.getName()).thenReturn("deviceType");
+        when(deviceType.getName()).thenReturn("deviceType");
+        when(deviceType.getDisplayName()).thenReturn("Device type");
         when(deviceType.getSpecification()).thenReturn(propertySpec);
         return deviceType;
     }
 
-    private SearchableProperty mockDeviceConfig() {
+    private SearchableProperty mockDeviceConfigProperty() {
         SearchableProperty deviceConfig = mock(SearchableProperty.class);
         when(deviceConfig.getGroup()).thenReturn(Optional.<SearchablePropertyGroup>empty());
         when(deviceConfig.getSelectionMode()).thenReturn(SearchableProperty.SelectionMode.MULTI);
@@ -83,6 +88,17 @@ public class SearchTest extends SearchApplicationTest {
         ValueFactory valueFactory = mock(ValueFactory.class);
         when(valueFactory.getValueType()).thenReturn(DeviceConfig.class);
         when(propertySpec.getValueFactory()).thenReturn(valueFactory);
+        PropertySpecPossibleValues possibleValue = mock(PropertySpecPossibleValues.class);
+        DeviceConfig deviceConfig1 = mock(DeviceConfig.class);
+        when(deviceConfig1.getName()).thenReturn("device config 1");
+        when(deviceConfig1.getId()).thenReturn(1L);
+        DeviceConfig deviceConfig2 = mock(DeviceConfig.class);
+        when(deviceConfig2.getName()).thenReturn("device config 2");
+        when(deviceConfig2.getId()).thenReturn(2L);
+        when(possibleValue.getAllValues()).thenReturn(Arrays.asList(deviceConfig1, deviceConfig2));
+        when(propertySpec.getPossibleValues()).thenReturn(possibleValue);
+        when(deviceConfig.getName()).thenReturn("deviceConfig");
+        when(deviceConfig.getDisplayName()).thenReturn("Device configuration");
         when(deviceConfig.getSpecification()).thenReturn(propertySpec);
         return deviceConfig;
     }
@@ -111,13 +127,18 @@ public class SearchTest extends SearchApplicationTest {
         assertThat(model.<String>get("$.properties[0].visibility")).isEqualTo("sticky");
         assertThat(model.<List>get("$.properties[0].constraints")).hasSize(0);
 
+        assertThat(model.<String>get("$.properties[2].name")).isEqualTo("deviceConfig");
+        assertThat(model.<String>get("$.properties[2].displayValue")).isEqualTo("Device configuration");
         assertThat(model.<List>get("$.properties[2].constraints")).hasSize(1);
     }
 
-    class DeviceType {
+    @Test
+    public void testGetDomainPropertyValues() throws Exception {
 
+        Response response = target("/search/devices/deviceConfig").request().accept("application/json").get();
+        JsonModel model = JsonModel.model((ByteArrayInputStream)response.getEntity());
     }
-    class DeviceConfig {
 
-    }
+    interface DeviceType extends HasId, HasName { }
+    interface DeviceConfig extends HasId, HasName {  }
 }

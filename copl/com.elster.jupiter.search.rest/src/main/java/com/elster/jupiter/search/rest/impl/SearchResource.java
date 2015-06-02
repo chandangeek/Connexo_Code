@@ -1,5 +1,6 @@
 package com.elster.jupiter.search.rest.impl;
 
+import com.elster.jupiter.properties.PropertySpecPossibleValues;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
@@ -7,6 +8,9 @@ import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.rest.MessageSeeds;
+import com.elster.jupiter.util.HasId;
+import com.elster.jupiter.util.HasName;
+import java.util.Collections;
 import java.util.List;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
@@ -67,10 +71,26 @@ public class SearchResource {
     @Path("/{domain}/{property}")
     public Response getDomainPropertyValues(@PathParam("domain") String domainId, @PathParam("property") String property, @BeanParam JsonQueryParameters jsonQueryParameters) {
         SearchDomain searchDomain = searchService.getDomains().stream().filter(domain -> domain.getId().equals(domainId)).findFirst().orElseThrow(()->exceptionFactory.newException(MessageSeeds.NO_SUCH_SEARCH_DOMAIN));
-        SearchableProperty searchableProperty = searchDomain.getProperties().stream().filter(p -> p.getSpecification().getName().equals(property)).findFirst().orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_PROPERTY, property));
-        List allValues = searchableProperty.getSpecification().getPossibleValues().getAllValues();
-        return Response.ok().entity(PagedInfoList.fromCompleteList("values", allValues, jsonQueryParameters)).build();
+        SearchableProperty searchableProperty = searchDomain.getProperties().stream().filter(p -> p.getName().equals(property)).findFirst().orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_PROPERTY, property));
+        PropertySpecPossibleValues possibleValues = searchableProperty.getSpecification().getPossibleValues();
+        List<?> allValues = possibleValues!=null?possibleValues.getAllValues():Collections.emptyList();
+        List allJsonValues = allValues.stream().map(this::asJsonValueObject).collect(toList());
+        return Response.ok().entity(PagedInfoList.fromCompleteList("values", allJsonValues, jsonQueryParameters)).build();
     }
+
+    private IdWithDisplayValueInfo asJsonValueObject(Object valueObject) {
+        IdWithDisplayValueInfo info = new IdWithDisplayValueInfo();
+        if (HasName.class.isAssignableFrom(valueObject.getClass())) {
+            info.displayValue = ((HasName)valueObject).getName();
+        }
+        if (HasId.class.isAssignableFrom(valueObject.getClass())) {
+            info.id = ((HasId)valueObject).getId();
+        } else if (Enum.class.isAssignableFrom(valueObject.getClass())) {
+            info.id = ((Enum)valueObject).name();
+        }
+        return info;
+    }
+
 
     class SearchDomainInfo {
         public String name;
@@ -84,6 +104,11 @@ public class SearchResource {
             this.name = searchDomain.getId();
             this.link = Link.fromUriBuilder(uriInfo.getBaseUriBuilder().path(SearchResource.class).path(SearchResource.class, "getDomainProperties")).build(searchDomain.getId());
         }
+    }
+
+    class IdWithDisplayValueInfo {
+        public Object id;
+        public String displayValue;
     }
 
     class PropertyList {
