@@ -2,7 +2,7 @@ package com.energyict.mdc.engine.config;
 
 import com.elster.jupiter.util.HasName;
 import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.common.HasId;
+import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.io.SerialPortConfiguration;
 

@@ -1,7 +1,7 @@
 package com.energyict.mdc.engine.config;
 
 import com.elster.jupiter.util.HasName;
-import com.energyict.mdc.common.HasId;
+import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.protocol.api.ComPortType;
 
 import java.time.Instant;
