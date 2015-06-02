@@ -82,6 +82,11 @@ public class StateNameSearchableProperty extends AbstractSearchableDevicePropert
     }
 
     @Override
+    protected String toDisplayAfterValidation(Object value) {
+        return String.valueOf(value);
+    }
+
+    @Override
     public PropertySpec getSpecification() {
         return this.propertySpecService.stringPropertySpecWithValues(
                 VIRTUAL_FIELD_NAME,

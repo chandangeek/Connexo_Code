@@ -65,6 +65,11 @@ public class MasterResourceIdentifierSearchableProperty extends AbstractSearchab
     }
 
     @Override
+    protected String toDisplayAfterValidation(Object value) {
+        return String.valueOf(value);
+    }
+
+    @Override
     public PropertySpec getSpecification() {
         return this.propertySpecService.basicPropertySpec(
                     DeviceFields.MRID.fieldName(),

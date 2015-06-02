@@ -65,6 +65,11 @@ public class SerialNumberSearchableProperty extends AbstractSearchableDeviceProp
     }
 
     @Override
+    protected String toDisplayAfterValidation(Object value) {
+        return String.valueOf(value);
+    }
+
+    @Override
     public PropertySpec getSpecification() {
         return this.propertySpecService.basicPropertySpec(
                     DeviceFields.SERIALNUMBER.fieldName(),

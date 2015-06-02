@@ -37,6 +37,24 @@ public abstract class AbstractSearchableDeviceProperty implements SearchableDevi
     private String columnName;
     private Instant now;
 
+    @Override
+    public final String toDisplay(Object value) {
+        this.validateValueInDomain(value);
+        return this.toDisplayAfterValidation(value);
+    }
+
+    protected abstract String toDisplayAfterValidation(Object value);
+
+    /**
+     * Checks that the specified value is compatible with the SearchDomain.
+     *
+     * @param value The value
+     */
+    protected void validateValueInDomain(Object value) {
+        if (!getDomain().supports(value.getClass())) {
+            throw new IllegalArgumentException("Value not compatible with domain");
+        }
+    }
     protected SqlFragment toSqlFragment(String columnName, Condition condition, Instant now) {
         this.columnName = columnName;
         this.now = now;

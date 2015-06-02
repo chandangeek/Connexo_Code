@@ -38,6 +38,7 @@ public class DeviceConfigurationSearchableProperty extends AbstractSearchableDev
     private final PropertySpecService propertySpecService;
     private final Thesaurus thesaurus;
     private List<Object> deviceConfigurations = Collections.emptyList();
+    private DisplayStrategy displayStrategy = DisplayStrategy.NAME_ONLY;
 
     public DeviceConfigurationSearchableProperty(DeviceSearchDomain domain, SearchableProperty parent, PropertySpecService propertySpecService, Thesaurus thesaurus) {
         super();
@@ -106,6 +107,12 @@ public class DeviceConfigurationSearchableProperty extends AbstractSearchableDev
 
     private void refreshWithConstrictionValues(List<Object> list) {
         this.validateAllParentsAreDeviceTypes(list);
+        if (list.size() > 1) {
+            this.displayStrategy = DisplayStrategy.WITH_DEVICE_TYPE;
+        }
+        else {
+            this.displayStrategy = DisplayStrategy.NAME_ONLY;
+        }
         this.deviceConfigurations =
             list.stream()
                 .map(DeviceType.class::cast)
@@ -131,6 +138,29 @@ public class DeviceConfigurationSearchableProperty extends AbstractSearchableDev
     @Override
     public SqlFragment toSqlFragment(Condition condition, Instant now) {
         return this.toSqlFragment("deviceconfigid", condition, now);
+    }
+
+    @Override
+    protected String toDisplayAfterValidation(Object value) {
+        return this.displayStrategy.toDisplay((DeviceConfiguration) value);
+    }
+
+    private enum DisplayStrategy {
+        NAME_ONLY {
+            @Override
+            public String toDisplay(DeviceConfiguration deviceConfiguration) {
+                return deviceConfiguration.getName();
+            }
+        },
+
+        WITH_DEVICE_TYPE {
+            @Override
+            public String toDisplay(DeviceConfiguration deviceConfiguration) {
+                return deviceConfiguration.getName() + "(" + deviceConfiguration.getDeviceType().getName() + ")";
+            }
+        };
+
+        public abstract String toDisplay(DeviceConfiguration deviceConfiguration);
     }
 
 }

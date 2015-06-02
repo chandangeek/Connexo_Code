@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.impl.search;
 
 import com.energyict.mdc.common.FactoryIds;
+import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceFields;
 import com.energyict.mdc.dynamic.PropertySpecService;
@@ -64,6 +65,11 @@ public class DeviceTypeSearchableProperty extends AbstractSearchableDeviceProper
     @Override
     public String getDisplayName() {
         return PropertyTranslationKeys.DEVICE_TYPE.getDisplayName(this.thesaurus);
+    }
+
+    @Override
+    protected String toDisplayAfterValidation(Object value) {
+        return ((DeviceType) value).getName();
     }
 
     @Override
