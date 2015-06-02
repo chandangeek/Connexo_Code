@@ -16,6 +16,7 @@ import java.util.Objects;
 public final class Interval {
     private static final long ETERNITY = 1_000_000_000_000_000_000L;
     private static final Interval SINCE_EPOCH = new Interval(0, ETERNITY);
+    private static final Interval FOREVER = new Interval(-ETERNITY, ETERNITY);
 
     private final long start;
     private final long end;
@@ -55,6 +56,10 @@ public final class Interval {
         long start = range.hasLowerBound() ? range.lowerEndpoint().toEpochMilli() : -ETERNITY;
         long end = range.hasUpperBound() ? range.upperEndpoint().toEpochMilli() : ETERNITY;
         return new Interval(start, end);
+    }
+
+    public static Interval forever() {
+        return FOREVER;
     }
 
     /**
