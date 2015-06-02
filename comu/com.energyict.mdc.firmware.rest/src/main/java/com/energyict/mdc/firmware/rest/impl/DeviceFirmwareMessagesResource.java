@@ -171,9 +171,11 @@ public class DeviceFirmwareMessagesResource {
     private void cancelOldFirmwareUpdates(Device device, Map<String, Object> convertedProperties) {
         String firmwareVersionPropertyName = DeviceMessageConstants.firmwareUpdateFileAttributeName;
         FirmwareVersion requestedFirmwareVersion = (FirmwareVersion) convertedProperties.get(firmwareVersionPropertyName);
-        utilProvider.get()
-                .onDevice(device)
-                .cancelPendingFirmwareUpdates(requestedFirmwareVersion.getFirmwareType());
+        if (requestedFirmwareVersion != null) {
+            utilProvider.get()
+                    .onDevice(device)
+                    .cancelPendingFirmwareUpdates(requestedFirmwareVersion.getFirmwareType());
+        }
      }
 
     @DELETE
