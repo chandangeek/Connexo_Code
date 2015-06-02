@@ -33,7 +33,7 @@ import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class FileImportOccurrenceScheduleResourceTest extends FileImportOccurrenceApplicationTest {
+public class FileImportScheduleResourceTest  extends FileImportApplicationTest {
     @Before
     public void setUp() throws Exception {
         super.setUp();

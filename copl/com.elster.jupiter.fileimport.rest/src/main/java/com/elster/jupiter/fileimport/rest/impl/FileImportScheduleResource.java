@@ -1,29 +1,25 @@
 package com.elster.jupiter.fileimport.rest.impl;
 
 
-import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.fileimport.FileImportService;
-import com.elster.jupiter.fileimport.ImportSchedule;
-import com.elster.jupiter.fileimport.ImportScheduleBuilder;
+import com.elster.jupiter.fileimport.*;
 import com.elster.jupiter.fileimport.security.Privileges;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.rest.util.QueryParameters;
-import com.elster.jupiter.rest.util.RestQuery;
-import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.rest.util.*;
 import com.elster.jupiter.transaction.CommitException;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.cron.CronExpressionParser;
+import com.google.common.collect.Range;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.io.File;
+import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -50,23 +46,22 @@ public class FileImportScheduleResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_IMPORT_SERVICES, Privileges.VIEW_IMPORT_SERVICES, Privileges.VIEW_MDC_IMPORT_SERVICES})
-    public Response getImportSchedules(@Context UriInfo uriInfo, @QueryParam("application") String applicationName) {
-        QueryParameters params = QueryParameters.wrap(uriInfo.getQueryParameters());
-        List<ImportSchedule> list = queryImportSchedules(params)
-                .stream()
-                .filter(is -> applicationName != null && ("SYS".equals(applicationName) || applicationName.equals(is.getApplicationName())))
-                .collect(Collectors.toList());
+    public PagedInfoList getImportSchedules(@Context UriInfo uriInfo, @BeanParam JsonQueryParameters queryParameters, @QueryParam("application") String applicationName) {
 
-        FileImportScheduleInfos infos = new FileImportScheduleInfos(params.clipToLimit(list), thesaurus);
-        infos.total = params.determineTotal(list.size());
-
-        return Response.ok(infos).build();
+        List<ImportSchedule> list = fileImportService.findImportSchedules(applicationName).from(queryParameters).find();
+        List<FileImportScheduleInfo> data = list.stream().map(each -> new FileImportScheduleInfo(each, thesaurus)).collect(Collectors.toList());
+        return PagedInfoList.fromPagedList("importSchedules",data,queryParameters);
     }
 
-    private List<ImportSchedule> queryImportSchedules(QueryParameters queryParameters) {
-        Query<ImportSchedule> query = fileImportService.getImportSchedulesQuery();
-        RestQuery<ImportSchedule> restQuery = queryService.wrap(query);
-        return restQuery.select(queryParameters, Order.ascending("upper(name)"));
+    @GET
+    @Path("/list/")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.ADMINISTRATE_IMPORT_SERVICES, Privileges.VIEW_IMPORT_SERVICES, Privileges.VIEW_MDC_IMPORT_SERVICES})
+    public PagedInfoList getImportSchedulesList(@Context UriInfo uriInfo, @BeanParam JsonQueryParameters queryParameters, @QueryParam("application") String applicationName) {
+
+        List<ImportSchedule> list = fileImportService.findImportSchedules(applicationName).from(queryParameters).find();
+        List<ImportServiceNameInfo> data = list.stream().map(each -> new ImportServiceNameInfo(each, thesaurus)).collect(Collectors.toList());
+        return PagedInfoList.fromPagedList("importSchedules",data,queryParameters);
     }
 
 
@@ -95,8 +90,6 @@ public class FileImportScheduleResource {
                 .setImportDirectory(new File(info.importDirectory))
                 .setImporterName(info.importerInfo.name)
                 .setScheduleExpression(ScanFrequency.toScheduleExpression(info.scanFrequency, cronExpressionParser));
-                //.setScheduleExpression(getScheduleExpression(info));
-                //.setCronExpression(ScanFrequency.toScheduleExpression(info.scanFrequency,cronExpressionParser));
 
 
         List<PropertySpec> propertiesSpecs = fileImportService.getPropertiesSpecsForImporter(info.importerInfo.name);
@@ -151,9 +144,7 @@ public class FileImportScheduleResource {
             importSchedule.setProcessingDirectory(new File(info.inProcessDirectory));
             importSchedule.setImporterName(info.importerInfo.name);
             importSchedule.setPathMatcher(info.pathMatcher);
-            //importSchedule.setScheduleExpression(getScheduleExpression(info));
             importSchedule.setScheduleExpression(ScanFrequency.toScheduleExpression(info.scanFrequency, cronExpressionParser));
-
             updateProperties(info, importSchedule);
 
             importSchedule.save();
@@ -161,6 +152,108 @@ public class FileImportScheduleResource {
         }
         return Response.status(Response.Status.CREATED).entity(new FileImportScheduleInfo(importSchedule, thesaurus)).build();
     }
+
+    @GET
+    @Path("/{id}/history")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed({Privileges.ADMINISTRATE_IMPORT_SERVICES, Privileges.VIEW_IMPORT_SERVICES, Privileges.VIEW_MDC_IMPORT_SERVICES})
+    public PagedInfoList getImportScheduleOccurrences(@BeanParam JsonQueryParameters queryParameters,
+                                                                      @BeanParam JsonQueryFilter filter,
+                                                                      @PathParam("id") long importServiceId,
+                                                                      @QueryParam("application") String applicationName,
+                                                                      @Context SecurityContext securityContext) {
+
+        List<FileImportOccurrence> fileImportOccurences = getFileImportOccurrences(queryParameters, filter, applicationName, importServiceId);
+        List<FileImportOccurrenceInfo> data = fileImportOccurences.stream().map(each -> new FileImportOccurrenceInfo(each, thesaurus)).collect(Collectors.toList());
+        return PagedInfoList.fromPagedList("data", data, queryParameters);
+    }
+
+    @GET
+    @Path("/history")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed({Privileges.ADMINISTRATE_IMPORT_SERVICES, Privileges.VIEW_IMPORT_SERVICES, Privileges.VIEW_MDC_IMPORT_SERVICES})
+    public PagedInfoList geAllImportOccurrencesOccurrences(@BeanParam JsonQueryParameters queryParameters,
+                                                                           @BeanParam JsonQueryFilter filter,
+                                                                           @QueryParam("application") String applicationName,
+                                                                           @Context SecurityContext securityContext) {
+
+        List<FileImportOccurrence> fileImportOccurences = getFileImportOccurrences(queryParameters, filter, applicationName, null);
+        List<FileImportOccurrenceInfo> data = fileImportOccurences.stream().map(each -> new FileImportOccurrenceInfo(each, thesaurus)).collect(Collectors.toList());
+        return PagedInfoList.fromPagedList("data", data, queryParameters);
+    }
+
+    private List<FileImportOccurrence> getFileImportOccurrences(JsonQueryParameters queryParameters, JsonQueryFilter filter, String applicationName, Long importServiceId) {
+        FileImportOccurrenceFinderBuilder finderBuilder = fileImportService.getFileImportOccurenceFinderBuilder(applicationName, importServiceId);
+
+        if (filter.hasProperty("startedOnFrom")) {
+            if(filter.hasProperty("startedOnTo"))
+                finderBuilder.withStartDateIn(Range.closed(filter.getInstant("startedOnFrom"), filter.getInstant("startedOnTo")));
+            else
+                finderBuilder.withStartDateIn(Range.greaterThan(filter.getInstant("startedOnFrom")));
+        } else if (filter.hasProperty("startedOnTo")) {
+            finderBuilder.withStartDateIn(Range.closed(Instant.EPOCH, filter.getInstant("startedOnTo")));
+        }
+        if (filter.hasProperty("finishedOnFrom")) {
+            if(filter.hasProperty("finishedOnTo"))
+                finderBuilder.withEndDateIn(Range.closed(filter.getInstant("finishedOnFrom"),filter.getInstant("finishedOnTo")));
+            else
+                finderBuilder.withEndDateIn(Range.greaterThan(filter.getInstant("finishedOnFrom")));
+        } else if (filter.hasProperty("finishedOnTo")) {
+            finderBuilder.withEndDateIn(Range.closed(Instant.EPOCH, filter.getInstant("finishedOnTo")));
+        }
+
+        if (filter.hasProperty("importService")) {
+            finderBuilder.withImportServiceIn(filter.getLongList("importService"));
+        }
+        if (filter.hasProperty("status")) {
+
+            finderBuilder.withStatusIn(filter.getStringList("status")
+                    .stream()
+                    .map(Status::valueOf)
+                    .map(Status::ordinal)
+                    .map(Long.class::cast)
+                    .collect(Collectors.toList()));
+        }
+        return finderBuilder.build().from(queryParameters).find();
+    }
+
+
+
+    @GET
+    @Path("/{importServiceId}/history/{occurrenceId}")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed({Privileges.ADMINISTRATE_IMPORT_SERVICES, Privileges.VIEW_IMPORT_SERVICES, Privileges.VIEW_MDC_IMPORT_SERVICES})
+    public FileImportOccurrenceInfo geFileImportOccurence(@BeanParam JsonQueryParameters queryParameters,
+                                                           @BeanParam JsonQueryFilter filter,
+                                                           @PathParam("importServiceId") long importServiceId,
+                                                           @PathParam("occurrenceId") long occurrenceId,
+                                                           @Context SecurityContext securityContext) {
+
+        return new FileImportOccurrenceInfo(
+                fileImportService.getImportSchedule(importServiceId).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND))
+                        .getFileImportOccurrence(occurrenceId).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND)), thesaurus);
+    }
+
+    @GET
+    @Path("/{importServiceId}/history/{occurrenceId}/logs")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed({Privileges.ADMINISTRATE_IMPORT_SERVICES, Privileges.VIEW_IMPORT_SERVICES, Privileges.VIEW_MDC_IMPORT_SERVICES})
+    public PagedInfoList geFileImportOccurrenceLogEntries(@BeanParam JsonQueryParameters queryParameters,
+                                                    @BeanParam JsonQueryFilter filter,
+                                                    @PathParam("importServiceId") long importServiceId,
+                                                    @PathParam("occurrenceId") long occurrenceId,
+                                                    @Context SecurityContext securityContext) {
+
+        List<ImportLogEntry> logEntries = fileImportService
+                .getImportSchedule(importServiceId).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND))
+                .getFileImportOccurrence(occurrenceId).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND))
+                .getLogsFinder().from(queryParameters).find();
+
+        List<ImportLogEntryInfo> data = logEntries.stream().map(each -> new ImportLogEntryInfo(each, thesaurus)).collect(Collectors.toList());
+        return PagedInfoList.fromPagedList("data", data, queryParameters);
+    }
+
+
 
     /*private ScheduleExpression getScheduleExpression(FileImportScheduleInfo info) {
         if(info.schedule == null){
@@ -192,6 +285,8 @@ public class FileImportScheduleResource {
     private ImportSchedule fetchImportSchedule(long id) {
         return fileImportService.getImportSchedule(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
+
+
 
 
 }

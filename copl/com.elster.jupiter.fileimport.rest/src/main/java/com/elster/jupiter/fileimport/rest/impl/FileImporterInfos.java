@@ -23,7 +23,7 @@ public class FileImporterInfos {
     public FileImporterInfo add(FileImporterFactory fileImporter, Thesaurus thesaurus) {
         FileImporterInfo result = new FileImporterInfo(fileImporter.getName(),
                 thesaurus.getStringBeyondComponent(fileImporter.getName(),fileImporter.getName()),
-                new PropertyUtils().convertPropertySpecsToPropertyInfos(fileImporter.getProperties()));
+                new PropertyUtils().convertPropertySpecsToPropertyInfos(fileImporter.getPropertySpecs()));
         fileImporters.add(result);
         total++;
         return result;
