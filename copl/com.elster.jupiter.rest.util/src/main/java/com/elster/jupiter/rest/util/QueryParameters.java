@@ -11,7 +11,7 @@ import javax.ws.rs.core.UriInfo;
 
 /**
  */
-@Deprecated // use JsonQueryParameters from now on, will also be replaced by Query once ready
+@Deprecated // use JsonQueryParameters from now on
 public final class QueryParameters implements MultivaluedMap<String, String> {
 
     private final MultivaluedMap<String, String> map;
