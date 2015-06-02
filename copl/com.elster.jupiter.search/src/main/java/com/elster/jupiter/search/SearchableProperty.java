@@ -26,10 +26,19 @@ import java.util.Optional;
  * has not made any specification on the "class"
  * it is not possible for the UI to compile a
  * list of "subclasses".
+ * When user selects one or more value of the constraint property
+ * then all dependent properties need to be refreshed.
+ * Given that the user can select multiple properties,
+ * the dependent properties will contain some possible values
+ * that relate to the different selected constraint properties
+ * and these may not necessarily be unique.
+ * Therefore, the SearchableProperty will provide the display
+ * for each of its values.
+ * Also, not all values may be capable of producing a display value.
  * </p>
  * <p>
  * Currently, the fact that a {@link PropertySpec} can be
- * "required" or "optional" is not.
+ * "required" or "optional" is not used.
  * A property's visibility is either "sticky" or "removable".
  * Sticky properties are intended to be always visible on the
  * search screen while "removable" ones may be removed by the
@@ -98,6 +107,18 @@ public interface SearchableProperty {
     }
 
     public String getDisplayName();
+
+    /**
+     * Converts the specified value to an appropriate
+     * String value to be rendered on a display.
+     * Implementation classes may throw an IllegalArgumentException
+     * if the type of the value is not compatible with
+     * this SearchableProperty's domain.
+     *
+     * @param value The value
+     * @return The display value
+     */
+    public String toDisplay(Object value);
 
     /**
      * Tests if the {@link PropertySpec specification}
