@@ -20,8 +20,24 @@ Ext.define('Uni.property.view.property.Date', {
             required: me.required,
             readOnly: me.isReadOnly,
             inputType: me.inputType,
-            allowBlank: me.allowBlank
+            allowBlank: me.allowBlank,
+            editable: false,
+            listeners: {
+                change: {
+                    fn: me.checkValidDate,
+                    scope: me
+                }
+            }
         };
+    },
+
+    checkValidDate: function () {
+        var me = this,
+            date = me.getField().getValue();
+
+        if (!Ext.isDate(date)) {
+            me.getField().setValue(null);
+        }
     },
 
     getField: function () {
