@@ -3,7 +3,7 @@ package com.energyict.mdc.device.data.impl.search;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 
-import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.search.SearchBuilder;
 import com.elster.jupiter.search.SearchDomain;
@@ -12,7 +12,6 @@ import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.util.Pair;
-import com.elster.jupiter.util.conditions.Condition;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -20,8 +19,6 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static com.elster.jupiter.util.conditions.Where.where;
 
 /**
  * Insert your comments here.
@@ -127,11 +124,18 @@ public class SearchDevicesGogoCommand {
     }
 
     private SearchBuilder<Device> addCondition(SearchBuilder<Device> builder, String key, Object value) {
-        if (this.isWildCard(value)) {
-            return builder.where(key).like((String) value);
+        try {
+            if (this.isWildCard(value)) {
+                return builder.where(key).like((String) value);
+            }
+            else {
+                return builder.where(key).isEqualTo(value);
+            }
         }
-        else {
-            return builder.where(key).isEqualTo(value);
+        catch (InvalidValueException e) {
+            System.out.printf(String.valueOf(value) + " is not a valid value for property " + key);
+            e.printStackTrace(System.err);
+            throw new IllegalArgumentException(e);
         }
     }
 
@@ -155,7 +159,7 @@ public class SearchDevicesGogoCommand {
         }
     }
 
-    public void complexSearch(String mRID) {
+    public void complexSearch(String mRID) throws InvalidValueException {
         System.out.println(
                 this.searchService
                         .search(Device.class)

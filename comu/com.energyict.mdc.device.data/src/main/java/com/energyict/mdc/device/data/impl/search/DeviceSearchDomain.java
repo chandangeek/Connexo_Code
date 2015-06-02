@@ -78,6 +78,7 @@ public class DeviceSearchDomain implements SearchDomain {
                 new MasterResourceIdentifierSearchableProperty(this, this.propertySpecService, thesaurus),
                 new SerialNumberSearchableProperty(this, this.propertySpecService, thesaurus),
                 deviceTypeSearchableProperty,
+                new DeviceConfigurationSearchableProperty(this, deviceTypeSearchableProperty, this.propertySpecService, thesaurus),
                 new StateNameSearchableProperty(this, deviceTypeSearchableProperty, this.propertySpecService, thesaurus));
     }
 

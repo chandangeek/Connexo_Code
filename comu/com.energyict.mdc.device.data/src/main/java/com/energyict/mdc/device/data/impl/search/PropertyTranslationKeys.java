@@ -15,6 +15,7 @@ public enum PropertyTranslationKeys implements TranslationKey {
     DEVICE_MRID("device.mRID", "mRID"),
     DEVICE_SERIAL_NUMBER("device.serial.number", "Serial number"),
     DEVICE_TYPE("device.type", "Device type"),
+    DEVICE_CONFIGURATION("device.configuration", "Device configuration"),
     DEVICE_STATUS("device.status.name", "state");
 
     private String key;
