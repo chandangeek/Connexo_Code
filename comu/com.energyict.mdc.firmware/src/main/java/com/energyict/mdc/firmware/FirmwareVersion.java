@@ -1,6 +1,6 @@
 package com.energyict.mdc.firmware;
 
-import com.energyict.mdc.common.HasId;
+import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.device.config.DeviceType;
 
 public interface FirmwareVersion extends HasId{
