@@ -8,6 +8,7 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
+import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -23,6 +24,18 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class PropertySpecServiceImpl implements PropertySpecService {
 
     private volatile TimeService timeService;
+
+    // For OSGi purposes
+    public PropertySpecServiceImpl() {
+        super();
+    }
+
+    // For testing purposes
+    @Inject
+    public PropertySpecServiceImpl(TimeService timeService) {
+        this();
+        this.setTimeService(timeService);
+    }
 
     @Reference
     public void setTimeService(TimeService timeService) {
