@@ -1,7 +1,7 @@
 package com.energyict.mdc.tasks;
 
 import com.elster.jupiter.util.HasName;
-import com.energyict.mdc.common.HasId;
+import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.protocol.api.tasks.TopologyAction;
 import java.util.List;
 
