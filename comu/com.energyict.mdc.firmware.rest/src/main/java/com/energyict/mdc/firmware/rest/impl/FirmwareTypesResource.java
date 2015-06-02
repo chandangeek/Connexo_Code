@@ -1,7 +1,7 @@
 package com.energyict.mdc.firmware.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.common.rest.ExceptionFactory;
+import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.security.Privileges;
 import com.energyict.mdc.firmware.FirmwareService;
