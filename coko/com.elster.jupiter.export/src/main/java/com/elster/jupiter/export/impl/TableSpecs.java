@@ -41,7 +41,6 @@ enum TableSpecs {
                     .add();
             table.primaryKey("DES_PK_DATAEXPORTTASK").on(idColumn).add();
         }
-
     },
     DES_RTDATASELECTOR(ReadingTypeDataSelector.class) {
         @Override
@@ -84,7 +83,6 @@ enum TableSpecs {
                     .add();
             table.primaryKey("DES_PK_RTDATASELECTOR").on(idColumn).add();
         }
-
     },
     DES_READINGTYPE_IN_SELECTOR(ReadingTypeInDataSelector.class) {
         @Override
@@ -173,20 +171,26 @@ enum TableSpecs {
             Column idColumn = table.addAutoIdColumn();
             table.addDiscriminatorColumn("DISCRIMINATOR", "char(5)");
 
-            table.column("FILENAME").varChar(Table.NAME_LENGTH).notNull().map("fileName").add();
-            table.column("FILEEXTENSION").varChar(Table.NAME_LENGTH).notNull().map("fileExtension").add();
-            table.column("FILELOCATION").varChar(Table.DESCRIPTION_LENGTH).notNull().map("fileLocation").add();
+            Column taskColumn = table.column("TASK").number().notNull().add();
+            table.column("FILENAME").varChar(Table.NAME_LENGTH).map("fileName").add();
+            table.column("FILEEXTENSION").varChar(Table.NAME_LENGTH).map("fileExtension").add();
+            table.column("FILELOCATION").varChar(Table.DESCRIPTION_LENGTH).map("fileLocation").add();
 
-            table.column("RECIPIENTS").varChar(Table.DESCRIPTION_LENGTH).notNull().map("recipients").add();
-            table.column("SUBJECT").varChar(Table.NAME_LENGTH).notNull().map("subject").add();
-            table.column("ATTACHMENTNAME").varChar(Table.NAME_LENGTH).notNull().map("attachmentName").add();
-            table.column("ATTACHMENTEXTENSION").varChar(Table.NAME_LENGTH).notNull().map("attachmentExtension").add();
+            table.column("RECIPIENTS").varChar(Table.DESCRIPTION_LENGTH).map("recipients").add();
+            table.column("SUBJECT").varChar(Table.NAME_LENGTH).map("subject").add();
+            table.column("ATTACHMENTNAME").varChar(Table.NAME_LENGTH).map("attachmentName").add();
+            table.column("ATTACHMENTEXTENSION").varChar(Table.NAME_LENGTH).map("attachmentExtension").add();
 
             table.primaryKey("DES_PK_DESTINATION").on(idColumn).add();
-
+            table.foreignKey("DES_DEST_TASK")
+                    .on(taskColumn)
+                    .references(DES_DATAEXPORTTASK.toString())
+                    .map("task")
+                    .reverseMap("destinations")
+                    .composition()
+                    .add();
         }
     };
-
 
     private final Class<?> api;
 

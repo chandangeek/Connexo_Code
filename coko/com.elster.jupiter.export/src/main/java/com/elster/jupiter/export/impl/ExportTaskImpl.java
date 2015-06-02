@@ -2,11 +2,14 @@ package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.export.CannotDeleteWhileBusyException;
+import com.elster.jupiter.export.DataExportDestination;
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportOccurrenceFinder;
 import com.elster.jupiter.export.DataExportProperty;
 import com.elster.jupiter.export.DataExportStatus;
+import com.elster.jupiter.export.EmailDestination;
 import com.elster.jupiter.export.ExportTask;
+import com.elster.jupiter.export.FileDestination;
 import com.elster.jupiter.export.ReadingTypeDataSelector;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
@@ -69,6 +72,7 @@ public class ExportTaskImpl implements IExportTask {
     private String userName;
     @Valid
     private Reference<ReadingTypeDataSelector> readingTypeDataSelector = Reference.empty();
+    private List<DataExportDestination> destinations = new ArrayList<>();
 
     @Inject
     ExportTaskImpl(DataModel dataModel, IDataExportService dataExportService, TaskService taskService, Thesaurus thesaurus) {
@@ -363,6 +367,32 @@ public class ExportTaskImpl implements IExportTask {
     public void setReadingTypeDataSelector(ReadingTypeDataSelectorImpl readingTypeDataSelector) {
         this.readingTypeDataSelector.set(readingTypeDataSelector);
 
+    }
+
+    @Override
+    public FileDestination addFileDestination(String fileLocation, String fileName, String fileExtension) {
+        FileDestinationImpl fileDestination = dataModel.getInstance(FileDestinationImpl.class).init(this, fileLocation, fileName, fileExtension);
+        destinations.add(fileDestination);
+        save();
+        return fileDestination;
+    }
+
+    @Override
+    public EmailDestination addEmailDestination(String recipients, String subject, String attachmentName, String attachmentExtension) {
+        EmailDestinationImpl emailDestination = EmailDestinationImpl.from(this, dataModel, recipients, subject, attachmentName, attachmentExtension);
+        destinations.add(emailDestination);
+        save();
+        return emailDestination;
+    }
+
+    @Override
+    public void removeDestination(DataExportDestination destination) {
+        destinations.remove(destination);
+    }
+
+    @Override
+    public List<DataExportDestination> getDestinations() {
+        return Collections.unmodifiableList(destinations);
     }
 
     private class CannotDeleteWhileBusy extends CannotDeleteWhileBusyException {

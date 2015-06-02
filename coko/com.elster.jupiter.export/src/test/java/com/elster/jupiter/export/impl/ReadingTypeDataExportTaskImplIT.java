@@ -11,13 +11,16 @@ import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataProcessor;
 import com.elster.jupiter.export.DataProcessorFactory;
+import com.elster.jupiter.export.EmailDestination;
 import com.elster.jupiter.export.ExportTask;
+import com.elster.jupiter.export.FileDestination;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.export.ReadingTypeDataSelector;
 import com.elster.jupiter.export.ValidatedDataOption;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
+import com.elster.jupiter.mail.impl.MailModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.Meter;
@@ -193,7 +196,8 @@ public class ReadingTypeDataExportTaskImplIT {
                     new TimeModule(),
                     new TaskModule(),
                     new MeteringGroupsModule(),
-                    new AppServiceModule()
+                    new AppServiceModule(),
+                    new MailModule()
             );
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -229,6 +233,72 @@ public class ReadingTypeDataExportTaskImplIT {
         inMemoryBootstrapModule.deactivate();
     }
 
+    @Test
+    public void testAddingDestinations() {
+        ExportTask exportTask = createAndSaveTask();
+
+        try (TransactionContext context = transactionService.getContext()) {
+            exportTask.addFileDestination("tmp", "file", "csv");
+            exportTask.addEmailDestination("info@elster.com", "test report", "file", "csv");
+
+            context.commit();
+        }
+
+        Optional<? extends ExportTask> found = dataExportService.findExportTask(exportTask.getId());
+
+        assertThat(found).isPresent();
+
+        ExportTask taskFromDB = found.get();
+
+        assertThat(taskFromDB.getDestinations()).hasSize(2);
+
+        assertThat(taskFromDB.getDestinations().get(0)).isInstanceOf(FileDestination.class);
+        FileDestination fileDestination = (FileDestination) taskFromDB.getDestinations().get(0);
+        assertThat(fileDestination.getFileLocation()).isEqualTo("tmp");
+        assertThat(fileDestination.getFileName()).isEqualTo("file");
+        assertThat(fileDestination.getFileExtension()).isEqualTo("csv");
+
+        assertThat(taskFromDB.getDestinations().get(1)).isInstanceOf(EmailDestination.class);
+        EmailDestination emailDestination = (EmailDestination) taskFromDB.getDestinations().get(1);
+        assertThat(emailDestination.getRecipients()).isEqualTo("info@elster.com");
+        assertThat(emailDestination.getFileName()).isEqualTo("file");
+        assertThat(emailDestination.getFileExtension()).isEqualTo("csv");
+        assertThat(emailDestination.getSubject()).isEqualTo("test report");
+
+
+    }
+
+    @Test
+    public void testRemoveDestinations() {
+        ExportTask exportTask = createAndSaveTask();
+
+        try (TransactionContext context = transactionService.getContext()) {
+            exportTask.addFileDestination("tmp", "file", "csv");
+            exportTask.addEmailDestination("info@elster.com", "test report", "file", "csv");
+
+            context.commit();
+        }
+
+        Optional<? extends ExportTask> found = dataExportService.findExportTask(exportTask.getId());
+
+        assertThat(found).isPresent();
+
+        ExportTask taskFromDB = found.get();
+
+        try (TransactionContext context = transactionService.getContext()) {
+            taskFromDB.removeDestination(taskFromDB.getDestinations().get(0));
+            context.commit();
+        }
+
+        found = dataExportService.findExportTask(exportTask.getId());
+
+        assertThat(found).isPresent();
+
+        taskFromDB = found.get();
+
+        assertThat(taskFromDB.getDestinations()).hasSize(1);
+
+    }
 
     @Test
     public void testCreation() {

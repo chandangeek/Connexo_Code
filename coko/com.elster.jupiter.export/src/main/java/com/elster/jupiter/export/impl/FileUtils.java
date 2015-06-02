@@ -1,7 +1,10 @@
-package com.elster.jupiter.export;
+package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.appserver.AppServer;
 import com.elster.jupiter.appserver.AppService;
+import com.elster.jupiter.export.DataExportService;
+import com.elster.jupiter.export.FatalDataExportException;
+import com.elster.jupiter.export.FormattedExportData;
 import com.elster.jupiter.fileimport.FileIOException;
 import com.elster.jupiter.nls.Thesaurus;
 
@@ -14,10 +17,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
 
-/**
- * Created by igh on 28/05/2015.
- */
-public class FileUtils {
+class FileUtils {
 
     private final Thesaurus thesaurus;
     private final DataExportService dataExportService;
@@ -25,17 +25,16 @@ public class FileUtils {
 
     private final FileSystem fileSystem;
 
-    public FileUtils(FileSystem fileSystem, Thesaurus thesaurus, DataExportService dataExportService, AppService appService) {
+    FileUtils(FileSystem fileSystem, Thesaurus thesaurus, DataExportService dataExportService, AppService appService) {
         this.fileSystem = fileSystem;
         this.thesaurus = thesaurus;
         this.dataExportService = dataExportService;
         this.appService = appService;
     }
 
-    public Path createTemporaryFile(List<FormattedExportData> data, String fileName, String fileExtension) {
+    Path createTemporaryFile(List<FormattedExportData> data, String fileName, String fileExtension) {
         try {
-            String tempFileName = fileName + '.' + fileExtension;
-            Path tempFile = Files.createTempFile(getTempDir(), tempFileName, fileExtension);
+            Path tempFile = Files.createTempFile(getTempDir(), fileName, fileExtension);
             try (BufferedWriter writer = Files.newBufferedWriter(tempFile)) {
                 data.forEach(dataPart -> write(writer, dataPart));
             }
@@ -45,19 +44,11 @@ public class FileUtils {
         }
     }
 
-    private void write(BufferedWriter writer, FormattedExportData dataPart) {
-        try {
-            writer.write(dataPart.getAppendablePayload());
-        } catch (IOException e) {
-            throw new FileIOException(e, thesaurus);
-        }
-    }
-
-    public Path createTemporaryFile(List<FormattedExportData> data) {
+    Path createTemporaryFile(List<FormattedExportData> data) {
         return createTemporaryFile(data, "tempfile", "tmp");
     }
 
-    public Path createFile(List<FormattedExportData> data, String fileName, String fileExtension, String fileLocation) {
+    Path createFile(List<FormattedExportData> data, String fileName, String fileExtension, String fileLocation) {
         try {
             Path tempFile = createTemporaryFile(data);
             Path file = ensuringDirectoryExists(createFile(fileName, fileExtension, fileLocation));
@@ -75,6 +66,14 @@ public class FileUtils {
             return path.resolve(fileName);
         }
         return getDefaultExportDir().resolve(path).resolve(fileName);
+    }
+
+    private void write(BufferedWriter writer, FormattedExportData dataPart) {
+        try {
+            writer.write(dataPart.getAppendablePayload());
+        } catch (IOException e) {
+            throw new FileIOException(e, thesaurus);
+        }
     }
 
     private Path ensuringDirectoryExists(Path path) {

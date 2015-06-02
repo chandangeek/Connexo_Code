@@ -3,7 +3,6 @@ package com.elster.jupiter.export.impl;
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.EmailDestination;
-import com.elster.jupiter.export.FileUtils;
 import com.elster.jupiter.export.FormattedExportData;
 import com.elster.jupiter.mail.MailAddress;
 import com.elster.jupiter.mail.MailMessageBuilder;
@@ -32,7 +31,8 @@ public class EmailDestinationImpl extends AbstractDataExportDestination implemen
         this.mailService = mailService;
     }
 
-    EmailDestinationImpl init(String recipients, String subject, String attachmentName, String attachmentExtension) {
+    EmailDestinationImpl init(IExportTask task, String recipients, String subject, String attachmentName, String attachmentExtension) {
+        initTask(task);
         this.recipients = recipients;
         this.subject = subject;
         this.attachmentName = attachmentName;
@@ -40,26 +40,26 @@ public class EmailDestinationImpl extends AbstractDataExportDestination implemen
         return this;
     }
 
-    static EmailDestinationImpl from(DataModel dataModel, String recipients, String subject, String attachmentName, String attachmentExtension) {
-        return dataModel.getInstance(EmailDestinationImpl.class).init(recipients, subject, attachmentName, attachmentExtension);
+    static EmailDestinationImpl from(IExportTask task, DataModel dataModel, String recipients, String subject, String attachmentName, String attachmentExtension) {
+        return dataModel.getInstance(EmailDestinationImpl.class).init(task, recipients, subject, attachmentName, attachmentExtension);
     }
 
     @Override
     public void send(List<FormattedExportData> data) {
         FileUtils fileUtils = new FileUtils(this.getFileSystem(), this.getThesaurus(), this.getDataExportService(), this.getAppService());
         Path file = fileUtils.createTemporaryFile(data, attachmentName, attachmentExtension);
-        sendMail(file);
+        sendMail(file, attachmentName + '.' + attachmentExtension);
     }
 
-    private void sendMail(Path file) {
-        List<String> recipients = getRecipients();
+    private void sendMail(Path file, String fileName) {
+        List<String> recipients = getRecipientsList();
         if (recipients.isEmpty()) {
             return;
         }
         MailAddress primary = mailService.mailAddress(recipients.get(0));
         MailMessageBuilder builder = mailService.messageBuilder(primary)
                 .withSubject(subject)
-                .withAttachment(file);
+                .withAttachment(file, fileName);
         recipients.stream()
                 .skip(1)
                 .map(mailService::mailAddress)
@@ -67,8 +67,27 @@ public class EmailDestinationImpl extends AbstractDataExportDestination implemen
         builder.build().send();
     }
 
+    @Override
+    public String getRecipients() {
+        return recipients;
+    }
 
-    private List<String> getRecipients() {
+    @Override
+    public String getFileName() {
+        return attachmentName;
+    }
+
+    @Override
+    public String getFileExtension() {
+        return attachmentExtension;
+    }
+
+    @Override
+    public String getSubject() {
+        return subject;
+    }
+
+    private List<String> getRecipientsList() {
         return Arrays.asList(recipients.split(","));
     }
 }

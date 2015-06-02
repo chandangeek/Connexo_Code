@@ -9,6 +9,7 @@ import com.elster.jupiter.export.DataExportTaskBuilder;
 import com.elster.jupiter.export.DataProcessorFactory;
 import com.elster.jupiter.export.DataSelectorFactory;
 import com.elster.jupiter.export.ExportTask;
+import com.elster.jupiter.mail.MailService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
@@ -37,6 +38,8 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.time.Clock;
 import java.time.Instant;
@@ -67,6 +70,7 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
     private volatile UserService userService;
     private volatile AppService appService;
     private volatile TransactionService transactionService;
+    private volatile MailService mailService;
 
     private List<DataProcessorFactory> dataProcessorFactories = new CopyOnWriteArrayList<>();
     private List<DataSelectorFactory> dataSelectorFactories = new CopyOnWriteArrayList<>();
@@ -77,7 +81,7 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
     }
 
     @Inject
-    public DataExportServiceImpl(OrmService ormService, TimeService timeService, TaskService taskService, MeteringGroupsService meteringGroupsService, MessageService messageService, NlsService nlsService, MeteringService meteringService, QueryService queryService, Clock clock, UserService userService, AppService appService, TransactionService transactionService) {
+    public DataExportServiceImpl(OrmService ormService, TimeService timeService, TaskService taskService, MeteringGroupsService meteringGroupsService, MessageService messageService, NlsService nlsService, MeteringService meteringService, QueryService queryService, Clock clock, UserService userService, AppService appService, TransactionService transactionService, MailService mailService) {
         setOrmService(ormService);
         setTimeService(timeService);
         setTaskService(taskService);
@@ -90,6 +94,7 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
         setUserService(userService);
         setAppService(appService);
         setTransactionService(transactionService);
+        setMailService(mailService);
         activate();
         if (!dataModel.isInstalled()) {
             install();
@@ -221,6 +226,10 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
                     bind(Clock.class).toInstance(clock);
                     bind(UserService.class).toInstance(userService);
                     bind(TransactionService.class).toInstance(transactionService);
+                    bind(AppService.class).toInstance(appService);
+                    bind(DataExportService.class).toInstance(DataExportServiceImpl.this);
+                    bind(FileSystem.class).toInstance(FileSystems.getDefault());
+                    bind(MailService.class).toInstance(mailService);
                 }
             });
             addSelector(new StandardDataSelectorFactory(transactionService, meteringService, thesaurus));
@@ -272,6 +281,11 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
     @Reference
     public void setAppService(AppService appService) {
         this.appService = appService;
+    }
+
+    @Reference
+    public void setMailService(MailService mailService) {
+        this.mailService = mailService;
     }
 
     @Override

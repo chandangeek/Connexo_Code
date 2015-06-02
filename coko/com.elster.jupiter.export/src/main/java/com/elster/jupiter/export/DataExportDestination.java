@@ -13,5 +13,4 @@ public interface DataExportDestination {
 
     void save();
 
-    void send(List<FormattedExportData> data);
 }

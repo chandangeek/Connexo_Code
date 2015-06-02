@@ -3,7 +3,6 @@ package com.elster.jupiter.export.impl;
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.FileDestination;
-import com.elster.jupiter.export.FileUtils;
 import com.elster.jupiter.export.FormattedExportData;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
@@ -27,11 +26,16 @@ public class FileDestinationImpl extends AbstractDataExportDestination implement
         super(dataModel, thesaurus, dataExportService, appService, fileSystem);
     }
 
-    FileDestinationImpl init(String fileName, String fileExtension, String fileLocation) {
+    FileDestinationImpl init(IExportTask task, String fileLocation, String fileName, String fileExtension) {
+        initTask(task);
         this.fileName = fileName;
         this.fileExtension = fileExtension;
         this.fileLocation = fileLocation;
         return this;
+    }
+
+    static FileDestinationImpl from(IExportTask task, DataModel dataModel, String fileLocation, String fileName, String fileExtension) {
+        return dataModel.getInstance(FileDestinationImpl.class).init(task, fileLocation, fileName, fileExtension);
     }
 
     @Override

@@ -5,7 +5,6 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.export.DataExportDestination;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.EmailDestination;
-import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.export.FileDestination;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
@@ -18,15 +17,12 @@ import java.nio.file.FileSystem;
 import java.util.Map;
 
 
-/**
- * Created by igh on 22/05/2015.
- */
-public abstract class AbstractDataExportDestination implements DataExportDestination {
+public abstract class AbstractDataExportDestination implements IDataExportDestination {
 
     static final Map<String, Class<? extends DataExportDestination>> IMPLEMENTERS = ImmutableMap.<String, Class<? extends DataExportDestination>>of(FileDestination.TYPE_IDENTIFIER, FileDestinationImpl.class, EmailDestination.TYPE_IDENTIFIER, EmailDestinationImpl.class);
 
     private long id;
-    private Reference<ExportTask> task = ValueReference.absent();
+    private Reference<IExportTask> task = ValueReference.absent();
     private final DataModel dataModel;
     private final Thesaurus thesaurus;
     private final DataExportService dataExportService;
@@ -42,21 +38,12 @@ public abstract class AbstractDataExportDestination implements DataExportDestina
         this.fileSystem = fileSystem;
     }
 
-
-    public ExportTask getTask() {
+    public IExportTask getTask() {
         return this.task.get();
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        return id == ((AbstractDataExportDestination) o).id;
+    void initTask(IExportTask task) {
+        this.task.set(task);
     }
 
     @Override
@@ -84,19 +71,19 @@ public abstract class AbstractDataExportDestination implements DataExportDestina
         doUpdate();
     }
 
-    protected Thesaurus getThesaurus() {
+    final Thesaurus getThesaurus() {
         return this.thesaurus;
     }
 
-    protected AppService getAppService() {
+    final AppService getAppService() {
         return appService;
     }
 
-    protected DataExportService getDataExportService() {
+    final DataExportService getDataExportService() {
         return dataExportService;
     }
 
-    protected FileSystem getFileSystem() {
+    final FileSystem getFileSystem() {
         return fileSystem;
     }
 }

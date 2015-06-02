@@ -77,4 +77,12 @@ public interface ExportTask extends HasName, HasAuditInfo {
     Optional<ReadingTypeDataSelector> getReadingTypeDataSelector();
 
     Optional<ReadingTypeDataSelector> getReadingTypeDataSelector(Instant at);
+
+    FileDestination addFileDestination(String fileLocation, String fileName, String fileExtension);
+
+    EmailDestination addEmailDestination(String recipients, String subject, String attachmentName, String attachmentExtension);
+
+    void removeDestination(DataExportDestination destination);
+
+    List<DataExportDestination> getDestinations();
 }

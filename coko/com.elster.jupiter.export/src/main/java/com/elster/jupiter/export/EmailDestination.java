@@ -1,9 +1,18 @@
 package com.elster.jupiter.export;
 
-/**
- * Created by igh on 26/05/2015.
- */
+import java.util.List;
+
 public interface EmailDestination extends DataExportDestination {
 
     String TYPE_IDENTIFIER = "EMAIL";
+
+    void send(List<FormattedExportData> data);
+
+    String getRecipients();
+
+    String getFileName();
+
+    String getFileExtension();
+
+    String getSubject();
 }

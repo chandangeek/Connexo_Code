@@ -69,7 +69,7 @@ public class FileDestinationTest {
     @Test
     public void testExportToCsvWithAbsolutePath() {
         FileDestinationImpl fileDestination = new FileDestinationImpl(dataModel, thesaurus, dataExportService, appService,fileSystem);
-        fileDestination.init(FILENAME, EXTENSION, ABSOLUTE_DIR);
+        fileDestination.init(null, ABSOLUTE_DIR, FILENAME, EXTENSION);
         fileDestination.send(data);
         Path file = fileSystem.getPath(ABSOLUTE_DIR, FILENAME + "." + EXTENSION);
         assertThat(Files.exists(file)).isTrue();
@@ -79,7 +79,7 @@ public class FileDestinationTest {
     @Test
     public void testExportToCsvWithRelativePath() {
         FileDestinationImpl fileDestination = new FileDestinationImpl(dataModel, thesaurus, dataExportService, appService, fileSystem);
-        fileDestination.init(FILENAME, EXTENSION, RELATIVE_DIR);
+        fileDestination.init(null, RELATIVE_DIR, FILENAME, EXTENSION);
         fileDestination.send(data);
         Path file = fileSystem.getPath(APPSERVER_PATH, RELATIVE_DIR, FILENAME + "." + EXTENSION);
         assertThat(Files.exists(file)).isTrue();
