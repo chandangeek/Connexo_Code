@@ -36,14 +36,19 @@ Ext.define('Fwc.devicefirmware.view.ActionMenu', {
         Ext.suspendLayouts();
 
         me.removeAll();
-        me.store.each(function (record) {
-            me.add({
-                text: record.get('localizedValue'),
-                itemId: record.getId(),
-                action: record.getId(),
-                record: record
+
+        if (me.store.getCount()) {
+            me.store.each(function (record) {
+                me.add({
+                    text: record.get('localizedValue'),
+                    itemId: record.getId(),
+                    action: record.getId(),
+                    record: record
+                });
             });
-        });
+        } else {
+            me.up().hide();
+        }
 
         Ext.resumeLayouts();
     }

@@ -128,13 +128,18 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
             name: 'firmwareVersion'
         },
         {
-            xtype: 'displayfield-with-info-icon',
+            xtype: 'displayfield',
             fieldLabel: Uni.I18n.translate('device.firmware.field.status', 'FWC', 'Firmware version status'),
-            beforeRenderer: function (value) {
+            renderer: function (value) {
+                var result = value ? value.localizedValue : '';
+
                 if (value && value.id === 'deprecated') {
-                    this.infoTooltip = Uni.I18n.translate('device.firmware.field.status.deprecated.tooltip', 'FWC', 'Firmware version is deprecated. Consider uploading new firmware version.');
+                    result += '<span class="icon-warning" style="margin-left: 10px; color: #EB5642; font-size:16px" data-qtip="' +
+                        Uni.I18n.translate('device.firmware.field.status.deprecated.tooltip', 'FWC', 'Firmware version is deprecated. Consider uploading new firmware version.') +
+                        '"></span>';
                 }
-                return Ext.String.htmlEncode(value.localizedValue) || null;
+
+                return result;
             },
             name: 'firmwareVersionStatus'
         },
