@@ -80,7 +80,7 @@ public interface SearchableProperty {
         /**
          * Supports multiple values to be specified/selected at the same time.
          */
-        MULTI, selectionMode;
+        MULTI;
     }
 
     public SearchDomain getDomain();
