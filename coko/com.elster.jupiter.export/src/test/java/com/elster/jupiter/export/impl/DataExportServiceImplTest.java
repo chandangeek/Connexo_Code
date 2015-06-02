@@ -76,7 +76,7 @@ public class DataExportServiceImplTest {
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private Table table;
     @Mock
-    private DataProcessorFactory dataProcessorFactory;
+    private DataFormatterFactory dataFormatterFactory;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private TaskService taskService;
     @Mock
@@ -112,11 +112,11 @@ public class DataExportServiceImplTest {
 
     private static final Instant nextExecution = ZonedDateTime.of(2013, 9, 10, 14, 47, 24, 0, ZoneId.of("Europe/Paris")).toInstant();
     private static String NAME = "task";
-    private static String DATA_PROCESSOR = "factory";
+    private static String DATA_FOMRATTER = "factory";
 
     @Before
     public void setUp() throws SQLException {
-        when(dataProcessorFactory.getName()).thenReturn(DATA_PROCESSOR);
+        when(dataFormatterFactory.getName()).thenReturn(DATA_FOMRATTER);
         when(iExportTask.getReadingTypeDataSelector()).thenReturn(Optional.of(readingTypeDataSelector));
         when(ormService.newDataModel(anyString(), anyString())).thenReturn(dataModel);
         when(dataModel.addTable(anyString(), any())).thenReturn(table);
@@ -140,7 +140,7 @@ public class DataExportServiceImplTest {
         dataExportService.setQueryService(queryService);
         dataExportService.setClock(clock);
         dataExportService.setUserService(userService);
-        dataExportService.addProcessor(dataProcessorFactory);
+        dataExportService.addFormatter(dataFormatterFactory);
     }
 
     @Test
@@ -151,7 +151,7 @@ public class DataExportServiceImplTest {
         when(dataModel.getInstance(ReadingTypeDataSelectorImpl.class)).thenReturn(selectorImpl);
         DataExportTaskBuilderImpl dataExportTaskBuilder = new DataExportTaskBuilderImpl(dataModel)
                 .setName(NAME)
-                .setDataProcessorName(DATA_PROCESSOR)
+                .setDataFormatterName(DATA_FOMRATTER)
                 .setNextExecution(nextExecution)
                 .selectingStandard()
                 .fromEndDeviceGroup(endDeviceGroup)
@@ -193,22 +193,22 @@ public class DataExportServiceImplTest {
     }
 
     @Test
-    public void testGetAvailableProcessors() {
-        assertThat(dataExportService.getAvailableProcessors().size()).isEqualTo(1);
+    public void testGetAvailableFormatters() {
+        assertThat(dataExportService.getAvailableFomratters().size()).isEqualTo(1);
     }
 
     @Test
     public void testGetDataFormatterFactory() {
-        when(dataProcessorFactory.getName()).thenReturn("factory");
+        when(dataFormatterFactory.getName()).thenReturn("factory");
 
-        assertThat(dataExportService.getDataFormatterFactory("factory")).isEqualTo(Optional.of(dataProcessorFactory));
+        assertThat(dataExportService.getDataFormatterFactory("factory")).isEqualTo(Optional.of(dataFormatterFactory));
     }
 
     @Test
-    public void testGetPropertiesSpecsForProcessor() {
-        when(dataProcessorFactory.getName()).thenReturn("factory");
-        when(dataProcessorFactory.getPropertySpecs()).thenReturn(Arrays.asList(propertySpec1, propertySpec2, propertySpec3));
+    public void testGetPropertiesSpecsForFormatter() {
+        when(dataFormatterFactory.getName()).thenReturn("factory");
+        when(dataFormatterFactory.getPropertySpecs()).thenReturn(Arrays.asList(propertySpec1, propertySpec2, propertySpec3));
 
-        assertThat(dataExportService.getPropertiesSpecsForProcessor("factory")).isEqualTo(Arrays.asList(propertySpec1, propertySpec2, propertySpec3));
+        assertThat(dataExportService.getPropertiesSpecsForFormatter("factory")).isEqualTo(Arrays.asList(propertySpec1, propertySpec2, propertySpec3));
     }
 }

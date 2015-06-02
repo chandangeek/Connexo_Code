@@ -54,8 +54,8 @@ public class ExportTaskImpl implements IExportTask {
     @Size(min = 1, max = Table.NAME_LENGTH, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_NAME_LENGTH + "}")
     protected String name;
     @NotNull
-    @IsExistingProcessor
-    private String dataProcessor;
+    @IsExistingFormatter
+    private String dataFormatter;
     private String dataSelector;
     private transient ScheduleExpression scheduleExpression;
     private transient Instant nextExecution;
@@ -82,8 +82,8 @@ public class ExportTaskImpl implements IExportTask {
         this.thesaurus = thesaurus;
     }
 
-    static ExportTaskImpl from(DataModel dataModel, String name, String dataProcessor, String dataSelector, ScheduleExpression scheduleExpression, Instant nextExecution) {
-        return dataModel.getInstance(ExportTaskImpl.class).init(name, dataProcessor, dataSelector, scheduleExpression, nextExecution);
+    static ExportTaskImpl from(DataModel dataModel, String name, String dataFormatter, String dataSelector, ScheduleExpression scheduleExpression, Instant nextExecution) {
+        return dataModel.getInstance(ExportTaskImpl.class).init(name, dataFormatter, dataSelector, scheduleExpression, nextExecution);
     }
 
     public long getId() {
@@ -134,8 +134,8 @@ public class ExportTaskImpl implements IExportTask {
 
     public void save() {
         // TODO  : separate properties per Factory
-        dataExportService.getDataProcessorFactory(dataProcessor)
-                .ifPresent(dataProcessorFactory -> dataProcessorFactory.validateProperties(properties));
+        dataExportService.getDataFormatterFactory(dataFormatter)
+                .ifPresent(dataFormatterFactory -> dataFormatterFactory.validateProperties(properties));
         dataExportService.getDataSelectorFactory(dataSelector)
                 .ifPresent(dataSelectorFactory -> dataSelectorFactory.validateProperties(properties));
         if (id == 0) {
@@ -197,7 +197,7 @@ public class ExportTaskImpl implements IExportTask {
     }
 
     public String getDataFormatter() {
-        return dataProcessor;
+        return dataFormatter;
     }
 
     @Override
@@ -206,7 +206,7 @@ public class ExportTaskImpl implements IExportTask {
     }
 
     public List<PropertySpec> getPropertySpecs() {
-        return dataExportService.getDataProcessorFactory(dataProcessor).orElseThrow(()->new IllegalArgumentException("No such data processor: "+dataProcessor)).getPropertySpecs();
+        return dataExportService.getDataFormatterFactory(dataFormatter).orElseThrow(()->new IllegalArgumentException("No such data formatter: "+ dataFormatter)).getPropertySpecs();
     }
 
     public ScheduleExpression getScheduleExpression() {
@@ -354,9 +354,9 @@ public class ExportTaskImpl implements IExportTask {
         return dataModel;
     }
 
-    private ExportTaskImpl init(String name, String dataProcessor, String dataSelector, ScheduleExpression scheduleExpression, Instant nextExecution) {
+    private ExportTaskImpl init(String name, String dataFormatter, String dataSelector, ScheduleExpression scheduleExpression, Instant nextExecution) {
         setName(name);
-        this.dataProcessor = dataProcessor;
+        this.dataFormatter = dataFormatter;
         this.dataSelector = dataSelector;
         this.scheduleExpression = scheduleExpression;
         this.nextExecution = nextExecution;

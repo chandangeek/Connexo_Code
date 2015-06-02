@@ -1,7 +1,7 @@
 package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.export.DataExportOccurrence;
-import com.elster.jupiter.export.DataProcessor;
+import com.elster.jupiter.export.DataFormatter;
 import com.elster.jupiter.export.MeterReadingData;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.metering.BaseReadingRecord;
@@ -24,11 +24,11 @@ import static com.elster.jupiter.export.impl.ReadingImpl.reading;
 
 class DefaultItemExporter implements ItemExporter {
 
-    private final DataProcessor dataFormatter;
+    private final DataFormatter dataFormatter;
     private final List<IReadingTypeDataExportItem> exportItems = new ArrayList<>();
 
-    public DefaultItemExporter(DataProcessor dataProcessor) {
-        this.dataFormatter = dataProcessor;
+    public DefaultItemExporter(DataFormatter dataFormatter) {
+        this.dataFormatter = dataFormatter;
     }
 
     @Override

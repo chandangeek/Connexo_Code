@@ -15,7 +15,7 @@ public interface DataExportService {
     String COMPONENTNAME = "DES";
     String STANDARD_DATA_SELECTOR = "Standard Data Selector";
 
-    Optional<DataProcessorFactory> getDataFormatterFactory(String name);
+    Optional<DataFormatterFactory> getDataFormatterFactory(String name);
 
     DataExportTaskBuilder newBuilder();
 
@@ -23,11 +23,11 @@ public interface DataExportService {
 
     Query<? extends ExportTask> getReadingTypeDataExportTaskQuery();
 
-    List<PropertySpec> getPropertiesSpecsForProcessor(String name);
+    List<PropertySpec> getPropertiesSpecsForFormatter(String name);
 
     List<DataSelectorFactory> getAvailableSelectors();
 
-    List<DataProcessorFactory> getAvailableProcessors();
+    List<DataFormatterFactory> getAvailableFomratters();
 
     List<? extends ExportTask> findReadingTypeDataExportTasks();
 

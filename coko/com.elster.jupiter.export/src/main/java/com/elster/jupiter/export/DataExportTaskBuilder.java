@@ -19,7 +19,7 @@ public interface DataExportTaskBuilder {
 
     DataExportTaskBuilder setName(String string);
 
-    DataExportTaskBuilder setDataProcessorName(String dataProcessor);
+    DataExportTaskBuilder setDataFormatterName(String dataFormatter);
 
     StandardSelectorBuilder selectingStandard();
 

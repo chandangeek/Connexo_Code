@@ -6,7 +6,7 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataExportTaskBuilder;
-import com.elster.jupiter.export.DataProcessorFactory;
+import com.elster.jupiter.export.DataFormatterFactory;
 import com.elster.jupiter.export.DataSelectorFactory;
 import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.mail.MailService;
@@ -72,7 +72,7 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
     private volatile TransactionService transactionService;
     private volatile MailService mailService;
 
-    private List<DataProcessorFactory> dataProcessorFactories = new CopyOnWriteArrayList<>();
+    private List<DataFormatterFactory> dataFormatterFactories = new CopyOnWriteArrayList<>();
     private List<DataSelectorFactory> dataSelectorFactories = new CopyOnWriteArrayList<>();
     private Optional<DestinationSpec> destinationSpec = Optional.empty();
     private QueryService queryService;
@@ -102,15 +102,15 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
     }
 
     @Override
-    public Optional<DataProcessorFactory> getDataFormatterFactory(String name) {
-        return dataProcessorFactories.stream()
-                .filter(f -> name.equals(f.getName()))
-                .findFirst();
+    public Optional<DataFormatterFactory> getDataFormatterFactory(String name) {
+        return dataFormatterFactories.stream()
+                .filter(factory -> factory.getName().equals(name))
+                .findAny();
     }
 
     @Override
-    public List<DataProcessorFactory> getAvailableProcessors() {
-        return Collections.unmodifiableList(dataProcessorFactories);
+    public List<DataFormatterFactory> getAvailableFomratters() {
+        return Collections.unmodifiableList(dataFormatterFactories);
     }
 
     @Override
@@ -134,9 +134,9 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
     }
 
     @Override
-    public List<PropertySpec> getPropertiesSpecsForProcessor(String name) {
-        return getDataProcessorFactory(name)
-                .map(DataProcessorFactory::getPropertySpecs)
+    public List<PropertySpec> getPropertiesSpecsForFormatter(String name) {
+        return getDataFormatterFactory(name)
+                .map(DataFormatterFactory::getPropertySpecs)
                 .orElse(Collections.emptyList());
     }
 
@@ -146,13 +146,6 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
             destinationSpec = messageService.getDestinationSpec(DESTINATION_NAME);
         }
         return destinationSpec.orElse(null);
-    }
-
-    @Override
-    public Optional<DataProcessorFactory> getDataProcessorFactory(String name) {
-        return dataProcessorFactories.stream()
-                .filter(factory -> factory.getName().equals(name))
-                .findAny();
     }
 
     @Override
@@ -180,8 +173,8 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
-    public void addProcessor(DataProcessorFactory dataProcessorFactory) {
-        dataProcessorFactories.add(dataProcessorFactory);
+    public void addFormatter(DataFormatterFactory dataFormatterFactory) {
+        dataFormatterFactories.add(dataFormatterFactory);
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
@@ -204,8 +197,8 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
         this.userService = userService;
     }
 
-    public void removeProcessor(DataProcessorFactory dataProcessorFactory) {
-        dataProcessorFactories.remove(dataProcessorFactory);
+    public void removeFormatter(DataFormatterFactory dataFormatterFactory) {
+        dataFormatterFactories.remove(dataFormatterFactory);
     }
 
     public void removeSelector(DataSelectorFactory selectorFactory) {

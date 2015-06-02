@@ -7,13 +7,14 @@ import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.export.DataExportService;
-import com.elster.jupiter.export.DataProcessor;
-import com.elster.jupiter.export.DataProcessorFactory;
+import com.elster.jupiter.export.DataFormatter;
+import com.elster.jupiter.export.DataFormatterFactory;
 import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.export.ValidatedDataOption;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
+import com.elster.jupiter.mail.impl.MailModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
@@ -123,9 +124,9 @@ public class DataExportServiceImplIT {
     @Mock
     private LogService logService;
     @Mock
-    private DataProcessorFactory dataProcessorFactory;
+    private DataFormatterFactory dataFormatterFactory;
     @Mock
-    private DataProcessor dataProcessor;
+    private DataFormatter dataFormatter;
     @Mock
     private PropertySpec propertySpec;
     @Mock
@@ -190,7 +191,8 @@ public class DataExportServiceImplIT {
                     new TimeModule(),
                     new TaskModule(),
                     new MeteringGroupsModule(),
-                    new AppServiceModule()
+                    new AppServiceModule(),
+                    new MailModule()
             );
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -205,9 +207,9 @@ public class DataExportServiceImplIT {
         });
         readingType = meteringService.getReadingType("0.0.5.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
         anotherReadingType = meteringService.getReadingType("0.0.2.1.19.1.12.0.0.0.0.0.0.0.0.0.72.0").get();
-        dataExportService.addProcessor(dataProcessorFactory);
-        when(dataProcessorFactory.getName()).thenReturn(FORMATTER);
-        when(dataProcessorFactory.getPropertySpecs()).thenReturn(Arrays.asList(propertySpec));
+        dataExportService.addFormatter(dataFormatterFactory);
+        when(dataFormatterFactory.getName()).thenReturn(FORMATTER);
+        when(dataFormatterFactory.getPropertySpecs()).thenReturn(Arrays.asList(propertySpec));
         when(propertySpec.getName()).thenReturn("propy");
         when(propertySpec.getValueFactory()).thenReturn(new BigDecimalFactory());
         try (TransactionContext context = transactionService.getContext()) {
@@ -232,7 +234,7 @@ public class DataExportServiceImplIT {
         try (TransactionContext context = transactionService.getContext()) {
             exportTask1 = dataExportService.newBuilder()
                     .scheduleImmediately()
-                    .setDataProcessorName(FORMATTER)
+                    .setDataFormatterName(FORMATTER)
                     .setName(NAME)
                     .setScheduleExpression(new TemporalExpression(TimeDuration.TimeUnit.DAYS.during(1), TimeDuration.TimeUnit.HOURS.during(0)))
                     .addProperty("propy").withValue(BigDecimal.valueOf(100, 0))
@@ -290,7 +292,7 @@ public class DataExportServiceImplIT {
     private ExportTask createExportTask(RelativePeriod lastYear, RelativePeriod oneYearBeforeLastYear, EndDeviceGroup endDeviceGroup, String name) {
         return dataExportService.newBuilder()
                 .scheduleImmediately()
-                .setDataProcessorName(FORMATTER)
+                .setDataFormatterName(FORMATTER)
                 .setScheduleExpression(new TemporalExpression(TimeDuration.TimeUnit.DAYS.during(1), TimeDuration.TimeUnit.HOURS.during(0)))
                 .setName(name)
                 .addProperty("propy").withValue(BigDecimal.valueOf(100, 0))

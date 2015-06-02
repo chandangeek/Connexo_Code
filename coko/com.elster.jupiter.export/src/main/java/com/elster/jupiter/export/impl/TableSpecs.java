@@ -27,7 +27,7 @@ enum TableSpecs {
             table.setJournalTableName("DES_DATAEXPORTTASKJRNL");
             Column idColumn = table.addAutoIdColumn();
             table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
-            table.column("DATAPROCESSOR").varChar(NAME_LENGTH).notNull().map("dataProcessor").add();
+            table.column("DATAFORMATTER").varChar(NAME_LENGTH).notNull().map("dataFormatter").add();
             table.column("DATASELECTOR").varChar(NAME_LENGTH).notNull().map("dataSelector").add();
             Column recurrentTaskId = table.column("RECURRENTTASK").number().notNull().conversion(ColumnConversion.NUMBER2LONG).add();
 

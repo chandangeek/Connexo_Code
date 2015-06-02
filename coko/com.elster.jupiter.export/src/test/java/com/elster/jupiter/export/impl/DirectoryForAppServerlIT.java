@@ -9,11 +9,12 @@ import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.export.DataExportService;
-import com.elster.jupiter.export.DataProcessor;
-import com.elster.jupiter.export.DataProcessorFactory;
+import com.elster.jupiter.export.DataFormatter;
+import com.elster.jupiter.export.DataFormatterFactory;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
+import com.elster.jupiter.mail.impl.MailModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
@@ -101,9 +102,9 @@ public class DirectoryForAppServerlIT {
     @Mock
     private LogService logService;
     @Mock
-    private DataProcessorFactory dataProcessorFactory;
+    private DataFormatterFactory dataFormatterFactory;
     @Mock
-    private DataProcessor dataProcessor;
+    private DataFormatter dataFormatter;
     @Mock
     private PropertySpec propertySpec;
     @Mock
@@ -139,7 +140,8 @@ public class DirectoryForAppServerlIT {
                     new TimeModule(),
                     new TaskModule(),
                     new MeteringGroupsModule(),
-                    new AppServiceModule()
+                    new AppServiceModule(),
+                    new MailModule()
             );
         } catch (Exception e) {
             throw new RuntimeException(e);
