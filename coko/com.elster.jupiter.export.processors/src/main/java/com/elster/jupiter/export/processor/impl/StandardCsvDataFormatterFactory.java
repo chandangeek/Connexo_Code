@@ -3,8 +3,8 @@ package com.elster.jupiter.export.processor.impl;
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.export.DataExportProperty;
 import com.elster.jupiter.export.DataExportService;
-import com.elster.jupiter.export.DataProcessor;
-import com.elster.jupiter.export.DataProcessorFactory;
+import com.elster.jupiter.export.DataFormatter;
+import com.elster.jupiter.export.DataFormatterFactory;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.NlsService;
@@ -32,8 +32,8 @@ import java.util.regex.Pattern;
  * Time: 9:41
  */
 @Component(name = "com.elster.jupiter.export.processor.StandardCsvDataProcessorFactory",
-        service = DataProcessorFactory.class, immediate = true)
-public class StandardCsvDataProcessorFactory implements DataProcessorFactory {
+        service = DataFormatterFactory.class, immediate = true)
+public class StandardCsvDataFormatterFactory implements DataFormatterFactory {
 
     static final String NAME = "standardCsvDataProcessorFactory";
     public static final String NON_PATH_INVALID = "\":*?<>|";
@@ -46,12 +46,12 @@ public class StandardCsvDataProcessorFactory implements DataProcessorFactory {
     private volatile Thesaurus thesaurus;
 
     //OSGI
-    public StandardCsvDataProcessorFactory() {
+    public StandardCsvDataFormatterFactory() {
     }
 
     // Tests
     @Inject
-    public StandardCsvDataProcessorFactory(PropertySpecService propertySpecService, DataExportService dataExportService, ValidationService validationService, AppService appService, NlsService nlsService) {
+    public StandardCsvDataFormatterFactory(PropertySpecService propertySpecService, DataExportService dataExportService, ValidationService validationService, AppService appService, NlsService nlsService) {
         setPropertySpecService(propertySpecService);
         setDataExportService(dataExportService);
         setValidationService(validationService);
@@ -95,8 +95,8 @@ public class StandardCsvDataProcessorFactory implements DataProcessorFactory {
     }
 
     @Override
-    public DataProcessor createDataFormatter(Map<String, Object> properties) {
-        return new StandardCsvDataProcessor(dataExportService, appService, properties, thesaurus, FileSystems.getDefault(), getTempDir(), validationService);
+    public DataFormatter createDataFormatter(Map<String, Object> properties) {
+        return new StandardCsvDataFormatter(dataExportService, appService, properties, thesaurus, FileSystems.getDefault(), getTempDir(), validationService);
     }
 
     private Path getTempDir() {

@@ -50,7 +50,7 @@ public class Translations implements TranslationKeyProvider {
     }
 
     static enum Labels implements TranslationKey {
-        CSV_PROCESSSOR(StandardCsvDataProcessorFactory.NAME, "Standard CSV Exporter"),
+        CSV_PROCESSSOR(StandardCsvDataFormatterFactory.NAME, "Standard CSV Exporter"),
         AND("des.and", "and");
 
         private final String key;

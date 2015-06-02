@@ -9,12 +9,12 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class StandardCsvDataProcessorFactoryTest {
+public class StandardCsvDataFormatterFactoryTest {
 
 
     @Test
     public void testGetProperties() throws Exception {
-        StandardCsvDataProcessorFactory factory = new StandardCsvDataProcessorFactory();
+        StandardCsvDataFormatterFactory factory = new StandardCsvDataFormatterFactory();
         factory.setPropertySpecService(new PropertySpecServiceImpl());
 
         List<PropertySpec> properties = factory.getPropertySpecs();
