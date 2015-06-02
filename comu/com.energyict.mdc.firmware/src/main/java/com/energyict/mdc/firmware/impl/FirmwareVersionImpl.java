@@ -188,6 +188,8 @@ public class FirmwareVersionImpl implements FirmwareVersion, PersistenceAware {
         this.firmwareFileArray = firmwareFile;
         if (this.firmwareFileArray != null) {
             this.firmwareFile = firmwareFileArray.length;
+        } else {
+            this.firmwareFile = 0;
         }
     }
 

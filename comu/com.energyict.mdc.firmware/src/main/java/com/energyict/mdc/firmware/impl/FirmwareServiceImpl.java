@@ -178,12 +178,11 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Tra
     }
 
     @Override
-    // TODO check that it is correct logic
     public boolean isFirmwareVersionInUse(long firmwareVersionId) {
-        Optional<FirmwareVersion> firmwareVersion = getFirmwareVersionById(firmwareVersionId);
-        if (firmwareVersion.isPresent()){
-            return dataModel.query(ActivatedFirmwareVersion.class)
-                    .select(where(ActivatedFirmwareVersionImpl.Fields.FIRMWARE_VERSION.fieldName()).isEqualTo(firmwareVersion.get()))
+        Optional<FirmwareVersion> firmwareVersionRef = getFirmwareVersionById(firmwareVersionId);
+        if (firmwareVersionRef.isPresent()) {
+            return !dataModel.query(ActivatedFirmwareVersion.class)
+                    .select(where(ActivatedFirmwareVersionImpl.Fields.FIRMWARE_VERSION.fieldName()).isEqualTo(firmwareVersionRef.get()), null, false, null, 1, 2)
                     .isEmpty();
         }
         return false;
@@ -267,7 +266,7 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Tra
 
     @Override
     public Optional<FirmwareCampaign> getFirmwareCampaignById(long id) {
-        return dataModel.mapper(FirmwareCampaign.class).getUnique("id", id);
+        return dataModel.mapper(FirmwareCampaign.class).getOptional(id);
     }
 
     @Override

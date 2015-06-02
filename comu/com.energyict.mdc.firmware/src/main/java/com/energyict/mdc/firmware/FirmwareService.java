@@ -24,7 +24,6 @@ public interface FirmwareService extends ReferencePropertySpecFinderProvider {
     Optional<FirmwareVersion> getFirmwareVersionById(long id);
     Optional<FirmwareVersion> getFirmwareVersionByVersion(String version, DeviceType deviceType);
     FirmwareVersion newFirmwareVersion(DeviceType deviceType, String firmwareVersion, FirmwareStatus status, FirmwareType type);
-    // TODO what this method should do???
     boolean isFirmwareVersionInUse(long firmwareVersionId);
 
 
