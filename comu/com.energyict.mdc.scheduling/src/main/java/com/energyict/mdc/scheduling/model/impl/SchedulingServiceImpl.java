@@ -13,7 +13,7 @@ import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.conditions.Condition;
-import com.energyict.mdc.common.HasId;
+import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
