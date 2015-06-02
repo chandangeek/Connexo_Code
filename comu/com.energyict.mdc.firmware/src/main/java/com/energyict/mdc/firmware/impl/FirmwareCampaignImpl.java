@@ -8,6 +8,7 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
@@ -137,7 +138,11 @@ public class FirmwareCampaignImpl implements FirmwareCampaign, HasUniqueName {
 
     @Override
     public void setName(String name) {
-        this.name = name;
+        if (!Checks.is(name).emptyOrOnlyWhiteSpace()){
+            this.name = name.trim();
+        } else {
+            this.name = null;
+        }
     }
 
     @Override
