@@ -4,6 +4,10 @@ import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.dynamic.JupiterReferenceFactory;
 
+import com.elster.jupiter.properties.PropertySpecPossibleValuesImpl;
+
+import java.util.List;
+
 /**
  * Provides an implementation for the {@link com.elster.jupiter.properties.PropertySpec}
  * interface that models a reference to another object.
@@ -15,6 +19,11 @@ public class JupiterReferencePropertySpec<T extends HasId> extends BasicProperty
 
     public JupiterReferencePropertySpec(String name, boolean required, CanFindByLongPrimaryKey<T> factory) {
         super(name, required, new JupiterReferenceFactory<>(factory));
+    }
+
+    public JupiterReferencePropertySpec(String name, boolean required, CanFindByLongPrimaryKey<T> factory, List<T> possibleValues) {
+        this(name, required, factory);
+        this.setPossibleValues(new PropertySpecPossibleValuesImpl(true, possibleValues));
     }
 
     @Override

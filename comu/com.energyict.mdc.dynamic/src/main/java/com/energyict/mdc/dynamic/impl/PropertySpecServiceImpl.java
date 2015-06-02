@@ -34,6 +34,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 import java.util.concurrent.ConcurrentHashMap;
@@ -51,16 +52,19 @@ public class PropertySpecServiceImpl implements PropertySpecService {
     private volatile DataModel dataModel;
     private volatile DataVaultService dataVaultService;
     private volatile TimeService timeService;
+    private volatile Map<Class<? extends CanFindByLongPrimaryKey>, CanFindByLongPrimaryKey<? extends HasId>> finders = new ConcurrentHashMap<>();
+    private volatile com.elster.jupiter.properties.PropertySpecService basicPropertySpecService;
 
     @Reference
     public void setTimeService(TimeService timeService) {
         this.timeService = timeService;
     }
 
-
+    // For OSGi purposes
     public PropertySpecServiceImpl() {
     }
 
+    // For testing purposes
     @Inject
     public PropertySpecServiceImpl(com.elster.jupiter.properties.PropertySpecService basicPropertySpec, DataVaultService dataVaultService, OrmService ormService) {
         this();
@@ -80,7 +84,6 @@ public class PropertySpecServiceImpl implements PropertySpecService {
         this.dataVaultService = dataVaultService;
     }
 
-
     @Activate
     public void activate() {
         this.dataModel.register(this.getModule());
@@ -95,10 +98,6 @@ public class PropertySpecServiceImpl implements PropertySpecService {
             }
         };
     }
-
-
-    private volatile Map<Class<? extends CanFindByLongPrimaryKey>, CanFindByLongPrimaryKey<? extends HasId>> finders = new ConcurrentHashMap<>();
-    private volatile com.elster.jupiter.properties.PropertySpecService basicPropertySpecService;
 
     @Override
     public PropertySpec basicPropertySpec(String name, boolean required, ValueFactory valueFactory) {
@@ -178,9 +177,16 @@ public class PropertySpecServiceImpl implements PropertySpecService {
         return builder.name(name).addValues(values).finish();
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public PropertySpec referencePropertySpec(String name, boolean required, FactoryIds factoryId) {
         return new JupiterReferencePropertySpec(name, required, this.finderFor(factoryId));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public PropertySpec referencePropertySpec(String name, boolean required, FactoryIds factoryId, List<Object> possibleValues) {
+        return new JupiterReferencePropertySpec(name, required, this.finderFor(factoryId), possibleValues);
     }
 
     private CanFindByLongPrimaryKey<? extends HasId> finderFor(FactoryIds factoryId) {
@@ -286,4 +292,5 @@ public class PropertySpecServiceImpl implements PropertySpecService {
     public PropertySpec boundedLongPropertySpec(String name, boolean required, Long lowerLimit, Long upperLimit) {
         return basicPropertySpecService.boundedLongPropertySpec(name,required,lowerLimit,upperLimit);
     }
+
 }

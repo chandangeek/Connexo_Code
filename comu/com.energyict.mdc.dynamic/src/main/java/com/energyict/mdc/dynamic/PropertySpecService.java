@@ -1,5 +1,6 @@
 package com.energyict.mdc.dynamic;
 
+import java.util.List;
 import java.util.TimeZone;
 
 import com.elster.jupiter.properties.PropertySpec;
@@ -52,6 +53,18 @@ public interface PropertySpecService extends com.elster.jupiter.properties.Prope
      * @return The PropertySpec
      */
     public PropertySpec referencePropertySpec (String name, boolean required, FactoryIds factoryId);
+
+    /**
+     * Creates a {@link PropertySpec} that references objects provided by the
+     * {@link com.elster.jupiter.properties.AbstractValueFactory} with the specified factoryId.
+     *
+     * @param name The PropertySpec name
+     * @param required A flag that indicates if the PropertySpec should be required or not
+     * @param factoryId The id of the AbstractValueFactory
+     * @param possibleValues The exhaustive list of possible values
+     * @return The PropertySpec
+     */
+    public PropertySpec referencePropertySpec(String name, boolean required, FactoryIds factoryId, List<Object> possibleValues);
 
     public void addFactoryProvider(ReferencePropertySpecFinderProvider factoryProvider);
 
