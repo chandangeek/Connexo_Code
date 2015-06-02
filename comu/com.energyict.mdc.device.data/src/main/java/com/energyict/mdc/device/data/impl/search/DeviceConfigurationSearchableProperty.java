@@ -141,6 +141,11 @@ public class DeviceConfigurationSearchableProperty extends AbstractSearchableDev
     }
 
     @Override
+    protected boolean valueCompatibleForDisplay(Object value) {
+        return value instanceof DeviceConfiguration;
+    }
+
+    @Override
     protected String toDisplayAfterValidation(Object value) {
         return this.displayStrategy.toDisplay((DeviceConfiguration) value);
     }

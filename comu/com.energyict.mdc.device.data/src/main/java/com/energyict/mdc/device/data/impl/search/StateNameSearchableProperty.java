@@ -2,7 +2,6 @@ package com.energyict.mdc.device.data.impl.search;
 
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.nls.Thesaurus;
@@ -21,6 +20,7 @@ import com.elster.jupiter.util.streams.Predicates;
 import java.text.MessageFormat;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -82,6 +82,11 @@ public class StateNameSearchableProperty extends AbstractSearchableDevicePropert
     }
 
     @Override
+    protected boolean valueCompatibleForDisplay(Object value) {
+        return value instanceof String;
+    }
+
+    @Override
     protected String toDisplayAfterValidation(Object value) {
         return String.valueOf(value);
     }
@@ -102,7 +107,7 @@ public class StateNameSearchableProperty extends AbstractSearchableDevicePropert
     @Override
     public void refreshWithConstrictions(List<SearchablePropertyConstriction> constrictions) {
         // We have at most one constraint
-        if (constrictions.size() > 1) {
+        if (constrictions.size() != 1) {
             throw new IllegalArgumentException("Expecting at most 1 constriction, i.e. the constraint on the device type");
         }
         this.refreshWithConstrictions(constrictions.get(0));
@@ -119,15 +124,29 @@ public class StateNameSearchableProperty extends AbstractSearchableDevicePropert
 
     private void refreshWithConstrictionValues(List<Object> list) {
         this.validateAllParentsAreDeviceTypes(list);
-        Set<String> stateNames =
-            list.stream()
-                .map(DeviceType.class::cast)
-                .map(DeviceType::getDeviceLifeCycle)
-                .map(DeviceLifeCycle::getFiniteStateMachine)
-                .flatMap(fsm -> fsm.getStates().stream())
-                .map(State::getName)
-                .collect(Collectors.toSet());
+        DisplayStrategy displayStrategy;
+        if (list.size() > 1) {
+            displayStrategy = DisplayStrategy.WITH_DEVICE_TYPE;
+        }
+        else {
+            displayStrategy = DisplayStrategy.NAME_ONLY;
+        }
+        Set<String> stateNames = new HashSet<>();
+        for (Object o : list) {
+            DeviceType deviceType = (DeviceType) o;
+            stateNames.addAll(this.stateNamesIn(deviceType, displayStrategy));
+        }
         this.stateNames = stateNames.toArray(new String[stateNames.size()]);
+    }
+
+    private Set<String> stateNamesIn(DeviceType deviceType, DisplayStrategy displayStrategy) {
+        return deviceType
+                    .getDeviceLifeCycle()
+                    .getFiniteStateMachine()
+                    .getStates()
+                    .stream()
+                    .map(s -> displayStrategy.toDisplay(s, deviceType, this.thesaurus))
+                    .collect(Collectors.toSet());
     }
 
     private void validateAllParentsAreDeviceTypes(List<Object> list) {
@@ -163,6 +182,28 @@ public class StateNameSearchableProperty extends AbstractSearchableDevicePropert
         sqlBuilder.add(this.toSqlFragment("fs.name", condition, now));
         sqlBuilder.closeBracket();
         return sqlBuilder;
+    }
+
+    private enum DisplayStrategy {
+        NAME_ONLY {
+            @Override
+            public String toDisplay(State state, DeviceType deviceType, Thesaurus thesaurus) {
+                return getStateName(state, thesaurus);
+            }
+        },
+
+        WITH_DEVICE_TYPE {
+            @Override
+            public String toDisplay(State state, DeviceType deviceType, Thesaurus thesaurus) {
+                return getStateName(state, thesaurus) + "(" + deviceType.getName() + ")";
+            }
+        };
+
+        protected String getStateName(State state, Thesaurus thesaurus) {
+            return thesaurus.getStringBeyondComponent(state.getName(), state.getName());
+        }
+
+        public abstract String toDisplay(State state, DeviceType deviceType, Thesaurus thesaurus);
     }
 
 }

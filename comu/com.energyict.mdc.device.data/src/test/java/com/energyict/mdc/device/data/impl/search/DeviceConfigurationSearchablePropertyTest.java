@@ -19,6 +19,7 @@ import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyGroup;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -220,7 +221,129 @@ public class DeviceConfigurationSearchablePropertyTest {
         PropertySpecPossibleValues possibleValues = property.getSpecification().getPossibleValues();
         assertThat(possibleValues).isNotNull();
         assertThat(possibleValues.isExhaustive()).isTrue();
+        assertThat(possibleValues.getAllValues()).containsOnly(config1, config2);
+    }
+
+    @Test
+    public void refreshWithMultipleDeviceTypes() {
+        DeviceConfigurationSearchableProperty property = this.getTestInstance();
+        DeviceConfiguration config1 = mock(DeviceConfiguration.class);
+        DeviceType deviceType1 = mock(DeviceType.class);
+        when(deviceType1.getConfigurations()).thenReturn(Arrays.asList(config1));
+        DeviceConfiguration config2 = mock(DeviceConfiguration.class);
+        DeviceType deviceType2 = mock(DeviceType.class);
+        when(deviceType2.getConfigurations()).thenReturn(Arrays.asList(config2));
+        SearchablePropertyConstriction deviceTypeConstriction = SearchablePropertyConstriction.withValues(this.deviceTypeSearchableProperty, Arrays.asList(deviceType1, deviceType2));
+
+        // Business method
+        property.refreshWithConstrictions(Arrays.asList(deviceTypeConstriction));
+
+        // Asserts
+        PropertySpecPossibleValues possibleValues = property.getSpecification().getPossibleValues();
+        assertThat(possibleValues).isNotNull();
+        assertThat(possibleValues.isExhaustive()).isTrue();
         assertThat(possibleValues.getAllValues()).containsOnly(config2, config1);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void refreshWithConstrictionFromAnotherProperty() {
+        DeviceConfigurationSearchableProperty property = this.getTestInstance();
+        DeviceConfiguration config1 = mock(DeviceConfiguration.class);
+        DeviceConfiguration config2 = mock(DeviceConfiguration.class);
+        DeviceType deviceType = mock(DeviceType.class);
+        when(deviceType.getConfigurations()).thenReturn(Arrays.asList(config1, config2));
+        SearchableProperty otherSearchableProperty = mock(SearchableProperty.class);
+        when(otherSearchableProperty.hasName(anyString())).thenReturn(false);
+        SearchablePropertyConstriction deviceTypeConstriction = SearchablePropertyConstriction.withValues(otherSearchableProperty, Arrays.asList(deviceType));
+
+        // Business method
+        property.refreshWithConstrictions(Arrays.asList(deviceTypeConstriction));
+
+        // Asserts
+        PropertySpecPossibleValues possibleValues = property.getSpecification().getPossibleValues();
+        assertThat(possibleValues).isNotNull();
+        assertThat(possibleValues.isExhaustive()).isTrue();
+        assertThat(possibleValues.getAllValues()).containsOnly(config1, config2);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void displayBigDecimalValue() {
+        DeviceConfigurationSearchableProperty property = this.getTestInstance();
+
+        // Business method
+        property.toDisplay(BigDecimal.TEN);
+
+        // Asserts: see expected exception rule
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void displayStringValue() {
+        DeviceConfigurationSearchableProperty property = this.getTestInstance();
+
+        // Business method
+        property.toDisplay("displayString");
+
+        // Asserts: see expected exception rule
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void toDisplayWithoutRefresh() {
+        DeviceConfigurationSearchableProperty property = this.getTestInstance();
+        DeviceConfiguration configuration = mock(DeviceConfiguration.class);
+        String expectedDisplayValue = "toDisplayWithoutRefresh";
+        when(configuration.getName()).thenReturn(expectedDisplayValue);
+
+        // Business method
+        String displayString = property.toDisplay("displayString");
+
+        // Asserts
+        assertThat(displayString).isEqualTo(expectedDisplayValue);
+    }
+
+    @Test
+    public void toDisplayAfterRefreshWithOneDeviceType() {
+        DeviceType deviceType = mock(DeviceType.class);
+        String expectedDisplayValue = "toDisplayAfterRefreshWithOneDeviceType";
+        DeviceConfigurationSearchableProperty property = this.getTestInstance();
+        DeviceConfiguration config1 = mock(DeviceConfiguration.class);
+        when(config1.getName()).thenReturn(expectedDisplayValue);
+        when(config1.getDeviceType()).thenReturn(deviceType);
+        DeviceConfiguration config2 = mock(DeviceConfiguration.class);
+        when(config2.getDeviceType()).thenReturn(deviceType);
+        when(deviceType.getConfigurations()).thenReturn(Arrays.asList(config1, config2));
+        SearchablePropertyConstriction deviceTypeConstriction = SearchablePropertyConstriction.withValues(this.deviceTypeSearchableProperty, Arrays.asList(deviceType));
+        property.refreshWithConstrictions(Arrays.asList(deviceTypeConstriction));
+
+        // Business method
+        String displayString = property.toDisplay(config1);
+
+        // Asserts
+        assertThat(displayString).isEqualTo(expectedDisplayValue);
+    }
+
+    @Test
+    public void toDisplayAfterRefreshWithTwoDeviceTypes() {
+        String config1Name = "toDisplayAfterRefreshWithTwoDeviceTypes";
+        DeviceType deviceType1 = mock(DeviceType.class);
+        DeviceType deviceType2 = mock(DeviceType.class);
+        DeviceConfigurationSearchableProperty property = this.getTestInstance();
+        DeviceConfiguration config1 = mock(DeviceConfiguration.class);
+        when(config1.getName()).thenReturn(config1Name);
+        when(config1.getDeviceType()).thenReturn(deviceType1);
+        when(deviceType1.getConfigurations()).thenReturn(Arrays.asList(config1));
+        when(deviceType1.getName()).thenReturn("DT-One");
+        DeviceConfiguration config2 = mock(DeviceConfiguration.class);
+        when(config2.getDeviceType()).thenReturn(deviceType2);
+        when(deviceType2.getConfigurations()).thenReturn(Arrays.asList(config2));
+        when(deviceType2.getName()).thenReturn("DT-Two");
+        SearchablePropertyConstriction deviceTypeConstriction = SearchablePropertyConstriction.withValues(this.deviceTypeSearchableProperty, Arrays.asList(deviceType1, deviceType2));
+        property.refreshWithConstrictions(Arrays.asList(deviceTypeConstriction));
+        String expectedDisplayValue = config1Name + "(" + deviceType1.getName() + ")";
+        // Business method
+        String displayString = property.toDisplay(config1);
+
+        // Asserts
+        assertThat(displayString).isEqualTo(expectedDisplayValue);
     }
 
     private DeviceConfigurationSearchableProperty getTestInstance() {

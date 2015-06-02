@@ -68,6 +68,11 @@ public class DeviceTypeSearchableProperty extends AbstractSearchableDeviceProper
     }
 
     @Override
+    protected boolean valueCompatibleForDisplay(Object value) {
+        return value instanceof DeviceType;
+    }
+
+    @Override
     protected String toDisplayAfterValidation(Object value) {
         return ((DeviceType) value).getName();
     }

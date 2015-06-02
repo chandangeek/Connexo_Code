@@ -65,6 +65,11 @@ public class MasterResourceIdentifierSearchableProperty extends AbstractSearchab
     }
 
     @Override
+    protected boolean valueCompatibleForDisplay(Object value) {
+        return value instanceof String;
+    }
+
+    @Override
     protected String toDisplayAfterValidation(Object value) {
         return String.valueOf(value);
     }

@@ -17,7 +17,6 @@ import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
 
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.Instant;
@@ -39,22 +38,21 @@ public abstract class AbstractSearchableDeviceProperty implements SearchableDevi
 
     @Override
     public final String toDisplay(Object value) {
-        this.validateValueInDomain(value);
+        if (!this.valueCompatibleForDisplay(value)) {
+            throw new IllegalArgumentException("Value not compatible with domain");
+        }
         return this.toDisplayAfterValidation(value);
     }
 
-    protected abstract String toDisplayAfterValidation(Object value);
-
     /**
-     * Checks that the specified value is compatible with the SearchDomain.
+     * Tests that the specified value is compatible with the possible values for this SearchableDeviceProperty.
      *
      * @param value The value
      */
-    protected void validateValueInDomain(Object value) {
-        if (!getDomain().supports(value.getClass())) {
-            throw new IllegalArgumentException("Value not compatible with domain");
-        }
-    }
+    protected abstract boolean valueCompatibleForDisplay(Object value);
+
+    protected abstract String toDisplayAfterValidation(Object value);
+
     protected SqlFragment toSqlFragment(String columnName, Condition condition, Instant now) {
         this.columnName = columnName;
         this.now = now;
