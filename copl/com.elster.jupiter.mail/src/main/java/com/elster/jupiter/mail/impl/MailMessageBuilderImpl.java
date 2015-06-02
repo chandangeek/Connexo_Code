@@ -40,8 +40,8 @@ public class MailMessageBuilderImpl implements MailMessageBuilder {
     }
 
     @Override
-    public MailMessageBuilder withAttachment(Path path) {
-        constructing.addAttachment(path);
+    public MailMessageBuilder withAttachment(Path path, String fileName) {
+        constructing.addAttachment(path, fileName);
         return this;
     }
 

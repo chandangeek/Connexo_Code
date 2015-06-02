@@ -3,6 +3,7 @@ package com.elster.jupiter.mail.impl;
 import com.elster.jupiter.mail.MailAddress;
 import com.elster.jupiter.mail.MailException;
 import com.elster.jupiter.mail.OutboundMailMessage;
+import com.elster.jupiter.util.Pair;
 
 import javax.activation.DataHandler;
 import javax.activation.DataSource;
@@ -24,7 +25,7 @@ public class OutboundMailMessageImpl implements OutboundMailMessage {
     private String subject;
     private String body;
     private List<MailAddress> recipients;
-    private List<Path> attachments;
+    private List<Pair<String, Path>> attachments;
     private MailAddress replyTo;
 
     OutboundMailMessageImpl(OutboundMailMessageImpl origin) {
@@ -85,12 +86,12 @@ public class OutboundMailMessageImpl implements OutboundMailMessage {
         }
     }
 
-    private MimeBodyPart toMimeBodyPart(Path path) {
+    private MimeBodyPart toMimeBodyPart(Pair<String, Path> attachment) {
         try {
             MimeBodyPart messageBodyPart = new MimeBodyPart();
-            DataSource source = new PathDataSource(path);
+            DataSource source = new PathDataSource(attachment.getLast());
             messageBodyPart.setDataHandler(new DataHandler(source));
-            messageBodyPart.setFileName(path.getFileName().toString());
+            messageBodyPart.setFileName(attachment.getFirst());
             return messageBodyPart;
         } catch (MessagingException e) {
             // TODO
@@ -118,8 +119,8 @@ public class OutboundMailMessageImpl implements OutboundMailMessage {
         this.body = body;
     }
 
-    void addAttachment(Path path) {
-        attachments.add(path);
+    void addAttachment(Path path, String fileName) {
+        attachments.add(Pair.of(fileName, path));
     }
 
     public void setReplyTo(MailAddress replyTo) {

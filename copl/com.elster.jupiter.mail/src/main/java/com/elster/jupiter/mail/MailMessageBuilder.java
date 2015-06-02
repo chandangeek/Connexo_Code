@@ -12,7 +12,7 @@ public interface MailMessageBuilder {
 
     MailMessageBuilder withBody(String body);
 
-    MailMessageBuilder withAttachment(Path path);
+    MailMessageBuilder withAttachment(Path path, String fileName);
 
     MailMessageBuilder withReplyTo(MailAddress replyTo);
 }

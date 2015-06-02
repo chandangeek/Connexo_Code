@@ -59,7 +59,7 @@ public class MailServiceImplTest {
 
         mailService.messageBuilder(mailAddress)
                 .withSubject(SUBJECT)
-                .withAttachment(Paths.get(getClass().getClassLoader().getResource("com/elster/jupiter/mail/impl/testAttachment.txt").toURI()))
+                .withAttachment(Paths.get(getClass().getClassLoader().getResource("com/elster/jupiter/mail/impl/testAttachment.txt").toURI()), "testAttachment.txt")
                 .withBody(BODY)
                 .withReplyTo(mailService.mailAddress(REPLY_TO))
                 .build()

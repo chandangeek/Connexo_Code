@@ -8,6 +8,7 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 
+import javax.inject.Inject;
 import javax.mail.Address;
 import javax.mail.MessagingException;
 import javax.mail.Session;
@@ -37,6 +38,10 @@ public class MailServiceImpl implements IMailService {
     private String user;
     private String password;
     private String smtpPort;
+
+    @Inject
+    public MailServiceImpl() {
+    }
 
     @Override
     public MailMessageBuilder messageBuilder(MailAddress first, MailAddress... other) {

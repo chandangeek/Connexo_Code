@@ -42,4 +42,9 @@ public final class MailAddressImpl implements MailAddress {
     public int hashCode() {
         return Objects.hash(internetAddress);
     }
+
+    @Override
+    public String toString() {
+        return internetAddress.toString();
+    }
 }
