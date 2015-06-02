@@ -15,7 +15,7 @@ import javax.ws.rs.core.SecurityContext;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
-public class FileImportApplicationTest extends FelixRestApplicationJerseyTest {
+public class FileImportOccurrenceApplicationTest extends FelixRestApplicationJerseyTest {
 
     @Mock
     protected FileImportService fileImportService;
