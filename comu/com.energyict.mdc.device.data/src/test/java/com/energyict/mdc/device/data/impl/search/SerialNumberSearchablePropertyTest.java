@@ -17,6 +17,7 @@ import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyGroup;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -178,6 +179,28 @@ public class SerialNumberSearchablePropertyTest {
         property.refreshWithConstrictions(Arrays.asList(constriction));
 
         // Asserts: see expected exception rule
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void displayBigDecimal() {
+        SerialNumberSearchableProperty property = this.getTestInstance();
+
+        // Business method
+        property.toDisplay(BigDecimal.TEN);
+
+        // Asserts: see expected exception rule
+    }
+
+    @Test
+    public void displayString() {
+        SerialNumberSearchableProperty property = this.getTestInstance();
+        String valueToDisplay = "displayString";
+
+        // Business method
+        String displayValue = property.toDisplay(valueToDisplay);
+
+        // Asserts
+        assertThat(displayValue).isEqualTo(valueToDisplay);
     }
 
     private SerialNumberSearchableProperty getTestInstance() {

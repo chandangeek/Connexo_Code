@@ -1,8 +1,5 @@
 package com.energyict.mdc.device.data.impl.search;
 
-import com.energyict.mdc.common.FactoryIds;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.DeviceFields;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.PropertySpecServiceImpl;
@@ -20,6 +17,7 @@ import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyGroup;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -27,7 +25,6 @@ import java.util.Optional;
 
 import org.junit.*;
 import org.junit.runner.*;
-
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -182,6 +179,28 @@ public class MasterResourceIdentifierSearchablePropertyTest {
         property.refreshWithConstrictions(Arrays.asList(constriction));
 
         // Asserts: see expected exception rule
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void displayBigDecimal() {
+        MasterResourceIdentifierSearchableProperty property = this.getTestInstance();
+
+        // Business method
+        property.toDisplay(BigDecimal.TEN);
+
+        // Asserts: see expected exception rule
+    }
+
+    @Test
+    public void displayString() {
+        MasterResourceIdentifierSearchableProperty property = this.getTestInstance();
+        String valueToDisplay = "displayString";
+
+        // Business method
+        String displayValue = property.toDisplay(valueToDisplay);
+
+        // Asserts
+        assertThat(displayValue).isEqualTo(valueToDisplay);
     }
 
     private MasterResourceIdentifierSearchableProperty getTestInstance() {

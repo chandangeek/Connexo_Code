@@ -262,6 +262,34 @@ public class StateNameSearchablePropertyTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
+    public void refreshWithConstrictionFromAnotherProperty() {
+        State state1 = mock(State.class);
+        when(state1.getName()).thenReturn("One");
+        State state2 = mock(State.class);
+        when(state2.getName()).thenReturn("Two");
+        FiniteStateMachine fsm = mock(FiniteStateMachine.class);
+        when(fsm.getStates()).thenReturn(Arrays.asList(state1, state2));
+        DeviceLifeCycle deviceLifeCycle = mock(DeviceLifeCycle.class);
+        when(deviceLifeCycle.getFiniteStateMachine()).thenReturn(fsm);
+        DeviceType deviceType = mock(DeviceType.class);
+        when(deviceType.getDeviceLifeCycle()).thenReturn(deviceLifeCycle);
+
+        StateNameSearchableProperty property = this.getTestInstance();
+        SearchableProperty otherProperty = mock(SearchableProperty.class);
+        when(otherProperty.hasName(anyString())).thenReturn(false);
+        SearchablePropertyConstriction deviceTypeConstriction = SearchablePropertyConstriction.withValues(otherProperty, Arrays.asList(deviceType));
+
+        // Business method
+        property.refreshWithConstrictions(Arrays.asList(deviceTypeConstriction));
+
+        // Asserts: see expected exception rule
+        PropertySpecPossibleValues possibleValues = property.getSpecification().getPossibleValues();
+        assertThat(possibleValues).isNotNull();
+        assertThat(possibleValues.isExhaustive()).isTrue();
+        assertThat(possibleValues.getAllValues()).containsOnly("One", "Two");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
     public void displayBigDecimal() {
         StateNameSearchableProperty property = this.getTestInstance();
 
