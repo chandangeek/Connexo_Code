@@ -1,7 +1,7 @@
 package com.energyict.mdc.device.data.tasks;
 
 import com.elster.jupiter.util.HasName;
-import com.energyict.mdc.common.HasId;
+import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;

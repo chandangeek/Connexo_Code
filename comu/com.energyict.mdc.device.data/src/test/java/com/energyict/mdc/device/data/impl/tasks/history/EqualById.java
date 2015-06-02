@@ -1,6 +1,6 @@
 package com.energyict.mdc.device.data.impl.tasks.history;
 
-import com.energyict.mdc.common.HasId;
+import com.elster.jupiter.util.HasId;
 
 import java.util.Objects;
 
