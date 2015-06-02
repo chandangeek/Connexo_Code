@@ -13,6 +13,11 @@ public class EstimationRuleInfos {
     public int total;
     public List<EstimationRuleInfo> rules = new ArrayList<EstimationRuleInfo>();
 
+    // required for serialization
+    public EstimationRuleInfos() {
+        this.propertyUtils = null;
+    }
+
     EstimationRuleInfos(PropertyUtils propertyUtils) {
         this.propertyUtils = propertyUtils;
     }

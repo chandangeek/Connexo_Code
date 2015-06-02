@@ -34,8 +34,8 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
 @Ignore("Base functionality for rest tests")
+@RunWith(MockitoJUnitRunner.class)
 public class BaseEstimationRestTest extends JerseyTest {
 
     @Mock
@@ -52,9 +52,11 @@ public class BaseEstimationRestTest extends JerseyTest {
     protected TimeService timeService;
     @Mock
     protected MeteringGroupsService meteringGroupsService;
-    
-    protected RestQueryService restQueryService;
+    @Mock
     protected PropertyUtils propertyUtils;
+    @Mock
+    protected RestQueryService restQueryService;
+
     protected EstimationApplication estimationApplication;
     @Mock
     private com.elster.jupiter.transaction.TransactionContext transactionContext;
@@ -62,6 +64,7 @@ public class BaseEstimationRestTest extends JerseyTest {
     @Before
     public void setUp() throws Exception {
         when(nlsService.getThesaurus(anyString(), any())).thenReturn(thesaurus);
+        propertyUtils = new PropertyUtils(nlsService);
 
         super.setUp();
         estimationApplication = new EstimationApplication();
@@ -87,16 +90,10 @@ public class BaseEstimationRestTest extends JerseyTest {
     public void tearDown() throws Exception {
         super.tearDown();
     }
-    
-    private void init() {
-        restQueryService = mock(RestQueryService.class);
-        propertyUtils = new PropertyUtils(nlsService);
-    }
 
     @Override
     protected Application configure() {
-        init();
-        
+
         enable(TestProperties.LOG_TRAFFIC);
         enable(TestProperties.DUMP_ENTITY);
 
@@ -110,6 +107,7 @@ public class BaseEstimationRestTest extends JerseyTest {
             protected void configure() {
                 bind(restQueryService).to(RestQueryService.class);
                 bind(propertyUtils).to(PropertyUtils.class);
+                bind(nlsService).to(NlsService.class);
                 bind(estimationService).to(EstimationService.class);
                 bind(transactionService).to(TransactionService.class);
                 bind(thesaurus).to(Thesaurus.class);
