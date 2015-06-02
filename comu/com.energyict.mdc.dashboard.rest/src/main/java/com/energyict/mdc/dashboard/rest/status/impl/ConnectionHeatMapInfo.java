@@ -1,6 +1,6 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
-import com.energyict.mdc.common.HasId;
+import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.dashboard.ComSessionSuccessIndicatorOverview;
 import com.energyict.mdc.dashboard.ConnectionTaskHeatMap;
 import com.energyict.mdc.dashboard.ConnectionTaskHeatMapRow;

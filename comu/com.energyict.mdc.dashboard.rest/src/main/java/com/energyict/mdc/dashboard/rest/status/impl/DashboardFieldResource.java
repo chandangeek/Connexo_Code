@@ -3,7 +3,7 @@ package com.energyict.mdc.dashboard.rest.status.impl;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.util.HasName;
-import com.energyict.mdc.common.HasId;
+import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.common.rest.FieldResource;
 import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.dashboard.rest.DashboardApplication;
