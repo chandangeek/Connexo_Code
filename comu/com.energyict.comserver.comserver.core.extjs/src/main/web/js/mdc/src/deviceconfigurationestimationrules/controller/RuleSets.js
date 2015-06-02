@@ -201,7 +201,7 @@ Ext.define('Mdc.deviceconfigurationestimationrules.controller.RuleSets', {
 
         Ext.suspendLayouts();
         preview.down('property-form').loadRecord(record);
-        preview.setTitle(record.get('name'));
+        preview.setTitle(Ext.String.htmlEncode(record.get('name')));
         previewForm.loadRecord(record);
         previewForm.fillReadings(record);
         Ext.resumeLayouts(true);

@@ -111,7 +111,7 @@ Ext.define('Mdc.controller.setup.DeviceSecuritySettings', {
         if (deviceSecuritySetting.length == 1) {
             var deviceSecuritySettingName = deviceSecuritySetting[0].get('name');
             me.getDeviceSecuritySettingPreview().getLayout().setActiveItem(1);
-            me.getDeviceSecuritySettingPreview().setTitle(deviceSecuritySettingName);
+            me.getDeviceSecuritySettingPreview().setTitle(Ext.String.htmlEncode(deviceSecuritySettingName));
             me.getDeviceSecuritySettingPreviewForm().loadRecord(deviceSecuritySetting[0]);
             if (deviceSecuritySetting[0].propertiesStore.data.items.length > 0) {
                 me.getDeviceSecuritySettingPreview().down('property-form').readOnly = true;
@@ -132,7 +132,7 @@ Ext.define('Mdc.controller.setup.DeviceSecuritySettings', {
             } else {
                 me.getDeviceSecuritySettingPreviewTitle().setVisible(false);
             }
-            me.getDeviceSecuritySettingPreview().setTitle(deviceSecuritySettingName);
+            me.getDeviceSecuritySettingPreview().setTitle(Ext.String.htmlEncode(deviceSecuritySettingName));
         } else {
             me.getDeviceSecuritySettingPreview().getLayout().setActiveItem(0);
         }

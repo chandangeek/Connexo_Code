@@ -130,7 +130,7 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
                 success: function (communicationSchedule) {
                     me.getApplication().fireEvent('loadCommunicationSchedule', communicationSchedule);
                     me.record = communicationSchedule;
-                    widget.down('#communicationScheduleEditForm').setTitle(Uni.I18n.translate('communicationschedule.editCommunicationSchedule', 'MDC', 'Edit') + ' \'' + communicationSchedule.get('name') + '\'');
+                    widget.down('#communicationScheduleEditForm').setTitle(Uni.I18n.translate('communicationschedule.editCommunicationSchedule', 'MDC', 'Edit') + ' \'' + Ext.String.htmlEncode(communicationSchedule.get('name')) + '\'');
                     widget.down('#communicationScheduleEditForm').loadRecord(communicationSchedule);
                     widget.down('#noComTasksSelectedMsg').hide();
                     widget.down('#comTasksOnForm').show();
@@ -196,7 +196,7 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
             previewForm = this.getCommunicationSchedulePreviewForm(),
             taskList = '';
 
-        preview.setTitle(communicationSchedule.get('name'));
+        preview.setTitle(Ext.String.htmlEncode(communicationSchedule.get('name')));
         previewForm.loadRecord(communicationSchedule);
         previewForm.down('#comTaskPreviewContainer').removeAll();
         Ext.each(communicationSchedule.comTaskUsages().data.items, function (comTaskUsage) {
@@ -358,7 +358,7 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
                 success: function (response) {
                     var rec = Ext.decode(response.responseText),
                         str = '';
-                    preview.setTitle(rec.name);
+                    preview.setTitle(Ext.String.htmlEncode(rec.name));
                     Ext.Array.each(rec.commands, function (command) {
                         str += command.action.charAt(0).toUpperCase() + command.action.slice(1) + ' ' + command.category.charAt(0).toUpperCase() + command.category.slice(1) + '<br/>';
                     });
