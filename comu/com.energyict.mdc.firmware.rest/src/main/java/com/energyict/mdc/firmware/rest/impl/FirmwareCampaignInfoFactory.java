@@ -28,14 +28,22 @@ public class FirmwareCampaignInfoFactory {
     private final FirmwareService firmwareService;
     private final MeteringGroupsService meteringGroupsService;
     private final DeviceConfigurationService deviceConfigurationService;
+    private final FirmwareVersionInfoFactory firmwareVersionFactory;
 
     @Inject
-    public FirmwareCampaignInfoFactory(Thesaurus thesaurus, MdcPropertyUtils mdcPropertyUtils, FirmwareService firmwareService, MeteringGroupsService meteringGroupsService, DeviceConfigurationService deviceConfigurationService) {
+    public FirmwareCampaignInfoFactory(
+            Thesaurus thesaurus,
+            MdcPropertyUtils mdcPropertyUtils,
+            FirmwareService firmwareService,
+            MeteringGroupsService meteringGroupsService,
+            DeviceConfigurationService deviceConfigurationService,
+            FirmwareVersionInfoFactory firmwareVersionFactory) {
         this.thesaurus = thesaurus;
         this.mdcPropertyUtils = mdcPropertyUtils;
         this.firmwareService = firmwareService;
         this.meteringGroupsService = meteringGroupsService;
         this.deviceConfigurationService = deviceConfigurationService;
+        this.firmwareVersionFactory = firmwareVersionFactory;
     }
 
     public FirmwareCampaignInfo from(FirmwareCampaign campaign){
@@ -69,7 +77,7 @@ public class FirmwareCampaignInfoFactory {
                 }
                 return null;
             };
-            info.firmwareVersion = FirmwareVersionInfo.from(campaign.getFirmwareVersion(), thesaurus);
+            info.firmwareVersion = firmwareVersionFactory.from(campaign.getFirmwareVersion());
             info.properties = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(firmwareMessageSpec.get().getPropertySpecs(), typedProperties, provider);
         }
         info.devicesStatus = campaign.getDevicesStatusMap().entrySet()
