@@ -84,7 +84,9 @@ public class SerialNumberSearchableProperty extends AbstractSearchableDeviceProp
 
     @Override
     public void refreshWithConstrictions(List<SearchablePropertyConstriction> constrictions) {
-        // Nothing to refresh
+        if (!constrictions.isEmpty()) {
+            throw new IllegalArgumentException("No constraint to refresh");
+        }
     }
 
     @Override
