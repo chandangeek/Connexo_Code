@@ -120,7 +120,7 @@ public class DataExportTaskResource {
     public Response addExportTask(DataExportTaskInfo info) {
         DataExportTaskBuilder builder = dataExportService.newBuilder()
                 .setName(info.name)
-                .setDataProcessorName(info.dataProcessor.name)
+                .setDataFormatterName(info.dataProcessor.name)
                 .setScheduleExpression(getScheduleExpression(info))
                 .setNextExecution(info.nextRun == null ? null : Instant.ofEpochMilli(info.nextRun));
 
@@ -140,7 +140,7 @@ public class DataExportTaskResource {
             selectorBuilder.endSelection();
         }
 
-        List<PropertySpec> propertiesSpecs = dataExportService.getPropertiesSpecsForProcessor(info.dataProcessor.name);
+        List<PropertySpec> propertiesSpecs = dataExportService.getPropertiesSpecsForFormatter(info.dataProcessor.name);
         PropertyUtils propertyUtils = new PropertyUtils();
 
         propertiesSpecs.stream()
@@ -307,7 +307,7 @@ public class DataExportTaskResource {
     }
 
     private void updateProperties(DataExportTaskInfo info, ExportTask task) {
-        List<PropertySpec> propertiesSpecs = dataExportService.getPropertiesSpecsForProcessor(info.dataProcessor.name);
+        List<PropertySpec> propertiesSpecs = dataExportService.getPropertiesSpecsForFormatter(info.dataProcessor.name);
         PropertyUtils propertyUtils = new PropertyUtils();
         propertiesSpecs.stream()
                 .forEach(spec -> {

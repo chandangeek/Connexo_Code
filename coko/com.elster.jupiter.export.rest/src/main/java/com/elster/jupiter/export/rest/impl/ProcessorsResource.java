@@ -1,7 +1,7 @@
 package com.elster.jupiter.export.rest.impl;
 
 import com.elster.jupiter.export.DataExportService;
-import com.elster.jupiter.export.DataProcessorFactory;
+import com.elster.jupiter.export.DataFormatterFactory;
 import com.elster.jupiter.export.security.Privileges;
 import com.elster.jupiter.nls.Thesaurus;
 
@@ -37,9 +37,9 @@ public class ProcessorsResource {
     @RolesAllowed({Privileges.VIEW_DATA_EXPORT_TASK, Privileges.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.UPDATE_DATA_EXPORT_TASK, Privileges.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.RUN_DATA_EXPORT_TASK})
     public ProcessorInfos getAvailableProcessors(@Context UriInfo uriInfo) {
         ProcessorInfos infos = new ProcessorInfos();
-        List<DataProcessorFactory> processors = dataExportService.getAvailableProcessors();
+        List<DataFormatterFactory> processors = dataExportService.getAvailableFomratters();
         PropertyUtils propertyUtils = new PropertyUtils();
-        for (DataProcessorFactory processor : processors) {
+        for (DataFormatterFactory processor : processors) {
             infos.add(processor.getName(), thesaurus.getStringBeyondComponent(processor.getName(), processor.getName()),
                     propertyUtils.convertPropertySpecsToPropertyInfos(processor.getPropertySpecs()));
         }
