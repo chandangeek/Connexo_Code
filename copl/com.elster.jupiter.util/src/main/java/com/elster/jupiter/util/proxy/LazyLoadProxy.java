@@ -19,7 +19,7 @@ public final class LazyLoadProxy<T> implements java.lang.reflect.InvocationHandl
     public static <T> T newInstance(LazyLoader<T> initializer) {
         return (T) java.lang.reflect.Proxy.newProxyInstance(
             initializer.getClassLoader(),
-            new Class[] {initializer.getImplementedInterface()},
+            new Class[] {initializer.getImplementedInterface(), Proxy.class},
             new LazyLoadProxy<>(initializer));
     }
 
@@ -27,11 +27,13 @@ public final class LazyLoadProxy<T> implements java.lang.reflect.InvocationHandl
     	this.loader = loader;
     }
 
-    public Object invoke(Object proxy, Method m, Object[] args)
-            throws Throwable {
+    public Object invoke(Object proxy, Method m, Object[] args) throws Throwable {
         try {
             if (obj == null) {
                 obj = loader.load();
+            }
+            if ("unwrap".equals(m.getName()) && (args == null || args.length == 0)) {
+                return obj;
             }
             return m.invoke(obj, args);
         }

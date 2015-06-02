@@ -3,7 +3,7 @@ package com.elster.jupiter.util.proxy;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Tom De Greyt (tgr)
@@ -38,7 +38,7 @@ public class LazyLoadProxyTest {
             return new DeepThought();
         }
     }
-    
+
     private boolean loaded;
 
     @Before
@@ -49,14 +49,25 @@ public class LazyLoadProxyTest {
     @Test
     public void testNeverUseLoad() throws Exception {
         LazyLoadProxy.newInstance(new LazyThoughtLoader());
-        assertFalse(loaded);
+        assertThat(loaded).isFalse();
     }
 
     @Test
     public void testLoadedCorrectly() {
         MeaningOfLifeTheUniverseAndEverythingCalculator deepThought = LazyLoadProxy.newInstance(new LazyThoughtLoader());
-        assertEquals(42, deepThought.calculate());
-        assertTrue(loaded);
+        assertThat(deepThought.calculate()).isEqualTo(42);
+        assertThat(loaded).isTrue();
 
     }
+
+    @Test
+    public void testUnwrap() {
+        MeaningOfLifeTheUniverseAndEverythingCalculator deepThought = LazyLoadProxy.newInstance(new LazyThoughtLoader());
+        assertThat(deepThought).isInstanceOf(Proxy.class);
+        Proxy proxy = (Proxy) deepThought;
+        MeaningOfLifeTheUniverseAndEverythingCalculator unwrapped = proxy.<MeaningOfLifeTheUniverseAndEverythingCalculator>unwrap();
+        assertThat(unwrapped).isNotInstanceOf(Proxy.class);
+        assertThat(unwrapped.calculate()).isEqualTo(42);
+    }
+
 }
