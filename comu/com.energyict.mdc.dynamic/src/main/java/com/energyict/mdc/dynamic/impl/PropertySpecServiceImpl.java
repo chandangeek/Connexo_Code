@@ -5,7 +5,7 @@ import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeService;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.FactoryIds;
-import com.energyict.mdc.common.HasId;
+import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.dynamic.NoFinderComponentFoundException;
 import com.energyict.mdc.dynamic.ObisCodeValueFactory;

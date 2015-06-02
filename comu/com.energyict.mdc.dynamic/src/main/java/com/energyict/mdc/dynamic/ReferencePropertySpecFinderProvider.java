@@ -1,7 +1,7 @@
 package com.energyict.mdc.dynamic;
 
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
-import com.energyict.mdc.common.HasId;
+import com.elster.jupiter.util.HasId;
 
 import java.util.List;
 
