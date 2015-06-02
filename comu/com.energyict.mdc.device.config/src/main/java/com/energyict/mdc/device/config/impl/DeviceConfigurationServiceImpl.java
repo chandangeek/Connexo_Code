@@ -146,7 +146,9 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
 
     @Override
     public List<CanFindByLongPrimaryKey<? extends HasId>> finders() {
-        return Arrays.asList(new DeviceTypeFinder(this));
+        return Arrays.asList(
+                new DeviceTypeFinder(this),
+                new DeviceConfigurationFinder(this));
     }
 
     @Override
