@@ -49,6 +49,7 @@ import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.tasks.impl.TasksModule;
@@ -93,6 +94,7 @@ public class InMemoryPersistence {
     private LicenseService licenseService;
     private DeviceService deviceService;
     private EventService eventService;
+    private ProtocolPluggableService protocolPluggableService;
 
     public void initializeDatabase(String testName, boolean showSqlLogging, boolean createDefaults) {
         this.initializeMocks(testName);
@@ -150,6 +152,7 @@ public class InMemoryPersistence {
             injector.getInstance(DeviceDataModelServiceImpl.class);
             this.deviceService = injector.getInstance(DeviceService.class);
             this.eventService = injector.getInstance(EventService.class);
+            this.protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
             this.dataModel = this.createFirmwareService();
             ctx.commit();
         }
@@ -195,6 +198,10 @@ public class InMemoryPersistence {
 
     public Injector getInjector() {
         return injector;
+    }
+
+    public ProtocolPluggableService getProtocolPluggableService() {
+        return protocolPluggableService;
     }
 
     private class MockModule extends AbstractModule {
