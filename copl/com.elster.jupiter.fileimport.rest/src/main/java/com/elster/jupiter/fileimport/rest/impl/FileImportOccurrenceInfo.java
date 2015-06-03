@@ -9,7 +9,7 @@ import com.elster.jupiter.nls.Thesaurus;
 public class FileImportOccurrenceInfo {
     public Long id;
 
-    public Long historyId;
+    public Long occurrenceId;
     public Long importServiceId;
     public String importServiceName;
     public Long startedOn;
@@ -23,7 +23,7 @@ public class FileImportOccurrenceInfo {
 
     }
     public FileImportOccurrenceInfo(FileImportOccurrence fileImportOccurrence, Thesaurus thesaurus){
-        this.id = this.historyId = fileImportOccurrence.getId();
+        this.id = this.occurrenceId = fileImportOccurrence.getId();
         this.fileName = fileImportOccurrence.getFileName();
         this.importServiceId = fileImportOccurrence.getImportSchedule().getId();
         this.importServiceName = fileImportOccurrence.getImportSchedule().getName();
@@ -31,7 +31,7 @@ public class FileImportOccurrenceInfo {
         fileImportOccurrence.getEndDate().ifPresent(sd->this.finishedOn = sd.toEpochMilli());
         this.duration = calculateDuration(startedOn, finishedOn);
         this.status = fileImportOccurrence.getStatus().toString();
-        //this.summary = fileImportOccurrence.
+        this.summary = fileImportOccurrence.getMessage();
 
     }
 

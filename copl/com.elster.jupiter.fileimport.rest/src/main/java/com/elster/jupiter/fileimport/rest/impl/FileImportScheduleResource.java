@@ -204,15 +204,14 @@ public class FileImportScheduleResource {
         }
 
         if (filter.hasProperty("importService")) {
-            finderBuilder.withImportServiceIn(filter.getLongList("importService"));
+            List<Long> importServices = filter.getLongList("importService");
+            finderBuilder.withImportServiceIn(importServices);
         }
         if (filter.hasProperty("status")) {
 
             finderBuilder.withStatusIn(filter.getStringList("status")
                     .stream()
                     .map(Status::valueOf)
-                    .map(Status::ordinal)
-                    .map(Long.class::cast)
                     .collect(Collectors.toList()));
         }
         return finderBuilder.build().from(queryParameters).find();
@@ -221,32 +220,28 @@ public class FileImportScheduleResource {
 
 
     @GET
-    @Path("/{importServiceId}/history/{occurrenceId}")
+    @Path("/history/{occurrenceId}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_IMPORT_SERVICES, Privileges.VIEW_IMPORT_SERVICES, Privileges.VIEW_MDC_IMPORT_SERVICES})
     public FileImportOccurrenceInfo geFileImportOccurence(@BeanParam JsonQueryParameters queryParameters,
                                                            @BeanParam JsonQueryFilter filter,
-                                                           @PathParam("importServiceId") long importServiceId,
                                                            @PathParam("occurrenceId") long occurrenceId,
                                                            @Context SecurityContext securityContext) {
 
         return new FileImportOccurrenceInfo(
-                fileImportService.getImportSchedule(importServiceId).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND))
-                        .getFileImportOccurrence(occurrenceId).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND)), thesaurus);
+                fileImportService.getFileImportOccurrence(occurrenceId).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND)), thesaurus);
     }
 
     @GET
-    @Path("/{importServiceId}/history/{occurrenceId}/logs")
+    @Path("/history/{occurrenceId}/logs")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_IMPORT_SERVICES, Privileges.VIEW_IMPORT_SERVICES, Privileges.VIEW_MDC_IMPORT_SERVICES})
     public PagedInfoList geFileImportOccurrenceLogEntries(@BeanParam JsonQueryParameters queryParameters,
                                                     @BeanParam JsonQueryFilter filter,
-                                                    @PathParam("importServiceId") long importServiceId,
                                                     @PathParam("occurrenceId") long occurrenceId,
                                                     @Context SecurityContext securityContext) {
 
         List<ImportLogEntry> logEntries = fileImportService
-                .getImportSchedule(importServiceId).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND))
                 .getFileImportOccurrence(occurrenceId).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND))
                 .getLogsFinder().from(queryParameters).find();
 
