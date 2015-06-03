@@ -70,7 +70,7 @@ public class FirmwareVersionResource {
     @RolesAllowed({Privileges.VIEW_DEVICE_TYPE, Privileges.ADMINISTRATE_DEVICE_TYPE})
     public Response getFirmwareVersionById(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("id") long id) {
         FirmwareVersion firmwareVersion = resourceHelper.findFirmwareVersionByIdOrThrowException(id);
-        return Response.ok().entity(versionFactory.from(firmwareVersion)).build();
+        return Response.ok().entity(versionFactory.fullInfo(firmwareVersion)).build();
     }
 
     @POST
@@ -175,7 +175,7 @@ public class FirmwareVersionResource {
             break;
         default:
         }
-        return Response.ok().entity(versionFactory.from(firmwareVersion)).build();
+        return Response.ok().entity(versionFactory.fullInfo(firmwareVersion)).build();
     }
 
     private FirmwareVersionFilter getFirmwareFilter(JsonQueryFilter filter, DeviceType deviceType) {

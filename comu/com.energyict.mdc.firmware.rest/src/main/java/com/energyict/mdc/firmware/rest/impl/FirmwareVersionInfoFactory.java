@@ -19,21 +19,21 @@ public class FirmwareVersionInfoFactory {
     }
 
     public List<FirmwareVersionInfo> from(List<FirmwareVersion> firmwareVersions){
-        return firmwareVersions.stream().map(this::getFirmwareVersionCommonInfo).collect(Collectors.toList());
+        return firmwareVersions.stream().map(this::from).collect(Collectors.toList());
     }
 
     public FirmwareVersionInfo from(FirmwareVersion firmwareVersion){
-        FirmwareVersionInfo info = getFirmwareVersionCommonInfo(firmwareVersion);
-        info.isInUse = firmwareService.isFirmwareVersionInUse(firmwareVersion.getId());
-        return info;
-    }
-
-    private FirmwareVersionInfo getFirmwareVersionCommonInfo(FirmwareVersion firmwareVersion){
         FirmwareVersionInfo info = new FirmwareVersionInfo();
         info.id = firmwareVersion.getId();
         info.firmwareVersion = firmwareVersion.getFirmwareVersion();
         info.firmwareStatus = new FirmwareStatusInfo(firmwareVersion.getFirmwareStatus(), thesaurus);
         info.firmwareType = new FirmwareTypeInfo(firmwareVersion.getFirmwareType(), thesaurus);
+        return info;
+    }
+
+    public FirmwareVersionInfo fullInfo(FirmwareVersion firmwareVersion){
+        FirmwareVersionInfo info = from(firmwareVersion);
+        info.isInUse = firmwareService.isFirmwareVersionInUse(firmwareVersion.getId());
         return info;
     }
 }
