@@ -5,6 +5,7 @@ import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.fileimport.FileImportOccurrence;
 import com.elster.jupiter.fileimport.FileImportOccurrenceFinderBuilder;
 import com.elster.jupiter.fileimport.ImportSchedule;
+import com.elster.jupiter.fileimport.Status;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
@@ -32,14 +33,16 @@ public class FileImportOccurrenceFinderBuilderImpl implements FileImportOccurren
 
 
     @Override
-    public FileImportOccurrenceFinderBuilder withStatusIn(List<Long> statuses) {
-        this.condition = this.condition.and(where("status").in(statuses));
+    public FileImportOccurrenceFinderBuilder withStatusIn(List<Status> statuses) {
+        if(statuses.size()>0)
+            this.condition = this.condition.and(where("status").in(statuses));
         return this;
     }
 
     @Override
     public FileImportOccurrenceFinderBuilder withImportServiceIn(List<Long> importServicesIds) {
-        this.condition = this.condition.and(where("importScheduleId").in(importServicesIds));
+        if(importServicesIds.size()>0)
+            this.condition = this.condition.and(where("importScheduleId").in(importServicesIds));
         return this;
     }
 

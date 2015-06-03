@@ -43,6 +43,7 @@ class ImportScheduleJob implements CronJob {
 
     @Override
     public void run() {
-        folderScanningJob.run();
+        if(importSchedule.isActive())
+            folderScanningJob.run();
     }
 }

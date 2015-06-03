@@ -5,5 +5,5 @@ package com.elster.jupiter.fileimport;
  * A FileImport starts out as new. When moved to processing becomes PROCESSING and upon completion becomes either SUCCESS or FAILURE, depeding on the success of processing.
  */
 public enum State {
-    NEW, PROCESSING, SUCCESS, FAILURE
+    NEW, PROCESSING, SUCCESS, SUCCESS_WITH_FAILURES, FAILURE
 }

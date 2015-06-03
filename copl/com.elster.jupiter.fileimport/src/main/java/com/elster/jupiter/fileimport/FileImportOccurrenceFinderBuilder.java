@@ -11,7 +11,7 @@ import java.util.List;
  */
 public interface FileImportOccurrenceFinderBuilder {
 
-    FileImportOccurrenceFinderBuilder withStatusIn(List<Long> statuses);
+    FileImportOccurrenceFinderBuilder withStatusIn(List<Status> statuses);
     FileImportOccurrenceFinderBuilder withImportServiceIn(List<Long> importServicesIds);
     FileImportOccurrenceFinderBuilder withStartDateIn(Range<Instant> interval);
 

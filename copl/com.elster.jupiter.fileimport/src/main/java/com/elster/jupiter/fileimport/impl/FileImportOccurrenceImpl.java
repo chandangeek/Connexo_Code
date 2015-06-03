@@ -171,9 +171,7 @@ final class FileImportOccurrenceImpl implements FileImportOccurrence {
     public Finder<ImportLogEntry> getLogsFinder() {
         Condition condition = where("fileImportOccurrenceReference").isEqualTo(this);
         //Order[] orders = new Order[]{Order.descending("timeStamp"), Order.ascending("position")};
-        return DefaultFinder.of(ImportLogEntry.class,condition , dataModel)
-                .sorted("timeStamp", false)
-                .sorted("position", true);
+        return DefaultFinder.of(ImportLogEntry.class,condition , dataModel);
     }
 
     @Override
