@@ -111,12 +111,8 @@ Ext.define('Mdc.view.setup.devicechannels.GraphView', {
                         deltaIcon,
                         bulkIcon,
                         bgColor,
-                        iconSpan = '<span class="{icon}" ' +
-                            'style="height: 16px; ' +
-                            'width: 16px; ' +
-                            'display: inline-block; ' +
-                            'vertical-align: top; ' +
-                            'margin-left: 4px"></span>';
+                        iconSpan = '<span class="{icon}" ' + 'style="height: 16px; ' + 'width: 16px; ' +
+                            'display: inline-block; ' + 'vertical-align: top; ' + 'margin-left: 4px"></span>';
 
 //                     suspect: 'icon-validation-red',
 //                     edited: 'icon-pencil2',
@@ -135,28 +131,16 @@ Ext.define('Mdc.view.setup.devicechannels.GraphView', {
                     html += ' - ' + Highcharts.dateFormat('%H:%M', point.intervalEnd) + '<br>';
                     html += '<table style="margin-top: 10px"><tbody>';
                     bgColor = point.tooltipColor;
-                    html += '<tr><td><b>' +
-                        point.series.name +
-                        ':</b></td><td>' +
-                        point.y + ' ' +
-                        point.mesurementType +
-                        iconSpan.replace('{icon}', deltaIcon) +
-                        '</td></tr>';
-                    html += '<tr><td><b>' +
-                        'Bulk value:' +
-                        '</b></td><td>' +
-                        point.collectedValue + ' ' +
-                        point.mesurementType +
-                        iconSpan.replace('{icon}', bulkIcon) +
-                        '</td></tr>';
+                    html += '<tr><td><b>' + point.series.name + ':</b></td><td>' + point.y + ' ' +
+                        point.mesurementType + iconSpan.replace('{icon}', deltaIcon) + '</td></tr>';
+                    html += '<tr><td><b>' + 'Bulk value:' + '</b></td><td>' + point.collectedValue + ' ' +
+                        point.mesurementType + iconSpan.replace('{icon}', bulkIcon) + '</td></tr>';
 
                     html += '</tbody></table>';
-                    html = '<div style="background-color: ' +
-                        bgColor +
-                        '; padding: 8px">' + html + '</div>';
+                    html = '<div style="background-color: ' + bgColor + '; padding: 8px">' + html + '</div>';
                     return html;
                 },
-                followPointer: false,
+                followPointer: true,
                 followTouchMove: false
             },
 
@@ -166,8 +150,6 @@ Ext.define('Mdc.view.setup.devicechannels.GraphView', {
 
             plotOptions: {
                 column: {
-//                    borderColor: 'black',
-//                    borderWidth: 0.5,
                     pointPadding: 0,
                     groupPadding: 0,
                     dataGrouping: {

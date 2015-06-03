@@ -121,11 +121,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 });
                 channel.load(channelId, {
                     success: function (channel) {
-                        debugger;
-                        if (contentName == 'block' &&
-                            router.filter &&
-                            router.filter.get('duration').length == 0 &&
-                            router.queryParams['validationBlock']) {
+                        if (contentName == 'block' && router.filter && router.filter.get('duration').length == 0 && router.queryParams['validationBlock']) {
                             var intervalStore = me.getStore('Mdc.store.DataIntervalAndZoomLevels'),
                                 intervalRecord = intervalStore.getIntervalRecord(channel.get('interval')),
                                 all = intervalRecord.get('all'),
@@ -161,8 +157,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
     },
 
     setupSpecificationsTab: function (device, channel, widget) {
-        var me = this,
-            viewport = Ext.ComponentQuery.query('viewport > #contentPanel')[0];
+        var viewport = Ext.ComponentQuery.query('viewport > #contentPanel')[0];
         viewport.setLoading(false);
         widget.down('#deviceLoadProfileChannelsOverviewForm').loadRecord(channel);
         widget.down('#deviceLoadProfileChannelsActionMenu').record = channel;
@@ -206,7 +201,6 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 
     makeLinkToIssue: function (router, issueId) {
         var link = '<a href="{0}">' + Uni.I18n.translate('devicechannels.validationblocks', 'MDC', 'Validation blocks').toLowerCase() + '</a>';
-        // todo Replace 'workspace/datacollectionissues/{issueId}' with correct route to validation issue
         return Ext.String.format(link, router.getRoute('workspace/datacollectionissues/{issueId}').buildUrl({issueId: issueId}));
     },
 
@@ -278,18 +272,18 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         var mesurementType = channelRecord.get('unitOfMeasure');
 
         var missedColor = 'rgba(235, 86, 66, 0.3)';
-        var okColor = "#70BB51"; // "#70BB51"
-        var estColor = "#568343"; // "#568343"
-        var susColor = 'rgba(235, 86, 66, 1)';//"#eb5642"; // "#eb5642"
-        var infColor = "#dedc49"; // "#dedc49"
-        var edColor = "rgba(0,0,0,0)"; //"#00aaaa"
-        var nvalColor = "#71adc7";
-        var tokColor = 'rgba(255, 255, 255, 0.85)';
-        var testColor = 'rgba(86, 131, 67, 0.3)';
-        var tsusColor = 'rgba(235, 86, 66, 0.3)';
-        var tinfColor = 'rgba(222, 220, 73, 0.3)';
-        var tedColor = 'rgba(255, 255, 255, 0.85)';
-        var tnvalColor = 'rgba(0, 131, 200, 0.3)';
+        var okColor = "#70BB51";
+        var estimatedColor = "#568343";
+        var suspectColor = 'rgba(235, 86, 66, 1)';
+        var informativeColor = "#dedc49";
+        var editedColor = "rgba(0,0,0,0)";
+        var notValidatedColor = "#71adc7";
+        var tooltipOkColor = 'rgba(255, 255, 255, 0.85)';
+        var tooltipEstimatedColor = 'rgba(86, 131, 67, 0.3)';
+        var tooltipSuspectColor = 'rgba(235, 86, 66, 0.3)';
+        var tooltipInformativeColor = 'rgba(222, 220, 73, 0.3)';
+        var tooltipEditedColor = 'rgba(255, 255, 255, 0.85)';
+        var tooltipNotValidatedColor = 'rgba(0, 131, 200, 0.3)';
 
         dataStore.each(function (record) {
             var point = {};
@@ -297,8 +291,6 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             var bulkValidationInfo = record.getBulkValidationInfo();
             var deltaModificationFlag = deltaValidationInfo ? deltaValidationInfo.get('modificationFlag') : null;
             var bulkModificationFlag = bulkValidationInfo ? bulkValidationInfo.get('modificationFlag') : null;
-            var informative = false;
-            var suspect = false;
             var confirmed = false;
             var estimated = false;
             var edited = deltaModificationFlag || bulkModificationFlag;
@@ -310,32 +302,35 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             point.collectedValue = record.get('collectedValue');
             point.mesurementType = mesurementType;
             point.color = okColor;
-            point.tooltipColor = tokColor;
+            point.tooltipColor = tooltipOkColor;
 
             if (properties.delta.informative || properties.bulk.informative) {
-                point.color = infColor;
-                point.tooltipColor = tinfColor
+                point.color = informativeColor;
+                point.tooltipColor = tooltipInformativeColor
             }
             if (properties.delta.suspect || properties.bulk.suspect) {
-                point.color = susColor;
-                point.tooltipColor = tsusColor
+                point.color = suspectColor;
+                point.tooltipColor = tooltipSuspectColor
             }
             if (properties.delta.notValidated || properties.bulk.notValidated) {
-                point.color = nvalColor;
-                point.tooltipColor = tnvalColor
+                point.color = notValidatedColor;
+                point.tooltipColor = tooltipNotValidatedColor
             }
+
+            // for test purposes, need to implement
             if (estimated) {
-                point.color = estColor;
-                point.tooltipColor = tnvalColor
+                point.color = estimatedColor;
+                point.tooltipColor = tooltipNotValidatedColor
             }
             if (confirmed) {
                 point.color = okColor;
-                point.tooltipColor = tokColor
+                point.tooltipColor = tooltipOkColor
             }
             if (edited) {
                 point.color = okColor;
-                point.tooltipColor = tokColor
+                point.tooltipColor = tooltipOkColor
             }
+
             Ext.merge(point, properties);
             data.unshift(point);
             if (!point.y) {
@@ -393,9 +388,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         Ext.ComponentQuery.query('viewport > #contentPanel')[0].setLoading();
         var filterForm = this.getSideFilterForm();
         filterForm.updateRecord();
-        filterForm.getRecord().save({
-
-        });
+        filterForm.getRecord().save();
     },
 
     clearFilter: function () {
@@ -417,7 +410,5 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             graphView.chart.setSize(width, height, false);
         }
     }
-
-
 });
 
