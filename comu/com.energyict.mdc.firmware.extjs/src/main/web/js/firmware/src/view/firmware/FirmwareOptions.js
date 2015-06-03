@@ -66,6 +66,26 @@ Ext.define('Fwc.view.firmware.FirmwareOptions', {
                             },
                             {
                                 xtype: 'displayfield',
+                                name: 'supportedOptions',
+                                itemId: 'supported-options',
+                                fieldLabel: ' ',
+                                style: 'margin-top: -15px',
+                                fieldStyle: 'font-style: italic;',
+                                hidden: true,
+                                renderer: function (value, field) {
+                                    var result = '',
+                                        record = field.up('form').getRecord();
+                                    if (record && !record.get('supportedOptions').length) {
+                                        result = Uni.I18n.translate('deviceType.firmwaremanagementoptions.notAllowedByProtocol', 'FWC', 'Firmware management is not supported by the communication protocol of this device type');
+                                        field.show();
+                                    } else {
+                                        field.hide();
+                                    }
+                                    return result;
+                                }
+                            },
+                            {
+                                xtype: 'displayfield',
                                 name: 'allowedOptions',
                                 itemId: 'allowed-options',
                           /*      fieldCls: 'x-form-display-field-multiple-values',*/
