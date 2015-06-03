@@ -297,9 +297,25 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                         ]
                     },
                     {
-                        title: '<span class="x-form-item-label-right x-form-item-label" style="width: 250px;"><h3>' +
-                            Uni.I18n.translate('connectionmethod.connectionDetails', 'MDC', 'Connection details') +
-                            '</h3></span>',
+                        xtype: 'form',
+                        border: false,
+                        itemId: 'connectionDetailsTitle',
+                        layout: {
+                            type: 'vbox',
+                            align: 'stretch'
+                        },
+                        defaults: {
+                            labelWidth: 250
+                        },
+                        items: [
+                            {
+                                xtype: 'displayfield',
+                                fieldLabel: '<h3>' + Uni.I18n.translate('deviceconnectionmethod.connectionDetails', 'MDC', 'Connection details') + '</h3>',
+                                text: ''
+                            }
+                        ]
+                    },
+                    {
                         xtype: 'property-form',
                         hidden: true,
                         width: '100%'

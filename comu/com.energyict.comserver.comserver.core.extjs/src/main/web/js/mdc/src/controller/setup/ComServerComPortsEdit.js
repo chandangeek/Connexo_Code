@@ -185,7 +185,9 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
         } else {
             this.restorePools = undefined;
         }
-        this.restoreState();
+        if (!this.currentUrl.includes('edit')) {
+            this.restoreState();
+        }
         this.filterStore();
     },
 
@@ -385,7 +387,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
         }
 
 
-        me.currentUrl = 'administration/comservers/detail/comports/edit'
+        me.currentUrl = 'administration/comservers/detail/comports/edit';
         me.comServerId = id;
         me.comPortId = parseInt(comPortId);
         me.comportEdit = widget;
@@ -405,7 +407,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
                 actionButton.action = 'editModel';
                 directionField.show();
 
-                me.getAddComPortForm().setTitle(Uni.I18n.translate('general.edit', 'MDC', 'Edit') + " '" + recordData.name + "'");
+                me.getAddComPortForm().setTitle(Uni.I18n.translate('general.edit', 'MDC', 'Edit') + " '" + Ext.String.htmlEncode(recordData.name) + "'");
                 widget.showForm(me.portDirection, me.portType);
                 addForm = widget.down('#addComPortForm');
                 comportTypeSelectCombo = widget.down('#comPortTypeSelect');

@@ -30,7 +30,7 @@ Ext.define('Mdc.deviceconfigurationestimationrules.view.RuleSetsGrid', {
                     var res = '';
                     if (value && record && record.get('id')) {
                         var url = me.router.getRoute('administration/estimationrulesets/estimationruleset').buildUrl({ruleSetId: record.get('id')});
-                        res = '<a href="' + url + '">' + value + '</a>'
+                        res = '<a href="' + url + '">' + Ext.String.htmlEncode(value) + '</a>'
                     }
                     return res;
                 }

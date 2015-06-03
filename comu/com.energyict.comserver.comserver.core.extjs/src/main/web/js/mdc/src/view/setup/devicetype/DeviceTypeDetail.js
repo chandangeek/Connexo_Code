@@ -30,10 +30,6 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
                     },
                     title: Uni.I18n.translate('general.overview', 'MDC', 'Overview'),
                     items: [
-//                        {
-//                            html: '<h1>' + Uni.I18n.translate('general.overview', 'MDC', 'Overview') + '</h1>',
-//                            itemId: 'deviceTypePreviewTitle'
-//                        },
                         {
                             flex: 1
                         },
@@ -63,7 +59,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
                                     flex: 1
                                 }
                             ]
-                        }                    ]
+                        }]
                 },
                 {
                     xtype: 'form',
@@ -221,7 +217,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
                         deviceTypeId: this.deviceTypeId,
                         toggle: 0
                     }
-                  ]
+                ]
             }
         ];
         this.callParent(arguments);

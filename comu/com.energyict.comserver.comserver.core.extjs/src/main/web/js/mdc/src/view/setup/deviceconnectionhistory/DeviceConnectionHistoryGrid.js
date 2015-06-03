@@ -37,7 +37,7 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionHistoryGrid',
                 dataIndex: 'status',
                 flex: 1,
                 renderer: function(status,metadata,rowObject){
-                    return status!==''?'<a href="#/devices/'+this.mRID+ '/connectionmethods/' + this.connectionId + '/history/' + rowObject.get('id') + '/viewlog?filter=%7B%22logLevels%22%3A%5B%22Error%22%2C%22Warning%22%2C%22Information%22%5D%2C%22logTypes%22%3A%5B%22Connections%22%2C%22Communications%22%5D%7D' + '">' + status + '</a>':'';
+                    return status!==''?'<a href="#/devices/'+ encodeURIComponent(this.mRID) + '/connectionmethods/' + this.connectionId + '/history/' + rowObject.get('id') + '/viewlog?filter=%7B%22logLevels%22%3A%5B%22Error%22%2C%22Warning%22%2C%22Information%22%5D%2C%22logTypes%22%3A%5B%22Connections%22%2C%22Communications%22%5D%7D' + '">' + Ext.String.htmlEncode(status) + '</a>':'';
                 }
             },
             {
@@ -47,7 +47,7 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionHistoryGrid',
                 flex: 1,
                 renderer: function (value) {
                     if (value) {
-                        return value.displayValue;
+                        return Ext.String.htmlEncode(value.displayValue);
                     }
                 }
             },

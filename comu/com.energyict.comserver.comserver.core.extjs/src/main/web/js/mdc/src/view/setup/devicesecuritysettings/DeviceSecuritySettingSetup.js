@@ -42,7 +42,7 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingSetup', {
                         itemId: 'previewContainer',
                         grid: {
                             xtype: 'deviceSecuritySettingGrid',
-                            mrid: me.device.get('mRID')
+                            mrid: encodeURIComponent(me.device.get('mRID'))
                         },
                         emptyComponent: this.getEmptyComponent(),
                         previewComponent: {

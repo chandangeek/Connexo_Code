@@ -26,7 +26,7 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceCommunicationTaskExecut
                 dataIndex: 'device',
                 flex: 2,
                 renderer: function(value){
-                   return value.name;
+                   return Ext.String.htmlEncode(value.name);
                 }
             },
             {

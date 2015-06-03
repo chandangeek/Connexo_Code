@@ -127,7 +127,7 @@ Ext.define('Mdc.view.setup.deviceprotocol.DeviceProtocolDialectEdit', {
                                         xtype: 'button',
                                         ui: 'link',
                                         itemId: 'cancelLink',
-                                        href: '#/devices/' + this.mRID + '/'
+                                        href: '#/devices/' + encodeURIComponent(this.mRID) + '/'
                                     }
                                 ]
                             }

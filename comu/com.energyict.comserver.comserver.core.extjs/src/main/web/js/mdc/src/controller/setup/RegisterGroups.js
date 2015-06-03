@@ -102,10 +102,10 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
             me.getRegisterTypeGrid().getStore().load({
                 callback: function (records) {
                     if (records.length > 0) {
-                        me.getRegisterGroupPreview().setTitle(Uni.I18n.translate('registerGroup.previewGroup', 'MDC', 'Register types of') + ' ' + registerGroups[0].get('name'));
+                        me.getRegisterGroupPreview().setTitle(Uni.I18n.translate('registerGroup.previewGroup', 'MDC', 'Register types of') + ' ' + Ext.String.htmlEncode(registerGroups[0].get('name')));
                         me.getRegisterTypeGrid().getSelectionModel().doSelect(0);
                     } else {
-                        me.getRegisterGroupPreview().setTitle(Uni.I18n.translate('registerGroup.previewGroup', 'MDC', 'Register types of') + ' ' + registerGroups[0].get('name'));
+                        me.getRegisterGroupPreview().setTitle(Uni.I18n.translate('registerGroup.previewGroup', 'MDC', 'Register types of') + ' ' + Ext.String.htmlEncode(registerGroups[0].get('name')));
                     }
                     me.getRegisterTypeEmptyGrid().setVisible(true);
                     me.getRegisterTypePreview().setVisible(true);
@@ -118,7 +118,7 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
         var registerTypes = this.getRegisterTypeGrid().getSelectionModel().getSelection();
         if (registerTypes.length == 1) {
             this.getRegisterTypePreviewForm().loadRecord(registerTypes[0]);
-            this.getRegisterTypePreview().setTitle(registerTypes[0].get('name'));
+            this.getRegisterTypePreview().setTitle(Ext.String.htmlEncode(registerTypes[0].get('name')));
         }
     },
 
@@ -153,7 +153,7 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
                 me.getApplication().fireEvent('loadRegisterGroup', registerGroup);
                 var store = me.getStore('Mdc.store.InfiniteRegisterTypes');
                 widget.down('form').loadRecord(registerGroup);
-                widget.down('panel').setTitle(Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' \'' + registerGroup.get('name') + '\'');
+                widget.down('panel').setTitle(Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' \'' + Ext.String.htmlEncode(registerGroup.get('name')) + '\'');
                 var grid = widget.down('#editRegisterGroupGridField');
 
                 store.load({

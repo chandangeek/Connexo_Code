@@ -40,7 +40,7 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodSetup', 
                         itemId: 'previewContainer',
                         grid: {
                             xtype: 'deviceConnectionMethodsGrid',
-                            mrid: me.device.get('mRID')
+                            mrid: encodeURIComponent(me.device.get('mRID'))
                         },
                         emptyComponent: this.getEmptyComponent(),
                         previewComponent: {

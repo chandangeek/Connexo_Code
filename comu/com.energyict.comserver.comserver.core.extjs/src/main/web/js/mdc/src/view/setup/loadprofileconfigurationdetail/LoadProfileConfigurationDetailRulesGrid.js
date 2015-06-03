@@ -22,7 +22,7 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                 renderer: function (value, b, record) {					
 					return '<a href="#/administration/validation/rulesets/' + record.get('ruleSetId') 
                         + '/versions/' + record.get('ruleSetVersionId') 
-                        + '/rules/' + record.getId() + '">' + value + '</a>';
+                        + '/rules/' + record.getId() + '">' +  Ext.String.htmlEncode(value) + '</a>';
                 }
             },
             { header: Uni.I18n.translate('validation.status', 'CFG', 'Status'), dataIndex: 'active', flex: 1,
@@ -43,7 +43,7 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
 						var ruleSet = ruleSetVersion.ruleSet;
 						if (ruleSet){
 							metaData.tdAttr = 'data-qtip="' + ruleSet.description + '"';
-							return '<a href="#/administration/validation/rulesets/' + ruleSet.id + '">' + ruleSet.name + '</a>';
+							return '<a href="#/administration/validation/rulesets/' + ruleSet.id + '">' + Ext.String.htmlEncode(ruleSet.name) + '</a>';
 						}
 					}
                     

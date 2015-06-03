@@ -206,9 +206,9 @@ Ext.define('Mdc.controller.setup.Devices', {
                 me.getApplication().fireEvent('changecontentevent', widget);
                 me.doRefresh();
 
-                me.getDeviceGeneralInformationDeviceTypeLink().getEl().set({href: '#/administration/devicetypes/' + device.get('deviceTypeId')});
+                me.getDeviceGeneralInformationDeviceTypeLink().getEl().set({href: '#/administration/devicetypes/' + encodeURIComponent(device.get('deviceTypeId'))});
                 me.getDeviceGeneralInformationDeviceTypeLink().getEl().setHTML(device.get('deviceTypeName'));
-                me.getDeviceGeneralInformationDeviceConfigurationLink().getEl().set({href: '#/administration/devicetypes/' + device.get('deviceTypeId') + '/deviceconfigurations/' + device.get('deviceConfigurationId')});
+                me.getDeviceGeneralInformationDeviceConfigurationLink().getEl().set({href: '#/administration/devicetypes/' + encodeURIComponent(device.get('deviceTypeId')) + '/deviceconfigurations/' + encodeURIComponent(device.get('deviceConfigurationId'))});
                 me.getDeviceGeneralInformationDeviceConfigurationLink().getEl().setHTML(device.get('deviceConfigurationName'));
                 me.getDeviceCommunicationTopologyPanel().setRecord(device);
                 me.getDeviceOpenIssuesPanel().setDataCollectionIssues(device.get('nbrOfDataCollectionIssues'));
@@ -293,7 +293,7 @@ Ext.define('Mdc.controller.setup.Devices', {
             success: function (record) {
                 me.getApplication().fireEvent('acknowledge',
                     Uni.I18n.translatePlural('deviceAdd.added', record.get('mRID'), 'USM', 'Device \'{0}\' added.'));
-                location.href = "#/devices/" + record.get('mRID');
+                location.href = "#/devices/" + encodeURIComponent(record.get('mRID'));
             },
             failure: function (record, operation) {
                 var json = Ext.decode(operation.response.responseText);

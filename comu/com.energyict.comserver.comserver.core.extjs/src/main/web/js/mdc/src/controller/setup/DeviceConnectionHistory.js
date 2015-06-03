@@ -90,7 +90,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionHistory', {
             success: function (device) {
                 me.device = device;
                 var connectionMethodModel = Ext.ModelManager.getModel('Mdc.model.DeviceConnectionMethod');
-                connectionMethodModel.getProxy().setExtraParam('mrid', deviceMrId);
+                connectionMethodModel.getProxy().setExtraParam('mrid', encodeURIComponent(deviceMrId));
                 connectionMethodModel.load(connectionMethodId, {
                     success: function (connectionMethod) {
                         var widget = Ext.widget('deviceConnectionHistoryMain', {device: device, mrid: deviceMrId, connectionMethodId: connectionMethodId, connectionMethodName: connectionMethod.get('name')});
@@ -109,7 +109,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionHistory', {
         this.getDeviceConnectionHistoryPreviewForm().loadRecord(connectionHistory);
 
 
-        this.getStatusLink().setValue('<a href="#/devices/' + this.deviceMrId + '/connectionmethods/' + this.connectionMethodId + '/history/' + this.getDeviceConnectionHistoryGrid().getSelectionModel().getSelection()[0].get('id') + '/viewlog' +'?filter=%7B%22logLevels%22%3A%5B%22Error%22%2C%22Warning%22%2C%22Information%22%5D%2C%22logTypes%22%3A%5B%22Connections%22%2C%22Communications%22%5D%7D">' +
+        this.getStatusLink().setValue('<a href="#/devices/' + encodeURIComponent(this.deviceMrId) + '/connectionmethods/' + this.connectionMethodId + '/history/' + this.getDeviceConnectionHistoryGrid().getSelectionModel().getSelection()[0].get('id') + '/viewlog' +'?filter=%7B%22logLevels%22%3A%5B%22Error%22%2C%22Warning%22%2C%22Information%22%5D%2C%22logTypes%22%3A%5B%22Connections%22%2C%22Communications%22%5D%7D">' +
             connectionHistory.get('status')+'</a>');
 
 
@@ -136,7 +136,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionHistory', {
         Ext.suspendLayouts();
         deviceConnectionHistoryPreviewMenu.add(menuItem);
         deviceConnectionHistoryGridActionColumn.menu.add(menuItem);
-        deviceCommunicationTaskExecutionsStore.getProxy().setExtraParam('mRID', this.deviceMrId);
+        deviceCommunicationTaskExecutionsStore.getProxy().setExtraParam('mRID', encodeURIComponent(this.deviceMrId));
         deviceCommunicationTaskExecutionsStore.getProxy().setExtraParam('connectionId', this.connectionMethodId);
         deviceCommunicationTaskExecutionsStore.getProxy().setExtraParam('sessionId', connectionHistory.get('id'));
         me.getDeviceCommunicationTaskExecutionGrid().hide();
@@ -181,7 +181,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionHistory', {
     },
 
     showConnectionLog: function () {
-        location.href = '#/devices/' + this.deviceMrId + '/connectionmethods/' + this.connectionMethodId + '/history/' + this.getDeviceConnectionHistoryGrid().getSelectionModel().getSelection()[0].get('id') + '/viewlog' +
+        location.href = '#/devices/' + encodeURIComponent(this.deviceMrId) + '/connectionmethods/' + encodeURIComponent(this.connectionMethodId) + '/history/' + encodeURIComponent(this.getDeviceConnectionHistoryGrid().getSelectionModel().getSelection()[0].get('id')) + '/viewlog' +
             '?filter=%7B%22logLevels%22%3A%5B%22Error%22%2C%22Warning%22%2C%22Information%22%5D%2C%22logTypes%22%3A%5B%22Connections%22%2C%22Communications%22%5D%7D'
     },
 
@@ -197,14 +197,14 @@ Ext.define('Mdc.controller.setup.DeviceConnectionHistory', {
 
         deviceModel.load(deviceMrId, {
             success: function (device) {
-                connectionMethodModel.getProxy().setExtraParam('mrid', deviceMrId);
+                connectionMethodModel.getProxy().setExtraParam('mrid', encodeURIComponent(deviceMrId));
                 connectionMethodModel.load(deviceConnectionMethodId, {
                     success: function (connectionMethod) {
-                        comSessionHistory.getProxy().setExtraParam('mRID', deviceMrId);
+                        comSessionHistory.getProxy().setExtraParam('mRID', encodeURIComponent(deviceMrId));
                         comSessionHistory.getProxy().setExtraParam('connectionId', deviceConnectionMethodId);
                         comSessionHistory.load(deviceConnectionHistoryId, {
                             success: function (deviceConnectionHistory) {
-                                store.getProxy().setExtraParam('mRID', deviceMrId);
+                                store.getProxy().setExtraParam('mRID', encodeURIComponent(deviceMrId));
                                 store.getProxy().setExtraParam('connectionId', deviceConnectionMethodId);
                                 store.getProxy().setExtraParam('sessionId', deviceConnectionHistoryId);
                                 store.setFilterModel(filter);
@@ -234,9 +234,9 @@ Ext.define('Mdc.controller.setup.DeviceConnectionHistory', {
     },
 
     showComTaskLog: function (item) {
-        location.href = '#/devices/' + item.action.comTask.mRID
-            + '/communicationtasks/' + item.action.comTask.comTaskId
-            + '/history/' + item.action.comTask.sessionId
+        location.href = '#/devices/' + encodeURIComponent(item.action.comTask.mRID)
+            + '/communicationtasks/' + encodeURIComponent(item.action.comTask.comTaskId)
+            + '/history/' + encodeURIComponent(item.action.comTask.sessionId)
             + '/viewlog' +
             '?filter=%7B%22logLevels%22%3A%5B%22Error%22%2C%22Warning%22%2C%22Information%22%5D%2C%22id%22%3Anull%7D';
     },

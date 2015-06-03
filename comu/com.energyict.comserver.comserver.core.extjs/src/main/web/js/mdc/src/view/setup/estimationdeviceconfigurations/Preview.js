@@ -20,7 +20,7 @@ Ext.define('Mdc.view.setup.estimationdeviceconfigurations.Preview', {
                     var record = this.up('#estimation-deviceconfigurations-preview-form').getRecord();
                     if (record) {
                         var url = this.up('estimation-deviceconfigurations-preview').router.getRoute('administration/devicetypes/view/deviceconfigurations/view').buildUrl({deviceTypeId: record.get('deviceTypeId'), deviceConfigurationId: record.get('id')});
-                        return '<a href="' + url + '">' + value + '</a>';
+                        return '<a href="' + url + '">' + Ext.String.htmlEncode(value) + '</a>';
                     }
                 }
             },

@@ -32,7 +32,7 @@ Ext.define('Mdc.view.setup.device.DeviceGeneralInformationPanel', {
                     renderer: function (value) {
                         if (value) {
                             this.show();
-                            return value.name + ' (<a href="' + this.up('#devicegeneralinformationpanel').router.getRoute('devices/device/history').buildUrl() + '">' + Uni.I18n.translate('deviceHistory.viewHistory', 'MDC', 'View history') + ')</a>';
+                            return Ext.String.htmlEncode(value.name) + ' (<a href="' + this.up('#devicegeneralinformationpanel').router.getRoute('devices/device/history').buildUrl() + '">' + Uni.I18n.translate('deviceHistory.viewHistory', 'MDC', 'View history') + ')</a>';
                         } else {
                             this.hide();
                         }

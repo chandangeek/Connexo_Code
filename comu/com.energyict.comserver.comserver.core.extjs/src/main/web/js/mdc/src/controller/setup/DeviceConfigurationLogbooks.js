@@ -58,7 +58,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurationLogbooks', {
             logbooksView = this.getDeviceConfigurationLogbooks();
         switch (action) {
             case 'edit':
-                window.location.href = '#/administration/devicetypes/' + logbooksView.deviceTypeId + '/deviceconfigurations/' + logbooksView.deviceConfigurationId + '/logbookconfigurations/' + this.logbookConfigId + '/edit';
+                window.location.href = '#/administration/devicetypes/' + encodeURIComponent(logbooksView.deviceTypeId) + '/deviceconfigurations/' + encodeURIComponent(logbooksView.deviceConfigurationId) + '/logbookconfigurations/' + encodeURIComponent(this.logbookConfigId) + '/edit';
                 break;
             case 'delete':
                 this.deleteLogbookType();

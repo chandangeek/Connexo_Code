@@ -27,7 +27,7 @@ Ext.define('Mdc.view.setup.devicecommand.DeviceCommandsGrid', {
                 header: Uni.I18n.translate('deviceCommands.view.cmdCategory', 'MDC', 'Command category'),
                 dataIndex: 'category',
                 renderer: function (val) {
-                    return val ? val : ''
+                    return val ? Ext.String.htmlEncode(val) : ''
                 },
                 flex: 2
             },
@@ -35,7 +35,7 @@ Ext.define('Mdc.view.setup.devicecommand.DeviceCommandsGrid', {
                 header: Uni.I18n.translate('deviceCommands.view.cmdStatus', 'MDC', 'Status'),
                 dataIndex: 'status',
                 renderer: function (val) {
-                    return val.displayValue ? val.displayValue : ''
+                    return val.displayValue ? Ext.String.htmlEncode(val.displayValue) : ''
                 },
                 flex: 2
             },
@@ -59,7 +59,7 @@ Ext.define('Mdc.view.setup.devicecommand.DeviceCommandsGrid', {
                 header: Uni.I18n.translate('deviceCommands.view.cmdCreatedBy', 'MDC', 'Created By'),
                 dataIndex: 'user',
                 renderer: function (val) {
-                    return val ? val : ''
+                    return val ? Ext.String.htmlEncode(val) : ''
                 },
                 flex: 2
             },

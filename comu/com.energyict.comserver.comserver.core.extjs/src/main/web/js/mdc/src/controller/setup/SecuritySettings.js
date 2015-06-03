@@ -199,7 +199,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
             });
 
         preloader.show();
-        detailPanel.setTitle(record.getData().name);
+        detailPanel.setTitle(Ext.String.htmlEncode(record.getData().name));
         form.loadRecord(record);
 
         var executionLevelsgrid = Ext.ComponentQuery.query('securitySettingSetup execution-level-grid')[0];
@@ -221,7 +221,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
         executionLevelsTitle.show();
         executionLevelscontainer.show();
 
-        this.getExecutionLevelsForSecuritySettingPreview().setTitle(Ext.String.format(Uni.I18n.translate('securitySetting.executionLevel.gridTitle', 'MDC', "Privileges of '{0}'"), record.getData().name));
+        this.getExecutionLevelsForSecuritySettingPreview().setTitle(Ext.String.format(Uni.I18n.translate('securitySetting.executionLevel.gridTitle', 'MDC', "Privileges of '{0}'"), Ext.String.htmlEncode(record.getData().name)));
 
         executionLevelsgrid.down('pagingtoolbartop').store = record.executionLevels();
         executionLevelsgrid.down('pagingtoolbartop').store.totalCount = record.executionLevels().getCount();
@@ -336,7 +336,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
         Ext.suspendLayouts();
         formErrorsPanel.removeAll();
         formErrorsPanel.add({
-            html: 'There are errors on this page that require your attention.'
+            html: Ext.String.htmlEncode('There are errors on this page that require your attention.')
         });
         Ext.resumeLayouts();
         formErrorsPanel.show();

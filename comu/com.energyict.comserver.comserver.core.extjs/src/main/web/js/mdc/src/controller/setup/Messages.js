@@ -310,7 +310,7 @@ Ext.define('Mdc.controller.setup.Messages', {
             }
             selectPrivilegesPanel.add({
                 xtype: 'component',
-                html: warningText
+                html: Ext.String.htmlEncode(warningText)
             });
         } else {
             selectPrivilegesPanel.setTitle(Uni.I18n.translatePlural('messages.selectPrivilegesPanel.title', recordName, 'MDC', "Select privileges for command '{0}'"));

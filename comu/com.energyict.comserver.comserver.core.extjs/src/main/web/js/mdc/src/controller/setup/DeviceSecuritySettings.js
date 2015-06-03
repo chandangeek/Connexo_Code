@@ -83,7 +83,7 @@ Ext.define('Mdc.controller.setup.DeviceSecuritySettings', {
         viewport.setLoading();
 
         var securitySettingsOfDeviceStore = Ext.StoreManager.get('SecuritySettingsOfDevice');
-        securitySettingsOfDeviceStore.getProxy().setExtraParam('mrid', mrid);
+        securitySettingsOfDeviceStore.getProxy().setExtraParam('mrid', encodeURIComponent(mrid));
         Ext.ModelManager.getModel('Mdc.model.Device').load(mrid, {
             success: function (device) {
                 var widget = Ext.widget('deviceSecuritySettingSetup', {device: device, mrid: mrid});
@@ -111,7 +111,7 @@ Ext.define('Mdc.controller.setup.DeviceSecuritySettings', {
         if (deviceSecuritySetting.length == 1) {
             var deviceSecuritySettingName = deviceSecuritySetting[0].get('name');
             me.getDeviceSecuritySettingPreview().getLayout().setActiveItem(1);
-            me.getDeviceSecuritySettingPreview().setTitle(deviceSecuritySettingName);
+            me.getDeviceSecuritySettingPreview().setTitle(Ext.String.htmlEncode(deviceSecuritySettingName));
             me.getDeviceSecuritySettingPreviewForm().loadRecord(deviceSecuritySetting[0]);
             if (deviceSecuritySetting[0].propertiesStore.data.items.length > 0) {
                 me.getDeviceSecuritySettingPreview().down('property-form').readOnly = true;
@@ -132,14 +132,14 @@ Ext.define('Mdc.controller.setup.DeviceSecuritySettings', {
             } else {
                 me.getDeviceSecuritySettingPreviewTitle().setVisible(false);
             }
-            me.getDeviceSecuritySettingPreview().setTitle(deviceSecuritySettingName);
+            me.getDeviceSecuritySettingPreview().setTitle(Ext.String.htmlEncode(deviceSecuritySettingName));
         } else {
             me.getDeviceSecuritySettingPreview().getLayout().setActiveItem(0);
         }
     },
 
     editDeviceSecuritySettingHistory: function (record) {
-        location.href = '#/devices/' + this.mrid + '/securitysettings/' + record.get('id') + '/edit';
+        location.href = '#/devices/' + encodeURIComponent(this.mrid) + '/securitysettings/' + encodeURIComponent(record.get('id')) + '/edit';
     },
 
     editDeviceSecuritySettingHistoryFromPreview: function () {
@@ -166,7 +166,7 @@ Ext.define('Mdc.controller.setup.DeviceSecuritySettings', {
         }
         record.save({
             success: function (record) {
-                location.href = '#/devices/' + me.mrid + '/securitysettings/';
+                location.href = '#/devices/' + encodeURIComponent(me.mrid) + '/securitysettings/';
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('devicesecuritysetting.saveSuccess.msg.edit', 'MDC', 'Security setting saved'));
             },
             failure: function (record, operation) {
@@ -213,14 +213,14 @@ Ext.define('Mdc.controller.setup.DeviceSecuritySettings', {
 
         deviceModel.load(mrid, {
             success: function (device) {
-                deviceSecuritySettingModel.getProxy().setExtraParam('mrid', mrid);
+                deviceSecuritySettingModel.getProxy().setExtraParam('mrid', encodeURIComponent(mrid));
                 deviceSecuritySettingModel.load(deviceSecuritySettingId, {
                     success: function (deviceSecuritySetting) {
                         me.getApplication().fireEvent('loadDevice', device);
                         me.getApplication().fireEvent('loadDeviceSecuritySetting', deviceSecuritySetting);
                         var widget = Ext.widget('deviceSecuritySettingEdit', {
                             edit: true,
-                            returnLink: '#/devices/' + me.mrid + '/securitysettings',
+                            returnLink: '#/devices/' + encodeURIComponent(me.mrid) + '/securitysettings',
                             device: device
                         });
                         me.getApplication().fireEvent('changecontentevent', widget);

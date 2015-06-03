@@ -121,7 +121,7 @@ Ext.define('Mdc.controller.setup.ComPortPools', {
                     if(menuItem)
                         menuItem.record = record;
                     itemPanel.setLoading(false);
-                    itemPanel.setTitle(record.get('name'));
+                    itemPanel.setTitle(Ext.String.htmlEncode(record.get('name')));
                 }
             }
         });

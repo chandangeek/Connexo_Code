@@ -85,7 +85,7 @@ Ext.define('Mdc.controller.setup.DeviceDataValidation', {
     },
     onRulesSetGridAfterRender: function (grid) {
         var me = this;
-        grid.store.getProxy().setExtraParam('mRID', me.mRID);
+        grid.store.getProxy().setExtraParam('mRID', encodeURIComponent(me.mRID));
         grid.store.load({
             callback: function () {
                 grid.getSelectionModel().doSelect(0);

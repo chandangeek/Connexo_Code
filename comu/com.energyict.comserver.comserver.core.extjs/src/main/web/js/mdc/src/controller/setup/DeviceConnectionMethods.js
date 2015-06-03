@@ -169,15 +169,15 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
     },
 
     addOutboundConnectionMethodHistory: function () {
-        location.href = '#/devices/' + this.mrid + '/connectionmethods/addoutbound';
+        location.href = '#/devices/' + encodeURIComponent(this.mrid) + '/connectionmethods/addoutbound';
     },
 
     addInboundConnectionMethodHistory: function () {
-        location.href = '#/devices/' + this.mrid + '/connectionmethods/addinbound';
+        location.href = '#/devices/' + encodeURIComponent(this.mrid) + '/connectionmethods/addinbound';
     },
 
     editDeviceConnectionMethodHistory: function (record) {
-        location.href = '#/devices/' + this.mrid + '/connectionmethods/' + record.get('id') + '/edit';
+        location.href = '#/devices/' + encodeURIComponent(this.mrid) + '/connectionmethods/' + encodeURIComponent(record.get('id')) + '/edit';
     },
 
     editDeviceConnectionMethodHistoryFromPreview: function () {
@@ -185,7 +185,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
     },
 
     viewConnectionHistory:function(record){
-        location.href = '#/devices/' + this.mrid + '/connectionmethods/' + record.get('id') + '/history';
+        location.href = '#/devices/' + encodeURIComponent(this.mrid) + '/connectionmethods/' + encodeURIComponent(record.get('id')) + '/history';
     },
 
     viewConnectionHistoryFromPreview:function(){
@@ -205,7 +205,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
             success: function (device) {
                 var widget = Ext.widget('deviceConnectionMethodEdit', {
                     edit: false,
-                    returnLink: '#/devices/' + me.mrid + '/connectionmethods',
+                    returnLink: '#/devices/' + encodeURIComponent(me.mrid) + '/connectionmethods',
                     connectionMethods: connectionMethodsStore,
                     comPortPools: me.comPortPoolStore,
                     connectionStrategies: connectionStrategiesStore,
@@ -217,7 +217,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
                 me.getApplication().fireEvent('loadDevice', device);
                 connectionMethodsStore.getProxy().extraParams = ({deviceType: device.get('deviceTypeId'), deviceConfig: device.get('deviceConfigurationId')});
                 connectionMethodsStore.getProxy().setExtraParam('available', true);
-                connectionMethodsStore.getProxy().setExtraParam('mrId', mrid);
+                connectionMethodsStore.getProxy().setExtraParam('mrId', encodeURIComponent(mrid));
                 connectionMethodsStore.clearFilter(true);
                 connectionMethodsStore.filter('direction', direction);
                 connectionMethodsStore.load({
@@ -384,7 +384,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
         record.getProxy().extraParams = ({mrid: me.mrid});
         record.save({
             success: function (record) {
-                location.href = '#/devices/' + me.mrid + '/connectionmethods/';
+                location.href = '#/devices/' + encodeURIComponent(me.mrid) + '/connectionmethods/';
                 if (isNewRecord === true) {
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceconnectionmethod.saveSuccess.msg.add', 'MDC', 'Connection method added'));
                 } else {
@@ -460,7 +460,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
             connectionMethodToDelete.getProxy().extraParams = ({mrid: me.mrid});
             connectionMethodToDelete.destroy({
                 success: function () {
-                    location.href = '#/devices/' + me.mrid + '/connectionmethods';
+                    location.href = '#/devices/' + encodeURIComponent(me.mrid) + '/connectionmethods';
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceconnectionmethod.saveSuccess.msg.remove', 'MDC', 'Connection method removed'));
                 }
             });
@@ -479,14 +479,14 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
 
         deviceModel.load(mrid, {
             success: function (device) {
-                connectionMethodModel.getProxy().setExtraParam('mrid', mrid);
+                connectionMethodModel.getProxy().setExtraParam('mrid', encodeURIComponent(mrid));
                 connectionMethodModel.load(connectionMethodId, {
                     success: function (connectionMethod) {
                         me.getApplication().fireEvent('loadDevice', device);
                         me.getApplication().fireEvent('loadConnectionMethod', connectionMethod);
                         var widget = Ext.widget('deviceConnectionMethodEdit', {
                             edit: true,
-                            returnLink: '#/devices/' + me.mrid + '/connectionmethods',
+                            returnLink: '#/devices/' + encodeURIComponent(me.mrid) + '/connectionmethods',
                             connectionMethods: connectionMethodsStore,
                             comPortPools: me.comPortPoolStore,
                             connectionStrategies: connectionStrategiesStore,
