@@ -61,7 +61,7 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksHistory', {
                 me.getApplication().fireEvent('changecontentevent', widget);
                 Ext.suspendLayouts();
                 me.initFilter();
-                me.getOverviewLink().setText(Ext.String.htmlEncode(record.get('name')));
+                me.getOverviewLink().setText(record.get('name'));
                 me.getApplication().fireEvent('estimationTaskLoaded', record);
                 Ext.resumeLayouts(true);
             },
