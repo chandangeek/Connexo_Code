@@ -207,7 +207,7 @@ public class SearchBuilderImplTest {
         assertThat(searchablePropertyCondition.getCondition()).isInstanceOf(Comparison.class);
         Comparison comparison = (Comparison) searchablePropertyCondition.getCondition();
         assertThat(comparison.getFieldName()).isEqualTo(NAME_PROPERTY_NAME);
-        assertThat(comparison.getOperator()).isEqualTo(Operator.EQUAL);
+        assertThat(comparison.getOperator()).isEqualTo(Operator.EQUALIGNORECASE);
         assertThat(comparison.getValues()).containsOnly("Hello");
     }
 
