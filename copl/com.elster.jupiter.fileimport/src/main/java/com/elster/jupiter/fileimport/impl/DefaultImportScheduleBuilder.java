@@ -10,6 +10,7 @@ import com.elster.jupiter.util.cron.CronExpression;
 import com.elster.jupiter.util.time.ScheduleExpression;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -21,11 +22,11 @@ class DefaultImportScheduleBuilder implements ImportScheduleBuilder {
     private String name;
     private String destination;
     private String importerName;
-    private File importDirectory;
+    private Path importDirectory;
     private String pathMatcher;
-    private File inProcessDirectory;
-    private File successDirectory;
-    private File failureDirectory;
+    private Path inProcessDirectory;
+    private Path successDirectory;
+    private Path failureDirectory;
     private transient ScheduleExpression scheduleExpression;
     private final DataModel dataModel;
     private final FileImportService fileImportService;
@@ -62,7 +63,7 @@ class DefaultImportScheduleBuilder implements ImportScheduleBuilder {
     }
 
     @Override
-    public ImportScheduleBuilder setImportDirectory(File directory) {
+    public ImportScheduleBuilder setImportDirectory(Path directory) {
         this.importDirectory = directory;
         return this;
     }
@@ -74,19 +75,19 @@ class DefaultImportScheduleBuilder implements ImportScheduleBuilder {
     }
 
     @Override
-    public ImportScheduleBuilder setProcessingDirectory(File directory) {
+    public ImportScheduleBuilder setProcessingDirectory(Path directory) {
         this.inProcessDirectory = directory;
         return this;
     }
 
     @Override
-    public ImportScheduleBuilder setSuccessDirectory(File directory) {
+    public ImportScheduleBuilder setSuccessDirectory(Path directory) {
         this.successDirectory = directory;
         return this;
     }
 
     @Override
-    public ImportScheduleBuilder setFailureDirectory(File directory) {
+    public ImportScheduleBuilder setFailureDirectory(Path directory) {
         this.failureDirectory = directory;
         return this;
     }

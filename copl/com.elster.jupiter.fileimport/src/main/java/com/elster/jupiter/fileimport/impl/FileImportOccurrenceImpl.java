@@ -31,7 +31,7 @@ final class FileImportOccurrenceImpl implements FileImportOccurrence {
     private long id;
     private ImportSchedule importSchedule;
     private long importScheduleId;
-    private File file;
+    private Path path;
     private Status status;
     private String message;
     private Instant startDate;
@@ -41,22 +41,24 @@ final class FileImportOccurrenceImpl implements FileImportOccurrence {
     private final DataModel dataModel;
     private final FileNameCollisionResolver fileNameCollisionResolver;
     private final Thesaurus thesaurus;
+    private FileImportService fileImportService;
     private List<ImportLogEntry> logEntries = new ArrayList<>();
 
     Logger logger;
     private Clock clock;
 
     @Inject
-    private FileImportOccurrenceImpl(FileSystem fileSystem, DataModel dataModel, FileNameCollisionResolver fileNameCollisionResolver, Thesaurus thesaurus, Clock clock) {
+    private FileImportOccurrenceImpl(FileImportService fileImportService, FileSystem fileSystem, DataModel dataModel, FileNameCollisionResolver fileNameCollisionResolver, Thesaurus thesaurus, Clock clock) {
         this.fileSystem = fileSystem;
         this.dataModel = dataModel;
         this.fileNameCollisionResolver = fileNameCollisionResolver;
         this.thesaurus = thesaurus;
         this.clock = clock;
+        this.fileImportService = fileImportService;
     }
 
-    public static FileImportOccurrenceImpl create(FileSystem fileSystem, DataModel dataModel, FileNameCollisionResolver fileNameCollisionResolver, Thesaurus thesaurus, Clock clock, ImportSchedule importSchedule, File file) {
-        return new FileImportOccurrenceImpl(fileSystem, dataModel, fileNameCollisionResolver, thesaurus, clock).init(importSchedule, file);
+    public static FileImportOccurrenceImpl create(FileImportService fileImportService, FileSystem fileSystem, DataModel dataModel, FileNameCollisionResolver fileNameCollisionResolver, Thesaurus thesaurus, Clock clock, ImportSchedule importSchedule, Path path) {
+        return new FileImportOccurrenceImpl(fileImportService, fileSystem, dataModel, fileNameCollisionResolver, thesaurus, clock).init(importSchedule, path);
     }
 
     @Override
@@ -73,8 +75,8 @@ final class FileImportOccurrenceImpl implements FileImportOccurrence {
         save();
     }
 
-    private FileImportOccurrenceImpl init(ImportSchedule importSchedule, File file) {
-        this.file = file;
+    private FileImportOccurrenceImpl init(ImportSchedule importSchedule, Path path) {
+        this.path = path;
         this.importSchedule = importSchedule;
         this.importScheduleId = importSchedule.getId();
         this.status = Status.NEW;
@@ -89,7 +91,7 @@ final class FileImportOccurrenceImpl implements FileImportOccurrence {
     @Override
     public InputStream getContents() {
         if (inputStream == null) {
-            inputStream = fileSystem.getInputStream(file);
+            inputStream = fileSystem.getInputStream(fileImportService.getBasePath().resolve(path).toFile());
         }
         return inputStream;
     }
@@ -136,7 +138,7 @@ final class FileImportOccurrenceImpl implements FileImportOccurrence {
 
     @Override
     public String getFileName() {
-        return file.toPath().getFileName().toString();
+        return fileImportService.getBasePath().resolve(path).getFileName().toString();
     }
 
     @Override
@@ -171,7 +173,7 @@ final class FileImportOccurrenceImpl implements FileImportOccurrence {
     public Finder<ImportLogEntry> getLogsFinder() {
         Condition condition = where("fileImportOccurrenceReference").isEqualTo(this);
         //Order[] orders = new Order[]{Order.descending("timeStamp"), Order.ascending("position")};
-        return DefaultFinder.of(ImportLogEntry.class,condition , dataModel);
+        return DefaultFinder.of(ImportLogEntry.class, condition, dataModel);
     }
 
     @Override
@@ -201,26 +203,25 @@ final class FileImportOccurrenceImpl implements FileImportOccurrence {
     }
 
     private void moveFile() {
-        if (file.exists()) {
-            Path path = file.toPath();
+        if (fileImportService.getBasePath().resolve(path).toFile().exists()) {
             Path target = targetPath(path);
             fileSystem.move(path, target);
-            file = target.toFile();
+            //path = fileImportService.getBasePath().relativize(target);
         }
     }
 
     private Path targetPath(Path path) {
-        return fileNameCollisionResolver.resolve(getTargetDirectory().resolve(path.getFileName()));
+        return fileNameCollisionResolver.resolve(fileImportService.getBasePath().resolve(getTargetDirectory()).resolve(path.getFileName()));
     }
 
     private Path getTargetDirectory() {
         switch (status) {
             case SUCCESS:
-                return getImportSchedule().getSuccessDirectory().toPath();
+                return getImportSchedule().getSuccessDirectory();
             case FAILURE:
-                return getImportSchedule().getFailureDirectory().toPath();
+                return getImportSchedule().getFailureDirectory();
             case PROCESSING:
-                return getImportSchedule().getInProcessDirectory().toPath();
+                return getImportSchedule().getInProcessDirectory();
             default:
                 throw new IllegalStateException();
         }

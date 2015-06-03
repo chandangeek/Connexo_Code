@@ -10,7 +10,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.ScheduleExpression;
@@ -21,6 +20,7 @@ import javax.inject.Inject;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.io.File;
+import java.nio.file.Path;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.*;
@@ -44,10 +44,10 @@ class ImportScheduleImpl implements ImportSchedule {
     private transient DestinationSpec destination;
 
 
-    private File importDirectory;
-    private File inProcessDirectory;
-    private File successDirectory;
-    private File failureDirectory;
+    private Path importDirectory;
+    private Path inProcessDirectory;
+    private Path successDirectory;
+    private Path failureDirectory;
     private String pathMatcher;
     private transient ScheduleExpression scheduleExpression;
 
@@ -96,11 +96,11 @@ class ImportScheduleImpl implements ImportSchedule {
     }
 
     static ImportScheduleImpl from(DataModel dataModel, String name, boolean active, ScheduleExpression scheduleExpression, String importerName, String destination,
-                                   File importDirectory, String pathMatcher, File inProcessDirectory, File failureDirectory, File successDirectory) {
+                                   Path importDirectory, String pathMatcher, Path inProcessDirectory, Path failureDirectory, Path successDirectory) {
         return dataModel.getInstance(ImportScheduleImpl.class).init(name, active, scheduleExpression, importerName, destination, importDirectory, pathMatcher, inProcessDirectory, failureDirectory, successDirectory);
     }
 
-    private ImportScheduleImpl init( String name, boolean active, ScheduleExpression scheduleExpression, String importerName, String destinationName, File importDirectory, String pathMatcher, File inProcessDirectory, File failureDirectory, File successDirectory) {
+    private ImportScheduleImpl init( String name, boolean active, ScheduleExpression scheduleExpression, String importerName, String destinationName, Path importDirectory, String pathMatcher, Path inProcessDirectory, Path failureDirectory, Path successDirectory) {
         this.name = name;
         this.active = active;
         this.scheduleExpression = scheduleExpression;
@@ -142,7 +142,7 @@ class ImportScheduleImpl implements ImportSchedule {
     }
 
     @Override
-     public File getImportDirectory() {
+     public Path getImportDirectory() {
         return importDirectory;
     }
 
@@ -152,17 +152,17 @@ class ImportScheduleImpl implements ImportSchedule {
     }
 
     @Override
-    public File getInProcessDirectory() {
+    public Path getInProcessDirectory() {
         return inProcessDirectory;
     }
 
     @Override
-    public File getSuccessDirectory() {
+    public Path getSuccessDirectory() {
         return successDirectory;
     }
 
     @Override
-    public File getFailureDirectory() {
+    public Path getFailureDirectory() {
         return failureDirectory;
     }
 
@@ -248,22 +248,22 @@ class ImportScheduleImpl implements ImportSchedule {
     }
 
     @Override
-    public void setImportDirectory(File importDirectory) {
+    public void setImportDirectory(Path importDirectory) {
         this.importDirectory = importDirectory;
     }
 
     @Override
-    public void setFailureDirectory(File failureDirectory) {
+    public void setFailureDirectory(Path failureDirectory) {
         this.failureDirectory = failureDirectory;
     }
 
     @Override
-    public void setSuccessDirectory(File successDirectory) {
+    public void setSuccessDirectory(Path successDirectory) {
         this.successDirectory = successDirectory;
     }
 
     @Override
-    public void setProcessingDirectory(File inProcessDirectory) {
+    public void setProcessingDirectory(Path inProcessDirectory) {
         this.inProcessDirectory = inProcessDirectory;
     }
 
@@ -313,7 +313,7 @@ class ImportScheduleImpl implements ImportSchedule {
         if (!file.exists()) {
             throw new IllegalArgumentException();
         }
-        return FileImportOccurrenceImpl.create(fileSystem, dataModel, fileNameCollisionresolver, thesaurus, clock, this, file);
+        return FileImportOccurrenceImpl.create(fileImportService, fileSystem, dataModel, fileNameCollisionresolver, thesaurus, clock, this, file.toPath());
     }
 
     public Logger getLogger(FileImportOccurrence occurrence) {

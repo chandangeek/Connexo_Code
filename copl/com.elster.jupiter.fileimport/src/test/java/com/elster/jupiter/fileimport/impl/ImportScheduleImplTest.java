@@ -21,6 +21,8 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Optional;
@@ -33,6 +35,7 @@ import static org.mockito.Mockito.when;
 public class ImportScheduleImplTest {
 
     private static final String DESTINATION_NAME = "test_destination";
+    private static final Path BASE_PATH = Paths.get("");
     private ImportScheduleImpl importSchedule;
 
     //@Mock
@@ -40,7 +43,7 @@ public class ImportScheduleImplTest {
     @Mock
     private ScheduleExpression scheduleExpression;
     @Mock
-    File importDir, inProcessDir, failureDir, successDir;
+    Path importDir, inProcessDir, failureDir, successDir;
     @Mock
     private File file;
     @Mock
@@ -72,6 +75,7 @@ public class ImportScheduleImplTest {
     public void setUp() {
         when(clock.instant()).thenReturn(Instant.now());
         when(dataModel.mapper(ImportSchedule.class)).thenReturn(importScheduleFactory);
+        when(fileImportService.getBasePath()).thenReturn(BASE_PATH);
         when(fileImportService.getImportFactory(Matchers.any())).thenReturn(Optional.of(fileImporterFactory));
         when(fileImporterFactory.getDestinationName()).thenReturn("DEST_1");
         when(dataModel.getInstance(ImportScheduleImpl.class)).thenReturn(new ImportScheduleImpl(dataModel, fileImportService, messageService, cronParser, nameResolver, fileSystem,jsonService, thesaurus));

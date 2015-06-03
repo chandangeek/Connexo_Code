@@ -33,6 +33,7 @@ import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Clock;
 import java.util.Arrays;
 import java.util.Collections;
@@ -294,6 +295,9 @@ public class FileImportServiceImpl implements InstallService, FileImportService 
 
     @Override
     public Path getBasePath() {
+        if(this.basePath == null)
+            this.basePath = Paths.get("/");
+
         return this.basePath;
     }
 

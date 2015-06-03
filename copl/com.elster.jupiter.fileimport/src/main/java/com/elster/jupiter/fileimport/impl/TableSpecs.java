@@ -22,11 +22,11 @@ enum TableSpecs {
             table.column("IMPORTERNAME").varChar(NAME_LENGTH).notNull().map("importerName").add();
             table.column("DESTINATION").varChar(NAME_LENGTH).notNull().map("destinationName").add();
             table.column("CRONSTRING").varChar(NAME_LENGTH).notNull().map("cronString").add();
-            table.column("IMPORTDIR").varChar(DESCRIPTION_LENGTH).notNull().conversion(CHAR2FILE).map("importDirectory").add();
+            table.column("IMPORTDIR").varChar(DESCRIPTION_LENGTH).notNull().conversion(CHAR2PATH).map("importDirectory").add();
             table.column("PATHMATCHER").varChar(NAME_LENGTH).map("pathMatcher").add();
-            table.column("INPROCESSDIR").varChar(DESCRIPTION_LENGTH).notNull().conversion(CHAR2FILE).map("inProcessDirectory").add();
-            table.column("SUCCESSDIR").varChar(DESCRIPTION_LENGTH).notNull().conversion(CHAR2FILE).map("successDirectory").add();
-            table.column("FAILDIR").varChar(DESCRIPTION_LENGTH).notNull().conversion(CHAR2FILE).map("failureDirectory").add();
+            table.column("INPROCESSDIR").varChar(DESCRIPTION_LENGTH).notNull().conversion(CHAR2PATH).map("inProcessDirectory").add();
+            table.column("SUCCESSDIR").varChar(DESCRIPTION_LENGTH).notNull().conversion(CHAR2PATH).map("successDirectory").add();
+            table.column("FAILDIR").varChar(DESCRIPTION_LENGTH).notNull().conversion(CHAR2PATH).map("failureDirectory").add();
             table.addAuditColumns();
             table.primaryKey("FIM_PK_IMPORT_SCHEDULE").on(idColumn).add();
         }
@@ -38,7 +38,7 @@ enum TableSpecs {
             table.map(FileImportOccurrenceImpl.class);
             Column idColumn = table.addAutoIdColumn();
             Column importScheduleColumn = table.column("IMPORTSCHEDULE").type("number").notNull().conversion(NUMBER2LONG).map("importScheduleId").add();
-            table.column("FILENAME").varChar(NAME_LENGTH).notNull().conversion(CHAR2FILE).map("file").add();
+            table.column("FILENAME").varChar(NAME_LENGTH).notNull().conversion(CHAR2PATH).map("path").add();
             table.column("STATUS").type("number").notNull().conversion(NUMBER2ENUM).map("status").add();
             table.column("STARTDATE").number().conversion(ColumnConversion.NUMBER2INSTANT).map("startDate").add();
             table.column("ENDDATE").number().conversion(ColumnConversion.NUMBER2INSTANT).map("endDate").add();

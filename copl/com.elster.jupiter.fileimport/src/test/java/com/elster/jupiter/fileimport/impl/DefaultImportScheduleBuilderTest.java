@@ -19,6 +19,8 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -28,10 +30,11 @@ import static org.mockito.Mockito.when;
 public class DefaultImportScheduleBuilderTest {
 
     private static final String DESTINATION_NAME = "test_destination";
-    private static final File PROCESSING_DIRECTORY = new File("./processing");
-    private static final File IMPORT_DIRECTORY = new File("./import");
-    private static final File SUCCESS_DIRECTORY = new File("./success");
-    private static final File FAILURE_DIRECTORY = new File("./failure");
+    private static final Path PROCESSING_DIRECTORY = Paths.get("./processing");
+    private static final Path IMPORT_DIRECTORY = Paths.get("./import");
+    private static final Path SUCCESS_DIRECTORY = Paths.get("./success");
+    private static final Path FAILURE_DIRECTORY = Paths.get("./failure");
+    private static final Path BASE_PATH = Paths.get("/");
     @Mock
     private DestinationSpec destination;
     @Mock
@@ -60,6 +63,7 @@ public class DefaultImportScheduleBuilderTest {
     @Before
     public void setUp() {
         when(fileImportService.getImportFactory(Matchers.any())).thenReturn(Optional.of(fileImporterFactory));
+        when(fileImportService.getBasePath()).thenReturn(BASE_PATH);
         when(fileImporterFactory.getDestinationName()).thenReturn("DEST_1");
         when(dataModel.getInstance(ImportScheduleImpl.class)).thenReturn(
                 new ImportScheduleImpl(dataModel, fileImportService, messageService, scheduleExpressionParser, nameResolver, fileSystem,jsonService, thesaurus));

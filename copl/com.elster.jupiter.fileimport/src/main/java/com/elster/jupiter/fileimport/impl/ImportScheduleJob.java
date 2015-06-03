@@ -30,7 +30,7 @@ class ImportScheduleJob implements CronJob {
         this.thesaurus = thesaurus;
         this.cronExpressionParser = cronExpressionParser;
         folderScanningJob = new FolderScanningJob(
-                new PollingFolderScanner(filter, fileSystem, importSchedule.getImportDirectory().toPath(), importSchedule.getPathMatcher(), this.thesaurus),
+                new PollingFolderScanner(filter, fileSystem, importSchedule.getImportDirectory(), importSchedule.getPathMatcher(), this.thesaurus),
                 new DefaultFileHandler(importSchedule, jsonService, transactionService,clock));
     }
 

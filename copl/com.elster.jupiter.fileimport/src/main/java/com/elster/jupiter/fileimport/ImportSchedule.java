@@ -8,6 +8,7 @@ import com.elster.jupiter.util.time.ScheduleExpression;
 import sun.misc.ConditionLock;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.time.Clock;
 import java.util.List;
 import java.util.Map;
@@ -43,7 +44,7 @@ public interface ImportSchedule {
     /**
      * @return File representing the directory to scan for new files to import
      */
-    File getImportDirectory();
+    Path getImportDirectory();
 
     /**
      * @return String representing the pattern to scan for new files to import
@@ -53,17 +54,17 @@ public interface ImportSchedule {
     /**
      * @return File representing the directory where files are moved for awaiting processing.
      */
-    File getInProcessDirectory();
+    Path getInProcessDirectory();
 
     /**
      * @return File representing the directory where files are moved once they've been processed successfully.
      */
-    File getSuccessDirectory();
+    Path getSuccessDirectory();
 
     /**
      * @return File representing the directory where files are moved in case they could not be processed successfully.
      */
-    File getFailureDirectory();
+    Path getFailureDirectory();
 
     /**
      * @return a CronExpression that indicates the times at which the import directory should be scanned.
@@ -116,13 +117,13 @@ public interface ImportSchedule {
 
     void setScheduleExpression(ScheduleExpression scheduleExpression);
 
-    void setImportDirectory(File file);
+    void setImportDirectory(Path path);
 
-    void setFailureDirectory(File file);
+    void setFailureDirectory(Path path);
 
-    void setSuccessDirectory(File file);
+    void setSuccessDirectory(Path path);
 
-    void setProcessingDirectory(File file);
+    void setProcessingDirectory(Path path);
 
     void setImporterName(String name);
 

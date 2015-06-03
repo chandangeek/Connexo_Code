@@ -42,7 +42,7 @@ public class ImportScheduleJobTest {
     @Mock
     private ScheduleExpression scheduleExpression;
     @Mock
-    private File importDir;
+    private Path importDir;
     @Mock
     private FileSystem fileSystem;
     @Mock
@@ -74,7 +74,7 @@ public class ImportScheduleJobTest {
 //        when(serviceLocator.getPredicates()).thenReturn(predicates);
 //        when(serviceLocator.getJsonService()).thenReturn(jsonService);
 //        when(serviceLocator.getTransactionService()).thenReturn(transactionService);
-        when(fileSystem.newDirectoryStream(importDir.toPath(), null)).thenReturn(directoryStream);
+        when(fileSystem.newDirectoryStream(importDir, null)).thenReturn(directoryStream);
         when(fileImportOccurrence.getId()).thenReturn(ID);
 
 
