@@ -89,15 +89,6 @@ public class SearchResource {
                         }
 
                     });
-//            for (SearchableProperty searchableProperty : searchDomain.getProperties()) {
-//                if (jsonQueryFilter.hasProperty(searchableProperty.getName())) {
-//                    if (searchableProperty.getSelectionMode().equals(SearchableProperty.SelectionMode.MULTI)) {
-//                        searchBuilder = searchBuilder.where(searchableProperty).in(getQueryParameterAsObjectList(jsonQueryFilter, searchableProperty));
-//                    } else {
-//                        searchBuilder = searchBuilder.where(searchableProperty).isEqualTo(getQueryParameterAsObject(jsonQueryFilter, searchableProperty));
-//                    }
-//                }
-//            }
             List<Object> searchResults = searchBuilder.toFinder().from(jsonQueryParameters).stream().map(Object::toString).collect(toList());
             return Response.ok().entity(PagedInfoList.fromPagedList("searchResults", searchResults, jsonQueryParameters)).build();
         }
