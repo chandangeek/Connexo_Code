@@ -20,6 +20,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -81,7 +82,7 @@ public class SearchResourceTest extends SearchApplicationTest {
             DeviceType mock = mock(DeviceType.class);
             when(mock.getId()).thenReturn(Long.parseLong((String) invocationOnMock.getArguments()[0]));
             return mock;
-        } );
+        });
         when(propertySpec.getValueFactory()).thenReturn(valueFactory);
         when(deviceType.getName()).thenReturn("deviceType");
         when(deviceType.getDisplayName()).thenReturn("Device type");
@@ -95,6 +96,7 @@ public class SearchResourceTest extends SearchApplicationTest {
         when(deviceConfig.getSelectionMode()).thenReturn(SearchableProperty.SelectionMode.MULTI);
         when(deviceConfig.getVisibility()).thenReturn(SearchableProperty.Visibility.STICKY);
         when(deviceConfig.getDomain()).thenReturn(searchDomain);
+        when(deviceConfig.toDisplay(any())).thenAnswer(invocationOnMock1 -> ((DeviceConfig)invocationOnMock1.getArguments()[0]).getName());
         PropertySpec propertySpec = mock(PropertySpec.class);
         ValueFactory valueFactory = mock(ValueFactory.class);
         when(valueFactory.getValueType()).thenReturn(DeviceConfig.class);
@@ -154,6 +156,12 @@ public class SearchResourceTest extends SearchApplicationTest {
     public void testGetDomainPropertyValues() throws Exception {
         Response response = target("/search/devices/deviceConfig").request().accept("application/json").get();
         JsonModel model = JsonModel.model((ByteArrayInputStream)response.getEntity());
+        assertThat(model.<Integer>get("$.total")).isEqualTo(2);
+        assertThat(model.<List>get("$.values")).hasSize(2);
+        assertThat(model.<Integer>get("$.values[0].id")).isEqualTo(1);
+        assertThat(model.<String>get("$.values[0].displayValue")).isEqualTo("device config 1");
+        assertThat(model.<Integer>get("$.values[1].id")).isEqualTo(2);
+        assertThat(model.<String>get("$.values[1].displayValue")).isEqualTo("device config 2");
     }
 
     @Test
