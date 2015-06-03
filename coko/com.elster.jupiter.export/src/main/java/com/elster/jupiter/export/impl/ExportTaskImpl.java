@@ -44,7 +44,7 @@ import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
-public class ExportTaskImpl implements IExportTask {
+class ExportTaskImpl implements IExportTask {
     private final TaskService taskService;
     private final DataModel dataModel;
     private final IDataExportService dataExportService;
@@ -86,29 +86,35 @@ public class ExportTaskImpl implements IExportTask {
         return dataModel.getInstance(ExportTaskImpl.class).init(name, dataFormatter, dataSelector, scheduleExpression, nextExecution);
     }
 
+    @Override
     public long getId() {
         return id;
     }
 
+    @Override
     public void activate() {
         //TODO automatically generated method body, provide implementation.
 
     }
 
+    @Override
     public void deactivate() {
         //TODO automatically generated method body, provide implementation.
 
     }
 
+    @Override
     public Map<String, Object> getProperties() {
         return properties.stream()
                 .collect(Collectors.toMap(DataExportProperty::getName, DataExportProperty::getValue));
     }
 
+    @Override
     public List<DataExportProperty> getDataExportProperties() {
         return Collections.unmodifiableList(properties);
     }
 
+    @Override
     public Instant getNextExecution() {
         return recurrentTask.get().getNextExecution();
     }
@@ -117,21 +123,25 @@ public class ExportTaskImpl implements IExportTask {
         return dataModel.mapper(DataExportOccurrenceImpl.class).find("readingTask", this);
     }
 
+    @Override
     public DataExportOccurrenceFinder getOccurrencesFinder() {
         Condition condition = where("readingTask").isEqualTo(this);
         Order order = Order.descending("taskocc");
         return new DataExportOccurrenceFinderImpl(dataModel, condition, order);
     }
 
+    @Override
     public Optional<IDataExportOccurrence> getLastOccurrence() {
         return dataModel.query(IDataExportOccurrence.class, TaskOccurrence.class).select(Operator.EQUAL.compare("readingTask", this), new Order[]{Order.descending("taskocc")},
                 false, new String[]{}, 1, 1).stream().findAny();
     }
 
+    @Override
     public Optional<? extends DataExportOccurrence> getOccurrence(Long id) {
         return dataModel.mapper(DataExportOccurrenceImpl.class).getOptional(id).filter(occ -> this.getId() == occ.getTask().getId());
     }
 
+    @Override
     public void save() {
         // TODO  : separate properties per Factory
         dataExportService.getDataFormatterFactory(dataFormatter)
@@ -147,6 +157,7 @@ public class ExportTaskImpl implements IExportTask {
         propertiesDirty = false;
     }
 
+    @Override
     public void delete() {
         if (id == 0) {
             return;
@@ -167,6 +178,7 @@ public class ExportTaskImpl implements IExportTask {
         // TODO
     }
 
+    @Override
     public boolean canBeDeleted() {
         return !hasUnfinishedOccurrences();
     }
@@ -192,10 +204,12 @@ public class ExportTaskImpl implements IExportTask {
                         .orElse(true);
     }
 
+    @Override
     public boolean isActive() {
         return recurrentTask.get().getNextExecution() != null;
     }
 
+    @Override
     public String getDataFormatter() {
         return dataFormatter;
     }
@@ -205,32 +219,39 @@ public class ExportTaskImpl implements IExportTask {
         return dataSelector;
     }
 
+    @Override
     public List<PropertySpec> getPropertySpecs() {
         return dataExportService.getDataFormatterFactory(dataFormatter).orElseThrow(()->new IllegalArgumentException("No such data formatter: "+ dataFormatter)).getPropertySpecs();
     }
 
+    @Override
     public ScheduleExpression getScheduleExpression() {
         return recurrentTask.get().getScheduleExpression();
     }
 
+    @Override
     public Optional<ScheduleExpression> getScheduleExpression(Instant at) {
         return recurrentTask.get().getHistory().getVersionAt(at).map(RecurrentTask::getScheduleExpression);
     }
 
+    @Override
     public void setNextExecution(Instant instant) {
         this.recurrentTask.get().setNextExecution(instant);
         recurrentTaskDirty = true;
     }
 
+    @Override
     public void setScheduleExpression(ScheduleExpression scheduleExpression) {
         this.recurrentTask.get().setScheduleExpression(scheduleExpression);
         recurrentTaskDirty = true;
     }
 
+    @Override
     public void setName(String name) {
         this.name = (name != null ? name.trim() : "");
     }
 
+    @Override
     public void setProperty(String name, Object value) {
         DataExportProperty dataExportProperty = properties.stream()
                 .filter(p -> p.getName().equals(name))
@@ -244,6 +265,7 @@ public class ExportTaskImpl implements IExportTask {
         propertiesDirty = true;
     }
 
+    @Override
     public PropertySpec getPropertySpec(String name) {
         return getPropertySpecs().stream()
                 .filter(p -> name.equals(p.getName()))
@@ -251,6 +273,7 @@ public class ExportTaskImpl implements IExportTask {
                 .orElse(null);
     }
 
+    @Override
     public String getDisplayName(String name) {
         return properties.stream()
                 .filter(p -> p.getName().equals(name))
@@ -259,18 +282,22 @@ public class ExportTaskImpl implements IExportTask {
                 .orElseThrow(IllegalArgumentException::new);
     }
 
+    @Override
     public void setScheduleImmediately(boolean scheduleImmediately) {
         this.scheduleImmediately = scheduleImmediately;
     }
 
+    @Override
     public void triggerNow() {
         recurrentTask.get().triggerNow();
     }
 
+    @Override
     public String getName() {
         return name;
     }
 
+    @Override
     public Map<String, Object> getProperties(Instant at) {
         List<JournalEntry<DataExportProperty>> props = dataModel.mapper(DataExportProperty.class).at(at).find(ImmutableMap.of("task", this));
         return props.stream()
@@ -310,31 +337,38 @@ public class ExportTaskImpl implements IExportTask {
         return recurrentTask.get();
     }
 
+    @Override
     public Optional<Instant> getLastRun() {
         return Optional.ofNullable(lastRun);
     }
 
+    @Override
     public void updateLastRun(Instant triggerTime) {
         lastRun = triggerTime;
         save();
     }
 
+    @Override
     public long getVersion() {
         return version;
     }
 
+    @Override
     public Instant getCreateTime() {
         return createTime;
     }
 
+    @Override
     public Instant getModTime() {
         return modTime;
     }
 
+    @Override
     public String getUserName() {
         return userName;
     }
 
+    @Override
     public History<ExportTask> getHistory() {
         List<JournalEntry<IExportTask>> journal = dataModel.mapper(IExportTask.class).getJournal(getId());
         return new History<>(journal, this);

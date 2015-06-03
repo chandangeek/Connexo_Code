@@ -8,6 +8,7 @@ import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataExportStrategy;
 import com.elster.jupiter.export.DataFormatter;
 import com.elster.jupiter.export.DataFormatterFactory;
+import com.elster.jupiter.export.FormattedData;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
@@ -115,6 +116,8 @@ public class ReadingTypeDataSelectorTest {
     private ValidatorFactory validatorFactory;
     @Mock
     private Validator validator;
+    @Mock
+    private FormattedData formattedData;
 
     @Before
     public void setUp() {
@@ -178,7 +181,7 @@ public class ReadingTypeDataSelectorTest {
         when(strategy.isExportContinuousData()).thenReturn(false);
         doReturn(Arrays.asList(reading1)).when(meter1).getReadings(exportPeriod, readingType1);
         doReturn(Arrays.asList(reading2)).when(meter2).getReadings(exportPeriod, readingType1);
-        when(dataFormatter.processData(any())).thenReturn(Optional.of(exportPeriodEnd.toInstant()));
+        when(dataFormatter.processData(any())).thenReturn(formattedData);
         when(reading1.getSource()).thenReturn("reading1");
         when(reading2.getSource()).thenReturn("reading2");
     }

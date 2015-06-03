@@ -12,6 +12,7 @@ import com.elster.jupiter.export.DataFormatterFactory;
 import com.elster.jupiter.export.DefaultStructureMarker;
 import com.elster.jupiter.export.ExportData;
 import com.elster.jupiter.export.FatalDataExportException;
+import com.elster.jupiter.export.FormattedData;
 import com.elster.jupiter.export.MeterReadingData;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.metering.BaseReadingRecord;
@@ -135,6 +136,8 @@ public class DataExportTaskExecutorTest {
     private DataModel dataModel;
     @Mock
     private RelativePeriod exportRelativePeriod;
+    @Mock
+    private FormattedData formattedData;
 
     public static final Predicate<IntervalReading> READING_1 = r -> r.getSource().equals("reading1");
     public static final Predicate<IntervalReading> READING_2 = r -> r.getSource().equals("reading2");
@@ -150,6 +153,7 @@ public class DataExportTaskExecutorTest {
 
         transactionService = new TransactionVerifier(dataFormatter, newItem, existingItem);
 
+        when(formattedData.lastExported()).thenReturn(Optional.of(lastExported.toInstant()));
         when(readingTypeDataSelector.getEndDeviceGroup()).thenReturn(group);
         when(readingTypeDataSelector.getReadingTypes()).thenReturn(ImmutableSet.of(readingType1));
         when(readingTypeDataSelector.addExportItem(meter1, readingType1)).thenReturn(newItem);
@@ -200,7 +204,7 @@ public class DataExportTaskExecutorTest {
         when(strategy.isExportContinuousData()).thenReturn(false);
         doReturn(Arrays.asList(reading1)).when(meter1).getReadings(exportPeriod, readingType1);
         doReturn(Arrays.asList(reading2)).when(meter2).getReadings(exportPeriod, readingType1);
-        when(dataFormatter.processData(any())).thenReturn(Optional.of(exportPeriodEnd.toInstant()));
+        when(dataFormatter.processData(any())).thenReturn(formattedData);
         when(reading1.getSource()).thenReturn("reading1");
         when(reading2.getSource()).thenReturn("reading2");
         MeterReadingData newItemData = new MeterReadingData(this.newItem, MeterReadingImpl.of(ReadingImpl.reading(reading1, readingType1)), DefaultStructureMarker.createRoot("newItem"));
@@ -429,6 +433,7 @@ public class DataExportTaskExecutorTest {
             executor.postExecute(occurrence);
             fail("expected FatalDataExportException");
         } catch (FatalDataExportException e) {
+            e.printStackTrace();
             // expected
         }
 

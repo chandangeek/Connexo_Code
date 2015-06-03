@@ -1,7 +1,5 @@
 package com.elster.jupiter.export;
 
-import java.time.Instant;
-import java.util.Optional;
 import java.util.logging.Logger;
 
 public interface DataFormatter {
@@ -10,7 +8,7 @@ public interface DataFormatter {
 
     void startItem(ReadingTypeDataExportItem item);
 
-    Optional<Instant> processData(ExportData data);
+    FormattedData processData(ExportData data);
 
     void endItem(ReadingTypeDataExportItem item);
 

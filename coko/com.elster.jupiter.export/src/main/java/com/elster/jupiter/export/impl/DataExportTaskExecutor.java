@@ -10,6 +10,7 @@ import com.elster.jupiter.export.DataSelector;
 import com.elster.jupiter.export.DataSelectorFactory;
 import com.elster.jupiter.export.ExportData;
 import com.elster.jupiter.export.FatalDataExportException;
+import com.elster.jupiter.export.FormattedData;
 import com.elster.jupiter.export.MeterReadingData;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.HasDynamicProperties;
@@ -17,9 +18,7 @@ import com.elster.jupiter.tasks.TaskExecutor;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
-import com.google.common.collect.Range;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -145,6 +144,7 @@ class DataExportTaskExecutor implements TaskExecutor {
         return dataExportService.getDataSelectorFactory(dataSelector).orElseThrow(() -> new NoSuchDataSelector(thesaurus, dataSelector));
     }
 
+    //TODO get the data to the destinations
     private void doProcess(DataFormatter dataFormatter, DataExportOccurrence occurrence, ExportData exportData, ItemExporter itemExporter) {
         if (exportData instanceof MeterReadingData) {
             doProcess(occurrence, (MeterReadingData) exportData, itemExporter);
@@ -217,7 +217,7 @@ class DataExportTaskExecutor implements TaskExecutor {
         }
 
         @Override
-        public Range<Instant> exportItem(DataExportOccurrence occurrence, MeterReadingData item) {
+        public FormattedData exportItem(DataExportOccurrence occurrence, MeterReadingData item) {
             if (lazy == null) {
                 lazy = getItemExporter(dataFormatter, logger);
             }

@@ -16,7 +16,7 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 
-public class EmailDestinationImpl extends AbstractDataExportDestination implements EmailDestination {
+class EmailDestinationImpl extends AbstractDataExportDestination implements EmailDestination {
 
     private final MailService mailService;
 

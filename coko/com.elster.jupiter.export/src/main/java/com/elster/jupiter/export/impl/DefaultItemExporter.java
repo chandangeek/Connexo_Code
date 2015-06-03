@@ -2,6 +2,7 @@ package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataFormatter;
+import com.elster.jupiter.export.FormattedData;
 import com.elster.jupiter.export.MeterReadingData;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.metering.BaseReadingRecord;
@@ -32,16 +33,17 @@ class DefaultItemExporter implements ItemExporter {
     }
 
     @Override
-    public Range<Instant> exportItem(DataExportOccurrence occurrence, MeterReadingData meterReadingData) {
+    public FormattedData exportItem(DataExportOccurrence occurrence, MeterReadingData meterReadingData) {
         IReadingTypeDataExportItem item = (IReadingTypeDataExportItem) meterReadingData.getItem();
         dataFormatter.startItem(item);
         item.setLastRun(occurrence.getTriggerTime());
-        Range<Instant> exportInterval = determineExportInterval(occurrence, item);
-        Optional<Instant> lastExported = dataFormatter.processData(meterReadingData);
+//        Range<Instant> exportInterval = determineExportInterval(occurrence, item);
+        FormattedData formattedData = dataFormatter.processData(meterReadingData);
+        Optional<Instant> lastExported = formattedData.lastExported();
         lastExported.ifPresent(item::setLastExportedDate);
         dataFormatter.endItem(item);
         exportItems.add(item);
-        return exportInterval;
+        return formattedData;
     }
 
     @Override
