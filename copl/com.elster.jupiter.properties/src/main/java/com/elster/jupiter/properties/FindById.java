@@ -2,8 +2,11 @@ package com.elster.jupiter.properties;
 
 import java.util.Optional;
 
-public interface FindById<T extends ListValueEntry> {
+import aQute.bnd.annotation.ConsumerType;
 
-    public abstract Optional<T> findById(String id);
+@ConsumerType
+public interface FindById<T extends IdWithNameValue> {
+
+    public abstract Optional<T> findById(Object id);
 
 }

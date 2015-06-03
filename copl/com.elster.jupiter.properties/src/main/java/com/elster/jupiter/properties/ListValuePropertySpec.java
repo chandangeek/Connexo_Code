@@ -5,7 +5,7 @@ import java.util.List;
 
 import java.util.Optional;
 
-public class ListValuePropertySpec<T extends ListValueEntry> extends BasicPropertySpec {
+public class ListValuePropertySpec<T extends IdWithNameValue> extends BasicPropertySpec {
 
     private static final long serialVersionUID = 1L;
 

@@ -1,16 +1,27 @@
 package com.elster.jupiter.properties.impl;
 
-import com.elster.jupiter.properties.*;
-import com.elster.jupiter.time.RelativePeriod;
-import com.elster.jupiter.time.TimeService;
+import java.math.BigDecimal;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
 
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
+import com.elster.jupiter.properties.BasicPropertySpec;
+import com.elster.jupiter.properties.BigDecimalFactory;
+import com.elster.jupiter.properties.BoundedBigDecimalPropertySpecImpl;
+import com.elster.jupiter.properties.BoundedLongPropertySpecImpl;
+import com.elster.jupiter.properties.FindById;
+import com.elster.jupiter.properties.IdWithNameValue;
+import com.elster.jupiter.properties.IdWithNameValueFactory;
+import com.elster.jupiter.properties.ListValuePropertySpec;
+import com.elster.jupiter.properties.LongFactory;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.PropertySpecBuilder;
+import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.properties.RelativePeriodFactory;
+import com.elster.jupiter.properties.StringFactory;
+import com.elster.jupiter.properties.ValueFactory;
+import com.elster.jupiter.time.RelativePeriod;
+import com.elster.jupiter.time.TimeService;
 
 /**
  * Provides an implementation for the {@link PropertySpecService} interface
@@ -112,7 +123,7 @@ public class PropertySpecServiceImpl implements PropertySpecService {
     }
 
     @Override
-    public <T extends ListValueEntry> PropertySpec listValuePropertySpec(String name, boolean required, FindById<T> finder, T... values) {
+    public <T extends IdWithNameValue> PropertySpec listValuePropertySpec(String name, boolean required, FindById<T> finder, T... values) {
         return new ListValuePropertySpec<>(name, required, finder, values);
     }
 
@@ -151,5 +162,14 @@ public class PropertySpecServiceImpl implements PropertySpecService {
         BoundedLongPropertySpecImpl propertySpec = new BoundedLongPropertySpecImpl(name, lowerLimit, upperLimit);
         propertySpec.setRequired(required);
         return propertySpec;
+    }
+    
+    @Override
+    public <T extends IdWithNameValue> PropertySpec idWithNameValuePropertySpec(String name, boolean required, FindById<T> finder, T... values) {
+        PropertySpecBuilder builder = PropertySpecBuilderImpl.forClass(new IdWithNameValueFactory(finder));
+        if (required) {
+            builder.markRequired();
+        }
+        return builder.name(name).addValues(values).markExhaustive().finish();
     }
 }

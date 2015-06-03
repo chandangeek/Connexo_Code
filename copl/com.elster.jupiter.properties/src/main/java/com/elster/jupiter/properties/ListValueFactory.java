@@ -3,11 +3,10 @@ package com.elster.jupiter.properties;
 import java.sql.SQLException;
 
 import com.google.common.base.Joiner;
-import org.osgi.service.component.annotations.Component;
 
 import java.util.Optional;
 
-public class ListValueFactory<T extends ListValueEntry> extends AbstractValueFactory<ListValue<T>> {
+public class ListValueFactory<T extends IdWithNameValue> extends AbstractValueFactory<ListValue<T>> {
 
     public static final int MAX_SIZE = 4000;
     private static final String LIST_SEPARATOR = ",";
