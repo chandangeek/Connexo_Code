@@ -130,10 +130,15 @@ public class SearchResourceTest extends SearchApplicationTest {
         assertThat(model.<List>get("$.domains")).hasSize(2);
         assertThat(model.<String>get("$.domains[0].name")).isEqualTo("devices");
         assertThat(model.<String>get("$.domains[0].link[0].href")).isEqualTo("http://localhost:9998/search/devices");
+        assertThat(model.<String>get("$.domains[0].link[0].params.rel")).isEqualTo("self");
         assertThat(model.<String>get("$.domains[0].link[1].href")).isEqualTo("http://localhost:9998/search/devices/properties");
+        assertThat(model.<String>get("$.domains[0].link[1].params.rel")).isEqualTo("describedby");
+
         assertThat(model.<String>get("$.domains[1].name")).isEqualTo("deviceTypes");
         assertThat(model.<String>get("$.domains[1].link[0].href")).isEqualTo("http://localhost:9998/search/deviceTypes");
+        assertThat(model.<String>get("$.domains[1].link[0].params.rel")).isEqualTo("self");
         assertThat(model.<String>get("$.domains[1].link[1].href")).isEqualTo("http://localhost:9998/search/deviceTypes/properties");
+        assertThat(model.<String>get("$.domains[1].link[1].params.rel")).isEqualTo("describedby");
     }
 
     @Test

@@ -178,7 +178,7 @@ public class SearchResource {
             this.name = searchDomain.getId();
             this.link = new ArrayList<>();
             link.add(Link.fromUriBuilder(uriInfo.getBaseUriBuilder().path(SearchResource.class).path(SearchResource.class, "doSearch")).rel("self").build(searchDomain.getId()));
-            link.add(Link.fromUriBuilder(uriInfo.getBaseUriBuilder().path(SearchResource.class).path(SearchResource.class, "getDomainProperties")).rel("related").build(searchDomain.getId()));
+            link.add(Link.fromUriBuilder(uriInfo.getBaseUriBuilder().path(SearchResource.class).path(SearchResource.class, "getDomainProperties")).rel("describedby").build(searchDomain.getId()));
         }
     }
 
