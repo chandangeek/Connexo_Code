@@ -1,10 +1,10 @@
--classpath: target/classes 
+-classpath: target/classes
 -dsannotations: *
 Include-Resource: README.HTML
-Private-Package: com.elster.jupiter.metering.impl
+Private-Package: com.elster.jupiter.metering.impl,\
+	com.elster.jupiter.metering.impl.search
 Export-Package: com.elster.jupiter.metering,\
 	com.elster.jupiter.metering.security,\
 	com.elster.jupiter.metering.readings,\
 	com.elster.jupiter.metering.readings.beans,\
 	com.elster.jupiter.metering.events
-
