@@ -63,20 +63,30 @@ public class SearchResource {
     @GET
     @Consumes(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
-    @Path("/{domain}")
+    @Path("/{domain}/properties")
     public Response getDomainProperties(@PathParam("domain") String domainId,
                                         @BeanParam JsonQueryFilter jsonQueryFilter,
                                         @BeanParam JsonQueryParameters jsonQueryParameters,
                                         @Context UriInfo uriInfo) throws InvalidValueException {
         SearchDomain searchDomain = findSearchDomainOrThrowException(domainId);
-        if (jsonQueryFilter==null) {
-            PropertyList propertyList = new PropertyList();
-            propertyList.properties = searchDomain.getProperties().stream().map(p -> propertyInfoFactory.asInfoObject(p, uriInfo)).collect(toList());
-            return Response.ok().entity(propertyList).build();
-        } else {
-            final SearchBuilder<Object> searchBuilder = searchService.search(searchDomain);
+        PropertyList propertyList = new PropertyList();
+        propertyList.properties = searchDomain.getProperties().stream().map(p -> propertyInfoFactory.asInfoObject(p, uriInfo)).collect(toList());
+        return Response.ok().entity(propertyList).build();
+    }
+
+    @GET
+    @Consumes(MediaType.APPLICATION_JSON+";charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
+    @Path("/{domain}")
+    public Response doSearch(@PathParam("domain") String domainId,
+                                        @BeanParam JsonQueryFilter jsonQueryFilter,
+                                        @BeanParam JsonQueryParameters jsonQueryParameters,
+                                        @Context UriInfo uriInfo) throws InvalidValueException {
+        SearchDomain searchDomain = findSearchDomainOrThrowException(domainId);
+        final SearchBuilder<Object> searchBuilder = searchService.search(searchDomain);
+        if (jsonQueryFilter!=null) {
             searchDomain.getProperties().stream().
-                    filter(p->jsonQueryFilter.hasProperty(p.getName())).
+                    filter(p -> jsonQueryFilter.hasProperty(p.getName())).
                     forEach(searchableProperty -> {
                         try {
                             if (searchableProperty.getSelectionMode().equals(SearchableProperty.SelectionMode.MULTI)) {
@@ -85,13 +95,13 @@ public class SearchResource {
                                 searchBuilder.where(searchableProperty).isEqualTo(getQueryParameterAsObject(jsonQueryFilter, searchableProperty));
                             }
                         } catch (InvalidValueException e) {
-                            throw new LocalizedFieldValidationException(MessageSeeds.INVALID_VALUE, "filter."+searchableProperty.getName());
+                            throw new LocalizedFieldValidationException(MessageSeeds.INVALID_VALUE, "filter." + searchableProperty.getName());
                         }
 
                     });
-            List<Object> searchResults = searchBuilder.toFinder().from(jsonQueryParameters).stream().map(Object::toString).collect(toList());
-            return Response.ok().entity(PagedInfoList.fromPagedList("searchResults", searchResults, jsonQueryParameters)).build();
         }
+        List<Object> searchResults = searchBuilder.toFinder().from(jsonQueryParameters).stream().map(Object::toString).collect(toList());
+        return Response.ok().entity(PagedInfoList.fromPagedList("searchResults", searchResults, jsonQueryParameters)).build();
     }
 
     private SearchDomain findSearchDomainOrThrowException(@PathParam("domain") String domainId) {
@@ -102,7 +112,7 @@ public class SearchResource {
     @GET
     @Consumes(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
-    @Path("/{domain}/{property}")
+    @Path("/{domain}/properties/{property}")
     public Response getDomainPropertyValues(@PathParam("domain") String domainId,
                                             @PathParam("property") String property,
                                             @BeanParam JsonQueryParameters jsonQueryParameters,
@@ -159,14 +169,16 @@ public class SearchResource {
     class SearchDomainInfo {
         public String name;
         @XmlJavaTypeAdapter(Link.JaxbAdapter.class)
-        public Link link;
+        public List<Link> link;
 
         public SearchDomainInfo() {
         }
 
         public SearchDomainInfo(SearchDomain searchDomain, UriInfo uriInfo) {
             this.name = searchDomain.getId();
-            this.link = Link.fromUriBuilder(uriInfo.getBaseUriBuilder().path(SearchResource.class).path(SearchResource.class, "getDomainProperties")).build(searchDomain.getId());
+            this.link = new ArrayList<>();
+            link.add(Link.fromUriBuilder(uriInfo.getBaseUriBuilder().path(SearchResource.class).path(SearchResource.class, "doSearch")).rel("self").build(searchDomain.getId()));
+            link.add(Link.fromUriBuilder(uriInfo.getBaseUriBuilder().path(SearchResource.class).path(SearchResource.class, "getDomainProperties")).rel("related").build(searchDomain.getId()));
         }
     }
 
