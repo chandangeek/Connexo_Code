@@ -25,7 +25,7 @@ public class ExtjsFilter {
     }
 
     static public String filter(String property, List<?> list) throws UnsupportedEncodingException {
-        if (list.get(0) instanceof Long) {
+        if (list.get(0) instanceof Number) {
             return URLEncoder.encode(String.format("[" + PROPERTY_LIST_VALUE_FORMAT + "]", property, "[" + Joiner.on(",").join(list) + "]"), "UTF-8");
         }
         return URLEncoder.encode(String.format("[" + PROPERTY_LIST_VALUE_FORMAT + "]", property, "[\"" + Joiner.on("\",\"").join(list) + "\"]"), "UTF-8");
@@ -70,10 +70,11 @@ public class ExtjsFilter {
 
         @Override
         public FilterBuilder property(String property, List<?> list) {
-            if (list.get(0) instanceof Long) {
+            if (list.get(0) instanceof Number) {
                 filter.append(String.format("%s" + PROPERTY_LIST_VALUE_FORMAT, separator, property, "[" + Joiner.on(",").join(list) + "]"));
+            } else {
+                filter.append(String.format("%s" + PROPERTY_LIST_VALUE_FORMAT, separator, property, "[\"" + Joiner.on("\",\"").join(list) + "\"]"));
             }
-            filter.append(String.format("%s" + PROPERTY_LIST_VALUE_FORMAT, separator, property, "[\"" + Joiner.on("\",\"").join(list) + "\"]"));
 
             separator=",";
             return this;
