@@ -84,6 +84,7 @@ Ext.define('Cfg.view.validationtask.Add', {
                                 itemId: 'no-device',
                                 hidden: true,
                                 value: '<div style="color: #FF0000">' + Uni.I18n.translate('validationTasks.general.noDeviceGroup', 'CFG', 'No device group defined yet.') + '</div>',
+                                htmlEncode: false,
                                 width: 235
                             }
                         ]
