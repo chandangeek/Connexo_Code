@@ -8,12 +8,15 @@ Ext.define('Apr.controller.AppServers', {
         'Apr.store.AppServers',
         'Apr.store.ServedMessageServices',
         'Apr.store.UnservedMessageServices',
-        'Apr.store.ExportPaths'
+        'Apr.store.ServedImportServices',
+        'Apr.store.ExportPaths',
+        'Apr.store.ImportPaths'
     ],
     models: [
         'Apr.model.AppServer',
         'Uni.component.sort.model.Sort',
-        'Apr.model.ExportPath'
+        'Apr.model.ExportPath',
+        'Apr.model.ImportPath'
     ],
     refs: [
         {
@@ -43,15 +46,25 @@ Ext.define('Apr.controller.AppServers', {
             'appservers-add #add-message-services-button': {
                 click: this.openListOfServices
             },
+            'appservers-add #add-import-services-button': {
+                click: this.openListOfImportServices
+            },
             'message-services-action-menu': {
                 click: this.removeMessageService
+            },
+            'apr-import-services-action-menu': {
+                click: this.removeImportService
             },
             'appservers-add #add-edit-button': {
                 click: this.addEditAppServer
             },
             'appservers-add message-services-grid': {
                 edit: this.onCellEdit
+            },
+            'appservers-add apr-import-services-grid': {
+                edit: this.onCellEdit
             }
+
         });
     },
 
@@ -210,25 +223,37 @@ Ext.define('Apr.controller.AppServers', {
         var me = this,
             view,
             store,
+            importStore,
+            unservedImportStore = me.getStore('Apr.store.UnservedImportServices'),
             edit,
             menu,
+            importMenu,
             unservedStore = me.getStore('Apr.store.UnservedMessageServices'),
-            exportPathsStore = me.getStore('Apr.store.ExportPaths');
+            exportPathsStore = me.getStore('Apr.store.ExportPaths'),
+            importPathsStore = me.getStore('Apr.store.ImportPaths');
 
         if (appServerName) {
             store = me.getStore('Apr.store.ServedMessageServices');
             store.getProxy().setUrl(appServerName);
+
+            importStore = me.getStore('Apr.store.ServedImportServices');
+            importStore.getProxy().setUrl(appServerName);
+
             edit = true;
             me.getApplication().fireEvent('appserverload', appServerName);
         } else {
             store = unservedStore;
             store.getProxy().setUrl(null);
+
+            importStore = unservedImportStore;
+            importStore.getProxy().setUrl(null);
             edit = false;
         }
         store.load(function (recs) {
             view = Ext.widget('appservers-add', {
                 edit: edit,
-                store: store
+                store: store,
+                importStore: importStore
             });
             menu = view.down('#add-message-services-menu');
             menu.on('beforehide', function () {
@@ -245,6 +270,39 @@ Ext.define('Apr.controller.AppServers', {
                     view.down('#empty-text-grid').hide();
                 }
             });
+            importStore.load(function (recs){
+                importMenu = view.down('#add-import-services-menu');
+                importMenu.on('beforehide', function () {
+                        var checkedImportServices = [];
+                        Ext.Array.each(importMenu.query('menucheckitem'), function (menuItem) {
+                            if (menuItem.checked) {
+                                checkedImportServices.push(menuItem.record);
+                                importMenu.remove(menuItem);
+                            }
+                        });
+                        importStore.add(checkedImportServices);
+                    if (!Ext.isEmpty(checkedImportServices)) {
+                        view.down('apr-import-services-grid').show();
+                        view.down('#import-empty-text-grid').hide();
+                    }
+                });
+
+                    if (appServerName) {
+                        if (Ext.isEmpty(recs)) {
+                            view.down('apr-import-services-grid').hide();
+                            view.down('#import-empty-text-grid').show();
+                        }
+
+                        unservedImportStore.getProxy().setUrl(appServerName);
+                        unservedImportStore.load(function (records) {
+                            Ext.Array.each(records, function (service) {
+                                me.addImportServiceItem(service);
+                            });
+                        });
+
+                    }
+                }
+            );
             if (appServerName) {
                 if (Ext.isEmpty(recs)) {
                     view.down('message-services-grid').hide();
@@ -271,6 +329,16 @@ Ext.define('Apr.controller.AppServers', {
                                     }
                                 });
                             });
+                            importPathsStore.load(function (importPaths) {
+                                Ext.Array.each(importPaths, function (dir) {
+                                    if (dir.get('appServerName') === appServerName) {
+                                        me.exportPath = dir;
+                                        view.down('#appserver-import-path').setValue(dir.get('directory'));
+                                    } else {
+                                        me.exportPath = Ext.create('Apr.model.ImportPath');
+                                    }
+                                });
+                            });
                         }
                     });
                     me.getApplication().fireEvent('changecontentevent', view);
@@ -279,6 +347,10 @@ Ext.define('Apr.controller.AppServers', {
                 me.getApplication().fireEvent('changecontentevent', view);
             }
         });
+
+
+
+
     },
 
     openListOfServices: function () {
@@ -287,11 +359,28 @@ Ext.define('Apr.controller.AppServers', {
         }
     },
 
+    openListOfImportServices: function () {
+        if (Ext.isEmpty(this.getAddPage().down('#add-import-services-menu').query('menucheckitem'))) {
+            this.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.allImportServicesAdded', 'APR', 'All import services added'));
+        }
+    },
+
     addMessageServiceItem: function (service) {
         this.getAddPage().down('#add-message-services-menu').add(
             {
                 xtype: 'menucheckitem',
                 text: Uni.I18n.translate(service.get('messageService'), 'APR', service.get('messageService')),
+                checked: false,
+                record: service
+            }
+        );
+    },
+
+    addImportServiceItem: function (service) {
+        this.getAddPage().down('#add-import-services-menu').add(
+            {
+                xtype: 'menucheckitem',
+                text: service.get('importService'),
                 checked: false,
                 record: service
             }
@@ -310,15 +399,39 @@ Ext.define('Apr.controller.AppServers', {
         me.addMessageServiceItem(menu.record);
     },
 
+    addImportServiceItemToMenu: function (service) {
+        this.getAddPage().down('#add-import-services-menu').add(
+            {
+                xtype: 'menucheckitem',
+                text: service.get('importService'),
+                checked: false,
+                record: service
+            }
+        );
+    },
+
+    removeImportService: function (menu) {
+        var me = this,
+            grid = me.getAddPage().down('apr-import-services-grid');
+
+        grid.getStore().remove(menu.record);
+        if (Ext.isEmpty(grid.getStore().getRange())) {
+            me.getAddPage().down('apr-import-services-grid').hide();
+            me.getAddPage().down('#import-empty-text-grid').show();
+        }
+        me.addImportServiceItemToMenu(menu.record);
+    },
     addEditAppServer: function () {
         var me = this,
             form = me.getAddPage().down('#add-appserver-form'),
             appServerName = form.down('#appserver-name').getValue(),
             exportPath = form.down('#appserver-path').getValue(),
             grid = me.getAddPage().down('message-services-grid'),
+            importGrid = me.getAddPage().down('apr-import-services-grid'),
             formErrorsPanel = form.down('#form-errors'),
             record,
             executionSpecs = [],
+            importServices = [],
             isEdit = me.getAddPage().down('#add-edit-button').action === 'editAppServer';
 
         if (form.isValid()) {
@@ -345,6 +458,19 @@ Ext.define('Apr.controller.AppServers', {
                 }
                 executionSpecs.push(service);
             });
+
+            Ext.Array.each(importGrid.getStore().getRange(), function (item) {
+                var importService = {};
+                if (!item.get('name')) {
+                    importService.id = item.data.id;
+                    importService.name = item.data.name;
+                } else {
+                    importService.id = item.get('id');
+                    importService.name = item.get('name');
+                }
+                importServices.push(importService);
+            });
+
             record = me.appServer || Ext.create('Apr.model.AppServer');
             record.beginEdit();
             if (!isEdit) {
@@ -352,6 +478,7 @@ Ext.define('Apr.controller.AppServers', {
                 record.set('active', false);
             }
             record.set('executionSpecs', executionSpecs);
+            record.set('importServices', importServices);
             record.endEdit();
             me.getAddPage().setLoading();
             if (!isEdit) {

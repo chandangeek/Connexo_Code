@@ -4,7 +4,8 @@ Ext.define('Apr.view.appservers.MessageServicesGrid', {
     requires: [
         'Apr.view.appservers.MessageServicesActionMenu'
     ],
-    width: 490,
+    width: '100%',
+    maxHeight: 300,
     plugins: [
         'showConditionalToolTip',
         {
@@ -18,7 +19,7 @@ Ext.define('Apr.view.appservers.MessageServicesGrid', {
         {
             header: Uni.I18n.translate('general.name', 'UNI', 'Name'),
             dataIndex: 'messageService',
-            flex: 2
+            flex: 1
         },
         {
             itemId: 'threads-column',

@@ -1,7 +1,7 @@
 Ext.define('Apr.model.AppServer', {
     extend: 'Ext.data.Model',
     fields: [
-        'name', 'active', 'executionSpecs',
+        'name', 'active', 'executionSpecs', 'importServices',
         {
             name: 'id',
             persist: false,
@@ -14,6 +14,10 @@ Ext.define('Apr.model.AppServer', {
             persist: false
         },
         {
+            name: 'importPath',
+            persist: false
+        },
+        {
             name: 'messageServices',
             persist: false,
             mapping: function (data) {
@@ -21,6 +25,21 @@ Ext.define('Apr.model.AppServer', {
                     var str = '';
                     Ext.Array.each(data.executionSpecs, function (item) {
                         str += item.subscriberSpec.displayName + ' (' + item.numberOfThreads + ' ' + Uni.I18n.translate('general.thread', 'APR', 'thread(s)') + ')' + '<br><br>';
+                    });
+                    return str;
+                } else {
+                    return '-';
+                }
+            }
+        },
+        {
+            name: 'importSchedules',
+            persist: false,
+            mapping: function (data) {
+                if (!Ext.isEmpty(data.importServices)) {
+                    var str = '';
+                    Ext.Array.each(data.importServices, function (item) {
+                        str += item.name + '<br><br>';
                     });
                     return str;
                 } else {
