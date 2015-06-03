@@ -2,6 +2,7 @@ package com.elster.jupiter.util.proxy;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 
 /**
  * LazyLoadProxy is intended to create on the fly proxies for an interface, which will delay loading the actual object for that interface until a method is called on it.
@@ -38,5 +39,21 @@ public final class LazyLoadProxy<T> implements java.lang.reflect.InvocationHandl
         catch (InvocationTargetException e) {
             throw e.getTargetException();
         }
+    }
+
+    public static <S> S unwrap(Object object) {
+        LazyLoadProxy<S> lazyLoadProxy = (LazyLoadProxy<S>) Proxy.getInvocationHandler(object);
+        return lazyLoadProxy.getValue();
+    }
+
+    public static boolean isLazyLoadProxy(Object object) {
+        return Proxy.isProxyClass(object.getClass()) && Proxy.getInvocationHandler(object) instanceof LazyLoadProxy;
+    }
+
+    private T getValue() {
+        if (obj == null) {
+            obj = loader.load();
+        }
+        return obj;
     }
 }
