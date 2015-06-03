@@ -5,6 +5,7 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.properties.PropertySpec;
 
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 
@@ -77,5 +78,19 @@ public interface FileImportService {
     List<PropertySpec> getPropertiesSpecsForImporter(String importerName);
 
 
+    /**
+     * @return the import schedule with specified name
+     */
     Optional<ImportSchedule> getImportSchedule(String name);
+
+    /**
+     * set the app server base path
+     */
+    void setBasePath(Path basePath);
+
+    /**
+     * @return the base path of the running app server import folder
+     */
+    Path getBasePath();
+
 }

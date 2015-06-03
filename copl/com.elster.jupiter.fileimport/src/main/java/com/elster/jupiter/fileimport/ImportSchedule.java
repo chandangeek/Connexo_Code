@@ -5,8 +5,10 @@ import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.orm.History;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.time.ScheduleExpression;
+import sun.misc.ConditionLock;
 
 import java.io.File;
+import java.time.Clock;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -76,7 +78,7 @@ public interface ImportSchedule {
      * @param file
      * @return creates a new FileImport instance for the given file.
      */
-    FileImportOccurrence createFileImportOccurrence(File file);
+    FileImportOccurrence createFileImportOccurrence(File file, Clock clock);
 
     /**
      * @return returns the type of the importer

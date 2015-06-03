@@ -7,6 +7,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.json.JsonService;
 
+import java.time.Clock;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,11 +23,13 @@ class StreamImportMessageHandler implements MessageHandler {
     private final JsonService jsonService;
     private final FileImportService fileImportService;
     private final Thesaurus thesaurus;
+    private final Clock clock;
 
-    public StreamImportMessageHandler(DataModel dataModel, JsonService jsonService, Thesaurus thesaurus, FileImportService fileImportService) {
+    public StreamImportMessageHandler(DataModel dataModel, JsonService jsonService, Thesaurus thesaurus, Clock clock,FileImportService fileImportService) {
         this.dataModel = dataModel;
         this.jsonService = jsonService;
         this.thesaurus = thesaurus;
+        this.clock = clock;
         this.fileImportService = fileImportService;
     }
 
@@ -57,7 +60,7 @@ class StreamImportMessageHandler implements MessageHandler {
         FileImportOccurrence fileImportOccurrence = null;
         FileImportMessage fileImportMessage = getFileImportMessage(message);
         if (fileImportMessage != null) {
-            fileImportOccurrence = dataModel.mapper(FileImportOccurrence.class ).getOptional(fileImportMessage.fileImportId).get();
+            fileImportOccurrence = fileImportService.getFileImportOccurrence(fileImportMessage.fileImportId).get();
         }
         return fileImportOccurrence;
     }

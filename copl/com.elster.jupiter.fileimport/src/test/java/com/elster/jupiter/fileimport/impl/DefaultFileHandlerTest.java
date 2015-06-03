@@ -18,6 +18,7 @@ import org.mockito.stubbing.Answer;
 
 import java.io.File;
 import java.time.Clock;
+import java.time.Instant;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
@@ -47,7 +48,8 @@ public class DefaultFileHandlerTest {
     @Before
     public void setUp() {
 
-        when(importSchedule.createFileImportOccurrence(any(File.class))).thenReturn(fileImportOccurrence);
+        when(clock.instant()).thenReturn(Instant.now());
+        when(importSchedule.createFileImportOccurrence(any(File.class), any(Clock.class))).thenReturn(fileImportOccurrence);
         when(importSchedule.getDestination()).thenReturn(destination);
 //        when(serviceLocator.getTransactionService()).thenReturn(transactionService);
 //        when(serviceLocator.getJsonService()).thenReturn(jsonService);
@@ -74,7 +76,7 @@ public class DefaultFileHandlerTest {
         File file = new File("./test.txt");
         fileHandler.handle(file);
 
-        verify(importSchedule).createFileImportOccurrence(file);
+        verify(importSchedule).createFileImportOccurrence(file, clock);
 
     }
 

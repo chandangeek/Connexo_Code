@@ -1,5 +1,6 @@
 package com.elster.jupiter.fileimport.impl;
 
+import com.elster.jupiter.fileimport.FileImportOccurrence;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fileimport.FileImporterFactory;
 import com.elster.jupiter.fileimport.ImportSchedule;
@@ -20,6 +21,8 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.File;
+import java.time.Clock;
+import java.time.Instant;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -62,9 +65,12 @@ public class ImportScheduleImplTest {
     private FileImporterFactory fileImporterFactory;
     @Mock
     private JsonService jsonService;
+    @Mock
+    private Clock clock;
 
     @Before
     public void setUp() {
+        when(clock.instant()).thenReturn(Instant.now());
         when(dataModel.mapper(ImportSchedule.class)).thenReturn(importScheduleFactory);
         when(fileImportService.getImportFactory(Matchers.any())).thenReturn(Optional.of(fileImporterFactory));
         when(fileImporterFactory.getDestinationName()).thenReturn("DEST_1");
@@ -106,7 +112,7 @@ public class ImportScheduleImplTest {
     public void testCreateFileImport() {
         when(file.exists()).thenReturn(true);
 
-        FileImportOccurrenceImpl fileImport = importSchedule.createFileImportOccurrence(file);
+        FileImportOccurrence fileImport = importSchedule.createFileImportOccurrence(file, clock);
 
         assertThat(fileImport.getImportSchedule()).isEqualTo(importSchedule);
     }
@@ -115,6 +121,6 @@ public class ImportScheduleImplTest {
     public void testCannotCreateFileImportIfFileDoesNotExist() {
         when(file.exists()).thenReturn(false);
 
-        importSchedule.createFileImportOccurrence(file);
+        importSchedule.createFileImportOccurrence(file, clock);
     }
 }

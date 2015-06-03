@@ -38,9 +38,9 @@ class DefaultFileHandler implements FileHandler {
     }
 
     private void doHandle(File file) {
-        FileImportOccurrence fileImportOccurrence = importSchedule.createFileImportOccurrence(file);
+        FileImportOccurrence fileImportOccurrence = importSchedule.createFileImportOccurrence(file, clock);
         fileImportOccurrence.prepareProcessing();
-        fileImportOccurrence.setClock(clock);
+
         DestinationSpec destination = importSchedule.getDestination();
 
         String json = jsonService.serialize(new FileImportMessage(fileImportOccurrence));

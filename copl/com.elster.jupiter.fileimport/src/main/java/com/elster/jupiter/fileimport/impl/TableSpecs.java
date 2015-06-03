@@ -73,8 +73,8 @@ enum TableSpecs {
             Column nameColumn = table.column("NAME").varChar(Table.NAME_LENGTH).notNull().map("name").add();
             table.column("VALUE").varChar(Table.DESCRIPTION_LENGTH).map("stringValue").add();
             table.addAuditColumns();
-            table.primaryKey("FMI_PK_PROPERTY").on(importScheduleColumn, nameColumn).add();
-            table.foreignKey("FMI_FK_PROPERTY").on(importScheduleColumn).references(FIM_IMPORT_SCHEDULE.name())
+            table.primaryKey("FIM_PK_PROPERTY").on(importScheduleColumn, nameColumn).add();
+            table.foreignKey("FIM_FK_PROPERTY").on(importScheduleColumn).references(FIM_IMPORT_SCHEDULE.name())
                     .map("importScheduleReference").reverseMap("properties").composition().add();
         }
     };

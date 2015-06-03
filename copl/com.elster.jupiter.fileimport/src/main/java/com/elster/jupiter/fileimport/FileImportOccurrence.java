@@ -43,13 +43,13 @@ public interface FileImportOccurrence {
      * Marks the file as successfully imported
      * @throws IllegalStateException if the current state is not PROCESSING
      */
-    void markSuccess() throws IllegalStateException;
+    void markSuccess(String message) throws IllegalStateException;
 
     /**
      * Marks the file as not successfully imported
      * @throws IllegalStateException if the current state is not PROCESSING
      */
-    void markFailure();
+    void markFailure(String message);
 
     /**
      * @return the id
@@ -75,8 +75,8 @@ public interface FileImportOccurrence {
 
     Logger getLogger();
 
-    void setClock(Clock clock);
-
     Finder<ImportLogEntry> getLogsFinder();
+
+    String getMessage();
 
 }

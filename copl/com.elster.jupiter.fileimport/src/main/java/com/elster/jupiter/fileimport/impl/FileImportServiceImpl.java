@@ -32,6 +32,7 @@ import org.osgi.service.component.annotations.*;
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Clock;
 import java.util.Arrays;
 import java.util.Collections;
@@ -65,6 +66,7 @@ public class FileImportServiceImpl implements InstallService, FileImportService 
 
 
     private CronExpressionScheduler cronExpressionScheduler;
+    private Path basePath;
 
     public FileImportServiceImpl(){
 
@@ -220,7 +222,7 @@ public class FileImportServiceImpl implements InstallService, FileImportService 
 
     @Override
     public MessageHandler createMessageHandler() {
-        return new StreamImportMessageHandler(dataModel, jsonService, thesaurus, this);
+        return new StreamImportMessageHandler(dataModel, jsonService, thesaurus, clock, this);
     }
 
     public FileNameCollisionResolver getFileNameCollisionResolver() {
@@ -267,7 +269,9 @@ public class FileImportServiceImpl implements InstallService, FileImportService 
 
     @Override
     public Optional<FileImportOccurrence> getFileImportOccurrence(Long id){
-        return dataModel.mapper(FileImportOccurrence.class).getOptional(id);
+        Optional<FileImportOccurrence> fileImportOccurence = dataModel.mapper(FileImportOccurrence.class).getOptional(id);
+        fileImportOccurence.map(FileImportOccurrenceImpl.class::cast).ifPresent(fio -> fio.setClock(clock));
+        return fileImportOccurence;
     }
 
     @Override
@@ -281,6 +285,16 @@ public class FileImportServiceImpl implements InstallService, FileImportService 
     public Optional<ImportSchedule> getImportSchedule(String name) {
         return getImportSchedulesQuery().select(where("name").isEqualTo(name)).stream()
                 .findFirst();
+    }
+
+    @Override
+    public void setBasePath(Path basePath) {
+        this.basePath = basePath;
+    }
+
+    @Override
+    public Path getBasePath() {
+        return this.basePath;
     }
 
 }

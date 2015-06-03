@@ -100,7 +100,7 @@ public class ImportScheduleJobTest {
     @Test
     public void testRun() {
         when(directoryStream.spliterator()).thenReturn(Arrays.asList(path).spliterator());
-        when(importSchedule.createFileImportOccurrence(path.toFile())).thenReturn(fileImportOccurrence);
+        when(importSchedule.createFileImportOccurrence(path.toFile(), clock)).thenReturn(fileImportOccurrence);
         when(jsonService.serialize(any())).thenReturn(SERIALIZED);
         when(importSchedule.getDestination()).thenReturn(destination);
 

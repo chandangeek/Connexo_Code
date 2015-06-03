@@ -21,6 +21,7 @@ import javax.inject.Inject;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.io.File;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.*;
 import java.util.logging.Logger;
@@ -308,11 +309,11 @@ class ImportScheduleImpl implements ImportSchedule {
 
 
     @Override
-    public FileImportOccurrenceImpl createFileImportOccurrence(File file) {
+    public FileImportOccurrence createFileImportOccurrence(File file, Clock clock) {
         if (!file.exists()) {
             throw new IllegalArgumentException();
         }
-        return FileImportOccurrenceImpl.create(fileSystem, dataModel, fileNameCollisionresolver, thesaurus, this, file);
+        return FileImportOccurrenceImpl.create(fileSystem, dataModel, fileNameCollisionresolver, thesaurus, clock, this, file);
     }
 
     public Logger getLogger(FileImportOccurrence occurrence) {

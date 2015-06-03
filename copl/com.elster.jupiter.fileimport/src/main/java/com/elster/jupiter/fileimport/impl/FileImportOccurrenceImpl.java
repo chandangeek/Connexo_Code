@@ -41,21 +41,22 @@ final class FileImportOccurrenceImpl implements FileImportOccurrence {
     private final DataModel dataModel;
     private final FileNameCollisionResolver fileNameCollisionResolver;
     private final Thesaurus thesaurus;
-    private Clock clock;
     private List<ImportLogEntry> logEntries = new ArrayList<>();
 
     Logger logger;
+    private Clock clock;
 
     @Inject
-    private FileImportOccurrenceImpl(FileSystem fileSystem, DataModel dataModel, FileNameCollisionResolver fileNameCollisionResolver, Thesaurus thesaurus) {
+    private FileImportOccurrenceImpl(FileSystem fileSystem, DataModel dataModel, FileNameCollisionResolver fileNameCollisionResolver, Thesaurus thesaurus, Clock clock) {
         this.fileSystem = fileSystem;
         this.dataModel = dataModel;
         this.fileNameCollisionResolver = fileNameCollisionResolver;
         this.thesaurus = thesaurus;
+        this.clock = clock;
     }
 
-    public static FileImportOccurrenceImpl create(FileSystem fileSystem, DataModel dataModel, FileNameCollisionResolver fileNameCollisionResolver, Thesaurus thesaurus, ImportSchedule importSchedule, File file) {
-        return new FileImportOccurrenceImpl(fileSystem, dataModel, fileNameCollisionResolver, thesaurus).init(importSchedule, file);
+    public static FileImportOccurrenceImpl create(FileSystem fileSystem, DataModel dataModel, FileNameCollisionResolver fileNameCollisionResolver, Thesaurus thesaurus, Clock clock, ImportSchedule importSchedule, File file) {
+        return new FileImportOccurrenceImpl(fileSystem, dataModel, fileNameCollisionResolver, thesaurus, clock).init(importSchedule, file);
     }
 
     @Override
@@ -64,6 +65,7 @@ final class FileImportOccurrenceImpl implements FileImportOccurrence {
             throw new IllegalStateException();
         }
         this.status = Status.PROCESSING;
+        this.startDate = clock.instant();
 
         MessageSeeds.FILE_IMPORT_STARTED.log(getLogger(),thesaurus);
 
@@ -110,8 +112,10 @@ final class FileImportOccurrenceImpl implements FileImportOccurrence {
     }
 
     @Override
-    public void markFailure() {
+    public void markFailure(String message) {
         validateStatus();
+        this.message = message;
+        this.endDate = clock.instant();
         status = Status.FAILURE;
         ensureStreamClosed();
         moveFile();
@@ -119,9 +123,11 @@ final class FileImportOccurrenceImpl implements FileImportOccurrence {
     }
 
     @Override
-    public void markSuccess() {
+    public void markSuccess(String message) {
         validateStatus();
         status = Status.SUCCESS;
+        this.message = message;
+        this.endDate = clock.instant();
         ensureStreamClosed();
         moveFile();
         save();
@@ -162,17 +168,17 @@ final class FileImportOccurrenceImpl implements FileImportOccurrence {
     }
 
     @Override
-    public void setClock(Clock clock){
-        this.clock = clock;
-    }
-
-    @Override
     public Finder<ImportLogEntry> getLogsFinder() {
         Condition condition = where("fileImportOccurrenceReference").isEqualTo(this);
         //Order[] orders = new Order[]{Order.descending("timeStamp"), Order.ascending("position")};
         return DefaultFinder.of(ImportLogEntry.class,condition , dataModel)
                 .sorted("timeStamp", false)
                 .sorted("position", true);
+    }
+
+    @Override
+    public String getMessage() {
+        return this.message;
     }
 
     //used just for tests
@@ -239,5 +245,11 @@ final class FileImportOccurrenceImpl implements FileImportOccurrence {
         }
     }
 
+    protected void setClock(Clock clock) {
+        this.clock = clock;
+    }
 
+    protected Clock getClock() {
+        return clock;
+    }
 }

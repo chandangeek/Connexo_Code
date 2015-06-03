@@ -6,6 +6,8 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.json.JsonService;
 
+import java.time.Clock;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Optional;
 import org.junit.After;
@@ -55,6 +57,9 @@ public class StreamImportMessageHandlerTest {
     private FileImporterFactory fileImporterFactory;
 
     @Mock
+    private Clock clock;
+
+    @Mock
     FileImporter importer;
 
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
@@ -62,6 +67,7 @@ public class StreamImportMessageHandlerTest {
 
     @Before
     public void setUp() {
+        when(clock.instant()).thenReturn(Instant.now());
         when(fileImportOccurrence.getId()).thenReturn(FILE_IMPORT_ID);
         fileImportMessage = new FileImportMessage(fileImportOccurrence);
         when(message.getPayload()).thenReturn(PAYLOAD);
@@ -71,9 +77,10 @@ public class StreamImportMessageHandlerTest {
         when(importSchedule.getImporterName()).thenReturn(IMPORTER_NAME);
         when(fileImportOccurrence.getImportSchedule()).thenReturn(importSchedule);
         when(fileImportService.getImportFactory(IMPORTER_NAME)).thenReturn(Optional.of(fileImporterFactory));
+        when(fileImportService.getFileImportOccurrence(Matchers.anyLong())).thenReturn(Optional.of(fileImportOccurrence));
         when(fileImportOccurrence.getImportSchedule().getImporterProperties()).thenReturn(new ArrayList<>());
         when(fileImporterFactory.createImporter(Matchers.anyMap())).thenReturn(fileImporter);
-        streamImportMessageHandler = new StreamImportMessageHandler(dataModel, jsonService, thesaurus, fileImportService);
+        streamImportMessageHandler = new StreamImportMessageHandler(dataModel, jsonService, thesaurus, clock, fileImportService);
     }
 
     @After
