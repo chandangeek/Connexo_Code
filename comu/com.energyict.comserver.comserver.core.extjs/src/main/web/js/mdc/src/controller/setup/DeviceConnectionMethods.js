@@ -217,7 +217,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
                 me.getApplication().fireEvent('loadDevice', device);
                 connectionMethodsStore.getProxy().extraParams = ({deviceType: device.get('deviceTypeId'), deviceConfig: device.get('deviceConfigurationId')});
                 connectionMethodsStore.getProxy().setExtraParam('available', true);
-                connectionMethodsStore.getProxy().setExtraParam('mrId', mrid);
+                connectionMethodsStore.getProxy().setExtraParam('mrId', encodeURIComponent(mrid));
                 connectionMethodsStore.clearFilter(true);
                 connectionMethodsStore.filter('direction', direction);
                 connectionMethodsStore.load({
@@ -479,7 +479,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
 
         deviceModel.load(mrid, {
             success: function (device) {
-                connectionMethodModel.getProxy().setExtraParam('mrid', mrid);
+                connectionMethodModel.getProxy().setExtraParam('mrid', encodeURIComponent(mrid));
                 connectionMethodModel.load(connectionMethodId, {
                     success: function (connectionMethod) {
                         me.getApplication().fireEvent('loadDevice', device);

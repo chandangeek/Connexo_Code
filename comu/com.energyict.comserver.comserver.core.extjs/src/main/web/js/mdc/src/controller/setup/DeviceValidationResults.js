@@ -137,13 +137,13 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
                 filterParams = {};
 
             if (tab.itemId === 'validationResults-configuration') {				
-                routeParams.mRID = me.mRID;
+                routeParams.mRID = encodeURIComponent(me.mRID);
                 route = 'devices/device/validationresultsconfiguration';
                 route && (route = router.getRoute(route));				
                 route && route.forward(routeParams, router.queryParams);
             }
             else if (tab.itemId === 'validationResults-data') {
-                routeParams.mRID = me.mRID;
+                routeParams.mRID = encodeURIComponent(me.mRID);
                 route = 'devices/device/validationresultsdata';
                 route && (route = router.getRoute(route));
                 route && route.forward(routeParams, router.queryParams);

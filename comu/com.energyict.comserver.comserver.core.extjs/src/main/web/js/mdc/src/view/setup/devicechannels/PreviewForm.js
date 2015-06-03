@@ -75,7 +75,7 @@ Ext.define('Mdc.view.setup.devicechannels.PreviewForm', {
                                 var res = '',
                                     device;
                                 if (value instanceof Mdc.model.LoadProfileOfDevice) {
-                                    var url = me.router.getRoute('devices/device/loadprofiles/loadprofiledata').buildUrl({mRID: me.mRID, loadProfileId: value.get('id')});
+                                    var url = me.router.getRoute('devices/device/loadprofiles/loadprofiledata').buildUrl({mRID: encodeURIComponent(me.mRID), loadProfileId: value.get('id')});
                                     res = '<a href="' + url + '">' +Ext.String.htmlEncode(value.get('name')) + '</a>';
                                 } else if (Ext.isNumber(value)) {
                                     var loadProfile = Mdc.model.LoadProfileOfDevice;

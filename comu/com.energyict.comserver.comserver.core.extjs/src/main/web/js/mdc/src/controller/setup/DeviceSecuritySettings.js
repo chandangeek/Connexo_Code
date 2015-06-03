@@ -83,7 +83,7 @@ Ext.define('Mdc.controller.setup.DeviceSecuritySettings', {
         viewport.setLoading();
 
         var securitySettingsOfDeviceStore = Ext.StoreManager.get('SecuritySettingsOfDevice');
-        securitySettingsOfDeviceStore.getProxy().setExtraParam('mrid', mrid);
+        securitySettingsOfDeviceStore.getProxy().setExtraParam('mrid', encodeURIComponent(mrid));
         Ext.ModelManager.getModel('Mdc.model.Device').load(mrid, {
             success: function (device) {
                 var widget = Ext.widget('deviceSecuritySettingSetup', {device: device, mrid: mrid});
@@ -213,7 +213,7 @@ Ext.define('Mdc.controller.setup.DeviceSecuritySettings', {
 
         deviceModel.load(mrid, {
             success: function (device) {
-                deviceSecuritySettingModel.getProxy().setExtraParam('mrid', mrid);
+                deviceSecuritySettingModel.getProxy().setExtraParam('mrid', encodeURIComponent(mrid));
                 deviceSecuritySettingModel.load(deviceSecuritySettingId, {
                     success: function (deviceSecuritySetting) {
                         me.getApplication().fireEvent('loadDevice', device);
