@@ -89,6 +89,7 @@ Ext.define('Dxp.view.tasks.Add', {
                                 itemId: 'no-device',
                                 hidden: true,
                                 value: '<div style="color: #FF0000">' + Uni.I18n.translate('general.noDeviceGroup', 'DES', 'No device group defined yet.') + '</div>',
+                                htmlEncode: false,
                                 width: 235
                             }
                         ]
