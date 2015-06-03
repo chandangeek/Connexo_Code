@@ -1,15 +1,15 @@
 package com.elster.jupiter.rest.util.properties;
 
-public class ListValueInfo {
+public class IdWithNameInfo {
     
-    public String id;
+    public Object id;
     public String name;
     
-    public ListValueInfo(String id, String name) {
+    public IdWithNameInfo(Object id, String name) {
         this.id = id;
         this.name = name;
     }
     
-    public ListValueInfo() {
+    public IdWithNameInfo() {
     }
 }
