@@ -84,7 +84,7 @@ public class SearchResource {
                                         @Context UriInfo uriInfo) throws InvalidValueException {
         SearchDomain searchDomain = findSearchDomainOrThrowException(domainId);
         final SearchBuilder<Object> searchBuilder = searchService.search(searchDomain);
-        if (jsonQueryFilter!=null) {
+        if (jsonQueryFilter.hasFilters()) {
             searchDomain.getProperties().stream().
                     filter(p -> jsonQueryFilter.hasProperty(p.getName())).
                     forEach(searchableProperty -> {
@@ -99,6 +99,8 @@ public class SearchResource {
                         }
 
                     });
+        } else {
+            throw new LocalizedFieldValidationException(MessageSeeds.AT_LEAST_ONE_CRITERIA, "filter");
         }
         List<Object> searchResults = searchBuilder.toFinder().from(jsonQueryParameters).stream().map(Object::toString).collect(toList());
         return Response.ok().entity(PagedInfoList.fromPagedList("searchResults", searchResults, jsonQueryParameters)).build();
@@ -121,7 +123,7 @@ public class SearchResource {
         SearchableProperty searchableProperty = findProperty(property, searchDomain);
         ArrayList<SearchablePropertyConstriction> searchablePropertyConstrictions = new ArrayList<>();
         for (SearchableProperty constrainingProperty : searchableProperty.getConstraints()) {
-            if (jsonQueryFilter!=null && jsonQueryFilter.hasProperty(constrainingProperty.getName())) {
+            if (jsonQueryFilter.hasProperty(constrainingProperty.getName())) {
                 List<Object> constrainingValues;
                 if (constrainingProperty.getSelectionMode().equals(SearchableProperty.SelectionMode.MULTI)) {
                     constrainingValues= getQueryParameterAsObjectList(jsonQueryFilter, constrainingProperty);
