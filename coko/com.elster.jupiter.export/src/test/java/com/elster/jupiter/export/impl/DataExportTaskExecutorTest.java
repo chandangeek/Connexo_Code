@@ -56,6 +56,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -66,6 +67,8 @@ import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.elster.jupiter.devtools.tests.Matcher.matches;
 import static com.elster.jupiter.export.impl.IntervalReadingImpl.intervalReading;
@@ -89,6 +92,8 @@ public class DataExportTaskExecutorTest {
     private Range<Instant> exportPeriod;
     private LogRecorder logRecorder;
     private TransactionVerifier transactionService;
+
+    private List<List<ExportData>> passedStreams = new ArrayList<>(); // streams wil be collected to list
 
     @Mock
     private TaskService taskService;
@@ -138,6 +143,8 @@ public class DataExportTaskExecutorTest {
     private RelativePeriod exportRelativePeriod;
     @Mock
     private FormattedData formattedData;
+    @Mock
+    private Destination destination;
 
     public static final Predicate<IntervalReading> READING_1 = r -> r.getSource().equals("reading1");
     public static final Predicate<IntervalReading> READING_2 = r -> r.getSource().equals("reading2");
@@ -170,6 +177,8 @@ public class DataExportTaskExecutorTest {
         when(task.getDataFormatter()).thenReturn("CSV");
         when(task.getDataSelector()).thenReturn(DataExportService.STANDARD_DATA_SELECTOR);
         when(task.getDataExportProperties()).thenReturn(Arrays.asList(dataExportProperty));
+        when(task.getCompositeDestination()).thenReturn(destination);
+        when(task.hasDefaultSelector()).thenReturn(true);
         when(readingTypeDataSelector.getStrategy()).thenReturn(strategy);
         when(dataExportProperty.getName()).thenReturn("name");
         when(dataExportProperty.getValue()).thenReturn("CSV");
@@ -205,6 +214,11 @@ public class DataExportTaskExecutorTest {
         doReturn(Arrays.asList(reading1)).when(meter1).getReadings(exportPeriod, readingType1);
         doReturn(Arrays.asList(reading2)).when(meter2).getReadings(exportPeriod, readingType1);
         when(dataFormatter.processData(any())).thenReturn(formattedData);
+        doAnswer(invocation -> {
+            List<ExportData> exportData = ((Stream<ExportData>) invocation.getArguments()[0]).collect(Collectors.toList());
+            passedStreams.add(exportData);
+            return formattedData;
+        }).when(dataFormatter).processData(any());
         when(reading1.getSource()).thenReturn("reading1");
         when(reading2.getSource()).thenReturn("reading2");
         MeterReadingData newItemData = new MeterReadingData(this.newItem, MeterReadingImpl.of(ReadingImpl.reading(reading1, readingType1)), DefaultStructureMarker.createRoot("newItem"));
@@ -214,7 +228,7 @@ public class DataExportTaskExecutorTest {
 
     @After
     public void tearDown() {
-
+        passedStreams.clear();
     }
 
     @Ignore // move to ReadingTypeDataSelectorTest
@@ -276,8 +290,8 @@ public class DataExportTaskExecutorTest {
         executor.postExecute(occurrence);
 
         ArgumentCaptor<Logger> logCaptor = ArgumentCaptor.forClass(Logger.class);
-        ArgumentCaptor<MeterReadingData> readingCaptor1 = ArgumentCaptor.forClass(MeterReadingData.class);
-        ArgumentCaptor<MeterReadingData> readingCaptor2 = ArgumentCaptor.forClass(MeterReadingData.class);
+        ArgumentCaptor<Stream> readingCaptor1 = ArgumentCaptor.forClass(Stream.class);
+        ArgumentCaptor<Stream> readingCaptor2 = ArgumentCaptor.forClass(Stream.class);
 
         InOrder inOrder = inOrder(dataFormatter);
         inOrder.verify(dataFormatter).startExport(eq(dataExportOccurrence), logCaptor.capture());
@@ -295,8 +309,12 @@ public class DataExportTaskExecutorTest {
         assertThat(logRecord.getLevel()).isEqualTo(Level.WARNING);
         assertThat(logRecord.getMessage()).isEqualTo("testHandler");
 
-        assertThat(readingCaptor1.getValue().getMeterReading().getReadings()).has(new ReadingFor(reading1));
-        assertThat(readingCaptor2.getValue().getMeterReading().getReadings()).has(new ReadingFor(reading2));
+        List<MeterReadingData> readingList1 = passedStreams.get(0).stream().map(MeterReadingData.class::cast).collect(Collectors.toList());
+        assertThat(readingList1).hasSize(1);
+        assertThat(readingList1.get(0).getMeterReading().getReadings()).has(new ReadingFor(reading1));
+        List<MeterReadingData> readingList2 = passedStreams.get(1).stream().map(MeterReadingData.class::cast).collect(Collectors.toList());
+        assertThat(readingList2).hasSize(1);
+        assertThat(readingList2.get(0).getMeterReading().getReadings()).has(new ReadingFor(reading2));
     }
 
     @Test
@@ -316,8 +334,8 @@ public class DataExportTaskExecutorTest {
         executor.postExecute(occurrence);
 
         ArgumentCaptor<Logger> logCaptor = ArgumentCaptor.forClass(Logger.class);
-        ArgumentCaptor<MeterReadingData> readingCaptor1 = ArgumentCaptor.forClass(MeterReadingData.class);
-        ArgumentCaptor<MeterReadingData> readingCaptor2 = ArgumentCaptor.forClass(MeterReadingData.class);
+        ArgumentCaptor<Stream> readingCaptor1 = ArgumentCaptor.forClass(Stream.class);
+        ArgumentCaptor<Stream> readingCaptor2 = ArgumentCaptor.forClass(Stream.class);
 
         InOrder inOrder = inOrder(dataFormatter);
         inOrder.verify(dataFormatter).startExport(eq(dataExportOccurrence), logCaptor.capture());
@@ -335,10 +353,14 @@ public class DataExportTaskExecutorTest {
         assertThat(logRecord.getLevel()).isEqualTo(Level.WARNING);
         assertThat(logRecord.getMessage()).isEqualTo("testHandler");
 
-        assertThat(readingCaptor1.getValue().getMeterReading().getIntervalBlocks()).hasSize(1);
-        assertThat(readingCaptor1.getValue().getMeterReading().getIntervalBlocks().get(0).getIntervals()).has(new IntervalReadingFor(reading1));
-        assertThat(readingCaptor2.getValue().getMeterReading().getIntervalBlocks()).hasSize(1);
-        assertThat(readingCaptor2.getValue().getMeterReading().getIntervalBlocks().get(0).getIntervals()).has(new IntervalReadingFor(reading2));
+        List<MeterReadingData> readingList1 = passedStreams.get(0).stream().map(MeterReadingData.class::cast).collect(Collectors.toList());
+        assertThat(readingList1).hasSize(1);
+        assertThat(readingList1.get(0).getMeterReading().getIntervalBlocks()).hasSize(1);
+        assertThat(readingList1.get(0).getMeterReading().getIntervalBlocks().get(0).getIntervals()).has(new IntervalReadingFor(reading1));
+        List<MeterReadingData> readingList2 = passedStreams.get(1).stream().map(MeterReadingData.class::cast).collect(Collectors.toList());
+        assertThat(readingList2).hasSize(1);
+        assertThat(readingList2.get(0).getMeterReading().getIntervalBlocks()).hasSize(1);
+        assertThat(readingList2.get(0).getMeterReading().getIntervalBlocks().get(0).getIntervals()).has(new IntervalReadingFor(reading2));
     }
 
     @Test
@@ -352,10 +374,10 @@ public class DataExportTaskExecutorTest {
 
         verify(dataFormatter, transactionService.notInTransaction()).startExport(eq(dataExportOccurrence), any());
         verify(dataFormatter, transactionService.inTransaction(2)).startItem(newItem);
-        verify(dataFormatter, transactionService.inTransaction(2)).processData(argThat(matches(r -> ((MeterReadingData) r).getMeterReading().getReadings().stream().anyMatch(rd -> rd.getSource().equals("reading1")))));
+        assertThat(passedStreams).matches(hasStreamContainingReadingFor("reading1"));
         verify(dataFormatter, transactionService.inTransaction(2)).endItem(newItem);
         verify(dataFormatter, transactionService.inTransaction(4)).startItem(existingItem);
-        verify(dataFormatter, transactionService.inTransaction(4)).processData(argThat(matches(r -> ((MeterReadingData) r).getMeterReading().getReadings().stream().anyMatch(rd -> rd.getSource().equals("reading2")))));
+        assertThat(passedStreams).matches(hasStreamContainingReadingFor("reading2"));
         verify(dataFormatter, transactionService.inTransaction(4)).endItem(existingItem);
         verify(dataFormatter, transactionService.notInTransaction()).endExport();
 
@@ -439,10 +461,10 @@ public class DataExportTaskExecutorTest {
 
         verify(dataFormatter).startExport(eq(dataExportOccurrence), any());
         verify(dataFormatter).startItem(newItem);
-        verify(dataFormatter).processData(argThat(matches(r -> ((MeterReadingData) r).getMeterReading().getReadings().stream().anyMatch(rd -> rd.getSource().equals("reading1")))));
+        assertThat(passedStreams).matches(hasStreamContainingReadingFor("reading1"));
         verify(dataFormatter).endItem(newItem);
         verify(dataFormatter).startItem(existingItem);
-        verify(dataFormatter, never()).processData(argThat(matches(r -> ((MeterReadingData) r).getMeterReading().getReadings().stream().anyMatch(rd -> rd.getSource().equals("reading2")))));
+        assertThat(passedStreams).matches(hasStreamContainingReadingFor("reading2").negate());
         verify(dataFormatter, never()).endItem(existingItem);
         verify(dataFormatter, never()).endExport();
 
@@ -451,6 +473,14 @@ public class DataExportTaskExecutorTest {
         transactionService.assertThatTransaction(4).wasNotCommitted(); // existingItem
         transactionService.assertThatTransaction(5).wasCommitted(); // log failure of existingItem
 
+    }
+
+    Predicate<List<? extends List<ExportData>>> hasStreamContainingReadingFor(String source) {
+        return list -> list.stream().anyMatch(stream -> stream.stream().anyMatch(exportData -> {
+            return ((MeterReadingData) exportData).getMeterReading().getReadings().stream().anyMatch(rd -> {
+                return rd.getSource().equals(source);
+            });
+        }));
     }
 
     @Test
@@ -471,10 +501,10 @@ public class DataExportTaskExecutorTest {
 
         verify(dataFormatter).startExport(eq(dataExportOccurrence), any());
         verify(dataFormatter).startItem(newItem);
-        verify(dataFormatter).processData(argThat(matches(r -> ((MeterReadingData) r).getMeterReading().getReadings().stream().anyMatch(rd -> rd.getSource().equals("reading1")))));
+        assertThat(passedStreams).matches(hasStreamContainingReadingFor("reading1"));
         verify(dataFormatter).endItem(newItem);
         verify(dataFormatter).startItem(existingItem);
-        verify(dataFormatter, never()).processData(argThat(matches(r -> ((MeterReadingData) r).getMeterReading().getReadings().stream().anyMatch(rd -> rd.getSource().equals("reading2")))));
+        assertThat(passedStreams).matches(hasStreamContainingReadingFor("reading2").negate());
         verify(dataFormatter, never()).endItem(existingItem);
         verify(dataFormatter, never()).endExport();
 
@@ -497,10 +527,10 @@ public class DataExportTaskExecutorTest {
 
         verify(dataFormatter).startExport(eq(dataExportOccurrence), any());
         verify(dataFormatter).startItem(newItem);
-        verify(dataFormatter, never()).processData(argThat(matches(r -> ((MeterReadingData) r).getMeterReading().getReadings().stream().anyMatch(rd -> rd.getSource().equals("reading1")))));
+        assertThat(passedStreams).matches(hasStreamContainingReadingFor("reading1").negate());
         verify(dataFormatter, never()).endItem(newItem);
         verify(dataFormatter).startItem(existingItem);
-        verify(dataFormatter).processData(argThat(matches(r -> ((MeterReadingData) r).getMeterReading().getReadings().stream().anyMatch(rd -> rd.getSource().equals("reading2")))));
+        assertThat(passedStreams).matches(hasStreamContainingReadingFor("reading2"));
         verify(dataFormatter).endItem(existingItem);
         verify(dataFormatter).endExport();
 
@@ -510,7 +540,14 @@ public class DataExportTaskExecutorTest {
 
     @Test
     public void testProcessItemThrowsFatalException() {
-        doThrow(new FatalDataExportException(new RuntimeException())).when(dataFormatter).processData(argThat(matches(r -> ((MeterReadingData) r).getMeterReading().getReadings().stream().anyMatch(rd -> rd.getSource().equals("reading2")))));
+        doAnswer(invocation -> {
+            List<ExportData> exportData = ((Stream<ExportData>) invocation.getArguments()[0]).collect(Collectors.toList());
+            passedStreams.add(exportData);
+            if (passedStreams.size() == 2) {
+                throw new FatalDataExportException(new RuntimeException());
+            }
+            return formattedData;
+        }).when(dataFormatter).processData(any());
 
         DataExportTaskExecutor executor = new DataExportTaskExecutor(dataExportService, transactionService, thesaurus);
 
@@ -526,10 +563,10 @@ public class DataExportTaskExecutorTest {
 
         verify(dataFormatter).startExport(eq(dataExportOccurrence), any());
         verify(dataFormatter).startItem(newItem);
-        verify(dataFormatter).processData(argThat(matches(r -> ((MeterReadingData) r).getMeterReading().getReadings().stream().anyMatch(rd -> rd.getSource().equals("reading1")))));
+        assertThat(passedStreams).matches(hasStreamContainingReadingFor("reading1"));
         verify(dataFormatter).endItem(newItem);
         verify(dataFormatter).startItem(existingItem);
-        verify(dataFormatter).processData(argThat(matches(r -> ((MeterReadingData) r).getMeterReading().getReadings().stream().anyMatch(rd -> rd.getSource().equals("reading2")))));
+        assertThat(passedStreams).matches(hasStreamContainingReadingFor("reading2"));
         verify(dataFormatter, never()).endItem(existingItem);
         verify(dataFormatter, never()).endExport();
 
@@ -540,7 +577,14 @@ public class DataExportTaskExecutorTest {
 
     @Test
     public void testProcessItemThrowsRuntimeException() {
-        doThrow(new RuntimeException()).when(dataFormatter).processData(argThat(matches(r -> ((MeterReadingData) r).getMeterReading().getReadings().stream().anyMatch(rd -> rd.getSource().equals("reading2")))));
+        doAnswer(invocation -> {
+            List<ExportData> exportData = ((Stream<ExportData>) invocation.getArguments()[0]).collect(Collectors.toList());
+            passedStreams.add(exportData);
+            if (passedStreams.size() == 2) {
+                throw new RuntimeException();
+            }
+            return formattedData;
+        }).when(dataFormatter).processData(any());
 
         DataExportTaskExecutor executor = new DataExportTaskExecutor(dataExportService, transactionService, thesaurus);
 
@@ -556,10 +600,10 @@ public class DataExportTaskExecutorTest {
 
         verify(dataFormatter).startExport(eq(dataExportOccurrence), any());
         verify(dataFormatter).startItem(newItem);
-        verify(dataFormatter).processData(argThat(matches(r -> ((MeterReadingData) r).getMeterReading().getReadings().stream().anyMatch(rd -> rd.getSource().equals("reading1")))));
+        assertThat(passedStreams).matches(hasStreamContainingReadingFor("reading1"));
         verify(dataFormatter).endItem(newItem);
         verify(dataFormatter).startItem(existingItem);
-        verify(dataFormatter).processData(argThat(matches(r -> ((MeterReadingData) r).getMeterReading().getReadings().stream().anyMatch(rd -> rd.getSource().equals("reading2")))));
+        assertThat(passedStreams).matches(hasStreamContainingReadingFor("reading2"));
         verify(dataFormatter, never()).endItem(existingItem);
         verify(dataFormatter, never()).endExport();
 
@@ -571,7 +615,14 @@ public class DataExportTaskExecutorTest {
 
     @Test
     public void testProcessItemThrowsDataExportException() {
-        doThrow(DataExportException.class).when(dataFormatter).processData(argThat(matches(r -> ((MeterReadingData) r).getMeterReading().getReadings().stream().anyMatch(rd -> rd.getSource().equals("reading1")))));
+        doAnswer(invocation -> {
+            List<ExportData> exportData = ((Stream<ExportData>) invocation.getArguments()[0]).collect(Collectors.toList());
+            passedStreams.add(exportData);
+            if (passedStreams.size() == 1) {
+                throw mock(DataExportException.class);
+            }
+            return formattedData;
+        }).when(dataFormatter).processData(any());
 
         DataExportTaskExecutor executor = new DataExportTaskExecutor(dataExportService, transactionService, thesaurus);
 
@@ -582,10 +633,10 @@ public class DataExportTaskExecutorTest {
 
         verify(dataFormatter).startExport(eq(dataExportOccurrence), any());
         verify(dataFormatter).startItem(newItem);
-        verify(dataFormatter).processData(argThat(matches(r -> ((MeterReadingData) r).getMeterReading().getReadings().stream().anyMatch(rd -> rd.getSource().equals("reading1")))));
+        assertThat(passedStreams).matches(hasStreamContainingReadingFor("reading1"));
         verify(dataFormatter, never()).endItem(newItem);
         verify(dataFormatter).startItem(existingItem);
-        verify(dataFormatter).processData(argThat(matches(r -> ((MeterReadingData) r).getMeterReading().getReadings().stream().anyMatch(rd -> rd.getSource().equals("reading2")))));
+        assertThat(passedStreams).matches(hasStreamContainingReadingFor("reading2"));
         verify(dataFormatter).endItem(existingItem);
         verify(dataFormatter).endExport();
 
@@ -611,10 +662,10 @@ public class DataExportTaskExecutorTest {
 
         verify(dataFormatter).startExport(eq(dataExportOccurrence), any());
         verify(dataFormatter).startItem(newItem);
-        verify(dataFormatter).processData(argThat(matches(r -> ((MeterReadingData) r).getMeterReading().getReadings().stream().anyMatch(rd -> rd.getSource().equals("reading1")))));
+        assertThat(passedStreams).matches(hasStreamContainingReadingFor("reading1"));
         verify(dataFormatter).endItem(newItem);
         verify(dataFormatter).startItem(existingItem);
-        verify(dataFormatter).processData(argThat(matches(r -> ((MeterReadingData) r).getMeterReading().getReadings().stream().anyMatch(rd -> rd.getSource().equals("reading2")))));
+        assertThat(passedStreams).matches(hasStreamContainingReadingFor("reading2"));
         verify(dataFormatter).endItem(existingItem);
         verify(dataFormatter, never()).endExport();
 
@@ -642,10 +693,10 @@ public class DataExportTaskExecutorTest {
 
         verify(dataFormatter).startExport(eq(dataExportOccurrence), any());
         verify(dataFormatter).startItem(newItem);
-        verify(dataFormatter).processData(argThat(matches(r -> ((MeterReadingData) r).getMeterReading().getReadings().stream().anyMatch(rd -> rd.getSource().equals("reading1")))));
+        assertThat(passedStreams).matches(hasStreamContainingReadingFor("reading1"));
         verify(dataFormatter).endItem(newItem);
         verify(dataFormatter).startItem(existingItem);
-        verify(dataFormatter).processData(argThat(matches(r -> ((MeterReadingData) r).getMeterReading().getReadings().stream().anyMatch(rd -> rd.getSource().equals("reading2")))));
+        assertThat(passedStreams).matches(hasStreamContainingReadingFor("reading2"));
         verify(dataFormatter).endItem(existingItem);
         verify(dataFormatter, never()).endExport();
 
@@ -668,10 +719,10 @@ public class DataExportTaskExecutorTest {
 
         verify(dataFormatter).startExport(eq(dataExportOccurrence), any());
         verify(dataFormatter).startItem(newItem);
-        verify(dataFormatter).processData(argThat(matches(r -> ((MeterReadingData) r).getMeterReading().getReadings().stream().anyMatch(rd -> rd.getSource().equals("reading1")))));
+        assertThat(passedStreams).matches(hasStreamContainingReadingFor("reading1"));
         verify(dataFormatter).endItem(newItem);
         verify(dataFormatter).startItem(existingItem);
-        verify(dataFormatter).processData(argThat(matches(r -> ((MeterReadingData) r).getMeterReading().getReadings().stream().anyMatch(rd -> rd.getSource().equals("reading2")))));
+        assertThat(passedStreams).matches(hasStreamContainingReadingFor("reading2"));
         verify(dataFormatter).endItem(existingItem);
         verify(dataFormatter).endExport();
 

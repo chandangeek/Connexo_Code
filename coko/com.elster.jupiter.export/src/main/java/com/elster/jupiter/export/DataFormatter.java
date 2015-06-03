@@ -1,6 +1,7 @@
 package com.elster.jupiter.export;
 
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 public interface DataFormatter {
 
@@ -8,7 +9,7 @@ public interface DataFormatter {
 
     void startItem(ReadingTypeDataExportItem item);
 
-    FormattedData processData(ExportData data);
+    FormattedData processData(Stream<ExportData> data);
 
     void endItem(ReadingTypeDataExportItem item);
 

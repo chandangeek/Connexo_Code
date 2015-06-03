@@ -17,4 +17,8 @@ public interface IExportTask extends ExportTask, HasAuditInfo {
     List<DataExportProperty> getDataExportProperties();
 
     void setReadingTypeDataSelector(ReadingTypeDataSelectorImpl readingTypeDataSelector);
+
+    boolean hasDefaultSelector();
+
+    Destination getCompositeDestination();
 }

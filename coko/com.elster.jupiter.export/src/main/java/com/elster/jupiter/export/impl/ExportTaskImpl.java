@@ -72,7 +72,7 @@ class ExportTaskImpl implements IExportTask {
     private String userName;
     @Valid
     private Reference<ReadingTypeDataSelector> readingTypeDataSelector = Reference.empty();
-    private List<DataExportDestination> destinations = new ArrayList<>();
+    private List<IDataExportDestination> destinations = new ArrayList<>();
 
     @Inject
     ExportTaskImpl(DataModel dataModel, IDataExportService dataExportService, TaskService taskService, Thesaurus thesaurus) {
@@ -427,6 +427,16 @@ class ExportTaskImpl implements IExportTask {
     @Override
     public List<DataExportDestination> getDestinations() {
         return Collections.unmodifiableList(destinations);
+    }
+
+    @Override
+    public boolean hasDefaultSelector() {
+        return readingTypeDataSelector.isPresent();
+    }
+
+    @Override
+    public Destination getCompositeDestination() {
+        return new CompositeDataExportDestination(destinations);
     }
 
     private class CannotDeleteWhileBusy extends CannotDeleteWhileBusyException {

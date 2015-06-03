@@ -27,6 +27,7 @@ import java.text.MessageFormat;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Collections;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
@@ -95,7 +96,7 @@ public class LoggingItemExporterTest {
 
         when(task.getReadingTypeDataSelector()).thenReturn(Optional.of(dataSelector));
         when(meterReadingData.getItem()).thenReturn(item);
-        when(decorated.exportItem(occurrence, meterReadingData)).thenReturn(formattedData);
+        when(decorated.exportItem(occurrence, meterReadingData)).thenReturn(Collections.emptyList());
         when(item.getReadingType()).thenReturn(readingType);
         when(readingType.getAliasName()).thenReturn("The Speed Of Pain");
         when(item.getReadingContainer()).thenReturn(meter);

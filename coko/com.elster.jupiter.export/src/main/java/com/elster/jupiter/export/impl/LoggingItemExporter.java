@@ -3,7 +3,7 @@ package com.elster.jupiter.export.impl;
 import com.elster.jupiter.export.DataExportException;
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.FatalDataExportException;
-import com.elster.jupiter.export.FormattedData;
+import com.elster.jupiter.export.FormattedExportData;
 import com.elster.jupiter.export.MeterReadingData;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.metering.BaseReadingRecord;
@@ -46,12 +46,12 @@ class LoggingItemExporter implements ItemExporter {
     }
 
     @Override
-    public FormattedData exportItem(DataExportOccurrence occurrence, MeterReadingData meterReadingData) {
+    public List<FormattedExportData> exportItem(DataExportOccurrence occurrence, MeterReadingData meterReadingData) {
         ReadingTypeDataExportItem item = meterReadingData.getItem();
         String mrid = item.getReadingContainer().getMeter(occurrence.getTriggerTime()).map(Meter::getMRID).orElse("");
         String readingType = item.getReadingType().getAliasName();
         try {
-            FormattedData data = decorated.exportItem(occurrence, meterReadingData);
+            List<FormattedExportData> data = decorated.exportItem(occurrence, meterReadingData);
             Range<Instant> range = determineExportInterval(occurrence, item);
             String fromDate = range.hasLowerBound() ? timeFormatter.format(range.lowerEndpoint()) : "";
             String toDate = range.hasUpperBound() ? timeFormatter.format(range.upperEndpoint()) : "";

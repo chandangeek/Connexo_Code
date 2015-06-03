@@ -9,7 +9,7 @@ public class CompositeDataExportDestination implements Destination {
 
     private final List<Destination> components;
 
-    public CompositeDataExportDestination(List<Destination> components) {
+    public CompositeDataExportDestination(List<? extends Destination> components) {
         this.components = ImmutableList.copyOf(components);
     }
 
