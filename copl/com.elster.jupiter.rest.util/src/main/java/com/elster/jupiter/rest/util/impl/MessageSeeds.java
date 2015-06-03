@@ -7,6 +7,7 @@ public enum MessageSeeds implements MessageSeed {
 
     INVALID_VALUE(1, "RUT.InvalidValue", "Invalid value", Level.SEVERE),
     FIELD_CAN_NOT_BE_EMPTY(2, "RUT.FieldCanNotBeEmpty", "This field is required", Level.SEVERE),
+    FIELD_SHOULD_HAVE_BEEN_ARRAY(3, "RUT.ExpectedArray", "Expected list of values", Level.SEVERE),
     ;
 
     public static final String COMPONENT_NAME = "RUT";
