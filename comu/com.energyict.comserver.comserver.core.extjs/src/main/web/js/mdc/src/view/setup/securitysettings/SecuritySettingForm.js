@@ -2,15 +2,16 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingForm', {
     extend: 'Uni.view.container.ContentContainer',
     requires: [
         'Ext.form.field.TextArea',
-        'Ext.button.Button'
+        'Ext.button.Button',
     ],
-
     alias: 'widget.securitySettingForm',
-    securityHeader: null,
-    deviceTypeId: null,
-    deviceConfigurationId: null,
-    actionButtonName: null,
-    securityAction: null,
+    config: {
+        securityHeader: null,
+        deviceTypeId: null,
+        deviceConfigurationId: null,
+        actionButtonName: null,
+        securityAction: null
+    },
     content: [
         {
             xtype: 'panel',
@@ -19,6 +20,7 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingForm', {
             items: [
                 {
                     xtype: 'form',
+                    itemId: 'myForm',
                     width: '50%',
                     defaults: {
                         labelWidth: 250,
@@ -51,26 +53,37 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingForm', {
                             required: true,
                             editable: false,
                             allowBlank: false,
+                            itemId: 'authCombobox',
                             fieldLabel: Uni.I18n.translate('securitySetting.authenticationLevel','MDC','Authentication level'),
-                            emptyText: 'Select authentication level',
+                            queryMode: 'remote',
+                            emptyText: Uni.I18n.translate('securitySettingForm.selectAuthenticationLevel','MDC','Select authentication level'),  //'Select authentication level',
                             name: 'authenticationLevelId',
                             displayField: 'name',
                             valueField: 'id',
-                            queryMode: 'local'
+                            store: 'AuthenticationLevels'
                         },
                         {
                             xtype: 'combobox',
                             required: true,
                             editable: false,
                             allowBlank: false,
-                            fieldLabel: Uni.I18n.translate('securitySetting.encryptionLevel','MDC','Encryption level'),
-                            emptyText: 'Select encryption level',
+                            itemId: 'encrCombobox',
+                            fieldLabel: Uni.I18n.translate('securitySetting.encryptionLevel', 'MDC', 'Encryption level'),
+                            queryMode: 'remote',
+                            emptyText: Uni.I18n.translate('securitySettingForm.selectEncryptionLevel','MDC','Select encryption level'),
                             name: 'encryptionLevelId',
                             displayField: 'name',
                             valueField: 'id',
-                            queryMode: 'local'
+                            store: 'EncryptionLevels'
                         }
+
                     ],
+                    loadRecord: function (record) {
+                        //set current xxx levels in the stores
+                        this.getForm().findField('authenticationLevelId').getStore().add(record.get('authenticationLevel'));
+                        this.getForm().findField('encryptionLevelId').getStore().add(record.get('encryptionLevel'));
+                        this.getForm().loadRecord(record);
+                    },
                     buttons: [
                         {
                             xtype: 'container',
@@ -89,6 +102,16 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingForm', {
     initComponent: function () {
         this.callParent(this);
         Ext.suspendLayouts();
+        var authenticationLevelStore = this.down('#authCombobox').getStore();
+        var proxy = authenticationLevelStore.getProxy();
+        proxy.setExtraParam('deviceType', this.deviceTypeId);
+        proxy.setExtraParam('deviceConfig', this.deviceConfigurationId);
+
+        var encryptionLevelStore = this.down('#encrCombobox').getStore();
+        proxy = encryptionLevelStore.getProxy();
+        proxy.setExtraParam('deviceType', this.deviceTypeId);
+        proxy.setExtraParam('deviceConfig', this.deviceConfigurationId);
+
         this.down('#SecuritySettingCancel').add(
             {
                 xtype: 'button',
