@@ -1,8 +1,11 @@
 package com.energyict.mdc.device.data.impl.search;
 
+import com.energyict.mdc.common.CanFindByLongPrimaryKey;
+import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
 import com.energyict.mdc.dynamic.impl.PropertySpecServiceImpl;
 
 import com.elster.jupiter.datavault.DataVaultService;
@@ -49,8 +52,6 @@ public class StateNameSearchablePropertyTest {
     @Mock
     private DeviceSearchDomain domain;
     @Mock
-    private SearchableProperty deviceTypeSearchableProperty;
-    @Mock
     private Thesaurus thesaurus;
     @Mock
     private DataVaultService dataVaultService;
@@ -60,7 +61,12 @@ public class StateNameSearchablePropertyTest {
     private DataModel dataModel;
     @Mock
     private OrmService ormService;
+    @Mock
+    private ReferencePropertySpecFinderProvider deviceConfigurationProvider;
+    @Mock
+    private CanFindByLongPrimaryKey<DeviceType> deviceTypeFinder;
 
+    private DeviceTypeSearchableProperty deviceTypeSearchableProperty;
     private PropertySpecService propertySpecService;
 
     @Before
@@ -68,9 +74,13 @@ public class StateNameSearchablePropertyTest {
         when(this.ormService.newDataModel(anyString(), anyString())).thenReturn(this.dataModel);
         com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService = new com.elster.jupiter.properties.impl.PropertySpecServiceImpl(this.timeService);
         this.propertySpecService = new PropertySpecServiceImpl(jupiterPropertySpecService, this.dataVaultService, this.ormService);
-        when(this.deviceTypeSearchableProperty.hasName(DeviceTypeSearchableProperty.PROPERTY_NAME)).thenReturn(true);
         when(this.thesaurus.getStringBeyondComponent(eq("One"), anyString())).thenReturn("One");
         when(this.thesaurus.getStringBeyondComponent(eq("Two"), anyString())).thenReturn("Two");
+        when(this.deviceTypeFinder.factoryId()).thenReturn(FactoryIds.DEVICE_TYPE);
+        when(this.deviceTypeFinder.valueDomain()).thenReturn(DeviceType.class);
+        when(this.deviceConfigurationProvider.finders()).thenReturn(Arrays.asList(this.deviceTypeFinder));
+        this.propertySpecService.addFactoryProvider(this.deviceConfigurationProvider);
+        this.deviceTypeSearchableProperty = new DeviceTypeSearchableProperty(this.propertySpecService, this.thesaurus);
     }
 
     @Test
@@ -312,7 +322,7 @@ public class StateNameSearchablePropertyTest {
     }
 
     private StateNameSearchableProperty getTestInstance() {
-        return new StateNameSearchableProperty(this.domain, this.deviceTypeSearchableProperty, this.propertySpecService, this.thesaurus);
+        return new StateNameSearchableProperty(this.propertySpecService, this.thesaurus).init(this.domain, this.deviceTypeSearchableProperty);
     }
 
 }

@@ -204,7 +204,7 @@ public class MasterResourceIdentifierSearchablePropertyTest {
     }
 
     private MasterResourceIdentifierSearchableProperty getTestInstance() {
-        return new MasterResourceIdentifierSearchableProperty(this.domain, this.propertySpecService, this.thesaurus);
+        return new MasterResourceIdentifierSearchableProperty(this.propertySpecService, this.thesaurus).init(this.domain);
     }
 
 }

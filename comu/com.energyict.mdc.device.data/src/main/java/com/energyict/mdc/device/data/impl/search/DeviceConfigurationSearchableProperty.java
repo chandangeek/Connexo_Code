@@ -33,19 +33,23 @@ import java.util.stream.Collectors;
  */
 public class DeviceConfigurationSearchableProperty extends AbstractSearchableDeviceProperty {
 
-    private final DeviceSearchDomain domain;
-    private final SearchableProperty parent;
+    private DeviceSearchDomain domain;
+    private SearchableProperty parent;
     private final PropertySpecService propertySpecService;
     private final Thesaurus thesaurus;
     private List<Object> deviceConfigurations = Collections.emptyList();
     private DisplayStrategy displayStrategy = DisplayStrategy.NAME_ONLY;
 
-    public DeviceConfigurationSearchableProperty(DeviceSearchDomain domain, SearchableProperty parent, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+    public DeviceConfigurationSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         super();
-        this.domain = domain;
         this.propertySpecService = propertySpecService;
-        this.parent = parent;
         this.thesaurus = thesaurus;
+    }
+
+    DeviceConfigurationSearchableProperty init(DeviceSearchDomain domain, DeviceTypeSearchableProperty parent) {
+        this.domain = domain;
+        this.parent = parent;
+        return this;
     }
 
     @Override

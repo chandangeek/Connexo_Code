@@ -204,7 +204,7 @@ public class SerialNumberSearchablePropertyTest {
     }
 
     private SerialNumberSearchableProperty getTestInstance() {
-        return new SerialNumberSearchableProperty(this.domain, this.propertySpecService, this.thesaurus);
+        return new SerialNumberSearchableProperty(this.propertySpecService, this.thesaurus).init(this.domain);
     }
 
 }

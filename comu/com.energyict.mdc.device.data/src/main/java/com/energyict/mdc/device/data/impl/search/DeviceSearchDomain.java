@@ -2,10 +2,9 @@ package com.energyict.mdc.device.data.impl.search;
 
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
-import com.energyict.mdc.dynamic.PropertySpecService;
 
 import com.elster.jupiter.domain.util.Finder;
-import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyCondition;
@@ -28,7 +27,6 @@ import java.util.List;
 public class DeviceSearchDomain implements SearchDomain {
 
     private volatile DeviceDataModelService deviceDataModelService;
-    private volatile PropertySpecService propertySpecService;
     private volatile Clock clock;
 
     // For OSGi purposes
@@ -38,21 +36,15 @@ public class DeviceSearchDomain implements SearchDomain {
 
     // For testing purposes
     @Inject
-    public DeviceSearchDomain(DeviceDataModelService deviceDataModelService, PropertySpecService propertySpecService, Clock clock) {
+    public DeviceSearchDomain(DeviceDataModelService deviceDataModelService, Clock clock) {
         this();
         this.setDeviceDataModelService(deviceDataModelService);
-        this.setPropertySpecService(propertySpecService);
         this.setClock(clock);
     }
 
     @Reference
     public void setDeviceDataModelService(DeviceDataModelService deviceDataModelService) {
         this.deviceDataModelService = deviceDataModelService;
-    }
-
-    @Reference
-    public void setPropertySpecService(PropertySpecService propertySpecService) {
-        this.propertySpecService = propertySpecService;
     }
 
     @Reference
@@ -72,14 +64,14 @@ public class DeviceSearchDomain implements SearchDomain {
 
     @Override
     public List<SearchableProperty> getProperties() {
-        Thesaurus thesaurus = this.deviceDataModelService.thesaurus();
-        DeviceTypeSearchableProperty deviceTypeSearchableProperty = new DeviceTypeSearchableProperty(this, this.propertySpecService, thesaurus);
+        DataModel injector = this.deviceDataModelService.dataModel();
+        DeviceTypeSearchableProperty deviceTypeSearchableProperty = injector.getInstance(DeviceTypeSearchableProperty.class).init(this);
         return Arrays.asList(
-                new MasterResourceIdentifierSearchableProperty(this, this.propertySpecService, thesaurus),
-                new SerialNumberSearchableProperty(this, this.propertySpecService, thesaurus),
+                injector.getInstance(MasterResourceIdentifierSearchableProperty.class).init(this),
+                injector.getInstance(SerialNumberSearchableProperty.class).init(this),
                 deviceTypeSearchableProperty,
-                new DeviceConfigurationSearchableProperty(this, deviceTypeSearchableProperty, this.propertySpecService, thesaurus),
-                new StateNameSearchableProperty(this, deviceTypeSearchableProperty, this.propertySpecService, thesaurus));
+                injector.getInstance(DeviceConfigurationSearchableProperty.class).init(this, deviceTypeSearchableProperty),
+                injector.getInstance(StateNameSearchableProperty.class).init(this, deviceTypeSearchableProperty));
     }
 
     @Override

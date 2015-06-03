@@ -15,6 +15,7 @@ import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.sql.SqlFragment;
 
+import javax.inject.Inject;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
@@ -31,15 +32,20 @@ public class DeviceTypeSearchableProperty extends AbstractSearchableDeviceProper
 
     static final String PROPERTY_NAME = DeviceFields.DEVICETYPE.fieldName();
 
-    private final DeviceSearchDomain domain;
+    private DeviceSearchDomain domain;
     private final PropertySpecService mdcPropertySpecService;
     private final Thesaurus thesaurus;
 
-    public DeviceTypeSearchableProperty(DeviceSearchDomain domain, PropertySpecService mdcPropertySpecService, Thesaurus thesaurus) {
+    @Inject
+    public DeviceTypeSearchableProperty(PropertySpecService mdcPropertySpecService, Thesaurus thesaurus) {
         super();
-        this.domain = domain;
         this.mdcPropertySpecService = mdcPropertySpecService;
         this.thesaurus = thesaurus;
+    }
+
+    DeviceTypeSearchableProperty init(DeviceSearchDomain domain) {
+        this.domain = domain;
+        return this;
     }
 
     @Override

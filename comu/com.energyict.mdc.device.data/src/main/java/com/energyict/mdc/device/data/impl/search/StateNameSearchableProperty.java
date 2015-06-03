@@ -17,6 +17,7 @@ import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
 import com.elster.jupiter.util.streams.Predicates;
 
+import javax.inject.Inject;
 import java.text.MessageFormat;
 import java.time.Instant;
 import java.util.Arrays;
@@ -42,18 +43,23 @@ public class StateNameSearchableProperty extends AbstractSearchableDevicePropert
      */
     public static final String VIRTUAL_FIELD_NAME = "device.state.name";
 
-    private final DeviceSearchDomain domain;
-    private final SearchableProperty parent;
+    private DeviceSearchDomain domain;
+    private SearchableProperty parent;
     private final PropertySpecService propertySpecService;
     private final Thesaurus thesaurus;
     private String[] stateNames = new String[0];
 
-    public StateNameSearchableProperty(DeviceSearchDomain domain, SearchableProperty parent, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+    @Inject
+    public StateNameSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         super();
-        this.domain = domain;
         this.propertySpecService = propertySpecService;
-        this.parent = parent;
         this.thesaurus = thesaurus;
+    }
+
+    StateNameSearchableProperty init(DeviceSearchDomain domain, DeviceTypeSearchableProperty parent) {
+        this.domain = domain;
+        this.parent = parent;
+        return this;
     }
 
     @Override

@@ -14,6 +14,7 @@ import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.sql.SqlFragment;
 
+import javax.inject.Inject;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
@@ -28,15 +29,20 @@ import java.util.Optional;
  */
 public class SerialNumberSearchableProperty extends AbstractSearchableDeviceProperty {
 
-    private final DeviceSearchDomain domain;
+    private DeviceSearchDomain domain;
     private final PropertySpecService propertySpecService;
     private final Thesaurus thesaurus;
 
-    public SerialNumberSearchableProperty(DeviceSearchDomain domain, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+    @Inject
+    public SerialNumberSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         super();
-        this.domain = domain;
         this.propertySpecService = propertySpecService;
         this.thesaurus = thesaurus;
+    }
+
+    SerialNumberSearchableProperty init(DeviceSearchDomain domain) {
+        this.domain = domain;
+        return this;
     }
 
     @Override

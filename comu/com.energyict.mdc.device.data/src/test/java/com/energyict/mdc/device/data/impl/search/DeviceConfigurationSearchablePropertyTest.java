@@ -49,8 +49,6 @@ public class DeviceConfigurationSearchablePropertyTest {
     @Mock
     private DeviceSearchDomain domain;
     @Mock
-    private SearchableProperty deviceTypeSearchableProperty;
-    @Mock
     private Thesaurus thesaurus;
     @Mock
     private DataVaultService dataVaultService;
@@ -63,18 +61,24 @@ public class DeviceConfigurationSearchablePropertyTest {
     @Mock
     private ReferencePropertySpecFinderProvider deviceConfigurationProvider;
     @Mock
+    private CanFindByLongPrimaryKey<DeviceType> deviceTypeFinder;
+    @Mock
     private CanFindByLongPrimaryKey<DeviceConfiguration> deviceConfigurationFinder;
+
+    private DeviceTypeSearchableProperty deviceTypeSearchableProperty;
     private PropertySpecService propertySpecService;
 
     @Before
     public void initializeMocks() {
         when(this.ormService.newDataModel(anyString(), anyString())).thenReturn(this.dataModel);
         this.propertySpecService = new PropertySpecServiceImpl(this.jupiterPropertySpecService, this.dataVaultService, this.ormService);
+        when(this.deviceTypeFinder.factoryId()).thenReturn(FactoryIds.DEVICE_TYPE);
+        when(this.deviceTypeFinder.valueDomain()).thenReturn(DeviceType.class);
         when(this.deviceConfigurationFinder.factoryId()).thenReturn(FactoryIds.DEVICE_CONFIGURATION);
         when(this.deviceConfigurationFinder.valueDomain()).thenReturn(DeviceConfiguration.class);
-        when(this.deviceConfigurationProvider.finders()).thenReturn(Arrays.asList(this.deviceConfigurationFinder));
+        when(this.deviceConfigurationProvider.finders()).thenReturn(Arrays.asList(this.deviceTypeFinder, this.deviceConfigurationFinder));
         this.propertySpecService.addFactoryProvider(this.deviceConfigurationProvider);
-        when(this.deviceTypeSearchableProperty.hasName(DeviceTypeSearchableProperty.PROPERTY_NAME)).thenReturn(true);
+        this.deviceTypeSearchableProperty = new DeviceTypeSearchableProperty(this.propertySpecService, this.thesaurus);
     }
 
     @Test
@@ -347,7 +351,7 @@ public class DeviceConfigurationSearchablePropertyTest {
     }
 
     private DeviceConfigurationSearchableProperty getTestInstance() {
-        return new DeviceConfigurationSearchableProperty(this.domain, this.deviceTypeSearchableProperty, this.propertySpecService, this.thesaurus);
+        return new DeviceConfigurationSearchableProperty(this.propertySpecService, this.thesaurus).init(this.domain, this.deviceTypeSearchableProperty);
     }
 
 }
