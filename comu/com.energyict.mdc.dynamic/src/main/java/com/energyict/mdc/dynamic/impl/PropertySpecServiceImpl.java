@@ -1,11 +1,7 @@
 package com.energyict.mdc.dynamic.impl;
 
-import com.elster.jupiter.properties.RelativePeriodFactory;
-import com.elster.jupiter.time.RelativePeriod;
-import com.elster.jupiter.time.TimeService;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.FactoryIds;
-import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.dynamic.NoFinderComponentFoundException;
 import com.energyict.mdc.dynamic.ObisCodeValueFactory;
@@ -21,9 +17,13 @@ import com.elster.jupiter.properties.FindById;
 import com.elster.jupiter.properties.ListValueEntry;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecBuilder;
+import com.elster.jupiter.properties.RelativePeriodFactory;
 import com.elster.jupiter.properties.TimeZoneFactory;
 import com.elster.jupiter.properties.ValueFactory;
+import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.util.HasId;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -34,6 +34,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
@@ -52,7 +53,7 @@ public class PropertySpecServiceImpl implements PropertySpecService {
     private volatile DataModel dataModel;
     private volatile DataVaultService dataVaultService;
     private volatile TimeService timeService;
-    private volatile Map<Class<? extends CanFindByLongPrimaryKey>, CanFindByLongPrimaryKey<? extends HasId>> finders = new ConcurrentHashMap<>();
+    private volatile Map<Class, List<CanFindByLongPrimaryKey<? extends HasId>>> finders = new ConcurrentHashMap<>();
     private volatile com.elster.jupiter.properties.PropertySpecService basicPropertySpecService;
 
     @Reference
@@ -190,12 +191,12 @@ public class PropertySpecServiceImpl implements PropertySpecService {
     }
 
     private CanFindByLongPrimaryKey<? extends HasId> finderFor(FactoryIds factoryId) {
-        for (CanFindByLongPrimaryKey<? extends HasId> finder : finders.values()) {
-            if (factoryId.equals(finder.factoryId())) {
-                return finder;
-            }
-        }
-        throw new NoFinderComponentFoundException(factoryId);
+        return this.finders.values()
+                .stream()
+                .flatMap(Collection::stream)
+                .filter(finder -> factoryId.equals(finder.factoryId()))
+                .findAny()
+                .orElseThrow(() -> new NoFinderComponentFoundException(factoryId));
     }
 
     @Override
@@ -206,9 +207,7 @@ public class PropertySpecServiceImpl implements PropertySpecService {
     @Override
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addFactoryProvider(ReferencePropertySpecFinderProvider factoryProvider) {
-        for (CanFindByLongPrimaryKey<? extends HasId> finder : factoryProvider.finders()) {
-            finders.put(finder.getClass(), finder);
-        }
+        this.finders.put(factoryProvider.getClass(), factoryProvider.finders());
     }
 
     @Reference
@@ -218,9 +217,7 @@ public class PropertySpecServiceImpl implements PropertySpecService {
 
     @SuppressWarnings("unused")
     public void removeFactoryProvider(ReferencePropertySpecFinderProvider factoryProvider) {
-        for (CanFindByLongPrimaryKey<? extends HasId> finder : factoryProvider.finders()) {
-            this.finders.remove(finder);
-        }
+        this.finders.remove(factoryProvider.getClass());
     }
 
     @Override
