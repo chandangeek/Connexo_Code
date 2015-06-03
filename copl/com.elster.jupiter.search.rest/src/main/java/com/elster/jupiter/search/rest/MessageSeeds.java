@@ -11,7 +11,8 @@ import java.util.logging.Level;
 public enum MessageSeeds implements MessageSeed, TranslationKey {
 
     NO_SUCH_SEARCH_DOMAIN(1, "NoSuchSearchDomain", "No such search domain could be found"),
-    NO_SUCH_PROPERTY(2, "NoSuchProperty", "No property with name {0} exists in this domain");
+    NO_SUCH_PROPERTY(2, "NoSuchProperty", "No property with name {0} exists in this domain"),
+    INVALID_VALUE(3, "InvalidValue", "Invalid value");
 
     private final int number;
     private final String key;

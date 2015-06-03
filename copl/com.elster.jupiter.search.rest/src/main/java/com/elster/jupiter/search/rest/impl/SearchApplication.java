@@ -3,6 +3,7 @@ package com.elster.jupiter.search.rest.impl;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.search.SearchService;
 import com.google.common.collect.ImmutableSet;
@@ -67,6 +68,7 @@ public class SearchApplication  extends Application {
             bind(thesaurus).to(Thesaurus.class);
             bind(PropertyInfoFactory.class).to(PropertyInfoFactory.class);
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
+            bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
         }
     }
 

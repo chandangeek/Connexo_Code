@@ -13,7 +13,7 @@ public class PropertyInfo {
     public String displayValue; // The value to use as label in the UI
     public String group; // Identifies in which group this property should be listed; can be null;
     public String type; // Identifies the type of property: String, Integer, Date, ...
-    public boolean offersPreselection; // 'true' indicates UI can obtain an exhaustive list of values from which to select value(s)
+    public boolean exhaustive; // 'true' indicates UI can obtain an exhaustive list of values from which to select value(s)
     @XmlJavaTypeAdapter(Link.JaxbAdapter.class)
     public Link link;
     @XmlJavaTypeAdapter(SelectionModeAdapter.class)

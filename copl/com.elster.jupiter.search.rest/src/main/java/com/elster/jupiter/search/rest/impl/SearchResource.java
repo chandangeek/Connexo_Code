@@ -1,10 +1,13 @@
 package com.elster.jupiter.search.rest.impl;
 
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
+import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpecPossibleValues;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.search.SearchBuilder;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.search.SearchableProperty;
@@ -61,11 +64,43 @@ public class SearchResource {
     @Consumes(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Path("/{domain}")
-    public Response getDomainProperties(@PathParam("domain") String domainId, @Context UriInfo uriInfo) {
+    public Response getDomainProperties(@PathParam("domain") String domainId,
+                                        @BeanParam JsonQueryFilter jsonQueryFilter,
+                                        @BeanParam JsonQueryParameters jsonQueryParameters,
+                                        @Context UriInfo uriInfo) throws InvalidValueException {
         SearchDomain searchDomain = findSearchDomainOrThrowException(domainId);
-        PropertyList propertyList = new PropertyList();
-        propertyList.properties = searchDomain.getProperties().stream().map(p->propertyInfoFactory.asInfoObject(p, uriInfo)).collect(toList());
-        return Response.ok().entity(propertyList).build();
+        if (jsonQueryFilter==null) {
+            PropertyList propertyList = new PropertyList();
+            propertyList.properties = searchDomain.getProperties().stream().map(p -> propertyInfoFactory.asInfoObject(p, uriInfo)).collect(toList());
+            return Response.ok().entity(propertyList).build();
+        } else {
+            final SearchBuilder<Object> searchBuilder = searchService.search(searchDomain);
+            searchDomain.getProperties().stream().
+                    filter(p->jsonQueryFilter.hasProperty(p.getName())).
+                    forEach(searchableProperty -> {
+                        try {
+                            if (searchableProperty.getSelectionMode().equals(SearchableProperty.SelectionMode.MULTI)) {
+                                searchBuilder.where(searchableProperty).in(getQueryParameterAsObjectList(jsonQueryFilter, searchableProperty));
+                            } else {
+                                searchBuilder.where(searchableProperty).isEqualTo(getQueryParameterAsObject(jsonQueryFilter, searchableProperty));
+                            }
+                        } catch (InvalidValueException e) {
+                            throw new LocalizedFieldValidationException(MessageSeeds.INVALID_VALUE, "filter."+searchableProperty.getName());
+                        }
+
+                    });
+//            for (SearchableProperty searchableProperty : searchDomain.getProperties()) {
+//                if (jsonQueryFilter.hasProperty(searchableProperty.getName())) {
+//                    if (searchableProperty.getSelectionMode().equals(SearchableProperty.SelectionMode.MULTI)) {
+//                        searchBuilder = searchBuilder.where(searchableProperty).in(getQueryParameterAsObjectList(jsonQueryFilter, searchableProperty));
+//                    } else {
+//                        searchBuilder = searchBuilder.where(searchableProperty).isEqualTo(getQueryParameterAsObject(jsonQueryFilter, searchableProperty));
+//                    }
+//                }
+//            }
+            List<Object> searchResults = searchBuilder.toFinder().from(jsonQueryParameters).stream().map(Object::toString).collect(toList());
+            return Response.ok().entity(PagedInfoList.fromPagedList("searchResults", searchResults, jsonQueryParameters)).build();
+        }
     }
 
     private SearchDomain findSearchDomainOrThrowException(@PathParam("domain") String domainId) {
@@ -88,11 +123,9 @@ public class SearchResource {
             if (jsonQueryFilter!=null && jsonQueryFilter.hasProperty(constrainingProperty.getName())) {
                 List<Object> constrainingValues;
                 if (constrainingProperty.getSelectionMode().equals(SearchableProperty.SelectionMode.MULTI)) {
-                    constrainingValues=jsonQueryFilter.getPropertyList(constrainingProperty.getName()).stream().
-                            map(p->constrainingProperty.getSpecification().getValueFactory().fromStringValue(p)).
-                            collect(toList());
+                    constrainingValues= getQueryParameterAsObjectList(jsonQueryFilter, constrainingProperty);
                 } else {
-                    constrainingValues=Collections.singletonList(constrainingProperty.getSpecification().getValueFactory().fromStringValue(jsonQueryFilter.getString(constrainingProperty.getName())));
+                    constrainingValues=Collections.singletonList(getQueryParameterAsObject(jsonQueryFilter, constrainingProperty));
                 }
                 searchablePropertyConstrictions.add(SearchablePropertyConstriction.withValues(constrainingProperty, constrainingValues));
             } else {
@@ -104,6 +137,16 @@ public class SearchResource {
         List<?> allValues = possibleValues!=null?possibleValues.getAllValues():Collections.emptyList();
         List allJsonValues = allValues.stream().map(v->asJsonValueObject(searchableProperty.toDisplay(v),v)).collect(toList());
         return Response.ok().entity(PagedInfoList.fromCompleteList("values", allJsonValues, jsonQueryParameters)).build();
+    }
+
+    private Object getQueryParameterAsObject(@BeanParam JsonQueryFilter jsonQueryFilter, SearchableProperty constrainingProperty) {
+        return constrainingProperty.getSpecification().getValueFactory().fromStringValue(jsonQueryFilter.getString(constrainingProperty.getName()));
+    }
+
+    private List<Object> getQueryParameterAsObjectList(@BeanParam JsonQueryFilter jsonQueryFilter, SearchableProperty constrainingProperty) {
+        return jsonQueryFilter.getPropertyList(constrainingProperty.getName()).stream().
+                map(p -> constrainingProperty.getSpecification().getValueFactory().fromStringValue(p)).
+                collect(toList());
     }
 
     private SearchableProperty findProperty(@PathParam("property") String property, SearchDomain searchDomain) {
