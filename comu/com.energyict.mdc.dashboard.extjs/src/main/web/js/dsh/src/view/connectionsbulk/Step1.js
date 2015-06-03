@@ -48,7 +48,7 @@ Ext.define('Dsh.view.connectionsbulk.Step1', {
                         flex: 1,
                         renderer: function (val) {
                             return (Mdc.privileges.Device.canView() || Mdc.privileges.Device.canAdministrateDeviceData())
-                                ? '<a href="' + me.router.getRoute('devices/device').buildUrl({mRID: val.id}) + '">' + val.name + '</a>' : val.name;
+                                ? '<a href="' + me.router.getRoute('devices/device').buildUrl({mRID: val.id}) + '">' + Ext.String.htmlEncode(val.name) + '</a>' : Ext.String.htmlEncode(val.name);
                         }
                     },
                     {
@@ -57,7 +57,7 @@ Ext.define('Dsh.view.connectionsbulk.Step1', {
                         dataIndex: 'connectionMethod',
                         flex: 1,
                         renderer: function (val) {
-                            return val ? val.name : ''
+                            return val ? Ext.String.htmlEncode(val.name) : ''
                         }
                     },
                     {
@@ -66,7 +66,7 @@ Ext.define('Dsh.view.connectionsbulk.Step1', {
                         dataIndex: 'currentState',
                         flex: 1,
                         renderer: function (val) {
-                            return val ? val.displayValue : ''
+                            return val ? Ext.String.htmlEncode(val.displayValue) : ''
                         }
                     },
                     {
@@ -75,7 +75,7 @@ Ext.define('Dsh.view.connectionsbulk.Step1', {
                         dataIndex: 'latestStatus',
                         flex: 1,
                         renderer: function (val) {
-                            return val ? val.displayValue : ''
+                            return val ? Ext.String.htmlEncode(val.displayValue) : ''
                         }
                     },
                     {
@@ -85,7 +85,7 @@ Ext.define('Dsh.view.connectionsbulk.Step1', {
                         name: 'latestResult',
                         flex: 1,
                         renderer: function (val) {
-                            return val ? val.displayValue : ''
+                            return val ? Ext.String.htmlEncode(val.displayValue) : ''
                         }
                     },
                     {

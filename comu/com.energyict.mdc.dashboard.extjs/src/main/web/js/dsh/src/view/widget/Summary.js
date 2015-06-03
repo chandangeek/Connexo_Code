@@ -114,7 +114,7 @@ Ext.define('Dsh.view.widget.Summary', {
         }
 
         view.bindStore(record.counters());
-        me.setTitle(Uni.I18n.translatePlural('overview.widget.' + me.parent + '.header', total, 'DSH', '<h3>' + me.wTitle + ' ({0})' + '</h3>'));
+        me.setTitle('<h3>' + Uni.I18n.translatePlural('overview.widget.' + me.parent + '.header', total, 'DSH', me.wTitle + ' ({0})') + '</h3>');
     },
 
     initKpi: function (record) {
