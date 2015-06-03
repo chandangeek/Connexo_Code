@@ -28,7 +28,7 @@ import java.util.Set;
 
     Optional<FirmwareVersion> getFirmwareVersionById(long id);
 
-    Optional<FirmwareVersion> getFirmwareVersionByVersion(String version, DeviceType deviceType);
+    Optional<FirmwareVersion> getFirmwareVersionByVersionAndType(String version, FirmwareType firmwareType, DeviceType deviceType);
 
     FirmwareVersion newFirmwareVersion(DeviceType deviceType, String firmwareVersion, FirmwareStatus status, FirmwareType type);
 
