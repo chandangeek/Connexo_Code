@@ -42,7 +42,6 @@ import com.google.common.collect.Range;
 import org.assertj.core.api.Condition;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -231,55 +230,6 @@ public class DataExportTaskExecutorTest {
         passedStreams.clear();
     }
 
-    @Ignore // move to ReadingTypeDataSelectorTest
-    @Test
-    public void testExecuteObsoleteItemIsDeactivated() {
-        DataExportTaskExecutor executor = new DataExportTaskExecutor(dataExportService, transactionService, thesaurus);
-
-        try (TransactionContext context = transactionService.getContext()) {
-            executor.execute(occurrence);
-        }
-        executor.postExecute(occurrence);
-
-        InOrder inOrder = inOrder(obsoleteItem);
-        inOrder.verify(obsoleteItem).deactivate();
-        inOrder.verify(obsoleteItem).update();
-    }
-
-    @Ignore // move to ReadingTypeDataSelectorTest
-    @Test
-    public void testExecuteExistingItemIsUpdated() {
-        DataExportTaskExecutor executor = new DataExportTaskExecutor(dataExportService, transactionService, thesaurus);
-
-        try (TransactionContext context = transactionService.getContext()) {
-            executor.execute(occurrence);
-        }
-        executor.postExecute(occurrence);
-
-        InOrder inOrder = inOrder(existingItem);
-        inOrder.verify(existingItem).activate();
-        inOrder.verify(existingItem).setLastRun(triggerTime.toInstant());
-        inOrder.verify(existingItem).setLastExportedDate(exportPeriodEnd.toInstant());
-        inOrder.verify(existingItem).update();
-    }
-
-    @Ignore // move to ReadingTypeDataSelectorTest
-    @Test
-    public void testNewItemIsUpdated() {
-        DataExportTaskExecutor executor = new DataExportTaskExecutor(dataExportService, transactionService, thesaurus);
-
-        try (TransactionContext context = transactionService.getContext()) {
-            executor.execute(occurrence);
-        }
-        executor.postExecute(occurrence);
-
-        InOrder inOrder = inOrder(newItem);
-        inOrder.verify(newItem).activate();
-        inOrder.verify(newItem).setLastRun(triggerTime.toInstant());
-        inOrder.verify(newItem).setLastExportedDate(exportPeriodEnd.toInstant());
-        inOrder.verify(newItem).update();
-    }
-
     @Test
     public void testDataFormatterGetsTheRightNotifications() {
         DataExportTaskExecutor executor = new DataExportTaskExecutor(dataExportService, transactionService, thesaurus);
@@ -315,6 +265,8 @@ public class DataExportTaskExecutorTest {
         List<MeterReadingData> readingList2 = passedStreams.get(1).stream().map(MeterReadingData.class::cast).collect(Collectors.toList());
         assertThat(readingList2).hasSize(1);
         assertThat(readingList2.get(0).getMeterReading().getReadings()).has(new ReadingFor(reading2));
+
+        verify(destination).send(any());
     }
 
     @Test
@@ -361,6 +313,8 @@ public class DataExportTaskExecutorTest {
         assertThat(readingList2).hasSize(1);
         assertThat(readingList2.get(0).getMeterReading().getIntervalBlocks()).hasSize(1);
         assertThat(readingList2.get(0).getMeterReading().getIntervalBlocks().get(0).getIntervals()).has(new IntervalReadingFor(reading2));
+
+        verify(destination).send(any());
     }
 
     @Test
@@ -388,6 +342,8 @@ public class DataExportTaskExecutorTest {
         transactionService.assertThatTransaction(3).wasCommitted();
         transactionService.assertThatTransaction(4).wasCommitted();
         transactionService.assertThatTransaction(5).wasCommitted();
+
+        verify(destination).send(any());
     }
 
     @Test
@@ -413,6 +369,8 @@ public class DataExportTaskExecutorTest {
         verify(dataFormatter, never()).processData(argThat(matches(r -> ((MeterReadingData) r).getMeterReading().getReadings().contains(reading2))));
         verify(dataFormatter, never()).endItem(existingItem);
         verify(dataFormatter, never()).endExport();
+
+        verify(destination, never()).send(any());
 
     }
 
@@ -440,6 +398,7 @@ public class DataExportTaskExecutorTest {
         verify(dataFormatter, never()).endItem(existingItem);
         verify(dataFormatter, never()).endExport();
 
+        verify(destination, never()).send(any());
     }
 
     @Test
@@ -473,6 +432,7 @@ public class DataExportTaskExecutorTest {
         transactionService.assertThatTransaction(4).wasNotCommitted(); // existingItem
         transactionService.assertThatTransaction(5).wasCommitted(); // log failure of existingItem
 
+        verify(destination, never()).send(any());
     }
 
     Predicate<List<? extends List<ExportData>>> hasStreamContainingReadingFor(String source) {
@@ -512,6 +472,7 @@ public class DataExportTaskExecutorTest {
         transactionService.assertThatTransaction(3).wasCommitted();
         transactionService.assertThatTransaction(4).wasNotCommitted();
 
+        verify(destination, never()).send(any());
     }
 
     @Test
@@ -536,6 +497,8 @@ public class DataExportTaskExecutorTest {
 
         transactionService.assertThatTransaction(2).wasNotCommitted();
         transactionService.assertThatTransaction(3).wasCommitted();
+
+        verify(destination).send(any());
     }
 
     @Test
@@ -573,6 +536,8 @@ public class DataExportTaskExecutorTest {
         transactionService.assertThatTransaction(2).wasCommitted();
         transactionService.assertThatTransaction(3).wasCommitted();
         transactionService.assertThatTransaction(4).wasNotCommitted();
+
+        verify(destination, never()).send(any());
     }
 
     @Test
@@ -611,6 +576,8 @@ public class DataExportTaskExecutorTest {
         transactionService.assertThatTransaction(3).wasCommitted();
         transactionService.assertThatTransaction(4).wasNotCommitted();
         transactionService.assertThatTransaction(5).wasCommitted();
+
+        verify(destination, never()).send(any());
     }
 
     @Test
@@ -642,6 +609,8 @@ public class DataExportTaskExecutorTest {
 
         transactionService.assertThatTransaction(2).wasNotCommitted();
         transactionService.assertThatTransaction(3).wasCommitted();
+
+        verify(destination).send(any());
     }
 
     @Test
@@ -673,6 +642,8 @@ public class DataExportTaskExecutorTest {
         transactionService.assertThatTransaction(3).wasCommitted();
         transactionService.assertThatTransaction(4).wasNotCommitted();
         transactionService.assertThatTransaction(5).wasCommitted();
+
+        verify(destination, never()).send(any());
     }
 
     @Test
@@ -704,6 +675,8 @@ public class DataExportTaskExecutorTest {
         transactionService.assertThatTransaction(3).wasCommitted();
         transactionService.assertThatTransaction(4).wasNotCommitted();
         transactionService.assertThatTransaction(5).wasCommitted();
+
+        verify(destination, never()).send(any());
     }
 
     @Test
@@ -728,6 +701,8 @@ public class DataExportTaskExecutorTest {
 
         transactionService.assertThatTransaction(2).wasNotCommitted();
         transactionService.assertThatTransaction(3).wasCommitted();
+
+        verify(destination).send(any());
     }
 
     private static class IntervalReadingFor extends Condition<List<? extends IntervalReading>> {
