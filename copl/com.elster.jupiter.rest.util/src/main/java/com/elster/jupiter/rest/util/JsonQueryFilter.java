@@ -4,11 +4,6 @@ import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.rest.util.impl.MessageSeeds;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import javax.ws.rs.QueryParam;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.adapters.XmlAdapter;
-
 import java.io.ByteArrayInputStream;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -16,6 +11,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import javax.ws.rs.QueryParam;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlAdapter;
 
 @XmlRootElement
 public class JsonQueryFilter {
@@ -88,7 +86,7 @@ public class JsonQueryFilter {
     }
 
     public boolean hasProperty(String name){
-        return getFilterProperties().get(name) != null;
+        return getFilterProperties().containsKey(name);
     }
 
     public <T> T getProperty(String name, Function<JsonNode, T> mapper){
