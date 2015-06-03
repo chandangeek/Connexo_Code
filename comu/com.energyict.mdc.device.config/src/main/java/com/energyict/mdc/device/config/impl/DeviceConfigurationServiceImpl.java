@@ -156,6 +156,11 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Override
+    public Optional<DeviceType> findAndLockDeviceType(long id, long version) {
+        return this.getDataModel().mapper(DeviceType.class).lockObjectIfVersion(version, id);
+    }
+
+    @Override
     public Optional<DeviceType> findDeviceTypeByName(String name) {
         return this.getDataModel().mapper((DeviceType.class)).getUnique("name", name);
     }
@@ -322,8 +327,8 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     @Override
     public List<DeviceType> findDeviceTypesUsingDeviceLifeCycle(DeviceLifeCycle deviceLifeCycle) {
         return this.getDataModel().
-                query(DeviceType.class, DeviceLifeCycle.class).
-                select(where("deviceLifeCycle").isEqualTo(deviceLifeCycle));
+                query(DeviceType.class, DeviceLifeCycleInDeviceType.class, DeviceLifeCycle.class).
+                select(where("deviceLifeCycle.deviceLifeCycle").isEqualTo(deviceLifeCycle));
     }
 
     @Override

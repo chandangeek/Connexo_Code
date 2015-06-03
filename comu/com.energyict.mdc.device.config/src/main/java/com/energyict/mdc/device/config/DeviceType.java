@@ -151,6 +151,8 @@ public interface DeviceType extends HasId, HasName {
 
     public boolean isDirectlyAddressable();
 
+    long getVersion();
+
     public interface DeviceConfigurationBuilder {
 
         /**

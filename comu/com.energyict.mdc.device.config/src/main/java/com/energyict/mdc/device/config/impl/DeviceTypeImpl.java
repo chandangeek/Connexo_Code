@@ -266,6 +266,11 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     }
 
     @Override
+    public long getVersion() {
+        return this.version;
+    }
+
+    @Override
     public String toString() {
         return getName();
     }
