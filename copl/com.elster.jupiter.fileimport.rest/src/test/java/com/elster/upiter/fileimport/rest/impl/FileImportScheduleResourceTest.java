@@ -1,5 +1,6 @@
 package com.elster.upiter.fileimport.rest.impl;
 
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.fileimport.FileImporter;
 import com.elster.jupiter.fileimport.FileImporterFactory;
@@ -9,6 +10,7 @@ import com.elster.jupiter.fileimport.rest.impl.FileImportScheduleInfo;
 import com.elster.jupiter.fileimport.rest.impl.FileImportScheduleInfos;
 import com.elster.jupiter.fileimport.rest.impl.FileImporterInfo;
 import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.transaction.Transaction;
@@ -156,11 +158,10 @@ public class FileImportScheduleResourceTest  extends FileImportApplicationTest {
     }
 
     private void mockImportSchedules(ImportSchedule... importSchedules) {
-        Query<ImportSchedule> query = mock(Query.class);
-        when(fileImportService.getImportSchedulesQuery()).thenReturn(query);
-        RestQuery<ImportSchedule> restQuery = mock(RestQuery.class);
-        when(restQueryService.wrap(query)).thenReturn(restQuery);
-        when(restQuery.select(any(QueryParameters.class), any(Order.class))).thenReturn(Arrays.asList(importSchedules));
+        Finder<ImportSchedule> finder = mock(Finder.class);
+        when(fileImportService.findImportSchedules(Matchers.anyString())).thenReturn(finder);
+        when(finder.from(any())).thenReturn(finder);
+        when(finder.find()).thenReturn(Arrays.asList(importSchedules));
     }
 
     private ImportSchedule mockImportSchedule(long id) {
