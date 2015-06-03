@@ -78,4 +78,5 @@ public interface FileImportOccurrence {
     void setClock(Clock clock);
 
     Finder<ImportLogEntry> getLogsFinder();
+
 }

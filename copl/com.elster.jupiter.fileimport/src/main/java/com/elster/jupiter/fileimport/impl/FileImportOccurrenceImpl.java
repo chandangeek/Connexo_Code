@@ -175,6 +175,11 @@ final class FileImportOccurrenceImpl implements FileImportOccurrence {
                 .sorted("position", true);
     }
 
+    //used just for tests
+    void setLogger(Logger logger) {
+        this.logger = logger;
+    }
+
     void log(Level level, Instant timestamp, String message) {
         logEntries.add(dataModel.getInstance(ImportLogEntryImpl.class).init(this, timestamp, level, message));
     }
