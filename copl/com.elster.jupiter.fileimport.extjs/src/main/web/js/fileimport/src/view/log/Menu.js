@@ -7,14 +7,11 @@ Ext.define('Fim.view.log.Menu', {
     initComponent: function () {
         var me = this;
         me.callParent(me);
-
-
         me.add(
             {
-                text: Uni.I18n.translate('validationTasks.general.overview', 'FIM', 'Overview'),
-                itemId: 'import-service-view-link'/*,
-             href:  '#/administration/importservices/' + this.importServiceId*/
-            }
+                text: Uni.I18n.translate('importService.general.overview', 'FIM', 'Overview'),
+                itemId: 'import-service-view-link'
+			}
         );
         me.add(
             {

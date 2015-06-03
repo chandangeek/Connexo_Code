@@ -5,13 +5,18 @@ Ext.define('Fim.store.ImportServicesHistory', {
 
     proxy: {
         type: 'rest',
-        urlTpl: '/api/val/validationtasks/{taskId}/history',
+        urlTpl: '/api/fir/importservices/{importServiceId}/history',
         reader: {
             type: 'json',
             root: 'data'
         },
         setUrl: function (params) {
-            this.url = this.urlTpl.replace('{taskId}', 1/*params.importServiceId*/);
+			if (params.importServiceId === undefined){
+				this.url = this.urlTpl.replace('/{importServiceId}', '');
+			} 
+			else {
+				this.url = this.urlTpl.replace('{importServiceId}', params.importServiceId);
+			}
         }
     },
     listeners: {

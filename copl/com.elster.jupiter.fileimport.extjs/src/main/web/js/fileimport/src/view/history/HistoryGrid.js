@@ -30,7 +30,7 @@ Ext.define('Fim.view.history.HistoryGrid', {
             },
             {
                 header: Uni.I18n.translate('general.importService', 'FIM', 'Import service'),
-                dataIndex: 'importService',
+                dataIndex: 'importServiceName',
                 flex: 2,
                 hidden: !me.showImportService
             },

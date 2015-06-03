@@ -8,7 +8,7 @@ Ext.define('Fim.view.history.SortMenu', {
 
         {
             text: Uni.I18n.translate('importService.history.startedOn', 'FIM', 'Started on'),
-            name: 'startedOn'
+            name: 'startDate'
         },
         {
             text: Uni.I18n.translate('importService.history.status', 'FIM', 'Status'),

@@ -5,14 +5,14 @@ Ext.define('Fim.store.Logs', {
     pageSize: 50,
     proxy: {
         type: 'rest',
-        urlTpl: '/api/val/validationtasks/{taskId}/history/{occurrenceId}',
+        urlTpl: '/api/fir/importservices/history/{occurrenceId}/logs',
         reader: {
             type: 'json',
             root: 'data'
         },
 
         setUrl: function (params) {
-            this.url = this.urlTpl.replace('{taskId}', 1/*params.taskId*/).replace('{occurrenceId}', 38361/*params.occurrenceId*/);
+            this.url = this.urlTpl.replace('{occurrenceId}', params.occurrenceId);
         }
     },
     listeners: {

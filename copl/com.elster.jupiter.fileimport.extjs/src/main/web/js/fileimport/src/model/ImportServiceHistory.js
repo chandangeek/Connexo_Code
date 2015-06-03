@@ -2,30 +2,17 @@ Ext.define('Fim.model.ImportServiceHistory', {
     extend: 'Ext.data.Model',
     fields: [
         {name: 'id', type: 'number'},
-        {
-            name: 'historyId',
-            type: 'number',
-            convert: function (value, record) {
-                return 38766;
-            }
-        },
-        {
-            name: 'importServiceId',
-            type: 'number',
-            convert: function (value, record) {
-                return 2004;
-            }
-        },
-
+        {name: 'occurrenceId', type: 'number'},
+        {name: 'importServiceId', type: 'number'},
         {name: 'startedOn', type: 'number'},
         {name: 'finishedOn', type: 'number'},
+        {name: 'importServiceName', type: 'string'},		
+        {name: 'duration', type: 'number'},
+        {name: 'status', type: 'string'},
+        {name: 'fileName', type: 'string'},
+        {name: 'summary', type: 'string'},
         {
-            name: 'importService', type: 'string', convert: function (value, record) {
-            return record.get('trigger');
-        }
-        },
-        {
-            name: 'startedOnDisplay',
+			name: 'startedOnDisplay',
             type: 'string',
             convert: function (value, record) {
                 var startedOn = record.get('startedOn');
@@ -45,20 +32,18 @@ Ext.define('Fim.model.ImportServiceHistory', {
                 }
                 return '-';
             }
-        },
-        {name: 'duration', type: 'number'},
-        {name: 'status', type: 'string'},
-        {
-            name: 'fileName', type: 'string', convert: function (value, record) {
-            return record.get('status');
         }
-        },
-        {
-            name: 'summary', type: 'string', convert: function (value, record) {
-            return record.get('status');
-        }
+    ],
+	proxy: {
+        type: 'rest',
+        url: '/api/fir/importservices/history',
+        reader: {
+            type: 'json'
         },
 
-        {name: 'trigger', type: 'string'}
-    ]
+        setUrl: function (params) {
+            this.url = this.urlTpl.replace('{occurrenceId}', params.occurrenceId);
+        }
+
+    }
 });

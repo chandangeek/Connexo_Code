@@ -10,16 +10,6 @@ Ext.define('Fim.view.history.History', {
         'Fim.view.history.HistoryPreviewForm',
         'Uni.component.filter.view.FilterTopPanel',
         'Fim.view.history.SortMenu'
-
-        /*
-
-         'Fim.view.validationtask.Menu',
-         'Fim.view.validationtask.HistoryPreview',
-         'Fim.view.validationtask.HistoryPreviewForm',
-         'Fim.view.validationtask.PreviewForm',
-         'Fim.view.validationtask.HistoryGrid',
-         'Fim.view.validationtask.HistoryFilterForm',
-         */
     ],
 
     router: null,
@@ -100,7 +90,8 @@ Ext.define('Fim.view.history.History', {
                         ]
                     },
                     previewComponent: {
-                        xtype: 'fim-history-preview'
+                        xtype: 'fim-history-preview',
+						itemId: 'pnl-history-preview'
                     }
                 }
             ]

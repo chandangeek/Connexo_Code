@@ -7,16 +7,20 @@ Ext.define('Fim.store.Status', {
         me.callParent([Ext.apply({
             data: [
                 {
-                    value: 'fail',
+                    value: 'FAILURE',
                     display: Uni.I18n.translate('importService.history.failStatus', 'FIM', 'Fail'),
                 },
                 {
-                    value: 'busy',
+                    value: 'PROCESSING',
                     display: Uni.I18n.translate('importService.history.busyStatus', 'FIM', 'Busy'),
                 },
                 {
-                    value: 'success',
+                    value: 'SUCCESS',
                     display: Uni.I18n.translate('importService.history.successStatus', 'FIM', 'Success'),
+                },
+                {
+                    value: 'SUCCESS_WITH_FAILURES',
+                    display: Uni.I18n.translate('importService.history.successWithFailuresStatus', 'FIM', 'Success with failures'),
                 }
             ],
             fields: [

@@ -74,17 +74,7 @@ Ext.define('Fim.controller.history.DataImport', {
                     controller: 'Fim.controller.History',
                     action: 'showImportServicesHistory',
                     filter: 'Fim.model.HistoryFilter',
-                    privileges: Fim.privileges.DataImport.canView,
-                    items: {
-                        occurrence: {
-                            title: Uni.I18n.translate('general.log', 'FIM', 'Log'),
-                            route: '{occurrenceId}',
-                            controller: 'Fim.controller.Log',
-							filter: 'Fim.model.LogFilter',
-                            action: 'showImportServicesHistoryLog',
-                            privileges: Fim.privileges.DataImport.canView
-                        }
-                    }
+                    privileges: Fim.privileges.DataImport.canView
                 }
 
             }
