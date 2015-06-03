@@ -47,7 +47,7 @@ Ext.define('Fwc.devicefirmware.view.ActionMenu', {
                 });
             });
         } else {
-            me.up().hide();
+            me.up() && me.up().hide();
         }
 
         Ext.resumeLayouts();
