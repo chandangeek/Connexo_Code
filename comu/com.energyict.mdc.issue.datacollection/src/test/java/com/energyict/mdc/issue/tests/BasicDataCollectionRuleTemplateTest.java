@@ -31,7 +31,7 @@ import com.energyict.mdc.issue.datacollection.event.UnknownSlaveDeviceEvent;
 import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
 import com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventDescription;
 import com.energyict.mdc.issue.datacollection.impl.records.OpenIssueDataCollectionImpl;
-import com.energyict.mdc.issue.datacollection.impl.templates.BasicDatacollectionRuleTemplate;
+import com.energyict.mdc.issue.datacollection.impl.templates.BasicDataCollectionRuleTemplate;
 import com.google.inject.Injector;
 
 public class BasicDataCollectionRuleTemplateTest extends BaseTest {
@@ -43,7 +43,7 @@ public class BasicDataCollectionRuleTemplateTest extends BaseTest {
         Meter meter = createMeter("1", "mrid");
         Issue baseIssue = getBaseIssue(rule, meter);
 
-        BasicDatacollectionRuleTemplate template = getInjector().getInstance(BasicDatacollectionRuleTemplate.class);
+        BasicDataCollectionRuleTemplate template = getInjector().getInstance(BasicDataCollectionRuleTemplate.class);
         UnknownSlaveDeviceEvent event = getUnknownDeviceEvent(1L);
 
         assertThat(template.createIssue(baseIssue, event).isPresent()).isTrue();
@@ -64,7 +64,7 @@ public class BasicDataCollectionRuleTemplateTest extends BaseTest {
         meter = createMeter("2", "mrid2");
         baseIssue = getBaseIssue(rule, meter);
 
-        BasicDatacollectionRuleTemplate template = getInjector().getInstance(BasicDatacollectionRuleTemplate.class);
+        BasicDataCollectionRuleTemplate template = getInjector().getInstance(BasicDataCollectionRuleTemplate.class);
         UnknownSlaveDeviceEvent event = getUnknownDeviceEvent(2L);
 
         assertThat(template.createIssue(baseIssue, event).isPresent()).isTrue();
@@ -83,7 +83,7 @@ public class BasicDataCollectionRuleTemplateTest extends BaseTest {
         idcIssue.setDeviceMRID("1");
         idcIssue.save();
         baseIssue = getBaseIssue(rule, meter);
-        BasicDatacollectionRuleTemplate template = getInjector().getInstance(BasicDatacollectionRuleTemplate.class);
+        BasicDataCollectionRuleTemplate template = getInjector().getInstance(BasicDataCollectionRuleTemplate.class);
         UnknownSlaveDeviceEvent event = getUnknownDeviceEvent(1L);
         assertThat(template.createIssue(baseIssue, event).isPresent()).isFalse();
     }
@@ -102,7 +102,7 @@ public class BasicDataCollectionRuleTemplateTest extends BaseTest {
         idcIssue.setStatus(getIssueService().findStatus(IssueStatus.IN_PROGRESS).get());
         idcIssue.save();
         baseIssue = getBaseIssue(rule, meter);
-        BasicDatacollectionRuleTemplate template = getInjector().getInstance(BasicDatacollectionRuleTemplate.class);
+        BasicDataCollectionRuleTemplate template = getInjector().getInstance(BasicDataCollectionRuleTemplate.class);
         UnknownSlaveDeviceEvent event = getUnknownDeviceEvent(1L);
         assertThat(template.createIssue(baseIssue, event).isPresent()).isFalse();
         Optional<OpenIssueDataCollection> openIssue = getIssueDataCollectionService().findOpenIssue(idcIssue.getId());
@@ -128,7 +128,7 @@ public class BasicDataCollectionRuleTemplateTest extends BaseTest {
         Optional<Issue> issueRef = Optional.of(idcIssue);
         doReturn(issueRef).when(event).findExistingIssue();
         // Test template
-        BasicDatacollectionRuleTemplate template = getInjector().getInstance(BasicDatacollectionRuleTemplate.class);
+        BasicDataCollectionRuleTemplate template = getInjector().getInstance(BasicDataCollectionRuleTemplate.class);
         assertThat(template.resolveIssue(event).isPresent()).isTrue();
     }
 
