@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import com.elster.jupiter.properties.ListValueEntry;
+import com.elster.jupiter.properties.IdWithNameValue;
 import com.elster.jupiter.properties.ListValue;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecPossibleValues;
@@ -85,6 +85,9 @@ public class PropertyUtils {
         if ( PropertyType.LISTVALUE == propertyType ) {
             selectionMode = PropertySelectionMode.LIST;
         }
+        if (PropertyType.IDWITHNAME == propertyType) {
+            selectionMode = PropertySelectionMode.COMBOBOX;
+        }
 
         return new PredefinedPropertyValuesInfo<>(possibleObjects, selectionMode, propertySpec.getPossibleValues().isExhaustive());
     }
@@ -109,7 +112,7 @@ public class PropertyUtils {
 
     private Object convertPropertyInfoValueToPropertyValue(PropertySpec propertySpec, Object value) {
         if (Objects.equals(propertySpec.getValueFactory().getValueType(), ListValue.class)) {
-            ListValue<ListValueEntry> listValue = new ListValue<>();
+            ListValue<IdWithNameValue> listValue = new ListValue<>();
             if (value instanceof List) {
                 List<?> list = (List<?>) value;
                 for (Object listItem : list) {
@@ -123,13 +126,19 @@ public class PropertyUtils {
                 return value;
             }
         }
+        if (Objects.equals(propertySpec.getValueFactory().getValueType(), IdWithNameValue.class)){
+            if(value instanceof Map) {
+                Map<?, ?> map = (Map<?, ?>) value;
+                return propertySpec.getValueFactory().fromStringValue((String) map.get("id"));
+            }
+        }
         return propertySpec.getValueFactory().fromStringValue(value.toString());
     }
 
-    private ListValue<ListValueEntry> parseListValueInfo(PropertySpec propertySpec, Object value) {
+    private ListValue<IdWithNameValue> parseListValueInfo(PropertySpec propertySpec, Object value) {
         String stringValue = (String) value;
         Object obj = propertySpec.getValueFactory().fromStringValue(stringValue);
-        return (ListValue<ListValueEntry>) obj;
+        return (ListValue<IdWithNameValue>) obj;
     }
 
 }
