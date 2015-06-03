@@ -13,6 +13,8 @@ import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.devtools.ExtjsFilter;
 import com.elster.jupiter.devtools.tests.Answers;
+import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.metering.IncompatibleFiniteStateMachineChangeException;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.NlsMessageFormat;
@@ -28,6 +30,7 @@ import com.elster.jupiter.domain.util.Finder;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.GatewayType;
+import com.energyict.mdc.device.config.IncompatibleDeviceLifeCycleChangeException;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
@@ -38,6 +41,7 @@ import com.energyict.mdc.device.configuration.rest.RegisterConfigInfo;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
+import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleInfo;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.rest.RegisterTypeInfo;
@@ -71,6 +75,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -933,7 +938,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         when(deviceConfigurationService.findDeviceType(deviceType_id)).thenReturn(Optional.of(deviceType));
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
 
-        Response response = target("/devicetypes/31/registertypes").queryParam("start",10).queryParam("limit",10).queryParam("filter",  ExtjsFilter.filter().property("available", "true").property("deviceconfigurationid", 41l).create()).request().get();
+        Response response = target("/devicetypes/31/registertypes").queryParam("start",10).queryParam("limit", 10).queryParam("filter",  ExtjsFilter.filter().property("available", "true").property("deviceconfigurationid", 41l).create()).request().get();
         JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
         assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(21);
         assertThat(jsonModel.<List<RegisterType>>get("$.registerTypes")).hasSize(10);
@@ -1323,6 +1328,98 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         assertThat(data.get(0).get("id")).isEqualTo(104);
         assertThat(response).isNotNull();
 
+    }
+
+    @Test
+    public void testUpdateDeviceLifeCycleForDeviceTypeSuccess() throws Exception {
+        DeviceType deviceType = mock(DeviceType.class);
+        when(deviceType.getId()).thenReturn(1L);
+        when(deviceType.getName()).thenReturn("Device Type 1");
+        when(deviceType.getLoadProfileTypes()).thenReturn(Collections.emptyList());
+        when(deviceType.getRegisterTypes()).thenReturn(Collections.emptyList());
+        when(deviceType.getLogBookTypes()).thenReturn(Collections.emptyList());
+        when(deviceType.getConfigurations()).thenReturn(Collections.emptyList());
+        when(deviceType.canActAsGateway()).thenReturn(true);
+        when(deviceType.isDirectlyAddressable()).thenReturn(true);
+        when(deviceType.getVersion()).thenReturn(1L);
+        DeviceLifeCycle targetDeviceLifeCycle = mock(DeviceLifeCycle.class);
+        when(targetDeviceLifeCycle.getId()).thenReturn(2L);
+        when(targetDeviceLifeCycle.getName()).thenReturn("Device life cycle 2");
+        when(deviceConfigurationService.findAndLockDeviceType(1L, 1)).thenReturn(Optional.of(deviceType));
+        when(deviceLifeCycleConfigurationService.findDeviceLifeCycle(2L)).thenReturn(Optional.of(targetDeviceLifeCycle));
+        when(deviceType.getDeviceLifeCycle()).thenReturn(targetDeviceLifeCycle);
+
+        ChangeDeviceLifeCycleInfo info = new ChangeDeviceLifeCycleInfo();
+        info.targetDeviceLifeCycle = new DeviceLifeCycleInfo();
+        info.targetDeviceLifeCycle.id = 2;
+        info.version = 1;
+        Entity<ChangeDeviceLifeCycleInfo> json = Entity.json(info);
+        Response response = target("/devicetypes/1/devicelifecycle").request().put(json);
+        assertThat(response.getStatus()).isEqualTo(200);
+        verify(deviceConfigurationService).changeDeviceLifeCycle(deviceType, targetDeviceLifeCycle);
+    }
+    @Test
+    public void testUpdateDeviceLifeCycleForDeviceTypeFail() throws Exception {
+        DeviceType deviceType = mock(DeviceType.class);
+        when(deviceType.getId()).thenReturn(1L);
+        when(deviceType.getName()).thenReturn("Device Type 1");
+        when(deviceType.getLoadProfileTypes()).thenReturn(Collections.emptyList());
+        when(deviceType.getRegisterTypes()).thenReturn(Collections.emptyList());
+        when(deviceType.getLogBookTypes()).thenReturn(Collections.emptyList());
+        when(deviceType.getConfigurations()).thenReturn(Collections.emptyList());
+        when(deviceType.canActAsGateway()).thenReturn(true);
+        when(deviceType.isDirectlyAddressable()).thenReturn(true);
+        when(deviceType.getVersion()).thenReturn(1L);
+
+        DeviceLifeCycle targetDeviceLifeCycle = mock(DeviceLifeCycle.class, RETURNS_DEEP_STUBS);
+        when(targetDeviceLifeCycle.getId()).thenReturn(2L);
+        when(targetDeviceLifeCycle.getName()).thenReturn("Device life cycle 2");
+
+        DeviceLifeCycle oldDeviceLifeCycle = mock(DeviceLifeCycle.class, RETURNS_DEEP_STUBS);
+        when(oldDeviceLifeCycle.getId()).thenReturn(1L);
+        when(oldDeviceLifeCycle.getName()).thenReturn("Device life cycle 1");
+
+        when(deviceConfigurationService.findAndLockDeviceType(1L, 1)).thenReturn(Optional.of(deviceType));
+        when(deviceLifeCycleConfigurationService.findDeviceLifeCycle(2L)).thenReturn(Optional.of(targetDeviceLifeCycle));
+        when(deviceType.getDeviceLifeCycle()).thenReturn(oldDeviceLifeCycle);
+
+        State state = mock(State.class, RETURNS_DEEP_STUBS);
+        when(state.getId()).thenReturn(1L);
+        when(state.getName()).thenReturn("Some state");
+
+        IncompatibleFiniteStateMachineChangeException fsmEx = new IncompatibleFiniteStateMachineChangeException(state);
+        IncompatibleDeviceLifeCycleChangeException dldEx = IncompatibleDeviceLifeCycleChangeException.wrapping(fsmEx);
+        doThrow(dldEx).when(deviceConfigurationService).changeDeviceLifeCycle(deviceType, targetDeviceLifeCycle);
+        ChangeDeviceLifeCycleInfo info = new ChangeDeviceLifeCycleInfo();
+        info.targetDeviceLifeCycle = new DeviceLifeCycleInfo();
+        info.targetDeviceLifeCycle.id = 2;
+        info.version = 1;
+        Entity<ChangeDeviceLifeCycleInfo> json = Entity.json(info);
+        Response response = target("/devicetypes/1/devicelifecycle").request().put(json);
+        assertThat(response.getStatus()).isEqualTo(400);
+        verify(deviceConfigurationService).changeDeviceLifeCycle(deviceType, targetDeviceLifeCycle);
+        JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
+        assertThat(jsonModel.<Boolean>get("$.success")).isEqualTo(false);
+        assertThat(jsonModel.<String>get("$.message")).isNotEmpty();
+        assertThat(jsonModel.<Number>get("$.currentDeviceLifeCycle.id")).isEqualTo(1);
+        assertThat(jsonModel.<String>get("$.currentDeviceLifeCycle.name")).isEqualTo("Device life cycle 1");
+        assertThat(jsonModel.<Number>get("$.targetDeviceLifeCycle.id")).isEqualTo(2);
+        assertThat(jsonModel.<String>get("$.targetDeviceLifeCycle.name")).isEqualTo("Device life cycle 2");
+        assertThat(jsonModel.<List>get("$.notMappableStates")).isNotEmpty();
+        assertThat(jsonModel.<String>get("$.notMappableStates.[0].name")).isEqualTo("Some state");
+    }
+
+    @Test
+    public void testUpdateDeviceLifeCycleForDeviceTypeVersionicFail() throws Exception {
+        when(deviceConfigurationService.findAndLockDeviceType(1L, 100)).thenReturn(Optional.empty());
+
+        ChangeDeviceLifeCycleInfo info = new ChangeDeviceLifeCycleInfo();
+        info.targetDeviceLifeCycle = new DeviceLifeCycleInfo();
+        info.targetDeviceLifeCycle.id = 2;
+        info.version = 100;
+        Entity<ChangeDeviceLifeCycleInfo> json = Entity.json(info);
+        Response response = target("/devicetypes/1/devicelifecycle").request().put(json);
+        assertThat(response.getStatus()).isEqualTo(409);
     }
 
     private ConnectionTask<?, ?> mockConnectionTask(long partialConnectionTaskId) {

@@ -34,6 +34,7 @@ public class DeviceTypeInfo {
     public List<RegisterTypeInfo> registerTypes;
     public Long deviceLifeCycleId;
     public String deviceLifeCycleName;
+    public long version;
 
     public DeviceTypeInfo() {
     }
@@ -67,6 +68,7 @@ public class DeviceTypeInfo {
             deviceTypeInfo.deviceLifeCycleId = deviceLifeCycle.getId();
             deviceTypeInfo.deviceLifeCycleName = deviceLifeCycle.getName();
         }
+        deviceTypeInfo.version = deviceType.getVersion();
         return deviceTypeInfo;
     }
 

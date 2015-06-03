@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
+import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -17,17 +18,23 @@ import com.energyict.mdc.masterdata.RegisterGroup;
 import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
+import java.util.Optional;
 import java.util.function.Function;
 
 public class ResourceHelper {
 
+    private final ExceptionFactory exceptionFactory;
     private final MasterDataService masterDataService;
     private final DeviceConfigurationService deviceConfigurationService;
     private final DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
 
     @Inject
-    public ResourceHelper(MasterDataService masterDataService, DeviceConfigurationService deviceConfigurationService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+    public ResourceHelper(ExceptionFactory exceptionFactory,
+                          MasterDataService masterDataService,
+                          DeviceConfigurationService deviceConfigurationService,
+                          DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
         super();
+        this.exceptionFactory = exceptionFactory;
         this.masterDataService = masterDataService;
         this.deviceConfigurationService = deviceConfigurationService;
         this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
@@ -56,6 +63,12 @@ public class ResourceHelper {
         return deviceConfigurationService
                 .findDeviceType(id)
                 .orElseThrow(() -> new WebApplicationException("No device type with id " + id, Response.Status.NOT_FOUND));
+    }
+
+    public DeviceType findAndLockDeviceType(long id, long version) {
+        return deviceConfigurationService
+                .findAndLockDeviceType(id, version)
+                .orElseThrow(() -> new WebApplicationException(Response.Status.CONFLICT));
     }
 
     public DeviceConfiguration findDeviceConfigurationForDeviceTypeOrThrowException(DeviceType deviceType, long deviceConfigurationId) {
@@ -107,7 +120,12 @@ public class ResourceHelper {
                         Response.status(Response.Status.NOT_FOUND).entity("Required protocol dialect connection properties are missing").build()));
     }
 
-    public DeviceLifeCycle findDeviceLifeCycle(long id) {
-        return deviceLifeCycleConfigurationService.findDeviceLifeCycle(id).orElse(null);
+    public Optional<DeviceLifeCycle> findDeviceLifeCycleById(long id) {
+        return deviceLifeCycleConfigurationService.findDeviceLifeCycle(id);
+    }
+
+    public DeviceLifeCycle findDeviceLifeCycleByIdOrThrowException(long id) {
+        return deviceLifeCycleConfigurationService.findDeviceLifeCycle(id)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_DEVICE_LIFE_CYCLE, id));
     }
 }
