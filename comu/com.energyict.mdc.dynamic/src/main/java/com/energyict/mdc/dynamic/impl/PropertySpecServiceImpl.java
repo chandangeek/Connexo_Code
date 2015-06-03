@@ -12,13 +12,12 @@ import com.energyict.mdc.dynamic.ObisCodeValueFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
 import com.energyict.mdc.dynamic.TimeDurationValueFactory;
-
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.BooleanFactory;
 import com.elster.jupiter.properties.FindById;
-import com.elster.jupiter.properties.ListValueEntry;
+import com.elster.jupiter.properties.IdWithNameValue;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecBuilder;
 import com.elster.jupiter.properties.TimeZoneFactory;
@@ -26,6 +25,7 @@ import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.time.TimeDuration;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
+
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -33,6 +33,7 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
+
 import java.math.BigDecimal;
 import java.util.Map;
 import java.util.TimeZone;
@@ -218,7 +219,7 @@ public class PropertySpecServiceImpl implements PropertySpecService {
     }
 
     @Override
-    public <T extends ListValueEntry> PropertySpec listValuePropertySpec(String name, boolean required, FindById<T> finder, T... values) {
+    public <T extends IdWithNameValue> PropertySpec listValuePropertySpec(String name, boolean required, FindById<T> finder, T... values) {
         return basicPropertySpecService.listValuePropertySpec(name, required, finder, values);
     }
 
@@ -285,5 +286,10 @@ public class PropertySpecServiceImpl implements PropertySpecService {
     @Override
     public PropertySpec boundedLongPropertySpec(String name, boolean required, Long lowerLimit, Long upperLimit) {
         return basicPropertySpecService.boundedLongPropertySpec(name,required,lowerLimit,upperLimit);
+    }
+    
+    @Override
+    public <T extends IdWithNameValue> PropertySpec idWithNameValuePropertySpec(String name, boolean required, FindById<T> finder, T... values) {
+        return basicPropertySpecService.idWithNameValuePropertySpec(name, required, finder, values);
     }
 }
