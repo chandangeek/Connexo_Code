@@ -6,6 +6,7 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.IssueActionFactory;
 import com.elster.jupiter.issue.share.IssueProvider;
+import com.elster.jupiter.issue.share.entity.AssigneeType;
 import com.elster.jupiter.issue.share.entity.Entity;
 import com.elster.jupiter.issue.share.entity.HistoricalIssue;
 import com.elster.jupiter.issue.share.entity.Issue;
@@ -41,7 +42,7 @@ public interface IssueService {
 
     Optional<IssueType> findIssueType(String key);
 
-    IssueAssignee findIssueAssignee(String type, long id);
+    Optional<IssueAssignee> findIssueAssignee(AssigneeType assigneeType, long id);
 
     boolean checkIssueAssigneeType(String type);
 

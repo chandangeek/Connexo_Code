@@ -17,9 +17,11 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.FindById;
-import com.elster.jupiter.properties.ListValueEntry;
+import com.elster.jupiter.properties.IdWithNameValue;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.conditions.Where;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
@@ -27,41 +29,46 @@ import com.google.common.collect.ImmutableList.Builder;
 public class CloseIssueAction extends AbstractIssueAction {
     
     private static final String NAME = "CloseIssueAction";
-    private static final String CLOSESTATUS = NAME + ".status";
-    private static final String COMMENT = NAME + ".comment";
+    static final String CLOSE_STATUS = NAME + ".status";
+    static final String COMMENT = NAME + ".comment";
 
     private final PossibleStatuses statuses = new PossibleStatuses();
     
     private final IssueService issueService;
+    private final ThreadPrincipalService threadPrincipalService;
 
     @Inject
-    protected CloseIssueAction(DataModel dataModel,Thesaurus thesaurus, PropertySpecService propertySpecService, IssueService issueService) {
+    protected CloseIssueAction(DataModel dataModel, Thesaurus thesaurus, PropertySpecService propertySpecService, IssueService issueService, ThreadPrincipalService threadPrincipalService) {
         super(dataModel, thesaurus, propertySpecService);
         this.issueService = issueService;
+        this.threadPrincipalService = threadPrincipalService;
     }
 
     @Override
     public IssueActionResult execute(Issue issue) {
-      DefaultActionResult result = new DefaultActionResult();
+        DefaultActionResult result = new DefaultActionResult();
 
-      IssueStatus closeStatus = getStatusFromParameters(properties);
-      if (closeStatus == null) {
-          result.fail(MessageSeeds.ACTION_WRONG_STATUS.getTranslated(getThesaurus()));
-          return result;
-      }
-      if (isApplicable(issue)){
-          ((OpenIssue)issue).close(closeStatus);
-          result.success(MessageSeeds.ACTION_ISSUE_WAS_CLOSED.getTranslated(getThesaurus()));
-      } else {
-          result.fail(MessageSeeds.ACTION_ISSUE_ALREADY_CLOSED.getTranslated(getThesaurus()));
-      }
-      return result;
+        Optional<IssueStatus> closeStatus = getStatusFromParameters(properties);
+        if (!closeStatus.isPresent()) {
+            result.fail(MessageSeeds.ACTION_WRONG_STATUS.getTranslated(getThesaurus()));
+            return result;
+        }
+        if (isApplicable(issue)) {
+            ((OpenIssue) issue).close(closeStatus.get());
+            getCommentFromParameters(properties).ifPresent(comment -> {
+                issue.addComment(comment, (User)threadPrincipalService.getPrincipal());
+            });
+            result.success(MessageSeeds.ACTION_ISSUE_WAS_CLOSED.getTranslated(getThesaurus()));
+        } else {
+            result.fail(MessageSeeds.ACTION_ISSUE_ALREADY_CLOSED.getTranslated(getThesaurus()));
+        }
+        return result;
     }
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
         Builder<PropertySpec> builder = ImmutableList.builder();
-        builder.add(getPropertySpecService().listValuePropertySpec(CLOSESTATUS, true, statuses, statuses.getStatuses()));
+        builder.add(getPropertySpecService().idWithNameValuePropertySpec(CLOSE_STATUS, true, statuses, statuses.getStatuses()));
         builder.add(getPropertySpecService().stringPropertySpec(COMMENT, false, null));
         return builder.build();
     }
@@ -74,7 +81,7 @@ public class CloseIssueAction extends AbstractIssueAction {
     @Override
     public String getPropertyDefaultFormat(String property) {
         switch (property) {
-        case CLOSESTATUS:
+        case CLOSE_STATUS:
             return MessageSeeds.PARAMETER_CLOSE_STATUS.getDefaultFormat();
         case COMMENT:
             return MessageSeeds.PARAMETER_COMMENT.getDefaultFormat();
@@ -89,40 +96,55 @@ public class CloseIssueAction extends AbstractIssueAction {
         return super.isApplicable(issue) && IssueStatus.OPEN.equals(issue.getStatus().getKey());
     }
 
-    private IssueStatus getStatusFromParameters(Map<String, Object> properties){
-        String statusKey = getPropertySpec(CLOSESTATUS).getValueFactory().toStringValue(properties.get(CLOSESTATUS));
-        return issueService.findStatus(statusKey).orElse(null);
+    private Optional<IssueStatus> getStatusFromParameters(Map<String, Object> properties){
+        Object value = properties.get(CLOSE_STATUS);
+        if (value != null) {
+            @SuppressWarnings("unchecked")
+            String statusKey = getPropertySpec(CLOSE_STATUS).getValueFactory().toStringValue(value);
+            return issueService.findStatus(statusKey);
+        }
+        return Optional.empty();
     }
     
-    private class PossibleStatuses implements FindById<IssueStatusEntry> {
+    private Optional<String> getCommentFromParameters(Map<String, Object> properties) {
+        Object value = properties.get(COMMENT);
+        if (value != null) {
+            @SuppressWarnings("unchecked")
+            String comment = getPropertySpec(COMMENT).getValueFactory().toStringValue(value);
+            return Optional.ofNullable(comment);
+        }
+        return Optional.empty();
+    }
+    
+    class PossibleStatuses implements FindById<Status> {
         
         @Override
-        public Optional<IssueStatusEntry> findById(String id) {
-            return issueService.findStatus(id).map(status -> new IssueStatusEntry(status));
+        public Optional<Status> findById(Object id) {
+            return issueService.findStatus(id.toString()).map(status -> new Status(status));
         }
         
-        public IssueStatusEntry[] getStatuses() {
+        public Status[] getStatuses() {
             List<IssueStatus> statuses = issueService.query(IssueStatus.class).select(Where.where("isHistorical").isEqualTo(Boolean.TRUE));
-            return statuses.stream().map(status -> new IssueStatusEntry(status)).toArray(IssueStatusEntry[]::new);
+            return statuses.stream().map(status -> new Status(status)).toArray(Status[]::new);
         }
     }
     
-    private class IssueStatusEntry implements ListValueEntry {
+    static class Status extends IdWithNameValue {
         
-        private IssueStatus issueStatus;
+        private IssueStatus status;
         
-        public IssueStatusEntry(IssueStatus issueStatus) {
-            this.issueStatus = issueStatus;
+        public Status(IssueStatus status) {
+            this.status = status;
         }
-
+        
         @Override
-        public String getId() {
-            return issueStatus.getKey();
+        public Object getId() {
+            return status.getKey();
         }
         
         @Override
         public String getName() {
-            return issueStatus.getName();
+            return status.getName();
         }
     }
 }

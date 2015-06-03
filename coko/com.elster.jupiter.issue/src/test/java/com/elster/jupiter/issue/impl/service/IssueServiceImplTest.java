@@ -61,9 +61,7 @@ public class IssueServiceImplTest extends BaseTest {
     @Test
     @Transactional
     public void testIssueApiQuery(){
-//        deactivateEnvironment();
-//        setEnvironment();
-        OpenIssue openIssue = createIssueMinInfo();
+        createIssueMinInfo();
         OpenIssue closedIssue = createIssueMinInfo();
         closedIssue.close(getIssueService().findStatus(IssueStatus.RESOLVED).get());
         // So fo now we have one open issue and one closed
@@ -74,7 +72,7 @@ public class IssueServiceImplTest extends BaseTest {
         size = getIssueService().query(Issue.class).select(Condition.TRUE).size();
         assertThat(size).isEqualTo(2);
     }
-
+    
     public void testIssueGroupList() {
         createIssueMinInfo();
         createIssueMinInfo();

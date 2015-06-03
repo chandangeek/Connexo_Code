@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.logging.Logger;
 
+import com.elster.jupiter.issue.impl.actions.AssignIssueAction;
 import com.elster.jupiter.issue.impl.actions.CloseIssueAction;
 import com.elster.jupiter.issue.impl.database.CreateIssueViewOperation;
 import com.elster.jupiter.issue.impl.service.IssueDefaultActionsFactory;
@@ -107,7 +108,7 @@ public class Installer {
     private void createActionTypes() {
         IssueType type = null;
         issueActionService.createActionType(IssueDefaultActionsFactory.ID, CloseIssueAction.class.getName(), type, CreationRuleActionPhase.OVERDUE);
-//        issueActionService.createActionType(IssueDefaultActionsFactory.ID, AssignIssueAction.class.getName(), type);
+        issueActionService.createActionType(IssueDefaultActionsFactory.ID, AssignIssueAction.class.getName(), type);
     }
 
     public static void run(Runnable runnable, String explanation){

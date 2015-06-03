@@ -1,37 +1,41 @@
-package com.elster.jupiter.issue.impl.records.assignee.types;
+package com.elster.jupiter.issue.share.entity;
+
+import java.util.Optional;
 
 import com.elster.jupiter.issue.impl.records.IssueAssigneeImpl;
 import com.elster.jupiter.issue.impl.records.IssueImpl;
+import com.elster.jupiter.issue.impl.records.assignee.types.AssigneeTypeImpl;
+import com.elster.jupiter.issue.impl.records.assignee.types.UserType;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.users.UserService;
 
 public enum AssigneeType {
-    USER(new UserType()),
-   ;
+    
+    USER(new UserType()), ;
 
     private AssigneeTypeImpl typeImpl;
 
-    private AssigneeType(AssigneeTypeImpl type){
+    private AssigneeType(AssigneeTypeImpl type) {
         this.typeImpl = type;
     }
 
-    public String getType(){
+    public String getType() {
         return typeImpl.getType();
     }
 
-    public IssueAssigneeImpl getAssignee(IssueImpl issue){
+    public IssueAssigneeImpl getAssignee(IssueImpl issue) {
         return typeImpl.getAssignee(issue);
     }
 
-    public IssueAssigneeImpl getAssignee(IssueService issueService, UserService userService, long id){
+    public Optional<IssueAssignee> getAssignee(IssueService issueService, UserService userService, long id) {
         return typeImpl.getAssignee(issueService, userService, id);
     }
 
-    public String getColumnName(){
+    public String getColumnName() {
         return typeImpl.getColumnName();
     }
 
-    public void applyAssigneeToIssue(IssueImpl issue, IssueAssigneeImpl issueAssignee){
+    public void applyAssigneeToIssue(IssueImpl issue, IssueAssigneeImpl issueAssignee) {
         if (issue != null) {
             issue.setAssigneeType(this);
             typeImpl.applyAssigneeToIssue(issue, issueAssignee);

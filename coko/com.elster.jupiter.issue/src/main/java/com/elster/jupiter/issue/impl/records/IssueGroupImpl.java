@@ -2,10 +2,8 @@ package com.elster.jupiter.issue.impl.records;
 
 import com.elster.jupiter.issue.share.entity.IssueGroup;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
 
 public class IssueGroupImpl implements IssueGroup {
-    private DataModel dataModel;
     private Thesaurus thesaurus;
 
     private Object groupKey;
@@ -14,8 +12,7 @@ public class IssueGroupImpl implements IssueGroup {
 
     public IssueGroupImpl() {}
 
-    public IssueGroupImpl(DataModel dataModel, Thesaurus thesaurus){
-        this.dataModel = dataModel;
+    public IssueGroupImpl(Thesaurus thesaurus){
         this.thesaurus = thesaurus;
     }
 

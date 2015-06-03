@@ -1,6 +1,8 @@
 package com.elster.jupiter.issue.impl.service;
 
+import com.elster.jupiter.issue.impl.actions.AssignIssueAction;
 import com.elster.jupiter.issue.impl.actions.CloseIssueAction;
+import com.elster.jupiter.issue.impl.actions.CommentIssueAction;
 import com.elster.jupiter.issue.share.IssueAction;
 import com.elster.jupiter.issue.share.IssueActionFactory;
 import com.elster.jupiter.issue.share.entity.IssueActionClassLoadFailedException;
@@ -47,12 +49,13 @@ public class IssueDefaultActionsFactory implements IssueActionFactory {
     }
 
     @Inject
-    public IssueDefaultActionsFactory(NlsService nlsService, UserService userService, IssueService issueService, ThreadPrincipalService threadPrincipalService, OrmService ormService) {
+    public IssueDefaultActionsFactory(NlsService nlsService, UserService userService, IssueService issueService, ThreadPrincipalService threadPrincipalService, OrmService ormService, PropertySpecService propertySpecService) {
         setThesaurus(nlsService);
         setUserService(userService);
         setIssueService(issueService);
         setThreadPrincipalService(threadPrincipalService);
         setOrmService(ormService);
+        setPropertySpecService(propertySpecService);
 
         activate();
     }
@@ -79,7 +82,7 @@ public class IssueDefaultActionsFactory implements IssueActionFactory {
     public IssueAction createIssueAction(String issueActionClassName) {
         Provider<? extends IssueAction> provider = actionProviders.get(issueActionClassName);
         if (provider == null) {
-            throw new IssueActionClassLoadFailedException(thesaurus);
+            throw new IssueActionClassLoadFailedException(thesaurus, issueActionClassName);
         }
         return provider.get();
     }
@@ -123,7 +126,8 @@ public class IssueDefaultActionsFactory implements IssueActionFactory {
     private void addDefaultActions() {
         try {
             actionProviders.put(CloseIssueAction.class.getName(), injector.getProvider(CloseIssueAction.class));
-//            actionProviders.put(AssignIssueAction.class.getName(), injector.getProvider(AssignIssueAction.class));
+            actionProviders.put(CommentIssueAction.class.getName(), injector.getProvider(CommentIssueAction.class));
+            actionProviders.put(AssignIssueAction.class.getName(), injector.getProvider(AssignIssueAction.class));
         } catch (ConfigurationException | ProvisionException e) {
             LOG.warning(e.getMessage());
         }

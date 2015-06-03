@@ -2,7 +2,7 @@ package com.elster.jupiter.issue.impl.database.groups;
 
 import com.elster.jupiter.issue.impl.database.DatabaseConst;
 import com.elster.jupiter.issue.impl.database.TableSpecs;
-import com.elster.jupiter.issue.impl.records.assignee.types.AssigneeType;
+import com.elster.jupiter.issue.share.entity.AssigneeType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.LiteralSql;

@@ -1,4 +1,4 @@
-package com.elster.jupiter.issue.impl.records;
+package com.elster.jupiter.issue.impl.records.validator;
 
 import java.lang.annotation.Annotation;
 import java.util.List;
@@ -10,10 +10,10 @@ import com.elster.jupiter.issue.share.AbstractIssueAction;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 
-public class IssueActionPropertiesConstraintValidator extends AbstractPropertiesConstraintValidator<Annotation, AbstractIssueAction> {
+public class IssueActionPropertiesValidator extends AbstractPropertiesConstraintValidator<Annotation, AbstractIssueAction> {
 
     @Inject
-    public IssueActionPropertiesConstraintValidator(Thesaurus thesaurus) {
+    public IssueActionPropertiesValidator(Thesaurus thesaurus) {
         super(thesaurus);
     }
     

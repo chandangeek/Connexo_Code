@@ -1,10 +1,12 @@
 package com.elster.jupiter.issue.impl.service;
 
+import static com.elster.jupiter.util.conditions.Where.where;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.time.Instant;
 import java.util.Collections;
+import java.util.List;
 import java.util.logging.Level;
 
 import org.junit.AfterClass;
@@ -26,21 +28,21 @@ import org.osgi.service.event.EventAdmin;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
+import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.issue.impl.module.IssueModule;
-import com.elster.jupiter.issue.impl.records.CreationRuleBuilderImpl;
-import com.elster.jupiter.issue.impl.records.CreationRuleImpl;
 import com.elster.jupiter.issue.impl.records.OpenIssueImpl;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.IssueAction;
 import com.elster.jupiter.issue.share.IssueActionFactory;
 import com.elster.jupiter.issue.share.IssueEvent;
 import com.elster.jupiter.issue.share.entity.CreationRule;
-import com.elster.jupiter.issue.share.entity.DueInType;
+import com.elster.jupiter.issue.share.entity.Issue;
+import com.elster.jupiter.issue.share.entity.IssueComment;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
@@ -51,7 +53,6 @@ import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleB
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.impl.OrmModule;
@@ -67,9 +68,11 @@ import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
+import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -143,8 +146,8 @@ public class BaseTest {
                 new EventsModule(),
                 new DomainUtilModule(),
                 new OrmModule(),
-                new UtilModule(),
                 new ThreadSecurityModule(),
+                new UtilModule(),
                 new PubSubModule(),
                 new TransactionModule(),
                 new NlsModule(),
@@ -204,6 +207,10 @@ public class BaseTest {
     protected PropertySpecService getPropertySpecService() {
         return injector.getInstance(PropertySpecService.class);
     }
+    
+    protected IssueDefaultActionsFactory getDefaultActionsFactory() {
+        return injector.getInstance(IssueDefaultActionsFactory.class);
+    }
 
     protected OpenIssue createIssueMinInfo() {
         OpenIssue issue = getDataModel().getInstance(OpenIssueImpl.class);
@@ -247,7 +254,6 @@ public class BaseTest {
         return service;
     }
 
-    @SuppressWarnings("deprecation")
     protected static KnowledgeBaseFactoryService mockKnowledgeBaseFactoryService() {
         KieBaseConfiguration config = mock(KieBaseConfiguration.class);
         KnowledgeBase base = mockKnowledgeBase();
@@ -257,7 +263,6 @@ public class BaseTest {
         return service;
     }
 
-    @SuppressWarnings("deprecation")
     protected static KnowledgeBase mockKnowledgeBase() {
         StatefulKnowledgeSession ksession = mockStatefulKnowledgeSession();//mock(StatefulKnowledgeSession.class);
         KnowledgeBase base = mock(KnowledgeBase.class);
@@ -282,5 +287,10 @@ public class BaseTest {
 
     protected IssueAction getMockIssueAction() {
         return mock(IssueAction.class);
+    }
+    
+    protected List<IssueComment> getIssueComments(Issue issue) {
+        Query<IssueComment> query = getIssueService().query(IssueComment.class, User.class);
+        return query.select(where("issueId").isEqualTo(issue.getId()), Order.ascending("createTime"));
     }
 }

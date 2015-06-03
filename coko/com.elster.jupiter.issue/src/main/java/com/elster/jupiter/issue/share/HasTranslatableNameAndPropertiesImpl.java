@@ -2,6 +2,8 @@ package com.elster.jupiter.issue.share;
 
 import javax.inject.Inject;
 
+import aQute.bnd.annotation.ConsumerType;
+
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsKey;
@@ -11,6 +13,7 @@ import com.elster.jupiter.properties.HasDynamicProperties;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 
+@ConsumerType
 public abstract class HasTranslatableNameAndPropertiesImpl implements HasTranslatableNameAndProperties, HasDynamicProperties {
 
     private Thesaurus thesaurus;
@@ -22,8 +25,9 @@ public abstract class HasTranslatableNameAndPropertiesImpl implements HasTransla
 
     @Inject
     protected HasTranslatableNameAndPropertiesImpl(Thesaurus thesaurus, PropertySpecService propertySpecService) {
-        this.thesaurus = thesaurus;
-        this.propertySpecService = propertySpecService;
+        this();
+        setThesaurus(thesaurus);
+        setPropertySpecService(propertySpecService);
     }
 
     @Override

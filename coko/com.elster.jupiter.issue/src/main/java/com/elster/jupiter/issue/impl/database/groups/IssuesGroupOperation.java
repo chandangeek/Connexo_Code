@@ -64,7 +64,7 @@ public abstract class IssuesGroupOperation {
             PreparedStatement groupingStatement = buildStatement(conn, sql);
             try (ResultSet rs = groupingStatement.executeQuery()) {
                 while (rs.next()) {
-                    groups.add(new IssueGroupImpl(this.dataModel, this.thesaurus)
+                    groups.add(new IssueGroupImpl(this.thesaurus)
                             .init(rs.getObject(GROUP_KEY), rs.getString(GROUP_TITLE), rs.getLong(GROUP_COUNT)));
                 }
             }

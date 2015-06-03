@@ -1,4 +1,4 @@
-package com.elster.jupiter.issue.impl.records;
+package com.elster.jupiter.issue.impl.records.validator;
 
 import java.lang.annotation.Annotation;
 import java.util.List;

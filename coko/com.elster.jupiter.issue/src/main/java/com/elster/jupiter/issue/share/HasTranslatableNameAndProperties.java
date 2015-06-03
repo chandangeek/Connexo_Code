@@ -1,19 +1,19 @@
 package com.elster.jupiter.issue.share;
 
+import aQute.bnd.annotation.ConsumerType;
+
 import com.elster.jupiter.nls.NlsKey;
 
-import aQute.bnd.annotation.ProviderType;
-
-@ProviderType
+@ConsumerType
 public interface HasTranslatableNameAndProperties {
     
     String getDisplayName();
-    
-    String getDisplayName(String propertyName);
 
     NlsKey getNameNlsKey();
     
     String getNameDefaultFormat();
+    
+    String getDisplayName(String property);
 
     NlsKey getPropertyNlsKey(String property);
     

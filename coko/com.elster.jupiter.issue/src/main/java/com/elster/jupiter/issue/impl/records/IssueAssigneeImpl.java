@@ -1,6 +1,6 @@
 package com.elster.jupiter.issue.impl.records;
 
-import com.elster.jupiter.issue.impl.records.assignee.types.AssigneeType;
+import com.elster.jupiter.issue.share.entity.AssigneeType;
 import com.elster.jupiter.issue.share.entity.IssueAssignee;
 import com.elster.jupiter.orm.DataModel;
 

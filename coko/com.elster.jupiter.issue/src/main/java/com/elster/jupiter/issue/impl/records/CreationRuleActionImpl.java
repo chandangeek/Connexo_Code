@@ -14,6 +14,7 @@ import javax.validation.constraints.NotNull;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
+import com.elster.jupiter.issue.impl.records.validator.HasValidProperties;
 import com.elster.jupiter.issue.share.IssueAction;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.CreationRuleAction;
@@ -26,7 +27,7 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.properties.PropertySpec;
 
-@HasValidActionProperties(groups = {Save.Create.class, Save.Update.class})
+@HasValidProperties(groups = {Save.Create.class, Save.Update.class})
 public class CreationRuleActionImpl implements CreationRuleAction {
 
     @SuppressWarnings("unused")

@@ -1,7 +1,5 @@
 package com.elster.jupiter.issue.impl.records;
 
-import java.util.Map;
-
 import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleUpdater;
 import com.elster.jupiter.orm.DataModel;
 

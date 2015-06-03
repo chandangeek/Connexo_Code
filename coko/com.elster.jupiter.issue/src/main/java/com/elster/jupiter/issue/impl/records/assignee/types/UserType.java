@@ -11,6 +11,7 @@ import com.elster.jupiter.users.UserService;
 import java.util.Optional;
 
 public class UserType extends AssigneeTypeImpl {
+    
     @Override
     public IssueAssigneeImpl getAssignee(IssueImpl issueImpl) {
         checkIssue(issueImpl);
@@ -25,12 +26,9 @@ public class UserType extends AssigneeTypeImpl {
     }
 
     @Override
-    public IssueAssigneeImpl getAssignee(IssueService issueService, UserService userService, long id) {
+    public Optional<IssueAssignee> getAssignee(IssueService issueService, UserService userService, long id) {
         Optional<User> assigneeRef = userService.getUser(id);
-        if (assigneeRef.isPresent()){
-            return new AssigneeUserImpl(assigneeRef.get());
-        }
-        return null;
+        return assigneeRef.map(user -> Optional.<IssueAssignee> of(new AssigneeUserImpl(assigneeRef.get()))).orElse(Optional.empty());
     }
 
     @Override

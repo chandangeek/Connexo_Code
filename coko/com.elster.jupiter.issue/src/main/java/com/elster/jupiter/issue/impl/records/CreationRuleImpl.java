@@ -19,6 +19,8 @@ import javax.validation.constraints.Size;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
+import com.elster.jupiter.issue.impl.records.validator.HasUniqueName;
+import com.elster.jupiter.issue.impl.records.validator.HasValidProperties;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.CreationRuleAction;
@@ -38,7 +40,7 @@ import com.elster.jupiter.util.collections.DiffList;
 import com.elster.jupiter.util.conditions.Condition;
 
 @HasUniqueName(message = "{" + MessageSeeds.Keys.CREATION_RULE_UNIQUE_NAME + "}")
-@HasValidRuleProperties(groups = {Save.Create.class, Save.Update.class})
+@HasValidProperties(groups = {Save.Create.class, Save.Update.class})
 public class CreationRuleImpl extends EntityImpl implements CreationRule, UniqueNamed {
     
     private static final String PARAM_RULE_ID = "ruleId";
@@ -258,6 +260,7 @@ public class CreationRuleImpl extends EntityImpl implements CreationRule, Unique
         }
     }
 
+    @SuppressWarnings("unchecked")
     private void updateContent() {
         String rawContent = getTemplate().getContent();
         for (CreationRuleProperty property : properties) {

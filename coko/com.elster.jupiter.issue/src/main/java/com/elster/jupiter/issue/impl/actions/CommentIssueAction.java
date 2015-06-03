@@ -1,10 +1,12 @@
 package com.elster.jupiter.issue.impl.actions;
 
-import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import javax.inject.Inject;
 
+import com.elster.jupiter.issue.impl.module.MessageSeeds;
 import com.elster.jupiter.issue.share.AbstractIssueAction;
 import com.elster.jupiter.issue.share.IssueActionResult;
 import com.elster.jupiter.issue.share.entity.Issue;
@@ -18,7 +20,8 @@ import com.google.common.collect.ImmutableList;
 
 public class CommentIssueAction extends AbstractIssueAction {
     
-    public static final String ISSUE_COMMENT = "commentIssueAction.comment";
+    private static final String NAME = "CommentIssueAction";
+    public static final String ISSUE_COMMENT = NAME + ".comment";
 
     private final ThreadPrincipalService threadPrincipalService;
 
@@ -32,31 +35,37 @@ public class CommentIssueAction extends AbstractIssueAction {
     public IssueActionResult execute(Issue issue) {
         IssueActionResult.DefaultActionResult result = new IssueActionResult.DefaultActionResult();
         User author = (User) threadPrincipalService.getPrincipal();
-        String comment = getPropertySpec(ISSUE_COMMENT).getValueFactory().toStringValue(properties.get(ISSUE_COMMENT));
-        issue.addComment(comment, author);
-        result.success();
+        getCommentFromParameters(properties).ifPresent(comment -> {
+            issue.addComment(comment, author);
+        });
+        result.success(MessageSeeds.ACTION_ISSUE_WAS_COMMENTED.getTranslated(getThesaurus()));
         return result;
     }
-
-    @Override
-    public boolean isApplicable(Issue issue) {
-        return issue != null;
+    
+    private Optional<String> getCommentFromParameters(Map<String, Object> properties) {
+        Object value = properties.get(ISSUE_COMMENT);
+        if (value != null) {
+            @SuppressWarnings("unchecked")
+            String comment = getPropertySpec(ISSUE_COMMENT).getValueFactory().toStringValue(value);
+            return Optional.ofNullable(comment);
+        }
+        return Optional.empty();
     }
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
         ImmutableList.Builder<PropertySpec> builder = ImmutableList.builder();
-        builder.add(getPropertySpecService().stringPropertySpec(ISSUE_COMMENT, true, ""));
+        builder.add(getPropertySpecService().stringPropertySpec(ISSUE_COMMENT, true, null));
         return builder.build();
     }
 
     @Override
     public String getNameDefaultFormat() {
-        return "Comment";
+        return MessageSeeds.ACTION_COMMENT_ISSUE.getDefaultFormat();
     }
 
     @Override
     public String getPropertyDefaultFormat(String property) {
-        return ISSUE_COMMENT.equals(property) ? "Comment" : null;
+        return ISSUE_COMMENT.equals(property) ? MessageSeeds.PARAMETER_COMMENT.getDefaultFormat() : null;
     }
 }

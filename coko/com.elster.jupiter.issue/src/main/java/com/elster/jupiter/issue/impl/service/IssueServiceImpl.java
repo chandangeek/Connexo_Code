@@ -9,10 +9,10 @@ import com.elster.jupiter.issue.impl.module.MessageSeeds;
 import com.elster.jupiter.issue.impl.records.IssueReasonImpl;
 import com.elster.jupiter.issue.impl.records.IssueStatusImpl;
 import com.elster.jupiter.issue.impl.records.IssueTypeImpl;
-import com.elster.jupiter.issue.impl.records.assignee.types.AssigneeType;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.IssueActionFactory;
 import com.elster.jupiter.issue.share.IssueProvider;
+import com.elster.jupiter.issue.share.entity.AssigneeType;
 import com.elster.jupiter.issue.share.entity.Entity;
 import com.elster.jupiter.issue.share.entity.HistoricalIssue;
 import com.elster.jupiter.issue.share.entity.Issue;
@@ -347,12 +347,8 @@ public class IssueServiceImpl implements IssueService, InstallService, Translati
     }
 
     @Override
-    public IssueAssignee findIssueAssignee(String type, long id) {
-        AssigneeType assigneeType = AssigneeType.fromString(type);
-        if (assigneeType != null) {
-            return assigneeType.getAssignee(this, userService, id);
-        }
-        return null;
+    public Optional<IssueAssignee> findIssueAssignee(AssigneeType assigneeType, long id) {
+        return assigneeType != null ? assigneeType.getAssignee(this, userService, id) : Optional.empty();
     }
 
     @Override

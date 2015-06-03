@@ -1,14 +1,14 @@
 package com.elster.jupiter.issue.impl.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
@@ -78,7 +78,6 @@ public class IssueActionServiceImplTest extends BaseTest {
         assertThat(action.isPresent()).isFalse();
     }
 
-    @Ignore("NOT ALL DEFAULT ACTIONS IS READY")
     @Test
     public void testCreateIssueActionDublicate() {
         deactivateEnvironment();

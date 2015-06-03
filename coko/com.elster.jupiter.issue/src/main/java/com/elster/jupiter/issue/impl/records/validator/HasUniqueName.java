@@ -1,4 +1,4 @@
-package com.elster.jupiter.issue.impl.records;
+package com.elster.jupiter.issue.impl.records.validator;
 
 import javax.validation.Constraint;
 import javax.validation.Payload;
@@ -9,13 +9,14 @@ import java.lang.annotation.Target;
 
 @Target({ ElementType.TYPE, ElementType.ANNOTATION_TYPE })
 @Retention(RetentionPolicy.RUNTIME)
-@Constraint(validatedBy = { CreationRulePropertiesValidator.class })
-public @interface HasValidRuleProperties {
+@Constraint(validatedBy = { HasUniqueNameValidator.class })
+public @interface HasUniqueName {
 
     String message() default "";
 
-    Class<?>[] groups() default {};
+    Class<?>[] groups() default { };
 
-    Class<? extends Payload>[] payload() default {};
+    Class<? extends Payload>[] payload() default { };
 
+    boolean caseSensitive() default true;
 }

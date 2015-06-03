@@ -2,7 +2,7 @@ package com.elster.jupiter.issue.impl.records;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
-import com.elster.jupiter.issue.impl.records.assignee.types.AssigneeType;
+import com.elster.jupiter.issue.share.entity.AssigneeType;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.HistoricalIssue;
 import com.elster.jupiter.issue.share.entity.Issue;
@@ -25,6 +25,7 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 
 import javax.inject.Inject;
+
 import java.time.Instant;
 import java.util.Collections;
 import java.util.Optional;
@@ -47,6 +48,7 @@ public class IssueImpl extends EntityImpl implements Issue {
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     private Reference<CreationRule> rule = ValueReference.absent();
 
+    @SuppressWarnings("unused")
     private volatile UserService userService;
     private volatile IssueService issueService;
     private volatile IssueAssignmentService issueAssignmentService;
@@ -195,8 +197,10 @@ public class IssueImpl extends EntityImpl implements Issue {
 
     @Override
     public void assignTo(String type, long id) {
-        IssueAssignee assignee = issueService.findIssueAssignee(type, id);
-        assignTo(assignee);
+        Optional<IssueAssignee> assignee = issueService.findIssueAssignee(AssigneeType.fromString(type), id);
+        if (assignee.isPresent()) {
+            assignTo(assignee.get());    
+        }
     }
 
     @Override

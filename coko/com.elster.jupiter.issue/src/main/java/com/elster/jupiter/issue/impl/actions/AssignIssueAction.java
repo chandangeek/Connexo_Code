@@ -1,102 +1,141 @@
 package com.elster.jupiter.issue.impl.actions;
-//
-//import com.elster.jupiter.issue.impl.actions.parameters.AssigneeParameter;
-//import com.elster.jupiter.issue.impl.actions.parameters.IssueCommentParameter;
-//import com.elster.jupiter.issue.impl.actions.parameters.Parameter;
-//import com.elster.jupiter.issue.impl.module.MessageSeeds;
-//import com.elster.jupiter.issue.share.DefaultActionResult;
-//import com.elster.jupiter.issue.share.IssueActionResult;
-//import com.elster.jupiter.issue.share.cep.AbstractIssueAction;
-//import com.elster.jupiter.issue.share.cep.ParameterDefinitionContext;
-//import com.elster.jupiter.issue.share.cep.ParameterViolation;
-//import com.elster.jupiter.issue.share.entity.Issue;
-//import com.elster.jupiter.issue.share.entity.IssueAssignee;
-//import com.elster.jupiter.issue.share.service.IssueService;
-//import com.elster.jupiter.nls.NlsService;
-//import com.elster.jupiter.nls.Thesaurus;
-//
-//import static com.elster.jupiter.util.Checks.*;
-//
-//import com.elster.jupiter.security.thread.ThreadPrincipalService;
-//import com.elster.jupiter.users.User;
-//import com.elster.jupiter.users.UserService;
-//
-//import javax.inject.Inject;
-//
-//import java.util.ArrayList;
-//import java.util.List;
-//import java.util.Map;
-//
-//public class AssignIssueAction extends AbstractIssueAction {
-//    private IssueService issueService;
-//    private UserService userService;
-//    private ThreadPrincipalService threadPrincipalService;
-//
-//    @Inject
-//    public AssignIssueAction(NlsService nlsService, Thesaurus thesaurus, IssueService issueService, UserService userService, ThreadPrincipalService threadPrincipalService) {
-//        super(nlsService, thesaurus);
-//        this.issueService = issueService;
-//        this.userService = userService;
-//        this.threadPrincipalService = threadPrincipalService;
-//        initParameterDefinitions();
-//    }
-//
-//    @Override
-//    public IssueActionResult execute(Issue issue, Map<String, String> actionParameters) {
-//        validateParametersOrThrowException(actionParameters);
-//
-//        DefaultActionResult result = new DefaultActionResult();
-//        String assigneeType = actionParameters.get(Parameter.ASSIGNEE.getKey());
-//        if (assigneeType != null) {
-//            IssueAssignee assignee = getIssueAssignee(assigneeType, actionParameters);
-//            issue.assignTo(assignee);
-//            issue.save();
-//            User author = (User) threadPrincipalService.getPrincipal();
-//            issue.addComment(actionParameters.get(Parameter.COMMENT.getKey()), author);
-//            result.success(MessageSeeds.ACTION_ISSUE_WAS_ASSIGNED.getTranslated(getThesaurus(), assignee.getName()));
-//        }
-//        return result;
-//    }
-//
-//    @Override
-//    public String getLocalizedName() {
-//        return MessageSeeds.ACTION_ASSIGN_ISSUE.getTranslated(getThesaurus());
-//    }
-//
-//    private void initParameterDefinitions() {
-//        AssigneeParameter assigneeParameter = new AssigneeParameter(issueService, userService, getThesaurus());
-//        parameterDefinitions.put(assigneeParameter.getKey(), assigneeParameter);
-//
-//        IssueCommentParameter comment = new IssueCommentParameter(getThesaurus());
-//        parameterDefinitions.put(comment.getKey(), comment);
-//    }
-//
-//    @Override
-//    protected List<ParameterViolation> validate(Map<String, String> actionParameters, ParameterDefinitionContext context) {
-//        List<ParameterViolation> errors = new ArrayList<>();
-//        String assigneeType = actionParameters.get(Parameter.ASSIGNEE.getKey());
-//        if (!is(assigneeType).emptyOrOnlyWhiteSpace()){
-//            IssueAssignee assignee = getIssueAssignee(assigneeType, actionParameters);
-//            if (assignee == null){
-//                errors.add(new ParameterViolation(context.wrapKey(Parameter.ASSIGNEE.getKey()), MessageSeeds.ACTION_WRONG_ASSIGNEE.getTranslated(getThesaurus())));
-//            }
-//        } else {
-//            errors.add(new ParameterViolation(context.wrapKey(Parameter.ASSIGNEE.getKey()), MessageSeeds.ACTION_WRONG_ASSIGNEE.getTranslated(getThesaurus())));
-//        }
-//        errors.addAll(getParameterDefinitions().get(Parameter.COMMENT.getKey()).validate(actionParameters.get(Parameter.COMMENT.getKey()), context));
-//        return errors;
-//    }
-//
-//    private IssueAssignee getIssueAssignee(String assigneeType, Map<String, String> actionParameters) {
-//        IssueAssignee issueAssignee = null;
-//        String idValue = actionParameters.get(assigneeType);
-//        long id = 0;
-//        if (!is(idValue).emptyOrOnlyWhiteSpace()){
-//            try {
-//                id = Long.parseLong(idValue);
-//                issueAssignee = issueService.findIssueAssignee(assigneeType.substring(Parameter.ASSIGNEE.getKey().length()), id);
-//            } catch (NumberFormatException ex){}
-//        }
-//        return issueAssignee;
-//    }
-//}
+
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import javax.inject.Inject;
+
+import com.elster.jupiter.issue.impl.module.MessageSeeds;
+import com.elster.jupiter.issue.share.AbstractIssueAction;
+import com.elster.jupiter.issue.share.IssueActionResult;
+import com.elster.jupiter.issue.share.IssueActionResult.DefaultActionResult;
+import com.elster.jupiter.issue.share.entity.AssigneeType;
+import com.elster.jupiter.issue.share.entity.Issue;
+import com.elster.jupiter.issue.share.entity.IssueAssignee;
+import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.properties.FindById;
+import com.elster.jupiter.properties.IdWithNameValue;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Order;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableList.Builder;
+
+public class AssignIssueAction extends AbstractIssueAction {
+    
+    private static final String NAME = "AssignIssueAction";
+    static final String ASSIGNEE = NAME + ".assignee";
+    static final String COMMENT = NAME + ".comment";
+
+    private final PossibleAssignees assignees = new PossibleAssignees();
+    
+    private IssueService issueService;
+    private UserService userService;
+    private ThreadPrincipalService threadPrincipalService;
+    
+    @Inject
+    public AssignIssueAction(DataModel dataModel, Thesaurus thesaurus, PropertySpecService propertySpecService, IssueService issueService, UserService userService, ThreadPrincipalService threadPrincipalService) {
+        super(dataModel, thesaurus, propertySpecService);
+        this.issueService = issueService;
+        this.userService = userService;
+        this.threadPrincipalService = threadPrincipalService;
+    }
+
+    @Override
+    public IssueActionResult execute(Issue issue) {
+        DefaultActionResult result = new DefaultActionResult();
+        IssueAssignee assignee = getAssigneeFromParameters(properties).get();
+        issue.assignTo(assignee);
+        issue.save();
+        getCommentFromParameters(properties).ifPresent(comment -> {
+            issue.addComment(comment, (User)threadPrincipalService.getPrincipal());
+        });
+        result.success(MessageSeeds.ACTION_ISSUE_WAS_ASSIGNED.getTranslated(getThesaurus(), assignee.getName()));
+        return result;
+    }
+    
+    @SuppressWarnings("unchecked")
+    private Optional<IssueAssignee> getAssigneeFromParameters(Map<String, Object> properties) {
+        Object value = properties.get(ASSIGNEE);
+        if (value != null) {
+            String assigneeId = getPropertySpec(ASSIGNEE).getValueFactory().toStringValue(value);
+            return issueService.findIssueAssignee(AssigneeType.USER, Long.valueOf(assigneeId).longValue());
+        }
+        return Optional.empty();
+    }
+    
+    private Optional<String> getCommentFromParameters(Map<String, Object> properties) {
+        Object value = properties.get(COMMENT);
+        if (value != null) {
+            @SuppressWarnings("unchecked")
+            String comment = getPropertySpec(COMMENT).getValueFactory().toStringValue(value);
+            return Optional.ofNullable(comment);
+        }
+        return Optional.empty();
+    }
+    
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        Builder<PropertySpec> builder = ImmutableList.builder();
+        builder.add(getPropertySpecService().idWithNameValuePropertySpec(ASSIGNEE, true, assignees, assignees.getPossibleAssignees()));
+        builder.add(getPropertySpecService().stringPropertySpec(COMMENT, false, null));
+        return builder.build();
+    }
+
+    @Override
+    public String getNameDefaultFormat() {
+        return MessageSeeds.ACTION_ASSIGN_ISSUE.getDefaultFormat();
+    }
+    
+    @Override
+    public String getPropertyDefaultFormat(String property) {
+        switch (property) {
+        case ASSIGNEE:
+            return MessageSeeds.PARAMETER_ASSIGNEE.getDefaultFormat();
+        case COMMENT:
+            return MessageSeeds.PARAMETER_COMMENT.getDefaultFormat();
+        default:
+            break;
+        }
+        return null;
+    }
+    
+    class PossibleAssignees implements FindById<Assignee> {
+        
+        @Override
+        public Optional<Assignee> findById(Object id) {
+            return userService.getUser(Long.valueOf(id.toString()).longValue()).map(user -> new Assignee(user));
+        }
+        
+        public Assignee[] getPossibleAssignees() {
+            return userService.getUserQuery().select(Condition.TRUE, Order.ascending("authenticationName"))
+                                .stream().map(user -> new Assignee(user)).toArray(Assignee[]::new);
+        }
+    }
+    
+    static class Assignee extends IdWithNameValue {
+        
+        private User user;
+        
+        public Assignee(User user) {
+            this.user = user;
+        }
+        
+        @Override
+        public Object getId() {
+            return user.getId();
+        }
+        
+        @Override
+        public String getName() {
+            return user.getName();
+        }
+    }
+}
