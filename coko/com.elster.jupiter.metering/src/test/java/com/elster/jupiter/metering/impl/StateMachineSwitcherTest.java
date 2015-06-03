@@ -278,7 +278,7 @@ public class StateMachineSwitcherTest {
 
     private void mockIncompatibleStates() throws SQLException {
         when(this.resultSet.next()).thenReturn(true, false);
-        when(this.resultSet.getString(0)).thenReturn(NOT_MAPPED_STATE_NAME);
+        when(this.resultSet.getString(1)).thenReturn(NOT_MAPPED_STATE_NAME);
         when(this.newStateMachine.getState(NOT_MAPPED_STATE_NAME)).thenReturn(Optional.<State>empty());
         State oldState = mock(State.class);
         when(this.oldStateMachine.getState(NOT_MAPPED_STATE_NAME)).thenReturn(Optional.of(oldState));

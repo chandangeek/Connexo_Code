@@ -179,7 +179,7 @@ public class StateMachineSwitcher implements MessageHandler {
             try (ResultSet resultSet = statement.executeQuery()) {
                 Set<String> incompatibleStateNames = new HashSet<>();
                 while (resultSet.next()) {
-                    incompatibleStateNames.add(resultSet.getString(0));
+                    incompatibleStateNames.add(resultSet.getString(1));
                 }
                 return incompatibleStateNames;
             }
