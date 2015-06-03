@@ -9,8 +9,8 @@ import com.elster.jupiter.export.DataFormatter;
 import com.elster.jupiter.export.ExportData;
 import com.elster.jupiter.export.FatalDataExportException;
 import com.elster.jupiter.export.FormattedData;
-import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.export.MeterReadingData;
+import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
@@ -45,6 +45,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 public class StandardCsvDataFormatter implements DataFormatter {
 
@@ -137,7 +138,12 @@ public class StandardCsvDataFormatter implements DataFormatter {
     }
 
     @Override
-    public FormattedData processData(ExportData exportData) {
+    public FormattedData processData(Stream<ExportData> exportDatas) {
+        exportDatas.forEach(this::processData);
+        return null; // TODO proper
+    }
+
+    void processData(ExportData exportData) {
         MeterReading data = ((MeterReadingData) exportData).getMeterReading();
         List<Reading> readings = data.getReadings();
         List<IntervalBlock> intervalBlocks = data.getIntervalBlocks();
@@ -159,7 +165,6 @@ public class StandardCsvDataFormatter implements DataFormatter {
             }
         }
         writeMainFile |= latestProcessedTimestamp.isPresent();
-        return null; // TODO proper
     }
 
     private void writeReading(BaseReading reading, DataValidationStatus status) {
