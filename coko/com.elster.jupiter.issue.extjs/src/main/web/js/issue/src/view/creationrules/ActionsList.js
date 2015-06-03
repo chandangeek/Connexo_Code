@@ -17,7 +17,8 @@ Ext.define('Isu.view.creationrules.ActionsList', {
                 header: 'Description',
                 xtype: 'templatecolumn',
                 tpl: '{type.name}',
-                flex: 1
+                flex: 1,
+                renderer: false
             },
             {
                 itemId: 'phase',
@@ -31,7 +32,8 @@ Ext.define('Isu.view.creationrules.ActionsList', {
                         return (whenToPerform || '');
                     }
                 }),
-                flex: 1
+                flex: 1,
+                renderer: false
             },
             {
                 itemId: 'action',
