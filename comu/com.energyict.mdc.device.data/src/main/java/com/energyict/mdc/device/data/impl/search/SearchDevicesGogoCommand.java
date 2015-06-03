@@ -63,7 +63,7 @@ public class SearchDevicesGogoCommand {
 
     @Activate
     public void activate() {
-        System.out.println("Device meta search layer is open for business");
+        System.out.println("Gogo commands to search for devices are deployed and ready");
     }
 
     /**
