@@ -1,6 +1,9 @@
 package com.energyict.mdc.device.data.impl.search;
 
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.impl.TableSpecs;
+import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
+import com.energyict.mdc.protocol.pluggable.ConnectionTypePropertyRelationAttributeTypeNames;
 
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.search.SearchablePropertyCondition;
@@ -8,7 +11,7 @@ import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
 
 import java.time.Instant;
-import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -22,7 +25,7 @@ public class DeviceSearchSqlBuilder implements JoinClauseBuilder {
 
     private final List<SearchablePropertyCondition> conditions;
     private final SqlBuilder underConstruction;
-    private final Set<Joins> joins = EnumSet.noneOf(Joins.class);
+    private final Set<JoinType> joins = new HashSet<>();
     private final Instant effectiveDate;
     private SqlBuilder complete;
 
@@ -102,29 +105,78 @@ public class DeviceSearchSqlBuilder implements JoinClauseBuilder {
         return this;
     }
 
-    private enum Joins {
+    @Override
+    public JoinClauseBuilder addConnectionTaskProperties(ConnectionTypePluggableClass connectionTypePluggableClass) {
+        this.joins.add(new ConnectionTypePropertyJoinType(connectionTypePluggableClass));
+        return this;
+    }
+
+    private interface JoinType {
+        public void appendTo(SqlBuilder sqlBuilder);
+    }
+
+    private enum Joins implements JoinType {
         EndDevice {
             @Override
-            void appendTo(SqlBuilder sqlBuilder) {
+            public void appendTo(SqlBuilder sqlBuilder) {
                 sqlBuilder.append(" join MTR_ENDDEVICE ed on ed.AMRID = dev.id ");
             }
         },
 
         EndDeviceStatus {
             @Override
-            void appendTo(SqlBuilder sqlBuilder) {
+            public void appendTo(SqlBuilder sqlBuilder) {
                 sqlBuilder.append(" join MTR_ENDDEVICESTATUS eds on eds.ENDDEVICE = ed.id ");
             }
         },
 
         FiniteState {
             @Override
-            void appendTo(SqlBuilder sqlBuilder) {
+            public void appendTo(SqlBuilder sqlBuilder) {
                 sqlBuilder.append(" join FSM_STATE fs on eds.STATE = fs.id ");
             }
-        };
+        }
+    }
 
-        abstract void appendTo(SqlBuilder sqlBuilder);
+    private static class ConnectionTypePropertyJoinType implements JoinType {
+        private final ConnectionTypePluggableClass pluggableClass;
+
+        private ConnectionTypePropertyJoinType(ConnectionTypePluggableClass pluggableClass) {
+            super();
+            this.pluggableClass = pluggableClass;
+        }
+
+        @Override
+        public void appendTo(SqlBuilder sqlBuilder) {
+            sqlBuilder.append(" join ");
+            sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
+            sqlBuilder.append(" ct on ct.device = dev.id and ct.connectiontaskpluggableclass");
+            sqlBuilder.addLong(this.pluggableClass.getId());
+            sqlBuilder.append(" join ");
+            sqlBuilder.append(this.pluggableClass.findRelationType().getDynamicAttributeTableName());
+            sqlBuilder.append(" props on props.");
+            sqlBuilder.append(ConnectionTypePropertyRelationAttributeTypeNames.CONNECTION_TASK_ATTRIBUTE_NAME);
+            sqlBuilder.append(" = ct.id");
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            ConnectionTypePropertyJoinType that = (ConnectionTypePropertyJoinType) o;
+            return pluggableClass.getId() == that.pluggableClass.getId();
+
+        }
+
+        @Override
+        public int hashCode() {
+            return Long.hashCode(pluggableClass.getId());
+        }
+
     }
 
     private class FragmentBuilder {

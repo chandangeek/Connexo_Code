@@ -54,6 +54,11 @@ public class DeviceTypeSearchableProperty extends AbstractSearchableDeviceProper
     }
 
     @Override
+    public boolean affectsAvailableDomainProperties() {
+        return true;
+    }
+
+    @Override
     public Optional<SearchablePropertyGroup> getGroup() {
         return Optional.empty();
     }

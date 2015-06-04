@@ -123,6 +123,16 @@ public class SearchDevicesGogoCommand {
                                     .collect(Collectors.joining("\n")))));
     }
 
+    private Pair<String, Object> toKeyValuePair(String condition) {
+        String[] keyAndValue = condition.split("=");
+        if (keyAndValue.length == 2) {
+            return Pair.of(keyAndValue[0], keyAndValue[1]);
+        }
+        else {
+            throw new IllegalArgumentException("All key value conditions must be written as: <key>=<value>");
+        }
+    }
+
     private SearchBuilder<Device> addCondition(SearchBuilder<Device> builder, String key, Object value) {
         try {
             if (this.isWildCard(value)) {
@@ -146,16 +156,6 @@ public class SearchDevicesGogoCommand {
         }
         else {
             return false;
-        }
-    }
-
-    private Pair<String, Object> toKeyValuePair(String condition) {
-        String[] keyAndValue = condition.split("=");
-        if (keyAndValue.length == 2) {
-            return Pair.of(keyAndValue[0], keyAndValue[1]);
-        }
-        else {
-            throw new IllegalArgumentException("All key value conditions must be written as: <key>=<value>");
         }
     }
 

@@ -51,6 +51,11 @@ public class MasterResourceIdentifierSearchableProperty extends AbstractSearchab
     }
 
     @Override
+    public boolean affectsAvailableDomainProperties() {
+        return false;
+    }
+
+    @Override
     public Optional<SearchablePropertyGroup> getGroup() {
         return Optional.empty();
     }

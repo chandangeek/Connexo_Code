@@ -51,6 +51,11 @@ public class SerialNumberSearchableProperty extends AbstractSearchableDeviceProp
     }
 
     @Override
+    public boolean affectsAvailableDomainProperties() {
+        return false;
+    }
+
+    @Override
     public Optional<SearchablePropertyGroup> getGroup() {
         return Optional.empty();
     }

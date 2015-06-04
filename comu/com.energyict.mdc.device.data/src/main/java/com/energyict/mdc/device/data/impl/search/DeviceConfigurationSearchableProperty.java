@@ -17,6 +17,7 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.sql.SqlFragment;
 import com.elster.jupiter.util.streams.Predicates;
 
+import javax.inject.Inject;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
@@ -33,6 +34,8 @@ import java.util.stream.Collectors;
  */
 public class DeviceConfigurationSearchableProperty extends AbstractSearchableDeviceProperty {
 
+    public static final String PROPERTY_NAME = DeviceFields.DEVICECONFIGURATION.fieldName();
+
     private DeviceSearchDomain domain;
     private SearchableProperty parent;
     private final PropertySpecService propertySpecService;
@@ -40,6 +43,7 @@ public class DeviceConfigurationSearchableProperty extends AbstractSearchableDev
     private List<Object> deviceConfigurations = Collections.emptyList();
     private DisplayStrategy displayStrategy = DisplayStrategy.NAME_ONLY;
 
+    @Inject
     public DeviceConfigurationSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         super();
         this.propertySpecService = propertySpecService;
@@ -55,6 +59,11 @@ public class DeviceConfigurationSearchableProperty extends AbstractSearchableDev
     @Override
     public SearchDomain getDomain() {
         return this.domain;
+    }
+
+    @Override
+    public boolean affectsAvailableDomainProperties() {
+        return true;
     }
 
     @Override
@@ -80,7 +89,7 @@ public class DeviceConfigurationSearchableProperty extends AbstractSearchableDev
     @Override
     public PropertySpec getSpecification() {
         return this.propertySpecService.referencePropertySpec(
-                DeviceFields.DEVICECONFIGURATION.fieldName(),
+                PROPERTY_NAME,
                 false,
                 FactoryIds.DEVICE_CONFIGURATION,
                 this.deviceConfigurations);
@@ -97,10 +106,10 @@ public class DeviceConfigurationSearchableProperty extends AbstractSearchableDev
         if (constrictions.size() != 1) {
             throw new IllegalArgumentException("Expecting exactly 1 constriction, i.e. the constraint on the device type");
         }
-        this.refreshWithConstrictions(constrictions.get(0));
+        this.refreshWithConstriction(constrictions.get(0));
     }
 
-    private void refreshWithConstrictions(SearchablePropertyConstriction constriction) {
+    private void refreshWithConstriction(SearchablePropertyConstriction constriction) {
         if (constriction.getConstrainingProperty().hasName(DeviceTypeSearchableProperty.PROPERTY_NAME)) {
             this.refreshWithConstrictionValues(constriction.getConstrainingValues());
         }
@@ -125,12 +134,12 @@ public class DeviceConfigurationSearchableProperty extends AbstractSearchableDev
     }
 
     private void validateAllParentsAreDeviceTypes(List<Object> list) {
-        Optional<Object> anyDeviceType =
+        Optional<Object> anyNonDeviceType =
             list.stream()
                 .filter(Predicates.not(DeviceType.class::isInstance))
                 .findAny();
-        if (anyDeviceType.isPresent()) {
-            throw new IllegalArgumentException("Parents are expected to be of type " + DeviceType.class.getName());
+        if (anyNonDeviceType.isPresent()) {
+            throw new IllegalArgumentException("Constricting values are expected to be of type " + DeviceType.class.getName());
         }
     }
 

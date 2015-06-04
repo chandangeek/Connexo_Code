@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.data.impl.search;
 
+import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
+
 /**
  * Models the behavior of a component that is capable of building
  * join clauses for queries. The benefit is in the fact
@@ -19,5 +21,7 @@ public interface JoinClauseBuilder {
     public JoinClauseBuilder addEndDeviceStatus();
 
     public JoinClauseBuilder addFiniteState();
+
+    public JoinClauseBuilder addConnectionTaskProperties(ConnectionTypePluggableClass connectionTypePluggableClass);
 
 }

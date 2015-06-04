@@ -97,6 +97,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     private volatile com.elster.jupiter.tasks.TaskService taskService;
     private volatile Clock clock;
     private volatile KpiService kpiService;
+    private volatile com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService;
     private volatile PropertySpecService propertySpecService;
 
     private volatile RelationService relationService;
@@ -124,7 +125,8 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     // For unit testing purposes only
     @Inject
     public DeviceDataModelServiceImpl(BundleContext bundleContext,
-                                      OrmService ormService, EventService eventService, NlsService nlsService, Clock clock, KpiService kpiService, com.elster.jupiter.tasks.TaskService taskService, IssueService issueService, PropertySpecService propertySpecService,
+                                      OrmService ormService, EventService eventService, NlsService nlsService, Clock clock, KpiService kpiService, com.elster.jupiter.tasks.TaskService taskService, IssueService issueService,
+                                      PropertySpecService propertySpecService, com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService,
                                       RelationService relationService, ProtocolPluggableService protocolPluggableService,
                                       EngineConfigurationService engineConfigurationService, DeviceConfigurationService deviceConfigurationService,
                                       MeteringService meteringService, ValidationService validationService, EstimationService estimationService,
@@ -140,6 +142,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
         this.setTaskService(taskService);
         this.setIssueService(issueService);
         this.setPropertySpecService(propertySpecService);
+        this.setJupiterPropertySpecService(jupiterPropertySpecService);
         this.setProtocolPluggableService(protocolPluggableService);
         this.setEngineConfigurationService(engineConfigurationService);
         this.setDeviceConfigurationService(deviceConfigurationService);
@@ -216,6 +219,11 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     @Reference
     public void setPropertySpecService(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
+    }
+
+    @Reference
+    public void setJupiterPropertySpecService(com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService) {
+        this.jupiterPropertySpecService = jupiterPropertySpecService;
     }
 
     @Reference
@@ -369,6 +377,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
                 bind(DataModel.class).toInstance(dataModel);
                 bind(EventService.class).toInstance(eventService);
                 bind(IssueService.class).toInstance(issueService);
+                bind(com.elster.jupiter.properties.PropertySpecService.class).toInstance(jupiterPropertySpecService);
                 bind(PropertySpecService.class).toInstance(propertySpecService);
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(Clock.class).toInstance(clock);
