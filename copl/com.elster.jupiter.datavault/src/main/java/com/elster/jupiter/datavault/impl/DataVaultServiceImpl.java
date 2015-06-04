@@ -11,14 +11,15 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
-import java.util.Arrays;
-import java.util.List;
-import javax.inject.Inject;
-import javax.inject.Singleton;
-import javax.validation.MessageInterpolator;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
+import javax.validation.MessageInterpolator;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by bvn on 11/6/14.
@@ -90,13 +91,13 @@ public class DataVaultServiceImpl implements DataVaultService, InstallService {
 
     @Override
     public String encrypt(byte[] plainText) {
-        DataVault dataVault = dataModel.getInstance(DataVaultProvider.class).get();
+        DataVault dataVault = dataModel.getInstance(DataVault.class);
         return dataVault.encrypt(plainText);
     }
 
     @Override
     public byte[] decrypt(String encrypted) {
-        DataVault dataVault = dataModel.getInstance(DataVaultProvider.class).get();
+        DataVault dataVault = dataModel.getInstance(DataVault.class);
         return dataVault.decrypt(encrypted);
     }
 }
