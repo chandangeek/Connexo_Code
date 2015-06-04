@@ -1,6 +1,7 @@
 package com.elster.jupiter.fileimport.rest.impl;
 
 import com.elster.jupiter.fileimport.FileImportOccurrence;
+import com.elster.jupiter.fileimport.Status;
 import com.elster.jupiter.nls.Thesaurus;
 
 /**
@@ -30,9 +31,13 @@ public class FileImportOccurrenceInfo {
         fileImportOccurrence.getStartDate().ifPresent(sd->this.startedOn = sd.toEpochMilli());
         fileImportOccurrence.getEndDate().ifPresent(sd->this.finishedOn = sd.toEpochMilli());
         this.duration = calculateDuration(startedOn, finishedOn);
-        this.status = fileImportOccurrence.getStatus().toString();
+        this.status = getStatusDescription(fileImportOccurrence.getStatus(), thesaurus);
         this.summary = fileImportOccurrence.getMessage();
 
+    }
+
+    private String getStatusDescription(Status status,Thesaurus thesaurus ){
+        return thesaurus.getStringBeyondComponent(status.toString(), status.toString());
     }
 
 
