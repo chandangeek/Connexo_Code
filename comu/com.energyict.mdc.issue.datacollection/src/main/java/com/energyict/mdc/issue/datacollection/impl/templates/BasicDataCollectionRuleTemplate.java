@@ -43,7 +43,6 @@ public class BasicDataCollectionRuleTemplate extends AbstractDataCollectionTempl
 
     private final PossibleEventTypes eventTypes = new PossibleEventTypes();
     
-    private volatile PropertySpecService propertySpecService;
     private volatile IssueDataCollectionService issueDataCollectionService;
     private volatile IssueService issueService;
 
@@ -82,7 +81,6 @@ public class BasicDataCollectionRuleTemplate extends AbstractDataCollectionTempl
     
     @Reference
     public final void setPropertySpecService(PropertySpecService propertySpecService) {
-        this.propertySpecService = propertySpecService;
         super.setPropertySpecService(propertySpecService);
     }
 
@@ -152,8 +150,8 @@ public class BasicDataCollectionRuleTemplate extends AbstractDataCollectionTempl
     @Override
     public List<PropertySpec> getPropertySpecs() {
         Builder<PropertySpec> builder = ImmutableList.builder();
-        builder.add(propertySpecService.idWithNameValuePropertySpec(EVENTTYPE, true, eventTypes, eventTypes.eventTypes));
-        builder.add(propertySpecService.newPropertySpecBuilder(new BooleanFactory())
+        builder.add(getPropertySpecService().idWithNameValuePropertySpec(EVENTTYPE, true, eventTypes, eventTypes.eventTypes));
+        builder.add(getPropertySpecService().newPropertySpecBuilder(new BooleanFactory())
                                        .name(AUTORESOLUTION)
                                        .setDefaultValue(true)
                                        .markRequired()
