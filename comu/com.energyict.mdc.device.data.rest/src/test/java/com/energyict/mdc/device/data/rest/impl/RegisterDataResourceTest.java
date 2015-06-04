@@ -22,6 +22,7 @@ import com.jayway.jsonpath.JsonModel;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.math.BigDecimal;
+import java.net.URLEncoder;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -111,9 +112,11 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
         when(numericalRegisterSpec.getId()).thenReturn(1L);
         when(device.getId()).thenReturn(1L);
 
+        long intervalStart = ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault()).minusYears(1).truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant().toEpochMilli();
+        long intervalEnd = ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault()).truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant().toEpochMilli();
+        String filter = URLEncoder.encode("[{\"property\":\"intervalStart\",\"value\":" + intervalStart + "},{\"property\":\"intervalEnd\",\"value\":"+ intervalEnd + "}]");
         Map json = target("devices/1/registers/1/data")
-                .queryParam("intervalStart", ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault()).minusYears(1).truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant().toEpochMilli())
-                .queryParam("intervalEnd", ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault()).truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant().toEpochMilli())
+                .queryParam("filter", filter)
                 .request().get(Map.class);
 
         JsonModel jsonModel = JsonModel.create(json);

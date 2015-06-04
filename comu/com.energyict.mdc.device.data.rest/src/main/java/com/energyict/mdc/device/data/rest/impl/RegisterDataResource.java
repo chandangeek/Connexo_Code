@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
@@ -49,13 +50,15 @@ public class RegisterDataResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
-    public PagedInfoList getRegisterData(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId, @BeanParam JsonQueryParameters queryParameters, @Context UriInfo uriInfo,
-                                         @QueryParam("intervalStart") Long intervalStart,
-                                         @QueryParam("intervalEnd") Long intervalEnd) {
+    public PagedInfoList getRegisterData(
+            @PathParam("mRID") String mRID,
+            @PathParam("registerId") long registerId,
+            @BeanParam JsonQueryFilter filter,
+            @BeanParam JsonQueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         Register<?> register = resourceHelper.findRegisterOrThrowException(device, registerId);
 
-        Range<Instant> intervalReg = Range.openClosed(Instant.ofEpochMilli(intervalStart), Instant.ofEpochMilli(intervalEnd));
+        Range<Instant> intervalReg = Range.openClosed(filter.getInstant("intervalStart"), filter.getInstant("intervalEnd"));
 
         List<? extends Reading> readings = register.getReadings(Interval.of(intervalReg));
         List<ReadingInfo> readingInfos =
@@ -74,7 +77,7 @@ public class RegisterDataResource {
             }
         }
         // filter the list of readings based on user parameters
-        readingInfos = filter(readingInfos, uriInfo.getQueryParameters());
+        readingInfos = filter(readingInfos, filter);
         List<ReadingInfo> paginatedReadingInfo = ListPager.of(readingInfos).from(queryParameters).find();
         return PagedInfoList.fromPagedList("data", paginatedReadingInfo, queryParameters);
     }
@@ -169,15 +172,15 @@ public class RegisterDataResource {
         return !hasSuspects(info);
     }
 
-    private List<ReadingInfo> filter(List<ReadingInfo> infos, MultivaluedMap<String, String> queryParameters) {
-        Predicate<ReadingInfo> fromParams = getFilter(queryParameters);
+    private List<ReadingInfo> filter(List<ReadingInfo> infos, JsonQueryFilter filter) {
+        Predicate<ReadingInfo> fromParams = getFilter(filter);
         return infos.stream().filter(fromParams).collect(Collectors.toList());
     }
 
-    private Predicate<ReadingInfo> getFilter(MultivaluedMap<String, String> queryParameters) {
+    private Predicate<ReadingInfo> getFilter(JsonQueryFilter filter) {
         ImmutableList.Builder<Predicate<ReadingInfo>> list = ImmutableList.builder();
-        boolean onlySuspect = filterActive(queryParameters, "onlySuspect");
-        boolean onlyNonSuspect = filterActive(queryParameters, "onlyNonSuspect");
+        boolean onlySuspect = filterActive(filter, "onlySuspect");
+        boolean onlyNonSuspect = filterActive(filter, "onlyNonSuspect");
         if (onlySuspect ^ onlyNonSuspect) {
             if (onlySuspect) {
                 list.add(this::hasSuspects);
@@ -185,13 +188,13 @@ public class RegisterDataResource {
                 list.add(not(this::hasSuspects));
             }
         }
-        if (filterActive(queryParameters, "hideSuspects")) {
+        if (filterActive(filter, "hideSuspects")) {
             list.add(this::hideSuspects);
         }
         return lpi -> list.build().stream().allMatch(p -> p.test(lpi));
     }
 
-    private boolean filterActive(MultivaluedMap<String, String> queryParameters, String key) {
-        return queryParameters.containsKey(key) && Boolean.parseBoolean(queryParameters.getFirst(key));
+    private boolean filterActive(JsonQueryFilter filter, String key) {
+        return filter.hasProperty(key) && filter.getBoolean(key);
     }
 }
