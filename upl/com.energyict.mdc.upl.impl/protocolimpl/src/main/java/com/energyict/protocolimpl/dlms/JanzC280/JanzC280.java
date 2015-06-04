@@ -23,14 +23,7 @@ import com.energyict.dlms.cosem.ExtendedRegister;
 import com.energyict.dlms.cosem.HistoricalValue;
 import com.energyict.dlms.cosem.Register;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.CacheMechanism;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.*;
 import com.energyict.protocolimpl.dlms.AbstractDLMSProtocol;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -263,17 +256,17 @@ public class JanzC280 extends AbstractDLMSProtocol implements CacheMechanism {
             try {
                 //1. Search exact obiscode
                 uo = getMeterConfig().findObject(obisCode);
-            } catch (NoSuchRegisterException e) {
+            } catch (NotInObjectListException e) {
                 //2. Search for obiscode A.B.C.D.0.F
                 try {
                     ObisCode baseObisCode = ProtocolTools.setObisCodeField(obisCode, 4, (byte) 1);
                     uo = getMeterConfig().findObject(baseObisCode);
-                } catch (NoSuchRegisterException e_inner) {
+                } catch (NotInObjectListException e_inner) {
                     //3. Search for obiscode A.B.C.D.1.F
                     try {
                         ObisCode baseObisCode = ProtocolTools.setObisCodeField(obisCode, 4, (byte) 0);
                         uo = getMeterConfig().findObject(baseObisCode);
-                    } catch (NoSuchRegisterException e_inner_inner) {
+                    } catch (NotInObjectListException e_inner_inner) {
                         //4. Search for obiscode A.B.1.D.E.F
                         ObisCode baseObisCode = ProtocolTools.setObisCodeField(obisCode, 2, (byte) 1);
                         uo = getMeterConfig().findObject(baseObisCode);
