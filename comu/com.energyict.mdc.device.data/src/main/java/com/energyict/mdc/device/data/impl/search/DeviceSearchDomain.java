@@ -27,6 +27,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -126,12 +127,26 @@ public class DeviceSearchDomain implements SearchDomain {
 
     @Override
     public List<SearchableProperty> getPropertiesWithConstrictions(List<SearchablePropertyConstriction> constrictions) {
-        // There are two properties that supports constrictions
-        if (constrictions.size() != 2) {
-            throw new IllegalArgumentException("Expecting exactly 2 constrictions: device type and device configuration");
-        }
+        this.validateConstrictionNames(constrictions);
         this.validateConstrictingValues(constrictions);
         return this.getPropertiesWithConstriction(this.mostUsefulConstriction(constrictions));
+    }
+
+    private void validateConstrictionNames(List<SearchablePropertyConstriction> constrictions) {
+        Set<String> propertyNames = constrictions
+                .stream()
+                .map(SearchablePropertyConstriction::getConstrainingProperty)
+                .map(SearchableProperty::getName)
+                .collect(Collectors.toSet());
+        if (!propertyNames.remove(DeviceTypeSearchableProperty.PROPERTY_NAME)) {
+            throw new IllegalArgumentException("Constrictions on device type is missing");
+        }
+        if (!propertyNames.remove(DeviceConfigurationSearchableProperty.PROPERTY_NAME)) {
+            throw new IllegalArgumentException("Constrictions on device configuration is missing");
+        }
+        if (!propertyNames.isEmpty()) {
+            throw new IllegalArgumentException("Unexpected constriction for properties: " + propertyNames.stream().collect(Collectors.joining(", ")));
+        }
     }
 
     private void validateConstrictingValues(List<SearchablePropertyConstriction> constrictions) {
@@ -234,6 +249,8 @@ public class DeviceSearchDomain implements SearchDomain {
         @Override
         public int compareTo(SortableConstriction that) {
             if (this.getPropertyName().equals(that.getPropertyName())) {
+                /* Not expecting to get here as we validate that no constrictions are defined
+                 * for the same property but hey, I am a defensive programmer. */
                 Integer thisSize = this.getConstriction().getConstrainingValues().size();
                 Integer thatSize = that.getConstriction().getConstrainingValues().size();
                 return thisSize.compareTo(thatSize);
@@ -253,6 +270,8 @@ public class DeviceSearchDomain implements SearchDomain {
         @Override
         public int compareTo(SortableConstriction that) {
             if (this.getPropertyName().equals(that.getPropertyName())) {
+                /* Not expecting to get here as we validate that no constrictions are defined
+                 * for the same property but hey, I am a defensive programmer. */
                 Integer thisSize = this.getConstriction().getConstrainingValues().size();
                 Integer thatSize = that.getConstriction().getConstrainingValues().size();
                 return thisSize.compareTo(thatSize);
