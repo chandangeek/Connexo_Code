@@ -17,4 +17,6 @@ public interface SearchablePropertyGroup {
      */
     public String getId();
 
+    public String getDisplayName();
+
 }

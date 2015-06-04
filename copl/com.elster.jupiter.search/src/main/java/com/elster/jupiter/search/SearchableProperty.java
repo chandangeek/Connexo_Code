@@ -37,6 +37,16 @@ import java.util.Optional;
  * Also, not all values may be capable of producing a display value.
  * </p>
  * <p>
+ * Values of a SearchableProperty may result in more SearchableProperty
+ * being available at the SearchDomain level.
+ * Because the new properties are not available at the SearchDomain
+ * level until a certain value of another SearchableProperty
+ * has been selected, we cannot rely on the constraint
+ * mechanism of SearchableProperty. Instead, a SearchableProperty
+ * has a flag that indicates if selected/unselecting values
+ * will affect the available properties at the SearchDomain level.
+ * </p>
+ * <p>
  * Currently, the fact that a {@link PropertySpec} can be
  * "required" or "optional" is not used.
  * A property's visibility is either "sticky" or "removable".
@@ -93,6 +103,19 @@ public interface SearchableProperty {
     }
 
     public SearchDomain getDomain();
+
+    /**
+     * Returns <code>true</code> if selecting values for this
+     * SearchableProperty will affect the available properties
+     * at the SearchDomain level. If that is the case,
+     * the client code can/should refresh those properties.
+     *
+     * @return A flag that indicates if selecting/unselecting values
+     *         of this SearchableProperty affects the available properties
+     *         at the SearchDomain level
+     * @see {@link SearchDomain#getPropertiesWithConstrictions(java.util.List)}
+     */
+    public boolean affectsAvailableDomainProperties();
 
     public Optional<SearchablePropertyGroup> getGroup();
 
