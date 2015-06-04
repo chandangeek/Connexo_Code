@@ -19,6 +19,7 @@ import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.io.File;
+import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -85,11 +86,10 @@ public class FileImportScheduleResource {
                 .setName(info.name)
                 .setDestination(fileImportService.getImportFactory(info.importerInfo.name).get().getDestinationName())
                 .setPathMatcher(info.pathMatcher)
-                .setImportDirectory(new File(info.importDirectory))
-                .setFailureDirectory(new File(info.failureDirectory))
-                .setSuccessDirectory(new File(info.successDirectory))
-                .setProcessingDirectory(new File(info.inProcessDirectory))
-                .setImportDirectory(new File(info.importDirectory))
+                .setImportDirectory(Paths.get(info.importDirectory))
+                .setFailureDirectory(Paths.get(info.failureDirectory))
+                .setSuccessDirectory(Paths.get(info.successDirectory))
+                .setProcessingDirectory(Paths.get(info.inProcessDirectory))
                 .setImporterName(info.importerInfo.name)
                 .setScheduleExpression(ScanFrequency.toScheduleExpression(info.scanFrequency, cronExpressionParser));
 
@@ -139,10 +139,10 @@ public class FileImportScheduleResource {
             importSchedule.setName(info.name);
             importSchedule.setActive(info.active);
             importSchedule.setDestination(fileImportService.getImportFactory(info.importerInfo.name).get().getDestinationName());
-            importSchedule.setImportDirectory(new File(info.importDirectory));
-            importSchedule.setFailureDirectory(new File(info.failureDirectory));
-            importSchedule.setSuccessDirectory(new File(info.successDirectory));
-            importSchedule.setProcessingDirectory(new File(info.inProcessDirectory));
+            importSchedule.setImportDirectory(Paths.get(info.importDirectory));
+            importSchedule.setFailureDirectory(Paths.get(info.failureDirectory));
+            importSchedule.setSuccessDirectory(Paths.get(info.successDirectory));
+            importSchedule.setProcessingDirectory(Paths.get(info.inProcessDirectory));
             importSchedule.setImporterName(info.importerInfo.name);
             importSchedule.setPathMatcher(info.pathMatcher);
             importSchedule.setScheduleExpression(ScanFrequency.toScheduleExpression(info.scanFrequency, cronExpressionParser));

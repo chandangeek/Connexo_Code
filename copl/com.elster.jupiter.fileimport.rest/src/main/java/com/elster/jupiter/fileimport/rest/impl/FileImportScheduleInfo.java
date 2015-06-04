@@ -43,10 +43,10 @@ public class FileImportScheduleInfo {
         active = importSchedule.isActive();
         name = importSchedule.getName();
         destinationName = importSchedule.getDestination().getName();
-        importDirectory = importSchedule.getImportDirectory().getAbsolutePath();
-        inProcessDirectory = importSchedule.getInProcessDirectory().getAbsolutePath();
-        successDirectory = importSchedule.getSuccessDirectory().getAbsolutePath();
-        failureDirectory = importSchedule.getFailureDirectory().getAbsolutePath();
+        importDirectory = importSchedule.getImportDirectory().toString();
+        inProcessDirectory = importSchedule.getInProcessDirectory().toString();
+        successDirectory = importSchedule.getSuccessDirectory().toString();
+        failureDirectory = importSchedule.getFailureDirectory().toString();
         pathMatcher = importSchedule.getPathMatcher();
         importerName = importSchedule.getImporterName();
         application = importSchedule.getApplicationName();

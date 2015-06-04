@@ -26,6 +26,7 @@ import org.mockito.stubbing.Answer;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.io.File;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Optional;
 
@@ -82,10 +83,10 @@ public class FileImportOccurrenceScheduleResourceTest extends FileImportOccurren
         when(builder.setName(any(String.class))).thenReturn(builder);
         when(builder.setDestination(any(String.class))).thenReturn(builder);
         when(builder.setPathMatcher(any(String.class))).thenReturn(builder);
-        when(builder.setImportDirectory(any(File.class))).thenReturn(builder);
-        when(builder.setFailureDirectory(any(File.class))).thenReturn(builder);
-        when(builder.setProcessingDirectory(any(File.class))).thenReturn(builder);
-        when(builder.setSuccessDirectory(any(File.class))).thenReturn(builder);
+        when(builder.setImportDirectory(any(Path.class))).thenReturn(builder);
+        when(builder.setFailureDirectory(any(Path.class))).thenReturn(builder);
+        when(builder.setProcessingDirectory(any(Path.class))).thenReturn(builder);
+        when(builder.setSuccessDirectory(any(Path.class))).thenReturn(builder);
         when(builder.setImporterName(any(String.class))).thenReturn(builder);
         when(builder.setScheduleExpression(any(ScheduleExpression.class))).thenReturn(builder);
 
@@ -165,8 +166,8 @@ public class FileImportOccurrenceScheduleResourceTest extends FileImportOccurren
 
 
     private ImportSchedule mockImportSchedule(long id) {
-        File testFolder = mock(File.class);
-        when(testFolder.getAbsolutePath()).thenReturn("//test/path");
+        Path testFolder = mock(Path.class);
+        when(testFolder.toString()).thenReturn("//test/path");
 
         ImportSchedule schedule = mock(ImportSchedule.class);
         when(schedule.getId()).thenReturn(id);
