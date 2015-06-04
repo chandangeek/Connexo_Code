@@ -9,6 +9,7 @@ Ext.define('Fwc.view.firmware.FormAdd', {
             xtype: 'uni-form-error-message',
             itemId: 'form-errors',
             margin: '0 0 10 0',
+            width: 720,
             hidden: true
         },
         {
