@@ -19,9 +19,11 @@ import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.stream.Collectors;
 
 @UniqueCaseInsensitive(fields = "name", groups = Save.Create.class, message = "{" + MessageSeeds.Keys.NAME_MUST_BE_UNIQUE + "}")
@@ -171,6 +173,26 @@ public class AppServerImpl implements AppServer {
         try (BatchUpdate updater = forBatchUpdate()) {
             updater.setThreadCount(subscriberExecutionSpec, threads);
         }
+    }
+
+    @Override
+    public void setImportDirectory(Path path) {
+        ImportFolderForAppServer importFolderForAppServer = dataModel.mapper(ImportFolderForAppServer.class)
+                .getOptional(getName()).orElse(ImportFolderForAppServerImpl.from(dataModel,path, this));
+        importFolderForAppServer.setImportFolder(path);
+        importFolderForAppServer.save();
+    }
+
+    @Override
+    public void removeImportDirectory() {
+        dataModel.mapper(ImportFolderForAppServer.class)
+                .getOptional(getName()).ifPresent(ifas -> ifas.delete());
+    }
+
+    @Override
+    public Optional<Path> getImportDirectory() {
+        dataModel.mapper(ImportFolderForAppServer.class).getOptional(getName());
+        return null;
     }
 
     @Override

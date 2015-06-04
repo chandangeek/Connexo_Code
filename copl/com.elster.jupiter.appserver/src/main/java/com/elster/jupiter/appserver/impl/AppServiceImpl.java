@@ -38,17 +38,14 @@ import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.Properties;
+import java.nio.file.Path;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 @Component(name = "com.elster.jupiter.appserver", service = {InstallService.class, AppService.class}, property = {"name=" + AppService.COMPONENT_NAME}, immediate = true)
 public class AppServiceImpl implements InstallService, IAppService, Subscriber {
@@ -431,6 +428,14 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber {
                 });
         stoppingThread.start();
         Thread.currentThread().interrupt();
+    }
+
+    @Override
+    public Map<AppServer, Optional<Path>> getAllImportDirectories() {
+        return dataModel.mapper(ImportFolderForAppServer.class)
+                .find()
+                .stream()
+                .collect(Collectors.toMap(ImportFolderForAppServer::getAppServer, ImportFolderForAppServer::getImportFolder));
     }
 
     public DataModel getDataModel() {

@@ -4,7 +4,9 @@ import com.elster.jupiter.fileimport.ImportSchedule;
 import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.util.cron.CronExpression;
 
+import java.nio.file.Path;
 import java.util.List;
+import java.util.Optional;
 
 public interface AppServer {
 
@@ -37,6 +39,10 @@ public interface AppServer {
     void deactivate();
 
     void setThreadCount(SubscriberExecutionSpec subscriberExecutionSpec, int threads);
+
+    void setImportDirectory(Path path);
+    void removeImportDirectory();
+    Optional<Path> getImportDirectory();
 
     BatchUpdate forBatchUpdate();
 

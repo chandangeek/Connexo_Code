@@ -13,7 +13,6 @@ public class ImportFolderForAppServerImpl implements ImportFolderForAppServer {
 
     private Path importFolderPath;
     private String appServerName;
-    private String pathString;
     private transient AppServer appServer;
     private DataModel dataModel;
     private transient boolean fromDb = true;
@@ -31,7 +30,6 @@ public class ImportFolderForAppServerImpl implements ImportFolderForAppServer {
 
     ImportFolderForAppServerImpl init(Path importFolderPath, AppServer appServer) {
         this.importFolderPath = importFolderPath;
-        this.pathString = importFolderPath.toString();
         this.appServerName = appServer.getName();
         this.appServer = appServer;
         this.fromDb = false;
@@ -41,9 +39,6 @@ public class ImportFolderForAppServerImpl implements ImportFolderForAppServer {
 
     @Override
     public  Optional<Path>  getImportFolder() {
-        if (importFolderPath == null && pathString != null) {
-            importFolderPath = Paths.get(pathString);
-        }
         return Optional.ofNullable(importFolderPath);
     }
 
@@ -56,6 +51,11 @@ public class ImportFolderForAppServerImpl implements ImportFolderForAppServer {
     }
 
     @Override
+    public void setImportFolder(Path path) {
+        this.importFolderPath = path;
+    }
+
+    @Override
     public void save() {
         if(fromDb)  {
             dataModel.mapper(ImportFolderForAppServer.class).update(this);
@@ -63,5 +63,10 @@ public class ImportFolderForAppServerImpl implements ImportFolderForAppServer {
         }
         dataModel.mapper(ImportFolderForAppServer.class).persist(this);
     }
-    
+
+    @Override
+    public void delete() {
+        dataModel.mapper(ImportFolderForAppServer.class).remove(this);
+    }
+
 }
