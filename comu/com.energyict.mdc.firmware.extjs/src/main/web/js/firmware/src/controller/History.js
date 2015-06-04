@@ -94,6 +94,52 @@ Ext.define('Fwc.controller.History', {
                     }
                 }
             }
+        },
+        workspace: {
+            title: Uni.I18n.translate('general.workspace', 'FWC', 'Workspace'),
+            route: 'workspace',
+            disabled: true,
+            items: {
+                firmwarecampaigns: {
+                    title: Uni.I18n.translate('firmware.campaigns.firmwareCampaigns', 'FWC', 'Firmware campaigns'),
+                    route: 'firmwarecampaigns',
+                    controller: 'Fwc.firmwarecampaigns.controller.Overview',
+                    action: 'showOverview',
+                    privileges: Fwc.privileges.FirmwareCampaign.view,
+                    items: {
+                        add: {
+                            title: Uni.I18n.translate('firmware.campaigns.addFirmwareCampaign', 'FWC', 'Add firmware campaign'),
+                            route: 'add',
+                            controller: 'Fwc.firmwarecampaigns.controller.Add',
+                            action: 'showAdd',
+                            privileges: Fwc.privileges.FirmwareCampaign.administrate
+                        },
+                        firmwarecampaign: {
+                            title: Uni.I18n.translate('firmware.campaigns.firmwareCampaign', 'FWC', 'Firmware campaign'),
+                            route: '{firmwareCampaignId}',
+                            controller: 'Fwc.firmwarecampaigns.controller.Detail',
+                            action: 'showDetail',
+                            privileges: Fwc.privileges.FirmwareCampaign.view,
+                            callback: function (route) {
+                                this.getApplication().on('loadFirmwareCampaign', function (record) {
+                                    route.setTitle(record.get('name'));
+                                    return true;
+                                }, {single: true});
+                                return this;
+                            },
+                            items: {
+                                devices: {
+                                    title: Uni.I18n.translate('general.devices', 'FWC', 'Devices'),
+                                    route: 'devices',
+                                    controller: 'Fwc.firmwarecampaigns.controller.Devices',
+                                    action: 'showDevices',
+                                    privileges: Fwc.privileges.FirmwareCampaign.view
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 });

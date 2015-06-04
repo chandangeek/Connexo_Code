@@ -16,7 +16,7 @@ Ext.define('Fwc.devicefirmware.store.Firmwares', {
             totalProperty: 'total'
         },
         setUrl: function (deviceId) {
-            this.url = this.urlTpl.replace('{deviceId}', deviceId);
+            this.url = this.urlTpl.replace('{deviceId}', encodeURIComponent(deviceId));
         }
     }
 });

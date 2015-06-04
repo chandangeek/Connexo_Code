@@ -98,7 +98,7 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
         errorMsg.hide();
         propertyForm.clearInvalid();
 
-        model.getProxy().setUrl(router.arguments.mRID);
+        model.getProxy().setUrl(encodeURIComponent(router.arguments.mRID));
 
         record = Ext.create(model, {
             uploadOption: messageSpec.get('id'),
@@ -145,13 +145,13 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
         container.setLoading();
         Ext.Ajax.request({
             method: 'PUT',
-            url: '/api/ddr/devices/{mrid}/comtasks/{id}/{action}'
+            url: '/api/fwc/device/{mrid}/status/{action}'
                 .replace('{action}', action)
-                .replace('{mrid}', router.arguments.mRID)
+                .replace('{mrid}', encodeURIComponent(router.arguments.mRID))
                 .replace('{id}', record.get('comTaskId')),
             callback: function (operation, success) {
                 if (success) {
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceFirmware.upgrade.' + action, 'FWC', 'Check firmware version triggered.'));
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceFirmware.upgrade.' + action, 'FWC', 'The firmware version is being read. Actual firmware version information will be available as soon as the action has completed.'));
                     router.getRoute().forward();
                 }
 
@@ -167,7 +167,7 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
             router = this.getController('Uni.controller.history.Router');
 
         form.setLoading();
-        record.retry(router.arguments.mRID, function (operation, success) {
+        record.retry(encodeURIComponent(router.arguments.mRID), function (operation, success) {
             if (success) {
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceFirmware.upgrade.retried', 'FWC', 'Firmware upgrade retried.'));
                 router.getRoute().forward();
@@ -186,7 +186,7 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
             message = new Model();
 
         form.setLoading();
-        message.getProxy().setUrl(router.arguments.mRID);
+        message.getProxy().setUrl(encodeURIComponent(router.arguments.mRID));
         message.setId(devicemessageId);
         message.destroy({
             success: function () {
@@ -268,7 +268,7 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
         device.load(mRID, {
             success: function (device) {
                 me.getApplication().fireEvent('loadDevice', device);
-                messageSpecModel.getProxy().setUrl(mRID);
+                messageSpecModel.getProxy().setUrl(encodeURIComponent(mRID));
                 messageSpecModel.getProxy().extraParams.firmwareType = router.queryParams.firmwareType;
                 messageSpecModel.load(action, {
                     success: function (record) {
@@ -303,7 +303,7 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
                     var releaseDate = confirmationMessage.down('upload-field-container').getValue();
 
                     form.setLoading();
-                    message.getProxy().setUrl(router.arguments.mRID);
+                    message.getProxy().setUrl(encodeURIComponent(router.arguments.mRID));
                     message.setId(devicemessageId);
                     message.set('releaseDate', releaseDate ? releaseDate.getTime() : new Date().getTime());
                     Ext.Ajax.request({
