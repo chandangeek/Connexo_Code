@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.impl.search;
 
+import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.conditions.And;
 import com.elster.jupiter.util.conditions.Comparison;
 import com.elster.jupiter.util.conditions.Condition;
@@ -14,6 +15,7 @@ import com.elster.jupiter.util.conditions.Or;
 import com.elster.jupiter.util.conditions.Text;
 import com.elster.jupiter.util.conditions.Visitor;
 import com.elster.jupiter.util.conditions.Where;
+import com.elster.jupiter.util.proxy.LazyLoadProxy;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
 
@@ -111,17 +113,7 @@ public abstract class AbstractSearchableDeviceProperty implements SearchableDevi
 
     @Override
     public void visitContains(Contains contains) {
-        this.underConstruction.append(this.columnName);
-        this.underConstruction.append(" ");
-        this.underConstruction.append(contains.getOperator().getSymbol());
-        this.underConstruction.spaceOpenBracket();
-        String separator = "";
-        for (Object each : contains.getCollection()) {
-            this.underConstruction.append(separator);
-            this.underConstruction.append("?");
-            separator = ",";
-        }
-        this.underConstruction.closeBracket();
+        this.underConstruction.add(new InFragment(this.columnName, contains));
     }
 
     @Override
@@ -156,7 +148,26 @@ public abstract class AbstractSearchableDeviceProperty implements SearchableDevi
         Where.where(this.columnName).isEffective(this.now).visit(this);
     }
 
-    private static class InstantFragment implements SqlFragment {
+    private abstract static class ProxyAwareSqlFragment {
+        protected void bindSingleValue(PreparedStatement statement, Object value, int bindPosition) throws SQLException {
+            if (LazyLoadProxy.isLazyLoadProxy(value)) {
+                Object entity = LazyLoadProxy.unwrap(value);
+                if (entity instanceof HasId) {
+                    HasId hasId = (HasId) entity;
+                    statement.setLong(bindPosition, hasId.getId());
+                }
+                else {
+                    // Cross your fingers that the object is somehow serializable
+                    statement.setObject(bindPosition, entity);
+                }
+            }
+            else {
+                statement.setObject(bindPosition, value);
+            }
+        }
+    }
+
+    private static class InstantFragment extends ProxyAwareSqlFragment implements SqlFragment {
         private final Instant instant;
 
         public InstantFragment(Instant instant) {
@@ -175,7 +186,7 @@ public abstract class AbstractSearchableDeviceProperty implements SearchableDevi
         }
     }
 
-    private static class ComparisonFragment implements SqlFragment {
+    private static class ComparisonFragment extends ProxyAwareSqlFragment implements SqlFragment {
         private final String columnName;
         private final Comparison comparison;
 
@@ -194,11 +205,49 @@ public abstract class AbstractSearchableDeviceProperty implements SearchableDevi
         public int bind(PreparedStatement statement, int position) throws SQLException {
             int bindPosition = position;
             for (Object value : this.comparison.getValues()) {
-                statement.setObject(bindPosition, value);
+                this.bindSingleValue(statement, value, bindPosition);
                 bindPosition++;
             }
             return bindPosition;
         }
     }
 
+    private static class InFragment extends ProxyAwareSqlFragment implements SqlFragment {
+        private final String columnName;
+        private final Contains contains;
+
+        private InFragment(String columnName, Contains contains) {
+            super();
+            this.columnName = columnName;
+            this.contains = contains;
+        }
+
+        @Override
+        public int bind(PreparedStatement statement, int position) throws SQLException {
+            int bindPosition = position;
+            for (Object value : this.contains.getCollection()) {
+                this.bindSingleValue(statement, value, bindPosition);
+                bindPosition++;
+            }
+            return bindPosition;
+        }
+
+        @Override
+        public String getText() {
+            StringBuilder textBuilder = new StringBuilder();
+            textBuilder
+                .append(this.columnName)
+                .append(" ")
+                .append(this.contains.getOperator().getSymbol())
+                .append(" (");
+            String separator = "";
+            for (Object each : contains.getCollection()) {
+                textBuilder.append(separator);
+                textBuilder.append("?");
+                separator = ",";
+            }
+            textBuilder.append(")");
+            return textBuilder.toString();
+        }
+    }
 }
