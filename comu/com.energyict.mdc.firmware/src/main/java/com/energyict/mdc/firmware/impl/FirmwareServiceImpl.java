@@ -168,8 +168,8 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Tra
     }
 
     @Override
-    public Optional<FirmwareVersion> getFirmwareVersionByVersion(String version, DeviceType deviceType) {
-        return dataModel.mapper(FirmwareVersion.class).getUnique(FirmwareVersionImpl.Fields.FIRMWAREVERSION.fieldName(), version, FirmwareVersionImpl.Fields.DEVICETYPE.fieldName(), deviceType);
+    public Optional<FirmwareVersion> getFirmwareVersionByVersionAndType(String version, FirmwareType firmwareType, DeviceType deviceType) {
+        return dataModel.mapper(FirmwareVersion.class).getUnique(new String[]{FirmwareVersionImpl.Fields.FIRMWAREVERSION.fieldName(), FirmwareVersionImpl.Fields.DEVICETYPE.fieldName(), FirmwareVersionImpl.Fields.FIRMWARETYPE.fieldName()}, new Object[]{version, deviceType, firmwareType});
     }
 
     @Override

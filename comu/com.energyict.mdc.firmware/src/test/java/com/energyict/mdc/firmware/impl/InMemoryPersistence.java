@@ -40,6 +40,7 @@ import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.DeviceDataModelServiceImpl;
 import com.energyict.mdc.device.data.impl.DeviceDataModule;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.engine.config.impl.EngineModelModule;
@@ -50,6 +51,7 @@ import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.tasks.impl.TasksModule;
@@ -143,7 +145,8 @@ public class InMemoryPersistence {
             injector.getInstance(DeviceDataModelServiceImpl.class);
             injector.getInstance(DeviceService.class);
             injector.getInstance(EventService.class);
-
+            injector.getInstance(ProtocolPluggableService.class);
+            injector.getInstance(DeviceLifeCycleConfigurationService.class);
             this.firmwareService = spy((FirmwareServiceImpl) injector.getInstance(FirmwareService.class));
             this.dataModel = firmwareService.getDataModel();
             ctx.commit();

@@ -46,7 +46,6 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-// Unfortunately we cannot create a device type here, because the protocols bundle has a reference to firmware
 public class FirmwareCampaignTest extends PersistenceTest {
 
     @BeforeClass
