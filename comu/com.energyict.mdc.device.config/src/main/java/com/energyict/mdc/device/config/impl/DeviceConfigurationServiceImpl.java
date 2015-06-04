@@ -328,7 +328,8 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     public List<DeviceType> findDeviceTypesUsingDeviceLifeCycle(DeviceLifeCycle deviceLifeCycle) {
         return this.getDataModel().
                 query(DeviceType.class, DeviceLifeCycleInDeviceType.class, DeviceLifeCycle.class).
-                select(where("deviceLifeCycle.deviceLifeCycle").isEqualTo(deviceLifeCycle));
+                select(where("deviceLifeCycle.deviceLifeCycle").isEqualTo(deviceLifeCycle)
+                        .and(where("deviceLifeCycle.interval").isEffective()));
     }
 
     @Override
