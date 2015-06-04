@@ -11,6 +11,7 @@ Ext.define('Uni.util.FormErrorMessage', {
     errorIcon: null,
     defaultErrorIcon: 'x-uni-form-error-msg-icon',
     margin: '7 0 32 0',
+    htmlEncode: true,
     beforeRender: function () {
         var me = this;
         if (!me.text) {
@@ -29,6 +30,11 @@ Ext.define('Uni.util.FormErrorMessage', {
         Ext.suspendLayouts();
 
         me.removeAll(true);
+
+        if (me.htmlEncode) {
+            me.text = Ext.String.htmlEncode(me.text);
+        }
+
         me.add([
             {
                 xtype: 'box',
@@ -40,7 +46,7 @@ Ext.define('Uni.util.FormErrorMessage', {
             {
                 ui: 'form-error',
                 name: 'errormsgpanel',
-                html: Ext.String.htmlEncode(me.text)
+                html: me.text
             }
         ]);
 
