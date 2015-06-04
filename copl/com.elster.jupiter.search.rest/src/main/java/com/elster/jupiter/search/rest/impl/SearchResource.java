@@ -179,7 +179,7 @@ public class SearchResource {
 
         public SearchDomainInfo(SearchDomain searchDomain, UriInfo uriInfo) {
             this.id = searchDomain.getId();
-            this.displayValue = searchDomain.getId().substring(searchDomain.getId().lastIndexOf(".")+1);
+            this.displayValue = searchDomain.getId().substring(searchDomain.getId().lastIndexOf(".")+1); // Placeholder implementation
             this.link = new ArrayList<>();
             link.add(Link.fromUriBuilder(uriInfo.getBaseUriBuilder().path(SearchResource.class).path(SearchResource.class, "doSearch")).rel("self").build(searchDomain.getId()));
             link.add(Link.fromUriBuilder(uriInfo.getBaseUriBuilder().path(SearchResource.class).path(SearchResource.class, "getDomainProperties")).rel("describedby").build(searchDomain.getId()));
