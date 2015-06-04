@@ -1,5 +1,6 @@
 package com.elster.jupiter.export;
 
+import com.elster.jupiter.util.UpdatableHolder;
 import com.google.common.collect.ImmutableList;
 
 import java.util.Collections;
@@ -35,6 +36,13 @@ public final class DefaultStructureMarker implements StructureMarker {
 
     public DefaultStructureMarker child(String structure) {
         return new DefaultStructureMarker(this, structure);
+    }
+
+    public DefaultStructureMarker adopt(StructureMarker structureMarker) {
+        UpdatableHolder<DefaultStructureMarker> holder = new UpdatableHolder<>(this);
+        structureMarker.getStructurePath().stream()
+                .forEach(element -> holder.update(DefaultStructureMarker::child, element));
+        return holder.get();
     }
 
     @Override
