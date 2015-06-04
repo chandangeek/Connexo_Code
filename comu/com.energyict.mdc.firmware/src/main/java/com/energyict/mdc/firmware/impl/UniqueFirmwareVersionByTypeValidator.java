@@ -24,7 +24,7 @@ public class UniqueFirmwareVersionByTypeValidator implements ConstraintValidator
     @Override
     public boolean isValid(FirmwareVersion in, ConstraintValidatorContext context) {
         Optional<FirmwareVersion> firmwareVersionByVersionAndType = firmwareService.getFirmwareVersionByVersionAndType(in.getFirmwareVersion(), in.getFirmwareType(), in.getDeviceType());
-        if (!firmwareVersionByVersionAndType.isPresent()) {
+        if (!firmwareVersionByVersionAndType.isPresent() || in.getId() == firmwareVersionByVersionAndType.get().getId()) {
             return true;
         }
         context.disableDefaultConstraintViolation();
