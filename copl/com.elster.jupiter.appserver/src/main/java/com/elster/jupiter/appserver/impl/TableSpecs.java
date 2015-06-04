@@ -58,8 +58,8 @@ public enum TableSpecs {
             Table<ImportFolderForAppServer> table = dataModel.addTable(name(), ImportFolderForAppServer.class);
             table.map(ImportFolderForAppServerImpl.class);
             Column appServerColumn = table.column("APPSERVER").varChar(NAME_LENGTH).notNull().map("appServerName").add();
-            table.column("PATH").varChar(DESCRIPTION_LENGTH).map("pathString").add();
-            table.primaryKey("APS_FK_IMPORTFOLDER").on(appServerColumn).add();
+            table.column("PATH").varChar(DESCRIPTION_LENGTH).conversion(CHAR2PATH).map("importFolderPath").add();
+            table.primaryKey("APS_PK_IMPORTFOLDER").on(appServerColumn).add();
             table.foreignKey("APS_FK_IMPORTFOLDERAPPSERVER").references(APS_APPSERVER.name()).onDelete(DeleteRule.CASCADE).map("appServer").on(appServerColumn).add();
         }
     };

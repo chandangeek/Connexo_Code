@@ -1,12 +1,6 @@
 package com.elster.jupiter.appserver.impl;
 
-import com.elster.jupiter.appserver.AppServer;
-import com.elster.jupiter.appserver.AppServerCommand;
-import com.elster.jupiter.appserver.AppService;
-import com.elster.jupiter.appserver.Command;
-import com.elster.jupiter.appserver.ImportScheduleOnAppServer;
-import com.elster.jupiter.appserver.MessageSeeds;
-import com.elster.jupiter.appserver.SubscriberExecutionSpec;
+import com.elster.jupiter.appserver.*;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.fileimport.FileImportService;
@@ -190,6 +184,17 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber {
     }
 
     private void launchFileImports() {
+        Optional<ImportFolderForAppServer> appServerImportFolder = dataModel.mapper(ImportFolderForAppServer.class).getOptional(appServer.getName());
+        if(!appServerImportFolder.isPresent()){
+            LOGGER.log(Level.WARNING, "AppServer with name " + appServer.getName() + " has no import folder configured.");
+            return;
+        }
+        if(!appServerImportFolder.get().getImportFolder().isPresent()){
+            LOGGER.log(Level.WARNING, "AppServer with name " + appServer.getName() + " import folder is configured but cannot be resolved as path.");
+            return;
+        }
+        appServerImportFolder.ifPresent(asf -> asf.getImportFolder().ifPresent(path -> fileImportService.setBasePath(path)));
+
         List<ImportScheduleOnAppServer> importScheduleOnAppServers = dataModel.mapper(ImportScheduleOnAppServer.class).find("appServer", appServer);
         for (ImportScheduleOnAppServer importScheduleOnAppServer : importScheduleOnAppServers) {
             fileImportService.schedule(importScheduleOnAppServer.getImportSchedule());
