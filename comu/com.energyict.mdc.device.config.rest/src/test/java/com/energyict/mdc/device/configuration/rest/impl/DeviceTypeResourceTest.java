@@ -1162,8 +1162,9 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         List<Map<String, Object>> propertyInfos = (List<Map<String, Object>>) connectionMethod.get("properties");
         assertThat(propertyInfos).isNotNull().hasSize(1);
         Map<String, Object> macAddressProperty = propertyInfos.get(0);
-        assertThat(macAddressProperty).hasSize(4)
+        assertThat(macAddressProperty).hasSize(5)
                 .containsKey("key")
+                .containsKey("name")
                 .containsKey("propertyValueInfo")
                 .containsKey("propertyTypeInfo")
                 .containsKey("required");

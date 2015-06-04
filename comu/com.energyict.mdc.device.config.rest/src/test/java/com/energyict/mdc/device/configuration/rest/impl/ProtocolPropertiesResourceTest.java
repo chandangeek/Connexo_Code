@@ -45,7 +45,8 @@ public class ProtocolPropertiesResourceTest extends BaseLoadProfileTest {
         DeviceProtocolConfigurationProperties properties = mock(DeviceProtocolConfigurationProperties.class);
         DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(properties);
         PropertyInfo propertyInfo = new PropertyInfo();
-        propertyInfo.key=DeviceProtocolProperty.callHomeId.name();
+        propertyInfo.key =DeviceProtocolProperty.callHomeId.name();
+        propertyInfo.name=DeviceProtocolProperty.callHomeId.name();
         propertyInfo.propertyValueInfo = new PropertyValueInfo<>("0x99", null, null, true);
         propertyInfo.propertyTypeInfo = new PropertyTypeInfo();
         propertyInfo.propertyTypeInfo.simplePropertyType= SimplePropertyType.TEXT;
