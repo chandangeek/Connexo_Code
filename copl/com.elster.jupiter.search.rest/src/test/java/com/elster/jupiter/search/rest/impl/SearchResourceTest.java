@@ -129,7 +129,7 @@ public class SearchResourceTest extends SearchApplicationTest {
         assertThat(model.<Integer>get("$.total")).isEqualTo(2);
         assertThat(model.<List>get("$.domains")).hasSize(2);
         assertThat(model.<String>get("$.domains[0].id")).isEqualTo("com.devices");
-        assertThat(model.<String>get("$.domains[0].name")).isEqualTo("devices");
+        assertThat(model.<String>get("$.domains[0].displayValue")).isEqualTo("devices");
         assertThat(model.<String>get("$.domains[0].link[0].href")).isEqualTo("http://localhost:9998/search/com.devices");
         assertThat(model.<String>get("$.domains[0].link[0].params.rel")).isEqualTo("self");
         assertThat(model.<String>get("$.domains[0].link[1].href")).isEqualTo("http://localhost:9998/search/com.devices/properties");
@@ -148,7 +148,7 @@ public class SearchResourceTest extends SearchApplicationTest {
         Response response = target("/search/com.devices/properties").request().accept("application/json").get();
         JsonModel model = JsonModel.model((ByteArrayInputStream)response.getEntity());
         assertThat(model.<List>get("$.properties")).hasSize(3);
-        assertThat(model.<String>get("$.properties[0].name")).isEqualTo("mRID");
+        assertThat(model.<String>get("$.properties[0].id")).isEqualTo("mRID");
         assertThat(model.<String>get("$.properties[0].type")).isEqualTo("String");
         assertThat(model.<String>get("$.properties[0].selectionMode")).isEqualTo("multiple");
         assertThat(model.<String>get("$.properties[0].visibility")).isEqualTo("sticky");
