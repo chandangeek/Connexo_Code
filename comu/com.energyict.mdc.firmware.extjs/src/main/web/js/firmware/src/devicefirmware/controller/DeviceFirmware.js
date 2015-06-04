@@ -145,13 +145,13 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
         container.setLoading();
         Ext.Ajax.request({
             method: 'PUT',
-            url: '/api/ddr/devices/{mrid}/comtasks/{id}/{action}'
+            url: '/api/fwc/device/{mrid}/status/{action}'
                 .replace('{action}', action)
                 .replace('{mrid}', encodeURIComponent(router.arguments.mRID))
                 .replace('{id}', record.get('comTaskId')),
             callback: function (operation, success) {
                 if (success) {
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceFirmware.upgrade.' + action, 'FWC', 'Check firmware version triggered.'));
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceFirmware.upgrade.' + action, 'FWC', 'The firmware version is being read. Actual firmware version information will be available as soon as the action has completed.'));
                     router.getRoute().forward();
                 }
 
