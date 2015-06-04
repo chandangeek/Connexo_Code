@@ -20,6 +20,7 @@ public class PropertyInfoFactory {
         propertyInfo.displayValue = property.getDisplayName();
         PropertySpecPossibleValues possibleValues = property.getSpecification().getPossibleValues();
         propertyInfo.exhaustive = possibleValues != null && possibleValues.isExhaustive();
+        propertyInfo.affectsAvailableDomainProperties = property.affectsAvailableDomainProperties();
         propertyInfo.type = property.getSpecification().getValueFactory().getValueType().getSimpleName();
         property.getGroup().ifPresent(g->propertyInfo.group=g.getId());
         propertyInfo.selectionMode = property.getSelectionMode();

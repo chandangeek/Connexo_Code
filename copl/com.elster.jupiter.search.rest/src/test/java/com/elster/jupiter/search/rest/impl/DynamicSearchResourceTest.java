@@ -7,6 +7,7 @@ import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
+import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
@@ -18,17 +19,21 @@ import java.util.Optional;
 import javax.ws.rs.core.Response;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
  * Created by bvn on 6/1/15.
  */
 public class DynamicSearchResourceTest extends SearchApplicationTest {
+
+    private SearchDomain devicesDomain;
 
     @Override
     @Before
@@ -43,7 +48,7 @@ public class DynamicSearchResourceTest extends SearchApplicationTest {
     }
 
     private SearchDomain mockDeviceSearchDomain() {
-        SearchDomain devicesDomain = mock(SearchDomain.class);
+        devicesDomain = mock(SearchDomain.class);
         when(devicesDomain.getId()).thenReturn("com.devices");
         SearchableProperty mRID = mockMRIDProperty(devicesDomain);
         SearchableProperty deviceType = mockDeviceTypeProperty(devicesDomain);
@@ -61,6 +66,7 @@ public class DynamicSearchResourceTest extends SearchApplicationTest {
         when(mRID.getDomain()).thenReturn(searchDomain);
         when(mRID.getSelectionMode()).thenReturn(SearchableProperty.SelectionMode.MULTI);
         when(mRID.getVisibility()).thenReturn(SearchableProperty.Visibility.STICKY);
+        when(mRID.affectsAvailableDomainProperties()).thenReturn(false);
         PropertySpec propertySpec = mock(PropertySpec.class);
         when(propertySpec.getValueFactory()).thenReturn(new StringFactory());
         when(mRID.getName()).thenReturn("mRID");
@@ -74,6 +80,7 @@ public class DynamicSearchResourceTest extends SearchApplicationTest {
         when(deviceType.getGroup()).thenReturn(Optional.<SearchablePropertyGroup>empty());
         when(deviceType.getSelectionMode()).thenReturn(SearchableProperty.SelectionMode.MULTI);
         when(deviceType.getDomain()).thenReturn(searchDomain);
+        when(deviceType.affectsAvailableDomainProperties()).thenReturn(true);
         when(deviceType.getVisibility()).thenReturn(SearchableProperty.Visibility.STICKY);
         PropertySpec propertySpec = mock(PropertySpec.class);
         ValueFactory valueFactory = mock(ValueFactory.class);
@@ -95,6 +102,7 @@ public class DynamicSearchResourceTest extends SearchApplicationTest {
         when(deviceConfig.getGroup()).thenReturn(Optional.<SearchablePropertyGroup>empty());
         when(deviceConfig.getSelectionMode()).thenReturn(SearchableProperty.SelectionMode.MULTI);
         when(deviceConfig.getVisibility()).thenReturn(SearchableProperty.Visibility.STICKY);
+        when(deviceConfig.affectsAvailableDomainProperties()).thenReturn(false);
         when(deviceConfig.getDomain()).thenReturn(searchDomain);
         when(deviceConfig.toDisplay(any())).thenAnswer(invocationOnMock1 -> ((DeviceConfig) invocationOnMock1.getArguments()[0]).getName());
         PropertySpec propertySpec = mock(PropertySpec.class);
@@ -153,15 +161,28 @@ public class DynamicSearchResourceTest extends SearchApplicationTest {
         assertThat(model.<String>get("$.properties[0].type")).isEqualTo("String");
         assertThat(model.<String>get("$.properties[0].selectionMode")).isEqualTo("multiple");
         assertThat(model.<String>get("$.properties[0].visibility")).isEqualTo("sticky");
+        assertThat(model.<Boolean>get("$.properties[0].affectsAvailableDomainProperties")).isEqualTo(false);
         assertThat(model.<List>get("$.properties[0].constraints")).hasSize(0);
         assertThat(model.<String>get("$.properties[0].link.href")).endsWith("/search/com.devices/properties/mRID");
         assertThat(model.<Boolean>get("$.properties[0].exhaustive")).isFalse();
+
+        assertThat(model.<Boolean>get("$.properties[1].affectsAvailableDomainProperties")).isEqualTo(true);
 
         assertThat(model.<String>get("$.properties[2].name")).isEqualTo("deviceConfig");
         assertThat(model.<String>get("$.properties[2].displayValue")).isEqualTo("Device configuration");
         assertThat(model.<String>get("$.properties[2].link.href")).endsWith("/search/com.devices/properties/deviceConfig");
         assertThat(model.<Boolean>get("$.properties[2].exhaustive")).isTrue();
         assertThat(model.<List>get("$.properties[2].constraints")).hasSize(1);
+    }
+
+    @Test
+    public void testRestictedDomainProperties() throws Exception {
+        Response response = target("/search/com.devices/properties").queryParam("filter", ExtjsFilter.filter().property("deviceType", Arrays.asList(Long.valueOf(13))).create()).request().accept("application/json").get();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        ArgumentCaptor<List> constrictions = ArgumentCaptor.forClass(List.class);
+        verify(devicesDomain).getPropertiesWithConstrictions(constrictions.capture());
+        assertThat(((SearchablePropertyConstriction)constrictions.getValue().get(0)).getConstrainingProperty().getName()).isEqualTo("deviceType");
+        assertThat(((DeviceType) ((SearchablePropertyConstriction) constrictions.getValue().get(0)).getConstrainingValues().get(0)).getId()).isEqualTo(13L);
     }
 
     @Test

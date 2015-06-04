@@ -14,6 +14,7 @@ public class PropertyInfo {
     public String group; // Identifies in which group this property should be listed; can be null;
     public String type; // Identifies the type of property: String, Integer, Date, ...
     public boolean exhaustive; // 'true' indicates UI can obtain an exhaustive list of values from which to select value(s)
+    public boolean affectsAvailableDomainProperties; // true if using this property(with values) as filter will impact the available properties of a search domain
     @XmlJavaTypeAdapter(Link.JaxbAdapter.class)
     public Link link;
     @XmlJavaTypeAdapter(SelectionModeAdapter.class)
