@@ -122,6 +122,7 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         when(taskService.findComTask(anyLong())).thenReturn(Optional.empty());
         when(taskService.findComTask(firmwareComTaskId)).thenReturn(Optional.of(firmwareComTask));
         when(firmwareComTask.isSystemComTask()).thenReturn(true);
+        when(firmwareComTask.isUserComTask()).thenReturn(false);
     }
 
     @Override

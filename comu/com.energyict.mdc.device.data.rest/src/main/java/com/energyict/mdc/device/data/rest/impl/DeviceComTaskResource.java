@@ -347,6 +347,7 @@ public class DeviceComTaskResource {
     public Response activateAllComTasks(@PathParam("mRID") String mrid) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         device.getDeviceConfiguration().getComTaskEnablements().stream()
+                .filter(comTaskEnablement -> comTaskEnablement.getComTask().isUserComTask())
                 .map(comTaskEnablement -> comTaskEnablement.getComTask().getId())
                 .forEach(comTaskId -> activateComTaskOnDevice(device, comTaskId));
         return Response.ok().build();
@@ -360,6 +361,7 @@ public class DeviceComTaskResource {
     public Response deactivateAllComTasks(@PathParam("mRID") String mrid) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         device.getDeviceConfiguration().getComTaskEnablements().stream()
+                .filter(comTaskEnablement -> comTaskEnablement.getComTask().isUserComTask())
                 .map(comTaskEnablement -> comTaskEnablement.getComTask().getId())
                 .forEach(comTaskId -> deactivateComTaskOnDevice(device, comTaskId));
         return Response.ok().build();
