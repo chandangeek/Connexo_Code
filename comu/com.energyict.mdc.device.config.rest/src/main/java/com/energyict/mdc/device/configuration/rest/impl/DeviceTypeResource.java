@@ -1,16 +1,16 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.rest.util.RestValidationBuilder;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.TranslatableApplicationException;
-import com.elster.jupiter.rest.util.PagedInfoList;
-import com.elster.jupiter.rest.util.JsonQueryParameters;
-import com.elster.jupiter.domain.util.Finder;
-import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -117,7 +117,7 @@ public class DeviceTypeResource {
         if (!deviceProtocolPluggableClass.isPresent()) {
             throw new LocalizedFieldValidationException(MessageSeeds.PROTOCOL_INVALID_NAME, DeviceTypeInfo.COMMUNICATION_PROTOCOL_NAME, deviceTypeInfo.deviceProtocolPluggableClassName);
         }
-        Optional<DeviceLifeCycle> deviceLifeCycleRef = resourceHelper.findDeviceLifeCycleById(deviceTypeInfo.deviceLifeCycleId != null ? deviceTypeInfo.deviceLifeCycleId : 0);
+        Optional<DeviceLifeCycle> deviceLifeCycleRef = deviceTypeInfo.deviceLifeCycleId != null ? resourceHelper.findDeviceLifeCycleById(deviceTypeInfo.deviceLifeCycleId) : Optional.empty();
         DeviceType deviceType = null;
         if (deviceLifeCycleRef.isPresent()) {
             deviceType = deviceConfigurationService.newDeviceType(deviceTypeInfo.name, deviceProtocolPluggableClass.get(), deviceLifeCycleRef.get());
@@ -154,8 +154,10 @@ public class DeviceTypeResource {
     public Response updateDeviceLifeCycleForDeviceType(@PathParam("id") long id, ChangeDeviceLifeCycleInfo info) {
         DeviceType deviceType = resourceHelper.findAndLockDeviceType(id, info.version);
         DeviceLifeCycle oldDeviceLifeCycle = deviceType.getDeviceLifeCycle();
-        long deviceLifeCycleId = info.targetDeviceLifeCycle != null ? info.targetDeviceLifeCycle.id : 0;
-        DeviceLifeCycle targetDeviceLifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(deviceLifeCycleId);
+        new RestValidationBuilder()
+                .isCorrectId(info.targetDeviceLifeCycle != null ? info.targetDeviceLifeCycle.id : null, "deviceLifeCycleId")
+                .validate();
+        DeviceLifeCycle targetDeviceLifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(info.targetDeviceLifeCycle.id);
         try {
             deviceConfigurationService.changeDeviceLifeCycle(deviceType, targetDeviceLifeCycle);
         } catch (IncompatibleDeviceLifeCycleChangeException mappingEx){

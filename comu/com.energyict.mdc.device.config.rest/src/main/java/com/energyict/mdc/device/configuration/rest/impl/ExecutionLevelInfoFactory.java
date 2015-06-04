@@ -4,9 +4,10 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.device.config.DeviceSecurityUserAction;
+
+import javax.inject.Inject;
 import java.util.Collection;
 import java.util.List;
-import javax.inject.Inject;
 
 import static java.util.stream.Collectors.toList;
 

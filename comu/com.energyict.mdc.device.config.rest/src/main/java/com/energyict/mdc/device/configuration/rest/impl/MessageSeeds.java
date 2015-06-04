@@ -3,6 +3,7 @@ package com.energyict.mdc.device.configuration.rest.impl;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.security.Privileges;
+
 import java.util.logging.Level;
 
 public enum MessageSeeds implements MessageSeed, TranslationKey {

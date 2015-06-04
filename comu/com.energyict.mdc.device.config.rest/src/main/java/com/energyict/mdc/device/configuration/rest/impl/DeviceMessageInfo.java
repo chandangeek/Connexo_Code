@@ -1,14 +1,13 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import javax.xml.bind.annotation.XmlRootElement;
-
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.config.DeviceMessageUserAction;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
+
+import javax.xml.bind.annotation.XmlRootElement;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @XmlRootElement
 public class DeviceMessageInfo {

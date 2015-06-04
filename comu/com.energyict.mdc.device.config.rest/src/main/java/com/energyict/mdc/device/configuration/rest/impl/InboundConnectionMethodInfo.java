@@ -10,6 +10,7 @@ import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+
 import javax.ws.rs.core.UriInfo;
 
 public class InboundConnectionMethodInfo extends ConnectionMethodInfo<PartialInboundConnectionTask> {

@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.energyict.mdc.common.rest.IdWithNameInfo;
+
 import java.util.List;
 
 /**

@@ -1,8 +1,8 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
-import javax.xml.bind.annotation.XmlRootElement;
-
 import com.energyict.mdc.device.config.DeviceConfiguration;
+
+import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 public class DeviceConfigurationRefInfo {

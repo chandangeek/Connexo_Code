@@ -4,6 +4,7 @@ import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
+
 import javax.inject.Inject;
 import javax.ws.rs.core.UriInfo;
 

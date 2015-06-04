@@ -1,9 +1,7 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
-import com.energyict.mdc.device.config.security.Privileges;
 import com.energyict.mdc.protocol.api.Manufacturer;
 
-import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
