@@ -12,6 +12,9 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
+import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.tasks.TaskService;
+
 import java.util.List;
 import java.util.Optional;
 import javax.annotation.security.RolesAllowed;
@@ -32,11 +35,13 @@ public class DeviceScheduleResource {
 
     private final ResourceHelper resourceHelper;
     private final ExceptionFactory exceptionFactory;
+    private final TaskService taskService;
 
     @Inject
-    public DeviceScheduleResource(ResourceHelper resourceHelper, ExceptionFactory exceptionFactory) {
+    public DeviceScheduleResource(ResourceHelper resourceHelper, ExceptionFactory exceptionFactory, TaskService taskService) {
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
+        this.taskService = taskService;
     }
 
     @GET
@@ -51,11 +56,21 @@ public class DeviceScheduleResource {
         return Response.ok(PagedInfoList.fromPagedList("schedules", deviceSchedulesInfos, queryParameters)).build();
     }
 
+    private void checkForNoActionsAllowedOnSystemComTask(@PathParam("comTaskId") Long comTaskId) {
+        Optional<ComTask> comTask = taskService.findComTask(comTaskId);
+        comTask.ifPresent(comTask1 -> {
+            if(comTask1.isSystemComTask()){
+                throw exceptionFactory.newException(MessageSeeds.CAN_NOT_PERFOMR_ACTION_ON_SYSTEM_COMTASK);
+            }
+        });
+    }
+
     @POST
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Response createComTaskExecution(@PathParam("mRID") String mrid, SchedulingInfo schedulingInfo) {
+        checkForNoActionsAllowedOnSystemComTask(schedulingInfo.id);
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
         for (ComTaskEnablement comTaskEnablement : deviceConfiguration.getComTaskEnablements()) {
@@ -64,7 +79,6 @@ public class DeviceScheduleResource {
                     boolean comTaskExecutionExists = false;
                     for (ComTaskExecution comTaskExecution : device.getComTaskExecutions()) {
                         if (comTaskExecution.isAdHoc() && comTaskExecution.getComTasks().get(0).getId() == comTaskEnablement.getComTask().getId()) {
-
                             ((ManuallyScheduledComTaskExecution) comTaskExecution).getUpdater().scheduleAccordingTo(schedulingInfo.schedule.asTemporalExpression()).update();
                             comTaskExecutionExists = true;
                         }
@@ -106,6 +120,7 @@ public class DeviceScheduleResource {
     @RolesAllowed({Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
     //TODO comTaskExecId should be path param
     public Response updateComTaskExecution(@PathParam("mRID") String mrid, SchedulingInfo schedulingInfo) {
+        checkForNoActionsAllowedOnSystemComTask(schedulingInfo.id);
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         List<ComTaskExecution> comTaskExecutions = device.getComTaskExecutions();
         for (ComTaskExecution comTaskExecution : comTaskExecutions) {
@@ -127,6 +142,7 @@ public class DeviceScheduleResource {
     @RolesAllowed({Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
     @Path("/{comTaskExecutionId}")
     public Response deleteComTaskExecution(@PathParam("mRID") String mrid, @PathParam("comTaskExecutionId") long id) {
+        checkForNoActionsAllowedOnSystemComTask(id);
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         ComTaskExecution comTaskExecution = findComTaskExecution(device, id).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_COM_TASK_EXEC));
         device.removeComTaskExecution(comTaskExecution);
