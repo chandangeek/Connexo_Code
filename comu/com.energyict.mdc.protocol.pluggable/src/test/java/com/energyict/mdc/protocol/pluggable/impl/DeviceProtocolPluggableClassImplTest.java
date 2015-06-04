@@ -3,6 +3,8 @@ package com.energyict.mdc.protocol.pluggable.impl;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.FactoryIds;
+
+import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
@@ -394,6 +396,7 @@ public class DeviceProtocolPluggableClassImplTest {
 
         @Override
         protected void configure() {
+            bind(TimeService.class).toInstance(mock(TimeService.class));
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(BundleContext.class).toInstance(bundleContext);
             bind(LicenseService.class).toInstance(licenseService);

@@ -56,5 +56,4 @@ public interface ConnectionTypePluggableClass extends PluggableClassWithRelation
 
     public List<PropertySpec> getPropertySpecs();
 
-
-    }
+}

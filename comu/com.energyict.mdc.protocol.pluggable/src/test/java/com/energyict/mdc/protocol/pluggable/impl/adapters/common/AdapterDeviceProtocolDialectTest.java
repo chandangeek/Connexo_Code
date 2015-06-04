@@ -32,15 +32,16 @@ import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
+import com.elster.jupiter.util.streams.Predicates;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.google.inject.Provider;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
@@ -49,6 +50,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.junit.*;
 import org.junit.runner.*;
@@ -134,7 +136,7 @@ public class AdapterDeviceProtocolDialectTest {
     @Test
     public void testDialectName () {
         MockMeterProtocol mockDeviceProtocol = new MockMeterProtocol();
-        AdapterDeviceProtocolDialect dialect = new AdapterDeviceProtocolDialect(propertySpecService, protocolPluggableService, mockDeviceProtocol, new ArrayList<PropertySpec>());
+        AdapterDeviceProtocolDialect dialect = new AdapterDeviceProtocolDialect(propertySpecService, protocolPluggableService, mockDeviceProtocol, new ArrayList<>());
 
         assertThat(dialect.getDeviceProtocolDialectName()).isEqualTo("MockMeterPro316065908");
     }
@@ -142,7 +144,7 @@ public class AdapterDeviceProtocolDialectTest {
     @Test
     public void getRequiredKeysTest () {
         MockMeterProtocol mockDeviceProtocol = new MockMeterProtocol();
-        AdapterDeviceProtocolDialect dialect = new AdapterDeviceProtocolDialect(propertySpecService, protocolPluggableService, mockDeviceProtocol, new ArrayList<PropertySpec>());
+        AdapterDeviceProtocolDialect dialect = new AdapterDeviceProtocolDialect(propertySpecService, protocolPluggableService, mockDeviceProtocol, new ArrayList<>());
 
         assertThat(getRequiredPropertiesFromSet(dialect.getPropertySpecs())).containsOnly(getRequiredPropertySpec());
     }
@@ -150,7 +152,7 @@ public class AdapterDeviceProtocolDialectTest {
     @Test
     public void getOptionalKeysTest () {
         MockMeterProtocol mockDeviceProtocol = new MockMeterProtocol();
-        AdapterDeviceProtocolDialect dialect = new AdapterDeviceProtocolDialect(propertySpecService, protocolPluggableService, mockDeviceProtocol, new ArrayList<PropertySpec>());
+        AdapterDeviceProtocolDialect dialect = new AdapterDeviceProtocolDialect(propertySpecService, protocolPluggableService, mockDeviceProtocol, new ArrayList<>());
 
         assertThat(getOptionalPropertiesFromSet(dialect.getPropertySpecs())).containsOnly(getOptionalPropertySpec());
     }
@@ -158,7 +160,7 @@ public class AdapterDeviceProtocolDialectTest {
     @Test
     public void getPropertySpecTest () {
         MockMeterProtocol mockDeviceProtocol = new MockMeterProtocol();
-        AdapterDeviceProtocolDialect dialect = new AdapterDeviceProtocolDialect(propertySpecService, protocolPluggableService, mockDeviceProtocol, new ArrayList<PropertySpec>());
+        AdapterDeviceProtocolDialect dialect = new AdapterDeviceProtocolDialect(propertySpecService, protocolPluggableService, mockDeviceProtocol, new ArrayList<>());
 
         assertThat(dialect.getPropertySpec(REQUIRED_PROPERTY_NAME)).isEqualTo(getRequiredPropertySpec());
         assertThat(dialect.getPropertySpec(OPTIONAL_PROPERTY_NAME)).isEqualTo(getOptionalPropertySpec());
@@ -167,7 +169,7 @@ public class AdapterDeviceProtocolDialectTest {
     @Test
     public void testWithAdditionalProperties () {
         MockMeterProtocol mockDeviceProtocol = new MockMeterProtocol();
-        AdapterDeviceProtocolDialect dialect = new AdapterDeviceProtocolDialect(propertySpecService, protocolPluggableService, mockDeviceProtocol, new ArrayList<PropertySpec>());
+        AdapterDeviceProtocolDialect dialect = new AdapterDeviceProtocolDialect(propertySpecService, protocolPluggableService, mockDeviceProtocol, new ArrayList<>());
 
         assertThat(dialect.getPropertySpecs()).containsOnly(this.getPropertySpecs());
     }
@@ -184,7 +186,7 @@ public class AdapterDeviceProtocolDialectTest {
     @Test
     public void testWithOnlyAdditionalProperties () {
         MeterProtocol mockDeviceProtocol = mock(MeterProtocol.class);
-        AdapterDeviceProtocolDialect dialect = new AdapterDeviceProtocolDialect(propertySpecService, protocolPluggableService, mockDeviceProtocol, new ArrayList<PropertySpec>());
+        AdapterDeviceProtocolDialect dialect = new AdapterDeviceProtocolDialect(propertySpecService, protocolPluggableService, mockDeviceProtocol, new ArrayList<>());
 
         assertThat(dialect.getPropertySpecs()).isEmpty();
     }
@@ -199,23 +201,17 @@ public class AdapterDeviceProtocolDialectTest {
     }
 
     private List<PropertySpec> getOptionalPropertiesFromSet(List<PropertySpec> propertySpecs) {
-        List<PropertySpec> requiredProperties = new ArrayList<>();
-        for (PropertySpec propertySpec : propertySpecs) {
-            if(!propertySpec.isRequired()){
-                requiredProperties.add(propertySpec);
-            }
-        }
-        return requiredProperties;
+        return propertySpecs
+                .stream()
+                .filter(Predicates.not(PropertySpec::isRequired))
+                .collect(Collectors.toList());
     }
 
     private List<PropertySpec> getRequiredPropertiesFromSet(List<PropertySpec> propertySpecs) {
-        List<PropertySpec> requiredProperties = new ArrayList<>();
-        for (PropertySpec propertySpec : propertySpecs) {
-            if(propertySpec.isRequired()){
-                requiredProperties.add(propertySpec);
-            }
-        }
-        return requiredProperties;
+        return propertySpecs
+                .stream()
+                .filter(PropertySpec::isRequired)
+                .collect(Collectors.toList());
     }
 
     private PropertySpec[] getPropertySpecs () {
@@ -244,15 +240,11 @@ public class AdapterDeviceProtocolDialectTest {
     private class MockModule extends AbstractModule {
         @Override
         protected void configure() {
+            bind(TimeService.class).toInstance(mock(TimeService.class));
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(BundleContext.class).toInstance(bundleContext);
             bind(LicenseService.class).toInstance(licenseService);
-            bind(DataModel.class).toProvider(new Provider<DataModel>() {
-                @Override
-                public DataModel get() {
-                    return dataModel;
-                }
-            });
+            bind(DataModel.class).toProvider(() -> dataModel);
         }
     }
 }
