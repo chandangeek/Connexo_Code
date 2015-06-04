@@ -1,4 +1,4 @@
-package com.energyict.mdc.issue.tests;
+package com.energyict.mdc.issue.datacollection;
 
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.share.entity.IssueReason;

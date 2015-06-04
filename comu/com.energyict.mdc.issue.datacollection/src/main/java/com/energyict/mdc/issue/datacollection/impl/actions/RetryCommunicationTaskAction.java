@@ -59,15 +59,10 @@ public class RetryCommunicationTaskAction extends AbstractIssueAction {
         }
         return false;
     }
-
-    @Override
-    public String getNameDefaultFormat() {
-        return MessageSeeds.ACTION_RETRY.getDefaultFormat();
-    }
     
     @Override
-    public String getPropertyDefaultFormat(String property) {
-        return null;
+    public String getDisplayName() {
+        return MessageSeeds.ACTION_RETRY.getTranslated(getThesaurus());
     }
     
     @Override

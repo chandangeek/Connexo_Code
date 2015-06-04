@@ -36,7 +36,7 @@ import com.google.common.collect.ImmutableList.Builder;
            service = CreationRuleTemplate.class,
            immediate = true)
 public class BasicDataCollectionRuleTemplate extends AbstractDataCollectionTemplate {
-    public static final String NAME = "BasicDataCollectionRuleTemplate";
+    static final String NAME = "BasicDataCollectionRuleTemplate";
     
     public static final String EVENTTYPE = NAME + ".eventType";
     public static final String AUTORESOLUTION = NAME + ".autoresolution";
@@ -166,19 +166,8 @@ public class BasicDataCollectionRuleTemplate extends AbstractDataCollectionTempl
     }
     
     @Override
-    public String getNameDefaultFormat() {
-        return MessageSeeds.BASIC_TEMPLATE_DATACOLLECTION_NAME.getDefaultFormat();
-    }
-    
-    @Override
-    public String getPropertyDefaultFormat(String property) {
-        switch (property) {
-        case EVENTTYPE:
-            return MessageSeeds.PARAMETER_NAME_EVENT_TYPE.getDefaultFormat();
-        case AUTORESOLUTION:
-            return MessageSeeds.PARAMETER_AUTO_RESOLUTION.getDefaultFormat();
-        }
-        return null;
+    public String getDisplayName() {
+        return MessageSeeds.BASIC_TEMPLATE_DATACOLLECTION_NAME.getTranslated(getThesaurus());
     }
     
     private class PossibleEventTypes implements FindById<EventType> {

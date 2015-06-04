@@ -39,18 +39,6 @@
             <artifactId>metering</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>orm</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>util</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>appserver</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.pluggable</artifactId>
         </dependency>
@@ -66,6 +54,10 @@
             <groupId>com.energyict</groupId>
             <artifactId>mdc.device.topology</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.dynamic</artifactId>
+        </dependency>
 
         <!-- Test dependencies -->
         <!--<dependency>-->
@@ -73,11 +65,6 @@
             <!--<artifactId>guice</artifactId>-->
             <!--<version>4.0-beta5</version>-->
         <!--</dependency>-->
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>devtools</artifactId>
-            <scope>test</scope>
-        </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>devtools.persistence</artifactId>
@@ -98,18 +85,6 @@
             <artifactId>org.osgi.core</artifactId>
             <scope>test</scope>
         </dependency>
-
-        <dependency>
-            <groupId>com.sun.xml.bind</groupId>
-            <artifactId>jaxb-xjc</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.json</groupId>
-            <artifactId>json</artifactId>
-            <scope>test</scope>
-        </dependency>
-
     </dependencies>
 
     <build>

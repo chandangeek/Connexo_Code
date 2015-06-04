@@ -1,4 +1,4 @@
-package com.energyict.mdc.issue.tests;
+package com.energyict.mdc.issue.datacollection;
 
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.issue.impl.records.OpenIssueImpl;

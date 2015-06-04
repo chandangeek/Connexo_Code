@@ -1,4 +1,4 @@
-package com.energyict.mdc.issue.tests;
+package com.energyict.mdc.issue.datacollection;
 
 import com.elster.jupiter.issue.impl.service.IssueCreationServiceImpl;
 import com.elster.jupiter.issue.share.IssueEvent;

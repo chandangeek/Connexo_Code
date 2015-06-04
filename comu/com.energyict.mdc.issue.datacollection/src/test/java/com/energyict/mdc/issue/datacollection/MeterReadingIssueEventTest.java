@@ -1,4 +1,4 @@
-package com.energyict.mdc.issue.tests;
+package com.energyict.mdc.issue.datacollection;
 
 import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
 import com.elster.jupiter.cbo.TimeAttribute;

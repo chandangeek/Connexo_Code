@@ -4,6 +4,7 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.issue.datacollection.impl.templates.BasicDataCollectionRuleTemplate;
 
 import java.text.MessageFormat;
 import java.util.logging.Level;
@@ -28,11 +29,11 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     PARAMETER_NAME_TREND_PERIOD_UNIT(106, "ParameterNameTrendPeriodUnit", "Trend period units", Level.INFO),
     PARAMETER_NAME_MAX_SLOPE_SUFFIX(107, "ParameterNameTrendPeriodUnitSuffix", "&deg;C", Level.INFO),
     PARAMETER_NAME_READING_TYPE_DESCRIPTION(108, "ParameterNameReadingTypeDescription", "Provide the value for the 18 attributes of the CIM reading type. Separate each value with a \".\"", Level.INFO),
-    PARAMETER_NAME_EVENT_TYPE(109, "ParameterNameEventType", "Event", Level.INFO),
-    PARAMETER_NAME_THRESHOLD(110, "ParameterNameThreshold", "Threshold", Level.INFO),
-    PARAMETER_NAME_THRESHOLD_SUFFIX(111, "ParameterNameThresholdSuffix", "%", Level.INFO),
-    PARAMETER_NAME_MAX_SLOPE_SUFFIX_PER_HOUR(112, "ParameterNameTrendPeriodUnitSuffixPerHour", "/hour", Level.INFO),
-    PARAMETER_AUTO_RESOLUTION(113, "ParameterAutoResolve", "Auto resolution", Level.SEVERE),
+    PARAMETER_NAME_EVENT_TYPE(109, BasicDataCollectionRuleTemplate.EVENTTYPE, "Event", Level.INFO),
+    PARAMETER_AUTO_RESOLUTION(110, BasicDataCollectionRuleTemplate.AUTORESOLUTION, "Auto resolution", Level.INFO),
+    PARAMETER_NAME_THRESHOLD(111, "ParameterNameThreshold", "Threshold", Level.INFO),
+    PARAMETER_NAME_THRESHOLD_SUFFIX(112, "ParameterNameThresholdSuffix", "%", Level.INFO),
+    PARAMETER_NAME_MAX_SLOPE_SUFFIX_PER_HOUR(113, "ParameterNameTrendPeriodUnitSuffixPerHour", "/hour", Level.INFO),
 
     // Generall messages for all parameters 501 - 699
     ISSUE_CREATION_RULE_PARAMETER_ABSENT(501, "IssueCreationRuleParameterAbsent", "Required parameter is absent", Level.SEVERE),

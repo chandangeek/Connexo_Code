@@ -1,4 +1,4 @@
-package com.energyict.mdc.issue.tests;
+package com.energyict.mdc.issue.datacollection;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;

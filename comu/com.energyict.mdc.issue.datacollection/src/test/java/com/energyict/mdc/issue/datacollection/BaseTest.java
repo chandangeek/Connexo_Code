@@ -1,4 +1,4 @@
-package com.energyict.mdc.issue.tests;
+package com.energyict.mdc.issue.datacollection;
 
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
