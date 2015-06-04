@@ -40,6 +40,11 @@ public class MasterResourceIdentifierSearchableProperty implements SearchableUsa
     }
 
     @Override
+    public boolean affectsAvailableDomainProperties() {
+        return false;
+    }
+
+    @Override
     public Optional<SearchablePropertyGroup> getGroup() {
         return Optional.empty();
     }

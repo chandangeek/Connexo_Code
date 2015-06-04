@@ -8,6 +8,7 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyCondition;
+import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.util.conditions.Condition;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -66,6 +67,16 @@ public class UsagePointSearchDomain implements SearchDomain {
     public List<SearchableProperty> getProperties() {
         return Collections.singletonList(
                 new MasterResourceIdentifierSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()));
+    }
+
+    @Override
+    public List<SearchableProperty> getPropertiesWithConstrictions(List<SearchablePropertyConstriction> constrictions) {
+        if (!constrictions.isEmpty()) {
+            throw new IllegalArgumentException("Expecting no constrictionsrtie");
+        }
+        else {
+            return this.getProperties();
+        }
     }
 
     @Override
