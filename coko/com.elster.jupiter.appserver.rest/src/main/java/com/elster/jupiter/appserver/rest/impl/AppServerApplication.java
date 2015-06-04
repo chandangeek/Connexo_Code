@@ -40,7 +40,8 @@ public class AppServerApplication extends Application implements InstallService 
 
     public Set<Class<?>> getClasses() {
         return ImmutableSet.<Class<?>>of(
-                AppServerResource.class);
+                AppServerResource.class,
+                ImportDirectoryResource.class);
     }
     @Reference
     public void setAppService(AppService appService) {

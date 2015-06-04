@@ -1,0 +1,31 @@
+package com.elster.jupiter.appserver.rest.impl;
+
+import com.elster.jupiter.appserver.AppServer;
+
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+public class DirectoryForAppServerInfos {
+
+	public int total;
+    public List<DirectoryForAppServerInfo> directories = new ArrayList<>();
+
+	public DirectoryForAppServerInfos() {
+
+    }
+
+    public DirectoryForAppServerInfos(Map<AppServer, Optional<Path>> mappings) {
+	    mappings.entrySet().stream()
+            .forEach(entry -> add(entry.getKey(), entry.getValue().orElse(null)));
+	}
+
+    public DirectoryForAppServerInfo add(AppServer appServer, Path path) {
+        DirectoryForAppServerInfo result = new DirectoryForAppServerInfo(appServer, path);
+        directories.add(result);
+	    total++;
+	    return result;
+	}
+}
