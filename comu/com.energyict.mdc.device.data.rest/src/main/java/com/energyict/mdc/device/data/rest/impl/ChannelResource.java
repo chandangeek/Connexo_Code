@@ -47,13 +47,15 @@ public class ChannelResource {
     private final ResourceHelper resourceHelper;
     private final Thesaurus thesaurus;
     private final Clock clock;
+    private final DeviceDataInfoFactory deviceDataInfoFactory;
 
     @Inject
-    public ChannelResource(Provider<ChannelResourceHelper> channelHelper, ResourceHelper resourceHelper, Thesaurus thesaurus, Clock clock) {
+    public ChannelResource(Provider<ChannelResourceHelper> channelHelper, ResourceHelper resourceHelper, Thesaurus thesaurus, Clock clock, DeviceDataInfoFactory deviceDataInfoFactory) {
         this.channelHelper = channelHelper;
         this.resourceHelper = resourceHelper;
         this.thesaurus = thesaurus;
         this.clock = clock;
+        this.deviceDataInfoFactory = deviceDataInfoFactory;
     }
 
     @GET
@@ -110,7 +112,7 @@ public class ChannelResource {
         boolean isValidationActive = deviceValidation.isValidationActive(channel, clock.instant());
         if (intervalStart != null && intervalEnd != null) {
             List<LoadProfileReading> channelData = channel.getChannelData(Ranges.openClosed(Instant.ofEpochMilli(intervalStart), Instant.ofEpochMilli(intervalEnd)));
-            List<ChannelDataInfo> infos = ChannelDataInfo.from(channelData, isValidationActive, thesaurus, deviceValidation);
+            List<ChannelDataInfo> infos = channelData.stream().map(loadProfileReading -> deviceDataInfoFactory.createChannelDataInfo(loadProfileReading, isValidationActive, deviceValidation)).collect(Collectors.toList());
             infos = filter(infos, uriInfo.getQueryParameters());
             List<ChannelDataInfo> paginatedChannelData = ListPager.of(infos).from(queryParameters).find();
             PagedInfoList pagedInfoList = PagedInfoList.fromPagedList("data", paginatedChannelData, queryParameters);

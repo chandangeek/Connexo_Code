@@ -7,7 +7,4 @@ public class FlagsRegisterInfo extends RegisterInfo<FlagsRegister, FlagsReading>
 
     public FlagsRegisterInfo() {}
 
-    public FlagsRegisterInfo(FlagsRegister register) {
-        super(register);
-    }
 }

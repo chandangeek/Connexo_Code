@@ -30,11 +30,13 @@ public class ChannelResourceHelper {
 
     private final ResourceHelper resourceHelper;
     private final Clock clock;
+    private final ValidationInfoFactory validationInfoFactory;
 
     @Inject
-    public ChannelResourceHelper(ResourceHelper resourceHelper, Clock clock) {
+    public ChannelResourceHelper(ResourceHelper resourceHelper, Clock clock, ValidationInfoFactory validationInfoFactory) {
         this.resourceHelper = resourceHelper;
         this.clock = clock;
+        this.validationInfoFactory = validationInfoFactory;
     }
 
     public Response getChannels(String mrid, Function<Device, List<Channel>> channelsProvider, JsonQueryParameters queryParameters) {
@@ -60,7 +62,7 @@ public class ChannelResourceHelper {
     public void addValidationInfo(Channel channel, ChannelInfo channelInfo) {
         List<DataValidationStatus> states =
                 channel.getDevice().forValidation().getValidationStatus(channel, Collections.emptyList(), lastMonth());
-        channelInfo.validationInfo = new DetailedValidationInfo(isValidationActive(channel), states, channel.getDevice().forValidation().getLastChecked(channel));
+        channelInfo.validationInfo = validationInfoFactory.createDetailedValidationInfo(isValidationActive(channel), states, channel.getDevice().forValidation().getLastChecked(channel));
         if (states.isEmpty()) {
             channelInfo.validationInfo.dataValidated = channel.getDevice().forValidation().allDataValidated(channel, clock.instant());
         }

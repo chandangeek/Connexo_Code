@@ -418,8 +418,8 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         deviceMessageInfo.messageSpecification=new DeviceMessageSpecInfo();
         deviceMessageInfo.messageSpecification.id="CONTACTOR_OPEN";
         deviceMessageInfo.properties=new ArrayList<>();
-        deviceMessageInfo.properties.add(new PropertyInfo("ID", new PropertyValueInfo<>(123L, null, null, true), new PropertyTypeInfo(SimplePropertyType.NUMBER, null, null, null), true));
-        deviceMessageInfo.properties.add(new PropertyInfo("Time",new PropertyValueInfo<>(1414067539213L, null, null, true),new PropertyTypeInfo(SimplePropertyType.CLOCK, null, null, null), true));
+        deviceMessageInfo.properties.add(new PropertyInfo("ID", "ID", new PropertyValueInfo<>(123L, null, null, true), new PropertyTypeInfo(SimplePropertyType.NUMBER, null, null, null), true));
+        deviceMessageInfo.properties.add(new PropertyInfo("Time","Time",new PropertyValueInfo<>(1414067539213L, null, null, true),new PropertyTypeInfo(SimplePropertyType.CLOCK, null, null, null), true));
         Response response = target("/devices/ZABF010000080004/devicemessages").request().post(Entity.json(deviceMessageInfo));
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
