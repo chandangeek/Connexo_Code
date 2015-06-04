@@ -81,7 +81,7 @@ public class FirmwareManagementOptionsResourceTest extends BaseFirmwareTest {
     }
 
     @Test
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.UPGRADE_OPTIONS_REQUIRED + "}", property = "translationKey", strict = false)
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.UPGRADE_OPTIONS_REQUIRED + "}", property = "key", strict = false)
     public void testPutFirmwareManagementOptionsException() {
         FirmwareManagementOptionsInfo firmwareManagementOptionsInfo = new FirmwareManagementOptionsInfo();
         firmwareManagementOptionsInfo.isAllowed = true;
