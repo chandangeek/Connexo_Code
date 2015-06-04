@@ -7161,6 +7161,26 @@
   color: #a9a9a9;
 }
 
+/* line 17, ../../sass/src/fonts/Icons.scss */
+.firmware-campaign-status [class^="icon-"], .firmware-campaign-status [class*=" icon-"] {
+  margin: 0 3px 0 0;
+  display: inline-block;
+  height: 13px;
+  vertical-align: top;
+}
+/* line 23, ../../sass/src/fonts/Icons.scss */
+.firmware-campaign-status .icon-checkmark {
+  color: #41aa4c;
+}
+/* line 27, ../../sass/src/fonts/Icons.scss */
+.firmware-campaign-status .icon-close, .firmware-campaign-status .icon-notification {
+  color: #b05044;
+}
+/* line 30, ../../sass/src/fonts/Icons.scss */
+.firmware-campaign-status .icon-stop2 {
+  color: #a9a9a9;
+}
+
 @font-face {
   font-family: 'Lato';
   font-style: normal;
@@ -16818,20 +16838,4 @@ a:hover, a.x-btn:hover {
 .x-btn-action-toolbar-small-pressed .x-frame-ml,
 .x-btn-action-toolbar-small-pressed .x-frame-mr {
   background-image: url(images/btn/btn-action-toolbar-small-pressed-sides.gif);
-}
-/* line 640, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
-.x-btn-action-toolbar-small-menu-active .x-frame-mc,
-.x-btn-action-toolbar-small-pressed .x-frame-mc {
-  background-color: #89d46a;
-  background-image: url(images/btn/btn-action-toolbar-small-pressed-fbg.gif);
-}
-
-/* line 655, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
-.x-btn-action-toolbar-small-disabled .x-frame-tl,
-.x-btn-action-toolbar-small-disabled .x-frame-bl,
-.x-btn-action-toolbar-small-disabled .x-frame-tr,
-.x-btn-action-toolbar-small-disabled .x-frame-br,
-.x-btn-action-toolbar-small-disabled .x-frame-tc,
-.x-btn-action-toolbar-small-disabled .x-frame-bc {
-  background-image: url(images/btn/btn-action-toolbar-small-disabled-corners.gif);
 }

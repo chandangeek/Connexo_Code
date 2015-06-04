@@ -12,3 +12,22 @@
     color: #a9a9a9;
   }
 }
+
+.firmware-campaign-status {
+  [class^="icon-"], [class*=" icon-"] {
+    margin: 0 3px 0 0;
+    display: inline-block;
+    height: 13px;
+    vertical-align: top;
+  }
+  .icon-checkmark {
+    color: #41aa4c;
+  }
+  .icon-close,
+  .icon-notification {
+    color: #b05044;
+  }
+  .icon-stop2 {
+    color: #a9a9a9;
+  }
+}

@@ -5325,6 +5325,27 @@
   color: #a9a9a9;
 }
 
+/* line 17, ../../sass/src/fonts/Icons.scss */
+.firmware-campaign-status [class^="icon-"], .firmware-campaign-status [class*=" icon-"] {
+  margin: 0 3px 0 0;
+  display: inline-block;
+  height: 13px;
+  vertical-align: top;
+}
+/* line 23, ../../sass/src/fonts/Icons.scss */
+.firmware-campaign-status .icon-checkmark {
+  color: #41aa4c;
+}
+/* line 27, ../../sass/src/fonts/Icons.scss */
+.firmware-campaign-status .icon-close,
+.firmware-campaign-status .icon-notification {
+  color: #b05044;
+}
+/* line 30, ../../sass/src/fonts/Icons.scss */
+.firmware-campaign-status .icon-stop2 {
+  color: #a9a9a9;
+}
+
 @font-face {
   font-family: 'Lato';
   font-style: normal;
@@ -16334,31 +16355,4 @@ a:hover, a.x-btn:hover {
 /* line 327, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
 .x-btn-tag-large-br {
   background-position: right -25px;
-}
-
-/* line 331, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
-.x-btn-tag-large-ml {
-  background-position: 0 top;
-}
-
-/* line 335, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
-.x-btn-tag-large-mr {
-  background-position: right top;
-}
-
-/* line 339, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
-.x-btn-tag-large-tc {
-  background-position: 0 0;
-}
-
-/* line 343, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
-.x-btn-tag-large-bc {
-  background-position: 0 -5px;
-}
-
-/* line 350, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
-.x-btn-tag-large-tr,
-.x-btn-tag-large-br,
-.x-btn-tag-large-mr {
-  padding-right: 5px;
 }

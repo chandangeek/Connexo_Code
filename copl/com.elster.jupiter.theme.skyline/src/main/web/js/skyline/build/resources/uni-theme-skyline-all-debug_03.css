@@ -1,3 +1,30 @@
+/* line 331, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-tag-large-ml {
+  background-position: 0 top;
+}
+
+/* line 335, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-tag-large-mr {
+  background-position: right top;
+}
+
+/* line 339, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-tag-large-tc {
+  background-position: 0 0;
+}
+
+/* line 343, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-tag-large-bc {
+  background-position: 0 -5px;
+}
+
+/* line 350, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-tag-large-tr,
+.x-btn-tag-large-br,
+.x-btn-tag-large-mr {
+  padding-right: 5px;
+}
+
 /* line 356, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
 .x-btn-tag-large-tl,
 .x-btn-tag-large-bl,
@@ -15907,24 +15934,4 @@
 /* line 249, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
 .x-panel-header-tile-collapsed-left-frameInfo {
   font-family: dh-10-10-10-10-0-0-0-0-10-10-10-10;
-}
-
-/* line 315, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
-.x-panel-header-tile-collapsed-left-tl {
-  background-position: 0 -20px;
-}
-
-/* line 319, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
-.x-panel-header-tile-collapsed-left-tr {
-  background-position: right -30px;
-}
-
-/* line 323, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
-.x-panel-header-tile-collapsed-left-bl {
-  background-position: 0 -40px;
-}
-
-/* line 327, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
-.x-panel-header-tile-collapsed-left-br {
-  background-position: right -50px;
 }
