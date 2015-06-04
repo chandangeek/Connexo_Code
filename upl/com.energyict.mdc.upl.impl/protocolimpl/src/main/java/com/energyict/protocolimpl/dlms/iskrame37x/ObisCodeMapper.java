@@ -22,10 +22,7 @@ import com.energyict.dlms.cosem.HistoricalValue;
 import com.energyict.dlms.cosem.Register;
 import com.energyict.dlms.cosem.RegisterMonitor;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.*;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
@@ -196,7 +193,7 @@ public class ObisCodeMapper {
     private UniversalObject findObjectInMeterConfig(ObisCode obisCode) throws IOException {
         try {
             return meterProtocol.getMeterConfig().findObject(obisCode);
-        } catch (NoSuchRegisterException e) {
+        } catch (NotInObjectListException e) {
             meterProtocol.getLogger().severe(obisCode.toString() + " not found in meter's instantiated object list!");
             throw e;
         }
