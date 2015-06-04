@@ -11,7 +11,7 @@ Ext.define('Fim.view.log.Menu', {
             {
                 text: Uni.I18n.translate('importService.general.overview', 'FIM', 'Overview'),
                 itemId: 'import-service-view-link'
-			}
+            }
         );
         me.add(
             {

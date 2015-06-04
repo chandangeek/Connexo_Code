@@ -5,7 +5,6 @@ Ext.define('Fim.view.history.SortMenu', {
     border: false,
     shadow: false,
     items: [
-
         {
             text: Uni.I18n.translate('importService.history.startedOn', 'FIM', 'Started on'),
             name: 'startDate'

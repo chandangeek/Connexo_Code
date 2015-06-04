@@ -2,8 +2,6 @@ Ext.define('Fim.view.history.HistoryGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.fim-history-grid',
     store: 'Fim.store.ImportServicesHistory',
-
-
     requires: [
         'Uni.grid.column.Action',
         'Uni.grid.column.Duration',

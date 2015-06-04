@@ -2,7 +2,6 @@ Ext.define('Fim.view.log.Preview', {
     extend: 'Ext.panel.Panel',
     frame: true,
     alias: 'widget.fim-history-log-preview',
-    router: null,
     initComponent: function () {
         var me = this;
         me.items = {

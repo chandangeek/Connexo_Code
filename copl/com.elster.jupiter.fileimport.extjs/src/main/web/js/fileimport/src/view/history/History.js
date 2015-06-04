@@ -51,10 +51,7 @@ Ext.define('Fim.view.history.History', {
                     emptyText: Uni.I18n.translate('general.none', 'FIM', 'None')
 
                 },
-
                 {xtype: 'menuseparator'},
-
-                // Sort
                 {
                     xtype: 'filter-toolbar',
                     title: Uni.I18n.translate('importService.filter.sort', 'MDC', 'Sort'),
@@ -74,7 +71,6 @@ Ext.define('Fim.view.history.History', {
                         }
                     ]
                 },
-
                 {
                     xtype: 'preview-container',
                     grid: {
@@ -91,7 +87,7 @@ Ext.define('Fim.view.history.History', {
                     },
                     previewComponent: {
                         xtype: 'fim-history-preview',
-						itemId: 'pnl-history-preview'
+                        itemId: 'pnl-history-preview'
                     }
                 }
             ]

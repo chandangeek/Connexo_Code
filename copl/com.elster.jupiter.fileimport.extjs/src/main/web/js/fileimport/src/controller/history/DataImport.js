@@ -59,7 +59,7 @@ Ext.define('Fim.controller.history.DataImport', {
                                             route: '{occurrenceId}',
                                             controller: 'Fim.controller.Log',
                                             action: 'showImportServicesHistoryLog',
-											filter: 'Fim.model.LogFilter',
+                                            filter: 'Fim.model.LogFilter',
                                             privileges: Fim.privileges.DataImport.canView
                                         }
                                     }

@@ -12,7 +12,7 @@ Ext.define('Fim.controller.Log', {
     ],
     models: [
         'Fim.model.LogFilter',
-		'Fim.model.ImportServiceHistory'
+        'Fim.model.ImportServiceHistory'
 
     ],
     refs: [
@@ -24,7 +24,6 @@ Ext.define('Fim.controller.Log', {
             ref: 'historyLogViewMenu',
             selector: '#pnl-histoty-log-menu'
         }
-
     ],
     applicationName: null,
 
@@ -56,7 +55,7 @@ Ext.define('Fim.controller.Log', {
             occurrenceId = router.arguments.occurrenceId,
             store = me.getStore('Fim.store.Logs'),
             importServiceModel = me.getModel('Fim.model.ImportService'),
-			importServiceHistory = me.getModel('Fim.model.ImportServiceHistory'),
+            importServiceHistory = me.getModel('Fim.model.ImportServiceHistory'),
             view;
 
         me.setDefaultSort(router.filter);
@@ -64,28 +63,28 @@ Ext.define('Fim.controller.Log', {
         store.getProxy().setUrl(router.arguments);
         importServiceModel.load(importServiceId, {
             success: function (record) {
-			
-				importServiceHistory.load(occurrenceId, {
-					success: function (occurrenceTask) {
-					
-						view = Ext.widget('fim-history-log-setup', {
-							router: router,
-							importService: record
 
-						});
-						view.down('#mnu-histoty-log #import-service-view-link').setText(record.get('name'));
-						me.getApplication().fireEvent('changecontentevent', view);
-						me.getHistoryLogViewMenu().setTitle(showImportService ? Uni.I18n.translate('general.importHistory', 'FIM', 'Import history') : Uni.I18n.translate('general.importService', 'FIM', 'Import services'));
+                importServiceHistory.load(occurrenceId, {
+                    success: function (occurrenceTask) {
 
-						view.down('#frm-history-log-preview').loadRecord(occurrenceTask);
-						view.down('#run-started-on').setValue(occurrenceTask.get('startedOnDisplay'));
+                        view = Ext.widget('fim-history-log-setup', {
+                            router: router,
+                            importService: record
 
-						me.getApplication().fireEvent('importserviceload', record);
-						me.setSortingToolbar(filter);
-					}
-				
-				});
-			}
+                        });
+                        view.down('#mnu-histoty-log #import-service-view-link').setText(record.get('name'));
+                        me.getApplication().fireEvent('changecontentevent', view);
+                        me.getHistoryLogViewMenu().setTitle(showImportService ? Uni.I18n.translate('general.importHistory', 'FIM', 'Import history') : Uni.I18n.translate('general.importService', 'FIM', 'Import services'));
+
+                        view.down('#frm-history-log-preview').loadRecord(occurrenceTask);
+                        view.down('#run-started-on').setValue(occurrenceTask.get('startedOnDisplay'));
+
+                        me.getApplication().fireEvent('importserviceload', record);
+                        me.setSortingToolbar(filter);
+                    }
+
+                });
+            }
         });
 
 
@@ -95,10 +94,10 @@ Ext.define('Fim.controller.Log', {
         var me = this,
             page = me.getPage(),
             sortContainer = page.down('container[name=sortitemspanel]').getContainer(),
-			store = me.getStore('Fim.store.Logs');
+            store = me.getStore('Fim.store.Logs');
 
-        sortContainer.removeAll();        
-		sorting = Ext.JSON.decode(store.getProxy().extraParams['sort']);		
+        sortContainer.removeAll();
+        sorting = Ext.JSON.decode(store.getProxy().extraParams['sort']);
 
         if (Ext.isArray(sorting)) {
             Ext.Array.each(sorting, function (sortItem) {
@@ -109,36 +108,23 @@ Ext.define('Fim.controller.Log', {
                         ? 'x-btn-sort-item-asc'
                         : 'x-btn-sort-item-desc';
 
-                    //menuItem.hide();
                     sortContainer.add({
                         xtype: 'sort-item-btn',
                         itemId: 'history-sort-by-' + sortItem.property + '-button',
                         text: menuItem.text,
                         sortType: sortItem.property,
                         sortDirection: sortItem.direction,
-                        iconCls: cls/*,
-                         listeners: {
-                         sortCloseclick: function () {
-                         this.fireEvent('removeSort', this.sortType, this.sortDirection);
-                         },
-                         switchSort: function () {
-                         this.fireEvent('changeSortDirection', this.sortType, this.sortDirection);
-                         }
-                         }*/
+                        iconCls: cls
                     });
                 }
             });
-
         }
-
-
     },
 
     setDefaultSort: function (filter) {
         var me = this,
-			sorting = filter.get('sorting'),
-			store = me.getStore('Fim.store.Logs'),
-			sorting = store.getProxy().extraParams['sort'];
+            store = me.getStore('Fim.store.Logs'),
+            sorting = store.getProxy().extraParams['sort'];
 
         if (sorting === undefined) {
             sorting = [];
@@ -151,19 +137,17 @@ Ext.define('Fim.controller.Log', {
                 property: 'timestamp',
                 direction: Uni.component.sort.model.Sort.DESC
             });
-			store.getProxy().setExtraParam('sort', Ext.JSON.encode(sorting));            
+            store.getProxy().setExtraParam('sort', Ext.JSON.encode(sorting));
         }
     },
 
     chooseSort: function (menu, item) {
         var me = this,
-			page = this.getPage(),
-            sortContainer = page.down('container[name=sortitemspanel]').getContainer(),
             name = item.name,
-            router = this.getController('Uni.controller.history.Router'),
-            filter = router.filter,            
-			store = me.getStore('Fim.store.Logs'),
-			sorting = Ext.JSON.decode(store.getProxy().extraParams['sort']);
+            router = me.getController('Uni.controller.history.Router'),
+            filter = router.filter,
+            store = me.getStore('Fim.store.Logs'),
+            sorting = Ext.JSON.decode(store.getProxy().extraParams['sort']);
 
 
         if (Ext.isArray(sorting)) {
@@ -189,41 +173,41 @@ Ext.define('Fim.controller.Log', {
                 }
             ];
         }
-		store.getProxy().setExtraParam('sort', Ext.JSON.encode(sorting));        
+        store.getProxy().setExtraParam('sort', Ext.JSON.encode(sorting));
         filter.save();
     },
 
     clearSort: function (btn) {
         var me = this,
-			router = this.getController('Uni.controller.history.Router'),
+            router = me.getController('Uni.controller.history.Router'),
             filter = router.filter,
-			store = me.getStore('Fim.store.Logs');
+            store = me.getStore('Fim.store.Logs');
 
         sorting = [];
-		store.getProxy().setExtraParam('sort', Ext.JSON.encode(sorting));        
+        store.getProxy().setExtraParam('sort', Ext.JSON.encode(sorting));
         filter.save();
     },
 
     sortCloseclick: function (btn) {
         var me = this,
-			filter = this.getController('Uni.controller.history.Router').filter,
-			store = me.getStore('Fim.store.Logs'),
-			sorting = Ext.JSON.decode(store.getProxy().extraParams['sort']);            
+            filter = me.getController('Uni.controller.history.Router').filter,
+            store = me.getStore('Fim.store.Logs'),
+            sorting = Ext.JSON.decode(store.getProxy().extraParams['sort']);
 
         if (Ext.isArray(sorting)) {
             Ext.Array.remove(sorting, Ext.Array.findBy(sorting, function (item) {
                 return item.property === btn.sortType
             }));
         }
-		store.getProxy().setExtraParam('sort', Ext.JSON.encode(sorting));        
+        store.getProxy().setExtraParam('sort', Ext.JSON.encode(sorting));
         filter.save();
     },
 
     switchSort: function (btn) {
         var me = this,
-			filter = this.getController('Uni.controller.history.Router').filter,
+            filter = me.getController('Uni.controller.history.Router').filter,
             store = me.getStore('Fim.store.Logs'),
-			sorting = Ext.JSON.decode(store.getProxy().extraParams['sort']),
+            sorting = Ext.JSON.decode(store.getProxy().extraParams['sort']),
             sortingItem;
 
         if (Ext.isArray(sorting)) {
@@ -238,9 +222,7 @@ Ext.define('Fim.controller.Log', {
                 }
             }
         }
-		store.getProxy().setExtraParam('sort', Ext.JSON.encode(sorting));        
+        store.getProxy().setExtraParam('sort', Ext.JSON.encode(sorting));
         filter.save();
-
     }
-
 });

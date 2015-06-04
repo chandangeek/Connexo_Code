@@ -11,7 +11,6 @@ Ext.define('Fim.view.log.Setup', {
     importService: null,
     runStartedOn: null,
     router: null,
-    showImportService: false,
     initComponent: function () {
         var me = this;
 

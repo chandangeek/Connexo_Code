@@ -1,7 +1,6 @@
 Ext.define('Fim.view.history.HistoryFilterForm', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.fim-history-filter-form',
-
     requires: [
         'Uni.component.filter.view.Filter',
         'Uni.form.NestedForm',
@@ -39,7 +38,6 @@ Ext.define('Fim.view.history.HistoryFilterForm', {
                         labelAlign: 'top',
                         store: 'Fim.store.ImportServicesFilter',
                         hidden: !me.showImportService
-
                     },
                     {
                         xtype: 'fieldset',

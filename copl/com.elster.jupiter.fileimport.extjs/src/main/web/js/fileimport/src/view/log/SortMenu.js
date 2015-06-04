@@ -5,7 +5,6 @@ Ext.define('Fim.view.log.SortMenu', {
     border: false,
     shadow: false,
     items: [
-
         {
             text: Uni.I18n.translate('importService.history.level', 'FIM', 'Level'),
             name: 'level'

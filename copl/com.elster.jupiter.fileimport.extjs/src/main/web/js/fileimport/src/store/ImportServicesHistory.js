@@ -11,12 +11,12 @@ Ext.define('Fim.store.ImportServicesHistory', {
             root: 'data'
         },
         setUrl: function (params) {
-			if (params.importServiceId === undefined){
-				this.url = this.urlTpl.replace('/{importServiceId}', '');
-			} 
-			else {
-				this.url = this.urlTpl.replace('{importServiceId}', params.importServiceId);
-			}
+            if (params.importServiceId === undefined) {
+                this.url = this.urlTpl.replace('/{importServiceId}', '');
+            }
+            else {
+                this.url = this.urlTpl.replace('{importServiceId}', params.importServiceId);
+            }
         }
     },
     listeners: {

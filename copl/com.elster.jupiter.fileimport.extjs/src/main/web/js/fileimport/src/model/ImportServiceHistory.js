@@ -6,13 +6,13 @@ Ext.define('Fim.model.ImportServiceHistory', {
         {name: 'importServiceId', type: 'number'},
         {name: 'startedOn', type: 'number'},
         {name: 'finishedOn', type: 'number'},
-        {name: 'importServiceName', type: 'string'},		
+        {name: 'importServiceName', type: 'string'},
         {name: 'duration', type: 'number'},
         {name: 'status', type: 'string'},
         {name: 'fileName', type: 'string'},
         {name: 'summary', type: 'string'},
         {
-			name: 'startedOnDisplay',
+            name: 'startedOnDisplay',
             type: 'string',
             convert: function (value, record) {
                 var startedOn = record.get('startedOn');
@@ -34,7 +34,7 @@ Ext.define('Fim.model.ImportServiceHistory', {
             }
         }
     ],
-	proxy: {
+    proxy: {
         type: 'rest',
         url: '/api/fir/importservices/history',
         reader: {
