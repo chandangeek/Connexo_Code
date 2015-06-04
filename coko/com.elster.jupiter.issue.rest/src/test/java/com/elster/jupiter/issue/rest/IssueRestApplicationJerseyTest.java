@@ -102,6 +102,7 @@ public class IssueRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
         when(issueService.getIssueActionService()).thenReturn(issueActionService);
         when(issueService.getIssueAssignmentService()).thenReturn(issueAssignmentService);
         when(nlsService.getThesaurus(IssueService.COMPONENT_NAME, Layer.REST)).thenReturn(thesaurus);
+        when(nlsService.getThesaurus(IssueService.COMPONENT_NAME, Layer.DOMAIN)).thenReturn(thesaurus);
         application.setIssueService(issueService);
         application.setMeteringService(meteringService);
         application.setNlsService(nlsService);
@@ -259,7 +260,7 @@ public class IssueRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
         when(rule.getDueInType()).thenReturn(DueInType.DAY);
         when(rule.getDueInValue()).thenReturn(5L);
         when(rule.getActions()).thenReturn(Collections.emptyList());
-        when(rule.getProps()).thenReturn(Collections.emptyMap());
+        when(rule.getProperties()).thenReturn(Collections.emptyMap());
         when(rule.getTemplate()).thenReturn(template);
         when(rule.getModTime()).thenReturn(instant);
         when(rule.getCreateTime()).thenReturn(instant);

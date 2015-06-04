@@ -76,7 +76,7 @@ public class CreationRuleResourceTest extends IssueRestApplicationJerseyTest {
 
         JsonModel json = JsonModel.model(response);
         assertThat(json.<Number> get("$.total")).isEqualTo(0);
-        assertThat(json.<List<?>> get("$.data")).isEmpty();
+        assertThat(json.<List<?>> get("$.creationRules")).isEmpty();
     }
 
     @Test
@@ -91,8 +91,7 @@ public class CreationRuleResourceTest extends IssueRestApplicationJerseyTest {
 
         JsonModel json = JsonModel.model(response);
         assertThat(json.<Number> get("$.total")).isEqualTo(2);
-        assertThat(json.<List<?>> get("$.data")).hasSize(2);
-
+        assertThat(json.<List<?>> get("$.creationRules")).hasSize(2);
     }
 
     @Test
@@ -116,7 +115,7 @@ public class CreationRuleResourceTest extends IssueRestApplicationJerseyTest {
         when(action.getPropertySpecs()).thenReturn(propertySpecs);
         Map<String, Object> actionProps = new HashMap<>();
         actionProps.put("property", "value_for_action");
-        when(action.getProps()).thenReturn(actionProps);
+        when(action.getProperties()).thenReturn(actionProps);
 
         Instant instant = Instant.now();
         IssueReason reason = getDefaultReason();
@@ -131,7 +130,7 @@ public class CreationRuleResourceTest extends IssueRestApplicationJerseyTest {
         when(rule.getPropertySpecs()).thenReturn(propertySpecs);
         Map<String, Object> ruleProps = new HashMap<>();
         ruleProps.put("property", "value_for_rule");
-        when(rule.getProps()).thenReturn(ruleProps);
+        when(rule.getProperties()).thenReturn(ruleProps);
         when(rule.getTemplate()).thenReturn(template);
         when(rule.getModTime()).thenReturn(instant);
         when(rule.getCreateTime()).thenReturn(instant);
@@ -141,27 +140,26 @@ public class CreationRuleResourceTest extends IssueRestApplicationJerseyTest {
         String response = target("/creationrules/1").request().get(String.class);
 
         JsonModel json = JsonModel.model(response);
-        assertThat(json.<Number> get("$.data.id")).isEqualTo(13);
-        assertThat(json.<String> get("$.data.name")).isEqualTo("Test rule");
-        assertThat(json.<String> get("$.data.comment")).isEqualTo("comment");
-        assertThat(json.<String> get("$.data.reason.id")).isEqualTo("1");
-        assertThat(json.<String> get("$.data.reason.name")).isEqualTo("Reason");
-        assertThat(json.<String> get("$.data.template.name")).isEqualTo("Template");
-        assertThat(json.<String> get("$.data.template.description")).isEqualTo("Template description");
-        assertThat(json.<String> get("$.data.template.properties[0].key")).isEqualTo("property");
-        assertThat(json.<Number> get("$.data.dueIn.number")).isEqualTo(5);
-        assertThat(json.<String> get("$.data.dueIn.type")).isEqualTo("days");
-        assertThat(json.<List<?>> get("$.data.properties")).hasSize(1);
-        assertThat(json.<String> get("$.data.properties[0].key")).isEqualTo("property");
-        assertThat(json.<String> get("$.data.properties[0].propertyValueInfo.value")).isEqualTo("value_for_rule");
+        assertThat(json.<Number> get("$.id")).isEqualTo(13);
+        assertThat(json.<String> get("$.name")).isEqualTo("Test rule");
+        assertThat(json.<String> get("$.comment")).isEqualTo("comment");
+        assertThat(json.<String> get("$.reason.id")).isEqualTo("1");
+        assertThat(json.<String> get("$.reason.name")).isEqualTo("Reason");
+        assertThat(json.<String> get("$.template.name")).isEqualTo("Template");
+        assertThat(json.<String> get("$.template.description")).isEqualTo("Template description");
+        assertThat(json.<String> get("$.template.properties[0].key")).isEqualTo("property");
+        assertThat(json.<Number> get("$.dueIn.number")).isEqualTo(5);
+        assertThat(json.<String> get("$.dueIn.type")).isEqualTo("days");
+        assertThat(json.<List<?>> get("$.properties")).hasSize(1);
+        assertThat(json.<String> get("$.properties[0].key")).isEqualTo("property");
+        assertThat(json.<String> get("$.properties[0].propertyValueInfo.value")).isEqualTo("value_for_rule");
 
-        assertThat(json.<List<?>> get("$.data.actions")).hasSize(1);
-        assertThat(json.<String> get("$.data.actions[0].phase.uuid")).isEqualTo("CREATE");
-        assertThat(json.<String> get("$.data.actions[0].type.name")).isEqualTo("send");
-        assertThat(json.<List<?>> get("$.data.actions[0].properties")).hasSize(1);
-        assertThat(json.<String> get("$.data.actions[0].properties[0].key")).isEqualTo("property");
-        assertThat(json.<String> get("$.data.actions[0].properties[0].key")).isEqualTo("property");
-        assertThat(json.<String> get("$.data.actions[0].properties[0].propertyValueInfo.value")).isEqualTo("value_for_action");
+        assertThat(json.<List<?>> get("$.actions")).hasSize(1);
+        assertThat(json.<String> get("$.actions[0].phase.uuid")).isEqualTo("CREATE");
+        assertThat(json.<String> get("$.actions[0].type.name")).isEqualTo("send");
+        assertThat(json.<List<?>> get("$.actions[0].properties")).hasSize(1);
+        assertThat(json.<String> get("$.actions[0].properties[0].key")).isEqualTo("property");
+        assertThat(json.<String> get("$.actions[0].properties[0].propertyValueInfo.value")).isEqualTo("value_for_action");
     }
 
     @Test

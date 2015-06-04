@@ -3,8 +3,8 @@ package com.elster.jupiter.issue.rest.impl.resource;
 import static com.elster.jupiter.issue.rest.request.RequestHelper.ISSUE_TYPE;
 import static com.elster.jupiter.issue.rest.response.ResponseHelper.entity;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -13,27 +13,37 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import com.elster.jupiter.issue.rest.resource.StandardParametersBean;
 import com.elster.jupiter.issue.rest.response.AssignmentRuleInfo;
 import com.elster.jupiter.issue.rest.response.cep.CreationRuleTemplateInfo;
+import com.elster.jupiter.issue.rest.response.cep.CreationRuleTemplateInfoFactory;
 import com.elster.jupiter.issue.security.Privileges;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.entity.AssignmentRule;
 import com.elster.jupiter.issue.share.service.IssueAssignmentService;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.util.conditions.Condition;
 
 @Path("/rules")
 public class RuleResource extends BaseResource {
     
-    private IssueAssignmentService issueAssignmentService;
+    private final IssueAssignmentService issueAssignmentService;
+    private final CreationRuleTemplateInfoFactory templateInfoFactory;
+    
+    @Inject
+    public RuleResource(IssueAssignmentService issueAssignmentService, CreationRuleTemplateInfoFactory templateInfoFactory) {
+        this.issueAssignmentService = issueAssignmentService;
+        this.templateInfoFactory = templateInfoFactory;
+    }
 
     @Inject
-    public void setIssueAssignmentService(IssueAssignmentService issueAssignmentService) {
-        this.issueAssignmentService = issueAssignmentService;
+    public void setIssueAssignmentService() {
+
     }
 
     @GET
@@ -49,18 +59,16 @@ public class RuleResource extends BaseResource {
     @Path("/templates")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_CREATION_RULE,Privileges.VIEW_CREATION_RULE})
-    public Response getCreationRulesTemplates(@BeanParam StandardParametersBean params){
-        validateMandatory(params, ISSUE_TYPE);
-
-        List<CreationRuleTemplate> templates = getIssueCreationService().getCreationRuleTemplates();
-        List<CreationRuleTemplate> filteredTemplates = new ArrayList<>();
-        String expectedIssueType = params.getFirst(ISSUE_TYPE);
-        for (CreationRuleTemplate template : templates) {
-            if (template.getIssueType().getKey().equals(expectedIssueType)){
-                filteredTemplates.add(template);
-            }
+    public PagedInfoList getCreationRulesTemplates(@QueryParam(value = ISSUE_TYPE) String issueType, @BeanParam JsonQueryParameters params){
+        if (issueType == null ) {
+            throw new WebApplicationException(Response.Status.BAD_REQUEST);
         }
-        return entity(filteredTemplates, CreationRuleTemplateInfo.class).build();
+        List<CreationRuleTemplateInfo> infos = getIssueCreationService()
+                .getCreationRuleTemplates().stream()
+                .filter(template -> template.getIssueType().getKey().equals(issueType))
+                .map(templateInfoFactory::asInfo)
+                .collect(Collectors.toList());
+        return PagedInfoList.fromCompleteList("creationRuleTemplates", infos, params);
     }
 
     @GET
@@ -70,6 +78,6 @@ public class RuleResource extends BaseResource {
     public Response getTemplate(@PathParam("name") String name) {
         CreationRuleTemplate template = getIssueCreationService().findCreationRuleTemplate(name)
                 .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-        return entity(new CreationRuleTemplateInfo(template)).build();
+        return Response.ok(templateInfoFactory.asInfo(template)).build();
     }
 }

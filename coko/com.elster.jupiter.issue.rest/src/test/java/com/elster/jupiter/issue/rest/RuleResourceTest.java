@@ -86,7 +86,7 @@ public class RuleResourceTest extends IssueRestApplicationJerseyTest {
 
         JsonModel json = JsonModel.model(response);
         assertThat(json.<Number> get("$.total")).isEqualTo(0);
-        assertThat(json.<List<?>> get("$.data")).isEmpty();
+        assertThat(json.<List<?>> get("$.creationRuleTemplates")).isEmpty();
     }
 
     @Test
@@ -102,13 +102,13 @@ public class RuleResourceTest extends IssueRestApplicationJerseyTest {
         
         JsonModel json = JsonModel.model(response);
         assertThat(json.<Number>get("$.total")).isEqualTo(2);
-        assertThat(json.<List<String>>get("$.data[*].name")).containsExactly("Template #1", "Template #2");
-        assertThat(json.<List<String>>get("$.data[*].displayName")).containsExactly("Display Name: Template #1", "Display Name: Template #2");
-        assertThat(json.<List<String>>get("$.data[*].description")).containsExactly("descr 1", "descr 2");
-        assertThat(json.<List<?>>get("$.data[0].properties")).isEmpty();
-        assertThat(json.<List<?>>get("$.data[1].properties")).hasSize(1);
-        assertThat(json.<String>get("$.data[1].properties[0].key")).isEqualTo("property");
-        assertThat(json.<String>get("$.data[1].properties[0].propertyTypeInfo.simplePropertyType")).isEqualTo("TEXT");
+        assertThat(json.<List<String>>get("$.creationRuleTemplates[*].name")).containsExactly("Template #1", "Template #2");
+        assertThat(json.<List<String>>get("$.creationRuleTemplates[*].displayName")).containsExactly("Display Name: Template #1", "Display Name: Template #2");
+        assertThat(json.<List<String>>get("$.creationRuleTemplates[*].description")).containsExactly("descr 1", "descr 2");
+        assertThat(json.<List<?>>get("$.creationRuleTemplates[0].properties")).isEmpty();
+        assertThat(json.<List<?>>get("$.creationRuleTemplates[1].properties")).hasSize(1);
+        assertThat(json.<String>get("$.creationRuleTemplates[1].properties[0].key")).isEqualTo("property");
+        assertThat(json.<String>get("$.creationRuleTemplates[1].properties[0].propertyTypeInfo.simplePropertyType")).isEqualTo("TEXT");
     }
 
     @Test
@@ -128,7 +128,7 @@ public class RuleResourceTest extends IssueRestApplicationJerseyTest {
         String response = target("/rules/templates/0-1-2").request().get(String.class);
         
         JsonModel json = JsonModel.model(response);
-        assertThat(json.<String>get("$.data.name")).isEqualTo("0-1-2");
+        assertThat(json.<String>get("$.name")).isEqualTo("0-1-2");
     }
 
     private PropertySpec mockProperty(String name) {

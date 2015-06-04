@@ -5,6 +5,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import javax.inject.Inject;
+
+import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.IdWithNameValue;
 import com.elster.jupiter.properties.ListValue;
 import com.elster.jupiter.properties.PropertySpec;
@@ -16,6 +22,17 @@ import com.elster.jupiter.rest.util.properties.PropertyTypeInfo;
 import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
 
 public class PropertyUtils {
+    
+    private final Thesaurus thesaurus;
+    
+    @Inject
+    public PropertyUtils(NlsService nlsService) {
+        this.thesaurus = nlsService.getThesaurus(IssueService.COMPONENT_NAME, Layer.DOMAIN);
+    }
+
+    private String getTranslatedPropertyName(PropertySpec propertySpec) {
+        return thesaurus.getStringBeyondComponent(propertySpec.getName(), propertySpec.getName());
+    }
 
     private PropertyInfoFactory propertyInfoFactory = new PropertyInfoFactory();
 
@@ -36,7 +53,7 @@ public class PropertyUtils {
         PropertyValueInfo<?> propertyValueInfo = getPropertyValueInfo(propertySpec, values);
         PropertyType propertyType = PropertyType.getTypeFrom(propertySpec.getValueFactory());
         PropertyTypeInfo propertyTypeInfo = getPropertyTypeInfo(propertySpec, propertyType);
-        return new PropertyInfo(propertySpec.getName(), propertyValueInfo, propertyTypeInfo, propertySpec.isRequired());
+        return new PropertyInfo(getTranslatedPropertyName(propertySpec), propertySpec.getName(), propertyValueInfo, propertyTypeInfo, propertySpec.isRequired());
     }
 
     private PropertyValueInfo<Object> getPropertyValueInfo(PropertySpec propertySpec, Map<String, Object> values) {
@@ -140,5 +157,4 @@ public class PropertyUtils {
         Object obj = propertySpec.getValueFactory().fromStringValue(stringValue);
         return (ListValue<IdWithNameValue>) obj;
     }
-
 }

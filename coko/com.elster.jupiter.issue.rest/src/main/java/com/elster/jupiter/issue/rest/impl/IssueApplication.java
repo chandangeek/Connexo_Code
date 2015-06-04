@@ -21,6 +21,10 @@ import com.elster.jupiter.issue.rest.impl.resource.MeterResource;
 import com.elster.jupiter.issue.rest.impl.resource.ReasonResource;
 import com.elster.jupiter.issue.rest.impl.resource.RuleResource;
 import com.elster.jupiter.issue.rest.impl.resource.StatusResource;
+import com.elster.jupiter.issue.rest.response.PropertyUtils;
+import com.elster.jupiter.issue.rest.response.cep.CreationRuleActionInfoFactory;
+import com.elster.jupiter.issue.rest.response.cep.CreationRuleInfoFactory;
+import com.elster.jupiter.issue.rest.response.cep.CreationRuleTemplateInfoFactory;
 import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueAssignmentService;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
@@ -139,6 +143,10 @@ public class IssueApplication extends Application implements TranslationKeyProvi
             bind(nlsService).to(NlsService.class);
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
             bind(thesaurus).to(Thesaurus.class);
+            bind(PropertyUtils.class).to(PropertyUtils.class);
+            bind(CreationRuleTemplateInfoFactory.class).to(CreationRuleTemplateInfoFactory.class);
+            bind(CreationRuleInfoFactory.class).to(CreationRuleInfoFactory.class);
+            bind(CreationRuleActionInfoFactory.class).to(CreationRuleActionInfoFactory.class);
         }
     }
 }

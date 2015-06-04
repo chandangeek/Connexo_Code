@@ -66,7 +66,7 @@ public class ActionResourceTest extends IssueRestApplicationJerseyTest {
         
         JsonModel json = JsonModel.model(response);
         assertThat(json.<Number>get("$.total")).isEqualTo(0);
-        assertThat(json.<List<?>>get("$.data")).isEmpty();
+        assertThat(json.<List<?>>get("$.ruleActionTypes")).isEmpty();
     }
 
     @Test
@@ -84,7 +84,7 @@ public class ActionResourceTest extends IssueRestApplicationJerseyTest {
         
         JsonModel json = JsonModel.model(response);
         assertThat(json.<Number>get("$.total")).isEqualTo(0);
-        assertThat(json.<List<?>>get("$.data")).isEmpty();
+        assertThat(json.<List<?>>get("$.ruleActionTypes")).isEmpty();
     }
 
     @Test
@@ -105,11 +105,11 @@ public class ActionResourceTest extends IssueRestApplicationJerseyTest {
 
         JsonModel json = JsonModel.model(response);
         assertThat(json.<Number>get("$.total")).isEqualTo(2);
-        assertThat(json.<List<?>>get("$.data")).hasSize(2);
-        assertThat(json.<List<Number>>get("$.data[*].id")).containsExactly(1, 2);
-        assertThat(json.<List<String>>get("$.data[*].name")).containsExactly("first", "second");
-        assertThat(json.<List<?>>get("$.data[0].properties")).hasSize(1);
-        assertThat(json.<String>get("$.data[0].properties[0].key")).isEqualTo("property");
+        assertThat(json.<List<?>>get("$.ruleActionTypes")).hasSize(2);
+        assertThat(json.<List<Number>>get("$.ruleActionTypes[*].id")).containsExactly(1, 2);
+        assertThat(json.<List<String>>get("$.ruleActionTypes[*].name")).containsExactly("first", "second");
+        assertThat(json.<List<?>>get("$.ruleActionTypes[0].properties")).hasSize(1);
+        assertThat(json.<String>get("$.ruleActionTypes[0].properties[0].key")).isEqualTo("property");
     }
 
     @Test
@@ -134,8 +134,8 @@ public class ActionResourceTest extends IssueRestApplicationJerseyTest {
 
         JsonModel json = JsonModel.model(response);
         assertThat(json.<Number>get("$.total")).isEqualTo(2);
-        assertThat(json.<List<?>>get("$.data")).hasSize(2);
-        assertThat(json.<List<Number>>get("$.data[*].id")).containsExactly(1, 2);
-        assertThat(json.<List<String>>get("$.data[*].name")).containsExactly("first", "second");
+        assertThat(json.<List<?>>get("$.ruleActionTypes")).hasSize(2);
+        assertThat(json.<List<Number>>get("$.ruleActionTypes[*].id")).containsExactly(1, 2);
+        assertThat(json.<List<String>>get("$.ruleActionTypes[*].name")).containsExactly("first", "second");
     }
 }

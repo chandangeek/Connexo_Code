@@ -1,14 +1,15 @@
 package com.elster.jupiter.issue.rest.impl.resource;
 
 import static com.elster.jupiter.issue.rest.request.RequestHelper.ID;
-import static com.elster.jupiter.issue.rest.response.ResponseHelper.entity;
 
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.annotation.security.RolesAllowed;
+import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -18,16 +19,15 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.issue.rest.resource.StandardParametersBean;
 import com.elster.jupiter.issue.rest.response.PropertyUtils;
 import com.elster.jupiter.issue.rest.response.cep.CreationRuleActionInfo;
 import com.elster.jupiter.issue.rest.response.cep.CreationRuleInfo;
+import com.elster.jupiter.issue.rest.response.cep.CreationRuleInfoFactory;
 import com.elster.jupiter.issue.security.Privileges;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.entity.CreationRule;
@@ -40,21 +40,38 @@ import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleA
 import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleBuilder;
 import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleUpdater;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.util.conditions.Condition;
 
 @Path("/creationrules")
 public class CreationRuleResource extends BaseResource {
     
-    PropertyUtils propertyUtils = new PropertyUtils();
+    private final CreationRuleInfoFactory ruleInfoFactory;
+    private final PropertyUtils propertyUtils;
+
+    @Inject
+    public CreationRuleResource(CreationRuleInfoFactory ruleInfoFactory, PropertyUtils propertyUtils) {
+        this.ruleInfoFactory = ruleInfoFactory;
+        this.propertyUtils = propertyUtils;
+    }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({ Privileges.ADMINISTRATE_CREATION_RULE, Privileges.VIEW_CREATION_RULE })
-    public Response getCreationRules(@BeanParam StandardParametersBean params, @QueryParam("start") Integer start) {
+    public PagedInfoList getCreationRules(@BeanParam JsonQueryParameters queryParams) {
         Query<CreationRule> query = getIssueCreationService().getCreationRuleQuery(IssueReason.class, IssueType.class);
-        List<CreationRule> rules = start != null ? query.select(Condition.TRUE, params.getFrom(), params.getTo()) : query.select(Condition.TRUE);
-        return entity(rules, CreationRuleInfo.class, params.getStart(), params.getLimit()).build();
+        List<CreationRule> rules = null;
+        if (queryParams.getStart().isPresent()) {
+            int from = queryParams.getStart().get() + 1;
+            int to = from + queryParams.getLimit().orElse(0);
+            rules = query.select(Condition.TRUE, from, to);
+        } else {
+            rules = query.select(Condition.TRUE);
+        }
+        List<CreationRuleInfo> infos = rules.stream().map(ruleInfoFactory::asInfo).collect(Collectors.toList());
+        return PagedInfoList.fromPagedList("creationRules", infos, queryParams);
     }
 
     @GET
@@ -64,7 +81,7 @@ public class CreationRuleResource extends BaseResource {
     public Response getCreationRule(@PathParam(ID) long id) {
         CreationRule rule = getIssueCreationService().findCreationRuleById(id)
                 .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-        return entity(new CreationRuleInfo(rule)).build();
+        return Response.ok(ruleInfoFactory.asInfo(rule)).build();
     }
 
     @DELETE
