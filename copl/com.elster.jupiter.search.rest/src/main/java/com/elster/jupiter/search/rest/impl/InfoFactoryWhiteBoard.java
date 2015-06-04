@@ -10,10 +10,6 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
 /**
- * Created by bvn on 6/4/15.
- */
-
-/**
  * Registers which InfoFactory can be used to convert which domain object. Used by the dynamicSearchResource
  */
 @Component(name = "com.elster.jupiter.info.whiteboard.implementation" , immediate = true , service = {InfoFactoryService.class} )
