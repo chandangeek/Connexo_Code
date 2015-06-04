@@ -11,6 +11,7 @@ Ext.define('Mdc.view.setup.devicetype.changedevicelifecycle.Step2', {
         me.items = [
             {
                 xtype: 'uni-form-error-message',
+                htmlEncode: false,
                 margin: 0,
                 padding: 10,
                 itemId: 'change-device-life-cycle-failed',
@@ -18,19 +19,7 @@ Ext.define('Mdc.view.setup.devicetype.changedevicelifecycle.Step2', {
                 layout: {
                     type: 'hbox',
                     defaultMargins: '5 10 5 5'
-                },
-                buttonAlign: 'left',
-                buttons: [
-                    {
-                        text: Uni.I18n.translate('general.finish', 'MDC', 'Finish'),
-                        margin: '0 0 0 46',
-                        ui: 'action',
-                        action: 'finish',
-                        itemId: 'change-device-life-cycle-finish-failed',
-                        hidden: true,
-                        href: me.router.getRoute('administration/devicetypes').buildUrl()
-                    }
-                ]
+                }
             }
         ];
 
@@ -42,8 +31,15 @@ Ext.define('Mdc.view.setup.devicetype.changedevicelifecycle.Step2', {
         if (success) {
             me.update('<h3>' + Uni.I18n.translate('deviceLifeCycle.change.successMsg', 'MDC', 'Successfully changed device life cycle') + '</h3>');
         } else {
+            var states = '';
+            Ext.Array.each(result.notMappableStates, function (state) {
+                states += '<li style="margin-left: 20px">' + state.name + '</li>';
+            });
+            me.down('#change-device-life-cycle-failed').setText('<h3>' + result.message + '</h3><br><a href="#/administration/devicelifecycles/' + result.currentDeviceLifeCycle.id + '">' +
+                result.currentDeviceLifeCycle.name + '</a> ' + Uni.I18n.translate('deviceLifeCycle.change.errorMsg1', 'MDC', 'has states that cannot be mapped to states of') +
+                ' <a href="#/administration/devicelifecycles/' + result.targetDeviceLifeCycle.id + '">' + result.targetDeviceLifeCycle.name + '</a> ' +
+                Uni.I18n.translate('deviceLifeCycle.change.errorMsg2', 'MDC', 'and there are devices in that states:') + '<br>' + states);
             me.down('#change-device-life-cycle-failed').show();
-            me.down('#change-device-life-cycle-failed').setText();
         }
     }
 });

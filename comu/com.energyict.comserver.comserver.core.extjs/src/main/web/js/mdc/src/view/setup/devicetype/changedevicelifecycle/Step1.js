@@ -12,11 +12,12 @@ Ext.define('Mdc.view.setup.devicetype.changedevicelifecycle.Step1', {
                 itemId: 'change-device-life-cycle-combo',
                 name: 'deviceLifeCycleId',
                 width: 500,
-                labelWidth: 250,
+                labelWidth: 150,
                 store: 'Mdc.store.DeviceLifeCycles',
                 required: true,
                 editable: false,
                 queryMode: 'local',
+                lastQuery: '',
                 displayField: 'name',
                 valueField: 'id'
             }
