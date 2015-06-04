@@ -4,6 +4,7 @@ import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpecPossibleValues;
 import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.rest.util.InfoFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
@@ -42,13 +43,15 @@ public class SearchResource {
     private final SearchService searchService;
     private final ExceptionFactory exceptionFactory;
     private final PropertyInfoFactory propertyInfoFactory;
+    private final InfoFactory infoFactory;
 
     @Inject
-    public SearchResource(SearchService searchService, ExceptionFactory exceptionFactory, PropertyInfoFactory propertyInfoFactory) {
+    public SearchResource(SearchService searchService, ExceptionFactory exceptionFactory, PropertyInfoFactory propertyInfoFactory, InfoFactory infoFactory) {
         this.searchService = searchService;
         this.exceptionFactory = exceptionFactory;
         this.propertyInfoFactory = propertyInfoFactory;
 
+        this.infoFactory = infoFactory;
     }
 
     @GET
@@ -102,7 +105,7 @@ public class SearchResource {
         } else {
             throw new LocalizedFieldValidationException(MessageSeeds.AT_LEAST_ONE_CRITERIA, "filter");
         }
-        List<Object> searchResults = searchBuilder.toFinder().from(jsonQueryParameters).stream().map(Object::toString).collect(toList());
+        List<Object> searchResults = searchBuilder.toFinder().from(jsonQueryParameters).stream().map(infoFactory::from).collect(toList());
         return Response.ok().entity(PagedInfoList.fromPagedList("searchResults", searchResults, jsonQueryParameters)).build();
     }
 
