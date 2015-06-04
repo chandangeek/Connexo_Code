@@ -1,14 +1,18 @@
 package com.elster.jupiter.fileimport;
 
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.orm.History;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.time.PeriodicalScheduleExpression;
-import com.elster.jupiter.util.cron.CronExpression;
 import com.elster.jupiter.util.time.ScheduleExpression;
+import sun.misc.ConditionLock;
 
 import java.io.File;
+import java.nio.file.Path;
+import java.time.Clock;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Entity that models when a certain directory should be scanned for files to import and where to move them during different stages of the import cycle.
@@ -40,7 +44,7 @@ public interface ImportSchedule {
     /**
      * @return File representing the directory to scan for new files to import
      */
-    File getImportDirectory();
+    Path getImportDirectory();
 
     /**
      * @return String representing the pattern to scan for new files to import
@@ -50,17 +54,17 @@ public interface ImportSchedule {
     /**
      * @return File representing the directory where files are moved for awaiting processing.
      */
-    File getInProcessDirectory();
+    Path getInProcessDirectory();
 
     /**
      * @return File representing the directory where files are moved once they've been processed successfully.
      */
-    File getSuccessDirectory();
+    Path getSuccessDirectory();
 
     /**
      * @return File representing the directory where files are moved in case they could not be processed successfully.
      */
-    File getFailureDirectory();
+    Path getFailureDirectory();
 
     /**
      * @return a CronExpression that indicates the times at which the import directory should be scanned.
@@ -75,7 +79,7 @@ public interface ImportSchedule {
      * @param file
      * @return creates a new FileImport instance for the given file.
      */
-    FileImport createFileImport(File file);
+    FileImportOccurrence createFileImportOccurrence(File file, Clock clock);
 
     /**
      * @return returns the type of the importer
@@ -113,13 +117,13 @@ public interface ImportSchedule {
 
     void setScheduleExpression(ScheduleExpression scheduleExpression);
 
-    void setImportDirectory(File file);
+    void setImportDirectory(Path path);
 
-    void setFailureDirectory(File file);
+    void setFailureDirectory(Path path);
 
-    void setSuccessDirectory(File file);
+    void setSuccessDirectory(Path path);
 
-    void setProcessingDirectory(File file);
+    void setProcessingDirectory(Path path);
 
     void setImporterName(String name);
 
@@ -130,4 +134,8 @@ public interface ImportSchedule {
     String getApplicationName();
 
     void setActive(Boolean active);
+
+    Finder<FileImportOccurrence> getFileImportOccurrences();
+
+    Optional<FileImportOccurrence> getFileImportOccurrence(long occurrenceId);
 }

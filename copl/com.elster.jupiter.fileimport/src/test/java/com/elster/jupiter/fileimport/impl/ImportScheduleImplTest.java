@@ -1,25 +1,30 @@
 package com.elster.jupiter.fileimport.impl;
 
+import com.elster.jupiter.fileimport.FileImportOccurrence;
 import com.elster.jupiter.fileimport.FileImportService;
+import com.elster.jupiter.fileimport.FileImporterFactory;
 import com.elster.jupiter.fileimport.ImportSchedule;
-import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.util.cron.CronExpression;
 import com.elster.jupiter.util.cron.CronExpressionParser;
+import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.ScheduleExpression;
 import com.elster.jupiter.util.time.ScheduleExpressionParser;
-import com.google.inject.matcher.Matchers;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.Clock;
+import java.time.Instant;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,9 +42,11 @@ public class ImportScheduleImplTest {
     @Mock
     private ScheduleExpression scheduleExpression;
     @Mock
-    File importDir, inProcessDir, failureDir, successDir;
+    Path importDir, inProcessDir, failureDir, successDir;
     @Mock
     private File file;
+    @Mock
+    private Path BASE_PATH, FILE_PATH;
     @Mock
     private DataMapper<ImportSchedule> importScheduleFactory;
     @Mock
@@ -58,11 +65,24 @@ public class ImportScheduleImplTest {
     private FileSystem fileSystem;
     @Mock
     private Thesaurus thesaurus;
+    @Mock
+    private FileImporterFactory fileImporterFactory;
+    @Mock
+    private JsonService jsonService;
+    @Mock
+    private Clock clock;
 
     @Before
     public void setUp() {
+        when(clock.instant()).thenReturn(Instant.now());
         when(dataModel.mapper(ImportSchedule.class)).thenReturn(importScheduleFactory);
-        when(dataModel.getInstance(ImportScheduleImpl.class)).thenReturn(new ImportScheduleImpl(dataModel, fileImportService, messageService, cronParser, nameResolver, fileSystem, thesaurus));
+        when(fileImportService.getBasePath()).thenReturn(BASE_PATH);
+        when(file.toPath()).thenReturn(FILE_PATH);
+        when(BASE_PATH.relativize(FILE_PATH)).thenReturn(BASE_PATH);
+
+        when(fileImportService.getImportFactory(Matchers.any())).thenReturn(Optional.of(fileImporterFactory));
+        when(fileImporterFactory.getDestinationName()).thenReturn("DEST_1");
+        when(dataModel.getInstance(ImportScheduleImpl.class)).thenReturn(new ImportScheduleImpl(dataModel, fileImportService, messageService, cronParser, nameResolver, fileSystem,jsonService, thesaurus));
         when(fileImportService.getImportFactory("importerName")).thenReturn(Optional.empty());
         importSchedule = ImportScheduleImpl.from(dataModel, "TEST_IMPORT_SCHEDULE", false, scheduleExpression, "importerName", DESTINATION_NAME, importDir, ".", inProcessDir, failureDir, successDir);
     }
@@ -100,7 +120,7 @@ public class ImportScheduleImplTest {
     public void testCreateFileImport() {
         when(file.exists()).thenReturn(true);
 
-        FileImportImpl fileImport = importSchedule.createFileImport(file);
+        FileImportOccurrence fileImport = importSchedule.createFileImportOccurrence(file, clock);
 
         assertThat(fileImport.getImportSchedule()).isEqualTo(importSchedule);
     }
@@ -109,6 +129,6 @@ public class ImportScheduleImplTest {
     public void testCannotCreateFileImportIfFileDoesNotExist() {
         when(file.exists()).thenReturn(false);
 
-        importSchedule.createFileImport(file);
+        importSchedule.createFileImportOccurrence(file, clock);
     }
 }

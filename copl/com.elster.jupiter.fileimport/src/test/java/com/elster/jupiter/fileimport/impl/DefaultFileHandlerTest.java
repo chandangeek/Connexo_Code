@@ -1,6 +1,6 @@
 package com.elster.jupiter.fileimport.impl;
 
-import com.elster.jupiter.fileimport.FileImport;
+import com.elster.jupiter.fileimport.FileImportOccurrence;
 import com.elster.jupiter.fileimport.ImportSchedule;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageBuilder;
@@ -17,6 +17,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
 import java.io.File;
+import java.time.Clock;
+import java.time.Instant;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
@@ -31,7 +33,7 @@ public class DefaultFileHandlerTest {
     @Mock
     private ImportSchedule importSchedule;
     @Mock
-    private FileImport fileImport;
+    private FileImportOccurrence fileImportOccurrence;
     @Mock
     private DestinationSpec destination;
     @Mock
@@ -40,11 +42,14 @@ public class DefaultFileHandlerTest {
     private JsonService jsonService;
     @Mock
     private MessageBuilder messageBuilder;
+    @Mock
+    private Clock clock;
 
     @Before
     public void setUp() {
 
-        when(importSchedule.createFileImport(any(File.class))).thenReturn(fileImport);
+        when(clock.instant()).thenReturn(Instant.now());
+        when(importSchedule.createFileImportOccurrence(any(File.class), any(Clock.class))).thenReturn(fileImportOccurrence);
         when(importSchedule.getDestination()).thenReturn(destination);
 //        when(serviceLocator.getTransactionService()).thenReturn(transactionService);
 //        when(serviceLocator.getJsonService()).thenReturn(jsonService);
@@ -58,7 +63,7 @@ public class DefaultFileHandlerTest {
             }
         });
 
-        fileHandler = new DefaultFileHandler(importSchedule, jsonService, transactionService);
+        fileHandler = new DefaultFileHandler(importSchedule, jsonService, transactionService, clock);
     }
 
     @After
@@ -71,7 +76,7 @@ public class DefaultFileHandlerTest {
         File file = new File("./test.txt");
         fileHandler.handle(file);
 
-        verify(importSchedule).createFileImport(file);
+        verify(importSchedule).createFileImportOccurrence(file, clock);
 
     }
 

@@ -40,7 +40,7 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class FileImportServiceImplTest {
+public class FileImportOccurrenceServiceImplTest {
 
     private static final Path IMPORT_DIRECTORY = Paths.get("/import");
     private static final Instant NOW = Instant.ofEpochMilli(10L);
