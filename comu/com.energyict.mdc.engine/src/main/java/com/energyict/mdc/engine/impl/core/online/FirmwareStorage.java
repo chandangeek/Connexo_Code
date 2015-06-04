@@ -35,7 +35,7 @@ public class FirmwareStorage {
     private void updateFirmwareVersionForType(Optional<String> collectedFirmwareVersion, Device device, FirmwareType firmwareType) {
         collectedFirmwareVersion.ifPresent(version -> {
             if (!version.isEmpty()) {
-                Optional<FirmwareVersion> existingFirmwareVersion = getFirmwareVersionFor(version, device.getDeviceType());
+                Optional<FirmwareVersion> existingFirmwareVersion = getFirmwareVersionFor(version, device.getDeviceType(), firmwareType);
                 existingFirmwareVersion.map(firmwareVersion -> createOrUpdateActiveVersion(device, firmwareVersion)).
                         orElseGet(() -> createOrUpdateActiveVersion(device, createNewGhostFirmwareVersion(device, version, firmwareType)));
             }
@@ -80,8 +80,8 @@ public class FirmwareStorage {
         return Interval.of(Range.atLeast(now()));
     }
 
-    private Optional<FirmwareVersion> getFirmwareVersionFor(String collectedVersion, DeviceType deviceType) {
-        return getFirmwareService().getFirmwareVersionByVersion(collectedVersion, deviceType);
+    private Optional<FirmwareVersion> getFirmwareVersionFor(String collectedVersion, DeviceType deviceType, FirmwareType firmwareType) {
+        return getFirmwareService().getFirmwareVersionByVersionAndType(collectedVersion, firmwareType, deviceType);
     }
 
 }
