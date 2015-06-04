@@ -313,7 +313,8 @@ class ImportScheduleImpl implements ImportSchedule {
         if (!file.exists()) {
             throw new IllegalArgumentException();
         }
-        return FileImportOccurrenceImpl.create(fileImportService, fileSystem, dataModel, fileNameCollisionresolver, thesaurus, clock, this, file.toPath());
+        Path relativeFilePath = fileImportService.getBasePath().relativize(file.toPath());
+        return FileImportOccurrenceImpl.create(fileImportService, fileSystem, dataModel, fileNameCollisionresolver, thesaurus, clock, this,relativeFilePath );
     }
 
     public Logger getLogger(FileImportOccurrence occurrence) {

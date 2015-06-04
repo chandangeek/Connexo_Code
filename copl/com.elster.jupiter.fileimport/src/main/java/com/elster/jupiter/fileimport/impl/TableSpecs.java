@@ -38,7 +38,7 @@ enum TableSpecs {
             table.map(FileImportOccurrenceImpl.class);
             Column idColumn = table.addAutoIdColumn();
             Column importScheduleColumn = table.column("IMPORTSCHEDULE").type("number").notNull().conversion(NUMBER2LONG).map("importScheduleId").add();
-            table.column("FILENAME").varChar(NAME_LENGTH).notNull().conversion(CHAR2PATH).map("path").add();
+            table.column("FILENAME").varChar(DESCRIPTION_LENGTH).notNull().conversion(CHAR2PATH).map("path").add();
             table.column("STATUS").type("number").notNull().conversion(NUMBER2ENUM).map("status").add();
             table.column("STARTDATE").number().conversion(ColumnConversion.NUMBER2INSTANT).map("startDate").add();
             table.column("ENDDATE").number().conversion(ColumnConversion.NUMBER2INSTANT).map("endDate").add();

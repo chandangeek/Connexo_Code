@@ -1,6 +1,7 @@
 package com.elster.jupiter.fileimport.impl;
 
 import com.elster.jupiter.fileimport.FileImportOccurrence;
+import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fileimport.ImportSchedule;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.nls.Thesaurus;
@@ -14,16 +15,17 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Answers;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
-import java.io.File;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Path;
 import java.time.Clock;
 import java.util.Arrays;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -64,17 +66,25 @@ public class ImportScheduleJobTest {
     @Mock
     private Thesaurus thesaurus;
     @Mock
+    private FileImportService fileImportService;
+    @Mock
     private Clock clock;
+    @Mock
+    private Path basePath;
 
     @Before
     public void setUp() {
         when(importSchedule.getScheduleExpression()).thenReturn(scheduleExpression);
         when(importSchedule.getImportDirectory()).thenReturn(importDir);
+        when(importSchedule.getId()).thenReturn(1L);
+        when(fileImportService.getImportSchedule(1L)).thenReturn(Optional.of(importSchedule));
+        when(fileImportService.getBasePath()).thenReturn(basePath);
+        when(basePath.resolve(importDir)).thenReturn(importDir);
 //        when(serviceLocator.getFileSystem()).thenReturn(fileSystem);
 //        when(serviceLocator.getPredicates()).thenReturn(predicates);
 //        when(serviceLocator.getJsonService()).thenReturn(jsonService);
 //        when(serviceLocator.getTransactionService()).thenReturn(transactionService);
-        when(fileSystem.newDirectoryStream(importDir, null)).thenReturn(directoryStream);
+                when(fileSystem.newDirectoryStream(importDir, null)).thenReturn(directoryStream);
         when(fileImportOccurrence.getId()).thenReturn(ID);
 
 
@@ -85,7 +95,7 @@ public class ImportScheduleJobTest {
             }
         });
 
-        importScheduleJob = new ImportScheduleJob(path -> true, fileSystem, jsonService, importSchedule, transactionService, thesaurus, cronExpressionParser,clock);
+        importScheduleJob = new ImportScheduleJob(path -> true, fileSystem, jsonService, fileImportService, importSchedule.getId(), transactionService, thesaurus, cronExpressionParser,clock);
     }
 
     @After

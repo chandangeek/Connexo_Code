@@ -78,6 +78,7 @@ public class FileImportServiceImplTest {
         when(dataModel.mapper(ImportSchedule.class)).thenReturn(importScheduleFactory);
         when(dataModel.isInstalled()).thenReturn(true);
         when(importScheduleFactory.getOptional(15L)).thenReturn(Optional.of(importSchedule));
+        when(importSchedule.getId()).thenReturn(15L);
         when(clock.instant()).thenReturn(NOW);
         when(clock.getZone()).thenReturn(ZoneId.systemDefault());
         fileImportService = new FileImportServiceImpl();

@@ -137,6 +137,18 @@ final class FileImportOccurrenceImpl implements FileImportOccurrence {
     }
 
     @Override
+    public void markSuccessWithFailures(String message) {
+        validateStatus();
+        status = Status.SUCCESS_WITH_FAILURES;
+        this.message = message;
+        this.endDate = clock.instant();
+        ensureStreamClosed();
+        moveFile();
+        save();
+        MessageSeeds.FILE_IMPORT_FINISHED.log(getLogger(),thesaurus);
+    }
+
+    @Override
     public String getFileName() {
         return fileImportService.getBasePath().resolve(path).getFileName().toString();
     }
@@ -203,10 +215,11 @@ final class FileImportOccurrenceImpl implements FileImportOccurrence {
     }
 
     private void moveFile() {
-        if (fileImportService.getBasePath().resolve(path).toFile().exists()) {
-            Path target = targetPath(path);
-            fileSystem.move(path, target);
-            //path = fileImportService.getBasePath().relativize(target);
+        Path filePath = fileImportService.getBasePath().resolve(path);
+        if (filePath.toFile().exists()) {
+            Path target = targetPath(filePath);
+            fileSystem.move(filePath, target);
+            path = fileImportService.getBasePath().relativize(target);
         }
     }
 
@@ -217,6 +230,7 @@ final class FileImportOccurrenceImpl implements FileImportOccurrence {
     private Path getTargetDirectory() {
         switch (status) {
             case SUCCESS:
+            case SUCCESS_WITH_FAILURES:
                 return getImportSchedule().getSuccessDirectory();
             case FAILURE:
                 return getImportSchedule().getFailureDirectory();

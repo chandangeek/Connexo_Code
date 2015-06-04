@@ -4,6 +4,7 @@ import java.nio.file.Path;
 import java.time.Clock;
 import java.util.function.Predicate;
 
+import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fileimport.ImportSchedule;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.transaction.TransactionService;
@@ -19,31 +20,44 @@ import javax.inject.Inject;
  */
 class ImportScheduleJob implements CronJob {
 
-    private final ImportSchedule importSchedule;
-    private final FolderScanningJob folderScanningJob;
-    private final CronExpressionParser cronExpressionParser;
+    private final TransactionService transactionService;
+    private final FileSystem fileSystem;
+    private final Clock clock;
+    private final JsonService jsonService;
     private final Thesaurus thesaurus;
+    private final FileImportService fileImportService;
+    private final Predicate<Path> filter;
+    private final Long importScheduleId;
 
     @Inject
-    public ImportScheduleJob(Predicate<Path> filter, FileSystem fileSystem, JsonService jsonService, ImportSchedule importSchedule, TransactionService transactionService, Thesaurus thesaurus, CronExpressionParser cronExpressionParser, Clock clock) {
-        this.importSchedule = importSchedule;
+    public ImportScheduleJob(Predicate<Path> filter, FileSystem fileSystem, JsonService jsonService, FileImportService fileImportService,  Long importScheduleId, TransactionService transactionService, Thesaurus thesaurus, CronExpressionParser cronExpressionParser, Clock clock) {
+        this.filter = filter;
+        this.fileSystem = fileSystem;
+        this.jsonService = jsonService;
+        this.clock = clock;
+        this.transactionService = transactionService;
+        this.fileImportService = fileImportService;
+        this.importScheduleId = importScheduleId;
         this.thesaurus = thesaurus;
-        this.cronExpressionParser = cronExpressionParser;
-        folderScanningJob = new FolderScanningJob(
-                new PollingFolderScanner(filter, fileSystem, importSchedule.getImportDirectory(), importSchedule.getPathMatcher(), this.thesaurus),
-                new DefaultFileHandler(importSchedule, jsonService, transactionService,clock));
+
     }
 
     @Override
     public ScheduleExpression getSchedule() {
-        ScheduleExpression scheduleExpression = importSchedule.getScheduleExpression();
-        return scheduleExpression;
-
+        return fileImportService.getImportSchedule(importScheduleId).orElseThrow(IllegalArgumentException::new).getScheduleExpression();
     }
 
     @Override
     public void run() {
-        if(importSchedule.isActive())
-            folderScanningJob.run();
+        fileImportService.getImportSchedule(importScheduleId).ifPresent(importSchedule->{
+            if(importSchedule.isActive()) {
+                Path importFolder = fileImportService.getBasePath().resolve(importSchedule.getImportDirectory());
+                FolderScanningJob folderScanningJob = new FolderScanningJob(
+                        new PollingFolderScanner(filter, fileSystem, importFolder, importSchedule.getPathMatcher(), this.thesaurus),
+                        new DefaultFileHandler(importSchedule, jsonService, transactionService, clock));
+                folderScanningJob.run();
+            }
+        });
+
     }
 }

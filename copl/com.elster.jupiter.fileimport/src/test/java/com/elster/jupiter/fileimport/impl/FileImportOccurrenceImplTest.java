@@ -42,7 +42,6 @@ public class FileImportOccurrenceImplTest {
     private static final String CONTENTS = "CONTENTS";
     private static final String SUCCESS_MESSAGE = "SUCCESS_MESSAGE";
     private static final String FAILURE_MESSAGE = "FAILURE_MESSAGE";
-    private static final Path BASE_PATH = Paths.get("/");
     @Mock
     private DataMapper<FileImportOccurrence> fileImportFactory;
     @Mock
@@ -94,11 +93,26 @@ public class FileImportOccurrenceImplTest {
         when(basePath.resolve(successPath)).thenReturn(successPath);
         when(basePath.resolve(failurePath)).thenReturn(failurePath);
 
+        when(basePath.relativize(inProcessPath)).thenReturn(inProcessPath);
+        when(basePath.relativize(successPath)).thenReturn(successPath);
+        when(basePath.relativize(failurePath)).thenReturn(failurePath);
+        when(basePath.relativize(path)).thenReturn(path);
+        when(basePath.relativize(newPath)).thenReturn(newPath);
+
+
         when(basePath.resolve(inProcessDirectory)).thenReturn(inProcessPath);
         when(basePath.resolve(successDirectory)).thenReturn(successPath);
         when(basePath.resolve(failureDirectory)).thenReturn(failurePath);
 
+        when(inProcessPath.resolve(inProcessDirectory)).thenReturn(inProcessPath);
+        when(successPath.resolve(successDirectory)).thenReturn(successPath);
+        when(failurePath.resolve(failureDirectory)).thenReturn(failurePath);
 
+        when(failurePath.resolve(inProcessPath)).thenReturn(failurePath);
+
+
+
+        when(basePath.resolve(newPath)).thenReturn(newPath);
         when(basePath.resolve(path)).thenReturn(path);
 
 
@@ -114,11 +128,16 @@ public class FileImportOccurrenceImplTest {
         when(failurePath.resolve(path)).thenReturn(failurePath);
         when(successPath.resolve(path)).thenReturn(successPath);
 
+        when(inProcessPath.toFile()).thenReturn(file);
+        when(failurePath.toFile()).thenReturn(newFile );
+        when(successPath.toFile()).thenReturn(newFile);
+
         when(successPath.resolve(newPath)).thenReturn(successPath);
         when(failurePath.resolve(newPath)).thenReturn(failurePath);
         when(newPath.resolve(newPath)).thenReturn(newPath);
 
         when(path.getFileName()).thenReturn(path);
+        when(newPath.getFileName()).thenReturn(newPath);
 
         when(file.toPath()).thenReturn(path);
         when(file.getPath()).thenReturn("./test.xml");
@@ -126,18 +145,26 @@ public class FileImportOccurrenceImplTest {
         when(newFile.exists()).thenReturn(true);
         when(fileSystem.getInputStream(any(File.class))).thenReturn(contentsAsStream());
 
+
         when(fileNameCollisionResolver.resolve(inProcessPath)).thenReturn(inProcessPath);
 
         when(newPath.toFile()).thenReturn(newFile);
         when(newFile.toPath()).thenReturn(newPath);
         when(newPath.getFileName()).thenReturn(newPath);
+        when(file.toPath()).thenReturn(path);
+        when(path.toFile()).thenReturn(file);
 
         when(fileNameCollisionResolver.resolve(successPath)).thenReturn(successPath);
+
+        when(inProcessPath.getFileName()).thenReturn(inProcessPath);
+
 
         when(successPath.toFile()).thenReturn(successFile);
         when(successFile.toPath()).thenReturn(successPath);
         when(successPath.getFileName()).thenReturn(successPath);
         when(successPath.resolve(newPath)).thenReturn(newPath);
+        when(successPath.resolve(inProcessPath)).thenReturn(successPath);
+
 
         when(fileNameCollisionResolver.resolve(failurePath)).thenReturn(failurePath);
 
@@ -146,6 +173,9 @@ public class FileImportOccurrenceImplTest {
         when(failurePath.getFileName()).thenReturn(failurePath);
         when(failurePath.resolve(newPath)).thenReturn(failurePath);
 
+
+        when(basePath.relativize(failurePath)).thenReturn(failurePath);
+        when(basePath.relativize(successPath)).thenReturn(successPath);
 
 
         when(thesaurus.getFormat(MessageSeeds.FILE_IMPORT_STARTED)).thenReturn(importStarted);
@@ -183,7 +213,7 @@ public class FileImportOccurrenceImplTest {
         ((FileImportOccurrenceImpl)fileImportOccurrence).setLogger(logger);
         fileImportOccurrence.prepareProcessing();
 
-        assertThat(fileImportOccurrence.getFileName()).isEqualTo("path");
+        assertThat(fileImportOccurrence.getFileName()).isEqualTo("inProcessPath");
     }
 
     @Test
@@ -215,7 +245,7 @@ public class FileImportOccurrenceImplTest {
 
         fileImportOccurrence.markSuccess(SUCCESS_MESSAGE);
 
-        verify(fileSystem).move(path, successPath);
+        verify(fileSystem).move(inProcessPath, successPath);
     }
 
     @Test
@@ -245,7 +275,7 @@ public class FileImportOccurrenceImplTest {
 
         fileImportOccurrence.markFailure(FAILURE_MESSAGE);
 
-        verify(fileSystem).move(path, failurePath);
+        verify(fileSystem).move(inProcessPath, failurePath);
     }
 
     @Test

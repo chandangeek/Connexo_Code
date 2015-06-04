@@ -45,6 +45,13 @@ public interface FileImportOccurrence {
      */
     void markSuccess(String message) throws IllegalStateException;
 
+
+    /**
+     * Marks the file as successfully imported but the import process encounter failures
+     * @throws IllegalStateException if the current state is not PROCESSING
+     */
+    void markSuccessWithFailures(String message) throws IllegalStateException;
+
     /**
      * Marks the file as not successfully imported
      * @throws IllegalStateException if the current state is not PROCESSING
