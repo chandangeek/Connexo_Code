@@ -1,6 +1,5 @@
 package com.elster.jupiter.rest.util.properties;
 
-import com.elster.jupiter.rest.util.properties.PropertyTypeInfo;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
@@ -21,6 +20,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class PropertyInfo {
 
     public String key;
+    public String name;
     public PropertyValueInfo<?> propertyValueInfo;
     public PropertyTypeInfo propertyTypeInfo;
     public boolean required;
@@ -31,8 +31,9 @@ public class PropertyInfo {
     public PropertyInfo() {
     }
 
-    public PropertyInfo(String key, PropertyValueInfo<?> propertyValueInfo, PropertyTypeInfo propertyTypeInfo, boolean required) {
-        this.key = key;
+    public PropertyInfo(String name, String translationKey, PropertyValueInfo<?> propertyValueInfo, PropertyTypeInfo propertyTypeInfo, boolean required) {
+        this.key = translationKey;
+        this.name = name;
         this.propertyValueInfo = propertyValueInfo;
         this.propertyTypeInfo = propertyTypeInfo;
         this.required = required;
