@@ -7,8 +7,10 @@ import com.elster.jupiter.export.DataExportException;
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportProperty;
 import com.elster.jupiter.export.DataExportService;
-import com.elster.jupiter.export.ReadingTypeDataExportItem;
+import com.elster.jupiter.export.DefaultStructureMarker;
+import com.elster.jupiter.export.FormattedExportData;
 import com.elster.jupiter.export.MeterReadingData;
+import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
@@ -51,7 +53,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Logger;
 
-import static com.elster.jupiter.devtools.tests.assertions.JupiterAssertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
@@ -218,73 +220,47 @@ public class StandardCsvDataFormatterTest {
     }
 
     @Test
-    public void testExportToCsvWithAbsolutePath() {
-        processor = new StandardCsvDataFormatter(dataExportService, appService, getPropertyMap(properties), thesaurus, fileSystem, tempDirectory, validationService);
+    public void testLinesAreOk() {
+        processor = new StandardCsvDataFormatter(getPropertyMap(properties), thesaurus, validationService);
 
-        runExport();
-
-        Path file = fileSystem.getPath("c:\\export", "MainFile_2014-11-24_12-00-12.csv");
-        assertThat(Files.exists(file)).isTrue();
-        Path updatedFile = fileSystem.getPath("c:\\export", "UpdateFile_2014-11-24_12-00-12.csv");
-        assertThat(Files.exists(updatedFile)).isTrue();
-
-    }
-
-    @Test
-    public void testExportToCsvWithRelativePath() {
-        when(propertyPath.getValue()).thenReturn("dailies");
-        processor = new StandardCsvDataFormatter(dataExportService, appService, getPropertyMap(properties), thesaurus, fileSystem, tempDirectory, validationService);
-
-        runExport();
-
-        Path file = fileSystem.getPath("c:\\appserver\\export", "dailies", "MainFile_2014-11-24_12-00-12.csv");
-        assertThat(Files.exists(file)).isTrue();
-        Path updatedFile = fileSystem.getPath("c:\\appserver\\export", "dailies", "UpdateFile_2014-11-24_12-00-12.csv");
-        assertThat(Files.exists(updatedFile)).isTrue();
-    }
-
-    @Test
-    public void testExportToCsvWithoutPath() {
-        properties = Arrays.asList(propertyPrefix, propertyExtension, propertySeparator, propertyExtensionUpdated, propertyPrefixUpdated, propertyUpdateSeparateFile);
-        processor = new StandardCsvDataFormatter(dataExportService, appService, getPropertyMap(properties), thesaurus, fileSystem, tempDirectory, validationService);
-
-        runExport();
-
-        Path file = fileSystem.getPath("c:\\appserver\\export", "MainFile_2014-11-24_12-00-12.csv");
-        assertThat(Files.exists(file)).isTrue();
-        Path updatedFile = fileSystem.getPath("c:\\appserver\\export", "UpdateFile_2014-11-24_12-00-12.csv");
-        assertThat(Files.exists(updatedFile)).isTrue();
-    }
-
-    private void runExport() {
         processor.startExport(dataExportOccurrence, logger);
         processor.startItem(item);
-        processor.processData(new MeterReadingData(item, data, null));
+        List<FormattedExportData> lines = processor.processData(new MeterReadingData(item, data, DefaultStructureMarker.createRoot("root")));
         processor.endItem(item);
+        assertThat(lines).hasSize(3);
+        assertThat(lines.get(0).getAppendablePayload()).isEqualTo("2014-11-24 12:00:12;DeviceMRID;0.0.5.1.16.1.12.0.0.0.0.0.0.0.0.3.73.0;10;suspect;\n");
+        assertThat(lines.get(1).getAppendablePayload()).isEqualTo("2014-11-24 12:00:12;DeviceMRID;0.0.5.1.16.1.12.0.0.0.0.0.0.0.0.3.73.0;1;suspect;\n");
+        assertThat(lines.get(2).getAppendablePayload()).isEqualTo("2014-11-24 12:00:12;DeviceMRID;0.0.5.1.16.1.12.0.0.0.0.0.0.0.0.3.73.0;0;suspect;\n");
+
+        processor.startExport(dataExportOccurrence, logger);
         processor.startItem(item1);
-        processor.processData(new MeterReadingData(item, dataLoadProfile, null));
+        lines = processor.processData(new MeterReadingData(item1, data, DefaultStructureMarker.createRoot("root")));
         processor.endItem(item1);
-        processor.endExport();
+        assertThat(lines).hasSize(3);
+        assertThat(lines.get(0).getAppendablePayload()).isEqualTo("2014-11-24 12:00:12;AnotherDeviceMRID;0.0.5.1.17.1.13.0.0.0.0.0.0.0.0.4.75.1;10;suspect;\n");
+        assertThat(lines.get(1).getAppendablePayload()).isEqualTo("2014-11-24 12:00:12;AnotherDeviceMRID;0.0.5.1.17.1.13.0.0.0.0.0.0.0.0.4.75.1;1;suspect;\n");
+        assertThat(lines.get(2).getAppendablePayload()).isEqualTo("2014-11-24 12:00:12;AnotherDeviceMRID;0.0.5.1.17.1.13.0.0.0.0.0.0.0.0.4.75.1;0;suspect;\n");
     }
+
 
     @Test(expected = IllegalArgumentException.class)
     public void testIllegalArgumentException() {
-        processor = new StandardCsvDataFormatter(dataExportService, appService, getPropertyMap(properties), thesaurus, fileSystem, tempDirectory, validationService);
+        processor = new StandardCsvDataFormatter(getPropertyMap(properties), thesaurus, validationService);
 
         processor.startExport(dataExportOccurrence, logger);
         processor.startItem(item);
-        processor.processData(new MeterReadingData(item, data, null));
+        processor.processData(new MeterReadingData(item, data, DefaultStructureMarker.createRoot("root")));
         processor.endItem(item1);
     }
 
     @Test(expected = DataExportException.class)
     public void testNoMeter() {
         when(readingContainer.getMeter(Instant.ofEpochMilli(EPOCH_MILLI))).thenReturn(Optional.empty());
-        processor = new StandardCsvDataFormatter(dataExportService, appService, getPropertyMap(properties), thesaurus, fileSystem, tempDirectory, validationService);
+        processor = new StandardCsvDataFormatter(getPropertyMap(properties), thesaurus, validationService);
 
         processor.startExport(dataExportOccurrence, logger);
         processor.startItem(item);
-        processor.processData(new MeterReadingData(item, data, null));
+        processor.processData(new MeterReadingData(item, data, DefaultStructureMarker.createRoot("root")));
     }
 
     private Map<String, Object> getPropertyMap(List<DataExportProperty> properties) {
