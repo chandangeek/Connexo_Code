@@ -15,26 +15,13 @@ import com.energyict.protocolimplv2.elster.garnet.common.ReadingResponse;
 import com.energyict.protocolimplv2.elster.garnet.exception.GarnetException;
 import com.energyict.protocolimplv2.elster.garnet.exception.NotExecutedException;
 import com.energyict.protocolimplv2.elster.garnet.exception.UnableToExecuteException;
-import com.energyict.protocolimplv2.elster.garnet.structure.ConcentratorStatusResponseStructure;
-import com.energyict.protocolimplv2.elster.garnet.structure.ConcentratorVersionResponseStructure;
-import com.energyict.protocolimplv2.elster.garnet.structure.DiscoverMetersResponseStructure;
-import com.energyict.protocolimplv2.elster.garnet.structure.RadioParametersResponseStructure;
-import com.energyict.protocolimplv2.elster.garnet.structure.ReadingRequestStructure;
+import com.energyict.protocolimplv2.elster.garnet.structure.*;
 import com.energyict.protocolimplv2.elster.garnet.structure.field.MeterSerialNumber;
 import com.energyict.protocolimplv2.elster.garnet.structure.field.NotExecutedError;
 import com.energyict.protocolimplv2.elster.garnet.structure.field.RepeaterDiagnostic;
-import com.energyict.protocolimplv2.elster.garnet.structure.field.bitMaskField.MeterInstallationStatusBitMaskField;
-import com.energyict.protocolimplv2.elster.garnet.structure.field.bitMaskField.MeterModel;
-import com.energyict.protocolimplv2.elster.garnet.structure.field.bitMaskField.MeterReadingStatus;
-import com.energyict.protocolimplv2.elster.garnet.structure.field.bitMaskField.MeterRelayStatus;
-import com.energyict.protocolimplv2.elster.garnet.structure.field.bitMaskField.MeterSensorStatus;
-import com.energyict.protocolimplv2.elster.garnet.structure.field.bitMaskField.MeterTariffStatus;
+import com.energyict.protocolimplv2.elster.garnet.structure.field.bitMaskField.*;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author sva
@@ -92,10 +79,10 @@ public class RegisterFactory implements DeviceRegisterSupport {
                 } else if (e.getErrorStructure().getNotExecutedError().getErrorCode().equals(NotExecutedError.ErrorCode.SLAVE_DOES_NOT_EXIST)) {
                     collectedRegister = createTopologyMisMatchCollectedRegister(register);
                 } else {
-                    collectedRegister = createCouldNotParseCollectedRegister(register);
+                    collectedRegister = createCouldNotParseCollectedRegister(register, e.getMessage());
                 }
             } catch (GarnetException e) {
-                collectedRegister = createCouldNotParseCollectedRegister(register);
+                collectedRegister = createCouldNotParseCollectedRegister(register, e.getMessage());
             }
             collectedRegisters.add(collectedRegister);
         }
@@ -300,7 +287,7 @@ public class RegisterFactory implements DeviceRegisterSupport {
             }
             meterIndex++;
         }
-        throw new UnableToExecuteException("Slave " + slaveSerialNumber +" not found on the concentrator. The EIMaster topology is probably wrong.");
+        throw new UnableToExecuteException("Slave " + slaveSerialNumber + " not found on the concentrator. The EIMaster topology is probably wrong.");
     }
 
     private CollectedRegister createDeviceRegister(OfflineRegister register) {
@@ -325,9 +312,9 @@ public class RegisterFactory implements DeviceRegisterSupport {
         return failedRegister;
     }
 
-    private CollectedRegister createCouldNotParseCollectedRegister(OfflineRegister register) {
+    private CollectedRegister createCouldNotParseCollectedRegister(OfflineRegister register, String errorMessage) {
         CollectedRegister failedRegister = createDeviceRegister(register);
-        failedRegister.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addProblem(register, "CouldNotParseRegisterData"));
+        failedRegister.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addProblem(register, "CouldNotParseRegisterData", errorMessage));
         return failedRegister;
     }
 

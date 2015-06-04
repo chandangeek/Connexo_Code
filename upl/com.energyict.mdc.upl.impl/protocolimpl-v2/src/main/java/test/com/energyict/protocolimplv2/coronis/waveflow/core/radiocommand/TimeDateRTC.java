@@ -36,7 +36,7 @@ public class TimeDateRTC extends AbstractRadioCommand {
             // check if write clock succeeded
             if (WaveflowProtocolUtils.toInt(data[0]) == SET_ERROR) {
                 IOException e = new IOException("Error setting the RTC in the waveflow device, returned [" + WaveflowProtocolUtils.toInt(data[0]) + "]");
-                throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e);
+                throw MdcManager.getComServerExceptionFactory().createUnexpectedResponse(e);
             }
         }
     }

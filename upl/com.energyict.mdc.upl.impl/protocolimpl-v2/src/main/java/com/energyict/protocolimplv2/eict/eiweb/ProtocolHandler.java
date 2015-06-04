@@ -7,15 +7,11 @@ import com.energyict.cbo.Unit;
 import com.energyict.cim.EndDeviceEventTypeMapping;
 import com.energyict.comserver.time.Clocks;
 import com.energyict.mdc.messages.LegacyMessageConverter;
-import com.energyict.mdc.meterdata.CollectedConfigurationInformation;
-import com.energyict.mdc.meterdata.CollectedData;
-import com.energyict.mdc.meterdata.CollectedRegister;
-import com.energyict.mdc.meterdata.DefaultDeviceRegister;
-import com.energyict.mdc.meterdata.DeviceLogBook;
-import com.energyict.mdc.meterdata.DeviceUserFileConfigurationInformation;
+import com.energyict.mdc.meterdata.*;
 import com.energyict.mdc.meterdata.identifiers.LogBookIdentifierByDeviceAndObisCode;
 import com.energyict.mdc.meterdata.identifiers.PrimeRegisterForChannelIdentifier;
 import com.energyict.mdc.protocol.exceptions.CommunicationException;
+import com.energyict.mdc.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.mdc.protocol.exceptions.DataEncryptionException;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.inbound.InboundDAO;
@@ -31,13 +27,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Logger;
 
 public class ProtocolHandler {
@@ -58,45 +48,6 @@ public class ProtocolHandler {
         this.responseWriter = responseWriter;
         this.inboundDAO = inboundDAO;
         this.cryptographer = cryptographer;
-    }
-
-    private enum ContentType {
-        BINARY {
-            @Override
-            public boolean matches(HttpServletRequest request) {
-                return EIWebConstants.BINARY_CONTENT_TYPE_INDICATOR.equals(request.getContentType());
-            }
-
-            @Override
-            public void dispatch(HttpServletRequest request, ProtocolHandler handler) {
-                handler.processBinary(request);
-            }
-        },
-
-        PLAINTEXT {
-            @Override
-            public boolean matches(HttpServletRequest request) {
-                return EIWebConstants.PLAINTEXT_CONTENT_TYPE_INDICATOR.equals(request.getContentType());
-            }
-
-            @Override
-            public void dispatch(HttpServletRequest request, ProtocolHandler handler) {
-                handler.processPlainText(request);
-            }
-        };
-
-        public abstract boolean matches(HttpServletRequest request);
-
-        public abstract void dispatch(HttpServletRequest request, ProtocolHandler handler);
-
-        public static ContentType fromRequest(HttpServletRequest request) {
-            for (ContentType contentType : values()) {
-                if (contentType.matches(request)) {
-                    return contentType;
-                }
-            }
-            throw CommunicationException.unsupportedUrlContentType(request.getContentType());
-        }
     }
 
     private void setContentType(HttpServletRequest request) {
@@ -177,7 +128,7 @@ public class ProtocolHandler {
             }
             this.confirmSentMessagesAndSendPending();
         } catch (IOException e) {
-            throw new CommunicationException(e);
+            throw new ConnectionCommunicationException(e);
         }
     }
 
@@ -250,7 +201,7 @@ public class ProtocolHandler {
             this.packetBuilder.parseNrOfAcceptedMessages((String) parameters.get("xmlctr"));
             this.packetBuilder.parse(request.getInputStream(), (String) parameters.get("sn"));
         } catch (IOException e) {
-            throw new CommunicationException(e);
+            throw new ConnectionCommunicationException(e);
         }
     }
 
@@ -268,7 +219,7 @@ public class ProtocolHandler {
                     request.getParameter("sn"),
                     request.getParameter(EIWebConstants.MESSAGE_COUNTER_URL_PARAMETER_NAME));
         } catch (IOException e) {
-            throw new CommunicationException(e);
+            throw new ConnectionCommunicationException(e);
         }
     }
 
@@ -292,6 +243,45 @@ public class ProtocolHandler {
             this.deviceLogBook = new DeviceLogBook(new LogBookIdentifierByDeviceAndObisCode(getDeviceIdentifier(), LogBookTypeFactory.GENERIC_LOGBOOK_TYPE_OBISCODE));
         }
         return this.deviceLogBook;
+    }
+
+    private enum ContentType {
+        BINARY {
+            @Override
+            public boolean matches(HttpServletRequest request) {
+                return EIWebConstants.BINARY_CONTENT_TYPE_INDICATOR.equals(request.getContentType());
+            }
+
+            @Override
+            public void dispatch(HttpServletRequest request, ProtocolHandler handler) {
+                handler.processBinary(request);
+            }
+        },
+
+        PLAINTEXT {
+            @Override
+            public boolean matches(HttpServletRequest request) {
+                return EIWebConstants.PLAINTEXT_CONTENT_TYPE_INDICATOR.equals(request.getContentType());
+            }
+
+            @Override
+            public void dispatch(HttpServletRequest request, ProtocolHandler handler) {
+                handler.processPlainText(request);
+            }
+        };
+
+        public static ContentType fromRequest(HttpServletRequest request) {
+            for (ContentType contentType : values()) {
+                if (contentType.matches(request)) {
+                    return contentType;
+                }
+            }
+            throw CommunicationException.unsupportedUrlContentType(request.getContentType());
+        }
+
+        public abstract boolean matches(HttpServletRequest request);
+
+        public abstract void dispatch(HttpServletRequest request, ProtocolHandler handler);
     }
 
 

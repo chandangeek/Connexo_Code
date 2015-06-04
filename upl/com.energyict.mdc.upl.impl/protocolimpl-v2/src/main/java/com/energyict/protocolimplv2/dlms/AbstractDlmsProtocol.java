@@ -17,6 +17,7 @@ import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 import com.energyict.protocolimplv2.nta.dsmr23.ComposedMeterInfo;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsConfigurationSupport;
@@ -41,13 +42,13 @@ import java.util.logging.Logger;
  */
 public abstract class AbstractDlmsProtocol implements DeviceProtocol {
 
-    private ComposedMeterInfo meterInfo;
     protected DlmsProperties dlmsProperties;
+    protected AbstractMeterTopology meterTopology;
+    protected OfflineDevice offlineDevice;
+    private ComposedMeterInfo meterInfo;
     private DlmsConfigurationSupport dlmsConfigurationSupport;
     private DlmsSession dlmsSession;
     private DLMSCache dlmsCache;
-    protected AbstractMeterTopology meterTopology;
-    protected OfflineDevice offlineDevice;
     private DlmsSecuritySupport dlmsSecuritySupport;
 
     /**
@@ -166,13 +167,13 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
     }
 
     @Override
-    public void setDeviceCache(DeviceProtocolCache deviceProtocolCache) {
-        this.dlmsCache = (DLMSCache) deviceProtocolCache;
+    public DeviceProtocolCache getDeviceCache() {
+        return dlmsCache;
     }
 
     @Override
-    public DeviceProtocolCache getDeviceCache() {
-        return dlmsCache;
+    public void setDeviceCache(DeviceProtocolCache deviceProtocolCache) {
+        this.dlmsCache = (DLMSCache) deviceProtocolCache;
     }
 
     /**
@@ -233,12 +234,12 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
         }
     }
 
-    protected void setDlmsSession(DlmsSession dlmsSession) {
-        this.dlmsSession = dlmsSession;
-    }
-
     public DlmsSession getDlmsSession() {
         return dlmsSession;
+    }
+
+    protected void setDlmsSession(DlmsSession dlmsSession) {
+        this.dlmsSession = dlmsSession;
     }
 
     /**

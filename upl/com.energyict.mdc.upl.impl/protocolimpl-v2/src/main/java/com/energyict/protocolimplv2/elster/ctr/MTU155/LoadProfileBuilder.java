@@ -254,7 +254,7 @@ public class LoadProfileBuilder {
                 startOfGasDayParser = new StartOfGasDayParser(meterProtocol.getRequestFactory());
             } catch (CTRException e) {
                 meterProtocol.getLogger().severe("Failed to read DST parameters: " + e.getMessage());
-                throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e);
+                throw MdcManager.getComServerExceptionFactory().createUnexpectedResponse(e);
             }
         }
         return startOfGasDayParser;

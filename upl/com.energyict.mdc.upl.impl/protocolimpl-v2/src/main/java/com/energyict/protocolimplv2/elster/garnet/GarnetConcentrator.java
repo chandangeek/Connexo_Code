@@ -119,7 +119,7 @@ public class GarnetConcentrator implements DeviceProtocol {
             ConcentratorVersionResponseStructure concentratorVersion = getRequestFactory().readConcentratorVersion();
             return ProtocolTools.removeLeadingZerosFromString(concentratorVersion.getSerialNumber().getSerialNumber());
         } catch (GarnetException e) {
-            throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e);
+            throw MdcManager.getComServerExceptionFactory().createUnexpectedResponse(e);
         }
     }
 

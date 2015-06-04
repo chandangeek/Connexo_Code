@@ -30,9 +30,11 @@ public class IOExceptionHandler {
      */
     public static ComServerExecutionException handle(IOException e, DlmsSession dlmsSession) {
         if (isUnexpectedResponse(e, dlmsSession)) {
+            //Unexpected problem or response, but we can still communicate with the device
             return MdcManager.getComServerExceptionFactory().createUnexpectedResponse(e);
         } else {
-            return communicationException(e, dlmsSession);
+            //We can no longer communicate with the device
+            return connectionCommunicationException(e, dlmsSession);
         }
     }
 
@@ -46,12 +48,12 @@ public class IOExceptionHandler {
             if (cause instanceof ExceptionResponseException || cause instanceof ProtocolException || cause instanceof DataAccessResultException) {
                 return true;
             } else {
-                throw communicationException(e, dlmsSession);
+                throw connectionCommunicationException(e, dlmsSession);
             }
         } else if (e instanceof ExceptionResponseException || e instanceof ProtocolException || e instanceof DataAccessResultException) {
             return true;
         } else {
-            throw communicationException(e, dlmsSession);
+            throw connectionCommunicationException(e, dlmsSession);
         }
     }
 
@@ -69,7 +71,7 @@ public class IOExceptionHandler {
         return false;
     }
 
-    private static ComServerExecutionException communicationException(IOException e, DlmsSession dlmsSession) {
+    private static ComServerExecutionException connectionCommunicationException(IOException e, DlmsSession dlmsSession) {
         return MdcManager.getComServerExceptionFactory().createNumberOfRetriesReached(e, dlmsSession.getProperties().getRetries() + 1);
     }
 }

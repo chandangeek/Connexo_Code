@@ -4,6 +4,7 @@ package com.energyict.dlms;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProtocolException;
+import com.energyict.protocolimplv2.MdcManager;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -219,7 +220,7 @@ public class UniversalObject implements Serializable {
 		this.fields[IOL_LN_F]=iVal;
 	}
 
-	public boolean equals(UniversalObject uo) throws ProtocolException {
+	public boolean equals(UniversalObject uo) {
 
 		if ((getLNA() == uo.fields[COL_LN_A])  &&
 				(getLNB() == uo.fields[COL_LN_B]) &&
@@ -250,19 +251,22 @@ public class UniversalObject implements Serializable {
 		}
 	}
 
-	public boolean equals(DLMSObis dlmsObis) throws ProtocolException {
-		if ((getLNA() == dlmsObis.getLNA()) &&
-				(getLNB() == dlmsObis.getLNB()) &&
-				(getLNC() == dlmsObis.getLNC()) &&
-				(getLND() == dlmsObis.getLND()) &&
-				(getLNE() == dlmsObis.getLNE()) &&
-				(getLNF() == dlmsObis.getLNF()) &&
-				(getClassID() == dlmsObis.getDLMSClass())) {
-			return true;
-		} else {
+	public boolean equals(DLMSObis dlmsObis) {
+		try {
+			if ((getLNA() == dlmsObis.getLNA()) &&
+					(getLNB() == dlmsObis.getLNB()) &&
+					(getLNC() == dlmsObis.getLNC()) &&
+					(getLND() == dlmsObis.getLND()) &&
+					(getLNE() == dlmsObis.getLNE()) &&
+					(getLNF() == dlmsObis.getLNF()) &&
+					(getClassID() == dlmsObis.getDLMSClass())) {
+				return true;
+			} else {
+				return false;
+			}
+		} catch (ProtocolException e) {
 			return false;
 		}
-
 	}
 
 	/*
@@ -289,7 +293,7 @@ public class UniversalObject implements Serializable {
 	}
 
 
-	public int getValueAttributeOffset() throws ProtocolException {
+	public int getValueAttributeOffset() {
 		if (getClassID() == DLMSClassId.REGISTER.getClassId()) {
 			return 8;
 		} else if (getClassID() == DLMSClassId.EXTENDED_REGISTER.getClassId()) {
@@ -303,7 +307,8 @@ public class UniversalObject implements Serializable {
 		} else if (getClassID() == DLMSClassId.CLOCK.getClassId()) {
 			return 8;
 		} else {
-			throw new ProtocolException("UniversalObject, wrong object for value attribute!");
+			ProtocolException protocolException =  new ProtocolException("UniversalObject, wrong object for value attribute!");
+			throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(protocolException);
 		}
 	}
 	public int getScalerAttributeOffset() throws IOException {

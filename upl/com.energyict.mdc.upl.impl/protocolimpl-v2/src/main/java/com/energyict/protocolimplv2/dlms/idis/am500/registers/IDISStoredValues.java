@@ -7,7 +7,6 @@ import com.energyict.dlms.cosem.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.idis.am500.AM500;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 
@@ -112,13 +111,9 @@ public class IDISStoredValues implements StoredValues {
         throw new NoSuchRegisterException("Obiscode " + obisCode.toString() + " is not stored in the billing profile");
     }
 
-    public ProfileGeneric getProfileGeneric() {
+    public ProfileGeneric getProfileGeneric() throws NotInObjectListException {
         if (profileGeneric == null) {
-            try {
-                profileGeneric = getCosemObjectFactory().getProfileGeneric(OBISCODE_BILLING_PROFILE);
-            } catch (ProtocolException e) {
-                throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e);
-            }
+            profileGeneric = getCosemObjectFactory().getProfileGeneric(OBISCODE_BILLING_PROFILE);
         }
         return profileGeneric;
     }

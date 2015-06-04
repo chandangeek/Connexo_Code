@@ -123,10 +123,10 @@ public class ConcentratorMessaging implements DeviceMessageSupport {
             } else if (e.getErrorStructure().getNotExecutedError().getErrorCode().equals(NotExecutedError.ErrorCode.SLAVE_DOES_NOT_EXIST)) {
                 collectedMessage.setFailureInformation(ResultType.ConfigurationMisMatch, MdcManager.getIssueCollector().addProblem(pendingMessage, "topologyMismatch", deviceProtocol.getSerialNumber()));
             } else {
-                collectedMessage.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addProblem(pendingMessage, "CouldNotParseMessageData"));
+                collectedMessage.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addProblem(pendingMessage, "CouldNotParseMessageData", e.getMessage()));
             }
         } catch (GarnetException e) {
-            collectedMessage.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addProblem(pendingMessage, "CouldNotParseMessageData"));
+            collectedMessage.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addProblem(pendingMessage, "CouldNotParseMessageData", e.getMessage()));
         }
         return collectedMessage;
     }

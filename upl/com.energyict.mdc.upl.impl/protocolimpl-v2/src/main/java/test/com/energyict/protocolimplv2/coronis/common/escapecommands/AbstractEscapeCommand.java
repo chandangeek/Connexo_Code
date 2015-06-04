@@ -100,7 +100,7 @@ abstract class AbstractEscapeCommand {
         byte[] response = waveFlowConnect.sendEscapeData(request);
         if (WaveflowProtocolUtils.toInt(response[0]) != 0) {
             EscapeCommandException exception = new EscapeCommandException("Error invoking the escape sequence. Returned [" + WaveflowProtocolUtils.toInt(response[0]) + "] for escape sequence [" + ProtocolUtils.outputHexString(request) + "]");
-            throw MdcManager.getComServerExceptionFactory().createUnexpectedResponse(exception);
+            throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(exception);
         }
         parse(ProtocolUtils.getSubArray(response, 1));
     }

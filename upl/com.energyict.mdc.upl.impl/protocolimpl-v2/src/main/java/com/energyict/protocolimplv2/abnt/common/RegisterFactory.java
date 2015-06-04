@@ -107,7 +107,7 @@ public class RegisterFactory implements DeviceRegisterSupport {
                 registerNotSupported(register, collectedRegister);
             }
         } catch (ParsingException e) {
-            collectedRegister.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addProblem(collectedRegister, "CouldNotParseRegisterData"));
+            collectedRegister.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addProblem(collectedRegister, "CouldNotParseRegisterData", e.getMessage()));
         }
     }
 

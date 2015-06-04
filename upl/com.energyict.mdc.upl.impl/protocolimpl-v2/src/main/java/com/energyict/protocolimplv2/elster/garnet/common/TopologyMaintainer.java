@@ -48,10 +48,10 @@ public class TopologyMaintainer implements DeviceTopologySupport {
             } else if (e.getErrorStructure().getNotExecutedError().getErrorCode().equals(NotExecutedError.ErrorCode.SLAVE_DOES_NOT_EXIST)) {
                 collectedTopology.setFailureInformation(ResultType.ConfigurationMisMatch, MdcManager.getIssueCollector().addWarning(getMasterDevice(), "topologyMismatch"));
             } else {
-                collectedTopology.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addProblem(getMasterDevice(), "CouldNotParseTopologyData"));
+                collectedTopology.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addProblem(getMasterDevice(), "CouldNotParseTopologyData", e.getMessage()));
             }
         } catch (GarnetException e) {
-            collectedTopology.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addProblem(getMasterDevice(), "CouldNotParseTopologyData"));
+            collectedTopology.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addProblem(getMasterDevice(), "CouldNotParseTopologyData", e.getMessage()));
         }
         return collectedTopology;
     }
@@ -65,7 +65,7 @@ public class TopologyMaintainer implements DeviceTopologySupport {
                     slaveMeters.add(new SerialNumberDeviceIdentifier(serialOfSlave.getSerialNumber()));
                 }
             }
-            } catch(NotExecutedException e) {
+        } catch (NotExecutedException e) {
             // When executing this command for a UCR concentrator (who has no direct E-meter salves under it),
             // then a 'Command not implemented' exception is returned
             if (!e.getMessage().contains(NotExecutedError.ErrorCode.COMMAND_NOT_IMPLEMENTED.getErrorDescription())) {

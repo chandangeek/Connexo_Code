@@ -109,7 +109,7 @@ public class GPRSConnection implements Connection {
                     }
                 } else if (e.getErrorStructure().getNotExecutedError().getErrorCode() == NotExecutedError.ErrorCode.MAJOR_DATA ||
                         e.getErrorStructure().getNotExecutedError().getErrorCode() == NotExecutedError.ErrorCode.MINOR_DATA) {
-                    throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e);
+                    throw MdcManager.getComServerExceptionFactory().createUnexpectedResponse(e);
                 } else {
                     throw e;
                 }

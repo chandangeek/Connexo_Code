@@ -26,11 +26,7 @@ import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.meterdata.DeviceLoadProfileConfiguration;
 import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.IntervalStateBits;
-import com.energyict.protocol.IntervalValue;
-import com.energyict.protocol.LoadProfileReader;
+import com.energyict.protocol.*;
 import com.energyict.protocolimpl.dlms.as220.ProfileLimiter;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
@@ -219,7 +215,7 @@ public class IDISProfileDataReader {
         return channelInfosMap;
     }
 
-    protected List<ChannelInfo> getChannelInfo(List<CapturedObject> capturedObjects, String serialNumber) throws IOException {
+    protected List<ChannelInfo> getChannelInfo(List<CapturedObject> capturedObjects, String serialNumber) {
         List<ObisCode> channelObisCodes = new ArrayList<>();
         for (CapturedObject capturedObject : capturedObjects) {
             if (isChannel(capturedObject)) {

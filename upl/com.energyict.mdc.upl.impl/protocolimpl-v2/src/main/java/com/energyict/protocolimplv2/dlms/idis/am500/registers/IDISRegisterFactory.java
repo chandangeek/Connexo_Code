@@ -21,6 +21,7 @@ import com.energyict.mdc.protocol.tasks.support.DeviceRegisterSupport;
 import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocol.NotInObjectListException;
 import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.base.DLMSAttributeMapper;
@@ -104,6 +105,8 @@ public class IDISRegisterFactory implements DeviceRegisterSupport {
                     HistoricalValue historicalValue = AM500.getStoredValues().getHistoricalValue(obisCode);
                     RegisterValue registerValue = new RegisterValue(obisCode, historicalValue.getQuantityValue(), historicalValue.getEventTime());
                     return createCollectedRegister(registerValue, offlineRegister);
+                } catch (NotInObjectListException e) {
+                    return createFailureCollectedRegister(offlineRegister, ResultType.InCompatible, e.getMessage());
                 } catch (NoSuchRegisterException e) {
                     return createFailureCollectedRegister(offlineRegister, ResultType.NotSupported);
                 }

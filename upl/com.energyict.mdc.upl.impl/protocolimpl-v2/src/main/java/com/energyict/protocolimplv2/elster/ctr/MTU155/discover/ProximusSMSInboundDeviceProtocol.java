@@ -4,7 +4,7 @@ import com.energyict.cbo.NotFoundException;
 import com.energyict.cbo.Sms;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.meterdata.CollectedData;
-import com.energyict.mdc.protocol.exceptions.CommunicationException;
+import com.energyict.mdc.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.protocol.security.SecurityProperty;
@@ -243,7 +243,7 @@ public class ProximusSMSInboundDeviceProtocol extends AbstractSMSServletBasedInb
             out.println(getReply());
             out.close();
         } catch (IOException e) {
-            throw new CommunicationException(e);
+            throw new ConnectionCommunicationException(e);
         }
     }
 

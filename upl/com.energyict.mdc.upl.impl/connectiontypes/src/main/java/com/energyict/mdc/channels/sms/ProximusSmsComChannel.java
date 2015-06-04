@@ -1,7 +1,7 @@
 package com.energyict.mdc.channels.sms;
 
 import com.energyict.mdc.protocol.AbstractComChannel;
-import com.energyict.mdc.protocol.exceptions.CommunicationException;
+import com.energyict.mdc.protocol.exceptions.ConnectionCommunicationException;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -14,10 +14,9 @@ import java.io.IOException;
 public class ProximusSmsComChannel extends AbstractComChannel {
 
 
+    private final String phoneNumber;
     ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(new byte[0]);
     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-
-    private final String phoneNumber;
     private ProximusSmsSender smsSender;
 
     public ProximusSmsComChannel(String phoneNumber, String apiConnectionURL, String apiSource, String apiAuthentication, String apiServiceCode) {
@@ -35,7 +34,7 @@ public class ProximusSmsComChannel extends AbstractComChannel {
         try {
             byteArrayOutputStream.close();
         } catch (IOException e) {
-            throw new CommunicationException(e);
+            throw new ConnectionCommunicationException(e);
         }
     }
 
@@ -74,7 +73,7 @@ public class ProximusSmsComChannel extends AbstractComChannel {
             byteArrayOutputStream.write(bytes);
             return bytes.length;
         } catch (IOException e) {
-            throw new CommunicationException(e);
+            throw new ConnectionCommunicationException(e);
         }
     }
 

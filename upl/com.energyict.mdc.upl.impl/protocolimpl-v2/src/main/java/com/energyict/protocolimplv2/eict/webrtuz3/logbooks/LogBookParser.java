@@ -8,6 +8,7 @@ import com.energyict.mdc.protocol.tasks.support.DeviceLogBookSupport;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.NotInObjectListException;
 import com.energyict.protocol.ProtocolException;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
@@ -53,22 +54,24 @@ public class LogBookParser implements DeviceLogBookSupport {
             }
 
             ObisCode eventLogObisCode = protocol.getPhysicalAddressCorrectedObisCode(EVENT_LOG_OBISCODE, meterSerialNumber);
-            ProfileGeneric profileGeneric;
+            ProfileGeneric profileGeneric = null;
             try {
                 profileGeneric = protocol.getDlmsSession().getCosemObjectFactory().getProfileGeneric(eventLogObisCode);
-            } catch (ProtocolException e) {
-                throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e);
+            } catch (NotInObjectListException e) {
+                collectedLogBook.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addWarning(logBookReader, "logBookXissue", logBookReader.getLogBookObisCode().toString(), e.getMessage()));
             }
 
-            Calendar fromDate = Calendar.getInstance(protocol.getTimeZone());
-            fromDate.setTime(logBookReader.getLastLogBook());
-            try {
-                EventsLog standardEvents = new EventsLog(profileGeneric.getBuffer(fromDate));
-                List<MeterEvent> meterEvents = standardEvents.getMeterEvents();
-                collectedLogBook.setCollectedMeterEvents(MeterEvent.mapMeterEventsToMeterProtocolEvents(meterEvents));
-            } catch (IOException e) {
-                if (IOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSession())) {
-                    collectedLogBook.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addWarning(logBookReader, "logBookXnotsupported", logBookReader.getLogBookObisCode().toString()));
+            if (profileGeneric != null) {
+                Calendar fromDate = Calendar.getInstance(protocol.getTimeZone());
+                fromDate.setTime(logBookReader.getLastLogBook());
+                try {
+                    EventsLog standardEvents = new EventsLog(profileGeneric.getBuffer(fromDate));
+                    List<MeterEvent> meterEvents = standardEvents.getMeterEvents();
+                    collectedLogBook.setCollectedMeterEvents(MeterEvent.mapMeterEventsToMeterProtocolEvents(meterEvents));
+                } catch (IOException e) {
+                    if (IOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSession())) {
+                        collectedLogBook.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addWarning(logBookReader, "logBookXnotsupported", logBookReader.getLogBookObisCode().toString()));
+                    }
                 }
             }
 

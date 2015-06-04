@@ -738,7 +738,7 @@ public class ParameterFactory {
 
     protected ComServerExecutionException createWaveFlowException(String description) {
         WaveFlowException e = new WaveFlowException(description);
-        return MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e);
+        return MdcManager.getComServerExceptionFactory().createUnexpectedResponse(e);
     }
 
     public void enablePushFrames() {

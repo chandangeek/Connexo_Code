@@ -6,7 +6,9 @@
 
 package com.energyict.dlms;
 
+import com.energyict.protocol.NotInObjectListException;
 import com.energyict.protocol.ProtocolException;
+import com.energyict.protocolimplv2.MdcManager;
 
 
 /**
@@ -89,7 +91,7 @@ public final class DLMSConfig {
 	 * For the NTA meters, there has been some changes regarding the A-field.
 	 * Because the Mbus values are stored in the same Profile as the E-meter values, the A field should be '0'(meaning generic).
 	 * But the other party decided to leave this to '1'...
-	 * 
+	 *
 	 * @return the DLMSConfig for the DailyLoadProfile.
 	 */
 	private static final DLMSConfig[] dailyProfile = {
@@ -306,11 +308,9 @@ public final class DLMSConfig {
 	 *  @param UniversalObject[] objectList
 	 *  @return DLMSConfig
 	 */
-	protected DLMSConfig getConfig(UniversalObject[] objectList,String manuf) throws ProtocolException {
-		if (objectList == null) {
-			throw new ProtocolException("DLMSConfig, getConfig, objectlist empty!");
-		}
-		for (int t=0;t<configchange.length;t++) {
+	protected DLMSConfig getConfig(UniversalObject[] objectList,String manuf) throws NotInObjectListException {
+        checkEmptyObjectList(objectList, "DLMSConfig, getConfig, objectlist empty!");
+        for (int t=0;t<configchange.length;t++) {
 			// if manuf != null, use it in the search for DLMSConfig object!
 			if ((manuf != null) && (configchange[t].getManuf().compareTo(manuf) != 0)) {
 				continue;
@@ -321,19 +321,24 @@ public final class DLMSConfig {
 				}
 			}
 		}
-		throw new ProtocolException("DLMSConfig, getConfig, not found in objectlist (IOL)!");
-	}
+        throw new NotInObjectListException("DLMSConfig, getConfig, not found in objectlist (IOL)!");
+    }
 
-	/*
-	 *  Find in objectList a matching DLMSConfig object with a version DLMSConfig objects
-	 *  @param UniversalObject[] objectList
-	 *  @return DLMSConfig
-	 */
-	protected DLMSConfig getVersion(UniversalObject[] objectList,String manuf) throws ProtocolException {
-		if (objectList == null) {
-			throw new ProtocolException("DLMSConfig, getVersion, objectlist empty!");
-		}
-		for (int t=0;t<version.length;t++) {
+    private void checkEmptyObjectList(UniversalObject[] objectList, String msg) {
+        if (objectList == null) {
+            ProtocolException protocolException = new ProtocolException(msg);
+            throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(protocolException);
+        }
+    }
+
+    /*
+     *  Find in objectList a matching DLMSConfig object with a version DLMSConfig objects
+     *  @param UniversalObject[] objectList
+     *  @return DLMSConfig
+     */
+	protected DLMSConfig getVersion(UniversalObject[] objectList,String manuf) throws NotInObjectListException {
+        checkEmptyObjectList(objectList, "DLMSConfig, getVersion, objectlist empty!");
+        for (int t=0;t<version.length;t++) {
 			// if manuf != null, use it in the search for DLMSConfig object!
 			if ((manuf != null) && (version[t].getManuf().compareTo(manuf) != 0)) {
 				continue;
@@ -344,19 +349,17 @@ public final class DLMSConfig {
 				}
 			}
 		}
-		throw new ProtocolException("DLMSConfig, getVersion, not found in objectlist (IOL)!");
-	}
+        throw new NotInObjectListException("DLMSConfig, getVersion, not found in objectlist (IOL)!");
+    }
 
-	/*
-	 *  Find in objectList a matching DLMSConfig object with a serialNumber DLMSConfig objects
-	 *  @param UniversalObject[] objectList
-	 *  @return DLMSConfig
-	 */
-	protected DLMSConfig getSerialNumber(UniversalObject[] objectList,String manuf) throws ProtocolException {
-		if (objectList == null) {
-			throw new ProtocolException("DLMSConfig, getSerialNumber, objectlist empty!");
-		}
-		for (int t=0;t<serialNumber.length;t++) {
+    /*
+     *  Find in objectList a matching DLMSConfig object with a serialNumber DLMSConfig objects
+     *  @param UniversalObject[] objectList
+     *  @return DLMSConfig
+     */
+	protected DLMSConfig getSerialNumber(UniversalObject[] objectList,String manuf) throws NotInObjectListException {
+        checkEmptyObjectList(objectList, "DLMSConfig, getSerialNumber, objectlist empty!");
+        for (int t=0;t<serialNumber.length;t++) {
 			// if manuf != null, use it in the search for DLMSConfig object!
 			if ((manuf != null) && (serialNumber[t].getManuf().compareTo(manuf) != 0)) {
 				continue;
@@ -367,8 +370,8 @@ public final class DLMSConfig {
 				}
 			}
 		}
-		throw new ProtocolException("DLMSConfig, getSerialNumber, not found in objectlist (IOL)!");
-	}
+        throw new NotInObjectListException("DLMSConfig, getSerialNumber, not found in objectlist (IOL)!");
+    }
 
 	protected DLMSConfig getClock() {
 		return CLOCK;
@@ -378,11 +381,9 @@ public final class DLMSConfig {
 		return PROFILE;
 	}
 
-	protected DLMSConfig getEventLog(UniversalObject[] objectList,String manuf) throws ProtocolException {
-		if (objectList == null) {
-			throw new ProtocolException("DLMSConfig, getEventLog, objectlist empty!");
-		}
-		for (int t=0;t<eventLog.length;t++) {
+	protected DLMSConfig getEventLog(UniversalObject[] objectList,String manuf) throws NotInObjectListException {
+        checkEmptyObjectList(objectList, "DLMSConfig, getEventLog, objectlist empty!");
+        for (int t=0;t<eventLog.length;t++) {
 			// if manuf != null, use it in the search for DLMSConfig object!
 			if ((manuf != null) && (eventLog[t].getManuf().compareTo(manuf) != 0)) {
 				continue;
@@ -393,8 +394,8 @@ public final class DLMSConfig {
 				}
 			}
 		}
-		throw new ProtocolException("DLMSConfig, getEventLog, not found in objectlist (IOL)!");
-		//        return eventLog;
+        throw new NotInObjectListException("DLMSConfig, getEventLog, not found in objectlist (IOL)!");
+        //        return eventLog;
 	}
 
 	protected DLMSConfig getHistoricValues() {
@@ -414,11 +415,9 @@ public final class DLMSConfig {
 	 *  @param UniversalObject[] objectList
 	 *  @return int short name reference
 	 */
-	protected int getConfigSN(UniversalObject[] objectList,String manuf) throws ProtocolException {
-		if (objectList == null) {
-			throw new ProtocolException("DLMSConfig, getConfigSN, objectlist empty!");
-		}
-		for (int t=0;t<configchange.length;t++) {
+	protected int getConfigSN(UniversalObject[] objectList,String manuf) throws NotInObjectListException {
+        checkEmptyObjectList(objectList, "DLMSConfig, getConfigSN, objectlist empty!");
+        for (int t=0;t<configchange.length;t++) {
 			// if manuf != null, use it in the search for DLMSConfig object!
 			if ((manuf != null) && (configchange[t].getManuf().compareTo(manuf) != 0)) {
 				continue;
@@ -437,11 +436,9 @@ public final class DLMSConfig {
 	 *  @param UniversalObject[] objectList
 	 *  @return int short name reference
 	 */
-	protected int getVersionSN(UniversalObject[] objectList,String manuf) throws ProtocolException {
-		if (objectList == null) {
-			throw new ProtocolException("DLMSConfig, getVersionSN, objectlist empty!");
-		}
-		for (int t=0;t<version.length;t++) {
+	protected int getVersionSN(UniversalObject[] objectList,String manuf) throws NotInObjectListException {
+        checkEmptyObjectList(objectList, "DLMSConfig, getVersionSN, objectlist empty!");
+        for (int t=0;t<version.length;t++) {
 			// if manuf != null, use it in the search for DLMSConfig object!
 			if ((manuf != null) && (version[t].getManuf().compareTo(manuf) != 0)) {
 				continue;
@@ -460,11 +457,9 @@ public final class DLMSConfig {
 	 *  @param UniversalObject[] objectList
 	 *  @return int short name reference
 	 */
-	protected int getSerialNumberSN(UniversalObject[] objectList,String manuf) throws ProtocolException {
-		if (objectList == null) {
-			throw new ProtocolException("DLMSConfig, getSerialNumberSN, objectlist empty!");
-		}
-		for (int t=0;t<serialNumber.length;t++) {
+	protected int getSerialNumberSN(UniversalObject[] objectList,String manuf) throws NotInObjectListException {
+        checkEmptyObjectList(objectList, "DLMSConfig, getSerialNumberSN, objectlist empty!");
+        for (int t=0;t<serialNumber.length;t++) {
 			// if manuf != null, use it in the search for DLMSConfig object!
 			if ((manuf != null) && (serialNumber[t].getManuf().compareTo(manuf) != 0)) {
 				continue;
@@ -483,11 +478,9 @@ public final class DLMSConfig {
 	 *  @param UniversalObject[] objectList
 	 *  @return int short name reference
 	 */
-	protected int getClockSN(UniversalObject[] objectList) throws ProtocolException {
-		if (objectList == null) {
-			throw new ProtocolException("DLMSConfig, getClockSN, objectlist empty!");
-		}
-		for (int i=0;i<objectList.length;i++) {
+	protected int getClockSN(UniversalObject[] objectList) throws NotInObjectListException {
+        checkEmptyObjectList(objectList, "DLMSConfig, getClockSN, objectlist empty!");
+        for (int i=0;i<objectList.length;i++) {
 			if (objectList[i].equals(CLOCK)) {
 				return objectList[i].getBaseName();
 			}
@@ -500,11 +493,9 @@ public final class DLMSConfig {
 	 *  @param UniversalObject[] objectList
 	 *  @return int short name reference
 	 */
-	protected int getProfileSN(UniversalObject[] objectList) throws ProtocolException {
-		if (objectList == null) {
-			throw new ProtocolException("DLMSConfig, getProfileSN, objectlist empty!");
-		}
-		for (int i=0;i<objectList.length;i++) {
+	protected int getProfileSN(UniversalObject[] objectList) throws NotInObjectListException {
+        checkEmptyObjectList(objectList, "DLMSConfig, getProfileSN, objectlist empty!");
+        for (int i=0;i<objectList.length;i++) {
 			if (objectList[i].equals(PROFILE)) {
 				return objectList[i].getBaseName();
 			}
@@ -517,11 +508,9 @@ public final class DLMSConfig {
 	 *  @param UniversalObject[] objectList
 	 *  @return int short name reference
 	 */
-	protected int getEventLogSN(UniversalObject[] objectList) throws ProtocolException {
-		if (objectList == null) {
-			throw new ProtocolException("DLMSConfig, getEventLogSN, objectlist empty!");
-		}
-		for (int i=0;i<objectList.length;i++) {
+	protected int getEventLogSN(UniversalObject[] objectList) throws NotInObjectListException {
+        checkEmptyObjectList(objectList, "DLMSConfig, getEventLogSN, objectlist empty!");
+        for (int i=0;i<objectList.length;i++) {
 			if (objectList[i].equals(eventLog)) {
 				return objectList[i].getBaseName();
 			}
@@ -534,11 +523,9 @@ public final class DLMSConfig {
 	 *  @param UniversalObject[] objectList
 	 *  @return int short name reference
 	 */
-	protected int getHistoricValuesSN(UniversalObject[] objectList) throws ProtocolException {
-		if (objectList == null) {
-			throw new ProtocolException("DLMSConfig, getHistoricValuesSN, objectlist empty!");
-		}
-		for (int i=0;i<objectList.length;i++) {
+	protected int getHistoricValuesSN(UniversalObject[] objectList) throws NotInObjectListException {
+        checkEmptyObjectList(objectList, "DLMSConfig, getHistoricValuesSN, objectlist empty!");
+        for (int i=0;i<objectList.length;i++) {
 			if (objectList[i].equals(HISTORICVALUES)) {
 				return objectList[i].getBaseName();
 			}
@@ -551,11 +538,9 @@ public final class DLMSConfig {
 	 *  @param UniversalObject[] objectList
 	 *  @return int short name reference
 	 */
-	protected int getResetCounterSN(UniversalObject[] objectList) throws ProtocolException {
-		if (objectList == null) {
-			throw new ProtocolException("DLMSConfig, getResetCounterSN, objectlist empty!");
-		}
-		for (int i=0;i<objectList.length;i++) {
+	protected int getResetCounterSN(UniversalObject[] objectList) throws NotInObjectListException {
+        checkEmptyObjectList(objectList, "DLMSConfig, getResetCounterSN, objectlist empty!");
+        for (int i=0;i<objectList.length;i++) {
 			if (objectList[i].equals(RESETCOUNTER)) {
 				return objectList[i].getBaseName();
 			}
@@ -568,11 +553,9 @@ public final class DLMSConfig {
 	 *  @param UniversalObject[] objectList
 	 *  @return UniversalObject the matching objectList
 	 */
-	protected UniversalObject getConfigObject(UniversalObject[] objectList,String manuf) throws ProtocolException {
-		if (objectList == null) {
-			throw new ProtocolException("DLMSConfig, getConfigObject, objectlist empty!");
-		}
-		for (int t=0;t<configchange.length;t++) {
+	protected UniversalObject getConfigObject(UniversalObject[] objectList,String manuf) throws NotInObjectListException {
+        checkEmptyObjectList(objectList, "DLMSConfig, getConfigObject, objectlist empty!");
+        for (int t=0;t<configchange.length;t++) {
 			// if manuf != null, use it in the search for DLMSConfig object!
 			if ((manuf != null) && (configchange[t].getManuf().compareTo(manuf) != 0)) {
 				continue;
@@ -585,19 +568,17 @@ public final class DLMSConfig {
 				}
 			}
 		}
-		throw new ProtocolException("DLMSConfig, getConfigObject, not found in objectlist (IOL)!");
-	}
+        throw new NotInObjectListException("DLMSConfig, getConfigObject, not found in objectlist (IOL)!");
+    }
 
 	/*
 	 *  Find in objectList a matching DLMSConfig object with a version DLMSConfig objects
 	 *  @param UniversalObject[] objectList
 	 *  @return UniversalObject the matching objectList
 	 */
-	protected UniversalObject getVersionObject(UniversalObject[] objectList,String manuf) throws ProtocolException {
-		if (objectList == null) {
-			throw new ProtocolException("DLMSConfig, getVersionObject, objectlist empty!");
-		}
-		for (int t=0;t<version.length;t++) {
+	protected UniversalObject getVersionObject(UniversalObject[] objectList,String manuf) throws NotInObjectListException {
+        checkEmptyObjectList(objectList, "DLMSConfig, getVersionObject, objectlist empty!");
+        for (int t=0;t<version.length;t++) {
 			// if manuf != null, use it in the search for DLMSConfig object!
 			if ((manuf != null) && (version[t].getManuf().compareTo(manuf) != 0)) {
 				continue;
@@ -608,20 +589,18 @@ public final class DLMSConfig {
 				}
 			}
 		}
-		throw new ProtocolException("DLMSConfig, getVersionObject, not found in objectlist (IOL)!");
+        throw new NotInObjectListException("DLMSConfig, getVersionObject, not found in objectlist (IOL)!");
 
-	}
+    }
 
 	/*
 	 *  Find in objectList a matching DLMSConfig object with a status DLMSConfig objects
 	 *  @param UniversalObject[] objectList
 	 *  @return UniversalObject the matching objectList
 	 */
-	protected UniversalObject getStatusObject(UniversalObject[] objectList, String manuf) throws ProtocolException {
-		if (objectList == null) {
-			throw new ProtocolException("DLMSConfig, getStatusObject, objectlist empty!");
-		}
-		for(int t = 0; t < status.length; t++){
+	protected UniversalObject getStatusObject(UniversalObject[] objectList, String manuf) throws NotInObjectListException {
+        checkEmptyObjectList(objectList, "DLMSConfig, getStatusObject, objectlist empty!");
+        for(int t = 0; t < status.length; t++){
 			if((manuf != null) && (status[t].getManuf().compareTo(manuf) != 0)) {
 				continue;
 			}
@@ -631,19 +610,17 @@ public final class DLMSConfig {
 				}
 			}
 		}
-		throw new ProtocolException("DLMSConfig, getStatusObject, not found in objectlist (IOL)");
-	}
+        throw new NotInObjectListException("DLMSConfig, getStatusObject, not found in objectlist (IOL)");
+    }
 
 	/*
 	 *  Find in objectList a matching DLMSConfig object with a serialNumber DLMSConfig object
 	 *  @param UniversalObject[] objectList
 	 *  @return UniversalObject the matching objectList
 	 */
-	protected UniversalObject getSerialNumberObject(UniversalObject[] objectList,String manuf) throws ProtocolException {
-		if (objectList == null) {
-			throw new ProtocolException("DLMSConfig, getSerialNumberObject, objectlist empty!");
-		}
-		for (int t=0;t<serialNumber.length;t++) {
+	protected UniversalObject getSerialNumberObject(UniversalObject[] objectList,String manuf) throws NotInObjectListException {
+        checkEmptyObjectList(objectList, "DLMSConfig, getSerialNumberObject, objectlist empty!");
+        for (int t=0;t<serialNumber.length;t++) {
 			// if manuf != null, use it in the search for DLMSConfig object!
 			if ((manuf != null) && (serialNumber[t].getManuf().compareTo(manuf) != 0)) {
 				continue;
@@ -654,50 +631,44 @@ public final class DLMSConfig {
 				}
 			}
 		}
-		throw new ProtocolException("DLMSConfig, getSerialNumberObject, not found in objectlist (IOL)!");
+        throw new NotInObjectListException("DLMSConfig, getSerialNumberObject, not found in objectlist (IOL)!");
 
-	}
+    }
 
 	/*
 	 *  Find in objectList a matching DLMSConfig object with the clock DLMSConfig objects
 	 *  @param UniversalObject[] objectList
 	 *  @return UniversalObject the matching objectList
 	 */
-	protected UniversalObject getClockObject(UniversalObject[] objectList) throws ProtocolException {
-		if (objectList == null) {
-			throw new ProtocolException("DLMSConfig, getClockObject, objectlist empty!");
-		}
-		for (int i=0;i<objectList.length;i++) {
+	protected UniversalObject getClockObject(UniversalObject[] objectList) throws NotInObjectListException {
+        checkEmptyObjectList(objectList, "DLMSConfig, getClockObject, objectlist empty!");
+        for (int i=0;i<objectList.length;i++) {
 			if (objectList[i].equals(CLOCK)) {
 				return objectList[i];
 			}
 		}
-		throw new ProtocolException("DLMSConfig, getClockObject, not found in objectlist (IOL)!");
-	}
+        throw new NotInObjectListException("DLMSConfig, getClockObject, not found in objectlist (IOL)!");
+    }
 
 	/*
 	 *  Find in objectList a matching DLMSConfig object with the profile DLMSConfig objects
 	 *  @param UniversalObject[] objectList
 	 *  @return UniversalObject the matching objectList
 	 */
-	protected UniversalObject getProfileObject(UniversalObject[] objectList) throws ProtocolException {
-		if (objectList == null) {
-			throw new ProtocolException("DLMSConfig, getProfileObject, objectlist empty!");
-		}
-		for (int i=0;i<objectList.length;i++) {
+	protected UniversalObject getProfileObject(UniversalObject[] objectList) throws NotInObjectListException {
+        checkEmptyObjectList(objectList, "DLMSConfig, getProfileObject, objectlist empty!");
+        for (int i=0;i<objectList.length;i++) {
 			if (objectList[i].equals(PROFILE)) {
 				return objectList[i];
 			}
 		}
-		throw new ProtocolException("DLMSConfig, getProfileObject, not found in objectlist (IOL)!");
-	}
+        throw new NotInObjectListException("DLMSConfig, getProfileObject, not found in objectlist (IOL)!");
+    }
 
 
-	protected UniversalObject getDailyProfileObject(UniversalObject[] objectList, String manuf) throws ProtocolException {
-		if (objectList == null) {
-			throw new ProtocolException("DLMSConfig, getDailyProfileObject, objectlist empty!");
-		}
-		for(int t = 0; t < dailyProfile.length; t++){
+	protected UniversalObject getDailyProfileObject(UniversalObject[] objectList, String manuf) throws NotInObjectListException {
+        checkEmptyObjectList(objectList, "DLMSConfig, getDailyProfileObject, objectlist empty!");
+        for(int t = 0; t < dailyProfile.length; t++){
 			if((manuf != null) && (dailyProfile[t].getManuf().compareTo(manuf) != 0)) {
 				continue;
 			}
@@ -707,14 +678,12 @@ public final class DLMSConfig {
 				}
 			}
 		}
-		throw new ProtocolException("DLMSConfig, getDailyProfileObject, not found in objectlist (IOL)");
-	}
+        throw new NotInObjectListException("DLMSConfig, getDailyProfileObject, not found in objectlist (IOL)");
+    }
 
-	protected UniversalObject getMonthlyProfileObject(UniversalObject[] objectList, String manuf) throws ProtocolException {
-		if (objectList == null) {
-			throw new ProtocolException("DLMSConfig, getMonthlyProfileObject, objectlist empty!");
-		}
-		for(int t = 0; t < monthlyProfile.length; t++){
+	protected UniversalObject getMonthlyProfileObject(UniversalObject[] objectList, String manuf) throws NotInObjectListException {
+        checkEmptyObjectList(objectList, "DLMSConfig, getMonthlyProfileObject, objectlist empty!");
+        for(int t = 0; t < monthlyProfile.length; t++){
 			if((manuf != null) && (monthlyProfile[t].getManuf().compareTo(manuf) != 0)) {
 				continue;
 			}
@@ -724,19 +693,17 @@ public final class DLMSConfig {
 				}
 			}
 		}
-		throw new ProtocolException("DLMSConfig, getMonthlyObject, not found in objectlist (IOL)");
-	}
+        throw new NotInObjectListException("DLMSConfig, getMonthlyObject, not found in objectlist (IOL)");
+    }
 
 	/*
 	 *  Find in objectList a matching DLMSConfig object with the eventLog DLMSConfig objects
 	 *  @param UniversalObject[] objectList
 	 *  @return UniversalObject the matching objectList
 	 */
-	protected UniversalObject getEventLogObject(UniversalObject[] objectList, String manuf) throws ProtocolException {
-		if (objectList == null) {
-			throw new ProtocolException("DLMSConfig, getEventLogObject, objectlist empty!");
-		}
-		for(int t = 0; t < eventLog.length; t++){
+	protected UniversalObject getEventLogObject(UniversalObject[] objectList, String manuf) throws NotInObjectListException {
+        checkEmptyObjectList(objectList, "DLMSConfig, getEventLogObject, objectlist empty!");
+        for(int t = 0; t < eventLog.length; t++){
 			if((manuf != null) && (eventLog[t].getManuf().compareTo(manuf) != 0)) {
 				continue;
 			}
@@ -746,14 +713,12 @@ public final class DLMSConfig {
 				}
 			}
 		}
-		throw new ProtocolException("DLMSConfig, getEventLogObject, not found in objectlist (IOL)");
-	}
+        throw new NotInObjectListException("DLMSConfig, getEventLogObject, not found in objectlist (IOL)");
+    }
 
-	protected UniversalObject getControlLog(UniversalObject[] objectList, String manuf) throws ProtocolException{
-		if (objectList == null) {
-			throw new ProtocolException("DLMSConfig, getControlLogObject, objectlist empty!");
-		}
-		for(int t = 0; t < controlLog.length; t++){
+	protected UniversalObject getControlLog(UniversalObject[] objectList, String manuf) throws NotInObjectListException{
+        checkEmptyObjectList(objectList, "DLMSConfig, getControlLogObject, objectlist empty!");
+        for(int t = 0; t < controlLog.length; t++){
 			if((manuf != null) && (controlLog[t].getManuf().compareTo(manuf) != 0)) {
 				continue;
 			}
@@ -763,14 +728,12 @@ public final class DLMSConfig {
 				}
 			}
 		}
-		throw new ProtocolException("DLMSConfig, getControlLogObject, not found in objectlist (IOL)");
-	}
+        throw new NotInObjectListException("DLMSConfig, getControlLogObject, not found in objectlist (IOL)");
+    }
 
-	protected UniversalObject getPowerFailureLog(UniversalObject[] objectList, String manuf) throws ProtocolException{
-		if (objectList == null) {
-			throw new ProtocolException("DLMSConfig, getPowerFailureObject, objectlist empty!");
-		}
-		for(int t = 0; t < powerFailureLog.length; t++){
+	protected UniversalObject getPowerFailureLog(UniversalObject[] objectList, String manuf) throws NotInObjectListException{
+        checkEmptyObjectList(objectList, "DLMSConfig, getPowerFailureObject, objectlist empty!");
+        for(int t = 0; t < powerFailureLog.length; t++){
 			if((manuf != null) && (powerFailureLog[t].getManuf().compareTo(manuf) != 0)) {
 				continue;
 			}
@@ -780,14 +743,12 @@ public final class DLMSConfig {
 				}
 			}
 		}
-		throw new ProtocolException("DLMSConfig, getPowerFailureObject, not found in objectlist (IOL");
-	}
+        throw new NotInObjectListException("DLMSConfig, getPowerFailureObject, not found in objectlist (IOL");
+    }
 
-	protected UniversalObject getFraudDetectionLog(UniversalObject[] objectList, String manuf) throws ProtocolException{
-		if (objectList == null) {
-			throw new ProtocolException("DLMSConfig, getFraudDetectionLogObject, objectlist empty!");
-		}
-		for(int t = 0; t < fraudDetectionLog.length; t++){
+	protected UniversalObject getFraudDetectionLog(UniversalObject[] objectList, String manuf) throws NotInObjectListException{
+        checkEmptyObjectList(objectList, "DLMSConfig, getFraudDetectionLogObject, objectlist empty!");
+        for(int t = 0; t < fraudDetectionLog.length; t++){
 			if((manuf != null) && (fraudDetectionLog[t].getManuf().compareTo(manuf) != 0)) {
 				continue;
 			}
@@ -797,14 +758,12 @@ public final class DLMSConfig {
 				}
 			}
 		}
-		throw new ProtocolException("DLMSConfig, getFraudDetectionLogObject, not found in objectlist (IOL)");
-	}
+        throw new NotInObjectListException("DLMSConfig, getFraudDetectionLogObject, not found in objectlist (IOL)");
+    }
 
-	protected UniversalObject getMbusEventLog(UniversalObject[] objectList, String manuf) throws ProtocolException{
-		if (objectList == null) {
-			throw new ProtocolException("DLMSConfig, getMbusEventLog, objectlist empty!");
-		}
-		for(int t = 0; t < mbusEventLog.length; t++){
+	protected UniversalObject getMbusEventLog(UniversalObject[] objectList, String manuf) throws NotInObjectListException{
+        checkEmptyObjectList(objectList, "DLMSConfig, getMbusEventLog, objectlist empty!");
+        for(int t = 0; t < mbusEventLog.length; t++){
 			if((manuf != null) && (mbusEventLog[t].getManuf().compareTo(manuf) != 0)) {
 				continue;
 			}
@@ -814,15 +773,13 @@ public final class DLMSConfig {
 				}
 			}
 		}
-		throw new ProtocolException("DLMSConfig, getMbusEventLog, not found in objectlist (IOL)");
-	}
+        throw new NotInObjectListException("DLMSConfig, getMbusEventLog, not found in objectlist (IOL)");
+    }
 
-	protected UniversalObject getMbusControlLog(UniversalObject[] objectList, String manuf, int channel) throws ProtocolException{
+	protected UniversalObject getMbusControlLog(UniversalObject[] objectList, String manuf, int channel) throws NotInObjectListException{
 		int count = 0;
-		if (objectList == null) {
-			throw new ProtocolException("DLMSConfig, getMbusControlLog, objectlist empty!");
-		}
-		for(int t = 0; t < mbusControlLog.length; t++){
+        checkEmptyObjectList(objectList, "DLMSConfig, getMbusControlLog, objectlist empty!");
+        for(int t = 0; t < mbusControlLog.length; t++){
 			if((manuf != null) && (mbusControlLog[t].getManuf().compareTo(manuf) != 0)) {
 				continue;
 			}
@@ -834,15 +791,13 @@ public final class DLMSConfig {
 				}
 			}
 		}
-		throw new ProtocolException("DLMSConfig, getMbusControlLog, not found in objectlist (IOL)");
-	}
+        throw new NotInObjectListException("DLMSConfig, getMbusControlLog, not found in objectlist (IOL)");
+    }
 
-	protected UniversalObject getMbusDisconnector(UniversalObject[] objectList, String manuf, int channel) throws ProtocolException{
+	protected UniversalObject getMbusDisconnector(UniversalObject[] objectList, String manuf, int channel) throws NotInObjectListException{
 		int count = 0;
-		if (objectList == null) {
-			throw new ProtocolException("DLMSConfig, getMbusDisconnectControl, objectlist empty!");
-		}
-		for(int t = 0; t < mbusDisconnector.length; t++){
+        checkEmptyObjectList(objectList, "DLMSConfig, getMbusDisconnectControl, objectlist empty!");
+        for(int t = 0; t < mbusDisconnector.length; t++){
 			if((manuf != null) && (mbusDisconnector[t].getManuf().compareTo(manuf) != 0)) {
 				continue;
 			}
@@ -854,15 +809,13 @@ public final class DLMSConfig {
 				}
 			}
 		}
-		throw new ProtocolException("DLMSConfig, getMbusDisconnectControl, not found in objectlist (IOL)");
-	}
+        throw new NotInObjectListException("DLMSConfig, getMbusDisconnectControl, not found in objectlist (IOL)");
+    }
 
-	protected UniversalObject getMbusDisconnectControlState(UniversalObject[] objectList, String manuf, int channel) throws ProtocolException{
+	protected UniversalObject getMbusDisconnectControlState(UniversalObject[] objectList, String manuf, int channel) throws NotInObjectListException{
 		int count = 0;
-		if (objectList == null) {
-			throw new ProtocolException("DLMSConfig, getMbusDisconnectControlState, objectlist empty!");
-		}
-		for(int t = 0; t < mbusDisconnectControlState.length; t++){
+        checkEmptyObjectList(objectList, "DLMSConfig, getMbusDisconnectControlState, objectlist empty!");
+        for(int t = 0; t < mbusDisconnectControlState.length; t++){
 			if((manuf != null) && (mbusDisconnectControlState[t].getManuf().compareTo(manuf) != 0)) {
 				continue;
 			}
@@ -874,15 +827,13 @@ public final class DLMSConfig {
 				}
 			}
 		}
-		throw new ProtocolException("DLMSConfig, getMbusDisconnectControlState, not found in objectlist (IOL)");
-	}
+        throw new NotInObjectListException("DLMSConfig, getMbusDisconnectControlState, not found in objectlist (IOL)");
+    }
 
-	protected UniversalObject getMbusSerialNumber(UniversalObject[] objectList, String manuf, int channel) throws ProtocolException{
+	protected UniversalObject getMbusSerialNumber(UniversalObject[] objectList, String manuf, int channel) throws NotInObjectListException{
 		int count = 0;
-		if (objectList == null) {
-			throw new ProtocolException("DLMSConfig, getMbusSerialNumber, objectlist empty!");
-		}
-		for(int t = 0; t < mbusSerialNumber.length; t++){
+        checkEmptyObjectList(objectList, "DLMSConfig, getMbusSerialNumber, objectlist empty!");
+        for(int t = 0; t < mbusSerialNumber.length; t++){
 			if((manuf != null) && (mbusSerialNumber[t].getManuf().compareTo(manuf) != 0)) {
 				continue;
 			}
@@ -894,15 +845,13 @@ public final class DLMSConfig {
 				}
 			}
 		}
-		throw new ProtocolException("DLMSConfig, getMbusSerialNumber, not found in objectlist (IOL)");
-	}
+        throw new NotInObjectListException("DLMSConfig, getMbusSerialNumber, not found in objectlist (IOL)");
+    }
 
-	protected UniversalObject getMbusStatusObject(UniversalObject[] objectList, String manuf, int channel) throws ProtocolException{
+	protected UniversalObject getMbusStatusObject(UniversalObject[] objectList, String manuf, int channel) throws NotInObjectListException{
 		int count = 0;
-		if (objectList == null) {
-			throw new ProtocolException("DLMSConfig, getMbusStatusObject, objectlist empty!");
-		}
-		for(int t = 0; t < mbusStatus.length; t++){
+        checkEmptyObjectList(objectList, "DLMSConfig, getMbusStatusObject, objectlist empty!");
+        for(int t = 0; t < mbusStatus.length; t++){
 			if((manuf != null) && (mbusStatus[t].getManuf().compareTo(manuf) != 0)) {
 				continue;
 			}
@@ -914,15 +863,13 @@ public final class DLMSConfig {
 				}
 			}
 		}
-		throw new ProtocolException("DLMSConfig, getMbusStatusObject, not found in objectlist (IOL)");
-	}
+        throw new NotInObjectListException("DLMSConfig, getMbusStatusObject, not found in objectlist (IOL)");
+    }
 
-	public UniversalObject getMbusProfile(UniversalObject[] objectList, String manuf, int channel) throws ProtocolException {
+	public UniversalObject getMbusProfile(UniversalObject[] objectList, String manuf, int channel) throws NotInObjectListException {
 		int count = 0;
-		if (objectList == null) {
-			throw new ProtocolException("DLMSConfig, getMbusProfile, objectlist empty!");
-		}
-		for(int t = 0; t < mbusProfile.length; t++){
+        checkEmptyObjectList(objectList, "DLMSConfig, getMbusProfile, objectlist empty!");
+        for(int t = 0; t < mbusProfile.length; t++){
 			if((manuf != null) && (mbusProfile[t].getManuf().compareTo(manuf) != 0)) {
 				continue;
 			}
@@ -934,15 +881,13 @@ public final class DLMSConfig {
 				}
 			}
 		}
-		throw new ProtocolException("DLMSConfig, getMbusProfile, not found in objectlist (IOL)");
-	}
+        throw new NotInObjectListException("DLMSConfig, getMbusProfile, not found in objectlist (IOL)");
+    }
 
-	public UniversalObject getMbusDisconnectControlSchedule(UniversalObject[] objectList, String manuf, int channel) throws ProtocolException {
+	public UniversalObject getMbusDisconnectControlSchedule(UniversalObject[] objectList, String manuf, int channel) throws NotInObjectListException {
 		int count = 0;
-		if (objectList == null) {
-			throw new ProtocolException("DLMSConfig, getMbusDisconnectControlSchedule, objectlist empty!");
-		}
-		for(int t = 0; t < mbusDisconnectControlSchedule.length; t++){
+        checkEmptyObjectList(objectList, "DLMSConfig, getMbusDisconnectControlSchedule, objectlist empty!");
+        for(int t = 0; t < mbusDisconnectControlSchedule.length; t++){
 			if((manuf != null) && (mbusDisconnectControlSchedule[t].getManuf().compareTo(manuf) != 0)) {
 				continue;
 			}
@@ -954,15 +899,13 @@ public final class DLMSConfig {
 				}
 			}
 		}
-		throw new ProtocolException("DLMSConfig, getMbusDisconnectControlSchedule, not found in objectlist (IOL)");
-	}
+        throw new NotInObjectListException("DLMSConfig, getMbusDisconnectControlSchedule, not found in objectlist (IOL)");
+    }
 
-	public UniversalObject getMbusClient(UniversalObject[] objectList, String manuf, int channel) throws ProtocolException {
+	public UniversalObject getMbusClient(UniversalObject[] objectList, String manuf, int channel) throws NotInObjectListException {
 		int count = 0;
-		if (objectList == null) {
-			throw new ProtocolException("DLMSConfig, getMbusClient, objectlist empty!");
-		}
-		for(int t = 0; t < mbusClient.length; t++){
+        checkEmptyObjectList(objectList, "DLMSConfig, getMbusClient, objectlist empty!");
+        for(int t = 0; t < mbusClient.length; t++){
 			if((manuf != null) && (mbusClient[t].getManuf().compareTo(manuf) != 0)) {
 				continue;
 			}
@@ -974,15 +917,13 @@ public final class DLMSConfig {
 				}
 			}
 		}
-		throw new ProtocolException("DLMSConfig, getMbusClient, not found in objectlist (IOL)");
-	}
+        throw new NotInObjectListException("DLMSConfig, getMbusClient, not found in objectlist (IOL)");
+    }
 
-	public UniversalObject getMbusDisconnectorScriptTable(UniversalObject[] objectList, String manuf, int channel) throws ProtocolException {
+	public UniversalObject getMbusDisconnectorScriptTable(UniversalObject[] objectList, String manuf, int channel) throws NotInObjectListException {
 		int count = 0;
-		if (objectList == null) {
-			throw new ProtocolException("DLMSConfig, getMbusDisconnectorScriptTable, objectlist empty!");
-		}
-		for(int t = 0; t < mbusDisconnectorScriptTable.length; t++){
+        checkEmptyObjectList(objectList, "DLMSConfig, getMbusDisconnectorScriptTable, objectlist empty!");
+        for(int t = 0; t < mbusDisconnectorScriptTable.length; t++){
 			if((manuf != null) && (mbusDisconnectorScriptTable[t].getManuf().compareTo(manuf) != 0)) {
 				continue;
 			}
@@ -994,14 +935,12 @@ public final class DLMSConfig {
 				}
 			}
 		}
-		throw new ProtocolException("DLMSConfig, getMbusDisconnectorScriptTable, not found in objectlist (IOL)");
-	}
+        throw new NotInObjectListException("DLMSConfig, getMbusDisconnectorScriptTable, not found in objectlist (IOL)");
+    }
 
-	public UniversalObject getXMLConfig(UniversalObject[] objectList, String manuf) throws ProtocolException {
-		if (objectList == null) {
-			throw new ProtocolException("DLMSConfig, getXMLConfig, objectlist empty!");
-		}
-		for(int t = 0; t < xmlConfig.length; t++){
+	public UniversalObject getXMLConfig(UniversalObject[] objectList, String manuf) throws NotInObjectListException {
+        checkEmptyObjectList(objectList, "DLMSConfig, getXMLConfig, objectlist empty!");
+        for(int t = 0; t < xmlConfig.length; t++){
 			if((manuf != null) && (xmlConfig[t].getManuf().compareTo(manuf) != 0)) {
 				continue;
 			}
@@ -1011,42 +950,38 @@ public final class DLMSConfig {
 				}
 			}
 		}
-		throw new ProtocolException("DLMSConfig, getXMLConfig, not found in objectlist (IOL)");
-	}
+        throw new NotInObjectListException("DLMSConfig, getXMLConfig, not found in objectlist (IOL)");
+    }
 
 	/*
 	 *  Find in objectList a matching DLMSConfig object with the historicValues DLMSConfig objects
 	 *  @param UniversalObject[] objectList
 	 *  @return UniversalObject the matching objectList
 	 */
-	protected UniversalObject getHistoricValuesObject(UniversalObject[] objectList) throws ProtocolException {
-		if (objectList == null) {
-			throw new ProtocolException("DLMSConfig, getHistoricValuesObject, objectlist empty!");
-		}
-		for (int i=0;i<objectList.length;i++) {
+	protected UniversalObject getHistoricValuesObject(UniversalObject[] objectList) throws NotInObjectListException {
+        checkEmptyObjectList(objectList, "DLMSConfig, getHistoricValuesObject, objectlist empty!");
+        for (int i=0;i<objectList.length;i++) {
 			if (objectList[i].equals(HISTORICVALUES)) {
 				return objectList[i];
 			}
 		}
-		throw new ProtocolException("DLMSConfig, getHistoricValuesObject, not found in objectlist (IOL)!");
-	}
+        throw new NotInObjectListException("DLMSConfig, getHistoricValuesObject, not found in objectlist (IOL)!");
+    }
 
 	/*
 	 *  Find in objectList a matching DLMSConfig object with the resetCounter DLMSConfig objects
 	 *  @param UniversalObject[] objectList
 	 *  @return UniversalObject the matching objectList
 	 */
-	protected UniversalObject getResetcounterObject(UniversalObject[] objectList) throws ProtocolException {
-		if (objectList == null) {
-			throw new ProtocolException("DLMSConfig, getResetcounterObject, objectlist empty!");
-		}
-		for (int i=0;i<objectList.length;i++) {
+	protected UniversalObject getResetcounterObject(UniversalObject[] objectList) throws NotInObjectListException {
+        checkEmptyObjectList(objectList, "DLMSConfig, getResetcounterObject, objectlist empty!");
+        for (int i=0;i<objectList.length;i++) {
 			if (objectList[i].equals(RESETCOUNTER)) {
 				return objectList[i];
 			}
 		}
-		throw new ProtocolException("DLMSConfig, getResetcounterObject, not found in objectlist (IOL)!");
-	}
+        throw new NotInObjectListException("DLMSConfig, getResetcounterObject, not found in objectlist (IOL)!");
+    }
 
 	/*
 	 *  Find in meterReading DLMSConfig objects all the objects assigned to a specific deviceID
@@ -1069,7 +1004,7 @@ public final class DLMSConfig {
 	 *  @param int id
 	 *  @return DLMSConfig
 	 */
-	private DLMSConfig getMeterReadingDLMSConfigObject(int id,String deviceId) throws ProtocolException {
+	private DLMSConfig getMeterReadingDLMSConfigObject(int id,String deviceId) throws NotInObjectListException {
 		int count=0;
 		for (int i=0;i<meterReading.length;i++) {
 			if (meterReading[i].getManuf().compareTo(deviceId) == 0) {
@@ -1079,8 +1014,8 @@ public final class DLMSConfig {
 				count++;
 			}
 		}
-		throw new ProtocolException("DLMSConfig, getMeterReadingDLMSConfigObject("+id+","+deviceId+"), not found in objectlist (IOL)!");
-	}
+        throw new NotInObjectListException("DLMSConfig, getMeterReadingDLMSConfigObject("+id+","+deviceId+"), not found in objectlist (IOL)!");
+    }
 
 	/*
 	 *  Find in objectList a matching DLMSConfig object with a meterreading DLMSConfig objects
@@ -1089,13 +1024,11 @@ public final class DLMSConfig {
 	 *  @param int id
 	 *  @return UniversalObject the matching objectList
 	 */
-	protected UniversalObject getMeterReadingObject(UniversalObject[] objectList,int id, String deviceId) throws ProtocolException {
-		if (objectList == null) {
-			throw new ProtocolException("DLMSConfig, getMeterReadingObject, objectlist empty!");
-		}
-		if (id >=getNrOfMeterReadingObjects(deviceId)) {
-			throw new ProtocolException("DLMSConfig, getMeterReadingObject, meterreading id error!");
-		}
+	protected UniversalObject getMeterReadingObject(UniversalObject[] objectList,int id, String deviceId) throws NotInObjectListException {
+        checkEmptyObjectList(objectList, "DLMSConfig, getMeterReadingObject, objectlist empty!");
+        if (id >=getNrOfMeterReadingObjects(deviceId)) {
+            throw new NotInObjectListException("DLMSConfig, getMeterReadingObject, meterreading id error!");
+        }
 		//for (int t=0;t<version.length;t++) { // KV 17062003 removed
 		for (int i=0;i<objectList.length;i++) {
 			DLMSConfig dlmsConfig = getMeterReadingDLMSConfigObject(id,deviceId);
@@ -1105,8 +1038,8 @@ public final class DLMSConfig {
 			}
 		}
 		//}
-		throw new ProtocolException("DLMSConfig, getMeterReadingObject("+id+","+deviceId+"), not found in objectlist (IOL)!");
-	}
+        throw new NotInObjectListException("DLMSConfig, getMeterReadingObject("+id+","+deviceId+"), not found in objectlist (IOL)!");
+    }
 
 	public String toString() {
 		return this.getLNA()+"."+
@@ -1118,35 +1051,29 @@ public final class DLMSConfig {
 		this.getClassID();
 	}
 
-	public UniversalObject getIPv4SetupObject(UniversalObject[] objectList) throws ProtocolException {
-		if (objectList == null) {
-			throw new ProtocolException("DLMSConfig, ipv4SetupObject, objectlist empty!");
-		}
-		for (int i=0;i<objectList.length;i++) {
+	public UniversalObject getIPv4SetupObject(UniversalObject[] objectList) throws NotInObjectListException {
+        checkEmptyObjectList(objectList, "DLMSConfig, ipv4SetupObject, objectlist empty!");
+        for (int i=0;i<objectList.length;i++) {
 			if (objectList[i].equals(IPV4SETUP)) {
 				return objectList[i];
 			}
 		}
-		throw new ProtocolException("DLMSConfig, ipv4SetupObject, not found in objectlist (IOL)!");
-	}
+        throw new NotInObjectListException("DLMSConfig, ipv4SetupObject, not found in objectlist (IOL)!");
+    }
 
-	public UniversalObject getImageActivationSchedule(UniversalObject[] objectList) throws ProtocolException {
-		if (objectList == null) {
-			throw new ProtocolException("DLMSConfig, imageActivationSchedule, objectlist empty!");
-		}
-		for (int i=0;i<objectList.length;i++) {
+	public UniversalObject getImageActivationSchedule(UniversalObject[] objectList) throws NotInObjectListException {
+        checkEmptyObjectList(objectList, "DLMSConfig, imageActivationSchedule, objectlist empty!");
+        for (int i=0;i<objectList.length;i++) {
 			if (objectList[i].equals(IMAGEACTIVATIONSCHEDULE)) {
 				return objectList[i];
 			}
 		}
-		throw new ProtocolException("DLMSConfig, imageActivationSchedule, not found in objectlist (IOL)!");
-	}
+        throw new NotInObjectListException("DLMSConfig, imageActivationSchedule, not found in objectlist (IOL)!");
+    }
 
-	public int getIPv4SetupSN(UniversalObject[] objectList) throws ProtocolException {
-		if (objectList == null) {
-			throw new ProtocolException("DLMSConfig, ipv4Setup, objectlist empty!");
-		}
-		for (int i=0;i<objectList.length;i++) {
+	public int getIPv4SetupSN(UniversalObject[] objectList) throws NotInObjectListException {
+        checkEmptyObjectList(objectList, "DLMSConfig, ipv4Setup, objectlist empty!");
+        for (int i=0;i<objectList.length;i++) {
 			if (objectList[i].equals(IPV4SETUP)) {
 				return objectList[i].getBaseName();
 			}
@@ -1154,24 +1081,20 @@ public final class DLMSConfig {
 		return 0;
 	}
 
-	public UniversalObject getP3ImageTransfer(UniversalObject[] objectList) throws ProtocolException {
-		if (objectList == null) {
-			throw new ProtocolException("DLMSConfig, P3ImageTransfer, objectlist empty!");
-		}
-		for (int i=0;i<objectList.length;i++) {
+	public UniversalObject getP3ImageTransfer(UniversalObject[] objectList) throws NotInObjectListException {
+        checkEmptyObjectList(objectList, "DLMSConfig, P3ImageTransfer, objectlist empty!");
+        for (int i=0;i<objectList.length;i++) {
 			if (objectList[i].equals(P3IMAGETRANSFER)) {
 				return objectList[i];
 			}
 		}
-		throw new ProtocolException("DLMSConfig, P3ImageTransfer, not found in objectlist (IOL)!");
-	}
+        throw new NotInObjectListException("DLMSConfig, P3ImageTransfer, not found in objectlist (IOL)!");
+    }
 
 
-	public int getP3ImageTransferSN(UniversalObject[] objectList) throws ProtocolException {
-		if (objectList == null) {
-			throw new ProtocolException("DLMSConfig, P3ImageTransfer, objectlist empty!");
-		}
-		for (int i=0;i<objectList.length;i++) {
+	public int getP3ImageTransferSN(UniversalObject[] objectList) throws NotInObjectListException {
+        checkEmptyObjectList(objectList, "DLMSConfig, P3ImageTransfer, objectlist empty!");
+        for (int i=0;i<objectList.length;i++) {
 			if (objectList[i].equals(P3IMAGETRANSFER)) {
 				return objectList[i].getBaseName();
 			}
@@ -1179,23 +1102,19 @@ public final class DLMSConfig {
 		return 0;
 	}
 
-	public UniversalObject getConsumerMessageText(UniversalObject[] objectList) throws ProtocolException {
-		if (objectList == null) {
-			throw new ProtocolException("DLMSConfig, ConsumerMessageText, objectlist empty!");
-		}
-		for (int i=0;i<objectList.length;i++) {
+	public UniversalObject getConsumerMessageText(UniversalObject[] objectList) throws NotInObjectListException {
+        checkEmptyObjectList(objectList, "DLMSConfig, ConsumerMessageText, objectlist empty!");
+        for (int i=0;i<objectList.length;i++) {
 			if (objectList[i].equals(CONSUMERMESSAGETEXT)) {
 				return objectList[i];
 			}
 		}
-		throw new ProtocolException("DLMSConfig, ConsumerMessageText, not found in objectlist (IOL)!");
-	}
+        throw new NotInObjectListException("DLMSConfig, ConsumerMessageText, not found in objectlist (IOL)!");
+    }
 
-	public int getConsumerMessageTextSN(UniversalObject[] objectList) throws ProtocolException {
-		if (objectList == null) {
-			throw new ProtocolException("DLMSConfig, ConsumerMessageText, objectlist empty!");
-		}
-		for (int i=0;i<objectList.length;i++) {
+	public int getConsumerMessageTextSN(UniversalObject[] objectList) throws NotInObjectListException {
+        checkEmptyObjectList(objectList, "DLMSConfig, ConsumerMessageText, objectlist empty!");
+        for (int i=0;i<objectList.length;i++) {
 			if (objectList[i].equals(CONSUMERMESSAGETEXT)) {
 				return objectList[i].getBaseName();
 			}
@@ -1203,23 +1122,19 @@ public final class DLMSConfig {
 		return 0;
 	}
 
-	public UniversalObject getConsumerMessageCode(UniversalObject[] objectList) throws ProtocolException {
-		if (objectList == null) {
-			throw new ProtocolException("DLMSConfig, ConsumerMessageCode, objectlist empty!");
-		}
-		for (int i=0;i<objectList.length;i++) {
+	public UniversalObject getConsumerMessageCode(UniversalObject[] objectList) throws NotInObjectListException {
+        checkEmptyObjectList(objectList, "DLMSConfig, ConsumerMessageCode, objectlist empty!");
+        for (int i=0;i<objectList.length;i++) {
 			if (objectList[i].equals(CONSUMERMESSAGECODE)) {
 				return objectList[i];
 			}
 		}
-		throw new ProtocolException("DLMSConfig, ConsumerMessageCode, not found in objectlist (IOL)!");
-	}
+        throw new NotInObjectListException("DLMSConfig, ConsumerMessageCode, not found in objectlist (IOL)!");
+    }
 
-	public int getConsumerMessageCodeSN(UniversalObject[] objectList) throws ProtocolException {
-		if (objectList == null) {
-			throw new ProtocolException("DLMSConfig, ConsumerMessageCode, objectlist empty!");
-		}
-		for (int i=0;i<objectList.length;i++) {
+	public int getConsumerMessageCodeSN(UniversalObject[] objectList) throws NotInObjectListException {
+        checkEmptyObjectList(objectList, "DLMSConfig, ConsumerMessageCode, objectlist empty!");
+        for (int i=0;i<objectList.length;i++) {
 			if (objectList[i].equals(CONSUMERMESSAGECODE)) {
 				return objectList[i].getBaseName();
 			}
@@ -1227,23 +1142,19 @@ public final class DLMSConfig {
 		return 0;
 	}
 
-	public UniversalObject getDisconnector(UniversalObject[] objectList) throws ProtocolException {
-		if (objectList == null) {
-			throw new ProtocolException("DLMSConfig, Disconnector, objectlist empty!");
-		}
-		for (int i=0;i<objectList.length;i++) {
+	public UniversalObject getDisconnector(UniversalObject[] objectList) throws NotInObjectListException {
+        checkEmptyObjectList(objectList, "DLMSConfig, Disconnector, objectlist empty!");
+        for (int i=0;i<objectList.length;i++) {
 			if (objectList[i].equals(DISCONNECTOR)) {
 				return objectList[i];
 			}
 		}
-		throw new ProtocolException("DLMSConfig, Disconnector, not found in objectlist (IOL)!");
-	}
+        throw new NotInObjectListException("DLMSConfig, Disconnector, not found in objectlist (IOL)!");
+    }
 
-	public int getDisconnectorSN(UniversalObject[] objectList) throws ProtocolException {
-		if (objectList == null) {
-			throw new ProtocolException("DLMSConfig, DisconnectorSN, objectlist empty!");
-		}
-		for (int i=0;i<objectList.length;i++) {
+	public int getDisconnectorSN(UniversalObject[] objectList) throws NotInObjectListException {
+        checkEmptyObjectList(objectList, "DLMSConfig, DisconnectorSN, objectlist empty!");
+        for (int i=0;i<objectList.length;i++) {
 			if (objectList[i].equals(DISCONNECTOR)) {
 				return objectList[i].getBaseName();
 			}
@@ -1251,71 +1162,59 @@ public final class DLMSConfig {
 		return 0;
 	}
 
-	public UniversalObject getDisconnectControlSchedule(UniversalObject[] objectList) throws ProtocolException {
-		if (objectList == null) {
-			throw new ProtocolException("DLMSConfig, DisconnectSchedule, objectlist empty!");
-		}
-		for (int i=0;i<objectList.length;i++) {
+	public UniversalObject getDisconnectControlSchedule(UniversalObject[] objectList) throws NotInObjectListException {
+        checkEmptyObjectList(objectList, "DLMSConfig, DisconnectSchedule, objectlist empty!");
+        for (int i=0;i<objectList.length;i++) {
 			if (objectList[i].equals(DISCONNECTCONTROLSCHEDULE)) {
 				return objectList[i];
 			}
 		}
-		throw new ProtocolException("DLMSConfig, DisconnectSchedule, not found in objectlist (IOL)!");
-	}
+        throw new NotInObjectListException("DLMSConfig, DisconnectSchedule, not found in objectlist (IOL)!");
+    }
 
-	public UniversalObject getDisconnectorScriptTable(UniversalObject[] objectList) throws ProtocolException {
-		if (objectList == null) {
-			throw new ProtocolException("DLMSConfig, DisconnectorScriptTable, objectlist empty!");
-		}
-		for (int i=0;i<objectList.length;i++) {
+	public UniversalObject getDisconnectorScriptTable(UniversalObject[] objectList) throws NotInObjectListException {
+        checkEmptyObjectList(objectList, "DLMSConfig, DisconnectorScriptTable, objectlist empty!");
+        for (int i=0;i<objectList.length;i++) {
 			if (objectList[i].equals(DISCONNECTORSCRIPTTABLE)) {
 				return objectList[i];
 			}
 		}
-		throw new ProtocolException("DLMSConfig, DisconnectorScriptTable, not found in objectlist (IOL)!");
-	}
+        throw new NotInObjectListException("DLMSConfig, DisconnectorScriptTable, not found in objectlist (IOL)!");
+    }
 
-	public UniversalObject getTariffScriptTable(UniversalObject[] objectList) throws ProtocolException {
-		if (objectList == null) {
-			throw new ProtocolException("DLMSConfig, getTariffScriptTable, objectlist empty!");
-		}
-		for (int i=0;i<objectList.length;i++) {
+	public UniversalObject getTariffScriptTable(UniversalObject[] objectList) throws NotInObjectListException {
+        checkEmptyObjectList(objectList, "DLMSConfig, getTariffScriptTable, objectlist empty!");
+        for (int i=0;i<objectList.length;i++) {
 			if (objectList[i].equals(TARIFFSCRIPTTABLE)) {
 				return objectList[i];
 			}
 		}
-		throw new ProtocolException("DLMSConfig, getTariffScriptTable, not found in objectlist (IOL)!");
-	}
+        throw new NotInObjectListException("DLMSConfig, getTariffScriptTable, not found in objectlist (IOL)!");
+    }
 
-	public UniversalObject getActivityCalendar(UniversalObject[] objectList) throws ProtocolException {
-		if (objectList == null) {
-			throw new ProtocolException("DLMSConfig, getActivityCalendar, objectlist empty!");
-		}
-		for (int i=0;i<objectList.length;i++) {
+	public UniversalObject getActivityCalendar(UniversalObject[] objectList) throws NotInObjectListException {
+        checkEmptyObjectList(objectList, "DLMSConfig, getActivityCalendar, objectlist empty!");
+        for (int i=0;i<objectList.length;i++) {
 			if (objectList[i].equals(ACTIVITYCALENDAR)) {
 				return objectList[i];
 			}
 		}
-		throw new ProtocolException("DLMSConfig, getActivityCalendar, not found in objectlist (IOL)!");
-	}
+        throw new NotInObjectListException("DLMSConfig, getActivityCalendar, not found in objectlist (IOL)!");
+    }
 
-	public UniversalObject getSpecialDaysTable(UniversalObject[] objectList) throws ProtocolException{
-		if (objectList == null) {
-			throw new ProtocolException("DLMSConfig, getSpecialDaysTable, objectlist empty!");
-		}
-		for (int i=0;i<objectList.length;i++) {
+	public UniversalObject getSpecialDaysTable(UniversalObject[] objectList) throws NotInObjectListException{
+        checkEmptyObjectList(objectList, "DLMSConfig, getSpecialDaysTable, objectlist empty!");
+        for (int i=0;i<objectList.length;i++) {
 			if (objectList[i].equals(SPECIALDAYS)) {
 				return objectList[i];
 			}
 		}
-		throw new ProtocolException("DLMSConfig, getSpecialDaysTable, not found in objectlist (IOL)!");
-	}
+        throw new NotInObjectListException("DLMSConfig, getSpecialDaysTable, not found in objectlist (IOL)!");
+    }
 
-	public int getDisconnectorScriptTableSN(UniversalObject[] objectList) throws ProtocolException {
-		if (objectList == null) {
-			throw new ProtocolException("DLMSConfig, DisconnectorScriptTableSN, objectlist empty!");
-		}
-		for (int i=0;i<objectList.length;i++) {
+	public int getDisconnectorScriptTableSN(UniversalObject[] objectList) throws NotInObjectListException {
+        checkEmptyObjectList(objectList, "DLMSConfig, DisconnectorScriptTableSN, objectlist empty!");
+        for (int i=0;i<objectList.length;i++) {
 			if (objectList[i].equals(DISCONNECTORSCRIPTTABLE)) {
 				return objectList[i].getBaseName();
 			}
@@ -1323,23 +1222,19 @@ public final class DLMSConfig {
 		return 0;
 	}
 
-	public UniversalObject getLimiter(UniversalObject[] objectList) throws ProtocolException {
-		if (objectList == null) {
-			throw new ProtocolException("DLMSConfig, Limiter, objectlist empty!");
-		}
-		for (int i=0;i<objectList.length;i++) {
+	public UniversalObject getLimiter(UniversalObject[] objectList) throws NotInObjectListException {
+        checkEmptyObjectList(objectList, "DLMSConfig, Limiter, objectlist empty!");
+        for (int i=0;i<objectList.length;i++) {
 			if (objectList[i].equals(LIMITER)) {
 				return objectList[i];
 			}
 		}
-		throw new ProtocolException("DLMSConfig, Limiter, not found in objectlist (IOL)!");
-	}
+        throw new NotInObjectListException("DLMSConfig, Limiter, not found in objectlist (IOL)!");
+    }
 
-	public int getLimiterSN(UniversalObject[] objectList) throws ProtocolException {
-		if (objectList == null) {
-			throw new ProtocolException("DLMSConfig, Limiter, objectlist empty!");
-		}
-		for (int i=0;i<objectList.length;i++) {
+	public int getLimiterSN(UniversalObject[] objectList) throws NotInObjectListException {
+        checkEmptyObjectList(objectList, "DLMSConfig, Limiter, objectlist empty!");
+        for (int i=0;i<objectList.length;i++) {
 			if (objectList[i].equals(LIMITER)) {
 				return objectList[i].getBaseName();
 			}
@@ -1347,11 +1242,9 @@ public final class DLMSConfig {
 		return 0;
 	}
 
-	public int getPPPSetupSN(UniversalObject[] objectList) throws ProtocolException{
-		if (objectList == null) {
-			throw new ProtocolException("DLMSConfig, PPPSetup, objectlist empty!");
-		}
-		for (int i=0;i<objectList.length;i++) {
+	public int getPPPSetupSN(UniversalObject[] objectList) throws NotInObjectListException{
+        checkEmptyObjectList(objectList, "DLMSConfig, PPPSetup, objectlist empty!");
+        for (int i=0;i<objectList.length;i++) {
 			if (objectList[i].equals(PPPSETUP)) {
 				return objectList[i].getBaseName();
 			}
@@ -1359,11 +1252,9 @@ public final class DLMSConfig {
 		return 0;
 	}
 
-	public int getGPRSModemSetupSN(UniversalObject[] objectList) throws ProtocolException{
-		if (objectList == null) {
-			throw new ProtocolException("DLMSConfig, GPRSModemSetup, objectlist empty!");
-		}
-		for (int i=0;i<objectList.length;i++) {
+	public int getGPRSModemSetupSN(UniversalObject[] objectList) throws NotInObjectListException{
+        checkEmptyObjectList(objectList, "DLMSConfig, GPRSModemSetup, objectlist empty!");
+        for (int i=0;i<objectList.length;i++) {
 			if (objectList[i].equals(GPRSMODEMSETUP)) {
 				return objectList[i].getBaseName();
 			}
@@ -1371,11 +1262,9 @@ public final class DLMSConfig {
 		return 0;
 	}
 
-    public int getImageTransferSN(UniversalObject[] objectList) throws ProtocolException {
-        		if (objectList == null) {
-			throw new ProtocolException("DLMSConfig, ImageTransfer, objectlist empty!");
-		}
-		for (int i=0;i<objectList.length;i++) {
+    public int getImageTransferSN(UniversalObject[] objectList) throws NotInObjectListException {
+        checkEmptyObjectList(objectList, "DLMSConfig, ImageTransfer, objectlist empty!");
+        for (int i=0;i<objectList.length;i++) {
 			if (objectList[i].equals(P3IMAGETRANSFER)) {
 				return objectList[i].getBaseName();
 			}
@@ -1383,10 +1272,8 @@ public final class DLMSConfig {
 		return 0;
     }
 
-    public int getSFSKPhyMacSetupSN(UniversalObject[] objectList) throws ProtocolException {
-        if (objectList == null) {
-            throw new ProtocolException("DLMSConfig, SFSKPhyMacSetupSN, objectlist empty!");
-}
+    public int getSFSKPhyMacSetupSN(UniversalObject[] objectList) throws NotInObjectListException {
+        checkEmptyObjectList(objectList, "DLMSConfig, SFSKPhyMacSetupSN, objectlist empty!");
         for (int i = 0; i < objectList.length; i++) {
             if (objectList[i].equals(SFSKPhyMacSetupSN)) {
                 return objectList[i].getBaseName();

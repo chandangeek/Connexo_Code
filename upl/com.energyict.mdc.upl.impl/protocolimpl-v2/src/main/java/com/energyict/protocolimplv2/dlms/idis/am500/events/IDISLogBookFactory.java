@@ -28,8 +28,6 @@ import java.util.List;
  */
 public class IDISLogBookFactory implements DeviceLogBookSupport {
 
-    protected AM500 protocol;
-
     protected static ObisCode DISCONNECTOR_CONTROL_LOG = ObisCode.fromString("0.0.99.98.2.255");
     protected static ObisCode STANDARD_EVENT_LOG = ObisCode.fromString("0.0.99.98.0.255");
     protected static ObisCode FRAUD_DETECTION_LOG = ObisCode.fromString("0.0.99.98.1.255");
@@ -37,11 +35,11 @@ public class IDISLogBookFactory implements DeviceLogBookSupport {
     protected static ObisCode POWER_QUALITY_LOG = ObisCode.fromString("0.0.99.98.4.255");
     protected static ObisCode MBUS_EVENT_LOG = ObisCode.fromString("0.0.99.98.3.255");    //General MBus log, describing events for all slave devices
     protected static ObisCode MBUS_CONTROL_LOG = ObisCode.fromString("0.x.24.5.0.255");   //Specific log for 1 MBus slave device
-
     /**
      * List of obiscodes of the supported log books
      */
     protected final List<ObisCode> supportedLogBooks;
+    protected AM500 protocol;
 
     public IDISLogBookFactory(AM500 protocol) {
         this.protocol = protocol;
@@ -61,29 +59,32 @@ public class IDISLogBookFactory implements DeviceLogBookSupport {
         for (LogBookReader logBookReader : logBooks) {
             CollectedLogBook collectedLogBook = MdcManager.getCollectedDataFactory().createCollectedLogBook(logBookReader.getLogBookIdentifier());
             if (isSupported(logBookReader)) {
-                ProfileGeneric profileGeneric;
+                ProfileGeneric profileGeneric = null;
                 try {
                     profileGeneric = protocol.getDlmsSession().getCosemObjectFactory().getProfileGeneric(logBookReader.getLogBookObisCode());
                     profileGeneric.setDsmr4SelectiveAccessFormat(true);
-                } catch (ProtocolException e) {
-                    throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e);
+                } catch (NotInObjectListException e) {
+                    collectedLogBook.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addWarning(logBookReader, "logBookXissue", logBookReader.getLogBookObisCode().toString(), e.getMessage()));
                 }
-                Calendar fromDate = getCalendar();
-                fromDate.setTime(logBookReader.getLastLogBook());
 
-                try {
-                    if (protocol.getPhysicalAddressFromSerialNumber(logBookReader.getMeterSerialNumber()) > 0) {
-                        //MBus slave logbook
-                        List<MeterEvent> mbusEvents = getMBusControlLog(fromDate, getCalendar(), logBookReader);
-                        collectedLogBook.setCollectedMeterEvents(MeterEvent.mapMeterEventsToMeterProtocolEvents(mbusEvents));
-                    } else {
-                        //E-meter logbook
-                        DataContainer dataContainer = profileGeneric.getBuffer(fromDate, getCalendar());
-                        collectedLogBook.setCollectedMeterEvents(parseEvents(dataContainer, logBookReader.getLogBookObisCode()));
-                    }
-                } catch (IOException e) {
-                    if (IOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSession())) {
-                        collectedLogBook.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addWarning(logBookReader, "logBookXissue", logBookReader.getLogBookObisCode().toString(), e.getMessage()));
+                if (profileGeneric != null) {
+                    Calendar fromDate = getCalendar();
+                    fromDate.setTime(logBookReader.getLastLogBook());
+
+                    try {
+                        if (protocol.getPhysicalAddressFromSerialNumber(logBookReader.getMeterSerialNumber()) > 0) {
+                            //MBus slave logbook
+                            List<MeterEvent> mbusEvents = getMBusControlLog(fromDate, getCalendar(), logBookReader);
+                            collectedLogBook.setCollectedMeterEvents(MeterEvent.mapMeterEventsToMeterProtocolEvents(mbusEvents));
+                        } else {
+                            //E-meter logbook
+                            DataContainer dataContainer = profileGeneric.getBuffer(fromDate, getCalendar());
+                            collectedLogBook.setCollectedMeterEvents(parseEvents(dataContainer, logBookReader.getLogBookObisCode()));
+                        }
+                    } catch (IOException e) {
+                        if (IOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSession())) {
+                            collectedLogBook.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addWarning(logBookReader, "logBookXissue", logBookReader.getLogBookObisCode().toString(), e.getMessage()));
+                        }
                     }
                 }
             } else {

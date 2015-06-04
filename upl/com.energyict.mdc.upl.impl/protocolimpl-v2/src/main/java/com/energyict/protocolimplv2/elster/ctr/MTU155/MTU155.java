@@ -169,7 +169,7 @@ public class MTU155 implements DeviceProtocol {
         try {
             getRequestFactory().getMeterInfo().setTime(timeToSet);
         } catch (CTRException e) {
-            throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e);
+            throw MdcManager.getComServerExceptionFactory().createUnexpectedResponse(e);
         }
     }
 
@@ -189,7 +189,7 @@ public class MTU155 implements DeviceProtocol {
         try {
             return getRequestFactory().getMeterInfo().getTime();
         } catch (CTRException e) {
-            throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e);
+            throw MdcManager.getComServerExceptionFactory().createUnexpectedResponse(e);
         }
     }
 
