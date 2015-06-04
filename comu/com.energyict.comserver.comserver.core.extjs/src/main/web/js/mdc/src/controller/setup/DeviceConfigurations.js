@@ -156,7 +156,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                 this.getDeviceConfigurationPreview().down('#device-configuration-action-menu').record = deviceConfigurations[0];
             }
             this.getDeviceConfigurationPreview().getLayout().setActiveItem(1);
-            this.getDeviceConfigurationPreview().setTitle(deviceConfigurations[0].get('name'));
+            this.getDeviceConfigurationPreview().setTitle(Ext.String.htmlEncode(deviceConfigurations[0].get('name')));
 
             Ext.resumeLayouts(true);
         } else {

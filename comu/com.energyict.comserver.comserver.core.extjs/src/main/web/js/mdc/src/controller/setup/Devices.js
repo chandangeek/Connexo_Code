@@ -207,9 +207,9 @@ Ext.define('Mdc.controller.setup.Devices', {
                 me.doRefresh();
 
                 me.getDeviceGeneralInformationDeviceTypeLink().getEl().set({href: '#/administration/devicetypes/' + encodeURIComponent(device.get('deviceTypeId'))});
-                me.getDeviceGeneralInformationDeviceTypeLink().getEl().setHTML(device.get('deviceTypeName'));
+                me.getDeviceGeneralInformationDeviceTypeLink().getEl().setHTML(Ext.String.htmlEncode(device.get('deviceTypeName')));
                 me.getDeviceGeneralInformationDeviceConfigurationLink().getEl().set({href: '#/administration/devicetypes/' + encodeURIComponent(device.get('deviceTypeId')) + '/deviceconfigurations/' + encodeURIComponent(device.get('deviceConfigurationId'))});
-                me.getDeviceGeneralInformationDeviceConfigurationLink().getEl().setHTML(device.get('deviceConfigurationName'));
+                me.getDeviceGeneralInformationDeviceConfigurationLink().getEl().setHTML(Ext.String.htmlEncode(device.get('deviceConfigurationName')));
                 me.getDeviceCommunicationTopologyPanel().setRecord(device);
                 me.getDeviceOpenIssuesPanel().setDataCollectionIssues(device.get('nbrOfDataCollectionIssues'));
                 me.getDeviceDataValidationPanel().setValidationResult();
