@@ -37,19 +37,19 @@ public class SearchResourceTest extends SearchApplicationTest {
         SearchDomain devicesDomain = mockDeviceSearchDomain();
 
         SearchDomain deviceTypeDomain = mock(SearchDomain.class);
-        when(deviceTypeDomain.getId()).thenReturn("deviceTypes");
+        when(deviceTypeDomain.getId()).thenReturn("com.deviceTypes");
         when(this.searchService.getDomains()).thenReturn(Arrays.asList(devicesDomain, deviceTypeDomain));
-        when(searchService.findDomain("deviceTypes")).thenReturn(Optional.of(deviceTypeDomain));
+        when(searchService.findDomain("com.deviceTypes")).thenReturn(Optional.of(deviceTypeDomain));
     }
 
     private SearchDomain mockDeviceSearchDomain() {
         SearchDomain devicesDomain = mock(SearchDomain.class);
-        when(devicesDomain.getId()).thenReturn("devices");
+        when(devicesDomain.getId()).thenReturn("com.devices");
         SearchableProperty mRID = mockMRIDProperty(devicesDomain);
         SearchableProperty deviceType = mockDeviceTypeProperty(devicesDomain);
         SearchableProperty deviceConfig = mockDeviceConfigProperty(devicesDomain);
         when(deviceConfig.getConstraints()).thenReturn(Arrays.asList(deviceType));
-        when(searchService.findDomain("devices")).thenReturn(Optional.of(devicesDomain));
+        when(searchService.findDomain("com.devices")).thenReturn(Optional.of(devicesDomain));
 
         when(devicesDomain.getProperties()).thenReturn(Arrays.asList(mRID, deviceType, deviceConfig));
         return devicesDomain;
@@ -128,23 +128,24 @@ public class SearchResourceTest extends SearchApplicationTest {
         JsonModel model = JsonModel.model((ByteArrayInputStream)response.getEntity());
         assertThat(model.<Integer>get("$.total")).isEqualTo(2);
         assertThat(model.<List>get("$.domains")).hasSize(2);
+        assertThat(model.<String>get("$.domains[0].id")).isEqualTo("com.devices");
         assertThat(model.<String>get("$.domains[0].name")).isEqualTo("devices");
-        assertThat(model.<String>get("$.domains[0].link[0].href")).isEqualTo("http://localhost:9998/search/devices");
+        assertThat(model.<String>get("$.domains[0].link[0].href")).isEqualTo("http://localhost:9998/search/com.devices");
         assertThat(model.<String>get("$.domains[0].link[0].params.rel")).isEqualTo("self");
-        assertThat(model.<String>get("$.domains[0].link[1].href")).isEqualTo("http://localhost:9998/search/devices/properties");
+        assertThat(model.<String>get("$.domains[0].link[1].href")).isEqualTo("http://localhost:9998/search/com.devices/properties");
         assertThat(model.<String>get("$.domains[0].link[1].params.rel")).isEqualTo("describedby");
 
         assertThat(model.<String>get("$.domains[1].name")).isEqualTo("deviceTypes");
-        assertThat(model.<String>get("$.domains[1].link[0].href")).isEqualTo("http://localhost:9998/search/deviceTypes");
+        assertThat(model.<String>get("$.domains[1].link[0].href")).isEqualTo("http://localhost:9998/search/com.deviceTypes");
         assertThat(model.<String>get("$.domains[1].link[0].params.rel")).isEqualTo("self");
-        assertThat(model.<String>get("$.domains[1].link[1].href")).isEqualTo("http://localhost:9998/search/deviceTypes/properties");
+        assertThat(model.<String>get("$.domains[1].link[1].href")).isEqualTo("http://localhost:9998/search/com.deviceTypes/properties");
         assertThat(model.<String>get("$.domains[1].link[1].params.rel")).isEqualTo("describedby");
     }
 
     @Test
     public void testGetDomainProperties() throws Exception {
 
-        Response response = target("/search/devices/properties").request().accept("application/json").get();
+        Response response = target("/search/com.devices/properties").request().accept("application/json").get();
         JsonModel model = JsonModel.model((ByteArrayInputStream)response.getEntity());
         assertThat(model.<List>get("$.properties")).hasSize(3);
         assertThat(model.<String>get("$.properties[0].name")).isEqualTo("mRID");
@@ -152,19 +153,19 @@ public class SearchResourceTest extends SearchApplicationTest {
         assertThat(model.<String>get("$.properties[0].selectionMode")).isEqualTo("multiple");
         assertThat(model.<String>get("$.properties[0].visibility")).isEqualTo("sticky");
         assertThat(model.<List>get("$.properties[0].constraints")).hasSize(0);
-        assertThat(model.<String>get("$.properties[0].link.href")).endsWith("/search/devices/properties/mRID");
+        assertThat(model.<String>get("$.properties[0].link.href")).endsWith("/search/com.devices/properties/mRID");
         assertThat(model.<Boolean>get("$.properties[0].exhaustive")).isFalse();
 
         assertThat(model.<String>get("$.properties[2].name")).isEqualTo("deviceConfig");
         assertThat(model.<String>get("$.properties[2].displayValue")).isEqualTo("Device configuration");
-        assertThat(model.<String>get("$.properties[2].link.href")).endsWith("/search/devices/properties/deviceConfig");
+        assertThat(model.<String>get("$.properties[2].link.href")).endsWith("/search/com.devices/properties/deviceConfig");
         assertThat(model.<Boolean>get("$.properties[2].exhaustive")).isTrue();
         assertThat(model.<List>get("$.properties[2].constraints")).hasSize(1);
     }
 
     @Test
     public void testGetDomainPropertyValues() throws Exception {
-        Response response = target("/search/devices/properties/deviceConfig").request().accept("application/json").get();
+        Response response = target("/search/com.devices/properties/deviceConfig").request().accept("application/json").get();
         JsonModel model = JsonModel.model((ByteArrayInputStream)response.getEntity());
         assertThat(model.<Integer>get("$.total")).isEqualTo(2);
         assertThat(model.<List>get("$.values")).hasSize(2);
@@ -176,7 +177,7 @@ public class SearchResourceTest extends SearchApplicationTest {
 
     @Test
     public void testGetPreselectedDomainPropertyValues() throws Exception {
-        Response response = target("/search/devices/properties/deviceConfig").queryParam("filter", ExtjsFilter.filter().property("deviceType", Arrays.asList(Long.valueOf(13))).create()).request().accept("application/json").get();
+        Response response = target("/search/com.devices/properties/deviceConfig").queryParam("filter", ExtjsFilter.filter().property("deviceType", Arrays.asList(Long.valueOf(13))).create()).request().accept("application/json").get();
 //        JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
         // Expect not to throw exceptions
     }

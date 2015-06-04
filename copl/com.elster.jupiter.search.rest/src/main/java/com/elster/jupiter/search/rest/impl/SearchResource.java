@@ -169,6 +169,7 @@ public class SearchResource {
 
 
     class SearchDomainInfo {
+        public String id;
         public String name;
         @XmlJavaTypeAdapter(Link.JaxbAdapter.class)
         public List<Link> link;
@@ -177,7 +178,8 @@ public class SearchResource {
         }
 
         public SearchDomainInfo(SearchDomain searchDomain, UriInfo uriInfo) {
-            this.name = searchDomain.getId();
+            this.id = searchDomain.getId();
+            this.name = searchDomain.getId().substring(searchDomain.getId().lastIndexOf(".")+1);
             this.link = new ArrayList<>();
             link.add(Link.fromUriBuilder(uriInfo.getBaseUriBuilder().path(SearchResource.class).path(SearchResource.class, "doSearch")).rel("self").build(searchDomain.getId()));
             link.add(Link.fromUriBuilder(uriInfo.getBaseUriBuilder().path(SearchResource.class).path(SearchResource.class, "getDomainProperties")).rel("describedby").build(searchDomain.getId()));
