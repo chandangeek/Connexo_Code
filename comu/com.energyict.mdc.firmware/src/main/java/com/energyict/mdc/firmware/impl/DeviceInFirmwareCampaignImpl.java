@@ -70,6 +70,7 @@ public class DeviceInFirmwareCampaignImpl implements DeviceInFirmwareCampaign {
     private Instant startedOn;
     private Instant finishedOn;
 
+    private FirmwareManagementDeviceStatus oldStatus;
     private final DataModel dataModel;
     private final FirmwareService firmwareService;
     private final TaskService taskService;
@@ -101,6 +102,7 @@ public class DeviceInFirmwareCampaignImpl implements DeviceInFirmwareCampaign {
     @Override
     public void setStatus(FirmwareManagementDeviceStatus status) {
         if (status != null) {
+            this.oldStatus = this.status;
             this.status = status;
             if (!NON_FINAL_STATUSES.contains(this.status.key()) && this.finishedOn == null){
                 this.finishedOn = clock.instant();
@@ -137,7 +139,6 @@ public class DeviceInFirmwareCampaignImpl implements DeviceInFirmwareCampaign {
             setStatus(FirmwareManagementDeviceStatus.UPLOAD_PENDING);
             scheduleFirmwareTask();
         }
-        eventService.postEvent(EventType.DEVICE_IN_FIRMWARE_CAMPAIGN_UPDATED.topic(), getFirmwareCampaign());
         save();
     }
 
@@ -161,7 +162,6 @@ public class DeviceInFirmwareCampaignImpl implements DeviceInFirmwareCampaign {
                 setStatus(FirmwareManagementDeviceStatus.CANCELLED);
             }
             save();
-            eventService.postEvent(EventType.DEVICE_IN_FIRMWARE_CAMPAIGN_UPDATED.topic(), getFirmwareCampaign());
         }
         return getStatus();
     }
@@ -235,5 +235,8 @@ public class DeviceInFirmwareCampaignImpl implements DeviceInFirmwareCampaign {
 
     private void save() {
         dataModel.update(this);
+        if (this.status != this.oldStatus){
+            eventService.postEvent(EventType.DEVICE_IN_FIRMWARE_CAMPAIGN_UPDATED.topic(), getFirmwareCampaign());
+        }
     }
 }
