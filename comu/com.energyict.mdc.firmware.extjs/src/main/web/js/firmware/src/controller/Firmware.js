@@ -249,6 +249,14 @@ Ext.define('Fwc.controller.Firmware', {
                     if (firmware.getFirmwareStatus().getId() === 'ghost') {
                         me.getFirmwareForm().down('firmware-status').setValue({id: 'final'});
                     }
+                    if (firmware.getFirmwareStatus().getId() === 'final' && firmware.raw.isInUse) {
+                        me.getFirmwareForm().down('uni-form-error-message').setText(Uni.I18n.translate('firmware.edit.versionInUse', 'FWC', 'This version is in use and can not be modified.'));
+                        me.getFirmwareForm().down('uni-form-error-message').show();
+                        me.getFirmwareForm().down('#text-firmware-version').disable();
+                        me.getFirmwareForm().down('#firmware-field-file').disable();
+                        me.getFirmwareForm().down('#createEditButton').disable();
+
+                    }
                 },
                 callback: function () {
                     container.setLoading(false);
