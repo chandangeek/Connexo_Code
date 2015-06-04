@@ -1,5 +1,6 @@
 package com.elster.jupiter.search;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -19,6 +20,10 @@ public final class SearchablePropertyConstriction {
 
     public static SearchablePropertyConstriction noValues(SearchableProperty constrainingProperty) {
         return new SearchablePropertyConstriction(constrainingProperty, Collections.emptyList());
+    }
+
+    public static SearchablePropertyConstriction withValues(SearchableProperty constrainingProperty, Object... constrainingValues) {
+        return new SearchablePropertyConstriction(constrainingProperty, Arrays.asList(constrainingValues));
     }
 
     public static SearchablePropertyConstriction withValues(SearchableProperty constrainingProperty, List<Object> constrainingValues) {
