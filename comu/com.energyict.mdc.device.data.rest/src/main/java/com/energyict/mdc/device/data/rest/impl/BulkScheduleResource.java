@@ -6,6 +6,7 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.domain.util.Finder;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.rest.DeviceInfoFactory;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
@@ -30,13 +31,15 @@ public class BulkScheduleResource {
     private final DeviceService deviceService;
     private final ResourceHelper resourceHelper;
     private final SchedulingService schedulingService;
+    private final DeviceInfoFactory deviceInfoFactory;
     private final Thesaurus thesaurus;
 
     @Inject
-    public BulkScheduleResource(DeviceService deviceService, ResourceHelper resourceHelper, SchedulingService schedulingService, Thesaurus thesaurus) {
+    public BulkScheduleResource(DeviceService deviceService, ResourceHelper resourceHelper, SchedulingService schedulingService, DeviceInfoFactory deviceInfoFactory, Thesaurus thesaurus) {
         this.deviceService = deviceService;
         this.resourceHelper = resourceHelper;
         this.schedulingService = schedulingService;
+        this.deviceInfoFactory = deviceInfoFactory;
         this.thesaurus = thesaurus;
         DeviceHolder.deviceService = deviceService;
     }
@@ -93,9 +96,9 @@ public class BulkScheduleResource {
             device.save();
             response.success();
         } catch (LocalizedException localizedEx) {
-            response.fail(DeviceInfo.from(device), localizedEx.getLocalizedMessage(), localizedEx.getClass().getSimpleName());
+            response.fail(deviceInfoFactory.from(device), localizedEx.getLocalizedMessage(), localizedEx.getClass().getSimpleName());
         } catch (ConstraintViolationException validationException) {
-            response.fail(DeviceInfo.from(device), getMessageForConstraintViolation(validationException, device, schedule),
+            response.fail(deviceInfoFactory.from(device), getMessageForConstraintViolation(validationException, device, schedule),
                     validationException.getClass().getSimpleName());
             holder.obsolete();
         }

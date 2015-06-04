@@ -1,18 +1,10 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.config.GatewayType;
 import com.energyict.mdc.device.configuration.rest.GatewayTypeAdapter;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.imp.Batch;
-import com.energyict.mdc.device.data.imp.DeviceImportService;
 import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleStateInfo;
-import com.energyict.mdc.device.topology.TopologyService;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.List;
-import java.util.Optional;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
@@ -49,60 +41,4 @@ public class DeviceInfo {
     public DeviceInfo() {
     }
 
-    public static DeviceInfo from(Device device, List<DeviceTopologyInfo> slaveDevices, DeviceImportService deviceImportService, TopologyService topologyService, IssueService issueService, Thesaurus thesaurus) {
-        DeviceInfo deviceInfo = new DeviceInfo();
-        deviceInfo.id = device.getId();
-        deviceInfo.mRID = device.getmRID();
-        deviceInfo.serialNumber = device.getSerialNumber();
-        deviceInfo.deviceTypeId = device.getDeviceType().getId();
-        deviceInfo.deviceTypeName = device.getDeviceType().getName();
-        deviceInfo.deviceConfigurationId = device.getDeviceConfiguration().getId();
-        deviceInfo.deviceConfigurationName = device.getDeviceConfiguration().getName();
-        deviceInfo.deviceProtocolPluggeableClassId = device.getDeviceType().getDeviceProtocolPluggableClass().getId();
-        deviceInfo.yearOfCertification = device.getYearOfCertification();
-
-        Optional<Batch> optionalBatch = deviceImportService.findBatch(device.getId());
-        if (optionalBatch.isPresent()) {
-            deviceInfo.batch = optionalBatch.get().getName();
-        }
-        Optional<Device> physicalGateway = topologyService.getPhysicalGateway(device);
-        if (physicalGateway.isPresent()) {
-            deviceInfo.masterDeviceId = physicalGateway.get().getId();
-            deviceInfo.masterDevicemRID = physicalGateway.get().getmRID();
-        }
-
-        deviceInfo.gatewayType = device.getConfigurationGatewayType();
-        deviceInfo.slaveDevices = slaveDevices;
-        deviceInfo.nbrOfDataCollectionIssues = issueService.countOpenDataCollectionIssues(device.getmRID());
-        deviceInfo.hasLoadProfiles = !device.getLoadProfiles().isEmpty();
-        deviceInfo.hasLogBooks = !device.getLogBooks().isEmpty();
-        deviceInfo.hasRegisters = !device.getRegisters().isEmpty();
-        deviceInfo.isDirectlyAddressed = device.getDeviceConfiguration().isDirectlyAddressable();
-        deviceInfo.isGateway = device.getDeviceConfiguration().canActAsGateway();
-        Optional<? extends MeterActivation> meterActivation = device.getCurrentMeterActivation();
-        if (meterActivation.isPresent()) {
-            meterActivation.map(MeterActivation::getUsagePoint)
-                    .ifPresent(up ->
-                            up.ifPresent(usagePoint -> {
-                                deviceInfo.usagePoint = usagePoint.getMRID();
-                                deviceInfo.serviceCategory = usagePoint.getServiceCategory().getName();
-                            }));
-        }
-        deviceInfo.estimationStatus = new DeviceEstimationStatusInfo(device);
-        deviceInfo.state = new DeviceLifeCycleStateInfo(thesaurus, device.getState());
-        deviceInfo.version = device.getVersion();
-        return deviceInfo;
-    }
-
-    public static DeviceInfo from(Device device) {
-        DeviceInfo deviceInfo = new DeviceInfo();
-        deviceInfo.id = device.getId();
-        deviceInfo.mRID = device.getmRID();
-        deviceInfo.serialNumber = device.getSerialNumber();
-        deviceInfo.deviceTypeId = device.getDeviceType().getId();
-        deviceInfo.deviceTypeName = device.getDeviceType().getName();
-        deviceInfo.deviceConfigurationId = device.getDeviceConfiguration().getId();
-        deviceInfo.deviceConfigurationName = device.getDeviceConfiguration().getName();
-        return deviceInfo;
-    }
 }
