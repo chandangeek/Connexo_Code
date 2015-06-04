@@ -1,7 +1,7 @@
 package com.elster.jupiter.rest.util;
 
 /**
- * Allows creation of an Info object based on a domain object.
+ * Allows creation of an Info object based on a domain object. This interface is required to register factories to be used by dynamic search.
  */
 public interface InfoFactory<T> {
 
