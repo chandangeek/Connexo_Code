@@ -4,7 +4,7 @@ import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpecPossibleValues;
 import com.elster.jupiter.rest.util.ExceptionFactory;
-import com.elster.jupiter.rest.util.InfoFactory;
+import com.elster.jupiter.rest.util.InfoFactoryService;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
@@ -38,20 +38,20 @@ import static java.util.stream.Collectors.toList;
  * Created by bvn on 6/1/15.
  */
 @Path("/search")
-public class SearchResource {
+public class DynamicSearchResource {
 
     private final SearchService searchService;
     private final ExceptionFactory exceptionFactory;
     private final PropertyInfoFactory propertyInfoFactory;
-    private final InfoFactory infoFactory;
+    private final InfoFactoryService infoFactoryService;
 
     @Inject
-    public SearchResource(SearchService searchService, ExceptionFactory exceptionFactory, PropertyInfoFactory propertyInfoFactory, InfoFactory infoFactory) {
+    public DynamicSearchResource(SearchService searchService, ExceptionFactory exceptionFactory, PropertyInfoFactory propertyInfoFactory, InfoFactoryService infoFactoryService) {
         this.searchService = searchService;
         this.exceptionFactory = exceptionFactory;
         this.propertyInfoFactory = propertyInfoFactory;
 
-        this.infoFactory = infoFactory;
+        this.infoFactoryService = infoFactoryService;
     }
 
     @GET
@@ -105,7 +105,7 @@ public class SearchResource {
         } else {
             throw new LocalizedFieldValidationException(MessageSeeds.AT_LEAST_ONE_CRITERIA, "filter");
         }
-        List<Object> searchResults = searchBuilder.toFinder().from(jsonQueryParameters).stream().map(infoFactory::from).collect(toList());
+        List<Object> searchResults = searchBuilder.toFinder().from(jsonQueryParameters).stream().map(infoFactoryService::from).collect(toList());
         return Response.ok().entity(PagedInfoList.fromPagedList("searchResults", searchResults, jsonQueryParameters)).build();
     }
 
@@ -184,8 +184,8 @@ public class SearchResource {
             this.id = searchDomain.getId();
             this.displayValue = searchDomain.getId().substring(searchDomain.getId().lastIndexOf(".")+1); // Placeholder implementation
             this.link = new ArrayList<>();
-            link.add(Link.fromUriBuilder(uriInfo.getBaseUriBuilder().path(SearchResource.class).path(SearchResource.class, "doSearch")).rel("self").build(searchDomain.getId()));
-            link.add(Link.fromUriBuilder(uriInfo.getBaseUriBuilder().path(SearchResource.class).path(SearchResource.class, "getDomainProperties")).rel("describedby").build(searchDomain.getId()));
+            link.add(Link.fromUriBuilder(uriInfo.getBaseUriBuilder().path(DynamicSearchResource.class).path(DynamicSearchResource.class, "doSearch")).rel("self").build(searchDomain.getId()));
+            link.add(Link.fromUriBuilder(uriInfo.getBaseUriBuilder().path(DynamicSearchResource.class).path(DynamicSearchResource.class, "getDomainProperties")).rel("describedby").build(searchDomain.getId()));
         }
     }
 

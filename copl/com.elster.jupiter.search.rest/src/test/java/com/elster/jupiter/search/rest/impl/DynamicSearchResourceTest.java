@@ -28,7 +28,7 @@ import static org.mockito.Mockito.when;
 /**
  * Created by bvn on 6/1/15.
  */
-public class SearchResourceTest extends SearchApplicationTest {
+public class DynamicSearchResourceTest extends SearchApplicationTest {
 
     @Override
     @Before

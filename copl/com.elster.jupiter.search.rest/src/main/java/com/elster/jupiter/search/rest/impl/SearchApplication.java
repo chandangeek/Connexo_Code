@@ -5,7 +5,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
-import com.elster.jupiter.rest.util.InfoService;
+import com.elster.jupiter.rest.util.InfoFactoryService;
 import com.elster.jupiter.search.SearchService;
 import com.google.common.collect.ImmutableSet;
 import java.util.Collections;
@@ -32,13 +32,13 @@ public class SearchApplication  extends Application {
 
     private volatile SearchService searchService;
     private volatile Thesaurus thesaurus;
-    private volatile InfoService infoService;
+    private volatile InfoFactoryService infoFactoryService;
 
 
     @Override
     public Set<Class<?>> getClasses() {
         return ImmutableSet.of(
-                SearchResource.class
+                DynamicSearchResource.class
         );
     }
 
@@ -62,8 +62,8 @@ public class SearchApplication  extends Application {
     }
 
     @Reference
-    public void setInfoService(InfoService infoService) {
-        this.infoService = infoService;
+    public void setInfoFactoryService(InfoFactoryService infoFactoryService) {
+        this.infoFactoryService = infoFactoryService;
     }
 
     class HK2Binder extends AbstractBinder {
@@ -72,7 +72,7 @@ public class SearchApplication  extends Application {
         protected void configure() {
             bind(searchService).to(SearchService.class);
             bind(thesaurus).to(Thesaurus.class);
-            bind(infoService).to(InfoService.class);
+            bind(infoFactoryService).to(InfoFactoryService.class);
             bind(PropertyInfoFactory.class).to(PropertyInfoFactory.class);
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);

@@ -27,8 +27,8 @@ public class PropertyInfoFactory {
         propertyInfo.constraints = property.getConstraints().stream().map(c->c.getSpecification().getName()).collect(toList());
         URI uri = uriInfo.
                 getBaseUriBuilder().
-                path(SearchResource.class).
-                path(SearchResource.class, "getDomainPropertyValues").
+                path(DynamicSearchResource.class).
+                path(DynamicSearchResource.class, "getDomainPropertyValues").
                 resolveTemplate("domain", property.getDomain().getId()).
                 resolveTemplate("property", property.getName()).
                 build();
