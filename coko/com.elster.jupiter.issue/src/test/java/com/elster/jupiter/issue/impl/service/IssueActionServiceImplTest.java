@@ -14,6 +14,7 @@ import org.junit.Test;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.issue.impl.module.MessageSeeds;
 import com.elster.jupiter.issue.impl.records.IssueActionTypeImpl;
 import com.elster.jupiter.issue.share.AbstractIssueAction;
 import com.elster.jupiter.issue.share.IssueAction;
@@ -104,7 +105,7 @@ public class IssueActionServiceImplTest extends BaseTest {
     
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "Field cant be empty", property = "properties.property1", strict = true)
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.PROPERTY_MISSING +"}", property = "properties.property1", strict = true)
     public void testExecuteAction() {
         IssueType issueType = getIssueService().findIssueType(ISSUE_DEFAULT_TYPE_UUID).get();
         IssueActionType actionType = getIssueActionService().createActionType("Action Factory", "Action ClassName", issueType);
@@ -139,13 +140,8 @@ public class IssueActionServiceImplTest extends BaseTest {
         }
 
         @Override
-        public String getNameDefaultFormat() {
-            return "Test action";
-        }
-
-        @Override
-        public String getPropertyDefaultFormat(String property) {
-            return "Property";
+        public String getDisplayName() {
+            return "Test issue action";
         }
     }
 }

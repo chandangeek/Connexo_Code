@@ -29,8 +29,8 @@ import com.google.common.collect.ImmutableList.Builder;
 public class CloseIssueAction extends AbstractIssueAction {
     
     private static final String NAME = "CloseIssueAction";
-    static final String CLOSE_STATUS = NAME + ".status";
-    static final String COMMENT = NAME + ".comment";
+    public static final String CLOSE_STATUS = NAME + ".status";
+    public static final String COMMENT = NAME + ".comment";
 
     private final PossibleStatuses statuses = new PossibleStatuses();
     
@@ -72,23 +72,10 @@ public class CloseIssueAction extends AbstractIssueAction {
         builder.add(getPropertySpecService().stringPropertySpec(COMMENT, false, null));
         return builder.build();
     }
-
+    
     @Override
-    public String getNameDefaultFormat() {
-        return MessageSeeds.ACTION_CLOSE_ISSUE.getDefaultFormat();
-    }
-
-    @Override
-    public String getPropertyDefaultFormat(String property) {
-        switch (property) {
-        case CLOSE_STATUS:
-            return MessageSeeds.PARAMETER_CLOSE_STATUS.getDefaultFormat();
-        case COMMENT:
-            return MessageSeeds.PARAMETER_COMMENT.getDefaultFormat();
-        default:
-            break;
-        }
-        return null;
+    public String getDisplayName() {
+        return MessageSeeds.ACTION_CLOSE_ISSUE.getTranslated(getThesaurus());
     }
 
     @Override

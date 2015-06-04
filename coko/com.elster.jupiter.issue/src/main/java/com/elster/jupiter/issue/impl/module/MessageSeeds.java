@@ -1,5 +1,8 @@
 package com.elster.jupiter.issue.impl.module;
 
+import com.elster.jupiter.issue.impl.actions.AssignIssueAction;
+import com.elster.jupiter.issue.impl.actions.CloseIssueAction;
+import com.elster.jupiter.issue.impl.actions.CommentIssueAction;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
@@ -45,13 +48,13 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     ACTION_ISSUE_WAS_CLOSED(4507, "action.issue.was.closed", "Issue was closed" , Level.INFO),
     ACTION_ISSUE_WAS_COMMENTED(4508, "action.issue.was.commented", "Issue was commented" , Level.INFO),
 
-// 5001 - 5999 Issue action parameters
-    PARAMETER_CLOSE_STATUS(5001, "parameters.close.status", "Close status", Level.INFO),
-    PARAMETER_COMMENT(5002, "parameters.issue.comment", "Comment", Level.INFO),
-    PARAMETER_ASSIGNEE(5003, "parameters.issue.assignee", "Assignee", Level.INFO),
-    PARAMETER_ASSIGNEE_USER(5004, "parameters.issue.assignee.user", "User", Level.INFO),
-    PARAMETER_ASSIGNEE_ROLE(5005, "parameters.issue.assignee.role", "Role", Level.INFO),
-    PARAMETER_ASSIGNEE_GROUP(5006, "parameters.issue.assignee.group", "Group", Level.INFO),
+// 5001 - 5999 Issue action properties
+
+    ASSIGNACTION_PROPERTY_ASSIGNEE(5001, AssignIssueAction.ASSIGNEE, "Assignee", Level.INFO),
+    ASSIGNEACTION_PROPERTY_COMMENT(5002, AssignIssueAction.COMMENT, "Comment", Level.INFO),
+    CLOSEACTION_PROPERTY_CLOSESTATUS(5003, CloseIssueAction.CLOSE_STATUS, "Close status", Level.INFO),
+    CLOSEACTION_PROPERTY_COMMENT(5004, CloseIssueAction.COMMENT, "Comment", Level.INFO),
+    COMMENTACTION_PROPERTY_COMMENT(5005, CommentIssueAction.ISSUE_COMMENT, "Comment", Level.INFO),
 
 // 9001 - ... All messages
     ISSUE_DROOLS_VALIDATION(9001, "issue.drools.validation", "{0}", Level.SEVERE),
@@ -69,6 +72,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     PROPERTY_NOT_IN_PROPERTYSPECS(9013, Keys.PROPERTY_NOT_IN_PROPERTYSPECS, "Property is not in property specs", Level.SEVERE),
     PROPERTY_INVALID_VALUE(9014, Keys.PROPERTY_INVALID_VALUE, "Property invalid value", Level.SEVERE),
     PROPERTY_MISSING(9015, Keys.PROPERTY_MISSING, "Required property with key ''{0}'' was not found.", Level.SEVERE);
+    
     ;
 
     private final int number;

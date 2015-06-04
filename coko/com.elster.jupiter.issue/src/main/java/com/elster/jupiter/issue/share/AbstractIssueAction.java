@@ -7,22 +7,30 @@ import java.util.Map;
 import aQute.bnd.annotation.ConsumerType;
 
 import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.issue.impl.records.validator.HasValidProperties;
+import com.elster.jupiter.issue.impl.module.MessageSeeds;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.properties.HasValidProperties;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 
 @ConsumerType
-@HasValidProperties
-public abstract class AbstractIssueAction extends HasTranslatableNameAndPropertiesImpl implements IssueAction {
+@HasValidProperties(requiredPropertyMissingMessage = "{" + MessageSeeds.Keys.PROPERTY_MISSING + "}",
+                    invalidPropertyValueMessage = "{" + MessageSeeds.Keys.PROPERTY_INVALID_VALUE + "}",
+                    propertyNotInSpecMessage = "{" + MessageSeeds.Keys.PROPERTY_NOT_IN_PROPERTYSPECS + "}")
+public abstract class AbstractIssueAction implements IssueAction {
 
     private final DataModel dataModel;
+    private final PropertySpecService propertySpecService;
+    private final Thesaurus thesaurus;
+    
     protected Map<String, Object> properties = new HashMap<>();
 
     protected AbstractIssueAction(DataModel dataModel, Thesaurus thesaurus, PropertySpecService propertySpecService) {
-        super(thesaurus, propertySpecService);
         this.dataModel = dataModel;
+        this.thesaurus = thesaurus;
+        this.propertySpecService = propertySpecService;
     }
 
     @Override
@@ -36,8 +44,22 @@ public abstract class AbstractIssueAction extends HasTranslatableNameAndProperti
         Save.CREATE.validate(dataModel, this);
         return this;
     }
+    
+    @Override
+    public PropertySpec getPropertySpec(String name) {
+        return getPropertySpecs().stream().filter(property -> property.getName().equals(name)).findFirst().orElse(null);
+    }
 
-    public Map<String, Object> getProps() {
+    @Override
+    public Map<String, Object> getProperties() {
         return Collections.unmodifiableMap(this.properties);
+    }
+    
+    protected PropertySpecService getPropertySpecService() {
+        return propertySpecService;
+    }
+    
+    protected Thesaurus getThesaurus() {
+        return thesaurus;
     }
 }

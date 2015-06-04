@@ -7,8 +7,6 @@ public interface PersistentProperty {
 
     String getName();
 
-    String getDisplayName();
-
     Object getValue();
 
     void setValue(Object value);

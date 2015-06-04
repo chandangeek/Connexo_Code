@@ -2,16 +2,16 @@ package com.elster.jupiter.issue.share.entity;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.Map;
 
 import aQute.bnd.annotation.ProviderType;
 
+import com.elster.jupiter.issue.impl.records.UniqueNamed;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleUpdater;
-import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.HasDynamicPropertiesWithValues;
 
 @ProviderType
-public interface CreationRule extends Entity {
+public interface CreationRule extends Entity, UniqueNamed, HasDynamicPropertiesWithValues {
 
     String getName();
 
@@ -31,13 +31,7 @@ public interface CreationRule extends Entity {
 
     CreationRuleTemplate getTemplate();
 
-    List<PropertySpec> getPropertySpecs();
-    
-    PropertySpec getPropertySpec(String propertyName);
-    
-    String getDisplayName(String propertyName);
-
-    List<CreationRuleProperty> getProperties();
+    List<CreationRuleProperty> getCreationRuleProperties();
 
     List<CreationRuleAction> getActions();
 
@@ -45,5 +39,4 @@ public interface CreationRule extends Entity {
 
     CreationRuleUpdater startUpdate();
 
-    Map<String, Object> getProps();
 }

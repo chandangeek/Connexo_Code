@@ -31,8 +31,8 @@ import com.google.common.collect.ImmutableList.Builder;
 public class AssignIssueAction extends AbstractIssueAction {
     
     private static final String NAME = "AssignIssueAction";
-    static final String ASSIGNEE = NAME + ".assignee";
-    static final String COMMENT = NAME + ".comment";
+    public static final String ASSIGNEE = NAME + ".assignee";
+    public static final String COMMENT = NAME + ".comment";
 
     private final PossibleAssignees assignees = new PossibleAssignees();
     
@@ -90,21 +90,8 @@ public class AssignIssueAction extends AbstractIssueAction {
     }
 
     @Override
-    public String getNameDefaultFormat() {
-        return MessageSeeds.ACTION_ASSIGN_ISSUE.getDefaultFormat();
-    }
-    
-    @Override
-    public String getPropertyDefaultFormat(String property) {
-        switch (property) {
-        case ASSIGNEE:
-            return MessageSeeds.PARAMETER_ASSIGNEE.getDefaultFormat();
-        case COMMENT:
-            return MessageSeeds.PARAMETER_COMMENT.getDefaultFormat();
-        default:
-            break;
-        }
-        return null;
+    public String getDisplayName() {
+        return MessageSeeds.ACTION_ASSIGN_ISSUE.getTranslated(getThesaurus());
     }
     
     class PossibleAssignees implements FindById<Assignee> {

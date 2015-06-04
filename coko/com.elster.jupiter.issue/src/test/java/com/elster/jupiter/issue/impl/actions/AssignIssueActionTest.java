@@ -11,6 +11,7 @@ import org.junit.Test;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.issue.impl.actions.AssignIssueAction.Assignee;
+import com.elster.jupiter.issue.impl.module.MessageSeeds;
 import com.elster.jupiter.issue.impl.service.BaseTest;
 import com.elster.jupiter.issue.share.IssueAction;
 import com.elster.jupiter.issue.share.IssueActionResult;
@@ -51,7 +52,7 @@ public class AssignIssueActionTest extends BaseTest {
     
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "Property invalid value", property = "properties.AssignIssueAction.assignee", strict = true)
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.PROPERTY_INVALID_VALUE +"}", property = "properties.AssignIssueAction.assignee", strict = true)
     public void testExecuteActionWrongAssignee() {
         Map<String, Object> properties = new HashMap<>();
         properties.put(AssignIssueAction.ASSIGNEE, IdWithNameValue.EMPTY);
@@ -61,7 +62,7 @@ public class AssignIssueActionTest extends BaseTest {
     
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "Field cant be empty", property = "properties.AssignIssueAction.assignee", strict = true)
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.PROPERTY_MISSING +"}", property = "properties.AssignIssueAction.assignee", strict = true)
     public void testValidateMandatoryParameters() {
         action.initAndValidate(new HashMap<>());
     }

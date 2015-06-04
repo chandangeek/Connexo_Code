@@ -1,17 +1,17 @@
 package com.elster.jupiter.issue.impl.tasks;
 
+import java.util.Optional;
+import java.util.logging.Logger;
+
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
 import com.elster.jupiter.issue.share.IssueAction;
-import com.elster.jupiter.issue.share.entity.*;
+import com.elster.jupiter.issue.share.entity.CreationRule;
+import com.elster.jupiter.issue.share.entity.CreationRuleAction;
+import com.elster.jupiter.issue.share.entity.CreationRuleActionPhase;
+import com.elster.jupiter.issue.share.entity.Issue;
+import com.elster.jupiter.issue.share.entity.IssueActionType;
 import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.nls.Thesaurus;
-
-import java.util.Collections;
-import java.util.Optional;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Logger;
 
 public class IssueActionExecutor implements Runnable {
     public static final Logger LOG = Logger.getLogger(IssueActionExecutor.class.getName());
@@ -44,18 +44,6 @@ public class IssueActionExecutor implements Runnable {
         }
     }
 
-    private Map<String, Object> getActionProperties(CreationRuleAction ruleAction) {
-        Map<String, Object> propertiesMap = new HashMap<>();
-        List<CreationRuleActionProperty> properties = ruleAction.getProperties();
-        if (properties.isEmpty()){
-            return Collections.emptyMap();
-        }
-        for (CreationRuleActionProperty property : properties) {
-            propertiesMap.put(property.getName(), property.getValue());
-        }
-        return propertiesMap;
-    }
-
     private void executeAction(CreationRuleAction action) {
         Optional<IssueActionType> actionTypeRef = issueActionService.findActionType(action.getAction().getId());
         if (!actionTypeRef.isPresent()) {
@@ -64,7 +52,7 @@ public class IssueActionExecutor implements Runnable {
         Optional<IssueAction> realAction = actionTypeRef.get().createIssueAction();
         if (realAction.isPresent()) {
             try {
-                realAction.get().initAndValidate(getActionProperties(action)).execute(issue);
+                realAction.get().initAndValidate(action.getProperties()).execute(issue);
             } catch (RuntimeException e) {
                 MessageSeeds.ISSUE_ACTION_FAIL.log(LOG, thesaurus, e, issue.getTitle());
             }

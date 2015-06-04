@@ -9,9 +9,11 @@ import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.properties.HasDynamicProperties;
 
 @ConsumerType
-public interface CreationRuleTemplate extends HasDynamicProperties, HasTranslatableNameAndProperties {
+public interface CreationRuleTemplate extends HasDynamicProperties {
 
     String getName();
+    
+    String getDisplayName();
     
     String getDescription();
 

@@ -58,14 +58,9 @@ public class CommentIssueAction extends AbstractIssueAction {
         builder.add(getPropertySpecService().stringPropertySpec(ISSUE_COMMENT, true, null));
         return builder.build();
     }
-
+    
     @Override
-    public String getNameDefaultFormat() {
-        return MessageSeeds.ACTION_COMMENT_ISSUE.getDefaultFormat();
-    }
-
-    @Override
-    public String getPropertyDefaultFormat(String property) {
-        return ISSUE_COMMENT.equals(property) ? MessageSeeds.PARAMETER_COMMENT.getDefaultFormat() : null;
+    public String getDisplayName() {
+        return MessageSeeds.ACTION_COMMENT_ISSUE.getTranslated(getThesaurus());
     }
 }

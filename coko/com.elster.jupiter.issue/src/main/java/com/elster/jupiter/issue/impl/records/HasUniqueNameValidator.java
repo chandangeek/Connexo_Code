@@ -1,9 +1,7 @@
-package com.elster.jupiter.issue.impl.records.validator;
+package com.elster.jupiter.issue.impl.records;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
-
-import com.elster.jupiter.issue.impl.records.UniqueNamed;
 
 public class HasUniqueNameValidator implements ConstraintValidator<HasUniqueName, UniqueNamed> {
 

@@ -122,7 +122,7 @@ public class IssueCreationServiceImplTest extends BaseTest {
     
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "Field cant be empty", property = "properties.decimal_property", strict = true)
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.PROPERTY_MISSING +"}", property = "properties.decimal_property", strict = true)
     public void testCreateRuleNoMandatoryProperties() {
         CreationRuleBuilder builder = getIssueCreationService().newCreationRule();
         builder.setName("Name");
@@ -163,7 +163,7 @@ public class IssueCreationServiceImplTest extends BaseTest {
         CreationRule rule = getSimpleCreationRule("Creation Rule", template);
         rule = getIssueCreationService().findCreationRuleById(rule.getId()).orElse(null);
         
-        List<CreationRuleProperty> properties = rule.getProperties();
+        List<CreationRuleProperty> properties = rule.getCreationRuleProperties();
         
         assertThat(properties).hasSize(2);
         assertThat(properties.get(0).getName()).isEqualTo("string_property");
@@ -179,7 +179,7 @@ public class IssueCreationServiceImplTest extends BaseTest {
         rule.save();
         
         rule = getIssueCreationService().findCreationRuleById(rule.getId()).orElse(null);
-        properties = rule.getProperties();
+        properties = rule.getCreationRuleProperties();
         assertThat(properties).hasSize(2);
         assertThat(properties.get(0).getName()).isEqualTo("string_property");
         assertThat(properties.get(0).getValue()).isEqualTo("new string");
@@ -194,7 +194,7 @@ public class IssueCreationServiceImplTest extends BaseTest {
         rule.save();
         
         rule = getIssueCreationService().findCreationRuleById(rule.getId()).orElse(null);
-        properties = rule.getProperties();
+        properties = rule.getCreationRuleProperties();
         assertThat(properties).hasSize(1);
         assertThat(properties.get(0).getName()).isEqualTo("decimal_property");
         assertThat(properties.get(0).getValue()).isEqualTo(BigDecimal.valueOf(15));
@@ -208,7 +208,7 @@ public class IssueCreationServiceImplTest extends BaseTest {
         rule.save();
         
         rule = getIssueCreationService().findCreationRuleById(rule.getId()).orElse(null);
-        properties = rule.getProperties();
+        properties = rule.getCreationRuleProperties();
         assertThat(properties).hasSize(2);
         assertThat(properties.get(0).getName()).isEqualTo("string_property");
         assertThat(properties.get(0).getValue()).isEqualTo("string again");
@@ -306,13 +306,11 @@ public class IssueCreationServiceImplTest extends BaseTest {
         assertThat(creationRuleAction.getRule().getId()).isEqualTo(rule.getId());
         assertThat(creationRuleAction.getAction().getId()).isEqualTo(actionType.getId());
         assertThat(creationRuleAction.getProperties()).hasSize(2);
-        assertThat(creationRuleAction.getProperties().get(0).getName()).isEqualTo("decimal_property");
-        assertThat(creationRuleAction.getProperties().get(0).getValue()).isEqualTo(BigDecimal.valueOf(10));
-        assertThat(creationRuleAction.getProperties().get(1).getName()).isEqualTo("string_property");
-        assertThat(creationRuleAction.getProperties().get(1).getValue()).isEqualTo("string");
+        assertThat(creationRuleAction.getCreationRuleActionProperties().get(0).getName()).isEqualTo("decimal_property");
+        assertThat(creationRuleAction.getCreationRuleActionProperties().get(0).getValue()).isEqualTo(BigDecimal.valueOf(10));
+        assertThat(creationRuleAction.getCreationRuleActionProperties().get(1).getName()).isEqualTo("string_property");
+        assertThat(creationRuleAction.getCreationRuleActionProperties().get(1).getValue()).isEqualTo("string");
     }
-    
-    
     
     @Test
     @Transactional
@@ -380,7 +378,7 @@ public class IssueCreationServiceImplTest extends BaseTest {
     
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "Field cant be empty", property = "actions[0].properties.decimal_property", strict = true)
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.PROPERTY_MISSING +"}", property = "actions[0].properties.decimal_property", strict = true)
     public void testRuleActionNoProperties() {
         CreationRule rule = getSimpleCreationRule("Creation rule", template);
         

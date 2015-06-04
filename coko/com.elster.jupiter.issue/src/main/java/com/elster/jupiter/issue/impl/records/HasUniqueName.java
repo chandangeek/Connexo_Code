@@ -1,4 +1,4 @@
-package com.elster.jupiter.issue.impl.records.validator;
+package com.elster.jupiter.issue.impl.records;
 
 import javax.validation.Constraint;
 import javax.validation.Payload;

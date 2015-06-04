@@ -19,11 +19,6 @@ public class CreationRulePropertyImpl extends AbstractPropertyImpl implements Cr
     }
 
     @Override
-    public String getDisplayName() {
-        return rule.get().getDisplayName(getName());
-    }
-
-    @Override
     public CreationRule getRule() {
         return rule.get();
     }

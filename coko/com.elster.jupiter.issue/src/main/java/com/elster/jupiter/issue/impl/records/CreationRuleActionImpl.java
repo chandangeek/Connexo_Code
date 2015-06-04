@@ -12,9 +12,7 @@ import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
-import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
-import com.elster.jupiter.issue.impl.records.validator.HasValidProperties;
 import com.elster.jupiter.issue.share.IssueAction;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.CreationRuleAction;
@@ -25,9 +23,12 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.properties.HasValidProperties;
 import com.elster.jupiter.properties.PropertySpec;
 
-@HasValidProperties(groups = {Save.Create.class, Save.Update.class})
+@HasValidProperties(requiredPropertyMissingMessage = "{" + MessageSeeds.Keys.PROPERTY_MISSING + "}",
+                    invalidPropertyValueMessage = "{" + MessageSeeds.Keys.PROPERTY_INVALID_VALUE + "}",
+                    propertyNotInSpecMessage = "{" + MessageSeeds.Keys.PROPERTY_NOT_IN_PROPERTYSPECS + "}")
 public class CreationRuleActionImpl implements CreationRuleAction {
 
     @SuppressWarnings("unused")
@@ -69,18 +70,13 @@ public class CreationRuleActionImpl implements CreationRuleAction {
     }
 
     @Override
-    public List<CreationRuleActionProperty> getProperties() {
+    public List<CreationRuleActionProperty> getCreationRuleActionProperties() {
         return Collections.unmodifiableList(properties);
     }
 
     @Override
     public CreationRule getRule() {
         return rule.get();
-    }
-
-    @Override
-    public String getDisplayName(String propertyName) {
-        return getAction().createIssueAction().map(action -> action.getDisplayName(propertyName)).orElse(null);
     }
 
     @Override
@@ -103,7 +99,7 @@ public class CreationRuleActionImpl implements CreationRuleAction {
     }
 
     @Override
-    public Map<String, Object> getProps() {
+    public Map<String, Object> getProperties() {
         return this.properties.stream().collect(Collectors.toMap(CreationRuleActionProperty::getName, CreationRuleActionProperty::getValue));
     }
 

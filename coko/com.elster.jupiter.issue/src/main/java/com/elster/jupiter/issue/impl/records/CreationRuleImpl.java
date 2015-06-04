@@ -19,8 +19,6 @@ import javax.validation.constraints.Size;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
-import com.elster.jupiter.issue.impl.records.validator.HasUniqueName;
-import com.elster.jupiter.issue.impl.records.validator.HasValidProperties;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.CreationRuleAction;
@@ -34,14 +32,17 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.properties.HasValidProperties;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.collections.ArrayDiffList;
 import com.elster.jupiter.util.collections.DiffList;
 import com.elster.jupiter.util.conditions.Condition;
 
 @HasUniqueName(message = "{" + MessageSeeds.Keys.CREATION_RULE_UNIQUE_NAME + "}")
-@HasValidProperties(groups = {Save.Create.class, Save.Update.class})
-public class CreationRuleImpl extends EntityImpl implements CreationRule, UniqueNamed {
+@HasValidProperties(requiredPropertyMissingMessage = "{" + MessageSeeds.Keys.PROPERTY_MISSING + "}",
+                    invalidPropertyValueMessage = "{" + MessageSeeds.Keys.PROPERTY_INVALID_VALUE + "}",
+                    propertyNotInSpecMessage = "{" + MessageSeeds.Keys.PROPERTY_NOT_IN_PROPERTYSPECS + "}")
+public class CreationRuleImpl extends EntityImpl implements CreationRule {
     
     private static final String PARAM_RULE_ID = "ruleId";
     
@@ -153,7 +154,7 @@ public class CreationRuleImpl extends EntityImpl implements CreationRule, Unique
     }
 
     @Override
-    public List<CreationRuleProperty> getProperties() {
+    public List<CreationRuleProperty> getCreationRuleProperties() {
         return Collections.unmodifiableList(properties);
     }
 
@@ -191,11 +192,6 @@ public class CreationRuleImpl extends EntityImpl implements CreationRule, Unique
     }
     
     @Override
-    public String getDisplayName(String propertyName) {
-        return getTemplate().getDisplayName(propertyName);
-    }
-    
-    @Override
     public List<PropertySpec> getPropertySpecs() {
         CreationRuleTemplate template = getTemplate();
         return template != null ? template.getPropertySpecs() : Collections.emptyList();
@@ -207,7 +203,7 @@ public class CreationRuleImpl extends EntityImpl implements CreationRule, Unique
     }
     
     @Override
-    public Map<String, Object> getProps() {
+    public Map<String, Object> getProperties() {
         return properties.stream().collect(Collectors.toMap(CreationRuleProperty::getName, CreationRuleProperty::getValue));
     }
     

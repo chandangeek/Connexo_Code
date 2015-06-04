@@ -23,11 +23,6 @@ public class CreationRuleActionPropertyImpl extends AbstractPropertyImpl impleme
         return action.get();
     }
 
-    @Override
-    public String getDisplayName() {
-        return action.get().getDisplayName(getName());
-    }
-
     protected PropertySpec getPropertySpec() {
         return action.get().getPropertySpec(getName());
     }
