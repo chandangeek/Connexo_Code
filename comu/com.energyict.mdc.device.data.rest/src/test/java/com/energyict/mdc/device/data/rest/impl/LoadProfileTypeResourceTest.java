@@ -26,6 +26,7 @@ import org.mockito.Mock;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.math.BigDecimal;
+import java.net.URLEncoder;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Date;
@@ -120,9 +121,9 @@ public class LoadProfileTypeResourceTest extends DeviceDataRestApplicationJersey
 
     @Test
     public void testLoadProfileData() {
+        String filter = URLEncoder.encode("[{\"property\":\"intervalStart\",\"value\":1410774630000},{\"property\":\"intervalEnd\",\"value\":1410828630000}]");
         String json = target("devices/1/loadprofiles/1/data")
-                .queryParam("intervalStart", "1410774630000")
-                .queryParam("intervalEnd", "1410828630000")
+                .queryParam("filter", filter)
                 .request().get(String.class);
 
         System.out.println(json);
@@ -152,10 +153,9 @@ public class LoadProfileTypeResourceTest extends DeviceDataRestApplicationJersey
         when(evaluator.getValidationResult(any())).thenReturn(ValidationResult.VALID);
         when(deviceValidation.getValidationResult(any())).thenReturn(ValidationResult.VALID);
 
+        String filter = URLEncoder.encode("[{\"property\":\"intervalStart\",\"value\":1410774630000},{\"property\":\"intervalEnd\",\"value\":1410828630000},{\"property\":\"onlySuspect\",\"value\":true}]");
         String json = target("devices/1/loadprofiles/1/data")
-                .queryParam("intervalStart", "1410774630000")
-                .queryParam("intervalEnd", "1410828630000")
-                .queryParam("onlySuspect", "true")
+                .queryParam("filter", filter)
                 .request().get(String.class);
 
         System.out.println(json);
@@ -167,9 +167,9 @@ public class LoadProfileTypeResourceTest extends DeviceDataRestApplicationJersey
 
     @Test
     public void testLoadProfileDataFilteredMatches() {
+        String filter = URLEncoder.encode("[{\"property\":\"intervalStart\",\"value\":1410774630000},{\"property\":\"intervalEnd\",\"value\":1410828630000}]");
         String json = target("devices/1/loadprofiles/1/data")
-                .queryParam("intervalStart", "1410774630000")
-                .queryParam("intervalEnd", "1410828630000")
+                .queryParam("filter", filter)
                 .queryParam("onlySuspect", "true")
                 .request().get(String.class);
 
