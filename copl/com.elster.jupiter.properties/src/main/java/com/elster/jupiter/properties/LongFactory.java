@@ -23,7 +23,7 @@ public class LongFactory extends AbstractValueFactory<Long> {
     }
 
     @Override
-    public Long valueFromDatabase (Object object) throws SQLException {
+    public Long valueFromDatabase (Object object) {
         return (Long) object;
     }
 

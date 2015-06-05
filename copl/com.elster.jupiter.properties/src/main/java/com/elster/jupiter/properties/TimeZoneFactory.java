@@ -1,8 +1,5 @@
 package com.elster.jupiter.properties;
 
-import org.osgi.service.component.annotations.Component;
-
-import java.sql.SQLException;
 import java.util.TimeZone;
 
 /**
@@ -30,7 +27,7 @@ public class TimeZoneFactory extends AbstractValueFactory<TimeZone> {
     }
 
     @Override
-    public TimeZone valueFromDatabase (Object object) throws SQLException {
+    public TimeZone valueFromDatabase (Object object) {
         return TimeZone.getTimeZone((String) object);
     }
 

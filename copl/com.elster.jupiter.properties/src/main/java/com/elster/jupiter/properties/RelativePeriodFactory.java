@@ -4,7 +4,6 @@ import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeService;
 
 import java.math.BigDecimal;
-import java.sql.SQLException;
 
 /**
  * Provides an implementation for the {@link ValueFactory} interface
@@ -39,7 +38,7 @@ public class RelativePeriodFactory extends AbstractValueFactory<RelativePeriod> 
     }
 
     @Override
-    public RelativePeriod valueFromDatabase (Object object) throws SQLException {
+    public RelativePeriod valueFromDatabase (Object object) {
         long id = ((Number) object).longValue();
         return getRelativePeriod(id);
     }

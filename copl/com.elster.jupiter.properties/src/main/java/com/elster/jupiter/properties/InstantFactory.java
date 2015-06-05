@@ -2,7 +2,6 @@ package com.elster.jupiter.properties;
 
 import com.elster.jupiter.util.Checks;
 
-import java.sql.SQLException;
 import java.time.Instant;
 
 /**
@@ -31,7 +30,7 @@ public class InstantFactory extends AbstractValueFactory<Instant> {
     }
 
     @Override
-    public Instant valueFromDatabase (Object object) throws SQLException {
+    public Instant valueFromDatabase (Object object) {
         return this.valueFromDatabase((Number) object);
     }
 

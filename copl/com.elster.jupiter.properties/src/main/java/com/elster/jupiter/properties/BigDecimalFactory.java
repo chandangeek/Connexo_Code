@@ -4,10 +4,6 @@ import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.util.sql.SqlBuilder;
-import org.osgi.service.component.annotations.Component;
-
 /**
  * Provides an implementation for the {@link ValueFactory} interface
  * for BigDecimal values.
@@ -33,7 +29,7 @@ public class BigDecimalFactory extends AbstractValueFactory<BigDecimal> {
     }
 
     @Override
-    public BigDecimal valueFromDatabase (Object object) throws SQLException {
+    public BigDecimal valueFromDatabase (Object object) {
         return (BigDecimal) object;
     }
 

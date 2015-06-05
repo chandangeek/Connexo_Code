@@ -1,9 +1,6 @@
 package com.elster.jupiter.properties;
 
-import java.sql.SQLException;
-
 import com.google.common.base.Joiner;
-import org.osgi.service.component.annotations.Component;
 
 import java.util.Optional;
 
@@ -56,7 +53,7 @@ public class ListValueFactory<T extends ListValueEntry> extends AbstractValueFac
     }
 
     @Override
-    public ListValue<T> valueFromDatabase(Object object) throws SQLException {
+    public ListValue<T> valueFromDatabase(Object object) {
         return fromStringValue((String) object);
     }
 
@@ -64,4 +61,5 @@ public class ListValueFactory<T extends ListValueEntry> extends AbstractValueFac
     public Object valueToDatabase(ListValue<T> object) {
         return toStringValue(object);
     }
+
 }

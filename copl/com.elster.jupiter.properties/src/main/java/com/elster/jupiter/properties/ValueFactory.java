@@ -14,20 +14,20 @@ import com.elster.jupiter.util.sql.SqlBuilder;
  * @since 2013-11-27 (14:03)
  */
 public interface ValueFactory<T> {
-    
+
     public T fromStringValue(String stringValue);
 
     public String toStringValue(T object);
 
     public Class<T> getValueType();
-    
+
     public boolean isReference ();
 
     public String getDatabaseTypeName ();
 
     public int getJdbcType ();
 
-    public T valueFromDatabase (Object object) throws SQLException;
+    public T valueFromDatabase (Object object);
 
     public Object valueToDatabase (T object);
 

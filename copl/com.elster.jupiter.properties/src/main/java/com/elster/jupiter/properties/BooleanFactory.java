@@ -1,10 +1,9 @@
 package com.elster.jupiter.properties;
 
+import com.elster.jupiter.util.sql.SqlBuilder;
+
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-
-import com.elster.jupiter.util.sql.SqlBuilder;
-import org.osgi.service.component.annotations.Component;
 
 import static com.elster.jupiter.util.Checks.is;
 
@@ -30,7 +29,7 @@ public class BooleanFactory extends AbstractValueFactory<Boolean> {
     }
 
     @Override
-    public Boolean valueFromDatabase(Object object) throws SQLException {
+    public Boolean valueFromDatabase(Object object) {
         if (object == null) {
             return Boolean.FALSE;
         }

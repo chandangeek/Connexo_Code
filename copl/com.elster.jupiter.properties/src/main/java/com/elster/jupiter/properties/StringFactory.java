@@ -3,9 +3,6 @@ package com.elster.jupiter.properties;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import com.elster.jupiter.util.sql.SqlBuilder;
-import org.osgi.service.component.annotations.Component;
-
 /**
  * Provides an implementation for the {@link ValueFactory} interface
  * for String values.
@@ -33,7 +30,7 @@ public class StringFactory extends AbstractValueFactory<String> {
     }
 
     @Override
-    public String valueFromDatabase (Object object) throws SQLException {
+    public String valueFromDatabase (Object object) {
         return (String) object;
     }
 
