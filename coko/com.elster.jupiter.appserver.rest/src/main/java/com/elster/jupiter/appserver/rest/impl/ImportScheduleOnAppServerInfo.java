@@ -20,10 +20,12 @@ public class ImportScheduleOnAppServerInfo {
         this.numberOfThreads = numberOfThreads;
     }
 
+    /*
     public ImportScheduleOnAppServerInfo(long nID) {
         this.importSchedule = new ImportScheduleInfo(nID);
         this.numberOfThreads = (int)nID;
     }
+    */
     /*
     public static ImportScheduleOnAppServerInfo of(ImportScheduleOnAppServer importScheduleOnAppServer, Thesaurus thesaurus) {
         return new ImportScheduleOnAppServerInfo(ImportScheduleInfo.of(importScheduleOnAppServer, thesaurus), executionSpec.getThreadCount());
