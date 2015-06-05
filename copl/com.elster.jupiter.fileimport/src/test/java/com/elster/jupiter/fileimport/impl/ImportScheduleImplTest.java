@@ -82,9 +82,10 @@ public class ImportScheduleImplTest {
 
         when(fileImportService.getImportFactory(Matchers.any())).thenReturn(Optional.of(fileImporterFactory));
         when(fileImporterFactory.getDestinationName()).thenReturn("DEST_1");
+        when(fileImporterFactory.getApplicationName()).thenReturn("SYS");
         when(dataModel.getInstance(ImportScheduleImpl.class)).thenReturn(new ImportScheduleImpl(dataModel, fileImportService, messageService, cronParser, nameResolver, fileSystem,jsonService, thesaurus));
         when(fileImportService.getImportFactory("importerName")).thenReturn(Optional.empty());
-        importSchedule = ImportScheduleImpl.from(dataModel, "TEST_IMPORT_SCHEDULE", false, scheduleExpression, "importerName", DESTINATION_NAME, importDir, ".", inProcessDir, failureDir, successDir);
+        importSchedule = ImportScheduleImpl.from(dataModel, "TEST_IMPORT_SCHEDULE", false, scheduleExpression,"SYS","importerName", DESTINATION_NAME, importDir, ".", inProcessDir, failureDir, successDir);
     }
 
     @After

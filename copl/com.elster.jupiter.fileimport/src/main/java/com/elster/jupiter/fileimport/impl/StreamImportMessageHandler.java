@@ -11,6 +11,7 @@ import java.time.Clock;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 
 import static com.elster.jupiter.util.conditions.Operator.EQUAL;
 
@@ -37,17 +38,21 @@ class StreamImportMessageHandler implements MessageHandler {
     public void process(Message message) {
         FileImportOccurrence fileImportOccurrence = getFileImportOccurrence(message);
         if (fileImportOccurrence != null) {
-            String importerName = fileImportOccurrence.getImportSchedule().getImporterName();
-            Map<String, Object> propertyMap = new HashMap<>();
+            try {
+                String importerName = fileImportOccurrence.getImportSchedule().getImporterName();
+                Map<String, Object> propertyMap = new HashMap<>();
 
-            FileImporterFactory fileImporterFactory =  fileImportService.getImportFactory(importerName)
-                    .orElseThrow(() -> new NoSuchDataImporter(thesaurus, importerName));
-            List<FileImporterProperty> importerProperties = fileImportOccurrence.getImportSchedule().getImporterProperties();
-            for (FileImporterProperty property : importerProperties) {
-                propertyMap.put(property.getName(), property.useDefault() ? getDefaultValue(fileImporterFactory, property) : property.getValue());
+                FileImporterFactory fileImporterFactory = fileImportService.getImportFactory(importerName)
+                        .orElseThrow(() -> new NoSuchDataImporter(thesaurus, importerName));
+                List<FileImporterProperty> importerProperties = fileImportOccurrence.getImportSchedule().getImporterProperties();
+                for (FileImporterProperty property : importerProperties) {
+                    propertyMap.put(property.getName(), property.useDefault() ? getDefaultValue(fileImporterFactory, property) : property.getValue());
+                }
+                FileImporter importer = fileImporterFactory.createImporter(propertyMap);
+                importer.process(fileImportOccurrence);
+            } catch (Exception e) {
+                fileImportOccurrence.getLogger().log(Level.SEVERE, e.getLocalizedMessage(),e);
             }
-            FileImporter importer = fileImporterFactory.createImporter(propertyMap);
-            importer.process(fileImportOccurrence);
         }
     }
 

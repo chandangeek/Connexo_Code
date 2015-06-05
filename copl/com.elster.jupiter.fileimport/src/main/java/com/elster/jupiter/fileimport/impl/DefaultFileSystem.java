@@ -39,7 +39,7 @@ class DefaultFileSystem implements FileSystem {
     @Override
     public DirectoryStream<Path> newDirectoryStream(Path directory, String pathMatcher) {
         try {
-            return Files.newDirectoryStream(directory, pathMatcher!=null?pathMatcher:".");
+            return Files.newDirectoryStream(directory, (pathMatcher!=null && !pathMatcher.isEmpty()) ? pathMatcher : "*");
         } catch (IOException e) {
             throw new FileIOException(e, thesaurus);
         }

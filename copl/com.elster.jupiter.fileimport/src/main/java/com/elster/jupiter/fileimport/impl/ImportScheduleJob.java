@@ -43,6 +43,11 @@ class ImportScheduleJob implements CronJob {
     }
 
     @Override
+    public Long getId() {
+        return importScheduleId;
+    }
+
+    @Override
     public ScheduleExpression getSchedule() {
         return fileImportService.getImportSchedule(importScheduleId).orElseThrow(IllegalArgumentException::new).getScheduleExpression();
     }

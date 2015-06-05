@@ -7,10 +7,13 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -20,6 +23,7 @@ class CronExpressionScheduler {
 
     private final ScheduledExecutorService scheduledExecutorService;
     private final Clock clock;
+    Map<Long, ScheduledFuture<?>> scheduledJobHandles;
 
     /**
      * Creates a new CronExpressionScheduler with the given size of thread pool.
@@ -29,6 +33,7 @@ class CronExpressionScheduler {
     public CronExpressionScheduler(Clock clock, int threadPoolSize) {
         this.clock = clock;
         scheduledExecutorService = Executors.newScheduledThreadPool(threadPoolSize);
+        scheduledJobHandles = new HashMap<>();
     }
 
     /**
@@ -42,7 +47,7 @@ class CronExpressionScheduler {
                 .ifPresent(
                         no -> {
                             long delay = no.toEpochSecond() * 1000 - now.toInstant().toEpochMilli();
-                            scheduledExecutorService.schedule(cronJob, delay, TimeUnit.MILLISECONDS);
+                            scheduledJobHandles.put(cronJob.getId(), scheduledExecutorService.schedule(cronJob, delay, TimeUnit.MILLISECONDS));
                         });
     }
 
@@ -54,12 +59,22 @@ class CronExpressionScheduler {
         submitOnce(new SelfReschedulingCronJob(cronJob));
     }
 
+    public void unschedule(Long cronJobId, boolean mayInterruptIfRunning) {
+        if (scheduledJobHandles.containsKey(cronJobId))
+            scheduledJobHandles.get(cronJobId).cancel(mayInterruptIfRunning);
+    }
+
     private final class SelfReschedulingCronJob implements CronJob {
 
         private final CronJob wrapped;
 
         private SelfReschedulingCronJob(CronJob wrapped) {
             this.wrapped = wrapped;
+        }
+
+        @Override
+        public Long getId() {
+            return wrapped.getId();
         }
 
         @Override

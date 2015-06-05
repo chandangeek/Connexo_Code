@@ -8,6 +8,7 @@ import com.elster.jupiter.util.time.ScheduleExpression;
  */
 interface CronJob extends Runnable {
 
+    Long getId();
     ScheduleExpression getSchedule();
 
 }

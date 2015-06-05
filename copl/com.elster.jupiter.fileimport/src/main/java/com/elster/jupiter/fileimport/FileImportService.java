@@ -33,6 +33,12 @@ public interface FileImportService {
     void schedule(ImportSchedule importSchedule);
 
     /**
+     * Cancel job execution of the given importSchedule.
+     * @param importSchedule
+     */
+    void unSchedule(ImportSchedule importSchedule);
+
+    /**
      * @param id
      * @return the ImportSchedule with the given id, optionally, as it may not exist
      */
@@ -62,9 +68,14 @@ public interface FileImportService {
     Finder<ImportSchedule> findImportSchedules(String applicationName);
 
     /**
+     * @return the list of import schedules including obsolete ones
+     */
+    Finder<ImportSchedule> findAllImportSchedules(String applicationName);
+
+    /**
      * @return the a file occurrence finder for specified application name and/or schedule id
      */
-    FileImportOccurrenceFinderBuilder getFileImportOccurenceFinderBuilder(String applicationName, Long importScheduleId);
+    FileImportOccurrenceFinderBuilder getFileImportOccurrenceFinderBuilder(String applicationName, Long importScheduleId);
 
     /**
      * @return the file occurrece with specified id
@@ -97,5 +108,6 @@ public interface FileImportService {
      * @return the base path of the running app server import folder
      */
     Path getBasePath();
+
 
 }

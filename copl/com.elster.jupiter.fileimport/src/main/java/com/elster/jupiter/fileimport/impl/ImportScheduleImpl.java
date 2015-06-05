@@ -50,6 +50,7 @@ class ImportScheduleImpl implements ImportSchedule {
     private Path failureDirectory;
     private String pathMatcher;
     private transient ScheduleExpression scheduleExpression;
+    private String applicationName;
 
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
@@ -75,6 +76,8 @@ class ImportScheduleImpl implements ImportSchedule {
     private Instant createTime;
     private Instant modTime;
     private String userName;
+    private Instant obsoleteTime;
+
 
 
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
@@ -95,12 +98,12 @@ class ImportScheduleImpl implements ImportSchedule {
         this.fileImportService = fileImportService;
     }
 
-    static ImportScheduleImpl from(DataModel dataModel, String name, boolean active, ScheduleExpression scheduleExpression, String importerName, String destination,
+    static ImportScheduleImpl from(DataModel dataModel, String name, boolean active, ScheduleExpression scheduleExpression, String applicationName, String importerName, String destination,
                                    Path importDirectory, String pathMatcher, Path inProcessDirectory, Path failureDirectory, Path successDirectory) {
-        return dataModel.getInstance(ImportScheduleImpl.class).init(name, active, scheduleExpression, importerName, destination, importDirectory, pathMatcher, inProcessDirectory, failureDirectory, successDirectory);
+        return dataModel.getInstance(ImportScheduleImpl.class).init(name, active, scheduleExpression, applicationName, importerName, destination, importDirectory, pathMatcher, inProcessDirectory, failureDirectory, successDirectory);
     }
 
-    private ImportScheduleImpl init( String name, boolean active, ScheduleExpression scheduleExpression, String importerName, String destinationName, Path importDirectory, String pathMatcher, Path inProcessDirectory, Path failureDirectory, Path successDirectory) {
+    private ImportScheduleImpl init( String name, boolean active, ScheduleExpression scheduleExpression, String applicationName, String importerName, String destinationName, Path importDirectory, String pathMatcher, Path inProcessDirectory, Path failureDirectory, Path successDirectory) {
         this.name = name;
         this.active = active;
         this.scheduleExpression = scheduleExpression;
@@ -112,6 +115,7 @@ class ImportScheduleImpl implements ImportSchedule {
         this.failureDirectory = failureDirectory;
         this.successDirectory = successDirectory;
         this.pathMatcher = pathMatcher;
+        this.applicationName = applicationName;
         return this;
     }
 
@@ -232,8 +236,16 @@ class ImportScheduleImpl implements ImportSchedule {
         if (id == 0) {
             return;
         }
-        properties.clear();
-        dataModel.remove(this);
+        setObsoleteTime(Instant.now()); // mark obsolete
+        update();
+    }
+
+    public Instant getObsoleteTime() {
+        return obsoleteTime;
+    }
+
+    private void setObsoleteTime(Instant obsoleteTime) {
+        this.obsoleteTime = obsoleteTime;
     }
 
     @Override
@@ -284,12 +296,13 @@ class ImportScheduleImpl implements ImportSchedule {
 
     @Override
     public String getApplicationName() {
-        Optional<FileImporterFactory> optional = fileImportService.getImportFactory(importerName);
+        /*Optional<FileImporterFactory> optional = fileImportService.getImportFactory(importerName);
         if (optional.isPresent()) {
             FileImporterFactory importerFactory = optional.get();
             return importerFactory.getApplicationName();
         }
-        return null;
+        return null;*/
+        return applicationName;
     }
 
     @Override

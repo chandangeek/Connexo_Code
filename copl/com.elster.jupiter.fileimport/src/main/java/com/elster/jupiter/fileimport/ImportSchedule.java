@@ -10,6 +10,7 @@ import sun.misc.ConditionLock;
 import java.io.File;
 import java.nio.file.Path;
 import java.time.Clock;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -132,6 +133,8 @@ public interface ImportSchedule {
     void setDestination(String destinationName);
 
     String getApplicationName();
+
+    Instant getObsoleteTime();
 
     void setActive(Boolean active);
 

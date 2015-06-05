@@ -201,6 +201,10 @@ public class FileImportServiceImpl implements InstallService, FileImportService 
         cronExpressionScheduler.submit(new ImportScheduleJob(path -> !Files.isDirectory(path), defaultFileSystem, jsonService,
                 this, importSchedule.getId(), transactionService, thesaurus, cronExpressionParser, clock));
     }
+    @Override
+    public void unSchedule(ImportSchedule importSchedule) {
+        cronExpressionScheduler.unschedule(importSchedule.getId(), false);
+    }
 
     @Override
     public Optional<ImportSchedule> getImportSchedule(long id) {
@@ -254,18 +258,28 @@ public class FileImportServiceImpl implements InstallService, FileImportService 
 
     @Override
     public Finder<ImportSchedule> findImportSchedules(String applicationName) {
-        List importers = getAvailableImporters(applicationName).stream().map(FileImporterFactory::getName).collect(Collectors.toList());
-        Condition condition = importers.isEmpty() ? Condition.FALSE : Where.where("importerName").in(importers);
+        Condition condition = Condition.TRUE;
+        if(!"SYS".equalsIgnoreCase(applicationName))
+            condition = condition.and(Where.where("applicationName").isEqualToIgnoreCase(applicationName));
+        condition = condition.and(Where.where("obsoleteTime").isNull());
         return DefaultFinder.of(ImportSchedule.class, condition, dataModel);
     }
 
     @Override
-    public FileImportOccurrenceFinderBuilder getFileImportOccurenceFinderBuilder(String applicationName, Long importScheduleId) {
+    public Finder<ImportSchedule> findAllImportSchedules(String applicationName) {
+        Condition condition = Condition.TRUE;
+        if(!"SYS".equalsIgnoreCase(applicationName))
+            condition = condition.and(Where.where("applicationName").isEqualToIgnoreCase(applicationName));
+        return DefaultFinder.of(ImportSchedule.class, condition, dataModel);
+    }
 
-        List importers = getAvailableImporters(applicationName).stream().map(FileImporterFactory::getName).collect(Collectors.toList());
-        Condition conditionImportName = importers.isEmpty() ? Condition.FALSE : Where.where("importSchedule.importerName").in(importers);
-        Condition conditionImportSchedule = importScheduleId == null ? Condition.TRUE : Where.where("importScheduleId").isEqualTo(importScheduleId);
-        Condition condition = conditionImportName.and(conditionImportSchedule);
+    @Override
+    public FileImportOccurrenceFinderBuilder getFileImportOccurrenceFinderBuilder(String applicationName, Long importScheduleId) {
+        Condition condition = Condition.TRUE;
+        if(!"SYS".equalsIgnoreCase(applicationName))
+            condition = condition.and(Where.where("applicationName").isEqualToIgnoreCase(applicationName));
+        if(importScheduleId != null)
+            condition = condition.and(Where.where("importScheduleId").isEqualTo(importScheduleId));
         return new FileImportOccurrenceFinderBuilderImpl(dataModel, condition);
     }
 
@@ -290,7 +304,9 @@ public class FileImportServiceImpl implements InstallService, FileImportService 
 
     @Override
     public Optional<ImportSchedule> getImportSchedule(String name) {
-        return getImportSchedulesQuery().select(where("name").isEqualTo(name)).stream()
+        return getImportSchedulesQuery()
+                .select(where("name").isEqualTo(name).and(Where.where("obsoleteTime").isNull()))
+                .stream()
                 .findFirst();
     }
 
@@ -305,5 +321,7 @@ public class FileImportServiceImpl implements InstallService, FileImportService 
             this.basePath = Paths.get("/");
         return this.basePath;
     }
+
+
 
 }
