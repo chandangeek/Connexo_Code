@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.when;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Instant;
@@ -62,6 +64,20 @@ public class ColumnConversionTest {
 		try {
 			when(rs.getLong(anyInt())).thenReturn(123456789L);
 			assertThat(ColumnConversionImpl.NUMBER2INSTANT.convertFromDb(rs,5)).isEqualTo(instant);
+		} catch (SQLException ex) {
+			assertThat(true).isFalse();
+		}
+	}
+
+	@Test
+	public void testChar2Path() {
+		Path path = Paths.get("/a/b/c/d");
+		String convertedPath = path.toString();
+		assertThat(ColumnConversionImpl.CHAR2PATH.convert(convertedPath)).isEqualTo(path);
+		assertThat(ColumnConversionImpl.CHAR2PATH.convertToDb(path)).isEqualTo(convertedPath);
+		try {
+			when(rs.getString(anyInt())).thenReturn(convertedPath);
+			assertThat(ColumnConversionImpl.CHAR2PATH.convertFromDb(rs,5)).isEqualTo(path);
 		} catch (SQLException ex) {
 			assertThat(true).isFalse();
 		}
