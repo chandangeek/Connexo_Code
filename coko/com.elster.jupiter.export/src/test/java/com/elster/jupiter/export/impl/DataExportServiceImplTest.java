@@ -194,7 +194,7 @@ public class DataExportServiceImplTest {
 
     @Test
     public void testGetAvailableFormatters() {
-        assertThat(dataExportService.getAvailableFomratters().size()).isEqualTo(1);
+        assertThat(dataExportService.getAvailableFormatters().size()).isEqualTo(1);
     }
 
     @Test

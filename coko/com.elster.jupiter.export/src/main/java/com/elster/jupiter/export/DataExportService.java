@@ -27,7 +27,7 @@ public interface DataExportService {
 
     List<DataSelectorFactory> getAvailableSelectors();
 
-    List<DataFormatterFactory> getAvailableFomratters();
+    List<DataFormatterFactory> getAvailableFormatters();
 
     List<? extends ExportTask> findReadingTypeDataExportTasks();
 

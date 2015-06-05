@@ -28,7 +28,7 @@ public class ExistingFormatterValidator implements ConstraintValidator<IsExistin
 
     @Override
     public boolean isValid(String formatterName, ConstraintValidatorContext context) {
-        return dataExportService.getAvailableFomratters().stream()
+        return dataExportService.getAvailableFormatters().stream()
                 .map(DataFormatterFactory::getName)
                 .anyMatch(name -> name.equals(formatterName));
     }

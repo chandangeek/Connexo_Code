@@ -78,7 +78,7 @@ public class ConsoleCommands {
     }
 
     public void dataFormatters() {
-        dataExportService.getAvailableFomratters().stream()
+        dataExportService.getAvailableFormatters().stream()
                 .map(DataFormatterFactory::getName)
                 .forEach(System.out::println);
     }

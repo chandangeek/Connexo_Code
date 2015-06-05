@@ -109,7 +109,7 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
     }
 
     @Override
-    public List<DataFormatterFactory> getAvailableFomratters() {
+    public List<DataFormatterFactory> getAvailableFormatters() {
         return Collections.unmodifiableList(dataFormatterFactories);
     }
 
