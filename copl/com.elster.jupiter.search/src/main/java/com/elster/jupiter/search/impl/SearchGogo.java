@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -126,8 +127,13 @@ public class SearchGogo {
         String[] keyAndValue = condition.split("=");
         if (keyAndValue.length == 2) {
             SearchableProperty property = domain.getProperties().stream().filter(p -> p.hasName(keyAndValue[0])).findAny().orElseThrow(() -> new IllegalArgumentException("Domain does not have property with name " + keyAndValue[0]));
-            Object constrictingValue = property.getSpecification().getValueFactory().fromStringValue(keyAndValue[1]);
-            return SearchablePropertyConstriction.withValues(property, Arrays.asList(constrictingValue));
+            try {
+                Object constrictingValue = property.getSpecification().getValueFactory().fromStringValue(keyAndValue[1]);
+                return SearchablePropertyConstriction.withValues(property, Arrays.asList(constrictingValue));
+            }
+            catch (NoSuchElementException e) {
+                throw new IllegalArgumentException("Value '" + keyAndValue[1] + "' for property '" + property.getName() + "' is not valid");
+            }
         }
         else {
             throw new IllegalArgumentException("All key value conditions must be written as: <key>=<value>");

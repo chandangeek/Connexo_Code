@@ -87,9 +87,10 @@ public class SearchBuilderImpl<T> implements SearchBuilder<T> {
 
         @Override
         public SearchBuilder<T> isEqualTo(Object value) throws InvalidValueException {
-            this.validateValue(value, this.property.getSpecification());
+            Object actualValue = this.attemptConvertToValidValue(value);
+            this.validateValue(actualValue, this.property.getSpecification());
             Operator operator;
-            if (value instanceof String) {
+            if (actualValue instanceof String) {
                 operator = Operator.EQUALIGNORECASE;
             }
             else {
@@ -101,6 +102,29 @@ public class SearchBuilderImpl<T> implements SearchBuilder<T> {
                             operator.compare(this.property.getSpecification().getName(), value),
                             this.property));
             return SearchBuilderImpl.this;
+        }
+
+        private Object attemptConvertToValidValue(Object value) {
+            try {
+                if (this.property.getSpecification().isReference()) {
+                    if (value instanceof String) {
+                        String id = (String) value;
+                        return this.property.getSpecification().getValueFactory().fromStringValue(id);
+                    }
+                    else {
+                        return this.property.getSpecification().getValueFactory().valueFromDatabase(value);
+                    }
+                }
+                else if (value instanceof String) {
+                    return this.property.getSpecification().getValueFactory().fromStringValue((String) value);
+                }
+                else {
+                    return value;
+                }
+            }
+            catch (RuntimeException e) {
+                return value;
+            }
         }
 
         @Override
