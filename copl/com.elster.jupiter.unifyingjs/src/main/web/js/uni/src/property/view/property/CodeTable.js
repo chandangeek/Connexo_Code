@@ -24,5 +24,17 @@ Ext.define('Uni.property.view.property.CodeTable', {
 
     getField: function () {
         return this.down('textfield');
+    },
+
+    doEnable: function(enable) {
+        if (this.getField()) {
+            if (enable) {
+                this.getField().enable();
+                this.down('button').enable();
+            } else {
+                this.getField().disable();
+                this.down('button').disable();
+            }
+        }
     }
 });

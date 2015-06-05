@@ -74,6 +74,18 @@ Ext.define('Uni.property.view.property.DateTime', {
         return this.down('#minuteField');
     },
 
+    doEnable: function(enable) {
+        if (this.getField()) {
+            if (enable) {
+                this.getHoursField().enable();
+                this.getMinutesField().enable();
+            } else {
+                this.getHoursField().disable();
+                this.getMinutesField().disable();
+            }
+        }
+    },
+
     setValue: function (value /*Date in milliseconds*/) {
         var me = this,
             dateValue = null,
@@ -88,7 +100,7 @@ Ext.define('Uni.property.view.property.DateTime', {
         }
 
         if (!this.isEdit) {
-            me.getDisplayField().setValue(value !== null && value !== '' ? Uni.DateTime.formatDateTimeShort(date) : '');
+            me.getDisplayField().setValue(this.getValueAsDisplayString(value));
         } else {
             me.callParent([dateValue]);
             me.getHoursField().setValue(hours);
@@ -127,5 +139,10 @@ Ext.define('Uni.property.view.property.DateTime', {
             me.addFieldListeners(minutesField);
         }
         this.callParent(arguments);
+    },
+
+    getValueAsDisplayString: function (value /*Date in milliseconds*/) {
+        return (value !== null && value !== '') ? Uni.DateTime.formatDateTimeShort(new Date(value)) : '';
     }
+
 });

@@ -61,15 +61,26 @@ Ext.define('Uni.property.view.property.Period', {
         return this.down('numberfield');
     },
 
+    doEnable: function(enable) {
+        if (this.getField()) {
+            if (enable) {
+                this.getField().enable();
+                this.down('combobox').enable();
+            } else {
+                this.getField().disable();
+                this.down('combobox').disable();
+            }
+        }
+    },
+
     setValue: function (value) {
         var unit = null,
             count = null,
             timeDuration = null;
-
         if (Ext.isObject(value)) {
             unit = value.timeUnit;
             count = value.count;
-            timeDuration = count + ' ' + unit;
+            timeDuration = this.getValueAsDisplayString(value);
         }
 
         if (this.isEdit) {
@@ -102,8 +113,10 @@ Ext.define('Uni.property.view.property.Period', {
                     button.setTooltip(Uni.I18n.translate('general.clear', 'UNI', 'Clear'));
                 } else {
                     button.setTooltip(
-                        Uni.I18n.translate('general.restoreDefaultValue', me.translationKey, 'Restore to default value')
-                        + ' &quot; ' + me.getProperty().get('default') + '&quot;'
+                        Ext.String.format(
+                            Uni.I18n.translate('general.restoreDefaultValue', this.translationKey, 'Restore to default value "{0}"'),
+                            this.getValueAsDisplayString(this.getProperty().get('default'))
+                        )
                     );
                 }
                 button.setDisabled(false);
@@ -136,5 +149,14 @@ Ext.define('Uni.property.view.property.Period', {
         }
 
         return null;
+    },
+
+    getValueAsDisplayString: function (value) {
+        if (Ext.isObject(value)) {
+            return value.count + ' ' + value.timeUnit;
+        } else {
+            return callParent(arguments);
+        }
     }
+
 });

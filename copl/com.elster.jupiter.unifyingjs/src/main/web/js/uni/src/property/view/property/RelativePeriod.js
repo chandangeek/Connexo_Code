@@ -22,8 +22,8 @@ Ext.define('Uni.property.view.property.RelativePeriod', {
                         readOnly: me.isReadOnly,
                         fieldLabel: me.boxLabel ? me.boxLabel : '',
                         items: [
-                            {boxLabel: 'All', name: 'relative', inputValue: '1'},
-                            {boxLabel: 'Period', name: 'relative', inputValue: '2'}
+                            {boxLabel: Uni.I18n.translate('general.all', 'UNI', 'All'), name: 'relative', inputValue: '1'},
+                            {boxLabel: Uni.I18n.translate('general.period', 'UNI', 'Period'), name: 'relative', inputValue: '2'}
                         ]
                     },
                     {
@@ -65,13 +65,21 @@ Ext.define('Uni.property.view.property.RelativePeriod', {
         return this.down('#relativeRadioGroup');
     },
 
+    doEnable: function(enable) {
+        if (this.getField()) {
+            if (enable) {
+                this.getField().enable();
+                this.down('combobox').enable();
+            } else {
+                this.getField().disable();
+                this.down('combobox').disable();
+            }
+        }
+    },
+
     setValue: function (value) {
         if (!this.isEdit) {
-            if(value.id !== 0){
-                this.getDisplayField().setValue(value.name);
-            } else {
-                this.getDisplayField().setValue('All');
-            }
+            this.getDisplayField().setValue(this.getValueAsDisplayString(value));
         } else {
             if(value.id !== 0){
                 this.down('#relativeRadioGroup').setValue({relative:2});
@@ -119,7 +127,19 @@ Ext.define('Uni.property.view.property.RelativePeriod', {
         var periods = Ext.getStore('Uni.property.store.RelativePeriods');
         periods.load();
         this.callParent(arguments);
+    },
+
+    getValueAsDisplayString: function (value) {
+        if (Ext.isObject(value)) {
+            if(value.id !== 0){
+                return value.name;
+            } else {
+                return Uni.I18n.translate('general.all', 'UNI', 'All');
+            }
+        }
+        return callParent(arguments);
     }
+
 });
 
 

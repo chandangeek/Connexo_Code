@@ -69,18 +69,18 @@ Ext.define('Uni.property.view.property.Time', {
     },
 
     setValue: function (value /*time in seconds*/) {
-        var hours = 0, minutes = 0, doSet = false;
+        var theDate, hours = 0, minutes = 0, doSet = false;
         if (value === '') {
             doSet = true;
         } else if (value !== null && value !== '') {
-            value = new Date(value * 1000);
-            hours = value.getHours();
-            minutes = value.getMinutes();
+            theDate = new Date(value * 1000);
+            hours = theDate.getHours();
+            minutes = theDate.getMinutes();
             doSet = true;
         }
         if (doSet) {
             if (!this.isEdit) {
-                this.callParent([(hours < 10 ? '0' : '') + hours + ':' + (minutes < 10 ? '0' : '') + minutes ]);
+                this.callParent([this.getValueAsDisplayString(value)]);
             } else {
                 this.getHoursField().setValue(hours);
                 this.getMinutesField().setValue(minutes);
@@ -112,6 +112,13 @@ Ext.define('Uni.property.view.property.Time', {
         if (minutesField) {
             me.addFieldListeners(minutesField);
         }
+    },
+
+    getValueAsDisplayString: function (value /*time in seconds*/) {
+        var theDate = new Date(value * 1000),
+            hours = theDate.getHours(),
+            minutes = theDate.getMinutes();
+        return (hours < 10 ? '0' : '') + hours + ':' + (minutes < 10 ? '0' : '') + minutes;
     }
 
 });

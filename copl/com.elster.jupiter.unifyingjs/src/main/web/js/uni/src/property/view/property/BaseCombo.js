@@ -89,5 +89,20 @@ Ext.define('Uni.property.view.property.BaseCombo', {
                 me.updateResetButton();
             });
         }
+    },
+
+    doEnable: function(enable) {
+        if (this.getField()) {
+            if (this.isCombo()) {
+                if (enable) {
+                    this.getComboField().enable();
+                } else {
+                    this.getComboField().disable();
+                }
+            } else {
+                this.callParent(arguments);
+            }
+        }
     }
+
 });
