@@ -10,6 +10,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventHandlerFactory;
 import com.google.inject.AbstractModule;
@@ -29,6 +30,7 @@ public class IssueDataCollectionModule extends AbstractModule {
         requireBinding(DeviceService.class);
         requireBinding(CommunicationTaskService.class);
         requireBinding(ConnectionTaskService.class);
+        requireBinding(PropertySpecService.class);
 
         bind(IssueDataCollectionService.class).to(IssueDataCollectionServiceImpl.class).in(Scopes.SINGLETON);
         bind(DataCollectionEventHandlerFactory.class).in(Scopes.SINGLETON);

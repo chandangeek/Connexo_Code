@@ -20,8 +20,6 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.properties.BooleanFactory;
-import com.elster.jupiter.properties.FindById;
-import com.elster.jupiter.properties.IdWithNameValue;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
@@ -40,8 +38,6 @@ public class BasicDataCollectionRuleTemplate extends AbstractDataCollectionTempl
     
     public static final String EVENTTYPE = NAME + ".eventType";
     public static final String AUTORESOLUTION = NAME + ".autoresolution";
-
-    private final PossibleEventTypes eventTypes = new PossibleEventTypes();
     
     private volatile IssueDataCollectionService issueDataCollectionService;
     private volatile IssueService issueService;
@@ -150,7 +146,8 @@ public class BasicDataCollectionRuleTemplate extends AbstractDataCollectionTempl
     @Override
     public List<PropertySpec> getPropertySpecs() {
         Builder<PropertySpec> builder = ImmutableList.builder();
-        builder.add(getPropertySpecService().idWithNameValuePropertySpec(EVENTTYPE, true, eventTypes, eventTypes.eventTypes));
+        EventTypes eventTypes = new EventTypes(getThesaurus(), DataCollectionEventDescription.values());
+        builder.add(getPropertySpecService().stringReferencePropertySpec(EVENTTYPE, true, eventTypes, eventTypes.getEventTypes()));
         builder.add(getPropertySpecService().newPropertySpecBuilder(new BooleanFactory())
                                        .name(AUTORESOLUTION)
                                        .setDefaultValue(true)
@@ -166,48 +163,5 @@ public class BasicDataCollectionRuleTemplate extends AbstractDataCollectionTempl
     @Override
     public String getDisplayName() {
         return MessageSeeds.BASIC_TEMPLATE_DATACOLLECTION_NAME.getTranslated(getThesaurus());
-    }
-    
-    private class PossibleEventTypes implements FindById<EventType> {
-        
-        private final EventType[] eventTypes = {
-                new EventType(DataCollectionEventDescription.CONNECTION_LOST.getUniqueKey(), MessageSeeds.EVENT_TITLE_CONNECTION_LOST),
-                new EventType(DataCollectionEventDescription.DEVICE_COMMUNICATION_FAILURE.getUniqueKey(), MessageSeeds.EVENT_TITLE_DEVICE_COMMUNICATION_FAILURE),
-                new EventType(DataCollectionEventDescription.UNABLE_TO_CONNECT.getUniqueKey(), MessageSeeds.EVENT_TITLE_UNABLE_TO_CONNECT),
-                new EventType(DataCollectionEventDescription.UNKNOWN_INBOUND_DEVICE.getUniqueKey(), MessageSeeds.EVENT_TITLE_UNKNOWN_INBOUND_DEVICE),
-                new EventType(DataCollectionEventDescription.UNKNOWN_OUTBOUND_DEVICE.getUniqueKey(), MessageSeeds.EVENT_TITLE_UNKNOWN_OUTBOUND_DEVICE)
-        };
-        
-        @Override
-        public Optional<EventType> findById(Object id) {
-            for(EventType eventType : eventTypes) {
-                if (eventType.getId().equals(id)) {
-                    return Optional.of(eventType);
-                }
-            }
-            return Optional.empty();
-        }
-        
-    }
-    
-    private class EventType extends IdWithNameValue {
-        
-        Object id;
-        MessageSeeds seed;
-        
-        public EventType(String id, MessageSeeds seed) {
-            this.id = id;
-            this.seed = seed;
-        }
-        
-        @Override
-        public Object getId() {
-            return id;
-        }
-
-        @Override
-        public String getName() {
-            return seed.getTranslated(BasicDataCollectionRuleTemplate.this.getThesaurus());
-        }
     }
 }

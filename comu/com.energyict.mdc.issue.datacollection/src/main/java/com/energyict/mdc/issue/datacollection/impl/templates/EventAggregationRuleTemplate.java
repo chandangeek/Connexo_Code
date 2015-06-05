@@ -1,5 +1,9 @@
 package com.energyict.mdc.issue.datacollection.impl.templates;
 
+import static com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventDescription.CONNECTION_LOST;
+import static com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventDescription.DEVICE_COMMUNICATION_FAILURE;
+import static com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventDescription.UNABLE_TO_CONNECT;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.LongStream;
@@ -17,13 +21,10 @@ import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.properties.FindById;
-import com.elster.jupiter.properties.IdWithNameValue;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.entity.OpenIssueDataCollection;
-import com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventDescription;
 import com.energyict.mdc.issue.datacollection.impl.i18n.MessageSeeds;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
@@ -39,8 +40,6 @@ public class EventAggregationRuleTemplate extends AbstractDataCollectionTemplate
     
     private volatile IssueService issueService;
     private volatile IssueDataCollectionService issueDataCollectionService;
-    
-    private final PossibleEventTypes eventTypes = new PossibleEventTypes();
 
     //For OSGI
     public EventAggregationRuleTemplate() {
@@ -132,47 +131,8 @@ public class EventAggregationRuleTemplate extends AbstractDataCollectionTemplate
     public List<PropertySpec> getPropertySpecs() {
         Builder<PropertySpec> builder = ImmutableList.builder();
         builder.add(getPropertySpecService().longPropertySpecWithValues(THRESHOLD, true, LongStream.rangeClosed(0, 100).boxed().toArray(Long[]::new)));
-        builder.add(getPropertySpecService().idWithNameValuePropertySpec(EVENTTYPE, true, eventTypes, eventTypes.eventTypes));
+        EventTypes eventTypes = new EventTypes(getThesaurus(), CONNECTION_LOST, DEVICE_COMMUNICATION_FAILURE, UNABLE_TO_CONNECT);
+        builder.add(getPropertySpecService().stringReferencePropertySpec(EVENTTYPE, true, eventTypes, eventTypes.getEventTypes()));
         return builder.build();
-    }
-    
-    private class PossibleEventTypes implements FindById<EventType> {
-        
-        private final EventType[] eventTypes = {
-                new EventType(DataCollectionEventDescription.CONNECTION_LOST.getUniqueKey(), MessageSeeds.EVENT_TITLE_CONNECTION_LOST),
-                new EventType(DataCollectionEventDescription.DEVICE_COMMUNICATION_FAILURE.getUniqueKey(), MessageSeeds.EVENT_TITLE_DEVICE_COMMUNICATION_FAILURE),
-                new EventType(DataCollectionEventDescription.UNABLE_TO_CONNECT.getUniqueKey(), MessageSeeds.EVENT_TITLE_UNABLE_TO_CONNECT),
-        };
-        
-        @Override
-        public Optional<EventType> findById(Object id) {
-            for(EventType eventType : eventTypes) {
-                if (eventType.getId().equals(id)) {
-                    return Optional.of(eventType);
-                }
-            }
-            return Optional.empty();
-        }
-    }
-    
-    private class EventType extends IdWithNameValue {
-        
-        Object id;
-        MessageSeeds seed;
-        
-        public EventType(String id, MessageSeeds seed) {
-            this.id = id;
-            this.seed = seed;
-        }
-        
-        @Override
-        public Object getId() {
-            return id;
-        }
-
-        @Override
-        public String getName() {
-            return seed.getTranslated(EventAggregationRuleTemplate.this.getThesaurus());
-        }
     }
 }
