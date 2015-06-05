@@ -3,6 +3,7 @@ package com.elster.jupiter.appserver.rest.impl;
 import com.elster.jupiter.appserver.AppServer;
 import com.elster.jupiter.appserver.ImportScheduleOnAppServer;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.streams.Functions;
 
 import java.util.List;
 import java.util.stream.Collector;
@@ -29,8 +30,9 @@ public class AppServerInfo {
                 .collect(Collectors.toList());
         importServices = appServer.getImportSchedulesOnAppServer()
                 .stream()
-                .filter(service -> service.getImportSchedule().isPresent())
-                .map(service -> ImportScheduleInfo.of(service.getImportSchedule().get()))
+                .map(ImportScheduleOnAppServer::getImportSchedule)
+                .flatMap(Functions.asStream())
+                .map(ImportScheduleInfo::of)
                 .collect(Collectors.toList());
     }
 

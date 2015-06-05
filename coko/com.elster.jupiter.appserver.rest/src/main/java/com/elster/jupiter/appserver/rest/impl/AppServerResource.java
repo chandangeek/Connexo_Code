@@ -19,6 +19,8 @@ import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.collections.Zipper;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.cron.CronExpressionParser;
+import com.elster.jupiter.util.streams.Functions;
+
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -98,12 +100,11 @@ public class AppServerResource {
             }
             if(info.importServices != null) {
                 info.importServices.stream()
-                        .forEach(service -> {
-                            Optional<ImportSchedule> found =  fileImportService.getImportSchedule(service.id);
-                            if(found.isPresent()) {
-                                underConstruction.addImportScheduleOnAppServer(found.get());
-                            }
-                        });
+                        .map(ImportScheduleInfo::getId)
+                        .map(fileImportService::getImportSchedule)
+                        .flatMap(Functions.asStream())
+                        .forEach(underConstruction::addImportScheduleOnAppServer);
+
             }
             if (info.active) {
                 underConstruction.activate();
@@ -310,8 +311,8 @@ public class AppServerResource {
                 .map(AppServer::getImportSchedulesOnAppServer)
                 .orElseGet(Collections::emptyList)
                 .stream()
-                .filter(i -> i.getImportSchedule().isPresent())
-                .map(i->i.getImportSchedule().get())
+                .map(ImportScheduleOnAppServer::getImportSchedule)
+                .flatMap(Functions.asStream())
                 .collect(Collectors.toList());
     }
 

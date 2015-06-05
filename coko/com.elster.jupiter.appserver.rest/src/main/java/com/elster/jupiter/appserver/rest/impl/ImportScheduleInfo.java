@@ -25,4 +25,7 @@ public class ImportScheduleInfo {
     public String getName() {
         return this.name;
     }
+    public long getId() {
+        return this.id;
+    }
 }
