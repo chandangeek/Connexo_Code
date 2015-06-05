@@ -202,6 +202,11 @@
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
+                <artifactId>search.rest</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.elster.jupiter</groupId>
                 <artifactId>security.thread</artifactId>
                 <version>1.1.0-SNAPSHOT</version>
             </dependency>
@@ -417,6 +422,10 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>search</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>search.rest</artifactId>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
