@@ -12,7 +12,7 @@ Ext.define('Apr.model.ImportPath', {
     ],
     proxy: {
         type: 'rest',
-        url: '/api/export/exportdirs',/*will be import rest*/
+        url: '/api/apr/importdirs',
         reader: {
             type: 'json'
         }

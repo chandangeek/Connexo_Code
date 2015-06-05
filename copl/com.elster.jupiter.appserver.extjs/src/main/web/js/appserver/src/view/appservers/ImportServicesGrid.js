@@ -23,6 +23,11 @@ Ext.define('Apr.view.appservers.ImportServicesGrid', {
             flex: 1
         },
         {
+            header: Uni.I18n.translate('general.status', 'UNI', 'Status'),
+            dataIndex: 'status',
+            flex: 0.8
+        },
+        {
             xtype: 'uni-actioncolumn',
             menu: {
                 xtype: 'apr-import-services-action-menu',

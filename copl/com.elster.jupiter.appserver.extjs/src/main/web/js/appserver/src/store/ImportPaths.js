@@ -5,7 +5,7 @@ Ext.define('Apr.store.ImportPaths', {
 
     proxy: {
         type: 'rest',
-        url: '/api/export/exportdirs',/*will be import rest*/
+        url: '/api/apr/importdirs',
         reader: {
             type: 'json',
             root: 'directories'

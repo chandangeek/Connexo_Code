@@ -27,13 +27,11 @@ Ext.define('Apr.controller.AppServers', {
             ref: 'addPage',
             selector: 'appservers-add'
         },
-        {
-            ref: 'sortingToolbar',
-            selector: 'appservers-setup #appservers-sorting-toolbar'
-        }
+
     ],
     appServer: null,
     exportPath: null,
+    importPath: null,
 
     init: function () {
         this.control({
@@ -72,17 +70,14 @@ Ext.define('Apr.controller.AppServers', {
         var me = this,
             view = Ext.widget('appservers-setup'),
             store = view.down('appservers-grid').getStore(),
-            exportPathsStore = me.getStore('Apr.store.ExportPaths');
+            exportPathsStore = me.getStore('Apr.store.ExportPaths'),
+            importPathsStore = me.getStore('Apr.store.ImportPaths');
 
         me.getApplication().fireEvent('changecontentevent', view);
         me.appServer = null;
         me.exportPath = null;
-        me.getSortingToolbar().getContainer().add({
-            xtype: 'button',
-            ui: 'tag',
-            text: Uni.I18n.translate('general.name', 'UNI', 'Name'),
-            iconCls: 'x-btn-sort-item-desc'
-        });
+        me.importPath = null;
+
         store.on('load', function () {
             exportPathsStore.load(function (records) {
                 Ext.Array.each(store.getRange(), function (item) {
@@ -91,6 +86,18 @@ Ext.define('Apr.controller.AppServers', {
                             item.set('exportPath', dir.get('directory'));
                             if (view.down('appservers-grid') && (item.getId() === view.down('appservers-grid').getSelectionModel().getLastSelected().getId())) {
                                 view.down('#export-path').setValue(dir.get('directory'));
+                            }
+                        }
+                    });
+                });
+            });
+            importPathsStore.load(function (records) {
+                Ext.Array.each(store.getRange(), function (item) {
+                    Ext.Array.each(records, function (dir) {
+                        if (dir.get('appServerName') === item.get('name')) {
+                            item.set('importPath', dir.get('directory'));
+                            if (view.down('appservers-grid') && (item.getId() === view.down('appservers-grid').getSelectionModel().getLastSelected().getId())) {
+                                view.down('#txt-import-path').setValue(dir.get('directory'));
                             }
                         }
                     });
@@ -107,7 +114,7 @@ Ext.define('Apr.controller.AppServers', {
             previewForm = page.down('appservers-preview-form');
 
         preview.setTitle(appServerName);
-        previewForm.loadRecord(record);
+        previewForm.updateAppServerPreview(record);
         preview.down('appservers-action-menu').record = record;
         me.setupMenuItems(record);
     },
@@ -332,10 +339,10 @@ Ext.define('Apr.controller.AppServers', {
                             importPathsStore.load(function (importPaths) {
                                 Ext.Array.each(importPaths, function (dir) {
                                     if (dir.get('appServerName') === appServerName) {
-                                        me.exportPath = dir;
+                                        me.importPath = dir;
                                         view.down('#appserver-import-path').setValue(dir.get('directory'));
                                     } else {
-                                        me.exportPath = Ext.create('Apr.model.ImportPath');
+                                        me.importPath = Ext.create('Apr.model.ImportPath');
                                     }
                                 });
                             });
@@ -426,6 +433,7 @@ Ext.define('Apr.controller.AppServers', {
             form = me.getAddPage().down('#add-appserver-form'),
             appServerName = form.down('#appserver-name').getValue(),
             exportPath = form.down('#appserver-path').getValue(),
+            importPath = form.down('#appserver-import-path').getValue(),
             grid = me.getAddPage().down('message-services-grid'),
             importGrid = me.getAddPage().down('apr-import-services-grid'),
             formErrorsPanel = form.down('#form-errors'),
@@ -495,6 +503,10 @@ Ext.define('Apr.controller.AppServers', {
                                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('appServers.addSuccessMsg', 'APR', 'Application server added'));
                             }
                         });
+                        var newImportPath = Ext.create('Apr.model.ImportPath');
+                        newImportPath.set('appServerName', appServerName);
+                        newImportPath.set('directory', importPath);
+                        newImportPath.save();
                     },
                     failure: function (record, operation) {
                         me.getAddPage().setLoading(false);
@@ -506,9 +518,17 @@ Ext.define('Apr.controller.AppServers', {
                     }
                 });
             } else {
+                if (!me.importPath.get('appServerName')) {
+                    me.importPath.set('appServerName', appServerName);
+                }
+
+                me.importPath.set('directory', importPath);
+                me.importPath.save();
+
                 if (!me.exportPath.get('appServerName')) {
                     me.exportPath.set('appServerName', appServerName);
                 }
+
                 me.exportPath.set('directory', exportPath);
                 me.exportPath.save({
                     success: function () {

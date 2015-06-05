@@ -18,36 +18,6 @@ Ext.define('Apr.model.AppServer', {
             persist: false
         },
         {
-            name: 'messageServices',
-            persist: false,
-            mapping: function (data) {
-                if (!Ext.isEmpty(data.executionSpecs)) {
-                    var str = '';
-                    Ext.Array.each(data.executionSpecs, function (item) {
-                        str += item.subscriberSpec.displayName + ' (' + item.numberOfThreads + ' ' + Uni.I18n.translate('general.thread', 'APR', 'thread(s)') + ')' + '<br><br>';
-                    });
-                    return str;
-                } else {
-                    return '-';
-                }
-            }
-        },
-        {
-            name: 'importSchedules',
-            persist: false,
-            mapping: function (data) {
-                if (!Ext.isEmpty(data.importServices)) {
-                    var str = '';
-                    Ext.Array.each(data.importServices, function (item) {
-                        str += item.name + '<br><br>';
-                    });
-                    return str;
-                } else {
-                    return '-';
-                }
-            }
-        },
-        {
             name: 'status',
             persist: false,
             mapping: function (data) {

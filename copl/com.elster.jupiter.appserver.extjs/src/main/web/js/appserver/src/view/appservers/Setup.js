@@ -7,10 +7,8 @@ Ext.define('Apr.view.appservers.Setup', {
         'Uni.view.notifications.NoItemsFoundPanel',
         'Apr.view.appservers.Grid',
         'Apr.view.appservers.Preview',
-        'Apr.view.appservers.ActionMenu',
-        'Apr.view.appservers.SortingToolbar'
+        'Apr.view.appservers.ActionMenu'
     ],
-
     initComponent: function () {
         var me = this;
 
@@ -18,11 +16,6 @@ Ext.define('Apr.view.appservers.Setup', {
             ui: 'large',
             title: Uni.I18n.translate('general.applicationServers', 'APR', 'Application servers'),
             items: [
-                {
-                    itemId: 'appservers-sorting-toolbar',
-                    xtype: 'appservers-sorting-toolbar',
-                    hideEmpty: false
-                },
                 {
                     xtype: 'preview-container',
                     grid: {
