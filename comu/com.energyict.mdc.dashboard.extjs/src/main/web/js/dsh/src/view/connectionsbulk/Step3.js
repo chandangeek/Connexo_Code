@@ -1,20 +1,41 @@
 Ext.define('Dsh.view.connectionsbulk.Step3', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.connections-bulk-step3',
-    html: '',
+    requires: [
+        'Uni.property.form.Property'
+    ],
     margin: '0 0 15 0',
-    setConfirmationMessage: function (action) {
-        var text = '';
-
-        switch (action) {
-            case 'runNow':
-                text = '<h3>'
-                + Uni.I18n.translate('connection.bulk.confirmation.runNowTitle', 'DSH', 'Run the selected connections now?')
-                + '</h3><br>'
-                + Uni.I18n.translate('connection.bulk.confirmation.runNowDescription', 'DSH', 'The selected connections and their associated executable tasks will be queued. Status will be available in the column \'Current state\'.');
-                break;
+    items: [
+        {
+            xtype: 'component',
+            itemId: 'dsh-text-message3',
+            width: '100%',
+            height: '20px',
+            margin: '5 0 5 0',
+            html: ''
+        },
+        {
+            xtype: 'property-form',
+            itemId: 'dsh-connections-bulk-attributes-form',
+            isMultiEdit: true,
+            editButtonTooltip: Uni.I18n.translate('connection.bulk.attribute.edit', 'DSH', 'Edit connection attribute'),
+            removeButtonTooltip: Uni.I18n.translate('connection.bulk.attribute.unchanged', 'DSH' ,'Leave connection attribute unchanged'),
+            width: '100%'
         }
-
-        this.add({xtype: 'box', width: '100%', html: text, itemId: 'text-message3', text: text});
+    ],
+    setConnectionType: function(connectionType) {
+        var text = Ext.String.format(
+                Uni.I18n.translate('connection.bulk.attributes.title', 'DSH', 'Enter new attribute values for the selected connections of connection type {0}'),
+                connectionType);
+        this.down('#dsh-text-message3').update(text);
+    },
+    getForm: function() {
+        return this.down('#dsh-connections-bulk-attributes-form');
+    },
+    setProperties: function(properties) {
+        this.getForm().loadRecordAsNotRequired(properties);
+    },
+    updateRecord: function() {
+        return this.getForm().updateRecord();
     }
 });

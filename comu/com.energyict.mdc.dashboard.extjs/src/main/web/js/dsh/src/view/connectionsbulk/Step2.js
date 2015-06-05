@@ -20,6 +20,19 @@ Ext.define('Dsh.view.connectionsbulk.Step2', {
                     + '</span>',
                     inputValue: 'runNow',
                     checked: true
+                },
+                {
+                    itemId: 'adjust-radio-btn',
+                    name: 'action',
+                    boxLabel: '<b>' + Uni.I18n.translate('connection.bulk.actionRadioGroup.adjustAttributesLabel', 'DSH', 'Adjust connection attributes') + '</b>',
+                    afterSubTpl : '<span style="color: grey;padding: 0 0 0 19px;">'
+                        + Ext.String.format(Uni.I18n.translate('connection.bulk.actionRadioGroup.adjustAttributesDescription', 'DSH', 'The requested connection attribute adjustments will be queued. The selected connections must have the same connection type. If needed, use the Connection type filter on the {0} screen to make your data set compliant.'),
+                            '<a id="connections-link" href="#/workspace/connections/details">'
+                            + Uni.I18n.translate('connection.bulk.actionRadioGroup.adjustAttributesDescription.connectionsLinkName', 'DSH', 'Connections')
+                            + '</a>')
+                        + '</span>',
+                    inputValue: 'adjustAttributes',
+                    checked: false
                 }
             ]
         }
