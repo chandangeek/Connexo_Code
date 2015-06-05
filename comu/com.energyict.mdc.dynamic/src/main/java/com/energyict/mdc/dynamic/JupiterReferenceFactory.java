@@ -1,18 +1,17 @@
 package com.energyict.mdc.dynamic;
 
-import com.elster.jupiter.properties.AbstractValueFactory;
-import com.elster.jupiter.util.proxy.LazyLoadProxy;
-import com.elster.jupiter.util.proxy.LazyLoader;
-import com.elster.jupiter.util.sql.SqlBuilder;
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
+
+import com.elster.jupiter.properties.AbstractValueFactory;
 import com.elster.jupiter.util.HasId;
+import com.elster.jupiter.util.sql.SqlBuilder;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 /**
- * Provides an implementation for the {@link ValueFactory} interface
+ * Provides an implementation for the {@link com.elster.jupiter.properties.ValueFactory} interface
  * for references to objects that have already been ported to
  * the new jupiter ORM framework.
  *
@@ -73,13 +72,17 @@ public class JupiterReferenceFactory<T extends HasId> extends AbstractValueFacto
     }
 
     @Override
-    public T valueFromDatabase (Object object) throws SQLException {
+    public T valueFromDatabase (Object object) {
         if (object instanceof Number) {
-            return LazyLoadProxy.newInstance(new HasIdLazyLoader<>((Number) object, this.domainClass, this.finder));
+            return this.valueFromDatabase((Number) object);
         }
         else {
-            return null;
+            throw new IllegalArgumentException(JupiterReferenceFactory.class.getSimpleName() + " expects numeric values from database but got " + object.getClass().getName());
         }
+    }
+
+    private T valueFromDatabase (Number id) {
+        return this.finder.findByPrimaryKey(id.longValue()).get();
     }
 
     @Override
@@ -100,8 +103,7 @@ public class JupiterReferenceFactory<T extends HasId> extends AbstractValueFacto
     @Override
     public T fromStringValue (String stringValue) {
         try {
-            Long id = new Long(stringValue);
-            return LazyLoadProxy.newInstance(new HasIdLazyLoader<>(id, this.domainClass, this.finder));
+            return this.valueFromDatabase(new Long(stringValue));
         }
         catch (NumberFormatException e) {
             throw new ApplicationException("Error parsing identifier of an " + this.domainClass.getName() + " from string value: " + stringValue);
@@ -111,35 +113,6 @@ public class JupiterReferenceFactory<T extends HasId> extends AbstractValueFacto
     @Override
     public String toStringValue (T object) {
         return Long.toString(object.getId());
-    }
-
-    private class HasIdLazyLoader<T extends HasId> implements LazyLoader<T> {
-
-        private final Number id;
-        private Class<T> domainClass;
-        private CanFindByLongPrimaryKey<T> factory;
-
-        private HasIdLazyLoader(Number id, Class<T> domainClass, CanFindByLongPrimaryKey<T> factory) {
-            super();
-            this.id = id;
-            this.domainClass = domainClass;
-            this.factory = factory;
-        }
-
-        @Override
-        @SuppressWarnings("unchecked")
-        public T load () {
-            return this.factory.findByPrimaryKey(this.id.longValue()).orElse(null);
-        }
-
-        @Override
-        public Class<T> getImplementedInterface () {
-            return domainClass;
-        }
-
-        public ClassLoader getClassLoader() {
-            return this.factory.getClass().getClassLoader();
-        }
     }
 
 }
