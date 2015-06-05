@@ -27,8 +27,10 @@ public class AppServerInfo {
         executionSpecs = appServer.getSubscriberExecutionSpecs().stream()
                 .map(spec -> SubscriberExecutionSpecInfo.of(spec, thesaurus))
                 .collect(Collectors.toList());
-        importServices = appServer.getImportSchedulesOnAppServer().stream()
-                .map(service -> ImportScheduleInfo.of(service.getImportSchedule()))
+        importServices = appServer.getImportSchedulesOnAppServer()
+                .stream()
+                .filter(service -> service.getImportSchedule().isPresent())
+                .map(service -> ImportScheduleInfo.of(service.getImportSchedule().get()))
                 .collect(Collectors.toList());
     }
 

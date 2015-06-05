@@ -175,7 +175,7 @@ public class AppServerResource {
         Zipper<SubscriberExecutionSpec, SubscriberExecutionSpecInfo> zipperMessageServices = new Zipper<>((s, i) -> i.matches(s));
         List<Pair<SubscriberExecutionSpec, SubscriberExecutionSpecInfo>> pairsMessageServices = zipperMessageServices.zip(appServer.getSubscriberExecutionSpecs(), info.executionSpecs);
 
-        Zipper<ImportScheduleOnAppServer, ImportScheduleInfo> zipperImportServices = new Zipper<>((s, i) -> i.id == s.getImportSchedule().getId());
+        Zipper<ImportScheduleOnAppServer, ImportScheduleInfo> zipperImportServices = new Zipper<>((s, i) -> s.getImportSchedule().isPresent() && (i.id == s.getImportSchedule().get().getId()));
         List<Pair<ImportScheduleOnAppServer, ImportScheduleInfo>> pairsImportServices = zipperImportServices.zip(appServer.getImportSchedulesOnAppServer().stream().collect(Collectors.toList()), info.importServices);
 
         try (AppServer.BatchUpdate updater = appServer.forBatchUpdate()) {
@@ -310,7 +310,8 @@ public class AppServerResource {
                 .map(AppServer::getImportSchedulesOnAppServer)
                 .orElseGet(Collections::emptyList)
                 .stream()
-                .map(ImportScheduleOnAppServer::getImportSchedule)
+                .filter(i -> i.getImportSchedule().isPresent())
+                .map(i->i.getImportSchedule().get())
                 .collect(Collectors.toList());
     }
 

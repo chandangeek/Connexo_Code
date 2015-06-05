@@ -255,7 +255,7 @@ public class AppServerResourceTest extends AppServerApplicationTest {
         ImportSchedule importSchedule = mock(ImportSchedule.class);
         ImportScheduleOnAppServerImpl importScheduleOnAppServer = mock(ImportScheduleOnAppServerImpl.class);
         List<? extends ImportScheduleOnAppServer> importSchedules = Arrays.asList(importScheduleOnAppServer);
-        when(importScheduleOnAppServer.getImportSchedule()).thenReturn(importSchedule);
+        when(importScheduleOnAppServer.getImportSchedule()).thenReturn(Optional.of(importSchedule));
         when(importSchedule.getId()).thenReturn(1L);
         when(importSchedule.getName()).thenReturn("IMPORT-SCHEDULE");
         when(fileImportService.getImportSchedule(eq(1L))).thenReturn(Optional.of(importSchedule));
