@@ -18,7 +18,6 @@ import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
-import java.io.File;
 import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.List;
@@ -62,7 +61,7 @@ public class FileImportScheduleResource {
     @RolesAllowed({Privileges.ADMINISTRATE_IMPORT_SERVICES, Privileges.VIEW_IMPORT_SERVICES, Privileges.VIEW_MDC_IMPORT_SERVICES})
     public PagedInfoList getImportSchedulesList(@Context UriInfo uriInfo, @BeanParam JsonQueryParameters queryParameters, @QueryParam("application") String applicationName) {
 
-        List<ImportSchedule> list = fileImportService.findImportSchedules(applicationName).from(queryParameters).find();
+        List<ImportSchedule> list = fileImportService.findAllImportSchedules(applicationName).from(queryParameters).find();
         List<ImportServiceNameInfo> data = list.stream().map(each -> new ImportServiceNameInfo(each, thesaurus)).collect(Collectors.toList());
         return PagedInfoList.fromPagedList("importSchedules",data,queryParameters);
     }
@@ -138,7 +137,6 @@ public class FileImportScheduleResource {
         try (TransactionContext context = transactionService.getContext()) {
             importSchedule.setName(info.name);
             importSchedule.setActive(info.active);
-            importSchedule.setDestination(fileImportService.getImportFactory(info.importerInfo.name).get().getDestinationName());
             importSchedule.setImportDirectory(Paths.get(info.importDirectory));
             importSchedule.setFailureDirectory(Paths.get(info.failureDirectory));
             importSchedule.setSuccessDirectory(Paths.get(info.successDirectory));
@@ -184,7 +182,7 @@ public class FileImportScheduleResource {
     }
 
     private List<FileImportOccurrence> getFileImportOccurrences(JsonQueryParameters queryParameters, JsonQueryFilter filter, String applicationName, Long importServiceId) {
-        FileImportOccurrenceFinderBuilder finderBuilder = fileImportService.getFileImportOccurenceFinderBuilder(applicationName, importServiceId);
+        FileImportOccurrenceFinderBuilder finderBuilder = fileImportService.getFileImportOccurrenceFinderBuilder(applicationName, importServiceId);
 
         if (filter.hasProperty("startedOnFrom")) {
             if(filter.hasProperty("startedOnTo"))
@@ -278,7 +276,9 @@ public class FileImportScheduleResource {
 
 
     private ImportSchedule fetchImportSchedule(long id) {
-        return fileImportService.getImportSchedule(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        return fileImportService.getImportSchedule(id)
+                .filter(is-> is.getObsoleteTime() == null)
+                .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 
 

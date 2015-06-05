@@ -21,6 +21,7 @@ public class FileImportScheduleInfo {
     public long id;
     public String name;
     public Boolean active;
+    public Boolean deleted;
     public String destinationName;
     public String importDirectory;
     public String inProcessDirectory;
@@ -50,6 +51,7 @@ public class FileImportScheduleInfo {
         pathMatcher = importSchedule.getPathMatcher();
         importerName = importSchedule.getImporterName();
         application = importSchedule.getApplicationName();
+        deleted = importSchedule.getObsoleteTime()!=null;
 
         importerInfo = new FileImporterInfo(importerName,
                 thesaurus.getStringBeyondComponent(importerName, importerName), Collections.<PropertyInfo>emptyList() );

@@ -19,6 +19,7 @@ public class FileImportOccurrenceInfo {
     public String fileName;
     public String status;
     public String summary;
+    public boolean deleted;
 
     public FileImportOccurrenceInfo(){
 
@@ -28,6 +29,7 @@ public class FileImportOccurrenceInfo {
         this.fileName = fileImportOccurrence.getFileName();
         this.importServiceId = fileImportOccurrence.getImportSchedule().getId();
         this.importServiceName = fileImportOccurrence.getImportSchedule().getName();
+        this.deleted = fileImportOccurrence.getImportSchedule().getObsoleteTime()!=null;
         fileImportOccurrence.getStartDate().ifPresent(sd->this.startedOn = sd.toEpochMilli());
         fileImportOccurrence.getEndDate().ifPresent(sd->this.finishedOn = sd.toEpochMilli());
         this.duration = calculateDuration(startedOn, finishedOn);
