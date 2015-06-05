@@ -1332,7 +1332,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                     controller: 'Mdc.controller.setup.DeviceLoadProfileTab',
                                     privileges: Mdc.privileges.Device.viewDeviceCommunication,
                                     action: 'initTabLoadProfileGraphView',
-                                    filter: 'Mdc.model.LoadProfilesOfDeviceDataFilter',
+                                    //filter: 'Mdc.model.LoadProfilesOfDeviceDataFilter',
                                     callback: function (route) {
                                         this.getApplication().on('loadProfileOfDeviceLoad', function (record) {
                                             route.setTitle(record.get('name'));
@@ -1347,7 +1347,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                     controller: 'Mdc.controller.setup.DeviceLoadProfileTab',
                                     privileges: Mdc.privileges.Device.viewDeviceCommunication,
                                     action: 'initTabLoadProfileDataView',
-                                    filter: 'Mdc.model.LoadProfilesOfDeviceDataFilter',
+                                    //filter: 'Mdc.model.LoadProfilesOfDeviceDataFilter',
                                     callback: function (route) {
                                         this.getApplication().on('loadProfileOfDeviceLoad', function (record) {
                                             route.setTitle(record.get('name'));

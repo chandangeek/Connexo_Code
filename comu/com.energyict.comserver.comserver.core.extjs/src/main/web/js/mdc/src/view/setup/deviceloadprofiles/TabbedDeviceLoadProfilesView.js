@@ -3,8 +3,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.TabbedDeviceLoadProfilesView', {
     alias: 'widget.tabbedDeviceLoadProfilesView',
     itemId: 'tabbedDeviceLoadProfilesView',
     requires: [
-        'Uni.view.toolbar.PreviousNextNavigation',
-        'Mdc.view.setup.deviceloadprofiles.SideFilter'
+        'Uni.view.toolbar.PreviousNextNavigation'
     ],
     router: null,
     title: null,
@@ -65,9 +64,6 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.TabbedDeviceLoadProfilesView', {
                                 toggleId: 'loadProfilesLink'
                             }
                         ]
-                    },
-                    {
-                        xtype: 'deviceLoadProfileDataSideFilter'
                     }
                 ]
             }
