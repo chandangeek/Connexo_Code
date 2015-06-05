@@ -90,4 +90,24 @@ class EmailDestinationImpl extends AbstractDataExportDestination implements Emai
     private List<String> getRecipientsList() {
         return Arrays.asList(recipients.split(","));
     }
+
+    @Override
+    public void setRecipients(String recipients) {
+        this.recipients = recipients;
+    }
+
+    @Override
+    public void setSubject(String subject) {
+        this.subject = subject;
+    }
+
+    @Override
+    public void setAttachmentName(String attachmentName) {
+        this.attachmentName = attachmentName;
+    }
+
+    @Override
+    public void setAttachmentExtension(String attachmentExtension) {
+        this.attachmentExtension = attachmentExtension;
+    }
 }

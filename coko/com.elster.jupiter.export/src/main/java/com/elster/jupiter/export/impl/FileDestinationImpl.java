@@ -58,4 +58,19 @@ public class FileDestinationImpl extends AbstractDataExportDestination implement
     public String getFileLocation() {
         return fileLocation;
     }
+
+    @Override
+    public void setFileLocation(String fileLocation) {
+        this.fileLocation = fileLocation;
+    }
+
+    @Override
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+    }
+
+    @Override
+    public void setFileExtension(String fileExtension) {
+        this.fileExtension = fileExtension;
+    }
 }
