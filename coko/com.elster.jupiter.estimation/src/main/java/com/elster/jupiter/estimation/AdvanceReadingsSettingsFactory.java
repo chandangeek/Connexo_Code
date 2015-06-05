@@ -4,8 +4,6 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.properties.AbstractValueFactory;
 
-import java.sql.SQLException;
-
 public class AdvanceReadingsSettingsFactory extends AbstractValueFactory<AdvanceReadingsSettings> {
 
     private MeteringService meteringService;
@@ -31,7 +29,7 @@ public class AdvanceReadingsSettingsFactory extends AbstractValueFactory<Advance
 
 
     @Override
-    public AdvanceReadingsSettings valueFromDatabase (Object object) throws SQLException {
+    public AdvanceReadingsSettings valueFromDatabase (Object object) {
         return fromStringValue((String) object);
     }
 
