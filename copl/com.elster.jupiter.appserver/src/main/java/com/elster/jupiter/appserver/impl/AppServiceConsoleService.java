@@ -11,6 +11,7 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.util.cron.CronExpressionParser;
+import com.elster.jupiter.util.streams.Functions;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -167,8 +168,11 @@ public class AppServiceConsoleService {
 
         foundAppServer.get().getImportSchedulesOnAppServer()
                 .stream()
-                .forEach(importScheduleOnAppServer -> importScheduleOnAppServer
-                        .getImportSchedule().ifPresent(importSchedule->System.out.println(importSchedule.getName())));
+                .map(ImportScheduleOnAppServer::getImportSchedule)
+                .flatMap(Functions.asStream())
+                .map(ImportSchedule::getName)
+                .forEach(System.out::println);
+
     }
 
 //    private Optional<AppServer> getAppServerForActivation(String appServerName) {

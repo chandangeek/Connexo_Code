@@ -25,6 +25,8 @@ import com.elster.jupiter.util.cron.CronExpression;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.json.JsonService;
 import static com.elster.jupiter.util.conditions.Where.where;
+
+import com.elster.jupiter.util.streams.Functions;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.AbstractModule;
 import org.osgi.framework.BundleContext;
@@ -190,14 +192,15 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber {
             LOGGER.log(Level.WARNING, "AppServer with name " + appServer.getName() + " import folder is configured but cannot be resolved as path.");
             return;
         }
-        appServerImportFolder.ifPresent(asf -> asf.getImportFolder().ifPresent(path -> fileImportService.setBasePath(path)));
+        appServerImportFolder.flatMap(ImportFolderForAppServer::getImportFolder)
+                .ifPresent(path -> fileImportService.setBasePath(path));
 
         List<ImportScheduleOnAppServer> importScheduleOnAppServers = dataModel.mapper(ImportScheduleOnAppServer.class).find("appServer", appServer);
-        for (ImportScheduleOnAppServer importScheduleOnAppServer : importScheduleOnAppServers) {
-            importScheduleOnAppServer.getImportSchedule()
-                    .filter(is-> is.getObsoleteTime() == null)
-                    .ifPresent(importSchedule -> fileImportService.schedule(importSchedule));
-        }
+        importScheduleOnAppServers.stream()
+                .map(ImportScheduleOnAppServer::getImportSchedule)
+                .flatMap(Functions.asStream())
+                .filter(is -> is.getObsoleteTime() == null)
+                .forEach(fileImportService::schedule);
     }
 
     @Override
