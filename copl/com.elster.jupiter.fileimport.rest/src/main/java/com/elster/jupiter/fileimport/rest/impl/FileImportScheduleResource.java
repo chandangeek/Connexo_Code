@@ -163,7 +163,7 @@ public class FileImportScheduleResource {
                                                                       @Context SecurityContext securityContext) {
 
         List<FileImportOccurrence> fileImportOccurences = getFileImportOccurrences(queryParameters, filter, applicationName, importServiceId);
-        List<FileImportOccurrenceInfo> data = fileImportOccurences.stream().map(each -> new FileImportOccurrenceInfo(each, thesaurus)).collect(Collectors.toList());
+        List<FileImportOccurrenceInfo> data = fileImportOccurences.stream().map(each -> FileImportOccurrenceInfo.of(each, thesaurus)).collect(Collectors.toList());
         return PagedInfoList.fromPagedList("data", data, queryParameters);
     }
 
@@ -177,7 +177,7 @@ public class FileImportScheduleResource {
                                                                            @Context SecurityContext securityContext) {
 
         List<FileImportOccurrence> fileImportOccurences = getFileImportOccurrences(queryParameters, filter, applicationName, null);
-        List<FileImportOccurrenceInfo> data = fileImportOccurences.stream().map(each -> new FileImportOccurrenceInfo(each, thesaurus)).collect(Collectors.toList());
+        List<FileImportOccurrenceInfo> data = fileImportOccurences.stream().map(each -> FileImportOccurrenceInfo.of(each, thesaurus)).collect(Collectors.toList());
         return PagedInfoList.fromPagedList("data", data, queryParameters);
     }
 
@@ -226,7 +226,7 @@ public class FileImportScheduleResource {
                                                            @PathParam("occurrenceId") long occurrenceId,
                                                            @Context SecurityContext securityContext) {
 
-        return new FileImportOccurrenceInfo(
+        return FileImportOccurrenceInfo.of(
                 fileImportService.getFileImportOccurrence(occurrenceId).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND)), thesaurus);
     }
 
@@ -247,24 +247,6 @@ public class FileImportScheduleResource {
         return PagedInfoList.fromPagedList("data", data, queryParameters);
     }
 
-
-
-    /*private ScheduleExpression getScheduleExpression(FileImportScheduleInfo info) {
-        if(info.schedule == null){
-            info.schedule = new PeriodicalExpressionInfo();
-            info.schedule.offsetSeconds = 0;
-            info.schedule.offsetMinutes = 0;
-            info.schedule.offsetHours = 0;
-            info.schedule.offsetDays = 0;
-            info.schedule.offsetMonths = 0;
-            info.schedule.lastDayOfMonth = false;
-            info.schedule.dayOfWeek = null;
-            info.schedule.count = info.scanFrequency;
-            info.schedule.timeUnit = PeriodicalScheduleExpression.Period.MINUTE.getIdentifier();
-        }
-        return info.schedule == null ? Never.NEVER : info.schedule.toExpression();
-    }*/
-
     private void updateProperties(FileImportScheduleInfo info, ImportSchedule importSchedule) {
         List<PropertySpec> propertiesSpecs = fileImportService.getPropertiesSpecsForImporter(info.importerInfo.name);
         propertiesSpecs.stream()
@@ -277,7 +259,7 @@ public class FileImportScheduleResource {
 
     private ImportSchedule fetchImportSchedule(long id) {
         return fileImportService.getImportSchedule(id)
-                .filter(is-> is.getObsoleteTime() == null)
+                .filter(is -> is.getObsoleteTime() == null)
                 .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 

@@ -24,7 +24,7 @@ public class FileImportOccurrenceInfo {
     public FileImportOccurrenceInfo(){
 
     }
-    public FileImportOccurrenceInfo(FileImportOccurrence fileImportOccurrence, Thesaurus thesaurus){
+    private FileImportOccurrenceInfo(FileImportOccurrence fileImportOccurrence, Thesaurus thesaurus){
         this.id = this.occurrenceId = fileImportOccurrence.getId();
         this.fileName = fileImportOccurrence.getFileName();
         this.importServiceId = fileImportOccurrence.getImportSchedule().getId();
@@ -36,6 +36,10 @@ public class FileImportOccurrenceInfo {
         this.status = getStatusDescription(fileImportOccurrence.getStatus(), thesaurus);
         this.summary = fileImportOccurrence.getMessage();
 
+    }
+
+    public static FileImportOccurrenceInfo of(FileImportOccurrence fileImportOccurrence, Thesaurus thesaurus) {
+        return new FileImportOccurrenceInfo(fileImportOccurrence, thesaurus);
     }
 
     private String getStatusDescription(Status status,Thesaurus thesaurus ){

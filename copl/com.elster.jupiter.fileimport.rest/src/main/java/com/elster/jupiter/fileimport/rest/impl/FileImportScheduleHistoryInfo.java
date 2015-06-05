@@ -2,7 +2,6 @@ package com.elster.jupiter.fileimport.rest.impl;
 
 
 import com.elster.jupiter.fileimport.FileImportOccurrence;
-import com.elster.jupiter.fileimport.ImportSchedule;
 import com.elster.jupiter.nls.Thesaurus;
 
 import java.util.ArrayList;
@@ -30,7 +29,7 @@ public class FileImportScheduleHistoryInfo {
 
     private FileImportOccurrenceInfo add(FileImportOccurrence occurrence, Thesaurus thesaurus) {
 
-        FileImportOccurrenceInfo result = new FileImportOccurrenceInfo(occurrence, thesaurus);
+        FileImportOccurrenceInfo result = FileImportOccurrenceInfo.of(occurrence, thesaurus);
         data.add(result);
         total++;
         return result;
