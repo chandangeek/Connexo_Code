@@ -6,6 +6,7 @@ public class ImportScheduleInfo {
     public long id;
     public String name;
     public boolean deleted;
+    public boolean active;
 
     ImportScheduleInfo(){
     }
@@ -14,6 +15,7 @@ public class ImportScheduleInfo {
         this.id = importSchedule.getId();
         this.name = importSchedule.getName();
         this.deleted = importSchedule.getObsoleteTime()!=null;
+        this.active = importSchedule.isActive();
     }
 
     public static ImportScheduleInfo of(ImportSchedule importSchedule) {
