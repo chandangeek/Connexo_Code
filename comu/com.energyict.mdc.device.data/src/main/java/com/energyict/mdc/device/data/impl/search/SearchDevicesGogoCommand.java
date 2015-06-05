@@ -10,13 +10,13 @@ import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.util.Pair;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -108,19 +108,23 @@ public class SearchDevicesGogoCommand {
 
     @SuppressWarnings("unused")
     public void search(String... conditions) {
+        long queryStart = System.currentTimeMillis();
         SearchBuilder<Device> builder = this.searchService.search(Device.class);
         Stream
             .of(conditions)
             .map(this::toKeyValuePair)
             .forEach(p -> this.addCondition(builder, p.getFirst(), p.getLast()));
-        this.transactionService.execute(
-                VoidTransaction.of(() ->
-                        System.out.println(
-                                builder
-                                    .toFinder()
-                                    .stream()
-                                    .map(this::toString)
-                                    .collect(Collectors.joining("\n")))));
+        List<Device> devices = builder.toFinder().find();
+        long queryEnd = System.currentTimeMillis();
+        long renderingStart = System.currentTimeMillis();
+        System.out.println(
+                devices
+                    .stream()
+                    .map(this::toString)
+                    .collect(Collectors.joining("\n")));
+        long renderingEnd = System.currentTimeMillis();
+        System.out.println("Found " + devices.size() + " matching device(s) in " + (queryEnd - queryStart) + " millis");
+        System.out.println("Rendering them took " + (renderingEnd - renderingStart) + " millis");
     }
 
     private Pair<String, Object> toKeyValuePair(String condition) {
