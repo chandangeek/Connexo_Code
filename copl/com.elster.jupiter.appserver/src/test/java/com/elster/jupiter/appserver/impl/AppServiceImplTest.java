@@ -146,8 +146,8 @@ public class AppServiceImplTest {
         when(messageService.getSubscriberSpec(MESSAGING_NAME, MESSAGING_NAME)).thenReturn(Optional.empty());
         when(messageService.getSubscriberSpec("AllServers", MESSAGING_NAME)).thenReturn(Optional.empty());
         when(userService.findUser("batch executor")).thenReturn(Optional.of(batchUser));
-        when(importTask1.getImportSchedule()).thenReturn(schedule1);
-        when(importTask2.getImportSchedule()).thenReturn(schedule2);
+        when(importTask1.getImportSchedule()).thenReturn(Optional.of(schedule1));
+        when(importTask2.getImportSchedule()).thenReturn(Optional.of(schedule2));
         when(subscriberSpec.getDestination()).thenReturn(destination);
         when(destination.message(anyString())).thenReturn(messageBuilder);
         when(nlsService.getThesaurus(AppService.COMPONENT_NAME, Layer.DOMAIN)).thenReturn(thesaurus);

@@ -231,12 +231,14 @@ public class AppServerImpl implements AppServer {
         public ImportScheduleOnAppServerImpl addImportScheduleOnAppServer(ImportSchedule importSchedule){
             ImportScheduleOnAppServerImpl importScheduleOnAppServer = ImportScheduleOnAppServerImpl.from(dataModel,AppServerImpl.this.fileImportService, importSchedule, AppServerImpl.this);
             getImportScheduleOnAppServerFactory().persist(importScheduleOnAppServer);
+            fileImportService.schedule(importSchedule);
             return importScheduleOnAppServer;
         }
 
         @Override
         public void removeImportScheduleOnAppServer(ImportScheduleOnAppServer importScheduleOnAppServer){
             ImportScheduleOnAppServerImpl found = getImportScheduleOnAppServer(importScheduleOnAppServer);
+            importScheduleOnAppServer.getImportSchedule().ifPresent(importSchedule ->  fileImportService.unSchedule(importSchedule));
             getImportScheduleOnAppServerFactory().remove(found);
             importSchedulesOnAppServer.remove(found);
         }
@@ -307,7 +309,9 @@ public class AppServerImpl implements AppServer {
     }
 
     private ImportScheduleOnAppServerImpl getImportScheduleOnAppServer(ImportScheduleOnAppServer importScheduleOnAppServer) {
-        return getImportSchedulesOnAppServer().stream().filter(importSchedule -> importSchedule.getImportSchedule().equals(importScheduleOnAppServer.getImportSchedule()))
+        return getImportSchedulesOnAppServer()
+                .stream()
+                .filter(importSchedule -> importSchedule.getImportSchedule().equals(importScheduleOnAppServer.getImportSchedule()))
                 .findFirst()
                 .orElseThrow(IllegalArgumentException::new);
     }

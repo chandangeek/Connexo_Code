@@ -2,9 +2,11 @@ package com.elster.jupiter.appserver;
 
 import com.elster.jupiter.fileimport.ImportSchedule;
 
+import java.util.Optional;
+
 public interface ImportScheduleOnAppServer {
 
-    ImportSchedule getImportSchedule();
+    Optional<ImportSchedule> getImportSchedule();
 
     AppServer getAppServer();
 

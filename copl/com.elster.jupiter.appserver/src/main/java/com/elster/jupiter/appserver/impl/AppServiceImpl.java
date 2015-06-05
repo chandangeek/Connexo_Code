@@ -194,7 +194,9 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber {
 
         List<ImportScheduleOnAppServer> importScheduleOnAppServers = dataModel.mapper(ImportScheduleOnAppServer.class).find("appServer", appServer);
         for (ImportScheduleOnAppServer importScheduleOnAppServer : importScheduleOnAppServers) {
-            fileImportService.schedule(importScheduleOnAppServer.getImportSchedule());
+            importScheduleOnAppServer.getImportSchedule()
+                    .filter(is-> is.getObsoleteTime() == null)
+                    .ifPresent(importSchedule -> fileImportService.schedule(importSchedule));
         }
     }
 

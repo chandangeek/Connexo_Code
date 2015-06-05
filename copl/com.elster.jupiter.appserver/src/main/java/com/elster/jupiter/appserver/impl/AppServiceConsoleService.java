@@ -17,11 +17,7 @@ import org.osgi.service.component.annotations.Reference;
 import java.security.Principal;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Locale;
-import java.util.Optional;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -145,7 +141,9 @@ public class AppServiceConsoleService {
             System.out.println("AppServer not found.");
             return;
         }
-        Optional<? extends ImportScheduleOnAppServer> found = foundAppServer.get().getImportSchedulesOnAppServer().stream().filter(schedule -> schedule.getImportSchedule().getId() == id).findFirst();
+        Optional<? extends ImportScheduleOnAppServer> found = foundAppServer.get().getImportSchedulesOnAppServer()
+                .stream()
+                .filter(schedule -> schedule.getImportSchedule().isPresent() && (schedule.getImportSchedule().get().getId() == id)).findFirst();
         if (!found.isPresent()) {
             System.out.println("ImportScheduleOnAppServer not found.");
             return;
@@ -167,8 +165,10 @@ public class AppServiceConsoleService {
             return;
         }
 
-        foundAppServer.get().getImportSchedulesOnAppServer().stream().
-                forEach(importSchedule -> System.out.println(importSchedule.getImportSchedule().getName()));
+        foundAppServer.get().getImportSchedulesOnAppServer()
+                .stream()
+                .forEach(importScheduleOnAppServer -> importScheduleOnAppServer
+                        .getImportSchedule().ifPresent(importSchedule->System.out.println(importSchedule.getName())));
     }
 
 //    private Optional<AppServer> getAppServerForActivation(String appServerName) {

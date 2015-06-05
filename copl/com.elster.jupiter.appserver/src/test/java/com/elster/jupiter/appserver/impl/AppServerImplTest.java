@@ -96,7 +96,7 @@ public class AppServerImplTest {
         when(importSchedule.getId()).thenReturn(1L);
         when(fileImportService.getImportSchedule(1L)).thenReturn(Optional.of(importSchedule));
         when(importScheduleOnAppServer.getAppServer()).thenReturn(appServer);
-        when(importScheduleOnAppServer.getImportSchedule()).thenReturn(importSchedule);
+        when(importScheduleOnAppServer.getImportSchedule()).thenReturn(Optional.of(importSchedule));
     }
 
     @After
@@ -196,7 +196,7 @@ public class AppServerImplTest {
 
         verify(importScheduleOnAppServerFactory).persist(importScheduleOnAppServer);
         assertThat(importScheduleOnAppServer.getAppServer()).isEqualTo(appServer);
-        assertThat(importScheduleOnAppServer.getImportSchedule()).isEqualTo(importSchedule);
+        assertThat(importScheduleOnAppServer.getImportSchedule().get()).isEqualTo(importSchedule);
     }
 
     @Test

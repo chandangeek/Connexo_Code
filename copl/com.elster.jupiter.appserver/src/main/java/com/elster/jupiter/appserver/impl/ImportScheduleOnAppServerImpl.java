@@ -9,6 +9,7 @@ import com.elster.jupiter.fileimport.ImportSchedule;
 import com.elster.jupiter.orm.DataModel;
 
 import javax.inject.Inject;
+import java.util.Optional;
 import java.util.Properties;
 
 public class ImportScheduleOnAppServerImpl implements ImportScheduleOnAppServer {
@@ -41,11 +42,13 @@ public class ImportScheduleOnAppServerImpl implements ImportScheduleOnAppServer 
     }
 
     @Override
-    public ImportSchedule getImportSchedule() {
+    public Optional<ImportSchedule> getImportSchedule() {
         if (importSchedule == null) {
-            importSchedule = fileImportService.getImportSchedule(importScheduleId).get();
+            importSchedule = fileImportService.getImportSchedule(importScheduleId)
+                    .orElse(null);
+
         }
-        return importSchedule;
+        return Optional.ofNullable(importSchedule);
     }
 
     @Override
