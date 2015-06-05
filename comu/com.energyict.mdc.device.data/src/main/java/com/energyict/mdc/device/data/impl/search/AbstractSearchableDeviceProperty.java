@@ -15,7 +15,6 @@ import com.elster.jupiter.util.conditions.Or;
 import com.elster.jupiter.util.conditions.Text;
 import com.elster.jupiter.util.conditions.Visitor;
 import com.elster.jupiter.util.conditions.Where;
-import com.elster.jupiter.util.proxy.LazyLoadProxy;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
 
@@ -150,16 +149,9 @@ public abstract class AbstractSearchableDeviceProperty implements SearchableDevi
 
     private abstract static class ProxyAwareSqlFragment {
         protected void bindSingleValue(PreparedStatement statement, Object value, int bindPosition) throws SQLException {
-            if (LazyLoadProxy.isLazyLoadProxy(value)) {
-                Object entity = LazyLoadProxy.unwrap(value);
-                if (entity instanceof HasId) {
-                    HasId hasId = (HasId) entity;
-                    statement.setLong(bindPosition, hasId.getId());
-                }
-                else {
-                    // Cross your fingers that the object is somehow serializable
-                    statement.setObject(bindPosition, entity);
-                }
+            if (value instanceof HasId) {
+                HasId hasId = (HasId) value;
+                statement.setLong(bindPosition, hasId.getId());
             }
             else {
                 statement.setObject(bindPosition, value);
