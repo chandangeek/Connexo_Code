@@ -141,7 +141,7 @@ public class ConnectionResource {
         return Response.ok(PagedInfoList.fromPagedList("connectionTasks", connectionTaskInfos, queryParameters)).build();
     }
 
-    private ConnectionTaskFilterSpecification buildFilterFromJson(JsonQueryFilter jsonQueryFilter) throws Exception {
+    private ConnectionTaskFilterSpecification buildFilterFromJsonQuery(JsonQueryFilter jsonQueryFilter) throws Exception {
         ConnectionTaskFilterSpecification filter = new ConnectionTaskFilterSpecification();
         filter.taskStatuses = EnumSet.noneOf(TaskStatus.class);
         if (jsonQueryFilter.hasProperty(FilterOption.currentStates.name())) {
@@ -384,7 +384,7 @@ public class ConnectionResource {
     private ConnectionTypePluggableClass getConnectionTypePluggableClassFromQueryParameters(String filterQueryParam, String connectionsQueryParam) throws Exception {
         List<ConnectionTypePluggableClass> connectionTypePluggableClasses = new ArrayList<>();
         if (filterQueryParam!=null) {
-            ConnectionTaskFilterSpecification filter = buildFilterFromJson(new JsonQueryFilter(filterQueryParam));
+            ConnectionTaskFilterSpecification filter = buildFilterFromJsonQuery(new JsonQueryFilter(filterQueryParam));
             connectionTypePluggableClasses.addAll(connectionTaskService.findConnectionTypeByFilter(filter));
         } else if (connectionsQueryParam!=null) {
             connectionTypePluggableClasses.addAll(getPluggableClassesFromConnectionQueryString(connectionsQueryParam));
