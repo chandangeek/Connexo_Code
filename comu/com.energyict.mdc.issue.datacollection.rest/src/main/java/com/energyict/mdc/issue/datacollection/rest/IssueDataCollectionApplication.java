@@ -1,5 +1,7 @@
 package com.energyict.mdc.issue.datacollection.rest;
 
+import com.elster.jupiter.issue.rest.response.PropertyUtils;
+import com.elster.jupiter.issue.rest.response.cep.CreationRuleActionInfoFactory;
 import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.license.License;
@@ -19,12 +21,15 @@ import com.energyict.mdc.issue.datacollection.rest.i18n.MessageSeeds;
 import com.energyict.mdc.issue.datacollection.rest.resource.IssueResource;
 import com.energyict.mdc.issue.datacollection.rest.response.DataCollectionIssueInfoFactory;
 import com.google.common.collect.ImmutableSet;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
 import javax.ws.rs.core.Application;
+
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -44,8 +49,7 @@ public class IssueDataCollectionApplication extends Application implements Trans
     private volatile NlsService nlsService;
     private volatile Thesaurus thesaurus;
     private volatile DeviceService deviceService;
-    private volatile License license;
-
+    
     @Override
     public Set<Class<?>> getClasses() {
         return ImmutableSet.<Class<?>>of(
@@ -96,7 +100,6 @@ public class IssueDataCollectionApplication extends Application implements Trans
 
     @Reference(target = "(com.elster.jupiter.license.rest.key=" + APP_KEY + ")")
     public void setLicense(License license) {
-        this.license = license;
     }
 
     @Override
@@ -138,6 +141,8 @@ public class IssueDataCollectionApplication extends Application implements Trans
             bind(thesaurus).to(Thesaurus.class);
             bind(deviceService).to(DeviceService.class);
             bind(DataCollectionIssueInfoFactory.class).to(DataCollectionIssueInfoFactory.class);
+            bind(CreationRuleActionInfoFactory.class).to(CreationRuleActionInfoFactory.class);
+            bind(PropertyUtils.class).to(PropertyUtils.class);
         }
     }
 }

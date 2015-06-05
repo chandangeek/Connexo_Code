@@ -52,6 +52,7 @@ import com.elster.jupiter.issue.rest.response.ActionInfo;
 import com.elster.jupiter.issue.rest.response.IssueCommentInfo;
 import com.elster.jupiter.issue.rest.response.IssueGroupInfo;
 import com.elster.jupiter.issue.rest.response.PropertyUtils;
+import com.elster.jupiter.issue.rest.response.cep.CreationRuleActionInfoFactory;
 import com.elster.jupiter.issue.rest.response.cep.CreationRuleActionTypeInfo;
 import com.elster.jupiter.issue.rest.response.device.DeviceInfo;
 import com.elster.jupiter.issue.rest.transactions.AssignIssueTransaction;
@@ -87,11 +88,15 @@ import com.energyict.mdc.issue.datacollection.rest.response.DataCollectionIssueI
 @Path("/issue")
 public class IssueResource extends BaseResource {
     
-    private DataCollectionIssueInfoFactory issuesInfoFactory;
+    private final DataCollectionIssueInfoFactory issuesInfoFactory;
+    private final CreationRuleActionInfoFactory actionInfoFactory;
+    private final PropertyUtils propertyUtils;
 
     @Inject
-    public IssueResource(DataCollectionIssueInfoFactory dataCollectionIssuesInfoFactory) {
+    public IssueResource(DataCollectionIssueInfoFactory dataCollectionIssuesInfoFactory, CreationRuleActionInfoFactory actionInfoFactory, PropertyUtils propertyUtils) {
         this.issuesInfoFactory = dataCollectionIssuesInfoFactory;
+        this.actionInfoFactory = actionInfoFactory;
+        this.propertyUtils = propertyUtils;
     }
 
     @GET
@@ -301,7 +306,7 @@ public class IssueResource extends BaseResource {
     @RolesAllowed({Privileges.VIEW_ISSUE,Privileges.ASSIGN_ISSUE,Privileges.CLOSE_ISSUE,Privileges.COMMENT_ISSUE,Privileges.ACTION_ISSUE})
     public Response getActionTypeById(@PathParam(KEY) long id){
         IssueActionType actionType = getIssueActionService().findActionType(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-        return entity(new CreationRuleActionTypeInfo(actionType)).build();
+        return Response.ok(actionInfoFactory.asInfo(actionType)).build();
     }
 
 
@@ -313,7 +318,6 @@ public class IssueResource extends BaseResource {
     public Response performAction(@PathParam(ID) long id, PerformActionRequest request) {
         IssueDataCollection issue = getIssueDataCollectionService().findIssue(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
         IssueActionType action = getIssueActionService().findActionType(request.id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-        PropertyUtils propertyUtils = new PropertyUtils();
         Map<String, Object> properties = new HashMap<>();
         for (PropertySpec propertySpec : action.createIssueAction().get().getPropertySpecs()) {
             Object value = propertyUtils.findPropertyValue(propertySpec, request.properties);
