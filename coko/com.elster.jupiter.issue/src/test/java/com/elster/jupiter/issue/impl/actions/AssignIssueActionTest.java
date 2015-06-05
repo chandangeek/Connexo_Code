@@ -16,9 +16,7 @@ import com.elster.jupiter.issue.impl.service.BaseTest;
 import com.elster.jupiter.issue.share.IssueAction;
 import com.elster.jupiter.issue.share.IssueActionResult;
 import com.elster.jupiter.issue.share.entity.Issue;
-import com.elster.jupiter.properties.IdWithNameValue;
 import com.elster.jupiter.users.User;
-
 
 public class AssignIssueActionTest extends BaseTest {
     
@@ -55,7 +53,7 @@ public class AssignIssueActionTest extends BaseTest {
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.PROPERTY_INVALID_VALUE +"}", property = "properties.AssignIssueAction.assignee", strict = true)
     public void testExecuteActionWrongAssignee() {
         Map<String, Object> properties = new HashMap<>();
-        properties.put(AssignIssueAction.ASSIGNEE, IdWithNameValue.EMPTY);
+        properties.put(AssignIssueAction.ASSIGNEE, null);
         
         action.initAndValidate(properties);
     }

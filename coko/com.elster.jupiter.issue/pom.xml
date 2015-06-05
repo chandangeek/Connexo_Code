@@ -49,6 +49,10 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
+            <artifactId>properties</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
             <artifactId>orm</artifactId>
         </dependency>
         <dependency>
@@ -58,10 +62,6 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>tasks</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>appserver</artifactId>
         </dependency>
         <!-- Kore dependencies -->
         <dependency>

@@ -16,8 +16,8 @@ import com.elster.jupiter.issue.share.entity.IssueAssignee;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.properties.FindById;
-import com.elster.jupiter.properties.IdWithNameValue;
+import com.elster.jupiter.properties.CanFindByStringKey;
+import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
@@ -84,7 +84,7 @@ public class AssignIssueAction extends AbstractIssueAction {
     @Override
     public List<PropertySpec> getPropertySpecs() {
         Builder<PropertySpec> builder = ImmutableList.builder();
-        builder.add(getPropertySpecService().idWithNameValuePropertySpec(ASSIGNEE, true, assignees, assignees.getPossibleAssignees()));
+        builder.add(getPropertySpecService().stringReferencePropertySpec(ASSIGNEE, true, assignees, assignees.getPossibleAssignees()));
         builder.add(getPropertySpecService().stringPropertySpec(COMMENT, false, null));
         return builder.build();
     }
@@ -94,20 +94,25 @@ public class AssignIssueAction extends AbstractIssueAction {
         return MessageSeeds.ACTION_ASSIGN_ISSUE.getTranslated(getThesaurus());
     }
     
-    class PossibleAssignees implements FindById<Assignee> {
+    class PossibleAssignees implements CanFindByStringKey<Assignee> {
         
         @Override
-        public Optional<Assignee> findById(Object id) {
-            return userService.getUser(Long.valueOf(id.toString()).longValue()).map(user -> new Assignee(user));
+        public Optional<Assignee> find(String key) {
+            return userService.getUser(Long.valueOf(key).longValue()).map(user -> new Assignee(user));
         }
         
         public Assignee[] getPossibleAssignees() {
             return userService.getUserQuery().select(Condition.TRUE, Order.ascending("authenticationName"))
                                 .stream().map(user -> new Assignee(user)).toArray(Assignee[]::new);
         }
+        
+        @Override
+        public Class<Assignee> valueDomain() {
+            return Assignee.class;
+        }
     }
     
-    static class Assignee extends IdWithNameValue {
+    static class Assignee extends HasIdAndName {
         
         private User user;
         
@@ -116,7 +121,7 @@ public class AssignIssueAction extends AbstractIssueAction {
         }
         
         @Override
-        public Object getId() {
+        public Long getId() {
             return user.getId();
         }
         

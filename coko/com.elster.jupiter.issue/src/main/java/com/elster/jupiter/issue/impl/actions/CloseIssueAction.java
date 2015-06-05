@@ -16,8 +16,8 @@ import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.properties.FindById;
-import com.elster.jupiter.properties.IdWithNameValue;
+import com.elster.jupiter.properties.CanFindByStringKey;
+import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
@@ -68,7 +68,7 @@ public class CloseIssueAction extends AbstractIssueAction {
     @Override
     public List<PropertySpec> getPropertySpecs() {
         Builder<PropertySpec> builder = ImmutableList.builder();
-        builder.add(getPropertySpecService().idWithNameValuePropertySpec(CLOSE_STATUS, true, statuses, statuses.getStatuses()));
+        builder.add(getPropertySpecService().stringReferencePropertySpec(CLOSE_STATUS, true, statuses, statuses.getStatuses()));
         builder.add(getPropertySpecService().stringPropertySpec(COMMENT, false, null));
         return builder.build();
     }
@@ -103,20 +103,25 @@ public class CloseIssueAction extends AbstractIssueAction {
         return Optional.empty();
     }
     
-    class PossibleStatuses implements FindById<Status> {
+    class PossibleStatuses implements CanFindByStringKey<Status> {
         
         @Override
-        public Optional<Status> findById(Object id) {
-            return issueService.findStatus(id.toString()).map(status -> new Status(status));
+        public Optional<Status> find(String key) {
+            return issueService.findStatus(key).map(status -> new Status(status));
         }
         
         public Status[] getStatuses() {
             List<IssueStatus> statuses = issueService.query(IssueStatus.class).select(Where.where("isHistorical").isEqualTo(Boolean.TRUE));
             return statuses.stream().map(status -> new Status(status)).toArray(Status[]::new);
         }
+        
+        @Override
+        public Class<Status> valueDomain() {
+            return Status.class;
+        }
     }
     
-    static class Status extends IdWithNameValue {
+    static class Status extends HasIdAndName {
         
         private IssueStatus status;
         

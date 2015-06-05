@@ -71,7 +71,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     CREATION_RULE_UNIQUE_NAME(9012, Keys.CREATION_RULE_UNIQUE_NAME, "The name should be unique", Level.SEVERE),
     PROPERTY_NOT_IN_PROPERTYSPECS(9013, Keys.PROPERTY_NOT_IN_PROPERTYSPECS, "Property is not in property specs", Level.SEVERE),
     PROPERTY_INVALID_VALUE(9014, Keys.PROPERTY_INVALID_VALUE, "Property invalid value", Level.SEVERE),
-    PROPERTY_MISSING(9015, Keys.PROPERTY_MISSING, "Required property with key ''{0}'' was not found.", Level.SEVERE);
+    PROPERTY_MISSING(9015, Keys.PROPERTY_MISSING, "Required property was not found.", Level.SEVERE);
     
     ;
 
