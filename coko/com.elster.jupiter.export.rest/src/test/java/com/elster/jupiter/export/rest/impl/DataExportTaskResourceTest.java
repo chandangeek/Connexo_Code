@@ -1,14 +1,16 @@
 package com.elster.jupiter.export.rest.impl;
 
+import com.elster.jupiter.export.EmailDestination;
 import org.junit.Test;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest {
 
@@ -37,9 +39,8 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
         verify(exportTask).triggerNow();
     }
 
-
     @Test
-    public void getCreateTasksTest() {
+    public void createTasksTest() {
         DataExportTaskInfo info = new DataExportTaskInfo();
         info.name = "newName";
         info.nextRun = 250L;
@@ -48,12 +49,28 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
         info.dataSelectorInfo.deviceGroup.id = 5;
         info.dataProcessor = new ProcessorInfo();
         info.dataProcessor.name = "dataProcessor";
+        DestinationInfo fileDestinationInfo = new DestinationInfo();
+        fileDestinationInfo.type = DestinationType.FILE;
+        fileDestinationInfo.fileLocation = "";
+        fileDestinationInfo.fileName = "file";
+        fileDestinationInfo.fileExtension = "txt";
+        info.destinations.add(fileDestinationInfo);
+        DestinationInfo emailDestinationInfo = new DestinationInfo();
+        emailDestinationInfo.type = DestinationType.EMAIL;
+        emailDestinationInfo.fileName = "attachment";
+        emailDestinationInfo.fileExtension = "csv";
+        emailDestinationInfo.recipients="user1@elster.com,user2@elster.com";
+        emailDestinationInfo.subject="daily report";
+        info.destinations.add(emailDestinationInfo);
 
         Entity<DataExportTaskInfo> json = Entity.json(info);
 
         Response response = target("/dataexporttask").request().post(json);
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
+
+        verify(exportTask).addFileDestination("", "file", "txt");
+        verify(exportTask).addEmailDestination("user1@elster.com,user2@elster.com", "daily report", "attachment", "csv");
     }
 
     @Test
@@ -72,4 +89,54 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
     }
+
+    @Test
+    public void updateTaskDestinationsTest() {
+        EmailDestination obsolete = mock(EmailDestination.class);
+        EmailDestination toUpdate = mock(EmailDestination.class);
+        when(exportTask.getDestinations()).thenReturn(Arrays.asList(obsolete, toUpdate));
+        when(obsolete.getId()).thenReturn(7772L);
+        when(toUpdate.getId()).thenReturn(7773L);
+
+        DataExportTaskInfo info = new DataExportTaskInfo();
+        info.id = TASK_ID;
+        info.name = "newName";
+        info.nextRun = 250L;
+        info.dataSelectorInfo = new DataSelectorInfo();
+        info.dataSelectorInfo.deviceGroup = new MeterGroupInfo();
+        info.dataSelectorInfo.deviceGroup.id = 5;
+        info.dataProcessor = new ProcessorInfo();
+        info.dataProcessor.name = "dataProcessor";
+        DestinationInfo fileDestinationInfo = new DestinationInfo();
+        fileDestinationInfo.id = 0; // new
+        fileDestinationInfo.type = DestinationType.FILE;
+        fileDestinationInfo.fileLocation = "";
+        fileDestinationInfo.fileName = "file";
+        fileDestinationInfo.fileExtension = "txt";
+        info.destinations.add(fileDestinationInfo);
+        DestinationInfo emailDestinationInfo = new DestinationInfo();
+        emailDestinationInfo.id = 7773L;
+        emailDestinationInfo.type = DestinationType.EMAIL;
+        emailDestinationInfo.fileName = "attachment";
+        emailDestinationInfo.fileExtension = "csv";
+        emailDestinationInfo.recipients="user1@elster.com,user2@elster.com";
+        emailDestinationInfo.subject="daily report";
+        info.destinations.add(emailDestinationInfo);
+
+        Entity<DataExportTaskInfo> json = Entity.json(info);
+
+        Response response = target("/dataexporttask/" + TASK_ID).request().put(json);
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
+
+        verify(exportTask).removeDestination(obsolete);
+        verify(toUpdate).setRecipients("user1@elster.com,user2@elster.com");
+        verify(toUpdate).setSubject("daily report");
+        verify(toUpdate).setAttachmentName("attachment");
+        verify(toUpdate).setAttachmentExtension("csv");
+        verify(toUpdate).save();
+        verify(exportTask).addFileDestination("", "file", "txt");
+    }
+
+
 }

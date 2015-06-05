@@ -1,5 +1,6 @@
 package com.elster.jupiter.export.rest.impl;
 
+import com.elster.jupiter.export.DataExportDestination;
 import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
@@ -13,6 +14,7 @@ import com.elster.jupiter.util.time.ScheduleExpression;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -32,6 +34,7 @@ public class DataExportTaskInfo {
     public Long nextRun;
     public Long lastRun;
     public DataSelectorInfo dataSelectorInfo;
+    public List<DestinationInfo> destinations = new ArrayList<>();
 
     public DataExportTaskInfo(ExportTask dataExportTask, Thesaurus thesaurus, TimeService timeService) {
         doPopulate(dataExportTask, thesaurus, timeService);
@@ -47,7 +50,15 @@ public class DataExportTaskInfo {
         }
         properties = new PropertyUtils().convertPropertySpecsToPropertyInfos(dataExportTask.getPropertySpecs(), dataExportTask.getProperties());
         lastExportOccurrence = dataExportTask.getLastOccurrence().map(oc -> new DataExportTaskHistoryInfo(oc, thesaurus, timeService)).orElse(null);
+        dataExportTask.getDestinations().stream()
+                .forEach(destination -> destinations.add(typeOf(destination).toInfo(destination)));
+    }
 
+    private DestinationType typeOf(DataExportDestination destination) {
+        return Arrays.stream(DestinationType.values())
+                .filter(type -> type.getDestinationClass().isInstance(destination))
+                .findAny()
+                .orElseThrow(IllegalArgumentException::new);
     }
 
     public void populate(ExportTask dataExportTask, Thesaurus thesaurus, TimeService timeService) {

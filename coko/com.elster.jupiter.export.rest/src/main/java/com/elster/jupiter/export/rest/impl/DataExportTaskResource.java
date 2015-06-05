@@ -5,8 +5,8 @@ import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportOccurrenceFinder;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataExportTaskBuilder;
-import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.export.ExportTask;
+import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.export.ReadingTypeDataSelector;
 import com.elster.jupiter.export.security.Privileges;
 import com.elster.jupiter.metering.ReadingType;
@@ -56,6 +56,8 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 @Path("/dataexporttask")
 public class DataExportTaskResource {
@@ -149,10 +151,11 @@ public class DataExportTaskResource {
                     builder.addProperty(spec.getName()).withValue(value);
                 });
 
-
         ExportTask dataExportTask = builder.build();
         try (TransactionContext context = transactionService.getContext()) {
             dataExportTask.save();
+            info.destinations.stream()
+                    .forEach(destinationInfo -> destinationInfo.type.create(dataExportTask, destinationInfo));
             context.commit();
         }
         return Response.status(Response.Status.CREATED).entity(new DataExportTaskInfo(dataExportTask, thesaurus, timeService)).build();
@@ -183,7 +186,7 @@ public class DataExportTaskResource {
     @RolesAllowed({Privileges.UPDATE_DATA_EXPORT_TASK, Privileges.UPDATE_SCHEDULE_DATA_EXPORT_TASK})
     public Response updateExportTask(@PathParam("id") long id, DataExportTaskInfo info) {
 
-        ExportTask task = findTaskOrThrowException(info);
+        ExportTask task = findTaskOrThrowException(id);
 
         try (TransactionContext context = transactionService.getContext()) {
             task.setName(info.name);
@@ -203,6 +206,7 @@ public class DataExportTaskResource {
 
             updateProperties(info, task);
             updateReadingTypes(info, task);
+            updateDestinations(info, task);
 
             task.save();
             context.commit();
@@ -291,8 +295,8 @@ public class DataExportTaskResource {
         return infos;
     }
 
-    private ExportTask findTaskOrThrowException(DataExportTaskInfo info) {
-        return dataExportService.findExportTask(info.id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+    private ExportTask findTaskOrThrowException(long id) {
+        return dataExportService.findExportTask(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 
     private void updateReadingTypes(DataExportTaskInfo info, ExportTask task) {
@@ -316,6 +320,31 @@ public class DataExportTaskResource {
                 });
     }
 
+    private void updateDestinations(DataExportTaskInfo info, ExportTask task) {
+        // create the new ones
+        info.destinations.stream()
+                .filter(isNewDestination())
+                .forEach(destinationInfo -> destinationInfo.type.create(task, destinationInfo));
+        // update the ones that stay
+        info.destinations.stream()
+                .filter(isNewDestination().negate())
+                .forEach(destinationInfo -> {
+                    task.getDestinations().stream()
+                            .filter(destination -> destination.getId() == destinationInfo.id)
+                            .findAny()
+                            .ifPresent(destination -> destinationInfo.type.update(destination, destinationInfo));
+                });
+        // remove the ones no longer in the info
+        task.getDestinations().stream()
+                .filter(destination -> info.destinations.stream().noneMatch(destinationInfo -> destinationInfo.id == destination.getId()))
+                .collect(Collectors.toList())
+                .forEach(task::removeDestination);
+    }
+
+    private Predicate<DestinationInfo> isNewDestination() {
+        return destinationInfo -> destinationInfo.id == 0;
+    }
+
     private ScheduleExpression getScheduleExpression(DataExportTaskInfo info) {
         return info.schedule == null ? Never.NEVER : info.schedule.toExpression();
     }
@@ -333,7 +362,7 @@ public class DataExportTaskResource {
     }
 
     private ExportTask fetchDataExportTask(long id) {
-        return dataExportService.findExportTask(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        return findTaskOrThrowException(id);
     }
 
     private DataExportOccurrence fetchDataExportOccurrence(long id, ExportTask task) {
