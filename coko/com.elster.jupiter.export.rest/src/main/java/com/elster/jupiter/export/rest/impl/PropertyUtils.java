@@ -1,5 +1,9 @@
 package com.elster.jupiter.export.rest.impl;
 
+import com.elster.jupiter.export.DataExportService;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.ListValue;
 import com.elster.jupiter.properties.ListValueEntry;
 import com.elster.jupiter.properties.PropertySpec;
@@ -10,6 +14,7 @@ import com.elster.jupiter.rest.util.properties.PropertySelectionMode;
 import com.elster.jupiter.rest.util.properties.PropertyTypeInfo;
 import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -17,7 +22,18 @@ import java.util.Objects;
 
 public class PropertyUtils {
 
+    private final Thesaurus thesaurus;
+
     private PropertyInfoFactory propertyInfoFactory = new PropertyInfoFactory();
+
+    @Inject
+    public PropertyUtils(NlsService nlsService) {
+        this.thesaurus = nlsService.getThesaurus(DataExportService.COMPONENTNAME, Layer.REST);
+    }
+
+    private String getTranslatedPropertyName(PropertySpec propertySpec) {
+        return thesaurus.getStringBeyondComponent(propertySpec.getName(), propertySpec.getName());
+    }
 
     public List<PropertyInfo> convertPropertySpecsToPropertyInfos(List<PropertySpec> propertySpecs) {
         return convertPropertySpecsToPropertyInfos(propertySpecs, null);//no initial values for properties
@@ -36,7 +52,7 @@ public class PropertyUtils {
         PropertyValueInfo propertyValueInfo = getPropertyValueInfo(propertySpec, values);
         PropertyType propertyType = PropertyType.getTypeFrom(propertySpec.getValueFactory());
         PropertyTypeInfo propertyTypeInfo = getPropertyTypeInfo(propertySpec, propertyType);
-        return new PropertyInfo(propertySpec.getName(), propertyValueInfo, propertyTypeInfo, propertySpec.isRequired());
+        return new PropertyInfo(getTranslatedPropertyName(propertySpec), propertySpec.getName(), propertyValueInfo, propertyTypeInfo, propertySpec.isRequired());
     }
 
     private PropertyValueInfo<Object> getPropertyValueInfo(PropertySpec propertySpec, Map<String, Object> values) {

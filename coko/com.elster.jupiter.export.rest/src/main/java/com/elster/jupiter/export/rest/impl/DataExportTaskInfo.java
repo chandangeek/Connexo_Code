@@ -36,7 +36,8 @@ public class DataExportTaskInfo {
     public DataSelectorInfo dataSelectorInfo;
     public List<DestinationInfo> destinations = new ArrayList<>();
 
-    public DataExportTaskInfo(ExportTask dataExportTask, Thesaurus thesaurus, TimeService timeService) {
+
+    public DataExportTaskInfo(ExportTask dataExportTask, Thesaurus thesaurus, TimeService timeService, PropertyUtils propertyUtils) {
         doPopulate(dataExportTask, thesaurus, timeService);
         if (Never.NEVER.equals(dataExportTask.getScheduleExpression())) {
             schedule = null;
@@ -48,8 +49,8 @@ public class DataExportTaskInfo {
                 schedule = PeriodicalExpressionInfo.from((PeriodicalScheduleExpression) scheduleExpression);
             }
         }
-        properties = new PropertyUtils().convertPropertySpecsToPropertyInfos(dataExportTask.getPropertySpecs(), dataExportTask.getProperties());
-        lastExportOccurrence = dataExportTask.getLastOccurrence().map(oc -> new DataExportTaskHistoryInfo(oc, thesaurus, timeService)).orElse(null);
+        properties = propertyUtils.convertPropertySpecsToPropertyInfos(dataExportTask.getPropertySpecs(), dataExportTask.getProperties());
+        lastExportOccurrence = dataExportTask.getLastOccurrence().map(oc -> new DataExportTaskHistoryInfo(oc, thesaurus, timeService, propertyUtils)).orElse(null);
         dataExportTask.getDestinations().stream()
                 .forEach(destination -> destinations.add(typeOf(destination).toInfo(destination)));
     }

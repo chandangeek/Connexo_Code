@@ -41,15 +41,15 @@ public class DataExportTaskHistoryInfo {
     public DataExportTaskHistoryInfo() {
     }
 
-    public DataExportTaskHistoryInfo(DataExportOccurrence dataExportOccurrence, Thesaurus thesaurus, TimeService timeService) {
-        populate(dataExportOccurrence.getTask().getHistory(), dataExportOccurrence, thesaurus, timeService);
+    public DataExportTaskHistoryInfo(DataExportOccurrence dataExportOccurrence, Thesaurus thesaurus, TimeService timeService, PropertyUtils propertyUtils) {
+        populate(dataExportOccurrence.getTask().getHistory(), dataExportOccurrence, thesaurus, timeService, propertyUtils);
     }
 
-    public DataExportTaskHistoryInfo(History<ExportTask> history, DataExportOccurrence dataExportOccurrence, Thesaurus thesaurus, TimeService timeService) {
-        populate(history, dataExportOccurrence, thesaurus, timeService);
+    public DataExportTaskHistoryInfo(History<ExportTask> history, DataExportOccurrence dataExportOccurrence, Thesaurus thesaurus, TimeService timeService, PropertyUtils propertyUtils) {
+        populate(history, dataExportOccurrence, thesaurus, timeService, propertyUtils);
     }
 
-    private void populate(History<ExportTask> history, DataExportOccurrence dataExportOccurrence, Thesaurus thesaurus, TimeService timeService) {
+    private void populate(History<ExportTask> history, DataExportOccurrence dataExportOccurrence, Thesaurus thesaurus, TimeService timeService, PropertyUtils propertyUtils) {
         this.id = dataExportOccurrence.getId();
 
         this.trigger = (dataExportOccurrence.wasScheduled() ? SCHEDULED : ON_REQUEST).translate(thesaurus);
@@ -87,7 +87,7 @@ public class DataExportTaskHistoryInfo {
             } else {
                 task.schedule = PeriodicalExpressionInfo.from((PeriodicalScheduleExpression) scheduleExpression);
             }
-            task.properties = new PropertyUtils().convertPropertySpecsToPropertyInfos(version.getPropertySpecs(), version.getProperties(dataExportOccurrence.getTriggerTime()));
+            task.properties = propertyUtils.convertPropertySpecsToPropertyInfos(version.getPropertySpecs(), version.getProperties(dataExportOccurrence.getTriggerTime()));
         }
 
     }
