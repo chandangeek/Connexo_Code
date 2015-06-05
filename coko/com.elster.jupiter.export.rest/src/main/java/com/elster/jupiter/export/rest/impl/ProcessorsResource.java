@@ -39,7 +39,7 @@ public class ProcessorsResource {
     @RolesAllowed({Privileges.VIEW_DATA_EXPORT_TASK, Privileges.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.UPDATE_DATA_EXPORT_TASK, Privileges.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.RUN_DATA_EXPORT_TASK})
     public ProcessorInfos getAvailableProcessors(@Context UriInfo uriInfo) {
         ProcessorInfos infos = new ProcessorInfos();
-        List<DataFormatterFactory> processors = dataExportService.getAvailableFomratters();
+        List<DataFormatterFactory> processors = dataExportService.getAvailableFormatters();
         for (DataFormatterFactory processor : processors) {
             infos.add(processor.getName(), thesaurus.getStringBeyondComponent(processor.getName(), processor.getName()),
                     propertyUtils.convertPropertySpecsToPropertyInfos(processor.getPropertySpecs()));
