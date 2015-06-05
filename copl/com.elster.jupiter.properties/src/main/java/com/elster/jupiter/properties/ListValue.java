@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.stream.Collectors;
 
-public class ListValue<T extends IdWithNameValue> {
+public class ListValue<T extends HasIdAndName> {
 
     private List<T> values = new ArrayList<>();
 
@@ -34,7 +34,7 @@ public class ListValue<T extends IdWithNameValue> {
     }
 
     public List<Object> getIds() {
-        return values.stream().map(IdWithNameValue::getId).collect(Collectors.toList());
+        return values.stream().map(HasIdAndName::getId).collect(Collectors.toList());
     }
     
     public boolean hasSingleValue() {

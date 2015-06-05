@@ -9,9 +9,8 @@ import com.elster.jupiter.properties.BasicPropertySpec;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.BoundedBigDecimalPropertySpecImpl;
 import com.elster.jupiter.properties.BoundedLongPropertySpecImpl;
-import com.elster.jupiter.properties.FindById;
-import com.elster.jupiter.properties.IdWithNameValue;
-import com.elster.jupiter.properties.IdWithNameValueFactory;
+import com.elster.jupiter.properties.CanFindByStringKey;
+import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.ListValuePropertySpec;
 import com.elster.jupiter.properties.LongFactory;
 import com.elster.jupiter.properties.PropertySpec;
@@ -19,6 +18,7 @@ import com.elster.jupiter.properties.PropertySpecBuilder;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.RelativePeriodFactory;
 import com.elster.jupiter.properties.StringFactory;
+import com.elster.jupiter.properties.StringReferenceFactory;
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeService;
@@ -123,7 +123,7 @@ public class PropertySpecServiceImpl implements PropertySpecService {
     }
 
     @Override
-    public <T extends IdWithNameValue> PropertySpec listValuePropertySpec(String name, boolean required, FindById<T> finder, T... values) {
+    public <T extends HasIdAndName> PropertySpec listValuePropertySpec(String name, boolean required, CanFindByStringKey<T> finder, T... values) {
         return new ListValuePropertySpec<>(name, required, finder, values);
     }
 
@@ -164,12 +164,11 @@ public class PropertySpecServiceImpl implements PropertySpecService {
         return propertySpec;
     }
     
-    @Override
-    public <T extends IdWithNameValue> PropertySpec idWithNameValuePropertySpec(String name, boolean required, FindById<T> finder, T... values) {
-        PropertySpecBuilder builder = PropertySpecBuilderImpl.forClass(new IdWithNameValueFactory(finder));
+    public <T extends HasIdAndName> PropertySpec stringReferencePropertySpec(String name, boolean required, CanFindByStringKey<T> finder, T[] values) {
+        PropertySpecBuilder builder = PropertySpecBuilderImpl.forClass(new StringReferenceFactory<T>(finder));
         if (required) {
             builder.markRequired();
         }
         return builder.name(name).addValues(values).markExhaustive().finish();
-    }
+    };
 }
