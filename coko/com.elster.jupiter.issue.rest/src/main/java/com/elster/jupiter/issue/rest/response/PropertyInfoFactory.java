@@ -1,47 +1,48 @@
 package com.elster.jupiter.issue.rest.response;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 
-import com.elster.jupiter.properties.IdWithNameValue;
+import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.ListValue;
-import com.elster.jupiter.rest.util.properties.IdWithNameInfo;
 
 public class PropertyInfoFactory {
 
     public <T> Object asInfoObject(T property) {
         if (property instanceof ListValue) {
-            ListValue<IdWithNameValue> value = (ListValue<IdWithNameValue>) property;
+            ListValue<HasIdAndName> value = (ListValue<HasIdAndName>) property;
             List<Object> infos = new ArrayList<>();
-            for (IdWithNameValue entry : value.getValues()) {
+            for (HasIdAndName entry : value.getValues()) {
                 infos.add(entry.getId());
             }
             return infos;
         }
-        if (property instanceof IdWithNameValue) {
-            return asInfo((IdWithNameValue)property);
+        if (property instanceof HasIdAndName) {
+            return ((HasIdAndName)property).getId();
         }
         return property;
     }
 
     public <T> Object asInfoObjectForPredifinedValues(T property) {
         if (property instanceof ListValue) {
-            ListValue<IdWithNameValue> value = (ListValue<IdWithNameValue>) property;
+            ListValue<HasIdAndName> value = (ListValue<HasIdAndName>) property;
             if (value.hasSingleValue()) {
-                IdWithNameValue entry = value.getValue();
-                return new IdWithNameInfo(entry.getId(), entry.getName());
+                HasIdAndName entry = value.getValue();
+                return asInfo(entry.getId(), entry.getName());
             }
         }
-        if (property instanceof IdWithNameValue) {
-            return asInfo((IdWithNameValue)property);
+        if (property instanceof HasIdAndName) {
+            HasIdAndName idWithName = (HasIdAndName)property;
+            return asInfo(idWithName.getId(), idWithName.getName());
         }
         return property;
     }
 
-    private <T> Object asInfo(IdWithNameValue property) {
-        IdWithNameInfo info = new IdWithNameInfo();
-        info.id = property.getId();
-        info.name = property.getName();
+    private <T> Object asInfo(Object id, String name) {
+        LinkedHashMap<String, Object> info = new LinkedHashMap<>();
+        info.put("id", id);
+        info.put("name", name);
         return info;
     }
 }

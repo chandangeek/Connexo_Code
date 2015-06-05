@@ -90,9 +90,9 @@ public class CreationRuleResource extends BaseResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_CREATION_RULE)
     public Response deleteCreationRule(@PathParam("id") long id, CreationRuleInfo ruleInfo) {
-        CreationRule rule = getIssueCreationService().findAndLockCreationRuleByIdAndVersion(id, ruleInfo.version)
-                .orElseThrow(() -> new WebApplicationException(Response.Status.CONFLICT));
         try (TransactionContext context = getTransactionService().getContext()) {
+            CreationRule rule = getIssueCreationService().findAndLockCreationRuleByIdAndVersion(id, ruleInfo.version)
+                    .orElseThrow(() -> new WebApplicationException(Response.Status.CONFLICT));
             rule.delete();
             getIssueCreationService().reReadRules();
             context.commit();
@@ -125,9 +125,9 @@ public class CreationRuleResource extends BaseResource {
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public Response editCreationRule(@PathParam("id") long id, CreationRuleInfo rule){
-        CreationRule creationRule = getIssueCreationService().findAndLockCreationRuleByIdAndVersion(id, rule.version)
-                .orElseThrow(() -> new WebApplicationException(Response.Status.CONFLICT));
         try (TransactionContext context = getTransactionService().getContext()) {
+            CreationRule creationRule = getIssueCreationService().findAndLockCreationRuleByIdAndVersion(id, rule.version)
+                    .orElseThrow(() -> new WebApplicationException(Response.Status.CONFLICT));
             CreationRuleUpdater updater = creationRule.startUpdate();
             setBaseFields(rule, updater);
             updater.removeActions();

@@ -2,9 +2,10 @@ package com.elster.jupiter.issue.rest.response;
 
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.BooleanFactory;
-import com.elster.jupiter.properties.IdWithNameValueFactory;
 import com.elster.jupiter.properties.ListValueFactory;
+import com.elster.jupiter.properties.LongFactory;
 import com.elster.jupiter.properties.StringFactory;
+import com.elster.jupiter.properties.StringReferenceFactory;
 import com.elster.jupiter.properties.ThreeStateFactory;
 import com.elster.jupiter.properties.ValueFactory;
 
@@ -13,9 +14,10 @@ public enum PropertyType implements com.elster.jupiter.rest.util.properties.Prop
     NUMBER(BigDecimalFactory.class),
     NULLABLE_BOOLEAN(ThreeStateFactory.class),
     BOOLEAN(BooleanFactory.class),
-    TEXT(StringFactory.class),
+    TEXTAREA(StringFactory.class),
     LISTVALUE(ListValueFactory.class),
-    IDWITHNAME(IdWithNameValueFactory.class)
+    IDWITHNAME(StringReferenceFactory.class),
+    LONG(LongFactory.class)
     ;
 
     private Class valueFactoryClass;

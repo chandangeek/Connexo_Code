@@ -108,7 +108,7 @@ public class RuleResourceTest extends IssueRestApplicationJerseyTest {
         assertThat(json.<List<?>>get("$.creationRuleTemplates[0].properties")).isEmpty();
         assertThat(json.<List<?>>get("$.creationRuleTemplates[1].properties")).hasSize(1);
         assertThat(json.<String>get("$.creationRuleTemplates[1].properties[0].key")).isEqualTo("property");
-        assertThat(json.<String>get("$.creationRuleTemplates[1].properties[0].propertyTypeInfo.simplePropertyType")).isEqualTo("TEXT");
+        assertThat(json.<String>get("$.creationRuleTemplates[1].properties[0].propertyTypeInfo.simplePropertyType")).isEqualTo("TEXTAREA");
     }
 
     @Test

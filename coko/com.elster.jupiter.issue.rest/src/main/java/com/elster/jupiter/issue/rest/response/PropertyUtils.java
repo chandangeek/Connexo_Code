@@ -11,7 +11,7 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.properties.IdWithNameValue;
+import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.ListValue;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecPossibleValues;
@@ -59,9 +59,6 @@ public class PropertyUtils {
     private PropertyValueInfo<Object> getPropertyValueInfo(PropertySpec propertySpec, Map<String, Object> values) {
         Object propertyValue = getPropertyValue(propertySpec, values);
         Object defaultValue = getDefaultValue(propertySpec);
-        if (propertyValue == null && defaultValue == null) {
-            return null;
-        }
         return new PropertyValueInfo<>(propertyValue, defaultValue);
     }
 
@@ -129,7 +126,7 @@ public class PropertyUtils {
 
     private Object convertPropertyInfoValueToPropertyValue(PropertySpec propertySpec, Object value) {
         if (Objects.equals(propertySpec.getValueFactory().getValueType(), ListValue.class)) {
-            ListValue<IdWithNameValue> listValue = new ListValue<>();
+            ListValue<HasIdAndName> listValue = new ListValue<>();
             if (value instanceof List) {
                 List<?> list = (List<?>) value;
                 for (Object listItem : list) {
@@ -143,18 +140,12 @@ public class PropertyUtils {
                 return value;
             }
         }
-        if (Objects.equals(propertySpec.getValueFactory().getValueType(), IdWithNameValue.class)){
-            if(value instanceof Map) {
-                Map<?, ?> map = (Map<?, ?>) value;
-                return propertySpec.getValueFactory().fromStringValue((String) map.get("id"));
-            }
-        }
         return propertySpec.getValueFactory().fromStringValue(value.toString());
     }
 
-    private ListValue<IdWithNameValue> parseListValueInfo(PropertySpec propertySpec, Object value) {
+    private ListValue<HasIdAndName> parseListValueInfo(PropertySpec propertySpec, Object value) {
         String stringValue = (String) value;
         Object obj = propertySpec.getValueFactory().fromStringValue(stringValue);
-        return (ListValue<IdWithNameValue>) obj;
+        return (ListValue<HasIdAndName>) obj;
     }
 }
