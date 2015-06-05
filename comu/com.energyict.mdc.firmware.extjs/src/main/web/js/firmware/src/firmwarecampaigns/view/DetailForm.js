@@ -77,6 +77,9 @@ Ext.define('Fwc.firmwarecampaigns.view.DetailForm', {
                     {
                         xtype: 'property-form',
                         itemId: 'property-form',
+                        bodyStyle: {
+                            background: 'transparent'
+                        },
                         isEdit: false,
                         defaults: {
                             labelWidth: me.defaults.defaults.labelWidth
