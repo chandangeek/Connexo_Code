@@ -128,7 +128,6 @@ public class DataExportTaskResource {
                 .setScheduleExpression(getScheduleExpression(info))
                 .setNextExecution(info.nextRun == null ? null : Instant.ofEpochMilli(info.nextRun));
 
-        List<PropertySpec> propertiesSpecs = dataExportService.getPropertiesSpecsForProcessor(info.dataProcessor.name);
         if (info.dataSelectorInfo == null) {
             builder.selectingCustom(info.dataSelector.name).endSelection();
         } else {
@@ -146,7 +145,6 @@ public class DataExportTaskResource {
         }
 
         List<PropertySpec> propertiesSpecs = dataExportService.getPropertiesSpecsForFormatter(info.dataProcessor.name);
-        PropertyUtils propertyUtils = new PropertyUtils();
 
         propertiesSpecs.stream()
                 .forEach(spec -> {
@@ -313,9 +311,8 @@ public class DataExportTaskResource {
                 .forEach(selector::addReadingType);
     }
 
-    private void updateProperties(DataExportTaskInfo info, ReadingTypeDataExportTask task) {
-        List<PropertySpec> propertiesSpecs = dataExportService.getPropertiesSpecsForProcessor(info.dataProcessor.name);
-        PropertyUtils propertyUtils = new PropertyUtils();
+    private void updateProperties(DataExportTaskInfo info, ExportTask task) {
+        List<PropertySpec> propertiesSpecs = dataExportService.getPropertiesSpecsForFormatter(info.dataProcessor.name);
         propertiesSpecs.stream()
                 .forEach(spec -> {
                     Object value = propertyUtils.findPropertyValue(spec, info.properties);
