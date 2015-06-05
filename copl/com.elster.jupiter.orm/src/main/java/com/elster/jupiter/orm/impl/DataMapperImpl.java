@@ -124,7 +124,8 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 		"XID",                                                                             
 		"XML",                                                                             
 		"XS",                                                                              
-		"YES" }; 
+		"YES",
+		"FILE"};
 	private final Class<T> api;
 	private final TableImpl<? super T> table;
 	private final TableSqlGenerator sqlGenerator;
