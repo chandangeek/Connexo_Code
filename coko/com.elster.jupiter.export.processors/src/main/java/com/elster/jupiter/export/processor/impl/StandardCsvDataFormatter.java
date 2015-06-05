@@ -69,7 +69,6 @@ public class StandardCsvDataFormatter implements DataFormatter {
         } else {
             this.fieldSeparator = ",";
         }
-
     }
 
     private String getStringProperty(Map<String, Object> propertyMap, String key, String defaultValue) {
