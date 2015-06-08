@@ -27,8 +27,6 @@ public interface AuthorizedBusinessProcessAction extends AuthorizedAction {
         }
     }
 
-
-
     public String getDeploymentId();
 
     public String getProcessId();
