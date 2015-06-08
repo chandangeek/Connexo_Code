@@ -221,7 +221,7 @@ final class FileImportOccurrenceImpl implements FileImportOccurrence {
         if (Files.exists(filePath)) {
             Path target = targetPath(filePath);
             fileSystem.move(filePath, target);
-            path = fileImportService.getBasePath().relativize(target);
+            path = path.getFileSystem().getPath(fileImportService.getBasePath().relativize(target).toString());
         }
     }
 

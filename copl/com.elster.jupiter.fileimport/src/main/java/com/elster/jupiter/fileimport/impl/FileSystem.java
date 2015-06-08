@@ -1,7 +1,5 @@
 package com.elster.jupiter.fileimport.impl;
 
-import java.io.File;
-import java.io.FilenameFilter;
 import java.io.InputStream;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Path;
