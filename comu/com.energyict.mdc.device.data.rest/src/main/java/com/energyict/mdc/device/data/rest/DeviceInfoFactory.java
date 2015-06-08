@@ -6,6 +6,7 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.InfoFactory;
+import com.elster.jupiter.rest.util.PropertyDescriptionInfo;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.imp.Batch;
 import com.energyict.mdc.device.data.imp.DeviceImportService;
@@ -15,9 +16,8 @@ import com.energyict.mdc.device.data.rest.impl.DeviceInfo;
 import com.energyict.mdc.device.data.rest.impl.DeviceTopologyInfo;
 import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleStateInfo;
 import com.energyict.mdc.device.topology.TopologyService;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
@@ -83,18 +83,20 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
     }
 
     @Override
-    public Map<String, Class<?>> infoStructure() {
-        Map<String, Class<?>> map = new HashMap<>();
-        map.put("id", Long.class);
-        map.put("mRID", String.class);
-        map.put("serialNumber", String.class);
-        map.put("deviceTypeId", Long.class);
-        map.put("deviceTypeName", String.class);
-        map.put("deviceConfigId", Long.class);
-        map.put("deviceConfigName", String.class);
-        map.put("deviceProtocolPluggeableClassId", Long.class);
-        map.put("yearOfCertification", Long.class);
-        return map;
+    public List<PropertyDescriptionInfo> infoStructure() {
+        List<PropertyDescriptionInfo> infos = new ArrayList<>();
+        infos.add(createDescription("id", Long.class));
+        infos.add(createDescription("mRID", String.class));
+        infos.add(createDescription("serialNumber", String.class));
+        infos.add(createDescription("deviceTypeName", String.class));
+        infos.add(createDescription("deviceConfigName", String.class));
+        infos.add(createDescription("deviceProtocolPluggeableClassId", Long.class));
+        infos.add(createDescription("yearOfCertification", Long.class));
+        return infos;
+    }
+
+    private PropertyDescriptionInfo createDescription(String propertyName, Class<?> aClass) {
+        return new PropertyDescriptionInfo(propertyName, aClass, thesaurus.getString(propertyName, propertyName));
     }
 
     public DeviceInfo from(Device device, List<DeviceTopologyInfo> slaveDevices){

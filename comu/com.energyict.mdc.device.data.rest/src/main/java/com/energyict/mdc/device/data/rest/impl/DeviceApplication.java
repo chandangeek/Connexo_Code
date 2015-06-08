@@ -217,6 +217,12 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             }
         }
 
+        for (TranslationKey translationKey: TranslationSeeds.values()) {
+            if (uniqueIds.add(translationKey.getKey())) {
+                keys.add(translationKey);
+            }
+        }
+
         for (EndDeviceType type : EndDeviceType.values()) {
             if (uniqueIds.add(type.toString())) {
                 keys.add(new SimpleTranslationKey(type.toString(), type.getMnemonic()));
