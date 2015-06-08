@@ -228,7 +228,7 @@ public class FileImportServiceImpl implements InstallService, FileImportService 
 
     @Override
     public MessageHandler createMessageHandler() {
-        return new StreamImportMessageHandler(dataModel, jsonService, thesaurus, clock, this);
+        return new StreamImportMessageHandler(jsonService, thesaurus, clock, this);
     }
 
     public FileNameCollisionResolver getFileNameCollisionResolver() {

@@ -79,7 +79,7 @@ public class StreamImportMessageHandlerTest {
         when(fileImportService.getFileImportOccurrence(Matchers.anyLong())).thenReturn(Optional.of(fileImportOccurrence));
         when(fileImportOccurrence.getImportSchedule().getImporterProperties()).thenReturn(new ArrayList<>());
         when(fileImporterFactory.createImporter(Matchers.anyMap())).thenReturn(fileImporter);
-        streamImportMessageHandler = new StreamImportMessageHandler(dataModel, jsonService, thesaurus, clock, fileImportService);
+        streamImportMessageHandler = new StreamImportMessageHandler(jsonService, thesaurus, clock, fileImportService);
     }
 
     @After

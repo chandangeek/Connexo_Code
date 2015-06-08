@@ -216,7 +216,8 @@ final class FileImportOccurrenceImpl implements FileImportOccurrence {
     }
 
     private void moveFile() {
-        Path filePath = fileImportService.getBasePath().resolve(path);
+        Path tmpPath = fileImportService.getBasePath().getFileSystem().getPath(path.toString());
+        Path filePath = fileImportService.getBasePath().resolve(tmpPath);
         if (Files.exists(filePath)) {
             Path target = targetPath(filePath);
             fileSystem.move(filePath, target);
@@ -232,11 +233,11 @@ final class FileImportOccurrenceImpl implements FileImportOccurrence {
         switch (status) {
             case SUCCESS:
             case SUCCESS_WITH_FAILURES:
-                return getImportSchedule().getSuccessDirectory();
+                return fileImportService.getBasePath().getFileSystem().getPath(getImportSchedule().getSuccessDirectory().toString());
             case FAILURE:
-                return getImportSchedule().getFailureDirectory();
+                return fileImportService.getBasePath().getFileSystem().getPath(getImportSchedule().getFailureDirectory().toString());
             case PROCESSING:
-                return getImportSchedule().getInProcessDirectory();
+                return fileImportService.getBasePath().getFileSystem().getPath(getImportSchedule().getInProcessDirectory().toString());
             default:
                 throw new IllegalStateException();
         }

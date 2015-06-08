@@ -20,14 +20,12 @@ import static com.elster.jupiter.util.conditions.Operator.EQUAL;
  */
 class StreamImportMessageHandler implements MessageHandler {
 
-    private final DataModel dataModel;
     private final JsonService jsonService;
     private final FileImportService fileImportService;
     private final Thesaurus thesaurus;
     private final Clock clock;
 
-    public StreamImportMessageHandler(DataModel dataModel, JsonService jsonService, Thesaurus thesaurus, Clock clock,FileImportService fileImportService) {
-        this.dataModel = dataModel;
+    public StreamImportMessageHandler(JsonService jsonService, Thesaurus thesaurus, Clock clock,FileImportService fileImportService) {
         this.jsonService = jsonService;
         this.thesaurus = thesaurus;
         this.clock = clock;
