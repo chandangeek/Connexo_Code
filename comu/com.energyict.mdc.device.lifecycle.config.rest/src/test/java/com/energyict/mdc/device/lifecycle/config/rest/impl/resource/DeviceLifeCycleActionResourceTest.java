@@ -3,7 +3,7 @@ package com.energyict.mdc.device.lifecycle.config.rest.impl.resource;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.rest.DeviceLifeCycleConfigApplicationJerseyTest;
-import com.energyict.mdc.device.lifecycle.config.rest.impl.i18n.MessageSeeds;
+import com.energyict.mdc.device.lifecycle.config.rest.impl.i18n.DefaultLifeCycleTranslationKey;
 import com.jayway.jsonpath.JsonModel;
 import org.junit.Test;
 import org.mockito.Matchers;
@@ -31,7 +31,7 @@ public class DeviceLifeCycleActionResourceTest extends DeviceLifeCycleConfigAppl
         assertThat(model.<List<?>>get("$.deviceLifeCycleActions")).isNotNull();
         assertThat(model.<List<?>>get("$.deviceLifeCycleActions")).hasSize(2);
         assertThat(model.<Number>get("$.deviceLifeCycleActions[0].id")).isEqualTo(2);
-        assertThat(model.<String>get("$.deviceLifeCycleActions[0].name")).isEqualTo(MessageSeeds.TRANSITION_COMMISSIONING.getDefaultFormat());
+        assertThat(model.<String>get("$.deviceLifeCycleActions[0].name")).isEqualTo(com.energyict.mdc.device.lifecycle.config.impl.DefaultLifeCycleTranslationKey.TRANSITION_START_COMMISSIONING.getDefaultFormat());
         assertThat(model.<Object>get("$.deviceLifeCycleActions[0].fromState")).isNotNull();
         assertThat(model.<Number>get("$.deviceLifeCycleActions[0].fromState.id")).isEqualTo(3);
         assertThat(model.<String>get("$.deviceLifeCycleActions[0].fromState.name")).isEqualTo("In stock");
@@ -41,7 +41,7 @@ public class DeviceLifeCycleActionResourceTest extends DeviceLifeCycleConfigAppl
         assertThat(model.<List<?>>get("$.deviceLifeCycleActions[0].privileges")).isNotNull();
         assertThat(model.<List<?>>get("$.deviceLifeCycleActions[0].privileges")).hasSize(1);
         assertThat(model.<String>get("$.deviceLifeCycleActions[0].privileges[0].privilege")).isEqualTo("ONE");
-        assertThat(model.<String >get("$.deviceLifeCycleActions[0].privileges[0].name")).isEqualTo(MessageSeeds.PRIVILEGE_LEVEL_1.getDefaultFormat());
+        assertThat(model.<String >get("$.deviceLifeCycleActions[0].privileges[0].name")).isEqualTo(DefaultLifeCycleTranslationKey.PRIVILEGE_LEVEL_1.getDefaultFormat());
         assertThat(model.<String >get("$.deviceLifeCycleActions[0].triggeredBy.symbol")).isEqualTo("#eventType");
         assertThat(model.<String >get("$.deviceLifeCycleActions[0].triggeredBy.name")).isNotEmpty();
     }
@@ -70,7 +70,7 @@ public class DeviceLifeCycleActionResourceTest extends DeviceLifeCycleConfigAppl
         String stringResponse = target("/devicelifecycles/1/actions/1").request().get(String.class);
         JsonModel model = JsonModel.create(stringResponse);
         assertThat(model.<Number>get("$.id")).isEqualTo(1);
-        assertThat(model.<String>get("$.name")).isEqualTo(MessageSeeds.TRANSITION_DECOMMISSIONED.getDefaultFormat());
+        assertThat(model.<String>get("$.name")).isEqualTo(com.energyict.mdc.device.lifecycle.config.impl.DefaultLifeCycleTranslationKey.TRANSITION_DECOMMISSION.getDefaultFormat());
     }
 
     @Test

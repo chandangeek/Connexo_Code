@@ -39,10 +39,10 @@ public class AuthorizedActionInfo {
     }
 
     private void fromBasicAction(Thesaurus thesaurus, AuthorizedTransitionAction action){
-        this.name = action.getStateTransition().getName(thesaurus);
+        this.name = action.getName();
         this.fromState = new DeviceLifeCycleStateInfo(thesaurus, action.getStateTransition().getFrom());
         this.toState = new DeviceLifeCycleStateInfo(thesaurus, action.getStateTransition().getTo());
-        this.triggeredBy = new StateTransitionEventTypeInfo(thesaurus, action.getStateTransition().getEventType());
+        this.triggeredBy = new StateTransitionEventTypeFactory(thesaurus).from(action.getStateTransition().getEventType());
     }
 
     private void fromBpmAction(Thesaurus thesaurus, AuthorizedBusinessProcessAction action){

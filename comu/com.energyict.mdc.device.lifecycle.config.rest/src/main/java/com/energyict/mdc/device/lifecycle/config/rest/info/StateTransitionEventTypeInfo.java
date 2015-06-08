@@ -11,8 +11,8 @@ public class StateTransitionEventTypeInfo {
     public StateTransitionEventTypeInfo() {
     }
 
-    public StateTransitionEventTypeInfo(Thesaurus thesaurus, StateTransitionEventType eventType) {
-        this.symbol = eventType.getSymbol();
-        this.name = thesaurus.getString(eventType.getSymbol(), eventType.getSymbol());
+    public StateTransitionEventTypeInfo(String symbol, String name) {
+        this.symbol = symbol;
+        this.name = name;
     }
 }

@@ -16,6 +16,7 @@ import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
+import com.energyict.mdc.device.lifecycle.config.rest.impl.i18n.DefaultLifeCycleTranslationKey;
 import com.energyict.mdc.device.lifecycle.config.rest.impl.i18n.MessageSeeds;
 import com.energyict.mdc.device.lifecycle.config.rest.impl.resource.DeviceLifeCycleActionResource;
 import com.energyict.mdc.device.lifecycle.config.rest.impl.resource.DeviceLifeCycleResource;
@@ -27,11 +28,8 @@ import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCyclePrivil
 import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleStateFactory;
 import com.energyict.mdc.device.lifecycle.config.rest.info.StateTransitionEventTypeFactory;
 import com.google.common.collect.ImmutableSet;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+
+import java.util.*;
 import javax.validation.MessageInterpolator;
 import javax.ws.rs.core.Application;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
@@ -121,7 +119,9 @@ public class DeviceLifeCycleConfigApplication extends Application implements Tra
 
     @Override
     public List<TranslationKey> getKeys() {
-        return Arrays.asList(MessageSeeds.values());
+        List<TranslationKey> keys = new ArrayList<>(Arrays.<TranslationKey>asList(MessageSeeds.values()));
+        keys.addAll(Arrays.<TranslationKey>asList(DefaultLifeCycleTranslationKey.values()));
+        return keys;
     }
 
     @Override
