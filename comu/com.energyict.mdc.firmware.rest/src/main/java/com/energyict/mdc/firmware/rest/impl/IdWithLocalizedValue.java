@@ -1,7 +1,7 @@
 package com.energyict.mdc.firmware.rest.impl;
 
+import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
-import com.energyict.mdc.common.HasId;
 
 public class IdWithLocalizedValue<T> {
     public T id;

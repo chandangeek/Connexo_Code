@@ -2,7 +2,6 @@ package com.energyict.mdc.firmware.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.ExceptionFactory;
-import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.security.Privileges;
@@ -79,7 +78,7 @@ public class FirmwareManagementOptionsResource {
             options.setOptions(newAllowedOptions);
             options.save();
         } else {
-            firmwareManagementOptions.ifPresent(options -> options.delete());
+            firmwareManagementOptions.ifPresent(FirmwareManagementOptions::delete);
         }
         return getFirmwareManagementOptions(deviceType);
     }
