@@ -141,6 +141,28 @@ public class CreationRuleResource extends BaseResource {
         }
         return Response.ok().build();
     }
+    
+    
+    @POST
+    @Path("/validateaction")
+    @Consumes(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    public Response validateAction(CreationRuleActionInfo info) {
+        CreationRuleActionBuilder actionBuilder = getIssueCreationService().newCreationRule().newCreationRuleAction();
+        setAction(info, actionBuilder);
+        actionBuilder.complete().validate();
+        return Response.ok().build();
+    }
+
+    private void setBaseFields(CreationRuleInfo rule, CreationRuleBuilder builder) {
+        builder.setName(rule.name)
+               .setComment(rule.comment)
+               .setDueInTime(DueInType.fromString(rule.dueIn.type), rule.dueIn.number);
+        
+        if (rule.reason != null) {
+            getIssueService().findReason(rule.reason.id).ifPresent(reason -> builder.setReason(reason));
+        }
+    }
 
     private void setTemplate(CreationRuleInfo rule, CreationRuleBuilder builder) {
         if (rule.template == null) {
@@ -161,11 +183,16 @@ public class CreationRuleResource extends BaseResource {
     }
 
     private void setActions(CreationRuleInfo rule, CreationRuleBuilder builder) {
-        for (CreationRuleActionInfo actionInfo : rule.actions) {
-            CreationRuleActionBuilder actionBuilder = builder.newCreationRuleAction();
+        rule.actions.stream().forEach((info) -> setAction(info, builder.newCreationRuleAction()));
+    }
+    
+    private void setAction(CreationRuleActionInfo actionInfo, CreationRuleActionBuilder actionBuilder) {
+        if (actionInfo.phase != null) {
             actionBuilder.setPhase(CreationRuleActionPhase.fromString(actionInfo.phase.uuid));
+        }
+        if (actionInfo.type != null) {
             Optional<IssueActionType> actionType = getIssueActionService().findActionType(actionInfo.type.id);
-            if (actionType.isPresent() && actionType.get().createIssueAction().isPresent()) {
+            if (actionType.isPresent() && actionType.get().createIssueAction().isPresent() && actionInfo.properties != null) {
                 actionBuilder.setActionType(actionType.get());
                 for (PropertySpec propertySpec : actionType.get().createIssueAction().get().getPropertySpecs()) {
                     Object value = propertyUtils.findPropertyValue(propertySpec, actionInfo.properties);
@@ -175,17 +202,6 @@ public class CreationRuleResource extends BaseResource {
                 }
                 actionBuilder.complete();
             }
-        }
-    }
-
-    private void setBaseFields(CreationRuleInfo rule, CreationRuleBuilder builder) {
-        builder.setName(rule.name)
-               .setComment(rule.comment)
-               .setDueInTime(DueInType.fromString(rule.dueIn.type), rule.dueIn.number);
-        
-        if (rule.reason != null) {
-            getIssueService().findReason(rule.reason.id)
-                             .ifPresent(reason -> builder.setReason(reason));
         }
     }
 }

@@ -18,6 +18,7 @@ import java.util.Optional;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import org.junit.Test;
 import org.mockito.Matchers;
@@ -308,6 +309,23 @@ public class CreationRuleResourceTest extends IssueRestApplicationJerseyTest {
         verify(rule).delete();
         verify(issueCreationService).reReadRules();
         verify(context).commit();
+    }
+    
+    @Test
+    public void testValidateAction() {
+        CreationRuleBuilder ruleBuilder = mock(CreationRuleBuilder.class);
+        when(issueCreationService.newCreationRule()).thenReturn(ruleBuilder);
+        CreationRuleActionBuilder actionBuilder = mock(CreationRuleActionBuilder.class);
+        when(ruleBuilder.newCreationRuleAction()).thenReturn(actionBuilder);
+        CreationRuleAction action = mock(CreationRuleAction.class);
+        when(actionBuilder.complete()).thenReturn(action);
+
+        CreationRuleActionInfo info = new CreationRuleActionInfo();
+        
+        Response response = target("/creationrules/validateaction").request().post(Entity.json(info));
+        
+        assertThat(response.getStatus()).isEqualTo(Status.OK.getStatusCode());
+        verify(action).validate();
     }
 
     protected List<PropertySpec> mockPropertySpecs(String... keys) {
