@@ -13,7 +13,7 @@ Ext.define('Isu.view.issues.SortingMenu', {
         {
             itemId: 'issues-sorting-menu-item-by-modification-date',
             text: 'Modification date',
-            action: 'modificationDate'
+            action: 'modTime'
         }
     ]
 });

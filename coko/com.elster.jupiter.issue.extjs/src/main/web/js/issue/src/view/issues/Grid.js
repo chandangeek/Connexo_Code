@@ -40,7 +40,7 @@ Ext.define('Isu.view.issues.Grid', {
             {
                 itemId: 'issues-grid-modification-date',
                 header: Uni.I18n.translate('general.title.modificationDate', 'ISU', 'Modification date'),
-                dataIndex: 'modificationDate',
+                dataIndex: 'modTime',
                 renderer: function (value) {
                     return value ? Uni.DateTime.formatDateShort(value) : '';
                 },

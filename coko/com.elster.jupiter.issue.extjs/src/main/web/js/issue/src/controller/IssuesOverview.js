@@ -21,7 +21,7 @@ Ext.define('Isu.controller.IssuesOverview', {
                         value: Uni.component.sort.model.Sort.ASC
                     },
                     {
-                        type: 'modificationDate',
+                        type: 'modTime',
                         value: Uni.component.sort.model.Sort.ASC
                     }
                 ]);
@@ -35,7 +35,7 @@ Ext.define('Isu.controller.IssuesOverview', {
                     value: Uni.component.sort.model.Sort.ASC
                 },
                 {
-                    type: 'modificationDate',
+                    type: 'modTime',
                     value: Uni.component.sort.model.Sort.ASC
                 }
             ]);
