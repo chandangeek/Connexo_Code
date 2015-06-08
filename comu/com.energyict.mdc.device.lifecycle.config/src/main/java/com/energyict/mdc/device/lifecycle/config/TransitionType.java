@@ -223,9 +223,9 @@ public enum TransitionType {
             return EnumSet.of(MicroCheck.ALL_ISSUES_AND_ALARMS_ARE_CLOSED);
         }
     },
-    DELETE(DefaultState.DECOMMISSIONED, DefaultState.DELETED),
+    DELETE(DefaultState.DECOMMISSIONED, DefaultState.REMOVED),
     RECYCLE(DefaultState.DECOMMISSIONED, DefaultState.IN_STOCK),
-    REVOKE(DefaultState.IN_STOCK, DefaultState.DELETED);
+    REVOKE(DefaultState.IN_STOCK, DefaultState.REMOVED);
 
     private DefaultState from;
     private DefaultState to;

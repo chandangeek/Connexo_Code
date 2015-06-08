@@ -20,7 +20,7 @@ public enum DefaultState implements TranslationKey {
     ACTIVE("dlc.default.active", "Active"),
     INACTIVE("dlc.default.inactive", "Inactive"),
     DECOMMISSIONED("dlc.default.decommissioned", "Decommissioned"),
-    DELETED("dlc.default.deleted", "Deleted");
+    REMOVED("dlc.default.removed", "Removed");
 
     private final String key;
     private final String defaultFormat;
