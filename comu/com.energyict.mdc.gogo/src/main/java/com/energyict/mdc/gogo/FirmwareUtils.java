@@ -9,6 +9,7 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
 import com.energyict.mdc.device.data.tasks.FirmwareComTaskExecution;
 import com.energyict.mdc.firmware.FirmwareService;
+import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
@@ -182,7 +183,7 @@ public class FirmwareUtils {
     public void createFirmwareMessageFor(String mridOfDevice, String firwareVersion) {
         Optional<Device> device = this.deviceService.findByUniqueMrid(mridOfDevice);
         if (device.isPresent()) {
-            Optional<FirmwareVersion> firmwareVersionByVersion = this.firmwareService.getFirmwareVersionByVersion(firwareVersion, device.get().getDeviceType());
+            Optional<FirmwareVersion> firmwareVersionByVersion = this.firmwareService.getFirmwareVersionByVersionAndType(firwareVersion, FirmwareType.METER, device.get().getDeviceType());
             firmwareVersionByVersion.ifPresent(firmwareVersion -> executeTransaction(() -> {
                 Device.DeviceMessageBuilder deviceMessageBuilder = device.get().newDeviceMessage(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_IMMEDIATE);
                 DeviceMessage<Device> deviceMessage = deviceMessageBuilder
