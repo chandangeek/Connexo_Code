@@ -127,7 +127,6 @@ public class Installer {
 
         issueService.createReason(ModuleConstants.REASON_POWER_OUTAGE, issueType, MessageSeeds.ISSUE_REASON_POWER_OUTAGE);
         issueService.createReason(ModuleConstants.REASON_TYME_SYNC_FAILED, issueType, MessageSeeds.ISSUE_REASON_TIME_SYNC_FAILED);
-        issueService.createReason(ModuleConstants.REASON_SLOPE_DETECTION, issueType, MessageSeeds.ISSUE_REASON_SLOPE_DETECTION);
     }
 
     private static void run(Runnable runnable, String explanation) {

@@ -57,7 +57,6 @@ public class IssueDataCollectionServiceImpl implements InstallService, Translati
     private volatile DataModel dataModel;
 
     // For OSGi framework
-    @SuppressWarnings("unused")
     public IssueDataCollectionServiceImpl() {
     }
 
@@ -161,12 +160,12 @@ public class IssueDataCollectionServiceImpl implements InstallService, Translati
     }
 
     @Override
-    public Optional<IssueDataCollection> findIssue(long id) {
-        Optional<? extends IssueDataCollection> issue = findOpenIssue(id);
-        if (!issue.isPresent()) {
-            issue = findHistoricalIssue(id);
+    public Optional<? extends IssueDataCollection> findIssue(long id) {
+        Optional<OpenIssueDataCollection> issue = findOpenIssue(id);
+        if (issue.isPresent()) {
+            return issue;
         }
-        return (Optional<IssueDataCollection>) issue;
+        return findHistoricalIssue(id);
     }
 
     @Override

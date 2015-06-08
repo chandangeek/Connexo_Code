@@ -2,7 +2,6 @@ package com.energyict.mdc.issue.datacollection.impl;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
@@ -25,7 +24,6 @@ import com.elster.jupiter.orm.OrmService;
 import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.impl.actions.RetryCommunicationTaskAction;
 import com.energyict.mdc.issue.datacollection.impl.actions.RetryCommunicationTaskNowAction;
 import com.energyict.mdc.issue.datacollection.impl.actions.RetryConnectionTaskAction;
