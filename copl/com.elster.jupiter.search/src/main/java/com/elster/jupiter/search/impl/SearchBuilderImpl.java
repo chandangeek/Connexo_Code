@@ -16,6 +16,7 @@ import com.elster.jupiter.util.conditions.Operator;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.toOracleSql;
 
@@ -74,34 +75,11 @@ public class SearchBuilderImpl<T> implements SearchBuilder<T> {
             this.property = property;
         }
 
-        @Override
-        public SearchBuilder<T> in(List<Object> values) throws InvalidValueException {
-            this.validateValues(values, this.property.getSpecification());
-            addCondition(
-                    this,
-                    new SearchablePropertyContains(
-                            ListOperator.IN.contains(this.property.getSpecification().getName(), values),
-                            this.property));
-            return SearchBuilderImpl.this;
-        }
-
-        @Override
-        public SearchBuilder<T> isEqualTo(Object value) throws InvalidValueException {
-            Object actualValue = this.attemptConvertToValidValue(value);
-            this.validateValue(actualValue, this.property.getSpecification());
-            Operator operator;
-            if (actualValue instanceof String) {
-                operator = Operator.EQUALIGNORECASE;
-            }
-            else {
-                operator = Operator.EQUAL;
-            }
-            addCondition(
-                    this,
-                    new SearchablePropertyComparison(
-                            operator.compare(this.property.getSpecification().getName(), value),
-                            this.property));
-            return SearchBuilderImpl.this;
+        private List<Object> attemptConvertToValidValues(List<Object> values) {
+            return values
+                    .stream()
+                    .map(this::attemptConvertToValidValue)
+                    .collect(Collectors.toList());
         }
 
         private Object attemptConvertToValidValue(Object value) {
@@ -128,12 +106,78 @@ public class SearchBuilderImpl<T> implements SearchBuilder<T> {
         }
 
         @Override
+        public SearchBuilder<T> in(List<Object> values) throws InvalidValueException {
+            this.validateValues(this.attemptConvertToValidValues(values), this.property.getSpecification());
+            addCondition(
+                    this,
+                    new SearchablePropertyContains(
+                            ListOperator.IN.contains(this.property.getSpecification().getName(), values),
+                            this.property));
+            return SearchBuilderImpl.this;
+        }
+
+        @Override
+        public SearchBuilder<T> isEqualTo(Object value) throws InvalidValueException {
+            Object actualValue = this.attemptConvertToValidValue(value);
+            this.validateValue(actualValue, this.property.getSpecification());
+            Operator operator;
+            if (actualValue instanceof String) {
+                operator = Operator.EQUALIGNORECASE;
+            }
+            else {
+                operator = Operator.EQUAL;
+            }
+            addCondition(
+                    this,
+                    new SearchablePropertyComparison(
+                            operator.compare(this.property.getSpecification().getName(), actualValue),
+                            this.property));
+            return SearchBuilderImpl.this;
+        }
+
+        @Override
         public SearchBuilder<T> isEqualToIgnoreCase(String value) throws InvalidValueException {
             this.validateValue(value, this.property.getSpecification());
             addCondition(
                     this,
                     new SearchablePropertyComparison(
                             Operator.EQUALIGNORECASE.compare(this.property.getSpecification().getName(), value),
+                            this.property));
+            return SearchBuilderImpl.this;
+        }
+
+        @Override
+        public SearchBuilder<T> isNotEqualTo(Object value) throws InvalidValueException {
+            return this.addConditionWithOperator(Operator.NOTEQUAL, value);
+        }
+
+        @Override
+        public SearchBuilder<T> isLessThan(Object value) throws InvalidValueException {
+            return this.addConditionWithOperator(Operator.LESSTHAN, value);
+        }
+
+        @Override
+        public SearchBuilder<T> isLessThanOrEqualTo(Object value) throws InvalidValueException {
+            return this.addConditionWithOperator(Operator.LESSTHANOREQUAL, value);
+        }
+
+        @Override
+        public SearchBuilder<T> isGreaterThan(Object value) throws InvalidValueException {
+            return this.addConditionWithOperator(Operator.GREATERTHAN, value);
+        }
+
+        @Override
+        public SearchBuilder<T> isGreaterThanOrEqualTo(Object value) throws InvalidValueException {
+            return this.addConditionWithOperator(Operator.GREATERTHANOREQUAL, value);
+        }
+
+        private SearchBuilder<T> addConditionWithOperator(Operator operator, Object value) throws InvalidValueException {
+            Object actualValue = this.attemptConvertToValidValue(value);
+            this.validateValue(actualValue, this.property.getSpecification());
+            addCondition(
+                    this,
+                    new SearchablePropertyComparison(
+                            operator.compare(this.property.getSpecification().getName(), actualValue),
                             this.property));
             return SearchBuilderImpl.this;
         }

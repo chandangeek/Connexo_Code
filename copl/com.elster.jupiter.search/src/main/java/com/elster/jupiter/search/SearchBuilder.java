@@ -157,6 +157,86 @@ public interface SearchBuilder<T> {
         public SearchBuilder<T> isEqualToIgnoreCase(String value) throws InvalidValueException;
 
         /**
+         * Builds a criterion that checks that the target
+         * {@link SearchableProperty} does not match the specified value.
+         * <p>
+         * Will throw an {@link com.elster.jupiter.properties.InvalidValueException}
+         * when the specified value is not compatible with the
+         * property's {@link com.elster.jupiter.properties.PropertySpec specification}.
+         * </p>
+         *
+         * @param value The value
+         * @return The same SearchBuilder to support method chaining
+         * @throws InvalidValueException Thrown on the first value that is not compatible
+         *         with the property's specification
+         */
+        public SearchBuilder<T> isNotEqualTo(Object value) throws InvalidValueException;
+
+        /**
+         * Builds a criterion that checks that the target
+         * {@link SearchableProperty} &lt; the specified value.
+         * <p>
+         * Will throw an {@link com.elster.jupiter.properties.InvalidValueException}
+         * when the specified value is not compatible with the
+         * property's {@link com.elster.jupiter.properties.PropertySpec specification}.
+         * </p>
+         *
+         * @param value The value
+         * @return The same SearchBuilder to support method chaining
+         * @throws InvalidValueException Thrown on the first value that is not compatible
+         *         with the property's specification
+         */
+        public SearchBuilder<T> isLessThan(Object value) throws InvalidValueException;
+
+        /**
+         * Builds a criterion that checks that the target
+         * {@link SearchableProperty} &le; the specified value.
+         * <p>
+         * Will throw an {@link com.elster.jupiter.properties.InvalidValueException}
+         * when the specified value is not compatible with the
+         * property's {@link com.elster.jupiter.properties.PropertySpec specification}.
+         * </p>
+         *
+         * @param value The value
+         * @return The same SearchBuilder to support method chaining
+         * @throws InvalidValueException Thrown on the first value that is not compatible
+         *         with the property's specification
+         */
+        public SearchBuilder<T> isLessThanOrEqualTo(Object value) throws InvalidValueException;
+
+        /**
+         * Builds a criterion that checks that the target
+         * {@link SearchableProperty} &gt; the specified value.
+         * <p>
+         * Will throw an {@link com.elster.jupiter.properties.InvalidValueException}
+         * when the specified value is not compatible with the
+         * property's {@link com.elster.jupiter.properties.PropertySpec specification}.
+         * </p>
+         *
+         * @param value The value
+         * @return The same SearchBuilder to support method chaining
+         * @throws InvalidValueException Thrown on the first value that is not compatible
+         *         with the property's specification
+         */
+        public SearchBuilder<T> isGreaterThan(Object value) throws InvalidValueException;
+
+        /**
+         * Builds a criterion that checks that the target
+         * {@link SearchableProperty} &ge; the specified value.
+         * <p>
+         * Will throw an {@link com.elster.jupiter.properties.InvalidValueException}
+         * when the specified value is not compatible with the
+         * property's {@link com.elster.jupiter.properties.PropertySpec specification}.
+         * </p>
+         *
+         * @param value The value
+         * @return The same SearchBuilder to support method chaining
+         * @throws InvalidValueException Thrown on the first value that is not compatible
+         *         with the property's specification
+         */
+        public SearchBuilder<T> isGreaterThanOrEqualTo(Object value) throws InvalidValueException;
+
+        /**
          * Builds a criterion that checks that the target {@link SearchableProperty}
          * matches the specified wildcard pattern.
          * <p>
