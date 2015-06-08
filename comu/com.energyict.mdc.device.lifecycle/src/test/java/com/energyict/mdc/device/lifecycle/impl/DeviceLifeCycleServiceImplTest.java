@@ -29,12 +29,14 @@ import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
 
+import java.math.BigDecimal;
 import java.security.Principal;
 import java.time.Clock;
 import java.time.Instant;
@@ -60,6 +62,7 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -642,6 +645,46 @@ public class DeviceLifeCycleServiceImplTest {
             // Asserts
             assertThat(propertySpecs).as("Service returns null for MicroAction#" + action.name()).isNotNull();
         }
+    }
+
+    @Test
+    public void toExecutableActionPropertyValidatesValueWithThePropertySpec() throws InvalidValueException {
+        DeviceLifeCycleServiceImpl service = this.getTestInstance();
+        PropertySpec propertySpec = mock(PropertySpec.class);
+
+        // Business method
+        String value = "toExecutableActionPropertyThrowsExceptionForIncompatibleValue";
+        service.toExecutableActionProperty(value, propertySpec);
+
+        // Asserts
+        verify(propertySpec).validateValueIgnoreRequired(value);
+    }
+
+    @Test(expected = InvalidValueException.class)
+    public void toExecutableActionPropertyThrowsExceptionForIncompatibleValue() throws InvalidValueException {
+        DeviceLifeCycleServiceImpl service = this.getTestInstance();
+        PropertySpec propertySpec = mock(PropertySpec.class);
+        doThrow(InvalidValueException.class).when(propertySpec).validateValueIgnoreRequired(anyString());
+
+        // Business method
+        service.toExecutableActionProperty("toExecutableActionPropertyThrowsExceptionForIncompatibleValue", propertySpec);
+
+        // Asserts: exception is mocked on the PropertySpec, verify that it is effectively thrown and not eaten
+    }
+
+    @Test
+    public void toExecutableActionProperty() throws InvalidValueException {
+        DeviceLifeCycleServiceImpl service = this.getTestInstance();
+        PropertySpec propertySpec = mock(PropertySpec.class);
+
+        // Business method
+        BigDecimal value = BigDecimal.TEN;
+        ExecutableActionProperty executableActionProperty = service.toExecutableActionProperty(value, propertySpec);
+
+        // Asserts: see expected exception rule
+        assertThat(executableActionProperty).isNotNull();
+        assertThat(executableActionProperty.getPropertySpec()).isEqualTo(propertySpec);
+        assertThat(executableActionProperty.getValue()).isEqualTo(value);
     }
 
     private DeviceLifeCycleServiceImpl getTestInstance() {

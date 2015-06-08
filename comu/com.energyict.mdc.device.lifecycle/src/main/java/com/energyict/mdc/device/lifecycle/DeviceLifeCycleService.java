@@ -10,6 +10,7 @@ import com.energyict.mdc.device.lifecycle.config.MicroAction;
 
 import com.elster.jupiter.fsm.CustomStateTransitionEventType;
 import com.elster.jupiter.fsm.StateTransitionEventType;
+import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
 
 import java.util.List;
@@ -95,6 +96,20 @@ public interface DeviceLifeCycleService {
     public List<PropertySpec> getPropertySpecsFor(MicroAction action);
 
     /**
+     * Creates an ExecutableActionProperty with the specified value
+     * for the specified {@link PropertySpec}.
+     * Validates that the specified value is compatible
+     * the PropertySpec and will throw an {@link InvalidValueException}
+     * when that is not the case.
+     *
+     * @param value The value
+     * @param propertySpec The PropertySpec
+     * @return The ExecutableActionProperty
+     * @throws InvalidValueException Thrown when the value is not compatible with the PropertySpec
+     */
+    public ExecutableActionProperty toExecutableActionProperty(Object value, PropertySpec propertySpec) throws InvalidValueException;
+
+    /**
      * Executes the {@link AuthorizedTransitionAction} on the specified {@link Device}
      * and throws a SecurityException if the current user is not allowed
      * to execute it according to the security levels
@@ -112,6 +127,7 @@ public interface DeviceLifeCycleService {
      * @see AuthorizedTransitionAction#getLevels()
      * @see AuthorizedTransitionAction#getActions()
      * @see DeviceLifeCycleService#getPropertySpecsFor(MicroAction)
+     * @see DeviceLifeCycleService#toExecutableActionProperty(Object, PropertySpec)
      * @throws SecurityException Thrown when the current user is not allowed to execute this action
      */
     public void execute(AuthorizedTransitionAction action, Device device, List<ExecutableActionProperty> properties) throws SecurityException, DeviceLifeCycleActionViolationException;

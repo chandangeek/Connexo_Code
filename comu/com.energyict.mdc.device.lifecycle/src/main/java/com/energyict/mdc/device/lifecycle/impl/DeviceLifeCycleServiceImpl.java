@@ -24,6 +24,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
+import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
@@ -185,6 +186,12 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
     @Override
     public List<PropertySpec> getPropertySpecsFor(MicroAction action) {
         return this.microActionFactory.from(action).getPropertySpecs(this.propertySpecService);
+    }
+
+    @Override
+    public ExecutableActionProperty toExecutableActionProperty(Object value, PropertySpec propertySpec) throws InvalidValueException {
+        propertySpec.validateValueIgnoreRequired(value);
+        return new ExecutableActionPropertyImpl(propertySpec, value);
     }
 
     @Override
