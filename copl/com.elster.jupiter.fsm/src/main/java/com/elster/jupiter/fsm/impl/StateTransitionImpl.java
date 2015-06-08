@@ -85,8 +85,10 @@ public class StateTransitionImpl implements StateTransition {
 
     @Override
     public String getName(Thesaurus thesaurus) {
-        return this.getName()
-                .orElseGet(() -> this.getNameUsingThesaurus(thesaurus));
+        if (getName().isPresent()){
+            return thesaurus.getString(getName().get(), getName().get());
+        }
+        return this.getNameUsingThesaurus(thesaurus);
     }
 
     private String getNameUsingThesaurus(Thesaurus thesaurus) {
