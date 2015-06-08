@@ -338,8 +338,8 @@ public class ComServerDAOImplTest {
     @Test
     public void updateFirmwareVersionsTest() {
         when(this.deviceIdentifier.findDevice()).thenReturn(this.device);
-        when(this.firmwareService.getCurrentMeterFirmwareVersionFor(this.device)).thenReturn(Optional.empty());
-        when(this.firmwareService.getCurrentCommunicationFirmwareVersionFor(this.device)).thenReturn(Optional.empty());
+        when(this.firmwareService.getActiveFirmwareVersion(this.device, FirmwareType.METER)).thenReturn(Optional.empty());
+        when(this.firmwareService.getActiveFirmwareVersion(this.device, FirmwareType.COMMUNICATION)).thenReturn(Optional.empty());
 
         CollectedFirmwareVersion collectedFirmwareVersion = new DeviceFirmwareVersion(deviceIdentifier);
         this.comServerDAO.updateFirmwareVersions(collectedFirmwareVersion);
@@ -351,8 +351,8 @@ public class ComServerDAOImplTest {
     public void updateWithCreationOfGhostMeterFirmwareVersionTest() {
         // setup
         when(this.deviceIdentifier.findDevice()).thenReturn(this.device);
-        when(this.firmwareService.getCurrentMeterFirmwareVersionFor(this.device)).thenReturn(Optional.empty());
-        when(this.firmwareService.getCurrentCommunicationFirmwareVersionFor(this.device)).thenReturn(Optional.empty());
+        when(this.firmwareService.getActiveFirmwareVersion(this.device, FirmwareType.METER)).thenReturn(Optional.empty());
+        when(this.firmwareService.getActiveFirmwareVersion(this.device, FirmwareType.COMMUNICATION)).thenReturn(Optional.empty());
         String newActiveMeterFirmwareVersion = "MyActiveMeterFirmwareVersion";
         CollectedFirmwareVersion collectedFirmwareVersion = new DeviceFirmwareVersion(deviceIdentifier);
         collectedFirmwareVersion.setActiveMeterFirmwareVersion(newActiveMeterFirmwareVersion);
@@ -378,8 +378,8 @@ public class ComServerDAOImplTest {
         ActivatedFirmwareVersion communicationVersion = mock(ActivatedFirmwareVersion.class);
         Optional<ActivatedFirmwareVersion> communicationVersionWithSameVersion = Optional.of(communicationVersion);
         when(this.deviceIdentifier.findDevice()).thenReturn(this.device);
-        when(this.firmwareService.getCurrentMeterFirmwareVersionFor(this.device)).thenReturn(Optional.empty());
-        when(this.firmwareService.getCurrentCommunicationFirmwareVersionFor(this.device)).thenReturn(communicationVersionWithSameVersion);
+        when(this.firmwareService.getActiveFirmwareVersion(this.device, FirmwareType.METER)).thenReturn(Optional.empty());
+        when(this.firmwareService.getActiveFirmwareVersion(this.device, FirmwareType.COMMUNICATION)).thenReturn(communicationVersionWithSameVersion);
         String newActiveMeterFirmwareVersion = "SameVersion";
         CollectedFirmwareVersion collectedFirmwareVersion = new DeviceFirmwareVersion(deviceIdentifier);
         collectedFirmwareVersion.setActiveMeterFirmwareVersion(newActiveMeterFirmwareVersion);
@@ -406,8 +406,8 @@ public class ComServerDAOImplTest {
     public void updateWithCreationOfGhostCommunicationFirmwareVersionTest() {
         // setup
         when(this.deviceIdentifier.findDevice()).thenReturn(this.device);
-        when(this.firmwareService.getCurrentMeterFirmwareVersionFor(this.device)).thenReturn(Optional.empty());
-        when(this.firmwareService.getCurrentCommunicationFirmwareVersionFor(this.device)).thenReturn(Optional.empty());
+        when(this.firmwareService.getActiveFirmwareVersion(this.device, FirmwareType.METER)).thenReturn(Optional.empty());
+        when(this.firmwareService.getActiveFirmwareVersion(this.device, FirmwareType.COMMUNICATION)).thenReturn(Optional.empty());
         String myActiveCommunicationFirmwareVersion = "MyActiveCommunicationFirmwareVersion";
         CollectedFirmwareVersion collectedFirmwareVersion = new DeviceFirmwareVersion(deviceIdentifier);
         collectedFirmwareVersion.setActiveCommunicationFirmwareVersion(myActiveCommunicationFirmwareVersion);
@@ -433,8 +433,8 @@ public class ComServerDAOImplTest {
         ActivatedFirmwareVersion meterVersion = mock(ActivatedFirmwareVersion.class);
         Optional<ActivatedFirmwareVersion> meterVersionWithSameVersion = Optional.of(meterVersion);
         when(this.deviceIdentifier.findDevice()).thenReturn(this.device);
-        when(this.firmwareService.getCurrentMeterFirmwareVersionFor(this.device)).thenReturn(meterVersionWithSameVersion);
-        when(this.firmwareService.getCurrentCommunicationFirmwareVersionFor(this.device)).thenReturn(Optional.empty());
+        when(this.firmwareService.getActiveFirmwareVersion(this.device, FirmwareType.METER)).thenReturn(meterVersionWithSameVersion);
+        when(this.firmwareService.getActiveFirmwareVersion(this.device, FirmwareType.COMMUNICATION)).thenReturn(Optional.empty());
         String myActiveCommunicationFirmwareVersion = "SameVersion";
         CollectedFirmwareVersion collectedFirmwareVersion = new DeviceFirmwareVersion(deviceIdentifier);
         collectedFirmwareVersion.setActiveCommunicationFirmwareVersion(myActiveCommunicationFirmwareVersion);
@@ -469,8 +469,8 @@ public class ComServerDAOImplTest {
         when(firmwareVersion.getFirmwareStatus()).thenReturn(FirmwareStatus.GHOST);
         when(firmwareVersion.getFirmwareType()).thenReturn(FirmwareType.METER);
         when(firmwareVersion.getFirmwareVersion()).thenReturn(myActiveFirmwareVersion);
-        when(this.firmwareService.getCurrentMeterFirmwareVersionFor(this.device)).thenReturn(Optional.of(activatedFirmwareVersion));
-        when(this.firmwareService.getCurrentCommunicationFirmwareVersionFor(this.device)).thenReturn(Optional.empty());
+        when(this.firmwareService.getActiveFirmwareVersion(this.device, FirmwareType.METER)).thenReturn(Optional.of(activatedFirmwareVersion));
+        when(this.firmwareService.getActiveFirmwareVersion(this.device, FirmwareType.COMMUNICATION)).thenReturn(Optional.empty());
         CollectedFirmwareVersion collectedFirmwareVersion = new DeviceFirmwareVersion(deviceIdentifier);
         collectedFirmwareVersion.setActiveMeterFirmwareVersion(myActiveFirmwareVersion);
         when(this.firmwareService.getFirmwareVersionByVersionAndType(myActiveFirmwareVersion, FirmwareType.METER, deviceType)).thenReturn(Optional.of(firmwareVersion));
@@ -495,8 +495,8 @@ public class ComServerDAOImplTest {
         when(firmwareVersion.getFirmwareStatus()).thenReturn(FirmwareStatus.GHOST);
         when(firmwareVersion.getFirmwareType()).thenReturn(FirmwareType.COMMUNICATION);
         when(firmwareVersion.getFirmwareVersion()).thenReturn(myActiveCommunicationFirmwareVersion);
-        when(this.firmwareService.getCurrentCommunicationFirmwareVersionFor(this.device)).thenReturn(Optional.of(activatedFirmwareVersion));
-        when(this.firmwareService.getCurrentMeterFirmwareVersionFor(this.device)).thenReturn(Optional.empty());
+        when(this.firmwareService.getActiveFirmwareVersion(this.device, FirmwareType.COMMUNICATION)).thenReturn(Optional.of(activatedFirmwareVersion));
+        when(this.firmwareService.getActiveFirmwareVersion(this.device, FirmwareType.METER)).thenReturn(Optional.empty());
         CollectedFirmwareVersion collectedFirmwareVersion = new DeviceFirmwareVersion(deviceIdentifier);
         collectedFirmwareVersion.setActiveCommunicationFirmwareVersion(myActiveCommunicationFirmwareVersion);
         when(this.firmwareService.getFirmwareVersionByVersionAndType(myActiveCommunicationFirmwareVersion, FirmwareType.COMMUNICATION, deviceType)).thenReturn(Optional.of(firmwareVersion));
