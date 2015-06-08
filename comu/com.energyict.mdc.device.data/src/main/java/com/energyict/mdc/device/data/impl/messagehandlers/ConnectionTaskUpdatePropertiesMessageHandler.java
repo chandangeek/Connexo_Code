@@ -40,7 +40,7 @@ public class ConnectionTaskUpdatePropertiesMessageHandler implements MessageHand
                     try {
                         convertedValue = convertPropertyStringValueToPropertyValue(propertySpec, stringValue);
                         connectionTask.setProperty(propertySpec.getName(), convertedValue);
-                        LOGGER.info(String.format("Set property '%s' on connection task %d to value '%s'", propertySpec.getName(), connectionTask.getId(), stringValue));
+                        LOGGER.info(String.format("Set property '%s' on connection task %d to value '%s'", propertySpec.getName(), connectionTask.getId(), convertedValue));
                     } catch (Exception e) {
                         LOGGER.log(Level.SEVERE, String.format("Failed to set property '%s' on connection task %d: value '%s' was refused: %s", propertySpec.getName(), connectionTask.getId(), convertedValue, e.getMessage()));
                     }
