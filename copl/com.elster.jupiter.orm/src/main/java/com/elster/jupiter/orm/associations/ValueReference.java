@@ -1,5 +1,6 @@
 package com.elster.jupiter.orm.associations;
 
+import javax.validation.Valid;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -8,7 +9,8 @@ import java.util.Optional;
  */
 
 public final class ValueReference<T> implements Reference<T> {
-	
+
+	@Valid
 	private T value;
 
 	ValueReference() {

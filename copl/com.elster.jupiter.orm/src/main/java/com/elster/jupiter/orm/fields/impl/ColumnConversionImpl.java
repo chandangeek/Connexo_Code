@@ -1,6 +1,8 @@
 package com.elster.jupiter.orm.fields.impl;
 
 import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Instant;
@@ -401,6 +403,23 @@ public enum ColumnConversionImpl {
 		@Override
 		public Object convert(String in) {
 			return  Instant.ofEpochMilli(Long.valueOf(in));
+		}
+	},
+	CHAR2PATH {
+		@Override
+		public Object convert(String in) {
+			return Paths.get(in);
+		}
+
+		@Override
+		public Object convertToDb(Object value) {
+			return ((Path) value).toString();
+		}
+
+		@Override
+		public Object convertFromDb(ResultSet rs, int index) throws SQLException {
+			String fileName = rs.getString(index);
+			return fileName == null ? null : convert(fileName);
 		}
 	};
 

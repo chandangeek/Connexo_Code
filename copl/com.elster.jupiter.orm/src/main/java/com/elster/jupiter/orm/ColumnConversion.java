@@ -26,7 +26,8 @@ public enum ColumnConversion {
     CLOB2STRING,
     BLOB2BYTE,
     NUMBERINUTCSECONDS2INSTANT,
-    NUMBER2INSTANT;
+    NUMBER2INSTANT,
+	CHAR2PATH;
     
 	public static final int CATALOGNAMELIMIT = 30;
 }
