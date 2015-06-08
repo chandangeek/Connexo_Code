@@ -99,9 +99,11 @@
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
+
         <dependency>
             <groupId>com.energyict.comserver</groupId>
             <artifactId>comserver-core-impl</artifactId>
+            <scope>test</scope>
         </dependency>
 
         <!--

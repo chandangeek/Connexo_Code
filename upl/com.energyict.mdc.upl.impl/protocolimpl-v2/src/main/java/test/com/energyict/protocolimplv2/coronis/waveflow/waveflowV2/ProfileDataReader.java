@@ -3,19 +3,13 @@ package test.com.energyict.protocolimplv2.coronis.waveflow.waveflowV2;
 import com.energyict.cbo.Unit;
 import com.energyict.mdc.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.meterdata.DeviceLoadProfileConfiguration;
-import com.energyict.mdc.meterdata.identifiers.LoadProfileIdentifierById;
 import com.energyict.mdc.protocol.tasks.support.DeviceLoadProfileSupport;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.IntervalStateBits;
-import com.energyict.protocol.IntervalValue;
-import com.energyict.protocol.LoadProfileReader;
-import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.*;
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.protocolimplv2.identifiers.LoadProfileIdentifierById;
 import test.com.energyict.protocolimplv2.coronis.waveflow.WaveFlow;
 import test.com.energyict.protocolimplv2.coronis.waveflow.core.radiocommand.AbstractRadioCommand;
 import test.com.energyict.protocolimplv2.coronis.waveflow.core.radiocommand.DailyConsumption;
@@ -23,25 +17,18 @@ import test.com.energyict.protocolimplv2.coronis.waveflow.core.radiocommand.Exte
 import test.com.energyict.protocolimplv2.coronis.waveflow.core.radiocommand.ExtendedIndexReading;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.List;
-import java.util.TimeZone;
+import java.util.*;
 
 public class ProfileDataReader implements DeviceLoadProfileSupport {
-
-    private WaveFlow waveFlowV2;
-    private int inputsUsed = 0;
-    private int interval = 0;
 
     private static final int HOURLY = 60 * 60;
     private static final int DAILY = HOURLY * 24;
     private static final int WEEKLY = DAILY * 7;
     private static final int MONTHLY = (WEEKLY * 4) - 1;
     private static final int STEPS = 29;                   //Max number of profile data entries in 1 frame!
+    private WaveFlow waveFlowV2;
+    private int inputsUsed = 0;
+    private int interval = 0;
 
     public ProfileDataReader(WaveFlow waveFlowV2) {
         this.waveFlowV2 = waveFlowV2;
@@ -56,10 +43,9 @@ public class ProfileDataReader implements DeviceLoadProfileSupport {
         CollectedLoadProfileConfiguration loadProfileConfiguration;
         for (LoadProfileReader loadProfileReader : loadProfilesToRead) {
             ObisCode profileObisCode = loadProfileReader.getProfileObisCode();
-            if (profileObisCode.equals(DeviceLoadProfileSupport.GENERIC_LOAD_PROFILE_OBISCODE)) {                        //Only one LP is supported
-                loadProfileConfiguration = new DeviceLoadProfileConfiguration(profileObisCode, waveFlowV2.getOfflineDevice().getSerialNumber(), true);
-            } else {
-                loadProfileConfiguration = new DeviceLoadProfileConfiguration(profileObisCode, waveFlowV2.getOfflineDevice().getSerialNumber(), false);
+            loadProfileConfiguration = MdcManager.getCollectedDataFactory().createCollectedLoadProfileConfiguration(profileObisCode, waveFlowV2.getOfflineDevice().getSerialNumber());
+            if (!profileObisCode.equals(DeviceLoadProfileSupport.GENERIC_LOAD_PROFILE_OBISCODE)) {                        //Only one LP is supported
+                loadProfileConfiguration.setSupportedByMeter(false);
             }
             result.add(loadProfileConfiguration);
         }

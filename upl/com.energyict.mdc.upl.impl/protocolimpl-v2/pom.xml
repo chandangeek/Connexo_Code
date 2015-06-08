@@ -31,6 +31,7 @@
         <dependency>
             <groupId>com.energyict.comserver</groupId>
             <artifactId>comserver-core-impl</artifactId>
+            <scope>test</scope>
         </dependency>
 
         <!-- Dependencies from protocols project -->

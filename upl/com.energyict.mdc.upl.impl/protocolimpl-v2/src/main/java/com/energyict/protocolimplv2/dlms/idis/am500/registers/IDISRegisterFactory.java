@@ -6,17 +6,10 @@ import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Unsigned32;
-import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.dlms.cosem.Data;
-import com.energyict.dlms.cosem.DemandRegister;
-import com.energyict.dlms.cosem.Disconnector;
-import com.energyict.dlms.cosem.ExtendedRegister;
-import com.energyict.dlms.cosem.HistoricalValue;
-import com.energyict.dlms.cosem.Register;
+import com.energyict.dlms.cosem.*;
 import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdc.meterdata.identifiers.RegisterIdentifier;
-import com.energyict.mdc.meterdata.identifiers.RegisterIdentifierById;
 import com.energyict.mdc.protocol.tasks.support.DeviceRegisterSupport;
 import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.obis.ObisCode;
@@ -25,15 +18,10 @@ import com.energyict.protocol.NotInObjectListException;
 import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.base.DLMSAttributeMapper;
-import com.energyict.protocolimpl.dlms.idis.registers.AlarmBitsRegister;
-import com.energyict.protocolimpl.dlms.idis.registers.SFSKActiveInitiatorMapper;
-import com.energyict.protocolimpl.dlms.idis.registers.SFSKIec61334LLCSetupMapper;
-import com.energyict.protocolimpl.dlms.idis.registers.SFSKMacCountersMapper;
-import com.energyict.protocolimpl.dlms.idis.registers.SFSKPhyMacSetupMapper;
-import com.energyict.protocolimpl.dlms.idis.registers.SFSKReportingSystemListMapper;
-import com.energyict.protocolimpl.dlms.idis.registers.SFSKSyncTimeoutsMapper;
+import com.energyict.protocolimpl.dlms.idis.registers.*;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.idis.am500.AM500;
+import com.energyict.protocolimplv2.identifiers.RegisterIdentifierById;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 
 import java.io.IOException;
@@ -49,15 +37,15 @@ import java.util.List;
  */
 public class IDISRegisterFactory implements DeviceRegisterSupport {
 
-    private final AM500 AM500;
-    private static final String ALARM_REGISTER = "0.0.97.98.0.255";
-    private final DLMSAttributeMapper[] attributeMappers;
     public static final ObisCode SFSK_PHY_MAC_SETUP = ObisCode.fromString("0.0.26.0.0.255");
     public static final ObisCode SFSK_ACTIVE_INITIATOR = ObisCode.fromString("0.0.26.1.0.255");
     public static final ObisCode SFSK_SYNC_TIMEOUTS = ObisCode.fromString("0.0.26.2.0.255");
     public static final ObisCode SFSK_MAC_COUNTERS = ObisCode.fromString("0.0.26.3.0.255");
     public static final ObisCode SFSK_IEC_LLC_SETIP = ObisCode.fromString("0.0.26.5.0.255");
     public static final ObisCode SFSK_REPORTING_SYSTEM_LIST = ObisCode.fromString("0.0.26.6.0.255");
+    private static final String ALARM_REGISTER = "0.0.97.98.0.255";
+    private final AM500 AM500;
+    private final DLMSAttributeMapper[] attributeMappers;
 
     public IDISRegisterFactory(AM500 AM500) {
         this.AM500 = AM500;

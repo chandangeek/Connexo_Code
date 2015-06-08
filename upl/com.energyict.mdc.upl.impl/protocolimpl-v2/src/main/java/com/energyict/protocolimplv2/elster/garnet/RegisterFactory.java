@@ -5,7 +5,6 @@ import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.meterdata.ResultType;
-import com.energyict.mdc.meterdata.identifiers.RegisterIdentifierById;
 import com.energyict.mdc.protocol.tasks.support.DeviceRegisterSupport;
 import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.obis.ObisCode;
@@ -20,6 +19,7 @@ import com.energyict.protocolimplv2.elster.garnet.structure.field.MeterSerialNum
 import com.energyict.protocolimplv2.elster.garnet.structure.field.NotExecutedError;
 import com.energyict.protocolimplv2.elster.garnet.structure.field.RepeaterDiagnostic;
 import com.energyict.protocolimplv2.elster.garnet.structure.field.bitMaskField.*;
+import com.energyict.protocolimplv2.identifiers.RegisterIdentifierById;
 
 import java.util.*;
 

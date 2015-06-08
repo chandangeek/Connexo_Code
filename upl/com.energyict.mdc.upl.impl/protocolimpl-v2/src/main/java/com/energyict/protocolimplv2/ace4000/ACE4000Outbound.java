@@ -76,18 +76,18 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
     @Override
     public List<CollectedLoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfilesToRead) {
         List<CollectedLoadProfileConfiguration> result = new ArrayList<>();
-        DeviceLoadProfileConfiguration loadProfileConfiguration;
         for (LoadProfileReader loadProfileReader : loadProfilesToRead) {
             if (isMaster(loadProfileReader.getMeterSerialNumber())) {     //Master device
                 ObisCode profileObisCode = loadProfileReader.getProfileObisCode();
-                if (profileObisCode.equals(DeviceLoadProfileSupport.GENERIC_LOAD_PROFILE_OBISCODE)) {                        //Only one LP is supported
-                    loadProfileConfiguration = new DeviceLoadProfileConfiguration(profileObisCode, getSerialNumber(), true);
-                } else {
-                    loadProfileConfiguration = new DeviceLoadProfileConfiguration(profileObisCode, getSerialNumber(), false);
+                CollectedLoadProfileConfiguration config = MdcManager.getCollectedDataFactory().createCollectedLoadProfileConfiguration(profileObisCode, getSerialNumber());
+                if (!profileObisCode.equals(DeviceLoadProfileSupport.GENERIC_LOAD_PROFILE_OBISCODE)) {                        //Only one LP is supported
+                    config.setSupportedByMeter(false);
                 }
-                result.add(loadProfileConfiguration);
+                result.add(config);
             } else {                                                                                    //Slave doesn't support
-                result.add(new DeviceLoadProfileConfiguration(loadProfileReader.getProfileObisCode(), getSerialNumber(), false));
+                CollectedLoadProfileConfiguration slaveConfig = MdcManager.getCollectedDataFactory().createCollectedLoadProfileConfiguration(loadProfileReader.getProfileObisCode(), getSerialNumber());
+                slaveConfig.setSupportedByMeter(false);
+                result.add(slaveConfig);
             }
         }
         return result;
@@ -109,12 +109,12 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
         return result;
     }
 
-    public void setCachedMeterTimeDifference(Long cachedMeterTimeDifference) {
-        this.cachedMeterTimeDifference = cachedMeterTimeDifference;
-    }
-
     public Long getCachedMeterTimeDifference() {
         return cachedMeterTimeDifference;
+    }
+
+    public void setCachedMeterTimeDifference(Long cachedMeterTimeDifference) {
+        this.cachedMeterTimeDifference = cachedMeterTimeDifference;
     }
 
     @Override
@@ -127,13 +127,19 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
     }
 
     @Override
-    public void setDeviceCache(DeviceProtocolCache deviceProtocolCache) {
-        this.deviceCache = deviceProtocolCache;     //Unused, always empty
+    public void setTime(Date timeToSet) {
+        SetTime setTimeRequest = new SetTime(this);
+        setTimeRequest.request(timeToSet);
     }
 
     @Override
     public DeviceProtocolCache getDeviceCache() {
         return this.deviceCache;
+    }
+
+    @Override
+    public void setDeviceCache(DeviceProtocolCache deviceProtocolCache) {
+        this.deviceCache = deviceProtocolCache;     //Unused, always empty
     }
 
     @Override
@@ -185,12 +191,6 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
     @Override
     public void addDeviceProtocolDialectProperties(TypedProperties dialectProperties) {
         addProperties(dialectProperties);
-    }
-
-    @Override
-    public void setTime(Date timeToSet) {
-        SetTime setTimeRequest = new SetTime(this);
-        setTimeRequest.request(timeToSet);
     }
 
     @Override

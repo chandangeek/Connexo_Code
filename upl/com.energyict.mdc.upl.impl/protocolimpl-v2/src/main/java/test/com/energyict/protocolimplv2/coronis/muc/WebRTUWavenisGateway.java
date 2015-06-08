@@ -3,6 +3,7 @@ package test.com.energyict.protocolimplv2.coronis.muc;
 import com.energyict.concentrator.communication.driver.rf.eictwavenis.WavenisStack;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.TypedProperties;
+import com.energyict.mdc.channels.ip.socket.ServerWavenisGatewayComChannel;
 import com.energyict.mdc.channels.ip.socket.WavenisGatewayComChannel;
 import com.energyict.mdc.channels.ip.socket.WavenisGatewayConnectionType;
 import com.energyict.mdc.messages.DeviceMessageSpec;
@@ -55,8 +56,8 @@ public class WebRTUWavenisGateway extends AbstractGateway {
 
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
-        if (comChannel.getClass().isAssignableFrom(WavenisGatewayComChannel.class)) {
-            this.wavenisStack = ((WavenisGatewayComChannel) comChannel).getWavenisStack();
+        if (comChannel instanceof ServerWavenisGatewayComChannel) {
+            this.wavenisStack = ((ServerWavenisGatewayComChannel) comChannel).getWavenisStack();
         } else {
             throw MdcManager.getComServerExceptionFactory().createUnexpectedComChannel(WavenisGatewayComChannel.class.getSimpleName(), comChannel.getClass().getSimpleName());
         }
@@ -118,13 +119,13 @@ public class WebRTUWavenisGateway extends AbstractGateway {
     }
 
     @Override
-    public void setDeviceCache(DeviceProtocolCache deviceProtocolCache) {
-        this.deviceCache = deviceProtocolCache;
+    public DeviceProtocolCache getDeviceCache() {
+        return deviceCache;
     }
 
     @Override
-    public DeviceProtocolCache getDeviceCache() {
-        return deviceCache;
+    public void setDeviceCache(DeviceProtocolCache deviceProtocolCache) {
+        this.deviceCache = deviceProtocolCache;
     }
 
     @Override
@@ -186,7 +187,7 @@ public class WebRTUWavenisGateway extends AbstractGateway {
 
     private RegisterReader getRegisterReader() {
         if (registerReader == null) {
-            registerReader = new RegisterReader(wavenisStack, getDeviceIdentifier());
+            registerReader = new RegisterReader(wavenisStack);
         }
         return registerReader;
     }

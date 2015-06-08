@@ -10,7 +10,6 @@ import com.energyict.dlms.cosem.*;
 import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdc.meterdata.identifiers.RegisterIdentifier;
-import com.energyict.mdc.meterdata.identifiers.RegisterIdentifierById;
 import com.energyict.mdc.protocol.tasks.support.DeviceRegisterSupport;
 import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.obis.ObisCode;
@@ -21,6 +20,7 @@ import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.dlms.idis.registers.AlarmBitsRegister;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.idis.am130.AM130;
+import com.energyict.protocolimplv2.identifiers.RegisterIdentifierById;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 
 import java.io.IOException;
@@ -35,10 +35,10 @@ import java.util.List;
  */
 public class AM130RegisterFactory implements DeviceRegisterSupport {
 
-    private final AM130 am130;
     private static final String ALARM_REGISTER1 = "0.0.97.98.0.255";
     private static final String ALARM_REGISTER2 = "0.0.97.98.1.255";
     private static final String ERROR_REGISTER = "0.0.97.97.0.255";
+    private final AM130 am130;
 
     public AM130RegisterFactory(AM130 am130) {
         this.am130 = am130;

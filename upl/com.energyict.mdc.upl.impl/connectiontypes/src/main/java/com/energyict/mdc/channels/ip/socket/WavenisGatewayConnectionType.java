@@ -31,13 +31,13 @@ public class WavenisGatewayConnectionType extends OutboundTcpIpConnectionType {
                 this.setProperty(property.getName(), property.getValue());
             }
         }
-        ServerComChannel comChannel = this.newWavenisConnection(this.hostPropertyValue(), this.portNumberPropertyValue(), this.connectionTimeOutPropertyValue());
+        ServerLoggableComChannel comChannel = this.newWavenisConnection(this.hostPropertyValue(), this.portNumberPropertyValue(), this.connectionTimeOutPropertyValue());
         comChannel.addProperties(createTypeProperty(ComChannelType.WavenisGatewayComChannel));
         comChannel.setComPort(comPort);
         return comChannel;
     }
 
-    private ServerComChannel newWavenisConnection(String host, int port, int timeOut) throws ConnectionException {
+    private ServerLoggableComChannel newWavenisConnection(String host, int port, int timeOut) throws ConnectionException {
         try {
             Socket socket = new Socket();
             socket.connect(new InetSocketAddress(host, port), timeOut);

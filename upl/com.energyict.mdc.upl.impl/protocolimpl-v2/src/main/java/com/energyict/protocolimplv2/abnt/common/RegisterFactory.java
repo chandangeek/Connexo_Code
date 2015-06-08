@@ -5,7 +5,6 @@ import com.energyict.cbo.Unit;
 import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdc.meterdata.identifiers.RegisterIdentifier;
-import com.energyict.mdc.meterdata.identifiers.RegisterIdentifierById;
 import com.energyict.mdc.protocol.tasks.support.DeviceRegisterSupport;
 import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.obis.ObisCode;
@@ -16,33 +15,12 @@ import com.energyict.protocolimplv2.abnt.common.field.AbstractField;
 import com.energyict.protocolimplv2.abnt.common.field.BcdEncodedField;
 import com.energyict.protocolimplv2.abnt.common.field.DateTimeField;
 import com.energyict.protocolimplv2.abnt.common.field.FloatField;
-import com.energyict.protocolimplv2.abnt.common.structure.ChannelGroup;
-import com.energyict.protocolimplv2.abnt.common.structure.HistoryLogResponse;
-import com.energyict.protocolimplv2.abnt.common.structure.HolidayRecords;
-import com.energyict.protocolimplv2.abnt.common.structure.InstrumentationPageFields;
-import com.energyict.protocolimplv2.abnt.common.structure.InstrumentationPageResponse;
-import com.energyict.protocolimplv2.abnt.common.structure.PowerFailLogResponse;
-import com.energyict.protocolimplv2.abnt.common.structure.ReadInstallationCodeResponse;
-import com.energyict.protocolimplv2.abnt.common.structure.ReadParameterFields;
-import com.energyict.protocolimplv2.abnt.common.structure.ReadParametersResponse;
-import com.energyict.protocolimplv2.abnt.common.structure.RegisterReadFields;
-import com.energyict.protocolimplv2.abnt.common.structure.RegisterReadResponse;
-import com.energyict.protocolimplv2.abnt.common.structure.field.AutomaticDemandResetCondition;
-import com.energyict.protocolimplv2.abnt.common.structure.field.BatteryStatusField;
-import com.energyict.protocolimplv2.abnt.common.structure.field.ConnectionTypeField;
-import com.energyict.protocolimplv2.abnt.common.structure.field.DstConfigurationRecord;
-import com.energyict.protocolimplv2.abnt.common.structure.field.QuantityConversionIndicatorField;
-import com.energyict.protocolimplv2.abnt.common.structure.field.ReactivePowerCharacteristicField;
-import com.energyict.protocolimplv2.abnt.common.structure.field.SoftwareVersionField;
-import com.energyict.protocolimplv2.abnt.common.structure.field.TariffConfigurationField;
-import com.energyict.protocolimplv2.abnt.common.structure.field.UnitField;
+import com.energyict.protocolimplv2.abnt.common.structure.*;
+import com.energyict.protocolimplv2.abnt.common.structure.field.*;
+import com.energyict.protocolimplv2.identifiers.RegisterIdentifierById;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author sva
@@ -59,7 +37,7 @@ public class RegisterFactory implements DeviceRegisterSupport {
     private static final ObisCode INSTALLATION_CODE_HEX_OBIS = ObisCode.fromString("0.1.96.2.0.255");
     private static final ObisCode HISTORY_LOG_OBIS = ObisCode.fromString("0.0.99.98.128.255");
     private static final ObisCode POWER_FAILURE_LOG_OBIS = ObisCode.fromString("1.0.99.97.128.255");
-
+    private final AbstractAbntProtocol meterProtocol;
     private Map<Integer, ReadParametersResponse> actualParametersMap;
     private Map<Integer, ReadParametersResponse> previousParametersMap;
     private Map<Integer, RegisterReadResponse> actualRegistersMap;
@@ -68,8 +46,6 @@ public class RegisterFactory implements DeviceRegisterSupport {
     private PowerFailLogResponse powerFailLog;
     private ReadInstallationCodeResponse installationCodeResponse;
     private InstrumentationPageResponse instrumentationPage;
-
-    private final AbstractAbntProtocol meterProtocol;
 
     public RegisterFactory(AbstractAbntProtocol meterProtocol) {
         this.meterProtocol = meterProtocol;

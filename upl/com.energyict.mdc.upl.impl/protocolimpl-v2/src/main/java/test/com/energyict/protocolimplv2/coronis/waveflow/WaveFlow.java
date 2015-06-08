@@ -4,20 +4,31 @@ import com.energyict.concentrator.communication.driver.rf.eictwavenis.WaveModule
 import com.energyict.concentrator.communication.driver.rf.eictwavenis.WavenisStack;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.TypedProperties;
-import com.energyict.mdc.channels.ip.socket.WavenisGatewayComChannel;
+import com.energyict.mdc.channels.ip.socket.ServerWavenisGatewayComChannel;
 import com.energyict.mdc.channels.ip.socket.WavenisGatewayConnectionType;
 import com.energyict.mdc.channels.serial.rf.WavenisSerialConnectionType;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.meterdata.*;
-import com.energyict.mdc.protocol.*;
+import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.DeviceProtocol;
+import com.energyict.mdc.protocol.DeviceProtocolCache;
+import com.energyict.mdc.protocol.SynchroneousComChannel;
 import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
-import com.energyict.mdc.protocol.security.*;
-import com.energyict.mdc.protocol.tasks.support.*;
+import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
+import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
+import com.energyict.mdc.protocol.tasks.support.DeviceLoadProfileSupport;
+import com.energyict.mdc.protocol.tasks.support.DeviceLogBookSupport;
+import com.energyict.mdc.protocol.tasks.support.DeviceMessageSupport;
+import com.energyict.mdc.protocol.tasks.support.DeviceRegisterSupport;
 import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
-import com.energyict.mdw.offline.*;
-import com.energyict.protocol.*;
+import com.energyict.mdw.offline.OfflineDevice;
+import com.energyict.mdw.offline.OfflineDeviceMessage;
+import com.energyict.mdw.offline.OfflineRegister;
+import com.energyict.protocol.LoadProfileReader;
+import com.energyict.protocol.LogBookReader;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.comchannels.WavenisStackUtils;
 import com.energyict.protocolimplv2.dialects.NoParamsDeviceProtocolDialect;
@@ -29,7 +40,10 @@ import test.com.energyict.protocolimplv2.coronis.waveflow.core.parameter.Paramet
 import test.com.energyict.protocolimplv2.coronis.waveflow.core.parameter.PulseWeight;
 import test.com.energyict.protocolimplv2.coronis.waveflow.core.radiocommand.RadioCommandFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.TimeZone;
 
 /**
  * Copyrights EnergyICT
@@ -67,8 +81,8 @@ public abstract class WaveFlow implements DeviceProtocol {
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
         this.offlineDevice = offlineDevice;
         getWaveFlowProperties().addProperties(offlineDevice.getAllProperties());
-        if (comChannel.getClass().isAssignableFrom(WavenisGatewayComChannel.class)) {   //Create a link
-            WavenisStack wavenisStack = ((WavenisGatewayComChannel) comChannel).getWavenisStack();
+        if (comChannel instanceof ServerWavenisGatewayComChannel) {   //Create a link
+            WavenisStack wavenisStack = ((ServerWavenisGatewayComChannel) comChannel).getWavenisStack();
             WaveModuleLinkAdaptor waveModuleLinkAdaptor = WavenisStackUtils.createLink(getWaveFlowProperties().getRFAddress(), wavenisStack);
             SynchroneousComChannel synchroneousComChannel = new SynchroneousComChannel(waveModuleLinkAdaptor.getInputStream(), waveModuleLinkAdaptor.getOutputStream());
             waveFlowConnect = new WaveFlowConnect(synchroneousComChannel, getWaveFlowProperties().getTimeout(), getWaveFlowProperties().getRetries());
@@ -205,18 +219,13 @@ public abstract class WaveFlow implements DeviceProtocol {
     }
 
     @Override
-    public void setDeviceCache(DeviceProtocolCache deviceProtocolCache) {
-        this.deviceCache = deviceProtocolCache;
-    }
-
-    @Override
     public DeviceProtocolCache getDeviceCache() {
         return deviceCache;
     }
 
     @Override
-    public void setTime(Date timeToSet) {
-        getParameterFactory().writeTimeDateRTC(timeToSet);
+    public void setDeviceCache(DeviceProtocolCache deviceProtocolCache) {
+        this.deviceCache = deviceProtocolCache;
     }
 
     @Override
@@ -232,6 +241,11 @@ public abstract class WaveFlow implements DeviceProtocol {
     @Override
     public Date getTime() {
         return getParameterFactory().readTimeDateRTC();
+    }
+
+    @Override
+    public void setTime(Date timeToSet) {
+        getParameterFactory().writeTimeDateRTC(timeToSet);
     }
 
     @Override

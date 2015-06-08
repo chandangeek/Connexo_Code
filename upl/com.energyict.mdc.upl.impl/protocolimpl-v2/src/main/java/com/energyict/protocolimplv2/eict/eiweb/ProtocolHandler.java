@@ -7,9 +7,10 @@ import com.energyict.cbo.Unit;
 import com.energyict.cim.EndDeviceEventTypeMapping;
 import com.energyict.comserver.time.Clocks;
 import com.energyict.mdc.messages.LegacyMessageConverter;
-import com.energyict.mdc.meterdata.*;
-import com.energyict.mdc.meterdata.identifiers.LogBookIdentifierByDeviceAndObisCode;
-import com.energyict.mdc.meterdata.identifiers.PrimeRegisterForChannelIdentifier;
+import com.energyict.mdc.meterdata.CollectedConfigurationInformation;
+import com.energyict.mdc.meterdata.CollectedData;
+import com.energyict.mdc.meterdata.CollectedLogBook;
+import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.protocol.exceptions.CommunicationException;
 import com.energyict.mdc.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.mdc.protocol.exceptions.DataEncryptionException;
@@ -21,6 +22,9 @@ import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.MeterProtocolEvent;
+import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.protocolimplv2.identifiers.LogBookIdentifierByObisCodeAndDevice;
+import com.energyict.protocolimplv2.identifiers.PrimeRegisterForChannelIdentifier;
 import com.energyict.protocolimplv2.messages.convertor.EIWebMessageConverter;
 
 import javax.servlet.http.HttpServletRequest;
@@ -40,7 +44,7 @@ public class ProtocolHandler {
     private ProfileBuilder profileBuilder;
     private List<CollectedRegister> registerData = new ArrayList<>();
     private CollectedConfigurationInformation configurationInformation;
-    private DeviceLogBook deviceLogBook;
+    private CollectedLogBook deviceLogBook;
     private LegacyMessageConverter messageConverter = null;
 
     public ProtocolHandler(ResponseWriter responseWriter, InboundDAO inboundDAO, Cryptographer cryptographer) {
@@ -78,7 +82,7 @@ public class ProtocolHandler {
     }
 
     private CollectedData getLogBookEvents() {
-        DeviceLogBook deviceLogBook = this.getDeviceLogBook();
+        CollectedLogBook deviceLogBook = this.getDeviceLogBook();
         if (deviceLogBook != null) {
             List<MeterEvent> meterEvents = this.profileBuilder.getProfileData().getMeterEvents();
             if (meterEvents != null && !meterEvents.isEmpty()) {
@@ -100,7 +104,8 @@ public class ProtocolHandler {
             BigDecimal value = meterReadings.get(i);
             ChannelInfo channelInfo = profileBuilder.getProfileData().getChannel(i);
             PrimeRegisterForChannelIdentifier registerIdentifier = new PrimeRegisterForChannelIdentifier(this.getDeviceIdentifier(), channelInfo.getChannelId(), null);
-            DefaultDeviceRegister reading = new DefaultDeviceRegister(registerIdentifier);
+
+            CollectedRegister reading = MdcManager.getCollectedDataFactory().createDefaultCollectedRegister(registerIdentifier);
             reading.setReadTime(now);
             reading.setCollectedData(new Quantity(value, Unit.get(BaseUnit.COUNT)), "???");
             this.registerData.add(reading);
@@ -108,7 +113,7 @@ public class ProtocolHandler {
     }
 
     private void processConfigurationInformation(ProfileBuilder profileBuilder) {
-        this.configurationInformation = new DeviceUserFileConfigurationInformation(this.getDeviceIdentifier(), "xml", profileBuilder.getConfigFile());
+        this.configurationInformation = MdcManager.getCollectedDataFactory().createCollectedConfigurationInformation(this.getDeviceIdentifier(), "xml", profileBuilder.getConfigFile());
     }
 
     public void handle(HttpServletRequest request, Logger logger) {
@@ -238,9 +243,9 @@ public class ProtocolHandler {
         return result;
     }
 
-    private DeviceLogBook getDeviceLogBook() {
+    private CollectedLogBook getDeviceLogBook() {
         if (this.deviceLogBook == null) {
-            this.deviceLogBook = new DeviceLogBook(new LogBookIdentifierByDeviceAndObisCode(getDeviceIdentifier(), LogBookTypeFactory.GENERIC_LOGBOOK_TYPE_OBISCODE));
+            this.deviceLogBook = MdcManager.getCollectedDataFactory().createCollectedLogBook(new LogBookIdentifierByObisCodeAndDevice(getDeviceIdentifier(), LogBookTypeFactory.GENERIC_LOGBOOK_TYPE_OBISCODE));
         }
         return this.deviceLogBook;
     }

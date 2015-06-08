@@ -50,7 +50,7 @@ public class OutboundTcpIpConnectionType extends OutboundIpConnectionType {
                 this.setProperty(property.getName(), property.getValue());
             }
         }
-        ServerComChannel comChannel = this.newTcpIpConnection(this.hostPropertyValue(), this.portNumberPropertyValue(), this.connectionTimeOutPropertyValue());
+        ServerLoggableComChannel comChannel = this.newTcpIpConnection(this.hostPropertyValue(), this.portNumberPropertyValue(), this.connectionTimeOutPropertyValue());
         comChannel.setComPort(comPort);
         comChannel.addProperties(createTypeProperty(ComChannelType.SocketComChannel));
         return comChannel;

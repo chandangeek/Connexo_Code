@@ -6,8 +6,8 @@ import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.InvokeIdAndPriorityHandler;
 import com.energyict.dlms.NonIncrementalInvokeIdAndPriorityHandler;
 import com.energyict.dlms.protocolimplv2.CommunicationSessionProperties;
-import com.energyict.mdc.protocol.AbstractComChannel;
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.ServerComChannel;
 import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -24,7 +24,7 @@ public class TCPIPConnection implements DlmsV2Connection {
 
     private static final long TIMEOUT = 300000;
     private static final int WRAPPER_VERSION = 0x0001;
-    private final ComChannel comChannel;
+    private final ServerComChannel comChannel;
 
     private boolean boolTCPIPConnected;
 
@@ -45,7 +45,7 @@ public class TCPIPConnection implements DlmsV2Connection {
     private InvokeIdAndPriorityHandler invokeIdAndPriorityHandler;
 
     public TCPIPConnection(ComChannel comChannel, CommunicationSessionProperties properties) {
-        this.comChannel = comChannel;
+        this.comChannel = (ServerComChannel) comChannel;
         this.maxRetries = properties.getRetries();
         this.timeout = properties.getTimeout();
         this.clientAddress = properties.getClientMacAddress();
@@ -514,8 +514,6 @@ public class TCPIPConnection implements DlmsV2Connection {
     @Override
     public void prepareComChannelForReceiveOfNextPacket() {
         comChannel.startWriting();
-        if (comChannel instanceof AbstractComChannel) {
-            ((AbstractComChannel) comChannel).getComChannelSessionCounters((AbstractComChannel) comChannel).writing();
-        }
+        comChannel.sessionCountersStartWriting();
     }
 }

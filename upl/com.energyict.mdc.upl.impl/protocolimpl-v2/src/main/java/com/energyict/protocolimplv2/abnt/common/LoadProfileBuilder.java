@@ -2,7 +2,6 @@ package com.energyict.protocolimplv2.abnt.common;
 
 import com.energyict.mdc.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.meterdata.DeviceLoadProfileConfiguration;
 import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdc.protocol.tasks.support.DeviceLoadProfileSupport;
 import com.energyict.obis.ObisCode;
@@ -69,7 +68,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
     public List<CollectedLoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfilesToRead) {
         List<CollectedLoadProfileConfiguration> loadProfileConfigurations = new ArrayList<>(loadProfilesToRead.size());
         for (LoadProfileReader reader : loadProfilesToRead) {
-            DeviceLoadProfileConfiguration config = (DeviceLoadProfileConfiguration) MdcManager.getCollectedDataFactory().createCollectedLoadProfileConfiguration(reader.getProfileObisCode(), reader.getMeterSerialNumber());
+            CollectedLoadProfileConfiguration config = MdcManager.getCollectedDataFactory().createCollectedLoadProfileConfiguration(reader.getProfileObisCode(), reader.getMeterSerialNumber());
             if (reader.getProfileObisCode().equals(LOAD_PROFILE_OBIS)) {
                 fetchLoadProfileConfiguration(reader, config);
             } else {
@@ -80,7 +79,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
         return loadProfileConfigurations;
     }
 
-    private void fetchLoadProfileConfiguration(LoadProfileReader reader, DeviceLoadProfileConfiguration loadProfileConfig) {
+    private void fetchLoadProfileConfiguration(LoadProfileReader reader, CollectedLoadProfileConfiguration loadProfileConfig) {
         try {
             int numberOfLoadProfileChannelGroups = (int) ((BcdEncodedField) getRequestFactory().getDefaultParameters().getField(ReadParameterFields.numberOfLoadProfileChannelGroups)).getValue();
             loadProfileConfig.setProfileInterval((int) (((BcdEncodedField) getRequestFactory().getDefaultParameters().getField(ReadParameterFields.loadProfileInterval)).getValue() * SECONDS_PER_MINUTE));

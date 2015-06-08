@@ -17,7 +17,10 @@ import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.DeviceProtocol;
 import com.energyict.mdc.protocol.DeviceProtocolCache;
 import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
-import com.energyict.mdc.protocol.security.*;
+import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.protocol.security.DeviceProtocolSecurityCapabilities;
+import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
+import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.mdc.tasks.TcpDeviceProtocolDialect;
@@ -39,6 +42,7 @@ import com.energyict.protocolimplv2.eict.rtuplusserver.g3.registers.G3GatewayReg
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
+import com.energyict.protocolimplv2.security.DeviceProtocolSecurityPropertySetImpl;
 import com.energyict.protocolimplv2.security.DsmrSecuritySupport;
 
 import java.io.IOException;
@@ -53,18 +57,17 @@ import java.util.*;
 public class RtuPlusServer implements DeviceProtocol {
 
     private static final ObisCode SERIAL_NUMBER_OBISCODE = ObisCode.fromString("0.0.96.1.0.255");
+    private static final ObisCode FRAMECOUNTER_OBISCODE = ObisCode.fromString("0.0.43.1.1.255");
     protected G3GatewayProperties dlmsProperties;
     protected G3GatewayConfigurationSupport configurationSupport;
     protected OfflineDevice offlineDevice;
     protected DlmsSession dlmsSession;
     protected DeviceProtocolSecurityCapabilities dlmsSecuritySupport;
+    protected RtuPlusServerMessages rtuPlusServerMessages;
+    protected ComChannel comChannel = null;
     private G3GatewayRegisters g3GatewayRegisters;
     private G3GatewayEvents g3GatewayEvents;
-    protected RtuPlusServerMessages rtuPlusServerMessages;
     private DLMSCache dlmsCache = null;
-    protected ComChannel comChannel = null;
-
-    private static final ObisCode FRAMECOUNTER_OBISCODE = ObisCode.fromString("0.0.43.1.1.255");
 
     @Override
     public String getProtocolDescription() {
@@ -364,13 +367,13 @@ public class RtuPlusServer implements DeviceProtocol {
     }
 
     @Override
-    public void setDeviceCache(DeviceProtocolCache deviceProtocolCache) {
-        this.dlmsCache = (DLMSCache) deviceProtocolCache;
+    public DeviceProtocolCache getDeviceCache() {
+        return dlmsCache;
     }
 
     @Override
-    public DeviceProtocolCache getDeviceCache() {
-        return dlmsCache;
+    public void setDeviceCache(DeviceProtocolCache deviceProtocolCache) {
+        this.dlmsCache = (DLMSCache) deviceProtocolCache;
     }
 
     private void checkCacheObjects() {

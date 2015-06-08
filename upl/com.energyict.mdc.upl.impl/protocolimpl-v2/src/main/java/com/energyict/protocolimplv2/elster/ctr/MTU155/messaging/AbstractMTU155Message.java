@@ -4,7 +4,6 @@ import com.energyict.mdc.messages.DeviceMessageStatus;
 import com.energyict.mdc.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.meterdata.CollectedMessage;
 import com.energyict.mdc.meterdata.ResultType;
-import com.energyict.mdc.meterdata.identifiers.DeviceMessageIdentifierById;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.mdw.offline.OfflineDeviceMessageAttribute;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -14,6 +13,7 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.RequestFactory;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.SmsRequestFactory;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.WriteDataBlock;
+import com.energyict.protocolimplv2.identifiers.DeviceMessageIdentifierById;
 
 import java.util.Iterator;
 import java.util.List;
@@ -61,13 +61,13 @@ public abstract class AbstractMTU155Message {
     private final RequestFactory factory;
     private final Logger logger;
 
-    public abstract boolean canExecuteThisMessage(OfflineDeviceMessage message);
-
     public AbstractMTU155Message(Messaging messaging) {
         this.protocol = messaging.getProtocol();
-        this. factory = messaging.getProtocol().getRequestFactory();
+        this.factory = messaging.getProtocol().getRequestFactory();
         this.logger = messaging.getProtocol().getLogger();
     }
+
+    public abstract boolean canExecuteThisMessage(OfflineDeviceMessage message);
 
     public CollectedMessage createCollectedMessage(OfflineDeviceMessage message) {
         return MdcManager.getCollectedDataFactory().createCollectedMessage(new DeviceMessageIdentifierById(message.getDeviceMessageId()));
@@ -89,7 +89,7 @@ public abstract class AbstractMTU155Message {
             setSuccessfulDeviceMessageStatus(collectedMessage, getListOfSMSWriteDataBlocks());
         } catch (CTRException e) {
             collectedMessage.setDeviceProtocolInformation(e.getMessage());
-             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
+            collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
             collectedMessage.setFailureInformation(ResultType.Other,
                     MdcManager.getIssueCollector().addWarning(message, "DeviceMessage.failed",   //Device message ({0}, {1} - {2})) failed: {3}
                             message.getDeviceMessageId(),
@@ -103,9 +103,10 @@ public abstract class AbstractMTU155Message {
 
     /**
      * Method in which the pending message will be executed
+     *
      * @param message the OfflineDeviceMessage
-     * @return  null, in case no custom CollectedMessage object is needed
-     *          a custom CollectedMessage object, containing additional collected data (e.g. containing LoadProfile data)
+     * @return null, in case no custom CollectedMessage object is needed
+     * a custom CollectedMessage object, containing additional collected data (e.g. containing LoadProfile data)
      * @throws CTRException
      */
     protected abstract CollectedMessage doExecuteMessage(OfflineDeviceMessage message) throws CTRException;

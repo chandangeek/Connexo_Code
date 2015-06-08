@@ -15,9 +15,7 @@ import com.energyict.mdc.meterdata.CollectedMessage;
 import com.energyict.mdc.meterdata.CollectedMessageList;
 import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.meterdata.ResultType;
-import com.energyict.mdc.meterdata.identifiers.DeviceMessageIdentifierById;
 import com.energyict.mdc.protocol.LegacyProtocolProperties;
-import com.energyict.mdc.protocol.inbound.DeviceIdentifierById;
 import com.energyict.mdc.protocol.tasks.support.DeviceMessageSupport;
 import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.Group;
@@ -30,6 +28,8 @@ import com.energyict.protocolimpl.dlms.idis.xml.XMLParser;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.properties.G3GatewayProperties;
+import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
+import com.energyict.protocolimplv2.identifiers.DeviceMessageIdentifierById;
 import com.energyict.protocolimplv2.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
 import com.energyict.protocolimplv2.messages.*;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
@@ -50,11 +50,11 @@ import java.util.logging.Level;
  */
 public class RtuPlusServerMessages implements DeviceMessageSupport {
 
+    private static final ObisCode DEVICE_NAME_OBISCODE = ObisCode.fromString("0.0.128.0.9.255");
+    private static final int MAX_REGISTER_TEXT_SIZE = 3800;  //The register text field is 4000 chars maximum
     protected final DlmsSession session;
     private final OfflineDevice offlineDevice;
     private List<DeviceMessageSpec> supportedMessages = null;
-    private static final ObisCode DEVICE_NAME_OBISCODE = ObisCode.fromString("0.0.128.0.9.255");
-    private static final int MAX_REGISTER_TEXT_SIZE = 3800;  //The register text field is 4000 chars maximum
 
     public RtuPlusServerMessages(DlmsSession session, OfflineDevice offlineDevice) {
         this.session = session;
@@ -644,25 +644,6 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
         this.session.getCosemObjectFactory().getUplinkPingConfiguration().enableUplinkPing(enable);
     }
 
-    public class PathRequestFeedback {
-
-        private final String feedback;
-        private final List<CollectedRegister> registers;
-
-        public PathRequestFeedback(String feedback, List<CollectedRegister> registers) {
-            this.feedback = feedback;
-            this.registers = registers;
-        }
-
-        public String getFeedback() {
-            return feedback;
-        }
-
-        public List<CollectedRegister> getRegisters() {
-            return registers;
-        }
-    }
-
     private PathRequestFeedback pathRequest(OfflineDeviceMessage pendingMessage) throws IOException {
         String macAddressesString = pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue();
         final G3NetworkManagement topologyManagement = this.session.getCosemObjectFactory().getG3NetworkManagement();
@@ -801,15 +782,15 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
         }
     }
 
-    //private String getProtocolInfo(int success, int total, int numberPingFailed, int numberPathFailed) {
-    //    return "Successful for " + success + "/" + total + " device(s), ping failed for " + numberPingFailed + " device(s), path request failed for " + numberPathFailed + " device(s).";
-    //}
-
     private void setMinBe(OfflineDeviceMessage pendingMessage) throws IOException {
         final CosemObjectFactory cof = this.session.getCosemObjectFactory();
         cof.getPLCOFDMType2MACSetup().writeMinBE(getSingleIntegerAttribute(pendingMessage));
 
     }
+
+    //private String getProtocolInfo(int success, int total, int numberPingFailed, int numberPathFailed) {
+    //    return "Successful for " + success + "/" + total + " device(s), ping failed for " + numberPingFailed + " device(s), path request failed for " + numberPathFailed + " device(s).";
+    //}
 
     private void setMaxCSMABackOff(OfflineDeviceMessage pendingMessage) throws IOException {
         final CosemObjectFactory cof = this.session.getCosemObjectFactory();
@@ -1055,6 +1036,25 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
             return ((Password) messageAttribute).getValue();
         } else {
             return messageAttribute.toString();     //Works for BigDecimal, boolean and (hex)string propertyspecs
+        }
+    }
+
+    public class PathRequestFeedback {
+
+        private final String feedback;
+        private final List<CollectedRegister> registers;
+
+        public PathRequestFeedback(String feedback, List<CollectedRegister> registers) {
+            this.feedback = feedback;
+            this.registers = registers;
+        }
+
+        public String getFeedback() {
+            return feedback;
+        }
+
+        public List<CollectedRegister> getRegisters() {
+            return registers;
         }
     }
 }

@@ -7,7 +7,7 @@ import com.energyict.mdc.channels.ComChannelType;
 import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.ConnectionException;
-import com.energyict.mdc.protocol.ServerComChannel;
+import com.energyict.mdc.protocol.ServerLoggableComChannel;
 import com.energyict.mdc.tasks.ConnectionTaskProperty;
 import com.energyict.protocolimplv2.MdcManager;
 
@@ -56,7 +56,7 @@ public class TcpIpPostDialConnectionType extends OutboundTcpIpConnectionType {
             }
         }
         try {
-            ServerComChannel comChannel = this.newTcpIpConnection(this.hostPropertyValue(), this.portNumberPropertyValue(), this.connectionTimeOutPropertyValue());
+            ServerLoggableComChannel comChannel = this.newTcpIpConnection(this.hostPropertyValue(), this.portNumberPropertyValue(), this.connectionTimeOutPropertyValue());
             comChannel.addProperties(createTypeProperty(ComChannelType.SocketComChannel));
             comChannel.setComPort(comPort);
             sendPostDialCommand(comChannel);
@@ -66,7 +66,7 @@ public class TcpIpPostDialConnectionType extends OutboundTcpIpConnectionType {
         }
     }
 
-    protected void sendPostDialCommand(ServerComChannel comChannel) throws InvalidValueException {
+    protected void sendPostDialCommand(ServerLoggableComChannel comChannel) throws InvalidValueException {
         if (getPostDialCommandPropertyValue() != null) {
             for (int i = 0; i < getPostDialTriesPropertyValue(); i++) {
                 delayBeforeSend(getPostDialDelayPropertyValue());

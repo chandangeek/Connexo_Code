@@ -9,19 +9,12 @@ import com.energyict.mdc.channels.sms.InboundProximusSmsConnectionType;
 import com.energyict.mdc.channels.sms.OutboundProximusSmsConnectionType;
 import com.energyict.mdc.channels.sms.ProximusSmsComChannel;
 import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.meterdata.CollectedLogBook;
-import com.energyict.mdc.meterdata.CollectedMessageList;
-import com.energyict.mdc.meterdata.CollectedRegister;
-import com.energyict.mdc.meterdata.CollectedTopology;
-import com.energyict.mdc.meterdata.ResultType;
+import com.energyict.mdc.meterdata.*;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.DeviceProtocol;
 import com.energyict.mdc.protocol.DeviceProtocolCache;
 import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
-import com.energyict.mdc.protocol.inbound.DeviceIdentifierById;
 import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
@@ -41,13 +34,10 @@ import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.events.CTRMeterEvent;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.messaging.Messaging;
+import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.security.Mtu155SecuritySupport;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Logger;
 
 /**
@@ -148,15 +138,6 @@ public class MTU155 implements DeviceProtocol {
     }
 
     @Override
-    public void setDeviceCache(DeviceProtocolCache deviceProtocolCache) {
-        if (deviceProtocolCache == null) {
-            this.deviceCache = new CTRDeviceProtocolCache();
-        } else {
-            this.deviceCache = deviceProtocolCache;
-        }
-    }
-
-    @Override
     public DeviceProtocolCache getDeviceCache() {
         if (requestFactory instanceof SmsRequestFactory) {
             ((CTRDeviceProtocolCache) this.deviceCache).setSmsWriteDataBlockID((requestFactory).getWriteDataBlockID());
@@ -165,11 +146,11 @@ public class MTU155 implements DeviceProtocol {
     }
 
     @Override
-    public void setTime(Date timeToSet) {
-        try {
-            getRequestFactory().getMeterInfo().setTime(timeToSet);
-        } catch (CTRException e) {
-            throw MdcManager.getComServerExceptionFactory().createUnexpectedResponse(e);
+    public void setDeviceCache(DeviceProtocolCache deviceProtocolCache) {
+        if (deviceProtocolCache == null) {
+            this.deviceCache = new CTRDeviceProtocolCache();
+        } else {
+            this.deviceCache = deviceProtocolCache;
         }
     }
 
@@ -188,6 +169,15 @@ public class MTU155 implements DeviceProtocol {
     public Date getTime() {
         try {
             return getRequestFactory().getMeterInfo().getTime();
+        } catch (CTRException e) {
+            throw MdcManager.getComServerExceptionFactory().createUnexpectedResponse(e);
+        }
+    }
+
+    @Override
+    public void setTime(Date timeToSet) {
+        try {
+            getRequestFactory().getMeterInfo().setTime(timeToSet);
         } catch (CTRException e) {
             throw MdcManager.getComServerExceptionFactory().createUnexpectedResponse(e);
         }

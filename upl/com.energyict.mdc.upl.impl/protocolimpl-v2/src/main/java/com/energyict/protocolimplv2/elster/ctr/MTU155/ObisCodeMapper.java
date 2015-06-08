@@ -3,30 +3,20 @@ package com.energyict.protocolimplv2.elster.ctr.MTU155;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.mdc.meterdata.CollectedRegister;
-import com.energyict.mdc.meterdata.DefaultDeviceRegister;
 import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
-import com.energyict.protocolimplv2.elster.ctr.MTU155.info.DeviceStatus;
-import com.energyict.protocolimplv2.elster.ctr.MTU155.info.Diagnostics;
-import com.energyict.protocolimplv2.elster.ctr.MTU155.info.EquipmentClassInfo;
-import com.energyict.protocolimplv2.elster.ctr.MTU155.info.SealStatusBit;
-import com.energyict.protocolimplv2.elster.ctr.MTU155.info.VolumeCalculationMethod;
-import com.energyict.protocolimplv2.elster.ctr.MTU155.info.ZCalculationMethod;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.info.*;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.AbstractCTRObject;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.field.CTRAbstractValue;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.field.CTRObjectID;
 import com.energyict.protocolimplv2.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Logger;
 
 /**
@@ -35,14 +25,6 @@ import java.util.logging.Logger;
  * Time: 10:20:17
  */
 public abstract class ObisCodeMapper {
-
-    protected Logger logger;
-    protected DeviceIdentifier deviceIdentifier;
-
-    protected RequestFactory requestFactory;
-    protected boolean isEK155Protocol;
-
-    protected List<CTRRegisterMapping> registerMapping = new ArrayList<>();
 
     public static final String OBIS_DEVICE_STATUS = "0.0.96.10.1.255";
     public static final String OBIS_SEAL_STATUS = "0.0.96.10.2.255";
@@ -63,6 +45,11 @@ public abstract class ObisCodeMapper {
     public static final String OBIS_IDENTIFIER_TARIFF_SCHEME = "0.0.13.0.0.255";
     public static final String OBIS_VOLUNTARY_PARAMETERS_PROFILE_0 = "0.1.25.9.0.255";
     public static final String OBIS_GASDAY_START_TIME = "7.0.0.9.3.255";
+    protected Logger logger;
+    protected DeviceIdentifier deviceIdentifier;
+    protected RequestFactory requestFactory;
+    protected boolean isEK155Protocol;
+    protected List<CTRRegisterMapping> registerMapping = new ArrayList<>();
 
     /**
      * Maps the obiscodes to a CTR Object's ID
@@ -340,8 +327,7 @@ public abstract class ObisCodeMapper {
     }
 
     protected CollectedRegister createDeviceRegister(ObisCode obisCode) {
-        CollectedRegister deviceRegister = new DefaultDeviceRegister(new RegisterDataIdentifierByObisCodeAndDevice(obisCode, getDeviceIdentifier()));
-        return deviceRegister;
+        return MdcManager.getCollectedDataFactory().createDefaultCollectedRegister(new RegisterDataIdentifierByObisCodeAndDevice(obisCode, getDeviceIdentifier()));
     }
 
     protected CollectedRegister createCollectedRegister(RegisterValue registerValue) {
@@ -401,7 +387,7 @@ public abstract class ObisCodeMapper {
      * Test is the MTU155 firmware version is below 0200.
      *
      * @return true if the version is below 0200
-     *         false if the version is equal or higher than 0200
+     * false if the version is equal or higher than 0200
      */
     protected Boolean firmwareBelow200() {
         AbstractCTRObject vf = getRequestFactory().getIdentificationStructure().getVf();
@@ -431,6 +417,15 @@ public abstract class ObisCodeMapper {
         GENERIC,
         UNKNOWN;
 
+        public static BillingPeriodClosureReason valueFromOrdinal(int ordinal) {
+            for (BillingPeriodClosureReason indicator : values()) {
+                if (indicator.ordinal() == ordinal) {
+                    return indicator;
+                }
+            }
+            return UNKNOWN;
+        }
+
         public String getReason() {
             switch (this) {
                 case DOES_NOT_EXIST:
@@ -452,15 +447,6 @@ public abstract class ObisCodeMapper {
                 default:
                     return "Unknown";
             }
-        }
-
-        public static BillingPeriodClosureReason valueFromOrdinal(int ordinal) {
-            for (BillingPeriodClosureReason indicator : values()) {
-                if (indicator.ordinal() == ordinal) {
-                    return indicator;
-                }
-            }
-            return UNKNOWN;
         }
     }
 }

@@ -15,7 +15,6 @@ import com.energyict.dlms.cosem.attributes.*;
 import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdc.meterdata.identifiers.RegisterIdentifier;
-import com.energyict.mdc.meterdata.identifiers.RegisterIdentifierById;
 import com.energyict.mdc.protocol.tasks.support.DeviceRegisterSupport;
 import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.obis.ObisCode;
@@ -26,6 +25,7 @@ import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.common.EncryptionStatus;
 import com.energyict.protocolimplv2.common.composedobjects.ComposedRegister;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
+import com.energyict.protocolimplv2.identifiers.RegisterIdentifierById;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 
 import java.io.IOException;
@@ -40,8 +40,6 @@ import java.util.logging.Level;
  */
 public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
 
-    private static final String[] possibleConnectStates = {"Disconnected", "Connected", "Ready for Reconnection"};
-
     public static final ObisCode ACTIVITY_CALENDAR = ObisCode.fromString("0.0.13.0.0.255");
     public static final ObisCode ACTIVITY_CALENDAR_NAME = ObisCode.fromString("0.0.13.0.0.2");
     public static final ObisCode CORE_FIRMWARE = ObisCode.fromString("1.0.0.2.0.255");
@@ -55,16 +53,15 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
     public static final ObisCode ISKRA_MBUS_ENCRYPTION_STATUS = ObisCode.fromString("0.0.97.98.1.255");
     public static final ObisCode GSM_SIGNAL_STRENGTH = ObisCode.fromString("0.0.96.12.5.255");
     public static final ObisCode MbusClientObisCode = ObisCode.fromString("0.x.24.1.0.255");
-
     // Mbus Registers
     public static final ObisCode MbusEncryptionStatus = ObisCode.fromString("0.x.24.50.0.255");
     public static final ObisCode MbusDisconnectMode = ObisCode.fromString("0.x.24.4.128.255");
     public static final ObisCode MbusDisconnectControlState = ObisCode.fromString("0.x.24.4.129.255");
     public static final ObisCode MbusDisconnectOutputState = ObisCode.fromString("0.x.24.4.130.255");
-
-    private Map<OfflineRegister, ComposedRegister> composedRegisterMap = new HashMap<>();
-    protected Map<OfflineRegister, DLMSAttribute> registerMap = new HashMap<>();
+    private static final String[] possibleConnectStates = {"Disconnected", "Connected", "Ready for Reconnection"};
     protected final AbstractDlmsProtocol protocol;
+    protected Map<OfflineRegister, DLMSAttribute> registerMap = new HashMap<>();
+    private Map<OfflineRegister, ComposedRegister> composedRegisterMap = new HashMap<>();
 
     public Dsmr23RegisterFactory(final AbstractDlmsProtocol protocol) {
         this.protocol = protocol;
@@ -335,11 +332,11 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
      *
      * @param octetString the OctetString to test
      * @return true if the OctetString contains only printable ASCII characters
-     *         false if the OctetString contains non-printable characters
+     * false if the OctetString contains non-printable characters
      */
     private boolean octetStringPrintableAsString(OctetString octetString) {
         for (byte b : octetString.getContentByteArray()) {
-            if(b < 31 || b > 127) {
+            if (b < 31 || b > 127) {
                 return false;
             }
         }

@@ -5,10 +5,10 @@ import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.meterdata.ResultType;
-import com.energyict.mdc.meterdata.identifiers.RegisterIdentifierById;
 import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.protocolimplv2.identifiers.RegisterIdentifierById;
 import test.com.energyict.protocolimplv2.coronis.waveflow.WaveFlow;
 import test.com.energyict.protocolimplv2.coronis.waveflow.core.parameter.OperatingMode;
 import test.com.energyict.protocolimplv2.coronis.waveflow.core.parameter.ProfileType;
@@ -18,36 +18,30 @@ import java.math.BigDecimal;
 
 public class CommonObisCodeMapper {
 
-    private static final int MULTIPLIER = 256;
     public static final ObisCode OBISCODE_APPLICATION_STATUS = ObisCode.fromString("0.0.96.5.2.255");
     public static final ObisCode OBISCODE_OPERATION_MODE = ObisCode.fromString("0.0.96.5.1.255");
-
     public static final ObisCode OBISCODE_REMAINING_BATTERY = ObisCode.fromString("0.0.96.6.0.255");
+    public static final ObisCode OBISCODE_RELAYED_FRAMES = ObisCode.fromString("0.1.96.0.52.255");
+    public static final ObisCode OBISCODE_RSSI_LEVEL = ObisCode.fromString("0.0.96.0.63.255");
+    private static final int MULTIPLIER = 256;
     private static final ObisCode OBISCODE_PROFILE_TYPE = ObisCode.fromString("0.0.96.0.50.255");     //Waveflow specific register, E >= 50
     private static final ObisCode OBISCODE_PULSEWEIGHT_A = ObisCode.fromString("0.1.96.0.51.255");
     private static final ObisCode OBISCODE_PULSEWEIGHT_B = ObisCode.fromString("0.2.96.0.51.255");
     private static final ObisCode OBISCODE_PULSEWEIGHT_C = ObisCode.fromString("0.3.96.0.51.255");
     private static final ObisCode OBISCODE_PULSEWEIGHT_D = ObisCode.fromString("0.4.96.0.51.255");
     private static final ObisCode OBISCODE_FIRMWARE = ObisCode.fromString("1.0.0.2.0.255");
-
     private static final ObisCode OBISCODE_SENT_FRAMES = ObisCode.fromString("0.0.96.0.52.255");
-    public static final ObisCode OBISCODE_RELAYED_FRAMES = ObisCode.fromString("0.1.96.0.52.255");
     private static final ObisCode OBISCODE_RECEIVED_FRAMES = ObisCode.fromString("0.0.96.0.53.255");
     private static final ObisCode OBISCODE_ELAPSED_DAYS = ObisCode.fromString("0.0.96.0.54.255");
-
     private static final ObisCode OBISCODE_PROFILEDATA_INTERVAL = ObisCode.fromString("8.0.0.8.1.255");
     private static final ObisCode OBISCODE_LOGGING_MODE = ObisCode.fromString("0.0.96.0.55.255");
     private static final ObisCode OBISCODE_DATALOGGING_STARTHOUR = ObisCode.fromString("0.0.96.0.56.255");
     private static final ObisCode OBISCODE_DATALOGGING_STARTMINUTE = ObisCode.fromString("0.0.96.0.57.255");
     private static final ObisCode OBISCODE_DATALOGGING_DAYOFWEEK = ObisCode.fromString("0.0.96.0.58.255");
-
     private static final ObisCode OBISCODE_TIME_DURATION_RX = ObisCode.fromString("0.0.96.0.59.255");
     private static final ObisCode OBISCODE_TIME_DURATION_TX = ObisCode.fromString("0.0.96.0.60.255");
     private static final ObisCode OBISCODE_NUMBER_OF_FRAME_RX = ObisCode.fromString("0.0.96.0.61.255");
     private static final ObisCode OBISCODE_NUMBER_OF_FRAME_TX = ObisCode.fromString("0.0.96.0.62.255");
-
-    public static final ObisCode OBISCODE_RSSI_LEVEL = ObisCode.fromString("0.0.96.0.63.255");
-
     private static final ObisCode OBISCODE_RESIDUAL_LEAKAGE_THRESHOLD1 = ObisCode.fromString("8.1.96.50.0.255");
     private static final ObisCode OBISCODE_RESIDUAL_LEAKAGE_THRESHOLD2 = ObisCode.fromString("8.2.96.50.0.255");
     private static final ObisCode OBISCODE_RESIDUAL_LEAKAGE_THRESHOLD3 = ObisCode.fromString("8.3.96.50.0.255");

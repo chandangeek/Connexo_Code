@@ -4,14 +4,14 @@ import com.energyict.cbo.LittleEndianInputStream;
 import com.energyict.cbo.LittleEndianOutputStream;
 import com.energyict.mdc.channels.inbound.EIWebConnectionType;
 import com.energyict.mdc.meterdata.CollectedData;
-import com.energyict.mdc.meterdata.DeviceIpAddress;
 import com.energyict.mdc.protocol.exceptions.CommunicationException;
 import com.energyict.mdc.protocol.exceptions.DataEncryptionException;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
-import com.energyict.mdc.protocol.inbound.DeviceIdentifierById;
-import com.energyict.mdc.protocol.inbound.SerialNumberDeviceIdentifier;
 import com.energyict.mdc.protocol.inbound.crypto.Cryptographer;
 import com.energyict.mdc.protocol.inbound.crypto.MD5Seed;
+import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
+import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -196,7 +196,7 @@ public class PacketBuilder {
         this.parseNumberOfChannelsFromMask();
         contentLength = EIWEB_BULK_HEADER_LENGTH + nrOfChannels * 2 + 4 + 1;
         if (this.ipAddress != null) {
-            this.collectedData.add(new DeviceIpAddress(this.deviceIdentifier, this.ipAddress, EIWebConnectionType.IP_ADDRESS_PROPERTY_NAME));
+            this.collectedData.add(MdcManager.getCollectedDataFactory().createDeviceIpAddress(this.deviceIdentifier, this.ipAddress, EIWebConnectionType.IP_ADDRESS_PROPERTY_NAME));
         }
         this.createData(utc, code, statebits, this.parseValues(this.getDecryptedData(value)));
     }
@@ -215,7 +215,7 @@ public class PacketBuilder {
 
     private void parseDeviceIdentifier(int id, String serialNumber) {
         if (id == 0 && serialNumber != null) {
-            this.deviceIdentifier = new SerialNumberDeviceIdentifier(serialNumber);
+            this.deviceIdentifier = new DeviceIdentifierBySerialNumber(serialNumber);
         } else {
             this.deviceIdentifier = new DeviceIdentifierById(id);
         }
@@ -375,7 +375,7 @@ public class PacketBuilder {
         this.parseNumberOfChannelsFromMask();
         contentLength = in.readLEInt();
 
-        this.collectedData.add(new DeviceIpAddress(this.deviceIdentifier, this.ipAddress, EIWebConnectionType.IP_ADDRESS_PROPERTY_NAME));
+        this.collectedData.add(MdcManager.getCollectedDataFactory().createDeviceIpAddress(this.deviceIdentifier, this.ipAddress, EIWebConnectionType.IP_ADDRESS_PROPERTY_NAME));
 
         // retrieve data
         data = this.getDecryptedData(in);

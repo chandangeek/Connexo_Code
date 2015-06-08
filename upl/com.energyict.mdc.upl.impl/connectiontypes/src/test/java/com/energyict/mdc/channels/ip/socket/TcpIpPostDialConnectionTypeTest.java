@@ -4,7 +4,7 @@ package com.energyict.mdc.channels.ip.socket;
 import com.energyict.cbo.InvalidValueException;
 import com.energyict.cbo.TimeConstants;
 import com.energyict.cpo.TypedProperties;
-import com.energyict.mdc.protocol.ServerComChannel;
+import com.energyict.mdc.protocol.ServerLoggableComChannel;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -29,7 +29,7 @@ public class TcpIpPostDialConnectionTypeTest {
     private final BigDecimal POST_DIAL_DELAY = new BigDecimal(500);
 
     @Mock
-    private ServerComChannel comChannel;
+    private ServerLoggableComChannel comChannel;
 
     @Test (expected = InvalidValueException.class)
     public void invalidPostDialTriesTest() throws Exception {

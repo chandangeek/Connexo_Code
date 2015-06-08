@@ -2,15 +2,7 @@ package com.energyict.protocolimplv2.elster.ctr.MTU155.discover;
 
 import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.messages.DeviceMessageStatus;
-import com.energyict.mdc.meterdata.CollectedData;
-import com.energyict.mdc.meterdata.CollectedLogBook;
-import com.energyict.mdc.meterdata.CollectedMessageAcknowledgement;
-import com.energyict.mdc.meterdata.CollectedRegister;
-import com.energyict.mdc.meterdata.DeviceLoadProfile;
-import com.energyict.mdc.meterdata.DeviceLogBook;
-import com.energyict.mdc.meterdata.DeviceProtocolMessageAcknowledgement;
-import com.energyict.mdc.meterdata.identifiers.DeviceMessageIdentifierByDeviceAndProtocolInfoParts;
-import com.energyict.mdc.meterdata.identifiers.LogBookIdentifierByDeviceAndObisCode;
+import com.energyict.mdc.meterdata.*;
 import com.energyict.mdc.meterdata.identifiers.MessageIdentifier;
 import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
@@ -20,6 +12,7 @@ import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MeterProtocolEvent;
 import com.energyict.protocol.ProfileData;
+import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.LoadProfileBuilder;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.MTU155Properties;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.SmsObisCodeMapper;
@@ -28,17 +21,12 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.frame.SMSFrame;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.frame.field.Data;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.frame.field.Function;
-import com.energyict.protocolimplv2.elster.ctr.MTU155.messaging.CTRDeviceProtocolMessageAcknowledgement;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.AbstractCTRObject;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.profile.ProfileChannelForSms;
-import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.AbstractTableQueryResponseStructure;
-import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.AckStructure;
-import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.ArrayEventsQueryResponseStructure;
-import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.NackStructure;
-import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.TableDECFQueryResponseStructure;
-import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.TableDECQueryResponseStructure;
-import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.Trace_CQueryResponseStructure;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.*;
+import com.energyict.protocolimplv2.identifiers.DeviceMessageIdentifierByDeviceAndProtocolInfoParts;
 import com.energyict.protocolimplv2.identifiers.LoadProfileIdentifierByObisCodeAndDevice;
+import com.energyict.protocolimplv2.identifiers.LogBookIdentifierByObisCodeAndDevice;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -84,7 +72,7 @@ public class SmsHandler {
     /**
      * Parse the (unencrypted) sms frame and extract all data (registers/loadprofile/logbook/message ack/nack) out of it.
      *
-     * @param smsFrame  the unencrypted {@link SMSFrame}, containing the data
+     * @param smsFrame the unencrypted {@link SMSFrame}, containing the data
      */
     public void parseSMSFrame(SMSFrame smsFrame) throws CTRException {
         smsFrame.doParse();
@@ -125,8 +113,8 @@ public class SmsHandler {
         CTRMeterEvent ctrMeterEvent = new CTRMeterEvent(getTimeZone());
         List<MeterProtocolEvent> meterProtocolEvents = MeterEvent.mapMeterEventsToMeterProtocolEvents(
                 ctrMeterEvent.convertToMeterEvents(Arrays.asList(data.getEvento_Short())));
-        CollectedLogBook collectedLogBook = new DeviceLogBook(
-                new LogBookIdentifierByDeviceAndObisCode(getDeviceIdentifier(), LogBookTypeFactory.GENERIC_LOGBOOK_TYPE_OBISCODE));
+        CollectedLogBook collectedLogBook = MdcManager.getCollectedDataFactory().createCollectedLogBook(
+                new LogBookIdentifierByObisCodeAndDevice(getDeviceIdentifier(), LogBookTypeFactory.GENERIC_LOGBOOK_TYPE_OBISCODE));
         collectedLogBook.setCollectedMeterEvents(meterProtocolEvents);
         this.collectedDataList.add(collectedLogBook);
     }
@@ -144,7 +132,7 @@ public class SmsHandler {
     }
 
     private CollectedData convertToCollectedData(Trace_CQueryResponseStructure data, ProfileData profileData) throws CTRException {
-        DeviceLoadProfile collectedProfile = new DeviceLoadProfile(new LoadProfileIdentifierByObisCodeAndDevice(getProfileObisCode(data), getDeviceIdentifier()));
+        CollectedLoadProfile collectedProfile = MdcManager.getCollectedDataFactory().createCollectedLoadProfile(new LoadProfileIdentifierByObisCodeAndDevice(getProfileObisCode(data), getDeviceIdentifier()));
         collectedProfile.setCollectedIntervalData(profileData.getIntervalDatas(), profileData.getChannelInfos());
         collectedProfile.setDoStoreOlderValues(true);
         return collectedProfile;
@@ -219,7 +207,7 @@ public class SmsHandler {
         }
 
         MessageIdentifier messageIdentifier = new DeviceMessageIdentifierByDeviceAndProtocolInfoParts(getDeviceIdentifier(), SMS_IDENTIFICATION_NUMBER, Integer.toString(wdb));
-        CollectedMessageAcknowledgement messageAcknowledgement = new CTRDeviceProtocolMessageAcknowledgement(messageIdentifier);
+        CollectedMessageAcknowledgement messageAcknowledgement = MdcManager.getCollectedDataFactory().createDeviceProtocolMessageAcknowledgementFromSms(messageIdentifier);
         messageAcknowledgement.setDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
         messageAcknowledgement.setProtocolInfo("Message confirmed as successful by SMS.");
 
@@ -261,9 +249,9 @@ public class SmsHandler {
         }
 
         MessageIdentifier messageIdentifier = new DeviceMessageIdentifierByDeviceAndProtocolInfoParts(getDeviceIdentifier(), SMS_IDENTIFICATION_NUMBER, Integer.toString(wdb));
-        CollectedMessageAcknowledgement messageAcknowledgement = new DeviceProtocolMessageAcknowledgement(messageIdentifier);
+        CollectedMessageAcknowledgement messageAcknowledgement = MdcManager.getCollectedDataFactory().createDeviceProtocolMessageAcknowledgement(messageIdentifier);
         messageAcknowledgement.setDeviceMessageStatus(DeviceMessageStatus.FAILED);
-        messageAcknowledgement.setProtocolInfo("Message confirmed as failed by SMS - failure reason: " +data.getReason().getDescription());
+        messageAcknowledgement.setProtocolInfo("Message confirmed as failed by SMS - failure reason: " + data.getReason().getDescription());
 
         this.collectedDataList.add(messageAcknowledgement);
     }
@@ -284,7 +272,7 @@ public class SmsHandler {
      * @return the meter's {@link java.util.TimeZone}
      */
     private TimeZone getTimeZone() {
-       return getMtu155Properties().getTimeZone();
+        return getMtu155Properties().getTimeZone();
     }
 
     private String getDeviceSerialNumber() {

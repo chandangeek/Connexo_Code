@@ -7,7 +7,6 @@ import com.energyict.mdc.messages.DeviceMessageStatus;
 import com.energyict.mdc.meterdata.CollectedMessage;
 import com.energyict.mdc.meterdata.CollectedMessageList;
 import com.energyict.mdc.meterdata.ResultType;
-import com.energyict.mdc.meterdata.identifiers.DeviceMessageIdentifierById;
 import com.energyict.mdc.protocol.tasks.support.DeviceMessageSupport;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.protocolimplv2.MdcManager;
@@ -21,6 +20,7 @@ import com.energyict.protocolimplv2.elster.garnet.structure.field.MeterSerialNum
 import com.energyict.protocolimplv2.elster.garnet.structure.field.NotExecutedError;
 import com.energyict.protocolimplv2.elster.garnet.structure.field.bitMaskField.ContactorStatus;
 import com.energyict.protocolimplv2.elster.garnet.structure.field.bitMaskField.MeterInstallationStatusBitMaskField;
+import com.energyict.protocolimplv2.identifiers.DeviceMessageIdentifierById;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
 
 import java.util.Collections;
@@ -76,7 +76,7 @@ public class ConcentratorMessaging implements DeviceMessageSupport {
         return getDeviceProtocol().getOfflineDevice().getId() != pendingMessage.getDeviceId();
     }
 
-    private CollectedMessage executeContactorOperation(OfflineDeviceMessage pendingMessage, boolean isReconnect)  {
+    private CollectedMessage executeContactorOperation(OfflineDeviceMessage pendingMessage, boolean isReconnect) {
         CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
         try {
             ContactorResponseStructure contactorResponseStructure = getDeviceProtocol().getRequestFactory().executeContactorOperation(pendingMessage.getDeviceSerialNumber(), isReconnect);
@@ -95,13 +95,13 @@ public class ConcentratorMessaging implements DeviceMessageSupport {
                 case METER_REPLACED:
                     collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                     collectedMessage.setDeviceProtocolInformation(errorCode.getDescription());
-                    message = "Failed to operate the contactor of slave " + pendingMessage.getDeviceSerialNumber()+ " - Probably the meter does not exists or has been replaced.";
+                    message = "Failed to operate the contactor of slave " + pendingMessage.getDeviceSerialNumber() + " - Probably the meter does not exists or has been replaced.";
                     collectedMessage.setFailureInformation(ResultType.ConfigurationMisMatch, createMessageFailedIssue(pendingMessage, message));
                     break;
                 case METER_IS_NOT_THE_MAIN:
                     collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                     collectedMessage.setDeviceProtocolInformation(errorCode.getDescription());
-                    message = "Failed to operate the contactor of slave " + pendingMessage.getDeviceSerialNumber()+ " - Contactor operations are only allowed on the main meter of a poly-phase configuration.";
+                    message = "Failed to operate the contactor of slave " + pendingMessage.getDeviceSerialNumber() + " - Contactor operations are only allowed on the main meter of a poly-phase configuration.";
                     collectedMessage.setFailureInformation(ResultType.DataIncomplete, createMessageFailedIssue(pendingMessage, message));
                     break;
                 case NON_TECHNICAL_LOSS:

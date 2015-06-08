@@ -1,13 +1,13 @@
 package com.energyict.protocolimplv2.ace4000;
 
-import com.energyict.comserver.adapters.common.InheritedAuthenticationDeviceAccessLevel;
-import com.energyict.comserver.adapters.common.InheritedEncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.protocolimplv2.dialects.NoParamsDeviceProtocolDialect;
+import com.energyict.protocolimplv2.security.InheritedAuthenticationDeviceAccessLevel;
+import com.energyict.protocolimplv2.security.InheritedEncryptionDeviceAccessLevel;
 
 import java.util.ArrayList;
 import java.util.Collections;

@@ -3,7 +3,6 @@ package com.energyict.protocolimplv2.elster.garnet.common;
 import com.energyict.mdc.meterdata.CollectedTopology;
 import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
-import com.energyict.mdc.protocol.inbound.SerialNumberDeviceIdentifier;
 import com.energyict.mdc.protocol.tasks.support.DeviceTopologySupport;
 import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.protocolimplv2.MdcManager;
@@ -15,6 +14,7 @@ import com.energyict.protocolimplv2.elster.garnet.exception.NotExecutedException
 import com.energyict.protocolimplv2.elster.garnet.structure.field.MeterSerialNumber;
 import com.energyict.protocolimplv2.elster.garnet.structure.field.NotExecutedError;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
+import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -62,7 +62,7 @@ public class TopologyMaintainer implements DeviceTopologySupport {
             List<MeterSerialNumber> serialsOfEMeterSlaves = getRequestFactory().discoverMeters().getMeterSerialNumberCollection();
             for (MeterSerialNumber serialOfSlave : serialsOfEMeterSlaves) {
                 if (!serialOfSlave.getSerialNumber().toLowerCase().equals(INVALID_METER_SERIAL)) {
-                    slaveMeters.add(new SerialNumberDeviceIdentifier(serialOfSlave.getSerialNumber()));
+                    slaveMeters.add(new DeviceIdentifierBySerialNumber(serialOfSlave.getSerialNumber()));
                 }
             }
         } catch (NotExecutedException e) {

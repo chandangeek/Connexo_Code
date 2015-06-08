@@ -27,7 +27,6 @@ import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.tasks.ConnectionTaskProperty;
-import com.energyict.mdc.tasks.ConnectionTaskPropertyImpl;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.protocol.ProtocolException;
@@ -55,13 +54,11 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
     private static final int METER_HAS_JOINED = 0xC2;
     private static final int METER_HAS_LEFT = 0xC3;
     private static final int METER_JOIN_ATTEMPT = 0xC5;
-
+    protected ComChannel tcpComChannel;
     private ComChannel comChannel;
     private InboundDiscoveryContext context;
     private CollectedLogBook collectedLogBook;
     private CollectedTopology collectedTopology;
-    protected ComChannel tcpComChannel;
-
     private EventPushNotificationParser parser;
 
     @Override
@@ -208,10 +205,7 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
     private List<ConnectionTaskProperty> toPropertySpecs(Date now, TypedProperties typedProperties) {
         List<ConnectionTaskProperty> properties = new ArrayList<>();
         for (String propertyName : typedProperties.propertyNames()) {
-            ConnectionTaskPropertyImpl property = new ConnectionTaskPropertyImpl(propertyName);
-            property.setValue(typedProperties.getProperty(propertyName));
-            property.setActivePeriod(new TimePeriod(now, null));
-            properties.add(property);
+            properties.add(new ConnectionTaskPropertyPlaceHolder(propertyName, typedProperties.getProperty(propertyName), new TimePeriod(now, null)));
         }
         return properties;
     }

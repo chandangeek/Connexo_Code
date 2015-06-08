@@ -1,7 +1,7 @@
 package com.energyict.protocolimplv2.identifiers;
 
 import com.energyict.cbo.NotFoundException;
-import com.energyict.comserver.collections.Collections;
+import com.energyict.util.Collections;
 import com.energyict.mdc.meterdata.identifiers.LogBookIdentifier;
 import com.energyict.mdc.meterdata.identifiers.LogBookIdentifierType;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;

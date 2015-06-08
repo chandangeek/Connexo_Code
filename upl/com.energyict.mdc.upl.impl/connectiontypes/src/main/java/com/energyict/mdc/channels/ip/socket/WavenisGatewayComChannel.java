@@ -13,7 +13,7 @@ import java.net.Socket;
  * Time: 9:45
  * Author: khe
  */
-public class WavenisGatewayComChannel extends SocketComChannel {
+public class WavenisGatewayComChannel extends SocketComChannel implements ServerWavenisGatewayComChannel {
 
     /**
      * Stack instance that represents the interface to the Wavecard of the MUC

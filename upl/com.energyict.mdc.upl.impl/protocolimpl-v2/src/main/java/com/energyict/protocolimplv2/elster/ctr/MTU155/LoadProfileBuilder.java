@@ -4,7 +4,6 @@ import com.energyict.cbo.Unit;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.meterdata.DeviceLoadProfileConfiguration;
 import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
@@ -40,28 +39,23 @@ public class LoadProfileBuilder {
     public static final String[] FLOW_MEASUREMENT_OBJECT_IDS = new String[]{"1.0.0", "1.2.0", "4.0.0", "7.0.0"};
     public static final String[] VOLUME_MEASUREMENT_OBJECT_IDS = new String[]{"1.1.0", "1.3.0", "1.F.0"};
     public static final String[] TOTALIZERS_OBJECT_IDS = new String[]{"2.0.0", "2.1.0", "2.3.0", "1.2.3"};
-
-    private MTU155 meterProtocol;
-
-    /**
-     * The list of LoadProfileReaders which are expected to be fetched
-     */
-    private List<LoadProfileReader> expectedLoadProfileReaders;
-
-    /**
-     * The list of <CODE>DeviceLoadProfileConfiguration</CODE> objects which are build from the information from the actual device, based on the {@link #expectedLoadProfileReaders}
-     */
-    private List<CollectedLoadProfileConfiguration> loadProfileConfigurationList;
-
-    /**
-     * Keeps track of the list of <CODE>ChannelInfo</CODE> objects for all the LoadProfiles
-     */
-    private Map<LoadProfileReader, List<ChannelInfo>> channelInfoMap = new HashMap<>();
-
     /**
      * The {@link StartOfGasDayParser} to use
      */
     protected StartOfGasDayParser startOfGasDayParser;
+    private MTU155 meterProtocol;
+    /**
+     * The list of LoadProfileReaders which are expected to be fetched
+     */
+    private List<LoadProfileReader> expectedLoadProfileReaders;
+    /**
+     * The list of <CODE>DeviceLoadProfileConfiguration</CODE> objects which are build from the information from the actual device, based on the {@link #expectedLoadProfileReaders}
+     */
+    private List<CollectedLoadProfileConfiguration> loadProfileConfigurationList;
+    /**
+     * Keeps track of the list of <CODE>ChannelInfo</CODE> objects for all the LoadProfiles
+     */
+    private Map<LoadProfileReader, List<ChannelInfo>> channelInfoMap = new HashMap<>();
 
     public LoadProfileBuilder(MTU155 meterProtocol) {
         this.meterProtocol = meterProtocol;
@@ -69,7 +63,6 @@ public class LoadProfileBuilder {
 
     /**
      * Get the configuration(interval, number of channels, channelUnits) of all given LoadProfiles for the {@link #meterProtocol}
-     *
      *
      * @param loadProfileReaders a list of definitions of expected loadProfiles to read
      * @return the list of <CODE>DeviceLoadProfileConfiguration</CODE> objects which are in the device
@@ -81,14 +74,14 @@ public class LoadProfileBuilder {
 
         for (LoadProfileReader lpr : expectedLoadProfileReaders) {
             this.meterProtocol.getLogger().log(Level.INFO, "Reading configuration from LoadProfile " + lpr);
-            DeviceLoadProfileConfiguration lpc = new DeviceLoadProfileConfiguration(lpr.getProfileObisCode(), meterProtocol.getOfflineDevice().getSerialNumber());
+            CollectedLoadProfileConfiguration lpc = MdcManager.getCollectedDataFactory().createCollectedLoadProfileConfiguration(lpr.getProfileObisCode(), meterProtocol.getOfflineDevice().getSerialNumber());
 
             try {
                 List<ChannelInfo> channelInfos = constructChannelInfos(lpr);
                 lpc.setChannelInfos(channelInfos);
                 lpc.setProfileInterval(getProfileInterval(lpr.getProfileObisCode()));
 
-                if (! channelInfoMap.containsKey(lpr)){
+                if (!channelInfoMap.containsKey(lpr)) {
                     channelInfoMap.put(lpr, channelInfos);
                 }
             } catch (IOException e) {
@@ -213,7 +206,7 @@ public class LoadProfileBuilder {
      * Merge two sets of IntervalData together.
      *
      * @param collectedIntervalData The set of IntervalData, who contains values of all channels
-     * @param channelIntervalData The set of IntervalData, only containing values for one channel
+     * @param channelIntervalData   The set of IntervalData, only containing values for one channel
      * @return the merged set of IntervalData
      */
     private List<IntervalData> mergeChannelIntervalData(List<IntervalData> collectedIntervalData, List<IntervalData> channelIntervalData) throws IOException {
@@ -234,7 +227,6 @@ public class LoadProfileBuilder {
 
     /**
      * Look for the <CODE>DeviceLoadProfileConfiguration</CODE> in the previously build up list
-     *
      *
      * @param loadProfileReader the reader linking to the <CODE>DeviceLoadProfileConfiguration</CODE>
      * @return requested configuration

@@ -6,14 +6,7 @@ import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.channels.serial.direct.rxtx.RxTxSerialConnectionType;
 import com.energyict.mdc.channels.serial.direct.serialio.SioSerialConnectionType;
 import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.meterdata.CollectedLogBook;
-import com.energyict.mdc.meterdata.CollectedMessageList;
-import com.energyict.mdc.meterdata.CollectedRegister;
-import com.energyict.mdc.meterdata.CollectedTopology;
-import com.energyict.mdc.meterdata.DeviceLoadProfileConfiguration;
-import com.energyict.mdc.meterdata.ResultType;
+import com.energyict.mdc.meterdata.*;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.DeviceProtocol;
 import com.energyict.mdc.protocol.DeviceProtocolCache;
@@ -124,19 +117,15 @@ public class GarnetConcentrator implements DeviceProtocol {
     }
 
     @Override
-    public void setTime(Date timeToSet) {
-        // Garnet protocol has no formal time set method - time is automatically synced each communication session
-    }
-
-    @Override
     public List<CollectedLoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfilesToRead) {
         List<CollectedLoadProfileConfiguration> collectedLoadProfileConfigurations = new ArrayList<>(loadProfilesToRead.size());
         for (LoadProfileReader loadProfileReader : loadProfilesToRead) {
-            DeviceLoadProfileConfiguration configuration = new DeviceLoadProfileConfiguration(
+
+            CollectedLoadProfileConfiguration configuration = MdcManager.getCollectedDataFactory().createCollectedLoadProfileConfiguration(
                     loadProfileReader.getProfileObisCode(),
-                    loadProfileReader.getMeterSerialNumber(),
-                    false
+                    loadProfileReader.getMeterSerialNumber()
             );
+            configuration.setSupportedByMeter(false);
             configuration.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addProblem(loadProfileReader.getProfileObisCode(), "loadProfileXnotsupported", loadProfileReader.getProfileObisCode()));
             collectedLoadProfileConfigurations.add(configuration);
         }
@@ -154,13 +143,18 @@ public class GarnetConcentrator implements DeviceProtocol {
     }
 
     @Override
-    public void setDeviceCache(DeviceProtocolCache deviceProtocolCache) {
-        // DeviceProtocolCache not used for Garnet protocol
+    public void setTime(Date timeToSet) {
+        // Garnet protocol has no formal time set method - time is automatically synced each communication session
     }
 
     @Override
     public DeviceProtocolCache getDeviceCache() {
         return null;
+    }
+
+    @Override
+    public void setDeviceCache(DeviceProtocolCache deviceProtocolCache) {
+        // DeviceProtocolCache not used for Garnet protocol
     }
 
     @Override

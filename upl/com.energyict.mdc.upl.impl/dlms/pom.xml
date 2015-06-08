@@ -22,10 +22,6 @@
             <artifactId>mdwimpl</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.energyict.comserver</groupId>
-            <artifactId>comserver-core-common</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>connectiontypes</artifactId>
             <version>${project.version}</version>

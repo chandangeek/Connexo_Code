@@ -8,8 +8,8 @@ import com.energyict.dlms.ReceiveBuffer;
 import com.energyict.dlms.aso.AssociationControlServiceElement;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.protocolimplv2.CommunicationSessionProperties;
-import com.energyict.mdc.protocol.AbstractComChannel;
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.ServerComChannel;
 import com.energyict.protocol.ProtocolException;
 import com.energyict.protocolimplv2.MdcManager;
 
@@ -22,13 +22,13 @@ import java.io.IOException;
  */
 public class HDLCConnection extends HDLC2Connection implements DlmsV2Connection {
 
-    private final ComChannel comChannel;
+    private final ServerComChannel comChannel;
     private boolean useGeneralBlockTransfer;
     private int generalBlockTransferWindowSize;
 
     public HDLCConnection(ComChannel comChannel, CommunicationSessionProperties properties) {
         super(properties);
-        this.comChannel = comChannel;
+        this.comChannel = (ServerComChannel) comChannel;
         this.iMaxRetries = properties.getRetries();
         this.iProtocolTimeout = properties.getTimeout();
         this.NR = 0;
@@ -190,8 +190,6 @@ public class HDLCConnection extends HDLC2Connection implements DlmsV2Connection 
     @Override
     public void prepareComChannelForReceiveOfNextPacket() {
         comChannel.startWriting();
-        if (comChannel instanceof AbstractComChannel) {
-            ((AbstractComChannel) comChannel).getComChannelSessionCounters((AbstractComChannel) comChannel).writing();
-        }
+        comChannel.sessionCountersStartWriting();
     }
 }

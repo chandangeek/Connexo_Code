@@ -2,7 +2,6 @@ package com.energyict.protocolimplv2.elster.ctr.MTU155.discover;
 
 
 import com.energyict.cbo.NotFoundException;
-import com.energyict.comserver.exceptions.DuplicateException;
 import com.energyict.cpo.OfflineDeviceContext;
 import com.energyict.mdc.channels.sms.InboundProximusSmsConnectionType;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifierType;
@@ -12,6 +11,7 @@ import com.energyict.mdw.core.DeviceFactory;
 import com.energyict.mdw.core.DeviceFactoryProvider;
 import com.energyict.mdw.core.DeviceOfflineFlags;
 import com.energyict.mdw.offline.OfflineDevice;
+import com.energyict.protocolimplv2.MdcManager;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
@@ -56,7 +56,7 @@ public class CTRPhoneNumberDeviceIdentifier implements ServerDeviceIdentifier {
                 throw new NotFoundException("Device with phone number " + this.phoneNumber + " not found");
             } else {
                 if (this.allDevices.size() > 1) {
-                    throw DuplicateException.duplicateFoundFor(Device.class, this.toString());
+                    throw MdcManager.getComServerExceptionFactory().createDuplicateException(Device.class, this.toString());
                 } else {
                     this.device = this.allDevices.get(0);
                 }

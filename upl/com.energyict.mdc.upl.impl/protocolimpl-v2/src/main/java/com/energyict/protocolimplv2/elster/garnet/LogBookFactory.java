@@ -2,7 +2,6 @@ package com.energyict.protocolimplv2.elster.garnet;
 
 import com.energyict.cim.EndDeviceEventTypeMapping;
 import com.energyict.mdc.meterdata.CollectedLogBook;
-import com.energyict.mdc.meterdata.DeviceLogBook;
 import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdc.protocol.tasks.support.DeviceLogBookSupport;
 import com.energyict.obis.ObisCode;
@@ -127,11 +126,11 @@ public class LogBookFactory implements DeviceLogBookSupport {
 
     private int readTotalNrOfEvents() throws GarnetException {
         LogBookEventResponseStructure logBookEvent = getDeviceProtocol().getRequestFactory().readLogBookEvent(1); // Read out the first event
-        return  logBookEvent.getTotalNrOfLogs().getNr();
+        return logBookEvent.getTotalNrOfLogs().getNr();
     }
 
     private CollectedLogBook createDeviceLogBook(LogBookReader logBookReader) {
-        return new DeviceLogBook(logBookReader.getLogBookIdentifier());
+        return MdcManager.getCollectedDataFactory().createCollectedLogBook(logBookReader.getLogBookIdentifier());
     }
 
     private CollectedLogBook createNotSupportedCollectedLogBook(LogBookReader logBookReader) {

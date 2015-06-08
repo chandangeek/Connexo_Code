@@ -8,7 +8,7 @@ import com.energyict.dlms.cosem.AbstractCosemObject;
 import com.energyict.dlms.cosem.ExceptionResponseException;
 import com.energyict.dlms.protocolimplv2.connection.DlmsV2Connection;
 import com.energyict.dlms.protocolimplv2.connection.SecureConnection;
-import com.energyict.mdc.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.mdc.exceptions.ComServerExecutionException;
 import com.energyict.protocol.ProtocolException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
@@ -29,49 +29,39 @@ public class GeneralBlockTransferHandler {
 
     private static final int LOCATION_SECURED_XDLMS_APDU_TAG = 0;
     private static final byte[] LEGACY_HDLC_HEADER_BYTES = new byte[]{0, 0, 0};
-
+    private final Logger logger;
     /**
      * The head-end last send block number
      */
     private int blockNumber;
-
     /**
      * The head-end next block number
      */
     private int acknowledgedBlockNumber;
-
     /**
      * The block data that was kept from previous response packet
      */
     private byte[] storedBlockDataFromPreviousResponse;
-
     /**
      * The <b>full</b> block data
      */
     private byte[] responseData;
-
     /**
      * The DLMSConnection
      */
     private DlmsV2Connection dlmsConnection;
-
     /**
      * Boolean indicating whether or not general blcok transfer is enalbled/allowed or not
      */
     private boolean generalBlockTransferEnabled;
-
     /**
      * Field indicating the ComServers preferred general block transfer window size
      */
     private int comServerGBTWindowSize;
-
     /**
      * Field indicating the maximum number of retries
      */
     private int maxRetries;
-
-    private final Logger logger;
-
     /**
      * Field indicating if the 3 bytes legacy header need to be stripped of each response /
      * need to be added to  each request or not
@@ -94,10 +84,10 @@ public class GeneralBlockTransferHandler {
     /**
      * Handle the general block transfer (if necessary)
      *
-     * @param rawResponse  the raw response of the device - this is the first response the device sends back after a ComServers GET-request.
-     *                     This raw response can either be the full ADPU (in case the APDU content length is smaller than the max PDU size)
-     *                     or a general block transfer APDU (in case the APDU content length exceeds the max PDU size).
-     * @param retryRequest The request, that can be used in case retries are needed
+     * @param rawResponse        the raw response of the device - this is the first response the device sends back after a ComServers GET-request.
+     *                           This raw response can either be the full ADPU (in case the APDU content length is smaller than the max PDU size)
+     *                           or a general block transfer APDU (in case the APDU content length exceeds the max PDU size).
+     * @param retryRequest       The request, that can be used in case retries are needed
      * @param isAlreadyEncrypted Boolean indicating if the retryRequest is already encrypted or not
      * @return the full COSEM APDU, that can be passed on to the application layer
      * @throws IOException
@@ -121,8 +111,8 @@ public class GeneralBlockTransferHandler {
      * Note: Retries are implemented on COSEM APDU level, or in other words <b>the full general block transfer will be retried</b> (starting by again sending out the request
      * and then parsing the incoming blocks)
      *
-     * @param rawResponse  the raw response of the device, already validated to be of GBT type
-     * @param retryRequest The request, that can be used in case retries are needed
+     * @param rawResponse        the raw response of the device, already validated to be of GBT type
+     * @param retryRequest       The request, that can be used in case retries are needed
      * @param isAlreadyEncrypted Boolean indicating if the retryRequest is already encrypted or not
      * @return the full COSEM APDU, that can be passed on to the application layer
      */
@@ -134,13 +124,18 @@ public class GeneralBlockTransferHandler {
                 byte[] cosemResponse = doHandleGeneralBlockTransfer(rawResponse);
                 return addLegacyHDLCHeadersToCosemApdu(cosemResponse);  // Re-add the 3 bytes, who represent the legacy HDLC header
 
-            } catch (IOException | ConnectionCommunicationException e) {
-                if (currentRetryCount++ >= this.maxRetries) {
-                    IOException ioException = (e instanceof IOException) ? (IOException) e : new IOException(e.getMessage(), e);
-                    throw MdcManager.getComServerExceptionFactory().createNumberOfRetriesReached(ioException, maxRetries + 1);
-                }
+            } catch (IOException | ComServerExecutionException e) {
+                if (e instanceof ComServerExecutionException && !isConnectionCommunicationException(e)) {
+                    throw (ComServerExecutionException) e;  //Throw exception, we're only interested in handling ConnectionCommunicationException and IOExceptions
+                } else {
+                    //Handle IOException and ConnectionCommunicationException
+                    if (currentRetryCount++ >= this.maxRetries) {
+                        IOException ioException = (e instanceof IOException) ? (IOException) e : new IOException(e.getMessage(), e);
+                        throw MdcManager.getComServerExceptionFactory().createNumberOfRetriesReached(ioException, maxRetries + 1);
+                    }
 
-                rawResponse = getDlmsV2Connection().sendRequest(retryRequest, isAlreadyEncrypted); // This call does take into account retries, so no need to catch & retry this call
+                    rawResponse = getDlmsV2Connection().sendRequest(retryRequest, isAlreadyEncrypted); // This call does take into account retries, so no need to catch & retry this call
+                }
             }
         }
     }
@@ -210,16 +205,21 @@ public class GeneralBlockTransferHandler {
 
                 if (responseFrame.getBlockControl().isLastBlock() || !responseFrame.getBlockControl().isStreamingMode()) {
                     break;
-                }  else {
+                } else {
                     getDlmsV2Connection().prepareComChannelForReceiveOfNextPacket(); // To ensure logging of next received packet is correct
                 }
             }
-        } catch (ConnectionCommunicationException | IOException e) {
-            if (!checkForMissingBlocks) {
-                throw e;    // went wrong during missing block receive, do throw the error
+        } catch (ComServerExecutionException | IOException e) {
+            if (e instanceof ComServerExecutionException && !isConnectionCommunicationException(e)) {
+                throw (ComServerExecutionException) e;  //Throw exception, we're only interested in handling ConnectionCommunicationException and IOExceptions
             } else {
-                // Absorb exception, during missing block check - in method fetchAllMissingBlocks we will request the missing blocks again
-                getLogger().warning("GeneralBlockTransferHandler, receiveNextBlocksFromDevice failed, will switch to lost block recovery!");
+                //Handle IOException and ConnectionCommunicationException
+                if (!checkForMissingBlocks) {
+                    throw e;    // went wrong during missing block receive, do throw the error
+                } else {
+                    // Absorb exception, during missing block check - in method fetchAllMissingBlocks we will request the missing blocks again
+                    getLogger().warning("GeneralBlockTransferHandler, receiveNextBlocksFromDevice failed, will switch to lost block recovery!");
+                }
             }
         }
 
@@ -227,6 +227,10 @@ public class GeneralBlockTransferHandler {
             receivedBlocks.putAll(fetchAllMissingBlocks(receivedBlocks));
         }
         return receivedBlocks;
+    }
+
+    private boolean isConnectionCommunicationException(Exception e) {
+        return MdcManager.getComServerExceptionFactory().isConnectionCommunicationException(e);
     }
 
     /**
@@ -290,7 +294,7 @@ public class GeneralBlockTransferHandler {
         // Receive the missing block
         Map<Integer, GeneralBlockTransferFrame> receivedBlocks = receiveNextBlocksFromDevice(1, false); // During re-request of missing block, not useful to check for missing blocks
         GeneralBlockTransferFrame missingFrame = receivedBlocks.get(blockNumberOfMissingBlock);
-        if (missingFrame != null ){
+        if (missingFrame != null) {
             return missingFrame;
         } else {
             // Didn't received the expected block, but we apparently got another block...
@@ -360,6 +364,10 @@ public class GeneralBlockTransferHandler {
         return blockNumber;
     }
 
+    private void setBlockNumber(int blockNumber) {
+        this.blockNumber = blockNumber;
+    }
+
     /**
      * Getter for the head-end next block number<br/>
      * Warning: thie method will increase the blockNumber parameter
@@ -368,10 +376,6 @@ public class GeneralBlockTransferHandler {
      */
     private int increaseAndGetNextBlockNumber() {
         return ++blockNumber;
-    }
-
-    private void setBlockNumber(int blockNumber) {
-        this.blockNumber = blockNumber;
     }
 
     /**

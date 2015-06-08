@@ -6,7 +6,6 @@ import com.energyict.mdc.messages.DeviceMessageStatus;
 import com.energyict.mdc.meterdata.CollectedMessage;
 import com.energyict.mdc.meterdata.CollectedMessageList;
 import com.energyict.mdc.meterdata.ResultType;
-import com.energyict.mdc.meterdata.identifiers.DeviceMessageIdentifierById;
 import com.energyict.mdc.protocol.tasks.support.DeviceMessageSupport;
 import com.energyict.mdw.core.Code;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
@@ -22,13 +21,8 @@ import com.energyict.protocolimplv2.abnt.common.field.DateTimeField;
 import com.energyict.protocolimplv2.abnt.common.structure.HistoryLogResponse;
 import com.energyict.protocolimplv2.abnt.common.structure.HolidayRecords;
 import com.energyict.protocolimplv2.abnt.common.structure.ReadParameterFields;
-import com.energyict.protocolimplv2.abnt.common.structure.field.AutomaticDemandResetCondition;
-import com.energyict.protocolimplv2.abnt.common.structure.field.AutomaticDemandResetConfigurationRecord;
-import com.energyict.protocolimplv2.abnt.common.structure.field.DstConfigurationRecord;
-import com.energyict.protocolimplv2.abnt.common.structure.field.DstEnablementStatus;
-import com.energyict.protocolimplv2.abnt.common.structure.field.EventField;
-import com.energyict.protocolimplv2.abnt.common.structure.field.HistoryLogRecord;
-import com.energyict.protocolimplv2.abnt.common.structure.field.HolidayRecord;
+import com.energyict.protocolimplv2.abnt.common.structure.field.*;
+import com.energyict.protocolimplv2.identifiers.DeviceMessageIdentifierById;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.ClockDeviceMessage;
 import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
@@ -36,11 +30,7 @@ import com.energyict.protocolimplv2.messages.DeviceActionMessage;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.TimeZone;
+import java.util.*;
 
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
 

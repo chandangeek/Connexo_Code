@@ -5,15 +5,12 @@ import com.energyict.cbo.LittleEndianInputStream;
 import com.energyict.cbo.TimeConstants;
 import com.energyict.cbo.Unit;
 import com.energyict.mdc.meterdata.CollectedData;
-import com.energyict.mdc.meterdata.DeviceLoadProfile;
+import com.energyict.mdc.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.protocol.exceptions.CommunicationException;
 import com.energyict.mdc.protocol.exceptions.DataEncryptionException;
 import com.energyict.mdc.protocol.tasks.support.DeviceLoadProfileSupport;
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.IntervalStateBits;
-import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.*;
+import com.energyict.protocolimplv2.MdcManager;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -51,7 +48,21 @@ public class ProfileBuilder {
     };
     private static final int METER_READING_VERSION_BIT_MASK = 0x40;
     private static final int EVENT_DATA_VERSION_BIT_MASK = 0x20;
-
+    // appears only in the logbook (pure VDEW)
+    private static final int CLEAR_LOADPROFILE = 0x4000;
+    private static final int CLEAR_LOGBOOK = 0x2000;
+    private static final int END_OF_ERROR = 0x0400;
+    private static final int BEGIN_OF_ERROR = 0x0200;
+    private static final int VARIABLE_SET = 0x0100;
+    // appears in the logbook and the intervalstatus
+    private static final int POWER_FAILURE = 0x0080;
+    private static final int POWER_RECOVERY = 0x0040;
+    private static final int DEVICE_CLOCK_SET_INCORRECT = 0x0020;  // Changed KV 12062003
+    private static final int DEVICE_RESET = 0x0010;
+    private static final int SEASONAL_SWITCHOVER = 0x0008;
+    private static final int DISTURBED_MEASURE = 0x0004;
+    private static final int RUNNING_RESERVE_EXHAUSTED = 0x0002;
+    private static final int FATAL_DEVICE_ERROR = 0x0001;
     private Logger logger;
     private PacketBuilder packetBuilder;
     private ProfileData profileData = null;
@@ -95,7 +106,7 @@ public class ProfileBuilder {
         }
     }
 
-    private void buildChannelInfo () {
+    private void buildChannelInfo() {
         int channelCount = 0;
         long mask = packetBuilder.getMask();
         // Build channelinfo
@@ -108,12 +119,12 @@ public class ProfileBuilder {
         }
     }
 
-    private String buildChannelName (int channelId) {
+    private String buildChannelName(int channelId) {
         // Remember that obis codes use 1-based indexing and channelId is using zero-based indexing.
         return "0." + (channelId + 1) + ".128.0.0.255";
     }
 
-    private void buildData () throws IOException {
+    private void buildData() throws IOException {
         profileData = new ProfileData();
         profileData.setStoreOlderValues(true);
         byte[] data = packetBuilder.getData();
@@ -145,14 +156,14 @@ public class ProfileBuilder {
         }
     }
 
-    private void buildMeterReadingData (LittleEndianInputStream is) throws IOException {
+    private void buildMeterReadingData(LittleEndianInputStream is) throws IOException {
         for (int t = 0; t < packetBuilder.getNrOfChannels(); t++) {
             BigDecimal meterReading = new BigDecimal(is.readLEUnsignedInt());
             meterReadings.add(meterReading);
         }
     }
 
-    private void buildEventData (LittleEndianInputStream is) throws IOException {
+    private void buildEventData(LittleEndianInputStream is) throws IOException {
         int count = is.readUnsignedByte();
         for (int t = 0; t < count; t++) {
             long seconds80 = is.readLEUnsignedInt();
@@ -168,7 +179,7 @@ public class ProfileBuilder {
         }
     }
 
-    private void buildIntervalData (LittleEndianInputStream is) throws IOException {
+    private void buildIntervalData(LittleEndianInputStream is) throws IOException {
         for (int i = 0; i < packetBuilder.getNrOfRecords(); i++) {
             long rawValue = is.readLEUnsignedInt();
             long ldate = (rawValue + EIWebConstants.SECONDS10YEARS) * TimeConstants.MILLISECONDS_IN_SECOND;
@@ -181,7 +192,7 @@ public class ProfileBuilder {
         }
     }
 
-    private void buildIntervalDataForRecord (LittleEndianInputStream is, Date date) throws IOException {
+    private void buildIntervalDataForRecord(LittleEndianInputStream is, Date date) throws IOException {
         IntervalData intervalData = new IntervalData(date);
         // KV 22072003 Add tarifcode...
         int code = is.readByte() & 0xFF;
@@ -212,7 +223,7 @@ public class ProfileBuilder {
         profileData.addInterval(intervalData);
     }
 
-    private void buildIntervalDataForRecordAndChannel (LittleEndianInputStream is, IntervalData intervalData) throws IOException {
+    private void buildIntervalDataForRecordAndChannel(LittleEndianInputStream is, IntervalData intervalData) throws IOException {
         switch (packetBuilder.getVersion() & 0x0F) {
             case PacketBuilder.VERSION_32BITS_3:
                 intervalData.addValue(is.readLEInt());
@@ -249,24 +260,7 @@ public class ProfileBuilder {
         return eiCode;
     }
 
-    // appears only in the logbook (pure VDEW)
-    private static final int CLEAR_LOADPROFILE = 0x4000;
-    private static final int CLEAR_LOGBOOK = 0x2000;
-    private static final int END_OF_ERROR = 0x0400;
-    private static final int BEGIN_OF_ERROR = 0x0200;
-    private static final int VARIABLE_SET = 0x0100;
-
-    // appears in the logbook and the intervalstatus
-    private static final int POWER_FAILURE = 0x0080;
-    private static final int POWER_RECOVERY = 0x0040;
-    private static final int DEVICE_CLOCK_SET_INCORRECT = 0x0020;  // Changed KV 12062003
-    private static final int DEVICE_RESET = 0x0010;
-    private static final int SEASONAL_SWITCHOVER = 0x0008;
-    private static final int DISTURBED_MEASURE = 0x0004;
-    private static final int RUNNING_RESERVE_EXHAUSTED = 0x0002;
-    private static final int FATAL_DEVICE_ERROR = 0x0001;
-
-    private int mapStatus2IntervalStateBits (int status) {
+    private int mapStatus2IntervalStateBits(int status) {
         switch (status) {
             case CLEAR_LOADPROFILE:
                 return (IntervalStateBits.OTHER);
@@ -300,8 +294,8 @@ public class ProfileBuilder {
         }
     }
 
-    public void addCollectedData (List<CollectedData> collectedData) {
-        DeviceLoadProfile loadProfile = new DeviceLoadProfile(new FirstLoadProfileOnDevice(this.packetBuilder.getDeviceIdentifier(), DeviceLoadProfileSupport.GENERIC_LOAD_PROFILE_OBISCODE));
+    public void addCollectedData(List<CollectedData> collectedData) {
+        CollectedLoadProfile loadProfile = MdcManager.getCollectedDataFactory().createCollectedLoadProfile(new FirstLoadProfileOnDevice(this.packetBuilder.getDeviceIdentifier(), DeviceLoadProfileSupport.GENERIC_LOAD_PROFILE_OBISCODE));
         loadProfile.setCollectedIntervalData(this.profileData.getIntervalDatas(), this.profileData.getChannelInfos());
         loadProfile.setDoStoreOlderValues(this.profileData.shouldStoreOlderValues());
         loadProfile.setAllowIncompleteLoadProfileData(true);

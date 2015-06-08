@@ -5,15 +5,11 @@ import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.mdc.meterdata.CollectedMessage;
 import com.energyict.mdc.meterdata.CollectedRegister;
-import com.energyict.mdc.meterdata.DeviceProtocolMessageWithCollectedRegisterData;
+import com.energyict.mdc.meterdata.CollectedRegisterList;
 import com.energyict.mdc.meterdata.identifiers.RegisterIdentifier;
 import com.energyict.obis.ObisCode;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author sva
@@ -24,12 +20,11 @@ public class LoadProfileToRegisterParser {
     private static final ObisCode MBUS_VALUE_OBISCODE = ObisCode.fromString("0.x.24.2.1.255");
 
     public CollectedMessage parse(CollectedMessage collectedMessage) {
-        List<CollectedRegister> collectedRegisters = new ArrayList<CollectedRegister>();
-        Map<RegisterIdentifier, Map<Date, MBusRegisterPair>> allMBusIntervalPairs = new HashMap<RegisterIdentifier, Map<Date, MBusRegisterPair>>();
-
-        if (collectedMessage instanceof DeviceProtocolMessageWithCollectedRegisterData) {
-            DeviceProtocolMessageWithCollectedRegisterData messageWithCollectedRegisterData = (DeviceProtocolMessageWithCollectedRegisterData) collectedMessage;
-            for (CollectedRegister collectedRegister : messageWithCollectedRegisterData.getCollectedRegisters()) {
+        List<CollectedRegister> collectedRegisters = new ArrayList<>();
+        Map<RegisterIdentifier, Map<Date, MBusRegisterPair>> allMBusIntervalPairs = new HashMap<>();
+        if (collectedMessage != null && collectedMessage instanceof CollectedRegisterList) {
+            CollectedRegisterList collectedRegisterList = (CollectedRegisterList) collectedMessage;
+            for (CollectedRegister collectedRegister : collectedRegisterList.getCollectedRegisters()) {
                 RegisterIdentifier registerIdentifier = collectedRegister.getRegisterIdentifier();
                 if (MBUS_VALUE_OBISCODE.equalsIgnoreBChannel(registerIdentifier.getRegisterObisCode())) {
                     Map<Date, MBusRegisterPair> intervalPairs = allMBusIntervalPairs.get(registerIdentifier);
@@ -91,8 +86,8 @@ public class LoadProfileToRegisterParser {
                 }
             }
 
-            messageWithCollectedRegisterData.getCollectedRegisters().clear();                       // Remove all old CollectedRegister data
-            messageWithCollectedRegisterData.getCollectedRegisters().addAll(collectedRegisters);    // Re-add the updated list of CollectedRegister data
+            collectedRegisterList.getCollectedRegisters().clear();                       // Remove all old CollectedRegister data
+            collectedRegisterList.getCollectedRegisters().addAll(collectedRegisters);    // Re-add the updated list of CollectedRegister data
         }
 
         return collectedMessage;

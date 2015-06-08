@@ -9,12 +9,11 @@ import com.energyict.concentrator.communication.driver.rf.eictwavenis.WavenisSta
 import com.energyict.concentrator.communication.driver.rf.eictwavenis.WavenisStackException;
 import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.meterdata.ResultType;
-import com.energyict.mdc.meterdata.identifiers.RegisterIdentifierById;
-import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.comchannels.WavenisStackUtils;
+import com.energyict.protocolimplv2.identifiers.RegisterIdentifierById;
 
 import java.io.IOException;
 import java.util.Date;
@@ -27,17 +26,14 @@ import java.util.Date;
  */
 public class RegisterReader {
 
-    private final DeviceIdentifier deviceIdentifier;
-    private final WavenisStack wavenisStack;
-
     private static final ObisCode OBISCODE_FIRMWARE = ObisCode.fromString("1.0.0.2.0.255");
     private static final ObisCode OBISCODE_RADIO_ACKNOWLEDGE = ObisCode.fromString("0.0.96.50.4.255");
     private static final ObisCode OBISCODE_RADIO_USER_TIMEOUT = ObisCode.fromString("0.0.96.50.12.255");
     private static final ObisCode OBISCODE_EXCHANGE_STATUS = ObisCode.fromString("0.0.96.50.14.255");
+    private final WavenisStack wavenisStack;
 
-    public RegisterReader(WavenisStack wavenisStack, DeviceIdentifier deviceIdentifier) {
+    public RegisterReader(WavenisStack wavenisStack) {
         this.wavenisStack = wavenisStack;
-        this.deviceIdentifier = deviceIdentifier;
     }
 
     public CollectedRegister readRegister(OfflineRegister register) throws IOException {
