@@ -80,7 +80,7 @@ public interface ImportSchedule {
      * @param file
      * @return creates a new FileImport instance for the given file.
      */
-    FileImportOccurrence createFileImportOccurrence(File file, Clock clock);
+    FileImportOccurrence createFileImportOccurrence(Path file, Clock clock);
 
     /**
      * @return returns the type of the importer

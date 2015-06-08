@@ -4,8 +4,6 @@ import com.elster.jupiter.fileimport.FileIOException;
 import com.elster.jupiter.nls.Thesaurus;
 import javax.inject.Inject;
 
-import java.io.File;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.function.Predicate;
@@ -33,9 +31,9 @@ class PollingFolderScanner implements FolderScanner {
     }
 
     @Override
-    public Stream<File> getFiles() {
+    public Stream<Path> getFiles() {
     	try {
-    		return directoryContent().filter(filter).map(path -> path.toFile());
+    		return directoryContent().filter(filter);
     	} catch (IOException e) {
     		throw new FileIOException(e, thesaurus);
     	}

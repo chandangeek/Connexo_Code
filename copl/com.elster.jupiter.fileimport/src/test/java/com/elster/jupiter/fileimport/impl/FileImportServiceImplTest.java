@@ -120,16 +120,10 @@ public class FileImportServiceImplTest {
         try {
             fileImportService.activate();
 
-            // mock the fileSystem
-            //when(serviceLocator.getFileSystem()).thenReturn(fileSystem);
-
             final CountDownLatch requestedDirectoryStream = new CountDownLatch(1);
-            when(fileSystem.newDirectoryStream(IMPORT_DIRECTORY,"*.*")).thenAnswer(new Answer<DirectoryStream<Path>>() {
-                @Override
-                public DirectoryStream<Path> answer(InvocationOnMock invocationOnMock) throws Throwable {
-                    requestedDirectoryStream.countDown();
-                    return directoryStream;
-                }
+            when(fileSystem.newDirectoryStream(IMPORT_DIRECTORY,"*.*")).thenAnswer(invocationOnMock -> {
+                requestedDirectoryStream.countDown();
+                return directoryStream;
             });
 
             fileImportService.schedule(importSchedule);

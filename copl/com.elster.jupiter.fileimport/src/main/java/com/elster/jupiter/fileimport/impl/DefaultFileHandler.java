@@ -8,6 +8,7 @@ import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.util.json.JsonService;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.time.Clock;
 
 /**
@@ -28,7 +29,7 @@ class DefaultFileHandler implements FileHandler {
     }
 
     @Override
-    public void handle(final File file) {
+    public void handle(final Path file) {
         transactionService.execute(new VoidTransaction() {
             @Override
             protected void doPerform() {
@@ -37,7 +38,7 @@ class DefaultFileHandler implements FileHandler {
         });
     }
 
-    private void doHandle(File file) {
+    private void doHandle(Path file) {
         FileImportOccurrence fileImportOccurrence = importSchedule.createFileImportOccurrence(file, clock);
         fileImportOccurrence.prepareProcessing();
 

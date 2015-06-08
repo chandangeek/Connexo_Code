@@ -20,6 +20,7 @@ import javax.inject.Inject;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.io.File;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Clock;
 import java.time.Instant;
@@ -322,11 +323,11 @@ class ImportScheduleImpl implements ImportSchedule {
 
 
     @Override
-    public FileImportOccurrence createFileImportOccurrence(File file, Clock clock) {
-        if (!file.exists()) {
+    public FileImportOccurrence createFileImportOccurrence(Path file, Clock clock) {
+        if (!Files.exists(file)) {
             throw new IllegalArgumentException();
         }
-        Path relativeFilePath = fileImportService.getBasePath().relativize(file.toPath());
+        Path relativeFilePath = fileImportService.getBasePath().relativize(file);
         return FileImportOccurrenceImpl.create(fileImportService, fileSystem, dataModel, fileNameCollisionresolver, thesaurus, clock, this,relativeFilePath );
     }
 

@@ -72,7 +72,6 @@ public class StreamImportMessageHandlerTest {
         fileImportMessage = new FileImportMessage(fileImportOccurrence);
         when(message.getPayload()).thenReturn(PAYLOAD);
         when(jsonService.deserialize(aryEq(PAYLOAD), eq(FileImportMessage.class))).thenReturn(fileImportMessage);
-//        when(serviceLocator.getOrmClient()).thenReturn(ormClient);
         when(dataModel.mapper(FileImportOccurrence.class).getOptional(FILE_IMPORT_ID)).thenReturn(Optional.of(fileImportOccurrence));
         when(importSchedule.getImporterName()).thenReturn(IMPORTER_NAME);
         when(fileImportOccurrence.getImportSchedule()).thenReturn(importSchedule);
@@ -89,9 +88,7 @@ public class StreamImportMessageHandlerTest {
 
     @Test
     public void testProcessPassesFileImportToFileImporter() {
-
         streamImportMessageHandler.process(message);
-
         verify(fileImporter).process(fileImportOccurrence);
     }
 

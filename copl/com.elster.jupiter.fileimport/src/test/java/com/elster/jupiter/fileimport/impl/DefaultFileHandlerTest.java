@@ -17,6 +17,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
 import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Clock;
 import java.time.Instant;
 
@@ -49,19 +51,13 @@ public class DefaultFileHandlerTest {
     public void setUp() {
 
         when(clock.instant()).thenReturn(Instant.now());
-        when(importSchedule.createFileImportOccurrence(any(File.class), any(Clock.class))).thenReturn(fileImportOccurrence);
+        when(importSchedule.createFileImportOccurrence(any(Path.class), any(Clock.class))).thenReturn(fileImportOccurrence);
         when(importSchedule.getDestination()).thenReturn(destination);
-//        when(serviceLocator.getTransactionService()).thenReturn(transactionService);
-//        when(serviceLocator.getJsonService()).thenReturn(jsonService);
         when(jsonService.serialize(any())).thenReturn(SERIALIZED);
         when(destination.message(SERIALIZED)).thenReturn(messageBuilder);
 
-        when(transactionService.execute(any())).thenAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return ((Transaction<?>) invocationOnMock.getArguments()[0]).perform();
-            }
-        });
+        when(transactionService.execute(any())).thenAnswer(invocationOnMock ->
+                ((Transaction<?>) invocationOnMock.getArguments()[0]).perform());
 
         fileHandler = new DefaultFileHandler(importSchedule, jsonService, transactionService, clock);
     }
@@ -73,17 +69,15 @@ public class DefaultFileHandlerTest {
     @Test
     public void testHandleCreatesFileImport() {
 
-        File file = new File("./test.txt");
+        Path file = Paths.get("./test.txt");
         fileHandler.handle(file);
-
         verify(importSchedule).createFileImportOccurrence(file, clock);
-
     }
 
     @Test
     public void testHandlePostsMessage() {
 
-        File file = new File("./test.txt");
+        Path file = Paths.get("./test.txt");
         fileHandler.handle(file);
 
         verify(messageBuilder).send();

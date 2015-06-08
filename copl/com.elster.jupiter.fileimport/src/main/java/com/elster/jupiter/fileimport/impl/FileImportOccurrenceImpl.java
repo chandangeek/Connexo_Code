@@ -14,6 +14,7 @@ import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Clock;
 import java.time.Instant;
@@ -91,7 +92,7 @@ final class FileImportOccurrenceImpl implements FileImportOccurrence {
     @Override
     public InputStream getContents() {
         if (inputStream == null) {
-            inputStream = fileSystem.getInputStream(fileImportService.getBasePath().resolve(path).toFile());
+            inputStream = fileSystem.getInputStream(fileImportService.getBasePath().resolve(path));
         }
         return inputStream;
     }
@@ -216,7 +217,7 @@ final class FileImportOccurrenceImpl implements FileImportOccurrence {
 
     private void moveFile() {
         Path filePath = fileImportService.getBasePath().resolve(path);
-        if (filePath.toFile().exists()) {
+        if (Files.exists(filePath)) {
             Path target = targetPath(filePath);
             fileSystem.move(filePath, target);
             path = fileImportService.getBasePath().relativize(target);
