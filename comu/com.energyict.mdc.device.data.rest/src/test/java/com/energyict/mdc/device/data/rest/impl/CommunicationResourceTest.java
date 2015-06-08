@@ -149,6 +149,7 @@ public class CommunicationResourceTest extends DeviceDataRestApplicationJerseyTe
         ComTask comTask = mock(ComTask.class);
         when(comTask.getId()).thenReturn(id);
         when(comTask.getName()).thenReturn(name);
+        when(taskService.findComTask(id)).thenReturn(Optional.of(comTask));
         return comTask;
     }
 
