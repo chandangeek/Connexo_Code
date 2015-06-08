@@ -480,7 +480,8 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
 
     @Override
     public List<TranslationKey> getKeys() {
-        List<TranslationKey> keys = Arrays.asList(MessageSeeds.values());
+        List<TranslationKey> keys = new ArrayList<>();
+        Stream.of(MessageSeeds.values()).forEach(keys::add);
         Stream.of(PropertyTranslationKeys.values()).forEach(keys::add);
         return keys;
     }
