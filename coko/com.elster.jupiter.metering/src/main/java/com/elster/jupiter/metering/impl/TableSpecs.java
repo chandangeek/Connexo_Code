@@ -196,7 +196,7 @@ public enum TableSpecs {
             Column mRIDColumn = table.column("MRID").varChar(NAME_LENGTH).map("mRID").add();
             Column amrSystemIdColumn = table.column("AMRSYSTEMID").type("number").notNull().conversion(NUMBER2INT).map("amrSystemId").add();
             Column amrIdColumn = table.column("AMRID").varChar(SHORT_DESCRIPTION_LENGTH).notNull().map("amrId").add();
-            table.column("NAME").varChar(NAME_LENGTH).map("name").add();
+            Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).map("name").add();
             table.column("ALIASNAME").varChar(NAME_LENGTH).map("aliasName").add();
             table.column("DESCRIPTION").varChar(SHORT_DESCRIPTION_LENGTH).map("description").add();
             table.column("SERIALNUMBER").varChar(NAME_LENGTH).map("serialNumber").add();
@@ -214,6 +214,7 @@ public enum TableSpecs {
             table.unique("MTR_U_METER").on(mRIDColumn).add();
             table.unique("MTR_U_METERAMR").on(amrSystemIdColumn, amrIdColumn).add();
             table.foreignKey("MTR_FK_METERAMRSYSTEM").references(MTR_AMRSYSTEM.name()).onDelete(RESTRICT).map("amrSystem").on(amrSystemIdColumn).add();
+            table.index("MTR_IDX_ENDDEVICE_NAME").on(nameColumn).add();
         }
     },
     MTR_METERACTIVATION {
