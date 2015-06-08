@@ -98,7 +98,6 @@ Ext.define('Dsh.controller.ConnectionsBulk', {
                 url = '/api/dsr/connections/properties';
                 data.properties = [];
                 me.getProperties().properties().each(function(property) {
-                    debugger;
                     if (property.isEdited) {
                         var propertyToPass = {};
                         propertyToPass.key = property.data.key;
