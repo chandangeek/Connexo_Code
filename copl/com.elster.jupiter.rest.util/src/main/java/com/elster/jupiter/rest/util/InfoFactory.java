@@ -1,5 +1,7 @@
 package com.elster.jupiter.rest.util;
 
+import java.util.Map;
+
 /**
  * Allows creation of an Info object based on a domain object. This interface is required to register factories to be used by dynamic search.
  */
@@ -12,8 +14,12 @@ public interface InfoFactory<T> {
      */
     public Object from(T domainObject);
 
+    Map<String, Class<?>> infoStructure();
+
     /**
      * Base-class any domain object for this factory should obey IS-A relation to.
      */
     public Class<T> getDomainClass();
+
+    String getSearchDomainId();
 }
