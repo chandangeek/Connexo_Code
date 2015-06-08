@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.impl.search;
 
 import com.energyict.mdc.common.FactoryIds;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceFields;
@@ -33,13 +34,15 @@ public class DeviceTypeSearchableProperty extends AbstractSearchableDeviceProper
     static final String PROPERTY_NAME = DeviceFields.DEVICETYPE.fieldName();
 
     private DeviceSearchDomain domain;
+    private final DeviceConfigurationService deviceConfigurationService;
     private final PropertySpecService mdcPropertySpecService;
     private final Thesaurus thesaurus;
 
     @Inject
-    public DeviceTypeSearchableProperty(PropertySpecService mdcPropertySpecService, Thesaurus thesaurus) {
+    public DeviceTypeSearchableProperty(DeviceConfigurationService deviceConfigurationService, PropertySpecService mdcPropertySpecService, Thesaurus thesaurus) {
         super();
         this.mdcPropertySpecService = mdcPropertySpecService;
+        this.deviceConfigurationService = deviceConfigurationService;
         this.thesaurus = thesaurus;
     }
 
@@ -93,7 +96,8 @@ public class DeviceTypeSearchableProperty extends AbstractSearchableDeviceProper
         return this.mdcPropertySpecService.referencePropertySpec(
                     PROPERTY_NAME,
                     false,
-                    FactoryIds.DEVICE_TYPE);
+                    FactoryIds.DEVICE_TYPE,
+                    this.deviceConfigurationService.findAllDeviceTypes().find());
     }
 
     @Override

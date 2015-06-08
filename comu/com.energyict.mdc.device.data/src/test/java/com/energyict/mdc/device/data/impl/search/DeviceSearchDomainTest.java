@@ -199,7 +199,7 @@ public class DeviceSearchDomainTest {
                 eq(FactoryIds.DEVICE_CONFIGURATION),
                 anyList())).thenReturn(deviceConfigurationPropertySpec);
         DeviceSearchDomain searchDomain = this.getTestInstance();
-        DeviceTypeSearchableProperty deviceTypeSearchableProperty = new DeviceTypeSearchableProperty(this.propertySpecService, this.thesaurus);
+        DeviceTypeSearchableProperty deviceTypeSearchableProperty = new DeviceTypeSearchableProperty(deviceConfigurationService, this.propertySpecService, this.thesaurus);
         SearchablePropertyConstriction constriction = SearchablePropertyConstriction.noValues(deviceTypeSearchableProperty);
 
         // Business method
@@ -224,9 +224,9 @@ public class DeviceSearchDomainTest {
                 eq(false),
                 eq(FactoryIds.DEVICE_CONFIGURATION),
                 anyList())).thenReturn(deviceConfigurationPropertySpec);
-        DeviceTypeSearchableProperty deviceTypeSearchableProperty1 = new DeviceTypeSearchableProperty(this.propertySpecService, this.thesaurus);
+        DeviceTypeSearchableProperty deviceTypeSearchableProperty1 = new DeviceTypeSearchableProperty(deviceConfigurationService, this.propertySpecService, this.thesaurus);
         SearchablePropertyConstriction constriction1 = SearchablePropertyConstriction.noValues(deviceTypeSearchableProperty1);
-        DeviceTypeSearchableProperty deviceTypeSearchableProperty2 = new DeviceTypeSearchableProperty(this.propertySpecService, this.thesaurus);
+        DeviceTypeSearchableProperty deviceTypeSearchableProperty2 = new DeviceTypeSearchableProperty(deviceConfigurationService, this.propertySpecService, this.thesaurus);
         SearchablePropertyConstriction constriction2 = SearchablePropertyConstriction.noValues(deviceTypeSearchableProperty2);
 
         // Business method
@@ -303,7 +303,7 @@ public class DeviceSearchDomainTest {
                 eq(FactoryIds.DEVICE_CONFIGURATION),
                 anyList())).thenReturn(deviceConfigurationPropertySpec);
         DeviceSearchDomain searchDomain = this.getTestInstance();
-        DeviceTypeSearchableProperty deviceTypeSearchableProperty = new DeviceTypeSearchableProperty(this.propertySpecService, this.thesaurus);
+        DeviceTypeSearchableProperty deviceTypeSearchableProperty = new DeviceTypeSearchableProperty(deviceConfigurationService, this.propertySpecService, this.thesaurus);
         SearchablePropertyConstriction deviceTypeConstriction = SearchablePropertyConstriction.noValues(deviceTypeSearchableProperty);
         DeviceConfigurationSearchableProperty deviceConfigurationSearchableProperty = new DeviceConfigurationSearchableProperty(this.propertySpecService, this.thesaurus);
         SearchablePropertyConstriction deviceConfigurationConstriction = SearchablePropertyConstriction.noValues(deviceConfigurationSearchableProperty);
@@ -339,7 +339,7 @@ public class DeviceSearchDomainTest {
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         DeviceType deviceType = mock(DeviceType.class);
         when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(deviceProtocolPluggableClass);
-        DeviceTypeSearchableProperty deviceTypeSearchableProperty = new DeviceTypeSearchableProperty(this.propertySpecService, this.thesaurus);
+        DeviceTypeSearchableProperty deviceTypeSearchableProperty = new DeviceTypeSearchableProperty(deviceConfigurationService, this.propertySpecService, this.thesaurus);
         SearchablePropertyConstriction deviceTypeConstriction = SearchablePropertyConstriction.withValues(deviceTypeSearchableProperty, deviceType);
         DeviceConfigurationSearchableProperty deviceConfigurationSearchableProperty = new DeviceConfigurationSearchableProperty(this.propertySpecService, this.thesaurus);
         SearchablePropertyConstriction deviceConfigurationConstriction = SearchablePropertyConstriction.noValues(deviceConfigurationSearchableProperty);
@@ -378,7 +378,7 @@ public class DeviceSearchDomainTest {
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         DeviceType deviceType = mock(DeviceType.class);
         when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(deviceProtocolPluggableClass);
-        DeviceTypeSearchableProperty deviceTypeSearchableProperty = new DeviceTypeSearchableProperty(this.propertySpecService, this.thesaurus);
+        DeviceTypeSearchableProperty deviceTypeSearchableProperty = new DeviceTypeSearchableProperty(deviceConfigurationService, this.propertySpecService, this.thesaurus);
         SearchablePropertyConstriction deviceTypeConstriction = SearchablePropertyConstriction.withValues(deviceTypeSearchableProperty, deviceType);
         DeviceConfigurationSearchableProperty deviceConfigurationSearchableProperty = new DeviceConfigurationSearchableProperty(this.propertySpecService, this.thesaurus);
         SearchablePropertyConstriction deviceConfigurationConstriction = SearchablePropertyConstriction.noValues(deviceConfigurationSearchableProperty);
@@ -434,7 +434,7 @@ public class DeviceSearchDomainTest {
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         DeviceType deviceType = mock(DeviceType.class);
         when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(deviceProtocolPluggableClass);
-        DeviceTypeSearchableProperty deviceTypeSearchableProperty = new DeviceTypeSearchableProperty(this.propertySpecService, this.thesaurus);
+        DeviceTypeSearchableProperty deviceTypeSearchableProperty = new DeviceTypeSearchableProperty(deviceConfigurationService, this.propertySpecService, this.thesaurus);
         SearchablePropertyConstriction deviceTypeConstriction = SearchablePropertyConstriction.withValues(deviceTypeSearchableProperty, deviceType);
         DeviceConfigurationSearchableProperty deviceConfigurationSearchableProperty = new DeviceConfigurationSearchableProperty(this.propertySpecService, this.thesaurus);
         SearchablePropertyConstriction deviceConfigurationConstriction = SearchablePropertyConstriction.noValues(deviceConfigurationSearchableProperty);
@@ -474,7 +474,7 @@ public class DeviceSearchDomainTest {
                 eq(FactoryIds.DEVICE_CONFIGURATION),
                 anyList())).thenReturn(deviceConfigurationPropertySpec);
                 DeviceSearchDomain searchDomain = this.getTestInstance();
-        DeviceTypeSearchableProperty deviceTypeSearchableProperty = new DeviceTypeSearchableProperty(this.propertySpecService, this.thesaurus);
+        DeviceTypeSearchableProperty deviceTypeSearchableProperty = new DeviceTypeSearchableProperty(deviceConfigurationService, this.propertySpecService, this.thesaurus);
         SearchablePropertyConstriction deviceTypeConstriction = SearchablePropertyConstriction.noValues(deviceTypeSearchableProperty);
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(deviceConfiguration.getPartialConnectionTasks()).thenReturn(Collections.emptyList());
@@ -508,7 +508,7 @@ public class DeviceSearchDomainTest {
                 eq(FactoryIds.DEVICE_CONFIGURATION),
                 anyList())).thenReturn(deviceConfigurationPropertySpec);
                 DeviceSearchDomain searchDomain = this.getTestInstance();
-        DeviceTypeSearchableProperty deviceTypeSearchableProperty = new DeviceTypeSearchableProperty(this.propertySpecService, this.thesaurus);
+        DeviceTypeSearchableProperty deviceTypeSearchableProperty = new DeviceTypeSearchableProperty(deviceConfigurationService, this.propertySpecService, this.thesaurus);
         SearchablePropertyConstriction deviceTypeConstriction = SearchablePropertyConstriction.noValues(deviceTypeSearchableProperty);
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(deviceConfiguration.getPartialConnectionTasks()).thenReturn(Collections.emptyList());
@@ -538,7 +538,7 @@ public class DeviceSearchDomainTest {
                 eq(FactoryIds.DEVICE_CONFIGURATION),
                 anyList())).thenReturn(deviceConfigurationPropertySpec);
                 DeviceSearchDomain searchDomain = this.getTestInstance();
-        DeviceTypeSearchableProperty deviceTypeSearchableProperty = new DeviceTypeSearchableProperty(this.propertySpecService, this.thesaurus);
+        DeviceTypeSearchableProperty deviceTypeSearchableProperty = new DeviceTypeSearchableProperty(deviceConfigurationService, this.propertySpecService, this.thesaurus);
         SearchablePropertyConstriction deviceTypeConstriction = SearchablePropertyConstriction.noValues(deviceTypeSearchableProperty);
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         DeviceConfigurationSearchableProperty deviceConfigurationSearchableProperty = new DeviceConfigurationSearchableProperty(this.propertySpecService, this.thesaurus);
@@ -608,7 +608,7 @@ public class DeviceSearchDomainTest {
                 eq(FactoryIds.DEVICE_CONFIGURATION),
                 anyList())).thenReturn(deviceConfigurationPropertySpec);
                 DeviceSearchDomain searchDomain = this.getTestInstance();
-        DeviceTypeSearchableProperty deviceTypeSearchableProperty = new DeviceTypeSearchableProperty(this.propertySpecService, this.thesaurus);
+        DeviceTypeSearchableProperty deviceTypeSearchableProperty = new DeviceTypeSearchableProperty(deviceConfigurationService, this.propertySpecService, this.thesaurus);
         SearchablePropertyConstriction deviceTypeConstriction = SearchablePropertyConstriction.noValues(deviceTypeSearchableProperty);
         DeviceConfiguration deviceConfiguration1 = mock(DeviceConfiguration.class);
         DeviceConfiguration deviceConfiguration2 = mock(DeviceConfiguration.class);

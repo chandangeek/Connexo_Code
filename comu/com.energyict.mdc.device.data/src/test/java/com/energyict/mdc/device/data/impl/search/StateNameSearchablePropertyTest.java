@@ -80,7 +80,7 @@ public class StateNameSearchablePropertyTest {
         when(this.deviceTypeFinder.valueDomain()).thenReturn(DeviceType.class);
         when(this.deviceConfigurationProvider.finders()).thenReturn(Arrays.asList(this.deviceTypeFinder));
         this.propertySpecService.addFactoryProvider(this.deviceConfigurationProvider);
-        this.deviceTypeSearchableProperty = new DeviceTypeSearchableProperty(this.propertySpecService, this.thesaurus);
+        this.deviceTypeSearchableProperty = new DeviceTypeSearchableProperty(deviceConfigurationService, this.propertySpecService, this.thesaurus);
     }
 
     @Test
