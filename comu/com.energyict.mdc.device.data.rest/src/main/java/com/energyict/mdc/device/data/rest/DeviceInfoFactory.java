@@ -7,6 +7,8 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.InfoFactory;
 import com.elster.jupiter.rest.util.PropertyDescriptionInfo;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.imp.Batch;
 import com.energyict.mdc.device.data.imp.DeviceImportService;
@@ -88,14 +90,49 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
         infos.add(createDescription("id", Long.class));
         infos.add(createDescription("mRID", String.class));
         infos.add(createDescription("serialNumber", String.class));
-        infos.add(createDescription("deviceTypeName", String.class));
-        infos.add(createDescription("deviceConfigName", String.class));
+        infos.add(new DeviceTypeProperty());
+        infos.add(new DeviceConfigProperty());
         infos.add(createDescription("deviceProtocolPluggeableClassId", Long.class));
         infos.add(createDescription("yearOfCertification", Long.class));
         return infos;
     }
 
+    class DeviceTypeProperty extends PropertyDescriptionInfo {
+        public Object id;
+
+        public DeviceTypeProperty() {
+            super("deviceTypeName", DeviceType.class, thesaurus.getString("deviceType", "Device type"));
+            this.id = new SubId();
+            ((SubId)this.id).deviceType = "deviceTypeId";
+        }
+
+        class SubId {
+            public String deviceType;
+        }
+    }
+
+    class DeviceConfigProperty extends PropertyDescriptionInfo {
+        public Object id;
+
+        public DeviceConfigProperty() {
+            super("deviceConfigurationName", DeviceConfiguration.class, thesaurus.getString("deviceConfig", "Device configuration"));
+            this.id = new SubId();
+            ((SubId)this.id).deviceType = "deviceTypeId";
+            ((SubId)this.id).deviceConfig = "deviceConfigurationId";
+        }
+
+        class SubId {
+            public String deviceType;
+            public String deviceConfig;
+        }
+    }
+
+
     private PropertyDescriptionInfo createDescription(String propertyName, Class<?> aClass) {
+        return new PropertyDescriptionInfo(propertyName, aClass, thesaurus.getString(propertyName, propertyName));
+    }
+
+    private PropertyDescriptionInfo createDeviceTypeDescription(String propertyName, Class<?> aClass) {
         return new PropertyDescriptionInfo(propertyName, aClass, thesaurus.getString(propertyName, propertyName));
     }
 

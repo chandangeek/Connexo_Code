@@ -9,8 +9,8 @@ public enum TranslationSeeds implements TranslationKey {
     ID("id", "Identification"),
     MRID("mRID", "mRID"),
     SERIAL_NUMBER("serialNumber", "Serial number"),
-    DEVCIETYPE("deviceTypeName", "Device type"),
-    DEVICECONFIG("deviceConfigName", "Device configuration"),
+    DEVCIETYPE("deviceType", "Device type"),
+    DEVICECONFIG("deviceConfig", "Device configuration"),
     PLUGGEABLE_CLASS("deviceProtocolPluggeableClassId", "Device protocol pluggeable class"),
     YEAR_OF_CERTIFICATION("yearOfCertification", "Year of certification");
 
