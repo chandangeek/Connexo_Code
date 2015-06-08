@@ -1,6 +1,9 @@
 package com.energyict.mdc.firmware.rest.impl;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class FirmwareVersionInfo {
     public Long id;
     public String firmwareVersion;
