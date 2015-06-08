@@ -1,18 +1,23 @@
 package com.energyict.protocolimplv2.common;
 
 import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.TypedProperties;
-import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.meterdata.*;
-import com.energyict.mdc.protocol.*;
+import com.energyict.mdc.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.meterdata.CollectedLogBook;
+import com.energyict.mdc.meterdata.CollectedMessageList;
+import com.energyict.mdc.meterdata.CollectedRegister;
+import com.energyict.mdc.meterdata.CollectedTopology;
+import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.DeviceProtocol;
 import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
-import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
-import com.energyict.mdc.tasks.ConnectionType;
-import com.energyict.mdc.tasks.DeviceProtocolDialect;
-import com.energyict.mdw.offline.*;
-import com.energyict.protocol.*;
+import com.energyict.mdw.offline.OfflineDevice;
+import com.energyict.mdw.offline.OfflineDeviceMessage;
+import com.energyict.mdw.offline.OfflineRegister;
+import com.energyict.protocol.LoadProfileReader;
+import com.energyict.protocol.LogBookReader;
 import com.energyict.protocolimplv2.MdcManager;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -26,31 +31,9 @@ import java.util.List;
  */
 public abstract class AbstractGateway implements DeviceProtocol {
 
-    protected DeviceProtocolCache deviceCache;
-
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
-        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "init");
-    }
-
-    @Override
-    public List<DeviceProtocolCapabilities> getDeviceProtocolCapabilities() {
-        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "getDeviceProtocolCapabilities");
-    }
-
-    @Override
-    public List<PropertySpec> getRequiredProperties() {
-        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "getRequiredProperties");
-    }
-
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "getOptionalProperties");
-    }
-
-    @Override
-    public List<ConnectionType> getSupportedConnectionTypes() {
-        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "getSupportedConnectionTypes");
+        // Do nothing
     }
 
     @Override
@@ -79,18 +62,21 @@ public abstract class AbstractGateway implements DeviceProtocol {
     }
 
     @Override
+    public List<DeviceProtocolCapabilities> getDeviceProtocolCapabilities() {
+        List<DeviceProtocolCapabilities> capabilities = new ArrayList<>();
+        capabilities.add(DeviceProtocolCapabilities.PROTOCOL_MASTER);
+        capabilities.add(DeviceProtocolCapabilities.PROTOCOL_SESSION);
+        return capabilities;
+    }
+
+    @Override
     public String getSerialNumber() {
         throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "getSerialNumber");
     }
 
     @Override
-    public void setDeviceCache(DeviceProtocolCache deviceProtocolCache) {
-        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "setDeviceCache");
-    }
-
-    @Override
-    public DeviceProtocolCache getDeviceCache() {
-        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "getDeviceCache");
+    public Date getTime() {
+        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "getTime");
     }
 
     @Override
@@ -109,18 +95,8 @@ public abstract class AbstractGateway implements DeviceProtocol {
     }
 
     @Override
-    public Date getTime() {
-        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "getTime");
-    }
-
-    @Override
     public List<CollectedLogBook> getLogBookData(List<LogBookReader> logBooks) {
         throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "getLogBookData");
-    }
-
-    @Override
-    public List<DeviceMessageSpec> getSupportedMessages() {
-        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "getSupportedMessages");
     }
 
     @Override
@@ -139,21 +115,6 @@ public abstract class AbstractGateway implements DeviceProtocol {
     }
 
     @Override
-    public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "getDeviceProtocolDialects");
-    }
-
-    @Override
-    public void addDeviceProtocolDialectProperties(TypedProperties dialectProperties) {
-        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "addDeviceProtocolDialectProperties");
-    }
-
-    @Override
-    public void setSecurityPropertySet(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
-        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "setSecurityPropertySet");
-    }
-
-    @Override
     public List<CollectedRegister> readRegisters(List<OfflineRegister> registers) {
         throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "readRegisters");
     }
@@ -161,15 +122,5 @@ public abstract class AbstractGateway implements DeviceProtocol {
     @Override
     public CollectedTopology getDeviceTopology() {
         throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "getDeviceTopology");
-    }
-
-    @Override
-    public String getVersion() {
-        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "getVersion");
-    }
-
-    @Override
-    public void addProperties(TypedProperties properties) {
-        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "addProperties");
     }
 }

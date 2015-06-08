@@ -12,7 +12,6 @@ import com.energyict.mdc.meterdata.CollectedTopology;
 import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.DeviceProtocolCache;
-import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
@@ -52,6 +51,7 @@ public class WebRTUWavenisGateway extends AbstractGateway {
     private RegisterReader registerReader;
     private DeviceIdentifier deviceIdentifier;
     private Messaging messaging;
+    private DeviceProtocolCache deviceCache;
 
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
@@ -80,14 +80,6 @@ public class WebRTUWavenisGateway extends AbstractGateway {
     @Override
     public void addProperties(TypedProperties properties) {
         //Do nothing
-    }
-
-    @Override
-    public List<DeviceProtocolCapabilities> getDeviceProtocolCapabilities() {
-        List<DeviceProtocolCapabilities> capabilities = new ArrayList<>();
-        capabilities.add(DeviceProtocolCapabilities.PROTOCOL_MASTER);
-        capabilities.add(DeviceProtocolCapabilities.PROTOCOL_SESSION);
-        return capabilities;
     }
 
     @Override
