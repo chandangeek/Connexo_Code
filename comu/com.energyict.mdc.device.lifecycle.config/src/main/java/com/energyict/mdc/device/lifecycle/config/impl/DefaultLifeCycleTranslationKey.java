@@ -12,7 +12,15 @@ import com.elster.jupiter.nls.TranslationKey;
  */
 public enum DefaultLifeCycleTranslationKey implements TranslationKey {
 
-    DEFAULT_DEVICE_LIFE_CYCLE_NAME("dlc.default.device.life.cycle", "Default life cycle");
+    DEFAULT_DEVICE_LIFE_CYCLE_NAME("dlc.standard.device.life.cycle", "Standard device life cycle"),
+    TRANSITION_START_COMMISSIONING("#commissioning", "Start commissioning"),
+    TRANSITION_ACTIVATE("#activated", "Activate"),
+    TRANSITION_INSTALL_ACTIVE("#installed#activated", "Install active"),
+    TRANSITION_INSTALL("#installed", "Install inactive"),
+    TRANSITION_DEACTIVATE("#deactivated", "Deactivate"),
+    TRANSITION_DEACTIVATE_DECOMMISSION("#deactivated#decomissioned", "Deactivate and decommission"),
+    TRANSITION_DECOMMISSION("#decommissioned", "Decommission"),
+    TRANSITION_REMOVE("#deleted", "Remove");
 
     private final String key;
     private final String defaultFormat;

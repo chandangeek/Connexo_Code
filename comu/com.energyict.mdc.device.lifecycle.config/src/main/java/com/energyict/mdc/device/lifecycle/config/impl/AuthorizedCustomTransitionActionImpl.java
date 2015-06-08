@@ -1,6 +1,6 @@
 package com.energyict.mdc.device.lifecycle.config.impl;
 
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
+import com.elster.jupiter.nls.Thesaurus;
 
 import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.orm.DataModel;
@@ -15,15 +15,23 @@ import javax.inject.Inject;
  */
 public class AuthorizedCustomTransitionActionImpl extends AuthorizedTransitionActionImpl {
 
+    private final Thesaurus thesaurus;
+
     @Inject
-    public AuthorizedCustomTransitionActionImpl(DataModel dataModel) {
+    public AuthorizedCustomTransitionActionImpl(DataModel dataModel, Thesaurus thesaurus) {
         super(dataModel);
+        this.thesaurus = thesaurus;
     }
 
     public AuthorizedCustomTransitionActionImpl initialize(DeviceLifeCycleImpl deviceLifeCycle, StateTransition stateTransition) {
         this.setDeviceLifeCycle(deviceLifeCycle);
         this.setStateTransition(stateTransition);
         return this;
+    }
+
+    @Override
+    public String getName() {
+        return getStateTransition().getName(thesaurus);
     }
 
     @Override
