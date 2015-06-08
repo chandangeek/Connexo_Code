@@ -42,6 +42,7 @@ import static com.elster.jupiter.issue.rest.request.RequestHelper.START;
 import static com.elster.jupiter.issue.rest.request.RequestHelper.STATUS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyLong;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -95,7 +96,7 @@ public class IssueResourceTest extends IssueDataCollectionApplicationJerseyTest 
     public void testGetIssueById() {
         when(deviceService.findDeviceById(anyLong())).thenReturn(Optional.<Device>empty());
         Optional<IssueDataCollection> issue = Optional.of(getDefaultIssue());
-        when(issueDataCollectionService.findIssue(1)).thenReturn(issue);
+        doReturn(issue).when(issueDataCollectionService).findIssue(1);
 
         Map<?, ?> map = target("/issue/1").request().get(Map.class);
         Map<?, ?> issueMap = (Map<?, ?>) map.get("data");
@@ -182,7 +183,7 @@ public class IssueResourceTest extends IssueDataCollectionApplicationJerseyTest 
     @Test
     public void testPerformAction() {
         Optional<IssueDataCollection> issue = Optional.of(getDefaultIssue());
-        when(issueDataCollectionService.findIssue(1)).thenReturn(issue);
+        doReturn(issue).when(issueDataCollectionService).findIssue(1);
 
         Optional<IssueActionType> mockActionType = Optional.of(getDefaultIssueActionType());
         when(issueActionService.findActionType(1)).thenReturn(mockActionType);
@@ -205,7 +206,7 @@ public class IssueResourceTest extends IssueDataCollectionApplicationJerseyTest 
     @Test
     public void testPerformUnexistingAction() {
         Optional<IssueDataCollection> issue = Optional.of(getDefaultIssue());
-        when(issueDataCollectionService.findIssue(1)).thenReturn(issue);
+        doReturn(issue).when(issueDataCollectionService).findIssue(1);
         when(issueActionService.findActionType(1)).thenReturn(Optional.empty());
 
         PerformActionRequest request = new PerformActionRequest();

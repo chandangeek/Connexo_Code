@@ -34,7 +34,6 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -59,7 +58,6 @@ import com.elster.jupiter.issue.rest.response.device.DeviceInfo;
 import com.elster.jupiter.issue.rest.transactions.AssignIssueTransaction;
 import com.elster.jupiter.issue.rest.transactions.CreateCommentTransaction;
 import com.elster.jupiter.issue.security.Privileges;
-import com.elster.jupiter.issue.share.IssueAction;
 import com.elster.jupiter.issue.share.IssueActionResult;
 import com.elster.jupiter.issue.share.entity.HistoricalIssue;
 import com.elster.jupiter.issue.share.entity.Issue;
@@ -160,7 +158,7 @@ public class IssueResource extends BaseResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_ISSUE,Privileges.ASSIGN_ISSUE,Privileges.CLOSE_ISSUE,Privileges.COMMENT_ISSUE,Privileges.ACTION_ISSUE})
     public Response getIssueById(@PathParam(ID) long id) {
-        Optional<IssueDataCollection> issue = getIssueDataCollectionService().findIssue(id);
+        Optional<? extends IssueDataCollection> issue = getIssueDataCollectionService().findIssue(id);
         return issue
                 .map(i -> entity(issuesInfoFactory.asInfo(i, DeviceInfo.class)).build())
                 .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
@@ -197,7 +195,7 @@ public class IssueResource extends BaseResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_ISSUE,Privileges.ASSIGN_ISSUE,Privileges.CLOSE_ISSUE,Privileges.COMMENT_ISSUE,Privileges.ACTION_ISSUE})
     public PagedInfoList getActions(@PathParam("id") long id, @BeanParam JsonQueryParameters queryParameters) {
-        Optional<IssueDataCollection> issueRef = getIssueDataCollectionService().findIssue(id);
+        Optional<? extends IssueDataCollection> issueRef = getIssueDataCollectionService().findIssue(id);
         if (!issueRef.isPresent()) {
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
