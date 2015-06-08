@@ -12,9 +12,8 @@ Ext.define('Mdc.view.setup.deviceregisterdata.billing.Setup', {
                 ui: 'large',
                 items: [
                     {
-                        xtype: 'filter-top-panel',
-                        itemId: 'deviceregisterdatafilterpanel',
-                        emptyText: Uni.I18n.translate('general.none', 'MDC', 'None')
+                        xtype: 'mdc-registers-topfilter',
+                        itemId: 'deviceregistersdatafilterpanel'
                     },
                     {
                         items: [
