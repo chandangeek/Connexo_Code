@@ -1,6 +1,8 @@
 package com.energyict.mdc.device.data.impl.security;
 
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
+
+import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
@@ -406,6 +408,7 @@ public class SecurityPropertyServiceImplTest {
         private PropertySpecService propertySpecService;
         private LicenseService licenseService;
         private DeviceConfigurationService deviceConfigurationService;
+        private TimeService timeService;
 
         public RelationService getRelationService() {
             return relationService;
@@ -422,6 +425,7 @@ public class SecurityPropertyServiceImplTest {
                     new AbstractModule() {
                         @Override
                         protected void configure() {
+                            bind(TimeService.class).toInstance(timeService);
                             bind(JsonService.class).toInstance(new JsonServiceImpl());
                             bind(BeanService.class).toInstance(new BeanServiceImpl());
                             bind(Clock.class).toInstance(clock);
@@ -481,6 +485,7 @@ public class SecurityPropertyServiceImplTest {
         }
 
         private void initializeMocks() {
+            this.timeService = mock(TimeService.class);
             this.bundleContext = mock(BundleContext.class);
             this.eventAdmin = mock(EventAdmin.class);
             this.principal = mock(Principal.class);

@@ -10,6 +10,7 @@ import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
 import com.energyict.mdc.dynamic.impl.PropertySpecServiceImpl;
 
 import com.elster.jupiter.datavault.DataVaultService;
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
@@ -80,6 +81,9 @@ public class DeviceConfigurationSearchablePropertyTest {
         when(this.deviceConfigurationFinder.factoryId()).thenReturn(FactoryIds.DEVICE_CONFIGURATION);
         when(this.deviceConfigurationFinder.valueDomain()).thenReturn(DeviceConfiguration.class);
         when(this.deviceConfigurationProvider.finders()).thenReturn(Arrays.asList(this.deviceTypeFinder, this.deviceConfigurationFinder));
+        Finder<DeviceType> finder = mock(Finder.class);
+        when(finder.find()).thenReturn(Collections.emptyList());
+        when(this.deviceConfigurationService.findAllDeviceTypes()).thenReturn(finder);
         this.propertySpecService.addFactoryProvider(this.deviceConfigurationProvider);
         this.deviceTypeSearchableProperty = new DeviceTypeSearchableProperty(this.deviceConfigurationService, this.propertySpecService, this.thesaurus);
     }
