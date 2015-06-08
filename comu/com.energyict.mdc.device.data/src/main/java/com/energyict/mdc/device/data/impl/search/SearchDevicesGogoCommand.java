@@ -10,13 +10,15 @@ import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.util.Pair;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -37,6 +39,7 @@ import java.util.stream.Stream;
 @SuppressWarnings("unused")
 public class SearchDevicesGogoCommand {
 
+    private static final Pattern conditionPattern = Pattern.compile("([^<>=!]*)((?:!)?=|<(?:=)?|>(?:=)?|like)(.*)");
     private volatile SearchService searchService;
     private volatile TransactionService transactionService;
 
@@ -81,10 +84,11 @@ public class SearchDevicesGogoCommand {
     @SuppressWarnings("unused")
     public void listOptions() {
         System.out.println("Usage mdc.device.search:search <condition>[ <condition]*");
-        System.out.println("      where condition is: <key>=<value>");
-        System.out.println("      and key is one of the following");
-        System.out.println("         " + this.getDeviceSearchDomain().getProperties().stream().map(this::toString).collect(Collectors.joining("\n         ")));
-        System.out.println("      and value is the String representation of the type of the key that was used");
+        System.out.println("      where condition is: <key><operator><value>");
+        System.out.println("            key is one of the following");
+        System.out.println("               " + this.getDeviceSearchDomain().getProperties().stream().map(this::toString).collect(Collectors.joining("\n               ")));
+        System.out.println("            operator is " + Operator.allSymbols());
+        System.out.println("            value is the String representation of the type of the key that was used");
         System.out.println("      Note that when the value type is String, wildcards * and ? are allowed");
     }
 
@@ -112,8 +116,8 @@ public class SearchDevicesGogoCommand {
         SearchBuilder<Device> builder = this.searchService.search(Device.class);
         Stream
             .of(conditions)
-            .map(this::toKeyValuePair)
-            .forEach(p -> this.addCondition(builder, p.getFirst(), p.getLast()));
+            .map(this::toConditionSpecification)
+            .forEach(spec -> this.addCondition(builder, spec));
         List<Device> devices = builder.toFinder().find();
         long queryEnd = System.currentTimeMillis();
         long renderingStart = System.currentTimeMillis();
@@ -127,27 +131,42 @@ public class SearchDevicesGogoCommand {
         System.out.println("Rendering them took " + (renderingEnd - renderingStart) + " millis");
     }
 
-    private Pair<String, Object> toKeyValuePair(String condition) {
-        String[] keyAndValue = condition.split("=");
-        if (keyAndValue.length == 2) {
-            return Pair.of(keyAndValue[0], keyAndValue[1]);
+    private ConditionSpecification toConditionSpecification(String condition) {
+        Matcher conditionMatcher = conditionPattern.matcher(condition);
+        if (conditionMatcher.matches()) {
+            List<String> keyOperatorAndValue = Arrays.asList(conditionMatcher.group(1), conditionMatcher.group(2), conditionMatcher.group(3));
+            return new ConditionSpecification(keyOperatorAndValue);
         }
         else {
-            throw new IllegalArgumentException("All key value conditions must be written as: <key>=<value>");
+            throw new IllegalArgumentException("All key value conditions must be written as: <key><operator><value>");
         }
     }
 
-    private SearchBuilder<Device> addCondition(SearchBuilder<Device> builder, String key, Object value) {
+    private SearchBuilder<Device> addCondition(SearchBuilder<Device> builder, ConditionSpecification spec) {
         try {
-            if (this.isWildCard(value)) {
-                return builder.where(key).like((String) value);
-            }
-            else {
-                return builder.where(key).isEqualTo(value);
+            switch (spec.getOperator()) {
+                case EQUAL:
+                    return builder.where(spec.getKey()).isEqualTo(spec.getValue());
+                case NOTEQUAL:
+                    return builder.where(spec.getKey()).isNotEqualTo(spec.getValue());
+                case GREATERTHAN:
+                    return builder.where(spec.getKey()).isGreaterThan(spec.getValue());
+                case GREATERTHANOREQUAL:
+                    return builder.where(spec.getKey()).isGreaterThanOrEqualTo(spec.getValue());
+                case LESSTHAN:
+                    return builder.where(spec.getKey()).isLessThan(spec.getValue());
+                case LESSTHANOREQUAL:
+                    return builder.where(spec.getKey()).isLessThanOrEqualTo(spec.getValue());
+                case LIKE: {
+                    return builder.where(spec.getKey()).like(spec.getValue());
+                }
+                default: {
+                    throw new IllegalArgumentException("Unexpected or unsupported operator " + spec.getOperator());
+                }
             }
         }
         catch (InvalidValueException e) {
-            System.out.printf(String.valueOf(value) + " is not a valid value for property " + key);
+            System.out.printf(String.valueOf(spec.getValue()) + " is not a valid value for property " + spec.getKey());
             e.printStackTrace(System.err);
             throw new IllegalArgumentException(e);
         }
@@ -180,6 +199,68 @@ public class SearchDevicesGogoCommand {
 
     private String toString(Device device) {
         return device.getmRID() + " in state " + device.getState().getName();
+    }
+
+    private enum Operator {
+        EQUAL("="),
+        NOTEQUAL("!="),
+        GREATERTHAN(">"),
+        LESSTHAN("<"),
+        GREATERTHANOREQUAL(">="),
+        LESSTHANOREQUAL("<="),
+        LIKE("like");
+
+        private final String symbol;
+        Operator(String symbol) {
+            this.symbol = symbol;
+        }
+
+        public String getSymbol() {
+            return symbol;
+        }
+
+        public static Operator from(String symbol) {
+            return Stream
+                    .of(values())
+                    .filter(o -> symbol.equals(o.getSymbol()))
+                    .findFirst()
+                    .orElseThrow(() -> new IllegalArgumentException("Unknown or unsupported operator " + symbol));
+        }
+
+        public static String allSymbols() {
+            return Stream
+                    .of(values())
+                    .map(Operator::getSymbol)
+                    .collect(Collectors.joining(", "));
+        }
+    }
+
+    private class ConditionSpecification {
+        private final String key;
+        private final Operator operator;
+        private final String value;
+
+        private ConditionSpecification(List<String> tokens) {
+            this(tokens.get(0), tokens.get(1), tokens.get(2));
+        }
+
+        private ConditionSpecification(String key, String operator, String value) {
+            this.key = key;
+            this.operator = Operator.from(operator);
+            this.value = value;
+        }
+
+        public String getKey() {
+            return key;
+        }
+
+        public Operator getOperator() {
+            return operator;
+        }
+
+        public String getValue() {
+            return value;
+        }
     }
 
 }
