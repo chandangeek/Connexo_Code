@@ -35,7 +35,7 @@ public class FirmwareStorage {
     private void updateFirmwareVersionForType(Optional<String> collectedFirmwareVersion, Device device, FirmwareType firmwareType) {
         collectedFirmwareVersion.ifPresent(version -> {
             if (!version.isEmpty()) {
-                Optional<FirmwareVersion> existingFirmwareVersion = getFirmwareVersionFor(version, device.getDeviceType());
+                Optional<FirmwareVersion> existingFirmwareVersion = getFirmwareVersionFor(version, device.getDeviceType(), firmwareType);
                 existingFirmwareVersion.map(firmwareVersion -> createOrUpdateActiveVersion(device, firmwareVersion)).
                         orElseGet(() -> createOrUpdateActiveVersion(device, createNewGhostFirmwareVersion(device, version, firmwareType)));
             }
@@ -44,12 +44,12 @@ public class FirmwareStorage {
 
     private FirmwareVersion createNewGhostFirmwareVersion(Device device, String version, FirmwareType firmwareType) {
         FirmwareVersion ghostVersion = getFirmwareService().newFirmwareVersion(device.getDeviceType(), version, FirmwareStatus.GHOST, firmwareType);
-        getFirmwareService().saveFirmwareVersion(ghostVersion);
+        ghostVersion.save();
         return ghostVersion;
     }
 
     private ActivatedFirmwareVersion createOrUpdateActiveVersion(Device device, FirmwareVersion collectedFirmwareVersion) {
-        Optional<ActivatedFirmwareVersion> activeFirmwareVersion = getCurrentActivatedFirmwareVersionFor(device, collectedFirmwareVersion.getFirmwareType());
+        Optional<ActivatedFirmwareVersion> activeFirmwareVersion = getFirmwareService().getActiveFirmwareVersion(device, collectedFirmwareVersion.getFirmwareType());
 
         ActivatedFirmwareVersion activatedFirmwareVersion;
         if (!checkIfFirmwareVersionsAreEqual(collectedFirmwareVersion, activeFirmwareVersion)) {
@@ -58,7 +58,7 @@ public class FirmwareStorage {
             activatedFirmwareVersion = activeFirmwareVersion.get();
         }
         activatedFirmwareVersion.setLastChecked(now());
-        getFirmwareService().saveActivatedFirmwareVersion(activatedFirmwareVersion);
+        activatedFirmwareVersion.save();
         return activatedFirmwareVersion;
     }
 
@@ -76,22 +76,12 @@ public class FirmwareStorage {
                 .orElse(false);
     }
 
-    private Optional<ActivatedFirmwareVersion> getCurrentActivatedFirmwareVersionFor(Device device, FirmwareType firmwareType) {
-        Optional<ActivatedFirmwareVersion> activeFirmwareVersion = Optional.empty();
-        if (firmwareType.equals(FirmwareType.METER)) {
-            activeFirmwareVersion = getFirmwareService().getCurrentMeterFirmwareVersionFor(device);
-        } else if (firmwareType.equals(FirmwareType.COMMUNICATION)) {
-            activeFirmwareVersion = getFirmwareService().getCurrentCommunicationFirmwareVersionFor(device);
-        }
-        return activeFirmwareVersion;
-    }
-
     private Interval getIntervalFromNow() {
         return Interval.of(Range.atLeast(now()));
     }
 
-    private Optional<FirmwareVersion> getFirmwareVersionFor(String collectedVersion, DeviceType deviceType) {
-        return getFirmwareService().getFirmwareVersionByVersion(collectedVersion, deviceType);
+    private Optional<FirmwareVersion> getFirmwareVersionFor(String collectedVersion, DeviceType deviceType, FirmwareType firmwareType) {
+        return getFirmwareService().getFirmwareVersionByVersionAndType(collectedVersion, firmwareType, deviceType);
     }
 
 }

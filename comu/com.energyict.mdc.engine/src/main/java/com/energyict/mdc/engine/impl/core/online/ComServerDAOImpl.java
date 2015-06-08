@@ -401,7 +401,6 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public void executionCompleted(final ComTaskExecution comTaskExecution) {
-//        this.toServerComTaskExecution(comTaskExecution).executionCompleted();
         getCommunicationTaskService().executionCompletedFor(comTaskExecution);
     }
 
@@ -414,7 +413,6 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public void executionFailed(final ComTaskExecution comTaskExecution) {
-//        this.toServerComTaskExecution(comTaskExecution).executionFailed();
         getCommunicationTaskService().executionFailedFor(comTaskExecution);
     }
 
