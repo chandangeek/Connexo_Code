@@ -3,7 +3,6 @@ Ext.define('Mdc.store.SecuritySettingsOfDeviceConfiguration', {
     requires: [
         'Mdc.model.SecuritySetting'
     ],
-
     model: 'Mdc.model.SecuritySetting',
     storeId: 'SecuritySettingsOfDeviceConfiguration',
     proxy: {

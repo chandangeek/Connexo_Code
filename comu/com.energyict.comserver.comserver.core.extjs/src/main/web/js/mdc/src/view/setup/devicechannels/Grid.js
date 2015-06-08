@@ -23,7 +23,7 @@ Ext.define('Mdc.view.setup.devicechannels.Grid', {
                 flex: 2,
                 showTimeAttribute: false,
                 makeLink: function (record) {
-                    return me.router.getRoute('devices/device/channels/channeldata').buildUrl({mRID: me.mRID, channelId: record.getId()});
+                    return me.router.getRoute('devices/device/channels/channeldata').buildUrl({mRID: encodeURIComponent(me.mRID), channelId: record.getId()});
                 }
             },
             {

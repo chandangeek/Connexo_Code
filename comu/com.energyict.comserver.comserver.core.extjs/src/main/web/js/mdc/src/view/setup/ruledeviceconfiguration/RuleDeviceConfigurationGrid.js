@@ -13,7 +13,8 @@ Ext.define('Mdc.view.setup.ruledeviceconfiguration.RuleDeviceConfigurationGrid',
             {
                 header: Uni.I18n.translate('validation.deviceConfiguration', 'CFG', 'Device configuration'),
                 dataIndex: 'config_name_link',
-                flex: 1
+                flex: 1,
+                renderer: false
             },
             {
                 header: Uni.I18n.translate('validation.deviceType', 'CFG', 'Device type'),

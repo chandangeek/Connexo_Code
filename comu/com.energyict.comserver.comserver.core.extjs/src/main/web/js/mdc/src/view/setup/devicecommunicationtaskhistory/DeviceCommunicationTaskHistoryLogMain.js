@@ -107,7 +107,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                                                     if (value && value !== '') {
                                                         var data = this.up('form').getRecord().data;
 
-                                                        var link = '#/devices/' + data.comSession.device.id
+                                                        var link = '#/devices/' + encodeURIComponent(data.comSession.device.id)
                                                             + '/connectionmethods/' + data.comSession.connectionMethod.id
                                                             + '/history/' + data.comSession.id
                                                             + '/viewlog' +

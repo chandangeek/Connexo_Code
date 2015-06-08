@@ -65,6 +65,7 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceCommunicationTaskExecut
                                     name: 'comTasks',
                                     fieldLabel: Uni.I18n.translate('deviceconnectionhistory.comTasks', 'MDC', 'Communication task(s)'),
                                     itemId: 'comTasks',
+                                    htmlEncode: false,
                                     renderer: function(value){
                                         if(value!==''){
                                             var result = '';
