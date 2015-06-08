@@ -315,7 +315,7 @@ Ext.define('Fwc.controller.Firmware', {
                 record.doValidate(precallback);
             };
 
-            reader.readAsBinaryString(file);
+            reader.readAsArrayBuffer(file);
         } else {
             record.doValidate(precallback);
         }
