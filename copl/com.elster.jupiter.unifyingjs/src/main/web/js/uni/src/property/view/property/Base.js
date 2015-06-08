@@ -110,7 +110,6 @@ Ext.define('Uni.property.view.property.Base', {
                 me.onEditFunc.func(1, me.onEditFunc.scope);
             }
         } else {
-            me.setValue(null);
             me.usedIcon = me.editIcon;
             tooltipText = me.editButtonTooltip;
             this.property.isEdited = false;
