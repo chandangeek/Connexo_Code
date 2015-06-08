@@ -5,18 +5,19 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.ExecutableAction;
 import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
+import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 
 import com.elster.jupiter.fsm.CustomStateTransitionEventType;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransitionEventType;
-import com.elster.jupiter.properties.InstantFactory;
+import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.streams.DecoratedStream;
 import com.elster.jupiter.util.time.DefaultDateTimeFormatters;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -28,8 +29,9 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Provides gogo commands that support the device life cycle.
@@ -55,7 +57,6 @@ public class DeviceLifeCycleCommands {
     private volatile TransactionService transactionService;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile FiniteStateMachineService finiteStateMachineService;
-    private volatile PropertySpecService propertySpecService;
 
     public DeviceLifeCycleCommands() {
         super();
@@ -101,12 +102,6 @@ public class DeviceLifeCycleCommands {
     @SuppressWarnings("unused")
     public void setFiniteStateMachineService(FiniteStateMachineService finiteStateMachineService) {
         this.finiteStateMachineService = finiteStateMachineService;
-    }
-
-    @Reference
-    @SuppressWarnings("unused")
-    public void setPropertySpecService(PropertySpecService propertySpecService) {
-        this.propertySpecService = propertySpecService;
     }
 
     @SuppressWarnings("unused")
@@ -204,9 +199,33 @@ public class DeviceLifeCycleCommands {
     }
 
     private void execute(ExecutableAction action, Device device, Instant effectiveTimestamp) {
-        action.execute(Arrays.asList(
-                new EffectiveTimestampPropertyValue(effectiveTimestamp),
-                new LastCheckedTimestampPropertyValue(effectiveTimestamp)));
+        AuthorizedTransitionAction authorizedTransitionAction = (AuthorizedTransitionAction) action.getAction();
+        List<ExecutableActionProperty> properties =
+                DecoratedStream
+                    .decorate(authorizedTransitionAction.getActions().stream())
+                    .flatMap(ma -> this.deviceLifeCycleService.getPropertySpecsFor(ma).stream())
+                    .distinct(PropertySpec::getName)
+                    .map(ps -> this.toExecutableActionProperty(ps, effectiveTimestamp))
+                    .collect(Collectors.toList());
+        action.execute(properties);
+    }
+
+    private ExecutableActionProperty toExecutableActionProperty(PropertySpec propertySpec, Instant effectiveTimestamp) {
+        try {
+            if (DeviceLifeCycleService.MicroActionPropertyName.EFFECTIVE_TIMESTAMP.key().equals(propertySpec.getName())) {
+                return this.deviceLifeCycleService.toExecutableActionProperty(effectiveTimestamp, propertySpec);
+            }
+            else if (DeviceLifeCycleService.MicroActionPropertyName.LAST_CHECKED.key().equals(propertySpec.getName())) {
+                return this.deviceLifeCycleService.toExecutableActionProperty(effectiveTimestamp, propertySpec);
+            }
+            else {
+                throw new IllegalArgumentException("Unknown or unsupported PropertySpec: " + propertySpec.getName() + " that requires value type: " + propertySpec.getValueFactory().getValueType());
+            }
+        }
+        catch (InvalidValueException e) {
+            e.printStackTrace(System.err);
+            throw new RuntimeException(e);
+        }
     }
 
     @SuppressWarnings("unused")
@@ -295,52 +314,6 @@ public class DeviceLifeCycleCommands {
 
     private Principal getPrincipal() {
         return this.userService.findUser("admin").get();
-    }
-
-    private class EffectiveTimestampPropertyValue implements ExecutableActionProperty {
-
-        private final Instant effectiveTimestamp;
-
-        public EffectiveTimestampPropertyValue(Instant effectiveTimestamp) {
-            super();
-            this.effectiveTimestamp = effectiveTimestamp;
-        }
-
-        @Override
-        public PropertySpec getPropertySpec() {
-            return propertySpecService.basicPropertySpec(
-                    DeviceLifeCycleService.MicroActionPropertyName.EFFECTIVE_TIMESTAMP.key(),
-                    true,
-                    new InstantFactory());
-        }
-
-        @Override
-        public Object getValue() {
-            return this.effectiveTimestamp;
-        }
-    }
-
-    private class LastCheckedTimestampPropertyValue implements ExecutableActionProperty {
-
-        private final Instant lastCheckedTimestamp;
-
-        public LastCheckedTimestampPropertyValue(Instant lastCheckedTimestamp) {
-            super();
-            this.lastCheckedTimestamp = lastCheckedTimestamp;
-        }
-
-        @Override
-        public PropertySpec getPropertySpec() {
-            return propertySpecService.basicPropertySpec(
-                    DeviceLifeCycleService.MicroActionPropertyName.LAST_CHECKED.key(),
-                    true,
-                    new InstantFactory());
-        }
-
-        @Override
-        public Object getValue() {
-            return this.lastCheckedTimestamp;
-        }
     }
 
 }
