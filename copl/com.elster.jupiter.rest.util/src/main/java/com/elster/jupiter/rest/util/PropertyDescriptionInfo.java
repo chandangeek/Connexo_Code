@@ -6,12 +6,12 @@ package com.elster.jupiter.rest.util;
  */
 public class PropertyDescriptionInfo {
     public String name;
-    public Class<?> type;
+    public String type;
     public String displayValue;
 
-    public PropertyDescriptionInfo(String name, Class<?> type, String displayValue) {
+    public PropertyDescriptionInfo(String name, Class<?> aClass, String displayValue) {
         this.name = name;
-        this.type = type;
+        this.type = aClass.getSimpleName();
         this.displayValue = displayValue;
     }
 }
