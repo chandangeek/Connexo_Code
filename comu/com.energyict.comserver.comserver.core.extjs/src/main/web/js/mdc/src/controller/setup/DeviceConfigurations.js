@@ -137,13 +137,13 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
 
             Ext.suspendLayouts();
 
-            registerLink.setHref('#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + deviceConfigurationId + '/registerconfigurations');
+            registerLink.setHref('#/administration/devicetypes/' + encodeURIComponent(this.deviceTypeId) + '/deviceconfigurations/' + encodeURIComponent(deviceConfigurationId) + '/registerconfigurations');
             registerLink.setText(deviceConfigurations[0].get('registerCount') + ' ' + Uni.I18n.translatePlural('deviceconfig.registerconfigs', deviceConfigurations[0].get('registerCount'), 'MDC', 'register configurations'));
 
-            logBookLink.setHref('#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + deviceConfigurationId + '/logbookconfigurations');
+            logBookLink.setHref('#/administration/devicetypes/' + encodeURIComponent(this.deviceTypeId) + '/deviceconfigurations/' + encodeURIComponent(deviceConfigurationId) + '/logbookconfigurations');
             logBookLink.setText(deviceConfigurations[0].get('logBookCount') + ' ' + Uni.I18n.translatePlural('general.logbookConfigurations', deviceConfigurations[0].get('logBookCount'), 'MDC', 'logbook configurations'));
 
-            loadProfilesLink.setHref('#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + deviceConfigurationId + '/loadprofiles');
+            loadProfilesLink.setHref('#/administration/devicetypes/' + encodeURIComponent(this.deviceTypeId) + '/deviceconfigurations/' + encodeURIComponent(deviceConfigurationId) + '/loadprofiles');
             loadProfilesLink.setText(deviceConfigurations[0].get('loadProfileCount') + ' ' + Uni.I18n.translatePlural('general.loadProfileConfigurations', deviceConfigurations[0].get('loadProfileCount'), 'MDC', 'load profile configurations'));
 
             this.getDeviceConfigurationPreviewForm().loadRecord(deviceConfigurations[0]);
@@ -156,7 +156,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                 this.getDeviceConfigurationPreview().down('#device-configuration-action-menu').record = deviceConfigurations[0];
             }
             this.getDeviceConfigurationPreview().getLayout().setActiveItem(1);
-            this.getDeviceConfigurationPreview().setTitle(deviceConfigurations[0].get('name'));
+            this.getDeviceConfigurationPreview().setTitle(Ext.String.htmlEncode(deviceConfigurations[0].get('name')));
 
             Ext.resumeLayouts(true);
         } else {
@@ -187,13 +187,13 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
 
                         Ext.suspendLayouts();
 
-                        registerLink.setHref('#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + deviceConfigurationId + '/registerconfigurations');
+                        registerLink.setHref('#/administration/devicetypes/' + encodeURIComponent(me.deviceTypeId) + '/deviceconfigurations/' + encodeURIComponent(deviceConfigurationId) + '/registerconfigurations');
                         registerLink.setText(deviceConfiguration.get('registerCount') + ' ' + Uni.I18n.translatePlural('deviceconfig.registerconfigs', deviceConfiguration.get('registerCount'), 'MDC', 'register configurations'));
 
-                        logBookLink.setHref('#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + deviceConfigurationId + '/logbookconfigurations');
+                        logBookLink.setHref('#/administration/devicetypes/' + encodeURIComponent(me.deviceTypeId) + '/deviceconfigurations/' + encodeURIComponent(deviceConfigurationId) + '/logbookconfigurations');
                         logBookLink.setText(deviceConfiguration.get('logBookCount') + ' ' + Uni.I18n.translatePlural('general.logbookConfigurations', deviceConfiguration.get('logBookCount'), 'MDC', 'logbook configurations'));
 
-                        loadProfilesLink.setHref('#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + deviceConfigurationId + '/loadprofiles');
+                        loadProfilesLink.setHref('#/administration/devicetypes/' + encodeURIComponent(me.deviceTypeId) + '/deviceconfigurations/' + encodeURIComponent(deviceConfigurationId) + '/loadprofiles');
                         loadProfilesLink.setText(deviceConfiguration.get('loadProfileCount') + ' ' + Uni.I18n.translatePlural('general.loadProfileConfigurations', deviceConfiguration.get('loadProfileCount'), 'MDC', 'load profile configurations'));
 
                         widget.down('form').loadRecord(deviceConfiguration);
@@ -211,15 +211,15 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
     },
 
     createDeviceConfigurationHistory: function () {
-        location.href = '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/add';
+        location.href = '#/administration/devicetypes/' + encodeURIComponent(this.deviceTypeId) + '/deviceconfigurations/add';
     },
 
     editDeviceConfigurationHistory: function (record) {
-        location.href = '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + record.get('id') + '/edit';
+        location.href = '#/administration/devicetypes/' + encodeURIComponent(this.deviceTypeId) + '/deviceconfigurations/' + encodeURIComponent(record.get('id')) + '/edit';
     },
 
     editDeviceConfigurationHistoryFromPreview: function () {
-        location.href = '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.getDeviceConfigurationsGrid().getSelectionModel().getSelection()[0].get('id') + '/edit';
+        location.href = '#/administration/devicetypes/' + encodeURIComponent(this.deviceTypeId) + '/deviceconfigurations/' + encodeURIComponent(this.getDeviceConfigurationsGrid().getSelectionModel().getSelection()[0].get('id')) + '/edit';
     },
 
     editDeviceConfigurationFromDetailsHistory: function () {
@@ -348,7 +348,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         this.deviceTypeId = deviceTypeId;
         var widget = Ext.widget('deviceConfigurationEdit', {
             edit: false,
-            returnLink: '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations'
+            returnLink: '#/administration/devicetypes/' + encodeURIComponent(this.deviceTypeId) + '/deviceconfigurations'
         });
 
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {

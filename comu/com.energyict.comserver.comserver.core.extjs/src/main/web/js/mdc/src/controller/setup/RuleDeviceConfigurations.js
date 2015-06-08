@@ -111,7 +111,7 @@ Ext.define('Mdc.controller.setup.RuleDeviceConfigurations', {
         var me = this,
             itemForm = me.getRuleDeviceConfigurationBrowsePanel().down('rule-device-configuration-preview');
         itemForm.loadRecord(record);
-        itemForm.setTitle(record.get('config_name'));
+        itemForm.setTitle(Ext.String.htmlEncode(record.get('config_name')));
     },
 
     onAllDeviceConfigurationsAdd: function () {

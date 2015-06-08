@@ -199,7 +199,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
             success: function (device) {
                 me.getApplication().fireEvent('loadDevice', device);
                 var model = Ext.ModelManager.getModel('Mdc.model.Register');
-                model.getProxy().setExtraParam('mRID', mRID);
+                model.getProxy().setExtraParam('mRID', encodeURIComponent(mRID));
                 model.load(registerId, {
                     success: function (register) {
                         model = Ext.ModelManager.getModel(me.getReadingModelClassByType(register.get('type')));
@@ -209,7 +209,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
                                 var type = register.get('type');
                                 var widget = Ext.widget('deviceregisterreportedit-' + type, {
                                     edit: true,
-                                    returnLink: router.getRoute('devices/device/registers/registerdata').buildUrl({mRID: mRID, registerId: registerId}),
+                                    returnLink: router.getRoute('devices/device/registers/registerdata').buildUrl({mRID: encodeURIComponent(mRID), registerId: registerId}),
                                     registerType: type,
                                     router: router
                                 });
@@ -241,13 +241,13 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
             success: function (device) {
                 me.getApplication().fireEvent('loadDevice', device);
                 var model = Ext.ModelManager.getModel('Mdc.model.Register');
-                model.getProxy().setExtraParam('mRID', mRID);
+                model.getProxy().setExtraParam('mRID', encodeURIComponent(mRID));
                 model.load(registerId, {
                     success: function (register) {
                         var type = register.get('type');
                         var widget = Ext.widget('deviceregisterreportedit-' + type, {
                             edit: false,
-                            returnLink: router.getRoute('devices/device/registers/registerdata').buildUrl({mRID: mRID, registerId: registerId}),
+                            returnLink: router.getRoute('devices/device/registers/registerdata').buildUrl({mRID: encodeURIComponent(mRID), registerId: registerId}),
                             registerType: type,
                             mRID: mRID,
                             registerId: registerId,

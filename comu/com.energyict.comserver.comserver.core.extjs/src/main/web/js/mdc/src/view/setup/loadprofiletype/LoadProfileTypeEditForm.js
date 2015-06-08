@@ -29,15 +29,15 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeEditForm', {
             regex: /[a-zA-Z0-9]+/,
             allowBlank: false,
             required: true,
-            fieldLabel: 'Name',
+            fieldLabel: Uni.I18n.translate('general.formFieldLabel.name', 'MDC', 'Name'),
             msgTarget: 'under'
         },
         {
             xtype: 'combobox',
             allowBlank: false,
             itemId: 'timeDuration',
-            fieldLabel: 'Interval',
-            emptyText: '0 minutes',
+            fieldLabel: Uni.I18n.translate('loadProfileTypes.interval', 'MDC', 'Interval'),
+            emptyText: Uni.I18n.translate('loadProfileTypes.interval.epmtyText', 'MDC', '0 minutes'),
             name: 'timeDuration',
             displayField: 'name',
             valueField: 'id',
@@ -49,13 +49,13 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeEditForm', {
         {
             xtype: 'obis-field',
             itemId: 'txt-load-profile-type-obis-code',
-            fieldLabel: 'OBIS code',
+            fieldLabel: Uni.I18n.translate('loadProfileTypes.obisCode', 'MDC', 'OBIS code'),
             name: 'obisCode',
             msgTarget: 'under'
         },
         {
             xtype: 'fieldcontainer',
-            fieldLabel: 'Register types',
+            fieldLabel: Uni.I18n.translate('loadProfileTypes.registerTypes', 'MDC', 'Register types'),
             itemId: 'register-types-fieldcontainer',
             required: true,
             msgTarget: 'under',

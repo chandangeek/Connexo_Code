@@ -156,11 +156,11 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
     },
 
     addSharedCommunicationScheduleHistory: function () {
-        location.href = '#/devices/' + this.mrid + '/communicationplanning/add';
+        location.href = '#/devices/' + encodeURIComponent(this.mrid) + '/communicationplanning/add';
     },
 
     cancelSharedScheduleHistory: function () {
-        location.href = '#/devices/' + this.mrid + '/communicationplanning';
+        location.href = '#/devices/' + encodeURIComponent(this.mrid) + '/communicationplanning';
     },
 
     addSharedCommunicationSchedule: function (mrid) {
@@ -264,7 +264,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
                 jsonData: jsonData,
                 timeout: 180000,
                 success: function (response) {
-                    location.href = '#/devices/' + me.mrid + '/communicationplanning';
+                    location.href = '#/devices/' + encodeURIComponent(me.mrid) + '/communicationplanning';
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceCommunicationSchedule.addSharedScheduleSucceeded', 'MDC', 'Add shared communication schedule succeeded'));
                 }
             });

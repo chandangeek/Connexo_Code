@@ -74,11 +74,11 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationProtocols', {
     },
 
     editDeviceCommunicatonProtocolHistory: function (item) {
-        location.href = '#/administration/devicecommunicationprotocols/' + item.get('id') + '/edit';
+        location.href = '#/administration/devicecommunicationprotocols/' + encodeURIComponent(item.get('id')) + '/edit';
     },
 
     editDeviceCommunicationProtocolHistoryFromPreview: function () {
-        location.href = '#/administration/devicecommunicationprotocols/' + this.getDeviceCommunicationProtocolGrid().getSelectionModel().getSelection()[0].get('id') + '/edit';
+        location.href = '#/administration/devicecommunicationprotocols/' + encodeURIComponent(this.getDeviceCommunicationProtocolGrid().getSelectionModel().getSelection()[0].get('id')) + '/edit';
     },
 
     showDeviceCommunicationProtocolEditView: function (deviceCommunicationProtocol) {

@@ -76,11 +76,11 @@ Ext.define('Mdc.controller.setup.LogbookTypes', {
     },
 
     editLogbookTypeHistory: function (item) {
-        location.href = '#/administration/logbooktypes/' + item.get('id') + '/edit';
+        location.href = '#/administration/logbooktypes/' + encodeURIComponent(item.get('id')) + '/edit';
     },
 
     editLogbookTypeHistoryFromPreview: function () {
-        location.href = '#/administration/logbooktypes/' + this.getLogbookTypeGrid().getSelectionModel().getSelection()[0].get('id') + '/edit';
+        location.href = '#/administration/logbooktypes/' + encodeURIComponent(this.getLogbookTypeGrid().getSelectionModel().getSelection()[0].get('id')) + '/edit';
     },
 
     deleteLogbookType: function (logbookTypeToDelete) {

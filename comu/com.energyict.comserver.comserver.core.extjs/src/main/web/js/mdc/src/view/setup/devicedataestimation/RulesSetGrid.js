@@ -16,7 +16,7 @@ Ext.define('Mdc.view.setup.devicedataestimation.RulesSetGrid', {
                 header: Uni.I18n.translate('estimationDevice.estimationRuleSet', 'MDC', 'Estimation rule set'),
                 dataIndex: 'name',
                 renderer: function (value, metaData, record) {
-                    return '<a href="#/administration/estimationrulesets/' + record.getId() + '">' + value + '</a>';
+                    return '<a href="#/administration/estimationrulesets/' + record.getId() + '">' + Ext.String.htmlEncode(value) + '</a>';
                 },
                 flex: 1
             },

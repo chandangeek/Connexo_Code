@@ -19,9 +19,10 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationGrid
                     getLink: function (values) {
                         var config = Ext.ComponentQuery.query('loadProfileConfigurationSetup')[0].config;
 
-                        return Ext.String.format('<a href="#/administration/devicetypes/{0}/deviceconfigurations/{1}/loadprofiles/{2}/channels">{3}</a>', config.deviceTypeId, config.deviceConfigurationId, values.id, values.name);
+                        return Ext.String.format('<a href="#/administration/devicetypes/{0}/deviceconfigurations/{1}/loadprofiles/{2}/channels">{3}</a>', config.deviceTypeId, config.deviceConfigurationId, values.id, Ext.String.htmlEncode(values.name));
                     }
                 }),
+                renderer: false,
                 flex: 1
             },
             {
@@ -33,7 +34,7 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationGrid
                 dataIndex: 'timeDuration',
                 renderer: function (value) {
                     var intervalRecord = Ext.getStore('Mdc.store.Intervals').getById(value.id);
-                    return intervalRecord ? intervalRecord.get('name') : '';
+                    return intervalRecord ? Ext.String.htmlEncode(intervalRecord.get('name')) : '';
                 },
                 flex: 1
             },

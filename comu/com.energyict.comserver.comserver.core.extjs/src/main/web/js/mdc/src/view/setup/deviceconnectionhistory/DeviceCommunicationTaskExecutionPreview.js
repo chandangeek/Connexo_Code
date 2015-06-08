@@ -65,11 +65,12 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceCommunicationTaskExecut
                                     name: 'comTasks',
                                     fieldLabel: Uni.I18n.translate('deviceconnectionhistory.comTasks', 'MDC', 'Communication task(s)'),
                                     itemId: 'comTasks',
+                                    htmlEncode: false,
                                     renderer: function(value){
                                         if(value!==''){
                                             var result = '';
                                             Ext.each(value, function(item){
-                                                result = result + '<li>'+ item.name+'</li>'
+                                                result = result + '<li>'+ Ext.String.htmlEncode(item.name)+'</li>'
                                             });
                                             return result;
                                         } else {
@@ -84,7 +85,7 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceCommunicationTaskExecut
                                     fieldLabel: Uni.I18n.translate('deviceconnectionhistory.device', 'MDC', 'Device'),
                                     itemId: 'device',
                                     renderer: function(device){
-                                            return device!==''?'<a href="#/devices/'+device.id+'">' + device.name + '</a>':'';
+                                            return device!==''?'<a href="#/devices/'+device.id+'">' + Ext.String.htmlEncode(device.name) + '</a>':'';
                                     }
                                 },
                                 {
@@ -93,7 +94,7 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceCommunicationTaskExecut
                                     fieldLabel: Uni.I18n.translate('deviceconnectionhistory.deviceType', 'MDC', 'Device type'),
                                     itemId: 'deviceType',
                                     renderer: function(deviceType){
-                                        return deviceType!==''?'<a href="#/administration/devicetypes/'+deviceType.id+'">' + deviceType.name + '</a>':'';
+                                        return deviceType!==''?'<a href="#/administration/devicetypes/'+deviceType.id+'">' + Ext.String.htmlEncode(deviceType.name) + '</a>':'';
                                     }
                                 },
                                 {
@@ -102,7 +103,7 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceCommunicationTaskExecut
                                     fieldLabel: Uni.I18n.translate('deviceconnectionhistory.deviceConfiguration', 'MDC', 'Device configuration'),
                                     itemId: 'deviceConfiguration',
                                     renderer: function(deviceConfiguration){
-                                        return deviceConfiguration!=''?'<a href="#/administration/devicetypes/'+deviceConfiguration.deviceTypeId+'/deviceconfigurations/' + deviceConfiguration.id+'">' + deviceConfiguration.name + '</a>':'';
+                                        return deviceConfiguration!=''?'<a href="#/administration/devicetypes/'+deviceConfiguration.deviceTypeId+'/deviceconfigurations/' + deviceConfiguration.id+'">' + Ext.String.htmlEncode(deviceConfiguration.name) + '</a>':'';
                                     }
                                 },
                                 {

@@ -71,7 +71,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.DataGrid', {
                         metaData.tdCls = cls;
                     }
                     if (!Ext.isEmpty(data[channel.id])) {
-                        return  data[channel.id] ;
+                        return  console.log(); ;
                     }
                 }
             });

@@ -96,7 +96,7 @@ Ext.define('Mdc.view.setup.device.DeviceDataValidationPanel', {
             href;
 
         Ext.Ajax.request({
-            url: '../../api/ddr/devices/' + me.mRID + '/validationrulesets/validationstatus',
+            url: '../../api/ddr/devices/' + encodeURIComponent(me.mRID) + '/validationrulesets/validationstatus',
             method: 'GET',
             timeout: 60000,
 

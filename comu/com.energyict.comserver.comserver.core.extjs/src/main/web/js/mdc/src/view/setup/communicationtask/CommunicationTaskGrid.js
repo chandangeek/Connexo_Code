@@ -20,7 +20,7 @@ Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskGrid', {
                 header: Uni.I18n.translate('communicationtasks.task.name', 'MDC', 'Communication task'),
                 dataIndex: 'comTask',
                 renderer: function (value) {
-                    return value.name;
+                    return Ext.String.htmlEncode(value.name);
                 },
                 fixed: true,
                 flex: 3
@@ -29,7 +29,7 @@ Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskGrid', {
                 header: Uni.I18n.translate('communicationtasks.task.securityset', 'MDC', 'Security set'),
                 dataIndex: 'securityPropertySet',
                 renderer: function (value) {
-                    return value.name;
+                    return Ext.String.htmlEncode(value.name);
                 },
                 fixed: true,
                 flex: 3

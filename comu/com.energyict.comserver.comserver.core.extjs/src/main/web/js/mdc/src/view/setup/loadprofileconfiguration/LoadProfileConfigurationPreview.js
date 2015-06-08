@@ -50,7 +50,7 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationPrev
                                     config = Ext.ComponentQuery.query('loadProfileConfigurationSetup')[0].config;
 
                                 if (!Ext.isEmpty(record)) {
-                                    return Ext.String.format('<a href="#/administration/devicetypes/{0}/deviceconfigurations/{1}/loadprofiles/{2}/channels">{3}</a>', config.deviceTypeId, config.deviceConfigurationId, record.getId(), value);
+                                    return Ext.String.format('<a href="#/administration/devicetypes/{0}/deviceconfigurations/{1}/loadprofiles/{2}/channels">{3}</a>', config.deviceTypeId, config.deviceConfigurationId, record.getId(), Ext.String.htmlEncode(value));
                                 }
                             }
                         },
@@ -63,7 +63,7 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationPrev
                             name: 'timeDuration',
                             renderer: function (value) {
                                 var intervalRecord = Ext.getStore('Mdc.store.Intervals').getById(value.id);
-                                return intervalRecord ? intervalRecord.get('name') : '';
+                                return intervalRecord ? Ext.String.htmlEncode(intervalRecord.get('name')) : '';
                             }
                         }
                     ]
@@ -81,7 +81,7 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationPrev
 
                         if (!Ext.isEmpty(value)) {
                             Ext.each(value, function (type) {
-                                typesString += type.name + '<br />';
+                                typesString += Ext.String.htmlEncode(type.name) + '<br />';
                             });
                         } else if (record && me.router) {
                             arguments = Ext.clone(me.router.arguments);

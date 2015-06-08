@@ -152,7 +152,7 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
             registerTypeToDelete.destroy({
                 success: function () {
                     me.getApplication().fireEvent('acknowledge', message);
-                    me.load();
+                    me.getRegisterTypesStore().load();
                 },
                 callback: function () {
                     location.href = '#/administration/registertypes/';

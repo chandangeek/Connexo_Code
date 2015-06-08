@@ -24,7 +24,7 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RulesGrid', {
                     return '<a href="#/administration/validation/rulesets/' + record.get('ruleSetId')
                         + '/rules/' + record.getId() + '">' + value + '</a>';
                     */
-                    return '<a href="#/administration/validation/rulesets/' + record.get('ruleSetVersion').ruleSet.id + '/versions/' + record.get('ruleSetVersion').id + '/rules/' + record.getId() + '">' + value + '</a>';
+                    return '<a href="#/administration/validation/rulesets/' + record.get('ruleSetVersion').ruleSet.id + '/versions/' + record.get('ruleSetVersion').id + '/rules/' + record.getId() + '">' + Ext.String.htmlEncode(value) + '</a>';
                 }
             },
             {
