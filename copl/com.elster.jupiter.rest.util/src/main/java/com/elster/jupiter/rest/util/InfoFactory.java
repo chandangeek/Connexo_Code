@@ -1,5 +1,6 @@
 package com.elster.jupiter.rest.util;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -14,7 +15,7 @@ public interface InfoFactory<T> {
      */
     public Object from(T domainObject);
 
-    Map<String, Class<?>> infoStructure();
+    List<PropertyDescriptionInfo> infoStructure();
 
     /**
      * Base-class any domain object for this factory should obey IS-A relation to.

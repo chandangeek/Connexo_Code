@@ -5,7 +5,13 @@ package com.elster.jupiter.rest.util;
  * Created by bvn on 6/8/15.
  */
 public class PropertyDescriptionInfo {
+    public String name;
     public Class<?> type;
     public String displayValue;
-    public boolean hideable;
+
+    public PropertyDescriptionInfo(String name, Class<?> type, String displayValue) {
+        this.name = name;
+        this.type = type;
+        this.displayValue = displayValue;
+    }
 }
