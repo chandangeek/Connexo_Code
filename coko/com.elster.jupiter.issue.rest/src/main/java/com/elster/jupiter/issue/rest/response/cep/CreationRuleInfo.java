@@ -1,5 +1,6 @@
 package com.elster.jupiter.issue.rest.response.cep;
 
+import java.util.Collections;
 import java.util.List;
 
 import com.elster.jupiter.issue.rest.response.IssueReasonInfo;
@@ -16,8 +17,8 @@ public class CreationRuleInfo {
     public IssueTypeInfo issueType;
     public CreationRuleTemplateInfo template;
     public DueInInfo dueIn;
-    public List<CreationRuleActionInfo> actions;
-    public List<PropertyInfo> properties;
+    public List<CreationRuleActionInfo> actions = Collections.emptyList();
+    public List<PropertyInfo> properties = Collections.emptyList();
     public long creationDate;
     public long modificationDate;
     public long version;

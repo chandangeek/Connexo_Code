@@ -10,16 +10,6 @@ public class CreationRuleActionPhaseInfo {
     public String description;
 
     public CreationRuleActionPhaseInfo() {}
-
-    public CreationRuleActionPhaseInfo(CreationRuleActionPhaseInfo phase) {
-        this.uuid = phase.uuid;
-        this.title = phase.title;
-        this.description = phase.description;
-    }
-
-    public CreationRuleActionPhaseInfo(CreationRuleActionPhase phase){
-        this.uuid = phase.name();
-    }
     
     public CreationRuleActionPhaseInfo(CreationRuleActionPhase phase, Thesaurus thesaurus){
         MessageSeeds phaseSeed = MessageSeeds.getByKey(phase.getTitleId());

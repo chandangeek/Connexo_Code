@@ -143,6 +143,9 @@ public class CreationRuleResource extends BaseResource {
     }
 
     private void setTemplate(CreationRuleInfo rule, CreationRuleBuilder builder) {
+        if (rule.template == null) {
+            return;
+        }
         Optional<CreationRuleTemplate> template = getIssueCreationService().findCreationRuleTemplate(rule.template.name);
         if (template.isPresent()) {
             builder.setTemplate(template.get().getName());
@@ -180,6 +183,9 @@ public class CreationRuleResource extends BaseResource {
                .setComment(rule.comment)
                .setDueInTime(DueInType.fromString(rule.dueIn.type), rule.dueIn.number);
         
-        getIssueService().findReason(rule.reason.id).ifPresent(reason -> builder.setReason(reason));
+        if (rule.reason != null) {
+            getIssueService().findReason(rule.reason.id)
+                             .ifPresent(reason -> builder.setReason(reason));
+        }
     }
 }

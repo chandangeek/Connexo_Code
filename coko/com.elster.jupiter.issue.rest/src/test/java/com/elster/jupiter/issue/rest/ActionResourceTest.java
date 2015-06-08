@@ -33,9 +33,9 @@ public class ActionResourceTest extends IssueRestApplicationJerseyTest {
         JsonModel json = JsonModel.model(response);
 
         assertThat(json.<Number> get("$.total")).isEqualTo(2);
-        assertThat(json.<List<?>> get("$.data")).hasSize(2);
-        assertThat(json.<List<String>> get("$.data[*].uuid")).containsExactly("CREATE", "OVERDUE");
-        assertThat(json.<List<String>> get("$.data[*].title")).containsExactly("Create", "Overdue");
+        assertThat(json.<List<?>> get("$.creationRuleActionPhases")).hasSize(2);
+        assertThat(json.<List<String>> get("$.creationRuleActionPhases[*].uuid")).containsExactly("CREATE", "OVERDUE");
+        assertThat(json.<List<String>> get("$.creationRuleActionPhases[*].title")).containsExactly("Create", "Overdue");
     }
 
     @Test

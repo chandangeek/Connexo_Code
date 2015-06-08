@@ -206,7 +206,7 @@ public class CreationRuleResourceTest extends IssueRestApplicationJerseyTest {
         rulePropertyInfo.propertyValueInfo = new PropertyValueInfo<String>("value", null);
         info.properties = Arrays.asList(rulePropertyInfo);
         CreationRuleActionInfo actionInfo = new CreationRuleActionInfo();
-        actionInfo.phase = new CreationRuleActionPhaseInfo(CreationRuleActionPhase.CREATE);
+        actionInfo.phase = new CreationRuleActionPhaseInfo(CreationRuleActionPhase.CREATE, thesaurus);
         actionInfo.type = new CreationRuleActionTypeInfo();
         actionInfo.type.id = 5L;
         PropertyInfo actionPropertyInfo = new PropertyInfo();
@@ -269,7 +269,7 @@ public class CreationRuleResourceTest extends IssueRestApplicationJerseyTest {
         rulePropertyInfo.propertyValueInfo = new PropertyValueInfo<String>("value", null);
         info.properties = Arrays.asList(rulePropertyInfo);
         CreationRuleActionInfo actionInfo = new CreationRuleActionInfo();
-        actionInfo.phase = new CreationRuleActionPhaseInfo(CreationRuleActionPhase.CREATE);
+        actionInfo.phase = new CreationRuleActionPhaseInfo(CreationRuleActionPhase.CREATE, thesaurus);
         actionInfo.type = new CreationRuleActionTypeInfo();
         actionInfo.type.id = 5L;
         PropertyInfo actionPropertyInfo = new PropertyInfo();

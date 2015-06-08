@@ -4,10 +4,9 @@ import static com.elster.jupiter.issue.rest.request.RequestHelper.CREATED_ACTION
 import static com.elster.jupiter.issue.rest.request.RequestHelper.ISSUE_TYPE;
 import static com.elster.jupiter.issue.rest.request.RequestHelper.PHASE;
 import static com.elster.jupiter.issue.rest.request.RequestHelper.REASON;
-import static com.elster.jupiter.issue.rest.response.ResponseHelper.entity;
 import static com.elster.jupiter.util.conditions.Where.where;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -20,7 +19,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.rest.response.cep.CreationRuleActionInfoFactory;
@@ -82,11 +80,8 @@ public class ActionResource extends BaseResource {
     @Path("/phases")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_ISSUE,Privileges.ASSIGN_ISSUE,Privileges.CLOSE_ISSUE,Privileges.COMMENT_ISSUE,Privileges.ACTION_ISSUE})
-    public Response getAllActionPhases(){
-        List<CreationRuleActionPhaseInfo> availablePhases = new ArrayList<>();
-        for (CreationRuleActionPhase phase : CreationRuleActionPhase.values()) {
-            availablePhases.add(new CreationRuleActionPhaseInfo(phase, getThesaurus()));
-        }
-        return entity(availablePhases, CreationRuleActionPhaseInfo.class).build();
+    public PagedInfoList getAllActionPhases(@BeanParam JsonQueryParameters queryParameters) {
+        List<CreationRuleActionPhaseInfo> infos = Arrays.asList(CreationRuleActionPhase.values()).stream().map(phase -> new CreationRuleActionPhaseInfo(phase, getThesaurus())).collect(Collectors.toList());
+        return PagedInfoList.fromCompleteList("creationRuleActionPhases", infos, queryParameters);
     }
 }
