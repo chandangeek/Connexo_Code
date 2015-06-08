@@ -88,7 +88,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     DEVICE_MESSAGE_ID_NOT_SUPPORTED(2054, Keys.DEVICE_MESSAGE_ID_NOT_SUPPORTED, "The command is not supported for the device", Level.SEVERE),
     DEVICE_MESSAGE_IS_REQUIRED(2055, Keys.DEVICE_MESSAGE_IS_REQUIRED, "The command is required for a device message attribute", Level.SEVERE),
     DEVICE_MESSAGE_ATTRIBUTE_NOT_IN_SPEC(2056, Keys.DEVICE_MESSAGE_ATTRIBUTE_NOT_IN_SPEC, "The command attribute is not defined in the specification", Level.SEVERE),
-    DEVICE_MESSAGE_ATTRIBUTE_IS_REQUIRED(2057, Keys.DEVICE_MESSAGE_ATTRIBUTE_IS_REQUIRED, "The command attribute is required", Level.SEVERE),
+    DEVICE_MESSAGE_ATTRIBUTE_IS_REQUIRED(2057, Keys.DEVICE_MESSAGE_ATTRIBUTE_IS_REQUIRED, "This field is required", Level.SEVERE),
     DEVICE_MESSAGE_ATTRIBUTE_INVALID_VALUE(2058, Keys.DEVICE_MESSAGE_ATTRIBUTE_INVALID_VALUE, "This is an invalid value", Level.SEVERE),
     DEVICE_MESSAGE_NOT_ALLOWED_BY_CONFIG(2059, Keys.DEVICE_MESSAGE_NOT_ALLOWED_BY_CONFIG, "This command is not defined on the device configuration level", Level.SEVERE),
     DEVICE_MESSAGE_USER_NOT_ALLOWED(2060, Keys.DEVICE_MESSAGE_USER_NOT_ALLOWED, "You are not allowed to create or update this command", Level.SEVERE),
