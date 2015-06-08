@@ -96,6 +96,9 @@ public class DeviceValidationImpl implements DeviceValidation {
         if(onStorage){
             this.validationService.enableValidationOnStorage(koreMeter);
         }
+        else {
+            this.validationService.disableValidationOnStorage(koreMeter);
+        }
         this.validationService.activateValidation(koreMeter);
     }
 

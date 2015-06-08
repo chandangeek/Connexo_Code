@@ -45,7 +45,11 @@ public enum EventType {
     },
     DEVICEMESSAGE_CREATED("deviceMessage/CREATED"),
     DEVICEMESSAGE_UPDATED("deviceMessage/UPDATED"),
-    DEVICEMESSAGE_DELETED("deviceMessage/DELETED"),;
+    DEVICEMESSAGE_DELETED("deviceMessage/DELETED"),
+    FIRMWARE_COMTASKEXECUTION_STARTED("firmwarecomtaskexecution/STARTED"),
+    FIRMWARE_COMTASKEXECUTION_COMPLETED("firmwarecomtaskexecution/COMPLETED"),
+    FIRMWARE_COMTASKEXECUTION_FAILED("firmwarecomtaskexecution/FAILED"),
+    ;
 
     private static final String NAMESPACE = "com/energyict/mdc/device/data/";
     private final String topic;
