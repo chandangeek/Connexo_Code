@@ -18,7 +18,6 @@ import com.elster.jupiter.util.HasId;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
@@ -94,7 +93,7 @@ public class DynamicSearchResource {
     @Path("/{domain}/model")
     public Response getDomainDescription(@PathParam("domain") String domainId) {
         SearchDomain searchDomain = findSearchDomainOrThrowException(domainId);
-        Map properties = infoFactoryService.getFactoryFor(searchDomain.getId()).infoStructure();
+        List properties = infoFactoryService.getFactoryFor(searchDomain.getId()).infoStructure();
 
         return Response.ok(properties).build();
     }
@@ -150,7 +149,7 @@ public class DynamicSearchResource {
         SearchableProperty searchableProperty = findPropertyInDomainOrThrowException(property, searchDomain);
         List<SearchablePropertyConstriction> searchablePropertyConstrictions =
                 searchableProperty.getConstraints().stream().
-                map(searchableProperty1 -> asConstriction(searchableProperty, jsonQueryFilter)).
+                map(constrainingProperty -> asConstriction(constrainingProperty, jsonQueryFilter)).
                 collect(toList());
         searchableProperty.refreshWithConstrictions(searchablePropertyConstrictions);
         PropertySpecPossibleValues possibleValues = searchableProperty.getSpecification().getPossibleValues();
