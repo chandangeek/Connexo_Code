@@ -1,7 +1,6 @@
 package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.export.DataExportOccurrence;
-import com.elster.jupiter.export.DefaultStructureMarker;
 import com.elster.jupiter.export.MeterReadingData;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.export.StructureMarker;
@@ -17,6 +16,7 @@ import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.google.common.collect.Range;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -24,9 +24,13 @@ import java.util.Optional;
 import static com.elster.jupiter.export.impl.IntervalReadingImpl.intervalReading;
 import static com.elster.jupiter.export.impl.ReadingImpl.reading;
 
-enum DefaultItemDataSelector implements ItemDataSelector {
+class DefaultItemDataSelector implements ItemDataSelector {
 
-    INSTANCE;
+    private final Clock clock;
+
+    public DefaultItemDataSelector(Clock clock) {
+        this.clock = clock;
+    }
 
     @Override
     public Optional<MeterReadingData> selectData(DataExportOccurrence occurrence, IReadingTypeDataExportItem item) {
@@ -41,7 +45,7 @@ enum DefaultItemDataSelector implements ItemDataSelector {
     }
 
     private StructureMarker structureMarker(IReadingTypeDataExportItem item, Instant instant) {
-        return DefaultStructureMarker.createRoot(item.getReadingContainer().getMeter(instant).map(Meter::getMRID).orElse(""))
+        return DefaultStructureMarker.createRoot(clock, item.getReadingContainer().getMeter(instant).map(Meter::getMRID).orElse(""))
                 .child(item.getReadingContainer().getUsagePoint(instant).map(UsagePoint::getMRID).orElse(""))
                 .child(item.getReadingType().getMRID() == null ? "" : item.getReadingType().getMRID());
     }

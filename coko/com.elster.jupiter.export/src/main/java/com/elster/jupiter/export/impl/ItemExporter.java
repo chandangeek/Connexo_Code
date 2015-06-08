@@ -6,7 +6,7 @@ import com.elster.jupiter.export.MeterReadingData;
 
 import java.util.List;
 
-public interface ItemExporter {
+interface ItemExporter {
 
     List<FormattedExportData> exportItem(DataExportOccurrence occurrence, MeterReadingData item);
 

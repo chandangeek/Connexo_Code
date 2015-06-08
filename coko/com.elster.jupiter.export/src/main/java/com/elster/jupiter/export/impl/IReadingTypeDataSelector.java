@@ -7,7 +7,7 @@ import com.google.common.collect.Range;
 
 import java.time.Instant;
 
-public interface IReadingTypeDataSelector extends ReadingTypeDataSelector {
+interface IReadingTypeDataSelector extends ReadingTypeDataSelector {
 
     Range<Instant> adjustedExportPeriod(DataExportOccurrence occurrence, ReadingTypeDataExportItem item);
 

@@ -9,6 +9,7 @@ import com.elster.jupiter.export.DataExportTaskBuilder;
 import com.elster.jupiter.export.DataFormatterFactory;
 import com.elster.jupiter.export.DataSelectorFactory;
 import com.elster.jupiter.export.ExportTask;
+import com.elster.jupiter.export.StructureMarker;
 import com.elster.jupiter.mail.MailService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
@@ -162,6 +163,11 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
     @Override
     public List<IExportTask> findReadingTypeDataExportTasks() {
         return dataModel.mapper(IExportTask.class).find();
+    }
+
+    @Override
+    public StructureMarker forRoot(String root) {
+        return DefaultStructureMarker.createRoot(clock, root);
     }
 
     @Reference

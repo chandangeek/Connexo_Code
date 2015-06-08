@@ -11,10 +11,7 @@ import javax.inject.Inject;
 import java.nio.file.FileSystem;
 import java.util.List;
 
-/**
- * Created by igh on 22/05/2015.
- */
-public class FileDestinationImpl extends AbstractDataExportDestination implements FileDestination {
+class FileDestinationImpl extends AbstractDataExportDestination implements FileDestination {
 
     private String fileName;
     private String fileExtension;

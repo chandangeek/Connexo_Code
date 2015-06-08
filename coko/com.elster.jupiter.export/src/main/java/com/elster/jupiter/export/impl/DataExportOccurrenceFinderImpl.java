@@ -14,7 +14,7 @@ import java.util.List;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
-public class DataExportOccurrenceFinderImpl implements DataExportOccurrenceFinder {
+class DataExportOccurrenceFinderImpl implements DataExportOccurrenceFinder {
     private DataModel dataModel;
     private Condition condition;
     private Order order;

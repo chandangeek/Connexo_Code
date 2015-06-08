@@ -40,6 +40,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
+import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -67,6 +68,7 @@ public class ReadingTypeDataSelectorTest {
     private Range<Instant> exportPeriod;
     private LogRecorder logRecorder;
     private TransactionVerifier transactionService;
+    private Clock clock = Clock.system(ZoneId.systemDefault());
 
     @Mock
     private TaskService taskService;
@@ -130,7 +132,7 @@ public class ReadingTypeDataSelectorTest {
 
         transactionService = new TransactionVerifier(dataFormatter, newItem, existingItem);
 
-        when(dataModel.getInstance(ReadingTypeDataSelectorImpl.class)).thenAnswer(invocation -> spy(new ReadingTypeDataSelectorImpl(dataModel, transactionService, meteringService)));
+        when(dataModel.getInstance(ReadingTypeDataSelectorImpl.class)).thenAnswer(invocation -> spy(new ReadingTypeDataSelectorImpl(dataModel, transactionService, meteringService, clock)));
         when(dataModel.getInstance(ReadingTypeInDataSelector.class)).thenAnswer(invocation -> spy(new ReadingTypeInDataSelector(meteringService)));
         when(dataModel.getInstance(ReadingTypeDataExportItemImpl.class)).thenAnswer(invocation -> spy(new ReadingTypeDataExportItemImpl(meteringService, dataExportService, dataModel)));
         when(dataModel.asRefAny(any())).thenAnswer(invocation -> new MyRefAny(invocation.getArguments()[0]));

@@ -5,7 +5,7 @@ import com.google.common.collect.ImmutableList;
 
 import java.util.List;
 
-public class CompositeDataExportDestination implements Destination {
+class CompositeDataExportDestination implements Destination {
 
     private final List<Destination> components;
 

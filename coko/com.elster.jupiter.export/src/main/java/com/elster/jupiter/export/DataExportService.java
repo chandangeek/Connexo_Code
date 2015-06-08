@@ -40,4 +40,6 @@ public interface DataExportService {
     Optional<Path> getExportDirectory(AppServer appServer);
 
     Map<AppServer, Path> getAllExportDirecties();
+
+    StructureMarker forRoot(String root);
 }

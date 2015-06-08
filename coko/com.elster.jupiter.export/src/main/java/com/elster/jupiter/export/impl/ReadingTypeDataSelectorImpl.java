@@ -28,6 +28,7 @@ import com.google.common.collect.Range;
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.Size;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -43,6 +44,7 @@ public class ReadingTypeDataSelectorImpl implements IReadingTypeDataSelector {
     private final TransactionService transactionService;
     private final MeteringService meteringService;
     private final DataModel dataModel;
+    private final Clock clock;
 
     private long id;
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
@@ -66,10 +68,11 @@ public class ReadingTypeDataSelectorImpl implements IReadingTypeDataSelector {
     private String userName;
 
     @Inject
-    ReadingTypeDataSelectorImpl(DataModel dataModel, TransactionService transactionService, MeteringService meteringService) {
+    ReadingTypeDataSelectorImpl(DataModel dataModel, TransactionService transactionService, MeteringService meteringService, Clock clock) {
         this.dataModel = dataModel;
         this.transactionService = transactionService;
         this.meteringService = meteringService;
+        this.clock = clock;
     }
 
     public static ReadingTypeDataSelectorImpl from(DataModel dataModel, IExportTask exportTask, RelativePeriod exportPeriod, EndDeviceGroup endDeviceGroup) {
@@ -105,8 +108,9 @@ public class ReadingTypeDataSelectorImpl implements IReadingTypeDataSelector {
             context.commit();
         }
 
+        DefaultItemDataSelector defaultItemDataSelector = new DefaultItemDataSelector(clock);
         return activeItems.stream()
-                .map(item -> DefaultItemDataSelector.INSTANCE.selectData(occurrence, item))
+                .map(item -> defaultItemDataSelector.selectData(occurrence, item))
                 .flatMap(Functions.asStream());
     }
 

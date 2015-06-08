@@ -1,27 +1,45 @@
-package com.elster.jupiter.export;
+package com.elster.jupiter.export.impl;
 
+import com.elster.jupiter.export.StructureMarker;
 import com.elster.jupiter.util.UpdatableHolder;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Range;
 
+import java.time.Clock;
+import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-public final class DefaultStructureMarker implements StructureMarker {
+final class DefaultStructureMarker implements StructureMarker, TagReplacer {
 
     private final DefaultStructureMarker parent;
     private final String structure;
     private final List<String> path;
+    private final Range<Instant> period;
+    private final Clock clock;
 
-    private DefaultStructureMarker(DefaultStructureMarker parent, String structure) {
+    private DefaultStructureMarker(Clock clock, DefaultStructureMarker parent, String structure, Range<Instant> period) {
         this.parent = parent;
         this.structure = structure;
+        this.clock = clock;
         this.path = parent == null ? Collections.singletonList(structure) : ImmutableList.<String>builder().addAll(parent.path).add(structure).build();
+        this.period = period;
     }
 
-    public static DefaultStructureMarker createRoot(String root) {
-        return new DefaultStructureMarker(null, root);
+    public static DefaultStructureMarker createRoot(Clock clock, String root) {
+        return new DefaultStructureMarker(clock, null, root, null);
+    }
+
+    @Override
+    public StructureMarker withPeriod(Range<Instant> period) {
+        return new DefaultStructureMarker(clock, parent, structure, period);
+    }
+
+    @Override
+    public Optional<Range<Instant>> getPeriod() {
+        return Optional.ofNullable(period);
     }
 
     @Override
@@ -34,8 +52,9 @@ public final class DefaultStructureMarker implements StructureMarker {
         return Optional.ofNullable(parent);
     }
 
+    @Override
     public DefaultStructureMarker child(String structure) {
-        return new DefaultStructureMarker(this, structure);
+        return new DefaultStructureMarker(clock, this, structure, period);
     }
 
     public DefaultStructureMarker adopt(StructureMarker structureMarker) {
@@ -60,5 +79,10 @@ public final class DefaultStructureMarker implements StructureMarker {
     @Override
     public int hashCode() {
         return Objects.hash(path);
+    }
+
+    @Override
+    public String replaceTags(String template) {
+        return new TagReplacerImpl(this, clock).replaceTags(template);
     }
 }
