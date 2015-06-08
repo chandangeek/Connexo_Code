@@ -15,7 +15,9 @@ import com.energyict.mdc.device.data.rest.impl.DeviceInfo;
 import com.energyict.mdc.device.data.rest.impl.DeviceTopologyInfo;
 import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleStateInfo;
 import com.energyict.mdc.device.topology.TopologyService;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
@@ -80,6 +82,21 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
         return deviceInfo;
     }
 
+    @Override
+    public Map<String, Class<?>> infoStructure() {
+        Map<String, Class<?>> map = new HashMap<>();
+        map.put("id", Long.class);
+        map.put("mRID", String.class);
+        map.put("serialNumber", String.class);
+        map.put("deviceTypeId", Long.class);
+        map.put("deviceTypeName", String.class);
+        map.put("deviceConfigId", Long.class);
+        map.put("deviceConfigName", String.class);
+        map.put("deviceProtocolPluggeableClassId", Long.class);
+        map.put("yearOfCertification", Long.class);
+        return map;
+    }
+
     public DeviceInfo from(Device device, List<DeviceTopologyInfo> slaveDevices){
         DeviceInfo deviceInfo = from(device);
 
@@ -119,5 +136,10 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
     @Override
     public Class<Device> getDomainClass() {
         return Device.class;
+    }
+
+    @Override
+    public String getSearchDomainId() {
+        return Device.class.getName();
     }
 }
