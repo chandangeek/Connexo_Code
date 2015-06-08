@@ -2,6 +2,8 @@ package com.energyict.mdc.device.lifecycle.config;
 
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.util.HasName;
+import com.energyict.mdc.common.HasId;
 
 import java.time.Instant;
 import java.util.List;
@@ -20,48 +22,44 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-11 (10:18)
  */
-public interface DeviceLifeCycle {
+public interface DeviceLifeCycle extends HasId, HasName{
 
-    public FiniteStateMachine getFiniteStateMachine();
+    FiniteStateMachine getFiniteStateMachine();
 
-    public long getId();
-
-    public String getName();
-
-    public long getVersion();
+    long getVersion();
 
     /**
      * Gets the timestamp on which this DeviceLifeCycle was created.
      *
      * @return The creation timestamp
      */
-    public Instant getCreationTimestamp();
+    Instant getCreationTimestamp();
 
     /**
      * Gets the timestamp on which this DeviceLifeCycle was last modified.
      *
      * @return The timestamp of last modification
      */
-    public Instant getModifiedTimestamp();
+    Instant getModifiedTimestamp();
 
     /**
      * Gets all {@link AuthorizedAction}s.
      *
      * @return The List of AuthorizedAction
      */
-    public List<AuthorizedAction> getAuthorizedActions();
+    List<AuthorizedAction> getAuthorizedActions();
 
     /**
      * Gets all {@link AuthorizedAction}s for the specified {@link State}.
      *
      * @return The List of AuthorizedAction
      */
-    public List<AuthorizedAction> getAuthorizedActions(State state);
+    List<AuthorizedAction> getAuthorizedActions(State state);
 
-    public DeviceLifeCycleUpdater startUpdate();
+    DeviceLifeCycleUpdater startUpdate();
 
-    public void save();
+    void save();
 
-    public void delete();
+    void delete();
 
 }
