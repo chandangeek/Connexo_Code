@@ -473,7 +473,7 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
 
         PropertiesBulkRequestInfo info = new PropertiesBulkRequestInfo();
         info.properties= new ArrayList<>();
-        info.properties.add(new PropertyInfo("hostName", new PropertyValueInfo<>("google.com", null), null, false));
+        info.properties.add(new PropertyInfo("hostName", "hostName", new PropertyValueInfo<>("google.com", null), null, false));
         info.filter = new ConnectionTaskFilterSpecificationMessage();
         info.filter.currentStates.add("Busy");
 
