@@ -33,7 +33,7 @@ Ext.define('Mdc.view.setup.deviceevents.DataPreview', {
                             }
                         })
                     }
-                    value.isModel ? res = '<a href="{url}">{logbookName}</a>'.replace('{url}', me.router.getRoute('devices/device/logbooks/logbookdata').buildUrl({logbookId: value.get('id')})).replace('{logbookName}', value.get('name')) : null;
+                    value.isModel ? res = '<a href="{url}">{logbookName}</a>'.replace('{url}', me.router.getRoute('devices/device/logbooks/logbookdata').buildUrl({logbookId: value.get('id')})).replace('{logbookName}', Ext.String.htmlEncode(value.get('name'))) : null;
                     return res
                 }
             })

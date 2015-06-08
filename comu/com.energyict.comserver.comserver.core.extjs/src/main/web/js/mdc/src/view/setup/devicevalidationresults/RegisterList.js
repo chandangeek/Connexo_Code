@@ -54,7 +54,7 @@ Ext.define('Mdc.view.setup.devicevalidationresults.RegisterList', {
                         new Date(record.get('intervalStart')),'Y-m-dTH:i:s');
 
                     href = me.router.getRoute('devices/device/registers/registerdata').buildUrl(
-                        {   mRID: record.get('mRID'),
+                        {   mRID: encodeURIComponent(record.get('mRID')),
                             registerId: record.get('id')
 
                         }, {filter: filter});

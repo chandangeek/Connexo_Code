@@ -48,7 +48,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.MainEdit', {
                         menuItems: [
                             {
                                 itemId: 'editReading',
-                                href:  me.router.getRoute('devices/device/registers/registerdata/create').buildUrl({mRID: mRID, registerId: registerId})
+                                href:  me.router.getRoute('devices/device/registers/registerdata/create').buildUrl({mRID: encodeURIComponent(mRID), registerId: registerId})
                             }
                         ]
                     }

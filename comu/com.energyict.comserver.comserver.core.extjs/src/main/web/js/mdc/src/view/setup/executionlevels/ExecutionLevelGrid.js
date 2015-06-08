@@ -28,7 +28,7 @@ Ext.define('Mdc.view.setup.executionlevels.ExecutionLevelGrid', {
                 renderer: function (value) {
                     var resultArray = [];
                     Ext.Array.each(value, function (userRole) {
-                        resultArray.push(userRole.name);
+                        resultArray.push(Ext.String.htmlEncode(userRole.name));
                     });
                     return resultArray.join('<br>');
                 },

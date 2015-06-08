@@ -93,6 +93,7 @@ Ext.define('Mdc.controller.setup.ComServersView', {
         }
 
         if (activeChange != 'notChanged') {
+            var me = this;
             var recordId = record.get('id');
             Ext.Ajax.request({
                 url: '/api/mdc/comservers/' + recordId + '/status',
@@ -116,6 +117,18 @@ Ext.define('Mdc.controller.setup.ComServersView', {
                             me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('comserver.changeState.msg', 'MDC', 'Communication server') + ' ' + msg);
                         }
                     });
+                },
+                failure: function(response, opts) {
+                    console.log('server-side failure with status code ' + response.status);
+                    var json = Ext.decode(response.responseText);
+                    if (json && json.errors) {
+                        var msg = '';
+                        Ext.each(json.errors, function (error) {
+                            msg += error["id"] + ': ' + error["msg"];
+                        });
+                        var title = Uni.I18n.translate('comserver.changeState.'+item.action+'.failed', 'MDC', 'Activation/Deactivation failed');
+                        me.getApplication().getController('Uni.controller.Error').showError(title, msg);
+                    }
                 }
             });
         }

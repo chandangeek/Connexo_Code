@@ -12,7 +12,7 @@ Ext.define('Mdc.store.InfiniteRegisterTypes', {
 
     proxy: {
         type: 'rest',
-        url: '../../api/dtc/registertypes',
+        url: '../../api/mds/registertypes',
         reader: {
             type: 'json',
             root: 'registerTypes'

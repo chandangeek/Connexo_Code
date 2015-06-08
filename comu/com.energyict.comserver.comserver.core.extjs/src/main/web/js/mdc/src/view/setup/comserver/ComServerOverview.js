@@ -102,6 +102,7 @@ Ext.define('Mdc.view.setup.comserver.ComServerOverview', {
                         },
                         {
                             fieldLabel: Uni.I18n.translate('comserver.preview.communicationPortsLabel', 'MDC', 'Communication ports'),
+                            htmlEncode: false,
                             name: 'comportslink'
                         }
                     ]

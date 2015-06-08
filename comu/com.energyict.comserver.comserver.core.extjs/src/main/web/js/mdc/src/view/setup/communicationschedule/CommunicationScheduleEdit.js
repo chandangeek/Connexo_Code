@@ -81,6 +81,7 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
                                         xtype: 'displayfield',
                                         itemId: 'noComTasksSelectedMsg',
                                         name: 'comTaskUsageErrors',
+                                        htmlEncode: false,
                                         value: '<span style="color: grey"><i>' + Uni.I18n.translate('communicationschedule.noComTaskSelected', 'MDC', 'No communication tasks selected yet') + '</i></span>',
                                         style: {
                                             marginTop: '4px',
@@ -192,6 +193,7 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
                             {
                                 xtype: 'displayfield',
                                 itemId: 'communicationScheduleSummary',
+                                htmlEncode: false,
                                 fieldLabel: Uni.I18n.translate('communicationschedule.summary', 'MDC', 'Summary')
                             },
                             {

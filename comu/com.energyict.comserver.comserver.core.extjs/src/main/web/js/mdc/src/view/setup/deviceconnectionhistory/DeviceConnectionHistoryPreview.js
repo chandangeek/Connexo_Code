@@ -123,7 +123,7 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionHistoryPrevie
                                     itemId: 'result',
                                     renderer: function (value) {
                                         if (value) {
-                                            return value.displayValue;
+                                            return Ext.String.htmlEncode(value.displayValue);
                                         }
                                     }
                                 },

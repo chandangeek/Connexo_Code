@@ -95,13 +95,12 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
             contentPanel = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
             registersOfDeviceStore = me.getStore('RegisterConfigsOfDevice'),
             router = me.getController('Uni.controller.history.Router');
-
         contentPanel.setLoading(true);
         Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
             success: function (device) {
                 me.getApplication().fireEvent('loadDevice', device);
                 var model = Ext.ModelManager.getModel('Mdc.model.Register');
-                model.getProxy().setExtraParam('mRID', mRID);
+                model.getProxy().setExtraParam('mRID', encodeURIComponent(mRID));
 
                 model.load(registerId, {
                     success: function (register) {
@@ -116,7 +115,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
                         me.getApplication().fireEvent('loadRegisterConfiguration', register);
                         var func = function () {
                             me.getApplication().fireEvent('changecontentevent', widget);
-                            var dataReport = Ext.widget('deviceregisterreportsetup-' + type, {mRID: mRID, registerId: registerId});
+                            var dataReport = Ext.widget('deviceregisterreportsetup-' + type, {mRID: encodeURIComponent(mRID), registerId: registerId});
                             me.getRegisterFilter().setTitle(register.get('name'));
                             widget.down('#register-data').add(dataReport);
                             var valueColumn = widget.down('grid').down('[dataIndex=value]');

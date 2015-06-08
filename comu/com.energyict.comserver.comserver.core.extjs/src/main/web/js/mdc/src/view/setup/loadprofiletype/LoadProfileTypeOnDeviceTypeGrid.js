@@ -31,7 +31,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeOnDeviceTypeGrid', {
                 dataIndex: 'timeDuration',
                 renderer: function (value) {
                     var intervalRecord = Ext.getStore('Intervals').getById(value.id);
-                    return intervalRecord.get('name');
+                    return Ext.String.htmlEncode(intervalRecord.get('name'));
                 },
                 flex: 1
             },

@@ -39,7 +39,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.Setup', {
                         xtype: 'preview-container',
                         grid: {
                             xtype: 'deviceRegisterConfigurationGrid',
-                            mRID: me.device.get('mRID')
+                            mRID: encodeURIComponent(me.device.get('mRID'))
                         },
                         emptyComponent: {
                             xtype: 'no-items-found-panel',

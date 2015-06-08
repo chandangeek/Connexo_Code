@@ -26,6 +26,6 @@ Ext.define('Mdc.model.RegisterType', {
     ],
     proxy: {
         type: 'rest',
-        url: '../../api/dtc/registertypes'
+        url: '../../api/mds/registertypes'
     }
 });

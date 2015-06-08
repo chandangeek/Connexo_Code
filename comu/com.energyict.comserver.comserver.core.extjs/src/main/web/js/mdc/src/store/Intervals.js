@@ -6,6 +6,9 @@ Ext.define('Mdc.store.Intervals', {
     proxy: {
         type: 'rest',
         url: '/api/mds/loadprofiles/intervals',
+        pageParam: undefined,
+        startParam: undefined,
+        limitParam: undefined,
         reader: {
             type: 'json',
             root: 'data'

@@ -15,7 +15,7 @@ Ext.define('Mdc.view.setup.datacollectionkpis.Grid', {
                 flex: 1,
                 renderer: function (value) {
                     if (value) {
-                        return value.name;
+                        return Ext.String.htmlEncode(value.name);
                     } else {
                         return null;
                     }

@@ -7,7 +7,7 @@ Ext.define('Mdc.store.RegisterTypes', {
     storeId: 'RegisterTypes',
     proxy: {
         type: 'rest',
-        url: '../../api/dtc/registertypes',
+        url: '../../api/mds/registertypes',
         reader: {
             type: 'json',
             root: 'registerTypes'

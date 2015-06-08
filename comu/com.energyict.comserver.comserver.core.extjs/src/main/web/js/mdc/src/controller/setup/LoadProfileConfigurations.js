@@ -104,7 +104,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
             loadProfileConfigurationId = me.loadProfileConfigurationId;
         }
 
-        window.location.href = '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/loadprofiles/' + loadProfileConfigurationId + '/edit';
+        window.location.href = '#/administration/devicetypes/' + encodeURIComponent(me.deviceTypeId) + '/deviceconfigurations/' + encodeURIComponent(me.deviceConfigurationId) + '/loadprofiles/' + encodeURIComponent(loadProfileConfigurationId) + '/edit';
     },
 
     showConfirmationPanel: function () {
@@ -267,7 +267,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
                     text: 'Cancel',
                     action: 'cancel',
                     ui: 'link',
-                    href: '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/loadprofiles',
+                    href: '#/administration/devicetypes/' + encodeURIComponent(me.deviceTypeId) + '/deviceconfigurations/' + encodeURIComponent(me.deviceConfigurationId) + '/loadprofiles',
                     handler: function (button, event) {
                         this.up('messagebox').hide();
                     }

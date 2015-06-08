@@ -82,7 +82,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                             renderer: function (v) {
                                 if (!Ext.isEmpty(v)) {
                                     var value = Uni.Number.formatNumber(v, -1);
-                                    return !Ext.isEmpty(value) ? value + ' ' + measurementType : '';
+                                    return !Ext.isEmpty(value) ? Ext.String.htmlEncode(value) + ' ' + measurementType : '';
                                 }
                                 return '';
                             }
@@ -102,7 +102,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                     renderer: function (v) {
                         if (!Ext.isEmpty(v)) {
                             var value = Uni.Number.formatNumber(v, -1);
-                            return !Ext.isEmpty(value) ? value + ' ' + measurementType : '';
+                            return !Ext.isEmpty(value) ? Ext.String.htmlEncode(value) + ' ' + measurementType : '';
                         }
                         return '';
                     }
@@ -112,7 +112,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                     fieldLabel: Uni.I18n.translate('deviceloadprofiles.channels.cumulativeValue', 'MDC', 'Cumulative value'),
                     name: 'delta',
                     renderer: function (value, metaData, record) {
-                        return !Ext.isEmpty(value) ? value + ' ' + measurementType : '';
+                        return !Ext.isEmpty(value) ? Ext.String.htmlEncode(value) + ' ' + measurementType : '';
                     }
                 }
             );
@@ -149,7 +149,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                     renderer: function (v) {
                         if (!Ext.isEmpty(v)) {
                             var value = Uni.Number.formatNumber(v, -1);
-                            return !Ext.isEmpty(value) ? value + ' ' + measurementType : Uni.I18n.translate('general.missing', 'MDC', 'Missing');
+                            return !Ext.isEmpty(value) ? Ext.String.htmlEncode(value) + ' ' + measurementType : Uni.I18n.translate('general.missing', 'MDC', 'Missing');
                         }
                         return '';
                     }

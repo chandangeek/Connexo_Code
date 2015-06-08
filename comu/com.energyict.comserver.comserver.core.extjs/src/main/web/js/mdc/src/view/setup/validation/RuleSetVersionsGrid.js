@@ -22,7 +22,7 @@ Ext.define('Mdc.view.setup.validation.RuleSetVersionsGrid', {
                 sortable: false,
                 fixed: true,
                 renderer: function (value, metaData, record) {
-                    metaData.tdAttr = 'data-qtip="' + record.get('description').replace(/(?:\r\n|\r|\n)/g, '<br />') + '"';
+                    metaData.tdAttr = Ext.String.htmlEncode(Ext.String.htmlEncode('data-qtip="' + record.get('description').replace(/(?:\r\n|\r|\n)/g, '<br />') + '"'));
                     return value;
                 }
             },

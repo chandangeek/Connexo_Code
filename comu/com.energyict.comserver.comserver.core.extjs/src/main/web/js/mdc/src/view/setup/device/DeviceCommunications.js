@@ -62,7 +62,7 @@ Ext.define('Mdc.view.setup.device.DeviceCommunications', {
                     renderer: function (val, metaData, record) {
                         var me = this;
                         metaData.tdAttr = 'data-qtip="' + Ext.htmlEncode(me.connectionTpl.apply(record.getData())) + '"';
-                        return val ? val.name : ''
+                        return val ? Ext.String.htmlEncode(val.name) : ''
                     },
                     flex: 4
                 },
@@ -71,7 +71,7 @@ Ext.define('Mdc.view.setup.device.DeviceCommunications', {
                     text: Uni.I18n.translate('device.communications.currentState', 'MDC', 'Current state'),
                     dataIndex: 'status',
                     renderer: function (val) {
-                        return val ? val : ''
+                        return val ? Ext.String.htmlEncode(val) : ''
                     },
                     flex: 3
                 },
@@ -81,7 +81,7 @@ Ext.define('Mdc.view.setup.device.DeviceCommunications', {
                     dataIndex: 'latestResult',
                     name: 'latestResult',
                     renderer: function (val) {
-                        return val ? val.displayValue : ''
+                        return val ? Ext.String.htmlEncode(val.displayValue) : ''
 
                     },
                     flex: 2

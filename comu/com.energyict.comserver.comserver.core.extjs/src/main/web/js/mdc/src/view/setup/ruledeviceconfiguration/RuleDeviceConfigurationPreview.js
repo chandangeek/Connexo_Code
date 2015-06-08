@@ -38,12 +38,14 @@ Ext.define('Mdc.view.setup.ruledeviceconfiguration.RuleDeviceConfigurationPrevie
         },
         {
             name: 'config_registerCount',
-            fieldLabel: Uni.I18n.translate('validation.deviceconfiguration.dataSources', 'CFG', 'Data sources')
+            fieldLabel: Uni.I18n.translate('validation.deviceconfiguration.dataSources', 'CFG', 'Data sources'),
+            htmlEncode: false
         },
         {
             name: 'config_loadProfileCount',
             fieldLabel: '',
-            hideEmptyLabel: false
+            hideEmptyLabel: false,
+            htmlEncode: false
         }
     ]
 });

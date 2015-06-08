@@ -118,7 +118,7 @@ Ext.define('Mdc.controller.setup.DeviceGeneralAttributes', {
 
         widget.setLoading();
 
-        model.getProxy().extraParams = ({mRID: mRID});
+        model.getProxy().extraParams = ({mRID: encodeURIComponent(mRID)});
         model.load(idProperty, {
             success: function (generalAttribute) {
                 form.loadRecord(generalAttribute);

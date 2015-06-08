@@ -23,7 +23,7 @@ Ext.define('Mdc.view.setup.devicechannels.Grid', {
                 flex: 2,
                 showTimeAttribute: false,
                 makeLink: function (record) {
-                    return me.router.getRoute('devices/device/channels/channeldata').buildUrl({mRID: me.mRID, channelId: record.getId()});
+                    return me.router.getRoute('devices/device/channels/channeldata').buildUrl({mRID: encodeURIComponent(me.mRID), channelId: record.getId()});
                 }
             },
             {
@@ -32,7 +32,7 @@ Ext.define('Mdc.view.setup.devicechannels.Grid', {
                 header: Uni.I18n.translate('devicechannels.interval', 'MDC', 'Interval'),
                 renderer: function (value) {
                     var res = '';
-                    value ? res = '{count} {timeUnit}'.replace('{count}', value.count).replace('{timeUnit}', value.timeUnit) : null;
+                    value ? res = Ext.String.htmlEncode('{count} {timeUnit}'.replace('{count}', value.count).replace('{timeUnit}', value.timeUnit)) : null;
                     return res
                 }
             },

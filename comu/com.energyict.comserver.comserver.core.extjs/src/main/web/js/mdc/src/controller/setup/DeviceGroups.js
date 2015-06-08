@@ -201,7 +201,7 @@ Ext.define('Mdc.controller.setup.DeviceGroups', {
                         labelAlign: 'left',
                         fieldLabel: criteriaName,
                         renderer: function (value) {
-                            return criteriaValue;
+                            return Ext.String.htmlEncode(criteriaValue);
                         }
                     }
                 )
