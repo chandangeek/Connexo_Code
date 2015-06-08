@@ -32,7 +32,8 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     AT_LEAST_ONE_STATE(401, Keys.AT_LEAST_ONE_STATE, "A finite state machine must have at least one state"),
     EXACTLY_ONE_INITIAL_STATE(402, Keys.EXACTLY_ONE_INITIAL_STATE, "A finite state machine must have exactly one initial state"),
     UNKNOWN_STATE(403, Keys.UNKNOWN_STATE, "Unable to remove state {0} because it does not exist in the finite state machine {1}"),
-    UNKNOWN_STATE_TRANSITION(404, Keys.UNKNOWN_STATE_TRANSITION, "Unable to remove state transition from {0} and event type {1} because it does not exist in the finite state machine {2}");
+    UNKNOWN_STATE_TRANSITION(404, Keys.UNKNOWN_STATE_TRANSITION, "Unable to remove state transition from {0} and event type {1} because it does not exist in the finite state machine {2}"),
+    DUPLICATE_STATE_TRANSITION(405, Keys.DUPLICATE_STATE_TRANSITION, "The combination of From state and Triggered by-event must be unique in a device life cycle");
 
     private final int number;
     private final String key;
