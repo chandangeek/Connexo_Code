@@ -29,6 +29,11 @@ public class RestValidationBuilder {
         return this;
     }
 
+    public RestValidationBuilder isCorrectId(Long id, String field){
+        new ValidationBuilder<>(id).field(field).check(obj -> obj != null && obj > 0).message(MessageSeeds.FIELD_CAN_NOT_BE_EMPTY).test();
+        return this;
+    }
+
     public <T> ValidationBuilder<T> on(T object){
         return new ValidationBuilder<>(object);
     }
@@ -55,17 +60,17 @@ public class RestValidationBuilder {
             this.obj = obj;
         }
 
-        public ValidationBuilder field(String field){
+        public ValidationBuilder<T> field(String field){
             this.field = field;
             return this;
         }
 
-        public ValidationBuilder check(Predicate<T> check){
+        public ValidationBuilder<T> check(Predicate<T> check){
             this.check = check;
             return this;
         }
 
-        public ValidationBuilder message(MessageSeed messageSeed, Object... args){
+        public ValidationBuilder<T> message(MessageSeed messageSeed, Object... args){
             this.messageSeed = messageSeed;
             this.args = args;
             return this;
