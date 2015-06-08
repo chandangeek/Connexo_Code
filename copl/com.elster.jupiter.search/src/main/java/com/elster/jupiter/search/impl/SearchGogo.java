@@ -129,6 +129,9 @@ public class SearchGogo {
             SearchableProperty property = domain.getProperties().stream().filter(p -> p.hasName(keyAndValue[0])).findAny().orElseThrow(() -> new IllegalArgumentException("Domain does not have property with name " + keyAndValue[0]));
             try {
                 Object constrictingValue = property.getSpecification().getValueFactory().fromStringValue(keyAndValue[1]);
+                if (constrictingValue == null) {
+                    throw new IllegalArgumentException("Value '" + keyAndValue[1] + "' for property '" + property.getName() + "' is not valid");
+                }
                 return SearchablePropertyConstriction.withValues(property, Arrays.asList(constrictingValue));
             }
             catch (NoSuchElementException e) {
