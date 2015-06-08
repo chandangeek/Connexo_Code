@@ -11,8 +11,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 import org.mockito.Mock;
 
 import com.elster.jupiter.fsm.State;
@@ -43,7 +42,7 @@ public class DeviceHistoryResourceTest extends DeviceDataRestApplicationJerseyTe
                     return key.getDefaultFormat();
                 }
             }
-            return (String) invocationOnMock.getArguments()[1];
+            return invocationOnMock.getArguments()[1];
         });
 
         when(device.getCreateTime()).thenReturn(deviceCreationDate);
@@ -57,7 +56,7 @@ public class DeviceHistoryResourceTest extends DeviceDataRestApplicationJerseyTe
     @Test
     public void getDeviceStatesHistory() {
         State stock = mockState(11, DefaultState.IN_STOCK.getKey());
-        State commisionning = mockState(22, "commissioning");
+        State commissioning = mockState(22, "commissioning");
         User admin = mockUser(1, "admin");
         User batchExecutor = mockUser(2, "batch executor");
         DeviceLifeCycle newDeviceLifeCycle = mockDeviceLifeCycle(2L, "New device life cycle");
@@ -79,7 +78,7 @@ public class DeviceHistoryResourceTest extends DeviceDataRestApplicationJerseyTe
         //State change: 'In Stock' -> 'Commissioning'
         DeviceLifeCycleChangeEvent event3 = mock(DeviceLifeCycleChangeEvent.class);
         when(event3.getType()).thenReturn(Type.STATE);
-        when(event3.getState()).thenReturn(commisionning);
+        when(event3.getState()).thenReturn(commissioning);
         when(event3.getTimestamp()).thenReturn(deviceCreationDate.plusSeconds(3));
         when(event3.getUser()).thenReturn(Optional.of(admin));
 
@@ -89,13 +88,14 @@ public class DeviceHistoryResourceTest extends DeviceDataRestApplicationJerseyTe
 
         JsonModel model = JsonModel.model(response);
 
-        assertThat(model.<Number> get("$.total")).isEqualTo(2);
-        assertThat(model.<String>get("$.deviceLifeCycleStateChanges[0].fromState")).isNull();
-        assertThat(model.<String>get("$.deviceLifeCycleStateChanges[1].fromState")).isEqualTo("In Stock");
-        assertThat(model.<List<String>> get("$.deviceLifeCycleStateChanges[*].toState")).containsExactly("In Stock", "commissioning");
-        assertThat(model.<List<Number>> get("$.deviceLifeCycleStateChanges[*].modTime")).containsExactly(now.minusMillis(1000).toEpochMilli(), now.toEpochMilli());
-        assertThat(model.<List<Number>> get("$.deviceLifeCycleStateChanges[*].author.id")).containsExactly(1, 2);
-        assertThat(model.<List<String>> get("$.deviceLifeCycleStateChanges[*].author.name")).containsExactly("admin", "batch executor");
+        assertThat(model.<Number> get("$.total")).isEqualTo(3);
+        assertThat(model.<List<Number>> get("$.deviceLifeCycleChanges[*].from.id")).containsExactly(1, 11);
+        assertThat(model.<List<String>> get("$.deviceLifeCycleChanges[*].from.name")).containsExactly("Default life cycle", "In Stock");
+        assertThat(model.<List<Number>> get("$.deviceLifeCycleChanges[*].to.id")).containsExactly(11, 2, 22);
+        assertThat(model.<List<String>> get("$.deviceLifeCycleChanges[*].to.name")).containsExactly("In Stock", "New device life cycle", "commissioning");
+        assertThat(model.<List<Number>> get("$.deviceLifeCycleChanges[*].modTime")).containsExactly(deviceCreationDate.toEpochMilli(), deviceCreationDate.plusSeconds(1).toEpochMilli(), deviceCreationDate.plusSeconds(3).toEpochMilli());
+        assertThat(model.<List<Number>> get("$.deviceLifeCycleChanges[*].author.id")).containsExactly(1, 2, 1);
+        assertThat(model.<List<String>> get("$.deviceLifeCycleChanges[*].author.name")).containsExactly("admin", "batch executor", "admin");
     }
 
     @Test
