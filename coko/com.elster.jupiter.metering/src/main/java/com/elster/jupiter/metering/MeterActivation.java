@@ -23,5 +23,8 @@ public interface MeterActivation extends Effectivity , ReadingContainer {
     void setUsagePoint(UsagePoint usagePoint);
     void setMeter(Meter meter);
 
-    void advanceStartDate(Instant startDate);
+    /**
+     * @param startTime new start time for this MeterActivation, which must be earlier than the current start time.
+     */
+    void advanceStartDate(Instant startTime);
 }

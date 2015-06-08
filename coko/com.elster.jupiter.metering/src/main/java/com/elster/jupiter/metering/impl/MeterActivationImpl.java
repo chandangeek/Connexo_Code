@@ -271,11 +271,11 @@ public class MeterActivationImpl implements MeterActivation {
 	}
 
 	@Override
-	public void advanceStartDate(Instant startDate) {
-		if (!startDate.isBefore(getRange().lowerEndpoint())) {
+	public void advanceStartDate(Instant startTime) {
+		if (!startTime.isBefore(getRange().lowerEndpoint())) {
 			throw new IllegalArgumentException("startDate must be before the current startdate");
 		}
-        Range<Instant> newRange = Range.singleton(startDate).span(interval.toClosedOpenRange());
+        Range<Instant> newRange = Range.singleton(startTime).span(interval.toClosedOpenRange());
         getMeter().ifPresent(meter -> {
             meter.getMeterActivations().stream()
                     .filter(meterActivation -> meterActivation.getId() != id)
@@ -298,5 +298,6 @@ public class MeterActivationImpl implements MeterActivation {
         });
         this.interval = Interval.of(newRange);
 		this.save();
+        eventService.postEvent(EventType.METER_ACTIVATION_ADVANCED.topic(), this);
 	}
 }
