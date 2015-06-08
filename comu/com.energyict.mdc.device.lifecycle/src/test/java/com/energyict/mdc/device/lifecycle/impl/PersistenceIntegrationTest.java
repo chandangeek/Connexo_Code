@@ -13,11 +13,14 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 
 import java.sql.SQLException;
+import java.time.Instant;
 
 import org.junit.*;
 import org.junit.rules.*;
 import org.junit.runner.*;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import static org.mockito.Mockito.when;
 
 /**
  * Insert your comments here.
@@ -48,6 +51,7 @@ public abstract class PersistenceIntegrationTest {
             protocolPluggableService.addDeviceProtocolService(new BareMinimumDeviceProtocolService());
             DeviceProtocolPluggableClass deviceProtocolPluggableClass = protocolPluggableService.newDeviceProtocolPluggableClass("DLC-IntegrationTest", BareMinimumDeviceProtocol.class.getName());
             deviceProtocolPluggableClass.save();
+            when(inMemoryPersistence.getClock().instant()).thenReturn(Instant.ofEpochMilli(0L));  // Create DeviceType as early as possible to support unit tests that go back in time
             deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(DEVICE_TYPE_NAME, deviceProtocolPluggableClass);
             deviceType.save();
             DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration(DEVICE_CONFIGURATION_NAME);
