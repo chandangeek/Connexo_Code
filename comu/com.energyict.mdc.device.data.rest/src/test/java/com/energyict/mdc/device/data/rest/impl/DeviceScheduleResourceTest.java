@@ -6,30 +6,25 @@ import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
-import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecutionUpdater;
-import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
+import com.energyict.mdc.device.data.tasks.*;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
 import com.energyict.mdc.tasks.ComTask;
 import com.jayway.jsonpath.JsonModel;
+import org.junit.Test;
+
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Response;
-import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class DeviceScheduleResourceTest extends DeviceDataRestApplicationJerseyTest {
 
@@ -181,6 +176,14 @@ public class DeviceScheduleResourceTest extends DeviceDataRestApplicationJerseyT
                 .containsKey("type");
     }
 
+    private ComTask mockComTask(ComTaskEnablement comTaskEnablement, long comTaskId) {
+        ComTask comTask = mock(ComTask.class);
+        when(comTaskEnablement.getComTask()).thenReturn(comTask);
+        when(comTask.getId()).thenReturn(comTaskId);
+        when(taskService.findComTask(comTaskId)).thenReturn(Optional.of(comTask));
+        return comTask;
+    }
+
     @Test
     public void testCreateScheduledComTaskExecutionFromEnablement() throws Exception {
         SchedulingInfo schedulingInfo = new SchedulingInfo();
@@ -196,9 +199,7 @@ public class DeviceScheduleResourceTest extends DeviceDataRestApplicationJerseyT
         ComTaskEnablement comTaskEnablement = mock(ComTaskEnablement.class);
         when(deviceConfiguration.getComTaskEnablements()).thenReturn(Arrays.asList(comTaskEnablement));
 
-        ComTask comTask = mock(ComTask.class);
-        when(comTaskEnablement.getComTask()).thenReturn(comTask);
-        when(comTask.getId()).thenReturn(111L);
+        mockComTask(comTaskEnablement, 111L);
 
         ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = mock(ProtocolDialectConfigurationProperties.class);
         when(comTaskEnablement.getProtocolDialectConfigurationProperties()).thenReturn(protocolDialectConfigurationProperties);
@@ -213,8 +214,9 @@ public class DeviceScheduleResourceTest extends DeviceDataRestApplicationJerseyT
 
     @Test
     public void testChangeScheduleOnManuallyScheduledComTaskExecution() throws Exception {
+        long comTaskId = 111;
         SchedulingInfo schedulingInfo = new SchedulingInfo();
-        schedulingInfo.id = 111;
+        schedulingInfo.id = comTaskId;
         schedulingInfo.schedule = TemporalExpressionInfo.from(new TemporalExpression(TimeDuration.hours(5), TimeDuration.minutes(5)));
 
         Device device = mock(Device.class);
@@ -227,9 +229,8 @@ public class DeviceScheduleResourceTest extends DeviceDataRestApplicationJerseyT
         ComTaskEnablement comTaskEnablement = mock(ComTaskEnablement.class);
 
         when(deviceConfiguration.getComTaskEnablements()).thenReturn(Arrays.asList(comTaskEnablement));
-        ComTask comTask = mock(ComTask.class);
+        ComTask comTask = mockComTask(comTaskEnablement, comTaskId);
         when(comTaskExecution.getId()).thenReturn(111L);
-        when(comTaskEnablement.getComTask()).thenReturn(comTask);
         when(comTaskExecution.getComTasks()).thenReturn(Arrays.asList(comTask));
         when(comTaskExecution.isScheduledManually()).thenReturn(true);
         NextExecutionSpecs nextExecutionSpecs = mock(NextExecutionSpecs.class);
@@ -248,8 +249,9 @@ public class DeviceScheduleResourceTest extends DeviceDataRestApplicationJerseyT
 
     @Test
     public void testRemoveScheduleOnManuallyScheduledComTaskExecution() throws Exception {
+        long comTaskId = 111;
         SchedulingInfo schedulingInfo = new SchedulingInfo();
-        schedulingInfo.id = 111;
+        schedulingInfo.id = comTaskId;
 
         Device device = mock(Device.class);
         when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
@@ -261,9 +263,8 @@ public class DeviceScheduleResourceTest extends DeviceDataRestApplicationJerseyT
         ComTaskEnablement comTaskEnablement = mock(ComTaskEnablement.class);
 
         when(deviceConfiguration.getComTaskEnablements()).thenReturn(Arrays.asList(comTaskEnablement));
-        ComTask comTask = mock(ComTask.class);
+        ComTask comTask = mockComTask(comTaskEnablement, comTaskId);
         when(comTaskExecution.getId()).thenReturn(111L);
-        when(comTaskEnablement.getComTask()).thenReturn(comTask);
         when(comTaskExecution.getComTasks()).thenReturn(Arrays.asList(comTask));
         when(comTaskExecution.isScheduledManually()).thenReturn(true);
         NextExecutionSpecs nextExecutionSpecs = mock(NextExecutionSpecs.class);
@@ -290,10 +291,7 @@ public class DeviceScheduleResourceTest extends DeviceDataRestApplicationJerseyT
         ComTaskEnablement comTaskEnablement = mock(ComTaskEnablement.class);
         when(deviceConfiguration.getComTaskEnablements()).thenReturn(Arrays.asList(comTaskEnablement));
 
-        ComTask comTask = mock(ComTask.class);
-        when(comTaskEnablement.getComTask()).thenReturn(comTask);
-        when(comTask.getId()).thenReturn(111L);
-
+        mockComTask(comTaskEnablement, 111L);
 
         ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = mock(ProtocolDialectConfigurationProperties.class);
         when(comTaskEnablement.getProtocolDialectConfigurationProperties()).thenReturn(protocolDialectConfigurationProperties);
@@ -312,6 +310,9 @@ public class DeviceScheduleResourceTest extends DeviceDataRestApplicationJerseyT
     public void testDeleteComTaskExecution() throws Exception {
         Device device = mock(Device.class);
         when(deviceService.findByUniqueMrid("ZAFB001")).thenReturn(Optional.of(device));
+        long comTaskId = 12L;
+        ComTaskEnablement comTaskEnablement = mock(ComTaskEnablement.class);
+        mockComTask(comTaskEnablement, comTaskId);
 
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
         when(comTaskExecution.getId()).thenReturn(12L);
@@ -320,7 +321,7 @@ public class DeviceScheduleResourceTest extends DeviceDataRestApplicationJerseyT
 
         when(device.getComTaskExecutions()).thenReturn(Arrays.asList(comTaskExecution2, comTaskExecution));
 
-        Response response = target("/devices/ZAFB001/schedules/12").request().delete();
+        Response response = target("/devices/ZAFB001/schedules/" + comTaskId).request().delete();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(device).removeComTaskExecution(comTaskExecution);
     }
@@ -343,5 +344,59 @@ public class DeviceScheduleResourceTest extends DeviceDataRestApplicationJerseyT
         assertThat(jsonModel.<Boolean>get("$.success")).isEqualTo(false);
         assertThat(jsonModel.<String>get("$.message")).isEqualTo(MessageSeeds.NO_SUCH_COM_TASK_EXEC.getDefaultFormat());
         assertThat(jsonModel.<String>get("$.error")).isEqualTo(MessageSeeds.NO_SUCH_COM_TASK_EXEC.getKey());
+    }
+
+    private SchedulingInfo mockDataForFirmwareComTaskTests() {
+        SchedulingInfo schedulingInfo = new SchedulingInfo();
+        schedulingInfo.id = firmwareComTaskId;
+
+        Device device = mock(Device.class);
+        when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
+
+        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
+        when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+
+        ComTaskEnablement comTaskEnablement = mock(ComTaskEnablement.class);
+        when(deviceConfiguration.getComTaskEnablements()).thenReturn(Arrays.asList(comTaskEnablement));
+
+        when(comTaskEnablement.getComTask()).thenReturn(firmwareComTask);
+
+        ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = mock(ProtocolDialectConfigurationProperties.class);
+        when(comTaskEnablement.getProtocolDialectConfigurationProperties()).thenReturn(protocolDialectConfigurationProperties);
+        ComTaskExecutionBuilder comTaskExecutionBuilder = mock(ComTaskExecutionBuilder.class);
+        when(device.newAdHocComTaskExecution(comTaskEnablement)).thenReturn(comTaskExecutionBuilder);
+        ManuallyScheduledComTaskExecution comTaskExecution = mock(ManuallyScheduledComTaskExecution.class);
+        when(comTaskExecutionBuilder.add()).thenReturn(comTaskExecution);
+        return schedulingInfo;
+    }
+
+    @Test
+    public void canNotCreateForFirmwareComTaskTest() throws IOException {
+        SchedulingInfo schedulingInfo = mockDataForFirmwareComTaskTests();
+
+        Response response = target("/devices/1/schedules").request().post(Entity.json(schedulingInfo));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+        JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
+        assertThat(jsonModel.<String>get("$.error")).isEqualTo(MessageSeeds.CAN_NOT_PERFOMR_ACTION_ON_SYSTEM_COMTASK.getKey());
+    }
+
+    @Test
+    public void canNotUpdateForFirmwareComTaskTest() throws IOException {
+        SchedulingInfo schedulingInfo = mockDataForFirmwareComTaskTests();
+
+        Response response = target("/devices/1/schedules").request().put(Entity.json(schedulingInfo));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+        JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
+        assertThat(jsonModel.<String>get("$.error")).isEqualTo(MessageSeeds.CAN_NOT_PERFOMR_ACTION_ON_SYSTEM_COMTASK.getKey());
+    }
+
+    @Test
+    public void canNotDeleteFirmwareComTaskTest() throws IOException {
+        mockDataForFirmwareComTaskTests();
+
+        Response response = target("/devices/1/schedules/"+firmwareComTaskId).request().delete();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+        JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
+        assertThat(jsonModel.<String>get("$.error")).isEqualTo(MessageSeeds.CAN_NOT_PERFOMR_ACTION_ON_SYSTEM_COMTASK.getKey());
     }
 }
