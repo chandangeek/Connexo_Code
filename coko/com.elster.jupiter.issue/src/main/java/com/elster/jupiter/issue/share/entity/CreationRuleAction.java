@@ -17,4 +17,6 @@ public interface CreationRuleAction extends HasDynamicPropertiesWithValues {
 
     List<CreationRuleActionProperty> getCreationRuleActionProperties();
     
+    void validate();
+    
 }

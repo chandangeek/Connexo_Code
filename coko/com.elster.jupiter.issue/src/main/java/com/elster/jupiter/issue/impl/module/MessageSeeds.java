@@ -15,7 +15,7 @@ import java.util.logging.Logger;
 
 public enum MessageSeeds implements MessageSeed, TranslationKey {
 // 0001 - 1000 General validation messages
-    FIELD_CAN_NOT_BE_EMPTY (1, Keys.FIELD_CAN_NOT_BE_EMPTY, "Field can't be empty", Level.SEVERE),
+    FIELD_CAN_NOT_BE_EMPTY (1, Keys.FIELD_CAN_NOT_BE_EMPTY, "This field is required", Level.SEVERE),
 
     FIELD_SIZE_BETWEEN_1_AND_80(2, Keys.FIELD_SIZE_BETWEEN_1_AND_80, "Field's text length should be between 1 and 80 symbols", Level.SEVERE),
     FIELD_SIZE_BETWEEN_1_AND_128(3, Keys.FIELD_SIZE_BETWEEN_1_AND_128, "Field's text length should be between 1 and 128 symbols", Level.SEVERE),
@@ -71,7 +71,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     CREATION_RULE_UNIQUE_NAME(9012, Keys.CREATION_RULE_UNIQUE_NAME, "The name should be unique", Level.SEVERE),
     PROPERTY_NOT_IN_PROPERTYSPECS(9013, Keys.PROPERTY_NOT_IN_PROPERTYSPECS, "Property is not in property specs", Level.SEVERE),
     PROPERTY_INVALID_VALUE(9014, Keys.PROPERTY_INVALID_VALUE, "Property invalid value", Level.SEVERE),
-    PROPERTY_MISSING(9015, Keys.PROPERTY_MISSING, "Required property was not found.", Level.SEVERE);
+    PROPERTY_MISSING(9015, Keys.PROPERTY_MISSING, "This field is required", Level.SEVERE);
     
     ;
 

@@ -12,6 +12,7 @@ import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
 import com.elster.jupiter.issue.share.IssueAction;
 import com.elster.jupiter.issue.share.entity.CreationRule;
@@ -101,6 +102,11 @@ public class CreationRuleActionImpl implements CreationRuleAction {
     @Override
     public Map<String, Object> getProperties() {
         return this.properties.stream().collect(Collectors.toMap(CreationRuleActionProperty::getName, CreationRuleActionProperty::getValue));
+    }
+    
+    @Override
+    public void validate() {
+        Save.CREATE.validate(dataModel, this);
     }
 
     void setAction(IssueActionType type) {

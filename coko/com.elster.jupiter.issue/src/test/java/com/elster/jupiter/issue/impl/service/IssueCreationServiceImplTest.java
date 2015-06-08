@@ -423,6 +423,40 @@ public class IssueCreationServiceImplTest extends BaseTest {
         assertThat(list.get(0).getRule().getId()).isEqualTo(rule.getId());
     }
     
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY +"}", property = "phase", strict = true)
+    public void testValidateCreationRuleActionNoPhase() {
+        getIssueCreationService().newCreationRule()
+                                 .newCreationRuleAction()
+                                 .setActionType(actionType)
+                                 .addProperty("decimal_property", BigDecimal.valueOf(10))
+                                 .complete()
+                                 .validate();
+    }
+    
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY +"}", property = "action", strict = true)
+    public void testValidateCreationRuleActionNoActionType() {
+        getIssueCreationService().newCreationRule()
+                                 .newCreationRuleAction()
+                                 .setPhase(CreationRuleActionPhase.CREATE)
+                                 .complete()
+                                 .validate();
+    }
+    
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.PROPERTY_MISSING +"}", property = "properties.decimal_property", strict = true)
+    public void testValidateCreationRuleActionNoMandatoryProperties() {
+        getIssueCreationService().newCreationRule()
+                                 .newCreationRuleAction()
+                                 .setActionType(actionType)
+                                 .setPhase(CreationRuleActionPhase.CREATE)
+                                 .complete()
+                                 .validate();
+    }
     
     private CreationRuleTemplate mockCreationRuleTemplate() {
         CreationRuleTemplate template = mock(CreationRuleTemplate.class);

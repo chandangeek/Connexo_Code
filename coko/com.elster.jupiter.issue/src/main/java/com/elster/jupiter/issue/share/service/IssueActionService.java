@@ -1,5 +1,9 @@
 package com.elster.jupiter.issue.share.service;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
 import aQute.bnd.annotation.ProviderType;
 
 import com.elster.jupiter.domain.util.Query;
@@ -11,10 +15,6 @@ import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueActionType;
 import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueType;
-
-import java.util.Optional;
-import java.util.List;
-import java.util.Map;
 
 @ProviderType
 public interface IssueActionService {
@@ -36,4 +36,5 @@ public interface IssueActionService {
     Optional<IssueActionType> findActionType(long id);
     
     Query<IssueActionType> getActionTypeQuery();
+    
 }
