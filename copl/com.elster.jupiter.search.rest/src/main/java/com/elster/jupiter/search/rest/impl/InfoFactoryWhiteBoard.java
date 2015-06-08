@@ -23,16 +23,15 @@ public class InfoFactoryWhiteBoard implements InfoFactoryService {
     }
 
     public void removeFactory(InfoFactory infoFactory) {
-        factories.removeIf(fac -> infoFactory.getDomainClass().equals(fac.getDomainClass()));
+        factories.removeIf(fac -> infoFactory.getSearchDomainId().equals(fac.getSearchDomainId()));
     }
 
 
     @Override
-    public Object from(Object domainObject) {
+    public InfoFactory getFactoryFor(String searchDomainId) {
         return factories.stream().
-                filter(fac -> fac.getDomainClass().isAssignableFrom(domainObject.getClass())).
+                filter(fac -> fac.getSearchDomainId().equals(searchDomainId)).
                 findFirst().
-                orElseThrow(() -> new IllegalStateException("No registered factory for " + domainObject.getClass())).
-                from(domainObject);
+                orElseThrow(() -> new IllegalStateException("No registered factory for " + searchDomainId));
     }
 }

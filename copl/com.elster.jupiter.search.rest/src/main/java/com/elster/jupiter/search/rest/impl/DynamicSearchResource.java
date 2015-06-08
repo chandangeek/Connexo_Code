@@ -18,6 +18,7 @@ import com.elster.jupiter.util.HasId;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
@@ -90,6 +91,17 @@ public class DynamicSearchResource {
     @GET
     @Consumes(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
+    @Path("/{domain}/model")
+    public Response getDomainDescription(@PathParam("domain") String domainId) {
+        SearchDomain searchDomain = findSearchDomainOrThrowException(domainId);
+        Map properties = infoFactoryService.getFactoryFor(searchDomain.getId()).infoStructure();
+
+        return Response.ok(properties).build();
+    }
+
+    @GET
+    @Consumes(MediaType.APPLICATION_JSON+";charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Path("/{domain}")
     public Response doSearch(@PathParam("domain") String domainId,
                                         @BeanParam JsonQueryFilter jsonQueryFilter,
@@ -115,7 +127,9 @@ public class DynamicSearchResource {
         } else {
             throw new LocalizedFieldValidationException(MessageSeeds.AT_LEAST_ONE_CRITERIA, "filter");
         }
-        List<Object> searchResults = searchBuilder.toFinder().from(jsonQueryParameters).stream().map(infoFactoryService::from).collect(toList());
+        List<Object> searchResults = searchBuilder.toFinder().from(jsonQueryParameters).stream().
+                map(o-> infoFactoryService.getFactoryFor(searchDomain.getId()).from(o)).
+                collect(toList());
         return Response.ok().entity(PagedInfoList.fromPagedList("searchResults", searchResults, jsonQueryParameters)).build();
     }
 
