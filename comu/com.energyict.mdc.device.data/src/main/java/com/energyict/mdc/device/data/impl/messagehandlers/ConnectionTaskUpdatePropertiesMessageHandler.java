@@ -36,14 +36,17 @@ public class ConnectionTaskUpdatePropertiesMessageHandler implements MessageHand
             for (PropertySpec propertySpec : connectionTask.getConnectionType().getPropertySpecs()) {
                 if (queueMessage.properties.containsKey(propertySpec.getName())) {
                     String stringValue = queueMessage.properties.get(propertySpec.getName());
+                    Object convertedValue = null;
                     try {
-                        connectionTask.setProperty(propertySpec.getName(), convertPropertyStringValueToPropertyValue(propertySpec, stringValue));
+                        convertedValue = convertPropertyStringValueToPropertyValue(propertySpec, stringValue);
+                        connectionTask.setProperty(propertySpec.getName(), convertedValue);
                         LOGGER.info(String.format("Set property '%s' on connection task %d to value '%s'", propertySpec.getName(), connectionTask.getId(), stringValue));
                     } catch (Exception e) {
-                        LOGGER.log(Level.SEVERE, String.format("Failed to set property '%s' on connection task %d: value '%s' was refused: %s", propertySpec.getName(), connectionTask.getId(), stringValue, e.getMessage()));
+                        LOGGER.log(Level.SEVERE, String.format("Failed to set property '%s' on connection task %d: value '%s' was refused: %s", propertySpec.getName(), connectionTask.getId(), convertedValue, e.getMessage()));
                     }
                 }
             }
+            connectionTask.save();
         } else {
             LOGGER.log(Level.SEVERE, "No connectionTask with id "+queueMessage.connectionTaskId);
         }
@@ -53,11 +56,12 @@ public class ConnectionTaskUpdatePropertiesMessageHandler implements MessageHand
      * Shamelessly copied from MdcPropertyUtils
      */
     private Object convertPropertyStringValueToPropertyValue(PropertySpec propertySpec, String value) {
-        if (Objects.equals(propertySpec.getValueFactory().getValueType(), Password.class)) {
+        Class valueTypeClazz = propertySpec.getValueFactory().getValueType();
+        if (Objects.equals(valueTypeClazz, Password.class)) {
             return new Password(value);
-        } else if (Objects.equals(propertySpec.getValueFactory().getValueType(), Date.class)) {
+        } else if (Objects.equals(valueTypeClazz, Date.class)) {
             return new Date(Long.valueOf(value));
-        } else if (Objects.equals(propertySpec.getValueFactory().getValueType(), TimeDuration.class)) {
+        } else if (Objects.equals(valueTypeClazz, TimeDuration.class)) {
             try { // String looks like this: '{timeUnit=hours, count=1}'
                 TimeDurationJson json = jsonService.deserialize(value, TimeDurationJson.class);
                 return new TimeDuration(json.count, TimeDuration.TimeUnit.forDescription(json.timeUnit));
@@ -65,9 +69,9 @@ public class ConnectionTaskUpdatePropertiesMessageHandler implements MessageHand
             catch (LocalizedFieldValidationException e) {
                 throw new IllegalArgumentException("Invalid timeduration");
             }
-        } else if (Objects.equals(propertySpec.getValueFactory().getValueType(), String.class)) {
-            return value;
-        } else if (Objects.equals(propertySpec.getValueFactory().getValueType(), Boolean.class)) {
+        } else if (Objects.equals(valueTypeClazz, String.class)) {
+            return jsonService.deserialize(value, String.class);
+        } else if (Objects.equals(valueTypeClazz, Boolean.class)) {
             if (Boolean.class.isAssignableFrom(value.getClass())) {
                 return value;
             } else {
