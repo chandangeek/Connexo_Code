@@ -11,9 +11,11 @@ import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
+import com.energyict.mdc.device.data.impl.EventType;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
 import com.energyict.mdc.device.data.tasks.FirmwareComTaskExecution;
 import com.energyict.mdc.device.data.tasks.FirmwareComTaskExecutionUpdater;
+import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
@@ -166,6 +168,24 @@ public class FirmwareComTaskExecutionImpl extends ComTaskExecutionImpl implement
 
     public void setComTask(ComTask comTask) {
         this.comTask.set(comTask);
+    }
+
+    @Override
+    public void executionStarted(ComPort comPort) {
+        super.executionStarted(comPort);
+        postEvent(EventType.FIRMWARE_COMTASKEXECUTION_STARTED);
+    }
+
+    @Override
+    public void executionCompleted() {
+        super.executionCompleted();
+        postEvent(EventType.FIRMWARE_COMTASKEXECUTION_COMPLETED);
+    }
+
+    @Override
+    public void executionFailed() {
+        super.executionFailed();
+        postEvent(EventType.FIRMWARE_COMTASKEXECUTION_FAILED);
     }
 
     public static class FirmwareComTaskExecutionBuilderImpl extends AbstractComTaskExecutionBuilder<FirmwareComTaskExecution, FirmwareComTaskExecutionImpl> implements ComTaskExecutionBuilder<FirmwareComTaskExecution> {
