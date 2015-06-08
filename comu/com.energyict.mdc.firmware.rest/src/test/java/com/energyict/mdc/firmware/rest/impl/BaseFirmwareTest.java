@@ -2,6 +2,7 @@ package com.energyict.mdc.firmware.rest.impl;
 
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -42,6 +43,8 @@ public class BaseFirmwareTest extends FelixRestApplicationJerseyTest {
     TaskService taskService;
     @Mock
     Clock clock;
+    @Mock
+    MeteringGroupsService meteringGroupsService;
 
     @Override
     protected MessageSeed[] getMessageSeeds() {
@@ -60,6 +63,7 @@ public class BaseFirmwareTest extends FelixRestApplicationJerseyTest {
         application.setDeviceMessageSpecificationService(deviceMessageSpecificationService);
         application.setTaskService(taskService);
         application.setClock(clock);
+        application.setMeteringGroupsService(meteringGroupsService);
 
         return application;
     }

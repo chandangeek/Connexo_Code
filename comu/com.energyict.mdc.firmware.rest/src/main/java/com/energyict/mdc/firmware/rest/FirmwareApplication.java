@@ -1,5 +1,6 @@
 package com.energyict.mdc.firmware.rest;
 
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -12,8 +13,22 @@ import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.firmware.FirmwareManagementDeviceUtils;
 import com.energyict.mdc.firmware.FirmwareService;
-import com.energyict.mdc.firmware.rest.impl.*;
+import com.energyict.mdc.firmware.rest.impl.DeviceFirmwareMessagesResource;
+import com.energyict.mdc.firmware.rest.impl.DeviceFirmwareVersionInfoFactory;
+import com.energyict.mdc.firmware.rest.impl.DeviceFirmwareVersionResource;
+import com.energyict.mdc.firmware.rest.impl.DeviceInFirmwareCampaignInfoFactory;
+import com.energyict.mdc.firmware.rest.impl.FirmwareCampaignInfoFactory;
+import com.energyict.mdc.firmware.rest.impl.FirmwareCampaignResource;
+import com.energyict.mdc.firmware.rest.impl.FirmwareFieldResource;
+import com.energyict.mdc.firmware.rest.impl.FirmwareManagementOptionsResource;
+import com.energyict.mdc.firmware.rest.impl.FirmwareMessageInfoFactory;
+import com.energyict.mdc.firmware.rest.impl.FirmwareTypesResource;
+import com.energyict.mdc.firmware.rest.impl.FirmwareVersionInfoFactory;
+import com.energyict.mdc.firmware.rest.impl.FirmwareVersionResource;
+import com.energyict.mdc.firmware.rest.impl.MessageSeeds;
+import com.energyict.mdc.firmware.rest.impl.ResourceHelper;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.tasks.TaskService;
@@ -46,6 +61,7 @@ public class FirmwareApplication extends Application implements TranslationKeyPr
     private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
     private volatile TaskService taskService;
     private volatile Clock clock;
+    private volatile MeteringGroupsService meteringGroupsService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -53,6 +69,7 @@ public class FirmwareApplication extends Application implements TranslationKeyPr
                 FirmwareVersionResource.class,
                 FirmwareFieldResource.class,
                 FirmwareManagementOptionsResource.class,
+                FirmwareCampaignResource.class,
                 DeviceFirmwareVersionResource.class,
                 DeviceFirmwareMessagesResource.class,
                 FirmwareTypesResource.class,
@@ -78,7 +95,10 @@ public class FirmwareApplication extends Application implements TranslationKeyPr
             bind(MdcPropertyUtils.class).to(MdcPropertyUtils.class);
             bind(FirmwareMessageInfoFactory.class).to(FirmwareMessageInfoFactory.class);
             bind(DeviceFirmwareVersionInfoFactory.class).to(DeviceFirmwareVersionInfoFactory.class);
-            bind(DeviceFirmwareVersionUtils.Factory.class).to(DeviceFirmwareVersionUtils.Factory.class);
+            bind(FirmwareManagementDeviceUtils.Factory.class).to(FirmwareManagementDeviceUtils.Factory.class);
+            bind(FirmwareCampaignInfoFactory.class).to(FirmwareCampaignInfoFactory.class);
+            bind(DeviceInFirmwareCampaignInfoFactory.class).to(DeviceInFirmwareCampaignInfoFactory.class);
+            bind(FirmwareVersionInfoFactory.class).to(FirmwareVersionInfoFactory.class);
             bind(transactionService).to(TransactionService.class);
             bind(nlsService).to(NlsService.class);
             bind(thesaurus).to(Thesaurus.class);
@@ -89,6 +109,7 @@ public class FirmwareApplication extends Application implements TranslationKeyPr
             bind(deviceMessageSpecificationService).to(DeviceMessageSpecificationService.class);
             bind(taskService).to(TaskService.class);
             bind(clock).to(Clock.class);
+            bind(meteringGroupsService).to(MeteringGroupsService.class);
         }
     }
 
@@ -155,5 +176,10 @@ public class FirmwareApplication extends Application implements TranslationKeyPr
     @Reference
     public void setClock(Clock clock) {
         this.clock = clock;
+    }
+
+    @Reference
+    public void setMeteringGroupsService(MeteringGroupsService meteringGroupsService) {
+        this.meteringGroupsService = meteringGroupsService;
     }
 }

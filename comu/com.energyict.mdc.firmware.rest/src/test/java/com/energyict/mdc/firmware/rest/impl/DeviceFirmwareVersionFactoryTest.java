@@ -1,10 +1,10 @@
 package com.energyict.mdc.firmware.rest.impl;
 
+import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.FirmwareComTaskExecution;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
@@ -57,13 +57,13 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
     @Mock
     private DeviceConfiguration deviceConfiguration;
     @Mock
-    private FirmwareComTaskExecution firmwareExecution;
+    private ComTaskExecution firmwareExecution;
     @Mock
     private StatusInformationTask statusCheckTask;
     @Mock
-    private ComTask statusCheckComTask;
+    private ComTask firmwareCheckComTask;
     @Mock
-    private ComTaskExecution statusCheckExecution;
+    private ComTaskExecution firmwareCheckExecution;
     @Mock
     private ActivatedFirmwareVersion activatedCommunicationVersion;
     @Mock
@@ -80,20 +80,25 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
 
         ComTaskExecutionSession session = mock(ComTaskExecutionSession.class);
         when(session.getId()).thenReturn(102L);
-        when(statusCheckComTask.getId()).thenReturn(201L);
-        when(statusCheckComTask.getProtocolTasks()).thenReturn(Collections.singletonList(statusCheckTask));
-        when(statusCheckExecution.getComTasks()).thenReturn(Collections.singletonList(statusCheckComTask));
-        when(statusCheckExecution.getNextExecutionTimestamp()).thenReturn(TIME.plus(1, ChronoUnit.DAYS));
-        when(statusCheckExecution.getLastSession()).thenReturn(Optional.of(session));
+        when(firmwareCheckComTask.getId()).thenReturn(201L);
+        when(firmwareCheckComTask.getProtocolTasks()).thenReturn(Collections.singletonList(statusCheckTask));
+        when(firmwareCheckExecution.getComTasks()).thenReturn(Collections.singletonList(firmwareCheckComTask));
+        when(firmwareCheckExecution.getNextExecutionTimestamp()).thenReturn(TIME.plus(1, ChronoUnit.DAYS));
+        when(firmwareCheckExecution.getLastSession()).thenReturn(Optional.of(session));
+        when(firmwareCheckExecution.isConfiguredToReadStatusInformation()).thenReturn(true);
         ComTask firmwareComTask = mock(ComTask.class);
         when(firmwareComTask.getId()).thenReturn(101L);
-        when(firmwareExecution.getComTask()).thenReturn(firmwareComTask);
+        when(taskService.findFirmwareComTask()).thenReturn(Optional.of(firmwareComTask));
+        when(firmwareExecution.getComTasks()).thenReturn(Collections.singletonList(firmwareComTask));
         when(firmwareExecution.getLastSession()).thenReturn(Optional.of(session));
         when(deviceService.findByUniqueMrid("upgrade")).thenReturn(Optional.of(device));
+        ComTaskEnablement firmwareCheckEnablement = mock(ComTaskEnablement.class);
+        when(firmwareCheckEnablement.getComTask()).thenReturn(firmwareCheckComTask);
+        when(deviceConfiguration.getComTaskEnablements()).thenReturn(Arrays.asList(firmwareCheckEnablement));
         when(device.getId()).thenReturn(1L);
         when(device.getmRID()).thenReturn("upgrade");
         when(device.getMessages()).thenReturn(messages);
-        when(device.getComTaskExecutions()).thenReturn(Arrays.asList(firmwareExecution, statusCheckExecution));
+        when(device.getComTaskExecutions()).thenReturn(Arrays.asList(firmwareExecution, firmwareCheckExecution));
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         when(device.getDeviceType()).thenReturn(deviceType);
         when(device.getDeviceProtocolPluggableClass()).thenReturn(deviceProtocolPluggableClass);
@@ -105,8 +110,8 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         when(activatedCommunicationVersion.getDevice()).thenReturn(device);
         when(activatedCommunicationVersion.getFirmwareVersion()).thenReturn(communicationVersion);
         when(activatedCommunicationVersion.getLastChecked()).thenReturn(TIME);
-        when(firmwareService.getCurrentMeterFirmwareVersionFor(device)).thenReturn(Optional.<ActivatedFirmwareVersion>empty());
-        when(firmwareService.getCurrentCommunicationFirmwareVersionFor(device)).thenReturn(Optional.of(activatedCommunicationVersion));
+        when(firmwareService.getActiveFirmwareVersion(this.device, FirmwareType.METER)).thenReturn(Optional.<ActivatedFirmwareVersion>empty());
+        when(firmwareService.getActiveFirmwareVersion(this.device, FirmwareType.COMMUNICATION)).thenReturn(Optional.of(activatedCommunicationVersion));
         when(firmwareCategory.getId()).thenReturn(1);
         when(deviceMessageSpecificationService.getFirmwareCategory()).thenReturn(firmwareCategory);
         when(deviceMessageSpecificationService.getProtocolSupportedFirmwareOptionFor(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_IMMEDIATE))
@@ -312,7 +317,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         when(firmwareExecution.getStatus()).thenReturn(TaskStatus.Waiting);
         when(firmwareExecution.getExecutionStartedTimestamp()).thenReturn(TIME.minusSeconds(1));
         when(firmwareExecution.getLastSuccessfulCompletionTimestamp()).thenReturn(TIME.minusSeconds(1));
-        when(statusCheckExecution.getLastExecutionStartTimestamp()).thenReturn(TIME.minusSeconds(10));
+        when(firmwareCheckExecution.getLastExecutionStartTimestamp()).thenReturn(TIME.minusSeconds(10));
         messages.add(firmwareMessage);
 
         JsonModel model = JsonModel.model(target("/device/upgrade/firmwares").request().get(String.class));
@@ -334,8 +339,8 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         when(firmwareExecution.getStatus()).thenReturn(TaskStatus.Waiting);
         when(firmwareExecution.getExecutionStartedTimestamp()).thenReturn(TIME.plusSeconds(1));
         when(firmwareExecution.getLastSuccessfulCompletionTimestamp()).thenReturn(TIME.plusSeconds(1));
-        when(statusCheckExecution.getLastExecutionStartTimestamp()).thenReturn(TIME.plusSeconds(10));
-        when(statusCheckExecution.getStatus()).thenReturn(TaskStatus.Busy);
+        when(firmwareCheckExecution.getLastExecutionStartTimestamp()).thenReturn(TIME.plusSeconds(10));
+        when(firmwareCheckExecution.getStatus()).thenReturn(TaskStatus.Busy);
         messages.add(firmwareMessage);
 
         JsonModel model = JsonModel.model(target("/device/upgrade/firmwares").request().get(String.class));
@@ -356,9 +361,9 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         when(firmwareExecution.getStatus()).thenReturn(TaskStatus.Waiting);
         when(firmwareExecution.getExecutionStartedTimestamp()).thenReturn(TIME.plusSeconds(1));
         when(firmwareExecution.getLastSuccessfulCompletionTimestamp()).thenReturn(TIME.plusSeconds(1));
-        when(statusCheckExecution.getLastExecutionStartTimestamp()).thenReturn(TIME.plusSeconds(10));
-        when(statusCheckExecution.getStatus()).thenReturn(TaskStatus.Waiting);
-        when(statusCheckExecution.isLastExecutionFailed()).thenReturn(true);
+        when(firmwareCheckExecution.getLastExecutionStartTimestamp()).thenReturn(TIME.plusSeconds(10));
+        when(firmwareCheckExecution.getStatus()).thenReturn(TaskStatus.Waiting);
+        when(firmwareCheckExecution.isLastExecutionFailed()).thenReturn(true);
         messages.add(firmwareMessage);
 
         JsonModel model = JsonModel.model(target("/device/upgrade/firmwares").request().get(String.class));
@@ -382,10 +387,10 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         when(firmwareExecution.getStatus()).thenReturn(TaskStatus.Waiting);
         when(firmwareExecution.getExecutionStartedTimestamp()).thenReturn(TIME.plusSeconds(1));
         when(firmwareExecution.getLastSuccessfulCompletionTimestamp()).thenReturn(TIME.plusSeconds(1));
-        when(statusCheckExecution.getLastExecutionStartTimestamp()).thenReturn(TIME.plusSeconds(10));
-        when(statusCheckExecution.getLastSuccessfulCompletionTimestamp()).thenReturn(TIME.plusSeconds(10));
-        when(statusCheckExecution.getStatus()).thenReturn(TaskStatus.Waiting);
-        when(statusCheckExecution.isLastExecutionFailed()).thenReturn(true);
+        when(firmwareCheckExecution.getLastExecutionStartTimestamp()).thenReturn(TIME.plusSeconds(10));
+        when(firmwareCheckExecution.getLastSuccessfulCompletionTimestamp()).thenReturn(TIME.plusSeconds(10));
+        when(firmwareCheckExecution.getStatus()).thenReturn(TaskStatus.Waiting);
+        when(firmwareCheckExecution.isLastExecutionFailed()).thenReturn(true);
         messages.add(firmwareMessage);
 
         JsonModel model = JsonModel.model(target("/device/upgrade/firmwares").request().get(String.class));
@@ -565,7 +570,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         when(firmwareExecution.getStatus()).thenReturn(TaskStatus.Waiting);
         when(firmwareExecution.getExecutionStartedTimestamp()).thenReturn(TIME.minusSeconds(1));
         when(firmwareExecution.getLastSuccessfulCompletionTimestamp()).thenReturn(TIME.minusSeconds(1));
-        when(statusCheckExecution.getLastExecutionStartTimestamp()).thenReturn(TIME.minusSeconds(10));
+        when(firmwareCheckExecution.getLastExecutionStartTimestamp()).thenReturn(TIME.minusSeconds(10));
         messages.add(firmwareMessage);
 
         JsonModel model = JsonModel.model(target("/device/upgrade/firmwares").request().get(String.class));
@@ -799,7 +804,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         messages.add(activationMessage);
         when(firmwareExecution.getStatus()).thenReturn(TaskStatus.Waiting);
         when(firmwareExecution.getLastSuccessfulCompletionTimestamp()).thenReturn(TIME);
-        when(statusCheckExecution.getLastExecutionStartTimestamp()).thenReturn(TIME.minusSeconds(10));
+        when(firmwareCheckExecution.getLastExecutionStartTimestamp()).thenReturn(TIME.minusSeconds(10));
 
         JsonModel model = JsonModel.model(target("/device/upgrade/firmwares").request().get(String.class));
         assertThat(model.<String>get("$.firmwares[0].firmwareType.id")).isEqualTo("meter");

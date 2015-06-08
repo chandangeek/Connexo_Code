@@ -33,8 +33,6 @@ public class DeviceFirmwareVersionResource {
     @RolesAllowed({com.energyict.mdc.device.data.security.Privileges.VIEW_DEVICE, com.energyict.mdc.device.data.security.Privileges.OPERATE_DEVICE_COMMUNICATION, com.energyict.mdc.device.data.security.Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, com.energyict.mdc.device.data.security.Privileges.ADMINISTRATE_DEVICE_DATA})
     public Response getFirmwareVersionsOnDevice(@PathParam("mRID") String mRID) {
         Device device = resourceHelper.findDeviceByMridOrThrowException(mRID);
-        return Response.ok(versionInfoFactory.from(device,
-                firmwareService.getCurrentMeterFirmwareVersionFor(device),
-                firmwareService.getCurrentCommunicationFirmwareVersionFor(device))).build();
+        return Response.ok(versionInfoFactory.from(device)).build();
     }
 }
