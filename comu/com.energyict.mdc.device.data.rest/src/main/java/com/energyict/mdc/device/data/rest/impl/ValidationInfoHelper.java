@@ -19,16 +19,18 @@ import java.util.stream.Collectors;
 
 public class ValidationInfoHelper {
     private final Clock clock;
+    private final ValidationInfoFactory validationInfoFactory;
 
     @Inject
-    public ValidationInfoHelper(Clock clock) {
+    public ValidationInfoHelper(Clock clock, ValidationInfoFactory validationInfoFactory) {
         this.clock = clock;
+        this.validationInfoFactory = validationInfoFactory;
     }
 
     public DetailedValidationInfo getRegisterValidationInfo(Register<?> register) {
         boolean validationActive = validationActive(register, register.getDevice().forValidation());
         Optional<Instant> lastChecked = register.getDevice().forValidation().getLastChecked(register);
-        return new DetailedValidationInfo(validationActive, statuses(register), lastChecked);
+        return validationInfoFactory.createDetailedValidationInfo(validationActive, statuses(register), lastChecked);
     }
 
     private List<DataValidationStatus> statuses(Register<?> register) {

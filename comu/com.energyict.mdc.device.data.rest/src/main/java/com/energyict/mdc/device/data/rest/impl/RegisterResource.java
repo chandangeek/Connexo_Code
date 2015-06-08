@@ -25,20 +25,23 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class RegisterResource {
 
     private final ResourceHelper resourceHelper;
     private final Provider<RegisterDataResource> registerDataResourceProvider;
     private final ValidationInfoHelper validationInfoHelper;
+    private final DeviceDataInfoFactory deviceDataInfoFactory;
     private final Clock clock;
 
     @Inject
-    public RegisterResource(ResourceHelper resourceHelper, Provider<RegisterDataResource> registerDataResourceProvider, ValidationInfoHelper validationInfoHelper, Clock clock) {
+    public RegisterResource(ResourceHelper resourceHelper, Provider<RegisterDataResource> registerDataResourceProvider, ValidationInfoHelper validationInfoHelper, Clock clock, DeviceDataInfoFactory deviceDataInfoFactory) {
         this.resourceHelper = resourceHelper;
         this.registerDataResourceProvider = registerDataResourceProvider;
         this.clock = clock;
         this.validationInfoHelper = validationInfoHelper;
+        this.deviceDataInfoFactory = deviceDataInfoFactory;
     }
 
     @GET
@@ -50,7 +53,7 @@ public class RegisterResource {
                 (r1, r2) -> r1.getRegisterSpec().getRegisterType().getReadingType().getAliasName().compareToIgnoreCase(r2.getRegisterSpec().getRegisterType().getReadingType().getAliasName()))
                 .from(queryParameters).find();
 
-        List<RegisterInfo> registerInfos = RegisterInfoFactory.asInfoList(registers, validationInfoHelper);
+        List<RegisterInfo> registerInfos = registers.stream().map(register -> deviceDataInfoFactory.createRegisterInfo(register, validationInfoHelper.getRegisterValidationInfo(register))).collect(Collectors.toList());
         return PagedInfoList.fromPagedList("data", registerInfos, queryParameters);
     }
 
@@ -60,7 +63,7 @@ public class RegisterResource {
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
     public RegisterInfo getRegister(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId) {
         Register<?> register = doGetRegister(mRID, registerId);
-        return RegisterInfoFactory.asInfo(register, validationInfoHelper.getRegisterValidationInfo(register));
+        return deviceDataInfoFactory.createRegisterInfo(register, validationInfoHelper.getRegisterValidationInfo(register));
     }
 
     @PUT

@@ -9,8 +9,4 @@ public class BillingRegisterInfo extends RegisterInfo<BillingRegister, BillingRe
     public BillingRegisterInfo() {
     }
 
-    public BillingRegisterInfo(BillingRegister register, DetailedValidationInfo registerValidationInfo) {
-        super(register);
-        this.detailedValidationInfo = registerValidationInfo;
-    }
 }

@@ -23,6 +23,9 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 
@@ -64,6 +67,8 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
     public static final Instant BILLING_READING_INTERVAL_START = Instant.ofEpochMilli(1409570229000L);
     public static final Instant READING_TIMESTAMP = Instant.ofEpochMilli(1409570229000L);
 
+    public static final Instant NOW = ZonedDateTime.of(2014, 10, 01, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
+
     public RegisterDataResourceTest() {
     }
 
@@ -85,7 +90,7 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
         Range<Instant> interval = Ranges.openClosed(BILLING_READING_INTERVAL_START, BILLING_READING_INTERVAL_END);
         when(billingReading.getRange()).thenReturn(Optional.of(interval));
         when(billingReading.getValidationStatus()).thenReturn(Optional.empty());
-        when(register.getReadings(Interval.sinceEpoch())).thenReturn(Arrays.asList(billingReading, numericalReading));
+        when(register.getReadings(any(Interval.class))).thenReturn(Arrays.asList(billingReading, numericalReading));
         when(billingReading.getActualReading()).thenReturn(actualReading1);
         when(actualReading1.edited()).thenReturn(true);
         when(actualReading2.wasAdded()).thenReturn(true);
@@ -100,14 +105,16 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
         when(deviceValidation.getValidationStatus(any(Register.class), anyListOf(ReadingRecord.class), any(Range.class))).thenReturn(new ArrayList<>());
     }
 
-    @Ignore
     @Test
     public void testGetRegisterData() {
         when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
         when(numericalRegisterSpec.getId()).thenReturn(1L);
         when(device.getId()).thenReturn(1L);
 
-        Map json = target("devices/1/registers/1/data").request().get(Map.class);
+        Map json = target("devices/1/registers/1/data")
+                .queryParam("intervalStart", ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault()).minusYears(1).truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant().toEpochMilli())
+                .queryParam("intervalEnd", ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault()).truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant().toEpochMilli())
+                .request().get(Map.class);
 
         JsonModel jsonModel = JsonModel.create(json);
         assertThat(jsonModel.<List<?>>get("$.data")).hasSize(2);

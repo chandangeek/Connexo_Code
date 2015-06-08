@@ -38,13 +38,15 @@ public class DeviceValidationResource {
     private final ValidationService validationService;
     private final ExceptionFactory exceptionFactory;
     private final Clock clock;
+    private final ValidationInfoFactory validationInfoFactory;
 
     @Inject
-    public DeviceValidationResource(ResourceHelper resourceHelper, ValidationService validationService, ExceptionFactory exceptionFactory, Clock clock) {
+    public DeviceValidationResource(ResourceHelper resourceHelper, ValidationService validationService, ExceptionFactory exceptionFactory, Clock clock, ValidationInfoFactory validationInfoFactory) {
         this.resourceHelper = resourceHelper;
         this.validationService = validationService;
         this.exceptionFactory = exceptionFactory;
         this.clock = clock;
+        this.validationInfoFactory = validationInfoFactory;
     }
 
     @GET
@@ -142,7 +144,7 @@ public class DeviceValidationResource {
         statuses.addAll(lpStatuses);
         statuses.addAll(rgStatuses);
 
-        MonitorValidationInfo info = new MonitorValidationInfo(statuses, validationStatusInfo);
+        MonitorValidationInfo info = validationInfoFactory.createMonitorValidationInfoForValidationStatues(statuses, validationStatusInfo);
 
         return Response.status(Response.Status.OK).entity(info).build();
     }
@@ -200,7 +202,7 @@ public class DeviceValidationResource {
 
         validationStatusInfo.allDataValidated = isAllDataValidated(lpsList, rsList, device);
 
-        MonitorValidationInfo info = new MonitorValidationInfo(loadProfileStatus, registerStatus, validationStatusInfo);
+        MonitorValidationInfo info = validationInfoFactory.createMonitorValidationInfoForLoadProfileAndRegister(loadProfileStatus, registerStatus, validationStatusInfo);
 
         return Response.status(Response.Status.OK).entity(info).build();
     }

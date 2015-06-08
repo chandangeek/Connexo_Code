@@ -20,6 +20,8 @@ import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.validation.ValidationService;
+import com.elster.jupiter.validation.rest.PropertyUtils;
+import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
 import com.elster.jupiter.yellowfin.groups.YellowfinGroupsService;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.ExceptionLogger;
@@ -371,7 +373,11 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(firmwareService).to(FirmwareService.class);
             bind(DeviceLifeCycleStateFactory.class).to(DeviceLifeCycleStateFactory.class);
             bind(DeviceInfoFactory.class).to(DeviceInfoFactory.class);
-            bind(DeviceLifeCycleHistoryInfoFactory.class).to(DeviceLifeCycleHistoryInfoFactory.class);
+            bind(DeviceLifeCycleStateHistoryInfoFactory.class).to(DeviceLifeCycleStateHistoryInfoFactory.class);
+            bind(ValidationInfoFactory.class).to(ValidationInfoFactory.class);
+            bind(ValidationRuleInfoFactory.class).to(ValidationRuleInfoFactory.class);
+            bind(DeviceDataInfoFactory.class).to(DeviceDataInfoFactory.class);
+            bind(PropertyUtils.class).to(PropertyUtils.class);
         }
     }
 

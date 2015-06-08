@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.rest.ValidationRuleInfo;
 
 /**
@@ -9,11 +8,6 @@ import com.elster.jupiter.validation.rest.ValidationRuleInfo;
 public class DetailedValidationRuleInfo extends ValidationRuleInfo {
 
     public long total;
-
-    public DetailedValidationRuleInfo(ValidationRule rule, Long total) {
-        super(rule);
-        this.total = total;
-    }
 
     public DetailedValidationRuleInfo() {
 

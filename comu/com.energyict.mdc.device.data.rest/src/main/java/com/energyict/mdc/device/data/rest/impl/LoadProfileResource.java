@@ -57,12 +57,16 @@ public class LoadProfileResource {
     private final ResourceHelper resourceHelper;
     private final Thesaurus thesaurus;
     private final Clock clock;
+    private final DeviceDataInfoFactory deviceDataInfoFactory;
+    private final ValidationInfoFactory validationInfoFactory;
 
     @Inject
-    public LoadProfileResource(ResourceHelper resourceHelper, Thesaurus thesaurus, Clock clock) {
+    public LoadProfileResource(ResourceHelper resourceHelper, Thesaurus thesaurus, Clock clock, DeviceDataInfoFactory deviceDataInfoFactory, ValidationInfoFactory validationInfoFactory) {
         this.resourceHelper = resourceHelper;
         this.thesaurus = thesaurus;
         this.clock = clock;
+        this.deviceDataInfoFactory = deviceDataInfoFactory;
+        this.validationInfoFactory = validationInfoFactory;
     }
 
     @GET
@@ -99,7 +103,7 @@ public class LoadProfileResource {
                 .flatMap(c -> c.getDevice().forValidation().getValidationStatus(c, Collections.emptyList(), lastMonth()).stream())
                 .collect(Collectors.toList());
 
-        loadProfileInfo.validationInfo = new DetailedValidationInfo(isValidationActive(loadProfile), states, lastChecked(loadProfile));
+        loadProfileInfo.validationInfo = validationInfoFactory.createDetailedValidationInfo(isValidationActive(loadProfile), states, lastChecked(loadProfile));
         if (states.isEmpty()) {
             loadProfileInfo.validationInfo.dataValidated = loadProfile.getChannels().stream()
                     .allMatch(c -> c.getDevice().forValidation().allDataValidated(c, clock.instant()));
@@ -149,7 +153,7 @@ public class LoadProfileResource {
         LoadProfile loadProfile = resourceHelper.findLoadProfileOrThrowException(device, loadProfileId);
         if (intervalStart != null && intervalEnd != null) {
             List<LoadProfileReading> loadProfileData = loadProfile.getChannelData(Ranges.openClosed(Instant.ofEpochMilli(intervalStart), Instant.ofEpochMilli(intervalEnd)));
-            List<LoadProfileDataInfo> infos = LoadProfileDataInfo.from(device, loadProfileData, thesaurus, clock, loadProfile.getChannels());
+            List<LoadProfileDataInfo> infos = loadProfileData.stream().map(loadProfileReading -> deviceDataInfoFactory.createLoadProfileDataInfo(loadProfileReading, device.forValidation(), loadProfile.getChannels())).collect(Collectors.toList());
             infos = filter(infos, uriInfo.getQueryParameters());
             List<LoadProfileDataInfo> paginatedLoadProfileData = ListPager.of(infos).from(queryParameters).find();
             PagedInfoList pagedInfoList = PagedInfoList.fromPagedList("data", paginatedLoadProfileData, queryParameters);

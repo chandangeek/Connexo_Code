@@ -75,20 +75,8 @@ public class DeviceComTaskResource {
     public Response getAllComTaskExecutions(@PathParam("mRID") String mrid, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter queryFilter) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
-        List<ComTaskExecution> comTaskExecutions = device.getComTaskExecutions().stream()
-                .filter(this::isNotFirmwareComTaskExecution).collect(Collectors.toList());
-        List<ComTaskEnablement> comTaskEnablements = deviceConfiguration.getComTaskEnablements().stream()
-                .filter(this::isNotFirmwareComTask).collect(Collectors.toList());
-        List<DeviceComTaskInfo> deviceSchedulesInfos = deviceComTaskInfoFactory.from(comTaskExecutions, comTaskEnablements, device);
+        List<DeviceComTaskInfo> deviceSchedulesInfos = deviceComTaskInfoFactory.from(device.getComTaskExecutions(), deviceConfiguration.getComTaskEnablements(), device);
         return Response.ok(PagedInfoList.fromPagedList("comTasks", deviceSchedulesInfos, queryParameters)).build();
-    }
-
-    private boolean isNotFirmwareComTask(ComTaskEnablement comTaskEnablement) {
-        return comTaskEnablement.getComTask().getProtocolTasks().stream().filter(protocolTask -> protocolTask instanceof FirmwareManagementTask).count() == 0;
-    }
-
-    private boolean isNotFirmwareComTaskExecution(ComTaskExecution comTaskExecution) {
-        return !(comTaskExecution instanceof FirmwareComTaskExecution);
     }
 
     @PUT
@@ -140,7 +128,8 @@ public class DeviceComTaskResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
-    public Response updateConnectionMethod(@PathParam("mRID") String mrid, @PathParam("comTaskId") Long comTaskId, ComTaskFrequencyInfo comTaskFrequencyInfo) {
+    public Response updateFrequency(@PathParam("mRID") String mrid, @PathParam("comTaskId") Long comTaskId, ComTaskFrequencyInfo comTaskFrequencyInfo) {
+        checkForNoActionsAllowedOnSystemComTask(comTaskId);
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         List<ComTaskExecution> comTaskExecutions = getComTaskExecutionsForDeviceAndComTask(comTaskId, device);
         if(comTaskExecutions.isEmpty()){
@@ -163,7 +152,7 @@ public class DeviceComTaskResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
-    public Response updateFrequency(@PathParam("mRID") String mrid, @PathParam("comTaskId") Long comTaskId, ComTaskConnectionMethodInfo comTaskConnectionMethodInfo) {
+    public Response updateConnectionMethod(@PathParam("mRID") String mrid, @PathParam("comTaskId") Long comTaskId, ComTaskConnectionMethodInfo comTaskConnectionMethodInfo) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         List<ComTaskExecution> comTaskExecutions = getComTaskExecutionsForDeviceAndComTask(comTaskId, device);
         if(comTaskExecutions.isEmpty()){
@@ -181,12 +170,20 @@ public class DeviceComTaskResource {
     }
 
 
+    private void checkForNoActionsAllowedOnSystemComTask(@PathParam("comTaskId") Long comTaskId) {
+        ComTask comTask = taskService.findComTask(comTaskId).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_COM_TASK, comTaskId));
+        if (comTask.isSystemComTask()) {
+            throw exceptionFactory.newException(MessageSeeds.CAN_NOT_PERFOMR_ACTION_ON_SYSTEM_COMTASK);
+        }
+    }
+
     @PUT
     @Path("/{comTaskId}/run")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.OPERATE_DEVICE_COMMUNICATION})
     public Response run(@PathParam("mRID") String mrid, @PathParam("comTaskId") Long comTaskId) {
+        checkForNoActionsAllowedOnSystemComTask(comTaskId);
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         List<ComTaskExecution> comTaskExecutions = getComTaskExecutionsForDeviceAndComTask(comTaskId, device);
         if (!comTaskExecutions.isEmpty()) {
@@ -204,6 +201,7 @@ public class DeviceComTaskResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.OPERATE_DEVICE_COMMUNICATION})
     public Response runnow(@PathParam("mRID") String mrid, @PathParam("comTaskId") Long comTaskId) {
+        checkForNoActionsAllowedOnSystemComTask(comTaskId);
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         List<ComTaskExecution> comTaskExecutions = getComTaskExecutionsForDeviceAndComTask(comTaskId, device);
         if (!comTaskExecutions.isEmpty()) {
@@ -301,6 +299,7 @@ public class DeviceComTaskResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Response activateComTask(@PathParam("mRID") String mrid, @PathParam("comTaskId") long comTaskId) {
+        checkForNoActionsAllowedOnSystemComTask(comTaskId);
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         activateComTaskOnDevice(device, comTaskId);
         return Response.ok().build();
@@ -323,6 +322,7 @@ public class DeviceComTaskResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Response deactivateComTask(@PathParam("mRID") String mrid, @PathParam("comTaskId") long comTaskId) {
+        checkForNoActionsAllowedOnSystemComTask(comTaskId);
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         deactivateComTaskOnDevice(device, comTaskId);
         return Response.ok().build();
@@ -347,6 +347,7 @@ public class DeviceComTaskResource {
     public Response activateAllComTasks(@PathParam("mRID") String mrid) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         device.getDeviceConfiguration().getComTaskEnablements().stream()
+                .filter(comTaskEnablement -> comTaskEnablement.getComTask().isUserComTask())
                 .map(comTaskEnablement -> comTaskEnablement.getComTask().getId())
                 .forEach(comTaskId -> activateComTaskOnDevice(device, comTaskId));
         return Response.ok().build();
@@ -360,6 +361,7 @@ public class DeviceComTaskResource {
     public Response deactivateAllComTasks(@PathParam("mRID") String mrid) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         device.getDeviceConfiguration().getComTaskEnablements().stream()
+                .filter(comTaskEnablement -> comTaskEnablement.getComTask().isUserComTask())
                 .map(comTaskEnablement -> comTaskEnablement.getComTask().getId())
                 .forEach(comTaskId -> deactivateComTaskOnDevice(device, comTaskId));
         return Response.ok().build();

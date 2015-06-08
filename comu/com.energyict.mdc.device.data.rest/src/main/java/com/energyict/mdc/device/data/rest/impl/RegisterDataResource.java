@@ -36,12 +36,14 @@ public class RegisterDataResource {
     private final ResourceHelper resourceHelper;
     private final ExceptionFactory exceptionFactory;
     private final Clock clock;
+    private final DeviceDataInfoFactory deviceDataInfoFactory;
 
     @Inject
-    public RegisterDataResource(ResourceHelper resourceHelper, ExceptionFactory exceptionFactory, Clock clock) {
+    public RegisterDataResource(ResourceHelper resourceHelper, ExceptionFactory exceptionFactory, Clock clock, DeviceDataInfoFactory deviceDataInfoFactory) {
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
         this.clock = clock;
+        this.deviceDataInfoFactory = deviceDataInfoFactory;
     }
 
     @GET
@@ -57,7 +59,7 @@ public class RegisterDataResource {
 
         List<? extends Reading> readings = register.getReadings(Interval.of(intervalReg));
         List<ReadingInfo> readingInfos =
-                ReadingInfoFactory.asInfoList(
+                deviceDataInfoFactory.asReadingsInfoList(
                         readings,
                         register.getRegisterSpec(),
                         device.forValidation().isValidationActive(register, this.clock.instant()));
@@ -105,7 +107,7 @@ public class RegisterDataResource {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         Register<?> register = resourceHelper.findRegisterOrThrowException(device, registerId);
         Reading reading = register.getReading(Instant.ofEpochMilli(timeStamp)).orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_READING_ON_REGISTER, registerId, timeStamp));
-        return ReadingInfoFactory.asInfo(
+        return deviceDataInfoFactory.createReadingInfo(
                 reading,
                 register.getRegisterSpec(),
                 device.forValidation().isValidationActive(register, this.clock.instant()));

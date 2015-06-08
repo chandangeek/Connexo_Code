@@ -27,10 +27,10 @@ import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.jayway.jsonpath.JsonModel;
 
 public class DeviceHistoryResourceTest extends DeviceDataRestApplicationJerseyTest {
-    
+
     @Mock
     Device device;
-    
+
     Instant deviceCreationDate = Instant.now();
 
     @Before
@@ -45,7 +45,7 @@ public class DeviceHistoryResourceTest extends DeviceDataRestApplicationJerseyTe
             }
             return (String) invocationOnMock.getArguments()[1];
         });
-        
+
         when(device.getCreateTime()).thenReturn(deviceCreationDate);
         when(deviceService.findByUniqueMrid("DeviceMRID")).thenReturn(Optional.of(device));
         DeviceType deviceType = mock(DeviceType.class);
@@ -61,7 +61,7 @@ public class DeviceHistoryResourceTest extends DeviceDataRestApplicationJerseyTe
         User admin = mockUser(1, "admin");
         User batchExecutor = mockUser(2, "batch executor");
         DeviceLifeCycle newDeviceLifeCycle = mockDeviceLifeCycle(2L, "New device life cycle");
-        
+
         //Initial state 'In Stock'
         DeviceLifeCycleChangeEvent event1 = mock(DeviceLifeCycleChangeEvent.class);
         when(event1.getType()).thenReturn(Type.STATE);
@@ -75,7 +75,7 @@ public class DeviceHistoryResourceTest extends DeviceDataRestApplicationJerseyTe
         when(event2.getDeviceLifeCycle()).thenReturn(newDeviceLifeCycle);
         when(event2.getTimestamp()).thenReturn(deviceCreationDate.plusSeconds(1));
         when(event2.getUser()).thenReturn(Optional.of(batchExecutor));
-        
+
         //State change: 'In Stock' -> 'Commissioning'
         DeviceLifeCycleChangeEvent event3 = mock(DeviceLifeCycleChangeEvent.class);
         when(event3.getType()).thenReturn(Type.STATE);
@@ -84,25 +84,24 @@ public class DeviceHistoryResourceTest extends DeviceDataRestApplicationJerseyTe
         when(event3.getUser()).thenReturn(Optional.of(admin));
 
         when(device.getDeviceLifeCycleChangeEvents()).thenReturn(Arrays.asList(event1, event2, event3));
-        
+
         String response = target("/devices/DeviceMRID/history/devicelifecyclechanges").request().get(String.class);
 
         JsonModel model = JsonModel.model(response);
 
-        assertThat(model.<Number> get("$.total")).isEqualTo(3);
-        assertThat(model.<List<Number>> get("$.deviceLifeCycleChanges[*].from.id")).containsExactly(1, 11);
-        assertThat(model.<List<String>> get("$.deviceLifeCycleChanges[*].from.name")).containsExactly("Default life cycle", "In Stock");
-        assertThat(model.<List<Number>> get("$.deviceLifeCycleChanges[*].to.id")).containsExactly(11, 2, 22);
-        assertThat(model.<List<String>> get("$.deviceLifeCycleChanges[*].to.name")).containsExactly("In Stock", "New device life cycle", "commissioning");
-        assertThat(model.<List<Number>> get("$.deviceLifeCycleChanges[*].modTime")).containsExactly(deviceCreationDate.toEpochMilli(), deviceCreationDate.plusSeconds(1).toEpochMilli(), deviceCreationDate.plusSeconds(3).toEpochMilli());
-        assertThat(model.<List<Number>> get("$.deviceLifeCycleChanges[*].author.id")).containsExactly(1, 2, 1);
-        assertThat(model.<List<String>> get("$.deviceLifeCycleChanges[*].author.name")).containsExactly("admin", "batch executor", "admin");
+        assertThat(model.<Number> get("$.total")).isEqualTo(2);
+        assertThat(model.<String>get("$.deviceLifeCycleStateChanges[0].fromState")).isNull();
+        assertThat(model.<String>get("$.deviceLifeCycleStateChanges[1].fromState")).isEqualTo("In Stock");
+        assertThat(model.<List<String>> get("$.deviceLifeCycleStateChanges[*].toState")).containsExactly("In Stock", "commissioning");
+        assertThat(model.<List<Number>> get("$.deviceLifeCycleStateChanges[*].modTime")).containsExactly(now.minusMillis(1000).toEpochMilli(), now.toEpochMilli());
+        assertThat(model.<List<Number>> get("$.deviceLifeCycleStateChanges[*].author.id")).containsExactly(1, 2);
+        assertThat(model.<List<String>> get("$.deviceLifeCycleStateChanges[*].author.name")).containsExactly("admin", "batch executor");
     }
 
     @Test
     public void getDeviceStatesHistoryNoStates() {
         when(device.getDeviceLifeCycleChangeEvents()).thenReturn(Collections.emptyList());
-        
+
         String response = target("/devices/DeviceMRID/history/devicelifecyclechanges").request().get(String.class);
 
         JsonModel model = JsonModel.model(response);
@@ -117,7 +116,7 @@ public class DeviceHistoryResourceTest extends DeviceDataRestApplicationJerseyTe
         when(state.getName()).thenReturn(name);
         return state;
     }
-    
+
     private DeviceLifeCycle mockDeviceLifeCycle(long id, String name) {
         DeviceLifeCycle deviceLifeCycle = mock(DeviceLifeCycle.class);
         when(deviceLifeCycle.getId()).thenReturn(id);

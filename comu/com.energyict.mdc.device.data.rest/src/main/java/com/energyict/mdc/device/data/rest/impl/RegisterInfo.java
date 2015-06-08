@@ -5,7 +5,6 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.rest.ObisCodeAdapter;
 import com.energyict.mdc.common.rest.UnitAdapter;
-import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.data.Reading;
 import com.energyict.mdc.device.data.Register;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -14,8 +13,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-
-import java.util.Optional;
 
 @XmlRootElement
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
@@ -50,23 +47,5 @@ public abstract class RegisterInfo<R extends Register, RE extends Reading> {
     public boolean isCumulative;
 
     public RegisterInfo() {}
-
-    public RegisterInfo(Register register) {
-        RegisterSpec registerSpec = register.getRegisterSpec();
-        this.id = registerSpec.getId();
-        this.registerType = registerSpec.getRegisterType().getId();
-        this.readingType = new ReadingTypeInfo(registerSpec.getRegisterType().getReadingType());
-        this.timeOfUse = registerSpec.getRegisterType().getTimeOfUse();
-        this.obisCode = registerSpec.getObisCode();
-        this.overruledObisCode = registerSpec.getDeviceObisCode();
-        this.obisCodeDescription = registerSpec.getObisCode().getDescription();
-        this.unitOfMeasure = registerSpec.getUnit();
-        this.isCumulative = registerSpec.getReadingType().isCumulative();
-
-        Optional<RE> lastReading = register.getLastReading();
-        if (lastReading.isPresent()) {
-            this.lastReading = ReadingInfoFactory.asInfo(lastReading.get(), registerSpec);
-        }
-    }
 
 }
