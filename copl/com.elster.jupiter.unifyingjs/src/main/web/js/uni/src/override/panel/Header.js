@@ -26,11 +26,10 @@ Ext.define('Uni.override.panel.Header', {
     setSubTitle: function(subtitle) {
         var me = this,
             titleCmp = me.titleCmp;
-
-        me.subtitle = subtitle;
+        me.subtitle = subtitle || ' ';
 
         if (titleCmp.rendered) {
-            titleCmp.subTextEl.update(me.subtitle || ' ');
+            titleCmp.subTextEl.update(me.subtitle );
             titleCmp.updateLayout();
         } else {
             me.titleCmp.on({
