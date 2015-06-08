@@ -694,7 +694,7 @@ public class DeviceLifeCycleIT {
 
         // Asserts
         List<AuthorizedAction> authorizedActions = anotherDefault.getAuthorizedActions();
-        assertThat(authorizedActions).hasSize(12);
+        assertThat(authorizedActions).hasSize(11);
         assertThat(authorizedActions).are(new Condition<AuthorizedAction>() {
             @Override
             public boolean matches(AuthorizedAction action) {

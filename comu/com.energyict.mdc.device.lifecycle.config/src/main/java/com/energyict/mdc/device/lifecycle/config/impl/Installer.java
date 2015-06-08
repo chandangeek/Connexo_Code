@@ -136,6 +136,7 @@ public class Installer {
         StateTransitionEventType deactivated = eventTypes.get(DefaultCustomStateTransitionEventType.DEACTIVATED.getSymbol());
         StateTransitionEventType decommissionedEventType = eventTypes.get(DefaultCustomStateTransitionEventType.DECOMMISSIONED.getSymbol());
         StateTransitionEventType deletedEventType = eventTypes.get(DefaultCustomStateTransitionEventType.DELETED.getSymbol());
+        StateTransitionEventType revoked = eventTypes.get(DefaultCustomStateTransitionEventType.REVOKED.getSymbol());
 
         FiniteStateMachineBuilder builder = this.stateMachineService.newFiniteStateMachine(name);
         // Create default States
@@ -164,6 +165,7 @@ public class Installer {
                 .on(activated).transitionTo(active ,DefaultLifeCycleTranslationKey.TRANSITION_INSTALL_ACTIVE.getKey())
                 .on(deactivated).transitionTo(inactive, DefaultLifeCycleTranslationKey.TRANSITION_INSTALL.getKey())
                 .on(commissioningEventType).transitionTo(commissioning)
+                .on(revoked).transitionTo(removed)
                 .complete();
         FiniteStateMachine stateMachine = builder.complete(inStock);
         this.logger.fine(() -> "Creating default finite state machine...");

@@ -224,7 +224,7 @@ public enum TransitionType {
         }
     },
     DELETE(DefaultState.DECOMMISSIONED, DefaultState.REMOVED),
-    RECYCLE(DefaultState.DECOMMISSIONED, DefaultState.IN_STOCK),
+   // RECYCLE(DefaultState.DECOMMISSIONED, DefaultState.IN_STOCK),
     REVOKE(DefaultState.IN_STOCK, DefaultState.REMOVED);
 
     private DefaultState from;

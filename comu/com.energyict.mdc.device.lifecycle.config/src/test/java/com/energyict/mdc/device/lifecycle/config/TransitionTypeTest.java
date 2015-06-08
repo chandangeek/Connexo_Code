@@ -98,7 +98,6 @@ public class TransitionTypeTest {
         this.testStandardTransition(DefaultState.INACTIVE, DefaultState.DECOMMISSIONED, TransitionType.DECOMMISSION);
         this.testStandardTransition(DefaultState.ACTIVE, DefaultState.DECOMMISSIONED, TransitionType.DEACTIVATE_AND_DECOMMISSION);
         this.testStandardTransition(DefaultState.DECOMMISSIONED, DefaultState.REMOVED, TransitionType.DELETE);
-        this.testStandardTransition(DefaultState.DECOMMISSIONED, DefaultState.IN_STOCK, TransitionType.RECYCLE);
         this.testStandardTransition(DefaultState.IN_STOCK, DefaultState.REMOVED, TransitionType.REVOKE);
     }
 
