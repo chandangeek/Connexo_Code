@@ -186,7 +186,7 @@ public class PropertySpecServiceImpl implements PropertySpecService {
 
     @SuppressWarnings("unchecked")
     @Override
-    public PropertySpec referencePropertySpec(String name, boolean required, FactoryIds factoryId, List<Object> possibleValues) {
+    public PropertySpec referencePropertySpec(String name, boolean required, FactoryIds factoryId, List<? extends Object> possibleValues) {
         return new JupiterReferencePropertySpec(name, required, this.finderFor(factoryId), possibleValues);
     }
 

@@ -64,7 +64,7 @@ public interface PropertySpecService extends com.elster.jupiter.properties.Prope
      * @param possibleValues The exhaustive list of possible values
      * @return The PropertySpec
      */
-    public PropertySpec referencePropertySpec(String name, boolean required, FactoryIds factoryId, List<Object> possibleValues);
+    public PropertySpec referencePropertySpec(String name, boolean required, FactoryIds factoryId, List<? extends Object> possibleValues);
 
     public void addFactoryProvider(ReferencePropertySpecFinderProvider factoryProvider);
 
