@@ -179,13 +179,14 @@ public class RegisterDataResource {
 
     private Predicate<ReadingInfo> getFilter(JsonQueryFilter filter) {
         ImmutableList.Builder<Predicate<ReadingInfo>> list = ImmutableList.builder();
-        boolean onlySuspect = filterActive(filter, "onlySuspect");
-        boolean onlyNonSuspect = filterActive(filter, "onlyNonSuspect");
-        if (onlySuspect ^ onlyNonSuspect) {
-            if (onlySuspect) {
-                list.add(this::hasSuspects);
-            } else {
-                list.add(not(this::hasSuspects));
+        if (filter.hasProperty("suspect")){
+            List<String> suspectFilters = filter.getStringList("suspect");
+            if (suspectFilters.size() == 0) {
+                if ("suspect".equals(filter.getString("suspect"))) {
+                    list.add(this::hasSuspects);
+                } else {
+                    list.add(not(this::hasSuspects));
+                }
             }
         }
         if (filterActive(filter, "hideSuspects")) {

@@ -153,7 +153,7 @@ public class LoadProfileTypeResourceTest extends DeviceDataRestApplicationJersey
         when(evaluator.getValidationResult(any())).thenReturn(ValidationResult.VALID);
         when(deviceValidation.getValidationResult(any())).thenReturn(ValidationResult.VALID);
 
-        String filter = URLEncoder.encode("[{\"property\":\"intervalStart\",\"value\":1410774630000},{\"property\":\"intervalEnd\",\"value\":1410828630000},{\"property\":\"onlySuspect\",\"value\":true}]");
+        String filter = URLEncoder.encode("[{\"property\":\"intervalStart\",\"value\":1410774630000},{\"property\":\"intervalEnd\",\"value\":1410828630000},{\"property\":\"suspect\",\"value\":\"suspect\"}]");
         String json = target("devices/1/loadprofiles/1/data")
                 .queryParam("filter", filter)
                 .request().get(String.class);
