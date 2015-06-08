@@ -34,7 +34,7 @@ public class HexStringFactory extends AbstractValueFactory<HexString> {
     }
 
     @Override
-    public HexString valueFromDatabase (Object object) throws SQLException {
+    public HexString valueFromDatabase (Object object) {
         if (object == null) {
             return null;
         }

@@ -41,7 +41,7 @@ public class PasswordFactory extends AbstractValueFactory<Password> {
     }
 
     @Override
-    public Password valueFromDatabase (Object object) throws SQLException {
+    public Password valueFromDatabase (Object object) {
         return this.valueFromDb((String) object);
     }
 

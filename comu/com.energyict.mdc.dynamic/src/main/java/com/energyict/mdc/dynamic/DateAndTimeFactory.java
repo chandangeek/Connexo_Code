@@ -38,7 +38,7 @@ public class DateAndTimeFactory extends AbstractValueFactory<Date> {
     }
 
     @Override
-    public Date valueFromDatabase (Object object) throws SQLException {
+    public Date valueFromDatabase (Object object) {
         return this.valueFromDatabase((Number) object);
     }
 

@@ -34,7 +34,7 @@ public class TimeDurationValueFactory extends AbstractValueFactory<TimeDuration>
     }
 
     @Override
-    public TimeDuration valueFromDatabase (Object object) throws SQLException {
+    public TimeDuration valueFromDatabase (Object object) {
         return this.getValueFromObject(object);
     }
 
