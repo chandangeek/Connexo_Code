@@ -20,7 +20,6 @@ import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
-
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -31,6 +30,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static com.elster.jupiter.util.Ranges.does;
 
 public class MeterActivationImpl implements MeterActivation {
 	//persistent fields
@@ -88,7 +89,7 @@ public class MeterActivationImpl implements MeterActivation {
 	public Interval getInterval() {
 		return interval;
 	}
-	
+
 	@Override
 	public Optional<UsagePoint> getUsagePoint() {			
 		return usagePoint.getOptional();
@@ -266,6 +267,36 @@ public class MeterActivationImpl implements MeterActivation {
 			throw new RuntimeException("MeterActivation is already linked with usagepoint");			
 		}
 		this.meter.set(meter);
+		this.save();
+	}
+
+	@Override
+	public void advanceStartDate(Instant startDate) {
+		if (!startDate.isBefore(getRange().lowerEndpoint())) {
+			throw new IllegalArgumentException("startDate must be before the current startdate");
+		}
+        Range<Instant> newRange = Range.singleton(startDate).span(interval.toClosedOpenRange());
+        getMeter().ifPresent(meter -> {
+            meter.getMeterActivations().stream()
+                    .filter(meterActivation -> meterActivation.getId() != id)
+                    .map(MeterActivation::getRange)
+                    .filter(range -> does(range).overlap(newRange))
+                    .findAny()
+                    .ifPresent(range -> {
+                        throw new IllegalArgumentException("resulting MeterActivation would overlap with the previous MeterActivation of its Meter.");
+                    });
+        });
+        getUsagePoint().ifPresent(usagePoint -> {
+            usagePoint.getMeterActivations().stream()
+                    .filter(meterActivation -> meterActivation.getId() != id)
+                    .map(MeterActivation::getRange)
+                    .filter(range -> does(range).overlap(newRange))
+                    .findAny()
+                    .ifPresent(range -> {
+                        throw new IllegalArgumentException("resulting MeterActivation would overlap with the previous MeterActivation of its UsagePoint.");
+                    });
+        });
+        this.interval = Interval.of(newRange);
 		this.save();
 	}
 }

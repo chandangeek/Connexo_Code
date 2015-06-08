@@ -22,4 +22,6 @@ public interface MeterActivation extends Effectivity , ReadingContainer {
     ZoneId getZoneId();
     void setUsagePoint(UsagePoint usagePoint);
     void setMeter(Meter meter);
+
+    void advanceStartDate(Instant startDate);
 }
