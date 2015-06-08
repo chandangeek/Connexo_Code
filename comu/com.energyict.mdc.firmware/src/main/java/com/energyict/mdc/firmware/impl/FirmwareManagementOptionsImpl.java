@@ -10,7 +10,6 @@ import com.energyict.mdc.firmware.FirmwareManagementOptions;
 import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
 
 import javax.inject.Inject;
-
 import java.time.Instant;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -123,4 +122,7 @@ public class FirmwareManagementOptionsImpl implements FirmwareManagementOptions 
         this.activateOnDate = false;
     }
 
+    DeviceType getDeviceType(){
+        return this.deviceType.get();
+    }
 }

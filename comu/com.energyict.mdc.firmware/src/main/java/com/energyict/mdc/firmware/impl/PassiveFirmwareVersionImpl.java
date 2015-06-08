@@ -12,7 +12,6 @@ import com.energyict.mdc.firmware.PassiveFirmwareVersion;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
-
 import java.time.Instant;
 
 public class PassiveFirmwareVersionImpl implements PassiveFirmwareVersion {
@@ -54,6 +53,7 @@ public class PassiveFirmwareVersionImpl implements PassiveFirmwareVersion {
         return dataModel.getInstance(PassiveFirmwareVersionImpl.class).init(device, firmwareVersion, interval);
     }
 
+    @Override
     public void save() {
         if (getId() == 0) {
             doPersist();

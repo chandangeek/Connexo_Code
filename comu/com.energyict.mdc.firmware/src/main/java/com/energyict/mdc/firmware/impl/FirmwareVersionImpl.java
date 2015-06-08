@@ -82,6 +82,7 @@ public class FirmwareVersionImpl implements FirmwareVersion, PersistenceAware {
         this.eventService = eventService;
     }
 
+    @Override
     public void save() {
         if (getId() == 0) {
             doPersist();
@@ -90,6 +91,7 @@ public class FirmwareVersionImpl implements FirmwareVersion, PersistenceAware {
         doUpdate();
     }
 
+    @Override
     public void deprecate() {
         setFirmwareStatus(FirmwareStatus.DEPRECATED);
         setFirmwareFile(null);
@@ -186,6 +188,8 @@ public class FirmwareVersionImpl implements FirmwareVersion, PersistenceAware {
         this.firmwareFileArray = firmwareFile;
         if (this.firmwareFileArray != null) {
             this.firmwareFile = firmwareFileArray.length;
+        } else {
+            this.firmwareFile = 0;
         }
     }
 

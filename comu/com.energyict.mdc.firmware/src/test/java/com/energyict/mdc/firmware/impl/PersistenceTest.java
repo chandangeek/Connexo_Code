@@ -40,7 +40,7 @@ public abstract class PersistenceTest {
     }
 
     public static TransactionService getTransactionService() {
-        return inMemoryPersistence.getTransactionService();
+        return inMemoryPersistence.getInjector().getInstance(TransactionService.class);
     }
 
 }

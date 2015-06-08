@@ -29,4 +29,7 @@ public interface FirmwareVersion extends HasId{
 
     void validate();
 
+    void save();
+
+    void deprecate();
 }

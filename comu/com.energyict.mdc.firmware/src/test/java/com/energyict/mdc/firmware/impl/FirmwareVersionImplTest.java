@@ -2,6 +2,7 @@ package com.energyict.mdc.firmware.impl;
 
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.firmware.FirmwareStatus;
 import com.energyict.mdc.firmware.FirmwareType;
@@ -38,7 +39,7 @@ public class FirmwareVersionImplTest extends PersistenceTest{
     public void setup() {
         when(this.deviceProtocolPluggableClass.getId()).thenReturn(DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID);
         when(this.deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(this.deviceProtocol);
-        deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType("MyDeviceType", deviceProtocolPluggableClass);
+        deviceType = inMemoryPersistence.getInjector().getInstance(DeviceConfigurationService.class).newDeviceType("MyDeviceType", deviceProtocolPluggableClass);
         deviceType.save();
     }
 
@@ -48,9 +49,9 @@ public class FirmwareVersionImplTest extends PersistenceTest{
     public void uniqueVersionTest() {
         String version = "Version1";
         FirmwareVersion meterVersion1 = inMemoryPersistence.getFirmwareService().newFirmwareVersion(deviceType, version, FirmwareStatus.GHOST, FirmwareType.METER);
-        inMemoryPersistence.getFirmwareService().saveFirmwareVersion(meterVersion1);
+        meterVersion1.save();
         FirmwareVersion meterVersion2 = inMemoryPersistence.getFirmwareService().newFirmwareVersion(deviceType, version, FirmwareStatus.GHOST, FirmwareType.METER);
-        inMemoryPersistence.getFirmwareService().saveFirmwareVersion(meterVersion2);
+        meterVersion2.save();
     }
 
 
@@ -59,9 +60,9 @@ public class FirmwareVersionImplTest extends PersistenceTest{
     public void uniqueVersionCheckButDifferentTypeTest() {
         String version = "Version1";
         FirmwareVersion meterVersion1 = inMemoryPersistence.getFirmwareService().newFirmwareVersion(deviceType, version, FirmwareStatus.GHOST, FirmwareType.METER);
-        inMemoryPersistence.getFirmwareService().saveFirmwareVersion(meterVersion1);
+        meterVersion1.save();
         FirmwareVersion meterVersion2 = inMemoryPersistence.getFirmwareService().newFirmwareVersion(deviceType, version, FirmwareStatus.GHOST, FirmwareType.COMMUNICATION);
-        inMemoryPersistence.getFirmwareService().saveFirmwareVersion(meterVersion2);
+        meterVersion2.save();
 
         List<FirmwareVersion> firmwareVersions = inMemoryPersistence.getFirmwareService().findAllFirmwareVersions(new FirmwareVersionFilter(deviceType)).find();
         assertThat(firmwareVersions).hasSize(2);
