@@ -71,6 +71,7 @@ Ext.define('Mdc.controller.setup.ChangeDeviceLifeCycle', {
             lifeCycleCombo = wizard.down('#change-device-life-cycle-combo');
 
         lifeCycleCombo.clearInvalid();
+        wizard.down('#form-errors').hide();
         wizard.setLoading();
         Ext.Ajax.suspendEvent('requestexception');
         Ext.Ajax.request({
@@ -95,6 +96,7 @@ Ext.define('Mdc.controller.setup.ChangeDeviceLifeCycle', {
                     wizard.down('change-device-life-cycle-step2').setResultMessage(result, success);
                 } else {
                     lifeCycleCombo.markInvalid(result.errors[0].msg);
+                    wizard.down('#form-errors').show();
                 }
                 Ext.Ajax.resumeEvent('requestexception');
             }
