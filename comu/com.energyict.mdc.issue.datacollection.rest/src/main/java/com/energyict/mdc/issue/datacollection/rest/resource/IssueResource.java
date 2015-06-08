@@ -34,6 +34,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -195,7 +196,7 @@ public class IssueResource extends BaseResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_ISSUE,Privileges.ASSIGN_ISSUE,Privileges.CLOSE_ISSUE,Privileges.COMMENT_ISSUE,Privileges.ACTION_ISSUE})
-    public Response getActions(@PathParam("id") long id) {
+    public PagedInfoList getActions(@PathParam("id") long id, @BeanParam JsonQueryParameters queryParameters) {
         Optional<IssueDataCollection> issueRef = getIssueDataCollectionService().findIssue(id);
         if (!issueRef.isPresent()) {
             throw new WebApplicationException(Response.Status.NOT_FOUND);
@@ -210,18 +211,20 @@ public class IssueResource extends BaseResource {
         Condition c2 = where("issueType").isEqualTo(type).and(where("issueReason").isEqualTo(reason));
         Condition condition = (c0).or(c1).or(c2);
         
-        List<IssueActionType> ruleActionTypes = query.select(condition);
-        ruleActionTypes = ruleActionTypes.stream().filter(at -> {
-            Optional<IssueAction> action = at.createIssueAction();
-            return action.isPresent() && action.get().isApplicable(issueRef.get());
-        }).collect(Collectors.toList());
-        return entity(ruleActionTypes, CreationRuleActionTypeInfo.class).build();
+        List<CreationRuleActionTypeInfo> infos = query.select(condition)
+                               .stream()
+                               .filter(actionType -> actionType.createIssueAction()
+                                           .map(action -> action.isApplicable(issueRef.get()))
+                                           .orElse(false))
+                               .map(actionInfoFactory::asInfo)
+                               .collect(Collectors.toList());
+        return PagedInfoList.fromCompleteList("issueActions", infos, queryParameters);
     }
 
     @PUT
     @Path("/assign")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.ASSIGN_ISSUE)
     @Deprecated
     public Response assignIssues(AssignIssueRequest request, @Context SecurityContext securityContext, @BeanParam StandardParametersBean params) {
