@@ -82,7 +82,7 @@ public class JupiterReferenceFactory<T extends HasId> extends AbstractValueFacto
     }
 
     private T valueFromDatabase (Number id) {
-        return this.finder.findByPrimaryKey(id.longValue()).get();
+        return this.finder.findByPrimaryKey(id.longValue()).orElse(null);
     }
 
     @Override
