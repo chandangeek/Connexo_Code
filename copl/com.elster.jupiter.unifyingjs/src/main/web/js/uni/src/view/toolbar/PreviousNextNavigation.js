@@ -64,6 +64,7 @@ Ext.define('Uni.view.toolbar.PreviousNextNavigation', {
      * Name of url query parameter for storing total records amount.
      */
     totalProperty: 'total',
+    indexLocation: 'arguments',
 
     initComponent: function () {
         var me = this,
@@ -109,13 +110,14 @@ Ext.define('Uni.view.toolbar.PreviousNextNavigation', {
             },
             arguments = Ext.clone(me.router.arguments),
             queryParams = Ext.clone(me.router.queryParams),
-            currentIndex = store.indexOfId(arguments[me.routerIdArgument]),
+            indexContainer = me.indexLocation == 'arguments' ? arguments : queryParams,
+            currentIndex = store.indexOfId(indexContainer[me.routerIdArgument]),
             storeCurrentPage = store.lastOptions?store.lastOptions.page:1,
             storePageSize = store.pageSize,
             storeTotal = store.getTotalCount();
 
         if (currentIndex === -1) {
-            currentIndex = store.indexOfId(parseInt(arguments[me.routerIdArgument]));
+            currentIndex = store.indexOfId(parseInt(indexContainer[me.routerIdArgument]));
         }
 
         if (!queryParams[me.totalProperty] || Math.abs(queryParams[me.totalProperty]) < storeTotal) {
@@ -132,7 +134,7 @@ Ext.define('Uni.view.toolbar.PreviousNextNavigation', {
         }
 
         if (currentIndex - 1 >= 0) {
-            arguments[me.routerIdArgument] = store.getAt(currentIndex - 1).getId();
+            indexContainer[me.routerIdArgument] = store.getAt(currentIndex - 1).getId();
             prevBtn.href = me.router.getRoute(me.router.currentRoute).buildUrl(arguments, queryParams);
         } else if (storeCurrentPage > 1) {
             prevBtn.handler = function () {
@@ -142,7 +144,7 @@ Ext.define('Uni.view.toolbar.PreviousNextNavigation', {
                     callback: function (records) {
                         me.up('#contentPanel').setLoading(false);
                         if (records.length) {
-                            arguments[me.routerIdArgument] = store.getAt(records.length - 1).getId();
+                            indexContainer[me.routerIdArgument] = store.getAt(records.length - 1).getId();
                             me.router.getRoute(me.router.currentRoute).forward(arguments, queryParams);
                         } else {
                             prevBtn.disable();
@@ -153,9 +155,8 @@ Ext.define('Uni.view.toolbar.PreviousNextNavigation', {
         } else {
             prevBtn.disabled = true;
         }
-
         if (currentIndex + 1 < store.getCount()) {
-            arguments[me.routerIdArgument] = store.getAt(currentIndex + 1).getId();
+            indexContainer[me.routerIdArgument] = store.getAt(currentIndex + 1).getId();
             nextBtn.href = me.router.getRoute(me.router.currentRoute).buildUrl(arguments, queryParams);
         } else if (storeTotal > storePageSize * storeCurrentPage) {
             nextBtn.handler = function () {
@@ -165,7 +166,7 @@ Ext.define('Uni.view.toolbar.PreviousNextNavigation', {
                     callback: function (records) {
                         me.up('#contentPanel').setLoading(false);
                         if (records.length) {
-                            arguments[me.routerIdArgument] = store.getAt(0).getId();
+                            indexContainer[me.routerIdArgument] = store.getAt(0).getId();
                             me.router.getRoute(me.router.currentRoute).forward(arguments, queryParams);
                         } else {
                             nextBtn.disable();
