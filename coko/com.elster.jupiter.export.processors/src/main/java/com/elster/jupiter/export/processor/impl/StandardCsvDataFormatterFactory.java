@@ -96,7 +96,7 @@ public class StandardCsvDataFormatterFactory implements DataFormatterFactory {
 
     @Override
     public DataFormatter createDataFormatter(Map<String, Object> properties) {
-        return new StandardCsvDataFormatter(properties, thesaurus, validationService);
+        return new StandardCsvDataFormatter(properties, thesaurus, validationService, dataExportService);
     }
 
     private Path getTempDir() {

@@ -2,13 +2,14 @@ package com.elster.jupiter.export.processor.impl;
 
 import com.elster.jupiter.export.DataExportException;
 import com.elster.jupiter.export.DataExportOccurrence;
+import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataFormatter;
-import com.elster.jupiter.export.DefaultStructureMarker;
 import com.elster.jupiter.export.ExportData;
 import com.elster.jupiter.export.FormattedData;
 import com.elster.jupiter.export.FormattedExportData;
 import com.elster.jupiter.export.MeterReadingData;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
+import com.elster.jupiter.export.StructureMarker;
 import com.elster.jupiter.export.TextLineExportData;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.Meter;
@@ -47,6 +48,7 @@ import java.util.stream.Stream;
 public class StandardCsvDataFormatter implements DataFormatter {
 
     private final ValidationService validationService;
+    private final DataExportService dataExportService;
 
     private String fieldSeparator;
     private ReadingType readingType;
@@ -55,14 +57,16 @@ public class StandardCsvDataFormatter implements DataFormatter {
     private Meter meter;
 
     @Inject
-    public StandardCsvDataFormatter(Thesaurus thesaurus, ValidationService validationService) {
+    public StandardCsvDataFormatter(Thesaurus thesaurus, ValidationService validationService, DataExportService dataExportService) {
         this.thesaurus = thesaurus;
         this.validationService = validationService;
+        this.dataExportService = dataExportService;
     }
 
-    public StandardCsvDataFormatter(Map<String, Object> propertyMap, Thesaurus thesaurus, ValidationService validationService) {
+    public StandardCsvDataFormatter(Map<String, Object> propertyMap, Thesaurus thesaurus, ValidationService validationService, DataExportService dataExportService) {
         this.validationService = validationService;
         this.thesaurus = thesaurus;
+        this.dataExportService = dataExportService;
 
         if (propertyMap.containsKey(FormatterProperties.SEPARATOR.getKey())) {
             defineSeparator(propertyMap.get(FormatterProperties.SEPARATOR.getKey()).toString());
@@ -92,7 +96,7 @@ public class StandardCsvDataFormatter implements DataFormatter {
     }
 
     List<FormattedExportData> processData(ExportData exportData) {
-        DefaultStructureMarker main = DefaultStructureMarker.createRoot("main");
+        StructureMarker main = dataExportService.forRoot("main");
         MeterReading data = ((MeterReadingData) exportData).getMeterReading();
         List<Reading> readings = data.getReadings();
         List<IntervalBlock> intervalBlocks = data.getIntervalBlocks();
