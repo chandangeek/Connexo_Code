@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>parent</artifactId>
-        <version>1.0.2</version>
+        <version>1.0.3-SNAPSHOT</version>
     </parent>
 
     <artifactId>login.app</artifactId>
@@ -30,17 +30,17 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>http.whiteboard</artifactId>
-            <version>1.0.2</version>
+            <version>1.0.3-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>unifyingjs</artifactId>
-            <version>1.0.2</version>
+            <version>1.0.4-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>theme.skyline</artifactId>
-            <version>1.0.2</version>
+            <version>1.0.4-SNAPSHOT</version>
         </dependency>
     </dependencies>
 
