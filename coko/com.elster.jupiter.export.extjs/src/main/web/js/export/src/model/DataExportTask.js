@@ -1,10 +1,12 @@
 Ext.define('Dxp.model.DataExportTask', {
     extend: 'Ext.data.Model',
     requires: [
-        'Uni.property.model.Property'
+        'Uni.property.model.Property',
+        'Dxp.model.DataSelector',
+        'Dxp.model.StandardDataSelector'
     ],
     fields: [
-        'id', 'name', 'deviceGroup', 'dataProcessor', 'schedule', 'exportperiod', 'properties', 'readingTypes', 'nextRun', 'lastRun',
+        'id', 'name', 'dataProcessor', 'standardDataSelector', 'schedule', 'properties', 'nextRun', 'lastRun',
         {
             name: 'lastExportOccurence',
             persist: false
@@ -129,11 +131,23 @@ Ext.define('Dxp.model.DataExportTask', {
             }
         },
         {
-            type: 'hasMany',
-            model: 'Dxp.model.ReadingType',
-            associationKey: 'readingTypes',
-            name: 'readingTypes'
+            name: 'dataSelector',
+            type: 'hasOne',
+            model:'Dxp.model.DataSelector',
+            associationKey: 'dataSelector',
+            getterName: 'getDataSelector',
+            setterName: 'setDataSelector'
+        },
+        {
+            name: 'standarDataSelector',
+            type: 'hasOne',
+            model:'Dxp.model.StandardDataSelector',
+            associationKey: 'standardDataSelector',
+            getterName: 'getStandardDataSelector',
+            setterName: 'setStandardDataSelector'
         }
+
+
     ],
     proxy: {
         type: 'rest',

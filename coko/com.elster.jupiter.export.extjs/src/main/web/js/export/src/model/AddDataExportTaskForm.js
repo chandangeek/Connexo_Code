@@ -4,6 +4,6 @@ Ext.define('Dxp.model.AddDataExportTaskForm', {
         'Uni.property.model.Property'
     ],
     fields: [
-        'name', 'deviceGroup', 'dataProcessor', 'exportPeriod', 'recurrence-type', 'recurrence-number', 'recurrence', 'start-on'
+        'name', 'deviceGroup', 'dataProcessor', 'dataSelector', 'exportPeriod', 'recurrence-type', 'recurrence-number', 'recurrence', 'start-on'
     ]
 });

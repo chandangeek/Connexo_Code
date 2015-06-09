@@ -16,12 +16,12 @@ Ext.define('Dxp.view.tasks.Add', {
     setEdit: function (edit) {
         if (edit) {
             this.edit = edit;
-            this.down('#add-button').setText(Uni.I18n.translate('general.save', 'DES', 'Save'));
-            this.down('#add-button').action = 'editTask';
+            this.down('#add-export-task-button').setText(Uni.I18n.translate('general.save', 'DES', 'Save'));
+            this.down('#add-export-task-button').action = 'editTask';
         } else {
             this.edit = edit;
-            this.down('#add-button').setText(Uni.I18n.translate('general.add', 'DES', 'Add'));
-            this.down('#add-button').action = 'addTask';
+            this.down('#add-export-task-button').setText(Uni.I18n.translate('general.add', 'DES', 'Add'));
+            this.down('#add-export-task-button').action = 'addTask';
         }
         if (this.returnLink) {
             this.down('#cancel-link').href = this.returnLink;
@@ -60,147 +60,6 @@ Ext.define('Dxp.view.tasks.Add', {
                         enforceMaxLength: true,
                         maxLength: 80
                     },
-                    {
-                        title: Uni.I18n.translate('general.dataSources', 'DES', 'Data sources'),
-                        ui: 'medium'
-                    },
-                    {
-                        xtype: 'fieldcontainer',
-                        fieldLabel: Uni.I18n.translate('general.deviceGroup', 'DES', 'Device group'),
-                        required: true,
-                        layout: 'hbox',
-                        items: [
-                            {
-                                xtype: 'combobox',
-                                itemId: 'device-group-combo',
-                                name: 'deviceGroup',
-                                width: 235,
-                                store: 'Dxp.store.DeviceGroups',
-                                editable: false,
-                                disabled: false,
-                                emptyText: Uni.I18n.translate('addDataExportTask.deviceGroupPrompt', 'DES', 'Select a device group...'),
-                                allowBlank: false,
-                                queryMode: 'local',
-                                displayField: 'name',
-                                valueField: 'id'
-                            },
-                            {
-                                xtype: 'displayfield',
-                                itemId: 'no-device',
-                                hidden: true,
-                                value: '<div style="color: #FF0000">' + Uni.I18n.translate('general.noDeviceGroup', 'DES', 'No device group defined yet.') + '</div>',
-                                width: 235
-                            }
-                        ]
-                    },
-//                    {
-//                        xtype: 'container',
-//                        itemId: 'readingValuesTextFieldsContainer',
-//                        layout: {
-//                            type: 'vbox',
-//                            align: 'stretch'
-//                        },
-//                        items: [
-//                            {
-//                                xtype: 'container',
-//                                layout: {
-//                                    type: 'hbox'
-//                                },
-//                                items: [
-//                                    {
-//                                        xtype: 'textfield',
-//                                        fieldLabel: Uni.I18n.translate('general.readingTypes', 'DES', 'Reading type(s)'),
-//                                        labelAlign: 'right',
-//                                        itemId: 'readingType1',
-//                                        name: 'readingType1',
-//                                        msgTarget: 'under',
-//                                        labelWidth: 250,
-//                                        maskRe: /^($|\S.*$)/,
-//                                        required: true,
-//                                        allowBlank: false,
-//                                        validateOnChange: false,
-//                                        validateOnBlur: false,
-//                                        maxLength: 80,
-//                                        enforceMaxLength: true,
-//                                        width: 500,
-//                                        margin: '0 0 5 0'
-//                                    }
-//                                ]
-//                            }
-//                        ]
-//                    },
-                    {
-                        xtype: 'fieldcontainer',
-                        fieldLabel: Uni.I18n.translate('general.readingTypes', 'DES', 'Reading types'),
-                        itemId: 'readingTypesFieldContainer',
-                        required: true,
-                        msgTarget: 'under',
-                        width: 1200,
-                        items: [
-                            {
-                                xtype: 'panel',
-                                width: 800,
-                                items: [
-                                    {
-                                        xtype: 'gridpanel',
-                                        itemId: 'readingTypesGridPanel',
-                                        store: 'Dxp.store.ReadingTypesForTask',
-                                        hideHeaders: true,
-                                        padding: 0,
-                                        columns: [
-                                            {
-                                                xtype: 'reading-type-column',
-                                                dataIndex: 'readingType',
-                                                flex: 1
-                                            },
-                                            {
-                                                xtype: 'actioncolumn',
-                                                align: 'right',
-                                                items: [
-                                                    {
-                                                        iconCls: 'uni-icon-delete',
-                                                        handler: function (grid, rowIndex) {
-                                                            grid.getStore().removeAt(rowIndex);
-                                                        }
-                                                    }
-                                                ]
-                                            }
-                                        ],
-                                        height: 220
-                                    }
-                                ],
-                                rbar: [
-                                    {
-                                        xtype: 'container',
-                                        items: [
-                                            {
-                                                xtype: 'button',
-                                                itemId: 'addReadingTypeButton',
-                                                text: Uni.I18n.translate('general.addReadngTypes', 'CFG', 'Add reading types'),
-                                                margin: '0 0 0 10'
-                                            }
-                                        ]
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-
-//                    {
-//                        xtype: 'fieldcontainer',
-//                        margin: '5 0 0 0',
-//                        fieldLabel: '&nbsp',
-//                        labelAlign: 'right',
-//                        layout: 'hbox',
-//                        items: [
-//                            {
-//                                text: '+ ' + Uni.I18n.translate('general.addAnother', 'DES', 'Add another'),
-//                                xtype: 'button',
-//                                action: 'addReadingTypeAction',
-//                                itemId: 'addReadingTypeAction'
-//                            }
-//                        ]
-//                    },
 
                     {
                         title: Uni.I18n.translate('general.schedule', 'DES', 'Schedule'),
@@ -314,14 +173,143 @@ Ext.define('Dxp.view.tasks.Add', {
                             }
                         ]
                     },
+
+
                     {
-                        title: Uni.I18n.translate('general.dataOptions', 'DES', 'Data options'),
+                        title: Uni.I18n.translate('general.dataSelection', 'DES', 'Data selection'),
                         ui: 'medium'
                     },
+
+                    {
+                         xtype: 'fieldcontainer',
+                         fieldLabel: Uni.I18n.translate('general.dataSelection', 'DES', 'Data selection'),
+                         //required: true,
+                         layout: 'hbox',
+                         items: [
+                             {
+                                 xtype: 'combobox',
+                                 itemId: 'data-selector-combo',
+                                 name: 'dataSelector',
+                                 width: 235,
+                                 queryMode: 'local',
+                                 store: 'Dxp.store.DataSelectors',
+                                 editable: false,
+                                 disabled: false,
+                                 allowBlank: false,
+                                 emptyText: Uni.I18n.translate('addDataExportTask.dataSelectorPrompt', 'DES', 'Select a data selector...'),
+                                 displayField: 'displayName',
+                                 valueField: 'name'
+                             }
+                        ]
+                     },
+
+                     {
+                         xtype: 'property-form',
+                         itemId: 'data-selector-properties',
+                         isEdit: true,
+                         hidden: true,
+                         defaults: {
+                             labelWidth: 250
+                        }
+
+                     },
+
                     {
                         xtype: 'fieldcontainer',
+                        fieldLabel: Uni.I18n.translate('general.deviceGroup', 'DES', 'Device group'),
+                        hidden: true,
+                        itemId: 'device-group-container',
+                        //required: true,
+                        layout: 'hbox',
+                        items: [
+                            {
+                                xtype: 'combobox',
+                                itemId: 'device-group-combo',
+                                name: 'deviceGroup',
+                                width: 235,
+                                store: 'Dxp.store.DeviceGroups',
+                                editable: false,
+                                disabled: false,
+                                emptyText: Uni.I18n.translate('addDataExportTask.deviceGroupPrompt', 'DES', 'Select a device group...'),
+                                //allowBlank: false,
+                                queryMode: 'local',
+                                displayField: 'name',
+                                valueField: 'id'
+                            },
+                            {
+                                xtype: 'displayfield',
+                                itemId: 'no-device',
+                                hidden: true,
+                                value: '<div style="color: #FF0000">' + Uni.I18n.translate('general.noDeviceGroup', 'DES', 'No device group defined yet.') + '</div>',
+                                width: 235
+                            }
+                        ]
+                    },
+
+                    {
+                        xtype: 'fieldcontainer',
+                        fieldLabel: Uni.I18n.translate('general.readingTypes', 'DES', 'Reading types'),
+                        hidden: true,
+                        itemId: 'readingTypesFieldContainer',
+                        //required: true,
+                        msgTarget: 'under',
+                        width: 1200,
+                        items: [
+                            {
+                                xtype: 'panel',
+                                width: 800,
+                                items: [
+                                    {
+                                        xtype: 'gridpanel',
+                                        itemId: 'readingTypesGridPanel',
+                                        store: 'Dxp.store.ReadingTypesForTask',
+                                        hideHeaders: true,
+                                        padding: 0,
+                                        columns: [
+                                            {
+                                                xtype: 'reading-type-column',
+                                                dataIndex: 'readingType',
+                                                flex: 1
+                                            },
+                                            {
+                                                xtype: 'actioncolumn',
+                                                align: 'right',
+                                                items: [
+                                                    {
+                                                        iconCls: 'uni-icon-delete',
+                                                        handler: function (grid, rowIndex) {
+                                                            grid.getStore().removeAt(rowIndex);
+                                                        }
+                                                    }
+                                                ]
+                                            }
+                                        ],
+                                        height: 220
+                                    }
+                                ],
+                                rbar: [
+                                    {
+                                        xtype: 'container',
+                                        items: [
+                                            {
+                                                xtype: 'button',
+                                                itemId: 'addReadingTypeButton',
+                                                text: Uni.I18n.translate('general.addReadngTypes', 'CFG', 'Add reading types'),
+                                                margin: '0 0 0 10'
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+
+                    {
+                        xtype: 'fieldcontainer',
+                        itemId: 'export-periods-container',
                         fieldLabel: Uni.I18n.translate('general.exportPeriod', 'DES', 'Export period'),
-                        required: true,
+                        hidden: true,
+                        //required: true,
                         layout: 'hbox',
                         items: [
                             {
@@ -333,7 +321,7 @@ Ext.define('Dxp.view.tasks.Add', {
                                 store: 'Dxp.store.ExportPeriods',
                                 editable: false,
                                 disabled: false,
-                                allowBlank: false,
+                                //allowBlank: false,
                                 emptyText: Uni.I18n.translate('addDataExportTask.exportPeriodPrompt', 'DES', 'Select an export period...'),
                                 displayField: 'name',
                                 valueField: 'id'
@@ -398,7 +386,7 @@ Ext.define('Dxp.view.tasks.Add', {
                         items: [
                             {
                                 xtype: 'button',
-                                itemId: 'add-button',
+                                itemId: 'add-export-task-button',
                                 text: Uni.I18n.translate('general.add', 'DES', 'Add'),
                                 ui: 'action'
                             },
