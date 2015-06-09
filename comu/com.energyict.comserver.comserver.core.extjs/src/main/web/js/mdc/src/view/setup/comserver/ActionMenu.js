@@ -18,7 +18,7 @@ Ext.define('Mdc.view.setup.comserver.ActionMenu', {
         },
         {
             itemId: 'deactivate',
-            text: Uni.I18n.translate('comserver.activate', 'MDC', 'Deactivate'),
+            text: Uni.I18n.translate('comserver.deactivate', 'MDC', 'Deactivate'),
             action: 'deactivate'
         },
         {
