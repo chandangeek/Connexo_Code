@@ -16,7 +16,7 @@ Ext.define('Fwc.firmwarecampaigns.controller.Overview', {
     refs: [
         {
             ref: 'preview',
-            selector: 'firmware-campaigns-overview firmware-campaigns-detail-form'
+            selector: 'firmware-campaigns-detail-form'
         }
     ],
 
@@ -65,6 +65,7 @@ Ext.define('Fwc.firmwarecampaigns.controller.Overview', {
                 record.set('status', {id: "CANCELLED", localizedValue: "Cancelled"});
                 record.save({
                     callback: function (model, operation) {
+                        store.getProxy().url = '/api/fwc/campaigns/';
                         if (operation.success) {
                             form.loadRecord(model);
                             me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('firmware.campaigns.cancelled', 'FWC', 'Firmware campaign cancelled'));
