@@ -28,7 +28,6 @@ import com.elster.jupiter.properties.HasValidProperties;
 import com.elster.jupiter.properties.PropertySpec;
 
 @HasValidProperties(requiredPropertyMissingMessage = "{" + MessageSeeds.Keys.PROPERTY_MISSING + "}",
-                    invalidPropertyValueMessage = "{" + MessageSeeds.Keys.PROPERTY_INVALID_VALUE + "}",
                     propertyNotInSpecMessage = "{" + MessageSeeds.Keys.PROPERTY_NOT_IN_PROPERTYSPECS + "}")
 public class CreationRuleActionImpl implements CreationRuleAction {
 
@@ -39,7 +38,7 @@ public class CreationRuleActionImpl implements CreationRuleAction {
     @IsPresent
     private Reference<CreationRule> rule = ValueReference.absent();
     @IsPresent(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
-    private Reference<IssueActionType> action = ValueReference.absent();
+    private Reference<IssueActionType> type = ValueReference.absent();
     @Valid
     private List<CreationRuleActionProperty> properties = new ArrayList<>();
 
@@ -62,7 +61,7 @@ public class CreationRuleActionImpl implements CreationRuleAction {
 
     @Override
     public IssueActionType getAction() {
-        return action.get();
+        return type.get();
     }
 
     @Override
@@ -82,7 +81,7 @@ public class CreationRuleActionImpl implements CreationRuleAction {
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        if (action.isPresent()) {
+        if (type.isPresent()) {
             Optional<IssueAction> issueAction = getAction().createIssueAction();
             if(issueAction.isPresent()) {
                 return issueAction.get().getPropertySpecs();
@@ -110,7 +109,7 @@ public class CreationRuleActionImpl implements CreationRuleAction {
     }
 
     void setAction(IssueActionType type) {
-        this.action.set(type);
+        this.type.set(type);
     }
 
     void setPhase(CreationRuleActionPhase phase) {

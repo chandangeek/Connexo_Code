@@ -17,7 +17,6 @@ import com.elster.jupiter.properties.PropertySpecService;
 
 @ConsumerType
 @HasValidProperties(requiredPropertyMissingMessage = "{" + MessageSeeds.Keys.PROPERTY_MISSING + "}",
-                    invalidPropertyValueMessage = "{" + MessageSeeds.Keys.PROPERTY_INVALID_VALUE + "}",
                     propertyNotInSpecMessage = "{" + MessageSeeds.Keys.PROPERTY_NOT_IN_PROPERTYSPECS + "}")
 public abstract class AbstractIssueAction implements IssueAction {
 

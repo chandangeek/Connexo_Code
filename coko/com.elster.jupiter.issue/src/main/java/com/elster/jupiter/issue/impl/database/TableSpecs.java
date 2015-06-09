@@ -265,7 +265,7 @@ public enum TableSpecs {
             table.addAuditColumns();
 
             table.primaryKey(RULE_ACTION_PK_NAME).on(idColumn).add();
-            table.foreignKey(RULE_ACTION_FK_TO_ACTION_TYPE).map("action").on(typeRefIdColumn).references(ISU_ACTIONTYPE.name()).add();
+            table.foreignKey(RULE_ACTION_FK_TO_ACTION_TYPE).map("type").on(typeRefIdColumn).references(ISU_ACTIONTYPE.name()).add();
             table.foreignKey(RULE_ACTION_FK_TO_RULE).on(ruleRefIdColumn).references(ISU_CREATIONRULE.name())
                     .map("rule").reverseMap("persistentActions").composition().onDelete(DeleteRule.CASCADE).add();
         }

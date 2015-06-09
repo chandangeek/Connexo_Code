@@ -42,7 +42,6 @@ import com.elster.jupiter.util.conditions.Condition;
 
 @HasUniqueName(message = "{" + MessageSeeds.Keys.CREATION_RULE_UNIQUE_NAME + "}")
 @HasValidProperties(requiredPropertyMissingMessage = "{" + MessageSeeds.Keys.PROPERTY_MISSING + "}",
-                    invalidPropertyValueMessage = "{" + MessageSeeds.Keys.PROPERTY_INVALID_VALUE + "}",
                     propertyNotInSpecMessage = "{" + MessageSeeds.Keys.PROPERTY_NOT_IN_PROPERTYSPECS + "}")
 public class CreationRuleImpl extends EntityImpl implements CreationRule {
     

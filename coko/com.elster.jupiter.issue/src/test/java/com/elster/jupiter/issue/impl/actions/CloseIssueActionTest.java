@@ -54,7 +54,7 @@ public class CloseIssueActionTest extends BaseTest {
     
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.PROPERTY_INVALID_VALUE +"}", property = "properties.CloseIssueAction.status", strict = true)
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.PROPERTY_NOT_POSSIBLE_VALUE + "}", property = "properties.CloseIssueAction.status", strict = true)
     public void testExecuteActionWrongClosingStatus() {
         Map<String, Object> properties = new HashMap<>();
         IssueStatus inProgressStatus = getIssueService().findStatus(IssueStatus.IN_PROGRESS).get();

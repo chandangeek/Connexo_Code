@@ -1,5 +1,7 @@
 package com.elster.jupiter.issue.impl.actions;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.HashMap;
@@ -50,10 +52,12 @@ public class AssignIssueActionTest extends BaseTest {
     
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.PROPERTY_INVALID_VALUE +"}", property = "properties.AssignIssueAction.assignee", strict = true)
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.PROPERTY_NOT_POSSIBLE_VALUE + "}", property = "properties.AssignIssueAction.assignee", strict = true)
     public void testExecuteActionWrongAssignee() {
         Map<String, Object> properties = new HashMap<>();
-        properties.put(AssignIssueAction.ASSIGNEE, null);
+        Assignee fakeAssignee = mock(Assignee.class);
+        when(fakeAssignee.getId()).thenReturn(100500L);
+        properties.put(AssignIssueAction.ASSIGNEE, fakeAssignee);
         
         action.initAndValidate(properties);
     }

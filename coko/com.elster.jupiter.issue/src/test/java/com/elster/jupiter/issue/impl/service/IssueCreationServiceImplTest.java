@@ -365,7 +365,7 @@ public class IssueCreationServiceImplTest extends BaseTest {
     
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}", property = "actions[0].action", strict = true)
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}", property = "actions[0].type", strict = true)
     public void testRuleActionNoActionType() {
         CreationRule rule = getSimpleCreationRule("Creation rule", template);
         
@@ -437,7 +437,7 @@ public class IssueCreationServiceImplTest extends BaseTest {
     
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY +"}", property = "action", strict = true)
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY +"}", property = "type", strict = true)
     public void testValidateCreationRuleActionNoActionType() {
         getIssueCreationService().newCreationRule()
                                  .newCreationRuleAction()
