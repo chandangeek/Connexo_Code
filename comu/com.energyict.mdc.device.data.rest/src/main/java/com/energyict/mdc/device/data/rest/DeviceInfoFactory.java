@@ -85,7 +85,7 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
     }
 
     @Override
-    public List<PropertyDescriptionInfo> infoStructure() {
+    public List<PropertyDescriptionInfo> modelStructure() {
         List<PropertyDescriptionInfo> infos = new ArrayList<>();
         infos.add(createDescription("id", Long.class));
         infos.add(createDescription("mRID", String.class));
