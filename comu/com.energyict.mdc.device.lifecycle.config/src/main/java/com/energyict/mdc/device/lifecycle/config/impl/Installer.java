@@ -165,7 +165,7 @@ public class Installer {
                 .on(activated).transitionTo(active ,DefaultLifeCycleTranslationKey.TRANSITION_INSTALL_ACTIVE.getKey())
                 .on(deactivated).transitionTo(inactive, DefaultLifeCycleTranslationKey.TRANSITION_INSTALL.getKey())
                 .on(commissioningEventType).transitionTo(commissioning)
-                .on(revoked).transitionTo(removed)
+                .on(revoked).transitionTo(removed, DefaultLifeCycleTranslationKey.TRANSITION_REMOVE_FROM_STOCK.getKey()  )
                 .complete();
         FiniteStateMachine stateMachine = builder.complete(inStock);
         this.logger.fine(() -> "Creating default finite state machine...");

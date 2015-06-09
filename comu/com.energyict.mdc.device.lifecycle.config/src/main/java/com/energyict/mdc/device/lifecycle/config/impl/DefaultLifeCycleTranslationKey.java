@@ -20,7 +20,8 @@ public enum DefaultLifeCycleTranslationKey implements TranslationKey {
     TRANSITION_DEACTIVATE("#deactivated", "Deactivate"),
     TRANSITION_DEACTIVATE_DECOMMISSION("#deactivated#decomissioned", "Deactivate and decommission"),
     TRANSITION_DECOMMISSION("#decommissioned", "Decommission"),
-    TRANSITION_REMOVE("#deleted", "Remove");
+    TRANSITION_REMOVE("#deleted", "Remove"),
+    TRANSITION_REMOVE_FROM_STOCK("#fromStock#deleted","Remove from stock");
 
     private final String key;
     private final String defaultFormat;
