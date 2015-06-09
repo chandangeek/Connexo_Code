@@ -24,9 +24,8 @@ Ext.define('Fwc.firmwarecampaigns.model.FirmwareCampaign', {
         {name: 'deviceGroup', defaultValue: null, convert: function (value, record) {
             return record.convertObjectField(value);
         }},
-        {name: 'plannedDate', type: 'date', dateFormat: 'time'},
-        {name: 'startedOn', type: 'date', dateFormat: 'time'},
-        {name: 'finishedOn', type: 'date', dateFormat: 'time'}
+        {name: 'startedOn', type: 'date', dateFormat: 'time', persist: false},
+        {name: 'finishedOn', type: 'date', dateFormat: 'time', persist: false}
     ],
     associations: [
         {
@@ -52,12 +51,5 @@ Ext.define('Fwc.firmwarecampaigns.model.FirmwareCampaign', {
                 id: value
             }
         }
-    },
-
-    cancel: function (callback) {
-        var me = this;
-        debugger;
-        me.getProxy().getReader().readAssociated(me, {status: {id: 'CANCEL'}});
-        me.save(callback);
     }
 });

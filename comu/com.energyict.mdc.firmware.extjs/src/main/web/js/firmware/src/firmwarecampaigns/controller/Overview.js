@@ -56,28 +56,21 @@ Ext.define('Fwc.firmwarecampaigns.controller.Overview', {
     chooseAction: function (menu, item) {
         var me = this,
             record = menu.record,
-            form = this.getPreview().down('form');
-        debugger;
+            form = this.getPreview().down('form'),
+            store = this.getStore('Fwc.firmwarecampaigns.store.FirmwareCampaigns');
+
         switch (item.action) {
             case 'cancelCampaign':
-                // todo: will be implemented in scope of COMU-62
-                record.cancel({
-                    success: function () {
-                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('firmware.campaigns.cancelled', 'FWC', 'Firmware campaign cancelled'));
-                        router.getRoute().forward();
-                    },
-                    callback: function (model) {
-                        form.loadRecord(model);
+                store.getProxy().url = '/api/fwc/campaigns/' + record.id;
+                record.set('status', {id: "CANCELLED", localizedValue: "Cancelled"});
+                record.save({
+                    callback: function (model, operation) {
+                        if (operation.success) {
+                            form.loadRecord(model);
+                            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('firmware.campaigns.cancelled', 'FWC', 'Firmware campaign cancelled'));
+                        }
                     }
                 });
-                //record.getProxy().setUrl(record.internalId);
-                //record.set('status', 'CANCEL');
-                //record.save({
-                //    callback: function (model) {
-                //        form.loadRecord(model);
-                //        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('firmware.campaigns.cancelled', 'FWC', 'Firmware campaign cancelled'));
-                //    }
-                //});
                 break;
         }
     }
