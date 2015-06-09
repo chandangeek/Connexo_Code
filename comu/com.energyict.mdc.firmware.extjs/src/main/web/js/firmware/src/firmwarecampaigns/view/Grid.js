@@ -100,14 +100,14 @@ Ext.define('Fwc.firmwarecampaigns.view.Grid', {
                 renderer: function (value) {
                     return value ? Uni.DateTime.formatDateTimeShort(value) : '';
                 }
-            }/*,
+            },
             {
                 xtype: 'uni-actioncolumn',
                 menu: {
                     xtype: 'firmware-campaigns-action-menu',
                     itemId: 'firmware-campaigns-action-menu'
                 }
-            }*/
+            }
         ];
 
         me.dockedItems = [

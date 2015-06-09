@@ -35,9 +35,9 @@ public class FirmwareUiInstaller implements TranslationKeyProvider{
 
     @Activate
     public void activate(BundleContext context) {
-        HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, HTTP_RESOURCE_LOCAL_NAME, new BundleResolver(context));
+//        HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, HTTP_RESOURCE_LOCAL_NAME, new BundleResolver(context));
         // EXAMPLE: Below is how to enable local development mode.
-       // HttpResource resource =  new HttpResource(HTTP_RESOURCE_ALIAS, "C:\\repositorysvn\\jupiterrepo\\comu\\com.energyict.mdc.firmware.extjs\\src\\main\\web\\js\\firmware", new FileResolver());
+        HttpResource resource =  new HttpResource(HTTP_RESOURCE_ALIAS, "/home/govanni/codebase/work/jupiter/10.1/comu/com.energyict.mdc.firmware.extjs/src/main/web/js/firmware", new FileResolver());
         registration = context.registerService(HttpResource.class, resource, null);
     }
 

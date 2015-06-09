@@ -52,5 +52,12 @@ Ext.define('Fwc.firmwarecampaigns.model.FirmwareCampaign', {
                 id: value
             }
         }
+    },
+
+    cancel: function (callback) {
+        var me = this;
+        debugger;
+        me.getProxy().getReader().readAssociated(me, {status: {id: 'CANCEL'}});
+        me.save(callback);
     }
 });

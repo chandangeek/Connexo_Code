@@ -50,13 +50,34 @@ Ext.define('Fwc.firmwarecampaigns.controller.Overview', {
         preview.down('property-form').loadRecord(record);
         preview.setTitle(record.get('name'));
         Ext.resumeLayouts(true);
-        //preview.down('firmware-campaigns-action-menu').record = record;
+        preview.down('firmware-campaigns-action-menu').record = record;
     },
 
     chooseAction: function (menu, item) {
+        var me = this,
+            record = menu.record,
+            form = this.getPreview().down('form');
+        debugger;
         switch (item.action) {
             case 'cancelCampaign':
-                // todo: will be implemented in scope of COMU-624
+                // todo: will be implemented in scope of COMU-62
+                record.cancel({
+                    success: function () {
+                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('firmware.campaigns.cancelled', 'FWC', 'Firmware campaign cancelled'));
+                        router.getRoute().forward();
+                    },
+                    callback: function (model) {
+                        form.loadRecord(model);
+                    }
+                });
+                //record.getProxy().setUrl(record.internalId);
+                //record.set('status', 'CANCEL');
+                //record.save({
+                //    callback: function (model) {
+                //        form.loadRecord(model);
+                //        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('firmware.campaigns.cancelled', 'FWC', 'Firmware campaign cancelled'));
+                //    }
+                //});
                 break;
         }
     }
