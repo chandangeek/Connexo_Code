@@ -1,10 +1,6 @@
 package com.elster.jupiter.appserver.impl;
 
-import com.elster.jupiter.appserver.AppServer;
-import com.elster.jupiter.appserver.AppServerCommand;
-import com.elster.jupiter.appserver.AppService;
-import com.elster.jupiter.appserver.Command;
-import com.elster.jupiter.appserver.SubscriberExecutionSpec;
+import com.elster.jupiter.appserver.*;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fileimport.ImportSchedule;
 import com.elster.jupiter.messaging.MessageService;
@@ -15,6 +11,7 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.util.cron.CronExpressionParser;
+import com.elster.jupiter.util.streams.Functions;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -22,11 +19,7 @@ import javax.inject.Inject;
 import java.security.Principal;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Locale;
-import java.util.Optional;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -40,6 +33,8 @@ import java.util.logging.Logger;
                 "osgi.command.function=activate",
                 "osgi.command.function=deactivate",
                 "osgi.command.function=activateFileImport",
+                "osgi.command.function=deactivateFileImport",
+                "osgi.command.function=listFileImport",
                 "osgi.command.function=appServers",
                 "osgi.command.function=identify",
                 "osgi.command.function=stopAppServer",
@@ -153,16 +148,49 @@ public class AppServiceConsoleService {
         transactionService.execute(new VoidTransaction() {
             @Override
             public void doPerform() {
-                doActivateFileImport(foundAppServer.get(), importSchedule);
+                foundAppServer.get().addImportScheduleOnAppServer(importSchedule);
             }
         });
     }
 
-    private void doActivateFileImport(AppServer appServerToActivateOn, ImportSchedule importSchedule) {
-        ImportScheduleOnAppServerImpl importScheduleOnAppServer = ImportScheduleOnAppServerImpl.from(getDataModel(), fileImportService, importSchedule, appServerToActivateOn);
-        importScheduleOnAppServer.save();
+    public void deactivateFileImport(long id, String appServerName) {
+        Optional<AppServer> foundAppServer = findAppServer(appServerName);
+        if (!foundAppServer.isPresent()) {
+            System.out.println("AppServer not found.");
+            return;
+        }
+        Optional<? extends ImportScheduleOnAppServer> found = foundAppServer.get().getImportSchedulesOnAppServer()
+                .stream()
+                .filter(schedule -> schedule.getImportSchedule().isPresent() && (schedule.getImportSchedule().get().getId() == id)).findFirst();
+        if (!found.isPresent()) {
+            System.out.println("ImportScheduleOnAppServer not found.");
+            return;
+        }
+        final ImportScheduleOnAppServer importSchedule = found.get();
+        transactionService.execute(new VoidTransaction() {
+            @Override
+            public void doPerform() {
+
+                foundAppServer.get().removeImportScheduleOnAppServer(importSchedule);
+            }
+        });
     }
 
+    public void listFileImport(String appServerName) {
+        Optional<AppServer> foundAppServer = findAppServer(appServerName);
+        if (!foundAppServer.isPresent()) {
+            System.out.println("AppServer not found.");
+            return;
+        }
+
+        foundAppServer.get().getImportSchedulesOnAppServer()
+                .stream()
+                .map(ImportScheduleOnAppServer::getImportSchedule)
+                .flatMap(Functions.asStream())
+                .map(ImportSchedule::getName)
+                .forEach(System.out::println);
+
+    }
 
 //    private Optional<AppServer> getAppServerForActivation(String appServerName) {
 //        final Optional<AppServer> current = appService.getAppServer();

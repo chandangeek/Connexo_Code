@@ -13,6 +13,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -23,7 +25,7 @@ public class ImportScheduleOnAppServerImplTest {
     @Mock
     private AppServer appServer;
     @Mock
-    private ImportSchedule importSchedule;
+    protected ImportSchedule importSchedule;
     @Mock
     private DataMapper<ImportScheduleOnAppServer> importScheduleOnAppServerFactory;
     @Mock
@@ -45,7 +47,7 @@ public class ImportScheduleOnAppServerImplTest {
     public void testGetImportSchedule() {
         ImportScheduleOnAppServerImpl importScheduleOnAppServer = ImportScheduleOnAppServerImpl.from(dataModel, fileImportService, importSchedule, appServer);
 
-        assertThat(importScheduleOnAppServer.getImportSchedule()).isEqualTo(importSchedule);
+        assertThat(importScheduleOnAppServer.getImportSchedule().get()).isEqualTo(importSchedule);
     }
 
     @Test

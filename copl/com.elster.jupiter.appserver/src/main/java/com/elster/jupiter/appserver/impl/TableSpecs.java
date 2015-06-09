@@ -1,6 +1,7 @@
 package com.elster.jupiter.appserver.impl;
 
 import com.elster.jupiter.appserver.AppServer;
+import com.elster.jupiter.appserver.ImportFolderForAppServer;
 import com.elster.jupiter.appserver.ImportScheduleOnAppServer;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DataModel;
@@ -8,6 +9,7 @@ import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Table;
 
 import static com.elster.jupiter.orm.ColumnConversion.*;
+import static com.elster.jupiter.orm.Table.DESCRIPTION_LENGTH;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 
 public enum TableSpecs {
@@ -48,6 +50,17 @@ public enum TableSpecs {
             Column importScheduleColumn = table.column("IMPORTSCHEDULE").type("number").notNull().conversion(NUMBER2LONG).map("importScheduleId").add();
             table.foreignKey("APS_FKIMPORTSCHEDULEAPPSERVER").references(APS_APPSERVER.name()).onDelete(DeleteRule.CASCADE).map("appServer").on(appServerColumn).add();
             table.primaryKey("APS_PK_IMPORTSCHEDULEONSERVER").on(appServerColumn, importScheduleColumn).add();
+        }
+    },
+    APS_IMPORTFOLDER() {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<ImportFolderForAppServer> table = dataModel.addTable(name(), ImportFolderForAppServer.class);
+            table.map(ImportFolderForAppServerImpl.class);
+            Column appServerColumn = table.column("APPSERVER").varChar(NAME_LENGTH).notNull().map("appServerName").add();
+            table.column("PATH").varChar(DESCRIPTION_LENGTH).conversion(CHAR2PATH).map("importFolderPath").add();
+            table.primaryKey("APS_PK_IMPORTFOLDER").on(appServerColumn).add();
+            table.foreignKey("APS_FK_IMPORTFOLDERAPPSERVER").references(APS_APPSERVER.name()).onDelete(DeleteRule.CASCADE).map("appServer").on(appServerColumn).add();
         }
     };
     

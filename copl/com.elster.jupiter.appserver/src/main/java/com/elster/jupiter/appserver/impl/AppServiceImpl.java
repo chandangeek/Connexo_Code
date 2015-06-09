@@ -1,12 +1,6 @@
 package com.elster.jupiter.appserver.impl;
 
-import com.elster.jupiter.appserver.AppServer;
-import com.elster.jupiter.appserver.AppServerCommand;
-import com.elster.jupiter.appserver.AppService;
-import com.elster.jupiter.appserver.Command;
-import com.elster.jupiter.appserver.ImportScheduleOnAppServer;
-import com.elster.jupiter.appserver.MessageSeeds;
-import com.elster.jupiter.appserver.SubscriberExecutionSpec;
+import com.elster.jupiter.appserver.*;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.fileimport.FileImportService;
@@ -31,6 +25,8 @@ import com.elster.jupiter.util.cron.CronExpression;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.json.JsonService;
 import static com.elster.jupiter.util.conditions.Where.where;
+
+import com.elster.jupiter.util.streams.Functions;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.AbstractModule;
 import org.osgi.framework.BundleContext;
@@ -44,17 +40,14 @@ import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.Properties;
+import java.nio.file.Path;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 @Component(name = "com.elster.jupiter.appserver", service = {InstallService.class, AppService.class}, property = {"name=" + AppService.COMPONENT_NAME}, immediate = true)
 public class AppServiceImpl implements InstallService, IAppService, Subscriber {
@@ -191,10 +184,24 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber {
     }
 
     private void launchFileImports() {
-        List<ImportScheduleOnAppServer> importScheduleOnAppServers = dataModel.mapper(ImportScheduleOnAppServer.class).find("appServer", appServer);
-        for (ImportScheduleOnAppServer importScheduleOnAppServer : importScheduleOnAppServers) {
-            fileImportService.schedule(importScheduleOnAppServer.getImportSchedule());
+        Optional<ImportFolderForAppServer> appServerImportFolder = dataModel.mapper(ImportFolderForAppServer.class).getOptional(appServer.getName());
+        if(!appServerImportFolder.isPresent()){
+            LOGGER.log(Level.WARNING, "AppServer with name " + appServer.getName() + " has no import folder configured.");
+            return;
         }
+        if(!appServerImportFolder.get().getImportFolder().isPresent()){
+            LOGGER.log(Level.WARNING, "AppServer with name " + appServer.getName() + " import folder is configured but cannot be resolved as path.");
+            return;
+        }
+        appServerImportFolder.flatMap(ImportFolderForAppServer::getImportFolder)
+                .ifPresent(path -> fileImportService.setBasePath(path));
+
+        List<ImportScheduleOnAppServer> importScheduleOnAppServers = dataModel.mapper(ImportScheduleOnAppServer.class).find("appServer", appServer);
+        importScheduleOnAppServers.stream()
+                .map(ImportScheduleOnAppServer::getImportSchedule)
+                .flatMap(Functions.asStream())
+                .filter(is -> is.getObsoleteTime() == null)
+                .forEach(fileImportService::schedule);
     }
 
     @Override
@@ -418,6 +425,14 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber {
                 });
         stoppingThread.start();
         Thread.currentThread().interrupt();
+    }
+
+    @Override
+    public Map<AppServer, Optional<Path>> getAllImportDirectories() {
+        return dataModel.mapper(ImportFolderForAppServer.class)
+                .find()
+                .stream()
+                .collect(Collectors.toMap(ImportFolderForAppServer::getAppServer, ImportFolderForAppServer::getImportFolder));
     }
 
     public DataModel getDataModel() {

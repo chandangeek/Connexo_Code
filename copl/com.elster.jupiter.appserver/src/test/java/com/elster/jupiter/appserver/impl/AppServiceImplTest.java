@@ -1,11 +1,6 @@
 package com.elster.jupiter.appserver.impl;
 
-import com.elster.jupiter.appserver.AppServer;
-import com.elster.jupiter.appserver.AppServerCommand;
-import com.elster.jupiter.appserver.AppService;
-import com.elster.jupiter.appserver.Command;
-import com.elster.jupiter.appserver.ImportScheduleOnAppServer;
-import com.elster.jupiter.appserver.SubscriberExecutionSpec;
+import com.elster.jupiter.appserver.*;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fileimport.ImportSchedule;
@@ -38,6 +33,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -48,6 +44,7 @@ import org.osgi.framework.BundleException;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.nio.file.Path;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -90,6 +87,8 @@ public class AppServiceImplTest {
     @Mock
     private DataMapper<ImportScheduleOnAppServer> importScheduleOnAppServerFactory;
     @Mock
+    private DataMapper<ImportFolderForAppServer> importFolderForAppServerFactory;
+    @Mock
     private MessageService messageService;
     @Mock
     private SubscriberSpec subscriberSpec;
@@ -103,6 +102,10 @@ public class AppServiceImplTest {
     private TaskService taskService;
     @Mock
     private ImportScheduleOnAppServer importTask1, importTask2;
+    @Mock
+    private ImportFolderForAppServer importFolderForAppServer;
+    @Mock
+    Path importFolder;
     @Mock
     private ImportSchedule schedule1, schedule2;
     @Mock
@@ -132,22 +135,25 @@ public class AppServiceImplTest {
         when(dataModel.isInstalled()).thenReturn(true);
         when(dataModel.mapper(AppServer.class)).thenReturn(appServerFactory);
         when(dataModel.mapper(ImportScheduleOnAppServer.class)).thenReturn(importScheduleOnAppServerFactory);
+        when(dataModel.mapper(ImportFolderForAppServer.class)).thenReturn(importFolderForAppServerFactory);
         when(dataModel.isInstalled()).thenReturn(true);
         doReturn(Collections.<SubscriberExecutionSpec>emptyList()).when(appServer).getSubscriberExecutionSpecs();
         when(importScheduleOnAppServerFactory.find("appServer", appServer)).thenReturn(Collections.<ImportScheduleOnAppServer>emptyList());
+        when(importFolderForAppServerFactory.getOptional(Matchers.any())).thenReturn(Optional.of(importFolderForAppServer));
+        when(importFolderForAppServer.getImportFolder()).thenReturn(Optional.of(importFolder));
         when(appServer.isRecurrentTaskActive()).thenReturn(false);
         when(appServer.messagingName()).thenReturn(MESSAGING_NAME);
         when(messageService.getSubscriberSpec(MESSAGING_NAME, MESSAGING_NAME)).thenReturn(Optional.empty());
         when(messageService.getSubscriberSpec("AllServers", MESSAGING_NAME)).thenReturn(Optional.empty());
         when(userService.findUser("batch executor")).thenReturn(Optional.of(batchUser));
-        when(importTask1.getImportSchedule()).thenReturn(schedule1);
-        when(importTask2.getImportSchedule()).thenReturn(schedule2);
+        when(importTask1.getImportSchedule()).thenReturn(Optional.of(schedule1));
+        when(importTask2.getImportSchedule()).thenReturn(Optional.of(schedule2));
         when(subscriberSpec.getDestination()).thenReturn(destination);
         when(destination.message(anyString())).thenReturn(messageBuilder);
         when(nlsService.getThesaurus(AppService.COMPONENT_NAME, Layer.DOMAIN)).thenReturn(thesaurus);
         when(thesaurus.getFormat(any(MessageSeed.class))).thenReturn(format);
         when(appServerFactory.getOptional(any())).thenReturn(Optional.<AppServer>empty());
-
+        when(appServer.getName()).thenReturn("TEST_APP_SERVER");
         setupBlockingCancellableSubscriberSpec();
         setupFakeTransactionService();
 

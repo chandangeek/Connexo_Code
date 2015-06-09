@@ -2,8 +2,11 @@ package com.elster.jupiter.appserver.impl;
 
 
 import com.elster.jupiter.appserver.AppServerCommand;
+import com.elster.jupiter.appserver.ImportScheduleOnAppServer;
 import com.elster.jupiter.appserver.ServerMessageQueueMissing;
 import com.elster.jupiter.appserver.SubscriberExecutionSpec;
+import com.elster.jupiter.fileimport.FileImportService;
+import com.elster.jupiter.fileimport.ImportSchedule;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageBuilder;
 import com.elster.jupiter.messaging.MessageService;
@@ -25,11 +28,13 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -37,6 +42,7 @@ public class AppServerImplTest {
 
     private static final String NAME = "Name";
     private static final String SERIALIZED = "SERIALIZED";
+
     private AppServerImpl appServer;
 
     @Mock
@@ -44,13 +50,19 @@ public class AppServerImplTest {
     @Mock
     private DataMapper<SubscriberExecutionSpecImpl> subscriberExecutionSpecFactory;
     @Mock
+    private DataMapper<ImportScheduleOnAppServerImpl> importScheduleOnAppServerFactory;
+    @Mock
     private CronExpression cronExpression;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private DestinationSpec destination;
     @Mock
     private SubscriberExecutionSpecImpl exSpec1, exSpec2;
     @Mock
+    private ImportScheduleOnAppServerImpl importScheduleOnAppServer;
+    @Mock
     private AppServerCommand command;
+    @Mock
+    private FileImportService fileImportService;
     @Mock
     private MessageService messageService;
     @Mock
@@ -65,18 +77,26 @@ public class AppServerImplTest {
     private Thesaurus thesaurus;
     @Mock
     private NlsMessageFormat format;
+    @Mock
+    private ImportSchedule importSchedule;
 
     @Before
     public void setUp() {
-
         when(dataModel.mapper(SubscriberExecutionSpecImpl.class)).thenReturn(subscriberExecutionSpecFactory);
+        when(dataModel.mapper(ImportScheduleOnAppServerImpl.class)).thenReturn(importScheduleOnAppServerFactory);
         when(subscriberSpec.getDestination()).thenReturn(destination);
-        when(dataModel.getInstance(AppServerImpl.class)).thenReturn(new AppServerImpl(dataModel, cronExpressionParser, messageService, jsonService, thesaurus));
+        when(dataModel.getInstance(AppServerImpl.class)).thenReturn(new AppServerImpl(dataModel, cronExpressionParser, fileImportService, messageService, jsonService, thesaurus));
+
         when(dataModel.getInstance(SubscriberExecutionSpecImpl.class)).thenReturn(new SubscriberExecutionSpecImpl(dataModel, messageService));
         when(thesaurus.getFormat(any(MessageSeed.class))).thenReturn(format);
         when(messageService.getDestinationSpec(any())).thenReturn(Optional.of(destination));
 
         appServer = AppServerImpl.from(dataModel, NAME, cronExpression);
+
+        when(importSchedule.getId()).thenReturn(1L);
+        when(fileImportService.getImportSchedule(1L)).thenReturn(Optional.of(importSchedule));
+        when(importScheduleOnAppServer.getAppServer()).thenReturn(appServer);
+        when(importScheduleOnAppServer.getImportSchedule()).thenReturn(Optional.of(importSchedule));
     }
 
     @After
@@ -163,4 +183,28 @@ public class AppServerImplTest {
         assertThat(appServer.isRecurrentTaskActive()).isFalse();
     }
 
+    @Test
+    public void testGetImportScheduleOnAppServer(){
+        when(importScheduleOnAppServerFactory.find("appServer", appServer)).thenReturn(Arrays.asList(importScheduleOnAppServer));
+
+        assertThat(appServer.getImportSchedulesOnAppServer()).hasSize(1).contains(importScheduleOnAppServer);
+    }
+
+    @Test
+    public void testAddImportScheduleOnAppServer(){
+        ImportScheduleOnAppServerImpl importScheduleOnAppServer = appServer.addImportScheduleOnAppServer(importSchedule);
+
+        verify(importScheduleOnAppServerFactory).persist(importScheduleOnAppServer);
+        assertThat(importScheduleOnAppServer.getAppServer()).isEqualTo(appServer);
+        assertThat(importScheduleOnAppServer.getImportSchedule().get()).isEqualTo(importSchedule);
+    }
+
+    @Test
+    public void testRemoveImportScheduleOnAppServer() {
+        when(importScheduleOnAppServerFactory.find("appServer", appServer)).thenReturn(Arrays.asList(importScheduleOnAppServer));
+        appServer.removeImportScheduleOnAppServer(importScheduleOnAppServer);
+
+        verify(importScheduleOnAppServerFactory).remove(importScheduleOnAppServer);
+        assertThat(appServer.getImportSchedulesOnAppServer()).hasSize(0);
+    }
 }
