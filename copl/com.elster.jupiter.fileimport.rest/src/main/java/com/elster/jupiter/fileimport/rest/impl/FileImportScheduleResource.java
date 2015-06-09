@@ -75,6 +75,14 @@ public class FileImportScheduleResource {
         return new FileImportScheduleInfo(fetchImportSchedule(id), thesaurus, propertyUtils);
     }
 
+    @GET
+    @Path("/list/{id}/")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed({Privileges.ADMINISTRATE_IMPORT_SERVICES, Privileges.VIEW_IMPORT_SERVICES, Privileges.VIEW_MDC_IMPORT_SERVICES})
+    public FileImportScheduleInfo getImportScheduleIncludeDeleted(@PathParam("id") long id, @Context SecurityContext securityContext) {
+        return new FileImportScheduleInfo(fetchImportScheduleIncludeDeleted(id), thesaurus, propertyUtils);
+    }
+
 
     @POST
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
@@ -260,6 +268,11 @@ public class FileImportScheduleResource {
     private ImportSchedule fetchImportSchedule(long id) {
         return fileImportService.getImportSchedule(id)
                 .filter(is -> is.getObsoleteTime() == null)
+                .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+    }
+
+    private ImportSchedule fetchImportScheduleIncludeDeleted(long id) {
+        return fileImportService.getImportSchedule(id)
                 .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 
