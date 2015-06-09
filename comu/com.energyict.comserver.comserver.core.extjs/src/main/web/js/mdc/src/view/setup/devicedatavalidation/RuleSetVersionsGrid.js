@@ -17,7 +17,7 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RuleSetVersionsGrid', {
             {
                 header: Uni.I18n.translate('validation.period', 'CFG', 'Period'),
                 dataIndex: 'versionName',
-                flex: 3,
+                flex: 6,
                 sortable: false,
                 fixed: true,
                 renderer: function (value, metaData, record) {
@@ -28,7 +28,7 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RuleSetVersionsGrid', {
             {
                 header: Uni.I18n.translate('validation.versionDescription', 'CFG', 'Description'),
                 dataIndex: 'description',
-                flex: 3,
+                flex: 6,
                 align: 'left',
                 sortable: false,
                 fixed: true
@@ -37,13 +37,15 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RuleSetVersionsGrid', {
                 header: Uni.I18n.translate('validation.activeRules', 'CFG', 'Active rules'),                
                 dataIndex: 'numberOfActiveRules',
 				align: 'left',
-                flex: 1
+                flex: 2,
+                fixed: true
             },
             {
                 header: Uni.I18n.translate('validation.inactiveRules', 'CFG', 'Inactive rules'),
                 align: 'left',
                 dataIndex: 'numberOfInactiveRules',
-                flex: 1
+                flex: 2,
+                fixed: true
             }
         ]; 
         me.dockedItems = [

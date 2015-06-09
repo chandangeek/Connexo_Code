@@ -32,11 +32,9 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
         {ref: 'addValidationRuleSetsGrid', selector: 'validation-add-rulesets validation-add-rulesets-grid'},
         {ref: 'addValidationRulesGrid', selector: 'validation-add-rulesets validation-add-rules-grid'},
         {ref: 'addValidationRulesPreview', selector: 'validation-add-rulesets validation-rule-preview'},
-		{ref: 'addValidationVersionsPreview', selector: 'validation-add-rulesets validation-versions-preview'},
+        {ref: 'addValidationVersionsPreview', selector: 'validation-ruleset-view validation-versions-grid'},
         {ref: 'validationRulesPreview', selector: 'validation-rules-overview validation-rule-preview'},
 		{ref: 'validationVersionsPreview', selector: 'validation-rules-overview validation-versions-view'}
-		
-		
     ],
 
     deviceTypeId: null,
@@ -74,6 +72,9 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
             },
 			'validation-rules-overview validation-versions-grid': {
                 selectionchange: this.onValidationVersionsChange
+            },
+            'validation-ruleset-view validation-versions-grid': {
+                selectionchange: this.onAddValidationVersionsChange
             }
         });
     },
@@ -376,8 +377,8 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
             view.updateValidationRule(selection[0]);
         }
     },
-	
-	onValidationVersionsChange: function (grid) {
+
+    onValidationVersionsChange: function (grid) {
         var view = this.getValidationVersionsPreview(),
             selection = grid.view.getSelectionModel().getSelection();
 
@@ -385,7 +386,17 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
             view.updateValidationVersionSet(selection[0]);
         }
     },
-	
+
+    onAddValidationVersionsChange: function (grid) {
+        var view = this.getAddValidationVersionsPreview(),
+            selection = grid.view.getSelectionModel().getSelection();
+
+        if (selection.length > 0) {
+            view.ruleSetId = selection[0].get('ruleSetId');
+            view.versionId = selection[0].get('id');
+            view.updateValidationVersionSet(selection[0]);
+        }
+    }
 	
 	
 });

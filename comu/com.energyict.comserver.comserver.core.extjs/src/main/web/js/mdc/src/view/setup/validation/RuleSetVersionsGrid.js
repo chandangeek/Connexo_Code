@@ -16,7 +16,7 @@ Ext.define('Mdc.view.setup.validation.RuleSetVersionsGrid', {
         var me = this;
         me.columns = [
             {
-                header: Uni.I18n.translate('validation.period', 'CFG', 'Period'),
+                header: Uni.I18n.translate('validation.period', 'CFG', 'Period'),				
                 dataIndex: 'versionName',
                 flex: 3,
                 sortable: false,
@@ -90,7 +90,10 @@ Ext.define('Mdc.view.setup.validation.RuleSetVersionsGrid', {
                 grid.getStore().on('load', function(store, records, success) {
                     var rec = store.find('status', 'CURRENT');
                     if ((rec>=0)|| (grid.getView())) {
-                        grid.getView().getSelectionModel().select(rec);
+                        Ext.Function.defer(function(){
+
+                            grid.getView().select(rec);
+                        }, 10);
                     }
 
                 }, grid, {
@@ -102,20 +105,20 @@ Ext.define('Mdc.view.setup.validation.RuleSetVersionsGrid', {
 
         me.callParent(arguments);
     },
-	updateValidationRuleSetId: function (validationRuleSetId) {      
+	updateValidationVersionSet: function (record) {      
 		 var me = this,
-            grid = me.down('validation-rules-grid'),
-            addButton = me.down('button[action=addValidationRule]');
+            grid = me.up('validation-ruleset-view').down('validation-rules-grid'),
+            addButton = me.up('validation-ruleset-view').down('button[action=addValidationRule]');
 			
         me.setTitle(record.get('name'));
-        me.validationRuleSetId = record.get('id');		
+        me.validationRuleSetId = record.get('ruleSetId');		
 		me.versionId = record.get('versionId');
-        addButton.setHref('#/administration/validation/rulesets/' + me.validationRuleSetId + '/rules/add');
+		addButton.setHref('#/administration/validation/rulesets/' + record.get('ruleSetId') + '/versions/' + record.get('id') + '/rules/add');        
         grid.updateValidationRuleSetId(me.validationRuleSetId);
 
         grid.store.load({params: {
-            id: me.validationRuleSetId,
-			versionId: me.versionId
+            ruleSetId: record.get('ruleSetId'),
+			versionId: record.get('id')
         }});
     }
 
