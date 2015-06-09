@@ -131,6 +131,9 @@ Ext.define('Fim.controller.ImportServices', {
             case 'viewImportService':
                 location.href = '#/administration/importservices/' + record.get('id');
                 break;
+            case 'viewImportServiceHistory':
+                location.href = '#/administration/importservices/' + record.get('id') + '/history';
+                break;
             case 'activateimportservice':
                 me.deactivate(record);
                 break;
@@ -171,7 +174,6 @@ Ext.define('Fim.controller.ImportServices', {
         var me = this,
             importServicesGrid = me.getImportServicesGrid(),
             importServicePreviewContainerPanel = me.getImportServicePreviewContainerPanel(),
-
             importServiceOverview = me.getImportServiceOverview(),
             view = importServicesGrid || importServicePreviewContainerPanel || importServiceOverview,
             isActive = record.get('active');

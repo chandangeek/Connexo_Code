@@ -30,7 +30,7 @@ Ext.define('Fim.view.importservices.Details', {
                 text: Uni.I18n.translate('importService.general.actions', 'FIM', 'Actions'),
                 iconCls: 'x-uni-action-iconD',
                 margin: '20 0 0 0',
-                privileges: Fim.privileges.DataImport.getAdmin,
+                //privileges: Fim.privileges.DataImport.getAdmin,
                 menu: {
                     xtype: 'fim-import-service-action-menu'
                 }

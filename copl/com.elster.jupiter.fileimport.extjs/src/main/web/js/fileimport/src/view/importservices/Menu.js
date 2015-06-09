@@ -14,6 +14,11 @@ Ext.define('Fim.view.importservices.Menu', {
                 text: Uni.I18n.translate('general.overview', 'FIM', 'Overview'),
                 itemId: 'import-services-view-link',
                 href: '#/administration/importservices/' + this.importServiceId
+            },
+			{
+                text: Uni.I18n.translate('general.history', 'FIM', 'History'),
+                itemId: 'import-services-view-history-link',
+                href: '#/administration/importservices/' + this.importServiceId + '/history'
             }
         ];
 

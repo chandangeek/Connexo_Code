@@ -24,7 +24,6 @@ Ext.define('Fim.model.ImportService', {
         'importerName',
         'scanFrequency',
         'importerInfo',
-        //'statusDisplay',
         {
             name: 'statusDisplay',
             persist: false,
@@ -47,7 +46,6 @@ Ext.define('Fim.model.ImportService', {
                     return record.data.importerInfo.displayName;
                 }
                 return null;
-
             }
         }
     ],
