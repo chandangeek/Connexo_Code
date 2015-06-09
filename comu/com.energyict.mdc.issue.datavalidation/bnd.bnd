@@ -1,0 +1,4 @@
+-classpath: target/classes 
+-dsannotations: *
+Private-Package: com.energyict.mdc.issue.datavalidation.impl.*
+Export-Package: com.energyict.mdc.issue.datavalidation
