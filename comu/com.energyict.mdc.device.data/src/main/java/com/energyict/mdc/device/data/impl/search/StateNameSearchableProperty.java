@@ -1,8 +1,5 @@
 package com.energyict.mdc.device.data.impl.search;
 
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.data.Device;
-
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
@@ -16,16 +13,17 @@ import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
 import com.elster.jupiter.util.streams.Predicates;
-
-import javax.inject.Inject;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.data.Device;
 import java.text.MessageFormat;
 import java.time.Instant;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.inject.Inject;
 
 /**
  * Exposes the name of the current {@link State}
@@ -112,7 +110,7 @@ public class StateNameSearchableProperty extends AbstractSearchableDevicePropert
 
     @Override
     public List<SearchableProperty> getConstraints() {
-        return Arrays.asList(this.parent);
+        return Collections.singletonList(this.parent);
     }
 
     @Override
