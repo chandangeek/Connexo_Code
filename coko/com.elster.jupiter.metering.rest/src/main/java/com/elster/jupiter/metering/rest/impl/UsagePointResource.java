@@ -8,6 +8,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.rest.ReadingTypeInfos;
+import com.elster.jupiter.metering.rest.UsagePointInfo;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQueryService;

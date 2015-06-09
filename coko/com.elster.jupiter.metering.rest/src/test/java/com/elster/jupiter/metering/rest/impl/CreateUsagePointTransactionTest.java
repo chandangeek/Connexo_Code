@@ -5,6 +5,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.rest.UsagePointInfo;
 import java.util.Optional;
 import org.junit.After;
 import org.junit.Before;

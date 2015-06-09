@@ -3,6 +3,7 @@ package com.elster.jupiter.metering.rest.impl;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.rest.UsagePointInfo;
 import com.elster.jupiter.transaction.Transaction;
 import java.util.Optional;
 

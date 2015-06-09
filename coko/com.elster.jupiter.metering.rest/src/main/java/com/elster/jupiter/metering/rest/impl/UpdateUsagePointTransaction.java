@@ -5,6 +5,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointAccountability;
 import com.elster.jupiter.metering.UsagePointDetail;
+import com.elster.jupiter.metering.rest.UsagePointInfo;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.parties.PartyRepresentation;
 import com.elster.jupiter.transaction.Transaction;

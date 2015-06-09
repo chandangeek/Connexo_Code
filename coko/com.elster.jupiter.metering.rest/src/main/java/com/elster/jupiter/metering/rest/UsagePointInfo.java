@@ -1,4 +1,4 @@
-package com.elster.jupiter.metering.rest.impl;
+package com.elster.jupiter.metering.rest;
 
 import com.elster.jupiter.cbo.PhaseCode;
 import com.elster.jupiter.metering.AmiBillingReadyKind;
@@ -9,6 +9,7 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointConnectedKind;
 import com.elster.jupiter.metering.UsagePointDetail;
 
+import com.elster.jupiter.metering.rest.impl.ServiceLocationInfo;
 import java.time.Clock;
 
 import com.elster.jupiter.util.units.Quantity;
@@ -96,7 +97,7 @@ public class UsagePointInfo {
 		
 	}
 	
-	void addServiceLocationInfo() {
+	public void addServiceLocationInfo() {
 		ServiceLocation location = usagePoint.getServiceLocation();
 		if (location != null) {
 			serviceLocation = new ServiceLocationInfo(location);

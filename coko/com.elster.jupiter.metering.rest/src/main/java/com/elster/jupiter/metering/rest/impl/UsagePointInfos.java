@@ -2,6 +2,7 @@ package com.elster.jupiter.metering.rest.impl;
 
 import com.elster.jupiter.metering.UsagePoint;
 
+import com.elster.jupiter.metering.rest.UsagePointInfo;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import java.time.Clock;
