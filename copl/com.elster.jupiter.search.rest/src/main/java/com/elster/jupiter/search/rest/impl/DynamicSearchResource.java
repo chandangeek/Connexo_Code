@@ -93,9 +93,10 @@ public class DynamicSearchResource {
     @Path("/{domain}/model")
     public Response getDomainDescription(@PathParam("domain") String domainId) {
         SearchDomain searchDomain = findSearchDomainOrThrowException(domainId);
-        List properties = infoFactoryService.getInfoFactoryFor(searchDomain).infoStructure();
+        ModelInfo modelInfo = new ModelInfo();
+        modelInfo.model = infoFactoryService.getInfoFactoryFor(searchDomain).modelStructure();
 
-        return Response.ok(properties).build();
+        return Response.ok(modelInfo).build();
     }
 
     @GET
@@ -228,4 +229,9 @@ public class DynamicSearchResource {
     class PropertyList {
         public List<PropertyInfo> properties;
     }
+
+    class ModelInfo {
+        public List model;
+    }
+
 }
