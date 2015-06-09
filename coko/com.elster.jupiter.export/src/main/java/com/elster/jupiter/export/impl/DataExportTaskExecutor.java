@@ -129,6 +129,7 @@ class DataExportTaskExecutor implements TaskExecutor {
         DataFormatterFactory dataFormatterFactory = getDataFormatterFactory(task.getDataFormatter());
         Map<String, Object> propertyMap = dataExportProperties.stream()
                 .filter(dataExportProperty -> dataFormatterFactory.getPropertySpec(dataExportProperty.getName()) != null)
+                .filter(property -> (property.useDefault() ? getDefaultValue(dataFormatterFactory, property) : property.getValue()) != null)
                 .collect(Collectors.toMap(DataExportProperty::getName, property -> property.useDefault() ? getDefaultValue(dataFormatterFactory, property) : property.getValue()));
         return dataFormatterFactory.createDataFormatter(propertyMap);
     }
@@ -138,6 +139,7 @@ class DataExportTaskExecutor implements TaskExecutor {
         DataSelectorFactory dataSelectorFactory = getDataSelectorFactory(task.getDataSelector());
         Map<String, Object> propertyMap = dataExportProperties.stream()
                 .filter(dataExportProperty -> dataSelectorFactory.getPropertySpec(dataExportProperty.getName()) != null)
+                .filter(property -> (property.useDefault() ? getDefaultValue(dataSelectorFactory, property) : property.getValue()) != null)
                 .collect(Collectors.toMap(DataExportProperty::getName, property -> property.useDefault() ? getDefaultValue(dataSelectorFactory, property) : property.getValue()));
         return dataSelectorFactory.createDataSelector(propertyMap, logger);
     }
