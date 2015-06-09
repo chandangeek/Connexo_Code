@@ -14,7 +14,7 @@ public interface InfoFactory<T> {
      */
     public Object from(T domainObject);
 
-    List<PropertyDescriptionInfo> infoStructure();
+    List<PropertyDescriptionInfo> modelStructure();
 
     /**
      * Base-class any domain object for this factory should obey IS-A relation to.
