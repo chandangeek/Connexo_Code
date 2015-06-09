@@ -20,6 +20,7 @@ Ext.define('Apr.view.appservers.Setup', {
                     xtype: 'preview-container',
                     grid: {
                         xtype: 'appservers-grid',
+                        itemId: 'grd-application-servers',
                         router: me.router
                     },
                     emptyComponent: {
