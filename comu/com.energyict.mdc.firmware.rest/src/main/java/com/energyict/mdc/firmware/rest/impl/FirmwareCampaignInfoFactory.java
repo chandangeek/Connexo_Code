@@ -97,7 +97,7 @@ public class FirmwareCampaignInfoFactory {
             deviceGroup = meteringGroupsService.findEndDeviceGroup(info.deviceGroup.id).orElse(null);
         }
         FirmwareCampaign firmwareCampaign = firmwareService.newFirmwareCampaign(deviceType, deviceGroup);
-        info.writeTo(firmwareCampaign);
+        info.writeTo(firmwareCampaign, mdcPropertyUtils);
         return firmwareCampaign;
     }
 }
