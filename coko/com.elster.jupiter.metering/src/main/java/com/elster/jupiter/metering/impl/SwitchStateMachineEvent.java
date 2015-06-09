@@ -21,7 +21,7 @@ public class SwitchStateMachineEvent {
     static final String TOPIC = "com/elster/jupiter/metering/fsm/SWITCH";
     static final String SUBSCRIBER = "SwitchStateMachineEventSubsc";
     static final String SUBSCRIBER_TRANSLATION = "Change device state";
-    static final String DESTINATION = "SwitchStateMachineEventDest";
+    static final String DESTINATION = "SwitchStateMachineDest";
 
     /**
      * The timestamp at which the change over to the new state should be recorded.
