@@ -10,9 +10,9 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.nls.SimpleNlsKey;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.properties.FindById;
+import com.elster.jupiter.properties.CanFindByStringKey;
+import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.ListValue;
-import com.elster.jupiter.properties.ListValueEntry;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.util.Pair;
@@ -107,7 +107,7 @@ class IntervalStateValidator extends AbstractValidator {
         return Arrays.asList(INTERVAL_FLAGS);
     }
 
-    class IntervalFlag implements ListValueEntry {
+    class IntervalFlag extends HasIdAndName {
 
         private Flag flag;
         private String id;
@@ -137,7 +137,7 @@ class IntervalStateValidator extends AbstractValidator {
         }
     }
 
-    private class PossibleIntervalFlags implements FindById<IntervalFlag> {
+    private class PossibleIntervalFlags implements CanFindByStringKey<IntervalFlag> {
 
         private final IntervalFlag[] flags = {
             new IntervalFlag(Flag.BADTIME, "badTime", "Bad time"),
@@ -156,13 +156,18 @@ class IntervalStateValidator extends AbstractValidator {
         };
 
         @Override
-        public Optional<IntervalFlag> findById(String id) {
+        public Optional<IntervalFlag> find(String key) {
             for (IntervalFlag flagParameter : flags) {
-                if (id.equalsIgnoreCase(flagParameter.getId())){
+                if (key.equals(flagParameter.getId())){
                     return Optional.of(flagParameter);
                 }
             }
             return Optional.empty();
+        }
+        
+        @Override
+        public Class<IntervalFlag> valueDomain() {
+            return IntervalFlag.class;
         }
 
         public IntervalFlag[] getFlags() {
