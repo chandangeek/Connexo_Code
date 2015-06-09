@@ -327,7 +327,12 @@ public abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> 
         this.serialNumber = serialNumber;
     }
 
-    private Condition inRange(Range<Instant> range) {
+	@Override
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	private Condition inRange(Range<Instant> range) {
         return where("endDevice").isEqualTo(this).and(where("createdDateTime").in(range));
     }
 

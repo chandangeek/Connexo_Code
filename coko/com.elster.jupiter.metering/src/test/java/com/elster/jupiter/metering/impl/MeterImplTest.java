@@ -2,6 +2,7 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.MeterAlreadyActive;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
@@ -51,6 +52,8 @@ public class MeterImplTest {
     private Provider<ChannelBuilder> channelBuilderFactory;
     @Mock
     private UsagePoint usagePoint;
+    @Mock
+    private AmrSystem amrSystem;
 
     @Before
     public void setUp() {
@@ -88,6 +91,15 @@ public class MeterImplTest {
 
         meter.activate(START.toInstant());
         meter.activate(START.minusMonths(1).toInstant());
+
+    }
+
+    @Test
+    public void testSetName() {
+        MeterImpl meter = new MeterImpl(clock, dataModel, eventService, deviceEventFactory, meteringService, thesaurus, meterActivationFactory).init(amrSystem, "amrID", "mrId");
+        meter.setName("name42");
+
+        assertThat(meter.getName()).isEqualTo("name42");
 
     }
 

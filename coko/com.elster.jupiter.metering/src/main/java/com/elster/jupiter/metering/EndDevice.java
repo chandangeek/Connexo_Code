@@ -73,4 +73,5 @@ public interface EndDevice extends IdentifiedObject {
 
     LifecycleDates getLifecycleDates();
 
+    void setName(String name);
 }

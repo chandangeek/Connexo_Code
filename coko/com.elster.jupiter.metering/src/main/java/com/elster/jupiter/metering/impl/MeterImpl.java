@@ -107,12 +107,10 @@ public class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter
 
     @Override
     public Optional<MeterActivation> getCurrentMeterActivation() {
-        for (MeterActivation meterActivation : meterActivations) {
-            if (meterActivation.isCurrent()) {
-                return Optional.of(meterActivation);
-            }
-        }
-        return Optional.empty();
+        return meterActivations.stream()
+                .map(MeterActivation.class::cast)
+                .filter(MeterActivation::isCurrent)
+                .findAny();
     }
 
     @Override

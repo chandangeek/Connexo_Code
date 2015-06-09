@@ -145,6 +145,18 @@ public enum EventType {
                     .create()
                     .save();
         }
+    },
+    METER_ACTIVATION_ADVANCED("meteractivation/ADVANCED") {
+        @Override
+        public void install(EventService eventService) {
+            eventService.buildEventTypeWithTopic(topic())
+                    .name(name())
+                    .component(MeteringService.COMPONENTNAME)
+                    .category("Crud")
+                    .scope("System")
+                    .shouldNotPublish()
+                    .create().save();
+        }
     };
 
     private static final String NAMESPACE = "com/elster/jupiter/metering/";

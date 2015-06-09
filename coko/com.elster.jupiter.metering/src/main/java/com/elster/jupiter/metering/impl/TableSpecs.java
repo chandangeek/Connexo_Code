@@ -198,7 +198,7 @@ public enum TableSpecs {
             Column mRIDColumn = table.column("MRID").varChar(NAME_LENGTH).map("mRID").add();
             Column amrSystemIdColumn = table.column("AMRSYSTEMID").type("number").notNull().conversion(NUMBER2INT).map("amrSystemId").add();
             Column amrIdColumn = table.column("AMRID").varChar(SHORT_DESCRIPTION_LENGTH).notNull().map("amrId").add();
-            table.column("NAME").varChar(NAME_LENGTH).map("name").add();
+            Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).map("name").add();
             table.column("ALIASNAME").varChar(NAME_LENGTH).map("aliasName").add();
             table.column("DESCRIPTION").varChar(SHORT_DESCRIPTION_LENGTH).map("description").add();
             table.column("SERIALNUMBER").varChar(NAME_LENGTH).map("serialNumber").add();
@@ -228,6 +228,7 @@ public enum TableSpecs {
                     .references(FiniteStateMachineService.COMPONENT_NAME, "FSM_FINITE_STATE_MACHINE")
                     .map("stateMachine")
                     .add();
+            table.index("MTR_IDX_ENDDEVICE_NAME").on(nameColumn).add();
         }
     },
     MTR_ENDDEVICESTATUS {
