@@ -11,25 +11,39 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.nls.SimpleNlsKey;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.BasicPropertySpec;
+import com.elster.jupiter.properties.BooleanFactory;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionService;
+import com.google.common.collect.ImmutableList;
 
+import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
-public class StandardDataSelectorFactory implements DataSelectorFactory {
+/**
+ * Created by igh on 3/06/2015.
+ */
+public class SingleDeviceDataSelectorFactory implements DataSelectorFactory {
 
     private final TransactionService transactionService;
     private final Thesaurus thesaurus;
     private final MeteringService meteringService;
 
-    public StandardDataSelectorFactory(TransactionService transactionService, MeteringService meteringService, Thesaurus thesaurus) {
+    private final TimeService timeService;
+    private final PropertySpecService propertySpecService;
+
+    public SingleDeviceDataSelectorFactory(TransactionService transactionService, MeteringService meteringService, Thesaurus thesaurus, PropertySpecService propertySpecService, TimeService timeService) {
         this.transactionService = transactionService;
         this.meteringService = meteringService;
         this.thesaurus = thesaurus;
+        this.timeService = timeService;
+        this.propertySpecService = propertySpecService;
     }
 
     @Override
@@ -43,12 +57,17 @@ public class StandardDataSelectorFactory implements DataSelectorFactory {
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        return Collections.emptyList();
+
+        ImmutableList.Builder<PropertySpec> builder = ImmutableList.builder();
+
+        builder.add(propertySpecService.bigDecimalPropertySpec("Device id", true, new BigDecimal(1)));
+
+        return builder.build();
     }
 
     @Override
     public String getName() {
-        return DataExportService.STANDARD_DATA_SELECTOR;
+        return "Single Device Data Selector";
     }
 
     @Override
@@ -58,7 +77,7 @@ public class StandardDataSelectorFactory implements DataSelectorFactory {
 
     @Override
     public boolean isDefault() {
-        return true;
+        return false;
     }
 
     private NlsKey getNlsKey() {
@@ -71,6 +90,7 @@ public class StandardDataSelectorFactory implements DataSelectorFactory {
 
         @Override
         public Stream<ExportData> selectData(DataExportOccurrence dataExportOccurrence) {
+            //todo: to be implemented
             return dataExportOccurrence.getTask().getReadingTypeDataSelector().orElseThrow(IllegalStateException::new).selectData(dataExportOccurrence);
         }
     }

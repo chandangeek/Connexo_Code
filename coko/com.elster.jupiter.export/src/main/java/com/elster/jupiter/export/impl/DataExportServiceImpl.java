@@ -20,6 +20,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
@@ -67,6 +68,7 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
     private volatile UserService userService;
     private volatile AppService appService;
     private volatile TransactionService transactionService;
+    private volatile PropertySpecService propertySpecService;
 
     private List<DataProcessorFactory> dataProcessorFactories = new CopyOnWriteArrayList<>();
     private List<DataSelectorFactory> dataSelectorFactories = new CopyOnWriteArrayList<>();
@@ -77,7 +79,7 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
     }
 
     @Inject
-    public DataExportServiceImpl(OrmService ormService, TimeService timeService, TaskService taskService, MeteringGroupsService meteringGroupsService, MessageService messageService, NlsService nlsService, MeteringService meteringService, QueryService queryService, Clock clock, UserService userService, AppService appService, TransactionService transactionService) {
+    public DataExportServiceImpl(OrmService ormService, TimeService timeService, TaskService taskService, MeteringGroupsService meteringGroupsService, MessageService messageService, NlsService nlsService, MeteringService meteringService, QueryService queryService, Clock clock, UserService userService, AppService appService, TransactionService transactionService, PropertySpecService propertySpecService) {
         setOrmService(ormService);
         setTimeService(timeService);
         setTaskService(taskService);
@@ -90,6 +92,7 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
         setUserService(userService);
         setAppService(appService);
         setTransactionService(transactionService);
+        setPropertySpecService(propertySpecService);
         activate();
         if (!dataModel.isInstalled()) {
             install();
@@ -132,6 +135,13 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
     public List<PropertySpec> getPropertiesSpecsForProcessor(String name) {
         return getDataProcessorFactory(name)
                 .map(DataProcessorFactory::getPropertySpecs)
+                .orElse(Collections.emptyList());
+    }
+
+    @Override
+    public List<PropertySpec> getPropertiesSpecsForDataSelector(String name) {
+        return getDataSelectorFactory(name)
+                .map(DataSelectorFactory::getPropertySpecs)
                 .orElse(Collections.emptyList());
     }
 
@@ -224,6 +234,7 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
                 }
             });
             addSelector(new StandardDataSelectorFactory(transactionService, meteringService, thesaurus));
+            addSelector(new SingleDeviceDataSelectorFactory(transactionService, meteringService, thesaurus, propertySpecService, timeService));
         } catch (RuntimeException e) {
             e.printStackTrace();
             throw e;
@@ -252,6 +263,11 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
     @Reference
     public void setTransactionService(TransactionService transactionService) {
         this.transactionService = transactionService;
+    }
+
+    @Reference
+    public void setPropertySpecService(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
     }
 
     @Reference

@@ -130,10 +130,33 @@ public class ExportTaskImpl implements IExportTask {
 
     public void save() {
         // TODO  : separate properties per Factory
+
+        List<PropertySpec> propertiesSpecsForProcessor = dataExportService.getPropertiesSpecsForProcessor(dataProcessor);
+        List<PropertySpec> propertiesSpecsForDataSelector = dataExportService.getPropertiesSpecsForDataSelector(dataSelector);
+        List<DataExportProperty> processorProperties = new ArrayList<DataExportProperty>();
+        List<DataExportProperty> selectorProperties = new ArrayList<DataExportProperty>();
+        for (DataExportProperty property : properties) {
+            for (PropertySpec processorPropertySpec : propertiesSpecsForProcessor)   {
+                if (property.instanceOfSpec(processorPropertySpec)) {
+                    processorProperties.add(property);
+                }
+            }
+        }
+        for (DataExportProperty property : properties) {
+            for (PropertySpec selectorPropertySpec : propertiesSpecsForDataSelector)   {
+                if (property.instanceOfSpec(selectorPropertySpec)) {
+                    selectorProperties.add(property);
+                }
+            }
+        }
+
+
+
+
         dataExportService.getDataProcessorFactory(dataProcessor)
-                .ifPresent(dataProcessorFactory -> dataProcessorFactory.validateProperties(properties));
+                .ifPresent(dataProcessorFactory -> dataProcessorFactory.validateProperties(processorProperties));
         dataExportService.getDataSelectorFactory(dataSelector)
-                .ifPresent(dataSelectorFactory -> dataSelectorFactory.validateProperties(properties));
+                .ifPresent(dataSelectorFactory -> dataSelectorFactory.validateProperties(selectorProperties));
         if (id == 0) {
             persist();
         } else {
@@ -202,7 +225,12 @@ public class ExportTaskImpl implements IExportTask {
     }
 
     public List<PropertySpec> getPropertySpecs() {
-        return dataExportService.getDataProcessorFactory(dataProcessor).orElseThrow(()->new IllegalArgumentException("No such data processor: "+dataProcessor)).getPropertySpecs();
+        List processorSpecs =  dataExportService.getDataProcessorFactory(dataProcessor).orElseThrow(()->new IllegalArgumentException("No such data processor: "+dataProcessor)).getPropertySpecs();
+        List selectorSpecs =  dataExportService.getDataSelectorFactory(dataSelector).orElseThrow(()->new IllegalArgumentException("No such data selector: "+dataSelector)).getPropertySpecs();
+        List<PropertySpec> allSpecs = new ArrayList<PropertySpec>();
+        allSpecs.addAll(processorSpecs);
+        allSpecs.addAll(selectorSpecs);
+        return allSpecs;
     }
 
     public ScheduleExpression getScheduleExpression() {
