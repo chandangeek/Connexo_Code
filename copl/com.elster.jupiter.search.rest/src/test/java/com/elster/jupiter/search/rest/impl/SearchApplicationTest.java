@@ -1,7 +1,7 @@
 package com.elster.jupiter.search.rest.impl;
 
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
-import com.elster.jupiter.rest.util.InfoFactoryService;
+import com.elster.jupiter.search.rest.InfoFactoryService;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.search.rest.MessageSeeds;
 import com.elster.jupiter.util.exception.MessageSeed;

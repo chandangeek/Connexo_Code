@@ -4,7 +4,7 @@ import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpecPossibleValues;
 import com.elster.jupiter.rest.util.ExceptionFactory;
-import com.elster.jupiter.rest.util.InfoFactoryService;
+import com.elster.jupiter.search.rest.InfoFactoryService;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
@@ -93,7 +93,7 @@ public class DynamicSearchResource {
     @Path("/{domain}/model")
     public Response getDomainDescription(@PathParam("domain") String domainId) {
         SearchDomain searchDomain = findSearchDomainOrThrowException(domainId);
-        List properties = infoFactoryService.getFactoryFor(searchDomain.getId()).infoStructure();
+        List properties = infoFactoryService.getInfoFactoryFor(searchDomain).infoStructure();
 
         return Response.ok(properties).build();
     }
@@ -127,7 +127,7 @@ public class DynamicSearchResource {
             throw new LocalizedFieldValidationException(MessageSeeds.AT_LEAST_ONE_CRITERIA, "filter");
         }
         List<Object> searchResults = searchBuilder.toFinder().from(jsonQueryParameters).stream().
-                map(o-> infoFactoryService.getFactoryFor(searchDomain.getId()).from(o)).
+                map(o-> infoFactoryService.getInfoFactoryFor(searchDomain).from(o)).
                 collect(toList());
         return Response.ok().entity(PagedInfoList.fromPagedList("searchResults", searchResults, jsonQueryParameters)).build();
     }

@@ -5,7 +5,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
-import com.elster.jupiter.rest.util.InfoFactoryService;
+import com.elster.jupiter.search.rest.InfoFactoryService;
 import com.elster.jupiter.search.SearchService;
 import com.google.common.collect.ImmutableSet;
 import java.util.Collections;

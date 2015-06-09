@@ -1,7 +1,8 @@
 package com.elster.jupiter.search.rest.impl;
 
 import com.elster.jupiter.rest.util.InfoFactory;
-import com.elster.jupiter.rest.util.InfoFactoryService;
+import com.elster.jupiter.search.SearchDomain;
+import com.elster.jupiter.search.rest.InfoFactoryService;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import org.osgi.service.component.annotations.Component;
@@ -23,15 +24,15 @@ public class InfoFactoryWhiteBoard implements InfoFactoryService {
     }
 
     public void removeFactory(InfoFactory infoFactory) {
-        factories.removeIf(fac -> infoFactory.getSearchDomainId().equals(fac.getSearchDomainId()));
+        factories.removeIf(fac -> infoFactory.getDomainClass().equals(fac.getDomainClass()));
     }
 
 
     @Override
-    public InfoFactory getFactoryFor(String searchDomainId) {
+    public InfoFactory getInfoFactoryFor(SearchDomain searchDomain) {
         return factories.stream().
-                filter(fac -> fac.getSearchDomainId().equals(searchDomainId)).
+                filter(fac -> searchDomain.supports(fac.getDomainClass())).
                 findFirst().
-                orElseThrow(() -> new IllegalStateException("No registered factory for " + searchDomainId));
+                orElseThrow(() -> new IllegalStateException("No registered factory for search domain " + searchDomain.getId()));
     }
 }
