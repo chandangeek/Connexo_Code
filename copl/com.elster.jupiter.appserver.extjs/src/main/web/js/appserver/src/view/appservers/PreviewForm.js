@@ -44,7 +44,7 @@ Ext.define('Apr.view.appservers.PreviewForm', {
                                     {
                                         xtype: 'displayfield',
                                         fieldLabel: Uni.I18n.translate('general.exportPath', 'APR', 'Export path'),
-                                        itemId: 'export-path',
+                                        itemId: 'txt-export-path',
                                         name: 'exportPath'
                                     },
                                     {

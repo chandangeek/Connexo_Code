@@ -85,7 +85,7 @@ Ext.define('Apr.controller.AppServers', {
                         if (dir.get('appServerName') === item.get('name')) {
                             item.set('exportPath', dir.get('directory'));
                             if (view.down('appservers-grid') && (item.getId() === view.down('appservers-grid').getSelectionModel().getLastSelected().getId())) {
-                                view.down('#export-path').setValue(dir.get('directory'));
+                                view.down('#txt-export-path').setValue(dir.get('directory'));
                             }
                         }
                     });
@@ -316,8 +316,8 @@ Ext.define('Apr.controller.AppServers', {
                     view.down('#empty-text-grid').show();
                 }
                 view.down('#add-appserver-form').setTitle(Uni.I18n.translate('general.edit', 'APR', 'Edit') + " '" + appServerName + "'");
-                view.down('#appserver-name').setValue(appServerName);
-                view.down('#appserver-name').disable();
+                view.down('#txt-appserver-name').setValue(appServerName);
+                view.down('#txt-appserver-name').disable();
                 unservedStore.getProxy().setUrl(appServerName);
                 unservedStore.load(function (records) {
                     Ext.Array.each(records, function (service) {
@@ -330,7 +330,7 @@ Ext.define('Apr.controller.AppServers', {
                                 Ext.Array.each(exportPaths, function (dir) {
                                     if (dir.get('appServerName') === appServerName) {
                                         me.exportPath = dir;
-                                        view.down('#appserver-path').setValue(dir.get('directory'));
+                                        view.down('#appserver-export-path').setValue(dir.get('directory'));
                                     } else {
                                         me.exportPath = Ext.create('Apr.model.ExportPath');
                                     }
@@ -431,8 +431,8 @@ Ext.define('Apr.controller.AppServers', {
     addEditAppServer: function () {
         var me = this,
             form = me.getAddPage().down('#add-appserver-form'),
-            appServerName = form.down('#appserver-name').getValue(),
-            exportPath = form.down('#appserver-path').getValue(),
+            appServerName = form.down('#txt-appserver-name').getValue(),
+            exportPath = form.down('#appserver-export-path').getValue(),
             importPath = form.down('#appserver-import-path').getValue(),
             grid = me.getAddPage().down('message-services-grid'),
             importGrid = me.getAddPage().down('apr-import-services-grid'),

@@ -43,7 +43,7 @@ Ext.define('Apr.view.appservers.Add', {
                     {
                         xtype: 'textfield',
                         name: 'name',
-                        itemId: 'appserver-name',
+                        itemId: 'txt-appserver-name',
                         width: 750,
                         required: true,
                         fieldLabel: Uni.I18n.translate('general.name', 'UNI', 'Name'),
@@ -54,7 +54,7 @@ Ext.define('Apr.view.appservers.Add', {
                     {
                         xtype: 'textfield',
                         name: 'exportPath',
-                        itemId: 'appserver-path',
+                        itemId: 'appserver-export-path',
                         width: 750,
                         maskRe: /\S/,
                         required: true,

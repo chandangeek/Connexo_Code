@@ -25,6 +25,7 @@ Ext.define('Apr.view.appservers.Setup', {
                     },
                     emptyComponent: {
                         xtype: 'no-items-found-panel',
+                        itemId: 'ctr-no-app-server',
                         title: Uni.I18n.translate('appServers.empty.title', 'APR', 'No application servers found'),
                         reasons: [
                             Uni.I18n.translate('appServers.empty.list.item1', 'APR', 'There are no application servers in the system')
@@ -38,7 +39,8 @@ Ext.define('Apr.view.appservers.Setup', {
                         ]
                     },
                     previewComponent: {
-                        xtype: 'appservers-preview'
+                        xtype: 'appservers-preview',
+                        itemId: 'pnl-appserver-preview'
                     }
                 }
             ]
