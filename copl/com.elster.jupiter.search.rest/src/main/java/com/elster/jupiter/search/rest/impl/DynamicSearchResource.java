@@ -66,7 +66,7 @@ public class DynamicSearchResource {
     @GET
     @Consumes(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
-    @Path("/{domain}/properties")
+    @Path("/{domain}/searchcriteria")
     public Response getSearchablePropertiesForDomain(@PathParam("domain") String domainId,
                                                      @BeanParam JsonQueryFilter jsonQueryFilter,
                                                      @BeanParam JsonQueryParameters jsonQueryParameters,
@@ -140,7 +140,7 @@ public class DynamicSearchResource {
     @GET
     @Consumes(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
-    @Path("/{domain}/properties/{property}")
+    @Path("/{domain}/searchcriteria/{property}")
     public Response getDomainPropertyValues(@PathParam("domain") String domainId,
                                             @PathParam("property") String property,
                                             @BeanParam JsonQueryParameters jsonQueryParameters,
