@@ -278,7 +278,7 @@ public class FileImportServiceImpl implements InstallService, FileImportService 
     public FileImportOccurrenceFinderBuilder getFileImportOccurrenceFinderBuilder(String applicationName, Long importScheduleId) {
         Condition condition = Condition.TRUE;
         if(!"SYS".equalsIgnoreCase(applicationName))
-            condition = condition.and(Where.where("applicationName").isEqualToIgnoreCase(applicationName));
+            condition = condition.and(Where.where("importSchedule.applicationName").isEqualToIgnoreCase(applicationName));
         if(importScheduleId != null)
             condition = condition.and(Where.where("importScheduleId").isEqualTo(importScheduleId));
         return new FileImportOccurrenceFinderBuilderImpl(dataModel, condition);

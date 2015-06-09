@@ -320,7 +320,12 @@ class ImportScheduleImpl implements ImportSchedule {
 
     @Override
     public boolean isDeleted(){
-        return (this.obsoleteTime != null) || !fileImportService.getImportFactory(importerName).isPresent();
+        return (this.obsoleteTime != null) || !isImporterAvailable();
+    }
+
+    @Override
+    public boolean isImporterAvailable(){
+        return fileImportService.getImportFactory(importerName).isPresent();
     }
 
     @Override

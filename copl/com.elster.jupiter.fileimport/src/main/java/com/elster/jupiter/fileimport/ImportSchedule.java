@@ -140,6 +140,8 @@ public interface ImportSchedule {
 
     boolean isDeleted();
 
+    boolean isImporterAvailable();
+
     Finder<FileImportOccurrence> getFileImportOccurrences();
 
     Optional<FileImportOccurrence> getFileImportOccurrence(long occurrenceId);
