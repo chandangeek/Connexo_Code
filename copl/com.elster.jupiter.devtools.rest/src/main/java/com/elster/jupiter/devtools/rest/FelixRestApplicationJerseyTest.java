@@ -1,7 +1,6 @@
 package com.elster.jupiter.devtools.rest;
 
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.*;
 import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
 import com.elster.jupiter.rest.util.JsonMappingExceptionMapper;
 import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
@@ -101,8 +100,17 @@ public abstract class FelixRestApplicationJerseyTest extends JerseyTest {
                 if (messageSeeds.getKey().equals(invocationOnMock.getArguments()[0])) {
                     return messageSeeds.getDefaultFormat();
                 }
+                if (TranslationKeyProvider.class.isAssignableFrom(getApplication().getClass())) {
+                    return ((TranslationKeyProvider)getApplication()).
+                            getKeys().stream().
+                            filter(key->key.getKey().equals(invocationOnMock.getArguments()[0])).
+                            map(TranslationKey::getDefaultFormat).
+                            findFirst().
+                            orElse((String) invocationOnMock.getArguments()[1]);
+                }
+
             }
-            return (String) invocationOnMock.getArguments()[1];
+            return invocationOnMock.getArguments()[1];
         });
         when(thesaurus.getFormat(Matchers.<MessageSeed>anyObject())).thenAnswer(invocation -> new SimpleNlsMessageFormat((MessageSeed) invocation.getArguments()[0]));
         when(transactionService.getContext()).thenReturn(transactionContext);
