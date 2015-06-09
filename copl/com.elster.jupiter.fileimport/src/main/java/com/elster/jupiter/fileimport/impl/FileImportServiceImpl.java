@@ -1,5 +1,7 @@
 package com.elster.jupiter.fileimport.impl;
 
+import com.elster.jupiter.domain.util.DefaultFinder;
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.fileimport.*;
@@ -17,6 +19,8 @@ import com.elster.jupiter.time.PeriodicalScheduleExpressionParser;
 import com.elster.jupiter.time.TemporalExpressionParser;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.CompositeScheduleExpressionParser;
@@ -28,6 +32,8 @@ import org.osgi.service.component.annotations.*;
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Clock;
 import java.util.Arrays;
 import java.util.Collections;
@@ -36,6 +42,8 @@ import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+
+import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(name = "com.elster.jupiter.fileimport", service = {InstallService.class, FileImportService.class}, property = {"name=" + FileImportService.COMPONENT_NAME}, immediate = true)
 public class FileImportServiceImpl implements InstallService, FileImportService {
@@ -59,6 +67,7 @@ public class FileImportServiceImpl implements InstallService, FileImportService 
 
 
     private CronExpressionScheduler cronExpressionScheduler;
+    private Path basePath;
 
     public FileImportServiceImpl(){
 
@@ -149,11 +158,11 @@ public class FileImportServiceImpl implements InstallService, FileImportService 
 
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
-    public void addResource(FileImporterFactory fileImporterFactory) {
+    public void addFileImporter(FileImporterFactory fileImporterFactory) {
         importerFactories.add(fileImporterFactory);
     }
 
-    public void removeResource(FileImporterFactory fileImporterFactory) {
+    public void removeFileImporter(FileImporterFactory fileImporterFactory) {
         importerFactories.remove(fileImporterFactory);
     }
 
@@ -189,7 +198,13 @@ public class FileImportServiceImpl implements InstallService, FileImportService 
 
     @Override
     public void schedule(ImportSchedule importSchedule) {
-        cronExpressionScheduler.submit(new ImportScheduleJob(path -> !Files.isDirectory(path), defaultFileSystem, jsonService, importSchedule, transactionService, thesaurus, cronExpressionParser));
+        if(importSchedule.getObsoleteTime() == null)
+            cronExpressionScheduler.submit(new ImportScheduleJob(path -> !Files.isDirectory(path), defaultFileSystem, jsonService,
+                this, importSchedule.getId(), transactionService, thesaurus, cronExpressionParser, clock));
+    }
+    @Override
+    public void unSchedule(ImportSchedule importSchedule) {
+        cronExpressionScheduler.unschedule(importSchedule.getId(), false);
     }
 
     @Override
@@ -209,12 +224,12 @@ public class FileImportServiceImpl implements InstallService, FileImportService 
 
     @Override
     public ImportScheduleBuilder newBuilder() {
-        return new DefaultImportScheduleBuilder(dataModel);
+        return new DefaultImportScheduleBuilder(dataModel, this);
     }
 
     @Override
     public MessageHandler createMessageHandler() {
-        return new StreamImportMessageHandler(dataModel, jsonService, thesaurus, this);
+        return new StreamImportMessageHandler(jsonService, thesaurus, clock, this);
     }
 
     public FileNameCollisionResolver getFileNameCollisionResolver() {
@@ -243,10 +258,71 @@ public class FileImportServiceImpl implements InstallService, FileImportService 
     }
 
     @Override
+    public Finder<ImportSchedule> findImportSchedules(String applicationName) {
+        Condition condition = Condition.TRUE;
+        if(!"SYS".equalsIgnoreCase(applicationName))
+            condition = condition.and(Where.where("applicationName").isEqualToIgnoreCase(applicationName));
+        condition = condition.and(Where.where("obsoleteTime").isNull());
+        return DefaultFinder.of(ImportSchedule.class, condition, dataModel);
+    }
+
+    @Override
+    public Finder<ImportSchedule> findAllImportSchedules(String applicationName) {
+        Condition condition = Condition.TRUE;
+        if(!"SYS".equalsIgnoreCase(applicationName))
+            condition = condition.and(Where.where("applicationName").isEqualToIgnoreCase(applicationName));
+        return DefaultFinder.of(ImportSchedule.class, condition, dataModel);
+    }
+
+    @Override
+    public FileImportOccurrenceFinderBuilder getFileImportOccurrenceFinderBuilder(String applicationName, Long importScheduleId) {
+        Condition condition = Condition.TRUE;
+        if(!"SYS".equalsIgnoreCase(applicationName))
+            condition = condition.and(Where.where("applicationName").isEqualToIgnoreCase(applicationName));
+        if(importScheduleId != null)
+            condition = condition.and(Where.where("importScheduleId").isEqualTo(importScheduleId));
+        return new FileImportOccurrenceFinderBuilderImpl(dataModel, condition);
+    }
+
+    @Override
+    public Optional<FileImportOccurrence> getFileImportOccurrence(Long id){
+        Optional<FileImportOccurrence> fileImportOccurence = dataModel.mapper(FileImportOccurrence.class).getOptional(id);
+        fileImportOccurence.map(FileImportOccurrenceImpl.class::cast).ifPresent(fio -> fio.setClock(clock));
+        return fileImportOccurence;
+    }
+
+    @Override
     public List<PropertySpec> getPropertiesSpecsForImporter(String importerName) {
         return getImportFactory(importerName)
-                .map(FileImporterFactory::getProperties)
+                .map(FileImporterFactory::getPropertySpecs)
                 .orElse(Collections.emptyList());
     }
+
+    @Override
+    public List<ImportSchedule> getImportSchedules() {
+        return dataModel.mapper(ImportSchedule.class).find();
+    }
+
+    @Override
+    public Optional<ImportSchedule> getImportSchedule(String name) {
+        return getImportSchedulesQuery()
+                .select(where("name").isEqualTo(name).and(Where.where("obsoleteTime").isNull()))
+                .stream()
+                .findFirst();
+    }
+
+    @Override
+    public void setBasePath(Path basePath) {
+        this.basePath = basePath;
+    }
+
+    @Override
+    public Path getBasePath() {
+        if(this.basePath == null)
+            this.basePath = Paths.get("/");
+        return this.basePath;
+    }
+
+
 
 }

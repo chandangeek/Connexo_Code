@@ -1,6 +1,13 @@
 package com.elster.jupiter.fileimport;
 
+import com.elster.jupiter.domain.util.Finder;
+
 import java.io.InputStream;
+import java.time.Clock;
+import java.time.Instant;
+import java.util.List;
+import java.util.Optional;
+import java.util.logging.Logger;
 
 /**
  * A FileImport is an occurrence of one file being imported.
@@ -14,7 +21,7 @@ import java.io.InputStream;
  * FileImport shields the actual file from the code that does the actual processing of its contents,
  * allowing the underlying file system to vary as needed.
  */
-public interface FileImport {
+public interface FileImportOccurrence {
 
     /**
      * Opens a new inputStream of the contents of the file.
@@ -30,19 +37,26 @@ public interface FileImport {
     /**
      * @return the current State
      */
-    State getState();
+    Status getStatus();
 
     /**
      * Marks the file as successfully imported
      * @throws IllegalStateException if the current state is not PROCESSING
      */
-    void markSuccess() throws IllegalStateException;
+    void markSuccess(String message) throws IllegalStateException;
+
+
+    /**
+     * Marks the file as successfully imported but the import process encounter failures
+     * @throws IllegalStateException if the current state is not PROCESSING
+     */
+    void markSuccessWithFailures(String message) throws IllegalStateException;
 
     /**
      * Marks the file as not successfully imported
      * @throws IllegalStateException if the current state is not PROCESSING
      */
-    void markFailure();
+    void markFailure(String message);
 
     /**
      * @return the id
@@ -57,4 +71,19 @@ public interface FileImport {
 
 
     ImportSchedule getImportSchedule();
+
+    Optional<Instant> getStartDate();
+
+    Optional<Instant> getEndDate();
+
+    List<ImportLogEntry> getLogs();
+
+    FileImportLogHandler createFileImportLogHandler();
+
+    Logger getLogger();
+
+    Finder<ImportLogEntry> getLogsFinder();
+
+    String getMessage();
+
 }

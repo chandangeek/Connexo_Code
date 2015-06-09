@@ -8,6 +8,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.util.cron.CronExpression;
 
+import java.nio.file.Paths;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -41,7 +42,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class FileImportServiceImplTest {
 
-    private static final File IMPORT_DIRECTORY = new File("/import");
+    private static final Path IMPORT_DIRECTORY = Paths.get("/import");
     private static final Instant NOW = Instant.ofEpochMilli(10L);
     private static final Instant NEXT = Instant.ofEpochMilli(20L);
     private FileImportServiceImpl fileImportService;
@@ -77,6 +78,7 @@ public class FileImportServiceImplTest {
         when(dataModel.mapper(ImportSchedule.class)).thenReturn(importScheduleFactory);
         when(dataModel.isInstalled()).thenReturn(true);
         when(importScheduleFactory.getOptional(15L)).thenReturn(Optional.of(importSchedule));
+        when(importSchedule.getId()).thenReturn(15L);
         when(clock.instant()).thenReturn(NOW);
         when(clock.getZone()).thenReturn(ZoneId.systemDefault());
         fileImportService = new FileImportServiceImpl();
@@ -118,16 +120,10 @@ public class FileImportServiceImplTest {
         try {
             fileImportService.activate();
 
-            // mock the fileSystem
-            //when(serviceLocator.getFileSystem()).thenReturn(fileSystem);
-
             final CountDownLatch requestedDirectoryStream = new CountDownLatch(1);
-            when(fileSystem.newDirectoryStream(IMPORT_DIRECTORY.toPath(),"*.*")).thenAnswer(new Answer<DirectoryStream<Path>>() {
-                @Override
-                public DirectoryStream<Path> answer(InvocationOnMock invocationOnMock) throws Throwable {
-                    requestedDirectoryStream.countDown();
-                    return directoryStream;
-                }
+            when(fileSystem.newDirectoryStream(IMPORT_DIRECTORY,"*.*")).thenAnswer(invocationOnMock -> {
+                requestedDirectoryStream.countDown();
+                return directoryStream;
             });
 
             fileImportService.schedule(importSchedule);

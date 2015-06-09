@@ -1,5 +1,7 @@
 package com.elster.jupiter.fileimport.impl;
 
+import com.elster.jupiter.domain.util.DefaultFinder;
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.fileimport.*;
 import com.elster.jupiter.messaging.DestinationSpec;
@@ -8,6 +10,8 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.util.conditions.Where;
+import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.ScheduleExpression;
 import com.elster.jupiter.util.time.ScheduleExpressionParser;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -16,30 +20,47 @@ import javax.inject.Inject;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.*;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
  * ImportSchedule implementation.
  */
+@UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_IMPORT_SCHEDULE + "}")
+@HasValidProperties(groups = {Save.Create.class, Save.Update.class})
 class ImportScheduleImpl implements ImportSchedule {
 
+    private final JsonService jsonService;
+    private static final Logger LOGGER = Logger.getLogger(ImportScheduleImpl.class.getName());
     private long id;
+    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
     private String destinationName;
+
     private transient DestinationSpec destination;
-    private File importDirectory;
-    private File inProcessDirectory;
-    private File successDirectory;
-    private File failureDirectory;
+
+
+    private Path importDirectory;
+    private Path inProcessDirectory;
+    private Path successDirectory;
+    private Path failureDirectory;
     private String pathMatcher;
     private transient ScheduleExpression scheduleExpression;
+    private String applicationName;
+
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
     private String importerName;
+
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
     private String cronString;
+
     private final MessageService messageService;
     private final DataModel dataModel;
     private final ScheduleExpressionParser scheduleExpressionParser;
@@ -56,6 +77,8 @@ class ImportScheduleImpl implements ImportSchedule {
     private Instant createTime;
     private Instant modTime;
     private String userName;
+    private Instant obsoleteTime;
+
 
 
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
@@ -65,9 +88,10 @@ class ImportScheduleImpl implements ImportSchedule {
 
     @SuppressWarnings("unused")
     @Inject
-	ImportScheduleImpl(DataModel dataModel, FileImportService fileImportService, MessageService messageService, ScheduleExpressionParser scheduleExpressionParser, FileNameCollisionResolver fileNameCollisionresolver, FileSystem fileSystem, Thesaurus thesaurus) {
+	ImportScheduleImpl(DataModel dataModel, FileImportService fileImportService, MessageService messageService, ScheduleExpressionParser scheduleExpressionParser, FileNameCollisionResolver fileNameCollisionresolver, FileSystem fileSystem,JsonService jsonService, Thesaurus thesaurus) {
         this.messageService = messageService;
         this.dataModel = dataModel;
+        this.jsonService = jsonService;
         this.scheduleExpressionParser = scheduleExpressionParser;
         this.fileNameCollisionresolver = fileNameCollisionresolver;
         this.fileSystem = fileSystem;
@@ -75,12 +99,12 @@ class ImportScheduleImpl implements ImportSchedule {
         this.fileImportService = fileImportService;
     }
 
-    static ImportScheduleImpl from(DataModel dataModel, String name, boolean active, ScheduleExpression scheduleExpression, String importerName, String destination,
-                                   File importDirectory, String pathMatcher, File inProcessDirectory, File failureDirectory, File successDirectory) {
-        return dataModel.getInstance(ImportScheduleImpl.class).init(name, active, scheduleExpression, importerName, destination, importDirectory, pathMatcher, inProcessDirectory, failureDirectory, successDirectory);
+    static ImportScheduleImpl from(DataModel dataModel, String name, boolean active, ScheduleExpression scheduleExpression, String applicationName, String importerName, String destination,
+                                   Path importDirectory, String pathMatcher, Path inProcessDirectory, Path failureDirectory, Path successDirectory) {
+        return dataModel.getInstance(ImportScheduleImpl.class).init(name, active, scheduleExpression, applicationName, importerName, destination, importDirectory, pathMatcher, inProcessDirectory, failureDirectory, successDirectory);
     }
 
-    private ImportScheduleImpl init( String name, boolean active, ScheduleExpression scheduleExpression, String importerName, String destinationName, File importDirectory, String pathMatcher, File inProcessDirectory, File failureDirectory, File successDirectory) {
+    private ImportScheduleImpl init( String name, boolean active, ScheduleExpression scheduleExpression, String applicationName, String importerName, String destinationName, Path importDirectory, String pathMatcher, Path inProcessDirectory, Path failureDirectory, Path successDirectory) {
         this.name = name;
         this.active = active;
         this.scheduleExpression = scheduleExpression;
@@ -92,6 +116,7 @@ class ImportScheduleImpl implements ImportSchedule {
         this.failureDirectory = failureDirectory;
         this.successDirectory = successDirectory;
         this.pathMatcher = pathMatcher;
+        this.applicationName = applicationName;
         return this;
     }
 
@@ -122,7 +147,7 @@ class ImportScheduleImpl implements ImportSchedule {
     }
 
     @Override
-     public File getImportDirectory() {
+     public Path getImportDirectory() {
         return importDirectory;
     }
 
@@ -132,17 +157,17 @@ class ImportScheduleImpl implements ImportSchedule {
     }
 
     @Override
-    public File getInProcessDirectory() {
+    public Path getInProcessDirectory() {
         return inProcessDirectory;
     }
 
     @Override
-    public File getSuccessDirectory() {
+    public Path getSuccessDirectory() {
         return successDirectory;
     }
 
     @Override
-    public File getFailureDirectory() {
+    public Path getFailureDirectory() {
         return failureDirectory;
     }
 
@@ -162,7 +187,7 @@ class ImportScheduleImpl implements ImportSchedule {
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        return fileImportService.getImportFactory(importerName).orElseThrow(() -> new IllegalArgumentException("No such file importer: " + importerName)).getProperties();
+        return fileImportService.getImportFactory(importerName).orElseThrow(() -> new IllegalArgumentException("No such file importer: " + importerName)).getPropertySpecs();
     }
 
     @Override
@@ -212,8 +237,16 @@ class ImportScheduleImpl implements ImportSchedule {
         if (id == 0) {
             return;
         }
-        properties.clear();
-        dataModel.remove(this);
+        setObsoleteTime(Instant.now()); // mark obsolete
+        update();
+    }
+
+    public Instant getObsoleteTime() {
+        return obsoleteTime;
+    }
+
+    private void setObsoleteTime(Instant obsoleteTime) {
+        this.obsoleteTime = obsoleteTime;
     }
 
     @Override
@@ -228,22 +261,22 @@ class ImportScheduleImpl implements ImportSchedule {
     }
 
     @Override
-    public void setImportDirectory(File importDirectory) {
+    public void setImportDirectory(Path importDirectory) {
         this.importDirectory = importDirectory;
     }
 
     @Override
-    public void setFailureDirectory(File failureDirectory) {
+    public void setFailureDirectory(Path failureDirectory) {
         this.failureDirectory = failureDirectory;
     }
 
     @Override
-    public void setSuccessDirectory(File successDirectory) {
+    public void setSuccessDirectory(Path successDirectory) {
         this.successDirectory = successDirectory;
     }
 
     @Override
-    public void setProcessingDirectory(File inProcessDirectory) {
+    public void setProcessingDirectory(Path inProcessDirectory) {
         this.inProcessDirectory = inProcessDirectory;
     }
 
@@ -264,12 +297,13 @@ class ImportScheduleImpl implements ImportSchedule {
 
     @Override
     public String getApplicationName() {
-        Optional<FileImporterFactory> optional = fileImportService.getImportFactory(importerName);
+        /*Optional<FileImporterFactory> optional = fileImportService.getImportFactory(importerName);
         if (optional.isPresent()) {
             FileImporterFactory importerFactory = optional.get();
             return importerFactory.getApplicationName();
         }
-        return null;
+        return null;*/
+        return applicationName;
     }
 
     @Override
@@ -277,21 +311,53 @@ class ImportScheduleImpl implements ImportSchedule {
         this.active = active;
     }
 
+    @Override
+    public Finder<FileImportOccurrence> getFileImportOccurrences() {
+        return DefaultFinder.of(FileImportOccurrence.class,  Where.where("importScheduleId").isEqualTo(getId()), dataModel);
+    }
 
     @Override
-    public FileImportImpl createFileImport(File file) {
-        if (!file.exists()) {
+    public Optional<FileImportOccurrence>  getFileImportOccurrence(long occurrenceId) {
+        return dataModel.mapper(FileImportOccurrence.class).getOptional(occurrenceId);
+    }
+
+
+    @Override
+    public FileImportOccurrence createFileImportOccurrence(Path file, Clock clock) {
+        if (!Files.exists(file)) {
             throw new IllegalArgumentException();
         }
-        return FileImportImpl.create(fileSystem, dataModel, fileNameCollisionresolver, thesaurus, this, file);
+        Path relativeFilePath = fileImportService.getBasePath().relativize(file);
+        return FileImportOccurrenceImpl.create(fileImportService, fileSystem, dataModel, fileNameCollisionresolver, thesaurus, clock, this,relativeFilePath );
     }
+
+    public Logger getLogger(FileImportOccurrence occurrence) {
+        Logger logger = Logger.getAnonymousLogger();
+        logger.addHandler(occurrence.createFileImportLogHandler().asHandler());
+        return logger;
+    }
+
+
+    private void checkRequiredProperty(String propertyName, Map<String, Object> properties) {
+        if (!properties.containsKey(propertyName)) {
+            throw new MissingRequiredProperty(thesaurus, propertyName);
+        }
+    }
+
 
     @Override
     public void save() {
 
         Optional<FileImporterFactory> optional = fileImportService.getImportFactory(importerName);
         optional.ifPresent(factory->factory.validateProperties(properties));
+        /*Map<String, Object> propertiesWithValuesMap =  properties
+                .stream()
+                .filter(p->!p.useDefault())
+                .collect(Collectors.toMap(FileImporterProperty::getName, FileImporterProperty::getValue));
 
+        optional.ifPresent(factory -> factory.getRequiredProperties()
+                .forEach(propertyName -> checkRequiredProperty(propertyName,propertiesWithValuesMap)));
+*/
         if (id == 0) {
             persist();
         } else {
@@ -312,6 +378,5 @@ class ImportScheduleImpl implements ImportSchedule {
         }
         Save.UPDATE.save(dataModel, this);
     }
-
 
 }

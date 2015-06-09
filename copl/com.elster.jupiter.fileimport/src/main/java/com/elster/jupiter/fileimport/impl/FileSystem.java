@@ -1,7 +1,5 @@
 package com.elster.jupiter.fileimport.impl;
 
-import java.io.File;
-import java.io.FilenameFilter;
 import java.io.InputStream;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Path;
@@ -17,7 +15,7 @@ interface FileSystem {
      * @param file
      * @return an InputStream
      */
-    InputStream getInputStream(File file);
+    InputStream getInputStream(Path file);
 
     /**
      * Moves the file at source to the directory at target.

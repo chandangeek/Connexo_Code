@@ -1,12 +1,12 @@
 package com.elster.jupiter.fileimport.impl;
 
-import com.elster.jupiter.fileimport.FileImport;
+import com.elster.jupiter.fileimport.FileImportOccurrence;
+import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fileimport.ImportSchedule;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.util.cron.CronExpression;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.ScheduleExpression;
@@ -15,15 +15,17 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Answers;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
-import java.io.File;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Path;
+import java.time.Clock;
 import java.util.Arrays;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -42,7 +44,7 @@ public class ImportScheduleJobTest {
     @Mock
     private ScheduleExpression scheduleExpression;
     @Mock
-    private File importDir;
+    private Path importDir;
     @Mock
     private FileSystem fileSystem;
     @Mock
@@ -56,24 +58,34 @@ public class ImportScheduleJobTest {
     private CronExpressionParser cronExpressionParser;
 
     @Mock
-    private FileImport fileImport;
+    private FileImportOccurrence fileImportOccurrence;
     @Mock
     private JsonService jsonService;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private DestinationSpec destination;
     @Mock
     private Thesaurus thesaurus;
+    @Mock
+    private FileImportService fileImportService;
+    @Mock
+    private Clock clock;
+    @Mock
+    private Path basePath;
 
     @Before
     public void setUp() {
         when(importSchedule.getScheduleExpression()).thenReturn(scheduleExpression);
         when(importSchedule.getImportDirectory()).thenReturn(importDir);
+        when(importSchedule.getId()).thenReturn(1L);
+        when(fileImportService.getImportSchedule(1L)).thenReturn(Optional.of(importSchedule));
+        when(fileImportService.getBasePath()).thenReturn(basePath);
+        when(basePath.resolve(importDir)).thenReturn(importDir);
 //        when(serviceLocator.getFileSystem()).thenReturn(fileSystem);
 //        when(serviceLocator.getPredicates()).thenReturn(predicates);
 //        when(serviceLocator.getJsonService()).thenReturn(jsonService);
 //        when(serviceLocator.getTransactionService()).thenReturn(transactionService);
-        when(fileSystem.newDirectoryStream(importDir.toPath(), null)).thenReturn(directoryStream);
-        when(fileImport.getId()).thenReturn(ID);
+                when(fileSystem.newDirectoryStream(importDir, null)).thenReturn(directoryStream);
+        when(fileImportOccurrence.getId()).thenReturn(ID);
 
 
         when(transactionService.execute(any())).thenAnswer(new Answer<Object>() {
@@ -83,7 +95,7 @@ public class ImportScheduleJobTest {
             }
         });
 
-        importScheduleJob = new ImportScheduleJob(path -> true, fileSystem, jsonService, importSchedule, transactionService, thesaurus, cronExpressionParser);
+        importScheduleJob = new ImportScheduleJob(path -> true, fileSystem, jsonService, fileImportService, importSchedule.getId(), transactionService, thesaurus, cronExpressionParser,clock);
     }
 
     @After
@@ -98,7 +110,8 @@ public class ImportScheduleJobTest {
     @Test
     public void testRun() {
         when(directoryStream.spliterator()).thenReturn(Arrays.asList(path).spliterator());
-        when(importSchedule.createFileImport(path.toFile())).thenReturn(fileImport);
+        when(importSchedule.createFileImportOccurrence(path, clock)).thenReturn(fileImportOccurrence);
+        when(importSchedule.isActive()).thenReturn(true);
         when(jsonService.serialize(any())).thenReturn(SERIALIZED);
         when(importSchedule.getDestination()).thenReturn(destination);
 

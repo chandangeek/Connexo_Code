@@ -7,57 +7,65 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.json.JsonService;
 
+import java.time.Clock;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+
+import static com.elster.jupiter.util.conditions.Operator.EQUAL;
 
 /**
  * MessageHandler that interprets messages to contain FileImportMessages, and that consequently passes the matching FileImport instance to the configured FileImporter.
  */
 class StreamImportMessageHandler implements MessageHandler {
 
-    private final DataModel dataModel;
     private final JsonService jsonService;
     private final FileImportService fileImportService;
     private final Thesaurus thesaurus;
+    private final Clock clock;
 
-    public StreamImportMessageHandler(DataModel dataModel, JsonService jsonService, Thesaurus thesaurus, FileImportService fileImportService) {
-        this.dataModel = dataModel;
+    public StreamImportMessageHandler(JsonService jsonService, Thesaurus thesaurus, Clock clock,FileImportService fileImportService) {
         this.jsonService = jsonService;
         this.thesaurus = thesaurus;
+        this.clock = clock;
         this.fileImportService = fileImportService;
     }
 
     @Override
     public void process(Message message) {
-        FileImport fileImport = getFileImport(message);
-        if (fileImport != null) {
-            String importerName = fileImport.getImportSchedule().getImporterName();
-            Map<String, Object> propertyMap = new HashMap<>();
+        FileImportOccurrence fileImportOccurrence = getFileImportOccurrence(message);
+        if (fileImportOccurrence != null) {
+            try {
+                String importerName = fileImportOccurrence.getImportSchedule().getImporterName();
+                Map<String, Object> propertyMap = new HashMap<>();
 
-            FileImporterFactory fileImporterFactory =  fileImportService.getImportFactory(importerName)
-                    .orElseThrow(() -> new NoSuchDataImporter(thesaurus, importerName));
-            List<FileImporterProperty> importerProperties = fileImport.getImportSchedule().getImporterProperties();
-            for (FileImporterProperty property : importerProperties) {
-                propertyMap.put(property.getName(), property.useDefault() ? getDefaultValue(fileImporterFactory, property) : property.getValue());
+                FileImporterFactory fileImporterFactory = fileImportService.getImportFactory(importerName)
+                        .orElseThrow(() -> new NoSuchDataImporter(thesaurus, importerName));
+                List<FileImporterProperty> importerProperties = fileImportOccurrence.getImportSchedule().getImporterProperties();
+                for (FileImporterProperty property : importerProperties) {
+                    propertyMap.put(property.getName(), property.useDefault() ? getDefaultValue(fileImporterFactory, property) : property.getValue());
+                }
+                FileImporter importer = fileImporterFactory.createImporter(propertyMap);
+                importer.process(fileImportOccurrence);
+            } catch (Exception e) {
+                fileImportOccurrence.getLogger().log(Level.SEVERE, e.getLocalizedMessage(),e);
             }
-            FileImporter importer = fileImporterFactory.createImporter(propertyMap);
-            importer.process(fileImport);
         }
     }
 
     private Object getDefaultValue(FileImporterFactory fileImporterFactory, FileImporterProperty property) {
-        return fileImporterFactory.getProperties().stream().filter(dep -> dep.getName().equals(property.getName()))
+        return fileImporterFactory.getPropertySpecs().stream().filter(dep -> dep.getName().equals(property.getName()))
                 .findFirst().orElseThrow(IllegalArgumentException::new).getPossibleValues().getDefault();
     }
 
-    private FileImport getFileImport(Message message) {
-        FileImport fileImport = null;
+    private FileImportOccurrence getFileImportOccurrence(Message message) {
+        FileImportOccurrence fileImportOccurrence = null;
         FileImportMessage fileImportMessage = getFileImportMessage(message);
         if (fileImportMessage != null) {
-            fileImport = dataModel.mapper(FileImport.class).getOptional(fileImportMessage.fileImportId).get();
+            fileImportOccurrence = fileImportService.getFileImportOccurrence(fileImportMessage.fileImportId).get();
         }
-        return fileImport;
+        return fileImportOccurrence;
     }
 
     private FileImportMessage getFileImportMessage(Message message) {

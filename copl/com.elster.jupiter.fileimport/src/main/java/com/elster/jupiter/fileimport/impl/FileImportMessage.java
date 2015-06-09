@@ -1,6 +1,6 @@
 package com.elster.jupiter.fileimport.impl;
 
-import com.elster.jupiter.fileimport.FileImport;
+import com.elster.jupiter.fileimport.FileImportOccurrence;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -16,8 +16,8 @@ class FileImportMessage {
 	private FileImportMessage() {
     }
 
-    public FileImportMessage(FileImport fileImport) {
-        this.fileImportId = fileImport.getId();
+    public FileImportMessage(FileImportOccurrence fileImportOccurrence) {
+        this.fileImportId = fileImportOccurrence.getId();
     }
 
 }

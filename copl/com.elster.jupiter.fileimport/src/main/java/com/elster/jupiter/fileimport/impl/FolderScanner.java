@@ -1,6 +1,7 @@
 package com.elster.jupiter.fileimport.impl;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.Iterator;
 import java.util.stream.Stream;
 
@@ -12,6 +13,6 @@ interface FolderScanner {
     /**
      * @return the next new file in the scanned folder.
      */
-    Stream<File> getFiles();
+    Stream<Path> getFiles();
 
 }

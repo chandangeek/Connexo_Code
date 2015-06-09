@@ -8,6 +8,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
 
@@ -26,7 +27,7 @@ public class FolderScanningJobTest {
     @Mock
     private FileHandler handler;
     @Mock
-    private File file1, file2;
+    private Path file1, file2;
 
     @Before
     public void setUp() {
@@ -52,11 +53,11 @@ public class FolderScanningJobTest {
 
     @Test
     public void testDoesntPassAnythingToTheHandlerIfThereAreNoFiles() {
-        when(scanner.getFiles()).thenReturn(Collections.<File>emptyList().stream());
+        when(scanner.getFiles()).thenReturn(Collections.<Path>emptyList().stream());
 
         folderScanningJob.run();
 
-        verify(handler, never()).handle(any(File.class));
+        verify(handler, never()).handle(any(Path.class));
 
     }
 

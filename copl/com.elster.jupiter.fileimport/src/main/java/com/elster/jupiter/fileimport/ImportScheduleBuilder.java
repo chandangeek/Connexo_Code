@@ -4,6 +4,7 @@ import com.elster.jupiter.util.cron.CronExpression;
 import com.elster.jupiter.util.time.ScheduleExpression;
 
 import java.io.File;
+import java.nio.file.Path;
 
 /**
  * Interface for builders for an ImportSchedule
@@ -35,7 +36,7 @@ public interface ImportScheduleBuilder {
      * @param directory the import directory for the ImportSchedule under construction
      * @return this
      */
-    ImportScheduleBuilder setImportDirectory(File directory);
+    ImportScheduleBuilder setImportDirectory(Path directory);
 
     /**
      *
@@ -48,21 +49,21 @@ public interface ImportScheduleBuilder {
      * @param directory the processing directory for the ImportSchedule under construction
      * @return this
      */
-    ImportScheduleBuilder setProcessingDirectory(File directory);
+    ImportScheduleBuilder setProcessingDirectory(Path directory);
 
     /**
      *
      * @param directory the success directory for the ImportSchedule under construction
      * @return this
      */
-    ImportScheduleBuilder setSuccessDirectory(File directory);
+    ImportScheduleBuilder setSuccessDirectory(Path directory);
 
     /**
      *
      * @param directory the failure directory for the ImportSchedule under construction
      * @return this
      */
-    ImportScheduleBuilder setFailureDirectory(File directory);
+    ImportScheduleBuilder setFailureDirectory(Path directory);
 
     /**
      *

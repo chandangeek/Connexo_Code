@@ -29,7 +29,6 @@ public class SimpleFileNameCollisionResolverTest {
         resolver = new SimpleFileNameCollisionResolver(fileSystem);
 
         when(fileSystem.exists(any(Path.class))).thenReturn(false);
-//        when(serviceLocator.getFileSystem()).thenReturn(fileSystem);
         when(path.toString()).thenReturn("/dir/test.txt");
     }
 

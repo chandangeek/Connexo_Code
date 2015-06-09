@@ -19,9 +19,9 @@ class DefaultFileSystem implements FileSystem {
     }
 
     @Override
-    public InputStream getInputStream(File file) throws FileIOException {
+    public InputStream getInputStream(Path file) throws FileIOException {
         try {
-            return new FileInputStream(file);
+            return new FileInputStream(file.toFile());
         } catch (FileNotFoundException e) {
             throw new FileIOException(e, thesaurus);
         }
@@ -39,7 +39,7 @@ class DefaultFileSystem implements FileSystem {
     @Override
     public DirectoryStream<Path> newDirectoryStream(Path directory, String pathMatcher) {
         try {
-            return Files.newDirectoryStream(directory, pathMatcher!=null?pathMatcher:".");
+            return Files.newDirectoryStream(directory, (pathMatcher!=null && !pathMatcher.isEmpty()) ? pathMatcher : "*");
         } catch (IOException e) {
             throw new FileIOException(e, thesaurus);
         }
