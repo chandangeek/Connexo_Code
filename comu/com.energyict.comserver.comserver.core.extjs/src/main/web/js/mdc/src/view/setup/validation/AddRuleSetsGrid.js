@@ -35,6 +35,9 @@ Ext.define('Mdc.view.setup.validation.AddRuleSetsGrid', {
         'Select validation rule sets in table'
     ),
 
+	gridHeight: undefined,
+	gridHeaderHeight: undefined,
+
     allChosenByDefault: false,
 
     initComponent: function () {
