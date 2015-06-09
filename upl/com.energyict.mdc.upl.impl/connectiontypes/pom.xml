@@ -46,28 +46,12 @@
         <dependency>
             <groupId>com.energyict.comserver</groupId>
             <artifactId>comserver-core-impl</artifactId>
-            <exclusions>        <!--Only comserver-core-impl-->
-                <exclusion>
-                    <artifactId>*</artifactId>
-                    <groupId>*</groupId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>protocolcommon</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.energyict.comserver</groupId>
-            <artifactId>comserver-core-common</artifactId>
-            <exclusions>        <!--Only comserver-core-impl-->
-                <exclusion>
-                    <artifactId>*</artifactId>
-                    <groupId>*</groupId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.powermock</groupId>
