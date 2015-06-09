@@ -352,7 +352,7 @@ Ext.define('Fim.controller.ImportServices', {
                 //	me.getController('Uni.controller.history.Router').getRoute('administration/importservices').forward();
                 //}
                 if (button.action === 'edit') {
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('importService.successMsg.saved', 'FIM', 'Import servicesaved'));
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('importService.successMsg.saved', 'FIM', 'Import service saved'));
                 } else {
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('importService.successMsg.added', 'FIM', 'Import service added'));
                 }
