@@ -98,12 +98,12 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
     }
 
     class DeviceTypeProperty extends PropertyDescriptionInfo {
-        public Object id;
+        public SubId id;
 
         public DeviceTypeProperty() {
             super("deviceTypeName", DeviceType.class, thesaurus.getString("deviceTypeName", "Device type"));
             this.id = new SubId();
-            ((SubId)this.id).deviceType = "deviceTypeId";
+            this.id.deviceType = "deviceTypeId";
         }
 
         class SubId {
@@ -112,13 +112,13 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
     }
 
     class DeviceConfigProperty extends PropertyDescriptionInfo {
-        public Object id;
+        public SubId id;
 
         public DeviceConfigProperty() {
             super("deviceConfigurationName", DeviceConfiguration.class, thesaurus.getString("deviceConfigurationName", "Device configuration"));
             this.id = new SubId();
-            ((SubId)this.id).deviceType = "deviceTypeId";
-            ((SubId)this.id).deviceConfig = "deviceConfigurationId";
+            this.id.deviceType = "deviceTypeId";
+            this.id.deviceConfig = "deviceConfigurationId";
         }
 
         class SubId {
