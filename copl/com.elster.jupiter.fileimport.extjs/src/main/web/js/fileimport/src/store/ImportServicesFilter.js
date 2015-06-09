@@ -1,11 +1,10 @@
 Ext.define('Fim.store.ImportServicesFilter', {
     extend: 'Ext.data.Store',
-    model: 'Fim.model.ImportService',
     autoLoad: false,
 
     proxy: {
         type: 'rest',
-        url: '/api/fir/importservices',
+        url: '/api/fir/importservices/list',
         timeout: 240000,
         reader: {
             type: 'json',
@@ -16,6 +15,11 @@ Ext.define('Fim.store.ImportServicesFilter', {
         limitParam: false
 
     },
+
+    fields: [
+        {name: 'id',       type: 'int'},
+        {name: 'name',  type: 'string'}
+    ],
     listeners: {
         beforeload: function (store, operation, eOpts) {
             store.getProxy().setExtraParam('application', typeof(MdcApp) != 'undefined' ? 'MDC' : typeof(SystemApp) != 'undefined' ? 'SYS' : null);

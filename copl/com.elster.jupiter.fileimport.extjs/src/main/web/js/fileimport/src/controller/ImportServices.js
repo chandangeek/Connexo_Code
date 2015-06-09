@@ -174,7 +174,6 @@ Ext.define('Fim.controller.ImportServices', {
         var me = this,
             importServicesGrid = me.getImportServicesGrid(),
             importServicePreviewContainerPanel = me.getImportServicePreviewContainerPanel(),
-
             importServiceOverview = me.getImportServiceOverview(),
             view = importServicesGrid || importServicePreviewContainerPanel || importServiceOverview,
             isActive = record.get('active');

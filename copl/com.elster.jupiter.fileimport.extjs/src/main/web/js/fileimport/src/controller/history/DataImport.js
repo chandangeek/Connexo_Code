@@ -76,7 +76,6 @@ Ext.define('Fim.controller.history.DataImport', {
                     filter: 'Fim.model.HistoryFilter',
                     privileges: Fim.privileges.DataImport.canView
                 }
-
             }
         }
     }

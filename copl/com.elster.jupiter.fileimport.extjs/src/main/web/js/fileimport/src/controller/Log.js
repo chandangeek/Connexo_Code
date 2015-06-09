@@ -72,7 +72,7 @@ Ext.define('Fim.controller.Log', {
                             importService: record
 
                         });
-                        view.down('#mnu-histoty-log #import-service-view-link').setText(record.get('name'));
+                        view.down('#mnu-histoty-log').setTitle(record.get('name'));
                         me.getApplication().fireEvent('changecontentevent', view);
                         me.getHistoryLogViewMenu().setTitle(showImportService ? Uni.I18n.translate('general.importHistory', 'FIM', 'Import history') : Uni.I18n.translate('general.importService', 'FIM', 'Import services'));
 
