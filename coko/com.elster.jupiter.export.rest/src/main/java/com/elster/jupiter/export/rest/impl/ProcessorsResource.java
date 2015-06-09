@@ -25,11 +25,13 @@ public class ProcessorsResource {
 
     private final DataExportService dataExportService;
     private final Thesaurus thesaurus;
+    private final PropertyUtils propertyUtils;
 
     @Inject
-    public ProcessorsResource(DataExportService dataExportService, Thesaurus thesaurus) {
+    public ProcessorsResource(DataExportService dataExportService, Thesaurus thesaurus, PropertyUtils propertyUtils) {
         this.dataExportService = dataExportService;
         this.thesaurus = thesaurus;
+        this.propertyUtils = propertyUtils;
     }
 
     @GET
@@ -38,7 +40,6 @@ public class ProcessorsResource {
     public ProcessorInfos getAvailableProcessors(@Context UriInfo uriInfo) {
         ProcessorInfos infos = new ProcessorInfos();
         List<DataProcessorFactory> processors = dataExportService.getAvailableProcessors();
-        PropertyUtils propertyUtils = new PropertyUtils();
         for (DataProcessorFactory processor : processors) {
             infos.add(processor.getName(), thesaurus.getStringBeyondComponent(processor.getName(), processor.getName()),
                     propertyUtils.convertPropertySpecsToPropertyInfos(processor.getPropertySpecs()));

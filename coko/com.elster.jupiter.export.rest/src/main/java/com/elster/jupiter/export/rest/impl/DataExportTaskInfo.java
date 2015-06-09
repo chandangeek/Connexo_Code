@@ -34,7 +34,8 @@ public class DataExportTaskInfo {
     public Long lastRun;
     public StandardDataSelectorInfo standardDataSelector;
 
-    public DataExportTaskInfo(ExportTask dataExportTask, Thesaurus thesaurus, TimeService timeService) {
+
+    public DataExportTaskInfo(ExportTask dataExportTask, Thesaurus thesaurus, TimeService timeService, PropertyUtils propertyUtils) {
         doPopulate(dataExportTask, thesaurus, timeService);
         if (Never.NEVER.equals(dataExportTask.getScheduleExpression())) {
             schedule = null;
@@ -46,8 +47,8 @@ public class DataExportTaskInfo {
                 schedule = PeriodicalExpressionInfo.from((PeriodicalScheduleExpression) scheduleExpression);
             }
         }
-        properties = new PropertyUtils().convertPropertySpecsToPropertyInfos(dataExportTask.getPropertySpecs(), dataExportTask.getProperties());
-        lastExportOccurrence = dataExportTask.getLastOccurrence().map(oc -> new DataExportTaskHistoryInfo(oc, thesaurus, timeService)).orElse(null);
+        properties = propertyUtils.convertPropertySpecsToPropertyInfos(dataExportTask.getPropertySpecs(), dataExportTask.getProperties());
+        lastExportOccurrence = dataExportTask.getLastOccurrence().map(oc -> new DataExportTaskHistoryInfo(oc, thesaurus, timeService, propertyUtils)).orElse(null);
 
     }
 

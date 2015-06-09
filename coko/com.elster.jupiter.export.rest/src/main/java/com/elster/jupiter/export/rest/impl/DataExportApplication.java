@@ -121,6 +121,7 @@ public class DataExportApplication extends Application implements InstallService
             protected void configure() {
                 bind(restQueryService).to(RestQueryService.class);
                 bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
+                bind(PropertyUtils.class).to(PropertyUtils.class);
                 bind(nlsService).to(NlsService.class);
                 bind(dataExportService).to(DataExportService.class);
                 bind(thesaurus).to(Thesaurus.class);
