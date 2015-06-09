@@ -1,5 +1,6 @@
 package com.elster.jupiter.export.rest.impl;
 
+import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
@@ -25,13 +26,13 @@ public class DataExportTaskInfo {
     public boolean active = true;
     public String name = "name";
     public ProcessorInfo dataProcessor;
-    public ProcessorInfo dataSelector;
+    public SelectorInfo dataSelector;
     public PeriodicalExpressionInfo schedule;
     public List<PropertyInfo> properties = new ArrayList<PropertyInfo>();
     public DataExportTaskHistoryInfo lastExportOccurrence;
     public Long nextRun;
     public Long lastRun;
-    public DataSelectorInfo dataSelectorInfo;
+    public StandardDataSelectorInfo standardDataSelector;
 
     public DataExportTaskInfo(ExportTask dataExportTask, Thesaurus thesaurus, TimeService timeService) {
         doPopulate(dataExportTask, thesaurus, timeService);
@@ -65,7 +66,9 @@ public class DataExportTaskInfo {
         dataProcessor = new ProcessorInfo(dataFormatter, thesaurus.getStringBeyondComponent(dataFormatter, dataFormatter), Collections.<PropertyInfo>emptyList()) ;
 
         String selector = dataExportTask.getDataSelector();
-        dataSelector = new ProcessorInfo(selector, thesaurus.getStringBeyondComponent(selector, selector), Collections.emptyList());
+
+        dataSelector = new SelectorInfo(selector, thesaurus.getStringBeyondComponent(selector, selector),
+                selector.equals(DataExportService.STANDARD_DATA_SELECTOR));
 //TODO above : pass correct property info
         Instant nextExecution = dataExportTask.getNextExecution();
         if (nextExecution != null) {
@@ -80,7 +83,7 @@ public class DataExportTaskInfo {
     private void populateReadingTypeDataExport(ExportTask dataExportTask, Thesaurus thesaurus) {
         dataExportTask.getReadingTypeDataSelector()
                 .ifPresent(readingTypeDataSelector -> {
-                    dataSelectorInfo = new DataSelectorInfo(readingTypeDataSelector, thesaurus);
+                    standardDataSelector = new StandardDataSelectorInfo(readingTypeDataSelector, thesaurus);
                 });
     }
 

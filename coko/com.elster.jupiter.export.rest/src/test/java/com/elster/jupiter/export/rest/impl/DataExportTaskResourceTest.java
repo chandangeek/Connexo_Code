@@ -43,9 +43,9 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
         DataExportTaskInfo info = new DataExportTaskInfo();
         info.name = "newName";
         info.nextRun = 250L;
-        info.dataSelectorInfo = new DataSelectorInfo();
-        info.dataSelectorInfo.deviceGroup = new MeterGroupInfo();
-        info.dataSelectorInfo.deviceGroup.id = 5;
+        info.standardDataSelector = new StandardDataSelectorInfo();
+        info.standardDataSelector.deviceGroup = new MeterGroupInfo();
+        info.standardDataSelector.deviceGroup.id = 5;
         info.dataProcessor = new ProcessorInfo();
         info.dataProcessor.name = "dataProcessor";
 
@@ -60,9 +60,9 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
     public void updateTasksTest() {
         DataExportTaskInfo info = new DataExportTaskInfo();
         info.id = TASK_ID;
-        info.dataSelectorInfo = new DataSelectorInfo();
-        info.dataSelectorInfo.deviceGroup = new MeterGroupInfo();
-        info.dataSelectorInfo.deviceGroup.id = 5;
+        info.standardDataSelector = new StandardDataSelectorInfo();
+        info.standardDataSelector.deviceGroup = new MeterGroupInfo();
+        info.standardDataSelector.deviceGroup.id = 5;
         info.dataProcessor = new ProcessorInfo();
         info.dataProcessor.name = "dataProcessor";
 

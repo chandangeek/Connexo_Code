@@ -1,5 +1,6 @@
 package com.elster.jupiter.export.rest.impl;
 
+import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.time.TimeService;

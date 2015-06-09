@@ -124,30 +124,38 @@ public class DataExportTaskResource {
                 .setScheduleExpression(getScheduleExpression(info))
                 .setNextExecution(info.nextRun == null ? null : Instant.ofEpochMilli(info.nextRun));
 
-        if (info.dataSelectorInfo == null) {
+        PropertyUtils propertyUtils = new PropertyUtils();
+        if (info.standardDataSelector == null) {
             builder.selectingCustom(info.dataSelector.name).endSelection();
+            List<PropertySpec> propertiesSpecsForDataSelector = dataExportService.getPropertiesSpecsForDataSelector(info.dataSelector.name);
+
+            propertiesSpecsForDataSelector.stream()
+                    .forEach(spec -> {
+                        Object value = propertyUtils.findPropertyValue(spec, info.properties);
+                        builder.addProperty(spec.getName()).withValue(value);
+                    });
         } else {
             DataExportTaskBuilder.StandardSelectorBuilder selectorBuilder = builder.selectingStandard()
-                    .fromExportPeriod(getRelativePeriod(info.dataSelectorInfo.exportPeriod))
-                    .fromUpdatePeriod(getRelativePeriod(info.dataSelectorInfo.updatePeriod))
-                    .withValidatedDataOption(info.dataSelectorInfo.validatedDataOption)
-                    .fromEndDeviceGroup(endDeviceGroup(info.dataSelectorInfo.deviceGroup.id))
-                    .continuousData(info.dataSelectorInfo.exportContinuousData)
-                    .exportUpdate(info.dataSelectorInfo.exportUpdate);
-            info.dataSelectorInfo.readingTypes.stream()
+                    .fromExportPeriod(getRelativePeriod(info.standardDataSelector.exportPeriod))
+                    .fromUpdatePeriod(getRelativePeriod(info.standardDataSelector.updatePeriod))
+                    .withValidatedDataOption(info.standardDataSelector.validatedDataOption)
+                    .fromEndDeviceGroup(endDeviceGroup(info.standardDataSelector.deviceGroup.id))
+                    .continuousData(info.standardDataSelector.exportContinuousData)
+                    .exportUpdate(info.standardDataSelector.exportUpdate);
+            info.standardDataSelector.readingTypes.stream()
                     .map(r -> r.mRID)
                     .forEach(selectorBuilder::fromReadingType);
             selectorBuilder.endSelection();
         }
 
-        List<PropertySpec> propertiesSpecs = dataExportService.getPropertiesSpecsForProcessor(info.dataProcessor.name);
-        PropertyUtils propertyUtils = new PropertyUtils();
+        List<PropertySpec> propertiesSpecsForProcessor = dataExportService.getPropertiesSpecsForProcessor(info.dataProcessor.name);
 
-        propertiesSpecs.stream()
+        propertiesSpecsForProcessor.stream()
                 .forEach(spec -> {
                     Object value = propertyUtils.findPropertyValue(spec, info.properties);
                     builder.addProperty(spec.getName()).withValue(value);
                 });
+
 
 
         ExportTask dataExportTask = builder.build();
@@ -193,11 +201,11 @@ public class DataExportTaskResource {
             } else {
                 task.setNextExecution(info.nextRun == null ? null : Instant.ofEpochMilli(info.nextRun));
             }
-            if (info.dataSelectorInfo != null) {
+            if (info.standardDataSelector != null) {
                 ReadingTypeDataSelector selector = task.getReadingTypeDataSelector().orElseThrow(() -> new WebApplicationException(Response.Status.CONFLICT));
-                selector.setExportPeriod(getRelativePeriod(info.dataSelectorInfo.exportPeriod));
-                selector.setUpdatePeriod(getRelativePeriod(info.dataSelectorInfo.updatePeriod));
-                selector.setEndDeviceGroup(endDeviceGroup(info.dataSelectorInfo.deviceGroup.id));
+                selector.setExportPeriod(getRelativePeriod(info.standardDataSelector.exportPeriod));
+                selector.setUpdatePeriod(getRelativePeriod(info.standardDataSelector.updatePeriod));
+                selector.setEndDeviceGroup(endDeviceGroup(info.standardDataSelector.deviceGroup.id));
                 selector.update();
             }
 
@@ -298,9 +306,9 @@ public class DataExportTaskResource {
     private void updateReadingTypes(DataExportTaskInfo info, ExportTask task) {
         ReadingTypeDataSelector selector = task.getReadingTypeDataSelector().orElseThrow(() -> new WebApplicationException(Response.Status.CONFLICT));
         selector.getReadingTypes().stream()
-                .filter(t -> info.dataSelectorInfo.readingTypes.stream().map(r -> r.mRID).noneMatch(m -> t.getMRID().equals(m)))
+                .filter(t -> info.standardDataSelector.readingTypes.stream().map(r -> r.mRID).noneMatch(m -> t.getMRID().equals(m)))
                 .forEach(selector::removeReadingType);
-        info.dataSelectorInfo.readingTypes.stream()
+        info.standardDataSelector.readingTypes.stream()
                 .map(r -> r.mRID)
                 .filter(m -> selector.getReadingTypes().stream().map(ReadingType::getMRID).noneMatch(s -> s.equals(m)))
                 .forEach(selector::addReadingType);
