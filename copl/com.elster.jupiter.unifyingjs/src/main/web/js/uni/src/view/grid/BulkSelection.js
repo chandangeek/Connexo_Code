@@ -163,8 +163,8 @@ Ext.define('Uni.view.grid.BulkSelection', {
      */
     bottomToolbarHidden: false,
 
-    gridHeight: 0,
-    gridHeaderHeight: 0,
+    gridHeight: undefined,
+    gridHeaderHeight: undefined,
 
     initComponent: function () {
         var me = this;
