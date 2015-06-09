@@ -67,7 +67,7 @@ Ext.define('Mdc.controller.setup.LogbookTypes', {
         var logbookTypes = this.getLogbookTypeGrid().getSelectionModel().getSelection();
         if (logbookTypes.length == 1) {
             this.getLogbookTypePreviewForm().loadRecord(logbookTypes[0]);
-            this.getLogbookTypePreview().setTitle(logbookTypes[0].get('name'));
+            this.getLogbookTypePreview().setTitle(Ext.String.htmlEncode(logbookTypes[0].get('name')));
         }
     },
 
@@ -88,7 +88,7 @@ Ext.define('Mdc.controller.setup.LogbookTypes', {
 
         Ext.create('Uni.view.window.Confirmation').show({
             msg: Uni.I18n.translate('logbookType.deleteLogbookType', 'MDC', 'The logbook type will no longer be available.'),
-            title: Uni.I18n.translate('general.remove', 'MDC', 'Remove') + ' ' + logbookTypeToDelete.get('name') + '?',
+            title: Uni.I18n.translate('general.remove', 'MDC', 'Remove') + ' ' + Ext.String.htmlEncode(logbookTypeToDelete.get('name')) + '?',
             config: {
                 logbookTypeToDelete: logbookTypeToDelete,
                 me: me.getApplication()
@@ -129,7 +129,7 @@ Ext.define('Mdc.controller.setup.LogbookTypes', {
                 me.getApplication().fireEvent('loadLogbookType', logbookType);
 
                 widget.down('form').loadRecord(logbookType);
-                widget.down('#logbookTypeEditCreateTitle').setTitle(Uni.I18n.translate('general.edit', 'MDC', 'Edit') + " '" + logbookType.get('name') + "'");
+                widget.down('#logbookTypeEditCreateTitle').setTitle(Uni.I18n.translate('general.edit', 'MDC', 'Edit') + " '" + Ext.String.htmlEncode(logbookType.get('name')) + "'");
 
                 if (logbookType.get('isInUse') === true) {
                     widget.down('obis-field').disable();
