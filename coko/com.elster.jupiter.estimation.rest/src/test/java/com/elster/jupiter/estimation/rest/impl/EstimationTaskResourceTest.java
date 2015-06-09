@@ -1,5 +1,37 @@
 package com.elster.jupiter.estimation.rest.impl;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.Arrays;
+import java.util.Currency;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Supplier;
+
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Response;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import com.elster.jupiter.cbo.Accumulation;
 import com.elster.jupiter.cbo.Aggregate;
 import com.elster.jupiter.cbo.Commodity;
@@ -22,50 +54,20 @@ import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.properties.BasicPropertySpec;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.BooleanFactory;
-import com.elster.jupiter.properties.FindById;
+import com.elster.jupiter.properties.CanFindByStringKey;
+import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.ListValue;
-import com.elster.jupiter.properties.ListValueEntry;
 import com.elster.jupiter.properties.ListValuePropertySpec;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.ThreeStateFactory;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
-import com.elster.jupiter.rest.util.properties.PropertyInfo;
-import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
 import com.elster.jupiter.time.RelativeDate;
 import com.elster.jupiter.time.RelativeField;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.time.Never;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Response;
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Currency;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Supplier;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EstimationTaskResourceTest extends BaseEstimationRestTest {
@@ -290,7 +292,7 @@ public class EstimationTaskResourceTest extends BaseEstimationRestTest {
         return estimator;
     }
 
-    private static class ListValueBean implements ListValueEntry {
+    private static class ListValueBean extends HasIdAndName {
 
         private String id;
         private String name;
@@ -311,14 +313,14 @@ public class EstimationTaskResourceTest extends BaseEstimationRestTest {
         }
     }
 
-    private static class Finder implements FindById<ListValueBean> {
+    private static class Finder implements CanFindByStringKey<ListValueBean> {
 
         static ListValueBean bean1 = new ListValueBean("1", "first");
         static ListValueBean bean2 = new ListValueBean("2", "second");
 
         @Override
-        public Optional<ListValueBean> findById(final String id) {
-            switch (id) {
+        public Optional<ListValueBean> find(String key) {
+            switch (key) {
             case "1":
                 return Optional.of(bean1);
             case "2":
@@ -326,6 +328,11 @@ public class EstimationTaskResourceTest extends BaseEstimationRestTest {
             default:
                 return Optional.empty();
             }
+        }
+        
+        @Override
+        public Class<ListValueBean> valueDomain() {
+            return ListValueBean.class;
         }
     }
 }

@@ -12,7 +12,7 @@ import com.elster.jupiter.estimation.NoneAdvanceReadingsSettings;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.properties.ListValueEntry;
+import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.ListValue;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecPossibleValues;
@@ -130,7 +130,7 @@ public class PropertyUtils {
 
     private Object convertPropertyInfoValueToPropertyValue(PropertySpec propertySpec, Object value) {
         if (Objects.equals(propertySpec.getValueFactory().getValueType(), ListValue.class)) {
-            ListValue<ListValueEntry> listValue = new ListValue<>();
+            ListValue<HasIdAndName> listValue = new ListValue<>();
             if (value instanceof List) {
                 List<?> list = (List<?>) value;
                 for (Object listItem : list) {
@@ -161,10 +161,9 @@ public class PropertyUtils {
         return propertySpec.getValueFactory().fromStringValue(value.toString());
     }
 
-    private ListValue<ListValueEntry> parseListValueInfo(PropertySpec propertySpec, Object value) {
+    private ListValue<HasIdAndName> parseListValueInfo(PropertySpec propertySpec, Object value) {
         String stringValue = (String) value;
         Object obj = propertySpec.getValueFactory().fromStringValue(stringValue);
-        return (ListValue<ListValueEntry>) obj;
+        return (ListValue<HasIdAndName>) obj;
     }
-
 }

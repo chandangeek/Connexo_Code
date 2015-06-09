@@ -31,7 +31,6 @@ import javax.ws.rs.core.Application;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @Ignore("Base functionality for rest tests")
@@ -76,7 +75,7 @@ public class BaseEstimationRestTest extends JerseyTest {
         estimationApplication.setTimeService(timeService);
         estimationApplication.setMeteringGroupsService(meteringGroupsService);
 
-        when(transactionService.execute(Matchers.any())).thenAnswer(new Answer() {
+        when(transactionService.execute(Matchers.any())).thenAnswer(new Answer<Object>() {
             
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
