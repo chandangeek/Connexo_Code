@@ -4,7 +4,11 @@ import com.energyict.cbo.LittleEndianOutputStream;
 import com.energyict.cbo.Password;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.channels.inbound.EIWebConnectionType;
+import com.energyict.mdc.exceptions.ComServerExceptionFactoryProvider;
+import com.energyict.mdc.exceptions.DefaultComServerExceptionFactoryProvider;
 import com.energyict.mdc.meterdata.CollectedData;
+import com.energyict.mdc.meterdata.CollectedDataFactoryProvider;
+import com.energyict.mdc.meterdata.DefaultCollectedDataFactoryProvider;
 import com.energyict.mdc.meterdata.DeviceIpAddress;
 import com.energyict.mdc.ports.InboundComPort;
 import com.energyict.mdc.protocol.exceptions.CommunicationException;
@@ -14,6 +18,7 @@ import com.energyict.mdc.protocol.inbound.InboundDAO;
 import com.energyict.mdc.protocol.security.SecurityProperty;
 import com.energyict.mdw.core.Device;
 import org.fest.assertions.core.Condition;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -45,6 +50,12 @@ import static org.mockito.Mockito.when;
 public class PacketBuilderTest {
 
     private static final int DEVICE_ID = 122;
+
+    @BeforeClass
+    public static void doBefore() {
+        ComServerExceptionFactoryProvider.instance.set(new DefaultComServerExceptionFactoryProvider());
+        CollectedDataFactoryProvider.instance.set(new DefaultCollectedDataFactoryProvider());
+    }
 
     @Test
     public void testParseFromUnencryptedStringValuesWithDeviceId() throws IOException {

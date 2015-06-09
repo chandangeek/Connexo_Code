@@ -5,6 +5,10 @@ import com.energyict.cbo.TimeConstants;
 import com.energyict.mdc.ManagerFactory;
 import com.energyict.mdc.MdwInterface;
 import com.energyict.mdc.ServerManager;
+import com.energyict.mdc.exceptions.ComServerExceptionFactoryProvider;
+import com.energyict.mdc.exceptions.DefaultComServerExceptionFactoryProvider;
+import com.energyict.mdc.meterdata.CollectedDataFactoryProvider;
+import com.energyict.mdc.meterdata.DefaultCollectedDataFactoryProvider;
 import com.energyict.mdc.ports.InboundComPort;
 import com.energyict.mdc.protocol.exceptions.CommunicationException;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
@@ -44,6 +48,12 @@ import static org.mockito.Mockito.when;
 public class ProfileBuilderTest {
 
     private static final int DEVICE_ID = 122;
+
+    @BeforeClass
+    public static void doBefore() {
+        ComServerExceptionFactoryProvider.instance.set(new DefaultComServerExceptionFactoryProvider());
+        CollectedDataFactoryProvider.instance.set(new DefaultCollectedDataFactoryProvider());
+    }
 
     @Mock
     private ServerManager manager;

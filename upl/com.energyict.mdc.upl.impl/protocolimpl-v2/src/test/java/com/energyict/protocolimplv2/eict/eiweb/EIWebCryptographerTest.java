@@ -4,6 +4,8 @@ import com.energyict.cbo.NotFoundException;
 import com.energyict.cbo.Password;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.channels.inbound.EIWebConnectionType;
+import com.energyict.mdc.exceptions.ComServerExceptionFactoryProvider;
+import com.energyict.mdc.exceptions.DefaultComServerExceptionFactoryProvider;
 import com.energyict.mdc.ports.InboundComPort;
 import com.energyict.mdc.protocol.exceptions.CommunicationException;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
@@ -57,6 +59,8 @@ public class EIWebCryptographerTest {
      */
     @Test(expected = CommunicationException.class)
     public void testBuildMD5SeedWithoutConnectionTypeProperties () {
+        ComServerExceptionFactoryProvider.instance.set(new DefaultComServerExceptionFactoryProvider());
+
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
         InboundDAO inboundDAO = mock(InboundDAO.class);
         InboundComPort comPort = mock(InboundComPort.class);

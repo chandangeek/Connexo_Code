@@ -3,11 +3,9 @@ package com.energyict.protocolimplv2.elster.ctr.MTU155.discover;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.cpo.TypedProperties;
-import com.energyict.mdc.meterdata.CollectedData;
-import com.energyict.mdc.meterdata.DefaultDeviceRegister;
-import com.energyict.mdc.meterdata.DeviceLoadProfile;
-import com.energyict.mdc.meterdata.DeviceLogBook;
-import com.energyict.mdc.meterdata.ResultType;
+import com.energyict.mdc.exceptions.ComServerExceptionFactoryProvider;
+import com.energyict.mdc.exceptions.DefaultComServerExceptionFactoryProvider;
+import com.energyict.mdc.meterdata.*;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
@@ -17,6 +15,7 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.frame.SMSFrame;
 import com.energyict.protocolimplv2.identifiers.LoadProfileIdentifierByObisCodeAndDevice;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -45,6 +44,12 @@ public class SmsHandlerTest {
      * ACK
      * NACK
      */
+
+    @BeforeClass
+    public static void doBefore() {
+        ComServerExceptionFactoryProvider.instance.set(new DefaultComServerExceptionFactoryProvider());
+        CollectedDataFactoryProvider.instance.set(new DefaultCollectedDataFactoryProvider());
+    }
 
     @Test(expected = CTRException.class)
     public void testHandlingOfUnsupportedSMS() throws Exception {
