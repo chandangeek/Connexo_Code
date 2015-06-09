@@ -22,7 +22,7 @@ public class FileImportScheduleInfo {
     public String name;
     public Boolean active;
     public Boolean deleted;
-    public String destinationName;
+    //public String destinationName;
     public String importDirectory;
     public String inProcessDirectory;
     public String successDirectory;
@@ -43,7 +43,7 @@ public class FileImportScheduleInfo {
         id = importSchedule.getId();
         active = importSchedule.isActive();
         name = importSchedule.getName();
-        destinationName = importSchedule.getDestination().getName();
+        //destinationName = importSchedule.getDestination().getName();
         importDirectory = importSchedule.getImportDirectory().toString();
         inProcessDirectory = importSchedule.getInProcessDirectory().toString();
         successDirectory = importSchedule.getSuccessDirectory().toString();
@@ -51,7 +51,7 @@ public class FileImportScheduleInfo {
         pathMatcher = importSchedule.getPathMatcher();
         importerName = importSchedule.getImporterName();
         application = importSchedule.getApplicationName();
-        deleted = importSchedule.getObsoleteTime()!=null;
+        deleted = importSchedule.isDeleted();
 
         importerInfo = new FileImporterInfo(importerName,
                 thesaurus.getStringBeyondComponent(importerName, importerName), Collections.<PropertyInfo>emptyList() );
