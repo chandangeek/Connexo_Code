@@ -132,10 +132,6 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
         return new PropertyDescriptionInfo(propertyName, aClass, thesaurus.getString(propertyName, propertyName));
     }
 
-    private PropertyDescriptionInfo createDeviceTypeDescription(String propertyName, Class<?> aClass) {
-        return new PropertyDescriptionInfo(propertyName, aClass, thesaurus.getString(propertyName, propertyName));
-    }
-
     public DeviceInfo from(Device device, List<DeviceTopologyInfo> slaveDevices){
         DeviceInfo deviceInfo = from(device);
 
@@ -177,8 +173,4 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
         return Device.class;
     }
 
-    @Override
-    public String getSearchDomainId() {
-        return Device.class.getName();
-    }
 }
