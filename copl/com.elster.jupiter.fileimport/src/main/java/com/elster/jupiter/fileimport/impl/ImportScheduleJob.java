@@ -11,6 +11,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.cron.CronExpression;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.json.JsonService;
+import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.util.time.ScheduleExpression;
 
 import javax.inject.Inject;
@@ -54,15 +55,17 @@ class ImportScheduleJob implements CronJob {
 
     @Override
     public void run() {
-        fileImportService.getImportSchedule(importScheduleId).ifPresent(importSchedule->{
-            if(importSchedule.isActive()) {
-                Path importFolder = fileImportService.getBasePath().resolve(importSchedule.getImportDirectory());
-                FolderScanningJob folderScanningJob = new FolderScanningJob(
-                        new PollingFolderScanner(filter, fileSystem, importFolder, importSchedule.getPathMatcher(), this.thesaurus),
-                        new DefaultFileHandler(importSchedule, jsonService, transactionService, clock));
-                folderScanningJob.run();
-            }
-        });
+        fileImportService.getImportSchedule(importScheduleId)
+                .filter(importSchedule -> importSchedule.getObsoleteTime()==null)
+                .ifPresent(importSchedule -> {
+                    if (importSchedule.isActive()) {
+                        Path importFolder = fileImportService.getBasePath().resolve(importSchedule.getImportDirectory());
+                        FolderScanningJob folderScanningJob = new FolderScanningJob(
+                                new PollingFolderScanner(filter, fileSystem, importFolder, importSchedule.getPathMatcher(), this.thesaurus),
+                                new DefaultFileHandler(importSchedule, jsonService, transactionService, clock));
+                        folderScanningJob.run();
+                    }
+                });
 
     }
 }
