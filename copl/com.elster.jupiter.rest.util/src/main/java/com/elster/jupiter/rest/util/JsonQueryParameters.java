@@ -53,12 +53,12 @@ public class JsonQueryParameters implements QueryParameters {
             String singleSortDirection = queryParameters.getFirst(EXTJS_DIR);
             String sort = queryParameters.getFirst(EXTJS_SORT);
             if (singleSortDirection != null && sort != null) {
-                sortingColumns.add(EXTJS_ASCENDING.equals(singleSortDirection) ? Order.ascending(sort) : Order.descending(sort));
+                sortingColumns.add(EXTJS_ASCENDING.equalsIgnoreCase(singleSortDirection) ? Order.ascending(sort) : Order.descending(sort));
             } else if (sort != null && !sort.isEmpty()) {
                 JSONArray jsonArray = new JSONArray(sort);
                 for (int index = 0; index < jsonArray.length(); index++) {
                     JSONObject object = jsonArray.getJSONObject(index);
-                    sortingColumns.add(EXTJS_ASCENDING.equals(object.getString(EXTJS_DIRECTION)) ? Order.ascending(object.getString(EXTJS_FIELD)) : Order.descending(object.getString(EXTJS_FIELD)));
+                    sortingColumns.add(EXTJS_ASCENDING.equalsIgnoreCase(object.getString(EXTJS_DIRECTION)) ? Order.ascending(object.getString(EXTJS_FIELD)) : Order.descending(object.getString(EXTJS_FIELD)));
                 }
             }
             return sortingColumns;
