@@ -37,7 +37,7 @@ public class UsagePointInfoFactoryTest {
     public void testModelMapsToInfoFields() throws Exception {
         UsagePointInfoFactory factory = new UsagePointInfoFactory();
         factory.setNlsService(nlsService);
-        factory.infoStructure().stream().forEach(prop -> {
+        factory.modelStructure().stream().forEach(prop -> {
             try {
                 UsagePointInfo.class.getField(prop.propertyName);
                 assertTrue("Missing translation for " + prop.propertyName, Arrays.stream(TranslationSeeds.values()).anyMatch(key -> key.getKey().equals(prop.propertyName)));

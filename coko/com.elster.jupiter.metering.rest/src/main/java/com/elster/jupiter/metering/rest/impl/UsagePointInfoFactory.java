@@ -78,7 +78,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
     }
 
     @Override
-    public List<PropertyDescriptionInfo> infoStructure() {
+    public List<PropertyDescriptionInfo> modelStructure() {
         List<PropertyDescriptionInfo> infos = new ArrayList<>();
         infos.add(createDescription("mRID", String.class));
         infos.add(createDescription("serviceCategory", String.class));
