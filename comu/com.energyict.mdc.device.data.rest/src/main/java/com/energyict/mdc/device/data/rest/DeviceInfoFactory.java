@@ -101,7 +101,7 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
         public Object id;
 
         public DeviceTypeProperty() {
-            super("deviceTypeName", DeviceType.class, thesaurus.getString("deviceType", "Device type"));
+            super("deviceTypeName", DeviceType.class, thesaurus.getString("deviceTypeName", "Device type"));
             this.id = new SubId();
             ((SubId)this.id).deviceType = "deviceTypeId";
         }
@@ -115,7 +115,7 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
         public Object id;
 
         public DeviceConfigProperty() {
-            super("deviceConfigurationName", DeviceConfiguration.class, thesaurus.getString("deviceConfig", "Device configuration"));
+            super("deviceConfigurationName", DeviceConfiguration.class, thesaurus.getString("deviceConfigurationName", "Device configuration"));
             this.id = new SubId();
             ((SubId)this.id).deviceType = "deviceTypeId";
             ((SubId)this.id).deviceConfig = "deviceConfigurationId";
