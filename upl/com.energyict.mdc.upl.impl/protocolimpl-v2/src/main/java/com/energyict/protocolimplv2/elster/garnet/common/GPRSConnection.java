@@ -2,16 +2,10 @@ package com.energyict.protocolimplv2.elster.garnet.common;
 
 import com.energyict.mdc.exceptions.ComServerExecutionException;
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.exceptions.CommunicationException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.elster.garnet.GarnetProperties;
-import com.energyict.protocolimplv2.elster.garnet.exception.CipheringException;
-import com.energyict.protocolimplv2.elster.garnet.exception.ConnectionException;
-import com.energyict.protocolimplv2.elster.garnet.exception.CrcMismatchException;
-import com.energyict.protocolimplv2.elster.garnet.exception.GarnetException;
-import com.energyict.protocolimplv2.elster.garnet.exception.NotExecutedException;
-import com.energyict.protocolimplv2.elster.garnet.exception.TimeoutException;
+import com.energyict.protocolimplv2.elster.garnet.exception.*;
 import com.energyict.protocolimplv2.elster.garnet.frame.RequestFrame;
 import com.energyict.protocolimplv2.elster.garnet.frame.ResponseFrame;
 import com.energyict.protocolimplv2.elster.garnet.frame.field.Address;
@@ -48,8 +42,12 @@ public class GPRSConnection implements Connection {
         this.properties = properties;
     }
 
+    private static ComServerExecutionException createNumberOfRetriesReachedException(int attempts, GarnetException e) {
+        return MdcManager.getComServerExceptionFactory().createNumberOfRetriesReached(e, attempts);
+    }
+
     @Override
-    public void sendFrame(RequestFrame frame) throws GarnetException{
+    public void sendFrame(RequestFrame frame) throws GarnetException {
         try {
             // 1. Generate CRC and encrypt the frame
             RequestFrame request = frame.doClone();   // Clone to avoid the original frame is altered (gets encrypted)
@@ -156,8 +154,12 @@ public class GPRSConnection implements Connection {
             doForcedDelay();
             ensureComChannelIsInWritingMode();
             comChannel.write(frame.getBytes());
-        } catch (CommunicationException e) {
-            throw new ConnectionException("Unable to send frame", e);
+        } catch (ComServerExecutionException e) {
+            if (MdcManager.getComServerExceptionFactory().isCommunicationException(e)) {
+                throw new ConnectionException("Unable to send frame", e);
+            } else {
+                throw e;
+            }
         }
     }
 
@@ -285,10 +287,6 @@ public class GPRSConnection implements Connection {
 
     private void ensureComChannelIsInWritingMode() {
         comChannel.startWriting();
-    }
-
-    private static ComServerExecutionException createNumberOfRetriesReachedException(int attempts, GarnetException e) {
-        return MdcManager.getComServerExceptionFactory().createNumberOfRetriesReached(e, attempts);
     }
 
     private ComServerExecutionException createCipheringException(CipheringException e) {

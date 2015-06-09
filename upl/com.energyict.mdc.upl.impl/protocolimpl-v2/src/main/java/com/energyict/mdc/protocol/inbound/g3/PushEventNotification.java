@@ -2,7 +2,6 @@ package com.energyict.mdc.protocol.inbound.g3;
 
 import com.energyict.cbo.HexString;
 import com.energyict.cbo.TimePeriod;
-import com.energyict.comserver.time.Clocks;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.dlms.DLMSCache;
@@ -21,7 +20,6 @@ import com.energyict.mdc.meterdata.CollectedTopology;
 import com.energyict.mdc.ports.InboundComPort;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.ConnectionException;
-import com.energyict.mdc.protocol.exceptions.ConnectionSetupException;
 import com.energyict.mdc.protocol.inbound.BinaryInboundDeviceProtocol;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.inbound.InboundDiscoveryContext;
@@ -150,13 +148,13 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
 
     private void createTcpComChannel() {
         TypedProperties connectionProperties = context.getInboundDAO().getOutboundConnectionTypeProperties(getDeviceIdentifier());
-        List<ConnectionTaskProperty> connectionTaskProperties = toPropertySpecs(Clocks.getAppServerClock().now(), connectionProperties);
+        List<ConnectionTaskProperty> connectionTaskProperties = toPropertySpecs(new Date(), connectionProperties);
 
         try {
             InboundComPort comPort = context.getComPort();         //Note that this is indeed the INBOUND comport, it is only used for logging purposes in the ComChannel
             tcpComChannel = new OutboundTcpIpConnectionType().connect(comPort, connectionTaskProperties);
         } catch (ConnectionException e) {
-            throw new ConnectionSetupException(e);
+            throw MdcManager.getComServerExceptionFactory().createConnectionSetupException(e);
         }
     }
 

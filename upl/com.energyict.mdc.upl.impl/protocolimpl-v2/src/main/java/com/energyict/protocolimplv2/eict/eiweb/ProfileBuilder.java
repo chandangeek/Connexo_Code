@@ -6,8 +6,6 @@ import com.energyict.cbo.TimeConstants;
 import com.energyict.cbo.Unit;
 import com.energyict.mdc.meterdata.CollectedData;
 import com.energyict.mdc.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.protocol.exceptions.CommunicationException;
-import com.energyict.mdc.protocol.exceptions.DataEncryptionException;
 import com.energyict.mdc.protocol.tasks.support.DeviceLoadProfileSupport;
 import com.energyict.protocol.*;
 import com.energyict.protocolimplv2.MdcManager;
@@ -131,7 +129,7 @@ public class ProfileBuilder {
         meterReadings = new ArrayList<>();
 
         if (data == null) {
-            throw CommunicationException.missingInboundData(this.packetBuilder.getDeviceIdentifier());
+            throw MdcManager.getComServerExceptionFactory().missingInboundDataException(this.packetBuilder.getDeviceIdentifier());
         }
 
         buildChannelInfo();
@@ -186,7 +184,7 @@ public class ProfileBuilder {
             Date date = new Date(ldate);
 
             if ((i == 0) && (!packetBuilder.isTimeCorrect(date))) {
-                throw new DataEncryptionException(this.packetBuilder.getDeviceIdentifier());
+                throw MdcManager.getComServerExceptionFactory().createDataEncryptionException();
             }
             this.buildIntervalDataForRecord(is, date);
         }
@@ -214,7 +212,7 @@ public class ProfileBuilder {
                 break;
 
             default:
-                throw CommunicationException.unsupportedVersion(packetBuilder.getVersion(), "EIWeb packet builder");
+                throw MdcManager.getComServerExceptionFactory().unsupportedVersion(packetBuilder.getVersion(), "EIWeb packet builder");
         }
 
         for (int t = 0; t < packetBuilder.getNrOfChannels(); t++) {
@@ -235,7 +233,7 @@ public class ProfileBuilder {
                 break;
 
             default:
-                throw CommunicationException.unsupportedVersion(packetBuilder.getVersion(), "EIWeb packet builder");
+                throw MdcManager.getComServerExceptionFactory().unsupportedVersion(packetBuilder.getVersion(), "EIWeb packet builder");
         }
     }
 

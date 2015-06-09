@@ -1,7 +1,6 @@
 package com.energyict.protocolimplv2.nta.dsmr50.elster.am540;
 
 import com.energyict.cbo.ConfigurationSupport;
-import com.energyict.comserver.exceptions.ComServerRuntimeException;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.dialer.connection.HHUSignOn;
@@ -16,6 +15,7 @@ import com.energyict.mdc.channels.ComChannelType;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
 import com.energyict.mdc.channels.serial.optical.serialio.SioOpticalConnectionType;
+import com.energyict.mdc.exceptions.ComServerExecutionException;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
@@ -26,7 +26,6 @@ import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.DeviceProtocolCache;
 import com.energyict.mdc.protocol.SerialPortComChannel;
 import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
-import com.energyict.mdc.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.v2migration.MigrateFromV1Protocol;
 import com.energyict.mdc.tasks.ConnectionType;
@@ -171,17 +170,17 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
     private void connectWithRetries() {
         int tries = 0;
         while (true) {
-            ComServerRuntimeException exception;
+            ComServerExecutionException exception;
             try {
                 if (getDlmsSession().getAso().getAssociationStatus() == ApplicationServiceObject.ASSOCIATION_DISCONNECTED) {
                     getDlmsSession().getDLMSConnection().setRetries(getDlmsSessionProperties().getAARQRetries());
                     getDlmsSession().createAssociation((int) getDlmsSessionProperties().getAARQTimeout());
                 }
                 return;
-            } catch (ComServerRuntimeException e) {
+            } catch (ComServerExecutionException e) {
                 if (e.getCause() != null && e.getCause() instanceof DataAccessResultException) {
                     throw e;        //Throw real errors, e.g. unsupported security mechanism, wrong password...
-                } else if (e instanceof ConnectionCommunicationException) {
+                } else if (MdcManager.getComServerExceptionFactory().isConnectionCommunicationException(e)) {
                     throw e;
                 }
                 exception = e;
@@ -197,7 +196,7 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
                 getLogger().info("Unable to establish association after [" + tries + "/" + (getDlmsSessionProperties().getAARQRetries() + 1) + "] tries. Sending RLRQ and retry ...");
                 try {
                     getDlmsSession().getAso().releaseAssociation();
-                } catch (ComServerRuntimeException e) {
+                } catch (ComServerExecutionException e) {
                     // Absorb exception: in 99% of the cases we expect an exception here ...
                 }
                 getDlmsSession().getAso().setAssociationState(ApplicationServiceObject.ASSOCIATION_DISCONNECTED);

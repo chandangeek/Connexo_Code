@@ -6,16 +6,11 @@ import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.channels.serial.direct.rxtx.RxTxSerialConnectionType;
 import com.energyict.mdc.channels.serial.direct.serialio.SioSerialConnectionType;
+import com.energyict.mdc.exceptions.ComServerExecutionException;
 import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.meterdata.CollectedLogBook;
-import com.energyict.mdc.meterdata.CollectedMessageList;
-import com.energyict.mdc.meterdata.CollectedRegister;
-import com.energyict.mdc.meterdata.CollectedTopology;
+import com.energyict.mdc.meterdata.*;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
-import com.energyict.mdc.protocol.exceptions.CommunicationException;
 import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.mdc.tasks.EDPSerialDeviceProtocolDialect;
@@ -85,10 +80,14 @@ public class CX20009 extends AbstractDlmsProtocol {
         try {
             getDlmsSession().connect();
             checkCacheObjects();
-        } catch (CommunicationException e) {
-            logOff();
-            getDlmsSession().connect();
-            checkCacheObjects();
+        } catch (ComServerExecutionException e) {
+            if (MdcManager.getComServerExceptionFactory().isProtocolConnectFailedException(e)) {
+                logOff();
+                getDlmsSession().connect();
+                checkCacheObjects();
+            } else {
+                throw e;
+            }
         }
     }
 

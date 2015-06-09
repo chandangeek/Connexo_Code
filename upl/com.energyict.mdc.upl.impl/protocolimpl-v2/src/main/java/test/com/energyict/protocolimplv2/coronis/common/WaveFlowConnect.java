@@ -1,7 +1,6 @@
 package test.com.energyict.protocolimplv2.coronis.common;
 
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.exceptions.CommunicationException;
 import com.energyict.protocolimplv2.MdcManager;
 
 import java.io.IOException;
@@ -38,15 +37,15 @@ public class WaveFlowConnect {
     public byte[] sendEscapeData(byte[] bytes) {
         int retry = 0;
         while (true) {
-            try {
+            //try {
                 write(bytes);
                 return readAll();
-            } catch (CommunicationException e) {
-                if (retry++ >= retries) {
-                    IOException exception = new IOException(e.getMessage());
-                    throw MdcManager.getComServerExceptionFactory().createNumberOfRetriesReached(exception, retries + 1);
-                }
-            }
+            //} catch (CommunicationException e) {  //TODO revise, don't use comserver exceptions
+            //    if (retry++ >= retries) {
+            //        IOException exception = new IOException(e.getMessage());
+            //        throw MdcManager.getComServerExceptionFactory().createNumberOfRetriesReached(exception, retries + 1);
+            //    }
+            //}
         }
     }
 
@@ -90,19 +89,19 @@ public class WaveFlowConnect {
         int retry = 0;
         int communicationAttemptNr = 0;
         while (true) {
-            try {
+            //try {
                 escapeCommandFactory.setWavenisStackCommunicationAttemptNr(communicationAttemptNr);
                 write(bytes);
                 byte[] response = readAll();
                 connected = true;
                 return response;
-            } catch (CommunicationException e) {
-                communicationAttemptNr++;
-                if (retry++ >= retries) {
-                    IOException exception = new IOException(e.getMessage());
-                    throw MdcManager.getComServerExceptionFactory().createNumberOfRetriesReached(exception, retries + 1);
-                }
-            }
+            //} catch (CommunicationException e) {  //TODO revise, don't use comserver exceptions
+            //    communicationAttemptNr++;
+            //    if (retry++ >= retries) {
+            //        IOException exception = new IOException(e.getMessage());
+            //        throw MdcManager.getComServerExceptionFactory().createNumberOfRetriesReached(exception, retries + 1);
+            //    }
+            //}
         }
     }
 

@@ -7,7 +7,7 @@ import com.energyict.mdc.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
 import com.energyict.mdc.channels.serial.optical.serialio.SioOpticalConnectionType;
 import com.energyict.mdc.channels.sms.InboundProximusSmsConnectionType;
 import com.energyict.mdc.channels.sms.OutboundProximusSmsConnectionType;
-import com.energyict.mdc.channels.sms.ProximusSmsComChannel;
+import com.energyict.mdc.channels.sms.ServerProximusSmsComChannel;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.meterdata.*;
 import com.energyict.mdc.protocol.ComChannel;
@@ -289,7 +289,7 @@ public class MTU155 implements DeviceProtocol {
     }
 
     private void updateRequestFactory(ComChannel comChannel) {
-        if (comChannel instanceof ProximusSmsComChannel) {
+        if (comChannel instanceof ServerProximusSmsComChannel) {
             this.requestFactory = new SmsRequestFactory(
                     comChannel,
                     getLogger(),

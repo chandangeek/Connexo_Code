@@ -1,18 +1,12 @@
 package com.energyict.protocolimplv2.eict.eiweb;
 
-import com.energyict.comserver.time.Clocks;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.channels.inbound.EIWebConnectionType;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.messages.LegacyMessageConverter;
-import com.energyict.mdc.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.meterdata.CollectedLogBook;
-import com.energyict.mdc.meterdata.CollectedMessageList;
-import com.energyict.mdc.meterdata.CollectedRegister;
-import com.energyict.mdc.meterdata.CollectedTopology;
+import com.energyict.mdc.meterdata.*;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.DeviceProtocol;
 import com.energyict.mdc.protocol.DeviceProtocolCache;
@@ -32,11 +26,7 @@ import com.energyict.protocolimplv2.dialects.NoParamsDeviceProtocolDialect;
 import com.energyict.protocolimplv2.messages.convertor.EIWebMessageConverter;
 import com.energyict.protocolimplv2.security.SimplePasswordSecuritySupport;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * Basic implementation of the EIWeb DeviceProtocol.
@@ -118,17 +108,12 @@ public class EIWeb implements DeviceProtocol {
     }
 
     @Override
-    public void setDeviceCache(DeviceProtocolCache deviceProtocolCache) {
-        // nothing much to do
-    }
-
-    @Override
     public DeviceProtocolCache getDeviceCache() {
         return null;
     }
 
     @Override
-    public void setTime(Date timeToSet) {
+    public void setDeviceCache(DeviceProtocolCache deviceProtocolCache) {
         // nothing much to do
     }
 
@@ -144,7 +129,12 @@ public class EIWeb implements DeviceProtocol {
 
     @Override
     public Date getTime() {
-        return Clocks.getAppServerClock().now();
+        return new Date();
+    }
+
+    @Override
+    public void setTime(Date timeToSet) {
+        // nothing much to do
     }
 
     @Override

@@ -26,6 +26,12 @@
             <artifactId>connectiontypes</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
+            <exclusions>        <!--Only connectiontypes-->
+                <exclusion>
+                    <artifactId>*</artifactId>
+                    <groupId>*</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>

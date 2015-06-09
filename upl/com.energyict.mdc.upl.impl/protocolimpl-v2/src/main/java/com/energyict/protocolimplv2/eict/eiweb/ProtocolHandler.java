@@ -5,15 +5,11 @@ import com.energyict.cbo.LittleEndianInputStream;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.cim.EndDeviceEventTypeMapping;
-import com.energyict.comserver.time.Clocks;
 import com.energyict.mdc.messages.LegacyMessageConverter;
 import com.energyict.mdc.meterdata.CollectedConfigurationInformation;
 import com.energyict.mdc.meterdata.CollectedData;
 import com.energyict.mdc.meterdata.CollectedLogBook;
 import com.energyict.mdc.meterdata.CollectedRegister;
-import com.energyict.mdc.protocol.exceptions.CommunicationException;
-import com.energyict.mdc.protocol.exceptions.ConnectionCommunicationException;
-import com.energyict.mdc.protocol.exceptions.DataEncryptionException;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.inbound.InboundDAO;
 import com.energyict.mdc.protocol.inbound.crypto.Cryptographer;
@@ -98,7 +94,7 @@ public class ProtocolHandler {
     }
 
     private void processMeterReadings(ProfileBuilder profileBuilder) {
-        Date now = Clocks.getAppServerClock().now();
+        Date now = new Date();
         List<BigDecimal> meterReadings = profileBuilder.getMeterReadings();
         for (int i = 0; i < meterReadings.size(); i++) {
             BigDecimal value = meterReadings.get(i);
@@ -133,7 +129,7 @@ public class ProtocolHandler {
             }
             this.confirmSentMessagesAndSendPending();
         } catch (IOException e) {
-            throw new ConnectionCommunicationException(e);
+            throw MdcManager.getComServerExceptionFactory().createConnectionCommunicationException(e);
         }
     }
 
@@ -155,7 +151,7 @@ public class ProtocolHandler {
             long ldate = (is.readLEUnsignedInt() + EIWebConstants.SECONDS10YEARS) * 1000;
             Date date = new Date(ldate);
             if ((i == 0) && (!this.packetBuilder.isTimeCorrect(date))) {
-                throw new DataEncryptionException(this.getDeviceIdentifier());
+                throw MdcManager.getComServerExceptionFactory().createDataEncryptionException();
             }
             is.readByte(); // alarmid
             int channel = is.readByte() & 0xFF; // ignored for now
@@ -182,7 +178,7 @@ public class ProtocolHandler {
 
     private Date sevenDaysFromNow() {
         Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-        calendar.setTime(Clocks.getAppServerClock().now());
+        calendar.setTime(new Date());
         calendar.add(Calendar.DATE, 7);
         return calendar.getTime();
     }
@@ -206,7 +202,7 @@ public class ProtocolHandler {
             this.packetBuilder.parseNrOfAcceptedMessages((String) parameters.get("xmlctr"));
             this.packetBuilder.parse(request.getInputStream(), (String) parameters.get("sn"));
         } catch (IOException e) {
-            throw new ConnectionCommunicationException(e);
+            throw MdcManager.getComServerExceptionFactory().createConnectionCommunicationException(e);
         }
     }
 
@@ -224,7 +220,7 @@ public class ProtocolHandler {
                     request.getParameter("sn"),
                     request.getParameter(EIWebConstants.MESSAGE_COUNTER_URL_PARAMETER_NAME));
         } catch (IOException e) {
-            throw new ConnectionCommunicationException(e);
+            throw MdcManager.getComServerExceptionFactory().createConnectionCommunicationException(e);
         }
     }
 
@@ -281,7 +277,7 @@ public class ProtocolHandler {
                     return contentType;
                 }
             }
-            throw CommunicationException.unsupportedUrlContentType(request.getContentType());
+            throw MdcManager.getComServerExceptionFactory().unsupportedUrlContentType(request.getContentType());
         }
 
         public abstract boolean matches(HttpServletRequest request);

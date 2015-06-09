@@ -1,7 +1,6 @@
 package com.energyict.protocolimplv2.elster.garnet.structure.field;
 
 
-import com.energyict.comserver.time.Clocks;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.elster.garnet.common.field.AbstractField;
 import com.energyict.protocolimplv2.elster.garnet.exception.ParsingException;
@@ -18,16 +17,14 @@ import java.util.TimeZone;
  */
 public class DateTime extends AbstractField<DateTime> {
 
+    public static final int LENGTH = 6;
     private SimpleDateFormat dateFormatter = new SimpleDateFormat("yyMMddHHmmss");
     private SimpleDateFormat toStringDateFormatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-
-    public static final int LENGTH = 6;
-
     private Calendar calendar;
 
     public DateTime(TimeZone timeZone) {
         calendar = Calendar.getInstance(timeZone);
-        calendar.setTime(Clocks.getAppServerClock().now());
+        calendar.setTime(new Date());
         dateFormatter.setTimeZone(timeZone);
     }
 

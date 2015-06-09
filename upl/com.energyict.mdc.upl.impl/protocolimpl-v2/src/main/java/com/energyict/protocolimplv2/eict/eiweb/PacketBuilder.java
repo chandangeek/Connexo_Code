@@ -4,8 +4,6 @@ import com.energyict.cbo.LittleEndianInputStream;
 import com.energyict.cbo.LittleEndianOutputStream;
 import com.energyict.mdc.channels.inbound.EIWebConnectionType;
 import com.energyict.mdc.meterdata.CollectedData;
-import com.energyict.mdc.protocol.exceptions.CommunicationException;
-import com.energyict.mdc.protocol.exceptions.DataEncryptionException;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.inbound.crypto.Cryptographer;
 import com.energyict.mdc.protocol.inbound.crypto.MD5Seed;
@@ -208,7 +206,7 @@ public class PacketBuilder {
             try {
                 this.parseDeviceIdentifier(Integer.parseInt(id), serialNumber);
             } catch (NumberFormatException e) {
-                throw new CommunicationException(e, EIWebConstants.DEVICE_ID_URL_PARAMETER_NAME, id);
+                throw MdcManager.getComServerExceptionFactory().createCommunicationException(e, EIWebConstants.DEVICE_ID_URL_PARAMETER_NAME, id);
             }
         }
     }
@@ -231,7 +229,7 @@ public class PacketBuilder {
                 this.mask = Long.parseLong(mask, HEX_PARSE_RADIX);
             }
         } catch (NumberFormatException e) {
-            throw new CommunicationException(e, EIWebConstants.MASK_URL_PARAMETER_NAME, mask);
+            throw MdcManager.getComServerExceptionFactory().createCommunicationException(e, EIWebConstants.MASK_URL_PARAMETER_NAME, mask);
         }
     }
 
@@ -242,7 +240,7 @@ public class PacketBuilder {
             try {
                 nrOfAcceptedMessages = Integer.parseInt(xmlctr);
             } catch (NumberFormatException e) {
-                throw new CommunicationException(e, EIWebConstants.MESSAGE_COUNTER_URL_PARAMETER_NAME, xmlctr);
+                throw MdcManager.getComServerExceptionFactory().createCommunicationException(e, EIWebConstants.MESSAGE_COUNTER_URL_PARAMETER_NAME, xmlctr);
             }
         }
     }
@@ -263,14 +261,14 @@ public class PacketBuilder {
         StringTokenizer st = new StringTokenizer(strValues, ",");
         int iTokens = st.countTokens();
         if (iTokens != nrOfChannels) {
-            throw new DataEncryptionException(this.getDeviceIdentifier());
+            throw MdcManager.getComServerExceptionFactory().createDataEncryptionException();
         }
         try {
             for (int i = 0; i < iTokens; i++) {
                 valuesArray[i] = Integer.parseInt(st.nextToken());
             }
         } catch (NumberFormatException e) {
-            throw new CommunicationException(e, EIWebConstants.METER_DATA_PARAMETER_NAME, strValues);
+            throw MdcManager.getComServerExceptionFactory().createCommunicationException(e, EIWebConstants.METER_DATA_PARAMETER_NAME, strValues);
         }
         return valuesArray;
     }
@@ -291,7 +289,7 @@ public class PacketBuilder {
         try {
             os.writeLEInt((int) Long.parseLong(utc));
         } catch (NumberFormatException e) {
-            throw new CommunicationException(e, EIWebConstants.UTC_URL_PARAMETER_NAME, utc);
+            throw MdcManager.getComServerExceptionFactory().createCommunicationException(e, EIWebConstants.UTC_URL_PARAMETER_NAME, utc);
         }
     }
 
@@ -299,7 +297,7 @@ public class PacketBuilder {
         try {
             os.writeByte(Byte.parseByte(code));
         } catch (NumberFormatException e) {
-            throw new CommunicationException(e, EIWebConstants.CODE_URL_PARAMETER_NAME, code);
+            throw MdcManager.getComServerExceptionFactory().createCommunicationException(e, EIWebConstants.CODE_URL_PARAMETER_NAME, code);
         }
     }
 
@@ -307,7 +305,7 @@ public class PacketBuilder {
         try {
             os.writeLEShort((short) Integer.parseInt(statebits, HEX_PARSE_RADIX));
         } catch (NumberFormatException e) {
-            throw new CommunicationException(e, EIWebConstants.STATE_BITS_URL_PARAMETER_NAME, statebits);
+            throw MdcManager.getComServerExceptionFactory().createCommunicationException(e, EIWebConstants.STATE_BITS_URL_PARAMETER_NAME, statebits);
         }
     }
 

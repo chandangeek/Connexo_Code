@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.abnt.common.field.parser;
 
-import com.energyict.comserver.exceptions.CodingException;
+import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.abnt.common.exception.ParsingException;
 import com.energyict.protocolimplv2.abnt.common.field.AbstractField;
 
@@ -24,7 +24,7 @@ public class SimpleFieldParser<T extends AbstractField> implements FieldParser {
         try {
             return fieldClazz.newInstance();
         } catch (InstantiationException | IllegalAccessException e) {
-            throw CodingException.genericReflectionError(e, fieldClazz);
+            throw MdcManager.getComServerExceptionFactory().genericReflectionError(e, fieldClazz);
         }
     }
 }

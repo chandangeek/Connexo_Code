@@ -1,24 +1,34 @@
 package com.energyict.protocolimplv2.eict.rtuplusserver.eiwebplus;
 
-import com.energyict.comserver.time.Clocks;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.channels.inbound.EIWebPlusConnectionType;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.messages.LegacyMessageConverter;
 import com.energyict.mdc.meterdata.*;
-import com.energyict.mdc.protocol.*;
+import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.DeviceProtocol;
+import com.energyict.mdc.protocol.DeviceProtocolCache;
 import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
-import com.energyict.mdc.protocol.security.*;
-import com.energyict.mdc.tasks.*;
-import com.energyict.mdw.offline.*;
+import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
+import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
+import com.energyict.mdc.tasks.ConnectionType;
+import com.energyict.mdc.tasks.DeviceProtocolDialect;
+import com.energyict.mdc.tasks.EiWebPlusDialect;
+import com.energyict.mdw.offline.OfflineDevice;
+import com.energyict.mdw.offline.OfflineDeviceMessage;
+import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.messages.convertor.EIWebPlusMessageConverter;
 import com.energyict.protocolimplv2.security.NoOrPasswordSecuritySupport;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Place holder protocol for the RTU+Server concentrator.
@@ -100,17 +110,12 @@ public class RtuServer implements DeviceProtocol {
     }
 
     @Override
-    public void setDeviceCache(DeviceProtocolCache deviceProtocolCache) {
-        // nothing much to do
-    }
-
-    @Override
     public DeviceProtocolCache getDeviceCache() {
         return null;
     }
 
     @Override
-    public void setTime(Date timeToSet) {
+    public void setDeviceCache(DeviceProtocolCache deviceProtocolCache) {
         // nothing much to do
     }
 
@@ -126,7 +131,12 @@ public class RtuServer implements DeviceProtocol {
 
     @Override
     public Date getTime() {
-        return Clocks.getAppServerClock().now();
+        return new Date();
+    }
+
+    @Override
+    public void setTime(Date timeToSet) {
+        // nothing much to do
     }
 
     @Override

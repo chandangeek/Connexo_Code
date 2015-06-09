@@ -11,7 +11,7 @@ import java.io.IOException;
  * @author sva
  * @since 19/06/13 - 9:21
  */
-public class ProximusSmsComChannel extends AbstractComChannel {
+public class ProximusSmsComChannel extends AbstractComChannel implements ServerProximusSmsComChannel {
 
 
     private final String phoneNumber;

@@ -2,16 +2,10 @@ package com.energyict.protocolimplv2.abnt.common;
 
 import com.energyict.mdc.exceptions.ComServerExecutionException;
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.exceptions.CommunicationException;
 import com.energyict.protocolimpl.base.CRCGenerator;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
-import com.energyict.protocolimplv2.abnt.common.exception.AbntException;
-import com.energyict.protocolimplv2.abnt.common.exception.ConnectionException;
-import com.energyict.protocolimplv2.abnt.common.exception.CrcMismatchException;
-import com.energyict.protocolimplv2.abnt.common.exception.ParsingException;
-import com.energyict.protocolimplv2.abnt.common.exception.TimeOutException;
-import com.energyict.protocolimplv2.abnt.common.exception.TimeOutInfo;
+import com.energyict.protocolimplv2.abnt.common.exception.*;
 import com.energyict.protocolimplv2.abnt.common.frame.RequestFrame;
 import com.energyict.protocolimplv2.abnt.common.frame.ResponseFrame;
 import com.energyict.protocolimplv2.abnt.common.frame.field.Crc;
@@ -43,6 +37,14 @@ public class SerialConnection implements Connection {
         this.properties = properties;
     }
 
+    protected static ComServerExecutionException createUnexpectedResponseException(AbntException e) {
+        return MdcManager.getComServerExceptionFactory().createUnexpectedResponse(e);
+    }
+
+    protected static ComServerExecutionException createNumberOfRetriesReachedException(int attempts, AbntException e) {
+        return MdcManager.getComServerExceptionFactory().createNumberOfRetriesReached(e, attempts);
+    }
+
     @Override
     public void sendFrame(RequestFrame request) throws ParsingException {
         // 1. Generate CRC
@@ -70,7 +72,7 @@ public class SerialConnection implements Connection {
             ResponseFrame responseSegment = response;
             while (!isLastSegment(responseSegment)) {
                 if (numberOfSegments >= expectedNumberOfSegments) {
-                   throw createUnexpectedResponseException(new ConnectionException("Invalid segmentation of response, expected to receive the last segment."));
+                    throw createUnexpectedResponseException(new ConnectionException("Invalid segmentation of response, expected to receive the last segment."));
                 }
                 responseSegment = doSendFrameGetResponse(request, false);
                 dataBytesFullResponse = ProtocolTools.concatByteArrays(dataBytesFullResponse, responseSegment.getData().getBytes());
@@ -189,8 +191,12 @@ public class SerialConnection implements Connection {
             doForcedDelay();
             ensureComChannelIsInWritingMode();
             comChannel.write(bytes);
-        } catch (CommunicationException e) {
-            throw new ConnectionException("Unable to send frame", e);
+        } catch (ComServerExecutionException e) {
+            if (MdcManager.getComServerExceptionFactory().isCommunicationException(e)) {
+                throw new ConnectionException("Unable to send frame", e);
+            } else {
+                throw e;
+            }
         }
     }
 
@@ -313,13 +319,5 @@ public class SerialConnection implements Connection {
 
     protected boolean responseIsSegmented(ResponseFrame response) {
         return Function.allowsSegmentation(response.getFunction());
-    }
-
-    protected static ComServerExecutionException createUnexpectedResponseException(AbntException e) {
-        return MdcManager.getComServerExceptionFactory().createUnexpectedResponse(e);
-    }
-
-    protected static ComServerExecutionException createNumberOfRetriesReachedException(int attempts, AbntException e) {
-        return MdcManager.getComServerExceptionFactory().createNumberOfRetriesReached(e, attempts);
     }
 }

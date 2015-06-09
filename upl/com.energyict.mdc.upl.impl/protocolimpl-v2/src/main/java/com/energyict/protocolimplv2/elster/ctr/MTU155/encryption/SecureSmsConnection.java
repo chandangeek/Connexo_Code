@@ -1,8 +1,8 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.encryption;
 
 import com.energyict.mdc.channels.sms.ProximusSmsSender;
+import com.energyict.mdc.exceptions.ComServerExecutionException;
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.exceptions.CommunicationException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.CtrConnection;
@@ -15,8 +15,6 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.frame.SMSFrame;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.logging.Logger;
 
 /**
@@ -31,14 +29,14 @@ public class SecureSmsConnection implements CtrConnection<SMSFrame> {
 
     private static int HEADER_LENGTH = 2;
 
-    /** The ComChannel used for SMS communication with the device **/
+    /**
+     * The ComChannel used for SMS communication with the device
+     **/
     private final ComChannel comChannel;
-
-    private CTREncryption ctrEncryption;
-
     private final Logger logger;
     private final int timeOut;
     private final int forcedDelay;
+    private CTREncryption ctrEncryption;
 
     /**
      * @param properties
@@ -80,8 +78,12 @@ public class SecureSmsConnection implements CtrConnection<SMSFrame> {
             doForcedDelay();
             ensureComChannelIsInWritingMode();
             comChannel.write(frame.getBytes());
-        } catch (CommunicationException e) {
-            throw new CTRConnectionException("Unable to send frame.", e);
+        } catch (ComServerExecutionException e) {
+            if (MdcManager.getComServerExceptionFactory().isCommunicationException(e)) {
+                throw new CTRConnectionException("Unable to send frame.", e);
+            } else {
+                throw e;
+            }
         }
     }
 

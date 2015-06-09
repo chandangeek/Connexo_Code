@@ -56,7 +56,7 @@ public class PushEventNotificationTest extends TestCase {
     @Mock
     private InboundDAO inboundDAO;
     @Mock
-    private final VoidComChannel voidTcpComChannel = spy(new VoidComChannel());
+    private final DummyComChannel voidTcpComChannel = spy(new DummyComChannel());
 
     private final MockRtuPlusServer mockRtuPlusServer = new MockRtuPlusServer();
 

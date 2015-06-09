@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>protocolimpl-v2</artifactId>
@@ -32,6 +33,24 @@
             <groupId>com.energyict.comserver</groupId>
             <artifactId>comserver-core-impl</artifactId>
             <scope>test</scope>
+            <exclusions>        <!--Only comserver-core-impl-->
+                <exclusion>
+                    <artifactId>*</artifactId>
+                    <groupId>*</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>com.energyict.comserver</groupId>
+            <artifactId>comserver-core-common</artifactId>
+            <scope>test</scope>
+            <exclusions>        <!--Only comserver-core-common-->
+                <exclusion>
+                    <artifactId>*</artifactId>
+                    <groupId>*</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- Dependencies from protocols project -->
@@ -54,6 +73,12 @@
             <artifactId>connectiontypes</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
+            <exclusions>        <!--Only connectiontypes-->
+                <exclusion>
+                    <artifactId>*</artifactId>
+                    <groupId>*</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>

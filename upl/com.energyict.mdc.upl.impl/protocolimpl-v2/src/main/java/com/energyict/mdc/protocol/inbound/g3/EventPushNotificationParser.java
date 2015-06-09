@@ -15,8 +15,6 @@ import com.energyict.mdc.channels.ComChannelType;
 import com.energyict.mdc.meterdata.CollectedLogBook;
 import com.energyict.mdc.ports.InboundComPort;
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.SynchroneousComChannel;
-import com.energyict.mdc.protocol.exceptions.CommunicationException;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.inbound.InboundDAO;
 import com.energyict.mdc.protocol.inbound.InboundDiscoveryContext;
@@ -132,7 +130,7 @@ public class EventPushNotificationParser {
         securityProperties.setSecurityPropertySet(getSecurityPropertySet());
         securityProperties.addProperties(getSecurityPropertySet().getSecurityProperties());
 
-        SynchroneousComChannel dummyComChannel = new SynchroneousComChannel(null, null);    //Dummy channel, no bytes will be read/written
+        DummyComChannel dummyComChannel = new DummyComChannel();    //Dummy channel, no bytes will be read/written
         TypedProperties comChannelProperties = TypedProperties.empty();
         comChannelProperties.setProperty(ComChannelType.TYPE, ComChannelType.SocketComChannel.getType());
         dummyComChannel.addProperties(comChannelProperties);
@@ -159,7 +157,7 @@ public class EventPushNotificationParser {
                 int encrLevel = securityProperties.get(0).getSecurityPropertySet().getEncryptionDeviceAccessLevelId();
                 this.securityPropertySet = new DeviceProtocolSecurityPropertySetImpl(authLevel, encrLevel, typedProperties);
             } else {
-                throw CommunicationException.notConfiguredForInboundCommunication(deviceIdentifier);
+                throw MdcManager.getComServerExceptionFactory().notConfiguredForInboundCommunication(deviceIdentifier);
             }
         }
         return this.securityPropertySet;

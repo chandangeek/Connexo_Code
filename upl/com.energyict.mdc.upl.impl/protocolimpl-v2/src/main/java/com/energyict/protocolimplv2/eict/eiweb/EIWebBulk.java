@@ -4,10 +4,10 @@ import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.meterdata.CollectedData;
-import com.energyict.mdc.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.protocol.inbound.ServletBasedInboundDeviceProtocol;
+import com.energyict.protocolimplv2.MdcManager;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -88,7 +88,7 @@ public class EIWebBulk implements ServletBasedInboundDeviceProtocol {
                 throw e;
             }
         } catch (IOException e) {
-            throw new ConnectionCommunicationException(e);
+            throw MdcManager.getComServerExceptionFactory().createConnectionCommunicationException(e);
         }
         return DiscoverResultType.DATA;
     }
@@ -124,7 +124,7 @@ public class EIWebBulk implements ServletBasedInboundDeviceProtocol {
                         break;
                 }
             } catch (IOException e) {
-                throw new ConnectionCommunicationException(e);
+                throw MdcManager.getComServerExceptionFactory().createConnectionCommunicationException(e);
             }
         }
     }

@@ -12,7 +12,6 @@ import com.energyict.mdc.meterdata.*;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.DeviceProtocol;
 import com.energyict.mdc.protocol.DeviceProtocolCache;
-import com.energyict.mdc.protocol.SynchroneousComChannel;
 import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
@@ -84,8 +83,8 @@ public abstract class WaveFlow implements DeviceProtocol {
         if (comChannel instanceof ServerWavenisGatewayComChannel) {   //Create a link
             WavenisStack wavenisStack = ((ServerWavenisGatewayComChannel) comChannel).getWavenisStack();
             WaveModuleLinkAdaptor waveModuleLinkAdaptor = WavenisStackUtils.createLink(getWaveFlowProperties().getRFAddress(), wavenisStack);
-            SynchroneousComChannel synchroneousComChannel = new SynchroneousComChannel(waveModuleLinkAdaptor.getInputStream(), waveModuleLinkAdaptor.getOutputStream());
-            waveFlowConnect = new WaveFlowConnect(synchroneousComChannel, getWaveFlowProperties().getTimeout(), getWaveFlowProperties().getRetries());
+            //SynchroneousComChannel synchroneousComChannel = new SynchroneousComChannel(waveModuleLinkAdaptor.getInputStream(), waveModuleLinkAdaptor.getOutputStream());
+            //waveFlowConnect = new WaveFlowConnect(synchroneousComChannel, getWaveFlowProperties().getTimeout(), getWaveFlowProperties().getRetries());
         } else {                                                                        //Use the given link
             waveFlowConnect = new WaveFlowConnect(comChannel, getWaveFlowProperties().getTimeout(), getWaveFlowProperties().getRetries());
         }

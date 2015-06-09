@@ -1,7 +1,7 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155;
 
+import com.energyict.mdc.exceptions.ComServerExecutionException;
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.exceptions.CommunicationException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.encryption.CTREncryption;
@@ -14,8 +14,6 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.NackStructure;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 
 /**
  * Copyrights EnergyICT
@@ -24,7 +22,9 @@ import java.io.OutputStream;
  */
 public class GprsConnection implements CtrConnection<GPRSFrame> {
 
-    /** The ComChannel used for TCP/IP communication with the device **/
+    /**
+     * The ComChannel used for TCP/IP communication with the device
+     **/
     private final ComChannel comChannel;
 
     private final int retries;
@@ -204,13 +204,13 @@ public class GprsConnection implements CtrConnection<GPRSFrame> {
 //            if (gprsFrame.getProfi().isLongFrame()) {
 //                state = CtrConnectionState.READ_EXTENDED_LENGTH;
 //            } else {
-                if (readByte != GPRSFrame.ETX) {
-                    String fromBytes = ProtocolTools.getHexStringFromBytes(new byte[]{(byte) (readByte & 0x0FF)});
-                    throw new CTRConnectionException("Expected ETX, but received " + fromBytes);
-                } else {
-                    state = CtrConnectionState.FRAME_RECEIVED;
-                }
+            if (readByte != GPRSFrame.ETX) {
+                String fromBytes = ProtocolTools.getHexStringFromBytes(new byte[]{(byte) (readByte & 0x0FF)});
+                throw new CTRConnectionException("Expected ETX, but received " + fromBytes);
+            } else {
+                state = CtrConnectionState.FRAME_RECEIVED;
             }
+        }
 //        }
         return state;
     }
@@ -238,8 +238,12 @@ public class GprsConnection implements CtrConnection<GPRSFrame> {
             doForcedDelay();
             ensureComChannelIsInWritingMode();
             comChannel.write(frame.getBytes());
-        } catch (CommunicationException e) {
-            throw new CTRConnectionException("Unable to send frame.", e);
+        } catch (ComServerExecutionException e) {
+            if (MdcManager.getComServerExceptionFactory().isCommunicationException(e)) {
+                throw new CTRConnectionException("Unable to send frame.", e);
+            } else {
+                throw e;
+            }
         }
     }
 
