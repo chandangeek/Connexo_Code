@@ -88,6 +88,7 @@ Ext.define('Fim.view.importservices.AddImportService', {
                         xtype: 'textfield',
                         name: 'importDirectory',
                         itemId: 'txt-import-folder',
+                        maskRe: /\S/,
                         required: true,
                         width: 600,
                         fieldLabel: Uni.I18n.translate('importService.importFolder', 'FIM', 'Import folder'),
@@ -167,6 +168,8 @@ Ext.define('Fim.view.importservices.AddImportService', {
                         xtype: 'textfield',
                         name: 'inProcessDirectory',
                         itemId: 'txt-in-progress-folder',
+                        maskRe: /\S/,
+                        required: true,
                         width: 600,
                         fieldLabel: Uni.I18n.translate('importService.inProgressFolder', 'FIM', 'In progress folder'),
                         enforceMaxLength: true
@@ -175,6 +178,8 @@ Ext.define('Fim.view.importservices.AddImportService', {
                         xtype: 'textfield',
                         name: 'successDirectory',
                         itemId: 'txt-success-folder',
+                        maskRe: /\S/,
+                        required: true,
                         width: 600,
                         fieldLabel: Uni.I18n.translate('importService.successFolder', 'FIM', 'Success folder'),
                         enforceMaxLength: true
@@ -183,6 +188,8 @@ Ext.define('Fim.view.importservices.AddImportService', {
                         xtype: 'textfield',
                         name: 'failureDirectory',
                         itemId: 'txt-failure-folder',
+                        maskRe: /\S/,
+                        required: true,
                         width: 600,
                         fieldLabel: Uni.I18n.translate('importService.failureFolder', 'FIM', 'Failure folder'),
                         enforceMaxLength: true

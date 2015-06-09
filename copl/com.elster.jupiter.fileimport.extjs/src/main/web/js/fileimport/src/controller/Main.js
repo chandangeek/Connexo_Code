@@ -9,7 +9,9 @@ Ext.define('Fim.controller.Main', {
 
     controllers: [
         'Fim.controller.history.DataImport',
-        'Fim.controller.ImportServices'
+        'Fim.controller.ImportServices',
+        'Fim.controller.History',
+        'Fim.controller.Log'
     ],
 
     stores: [],
@@ -38,7 +40,6 @@ Ext.define('Fim.controller.Main', {
             });
 
             Uni.store.MenuItems.add(menuItem);
-
             var importItem = Ext.create('Uni.model.PortalItem', {
                 title: Uni.I18n.translate('general.dataImport', 'FIM', 'Data import'),
                 portal: 'administration',
@@ -47,6 +48,11 @@ Ext.define('Fim.controller.Main', {
                         text: Uni.I18n.translate('general.importServices', 'FIM', 'Import services'),
                         href: '#/administration/importservices',
                         route: 'importservices'
+                    },
+                    {
+                        text: Uni.I18n.translate('general.importHistory', 'FIM', 'Import history'),
+                        href: '#/administration/importhistory',
+                        route: 'importhistory'
                     }
                 ]
             });

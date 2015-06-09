@@ -7,6 +7,7 @@ Ext.define('Fim.model.ImportService', {
         'id',
         'name',
         'active',
+		'deleted',
         'application',
         {
             name: 'applicationDisplay',
@@ -22,9 +23,8 @@ Ext.define('Fim.model.ImportService', {
         'failureDirectory',
         'pathMatcher',
         'importerName',
-        'scanFrequency',
+        'scanFrequency',		
         'importerInfo',
-        //'statusDisplay',
         {
             name: 'statusDisplay',
             persist: false,
@@ -47,7 +47,6 @@ Ext.define('Fim.model.ImportService', {
                     return record.data.importerInfo.displayName;
                 }
                 return null;
-
             }
         }
     ],

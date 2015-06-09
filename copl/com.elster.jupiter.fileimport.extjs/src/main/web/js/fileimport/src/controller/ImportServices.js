@@ -15,6 +15,7 @@ Ext.define('Fim.controller.ImportServices', {
     ],
     models: [
         'Fim.model.ImportService',
+		'Fim.model.ImportServiceDetails',
         'Fim.model.FileImporter'
     ],
     refs: [
@@ -78,7 +79,7 @@ Ext.define('Fim.controller.ImportServices', {
     showImportService: function (importServiceId) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
-            importServiceModel = me.getModel('Fim.model.ImportService'),
+            importServiceModel = me.getModel('Fim.model.ImportServiceDetails'),
             view = Ext.widget('fin-details-import-service', {
                 router: router,
                 importServiceId: importServiceId
@@ -96,7 +97,8 @@ Ext.define('Fim.controller.ImportServices', {
                     actionsMenu.record = record;
                     actionsMenu.down('#view-import-service').hide();
                 }
-                view.down('#import-service-view-menu #import-services-view-link').setText(record.get('name'));
+				
+				view.down('#import-service-view-menu #import-services-view-link').setText(record.get('name'));
                 me.getApplication().fireEvent('importserviceload', record);
 
                 detailsForm.loadRecord(record);
@@ -130,6 +132,9 @@ Ext.define('Fim.controller.ImportServices', {
         switch (item.action) {
             case 'viewImportService':
                 location.href = '#/administration/importservices/' + record.get('id');
+                break;
+            case 'viewImportServiceHistory':
+                location.href = '#/administration/importservices/' + record.get('id') + '/history';
                 break;
             case 'activateimportservice':
                 me.deactivate(record);
@@ -171,7 +176,6 @@ Ext.define('Fim.controller.ImportServices', {
         var me = this,
             importServicesGrid = me.getImportServicesGrid(),
             importServicePreviewContainerPanel = me.getImportServicePreviewContainerPanel(),
-
             importServiceOverview = me.getImportServiceOverview(),
             view = importServicesGrid || importServicePreviewContainerPanel || importServiceOverview,
             isActive = record.get('active');
@@ -256,8 +260,18 @@ Ext.define('Fim.controller.ImportServices', {
     onShowImportServiceMenu: function (menu) {
         var activate = menu.down('#activate-import-service'),
             deactivate = menu.down('#deactivate-import-service');
-        activate && activate.setVisible(!menu.record.get('active'));
-        deactivate && deactivate.setVisible(menu.record.get('active'));
+			
+		if (menu.record.get('deleted')){
+			menu.down('#edit-import-service').hide();
+			menu.down('#remove-import-service').hide();
+			menu.down('#view-import-service').hide();					
+			menu.down('#activate-import-service').hide();
+			menu.down('#deactivate-import-service').hide();
+		}
+		else {
+			activate && activate.setVisible(!menu.record.get('active'));
+			deactivate && deactivate.setVisible(menu.record.get('active'));
+		}
     },
 
     showEditImportService: function (importServiceId) {
