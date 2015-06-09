@@ -292,7 +292,7 @@ public class FirmwareCampaignImpl implements FirmwareCampaign, HasUniqueName {
         setStatus(FirmwareCampaignStatus.CANCELLED);
         save();
 //        TODO: cancel campaign
-//        this.eventService.postEvent(EventType.FIRMWARE_CAMPAIGN_CANCELLED.topic(), this);
+        this.eventService.postEvent(EventType.FIRMWARE_CAMPAIGN_CANCELLED.topic(), this);
     }
 
     @Override
