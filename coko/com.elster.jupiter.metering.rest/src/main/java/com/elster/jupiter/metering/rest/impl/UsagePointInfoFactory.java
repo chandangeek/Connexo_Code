@@ -4,6 +4,9 @@ import com.elster.jupiter.metering.ElectricityDetail;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.rest.UsagePointInfo;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.InfoFactory;
 import com.elster.jupiter.rest.util.PropertyDescriptionInfo;
 import java.time.Clock;
@@ -20,11 +23,17 @@ import org.osgi.service.component.annotations.Reference;
 @Component(name="usagepoint.info.factory", service = { InfoFactory.class }, immediate = true)
 public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
 
-    private Clock clock;
+    private volatile Clock clock;
+    private volatile Thesaurus thesaurus;
 
     @Reference
     public void setClock(Clock clock) {
         this.clock = clock;
+    }
+
+    @Reference
+    public void setNlsService(NlsService nlsService) {
+        this.thesaurus = nlsService.getThesaurus(MeteringApplication.COMPONENT_NAME, Layer.REST);
     }
 
     @Override
@@ -71,8 +80,33 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
     @Override
     public List<PropertyDescriptionInfo> infoStructure() {
         List<PropertyDescriptionInfo> infos = new ArrayList<>();
-        infos.add(new PropertyDescriptionInfo("mRID", String.class, "mRID"));
+        infos.add(createDescription("mRID", String.class));
+        infos.add(createDescription("serviceCategory", String.class));
+        infos.add(createDescription("aliasName", String.class));
+        infos.add(createDescription("description", String.class));
+        infos.add(createDescription("name", String.class));
+        infos.add(createDescription("amiBillingReady", String.class));
+        infos.add(createDescription("checkBilling", Boolean.class));
+        infos.add(createDescription("connectionState", String.class));
+        infos.add(createDescription("estimatedLoad", String.class));
+        infos.add(createDescription("grounded", Boolean.class));
+        infos.add(createDescription("isSdp", Boolean.class));
+        infos.add(createDescription("isVirtual", Boolean.class));
+        infos.add(createDescription("minimalUsageExpected", Boolean.class));
+        infos.add(createDescription("nominalServiceVoltage", String.class));
+        infos.add(createDescription("outageRegion", String.class));
+        infos.add(createDescription("phaseCode", String.class));
+        infos.add(createDescription("ratedCurrent", String.class));
+        infos.add(createDescription("ratedPower", String.class));
+        infos.add(createDescription("readCycle", String.class));
+        infos.add(createDescription("readRoute", String.class));
+        infos.add(createDescription("serviceDeliveryRemark", String.class));
+        infos.add(createDescription("servicePriority", String.class));
         return infos;
+    }
+
+    private PropertyDescriptionInfo createDescription(String propertyName, Class<?> aClass) {
+        return new PropertyDescriptionInfo(propertyName, aClass, thesaurus.getString(propertyName, propertyName));
     }
 
     @Override
