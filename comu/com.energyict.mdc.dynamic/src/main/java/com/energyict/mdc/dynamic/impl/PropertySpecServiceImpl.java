@@ -16,8 +16,8 @@ import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.BooleanFactory;
-import com.elster.jupiter.properties.FindById;
-import com.elster.jupiter.properties.IdWithNameValue;
+import com.elster.jupiter.properties.CanFindByStringKey;
+import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecBuilder;
 import com.elster.jupiter.properties.TimeZoneFactory;
@@ -219,7 +219,7 @@ public class PropertySpecServiceImpl implements PropertySpecService {
     }
 
     @Override
-    public <T extends IdWithNameValue> PropertySpec listValuePropertySpec(String name, boolean required, FindById<T> finder, T... values) {
+    public <T extends HasIdAndName> PropertySpec listValuePropertySpec(String name, boolean required, CanFindByStringKey<T> finder, T... values) {
         return basicPropertySpecService.listValuePropertySpec(name, required, finder, values);
     }
 
@@ -289,7 +289,7 @@ public class PropertySpecServiceImpl implements PropertySpecService {
     }
     
     @Override
-    public <T extends IdWithNameValue> PropertySpec idWithNameValuePropertySpec(String name, boolean required, FindById<T> finder, T... values) {
-        return basicPropertySpecService.idWithNameValuePropertySpec(name, required, finder, values);
+    public <T extends HasIdAndName> PropertySpec stringReferencePropertySpec(String name, boolean required, CanFindByStringKey<T> finder, T... values) {
+        return basicPropertySpecService.stringReferencePropertySpec(name, required, finder, values);
     }
 }
