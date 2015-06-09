@@ -127,7 +127,7 @@ class ImportScheduleImpl implements ImportSchedule {
 
     @Override
     public boolean isActive() {
-        return this.active;
+        return !this.isDeleted() && this.active;
     }
 
     @Override
@@ -138,10 +138,12 @@ class ImportScheduleImpl implements ImportSchedule {
     @Override
     public DestinationSpec getDestination() {
         if (destination == null) {
-            String destinationName = fileImportService.getImportFactory(importerName)
-                    .orElseThrow(() -> new IllegalArgumentException("No such file importer: " + importerName))
-                    .getDestinationName();
-            destination = messageService.getDestinationSpec(destinationName).get();
+            if(fileImportService.getImportFactory(importerName).isPresent()) {
+                String destinationName = fileImportService.getImportFactory(importerName)
+                        .orElseThrow(() -> new IllegalArgumentException("No such file importer: " + importerName))
+                        .getDestinationName();
+                destination = messageService.getDestinationSpec(destinationName).get();
+            }
         }
         return destination;
     }
@@ -187,7 +189,9 @@ class ImportScheduleImpl implements ImportSchedule {
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        return fileImportService.getImportFactory(importerName).orElseThrow(() -> new IllegalArgumentException("No such file importer: " + importerName)).getPropertySpecs();
+        if(fileImportService.getImportFactory(importerName).isPresent())
+            return fileImportService.getImportFactory(importerName).get().getPropertySpecs();
+        return Collections.emptyList();
     }
 
     @Override
@@ -228,8 +232,11 @@ class ImportScheduleImpl implements ImportSchedule {
 
     @Override
     public Map<String, Object> getProperties() {
-        return properties.stream()
-                .collect(Collectors.toMap(FileImporterProperty::getName, FileImporterProperty::getValue));
+        if(fileImportService.getImportFactory(importerName).isPresent()) {
+            return properties.stream()
+                    .collect(Collectors.toMap(FileImporterProperty::getName, FileImporterProperty::getValue));
+        }
+        return Collections.emptyMap();
     }
 
     @Override
@@ -309,6 +316,11 @@ class ImportScheduleImpl implements ImportSchedule {
     @Override
     public void setActive(Boolean active) {
         this.active = active;
+    }
+
+    @Override
+    public boolean isDeleted(){
+        return (this.obsoleteTime != null) || !fileImportService.getImportFactory(importerName).isPresent();
     }
 
     @Override
