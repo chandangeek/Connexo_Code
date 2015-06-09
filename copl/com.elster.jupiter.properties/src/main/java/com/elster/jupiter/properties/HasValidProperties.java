@@ -20,8 +20,6 @@ public @interface HasValidProperties {
     String propertyNotInSpecMessage() default "";
     
     String requiredPropertyMissingMessage() default "";
-    
-    String invalidPropertyValueMessage() default "";
 
     Class<?>[] groups() default { };
 

@@ -1,7 +1,6 @@
 package com.elster.jupiter.properties;
 
 import java.sql.SQLException;
-import java.util.Optional;
 
 public class StringReferenceFactory<T extends HasIdAndName> extends AbstractValueFactory<T> {
 
@@ -18,11 +17,7 @@ public class StringReferenceFactory<T extends HasIdAndName> extends AbstractValu
         if (stringValue == null) {
             return null;
         }
-        Optional<T> found = finder.find(stringValue);
-        if(found.isPresent()) {
-            return found.get();
-        }
-        return null;
+        return finder.find(stringValue).orElse(null);
     }
 
     @Override

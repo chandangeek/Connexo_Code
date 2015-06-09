@@ -72,7 +72,7 @@ public class HasValidPropertiesValidator implements ConstraintValidator<HasValid
             propertySpec = getPropertySpec(propertySpecs, propertyName);
             propertySpec.validateValue(propertyValue);
         } catch (InvalidValueException e) {
-            context.buildConstraintViolationWithTemplate(annotation.invalidPropertyValueMessage())
+            context.buildConstraintViolationWithTemplate("{" + e.getMessageId() + "}")
                    .addPropertyNode(PROPERTIES_NODE)
                    .addPropertyNode(propertySpec.getName())
                    .addConstraintViolation()
