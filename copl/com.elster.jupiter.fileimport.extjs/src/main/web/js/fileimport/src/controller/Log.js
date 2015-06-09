@@ -12,8 +12,8 @@ Ext.define('Fim.controller.Log', {
     ],
     models: [
         'Fim.model.LogFilter',
-        'Fim.model.ImportServiceHistory'
-
+        'Fim.model.ImportServiceHistory',
+		'Fim.model.ImportServiceDetails'
     ],
     refs: [
         {
@@ -54,7 +54,7 @@ Ext.define('Fim.controller.Log', {
             importServiceId = router.arguments.importServiceId,
             occurrenceId = router.arguments.occurrenceId,
             store = me.getStore('Fim.store.Logs'),
-            importServiceModel = me.getModel('Fim.model.ImportService'),
+            importServiceModel = me.getModel('Fim.model.ImportServiceDetails'),
             importServiceHistory = me.getModel('Fim.model.ImportServiceHistory'),
             view;
 

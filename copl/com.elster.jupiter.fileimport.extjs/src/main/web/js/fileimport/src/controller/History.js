@@ -8,7 +8,8 @@ Ext.define('Fim.controller.History', {
     ],
     stores: [
         'Fim.store.ImportServicesFilter',
-        'Fim.store.Status'
+        'Fim.store.Status',
+		'Fim.store.ImportServicesHistory'
 
     ],
     models: [
@@ -88,7 +89,7 @@ Ext.define('Fim.controller.History', {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             store = me.getStore('Fim.store.ImportServicesHistory'),
-            importServiceModel = me.getModel('Fim.model.ImportService'),
+            importServiceModel = me.getModel('Fim.model.ImportServiceDetails'),
             showImportService = (importServiceId === undefined),
             historyViewMenu = me.getHistoryViewMenu(),
             view;
@@ -143,7 +144,7 @@ Ext.define('Fim.controller.History', {
         }
 
         me.setFilterTimeInterval('startedOnFrom', filter.get('startedOnFrom'), 'startedFrom', 'Started from');
-        me.setFilterTimeInterval('startedOnTo', filter.get('startedOnTo'), 'startedFrom', 'Started to');
+        me.setFilterTimeInterval('startedOnTo', filter.get('startedOnTo'), 'startedTo', 'Started to');
         me.setFilterTimeInterval('finishedOnFrom', filter.get('finishedOnFrom'), 'finishedFrom', 'Finished from');
         me.setFilterTimeInterval('finishedOnTo', filter.get('finishedOnTo'), 'finishedTo', 'Finished to');
         me.setSortingToolbar(filter);

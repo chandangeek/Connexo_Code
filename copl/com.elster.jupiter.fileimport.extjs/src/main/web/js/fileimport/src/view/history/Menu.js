@@ -18,7 +18,6 @@ Ext.define('Fim.view.history.Menu', {
             }
         ];
 
-        //if (me.router.arguments.importServiceId) {
         if (!me.showImportService) {
             me.menuItems.push(
                 {
