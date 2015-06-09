@@ -22,18 +22,19 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RulesSetGrid', {
                     }
                     return '<a href="#/administration/validation/rulesets/' + record.getId() + '">' + Ext.String.htmlEncode(value) + '</a>';
                 },
-                flex: 3
+                flex: 6
             },
             {
                 header: Uni.I18n.translate('validation.activeVersion', 'CFG', 'Active version'),
                 dataIndex: 'activeVersion',
-                flex: 5,
+                flex: 9,
                 align: 'left',
                 sortable: false,
                 fixed: true
             },	        
             {
                 xtype: 'uni-actioncolumn',
+                flex: 1,
                 privileges:Cfg.privileges.Validation.device,
                 items: 'Mdc.view.setup.devicedatavalidation.RulesSetActionMenu'
             }
