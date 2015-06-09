@@ -41,7 +41,7 @@ public enum AssociationKind {
 			if (refresh) {	
 				field.set(owner,create(constraint, field, owner,Optional.empty()));				
 			} else {
-				field.set(owner,create(constraint, field, owner, Optional.of(reference.get())));
+				field.set(owner,create(constraint, field, owner, reference.getOptional()));
 			}
 			if (reference.isPresent()) {
 				return ImmutableList.of(reference.get());
