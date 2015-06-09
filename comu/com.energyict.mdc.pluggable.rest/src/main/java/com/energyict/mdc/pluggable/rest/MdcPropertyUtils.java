@@ -20,6 +20,7 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.rest.FieldValidationException;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.firmware.FirmwareService;
+import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.pluggable.rest.impl.MdcPluggableRestApplication;
 import com.energyict.mdc.pluggable.rest.impl.properties.MdcPropertyReferenceInfoFactory;
 import com.energyict.mdc.pluggable.rest.impl.properties.SimplePropertyType;
@@ -262,6 +263,8 @@ public class MdcPropertyUtils {
             } else {
                 throw new FieldValidationException("Not a boolean", getTranslatedPropertyName(propertySpec));
             }
+        } else if(Objects.equals(propertySpec.getValueFactory().getValueType(), FirmwareVersion.class)){
+            return this.firmwareService.getFirmwareVersionById((Integer) ((LinkedHashMap<String, Object>) value).get("id")).orElse(null);
         }
         return propertySpec.getValueFactory().fromStringValue(value.toString());
     }
