@@ -12,23 +12,11 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.firmware.FirmwareManagementDeviceUtils;
 import com.energyict.mdc.firmware.FirmwareService;
-import com.energyict.mdc.firmware.rest.impl.DeviceFirmwareMessagesResource;
-import com.energyict.mdc.firmware.rest.impl.DeviceFirmwareVersionInfoFactory;
-import com.energyict.mdc.firmware.rest.impl.DeviceFirmwareVersionResource;
-import com.energyict.mdc.firmware.rest.impl.DeviceInFirmwareCampaignInfoFactory;
-import com.energyict.mdc.firmware.rest.impl.FirmwareCampaignInfoFactory;
-import com.energyict.mdc.firmware.rest.impl.FirmwareCampaignResource;
-import com.energyict.mdc.firmware.rest.impl.FirmwareFieldResource;
-import com.energyict.mdc.firmware.rest.impl.FirmwareManagementOptionsResource;
-import com.energyict.mdc.firmware.rest.impl.FirmwareMessageInfoFactory;
-import com.energyict.mdc.firmware.rest.impl.FirmwareTypesResource;
-import com.energyict.mdc.firmware.rest.impl.FirmwareVersionInfoFactory;
-import com.energyict.mdc.firmware.rest.impl.FirmwareVersionResource;
-import com.energyict.mdc.firmware.rest.impl.MessageSeeds;
-import com.energyict.mdc.firmware.rest.impl.ResourceHelper;
+import com.energyict.mdc.firmware.rest.impl.*;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.tasks.TaskService;
@@ -62,6 +50,7 @@ public class FirmwareApplication extends Application implements TranslationKeyPr
     private volatile TaskService taskService;
     private volatile Clock clock;
     private volatile MeteringGroupsService meteringGroupsService;
+    private volatile CommunicationTaskService communicationTaskService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -74,7 +63,8 @@ public class FirmwareApplication extends Application implements TranslationKeyPr
                 DeviceFirmwareMessagesResource.class,
                 FirmwareTypesResource.class,
                 TransactionWrapper.class,
-                MultiPartFeature.class
+                MultiPartFeature.class,
+                FirmwareComTaskResource.class
         );
     }
 

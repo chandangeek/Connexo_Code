@@ -62,9 +62,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     FIRMWARE_UPLOAD_NOT_FOUND(1007, "FirmwareUploadNotFound", "No firmware upload process with id {0} could be found"),
     FIRMWARE_CANNOT_BE_ACTIVATED(1008, "FirmwareCannotBeActivated", "Firmware version cannot be activated"),
     FIRMWARE_CHECK_TASK_IS_NOT_ACTIVE(1009, "FirmwareCheckTaskIsNotActive", "It is impossible to check firmware version because Check firmware version communication task is not active on device configuration"),
-
-
-    
+    COM_TASK_IS_NOT_ENABLED_FOR_THIS_DEVICE(1010, "comTaskNotFound", "Could not find communication task with id {0}"),
     ;
     private final int number;
     private final String key;
