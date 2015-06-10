@@ -107,6 +107,9 @@ Ext.define('Fim.controller.ImportServices', {
 					}
 				   });
 				}
+                else {
+                    actionsMenu.record = recordDetails;
+                }
 				
 				view.down('#import-service-view-menu #import-services-view-link').setText(recordDetails.get('name'));
                 me.getApplication().fireEvent('importserviceload', recordDetails);
@@ -269,35 +272,34 @@ Ext.define('Fim.controller.ImportServices', {
 
     onShowImportServiceMenu: function (menu) {
         var me = this,
-			activate = menu.down('#activate-import-service'),
-            deactivate = menu.down('#deactivate-import-service');
-			
-		if (menu.record.get('deleted')){
-			menu.down('#edit-import-service').hide();
-			menu.down('#remove-import-service').hide();
-			menu.down('#view-import-service').hide();					
-			menu.down('#activate-import-service').hide();
-			menu.down('#deactivate-import-service').hide();
-		} 
-		else if (!menu.record.get('importerAvailable')){
-			menu.down('#edit-import-service').hide();			
-			menu.down('#view-import-service').hide();					
-			menu.down('#activate-import-service').hide();
-			menu.down('#deactivate-import-service').hide();
-		}
-		else {
-			activate && activate.setVisible(!menu.record.get('active'));
-			deactivate && deactivate.setVisible(menu.record.get('active'));
-			menu.down('#edit-import-service').show();
-			menu.down('#remove-import-service').show();	
-			if (me.getDetailsImportService()){
-				menu.down('#view-import-service').hide();	
-			}
-			else {
-				menu.down('#view-import-service').show();	
-			}
-				
-		}
+            activate = menu.down('#activate-import-service'),
+            deactivate = menu.down('#deactivate-import-service'),
+            edit = menu.down('#edit-import-service'),
+            remove = menu.down('#remove-import-service'),
+            view = menu.down('#view-import-service'),
+            active = menu.record.get('active');
+
+
+        if (menu.record.get('deleted')){
+            edit && edit.setVisible(false);
+            remove && remove.setVisible(false);
+            view && view.setVisible(false);
+            activate && activate.setVisible(false);
+            deactivate && deactivate.setVisible(false);
+        }
+        else if (!menu.record.get('importerAvailable')){
+            edit && edit.setVisible(false);
+            view && view.setVisible(false);
+            activate && activate.setVisible(false);
+            deactivate && deactivate.setVisible(false);
+        }
+        else {
+            edit && edit.setVisible(true);
+            remove && remove.setVisible(true);
+            view && view.setVisible(!me.getDetailsImportService());
+            activate && activate.setVisible(!active);
+            deactivate && deactivate.setVisible(active);
+        }
     },
 
     showEditImportService: function (importServiceId) {
