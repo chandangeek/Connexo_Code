@@ -5,9 +5,9 @@ Ext.define('Fwc.view.firmware.FirmwareVersions', {
     requires: [
         'Mdc.view.setup.devicetype.SideMenu',
         'Fwc.view.firmware.Grid',
-        'Fwc.view.firmware.SideFilter',
+        'Fwc.view.firmware.FirmwareVersionsTopFilter',
         'Uni.component.filter.view.FilterTopPanel',
-        'Uni.view.button.SortItemButton'
+        'Uni.view.button.SortItemButton',
     ],
     deviceType: null,
 
@@ -26,11 +26,6 @@ Ext.define('Fwc.view.firmware.FirmwareVersions', {
                         itemId: 'stepsMenu',
                         router: this.router,
                         deviceTypeId: this.deviceType.get('id')
-                    },
-                    {
-                        xtype: 'firmware-side-filter',
-                        itemId: 'side-filter',
-                        router: this.router
                     }
                 ]
             }
@@ -47,10 +42,6 @@ Ext.define('Fwc.view.firmware.FirmwareVersions', {
                 },
 
                 items: [
-                    {
-                        xtype: 'filter-top-panel',
-                        itemId: 'firmware-filter-top'
-                    },
                     {
                         xtype: 'emptygridcontainer',
                         grid: {
@@ -73,6 +64,12 @@ Ext.define('Fwc.view.firmware.FirmwareVersions', {
                                 }
                             ]
                         }
+                    }
+                ],
+                dockedItems: [
+                    {
+                        dock: 'top',
+                        xtype: 'fwc-view-firmware-versions-topfilter'
                     }
                 ]
             }
