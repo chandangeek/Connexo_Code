@@ -1,17 +1,12 @@
 package com.energyict.mdc.device.data.impl.search;
 
-import com.energyict.mdc.device.data.Device;
-
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.sql.Fetcher;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
-
-import java.sql.Connection;
-import java.sql.SQLException;
+import com.energyict.mdc.device.data.Device;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -99,7 +94,7 @@ public class DeviceFinder implements Finder<Device> {
 
         @Override
         public SqlBuilder addPaging(SqlBuilder sqlBuilder) {
-            return sqlBuilder.asPageBuilder(this.from, this.to);
+            return sqlBuilder.asPageBuilder(this.from, this.to+1);
         }
     }
 
