@@ -22,7 +22,7 @@ Ext.define('Cfg.view.validation.RuleSetList', {
 				sortable: false, 
 				fixed: true,
                 renderer: function (value, metaData, record) {
-                    metaData.tdAttr = Ext.String.htmlEncode(Ext.String.htmlEncode('data-qtip="' + record.get('description').replace(/(?:\r\n|\r|\n)/g, '<br />') + '"'));
+                    metaData.tdAttr = 'data-qtip="' + Ext.String.htmlEncode(Ext.String.htmlEncode(record.get('description'))) + '"';
                     return '<a href="#/administration/validation/rulesets/' + record.getId() + '">' + Ext.String.htmlEncode(value) + '</a>'
                 }
             },
