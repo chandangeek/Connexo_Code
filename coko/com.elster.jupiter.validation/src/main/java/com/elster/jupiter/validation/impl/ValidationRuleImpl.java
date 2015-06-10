@@ -42,7 +42,6 @@ public final class ValidationRuleImpl implements IValidationRule {
 
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.NAME_REQUIRED_KEY + "}")
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
-    @Pattern(regexp="^$|[a-zA-Z0-9\\-' '_]+", groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Constants.INVALID_CHARS +"}")
     private String name;
     private boolean active;
     private ValidationAction action;

@@ -40,10 +40,8 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
 
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.NAME_REQUIRED_KEY + "}")
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
-    @Pattern(regexp="^$|[a-zA-Z0-9\\-' '_]+", groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Constants.INVALID_CHARS +"}")
     private String name;
     @Size(min = 0, max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
-    @Pattern(regexp="[a-zA-Z0-9\\-' '_]+", groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Constants.INVALID_CHARS +"}")
     private String aliasName;
     @Size(min = 0, max = Table.DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.FIELD_SIZE_BETWEEN_1_AND_4000 + "}")
     private String description;
