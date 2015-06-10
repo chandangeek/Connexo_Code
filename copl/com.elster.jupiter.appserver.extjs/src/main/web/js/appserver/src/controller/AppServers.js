@@ -9,6 +9,7 @@ Ext.define('Apr.controller.AppServers', {
         'Apr.store.ServedMessageServices',
         'Apr.store.UnservedMessageServices',
         'Apr.store.ServedImportServices',
+        'Apr.store.UnservedImportServices',
         'Apr.store.ExportPaths',
         'Apr.store.ImportPaths'
     ],
