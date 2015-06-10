@@ -45,14 +45,14 @@ public class ImportDirectoryResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public Response addImportPaths(DirectoryForAppServerInfo info) {
-        return updateExportPaths(info.appServerName, info);
+        return updateImportPaths(info.appServerName, info);
     }
 
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Path("/{appServerName}")
-    public Response updateExportPaths(@PathParam("appServerName") String appServerName, DirectoryForAppServerInfo info) {
+    public Response updateImportPaths(@PathParam("appServerName") String appServerName, DirectoryForAppServerInfo info) {
         AppServer appServer = findAppServerOrThrowException(appServerName);
         try (TransactionContext context = transactionService.getContext()) {
             appServer.setImportDirectory(info.path());
@@ -70,7 +70,7 @@ public class ImportDirectoryResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Path("/{appServerName}")
-    public Response removeExportPaths(@PathParam("appServerName") String appServerName){
+    public Response removeImportPaths(@PathParam("appServerName") String appServerName){
         AppServer appServer = findAppServerOrThrowException(appServerName);
         try (TransactionContext context = transactionService.getContext()) {
             appServer.removeImportDirectory();
