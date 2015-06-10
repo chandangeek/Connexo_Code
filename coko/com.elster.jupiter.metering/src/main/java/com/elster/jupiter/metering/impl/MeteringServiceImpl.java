@@ -4,6 +4,7 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.FiniteStateMachine;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.ids.Vault;
 import com.elster.jupiter.messaging.MessageService;
@@ -42,6 +43,7 @@ import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.streams.DecoratedStream;
 import com.google.inject.AbstractModule;
+
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -50,6 +52,7 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.validation.MessageInterpolator;
+
 import java.time.Clock;
 import java.time.Instant;
 import java.time.Period;
@@ -74,6 +77,8 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
     private volatile MessageService messageService;
+    @SuppressWarnings("unused")
+    private volatile FiniteStateMachineService finiteStateMachineService;
 
     private volatile boolean createAllReadingTypes;
     private volatile String[] requiredReadingTypes;
@@ -85,7 +90,7 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     @Inject
     public MeteringServiceImpl(
             Clock clock, OrmService ormService, IdsService idsService, EventService eventService, PartyService partyService, QueryService queryService, UserService userService, NlsService nlsService, MessageService messageService,
-            @Named("createReadingTypes") boolean createAllReadingTypes, @Named("requiredReadingTypes") String requiredReadingTypes) {
+            @Named("createReadingTypes") boolean createAllReadingTypes, @Named("requiredReadingTypes") String requiredReadingTypes, FiniteStateMachineService finiteStateMachineService) {
         this.clock = clock;
         this.createAllReadingTypes = createAllReadingTypes;
         this.requiredReadingTypes = requiredReadingTypes.split(";");
@@ -97,6 +102,7 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
         setUserService(userService);
         setNlsService(nlsService);
         setMessageService(messageService);
+        setFiniteStateMachineService(finiteStateMachineService);
         activate();
         if (!dataModel.isInstalled()) {
             install();
@@ -286,6 +292,11 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     @Reference
     public final void setUserService(UserService userService) {
         this.userService = userService;
+    }
+    
+    @Reference
+    public void setFiniteStateMachineService(FiniteStateMachineService finiteStateMachineService) {
+        this.finiteStateMachineService = finiteStateMachineService;
     }
 
     public EventService getEventService() {
