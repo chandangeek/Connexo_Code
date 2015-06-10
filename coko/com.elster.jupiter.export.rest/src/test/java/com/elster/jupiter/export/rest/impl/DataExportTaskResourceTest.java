@@ -48,6 +48,8 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
         info.standardDataSelector.deviceGroup.id = 5;
         info.dataProcessor = new ProcessorInfo();
         info.dataProcessor.name = "dataProcessor";
+        info.dataSelector = new SelectorInfo();
+        info.dataSelector.name = "Standard Data Selector";
 
         Entity<DataExportTaskInfo> json = Entity.json(info);
 
@@ -65,6 +67,9 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
         info.standardDataSelector.deviceGroup.id = 5;
         info.dataProcessor = new ProcessorInfo();
         info.dataProcessor.name = "dataProcessor";
+        info.dataSelector = new SelectorInfo();
+        info.dataSelector.name = "Standard Data Selector";
+
 
         Entity<DataExportTaskInfo> json = Entity.json(info);
 
