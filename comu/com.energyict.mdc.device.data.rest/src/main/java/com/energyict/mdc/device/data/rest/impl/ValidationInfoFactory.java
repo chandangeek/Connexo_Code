@@ -6,9 +6,11 @@ import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationRuleSetVersion;
 import com.elster.jupiter.validation.rest.*;
+import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.DeviceValidation;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.NumericalRegister;
+import com.google.common.collect.ImmutableList;
 
 import javax.inject.Inject;
 import java.time.Instant;
@@ -122,7 +124,12 @@ public class ValidationInfoFactory {
         Map<ValidationRule, Long> suspectReasonMap = new HashMap<>();
         Map<ValidationRuleSet, Long> suspectReasonRuleSetMap = new HashMap<>();
         Map<ValidationRuleSetVersion, Long> suspectReasonRuleSetVersionMap = new HashMap<>();
-        dataValidationStatuses.stream().forEach(s -> fillSuspectReasonMap(s.getOffendedRules(), suspectReasonMap, suspectReasonRuleSetVersionMap, suspectReasonRuleSetMap));
+        dataValidationStatuses.stream().forEach(s -> {
+            ImmutableList.Builder<ValidationRule> validationRules = ImmutableList.builder();
+            validationRules.addAll(s.getOffendedRules());
+            validationRules.addAll(s.getBulkOffendedRules());
+            fillSuspectReasonMap(validationRules.build(), suspectReasonMap, suspectReasonRuleSetVersionMap, suspectReasonRuleSetMap);
+        });
         return computeRuleSetVersionChain(suspectReasonRuleSetMap, suspectReasonRuleSetVersionMap, suspectReasonMap);
     }
 
@@ -164,11 +171,16 @@ public class ValidationInfoFactory {
         return result;
     }
 
-    ValidationInfo createValidationInfoFor(DataValidationStatus dataValidationStatus, DeviceValidation deviceValidation) {
+    ValidationInfo createValidationInfoFor(Map.Entry<Channel, DataValidationStatus> entry, DeviceValidation deviceValidation) {
         ValidationInfo validationInfo = new ValidationInfo();
+        DataValidationStatus dataValidationStatus = entry.getValue();
         validationInfo.dataValidated = dataValidationStatus.completelyValidated();
-        validationInfo.validationRules = validationRuleInfoFactory.createInfosForDataValidationStatus(dataValidationStatus);
-        validationInfo.validationResult = ValidationStatus.forResult(deviceValidation.getValidationResult(dataValidationStatus.getReadingQualities()));
+        validationInfo.mainValidationInfo.validationRules = validationRuleInfoFactory.createInfosForDataValidationStatus(dataValidationStatus);
+        validationInfo.mainValidationInfo.validationResult = ValidationStatus.forResult(deviceValidation.getValidationResult(dataValidationStatus.getReadingQualities()));
+        if (entry.getKey().getReadingType().isCumulative() && entry.getKey().getReadingType().getCalculatedReadingType().isPresent()) {
+            validationInfo.bulkValidationInfo.validationRules = validationRuleInfoFactory.createInfosForBulkDataValidationStatus(dataValidationStatus);
+            validationInfo.bulkValidationInfo.validationResult = ValidationStatus.forResult(deviceValidation.getValidationResult(dataValidationStatus.getBulkReadingQualities()));
+        }
         return validationInfo;
     }
 
@@ -191,7 +203,13 @@ public class ValidationInfoFactory {
 
     private Map<ValidationRuleInfo, Long> getSuspectReasonMap(List<DataValidationStatus> dataValidationStatuses) {
         Map<ValidationRule, Long> suspectReasonMap = new HashMap<>();
-        dataValidationStatuses.stream().forEach(s -> fillSuspectReasonMap(s.getOffendedRules(), suspectReasonMap));
+        dataValidationStatuses.stream().forEach(s -> {
+            ImmutableList.Builder<ValidationRule> validationRules = ImmutableList.builder();
+            validationRules.addAll(s.getOffendedRules());
+            validationRules.addAll(s.getBulkOffendedRules());
+            fillSuspectReasonMap(validationRules.build(), suspectReasonMap);
+
+        });
         return validationRuleInfoFactory.createInfosForSuspectReasons(suspectReasonMap);
     }
 

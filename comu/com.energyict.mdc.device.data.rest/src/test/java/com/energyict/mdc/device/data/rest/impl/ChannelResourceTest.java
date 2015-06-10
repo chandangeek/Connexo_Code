@@ -130,6 +130,8 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         doReturn(Arrays.asList(rule1)).when(ruleSet).getRules();
         when(rule1.isActive()).thenReturn(true);
         when(loadProfileReading.getChannelValidationStates()).thenReturn(ImmutableMap.of(channel, state1));
+        when(addedloadProfileReading.getChannelValidationStates()).thenReturn(ImmutableMap.of(channel, state1));
+        when(editedProfileReading.getChannelValidationStates()).thenReturn(ImmutableMap.of(channel, state1));
         when(validationService.getEvaluator()).thenReturn(evaluator);
         when(evaluator.getValidationResult(any())).thenReturn(ValidationResult.SUSPECT);
         when(rule1.getImplementation()).thenReturn("isPrime");
@@ -166,12 +168,12 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         assertThat(jsonModel.<String>get("$.data[0].intervalFlags[0]")).isEqualTo(BATTERY_LOW);
         String value = jsonModel.<String>get("$.data[0].value");
         assertThat(value).isEqualTo("200.000");
-        assertThat(jsonModel.<Boolean>get("$.data[0].dataValidated")).isTrue();
-        assertThat(jsonModel.<String>get("$.data[0].validationResult")).isEqualTo("validationStatus.suspect");
-        assertThat(jsonModel.<List<?>>get("$.data[0].suspectReason")).hasSize(1);
-        assertThat(jsonModel.<Boolean>get("$.data[0].suspectReason[0].active")).isTrue();
-        assertThat(jsonModel.<String>get("$.data[0].suspectReason[0].implementation")).isEqualTo("isPrime");
-        assertThat(jsonModel.<String>get("$.data[0].suspectReason[0].displayName")).isEqualTo("Primes only");
+        assertThat(jsonModel.<Boolean>get("$.data[0].validationInfo.dataValidated")).isTrue();
+        assertThat(jsonModel.<String>get("$.data[0].validationInfo.mainValidationInfo.validationResult")).isEqualTo("validationStatus.suspect");
+        assertThat(jsonModel.<List<?>>get("$.data[0].validationInfo.mainValidationInfo.validationRules")).hasSize(1);
+        assertThat(jsonModel.<Boolean>get("$.data[0].validationInfo.mainValidationInfo.validationRules[0].active")).isTrue();
+        assertThat(jsonModel.<String>get("$.data[0].validationInfo.mainValidationInfo.validationRules[0].implementation")).isEqualTo("isPrime");
+        assertThat(jsonModel.<String>get("$.data[0].validationInfo.mainValidationInfo.validationRules[0].displayName")).isEqualTo("Primes only");
         assertThat(jsonModel.<String>get("$.data[0].modificationFlag")).isNull();
         assertThat(jsonModel.<Long>get("$.data[0].reportedDateTime")).isEqualTo(LAST_READING.toEpochMilli());
 
@@ -248,7 +250,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
 
         JsonModel jsonModel = JsonModel.create(json);
 
-        assertThat(jsonModel.<List<?>>get("$.data")).hasSize(1);
+        assertThat(jsonModel.<List<?>>get("$.data")).hasSize(3);
     }
 
     @Test

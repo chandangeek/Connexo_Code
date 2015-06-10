@@ -140,11 +140,11 @@ public class LoadProfileTypeResourceTest extends DeviceDataRestApplicationJersey
         Map validations = jsonModel.<Map>get("$.data[0].channelValidationData");
         assertThat(validations).hasSize(1).containsKey(String.valueOf(CHANNEL_ID1));
         assertThat(jsonModel.<Boolean>get("$.data[0].channelValidationData." + CHANNEL_ID1 + ".dataValidated")).isTrue();
-        assertThat(jsonModel.<String>get("$.data[0].channelValidationData." + CHANNEL_ID1 + ".validationResult")).isEqualTo("validationStatus.suspect");
-        assertThat(jsonModel.<List<?>>get("$.data[0].channelValidationData." + CHANNEL_ID1 + ".validationRules")).hasSize(1);
-        assertThat(jsonModel.<Boolean>get("$.data[0].channelValidationData." + CHANNEL_ID1 + ".validationRules[0].active")).isTrue();
-        assertThat(jsonModel.<String>get("$.data[0].channelValidationData." + CHANNEL_ID1 + ".validationRules[0].implementation")).isEqualTo("isPrime");
-        assertThat(jsonModel.<String>get("$.data[0].channelValidationData." + CHANNEL_ID1 + ".validationRules[0].displayName")).isEqualTo("Primes only");
+        assertThat(jsonModel.<String>get("$.data[0].channelValidationData." + CHANNEL_ID1 + ".mainValidationInfo.validationResult")).isEqualTo("validationStatus.suspect");
+        assertThat(jsonModel.<List<?>>get("$.data[0].channelValidationData." + CHANNEL_ID1 + ".mainValidationInfo.validationRules")).hasSize(1);
+        assertThat(jsonModel.<Boolean>get("$.data[0].channelValidationData." + CHANNEL_ID1 + ".mainValidationInfo.validationRules[0].active")).isTrue();
+        assertThat(jsonModel.<String>get("$.data[0].channelValidationData." + CHANNEL_ID1 + ".mainValidationInfo.validationRules[0].implementation")).isEqualTo("isPrime");
+        assertThat(jsonModel.<String>get("$.data[0].channelValidationData." + CHANNEL_ID1 + ".mainValidationInfo.validationRules[0].displayName")).isEqualTo("Primes only");
     }
 
     @Test

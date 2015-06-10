@@ -149,7 +149,8 @@ public class ChannelResource {
 
 
     private boolean hasSuspects(ChannelDataInfo info) {
-        return ValidationStatus.SUSPECT.equals(info.validationResult);
+        return ValidationStatus.SUSPECT.equals(info.validationInfo.mainValidationInfo.validationResult) ||
+                ValidationStatus.SUSPECT.equals(info.validationInfo.bulkValidationInfo.validationResult);
     }
 
     private boolean hasMissingData(ChannelDataInfo info) {
