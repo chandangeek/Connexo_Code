@@ -26,7 +26,11 @@ Ext.define('Fim.controller.ImportServices', {
         {
             ref: 'addPage',
             selector: 'fim-add-import-service'
-        },
+        },		
+        {
+            ref: 'detailsImportService',
+            selector: 'fin-details-import-service'
+        },		
         {
             ref: 'importServicesGrid',
             selector: '#grd-import-services'
@@ -79,31 +83,37 @@ Ext.define('Fim.controller.ImportServices', {
     showImportService: function (importServiceId) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
-            importServiceModel = me.getModel('Fim.model.ImportServiceDetails'),
+			importServiceModel = me.getModel('Fim.model.ImportService'),
+            importServiceModelDetails = me.getModel('Fim.model.ImportServiceDetails'),
             view = Ext.widget('fin-details-import-service', {
                 router: router,
                 importServiceId: importServiceId
             }),
             actionsMenu = view.down('fim-import-service-action-menu');
 
-        importServiceModel.load(importServiceId, {
-            success: function (record) {
+        importServiceModelDetails.load(importServiceId, {
+            success: function (recordDetails) {
                 var detailsForm = view.down('fim-import-service-preview-form'),
                     propertyForm = detailsForm.down('property-form');
 
                 me.getApplication().fireEvent('changecontentevent', view);
 
-                if (actionsMenu) {
-                    actionsMenu.record = record;
-                    actionsMenu.down('#view-import-service').hide();
-                }
+				if (!recordDetails.get('deleted')){
+					importServiceModel.load(importServiceId, {
+					success: function (record) {
+						if (actionsMenu) {
+							actionsMenu.record = record;	
+						}
+					}
+				   });
+				}
 				
-				view.down('#import-service-view-menu #import-services-view-link').setText(record.get('name'));
-                me.getApplication().fireEvent('importserviceload', record);
+				view.down('#import-service-view-menu #import-services-view-link').setText(recordDetails.get('name'));
+                me.getApplication().fireEvent('importserviceload', recordDetails);
 
-                detailsForm.loadRecord(record);
-                if (record.properties() && record.properties().count()) {
-                    propertyForm.loadRecord(record);
+                detailsForm.loadRecord(recordDetails);
+                if (recordDetails.get('importerAvailable') && recordDetails.properties() && recordDetails.properties().count()) {
+                    propertyForm.loadRecord(recordDetails);
                 }
             }
         });
@@ -258,7 +268,8 @@ Ext.define('Fim.controller.ImportServices', {
     },
 
     onShowImportServiceMenu: function (menu) {
-        var activate = menu.down('#activate-import-service'),
+        var me = this,
+			activate = menu.down('#activate-import-service'),
             deactivate = menu.down('#deactivate-import-service');
 			
 		if (menu.record.get('deleted')){
@@ -267,10 +278,25 @@ Ext.define('Fim.controller.ImportServices', {
 			menu.down('#view-import-service').hide();					
 			menu.down('#activate-import-service').hide();
 			menu.down('#deactivate-import-service').hide();
+		} 
+		else if (!menu.record.get('importerAvailable')){
+			menu.down('#edit-import-service').hide();			
+			menu.down('#view-import-service').hide();					
+			menu.down('#activate-import-service').hide();
+			menu.down('#deactivate-import-service').hide();
 		}
 		else {
 			activate && activate.setVisible(!menu.record.get('active'));
 			deactivate && deactivate.setVisible(menu.record.get('active'));
+			menu.down('#edit-import-service').show();
+			menu.down('#remove-import-service').show();	
+			if (me.getDetailsImportService()){
+				menu.down('#view-import-service').hide();	
+			}
+			else {
+				menu.down('#view-import-service').show();	
+			}
+				
 		}
     },
 

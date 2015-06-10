@@ -9,6 +9,7 @@ Ext.define('Fim.model.ImportService', {
         'active',
 		'deleted',
         'application',
+		'importerAvailable',
         {
             name: 'applicationDisplay',
             persist: false,
@@ -28,7 +29,9 @@ Ext.define('Fim.model.ImportService', {
             name: 'statusDisplay',
             persist: false,
             convert: function (value, record) {
-                return record.get('active') ? Uni.I18n.translate('general.active', 'FIM', 'Active') : Uni.I18n.translate('general.inactive', 'FIM', 'Inactive');
+				return record.get('deleted') ? Uni.I18n.translate('general.deleted', 'FIM', 'Deleted') :
+						!record.get('importerAvailable') ? Uni.I18n.translate('general.notAvailable', 'FIM', 'Not available') :
+						record.get('active') ? Uni.I18n.translate('general.active', 'FIM', 'Active') : Uni.I18n.translate('general.inactive', 'FIM', 'Inactive');                                
             }
         },
         {

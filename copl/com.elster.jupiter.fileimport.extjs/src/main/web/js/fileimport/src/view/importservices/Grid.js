@@ -27,10 +27,7 @@ Ext.define('Fim.view.importservices.Grid', {
             },
             {
                 header: Uni.I18n.translate('general.status', 'FIM', 'Status'),
-                dataIndex: 'statusDisplay',
-                renderer: function (value, metaData, record) {
-                    return record.get('active') ? Uni.I18n.translate('general.active', 'FIM', 'Active') : Uni.I18n.translate('general.inactive', 'FIM', 'Inactive');
-                },
+                dataIndex: 'statusDisplay',                
                 flex: 1
             },
             {
