@@ -13,9 +13,15 @@ public interface DataValidationStatus {
 
     Collection<? extends ReadingQuality> getReadingQualities();
 
+    Collection<? extends ReadingQuality> getBulkReadingQualities();
+
     Collection<ValidationRule> getOffendedValidationRule(ReadingQuality readingQuality);
 
     Collection<ValidationRule> getOffendedRules();
 
+    Collection<ValidationRule> getBulkOffendedRules();
+
 	ValidationResult getValidationResult();
+
+    ValidationResult getBulkValidationResult();
 }

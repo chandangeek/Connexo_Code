@@ -399,6 +399,7 @@ public class ValidationServiceImplTest {
 
     @Test
     public void testGetValidationStatusOnEmptyList() {
+        when(channel1.getBulkQuantityReadingType()).thenReturn(Optional.empty());
         assertThat(validationService.getEvaluator().getValidationStatus(channel1, Collections.<BaseReading>emptyList())).isEmpty();
     }
 
@@ -420,6 +421,7 @@ public class ValidationServiceImplTest {
         });
 
         when(channelValidationFactory.find(eq("channel"), eq(channel1))).thenReturn(Collections.emptyList());
+        when(channel1.getBulkQuantityReadingType()).thenReturn(Optional.empty());
 
         List<DataValidationStatus> validationStatus = validationService.getEvaluator().getValidationStatus(channel1, Arrays.asList(reading));
         assertThat(validationStatus).hasSize(1);
@@ -458,7 +460,7 @@ public class ValidationServiceImplTest {
         when(cimChannel1.createReadingQuality(any(ReadingQualityType.class), eq(readingDate1))).thenReturn(readingQualityRecord);
 
         setupValidationRuleSet(channelValidation, channel1, true);
-
+        when(channel1.getBulkQuantityReadingType()).thenReturn(Optional.empty());
 // !! remark that the order of the reading is by purpose not chronological !!
         List<DataValidationStatus> validationStatus = validationService.getEvaluator().getValidationStatus(channel1, Arrays.asList(reading2, reading1));
         assertThat(validationStatus).hasSize(2);
@@ -484,7 +486,7 @@ public class ValidationServiceImplTest {
         when(reading1.getTimeStamp()).thenReturn(readingDate1);
         BaseReading reading2 = mock(BaseReading.class);
         when(reading2.getTimeStamp()).thenReturn(readingDate2);
-
+        when(channel1.getBulkQuantityReadingType()).thenReturn(Optional.empty());
 
         IChannelValidation channelValidation1 = mock(IChannelValidation.class);
         when(channelValidation1.getLastChecked()).thenReturn(readingDate1);
@@ -525,7 +527,7 @@ public class ValidationServiceImplTest {
         when(reading1.getTimeStamp()).thenReturn(readingDate1);
         BaseReading reading2 = mock(BaseReading.class);
         when(reading2.getTimeStamp()).thenReturn(readingDate2);
-
+        when(channel1.getBulkQuantityReadingType()).thenReturn(Optional.empty());
 
         IChannelValidation channelValidation1 = mock(IChannelValidation.class);
         when(channelValidation1.getLastChecked()).thenReturn(readingDate1);
@@ -585,6 +587,7 @@ public class ValidationServiceImplTest {
         ReadingQualityRecord readingDate2ReadingQuality = mock(ReadingQualityRecord.class);
         when(cimChannel1.createReadingQuality(any(ReadingQualityType.class), any(Instant.class))).thenReturn(readingDate2ReadingQuality);
         when(channel1.getMainReadingType()).thenReturn(mock(ReadingType.class));
+        when(channel1.getBulkQuantityReadingType()).thenReturn(Optional.empty());
         setupValidationRuleSet(channelValidation1, channel1, true, readingQualityType1, readingQualityType2);
 
 // !! remark that the order of the reading is by purpose not chronological !!

@@ -11,6 +11,7 @@ import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -32,16 +33,34 @@ public interface ValidationEvaluator {
     boolean isAllDataValidated(MeterActivation meterActivation);
 
     default List<DataValidationStatus> getValidationStatus(Channel channel, List<? extends BaseReading> readings) {
-        return getValidationStatus(channel.getCimChannel(channel.getMainReadingType()).get(), readings);
+        List<DataValidationStatus> dataValidationStatuses;
+        if (channel.getBulkQuantityReadingType().isPresent()) {
+            dataValidationStatuses = getValidationStatus(channel.getCimChannel(channel.getMainReadingType()).get(),
+                    channel.getCimChannel(channel.getBulkQuantityReadingType().get()).get(), readings);
+        } else {
+            dataValidationStatuses = getValidationStatus(channel.getCimChannel(channel.getMainReadingType()).get(), readings);
+        }
+        return dataValidationStatuses;
     }
 
     default List<DataValidationStatus> getValidationStatus(Channel channel, List<? extends BaseReading> readings, Range<Instant> interval) {
-        return getValidationStatus(channel.getCimChannel(channel.getMainReadingType()).get(), readings, interval);
+        List<DataValidationStatus> dataValidationStatuses;
+        if (channel.getBulkQuantityReadingType().isPresent()) {
+            dataValidationStatuses = getValidationStatus(channel.getCimChannel(channel.getMainReadingType()).get(),
+                    channel.getCimChannel(channel.getBulkQuantityReadingType().get()).get(), readings, interval);
+        } else {
+            dataValidationStatuses = getValidationStatus(channel.getCimChannel(channel.getMainReadingType()).get(), readings, interval);
+        }
+        return dataValidationStatuses;
     }
 
     List<DataValidationStatus> getValidationStatus(CimChannel channel, List<? extends BaseReading> readings);
 
     List<DataValidationStatus> getValidationStatus(CimChannel channel, List<? extends BaseReading> readings, Range<Instant> interval);
+
+    List<DataValidationStatus> getValidationStatus(CimChannel mainChannel, CimChannel bulkChannel, List<? extends BaseReading> readings);
+
+    List<DataValidationStatus> getValidationStatus(CimChannel mainChannel, CimChannel bulkChannel, List<? extends BaseReading> readings, Range<Instant> interval);
 
     boolean isValidationEnabled(Meter meter);
 

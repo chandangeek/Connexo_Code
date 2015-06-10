@@ -16,6 +16,7 @@ import java.util.Map;
 public class DataValidationStatusImpl implements DataValidationStatus {
     private final Instant timeStamp;
     private final Map<ReadingQuality, List<? extends ValidationRule>> qualityRecordList = new HashMap<>();
+    private final Map<ReadingQuality, List<? extends ValidationRule>> bulkQualityRecordList = new HashMap<>();
     private boolean completelyValidated;
 
     public DataValidationStatusImpl(Instant timeStamp, boolean completelyValidated) {
@@ -34,12 +35,18 @@ public class DataValidationStatusImpl implements DataValidationStatus {
     }
 
     @Override
+    public Collection<? extends ReadingQuality> getBulkReadingQualities() {
+        return Collections.unmodifiableCollection(bulkQualityRecordList.keySet());
+    }
+
+    @Override
     public Collection<ValidationRule> getOffendedValidationRule(ReadingQuality readingQuality) {
         if (qualityRecordList.containsKey(readingQuality)) {
             return Collections.unmodifiableCollection(qualityRecordList.get(readingQuality));
-        } else {
-            return Collections.emptyList();
+        } else if (bulkQualityRecordList.containsKey(readingQuality)) {
+            return Collections.unmodifiableCollection(bulkQualityRecordList.get(readingQuality));
         }
+        return Collections.emptyList();
     }
 
     @Override
@@ -52,6 +59,13 @@ public class DataValidationStatusImpl implements DataValidationStatus {
     }
 
     @Override
+    public Collection<ValidationRule> getBulkOffendedRules() {
+        ImmutableList.Builder<ValidationRule> allOffended = ImmutableList.builder();
+        bulkQualityRecordList.values().stream().forEach(allOffended::addAll);
+        return allOffended.build();
+    }
+
+    @Override
     public boolean completelyValidated() {
         return completelyValidated;
     }
@@ -59,9 +73,18 @@ public class DataValidationStatusImpl implements DataValidationStatus {
     public void addReadingQuality(ReadingQuality quality, List<IValidationRule> iValidationRules) {
         qualityRecordList.put(quality, iValidationRules);
     }
+
+    public void addBulkReadingQuality(ReadingQuality quality, List<IValidationRule> iValidationRules) {
+        bulkQualityRecordList.put(quality, iValidationRules);
+    }
     
     @Override
     public ValidationResult getValidationResult() {
     	return ValidationResult.getValidationResult(getReadingQualities());
+    }
+
+    @Override
+    public ValidationResult getBulkValidationResult() {
+        return ValidationResult.getValidationResult(getBulkReadingQualities());
     }
 }
