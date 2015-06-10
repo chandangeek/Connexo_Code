@@ -117,7 +117,11 @@ public class DynamicSearchResource {
                             if (searchableProperty.getSelectionMode().equals(SearchableProperty.SelectionMode.MULTI)) {
                                 searchBuilder.where(searchableProperty).in(getQueryParameterAsObjectList(jsonQueryFilter, searchableProperty));
                             } else {
-                                searchBuilder.where(searchableProperty).isEqualTo(getQueryParameterAsObject(jsonQueryFilter, searchableProperty));
+                                if (searchableProperty.getSpecification().getValueFactory().getValueType().equals(String.class)) {
+                                    searchBuilder.where(searchableProperty).likeIgnoreCase((String) getQueryParameterAsObject(jsonQueryFilter, searchableProperty));
+                                } else {
+                                    searchBuilder.where(searchableProperty).isEqualTo(getQueryParameterAsObject(jsonQueryFilter, searchableProperty));
+                                }
                             }
                         } catch (InvalidValueException e) {
                             throw new LocalizedFieldValidationException(MessageSeeds.INVALID_VALUE, "filter." + searchableProperty.getName());
