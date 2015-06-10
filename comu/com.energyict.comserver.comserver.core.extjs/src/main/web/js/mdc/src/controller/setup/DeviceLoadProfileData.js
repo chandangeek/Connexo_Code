@@ -101,24 +101,11 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
         initView = function (device) {
             var record = me.getLoadProfile(),
                 dataIntervalAndZoomLevels = me.getStore('Mdc.store.DataIntervalAndZoomLevels').getIntervalRecord(record.get('interval')),
-                durationsStore = me.getStore('Mdc.store.LoadProfileDataDurations'),
-                router =  me.getController('Uni.controller.history.Router')
+                durationsStore = me.getStore('Mdc.store.LoadProfileDataDurations')
                 ;
 
             durationsStore.loadData(dataIntervalAndZoomLevels.get('duration'));
-            tabWidget = Ext.widget('tabbedDeviceLoadProfilesView',{
-                device: device,
-                loadProfileId: loadProfileId,
-                toggleId: 'loadProfileLink',
-                router: router
-            });
 
-            widget = Ext.widget('deviceLoadProfilesData', {
-                router: router,
-                channels: record.get('channels'),
-                device: device
-            });
-            tabWidget.down('#loadProfileTabPanel').setTitle(record.get('name'));
             me.loadProfileModel = record;
             me.getApplication().fireEvent('loadProfileOfDeviceLoad', record);
             var func = function () {
@@ -132,8 +119,21 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
                         interval: intervalStart.getTime() + '-' + moment(intervalStart).add(all.timeUnit, all.count).valueOf()
                     }));
                 } else {
-                    me.getApplication().fireEvent('changecontentevent', tabWidget);
+                    tabWidget = Ext.widget('tabbedDeviceLoadProfilesView',{
+                        device: device,
+                        loadProfileId: loadProfileId,
+                        toggleId: 'loadProfileLink',
+                        router: router
+                    });
+                    widget = Ext.widget('deviceLoadProfilesData', {
+                        router: router,
+                        channels: record.get('channels'),
+                        device: device
+                    });
+
+                    tabWidget.down('#loadProfileTabPanel').setTitle(record.get('name'));
                     tabWidget.down('#loadProfile-data').add(widget);
+                    me.getApplication().fireEvent('changecontentevent', tabWidget);
                     tabController.showTab(1);
                     viewport.setLoading(false);
                     Ext.getBody().mask('Loading...');
