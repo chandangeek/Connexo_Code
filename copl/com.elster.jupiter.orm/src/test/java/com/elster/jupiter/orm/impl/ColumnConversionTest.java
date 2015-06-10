@@ -2,13 +2,16 @@ package com.elster.jupiter.orm.impl;
 
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.fields.impl.ColumnConversionImpl;
+import com.google.common.jimfs.Configuration;
+import com.google.common.jimfs.Jimfs;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.nio.file.FileSystem;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Instant;
@@ -22,7 +25,7 @@ public class ColumnConversionTest {
 	
 	@Mock
 	private ResultSet rs;
-	@Mock
+	@Mock(answer = Answers.RETURNS_DEEP_STUBS)
 	private ColumnImpl column;
 
 	@Test
@@ -73,7 +76,10 @@ public class ColumnConversionTest {
 
 	@Test
 	public void testChar2Path() {
-		Path path = Paths.get("/a/b/c/d");
+        FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix());
+        when(column.getTable().getDataModel().getFileSystem()).thenReturn(fileSystem);
+
+        Path path = fileSystem.getPath("/a/b/c/d");
 		String convertedPath = path.toString();
 		assertThat(ColumnConversionImpl.CHAR2PATH.convert(column, convertedPath)).isEqualTo(path);
 		assertThat(ColumnConversionImpl.CHAR2PATH.convertToDb(column, path)).isEqualTo(convertedPath);
