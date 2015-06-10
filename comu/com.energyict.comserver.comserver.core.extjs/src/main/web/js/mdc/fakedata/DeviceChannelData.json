@@ -1,0 +1,397 @@
+{
+    "total": 9,
+    "data": [
+        {
+            "interval": {
+                "start": 1431985500000,
+                "end": 1431986400000
+            },
+            "readingTime": 1431986606111,
+            "reportedDateTime": 1431986606111,
+            "intervalFlags": [],
+            "value": "1431986407",
+            "collectedValue": "1431986407",
+            "isBulk": true,
+            "validationStatus": true,
+            "dataValidated": false,
+            "validationResult": "validationStatus.notValidated",
+            "suspectReason": []
+        },
+        {
+            "interval": {
+                "start": 1431984600000,
+                "end": 1431985500000
+            },
+            "readingTime": 1431986606111,
+            "reportedDateTime": 1431986606111,
+            "intervalFlags": [],
+            "value": "1431985490",
+            "collectedValue": "1431985490",
+            "isBulk": true,
+            "validationStatus": true,
+            "dataValidated": false,
+            "validationResult": "validationStatus.notValidated",
+            "suspectReason": []
+        },
+        {
+            "interval": {
+                "start": 1431983700000,
+                "end": 1431984600000
+            },
+            "readingTime": 1431986606111,
+            "reportedDateTime": 1431986606111,
+            "intervalFlags": [],
+            "value": "1431984441",
+            "collectedValue": "1431984441",
+            "isBulk": true,
+            "validationStatus": true,
+            "bulkValidationInfo": {
+                "dataValidated": true,
+                "validationResult": "validationStatus.suspect"
+            },
+            "deltaValidationInfo": {
+                "dataValidated": false,
+                "validationResult": "validationStatus.notValidated"
+            }
+        },
+        {
+            "interval": {
+                "start": 1431982800000,
+                "end": 1431983700000
+            },
+            "readingTime": 1431986606111,
+            "reportedDateTime": 1431986606111,
+            "intervalFlags": [],
+            "value": "1431983624",
+            "collectedValue": "1431983624",
+            "isBulk": true,
+            "validationStatus": true,
+            "bulkValidationInfo": {
+                "dataValidated": false,
+                "validationResult": "validationStatus.notValidated"
+            },
+            "deltaValidationInfo": {
+                "dataValidated": false,
+                "validationResult": "validationStatus.notValidated"
+            }
+        },
+        {
+            "interval": {
+                "start": 1431981900000,
+                "end": 1431982800000
+            },
+            "readingTime": 1431986606111,
+            "reportedDateTime": 1431986606111,
+            "intervalFlags": [],
+            "value": "1431982713",
+            "collectedValue": "1431982713",
+            "isBulk": true,
+            "validationStatus": true,
+            "dataValidated": false,
+            "deltaValidationInfo": {
+                "dataValidated": false,
+                "validationResult": "validationStatus.notValidated"
+            }
+        },
+        {
+            "interval": {
+                "start": 1431981000000,
+                "end": 1431981900000
+            },
+            "readingTime": 1431986606111,
+            "reportedDateTime": 1431986606111,
+            "intervalFlags": [],
+            "value": "1431981889",
+            "collectedValue": "1431981889",
+            "isBulk": true,
+            "validationStatus": true,
+            "deltaValidationInfo": {
+                "dataValidated": false,
+                "validationResult": "validationStatus.notValidated"
+            }
+        },
+        {
+            "interval": {
+                "start": 1431980100000,
+                "end": 1431981000000
+            },
+            "readingTime": 1431986606111,
+            "reportedDateTime": 1431986606111,
+            "intervalFlags": [],
+            "value": "1431981063",
+            "collectedValue": "1431981063",
+            "isBulk": true,
+            "validationStatus": true,
+            "deltaValidationInfo": {
+                "dataValidated": false,
+                "validationResult": "validationStatus.notValidated"
+            }
+        },
+        {
+            "interval": {
+                "start": 1431979200000,
+                "end": 1431980100000
+            },
+            "readingTime": 1431986606111,
+            "reportedDateTime": 1431986606111,
+            "intervalFlags": [],
+            "value": "1431980031",
+            "collectedValue": "1431980031",
+            "isBulk": true,
+            "validationStatus": true,
+            "deltaValidationInfo": {
+                "dataValidated": true,
+                "validationResult": "validationStatus.suspect",
+                "validationRules": [
+                    {
+                        "id": 3001,
+                        "active": true,
+                        "deleted": false,
+                        "implementation": "com.elster.jupiter.validators.impl.ThresholdValidator",
+                        "displayName": "Threshold violation",
+                        "name": "Threshold violation SUSPECT",
+                        "position": 0,
+                        "action": "WARN_ONLY",
+                        "properties": [
+                            {
+                                "key": "minimum",
+                                "propertyValueInfo": {
+                                    "defaultValue": 0,
+                                    "value": 1000,
+                                    "propertyHasValue": false
+                                },
+                                "propertyTypeInfo": {
+                                    "simplePropertyType": "NUMBER"
+                                },
+                                "required": true
+                            },
+                            {
+                                "key": "maximum",
+                                "propertyValueInfo": {
+                                    "defaultValue": 0,
+                                    "value": 15000,
+                                    "propertyHasValue": false
+                                },
+                                "propertyTypeInfo": {
+                                    "simplePropertyType": "NUMBER"
+                                },
+                                "required": true
+                            }
+                        ],
+                        "readingTypes": [
+                            {
+                                "mRID": "0.0.2.4.19.1.12.0.0.0.0.0.0.0.0.0.72.0",
+                                "aliasName": "Delta A-",
+                                "name": "15-minute DeltaData Reverse Electricity Secondary Metered Energy (Wh)",
+                                "macroPeriod": "NotApplicable",
+                                "aggregate": "NotApplicable",
+                                "measuringPeriod": "15-minute",
+                                "accumulation": "DeltaData",
+                                "flowDirection": "Reverse",
+                                "commodity": "Electricity Secondary Metered",
+                                "measurementKind": "Energy",
+                                "interHarmonicNumerator": 0,
+                                "interHarmonicDenominator": 0,
+                                "argumentNumerator": 0,
+                                "argumentDenominator": 0,
+                                "tou": 0,
+                                "cpp": 0,
+                                "consumptionTier": 0,
+                                "phases": "NotApplicable",
+                                "metricMultiplier": 0,
+                                "unit": "Wh",
+                                "currency": "XXX",
+                                "version": 1,
+                                "names": {
+                                    "timeOfUse": "",
+                                    "timeAttribute": "15-minute",
+                                    "unitOfMeasure": "Wh",
+                                    "phase": ""
+                                },
+                                "fullAliasName": "[15-minute] Delta A- (Wh)"
+                            },
+                            {
+                                "mRID": "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0",
+                                "aliasName": "Delta A+",
+                                "name": "15-minute DeltaData Forward Electricity Secondary Metered Energy (Wh)",
+                                "macroPeriod": "NotApplicable",
+                                "aggregate": "NotApplicable",
+                                "measuringPeriod": "15-minute",
+                                "accumulation": "DeltaData",
+                                "flowDirection": "Forward",
+                                "commodity": "Electricity Secondary Metered",
+                                "measurementKind": "Energy",
+                                "interHarmonicNumerator": 0,
+                                "interHarmonicDenominator": 0,
+                                "argumentNumerator": 0,
+                                "argumentDenominator": 0,
+                                "tou": 0,
+                                "cpp": 0,
+                                "consumptionTier": 0,
+                                "phases": "NotApplicable",
+                                "metricMultiplier": 0,
+                                "unit": "Wh",
+                                "currency": "XXX",
+                                "version": 1,
+                                "names": {
+                                    "timeOfUse": "",
+                                    "timeAttribute": "15-minute",
+                                    "unitOfMeasure": "Wh",
+                                    "phase": ""
+                                },
+                                "fullAliasName": "[15-minute] Delta A+ (Wh)"
+                            }
+                        ],
+                        "ruleSetVersion": {
+                            "id": 4001,
+                            "description": "Default Version - Residential customers",
+                            "startDate": 1430722140000,
+                            "endDate": 1430229480000,
+                            "status": "PREVIOUS",
+                            "ruleSet": {
+                                "id": 2,
+                                "name": "Residential customers",
+                                "description": "Set with rules regarding residential customers x",
+                                "numberOfInactiveRules": 1,
+                                "numberOfRules": 7
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "interval": {
+                "start": 1431978300000,
+                "end": 1431979200000
+            },
+            "readingTime": 1431986606111,
+            "reportedDateTime": 1431986606111,
+            "intervalFlags": [],
+            "value": "1431979311",
+            "collectedValue": "1431979311",
+            "isBulk": true,
+            "validationStatus": true,
+            "bulkValidationInfo": {
+                "dataValidated": true,
+                "validationResult": "validationStatus.suspect",
+                "validationRules": [
+                    {
+                        "id": 3002,
+                        "active": true,
+                        "deleted": false,
+                        "implementation": "com.elster.jupiter.validators.impl.ThresholdValidator",
+                        "displayName": "Threshold violation",
+                        "name": "Threshold violation SUSPECT",
+                        "position": 0,
+                        "action": "FAIL",
+                        "properties": [
+                            {
+                                "key": "minimum",
+                                "propertyValueInfo": {
+                                    "defaultValue": 0,
+                                    "value": 1000,
+                                    "propertyHasValue": false
+                                },
+                                "propertyTypeInfo": {
+                                    "simplePropertyType": "NUMBER"
+                                },
+                                "required": true
+                            },
+                            {
+                                "key": "maximum",
+                                "propertyValueInfo": {
+                                    "defaultValue": 0,
+                                    "value": 15000,
+                                    "propertyHasValue": false
+                                },
+                                "propertyTypeInfo": {
+                                    "simplePropertyType": "NUMBER"
+                                },
+                                "required": true
+                            }
+                        ],
+                        "readingTypes": [
+                            {
+                                "mRID": "0.0.2.4.19.1.12.0.0.0.0.0.0.0.0.0.72.0",
+                                "aliasName": "Delta A-",
+                                "name": "15-minute DeltaData Reverse Electricity Secondary Metered Energy (Wh)",
+                                "macroPeriod": "NotApplicable",
+                                "aggregate": "NotApplicable",
+                                "measuringPeriod": "15-minute",
+                                "accumulation": "DeltaData",
+                                "flowDirection": "Reverse",
+                                "commodity": "Electricity Secondary Metered",
+                                "measurementKind": "Energy",
+                                "interHarmonicNumerator": 0,
+                                "interHarmonicDenominator": 0,
+                                "argumentNumerator": 0,
+                                "argumentDenominator": 0,
+                                "tou": 0,
+                                "cpp": 0,
+                                "consumptionTier": 0,
+                                "phases": "NotApplicable",
+                                "metricMultiplier": 0,
+                                "unit": "Wh",
+                                "currency": "XXX",
+                                "version": 1,
+                                "names": {
+                                    "timeOfUse": "",
+                                    "timeAttribute": "15-minute",
+                                    "unitOfMeasure": "Wh",
+                                    "phase": ""
+                                },
+                                "fullAliasName": "[15-minute] Delta A- (Wh)"
+                            },
+                            {
+                                "mRID": "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0",
+                                "aliasName": "Delta A+",
+                                "name": "15-minute DeltaData Forward Electricity Secondary Metered Energy (Wh)",
+                                "macroPeriod": "NotApplicable",
+                                "aggregate": "NotApplicable",
+                                "measuringPeriod": "15-minute",
+                                "accumulation": "DeltaData",
+                                "flowDirection": "Forward",
+                                "commodity": "Electricity Secondary Metered",
+                                "measurementKind": "Energy",
+                                "interHarmonicNumerator": 0,
+                                "interHarmonicDenominator": 0,
+                                "argumentNumerator": 0,
+                                "argumentDenominator": 0,
+                                "tou": 0,
+                                "cpp": 0,
+                                "consumptionTier": 0,
+                                "phases": "NotApplicable",
+                                "metricMultiplier": 0,
+                                "unit": "Wh",
+                                "currency": "XXX",
+                                "version": 1,
+                                "names": {
+                                    "timeOfUse": "",
+                                    "timeAttribute": "15-minute",
+                                    "unitOfMeasure": "Wh",
+                                    "phase": ""
+                                },
+                                "fullAliasName": "[15-minute] Delta A+ (Wh)"
+                            }
+                        ],
+                        "ruleSetVersion": {
+                            "id": 4001,
+                            "description": "Default Version - Residential customers",
+                            "startDate": 1430722140000,
+                            "endDate": 1430229480000,
+                            "status": "PREVIOUS",
+                            "ruleSet": {
+                                "id": 2,
+                                "name": "Residential customers",
+                                "description": "Set with rules regarding residential customers x",
+                                "numberOfInactiveRules": 1,
+                                "numberOfRules": 7
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}

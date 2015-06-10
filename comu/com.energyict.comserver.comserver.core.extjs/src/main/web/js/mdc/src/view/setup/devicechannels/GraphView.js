@@ -1,5 +1,6 @@
 Ext.define('Mdc.view.setup.devicechannels.GraphView', {
     extend: 'Mdc.view.setup.highstock.GraphView',
+
     alias: 'widget.deviceLoadProfileChannelGraphView',
     itemId: 'deviceLoadProfileChannelGraphView',
 
@@ -90,34 +91,57 @@ Ext.define('Mdc.view.setup.devicechannels.GraphView', {
             },
 
             tooltip: {
+                style: {
+                    color: '#333333',
+                    fontSize: '12px',
+                    padding: '0px'
+                },
                 useHTML: true,
-                positioner: function (labelWidth, labelHeight, point){
+                positioner: function (labelWidth, labelHeight, point) {
                     var xValue,
                         yValue;
 
-                    xValue = point.plotX + labelWidth < this.chart.chartWidth ? point.plotX : point.plotX - (labelWidth*2)/3;
-                    yValue = point.plotY > labelHeight ? point.plotY: labelHeight;
+                    xValue = point.plotX + labelWidth < this.chart.chartWidth ? point.plotX : point.plotX - (labelWidth * 2) / 3;
+                    yValue = point.plotY > labelHeight ? point.plotY : labelHeight;
                     return {x: xValue, y: yValue}
                 },
-                formatter: function () {
-                    var s = '<b>' + Highcharts.dateFormat('%A, %e %B %Y', this.x) + '</b>';
-                    if (intervalLength < 86400000) {
-                        s += '<br/>Interval ' + Highcharts.dateFormat('%H:%M', this.x);
-                        s += ' - ' + Highcharts.dateFormat('%H:%M', this.x + intervalLength) + '<br>';
-                    } else {
-                        s += '<b>' + ' - ' + Highcharts.dateFormat('%A, %e %B %Y', this.x + intervalLength) + '</b>' + '<br>';
+                formatter: function (tooltip) {
+                    var html = '<b>' + Highcharts.dateFormat('%A, %e %B %Y', this.x);
+                    var point = this.points[0].point,
+                        deltaIcon,
+                        bulkIcon,
+                        bgColor,
+                        iconSpan = '<span class="{icon}" ' + 'style="height: 16px; ' + 'width: 16px; ' +
+                            'display: inline-block; ' + 'vertical-align: top; ' + 'margin-left: 4px"></span>';
+
+//                     suspect: 'icon-validation-red',
+//                     edited: 'icon-pencil2',
+//                     editedNotSaved: 'icon-pencil2',
+//                     confirmed: 'icon-checkmark'
+
+                    if (point.delta.suspect) {
+                        deltaIcon = 'icon-validation-red'
                     }
-                    s += '<table style="margin-top: 10px"><tbody>';
-                        s += '<tr>'
-                        s += '<td style="padding-right: 10px; text-align: right"><b>' + channelName + '</b></td>';
-                        s += '<td style="padding-right: 1px; text-align: right">' + this.points[0].y + '</td>';
-                        s += '<td style="padding-left: 1px; text-align: left">' + unitOfMeasure + '</td>';
-                        s += '</tr>'
-                    s += '</tbody></table>';
-                    return s;
+                    if (point.bulk.suspect)  {
+                        bulkIcon = 'icon-validation-red'
+                    }
+
+
+                    html += '<br/>Interval ' + Highcharts.dateFormat('%H:%M', point.x);
+                    html += ' - ' + Highcharts.dateFormat('%H:%M', point.intervalEnd) + '<br>';
+                    html += '<table style="margin-top: 10px"><tbody>';
+                    bgColor = point.tooltipColor;
+                    html += '<tr><td><b>' + point.series.name + ':</b></td><td>' + point.y + ' ' +
+                        point.mesurementType + iconSpan.replace('{icon}', deltaIcon) + '</td></tr>';
+                    html += '<tr><td><b>' + 'Bulk value:' + '</b></td><td>' + point.collectedValue + ' ' +
+                        point.mesurementType + iconSpan.replace('{icon}', bulkIcon) + '</td></tr>';
+
+                    html += '</tbody></table>';
+                    html = '<div style="background-color: ' + bgColor + '; padding: 8px">' + html + '</div>';
+                    return html;
                 },
                 followPointer: true,
-                followTouchMove: true
+                followTouchMove: false
             },
 
             legend: {
@@ -126,12 +150,9 @@ Ext.define('Mdc.view.setup.devicechannels.GraphView', {
 
             plotOptions: {
                 column: {
-//                    borderColor: 'black',
-//                    borderWidth: 0.5,
                     pointPadding: 0,
                     groupPadding: 0,
-                    dataGrouping:
-                    {
+                    dataGrouping: {
                         enabled: false
                     },
                     color: '#70BB51',
@@ -146,5 +167,5 @@ Ext.define('Mdc.view.setup.devicechannels.GraphView', {
             series: series
         });
 
-    },
+    }
 });
