@@ -9,6 +9,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
+import com.energyict.mdc.device.data.FilterFactory;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.google.inject.AbstractModule;
@@ -17,12 +18,16 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-@Component(name = "com.energyict.mdc.connectiontask.filter.itimizer.message.handler.factory",
+/**
+ * Factory for message handlers to itemize connection task for the purpose of rescheduling the tasks
+ * Itemize means convert a filter into an exhaustive set of connection tasks
+ */
+@Component(name = "com.energyict.mdc.connectiontask.filter.itimizer.reschedule.message.handler.factory",
         service = MessageHandlerFactory.class,
         property = {"subscriber="+ ConnectionTaskService.FILTER_ITEMIZER_QUEUE_SUBSCRIBER,
                 "destination="+ConnectionTaskService.FILTER_ITEMIZER_QUEUE_DESTINATION},
         immediate = true)
-public class ConnectionFilterItemizerMessageHandlerFactory implements MessageHandlerFactory {
+public class ConnectionFilterRescheduleItemizerMessageHandlerFactory implements MessageHandlerFactory {
     private volatile JsonService jsonService;
     private volatile DataModel dataModel;
     private volatile ConnectionTaskService connectionTaskService;
@@ -31,12 +36,13 @@ public class ConnectionFilterItemizerMessageHandlerFactory implements MessageHan
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile MeteringGroupsService meteringGroupsService;
     private volatile MessageService messageService;
+    private volatile FilterFactory filterFactory;
 
     @Override
     public MessageHandler newMessageHandler() {
         return dataModel.
-                getInstance(ConnectionFilterItimizerMessageHandler.class).
-                init(connectionTaskService, engineConfigurationService, protocolPluggableService, deviceConfigurationService, meteringGroupsService, messageService, jsonService);
+                getInstance(ConnectionFilterRescheduleItemizerMessageHandler.class).
+                init(connectionTaskService, filterFactory, messageService, jsonService);
     }
 
     @Reference
@@ -51,7 +57,7 @@ public class ConnectionFilterItemizerMessageHandlerFactory implements MessageHan
 
     @Reference
     public void setOrmService(OrmService ormService) {
-        this.dataModel = ormService.newDataModel("ConnectionTaskMessageHandlers", "Message handler for bulk action on connection tasks");
+        this.dataModel = ormService.newDataModel("ConnectionTaskRescheduleMessageHandlers", "Message handler for bulk rescheduling on connection tasks");
     }
 
     @Reference
