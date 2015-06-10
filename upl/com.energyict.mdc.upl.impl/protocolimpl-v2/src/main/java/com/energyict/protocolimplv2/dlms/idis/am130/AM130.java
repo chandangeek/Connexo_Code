@@ -10,6 +10,8 @@ import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.tasks.ConnectionType;
+import com.energyict.mdc.tasks.DeviceProtocolDialect;
+import com.energyict.mdc.tasks.TcpDeviceProtocolDialect;
 import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.obis.ObisCode;
@@ -29,6 +31,7 @@ import com.energyict.protocolimplv2.security.DeviceProtocolSecurityPropertySetIm
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -97,6 +100,11 @@ public class AM130 extends AM500 {
             getLogger().info("Cache exist, will not be read!");
         }
         getDlmsSession().getMeterConfig().setInstantiatedObjectList(((DLMSCache) getDeviceCache()).getObjectList());
+    }
+
+    @Override
+    public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
+        return Arrays.<DeviceProtocolDialect>asList(new TcpDeviceProtocolDialect());
     }
 
     @Override
