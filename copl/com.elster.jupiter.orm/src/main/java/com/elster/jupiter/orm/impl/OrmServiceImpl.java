@@ -25,6 +25,7 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 import javax.sql.DataSource;
 import javax.validation.ValidationProviderResolver;
+import java.nio.file.FileSystem;
 import java.security.Principal;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -46,6 +47,7 @@ public class OrmServiceImpl implements OrmService, InstallService {
     private volatile DataSource dataSource;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile Clock clock;
+    private volatile FileSystem fileSystem;
     private volatile Publisher publisher;
     private volatile JsonService jsonService;
     private volatile ValidationProviderResolver validationProviderResolver;
@@ -56,13 +58,14 @@ public class OrmServiceImpl implements OrmService, InstallService {
     }
 
     @Inject
-    public OrmServiceImpl(Clock clock, DataSource dataSource, JsonService jsonService, ThreadPrincipalService threadPrincipalService, Publisher publisher, ValidationProviderResolver validationProviderResolver) {
+    public OrmServiceImpl(Clock clock, DataSource dataSource, JsonService jsonService, ThreadPrincipalService threadPrincipalService, Publisher publisher, ValidationProviderResolver validationProviderResolver, FileSystem fileSystem) {
         setClock(clock);
         setThreadPrincipalService(threadPrincipalService);
         setDataSource(dataSource);
         setJsonService(jsonService);
         setPublisher(publisher);
         setValidationProviderResolver(validationProviderResolver);
+        setFileSystem(fileSystem);
         activate();
         if (!getOrmDataModel().isInstalled()) {
             install();
@@ -155,6 +158,11 @@ public class OrmServiceImpl implements OrmService, InstallService {
     @Reference
     public void setSchemaInfoProvider(SchemaInfoProvider schemaInfoProvider) {
         this.schemaInfoProvider = schemaInfoProvider;
+    }
+
+    @Reference
+    public void setFileSystem(FileSystem fileSystem) {
+        this.fileSystem = fileSystem;
     }
 
     private DataModel createDataModel(boolean register) {
@@ -309,4 +317,8 @@ public class OrmServiceImpl implements OrmService, InstallService {
 	public void createPartitions(Instant upTo, Logger logger) {
 		dataModels.values().forEach(dataModel -> dataModel.createPartitions(upTo, logger));
 	}
+
+    public FileSystem getFileSystem() {
+        return fileSystem;
+    }
 }

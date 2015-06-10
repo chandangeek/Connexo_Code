@@ -159,7 +159,7 @@ public class ColumnImpl implements Column {
         if (conversion == ColumnConversionImpl.CHAR2JSON) {
             return jsonConverter().convertToDb(value);
         } else {
-            return conversion.convertToDb(value);
+            return conversion.convertToDb(this, value);
         }
     }
 
@@ -170,9 +170,9 @@ public class ColumnImpl implements Column {
             case CHAR2ENUM:
             case NUMBER2ENUM:
             case NUMBER2ENUMPLUSONE:
-                return createEnum(conversion.convertFromDb(rs, index));
+                return createEnum(conversion.convertFromDb(this, rs, index));
             default:
-                return conversion.convertFromDb(rs, index);
+                return conversion.convertFromDb(this, rs, index);
         }
     }
 
@@ -247,7 +247,7 @@ public class ColumnImpl implements Column {
         } else if (conversion == ColumnConversionImpl.CHAR2JSON) {
             return jsonConverter().convert(in);
         } else {
-            return conversion.convert(in);
+            return conversion.convert(this, in);
         }
     }
 

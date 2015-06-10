@@ -1,33 +1,9 @@
 package com.elster.jupiter.orm.impl;
 
-import java.security.Principal;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.time.Clock;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import javax.inject.Inject;
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorFactory;
-import javax.validation.MessageInterpolator;
-import javax.validation.Validation;
-import javax.validation.ValidatorFactory;
-
-import oracle.jdbc.OracleConnection;
-
+import com.elster.jupiter.orm.DataDropper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.LifeCycleClass;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.DataDropper;
 import com.elster.jupiter.orm.PartitionCreator;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.QueryStream;
@@ -44,6 +20,29 @@ import com.google.inject.ConfigurationException;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
+import oracle.jdbc.OracleConnection;
+
+import javax.inject.Inject;
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorFactory;
+import javax.validation.MessageInterpolator;
+import javax.validation.Validation;
+import javax.validation.ValidatorFactory;
+import java.nio.file.FileSystem;
+import java.security.Principal;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.time.Clock;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 public class DataModelImpl implements DataModel {
@@ -356,6 +355,10 @@ public class DataModelImpl implements DataModel {
 
     public Clock getClock() {
         return ormService.getClock();
+    }
+
+    public FileSystem getFileSystem() {
+        return ormService.getFileSystem();
     }
 
     public OrmServiceImpl getOrmService() {
