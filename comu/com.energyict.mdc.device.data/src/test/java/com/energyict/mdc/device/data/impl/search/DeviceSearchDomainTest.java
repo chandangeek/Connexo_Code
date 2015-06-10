@@ -1,11 +1,22 @@
 package com.energyict.mdc.device.data.impl.search;
 
+import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.StringFactory;
+import com.elster.jupiter.search.SearchableProperty;
+import com.elster.jupiter.search.SearchablePropertyConstriction;
+import com.elster.jupiter.search.SearchablePropertyGroup;
+import com.elster.jupiter.util.streams.Functions;
 import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceFields;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.ConnectionType;
@@ -13,30 +24,20 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-
-import com.elster.jupiter.domain.util.Finder;
-import com.elster.jupiter.metering.EndDevice;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.search.SearchableProperty;
-import com.elster.jupiter.search.SearchablePropertyConstriction;
-import com.elster.jupiter.search.SearchablePropertyGroup;
-import com.elster.jupiter.util.streams.Functions;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
-
 import java.time.Clock;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -87,6 +88,11 @@ public class DeviceSearchDomainTest {
         Finder<DeviceType> finder = mock(Finder.class);
         when(finder.find()).thenReturn(Collections.emptyList());
         when(this.deviceConfigurationService.findAllDeviceTypes()).thenReturn(finder);
+
+        mockMRIDPropertySpec();
+        mockSerialNumberPropertySpec();
+        mockStateNamePropertySpec();
+
     }
 
     @Test
@@ -553,7 +559,8 @@ public class DeviceSearchDomainTest {
                 eq(false),
                 eq(FactoryIds.DEVICE_CONFIGURATION),
                 anyList())).thenReturn(deviceConfigurationPropertySpec);
-                DeviceSearchDomain searchDomain = this.getTestInstance();
+
+        DeviceSearchDomain searchDomain = this.getTestInstance();
         DeviceTypeSearchableProperty deviceTypeSearchableProperty = new DeviceTypeSearchableProperty(this.deviceConfigurationService, this.propertySpecService, this.thesaurus);
         SearchablePropertyConstriction deviceTypeConstriction = SearchablePropertyConstriction.noValues(deviceTypeSearchableProperty);
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
@@ -606,6 +613,33 @@ public class DeviceSearchDomainTest {
                         .map(SearchablePropertyGroup::getDisplayName)
                         .collect(Collectors.toSet());
         assertThat(groupNames).containsOnly("PC1", "PC2");
+    }
+
+    private void mockMRIDPropertySpec() {
+        PropertySpec mridPropertySpec = mock(PropertySpec.class);
+        when(mridPropertySpec.getName()).thenReturn(DeviceFields.MRID.fieldName());
+        when(this.propertySpecService.basicPropertySpec(
+                eq(DeviceFields.MRID.fieldName()),
+                eq(false),
+                Matchers.<StringFactory>anyObject())).thenReturn(mridPropertySpec);
+    }
+
+    private void mockSerialNumberPropertySpec() {
+        PropertySpec serialNumber = mock(PropertySpec.class);
+        when(serialNumber.getName()).thenReturn(DeviceFields.SERIALNUMBER.fieldName());
+        when(this.propertySpecService.basicPropertySpec(
+                eq(DeviceFields.SERIALNUMBER.fieldName()),
+                eq(false),
+                Matchers.<StringFactory>anyObject())).thenReturn(serialNumber);
+    }
+
+    private void mockStateNamePropertySpec() {
+        PropertySpec serialNumber = mock(PropertySpec.class);
+        when(serialNumber.getName()).thenReturn(DeviceFields.SERIALNUMBER.fieldName());
+        when(this.propertySpecService.stringPropertySpecWithValues(
+                eq(StateNameSearchableProperty.VIRTUAL_FIELD_NAME),
+                eq(false),
+                Matchers.<String>anyVararg())).thenReturn(serialNumber);
     }
 
     @Test

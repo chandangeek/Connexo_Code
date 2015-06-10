@@ -17,6 +17,8 @@ import com.elster.jupiter.search.SearchablePropertyCondition;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.util.streams.DecoratedStream;
 import com.elster.jupiter.util.streams.Predicates;
+import java.util.HashSet;
+import java.util.function.Predicate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -29,6 +31,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * Provides an implementation for the {@link SearchDomain} interface
@@ -93,8 +97,10 @@ public class DeviceSearchDomain implements SearchDomain {
 
     private List<SearchableProperty> getProperties(List<ConnectionTypePluggableClass> pluggableClasses) {
         List<SearchableProperty> properties = new ArrayList<>();
-        properties.addAll(this.fixedProperties());
-        properties.addAll(this.connectionTypeProperties(pluggableClasses));
+        Set<String> uniqueNames = new HashSet<>();
+        Predicate<SearchableProperty> uniqueName = p -> uniqueNames.add(p.getName());
+        this.fixedProperties().stream().filter(uniqueName).forEach(properties::add);
+        this.connectionTypeProperties(pluggableClasses).stream().filter(uniqueName).forEach(properties::add);
         return properties;
     }
 
@@ -118,7 +124,7 @@ public class DeviceSearchDomain implements SearchDomain {
                 .stream()
                 .map(this::toGroup)
                 .flatMap(g -> g.getProperties().stream())
-                .collect(Collectors.toList());
+                .collect(toList());
     }
 
     private ConnectionTypeSearchablePropertyGroup toGroup(ConnectionTypePluggableClass pluggableClass) {
@@ -313,7 +319,7 @@ public class DeviceSearchDomain implements SearchDomain {
 
         private DeviceTypeConnectionTypePluggableClassProvider(List<Object> deviceTypes, ProtocolPluggableService protocolPluggableService) {
             super();
-            this.deviceTypes = deviceTypes.stream().map(DeviceType.class::cast).collect(Collectors.toList());
+            this.deviceTypes = deviceTypes.stream().map(DeviceType.class::cast).collect(toList());
             this.protocolPluggableService = protocolPluggableService;
         }
 
@@ -325,7 +331,7 @@ public class DeviceSearchDomain implements SearchDomain {
                     .map(DeviceProtocolPluggableClass::getDeviceProtocol)
                     .flatMap(p -> p.getSupportedConnectionTypes().stream())
                     .flatMap(ct -> this.protocolPluggableService.findConnectionTypePluggableClassByClassName(ct.getClass().getName()).stream())
-                    .collect(Collectors.toList());
+                    .collect(toList());
         }
     }
 
@@ -334,7 +340,7 @@ public class DeviceSearchDomain implements SearchDomain {
 
         private DeviceConfigurationConnectionTypePluggableClassProvider(List<Object> deviceConfigurations) {
             super();
-            this.deviceConfigurations = deviceConfigurations.stream().map(DeviceConfiguration.class::cast).collect(Collectors.toList());
+            this.deviceConfigurations = deviceConfigurations.stream().map(DeviceConfiguration.class::cast).collect(toList());
         }
 
         @Override
@@ -343,7 +349,7 @@ public class DeviceSearchDomain implements SearchDomain {
                     .flatMap(config -> config.getPartialConnectionTasks().stream())
                     .map(PartialConnectionTask::getPluggableClass)
                     .distinct(ConnectionTypePluggableClass::getId)
-                    .collect(Collectors.toList());
+                    .collect(toList());
         }
     }
 
