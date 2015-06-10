@@ -91,7 +91,6 @@ public class FileImportScheduleResource {
     public Response addImportSchedule(FileImportScheduleInfo info) {
         ImportScheduleBuilder builder = fileImportService.newBuilder()
                 .setName(info.name)
-                .setDestination(fileImportService.getImportFactory(info.importerInfo.name).get().getDestinationName())
                 .setPathMatcher(info.pathMatcher)
                 .setImportDirectory(Paths.get(info.importDirectory))
                 .setFailureDirectory(Paths.get(info.failureDirectory))
@@ -141,6 +140,9 @@ public class FileImportScheduleResource {
     public Response updateImportSchedule(@PathParam("id") long id, FileImportScheduleInfo info) {
 
         ImportSchedule importSchedule = fetchImportSchedule(info.id);
+        if(!importSchedule.isImporterAvailable()){
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        }
 
         try (TransactionContext context = transactionService.getContext()) {
             importSchedule.setName(info.name);
@@ -267,7 +269,7 @@ public class FileImportScheduleResource {
 
     private ImportSchedule fetchImportSchedule(long id) {
         return fileImportService.getImportSchedule(id)
-                .filter(is -> is.getObsoleteTime() == null)
+                .filter(is -> !is.isDeleted())
                 .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 

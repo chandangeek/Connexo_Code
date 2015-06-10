@@ -183,6 +183,9 @@ public class FileImportScheduleResourceTest  extends FileImportApplicationTest {
         when(schedule.getSuccessDirectory()).thenReturn(testFolder);
         when(schedule.getPropertySpecs()).thenReturn(ImmutableList.of());
         when(schedule.getProperties()).thenReturn(ImmutableMap.of());
+        when(schedule.isImporterAvailable()).thenReturn(true);
+        when(schedule.isDeleted()).thenReturn(false);
+        when(schedule.isActive()).thenReturn(true);
 
         return  schedule;
     }

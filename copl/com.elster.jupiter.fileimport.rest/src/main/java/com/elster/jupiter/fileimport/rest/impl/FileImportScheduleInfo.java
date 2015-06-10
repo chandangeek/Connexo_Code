@@ -22,6 +22,7 @@ public class FileImportScheduleInfo {
     public String name;
     public Boolean active;
     public Boolean deleted;
+    public Boolean importerAvailable;
     //public String destinationName;
     public String importDirectory;
     public String inProcessDirectory;
@@ -52,6 +53,7 @@ public class FileImportScheduleInfo {
         importerName = importSchedule.getImporterName();
         application = importSchedule.getApplicationName();
         deleted = importSchedule.isDeleted();
+        importerAvailable = importSchedule.isImporterAvailable();
 
         importerInfo = new FileImporterInfo(importerName,
                 thesaurus.getStringBeyondComponent(importerName, importerName), Collections.<PropertyInfo>emptyList() );
