@@ -21,11 +21,13 @@ public class SelectorsResource {
 
     private final DataExportService dataExportService;
     private final Thesaurus thesaurus;
+    private final PropertyUtils propertyUtils;
 
     @Inject
-    public SelectorsResource(DataExportService dataExportService, Thesaurus thesaurus) {
+    public SelectorsResource(DataExportService dataExportService, Thesaurus thesaurus, PropertyUtils propertyUtils) {
         this.dataExportService = dataExportService;
         this.thesaurus = thesaurus;
+        this.propertyUtils = propertyUtils;
     }
 
     @GET
@@ -34,7 +36,6 @@ public class SelectorsResource {
     public SelectorInfos getAvailableSelectors(@Context UriInfo uriInfo) {
         SelectorInfos infos = new SelectorInfos();
         List<DataSelectorFactory> selectors = dataExportService.getAvailableSelectors();
-        PropertyUtils propertyUtils = new PropertyUtils();
         for (DataSelectorFactory selector : selectors) {
             infos.add(selector.getName(), thesaurus.getStringBeyondComponent(selector.getName(), selector.getDisplayName()),
                     propertyUtils.convertPropertySpecsToPropertyInfos(selector.getPropertySpecs()), selector.isDefault());
