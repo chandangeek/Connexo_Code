@@ -300,7 +300,7 @@ public class FileImportServiceImpl implements InstallService, FileImportService 
 
     @Override
     public List<ImportSchedule> getImportSchedules() {
-        return dataModel.mapper(ImportSchedule.class).find();
+        return dataModel.mapper(ImportSchedule.class).select(where("obsoleteTime").isNull());
     }
 
     @Override
