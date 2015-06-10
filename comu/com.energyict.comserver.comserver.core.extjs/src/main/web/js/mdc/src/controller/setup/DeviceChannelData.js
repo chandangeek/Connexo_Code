@@ -249,7 +249,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         if (dataStore.getTotalCount() > 0) {
             var data = me.formatData(dataStore, channelRecord);
             seriesObject['data'] = data.data;
-            seriesObject['turboThreshold'] = 2000;
+            seriesObject['turboThreshold'] = Number.MAX_VALUE;
 
             series.push(seriesObject);
             Ext.suspendLayouts();
@@ -287,8 +287,8 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 
         dataStore.each(function (record) {
             var point = {};
-            var deltaValidationInfo = record.getDeltaValidationInfo();
-            var bulkValidationInfo = record.getBulkValidationInfo();
+            var deltaValidationInfo = record.getValidationInfo().getMainValidationInfo();
+            var bulkValidationInfo = record.getValidationInfo().getBulkValidationInfo();
             var deltaModificationFlag = deltaValidationInfo ? deltaValidationInfo.get('modificationFlag') : null;
             var bulkModificationFlag = bulkValidationInfo ? bulkValidationInfo.get('modificationFlag') : null;
             var confirmed = false;

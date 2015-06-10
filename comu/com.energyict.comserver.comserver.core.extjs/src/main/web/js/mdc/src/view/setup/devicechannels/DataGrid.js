@@ -73,7 +73,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
             {
                 xtype: 'edited-column',
                 header: '',
-                dataIndex: 'deltaModificationState',
+                dataIndex: 'mainModificationState',
                 width: 30
             },
             {
@@ -111,9 +111,6 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                 dataIndex: 'intervalFlags',
                 align: 'right',
                 width: 150
-            },
-            {
-                xtype: 'uni-actioncolumn'
             }
         ];
 
@@ -124,15 +121,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                 dock: 'top',
                 store: me.store,
                 isFullTotalCount: true,
-                displayMsg: '{2} reading(s)',
-                items: [
-                    {
-                        xtype: 'button',
-                        itemId: 'device-channel-data-bulk-action-button',
-                        text: Uni.I18n.translate('general.bulkAction', 'MDC', 'Bulk Action'),
-                        privileges: Mdc.privileges.Device.administrateDeviceData
-                    }
-                ]
+                displayMsg: '{2} reading(s)'
             }
         ];
 

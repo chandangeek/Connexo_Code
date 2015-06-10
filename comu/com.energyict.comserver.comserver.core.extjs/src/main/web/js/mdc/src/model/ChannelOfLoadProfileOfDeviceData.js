@@ -1,75 +1,18 @@
 Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
     extend: 'Ext.data.Model',
     requires: [
-        'Mdc.model.ChannelReadingValidationResult'
+        'Mdc.model.ChannelReadingValidationResult',
+        'Mdc.model.ChannelReadingValidationInfo'
     ],
     idgen: 'sequential',
     fields: [
         {name: 'interval', type: 'auto'},
         {name: 'readingTime', dateFormat: 'time', type: 'date'},
         {name: 'value', type: 'auto' },
-        {name: 'rawValue', type: 'auto'},
-        {name: 'delta', type: 'auto'},
         {name: 'isBulk', type: 'boolean'},
         {name: 'collectedValue', type: 'auto'},
         {name: 'intervalFlags', type: 'auto'},
         {name: 'validationStatus', type: 'auto'},
-
-        /*{
-         name: 'suspect_rules',
-         persist: false,
-         mapping: function (data) {
-         if (!Ext.isEmpty(data.suspectReason)) {
-         var str = '',
-         prop,
-         failEqualDataValue,
-         intervalFlagsValue = '';
-         Ext.Array.each(data.suspectReason, function (rule) {
-         if (!Ext.isEmpty(rule.properties)) {
-         switch (rule.implementation) {
-         case 'com.elster.jupiter.validators.impl.ThresholdValidator':
-         prop = ' - ' + rule.properties[0].key.charAt(0).toUpperCase() + rule.properties[0].key.substring(1) + ': ' + rule.properties[0].propertyValueInfo.value + ', ' +
-         rule.properties[1].key.charAt(0).toUpperCase() + rule.properties[1].key.substring(1) + ': ' + rule.properties[1].propertyValueInfo.value;
-         break;
-         case 'com.elster.jupiter.validators.impl.RegisterIncreaseValidator':
-         if (rule.properties[0].propertyValueInfo.value) {
-         failEqualDataValue = Uni.I18n.translate('general.yes', 'MDC', 'Yes');
-         } else {
-         failEqualDataValue = Uni.I18n.translate('general.no', 'MDC', 'No');
-         }
-         prop = ' - ' + Uni.I18n.translate('device.registerData.failEqualData', 'MDC', 'Fail equal data') + ': ' + failEqualDataValue;
-         break;
-         case 'com.elster.jupiter.validators.impl.IntervalStateValidator':
-         Ext.Array.each(rule.properties[0].propertyValueInfo.value, function (idValue) {
-         Ext.Array.each(rule.properties[0].propertyTypeInfo.predefinedPropertyValuesInfo.possibleValues, function (item) {
-         if (idValue === item.id) {
-         intervalFlagsValue += item.name + ', ';
-         }
-         });
-         });
-         intervalFlagsValue = intervalFlagsValue.slice(0, -2);
-         prop = ' - ' + Uni.I18n.translate('deviceloadprofiles.intervalFlags', 'MDC', 'Interval flags') + ': ' + intervalFlagsValue;
-         break;
-         default:
-         prop = '';
-         break;
-         }
-         } else {
-         prop = '';
-         }
-         if (rule.name === 'removed rule') {
-         str += Uni.I18n.translate('device.registerData.removedRule', 'MDC', 'removed rule') + '<br>';
-         } else {
-         str += '<span style="word-wrap: break-word; display: inline-block; width: 800px">' + '<a href="#/administration/validation/rulesets/' + rule.ruleSet.id + '/rules/' + rule.id + '">' + rule.name + '</a>' + prop + '</span>' + '<br>';
-         }
-         });
-         return str;
-         } else {
-         return '';
-         }
-         }
-         },  */
-
         {
             name: 'interval_start',
             persist: false,
@@ -134,8 +77,9 @@ Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
                         delta: {},
                         bulk: {}
                     },
-                    delta = data.deltaValidationInfo,
-                    bulk = data.bulkValidationInfo;
+                    delta = data.validationInfo.mainValidationInfo,
+                    bulk = data.validationInfo.bulkValidationInfo;
+
                 if (delta && delta.validationRules) {
                     _.each(delta.validationRules, function (item) {
                         if (item.action == 'FAIL') {
@@ -147,7 +91,6 @@ Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
                                 result.delta['informative'] = false :
                                 result.delta['informative'] = true;
                         }
-                        console.log(result);
                     });
                 }
                 if (delta) {
@@ -179,12 +122,12 @@ Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
             }
         },
         {
-            name: 'deltaValidationInformation',
+            name: 'mainValidationInformation',
             persist: false,
             mapping: function (data) {
                 var result = {};
-                if (data.bulkValidationInfo) {
-                    result = data.bulkValidationInfo
+                if (data.validationInfo && data.validationInfo.mainValidationInfo) {
+                    result = data.validationInfo.mainValidationInfo;
                 }
                 return result;
             }
@@ -194,19 +137,19 @@ Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
             persist: false,
             mapping: function (data) {
                 var result = {};
-                if (data.bulkValidationInfo) {
-                    result = data.bulkValidationInfo
+                if (data.validationInfo && data.validationInfo.bulkValidationInfo) {
+                    result = data.validationInfo.bulkValidationInfo;
                 }
                 return result;
             }
         },
         {
-            name: 'deltaModificationState',
+            name: 'mainModificationState',
             persist: false,
             mapping: function (data) {
                 var result = null;
-                if (data.bulkValidationInfo) {
-                    result = data.bulkValidationInfo.modificationState
+                if (data.validationInfo && data.validationInfo.mainValidationInfo) {
+                    result = data.validationInfo.mainValidationInfo.modificationState;
                 }
                 return result;
             }
@@ -216,8 +159,8 @@ Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
             persist: false,
             mapping: function (data) {
                 var result = null;
-                if (data.bulkValidationInfo) {
-                    result = data.bulkValidationInfo.modificationState
+                if (data.validationInfo && data.validationInfo.bulkValidationInfo) {
+                    result = data.validationInfo.bulkValidationInfo.modificationState;
                 }
                 return result;
             }
@@ -226,17 +169,10 @@ Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
     associations: [
         {
             type: 'hasOne',
-            associatedName: 'deltaValidationInfo',
-            associationKey: 'deltaValidationInfo',
-            model: 'Mdc.model.ChannelReadingValidationResult',
-            getterName: 'getDeltaValidationInfo'
-        },
-        {
-            type: 'hasOne',
-            associatedName: 'bulkValidationInfo',
-            associationKey: 'bulkValidationInfo',
-            model: 'Mdc.model.ChannelReadingValidationResult',
-            getterName: 'getBulkValidationInfo'
+            associatedName: 'validationInfo',
+            associationKey: 'validationInfo',
+            model: 'Mdc.model.ChannelReadingValidationInfo',
+            getterName: 'getValidationInfo'
         }
     ]
 });
