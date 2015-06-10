@@ -18,7 +18,7 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RulesSetGrid', {
                 dataIndex: 'name',
                 renderer: function (value, metaData, record) {
                     if (record.raw.description) {
-                        metaData.tdAttr = 'data-qtip="' + record.raw.description + '"';
+                        metaData.tdAttr = 'data-qtip="' + Ext.String.htmlEncode( Ext.String.htmlEncode(record.raw.description)) + '"';
                     }
                     return '<a href="#/administration/validation/rulesets/' + record.getId() + '">' + Ext.String.htmlEncode(value) + '</a>';
                 },
