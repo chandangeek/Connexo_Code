@@ -263,8 +263,6 @@ public class MdcPropertyUtils {
             } else {
                 throw new FieldValidationException("Not a boolean", getTranslatedPropertyName(propertySpec));
             }
-        } else if(Objects.equals(propertySpec.getValueFactory().getValueType(), FirmwareVersion.class)){
-            return this.firmwareService.getFirmwareVersionById((Integer) ((LinkedHashMap<String, Object>) value).get("id")).orElse(null);
         }
         return propertySpec.getValueFactory().fromStringValue(value.toString());
     }
