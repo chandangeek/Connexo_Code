@@ -175,7 +175,7 @@ public class FileImportServiceIT {
                     new ThreadSecurityModule(),
                     new DomainUtilModule(),
                     new PubSubModule(),
-                    new UtilModule(Clock.fixed(NOW, ZoneId.systemDefault())),
+                    new UtilModule(Clock.fixed(NOW, ZoneId.systemDefault()), testFileSystem),
                     new TransactionModule(),
                     new NlsModule(),
                     new UserModule(),
