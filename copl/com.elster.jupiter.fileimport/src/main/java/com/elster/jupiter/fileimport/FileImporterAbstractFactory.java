@@ -74,7 +74,7 @@ public abstract class FileImporterAbstractFactory  implements FileImporterFactor
         return getThesaurus().getString(getNlsKey().getKey(), getDefaultFormat());
     }
 
-    boolean isAProperty(final String property) {
+    private boolean isAProperty(final String property) {
         return getPropertySpecs().stream()
                 .anyMatch(input -> property.equals(input.getName()));
     }

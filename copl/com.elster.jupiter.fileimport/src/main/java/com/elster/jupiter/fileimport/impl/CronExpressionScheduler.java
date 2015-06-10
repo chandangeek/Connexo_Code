@@ -11,10 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 /**
  * Wrapper around a ScheduledExecutorService that allows scheduling CronJobs according to their CronExpression.
@@ -23,7 +20,7 @@ class CronExpressionScheduler {
 
     private final ScheduledExecutorService scheduledExecutorService;
     private final Clock clock;
-    Map<Long, ScheduledFuture<?>> scheduledJobHandles;
+    Map<Long, ScheduledFuture<?>> scheduledJobHandles = new ConcurrentHashMap<>();
 
     /**
      * Creates a new CronExpressionScheduler with the given size of thread pool.
@@ -33,7 +30,6 @@ class CronExpressionScheduler {
     public CronExpressionScheduler(Clock clock, int threadPoolSize) {
         this.clock = clock;
         scheduledExecutorService = Executors.newScheduledThreadPool(threadPoolSize);
-        scheduledJobHandles = new HashMap<>();
     }
 
     /**
@@ -60,8 +56,9 @@ class CronExpressionScheduler {
     }
 
     public void unschedule(Long cronJobId, boolean mayInterruptIfRunning) {
-        if (scheduledJobHandles.containsKey(cronJobId))
-            scheduledJobHandles.get(cronJobId).cancel(mayInterruptIfRunning);
+        if (scheduledJobHandles.containsKey(cronJobId)) {
+            scheduledJobHandles.remove(cronJobId).cancel(mayInterruptIfRunning);
+        }
     }
 
     private final class SelfReschedulingCronJob implements CronJob {

@@ -127,7 +127,7 @@ class ImportScheduleImpl implements ImportSchedule {
 
     @Override
     public boolean isActive() {
-        return !this.isDeleted() && this.active;
+        return !this.isDeleted() && isImporterAvailable() && this.active;
     }
 
     @Override
@@ -320,7 +320,7 @@ class ImportScheduleImpl implements ImportSchedule {
 
     @Override
     public boolean isDeleted(){
-        return (this.obsoleteTime != null) || !isImporterAvailable();
+        return (this.obsoleteTime != null);
     }
 
     @Override
