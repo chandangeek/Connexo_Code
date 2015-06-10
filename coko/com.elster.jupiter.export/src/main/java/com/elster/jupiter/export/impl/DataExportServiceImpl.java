@@ -231,6 +231,7 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
                     bind(Clock.class).toInstance(clock);
                     bind(UserService.class).toInstance(userService);
                     bind(TransactionService.class).toInstance(transactionService);
+                    bind(PropertySpecService.class).toInstance(propertySpecService);
                 }
             });
             addSelector(new StandardDataSelectorFactory(transactionService, meteringService, thesaurus));
