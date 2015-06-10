@@ -20,7 +20,6 @@ import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.impl.DataExportServiceImpl;
 import com.elster.jupiter.export.impl.ExportModule;
 import com.elster.jupiter.export.processor.impl.StandardCsvDataProcessorFactory;
-import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fileimport.impl.FileImportModule;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
@@ -93,8 +92,8 @@ import com.energyict.mdc.io.impl.MdcIOModule;
 import com.energyict.mdc.io.impl.SerialIONoModemComponentServiceImpl;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.impl.IssueDataCollectionModule;
-import com.energyict.mdc.issue.datacollection.impl.templates.AbstractTemplate;
-import com.energyict.mdc.issue.datacollection.impl.templates.BasicDatacollectionRuleTemplate;
+import com.energyict.mdc.issue.datacollection.impl.templates.AbstractDataCollectionTemplate;
+import com.energyict.mdc.issue.datacollection.impl.templates.BasicDataCollectionRuleTemplate;
 import com.energyict.mdc.issues.impl.IssuesModule;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
@@ -626,7 +625,7 @@ public class DemoTest {
     }
 
     private void fixIssueTemplates() {
-        AbstractTemplate template = injector.getInstance(BasicDatacollectionRuleTemplate.class);
+        AbstractDataCollectionTemplate template = injector.getInstance(BasicDataCollectionRuleTemplate.class);
         IssueServiceImpl issueService = (IssueServiceImpl) injector.getInstance(IssueService.class);
         issueService.addCreationRuleTemplate(template);
     }
