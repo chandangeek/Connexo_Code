@@ -6,7 +6,15 @@ Ext.define('Uni.grid.FilterPanelTop', {
     xtype: 'uni-grid-filterpaneltop',
     ui: 'filter',
 
-    requires: [],
+    requires: [
+        'Uni.grid.filtertop.Base',
+        'Uni.grid.filtertop.Checkbox',
+        'Uni.grid.filtertop.ComboBox',
+        'Uni.grid.filtertop.Date',
+        'Uni.grid.filtertop.Interval',
+        'Uni.grid.filtertop.Radio',
+        'Uni.grid.filtertop.Text'
+    ],
 
     /**
      *
