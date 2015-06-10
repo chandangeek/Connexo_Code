@@ -354,8 +354,7 @@ Ext.define('Fim.controller.ImportServices', {
 
         importServiceRecord.set('importerInfo', {
             name: addImportServiceForm.down('#cbo-file-importer').getValue()
-        });
-        importServiceRecord.set('destinationName', 'FileImport1');
+        });        
         importServiceRecord.endEdit();
 
         importServiceRecord.save({

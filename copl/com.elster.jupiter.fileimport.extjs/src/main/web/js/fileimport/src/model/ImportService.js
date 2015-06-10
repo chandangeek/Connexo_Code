@@ -15,8 +15,7 @@ Ext.define('Fim.model.ImportService', {
             convert: function (value, record) {
                 return Uni.I18n.translate(record.get('application'), 'USR', record.get('application'));
             }
-        },
-        'destinationName',
+        },        
         'importDirectory',
         'inProcessDirectory',
         'successDirectory',
