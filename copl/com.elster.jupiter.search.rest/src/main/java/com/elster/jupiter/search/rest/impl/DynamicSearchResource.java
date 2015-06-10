@@ -111,23 +111,23 @@ public class DynamicSearchResource {
         final SearchBuilder<Object> searchBuilder = searchService.search(searchDomain);
         if (jsonQueryFilter.hasFilters()) {
             searchDomain.getProperties().stream().
-                    filter(p -> jsonQueryFilter.hasProperty(p.getName())).
-                    forEach(searchableProperty -> {
-                        try {
-                            if (searchableProperty.getSelectionMode().equals(SearchableProperty.SelectionMode.MULTI)) {
-                                searchBuilder.where(searchableProperty).in(getQueryParameterAsObjectList(jsonQueryFilter, searchableProperty));
+                filter(p -> jsonQueryFilter.hasProperty(p.getName())).
+                forEach(searchableProperty -> {
+                    try {
+                        if (searchableProperty.getSelectionMode().equals(SearchableProperty.SelectionMode.MULTI)) {
+                            searchBuilder.where(searchableProperty).in(getQueryParameterAsObjectList(jsonQueryFilter, searchableProperty));
+                        } else {
+                            if (searchableProperty.getSpecification().getValueFactory().getValueType().equals(String.class)) {
+                                searchBuilder.where(searchableProperty).likeIgnoreCase((String) getQueryParameterAsObject(jsonQueryFilter, searchableProperty));
                             } else {
-                                if (searchableProperty.getSpecification().getValueFactory().getValueType().equals(String.class)) {
-                                    searchBuilder.where(searchableProperty).likeIgnoreCase((String) getQueryParameterAsObject(jsonQueryFilter, searchableProperty));
-                                } else {
-                                    searchBuilder.where(searchableProperty).isEqualTo(getQueryParameterAsObject(jsonQueryFilter, searchableProperty));
-                                }
+                                searchBuilder.where(searchableProperty).isEqualTo(getQueryParameterAsObject(jsonQueryFilter, searchableProperty));
                             }
-                        } catch (InvalidValueException e) {
-                            throw new LocalizedFieldValidationException(MessageSeeds.INVALID_VALUE, "filter." + searchableProperty.getName());
                         }
+                    } catch (InvalidValueException e) {
+                        throw new LocalizedFieldValidationException(MessageSeeds.INVALID_VALUE, "filter." + searchableProperty.getName());
+                    }
 
-                    });
+                });
         } else {
             throw new LocalizedFieldValidationException(MessageSeeds.AT_LEAST_ONE_CRITERIA, "filter");
         }
