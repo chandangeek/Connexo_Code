@@ -47,13 +47,14 @@ Ext.define('Cfg.store.ValidationRuleSets', {
 
 					url += format;
 				}
-
-				if (me.noCache) {
-					url = Ext.urlAppend(url, Ext.String.format("{0}={1}", me.cacheString, Ext.Date.now()));
-				}
-
-				request.url = url;
 			}
+			
+			if (me.noCache) {
+				url = Ext.urlAppend(url, Ext.String.format("{0}={1}", me.cacheString, Ext.Date.now()));
+			}
+
+			request.url = url;
+			
             return url;
         }
 
