@@ -17,11 +17,7 @@ import com.energyict.mdc.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
 import com.energyict.mdc.channels.serial.optical.serialio.SioOpticalConnectionType;
 import com.energyict.mdc.exceptions.ComServerExecutionException;
 import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.meterdata.CollectedLogBook;
-import com.energyict.mdc.meterdata.CollectedMessageList;
-import com.energyict.mdc.meterdata.CollectedRegister;
+import com.energyict.mdc.meterdata.*;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.DeviceProtocolCache;
 import com.energyict.mdc.protocol.SerialPortComChannel;
@@ -173,7 +169,6 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
             ComServerExecutionException exception;
             try {
                 if (getDlmsSession().getAso().getAssociationStatus() == ApplicationServiceObject.ASSOCIATION_DISCONNECTED) {
-                    getDlmsSession().getDLMSConnection().setRetries(getDlmsSessionProperties().getAARQRetries());
                     getDlmsSession().createAssociation((int) getDlmsSessionProperties().getAARQTimeout());
                 }
                 return;
@@ -184,8 +179,6 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
                     throw e;
                 }
                 exception = e;
-            } finally {
-                getDlmsSession().getDLMSConnection().setRetries(getDlmsSessionProperties().getRetries());
             }
 
             //Release and retry the AARQ in case of ACSE exception
