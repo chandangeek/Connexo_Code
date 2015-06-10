@@ -7,12 +7,12 @@
     <parent>
         <groupId>com.energyict</groupId>
         <artifactId>mdc.parent</artifactId>
-        <version>1.0.2</version>
+        <version>1.0.4-SNAPSHOT</version>
         <relativePath>../com.energyict.comserver.parent/pom.xml</relativePath>
     </parent>
 
     <artifactId>mdc.issue.datacollection</artifactId>
-    <version>1.0.4-SNAPSHOT</version>
+    <version>1.0.3-SNAPSHOT</version>
     <packaging>bundle</packaging>
     <name>[MDC] mdc.issue.datacollection [init IDC]</name>
     <description>
