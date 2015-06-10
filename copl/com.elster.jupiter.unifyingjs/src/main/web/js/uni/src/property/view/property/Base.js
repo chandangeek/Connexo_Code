@@ -15,18 +15,32 @@ Ext.define('Uni.property.view.property.Base', {
     extend: 'Ext.form.FieldContainer',
 
     requires: [
-        'Uni.property.view.DefaultButton'
+        'Uni.property.view.DefaultButton',
+        'Uni.property.view.EditButton'
     ],
 
     width: 256,
     translationKey: 'UNI',
     resetButtonHidden: false,
+    showEditButton: false,
+    editIcon: 'icon-pencil5',
+    clearIcon: 'icon-close',
+    usedIcon: 'icon-pencil5', // The currently used icon for the editButton
+    editButtonTooltip: null, // The tooltip for the edit button when in 'edit mode'
+    removeButtonTooltip: null, // The tooltip for the edit button when in 'remove/clear mode'
+    onEditFunc: {
+        func : null,
+        scope: null,
+    },
 
     layout: 'hbox',
     fieldLabel: '',
     required: false,
 
     items: [
+        {
+            xtype: 'uni-edit-button'
+        },
         {
             xtype: 'uni-default-button'
         }
@@ -77,6 +91,38 @@ Ext.define('Uni.property.view.property.Base', {
     },
 
     /**
+     * Returns Edit button
+     * @returns {Uni.property.view.EditButton}
+     */
+    getEditButton: function () {
+        return this.down('uni-edit-button');
+    },
+
+    onClickEditButton: function() {
+        var me = this,
+            tooltipText;
+        if (me.usedIcon === me.editIcon) {
+            me.usedIcon = me.clearIcon;
+            tooltipText = me.removeButtonTooltip;
+            this.property.isEdited = true;
+            me.doEnable(true);
+            if (me.onEditFunc && me.onEditFunc.func && typeof me.onEditFunc.func === 'function') {
+                me.onEditFunc.func(1, me.onEditFunc.scope);
+            }
+        } else {
+            me.usedIcon = me.editIcon;
+            tooltipText = me.editButtonTooltip;
+            this.property.isEdited = false;
+            me.doEnable(false);
+            if (me.onEditFunc && me.onEditFunc.func && typeof me.onEditFunc.func === 'function') {
+                me.onEditFunc.func(-1, me.onEditFunc.scope);
+            }
+        }
+        me.getEditButton().setIconCls(me.usedIcon);
+        me.getEditButton().setTooltip(tooltipText);
+    },
+
+    /**
      * Performs property initialisation
      *
      * @private
@@ -110,8 +156,9 @@ Ext.define('Uni.property.view.property.Base', {
         if (property) {
             this.setKey(property.get('key'));
             this.setLocalizedName(property.get('name'));
-            this.setValue(this.getProperty().get('value'));
+            this.setValue(property.get('value'));
             this.updateResetButton();
+            this.updateEditButton();
         }
     },
 
@@ -129,8 +176,10 @@ Ext.define('Uni.property.view.property.Base', {
                     button.setTooltip(Uni.I18n.translate('general.clear', 'UNI', 'Clear'));
                 } else {
                     button.setTooltip(
-                            Uni.I18n.translate('general.restoreDefaultValue', this.translationKey, 'Restore to default value')
-                            + ' &quot; ' + this.getProperty().get('default') + '&quot;'
+                        Ext.String.format(
+                            Uni.I18n.translate('general.restoreDefaultValue', this.translationKey, 'Restore to default value "{0}"'),
+                            this.getValueAsDisplayString(this.getProperty().get('default'))
+                        )
                     );
                 }
 
@@ -144,6 +193,37 @@ Ext.define('Uni.property.view.property.Base', {
         }
         
         this.fireEvent('checkRestoreAll', this);
+    },
+
+    /**
+     * Updates the edit button icon, state and tooltip
+     */
+    updateEditButton: function () {
+        var showEditButton = this.showEditButton;
+        var button = this.getEditButton();
+        if (this.isEdit) {
+            button.setVisible(showEditButton);
+            this.doEnable(!showEditButton);
+            button.setTooltip(this.editButtonTooltip);
+        } else {
+            button.setVisible(false);
+        }
+    },
+
+    /**
+     * enables/disables the getField() component
+     * Implement this method on inheritance when multiple fields are involved
+     */
+    doEnable: function(enable) {
+        if (this.getField()) {
+            if (this.getField()) {
+                if (enable) {
+                    this.getField().enable();
+                } else {
+                    this.getField().disable();
+                }
+            }
+        }
     },
 
     /**
@@ -231,6 +311,9 @@ Ext.define('Uni.property.view.property.Base', {
      * @param value
      */
     setValue: function (value) {
+        if (Ext.isObject(value) && value.value) { // Seems to be the case for EAN13 & EAN18 codes
+            value = value.value;
+        }
         if (this.isEdit) {
             if (this.getProperty() && this.getProperty().get('hasValue') && !this.userHasViewPrivilege && this.userHasEditPrivilege) {
                 this.getField().emptyText = Uni.I18n.translate('Uni.value.provided', 'UNI', 'Value provided - no rights to see the value.');
@@ -315,6 +398,12 @@ Ext.define('Uni.property.view.property.Base', {
             me.setProperty(me.property);
             me.initListeners();
             me.getResetButton().setHandler(me.restoreDefault, me);
+            if (me.showEditButton) {
+                if (me.property.isEdited) {
+                    me.onClickEditButton();
+                }
+                me.getEditButton().setHandler(me.onClickEditButton, me);
+            }
         });
     },
 
@@ -400,6 +489,17 @@ Ext.define('Uni.property.view.property.Base', {
                 this.getDisplayField().setValue('');
             }
         }
+    },
+
+    /**
+     * Generates a human readable text to represent the given value
+     * Implement this method on inheritance when multiple fields are involved
+     *
+     * @param value  the value to display as text
+     * @returns {*}
+     */
+    getValueAsDisplayString: function (value) {
+        return value;
     }
 
 });

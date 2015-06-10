@@ -22,7 +22,7 @@ Ext.define('Uni.property.view.property.Boolean', {
 
     setValue: function (value) {
         if (!this.isEdit) {
-             value = value ? 'Yes' : 'No';
+             value = value ? Uni.I18n.translate('general.yes', this.translationKey, 'Yes') : Uni.I18n.translate('general.no', this.translationKey, 'No');
         }
         this.callParent([value]);
     },

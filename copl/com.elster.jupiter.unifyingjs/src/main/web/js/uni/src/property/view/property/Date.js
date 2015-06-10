@@ -52,12 +52,12 @@ Ext.define('Uni.property.view.property.Date', {
         this.down('datefield').clearInvalid();
     },
 
-    setValue: function (value) {
+    setValue: function (value /*Date in miliseconds*/) {
         if (value !== null && value !== '') {
-            value = new Date(value);
-
             if (!this.isEdit) {
-                value = Uni.DateTime.formatDateShort(value);
+                value = this.getValueAsDisplayString(value);
+            } else {
+                value = new Date(value);
             }
         }
         this.callParent([value]);
@@ -69,5 +69,10 @@ Ext.define('Uni.property.view.property.Date', {
         } else {
             return null;
         }
+    },
+
+    getValueAsDisplayString: function (value /*Date as miliseconds*/) {
+        return (value !== null && value !== '') ? Uni.DateTime.formatDateTimeShort(new Date(value)) : value;
     }
+
 });
