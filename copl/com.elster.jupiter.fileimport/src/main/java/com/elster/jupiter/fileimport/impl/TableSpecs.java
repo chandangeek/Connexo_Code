@@ -40,6 +40,7 @@ enum TableSpecs {
             table.map(FileImportOccurrenceImpl.class);
             Column idColumn = table.addAutoIdColumn();
             Column importScheduleColumn = table.column("IMPORTSCHEDULE").type("number").notNull().conversion(NUMBER2LONG).map("importScheduleId").add();
+            Column trigger = table.column("TRIGGERTIME").type("number").conversion(NUMBER2INSTANT).map("triggerTime").add();
             table.column("FILENAME").varChar(DESCRIPTION_LENGTH).notNull().conversion(CHAR2PATH).map("path").add();
             table.column("STATUS").type("number").notNull().conversion(NUMBER2ENUM).map("status").add();
             table.column("STARTDATE").number().conversion(ColumnConversion.NUMBER2INSTANT).map("startDate").add();
@@ -47,6 +48,7 @@ enum TableSpecs {
             table.column("MESSAGE").varChar(Table.DESCRIPTION_LENGTH).map("message").add();
             table.primaryKey("FIM_PK_FILE_IMPORT").on(idColumn).add();
             table.foreignKey("FIM_FKFILEIMPORT_SCHEDULE").references(FIM_IMPORT_SCHEDULE.name()).onDelete(DeleteRule.CASCADE).map("importSchedule").on(importScheduleColumn).add();
+            table.partitionOn(trigger);
         }
     },
 

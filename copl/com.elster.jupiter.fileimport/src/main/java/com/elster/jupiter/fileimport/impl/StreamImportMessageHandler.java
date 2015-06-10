@@ -37,6 +37,7 @@ class StreamImportMessageHandler implements MessageHandler {
         FileImportOccurrence fileImportOccurrence = getFileImportOccurrence(message);
         if (fileImportOccurrence != null) {
             try {
+                fileImportOccurrence.setStartDate(clock.instant());
                 String importerName = fileImportOccurrence.getImportSchedule().getImporterName();
                 Map<String, Object> propertyMap = new HashMap<>();
 

@@ -20,7 +20,7 @@ class CronExpressionScheduler {
 
     private final ScheduledExecutorService scheduledExecutorService;
     private final Clock clock;
-    Map<Long, ScheduledFuture<?>> scheduledJobHandles = new ConcurrentHashMap<>();
+    ConcurrentHashMap<Long, ScheduledFuture<?>> scheduledJobHandles = new ConcurrentHashMap<>();
 
     /**
      * Creates a new CronExpressionScheduler with the given size of thread pool.

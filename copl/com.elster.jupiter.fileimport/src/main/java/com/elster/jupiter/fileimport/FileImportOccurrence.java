@@ -76,6 +76,11 @@ public interface FileImportOccurrence {
 
     Optional<Instant> getEndDate();
 
+    Instant getTriggerDate();
+
+    void setStartDate(Instant instant);
+    void setEndDate(Instant instant);
+
     List<ImportLogEntry> getLogs();
 
     FileImportLogHandler createFileImportLogHandler();

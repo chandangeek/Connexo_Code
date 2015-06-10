@@ -7,11 +7,8 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Order;
-import com.elster.jupiter.util.conditions.Where;
 
 import javax.inject.Inject;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -37,6 +34,7 @@ final class FileImportOccurrenceImpl implements FileImportOccurrence {
     private String message;
     private Instant startDate;
     private Instant endDate;
+    private Instant triggerTime;
     private transient InputStream inputStream;
     private final FileSystem fileSystem;
     private final DataModel dataModel;
@@ -68,7 +66,6 @@ final class FileImportOccurrenceImpl implements FileImportOccurrence {
             throw new IllegalStateException();
         }
         this.status = Status.PROCESSING;
-        this.startDate = clock.instant();
 
         MessageSeeds.FILE_IMPORT_STARTED.log(getLogger(),thesaurus);
 
@@ -81,6 +78,7 @@ final class FileImportOccurrenceImpl implements FileImportOccurrence {
         this.importSchedule = importSchedule;
         this.importScheduleId = importSchedule.getId();
         this.status = Status.NEW;
+        this.triggerTime = clock.instant();
         return this;
     }
 
@@ -162,6 +160,11 @@ final class FileImportOccurrenceImpl implements FileImportOccurrence {
     @Override
     public Optional<Instant> getEndDate() {
         return Optional.ofNullable(endDate);
+    }
+
+    @Override
+    public Instant getTriggerDate() {
+        return this.triggerTime;
     }
 
     @Override
@@ -266,5 +269,20 @@ final class FileImportOccurrenceImpl implements FileImportOccurrence {
 
     protected Clock getClock() {
         return clock;
+    }
+
+    public Instant getTriggerTime() {
+        return triggerTime;
+    }
+
+    public void setStartDate(Instant startDate) {
+        this.startDate = startDate;
+        save();
+    }
+
+    @Override
+    public void setEndDate(Instant instant) {
+        this.endDate = instant;
+        save();
     }
 }
