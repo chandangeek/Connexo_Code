@@ -48,6 +48,10 @@ public class ValidationRuleInfoFactory {
         return dataValidationStatus.getOffendedRules().stream().map(this::createValidationRuleInfo).collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
+    public Set<ValidationRuleInfo> createInfosForBulkDataValidationStatus(DataValidationStatus dataValidationStatus) {
+        return dataValidationStatus.getBulkOffendedRules().stream().map(this::createValidationRuleInfo).collect(Collectors.toCollection(LinkedHashSet::new));
+    }
+
     public Map<ValidationRuleInfo, Long> createInfosForSuspectReasons(Map<ValidationRule, Long> suspectReasonMap){
         Map<ValidationRuleInfo, Long> suspectReasonInfoMap = new HashMap<>();
         for (Map.Entry<ValidationRule, Long> entry : suspectReasonMap.entrySet()) {
