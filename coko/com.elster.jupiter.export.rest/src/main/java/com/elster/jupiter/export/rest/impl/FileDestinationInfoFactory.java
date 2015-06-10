@@ -30,10 +30,6 @@ class FileDestinationInfoFactory implements DestinationInfoFactory {
         return FileDestination.class;
     }
 
-    private interface RunnableDataExportDestination extends Runnable, DataExportDestination {
-
-    }
-
     @Override
     public void update(DataExportDestination destination, DestinationInfo info) {
         if (!(destination instanceof FileDestination)) {
