@@ -10,7 +10,6 @@ import java.util.logging.Logger;
 public enum MessageSeeds implements MessageSeed {
 
     CAN_NOT_BE_EMPTY(2, Constants.NAME_REQUIRED_KEY, "This field is required", Level.SEVERE),
-    INVALID_CHARS(5, Constants.INVALID_CHARS, "This field contains invalid characters", Level.SEVERE),
 
     FIELD_SIZE_BETWEEN_1_AND_80(6, Constants.FIELD_SIZE_BETWEEN_1_AND_80, "Field's text length should be between 1 and 80 symbols", Level.SEVERE),
     FIELD_SIZE_BETWEEN_1_AND_256(7, Constants.FIELD_SIZE_BETWEEN_1_AND_4000, "Field's text length should be between 1 and 4000 symbols", Level.SEVERE),
@@ -83,7 +82,6 @@ public enum MessageSeeds implements MessageSeed {
         ;
         public static final String DUPLICATE_VALIDATION_RULE_SET = "DuplicateValidationRuleSet";
         public static final String NAME_REQUIRED_KEY = "CanNotBeEmpty";
-        public static final String INVALID_CHARS = "InvalidChars";
         public static final String NO_SUCH_VALIDATOR = "NoSuchValidator";
         public static final String DUPLICATE_VALIDATION_RULE = "DuplicateValidationRule";
         public static final String NO_SUCH_READINGTYPE = "NoSuchReadingType";
