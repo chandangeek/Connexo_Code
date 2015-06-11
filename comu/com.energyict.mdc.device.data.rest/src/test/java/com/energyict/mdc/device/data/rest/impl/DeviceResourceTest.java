@@ -778,7 +778,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
                 .contains(MapEntry.entry("eventDate", start.toEpochMilli()))
                 .contains(MapEntry.entry("deviceCode", deviceCode))
                 .contains(MapEntry.entry("eventLogId", eventLogId))
-                .contains(MapEntry.entry("readingDate", start.toEpochMilli()))
+                .contains(MapEntry.entry("readingDate", end.toEpochMilli()))
                 .contains(MapEntry.entry("message", message));
 
         Map<String, Object> eventType = (Map<String, Object>) ((Map<String, Object>) infos.get(0)).get("eventType");
