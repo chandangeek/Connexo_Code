@@ -39,7 +39,8 @@ public class AuthorizedActionInfo {
     }
 
     private void fromBasicAction(Thesaurus thesaurus, AuthorizedTransitionAction action){
-        this.name = action.getName();
+        String name = action.getStateTransition().getFrom().getName() + action.getStateTransition().getEventType().getSymbol();
+        this.name = thesaurus.getString(name, name);
         this.fromState = new DeviceLifeCycleStateInfo(thesaurus, action.getStateTransition().getFrom());
         this.toState = new DeviceLifeCycleStateInfo(thesaurus, action.getStateTransition().getTo());
         this.triggeredBy = new StateTransitionEventTypeFactory(thesaurus).from(action.getStateTransition().getEventType());

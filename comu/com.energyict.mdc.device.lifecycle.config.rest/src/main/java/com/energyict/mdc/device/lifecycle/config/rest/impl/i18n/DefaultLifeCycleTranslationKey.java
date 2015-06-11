@@ -1,6 +1,8 @@
 package com.energyict.mdc.device.lifecycle.config.rest.impl.i18n;
 
 import com.elster.jupiter.nls.TranslationKey;
+import com.energyict.mdc.device.lifecycle.config.DefaultCustomStateTransitionEventType;
+import com.energyict.mdc.device.lifecycle.config.DefaultState;
 
 /**
  * Copyrights EnergyICT
@@ -8,11 +10,30 @@ import com.elster.jupiter.nls.TranslationKey;
  * Time: 15:41
  */
 public enum DefaultLifeCycleTranslationKey implements TranslationKey {
-    TRANSITION_EVENT_TYPE_START_COMMISSIONING("#commissioning", "Start commissioning"),
-    TRANSITION_EVENT_TYPE_ACTIVATE("#activated", "Activate"),
-    TRANSITION_EVENT_TYPE_DEACTIVATE("#deactivated", "Deactivate"),
-    TRANSITION_EVENT_TYPE_DECOMMISSION("#decommissioned", "Decommission"),
-    TRANSITION_EVENT_TYPE_REMOVE("#deleted", "Remove"),
+    STATE_TRANSITION_EVENT_TYPE_START_COMMISSIONING(DefaultCustomStateTransitionEventType.COMMISSIONING.getSymbol(), "Start commissioning"),
+    STATE_TRANSITION_EVENT_TYPE_ACTIVATE(DefaultCustomStateTransitionEventType.ACTIVATED.getSymbol(), "Activate"),
+    STATE_TRANSITION_EVENT_TYPE_DEACTIVATE(DefaultCustomStateTransitionEventType.DEACTIVATED.getSymbol(), "Deactivate"),
+    STATE_TRANSITION_EVENT_TYPE_DECOMMISSION(DefaultCustomStateTransitionEventType.DECOMMISSIONED.getSymbol(), "Decommission"),
+    STATE_TRANSITION_EVENT_TYPE_REMOVE(DefaultCustomStateTransitionEventType.DELETED.getSymbol(), "Remove"),
+
+    TRANSITION_START_COMMISSIONING(DefaultState.IN_STOCK.getKey()+DefaultCustomStateTransitionEventType.COMMISSIONING.getSymbol(), "Start commissioning"),
+    TRANSITION_ACTIVATE(DefaultState.INACTIVE.getKey()+DefaultCustomStateTransitionEventType.ACTIVATED.getSymbol(), "Activate"),
+    TRANSITION_INSTALL_ACTIVE(DefaultState.IN_STOCK.getKey()+DefaultCustomStateTransitionEventType.ACTIVATED.getSymbol(), "Install active"),
+    TRANSITION_INSTALL_INACTIVE_FROM_INSTOCK(DefaultState.IN_STOCK.getKey()+DefaultCustomStateTransitionEventType.DEACTIVATED.getSymbol(), "Install inactive"),
+    TRANSITION_INSTALL_INACTIVE_FROM_COMM(DefaultState.COMMISSIONING.getKey()+DefaultCustomStateTransitionEventType.DEACTIVATED.getSymbol(), "Install inactive"),
+    TRANSITION_INSTALL_ACTIVE_FROM_COMM(DefaultState.COMMISSIONING.getKey()+DefaultCustomStateTransitionEventType.ACTIVATED.getSymbol(), "Install active"),
+    TRANSITION_DEACTIVATE(DefaultState.ACTIVE.getKey()+DefaultCustomStateTransitionEventType.DEACTIVATED.getSymbol(), "Deactivate"),
+    TRANSITION_DEACTIVATE_DECOMMISSION(DefaultState.ACTIVE.getKey()+DefaultCustomStateTransitionEventType.DECOMMISSIONED.getSymbol(), "Deactivate and decommission"),
+    TRANSITION_DECOMMISSION(DefaultState.INACTIVE.getKey()+DefaultCustomStateTransitionEventType.DECOMMISSIONED.getSymbol(), "Decommission"),
+    TRANSITION_REMOVE(DefaultState.DECOMMISSIONED.getKey()+DefaultCustomStateTransitionEventType.DELETED.getSymbol(), "Remove"),
+    TRANSITION_REMOVE_FROM_STOCK(DefaultState.IN_STOCK.getKey()+DefaultCustomStateTransitionEventType.DELETED.getSymbol(),"Remove"),
+    IN_STOCK(DefaultState.IN_STOCK.getKey(), "In stock"),
+    COMMISSIONING(DefaultState.COMMISSIONING.getKey(), "Commissioning"),
+    ACTIVE(DefaultState.ACTIVE.getKey(), "Active"),
+    INACTIVE(DefaultState.INACTIVE.getKey(), "Inactive"),
+    DECOMMISSIONED(DefaultState.DECOMMISSIONED.getKey(), "Decommissioned"),
+    REMOVED(DefaultState.REMOVED.getKey(), "Removed"),
+
     TRANSITION_COMTASK_CREATED("com/energyict/mdc/device/data/comtaskexecution/CREATED", "Creation of a communication task on a device"),
     TRANSITION_COMTASK_UPDATED("com/energyict/mdc/device/data/comtaskexecution/UPDATED", "Change a communication taks of a device"),
     TRANSITION_COMTASK_DELETED("com/energyict/mdc/device/data/comtaskexecution/DELETED", "Deletion of a communication task on a device"),
