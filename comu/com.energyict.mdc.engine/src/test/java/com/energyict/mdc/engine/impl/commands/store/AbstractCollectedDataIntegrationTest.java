@@ -30,11 +30,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.impl.UserModule;
-import com.elster.jupiter.util.beans.BeanService;
-import com.elster.jupiter.util.beans.impl.BeanServiceImpl;
-import com.elster.jupiter.util.cron.CronExpressionParser;
-import com.elster.jupiter.util.json.JsonService;
-import com.elster.jupiter.util.json.impl.JsonServiceImpl;
+import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.validation.impl.ValidationModule;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.data.impl.DeviceDataModule;
@@ -82,7 +78,6 @@ import java.time.Instant;
 import java.util.Date;
 import java.util.TimeZone;
 
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -122,6 +117,7 @@ public abstract class AbstractCollectedDataIntegrationTest {
         injector = Guice.createInjector(
                 new MockModule(bundleContext, eventAdmin, licenseService),
                 bootstrapModule,
+                new UtilModule(clock),
                 new ThreadSecurityModule(principal),
                 new PubSubModule(),
                 new TransactionModule(),
@@ -254,14 +250,10 @@ public abstract class AbstractCollectedDataIntegrationTest {
         @Override
         protected void configure() {
             SerialComponentService serialComponentService = mock(SerialComponentService.class);
-            bind(JsonService.class).toInstance(new JsonServiceImpl());
-            bind(BeanService.class).toInstance(new BeanServiceImpl());
             bind(SerialComponentService.class).toInstance(serialComponentService);
-            bind(Clock.class).toInstance(clock);
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(BundleContext.class).toInstance(bundleContext);
             bind(LicenseService.class).toInstance(licenseService);
-            bind(CronExpressionParser.class).toInstance(mock(CronExpressionParser.class, RETURNS_DEEP_STUBS));
             bind(LogService.class).toInstance(mock(LogService.class));
             bind(com.elster.jupiter.issue.share.service.IssueService.class).toInstance(mock(com.elster.jupiter.issue.share.service.IssueService.class));
         }
