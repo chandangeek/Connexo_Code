@@ -33,14 +33,10 @@ import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
-import com.elster.jupiter.util.beans.BeanService;
-import com.elster.jupiter.util.beans.impl.BeanServiceImpl;
+import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
-import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.elster.jupiter.util.json.JsonService;
-import com.elster.jupiter.util.json.impl.JsonServiceImpl;
 import com.elster.jupiter.validation.impl.ValidationModule;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -71,13 +67,6 @@ import com.energyict.mdc.tasks.impl.TasksModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-
-import java.sql.SQLException;
-import java.time.Clock;
-import java.util.List;
-import java.util.Optional;
-import java.util.logging.Level;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -87,10 +76,13 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.log.LogService;
 
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Optional;
+import java.util.logging.Level;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class FavoritesServiceImplTest {
 
@@ -146,14 +138,10 @@ public class FavoritesServiceImplTest {
 
         @Override
         protected void configure() {
-            bind(Clock.class).toInstance(Clock.systemDefaultZone());
-            bind(JsonService.class).toInstance(new JsonServiceImpl());
-            bind(BeanService.class).toInstance(new BeanServiceImpl());
             bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
             bind(LicenseService.class).toInstance(mock(LicenseService.class));
             bind(BundleContext.class).toInstance(mock(BundleContext.class));
             bind(LogService.class).toInstance(mock(LogService.class));
-            bind(CronExpressionParser.class).toInstance(mock(CronExpressionParser.class, RETURNS_DEEP_STUBS));
             bind(IssueService.class).toInstance(mock(IssueService.class, RETURNS_DEEP_STUBS));
         }
     }
@@ -163,6 +151,7 @@ public class FavoritesServiceImplTest {
         injector = Guice.createInjector(
                 new MockModule(),
                 inMemoryBootstrapModule,
+                new UtilModule(),
                 new ThreadSecurityModule(),
                 new EventsModule(),
                 new PubSubModule(),
