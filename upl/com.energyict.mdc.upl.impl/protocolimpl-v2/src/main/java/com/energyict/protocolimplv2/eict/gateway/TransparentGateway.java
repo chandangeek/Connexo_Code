@@ -16,10 +16,11 @@ import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
+import com.energyict.mdc.tasks.SerialDeviceProtocolDialect;
+import com.energyict.mdc.tasks.TcpDeviceProtocolDialect;
 import com.energyict.protocolimplv2.common.AbstractGateway;
 import com.energyict.protocolimplv2.dialects.NoParamsDeviceProtocolDialect;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -56,9 +57,11 @@ public class TransparentGateway extends AbstractGateway {
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        List<DeviceProtocolDialect> dialects = new ArrayList<>();
-        dialects.add(new NoParamsDeviceProtocolDialect());
-        return dialects;
+        return Arrays.<DeviceProtocolDialect>asList(
+                new NoParamsDeviceProtocolDialect(),
+                new SerialDeviceProtocolDialect(),
+                new TcpDeviceProtocolDialect()
+        );
     }
 
     @Override

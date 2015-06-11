@@ -101,3 +101,5 @@
 -keepnames class com.energyict.protocolimplv2.abnt.common.structure.field.UnitField {
     public *;
 }
+
+-keepnames class com.energyict.protocolimplv2.eict.gateway.TransparentGateway
