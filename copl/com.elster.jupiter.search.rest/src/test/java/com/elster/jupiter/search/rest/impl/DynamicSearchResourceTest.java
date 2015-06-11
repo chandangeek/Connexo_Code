@@ -14,6 +14,7 @@ import com.elster.jupiter.util.HasName;
 import com.jayway.jsonpath.JsonModel;
 import java.io.ByteArrayInputStream;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import javax.ws.rs.core.Response;
@@ -182,7 +183,7 @@ public class DynamicSearchResourceTest extends SearchApplicationTest {
 
     @Test
     public void testRestictedDomainProperties() throws Exception {
-        Response response = target("/search/com.devices/searchcriteria").queryParam("filter", ExtjsFilter.filter().property("deviceType", Arrays.asList(Long.valueOf(13))).create()).request().accept("application/json").get();
+        Response response = target("/search/com.devices/searchcriteria").queryParam("filter", ExtjsFilter.filter().property("deviceType", Collections.singletonList(13)).create()).request().accept("application/json").get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         ArgumentCaptor<List> constrictions = ArgumentCaptor.forClass(List.class);
         verify(devicesDomain).getPropertiesWithConstrictions(constrictions.capture());
@@ -204,7 +205,7 @@ public class DynamicSearchResourceTest extends SearchApplicationTest {
 
     @Test
     public void testGetPreselectedDomainPropertyValues() throws Exception {
-        Response response = target("/search/com.devices/searchcriteria/deviceConfig").queryParam("filter", ExtjsFilter.filter().property("deviceType", Arrays.asList(Long.valueOf(13))).create()).request().accept("application/json").get();
+        Response response = target("/search/com.devices/searchcriteria/deviceConfig").queryParam("filter", ExtjsFilter.filter().property("deviceType", Collections.singletonList(13)).create()).request().accept("application/json").get();
 //        JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
         // Expect not to throw exceptions
     }
