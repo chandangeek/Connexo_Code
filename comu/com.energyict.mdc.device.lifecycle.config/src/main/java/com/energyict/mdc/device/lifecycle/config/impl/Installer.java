@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.lifecycle.config.impl;
 
 import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
+import com.energyict.mdc.device.lifecycle.config.DefaultCustomStateTransitionEventType;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleBuilder;
@@ -149,7 +150,7 @@ public class Installer {
         FiniteStateMachineBuilder.StateBuilder inactiveBuilder = builder.newStandardState(DefaultState.INACTIVE.getKey());
         State active = activeBuilder
                 .on(decommissionedEventType).transitionTo(decommissioned)
-                .on(deactivated).transitionTo(inactiveBuilder, DefaultLifeCycleTranslationKey.TRANSITION_DEACTIVATE_DECOMMISSION.getKey())
+                .on(deactivated).transitionTo(inactiveBuilder)
                 .complete();
         State inactive = inactiveBuilder
                 .on(activated).transitionTo(active)
@@ -157,14 +158,14 @@ public class Installer {
                 .complete();
         State commissioning = builder
                 .newStandardState(DefaultState.COMMISSIONING.getKey())
-                .on(activated).transitionTo(active, DefaultLifeCycleTranslationKey.TRANSITION_INSTALL_ACTIVE.getKey())
-                .on(deactivated).transitionTo(inactive, DefaultLifeCycleTranslationKey.TRANSITION_INSTALL.getKey())
+                .on(activated).transitionTo(active)
+                .on(deactivated).transitionTo(inactive)
                 .complete();
         State inStock = inStockBuilder
-                .on(activated).transitionTo(active ,DefaultLifeCycleTranslationKey.TRANSITION_INSTALL_ACTIVE.getKey())
-                .on(deactivated).transitionTo(inactive, DefaultLifeCycleTranslationKey.TRANSITION_INSTALL.getKey())
+                .on(activated).transitionTo(active)
+                .on(deactivated).transitionTo(inactive)
                 .on(commissioningEventType).transitionTo(commissioning)
-                .on(deletedEventType).transitionTo(removed, DefaultLifeCycleTranslationKey.TRANSITION_REMOVE_FROM_STOCK.getKey()  )
+                .on(deletedEventType).transitionTo(removed)
                 .complete();
         FiniteStateMachine stateMachine = builder.complete(inStock);
         this.logger.fine(() -> "Creating default finite state machine...");
