@@ -3,7 +3,7 @@ package com.elster.jupiter.demo.impl.builders;
 import com.elster.jupiter.demo.impl.Log;
 import com.elster.jupiter.demo.impl.UnableToCreate;
 import com.elster.jupiter.export.DataExportService;
-import com.elster.jupiter.export.ReadingTypeDataExportTask;
+import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.export.ValidatedDataOption;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
@@ -19,7 +19,7 @@ import java.util.Optional;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
-public class DataExportTaskBuilder extends NamedBuilder<ReadingTypeDataExportTask, DataExportTaskBuilder> {
+public class DataExportTaskBuilder extends NamedBuilder<ExportTask, DataExportTaskBuilder> {
     private final DataExportService dataExportService;
     private final MeteringGroupsService meteringGroupsService;
     private final TimeService timeService;
@@ -40,13 +40,13 @@ public class DataExportTaskBuilder extends NamedBuilder<ReadingTypeDataExportTas
     }
 
     @Override
-    public Optional<ReadingTypeDataExportTask> find() {
-        Optional<? extends ReadingTypeDataExportTask> task = dataExportService.getReadingTypeDataExportTaskQuery().select(where("name").isEqualTo(getName())).stream().findFirst();
-        return Optional.ofNullable((ReadingTypeDataExportTask) task.orElse(null));
+    public Optional<ExportTask> find() {
+        Optional<? extends ExportTask> task = dataExportService.getReadingTypeDataExportTaskQuery().select(where("name").isEqualTo(getName())).stream().findFirst();
+        return Optional.ofNullable((ExportTask) task.orElse(null));
     }
 
     @Override
-    public ReadingTypeDataExportTask create() {
+    public ExportTask create() {
         Log.write(this);
         Optional<RelativePeriod> yesterday = timeService.findRelativePeriodByName("Yesterday");
         if (!yesterday.isPresent()){
@@ -63,19 +63,21 @@ public class DataExportTaskBuilder extends NamedBuilder<ReadingTypeDataExportTas
                 .setDataProcessorName("standardCsvDataProcessorFactory")
                 .setScheduleExpression(new TemporalExpression(TimeDuration.days(1), TimeDuration.hours(11)))
                 .setNextExecution(startOn.toInstant(ZoneOffset.UTC))
-                .setExportPeriod(yesterday.get())
-                .setUpdatePeriod(yesterday.get())
-                .setValidatedDataOption(ValidatedDataOption.INCLUDE_ALL)
-                .setEndDeviceGroup(endDeviceGroup.get())
-                .exportContinuousData(false)
-                .exportUpdate(false);
+                .selectingStandard()
+                .fromExportPeriod(yesterday.get())
+                .fromUpdatePeriod(yesterday.get())
+                .withValidatedDataOption(ValidatedDataOption.INCLUDE_ALL)
+                .fromEndDeviceGroup(endDeviceGroup.get())
+                .continuousData(false)
+                .exportUpdate(false)
+                .fromReadingType("0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0")
+                .fromReadingType("0.0.0.1.19.1.12.0.0.0.0.0.0.0.0.0.72.0")
+                .endSelection();
         builder.addProperty("fileFormat.filenamePrefix").withValue("ConsumptionDataExporter_" + getName().replace(" ", ""));
         builder.addProperty("fileFormat.fileExtension").withValue("csv");
         builder.addProperty("formatterProperties.separator").withValue("comma");
         builder.addProperty("fileFormat.path").withValue("");
-        builder.addReadingType("0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0");
-        builder.addReadingType("0.0.0.1.19.1.12.0.0.0.0.0.0.0.0.0.72.0");
-        ReadingTypeDataExportTask dataExportTask = builder.build();
+        ExportTask dataExportTask = builder.build();
         dataExportTask.save();
         return dataExportTask;
     }
