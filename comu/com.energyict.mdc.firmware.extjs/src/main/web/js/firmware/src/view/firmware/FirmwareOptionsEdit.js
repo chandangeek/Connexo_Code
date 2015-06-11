@@ -111,7 +111,7 @@ Ext.define('Fwc.view.firmware.FirmwareOptionsEdit', {
                                 itemId: 'firmwareUpgradeOptionsLater',
                                 boxLabel: '<b>' + Uni.I18n.translate('general.upload.fw.later', 'FWC', 'Upload firmware and activate later') + '</b>',
                                 inputValue: 'install',
-                                afterSubTpl: '<span style="color: grey;padding: 0 0 0 19px;">' + Uni.I18n.translate('general.upload.fw.later.comment', 'MDC', 'Firmware will be uploaded to the device. The user will need to send an command afterwards in order to activate firmware') + '</span>'
+                                afterSubTpl: '<span style="font-style:italic;color: grey;padding: 0 0 0 19px;">' + Uni.I18n.translate('general.upload.fw.later.comment', 'MDC', 'Firmware will be uploaded to the device. The user will need to send an command afterwards in order to activate firmware') + '</span>'
                             },
                             {
                                 itemId: 'firmwareUpgradeOptionsImmediately',
