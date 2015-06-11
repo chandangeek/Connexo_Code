@@ -87,16 +87,12 @@ Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
                             result.delta['informative'] = false;
                         }
                         if (item.action == 'WARN_ONLY') {
-                            result.delta.suspect ?
-                                result.delta['informative'] = false :
-                                result.delta['informative'] = true;
+                            result.delta.suspect ? result.delta['informative'] = false : result.delta['informative'] = true;
                         }
                     });
                 }
                 if (delta) {
-                    delta.validationResult == 'validationStatus.notValidated' ?
-                        result.delta.notValidated = true :
-                        result.delta.notValidated = false
+                    delta.validationResult == 'validationStatus.notValidated' ? result.delta.notValidated = true : result.delta.notValidated = false
                 }
 
                 if (bulk && bulk.validationRules) {
@@ -106,16 +102,12 @@ Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
                             result.bulk.informative = false;
                         }
                         if (item.action == 'WARN_ONLY') {
-                            result.bulk.suspect ?
-                                result.bulk.informative = false :
-                                result.bulk.informative = true;
+                            result.bulk.suspect ? result.bulk.informative = false : result.bulk.informative = true;
                         }
                     });
                 }
                 if (bulk) {
-                    bulk.validationResult == 'validationStatus.notValidated' ?
-                        result.bulk.notValidated = true :
-                        result.bulk.notValidated = false
+                    bulk.validationResult == 'validationStatus.notValidated' ? result.bulk.notValidated = true : result.bulk.notValidated = false
                 }
 
                 return result;

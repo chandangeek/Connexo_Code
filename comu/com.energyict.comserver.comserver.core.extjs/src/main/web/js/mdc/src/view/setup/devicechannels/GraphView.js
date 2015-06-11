@@ -27,7 +27,7 @@ Ext.define('Mdc.view.setup.devicechannels.GraphView', {
     ],
 
 
-    drawGraph: function (yAxis, series, intervalLength, channelName, unitOfMeasure, zoomLevels) {
+    drawGraph: function (yAxis, series, intervalLength, channelName, unitOfMeasure, zoomLevels, missedValues) {
         var me = this;
 
         me.chart = new Highcharts.StockChart({
@@ -58,7 +58,8 @@ Ext.define('Mdc.view.setup.devicechannels.GraphView', {
                     week: '%a %e<br/>%b %Y',
                     month: '%b<br/>%Y',
                     year: '%Y'
-                }
+                },
+                plotBands: missedValues
             },
 
             yAxis: yAxis,

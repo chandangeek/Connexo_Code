@@ -18,23 +18,27 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
             title = Uni.DateTime.formatDateLong(intervalEnd)
                 + ' ' + Uni.I18n.translate('general.at', 'MDC', 'At').toLowerCase() + ' '
                 + Uni.DateTime.formatTimeLong(intervalEnd);
+
         Ext.suspendLayouts();
         me.down('#general-panel').setTitle(title);
         me.down('#values-panel').setTitle(title);
         bulkValueField.setVisible(record.get('isBulk'));
         me.down('form').loadRecord(record);
 
-        var allRulesArray = Ext.Array.merge(record.getValidationInfo().getMainValidationInfo().get('validationRules'), record.getValidationInfo().getBulkValidationInfo().get('validationRules'));
-        for (var i = 0; i < allRulesArray.length; i++) {
-            for (var x = i + 1; x < allRulesArray.length; x++) {
-                if (allRulesArray[x].id == allRulesArray[i].id) {
-                    allRulesArray.splice(x, 1);
-                    --x;
-                }
-            }
+        if (record.getValidationInfo().getMainValidationInfo().get('validationRules') && !Ext.isEmpty(record.getValidationInfo().getMainValidationInfo().get('validationRules'))) {
+            me.down('#mainReadingQualities').show();
+            me.setReadingQualities(me.down('#mainReadingQualities'), record.getValidationInfo().getMainValidationInfo().get('validationRules'));
+        } else {
+            me.down('#mainReadingQualities').hide();
         }
 
-        !Ext.isEmpty(allRulesArray) && me.setReadingQualities(me.down('#readingQualities'), allRulesArray);
+        if (record.getValidationInfo().getBulkValidationInfo().get('validationRules') && !Ext.isEmpty(record.getValidationInfo().getBulkValidationInfo().get('validationRules'))) {
+            me.down('#bulkReadingQualities').show();
+            me.setReadingQualities(me.down('#bulkReadingQualities'), record.getValidationInfo().getBulkValidationInfo().get('validationRules'));
+        } else {
+            me.down('#bulkReadingQualities').hide();
+        }
+
         me.setGeneralReadingQualities(me.down('#generalReadingQualities'), me.up('tabbedDeviceChannelsView').channel.get('validationInfo'));
         me.down('#readingDataValidated').setValue(record.getValidationInfo().get('dataValidated'));
 
@@ -218,6 +222,11 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                             }
                             return res;
                         }
+                    },
+                    {
+                        fieldLabel: Uni.I18n.translate('devicechannelsreadings.readingqualities.title', 'MDC', 'Reading qualities'),
+                        itemId: 'mainReadingQualities',
+                        htmlEncode: false
                     }
                 ]
             },
@@ -279,7 +288,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                     },
                     {
                         fieldLabel: Uni.I18n.translate('devicechannelsreadings.readingqualities.title', 'MDC', 'Reading qualities'),
-                        itemId: 'readingQualities',
+                        itemId: 'bulkReadingQualities',
                         htmlEncode: false
                     }
                 ]

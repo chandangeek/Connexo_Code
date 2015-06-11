@@ -48,12 +48,11 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                 renderer: function (v, metaData, record) {
                     var validationInfo = record.get('readingProperties'),
                         cls = 'icon-validation-cell';
-                    if (validationInfo.delta) {
+                    if (!record.getValidationInfo().get('dataValidated')) {
+                        cls += ' icon-validation-black';
+                    } else if (validationInfo.delta) {
                         if (validationInfo.delta.suspect) {
                             cls += ' icon-validation-red'
-                        }
-                        if (validationInfo.delta.notValidated) {
-                            cls += ' icon-validation-black'
                         }
                     }
                     metaData.tdCls = cls;
@@ -85,14 +84,15 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                 renderer: function (v, metaData, record) {
                     var validationInfo = record.get('readingProperties'),
                         cls = 'icon-validation-cell';
-                    if (validationInfo.bulk) {
+
+                    if (!record.getValidationInfo().get('dataValidated')) {
+                        cls += ' icon-validation-black';
+                    } else if (validationInfo.bulk) {
                         if (validationInfo.bulk.suspect) {
                             cls += ' icon-validation-red'
                         }
-                        if (validationInfo.bulk.notValidated) {
-                            cls += ' icon-validation-black'
-                        }
                     }
+
                     metaData.tdCls = cls;
                     if (!Ext.isEmpty(v)) {
                         var value = Uni.Number.formatNumber(v, -1);

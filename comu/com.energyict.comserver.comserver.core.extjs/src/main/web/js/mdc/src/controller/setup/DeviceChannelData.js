@@ -333,6 +333,8 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 
             Ext.merge(point, properties);
             data.unshift(point);
+
+            !point.y && (point.y = null);
             if (!point.y) {
                 missedValues.push({
                     from: record.get('interval').start,
