@@ -45,6 +45,7 @@ import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import org.joda.time.DateTimeConstants;
 
 import javax.inject.Inject;
@@ -85,13 +86,15 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
     private final DeviceDataModelService deviceDataModelService;
     private final EventService eventService;
     private final MeteringService meteringService;
+    private final ProtocolPluggableService protocolPluggableService;
 
     @Inject
-    public ConnectionTaskServiceImpl(DeviceDataModelService deviceDataModelService, EventService eventService, MeteringService meteringService) {
+    public ConnectionTaskServiceImpl(DeviceDataModelService deviceDataModelService, EventService eventService, MeteringService meteringService, ProtocolPluggableService protocolPluggableService) {
         super();
         this.deviceDataModelService = deviceDataModelService;
         this.eventService = eventService;
         this.meteringService = meteringService;
+        this.protocolPluggableService = protocolPluggableService;
     }
 
     @Override
@@ -431,6 +434,18 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
                         this.deviceFromDeviceGroupQueryExecutor());
         DataMapper<ConnectionTask> dataMapper = this.deviceDataModelService.dataModel().mapper(ConnectionTask.class);
         return this.fetchConnectionTasks(dataMapper, sqlBuilder.build(dataMapper, pageStart + 1, pageSize)); // SQL is 1-based
+    }
+
+    @Override
+    public List<ConnectionTypePluggableClass> findConnectionTypeByFilter(ConnectionTaskFilterSpecification filter) {
+        // TODO provide native query....
+        List<ConnectionTypePluggableClass> connectionTypePluggableClasses = new ArrayList<>();
+        List<String> javaClassNames = this.findConnectionTasksByFilter(filter, 0, Integer.MAX_VALUE - 1).stream().map(ct -> ct.getPluggableClass().getJavaClassName()).collect(Collectors.toList());
+        this.protocolPluggableService.findAllConnectionTypePluggableClasses().stream().
+                filter(pluggableClass -> javaClassNames.contains(pluggableClass.getJavaClassName())).
+                forEach(connectionTypePluggableClasses::add);
+
+        return connectionTypePluggableClasses;
     }
 
     private List<ConnectionTask> fetchConnectionTasks(DataMapper<ConnectionTask> dataMapper, SqlBuilder sqlBuilder) {
