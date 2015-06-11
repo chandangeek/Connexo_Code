@@ -36,7 +36,7 @@ public class DefaultImportScheduleBuilderTest {
     private Path IMPORT_DIRECTORY;
     private Path SUCCESS_DIRECTORY;
     private Path FAILURE_DIRECTORY;
-    private Path BASE_PATH = Paths.get("/");
+    private Path BASE_PATH;
     @Mock
     private DestinationSpec destination;
     @Mock
