@@ -292,7 +292,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
     loadGridItemDetail: function (selectionModel, record) {
         Ext.suspendLayouts();
         this.getLoadProfileConfigPreviewForm().loadRecord(record);
-        this.getLoadProfileConfigurationPreview().setTitle(record.get('name'));
+        this.getLoadProfileConfigurationPreview().setTitle(Ext.String.htmlEncode(record.get('name')));
         Ext.resumeLayouts(true);
     },
 
@@ -407,7 +407,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
                                 widget.down('displayfield[name=loadprofiletype]').show();
                                 widget.down('[name=obisCode]').setValue(record.obisCode);
                                 widget.down('[name=overruledObisCode]').setValue(overruledObisCode);
-                                var title = Uni.I18n.translate('loadprofileconfigurations.editloadprofileconfigurations', 'MDC', 'Edit') + " '" + record.name + "'";
+                                var title = Uni.I18n.translate('loadprofileconfigurations.editloadprofileconfigurations', 'MDC', 'Edit') + " '" + Ext.String.htmlEncode(record.name) + "'";
                                 widget.down('#LoadProfileConfigurationFormId').setTitle(title);
                             }
                         });
