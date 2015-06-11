@@ -6,28 +6,30 @@ import com.elster.jupiter.issue.share.IssueEvent;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.metering.EndDevice;
 
-public class CannotEstimateDataEvent implements IssueEvent {
+public class SuspectDeletedEvent implements IssueEvent {
 
     @Override
     public String getEventType() {
-        return "";
+        // TODO Auto-generated method stub
+        return null;
     }
 
     @Override
     public EndDevice getEndDevice() {
+        // TODO Auto-generated method stub
         return null;
     }
 
     @Override
     public Optional<? extends Issue> findExistingIssue() {
-        return Optional.empty();
+        // TODO Auto-generated method stub
+        return null;
     }
 
     @Override
     public void apply(Issue issue) {
-        if (issue instanceof IssueDataValidation) {
-            IssueDataValidation dataValidationIssue = (IssueDataValidation) issue;
-            
-        }
+        // TODO Auto-generated method stub
+
     }
+
 }

@@ -1,5 +1,7 @@
 package com.energyict.mdc.issue.datavalidation.impl;
 
+import static com.elster.jupiter.util.conditions.Where.where;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -11,14 +13,17 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-import com.elster.jupiter.domain.util.QueryService;
-import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.domain.util.DefaultFinder;
+import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.issue.share.IssueProvider;
 import com.elster.jupiter.issue.share.entity.HistoricalIssue;
 import com.elster.jupiter.issue.share.entity.Issue;
+import com.elster.jupiter.issue.share.entity.IssueReason;
+import com.elster.jupiter.issue.share.entity.IssueStatus;
+import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
-import com.elster.jupiter.issue.share.IssueProvider;
 import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -27,21 +32,22 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
-import com.energyict.mdc.issue.datavalidation.DataValidationIssue;
+import com.elster.jupiter.users.User;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Where;
+import com.energyict.mdc.issue.datavalidation.DataValidationIssueFilter;
+import com.energyict.mdc.issue.datavalidation.HistoricalIssueDataValidation;
+import com.energyict.mdc.issue.datavalidation.IssueDataValidation;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
-import com.energyict.mdc.issue.datavalidation.HistoricalDataValidationIssue;
 import com.energyict.mdc.issue.datavalidation.MessageSeeds;
-import com.energyict.mdc.issue.datavalidation.OpenDataValidationIssue;
+import com.energyict.mdc.issue.datavalidation.OpenIssueDataValidation;
 import com.google.inject.AbstractModule;
 
 @Component(name = "com.energyict.mdc.issue.datavalidation", service = {InstallService.class, TranslationKeyProvider.class, IssueDataValidationService.class, IssueProvider.class}, property = "name=" + IssueDataValidationService.COMPONENT_NAME, immediate = true)
 public class IssueDataValidationServiceImpl implements IssueDataValidationService, TranslationKeyProvider, InstallService, IssueProvider {
 
     private volatile IssueService issueService;
-    private volatile MessageService messageService;
-    private volatile QueryService queryService;
     private volatile Thesaurus thesaurus;
-    private volatile EventService eventService;
 
     private volatile DataModel dataModel;
 
@@ -50,11 +56,9 @@ public class IssueDataValidationServiceImpl implements IssueDataValidationServic
     }
     
     @Inject
-    public IssueDataValidationServiceImpl(OrmService ormService, IssueService issueService, MessageService messageService, EventService eventService, QueryService queryService, NlsService nlsService) {
+    public IssueDataValidationServiceImpl(OrmService ormService, IssueService issueService, NlsService nlsService) {
         setOrmService(ormService);
         setIssueService(issueService);
-        setMessageService(messageService);
-        setQueryService(queryService);
         setNlsService(nlsService);
         activate();
         if(!dataModel.isInstalled()) {
@@ -69,46 +73,51 @@ public class IssueDataValidationServiceImpl implements IssueDataValidationServic
             protected void configure() {
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
-                bind(MessageService.class).toInstance(messageService);
                 bind(IssueService.class).toInstance(issueService);
-                bind(QueryService.class).toInstance(queryService);
             }
         });
     }
     
     @Override
     public void install() {
-        new Installer(dataModel, issueService, messageService, eventService, thesaurus).install();
+        new Installer(dataModel, issueService).install();
     }
     
     @Override
     public List<String> getPrerequisiteModules() {
-        //TODO?
-        return Arrays.asList("NLS", "ISU", "MSG", "ORM", "DDC", "MTR", "CES", "DDC");
+        return Arrays.asList("NLS", "ISU", "ORM", "MTR");
     }
     
     @Override
-    public Optional<DataValidationIssue> findIssue(long id) {
-        //TODO
-        return Optional.empty();
+    public Optional<? extends IssueDataValidation> findIssue(long id) {
+        Optional<OpenIssueDataValidation> issue = findOpenIssue(id);
+        if (issue.isPresent()) {
+            return issue;
+        }
+        return findHistoricalIssue(id);
     }
 
     @Override
-    public Optional<OpenDataValidationIssue> findOpenIssue(long id) {
-        //TODO
-        return Optional.empty();
+    public Optional<OpenIssueDataValidation> findOpenIssue(long id) {
+        return dataModel.query(OpenIssueDataValidation.class, OpenIssue.class)
+                        .select(Where.where(IssueDataValidationImpl.Fields.BASEISSUE.fieldName() + ".id").isEqualTo(id))
+                        .stream()
+                        .findFirst();
     }
 
     @Override
-    public Optional<HistoricalDataValidationIssue> findHistoricalIssue(long id) {
-        // TODO
-        return Optional.empty();
+    public Optional<HistoricalIssueDataValidation> findHistoricalIssue(long id) {
+        return dataModel.query(HistoricalIssueDataValidation.class, OpenIssue.class)
+                        .select(Where.where(IssueDataValidationImpl.Fields.BASEISSUE.fieldName() + ".id").isEqualTo(id))
+                        .stream()
+                        .findFirst();
     }
 
     @Override
-    public OpenDataValidationIssue createIssue(Issue baseIssue) {
-        // TODO Auto-generated method stub
-        return null;
+    public OpenIssueDataValidation createIssue(Issue baseIssue) {
+        OpenIssueDataValidationImpl issue = dataModel.getInstance(OpenIssueDataValidationImpl.class);
+        issue.setIssue((OpenIssue)baseIssue);
+        return issue;
     }
     
     @Override
@@ -127,7 +136,7 @@ public class IssueDataValidationServiceImpl implements IssueDataValidationServic
     }
 
     @Reference
-    public final void setOrmService(OrmService ormService) {
+    public void setOrmService(OrmService ormService) {
         dataModel = ormService.newDataModel(IssueDataValidationService.COMPONENT_NAME, "Issue Datavalidation");
         for (TableSpecs spec : TableSpecs.values()) {
             spec.addTo(dataModel);
@@ -140,34 +149,58 @@ public class IssueDataValidationServiceImpl implements IssueDataValidationServic
     }
     
     @Reference
-    public void setMessageService(MessageService messageService) {
-        this.messageService = messageService;
-    }
-    
-    @Reference
-    public void setQueryService(QueryService queryService) {
-        this.queryService = queryService;
-    }
-    
-    @Reference
-    public void setEventService(EventService eventService) {
-        this.eventService = eventService;
-    }
-    
-    @Reference
     public void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(IssueDataValidationService.COMPONENT_NAME, Layer.DOMAIN);
     }
-
+    
     @Override
     public Optional<? extends OpenIssue> getOpenIssue(OpenIssue issue) {
-        // TODO Auto-generated method stub
-        return null;
+        return issue instanceof OpenIssueDataValidation ? Optional.of(issue) : findOpenIssue(issue.getId());
     }
 
     @Override
     public Optional<? extends HistoricalIssue> getHistoricalIssue(HistoricalIssue issue) {
-        // TODO Auto-generated method stub
-        return null;
+        return issue instanceof HistoricalIssueDataValidation ? Optional.of(issue) : findHistoricalIssue(issue.getId());
+    }
+    
+    @Override
+    public Finder<? extends IssueDataValidation> findAllDataValidationIssues(DataValidationIssueFilter filter) {
+        Condition condition = buildConditionFromFilter(filter);
+
+        Class<? extends IssueDataValidation> mainClass = null;
+        Class<? extends Issue> issueEager = null;
+        List<IssueStatus> statuses = filter.getStatuses();
+        if (statuses.stream().allMatch(status -> !status.isHistorical())) {
+            mainClass = OpenIssueDataValidation.class;
+            issueEager = OpenIssue.class;
+        } else if (statuses.stream().allMatch(status -> status.isHistorical())) {
+            mainClass = HistoricalIssueDataValidation.class;
+            issueEager = HistoricalIssue.class;
+        } else {
+            mainClass = IssueDataValidation.class;
+            issueEager = Issue.class;
+        }
+        return DefaultFinder.of(mainClass, condition, dataModel, issueEager, IssueStatus.class, EndDevice.class, User.class,  IssueReason.class, IssueType.class);
+    }
+
+    private Condition buildConditionFromFilter(DataValidationIssueFilter filter) {
+        Condition condition = Condition.TRUE;
+        //filter by assignee
+        if (filter.getAssignee().isPresent()) {
+            condition = condition.and(where(IssueDataValidationImpl.Fields.BASEISSUE.fieldName() + ".user").isEqualTo(filter.getAssignee().get()));
+        }
+        //filter by reason
+        if (filter.getIssueReason().isPresent()) {
+            condition = condition.and(where(IssueDataValidationImpl.Fields.BASEISSUE.fieldName() + "reason").isEqualTo(filter.getIssueReason().get()));
+        }
+        //filter by device
+        if (filter.getDevice().isPresent()) {
+            condition = condition.and(where(IssueDataValidationImpl.Fields.BASEISSUE.fieldName() + ".device").isEqualTo(filter.getDevice().get()));
+        }
+        //filter by statuses
+        if (!filter.getStatuses().isEmpty()) {
+            condition = condition.and(where(IssueDataValidationImpl.Fields.BASEISSUE.fieldName() + ".status").in(filter.getStatuses()));
+        }
+        return condition;
     }
 }

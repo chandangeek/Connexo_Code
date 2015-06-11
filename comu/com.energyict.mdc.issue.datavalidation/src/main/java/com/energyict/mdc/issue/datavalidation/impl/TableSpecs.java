@@ -1,110 +1,116 @@
 package com.energyict.mdc.issue.datavalidation.impl;
 
-import com.elster.jupiter.orm.DataModel;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 
+import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.ColumnConversion;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.DeleteRule;
+import com.elster.jupiter.orm.Table;
+import com.energyict.mdc.issue.datavalidation.HistoricalIssueDataValidation;
+import com.energyict.mdc.issue.datavalidation.HistoricalIssueNotEstimatedBlock;
+import com.energyict.mdc.issue.datavalidation.IssueDataValidation;
+import com.energyict.mdc.issue.datavalidation.OpenIssueDataValidation;
+import com.energyict.mdc.issue.datavalidation.OpenIssueNotEstimatedBlock;
 
 public enum TableSpecs {
-    IDV_ISSUE_ALL() {
-        @Override
-        void addTo(DataModel dataModel) {
-            // TODO Auto-generated method stub
-            
-        }
-    },
-    
+
     IDV_ISSUE_OPEN() {
         @Override
         void addTo(DataModel dataModel) {
-            // TODO Auto-generated method stub
+            Table<OpenIssueDataValidation> table = dataModel.addTable(name(), OpenIssueDataValidation.class);
+            table.map(OpenIssueDataValidationImpl.class);
+            table.setJournalTableName(name() + "JRNL");
             
+            Column issueColRef = table.column("ISSUE").number().conversion(NUMBER2LONG).notNull().add();
+            
+            table.primaryKey("IDV_ISSUE_OPEN_PK").on(issueColRef).add();
+            table.foreignKey("IDV_ISSUE_OPEN_FK_TO_ISSUE").map(IssueDataValidationImpl.Fields.BASEISSUE.fieldName()).on(issueColRef).references(IssueService.COMPONENT_NAME, "ISU_ISSUE_OPEN").add();
+            table.addAuditColumns();
         }
     },
     
     IDV_ISSUE_HISTORY() {
         @Override
         void addTo(DataModel dataModel) {
-            // TODO Auto-generated method stub
+            Table<HistoricalIssueDataValidation> table = dataModel.addTable(name(), HistoricalIssueDataValidation.class);
+            table.map(HistoricalIssueDataValidationImpl.class);
+            table.setJournalTableName(name() + "JRNL");
             
+            Column issueColRef = table.column("ISSUE").number().conversion(NUMBER2LONG).notNull().add();
+            
+            table.primaryKey("IDV_ISSUE_HIST_PK").on(issueColRef).add();
+            table.foreignKey("IDV_ISSUE_HIST_FK_TO_ISSUE").map(IssueDataValidationImpl.Fields.BASEISSUE.fieldName()).on(issueColRef).references(IssueService.COMPONENT_NAME, "ISU_ISSUE_HISTORY").add();
+            table.addAuditColumns();
         }
-    }
+    },
+    
+    IDV_ISSUE_ALL() {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<IssueDataValidation> table = dataModel.addTable(name(), IssueDataValidation.class);
+            table.map(IssueDataValidationImpl.class);
+            table.doNotAutoInstall();//because it is mapped to view
+            
+            Column issueColRef = table.column("ISSUE").number().conversion(NUMBER2LONG).notNull().add();
+            
+            table.primaryKey("IDV_ISSUE_PK").on(issueColRef).add();
+            table.foreignKey("IDV_ISSUE_FK_TO_ISSUE").map(IssueDataValidationImpl.Fields.BASEISSUE.fieldName()).on(issueColRef).references(IssueService.COMPONENT_NAME, "ISU_ISSUE_ALL").add();
+            table.addAuditColumns();
+        }
+    },
+    
+    IDV_NOTESTIMATEDBLOCK() {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<OpenIssueNotEstimatedBlock> table = dataModel.addTable(name(), OpenIssueNotEstimatedBlock.class);
+            table.map(OpenIssueNotEstimatedBlockImpl.class);
+            
+            Column issueRef = table.column("ISSUE").number().conversion(NUMBER2LONG).notNull().add();
+            Column channelRef = table.column("CHANNEL").number().conversion(NUMBER2LONG).notNull().add();
+            Column startTime = table.column("STARTTIME").number().conversion(ColumnConversion.NUMBER2INSTANT).map(NotEstimatedBlockImpl.Fields.STARTTIME.fieldName()).notNull().add();
+            table.column("ENDTIME").number().map(NotEstimatedBlockImpl.Fields.ENDTIME.fieldName()).conversion(ColumnConversion.NUMBER2INSTANT).notNull().add();
+            
+            table.primaryKey("IDV_NOTESTBLOCK_PK").on(issueRef, channelRef, startTime).add();
+            table.foreignKey("IDV_NOTESTBLOCK_FK_ISSUE")
+                    .on(issueRef).references(IDV_ISSUE_OPEN.name())
+                    .map(NotEstimatedBlockImpl.Fields.ISSUE.fieldName())
+                    .reverseMap(IssueDataValidationImpl.Fields.NOTESTIMATEDBLOCKS.fieldName()).composition()
+                    .onDelete(DeleteRule.CASCADE).add();
+            table.foreignKey("IDV_NOTESTBLOCK_FK_CHANNEL")
+                    .on(channelRef).map(NotEstimatedBlockImpl.Fields.CHANNEL.fieldName())
+                    .references(MeteringService.COMPONENTNAME, "MTR_CHANNEL").onDelete(DeleteRule.CASCADE).add();
+        }
+    },
+    
+    IDV_NOTESTIMATEDBLOCK_HISTORY() {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<HistoricalIssueNotEstimatedBlock> table = dataModel.addTable(name(), HistoricalIssueNotEstimatedBlock.class);
+            table.map(HistoricalIssueNotEstimatedBlockImpl.class);
+            
+            Column issueRef = table.column("ISSUE").number().conversion(NUMBER2LONG).notNull().add();
+            Column channelRef = table.column("CHANNEL").number().conversion(NUMBER2LONG).notNull().add();
+            Column startTime = table.column("STARTTIME").number().conversion(ColumnConversion.NUMBER2INSTANT).map(NotEstimatedBlockImpl.Fields.STARTTIME.fieldName()).notNull().add();
+            table.column("ENDTIME").number().map(NotEstimatedBlockImpl.Fields.ENDTIME.fieldName()).conversion(ColumnConversion.NUMBER2INSTANT).notNull().add();
+            
+            table.primaryKey("IDV_HISTNOTESTBLOCK_PK").on(issueRef, channelRef, startTime).add();
+            table.foreignKey("IDV_HISTNOTESTBLOCK_FK_ISSUE")
+                    .on(issueRef).references(IDV_ISSUE_HISTORY.name())
+                    .map(NotEstimatedBlockImpl.Fields.ISSUE.fieldName())
+                    .reverseMap(IssueDataValidationImpl.Fields.NOTESTIMATEDBLOCKS.fieldName()).composition()
+                    .onDelete(DeleteRule.CASCADE).add();
+            table.foreignKey("IDV_HISTNOTESTBLOCK_FK_CHANNEL")
+                    .on(channelRef).map(NotEstimatedBlockImpl.Fields.CHANNEL.fieldName())
+                    .references(MeteringService.COMPONENTNAME, "MTR_CHANNEL").onDelete(DeleteRule.CASCADE).add();
+        }
+    },
+    
     
     ;
-    
-//    IDC_ISSUE_HISTORY {
-//        @Override
-//        public void addTo(DataModel dataModel) {
-//            Table<HistoricalIssueDataCollection> table = dataModel.addTable(name(), HistoricalIssueDataCollection.class);
-//            table.map(HistoricalIssueDataCollectionImpl.class);
-//            table.setJournalTableName(IDC_ISSUE_HISTORY_JRNL_TABLE_NAME);
-//            Column idColumn = table.column(IDC_ID).map("id").number().conversion(NUMBER2LONG).notNull().add();
-//
-//            TableSpecs.TableBuilder.buildIssueTable(table, idColumn, "ISU_ISSUE_HISTORY", IDC_ISSUE_HISTORY_PK,
-//                    // Foreign keys
-//                    IDC_ISSUE_HISTORY_FK_TO_ISSUE,
-//                    IDC_ISSUE_HISTORY_FK_TO_CONNECTION_TASK,
-//                    IDC_ISSUE_HISTORY_FK_TO_COM_TASK,
-//                    IDC_ISSUE_HISTORY_FK_TO_COM_SESSION);
-//            table.addAuditColumns();
-//        }
-//    },
-//    IDC_ISSUE_OPEN {
-//        @Override
-//        public void addTo(DataModel dataModel) {
-//            Table<OpenIssueDataCollection> table = dataModel.addTable(name(), OpenIssueDataCollection.class);
-//            table.map(OpenIssueDataCollectionImpl.class);
-//            table.setJournalTableName(IDC_ISSUE_OPEN_JRNL_TABLE_NAME);
-//            Column idColumn = table.column(IDC_ID).map("id").number().conversion(NUMBER2LONG).notNull().add();
-//
-//            TableSpecs.TableBuilder.buildIssueTable(table, idColumn, "ISU_ISSUE_OPEN", IDC_ISSUE_OPEN_PK,
-//                    // Foreign keys
-//                    IDC_ISSUE_OPEN_FK_TO_ISSUE,
-//                    IDC_ISSUE_OPEN_FK_TO_CONNECTION_TASK,
-//                    IDC_ISSUE_OPEN_FK_TO_COM_TASK,
-//                    IDC_ISSUE_OPEN_FK_TO_COM_SESSION);
-//            table.addAuditColumns();
-//        }
-//    },
-//    IDC_ISSUE_ALL {
-//        @Override
-//        public void addTo(DataModel dataModel) {
-//            Table<IssueDataCollection> table = dataModel.addTable(name(), IssueDataCollection.class);
-//            table.map(IssueDataCollectionImpl.class);
-//            table.doNotAutoInstall();
-//            Column idColumn = table.column(IDC_ID).map("id").number().conversion(NUMBER2LONG).notNull().add();
-//
-//            TableSpecs.TableBuilder.buildIssueTable(table, idColumn, "ISU_ISSUE_ALL", IDC_ISSUE_PK,
-//                    // Foreign keys
-//                    IDC_ISSUE_FK_TO_ISSUE,
-//                    IDC_ISSUE_FK_TO_CONNECTION_TASK,
-//                    IDC_ISSUE_FK_TO_COM_TASK,
-//                    IDC_ISSUE_FK_TO_COM_SESSION);
-//            table.addAuditColumns();
-//        }
-//    }
-//    ;
-//    
+
     abstract void addTo(DataModel dataModel);
-//
-//    private static class TableBuilder{
-//        private static final int EXPECTED_FK_KEYS_LENGTH = 4;
-//
-//        static void buildIssueTable(Table table, Column idColumn, String issueTable, String pkKey, String... fkKeys){
-//            Column issueColRef = table.column(IDC_BASE_ISSUE).number().conversion(NUMBER2LONG).notNull().add();
-//            Column connectionTaskColRef = table.column(IDC_CONNECTION_TASK).number().conversion(NUMBER2LONG).add();
-//            Column comTaskColRef = table.column(IDC_COMMUNICATION_TASK).number().conversion(NUMBER2LONG).add();
-//            Column comSessionColRef = table.column(IDC_COM_SESSION).type("number").conversion(NUMBER2LONG).add();
-//            table.column(IDC_DEVICE_MRID).varChar(NAME_LENGTH).map("deviceMRID").add();
-//
-//            table.primaryKey(pkKey).on(idColumn).add();
-//            if (fkKeys == null || fkKeys.length != EXPECTED_FK_KEYS_LENGTH){
-//                throw new IllegalArgumentException("Passed arguments don't match foreigen keys");
-//            }
-//            ListIterator<String> fkKeysIter = Arrays.asList(fkKeys).listIterator();
-//            table.foreignKey(fkKeysIter.next()).map("baseIssue").on(issueColRef).references(IssueService.COMPONENT_NAME, issueTable).add();
-//            table.foreignKey(fkKeysIter.next()).map("connectionTask").on(connectionTaskColRef).references(DeviceDataServices.COMPONENT_NAME, "DDC_CONNECTIONTASK").add();
-//            table.foreignKey(fkKeysIter.next()).map("comTask").on(comTaskColRef).references(DeviceDataServices.COMPONENT_NAME, "DDC_COMTASKEXEC").add();
-//            table.foreignKey(fkKeysIter.next()).map("comSession").on(comSessionColRef).references(DeviceDataServices.COMPONENT_NAME, "DDC_COMSESSION").add();
-//        }
-//    }
 
 }

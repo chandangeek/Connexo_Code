@@ -21,7 +21,7 @@ public class CreateIssueViewOperation {
     }
 
     public void execute() {
-        try (Connection conn = dataModel.getConnection(false)) {
+        try (Connection conn = dataModel.getConnection(true)) {
             PreparedStatement statement = buildStatement(conn, buildCreateSQL());
             statement.execute();
         } catch (SQLException sqlEx) {

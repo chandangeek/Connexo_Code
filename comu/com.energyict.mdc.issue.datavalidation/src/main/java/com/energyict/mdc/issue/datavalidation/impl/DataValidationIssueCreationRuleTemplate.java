@@ -17,8 +17,10 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
 import com.energyict.mdc.issue.datavalidation.MessageSeeds;
+import com.energyict.mdc.issue.datavalidation.OpenIssueDataValidation;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
 
@@ -29,20 +31,23 @@ public class DataValidationIssueCreationRuleTemplate implements CreationRuleTemp
 
     static final String NAME = "DataValidationIssueCreationRuleTemplate";
     
+    public static final String DEVICE_CONFIGURATIONS = NAME + ".deviceConfigurations";
+    
     private volatile IssueDataValidationService issueDataValidationService;
     private volatile IssueService issueService;
-    
-    private Thesaurus thesaurus;
+    private volatile PropertySpecService propertySpecService;
+    private volatile Thesaurus thesaurus;
     
     //for OSGI
     public DataValidationIssueCreationRuleTemplate() {
     }
     
     @Inject
-    public DataValidationIssueCreationRuleTemplate(IssueDataValidationService issueDataValidationIssueService, IssueService issueService, NlsService nlsService) {
+    public DataValidationIssueCreationRuleTemplate(IssueDataValidationService issueDataValidationIssueService, IssueService issueService, NlsService nlsService, PropertySpecService propertySpecService) {
         setIssueDataValidationService(issueDataValidationIssueService);
         setIssueService(issueService);
         setNlsService(nlsService);
+        setPropertySpecService(propertySpecService);
     }
 
     @Override
@@ -64,15 +69,22 @@ public class DataValidationIssueCreationRuleTemplate implements CreationRuleTemp
     public String getContent() {
         return "package com.energyict.mdc.issue.datavalidation\n" +
                "import com.energyict.mdc.issue.datavalidation.CannotEstimateDataEvent;\n" +
+               "import com.energyict.mdc.issue.datavalidation.SuspectDeletedEvent;\n" +
                "global com.elster.jupiter.issue.share.service.IssueCreationService issueCreationService;\n" +
                "rule \"Data validation rule @{ruleId}\"\n" +
                "when\n" +
-               "\tevent : CannotEstimateDataEvent()\n" +
+               "\tevent : CannotEstimateDataEvent(device.deviceConfiguration.id in (@{" + DEVICE_CONFIGURATIONS +"}))\n" +
                "then\n" +
                "\tSystem.out.println(\"Trying to create issue by datavalidation rule=@{ruleId}\");\n" +
                "\tissueCreationService.processIssueResolutionEvent(@{ruleId}, event);\n" +
-               "end";
-        //TODO add auto resolution section
+               "end\n" +
+               "\n" +
+               "rule \"Autoresolution section @{ruleId}\"\n" +
+               "when\n" +
+               "\tevent: SuspectDeletedEvent(device.deviceConfiguration.id in (@{" + DEVICE_CONFIGURATIONS +"}))\n" +
+               "then\n" +
+               "\tissueCreationService.processIssueResolveEvent(@{ruleId}, event);\n" +
+               "end\n";
     }
     
     @Reference
@@ -89,11 +101,16 @@ public class DataValidationIssueCreationRuleTemplate implements CreationRuleTemp
     public void setIssueDataValidationService(IssueDataValidationService issueDataValidationService) {
         this.issueDataValidationService = issueDataValidationService;
     }
+    
+    @Reference
+    public void setPropertySpecService(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
         Builder<PropertySpec> builder = ImmutableList.builder();
-        //TODO add device configuration property
+        builder.add(propertySpecService.stringPropertySpec(DEVICE_CONFIGURATIONS, true, null));
         return builder.build();
     }
 
@@ -109,10 +126,15 @@ public class DataValidationIssueCreationRuleTemplate implements CreationRuleTemp
 
     @Override
     public Optional<? extends Issue> createIssue(Issue baseIssue, IssueEvent event) {
-        // TODO Auto-generated method stub
-        //event.findExistingIssue()
+        Optional<? extends Issue> foundIssue = event.findExistingIssue();
+        if (!foundIssue.isPresent()) {
+            OpenIssueDataValidation issue = issueDataValidationService.createIssue(baseIssue);
+            event.apply(issue);
+            issue.save();
+            return Optional.of(issue);
+        }
         // if found then append/insert suspect intervals
-        return null;
+        return foundIssue;
     }
 
     @Override

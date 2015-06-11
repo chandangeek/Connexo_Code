@@ -1,11 +1,7 @@
 package com.energyict.mdc.issue.datavalidation.impl;
 
-import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.issue.share.entity.IssueType;
-import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.exception.ExceptionCatcher;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
@@ -13,26 +9,20 @@ import com.energyict.mdc.issue.datavalidation.MessageSeeds;
 
 public class Installer {
 
-    private final MessageService messageService;
     private final IssueService issueService;
     private final DataModel dataModel;
-    private final EventService eventService;
-    private final Thesaurus thesaurus;
 
-    public Installer(DataModel dataModel, IssueService issueService, MessageService messageService, EventService eventService, Thesaurus thesaurus) {
+    public Installer(DataModel dataModel, IssueService issueService) {
         this.issueService = issueService;
-        this.messageService = messageService;
         this.dataModel = dataModel;
-        this.eventService = eventService;
-        this.thesaurus = thesaurus;
     }
 
     public void install() {
         ExceptionCatcher.executing(
-//                this::installDataModel,
-                this::createIssueTypeAndReasons
-        ).andHandleExceptionsWith(Throwable::printStackTrace)
-                .execute();
+                    this::installDataModel,
+                    this::createIssueTypeAndReasons
+               ).andHandleExceptionsWith(Throwable::printStackTrace)
+               .execute();
 
 //        run(this::setAQSubscriber, "aq subscribers");
 //        run(this::publishEvents, "event publishing");
@@ -62,8 +52,6 @@ public class Installer {
 //            eventType.save();
 //        }
 //    }
-
-
 
 //    private void setAQSubscriber() {
 //        addTranslation(IssueDataCollectionService.COMPONENT_NAME, ModuleConstants.AQ_DATA_COLLECTION_EVENT_SUBSC, ModuleConstants.AQ_DATA_COLLECTION_EVENT_DISPLAYNAME);
