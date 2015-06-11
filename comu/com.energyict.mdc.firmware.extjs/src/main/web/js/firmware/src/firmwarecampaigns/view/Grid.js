@@ -103,6 +103,9 @@ Ext.define('Fwc.firmwarecampaigns.view.Grid', {
             },
             {
                 xtype: 'uni-actioncolumn',
+                isDisabled: function(view, rowIndex, colIndex, item, record) {
+                    return record.get('status').id === 'CANCELLED';
+                },
                 menu: {
                     xtype: 'firmware-campaigns-action-menu',
                     itemId: 'firmware-campaigns-action-menu'
