@@ -56,7 +56,7 @@ public class Installer {
     }
 
     public void install(boolean executeDDL) {
-        run(() -> dataModel.install(executeDDL, false), "database schema. Execute command 'ddl " + IssueService.COMPONENT_NAME + "' and apply the sql script manually");
+        run(() -> dataModel.install(executeDDL, true), "database schema. Execute command 'ddl " + IssueService.COMPONENT_NAME + "' and apply the sql script manually");
         run(this::createViews, "view for all issues");
         run(this::createStatuses, "default statuses");
         run(this::createPrivileges, "privileges");
