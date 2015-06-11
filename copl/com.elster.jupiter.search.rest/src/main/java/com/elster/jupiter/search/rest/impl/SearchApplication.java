@@ -73,7 +73,7 @@ public class SearchApplication  extends Application {
             bind(searchService).to(SearchService.class);
             bind(thesaurus).to(Thesaurus.class);
             bind(infoFactoryService).to(InfoFactoryService.class);
-            bind(PropertyInfoFactory.class).to(PropertyInfoFactory.class);
+            bind(SearchCriterionInfoFactory.class).to(SearchCriterionInfoFactory.class);
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
         }

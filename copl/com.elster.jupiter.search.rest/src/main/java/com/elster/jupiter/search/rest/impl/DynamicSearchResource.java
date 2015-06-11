@@ -42,14 +42,14 @@ public class DynamicSearchResource {
 
     private final SearchService searchService;
     private final ExceptionFactory exceptionFactory;
-    private final PropertyInfoFactory propertyInfoFactory;
+    private final SearchCriterionInfoFactory searchCriterionInfoFactory;
     private final InfoFactoryService infoFactoryService;
 
     @Inject
-    public DynamicSearchResource(SearchService searchService, ExceptionFactory exceptionFactory, PropertyInfoFactory propertyInfoFactory, InfoFactoryService infoFactoryService) {
+    public DynamicSearchResource(SearchService searchService, ExceptionFactory exceptionFactory, SearchCriterionInfoFactory searchCriterionInfoFactory, InfoFactoryService infoFactoryService) {
         this.searchService = searchService;
         this.exceptionFactory = exceptionFactory;
-        this.propertyInfoFactory = propertyInfoFactory;
+        this.searchCriterionInfoFactory = searchCriterionInfoFactory;
 
         this.infoFactoryService = infoFactoryService;
     }
@@ -79,10 +79,10 @@ public class DynamicSearchResource {
                     map(constrainingProperty -> asConstriction(constrainingProperty, jsonQueryFilter)).
                     collect(toList());
             propertyList.properties = searchDomain.getPropertiesWithConstrictions(searchablePropertyConstrictions).stream().
-                    map(p -> propertyInfoFactory.asInfoObject(p, uriInfo)).
+                    map(p -> searchCriterionInfoFactory.asInfoObject(p, uriInfo)).
                     collect(toList());
         } else {
-            propertyList.properties = searchDomain.getProperties().stream().map(p -> propertyInfoFactory.asInfoObject(p, uriInfo)).collect(toList());
+            propertyList.properties = searchDomain.getProperties().stream().map(p -> searchCriterionInfoFactory.asInfoObject(p, uriInfo)).collect(toList());
         }
         return Response.ok().entity(propertyList).build();
     }

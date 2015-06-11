@@ -11,7 +11,7 @@ import static java.util.stream.Collectors.toList;
 /**
  * Created by bvn on 6/1/15.
  */
-public class PropertyInfoFactory {
+public class SearchCriterionInfoFactory {
 
 
     public PropertyInfo asInfoObject(SearchableProperty property, UriInfo uriInfo) {
@@ -26,14 +26,16 @@ public class PropertyInfoFactory {
         propertyInfo.selectionMode = property.getSelectionMode();
         propertyInfo.visibility = property.getVisibility();
         propertyInfo.constraints = property.getConstraints().stream().map(c->c.getSpecification().getName()).collect(toList());
-        URI uri = uriInfo.
-                getBaseUriBuilder().
-                path(DynamicSearchResource.class).
-                path(DynamicSearchResource.class, "getDomainPropertyValues").
-                resolveTemplate("domain", property.getDomain().getId()).
-                resolveTemplate("property", property.getName()).
-                build();
-        propertyInfo.link = Link.fromUri(uri).build();
+        if (propertyInfo.exhaustive) {
+            URI uri = uriInfo.
+                    getBaseUriBuilder().
+                    path(DynamicSearchResource.class).
+                    path(DynamicSearchResource.class, "getDomainPropertyValues").
+                    resolveTemplate("domain", property.getDomain().getId()).
+                    resolveTemplate("property", property.getName()).
+                    build();
+            propertyInfo.link = Link.fromUri(uri).build();
+        }
 
         return propertyInfo;
     }
