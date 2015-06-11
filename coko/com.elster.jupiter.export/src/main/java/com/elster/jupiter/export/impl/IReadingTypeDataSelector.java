@@ -11,4 +11,5 @@ public interface IReadingTypeDataSelector extends ReadingTypeDataSelector {
 
     Range<Instant> adjustedExportPeriod(DataExportOccurrence occurrence, ReadingTypeDataExportItem item);
 
+    void delete();
 }

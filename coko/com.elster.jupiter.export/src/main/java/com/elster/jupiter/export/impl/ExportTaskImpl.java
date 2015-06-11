@@ -68,7 +68,7 @@ public class ExportTaskImpl implements IExportTask {
     private Instant modTime;
     private String userName;
     @Valid
-    private Reference<ReadingTypeDataSelector> readingTypeDataSelector = Reference.empty();
+    private Reference<IReadingTypeDataSelector> readingTypeDataSelector = Reference.empty();
 
     @Inject
     ExportTaskImpl(DataModel dataModel, IDataExportService dataExportService, TaskService taskService, Thesaurus thesaurus) {
@@ -150,9 +150,6 @@ public class ExportTaskImpl implements IExportTask {
             }
         }
 
-
-
-
         dataExportService.getDataProcessorFactory(dataProcessor)
                 .ifPresent(dataProcessorFactory -> dataProcessorFactory.validateProperties(processorProperties));
         dataExportService.getDataSelectorFactory(dataSelector)
@@ -162,6 +159,7 @@ public class ExportTaskImpl implements IExportTask {
         } else {
             update();
         }
+        readingTypeDataSelector.getOptional().ifPresent(ReadingTypeDataSelector::save);
         recurrentTaskDirty = false;
         propertiesDirty = false;
     }
@@ -183,7 +181,7 @@ public class ExportTaskImpl implements IExportTask {
     }
 
     void clearChildrenForDelete() {
-        // TODO
+        readingTypeDataSelector.getOptional().ifPresent(dataSelector -> dataSelector.delete());
     }
 
     public boolean canBeDeleted() {
@@ -366,7 +364,7 @@ public class ExportTaskImpl implements IExportTask {
 
     @Override
     public Optional<ReadingTypeDataSelector> getReadingTypeDataSelector() {
-        return readingTypeDataSelector.getOptional();
+        return readingTypeDataSelector.getOptional().map(ReadingTypeDataSelector.class::cast);
     }
 
     @Override

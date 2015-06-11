@@ -21,7 +21,7 @@ class ReadingTypeInDataSelector {
     private String readingTypeMRID;
 
     private transient ReadingType readingType;
-    private Reference<ReadingTypeDataSelector> readingTypeDataSelector = ValueReference.absent();
+    private Reference<IReadingTypeDataSelector> readingTypeDataSelector = ValueReference.absent();
 
     private long version;
     private Instant createTime;
@@ -33,18 +33,18 @@ class ReadingTypeInDataSelector {
         this.meteringService = meteringService;
     }
 
-    ReadingTypeInDataSelector init(ReadingTypeDataSelector readingTypeDataSelector, ReadingType readingType) {
+    ReadingTypeInDataSelector init(IReadingTypeDataSelector readingTypeDataSelector, ReadingType readingType) {
         this.readingTypeDataSelector.set(readingTypeDataSelector);
         this.readingType = readingType;
         this.readingTypeMRID = readingType.getMRID();
         return this;
     }
 
-    static ReadingTypeInDataSelector from(DataModel dataModel, ReadingTypeDataSelector readingTypeDataSelector, ReadingType readingType) {
+    static ReadingTypeInDataSelector from(DataModel dataModel, IReadingTypeDataSelector readingTypeDataSelector, ReadingType readingType) {
         return dataModel.getInstance(ReadingTypeInDataSelector.class).init(readingTypeDataSelector, readingType);
     }
 
-    static ReadingTypeInDataSelector from(DataModel dataModel, ReadingTypeDataSelector readingTypeDataSelector, String readingTypeMRID) {
+    static ReadingTypeInDataSelector from(DataModel dataModel, IReadingTypeDataSelector readingTypeDataSelector, String readingTypeMRID) {
         ReadingTypeInDataSelector readingTypeInDataSelector = dataModel.getInstance(ReadingTypeInDataSelector.class);
         readingTypeInDataSelector.readingTypeDataSelector.set(readingTypeDataSelector);
         readingTypeInDataSelector.readingTypeMRID = readingTypeMRID;
