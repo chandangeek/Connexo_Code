@@ -9,6 +9,7 @@ Ext.define('Apr.controller.AppServers', {
         'Apr.store.ServedMessageServices',
         'Apr.store.UnservedMessageServices',
         'Apr.store.ServedImportServices',
+        'Apr.store.UnservedImportServices',
         'Apr.store.ExportPaths',
         'Apr.store.ImportPaths'
     ],
@@ -201,13 +202,13 @@ Ext.define('Apr.controller.AppServers', {
 
         exportPathModel.load(record.data.name, {
             success: function (exportPath) {
-                exportPath.destroy({
-                    success: function () {
-                        confirmationWindow.show({
-                            msg: Uni.I18n.translate('appServers.remove.msg', 'APR', 'This application server will no longer be available.'),
-                            title: Uni.I18n.translate('general.remove', 'UNI', 'Remove') + ' \'' + record.data.name + '\'?',
-                            fn: function (state) {
-                                if (state === 'confirm') {
+                confirmationWindow.show({
+                    msg: Uni.I18n.translate('appServers.remove.msg', 'APR', 'This application server will no longer be available.'),
+                    title: Uni.I18n.translate('general.remove', 'UNI', 'Remove') + ' \'' + record.data.name + '\'?',
+                    fn: function (state) {
+                        if (state === 'confirm') {
+                            exportPath.destroy({
+                                success: function () {
                                     record.destroy({
                                         success: function () {
                                             var grid = me.getPage().down('appservers-grid');
@@ -217,9 +218,9 @@ Ext.define('Apr.controller.AppServers', {
                                             me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('appServers.remove.success.msg', 'APR', 'Application server removed'));
                                         }
                                     });
-                                } 
-                            }
-                        });
+                                }
+                            });
+                        }
                     }
                 });
             }
