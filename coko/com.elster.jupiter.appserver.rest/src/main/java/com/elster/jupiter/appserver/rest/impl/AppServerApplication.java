@@ -12,6 +12,8 @@ import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.google.common.collect.ImmutableSet;
+
+import java.nio.file.FileSystem;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -34,6 +36,7 @@ public class AppServerApplication extends Application implements InstallService 
     private volatile TransactionService transactionService;
     private volatile FileImportService fileImportService;
     private volatile CronExpressionParser cronExpressionParser;
+    private volatile FileSystem fileSystem;
 
     private NlsService nlsService;
     private volatile Thesaurus thesaurus;
@@ -71,6 +74,10 @@ public class AppServerApplication extends Application implements InstallService 
     @Reference
     public void setCronExpressionParser(CronExpressionParser cronExpressionParser) {
         this.cronExpressionParser = cronExpressionParser;
+    }
+    @Reference
+    public void setFileSystem(FileSystem fileSystem) {
+        this.fileSystem = fileSystem;
     }
 
     @Reference
@@ -117,6 +124,7 @@ public class AppServerApplication extends Application implements InstallService 
                 bind(nlsService).to(NlsService.class);
                 bind(thesaurus).to(Thesaurus.class);
                 bind(fileImportService).to(FileImportService.class);
+                bind(fileSystem).to(FileSystem.class);
             }
         });
         return Collections.unmodifiableSet(hashSet);

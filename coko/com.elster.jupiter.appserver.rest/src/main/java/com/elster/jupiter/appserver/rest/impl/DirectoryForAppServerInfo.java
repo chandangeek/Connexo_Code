@@ -19,9 +19,4 @@ public class DirectoryForAppServerInfo {
         appServerName = appServer.getName();
         directory = path.toString();
     }
-
-    @JsonIgnore
-    public Path path() {
-        return Paths.get(directory);
-    }
 }

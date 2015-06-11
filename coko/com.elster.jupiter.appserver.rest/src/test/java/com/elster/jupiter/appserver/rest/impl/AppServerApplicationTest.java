@@ -13,6 +13,8 @@ import org.mockito.Mock;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.SecurityContext;
 
+import java.nio.file.FileSystem;
+
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
@@ -28,6 +30,8 @@ public class AppServerApplicationTest extends FelixRestApplicationJerseyTest {
     protected RestQueryService restQueryService;
     @Mock
     protected CronExpressionParser cronExpressionParser;
+    @Mock
+    static FileSystem fileSystem;
     @Mock
     static SecurityContext securityContext;
 
@@ -48,6 +52,7 @@ public class AppServerApplicationTest extends FelixRestApplicationJerseyTest {
         application.setTransactionService(transactionService);
         application.setCronExpressionParser(cronExpressionParser);
         application.setNlsService(nlsService);
+        application.setFileSystem(fileSystem);
         return application;
     }
 }

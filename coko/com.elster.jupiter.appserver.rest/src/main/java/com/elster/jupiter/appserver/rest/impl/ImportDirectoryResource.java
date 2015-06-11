@@ -9,23 +9,26 @@ import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.nio.file.FileSystem;
 
 @Path("/importdirs")
 public class ImportDirectoryResource {
 
     private final AppService appService;
     private final TransactionService transactionService;
+    private final FileSystem fileSystem;
 
     @Inject
-    public ImportDirectoryResource(AppService appService, TransactionService transactionService) {
+    public ImportDirectoryResource(AppService appService, TransactionService transactionService, FileSystem fileSystem) {
         this.appService = appService;
         this.transactionService = transactionService;
+        this.fileSystem = fileSystem;
     }
 
     @GET
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    public DirectoryForAppServerInfos getExportPaths() {
+    public DirectoryForAppServerInfos getImportPaths() {
         return new DirectoryForAppServerInfos(appService.getAllImportDirectories());
     }
 
@@ -55,10 +58,10 @@ public class ImportDirectoryResource {
     public Response updateImportPaths(@PathParam("appServerName") String appServerName, DirectoryForAppServerInfo info) {
         AppServer appServer = findAppServerOrThrowException(appServerName);
         try (TransactionContext context = transactionService.getContext()) {
-            appServer.setImportDirectory(info.path());
+            appServer.setImportDirectory(fileSystem.getPath(info.directory));
             context.commit();
         }
-        return Response.status(Response.Status.CREATED).entity(new DirectoryForAppServerInfo(appServer, info.path())).build();
+        return Response.status(Response.Status.CREATED).entity(new DirectoryForAppServerInfo(appServer,fileSystem.getPath(info.directory))).build();
     }
 
 
