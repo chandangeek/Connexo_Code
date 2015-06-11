@@ -15,7 +15,7 @@ import java.util.stream.Stream;
  */
 public enum DefaultState implements TranslationKey {
 
-    IN_STOCK("dlc.default.inStock", "In Stock"),
+    IN_STOCK("dlc.default.inStock", "In stock"),
     COMMISSIONING("dlc.default.commissioning", "Commissioning"),
     ACTIVE("dlc.default.active", "Active"),
     INACTIVE("dlc.default.inactive", "Inactive"),
