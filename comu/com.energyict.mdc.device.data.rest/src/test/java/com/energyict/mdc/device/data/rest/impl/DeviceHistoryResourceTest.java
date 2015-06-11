@@ -1,19 +1,5 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import java.time.Instant;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-
-import org.junit.*;
-import org.mockito.Mock;
-
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.users.User;
@@ -24,6 +10,20 @@ import com.energyict.mdc.device.data.DeviceLifeCycleChangeEvent.Type;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.jayway.jsonpath.JsonModel;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+
+import java.time.Instant;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class DeviceHistoryResourceTest extends DeviceDataRestApplicationJerseyTest {
 
@@ -90,9 +90,9 @@ public class DeviceHistoryResourceTest extends DeviceDataRestApplicationJerseyTe
 
         assertThat(model.<Number> get("$.total")).isEqualTo(3);
         assertThat(model.<List<Number>> get("$.deviceLifeCycleChanges[*].from.id")).containsExactly(1, 11);
-        assertThat(model.<List<String>> get("$.deviceLifeCycleChanges[*].from.name")).containsExactly("Standard life cycle", "In stock");
+        assertThat(model.<List<String>>get("$.deviceLifeCycleChanges[*].from.name")).containsExactly("Standard life cycle", "In Stock");
         assertThat(model.<List<Number>> get("$.deviceLifeCycleChanges[*].to.id")).containsExactly(11, 2, 22);
-        assertThat(model.<List<String>> get("$.deviceLifeCycleChanges[*].to.name")).containsExactly("In stock", "New device life cycle", "commissioning");
+        assertThat(model.<List<String>>get("$.deviceLifeCycleChanges[*].to.name")).containsExactly("In Stock", "New device life cycle", "commissioning");
         assertThat(model.<List<Number>> get("$.deviceLifeCycleChanges[*].modTime")).containsExactly(deviceCreationDate.toEpochMilli(), deviceCreationDate.plusSeconds(1).toEpochMilli(), deviceCreationDate.plusSeconds(3).toEpochMilli());
         assertThat(model.<List<Number>> get("$.deviceLifeCycleChanges[*].author.id")).containsExactly(1, 2, 1);
         assertThat(model.<List<String>> get("$.deviceLifeCycleChanges[*].author.name")).containsExactly("admin", "batch executor", "admin");
