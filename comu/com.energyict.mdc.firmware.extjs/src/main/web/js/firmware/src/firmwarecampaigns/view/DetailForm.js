@@ -4,7 +4,7 @@ Ext.define('Fwc.firmwarecampaigns.view.DetailForm', {
         'Fwc.firmwarecampaigns.view.ActionMenu'
     ],
     alias: 'widget.firmware-campaigns-detail-form',
-    /*tools: [
+    tools: [
         {
             xtype: 'button',
             itemId: 'firmware-campaigns-detail-action-menu-button',
@@ -15,7 +15,7 @@ Ext.define('Fwc.firmwarecampaigns.view.DetailForm', {
                 itemId: 'firmware-campaigns-action-menu'
             }
         }
-    ],*/
+    ],
     layout: 'column',
     defaults: {
         xtype: 'container',
@@ -127,6 +127,9 @@ Ext.define('Fwc.firmwarecampaigns.view.DetailForm', {
                                         break;
                                     case 'configurationError':
                                         iconCls = 'icon-notification';
+                                        break;
+                                    case 'cancelled':
+                                        iconCls = 'icon-stop2';
                                         break;
                                 }
 

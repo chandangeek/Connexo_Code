@@ -86,6 +86,9 @@ Ext.define('Fwc.firmwarecampaigns.view.Grid', {
                             case 'configurationError':
                                 iconCls = 'icon-notification';
                                 break;
+                            case 'cancelled':
+                                iconCls = 'icon-stop2';
+                                break;
                         }
 
                         result += '<span class="' + iconCls + '" data-qtip="' + devicesStatus.status.localizedValue + '"></span><span style="margin-right: 10px">' + devicesStatus.amount + '</span>';
@@ -100,14 +103,17 @@ Ext.define('Fwc.firmwarecampaigns.view.Grid', {
                 renderer: function (value) {
                     return value ? Uni.DateTime.formatDateTimeShort(value) : '';
                 }
-            }/*,
+            },
             {
                 xtype: 'uni-actioncolumn',
+                isDisabled: function(view, rowIndex, colIndex, item, record) {
+                    return record.get('status').id !== 'ONGOING';
+                },
                 menu: {
                     xtype: 'firmware-campaigns-action-menu',
                     itemId: 'firmware-campaigns-action-menu'
                 }
-            }*/
+            }
         ];
 
         me.dockedItems = [
