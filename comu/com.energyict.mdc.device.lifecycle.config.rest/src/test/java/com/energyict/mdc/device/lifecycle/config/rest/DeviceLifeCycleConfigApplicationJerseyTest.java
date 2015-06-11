@@ -107,7 +107,7 @@ public class DeviceLifeCycleConfigApplicationJerseyTest extends FelixRestApplica
         StateTransitionEventType eventType = mock(StateTransitionEventType.class);
         when(eventType.getSymbol()).thenReturn("#eventType");
         when(transition.getEventType()).thenReturn(eventType);
-
+        translated = thesaurus.getStringBeyondComponent(name, name);
         when(transition.getName(Matchers.any(Thesaurus.class))).thenReturn(translated);
         when(action.getStateTransition()).thenReturn(transition);
         return action;
