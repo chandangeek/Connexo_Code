@@ -284,14 +284,12 @@ public class FirmwareCampaignImpl implements FirmwareCampaign, HasUniqueName {
         dataModel.remove(this);
     }
 
-    @Override
     public void cancel() {
         if (this.finishedOn == null){
             this.finishedOn = clock.instant();
         }
         setStatus(FirmwareCampaignStatus.CANCELLED);
         save();
-//        TODO: cancel campaign
         this.eventService.postEvent(EventType.FIRMWARE_CAMPAIGN_CANCELLED.topic(), this);
     }
 

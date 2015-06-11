@@ -13,4 +13,6 @@ public interface DeviceInFirmwareCampaign {
 
     Instant getStartedOn();
     Instant getFinishedOn();
+
+    void cancel();
 }

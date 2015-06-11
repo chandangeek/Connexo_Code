@@ -176,6 +176,12 @@ public class DeviceInFirmwareCampaignImpl implements DeviceInFirmwareCampaign {
         return this.finishedOn;
     }
 
+    @Override
+    public void cancel() {
+        setStatus(FirmwareManagementDeviceStatus.CANCELLED);
+        save();
+    }
+
     private void createFirmwareMessage(Optional<DeviceMessageId> firmwareMessageId) {
         Device.DeviceMessageBuilder deviceMessageBuilder = getDevice()
                 .newDeviceMessage(firmwareMessageId.get())
