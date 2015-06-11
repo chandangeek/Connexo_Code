@@ -220,6 +220,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                                 {
                                     xtype: 'displayfield',
                                     itemId: 'comPort',
+                                    htmlEncode: false,
                                     fieldLabel: Uni.I18n.translate('devicecommunicationtaskhistory.communicationPort', 'MDC', 'Communication port')
                                 }
                             ]

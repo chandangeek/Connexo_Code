@@ -93,7 +93,8 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionHistoryPrevie
                                 {
                                     xtype: 'displayfield',
                                     fieldLabel: Uni.I18n.translate('deviceconnectionhistory.comPort', 'MDC', 'Communication port'),
-                                    itemId: 'comPort'
+                                    itemId: 'comPort',
+                                    htmlEncode: false
                                 }
 
 
