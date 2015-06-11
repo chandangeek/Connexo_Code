@@ -42,6 +42,7 @@ import org.osgi.service.log.LogService;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.SQLException;
@@ -93,7 +94,7 @@ public class FileImportServiceIT {
 
 
     @Mock
-    private DefaultFileSystem fileSystem;
+    private FileUtilsImpl fileUtils;
 
     private FileNameCollisionResolver fileNameCollisionResolver;
 
@@ -123,7 +124,7 @@ public class FileImportServiceIT {
     private Logger logger;
     private LogRecorder logRecorder;
 
-    private java.nio.file.FileSystem testFileSystem;
+    private FileSystem testFileSystem;
 
     private Predicate<Path> filter = path -> !Files.isDirectory(path);
 
@@ -220,12 +221,12 @@ public class FileImportServiceIT {
         logger.addHandler(logRecorder);
 
 
-        when(fileSystem.getInputStream(any(Path.class))).thenReturn(contentsAsStream());
-        when(fileSystem.move(any(Path.class), any(Path.class))).thenCallRealMethod();
-        when(fileSystem.exists(any(Path.class))).thenCallRealMethod();
-        when(fileSystem.newDirectoryStream(any(Path.class), any(String.class))).thenCallRealMethod();
+        when(fileUtils.getInputStream(any(Path.class))).thenReturn(contentsAsStream());
+        when(fileUtils.move(any(Path.class), any(Path.class))).thenCallRealMethod();
+        when(fileUtils.exists(any(Path.class))).thenCallRealMethod();
+        when(fileUtils.newDirectoryStream(any(Path.class), any(String.class))).thenCallRealMethod();
 
-        fileNameCollisionResolver = new SimpleFileNameCollisionResolver(fileSystem);
+        fileNameCollisionResolver = new SimpleFileNameCollisionResolver(fileUtils, testFileSystem);
         Path root = testFileSystem.getRootDirectories().iterator().next();
 
         basePath = Files.createDirectory(root.resolve("baseImportPath"));
@@ -305,7 +306,7 @@ public class FileImportServiceIT {
         when(fileImporterFactory.createImporter(any())).thenReturn(fileImportOccurrence -> fileImportOccurrence.markSuccess(SUCCESS_MESSAGE));
 
         FolderScanningJob folderScanningJob = new FolderScanningJob(
-                new PollingFolderScanner(filter, fileSystem, fileImportService.getBasePath().resolve(sourceDirectory), importSchedule.getPathMatcher(), this.thesaurus),
+                new PollingFolderScanner(filter, fileUtils, fileImportService.getBasePath().resolve(sourceDirectory), importSchedule.getPathMatcher(), this.thesaurus),
                 new DefaultFileHandler(importSchedule, jsonService, transactionService, clock));
 
         folderScanningJob.run();
@@ -333,7 +334,7 @@ public class FileImportServiceIT {
         when(fileImporterFactory.createImporter(any())).thenReturn(fileImportOccurrence -> fileImportOccurrence.markFailure(FAILURE_MESSAGE));
 
         FolderScanningJob folderScanningJob = new FolderScanningJob(
-                new PollingFolderScanner(filter, fileSystem, fileImportService.getBasePath().resolve(sourceDirectory), importSchedule.getPathMatcher(), this.thesaurus),
+                new PollingFolderScanner(filter, fileUtils, fileImportService.getBasePath().resolve(sourceDirectory), importSchedule.getPathMatcher(), this.thesaurus),
                 new DefaultFileHandler(importSchedule, jsonService, transactionService, clock));
 
         folderScanningJob.run();
@@ -361,7 +362,7 @@ public class FileImportServiceIT {
         when(fileImporterFactory.createImporter(any())).thenReturn(fileImportOccurrence -> fileImportOccurrence.markSuccessWithFailures(SUCCESS_WITH_FAILURE_MESSAGE));
 
         FolderScanningJob folderScanningJob = new FolderScanningJob(
-                new PollingFolderScanner(filter, fileSystem, fileImportService.getBasePath().resolve(sourceDirectory), importSchedule.getPathMatcher(), this.thesaurus),
+                new PollingFolderScanner(filter, fileUtils, fileImportService.getBasePath().resolve(sourceDirectory), importSchedule.getPathMatcher(), this.thesaurus),
                 new DefaultFileHandler(importSchedule, jsonService, transactionService, clock));
 
         folderScanningJob.run();

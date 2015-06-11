@@ -4,25 +4,29 @@ import com.elster.jupiter.fileimport.FileIOException;
 import com.elster.jupiter.nls.Thesaurus;
 
 import javax.inject.Inject;
-import java.io.*;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-class DefaultFileSystem implements FileSystem {
+class FileUtilsImpl implements FileUtils {
 
     private final Thesaurus thesaurus;
 
     @Inject
-    DefaultFileSystem(Thesaurus thesaurus) {
+    FileUtilsImpl(Thesaurus thesaurus) {
         this.thesaurus = thesaurus;
     }
 
     @Override
     public InputStream getInputStream(Path file) throws FileIOException {
         try {
-            return new FileInputStream(file.toFile());
+            return Files.newInputStream(file);
         } catch (FileNotFoundException e) {
+            throw new FileIOException(e, thesaurus);
+        } catch (IOException e) {
             throw new FileIOException(e, thesaurus);
         }
     }

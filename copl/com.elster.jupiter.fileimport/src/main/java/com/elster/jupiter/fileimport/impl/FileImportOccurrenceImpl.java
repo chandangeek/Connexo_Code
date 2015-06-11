@@ -11,6 +11,7 @@ import com.elster.jupiter.util.conditions.Condition;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Clock;
@@ -36,28 +37,30 @@ final class FileImportOccurrenceImpl implements FileImportOccurrence {
     private Instant endDate;
     private Instant triggerTime;
     private transient InputStream inputStream;
-    private final FileSystem fileSystem;
+    private final FileUtils importFileSystem;
     private final DataModel dataModel;
     private final FileNameCollisionResolver fileNameCollisionResolver;
     private final Thesaurus thesaurus;
     private FileImportService fileImportService;
+    private final FileSystem fileSystem;
     private List<ImportLogEntry> logEntries = new ArrayList<>();
 
     Logger logger;
     private Clock clock;
 
     @Inject
-    private FileImportOccurrenceImpl(FileImportService fileImportService, FileSystem fileSystem, DataModel dataModel, FileNameCollisionResolver fileNameCollisionResolver, Thesaurus thesaurus, Clock clock) {
-        this.fileSystem = fileSystem;
+    private FileImportOccurrenceImpl(FileImportService fileImportService, FileUtils importFileSystem, DataModel dataModel, FileNameCollisionResolver fileNameCollisionResolver, Thesaurus thesaurus, Clock clock, FileSystem fileSystem) {
+        this.importFileSystem = importFileSystem;
         this.dataModel = dataModel;
         this.fileNameCollisionResolver = fileNameCollisionResolver;
         this.thesaurus = thesaurus;
         this.clock = clock;
         this.fileImportService = fileImportService;
+        this.fileSystem = fileSystem;
     }
 
-    public static FileImportOccurrenceImpl create(FileImportService fileImportService, FileSystem fileSystem, DataModel dataModel, FileNameCollisionResolver fileNameCollisionResolver, Thesaurus thesaurus, Clock clock, ImportSchedule importSchedule, Path path) {
-        return new FileImportOccurrenceImpl(fileImportService, fileSystem, dataModel, fileNameCollisionResolver, thesaurus, clock).init(importSchedule, path);
+    public static FileImportOccurrenceImpl create(FileImportService fileImportService, FileSystem fileSystem, FileUtils importFileSystem, DataModel dataModel, FileNameCollisionResolver fileNameCollisionResolver, Thesaurus thesaurus, Clock clock, ImportSchedule importSchedule, Path path) {
+        return new FileImportOccurrenceImpl(fileImportService, importFileSystem, dataModel, fileNameCollisionResolver, thesaurus, clock,fileSystem).init(importSchedule, path);
     }
 
     @Override
@@ -90,7 +93,7 @@ final class FileImportOccurrenceImpl implements FileImportOccurrence {
     @Override
     public InputStream getContents() {
         if (inputStream == null) {
-            inputStream = fileSystem.getInputStream(fileImportService.getBasePath().resolve(path));
+            inputStream = importFileSystem.getInputStream(fileImportService.getBasePath().resolve(path));
         }
         return inputStream;
     }
@@ -219,12 +222,11 @@ final class FileImportOccurrenceImpl implements FileImportOccurrence {
     }
 
     private void moveFile() {
-        Path tmpPath = fileImportService.getBasePath().getFileSystem().getPath(path.toString());
-        Path filePath = fileImportService.getBasePath().resolve(tmpPath);
+        Path filePath = fileImportService.getBasePath().resolve(path);
         if (Files.exists(filePath)) {
             Path target = targetPath(filePath);
-            fileSystem.move(filePath, target);
-            path = path.getFileSystem().getPath(fileImportService.getBasePath().relativize(target).toString());
+            importFileSystem.move(filePath, target);
+            path = fileImportService.getBasePath().relativize(target);
         }
     }
 
@@ -236,11 +238,11 @@ final class FileImportOccurrenceImpl implements FileImportOccurrence {
         switch (status) {
             case SUCCESS:
             case SUCCESS_WITH_FAILURES:
-                return fileImportService.getBasePath().getFileSystem().getPath(getImportSchedule().getSuccessDirectory().toString());
+                return getImportSchedule().getSuccessDirectory();
             case FAILURE:
-                return fileImportService.getBasePath().getFileSystem().getPath(getImportSchedule().getFailureDirectory().toString());
+                return getImportSchedule().getFailureDirectory();
             case PROCESSING:
-                return fileImportService.getBasePath().getFileSystem().getPath(getImportSchedule().getInProcessDirectory().toString());
+                return getImportSchedule().getInProcessDirectory();
             default:
                 throw new IllegalStateException();
         }

@@ -17,12 +17,12 @@ class PollingFolderScanner implements FolderScanner {
 
     private final Path directory;
     private final Predicate<Path> filter;
-    private final FileSystem fileSystem;
+    private final FileUtils fileSystem;
     private final Thesaurus thesaurus;
     private final String pathMatcher;
 
     @Inject
-    public PollingFolderScanner(Predicate<Path> filter, FileSystem fileSystem, Path directory, String pathMatcher,  Thesaurus thesaurus) {
+    public PollingFolderScanner(Predicate<Path> filter, FileUtils fileSystem, Path directory, String pathMatcher,  Thesaurus thesaurus) {
         this.filter = filter;
         this.fileSystem = fileSystem;
         this.directory = directory;

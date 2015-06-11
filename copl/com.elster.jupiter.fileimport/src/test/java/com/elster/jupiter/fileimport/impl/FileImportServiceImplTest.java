@@ -6,8 +6,8 @@ import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.util.cron.CronExpression;
 
+import java.nio.file.FileSystem;
 import java.nio.file.Paths;
 import java.time.Clock;
 import java.time.Instant;
@@ -16,18 +16,17 @@ import java.time.ZonedDateTime;
 import java.util.Optional;
 
 import com.elster.jupiter.util.time.ScheduleExpression;
+import com.google.common.jimfs.Configuration;
+import com.google.common.jimfs.Jimfs;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
 import org.osgi.framework.BundleContext;
 
-import java.io.File;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -42,7 +41,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class FileImportServiceImplTest {
 
-    private static final Path IMPORT_DIRECTORY = Paths.get("/import");
+    //private static final Path IMPORT_DIRECTORY = Paths.get("/import");
     private static final Instant NOW = Instant.ofEpochMilli(10L);
     private static final Instant NEXT = Instant.ofEpochMilli(20L);
     private FileImportServiceImpl fileImportService;
@@ -66,13 +65,16 @@ public class FileImportServiceImplTest {
     @Mock
     private ScheduleExpression scheduleExpression;
     @Mock
-    private FileSystem fileSystem;
+    private FileUtils fileSystem;
     @Mock
     private DirectoryStream<Path> directoryStream;
+
+    private FileSystem testFileSystem;
 
     @Before
     public void setUp() {
 
+        testFileSystem = Jimfs.newFileSystem(Configuration.windows());
         when(ormService.newDataModel(anyString(), anyString())).thenReturn(dataModel);
         when(dataModel.addTable(anyString(), any())).thenReturn(table);
         when(dataModel.mapper(ImportSchedule.class)).thenReturn(importScheduleFactory);
@@ -110,7 +112,9 @@ public class FileImportServiceImplTest {
 
     @Test
     public void testSchedule() throws InterruptedException {
+        Path IMPORT_DIRECTORY = testFileSystem.getPath("import");
         when(importScheduleFactory.find()).thenReturn(Arrays.asList(importSchedule));
+
         when(importSchedule.getImportDirectory()).thenReturn(IMPORT_DIRECTORY);
         when(importSchedule.getScheduleExpression()).thenReturn(scheduleExpression);
         ZonedDateTime now = ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault());

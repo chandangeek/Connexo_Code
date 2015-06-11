@@ -31,9 +31,9 @@ import org.osgi.service.component.annotations.*;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
+import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.Clock;
 import java.util.Arrays;
 import java.util.Collections;
@@ -51,7 +51,7 @@ public class FileImportServiceImpl implements InstallService, FileImportService 
     private static final Logger LOGGER = Logger.getLogger(FileImportServiceImpl.class.getName());
     private static final String COMPONENTNAME = "FIS";
 
-    private volatile DefaultFileSystem defaultFileSystem;
+    private volatile FileUtilsImpl fileUtils;
     private volatile MessageService messageService;
     private volatile CronExpressionParser cronExpressionParser;
     private volatile CompositeScheduleExpressionParser scheduleExpressionParser;
@@ -62,6 +62,7 @@ public class FileImportServiceImpl implements InstallService, FileImportService 
     private volatile Thesaurus thesaurus;
     private volatile UserService userService;
     private volatile QueryService queryService;
+    private volatile FileSystem fileSystem;
 
     private List<FileImporterFactory> importerFactories = new CopyOnWriteArrayList<>();
 
@@ -74,7 +75,7 @@ public class FileImportServiceImpl implements InstallService, FileImportService 
     }
 
     @Inject
-    public FileImportServiceImpl(OrmService ormService, MessageService messageService, NlsService nlsService,  QueryService queryService, Clock clock, UserService userService, JsonService jsonService, TransactionService transactionService, CronExpressionParser cronExpressionParser) {
+    public FileImportServiceImpl(OrmService ormService, MessageService messageService, NlsService nlsService,  QueryService queryService, Clock clock, UserService userService, JsonService jsonService, TransactionService transactionService, CronExpressionParser cronExpressionParser, FileSystem fileSystem) {
         setOrmService(ormService);
         setMessageService(messageService);
         setNlsService(nlsService);
@@ -84,6 +85,7 @@ public class FileImportServiceImpl implements InstallService, FileImportService 
         setJsonService(jsonService);
         setTransactionService(transactionService);
         setScheduleExpressionParser(cronExpressionParser);
+        setFileSystem(fileSystem);
         activate();
         if (!dataModel.isInstalled()) {
             install();
@@ -94,7 +96,19 @@ public class FileImportServiceImpl implements InstallService, FileImportService 
     @Override
     public void install() {
         new InstallerImpl(dataModel, messageService, thesaurus, userService).install();
+        createScheduler();
+    }
 
+    private void createScheduler() {
+        if (dataModel.isInstalled()) {
+            try {
+                List<ImportSchedule> importSchedules = importScheduleFactory().find();
+                int poolSize = Math.max(1, (int) Math.log(importSchedules.size()));
+                cronExpressionScheduler = new CronExpressionScheduler(clock, poolSize);
+            } catch (RuntimeException e) {
+                MessageSeeds.FAILED_TO_START_IMPORT_SCHEDULES.log(LOGGER, thesaurus);
+            }
+        }
     }
 
     @Override
@@ -128,6 +142,10 @@ public class FileImportServiceImpl implements InstallService, FileImportService 
     }
 
     @Reference
+    public void setFileSystem(FileSystem fileSystem) {
+        this.fileSystem = fileSystem;
+    }
+    @Reference
     public void setQueryService(QueryService queryService) {
         this.queryService= queryService;
     }
@@ -153,7 +171,7 @@ public class FileImportServiceImpl implements InstallService, FileImportService 
     @Reference
     public void setNlsService(NlsService nlsService) {
         thesaurus = nlsService.getThesaurus(FileImportService.COMPONENT_NAME, Layer.DOMAIN);
-        defaultFileSystem = new DefaultFileSystem(thesaurus);
+        fileUtils = new FileUtilsImpl(thesaurus);
     }
 
 
@@ -172,7 +190,8 @@ public class FileImportServiceImpl implements InstallService, FileImportService 
             @Override
             protected void configure() {
                 bind(FileNameCollisionResolver.class).toInstance(getFileNameCollisionResolver());
-                bind(FileSystem.class).toInstance(defaultFileSystem);
+                bind(FileUtils.class).toInstance(fileUtils);
+                bind(FileSystem.class).toInstance(fileSystem);
                 bind(UserService.class).toInstance(userService);
                 bind(MessageService.class).toInstance(messageService);
                 bind(DataModel.class).toInstance(dataModel);
@@ -185,21 +204,13 @@ public class FileImportServiceImpl implements InstallService, FileImportService 
                 bind(FileImportService.class).toInstance(FileImportServiceImpl.this);
             }
         });
-        if (dataModel.isInstalled()) {
-            try {
-                List<ImportSchedule> importSchedules = importScheduleFactory().find();
-                int poolSize = Math.max(1, (int) Math.log(importSchedules.size()));
-                cronExpressionScheduler = new CronExpressionScheduler(clock, poolSize);
-            } catch (RuntimeException e) {
-                MessageSeeds.FAILED_TO_START_IMPORT_SCHEDULES.log(LOGGER, thesaurus);
-            }
-        }
+        createScheduler();
     }
 
     @Override
     public void schedule(ImportSchedule importSchedule) {
         if(importSchedule.getObsoleteTime() == null)
-            cronExpressionScheduler.submit(new ImportScheduleJob(path -> !Files.isDirectory(path), defaultFileSystem, jsonService,
+            cronExpressionScheduler.submit(new ImportScheduleJob(path -> !Files.isDirectory(path), fileUtils, jsonService,
                 this, importSchedule.getId(), transactionService, thesaurus, cronExpressionParser, clock));
     }
     @Override
@@ -233,7 +244,7 @@ public class FileImportServiceImpl implements InstallService, FileImportService 
     }
 
     public FileNameCollisionResolver getFileNameCollisionResolver() {
-        return new SimpleFileNameCollisionResolver(defaultFileSystem);
+        return new SimpleFileNameCollisionResolver(fileUtils, fileSystem);
     }
 
     public Optional<FileImporterFactory> getImportFactory(String name) {
@@ -319,7 +330,7 @@ public class FileImportServiceImpl implements InstallService, FileImportService 
     @Override
     public Path getBasePath() {
         if(this.basePath == null)
-            this.basePath = Paths.get("/");
+            this.basePath = fileSystem.getPath("/");
         return this.basePath;
     }
 

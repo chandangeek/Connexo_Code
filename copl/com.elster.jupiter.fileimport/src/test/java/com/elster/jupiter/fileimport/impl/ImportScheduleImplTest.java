@@ -22,11 +22,9 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Optional;
@@ -63,7 +61,7 @@ public class ImportScheduleImplTest {
     @Mock
     private FileNameCollisionResolver nameResolver;
     @Mock
-    private DefaultFileSystem fileSystem;
+    private FileUtilsImpl fileSystem;
     @Mock
     private Thesaurus thesaurus;
     @Mock
@@ -119,7 +117,7 @@ public class ImportScheduleImplTest {
         when(fileImporterFactory.getDestinationName()).thenReturn("DEST_1");
         when(fileImporterFactory.getApplicationName()).thenReturn("SYS");
         when(dataModel.getInstance(ImportScheduleImpl.class)).thenReturn(new ImportScheduleImpl(dataModel, fileImportService,
-                messageService, cronParser, nameResolver, fileSystem,jsonService, thesaurus));
+                messageService, cronParser, nameResolver, fileSystem,jsonService, thesaurus, testFileSystem));
         when(fileImportService.getImportFactory("importerName")).thenReturn(Optional.empty());
         importSchedule = ImportScheduleImpl.from(dataModel, "TEST_IMPORT_SCHEDULE", false, scheduleExpression,"SYS","importerName",
                 DESTINATION_NAME, sourceDirectory, ".", inProcessDirectory, failureDirectory, successDirectory);

@@ -7,6 +7,8 @@ import com.elster.jupiter.messaging.MessageBuilder;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.json.JsonService;
+import com.google.common.jimfs.Configuration;
+import com.google.common.jimfs.Jimfs;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,6 +19,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
 import java.io.File;
+import java.nio.file.FileSystem;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Clock;
@@ -47,9 +50,12 @@ public class DefaultFileHandlerTest {
     @Mock
     private Clock clock;
 
+    private FileSystem testFileSystem;
+
     @Before
     public void setUp() {
 
+        testFileSystem = Jimfs.newFileSystem(Configuration.windows());
         when(clock.instant()).thenReturn(Instant.now());
         when(importSchedule.createFileImportOccurrence(any(Path.class), any(Clock.class))).thenReturn(fileImportOccurrence);
         when(importSchedule.getDestination()).thenReturn(destination);
@@ -69,7 +75,7 @@ public class DefaultFileHandlerTest {
     @Test
     public void testHandleCreatesFileImport() {
 
-        Path file = Paths.get("./test.txt");
+        Path file = testFileSystem.getPath("./test.txt");
         fileHandler.handle(file);
         verify(importSchedule).createFileImportOccurrence(file, clock);
     }
@@ -77,7 +83,7 @@ public class DefaultFileHandlerTest {
     @Test
     public void testHandlePostsMessage() {
 
-        Path file = Paths.get("./test.txt");
+        Path file = testFileSystem.getPath("./test.txt");
         fileHandler.handle(file);
 
         verify(messageBuilder).send();

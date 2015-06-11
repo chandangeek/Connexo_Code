@@ -15,7 +15,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Answers;
-import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -46,7 +45,7 @@ public class ImportScheduleJobTest {
     @Mock
     private Path importDir;
     @Mock
-    private FileSystem fileSystem;
+    private FileUtils fileSystem;
     @Mock
     private DirectoryStream<Path> directoryStream;
     @Mock

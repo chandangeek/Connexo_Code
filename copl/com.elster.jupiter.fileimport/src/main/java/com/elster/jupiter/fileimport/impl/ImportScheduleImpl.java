@@ -19,7 +19,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 import javax.inject.Inject;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
-import java.io.File;
+import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Clock;
@@ -65,6 +65,7 @@ class ImportScheduleImpl implements ImportSchedule {
     private final DataModel dataModel;
     private final ScheduleExpressionParser scheduleExpressionParser;
     private final FileNameCollisionResolver fileNameCollisionresolver;
+    private final FileUtils fileUtils;
     private final FileSystem fileSystem;
     private final Thesaurus thesaurus;
     private final FileImportService fileImportService;
@@ -88,15 +89,16 @@ class ImportScheduleImpl implements ImportSchedule {
 
     @SuppressWarnings("unused")
     @Inject
-	ImportScheduleImpl(DataModel dataModel, FileImportService fileImportService, MessageService messageService, ScheduleExpressionParser scheduleExpressionParser, FileNameCollisionResolver fileNameCollisionresolver, FileSystem fileSystem,JsonService jsonService, Thesaurus thesaurus) {
+	ImportScheduleImpl(DataModel dataModel, FileImportService fileImportService, MessageService messageService, ScheduleExpressionParser scheduleExpressionParser, FileNameCollisionResolver fileNameCollisionresolver, FileUtils fileUtils,JsonService jsonService, Thesaurus thesaurus, FileSystem fileSystem) {
         this.messageService = messageService;
         this.dataModel = dataModel;
         this.jsonService = jsonService;
         this.scheduleExpressionParser = scheduleExpressionParser;
         this.fileNameCollisionresolver = fileNameCollisionresolver;
-        this.fileSystem = fileSystem;
+        this.fileUtils = fileUtils;
         this.thesaurus = thesaurus;
         this.fileImportService = fileImportService;
+        this.fileSystem = fileSystem;
     }
 
     static ImportScheduleImpl from(DataModel dataModel, String name, boolean active, ScheduleExpression scheduleExpression, String applicationName, String importerName, String destination,
@@ -345,7 +347,7 @@ class ImportScheduleImpl implements ImportSchedule {
             throw new IllegalArgumentException();
         }
         Path relativeFilePath = fileImportService.getBasePath().relativize(file);
-        return FileImportOccurrenceImpl.create(fileImportService, fileSystem, dataModel, fileNameCollisionresolver, thesaurus, clock, this,relativeFilePath );
+        return FileImportOccurrenceImpl.create(fileImportService, fileSystem, fileUtils, dataModel, fileNameCollisionresolver, thesaurus, clock, this,relativeFilePath );
     }
 
     public Logger getLogger(FileImportOccurrence occurrence) {

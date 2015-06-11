@@ -19,7 +19,7 @@ import java.util.function.Predicate;
 class ImportScheduleJob implements CronJob {
 
     private final TransactionService transactionService;
-    private final FileSystem fileSystem;
+    private final FileUtils fileSystem;
     private final Clock clock;
     private final JsonService jsonService;
     private final Thesaurus thesaurus;
@@ -28,7 +28,7 @@ class ImportScheduleJob implements CronJob {
     private final Long importScheduleId;
 
     @Inject
-    public ImportScheduleJob(Predicate<Path> filter, FileSystem fileSystem, JsonService jsonService, FileImportService fileImportService,  Long importScheduleId, TransactionService transactionService, Thesaurus thesaurus, CronExpressionParser cronExpressionParser, Clock clock) {
+    public ImportScheduleJob(Predicate<Path> filter, FileUtils fileSystem, JsonService jsonService, FileImportService fileImportService,  Long importScheduleId, TransactionService transactionService, Thesaurus thesaurus, CronExpressionParser cronExpressionParser, Clock clock) {
         this.filter = filter;
         this.fileSystem = fileSystem;
         this.jsonService = jsonService;

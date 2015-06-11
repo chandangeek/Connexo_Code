@@ -8,7 +8,7 @@ import java.nio.file.Path;
 /**
  * Abstraction of the file system.
  */
-interface FileSystem {
+interface FileUtils {
 
     /**
      * Opens an InputStream on the contents of the given File

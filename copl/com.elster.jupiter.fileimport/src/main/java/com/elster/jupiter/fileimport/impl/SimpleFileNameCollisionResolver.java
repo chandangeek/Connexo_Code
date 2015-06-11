@@ -1,5 +1,6 @@
 package com.elster.jupiter.fileimport.impl;
 
+import java.nio.file.FileSystem;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -8,22 +9,25 @@ import java.nio.file.Paths;
  */
 class SimpleFileNameCollisionResolver implements FileNameCollisionResolver {
 
+    private final FileUtils fileUtils;
     private final FileSystem fileSystem;
 
-    SimpleFileNameCollisionResolver(FileSystem fileSystem) {
-        this.fileSystem = fileSystem;
+
+    SimpleFileNameCollisionResolver(FileUtils fileUtils, FileSystem fileSystem) {
+        this.fileSystem  = fileSystem;
+        this.fileUtils = fileUtils;
     }
 
     @Override
     public Path resolve(Path path) {
-        if (fileSystem.exists(path)) {
+        if (fileUtils.exists(path)) {
             String fileName = path.toString();
             String extension = getExtension(fileName);
             String preExtension = getBaseName(fileName);
             for (int i = 1; i < Integer.MAX_VALUE; i++) {
                 fileName = preExtension + i + '.' + extension;
-                Path candidate = Paths.get(fileName);
-                if (!fileSystem.exists(candidate)) {
+                Path candidate = fileSystem.getPath(fileName);
+                if (!fileUtils.exists(candidate)) {
                     return candidate;
                 }
             }

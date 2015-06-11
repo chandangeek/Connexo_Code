@@ -10,6 +10,8 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.ScheduleExpression;
 import com.elster.jupiter.util.time.ScheduleExpressionParser;
+import com.google.common.jimfs.Configuration;
+import com.google.common.jimfs.Jimfs;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,7 +20,7 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.io.File;
+import java.nio.file.FileSystem;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
@@ -54,19 +56,22 @@ public class DefaultImportScheduleBuilderTest {
     @Mock
     private FileNameCollisionResolver nameResolver;
     @Mock
-    private FileSystem fileSystem;
+    private FileUtils fileUtils;
     @Mock
     private Thesaurus thesaurus;
     @Mock
     private JsonService jsonService;
 
+    private FileSystem testFileSystem;
+
     @Before
     public void setUp() {
+        testFileSystem = Jimfs.newFileSystem(Configuration.windows());
         when(fileImportService.getImportFactory(Matchers.any())).thenReturn(Optional.of(fileImporterFactory));
         when(fileImportService.getBasePath()).thenReturn(BASE_PATH);
         when(fileImporterFactory.getDestinationName()).thenReturn("DEST_1");
         when(dataModel.getInstance(ImportScheduleImpl.class)).thenReturn(
-                new ImportScheduleImpl(dataModel, fileImportService, messageService, scheduleExpressionParser, nameResolver, fileSystem,jsonService, thesaurus));
+                new ImportScheduleImpl(dataModel, fileImportService, messageService, scheduleExpressionParser, nameResolver, fileUtils,jsonService, thesaurus, testFileSystem));
     }
 
     @After
