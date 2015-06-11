@@ -175,7 +175,8 @@ public class FirmwareCampaignHandler implements MessageHandler {
                     retry = false;
                 } catch (OptimisticLockException e) {
                     firmwareCampaignImpl = (context.getFirmwareService().getFirmwareCampaignById(firmwareCampaignImpl.getId()).get());
-                    retry = !firmwareCampaignImpl.getStatus().equals(FirmwareCampaignStatus.COMPLETE);
+                    retry = !(firmwareCampaignImpl.getStatus().equals(FirmwareCampaignStatus.COMPLETE) ||
+                            firmwareCampaignImpl.getStatus().equals(FirmwareCampaignStatus.CANCELLED));
                 }
             }
         }

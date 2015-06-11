@@ -301,7 +301,7 @@ public class FirmwareCampaignImpl implements FirmwareCampaign, HasUniqueName {
     public void updateStatistic(){
         DevicesInFirmwareCampaignStatusImpl devicesStatus = this.devicesStatus.get();
         devicesStatus.update();
-        if (devicesStatus.getOngoing() == 0 && devicesStatus.getPending() == 0){
+        if (devicesStatus.getOngoing() == 0 && devicesStatus.getPending() == 0 && !getStatus().equals(FirmwareCampaignStatus.CANCELLED)){
             setStatus(FirmwareCampaignStatus.COMPLETE);
             this.finishedOn = clock.instant();
             save();
