@@ -2,9 +2,7 @@ package com.energyict.mdc.firmware.rest.impl;
 
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
-import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
-import com.energyict.mdc.firmware.FirmwareCampaign;
-import com.energyict.mdc.firmware.FirmwareService;
+import com.energyict.mdc.firmware.*;
 import com.energyict.mdc.firmware.security.Privileges;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 
@@ -78,8 +76,12 @@ public class FirmwareCampaignResource {
     @RolesAllowed({Privileges.ADMINISTRATE_FIRMWARE_CAMPAIGN})
     public Response editFirmwareCampaign(FirmwareCampaignInfo info){
         FirmwareCampaign firmwareCampaign = resourceHelper.findFirmwareCampaignOrThrowException(info.id);
-        info.writeTo(firmwareCampaign, mdcPropertyUtils);
-        firmwareCampaign.save();
+        if(info.status.id.equals(FirmwareCampaignStatus.CANCELLED.name())){
+            this.firmwareService.cancelFirmwareCampaign(firmwareCampaign);
+        } else {
+            info.writeTo(firmwareCampaign, mdcPropertyUtils);
+            firmwareCampaign.save();
+        }
         return Response.ok(campaignInfoFactory.from(firmwareCampaign)).build();
     }
 
