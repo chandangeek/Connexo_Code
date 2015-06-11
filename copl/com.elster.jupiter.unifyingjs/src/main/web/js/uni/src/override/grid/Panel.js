@@ -22,7 +22,7 @@ Ext.define('Uni.override.grid.Panel', {
                 me.getView().getEl().scrollTo('top', me.lastGridScrollPosition.top, false);
             }
         });
-        me.on('selectionchange', function () {
+        me.on('beforeselect', function () {
             this.lastGridScrollPosition = this.getView().getEl().getScroll();
         });
     }
