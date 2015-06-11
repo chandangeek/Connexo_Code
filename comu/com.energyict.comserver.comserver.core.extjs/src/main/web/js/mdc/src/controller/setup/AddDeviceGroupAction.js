@@ -448,7 +448,7 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
                         });
                     }
                     Ext.suspendLayouts();
-                    view.down('#device-group-edit-panel').setTitle(Uni.I18n.translate('communicationtasks.edit', 'MDC', 'Edit') + " '" + me.deviceGroupName + "'");
+                    view.down('#device-group-edit-panel').setTitle(Uni.I18n.translate('communicationtasks.edit', 'MDC', 'Edit') + " '" + Ext.String.htmlEncode(me.deviceGroupName) + "'");
                     me.getNameTextField().setValue(record.get('name'));
                     isDynamic = record.get('dynamic') ? Uni.I18n.translate('general.dynamic', 'MDC', 'Dynamic') : Uni.I18n.translate('general.static', 'MDC', 'Static');
                     view.down('#device-group-type').setValue(isDynamic);
