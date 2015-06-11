@@ -235,7 +235,7 @@ public class FileImportServiceImpl implements InstallService, FileImportService 
 
     @Override
     public ImportScheduleBuilder newBuilder() {
-        return new DefaultImportScheduleBuilder(dataModel, this);
+        return new DefaultImportScheduleBuilder(dataModel, this, thesaurus);
     }
 
     @Override

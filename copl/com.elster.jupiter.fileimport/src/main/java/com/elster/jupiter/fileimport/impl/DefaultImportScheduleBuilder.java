@@ -1,6 +1,7 @@
 package com.elster.jupiter.fileimport.impl;
 
 import com.elster.jupiter.fileimport.*;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.time.PeriodicalScheduleExpression;
@@ -28,21 +29,22 @@ class DefaultImportScheduleBuilder implements ImportScheduleBuilder {
     private transient ScheduleExpression scheduleExpression;
     private final DataModel dataModel;
     private final FileImportService fileImportService;
+    private final Thesaurus thesaurus;
 
-    DefaultImportScheduleBuilder(DataModel dataModel, FileImportService fileImportService) {
+    DefaultImportScheduleBuilder(DataModel dataModel, FileImportService fileImportService, Thesaurus thesaurus) {
         this.dataModel = dataModel;
         this.fileImportService = fileImportService;
+        this.thesaurus = thesaurus;
     }
 
     @Override
     public ImportSchedule build() {
 
-        String applicationName = fileImportService.getImportFactory(importerName)
-                .orElseThrow(() -> new IllegalArgumentException("No such file importer: " + importerName))
-                .getApplicationName();
-        if(destination == null){
-            fileImportService.getImportFactory(importerName).ifPresent(in -> destination = in.getDestinationName());
+        String applicationName = null;
+        if(fileImportService.getImportFactory(importerName).isPresent()){
+            applicationName = fileImportService.getImportFactory(importerName).get().getApplicationName();
         }
+        fileImportService.getImportFactory(importerName).ifPresent(in -> destination = in.getDestinationName());
 
         ImportScheduleImpl importSchedule = ImportScheduleImpl.from(dataModel, name, false, scheduleExpression, applicationName, importerName, destination, importDirectory, pathMatcher, inProcessDirectory, failureDirectory, successDirectory);
         properties.stream().forEach(p -> importSchedule.setProperty(p.name, p.value));

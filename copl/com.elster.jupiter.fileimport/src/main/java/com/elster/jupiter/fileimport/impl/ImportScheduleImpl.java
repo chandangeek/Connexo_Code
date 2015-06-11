@@ -17,6 +17,7 @@ import com.elster.jupiter.util.time.ScheduleExpressionParser;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.nio.file.FileSystem;
@@ -44,13 +45,18 @@ class ImportScheduleImpl implements ImportSchedule {
 
     private transient DestinationSpec destination;
 
-
+    @NonEmptyPath(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
     private Path importDirectory;
+    @NonEmptyPath(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
     private Path inProcessDirectory;
+    @NonEmptyPath(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
     private Path successDirectory;
+    @NonEmptyPath(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
     private Path failureDirectory;
+
     private String pathMatcher;
     private transient ScheduleExpression scheduleExpression;
+
     private String applicationName;
 
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")

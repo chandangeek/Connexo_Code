@@ -17,7 +17,7 @@ public enum MessageSeeds implements MessageSeed {
     MISSING_PROPERTY(1002, "property.missing", "Required property with key ''{0}'' was not found.", Level.SEVERE),
     INVALID_CHARS(5, Constants.INVALID_CHARS, "This field contains invalid characters", Level.SEVERE),
     IMPORT_SCHEDULE_PROPERTY_NOT_IN_SPEC(1005, Constants.IMPORT_SCHEDULE_PROPERTY_NOT_IN_SPEC_KEY, "The import schedule ''{0}'' does not contain a specification for attribute ''{1}''", Level.SEVERE),
-    IMPORT_SCHEDULE_PROPERTY_INVALID_VALUE(1006, Constants.IMPORT_SCHEDULE_PROPERTY_INVALID_VALUE_KEY, "''{0}'' is not a valid value for attribute ''{1}'' of an import schedule ''{2}''", Level.SEVERE),
+    IMPORT_SCHEDULE_PROPERTY_INVALID_VALUE(1006, Constants.IMPORT_SCHEDULE_PROPERTY_INVALID_VALUE_KEY, "This property contains an invalid value", Level.SEVERE),
     IMPORT_SCHEDULE_REQUIRED_PROPERTY_MISSING(1007, Constants.IMPORT_SCHEDULE_REQUIRED_PROPERTY_MISSING_KEY, "This field is required", Level.SEVERE),
     FILE_IMPORT_STARTED(1008, Constants.FILE_IMPORT_STARTED, "Start importing file", Level.INFO),
     FILE_IMPORT_FINISHED(1008, Constants.FILE_IMPORT_FINISHED, "Finish importing file", Level.INFO)
