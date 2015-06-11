@@ -32,11 +32,11 @@ import static org.mockito.Mockito.when;
 public class DefaultImportScheduleBuilderTest {
 
     private static final String DESTINATION_NAME = "test_destination";
-    private static final Path PROCESSING_DIRECTORY = Paths.get("./processing");
-    private static final Path IMPORT_DIRECTORY = Paths.get("./import");
-    private static final Path SUCCESS_DIRECTORY = Paths.get("./success");
-    private static final Path FAILURE_DIRECTORY = Paths.get("./failure");
-    private static final Path BASE_PATH = Paths.get("/");
+    private Path PROCESSING_DIRECTORY;
+    private Path IMPORT_DIRECTORY;
+    private Path SUCCESS_DIRECTORY;
+    private Path FAILURE_DIRECTORY;
+    private Path BASE_PATH = Paths.get("/");
     @Mock
     private DestinationSpec destination;
     @Mock
@@ -66,7 +66,12 @@ public class DefaultImportScheduleBuilderTest {
 
     @Before
     public void setUp() {
-        testFileSystem = Jimfs.newFileSystem(Configuration.windows());
+        testFileSystem = Jimfs.newFileSystem(Configuration.unix());
+        PROCESSING_DIRECTORY = testFileSystem.getPath("./processing");
+        IMPORT_DIRECTORY = testFileSystem.getPath("./import");
+        SUCCESS_DIRECTORY = testFileSystem.getPath("./success");
+        FAILURE_DIRECTORY = testFileSystem.getPath("./failure");
+        BASE_PATH = testFileSystem.getPath("/");
         when(fileImportService.getImportFactory(Matchers.any())).thenReturn(Optional.of(fileImporterFactory));
         when(fileImportService.getBasePath()).thenReturn(BASE_PATH);
         when(fileImporterFactory.getDestinationName()).thenReturn("DEST_1");
