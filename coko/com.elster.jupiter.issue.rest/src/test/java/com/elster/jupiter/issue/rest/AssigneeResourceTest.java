@@ -30,8 +30,6 @@ public class AssigneeResourceTest extends IssueRestApplicationJerseyTest {
     
     @Test
     public void testGetAllAssigneesWithoutLike() {
-        when(thesaurus.getString(MessageSeeds.ISSUE_ASSIGNEE_UNASSIGNED.getKey(), MessageSeeds.ISSUE_ASSIGNEE_UNASSIGNED.getDefaultFormat())).thenReturn("Unassigned");
-
         Map<String, Object> map = target("/assignees").request().get(Map.class);
 
         assertThat(map.get("total")).isEqualTo(1);
@@ -49,9 +47,7 @@ public class AssigneeResourceTest extends IssueRestApplicationJerseyTest {
     public void testGetAllAssigneesWithMeParameter() {
         User user = mockUser(13L, "user");
         when(securityContext.getUserPrincipal()).thenReturn(user);
-
-        when(thesaurus.getString(MessageSeeds.ISSUE_ASSIGNEE_ME.getKey(), MessageSeeds.ISSUE_ASSIGNEE_ME.getDefaultFormat())).thenReturn("Me");
-
+        
         Map<String, Object> map = target("/assignees").queryParam(RequestHelper.ME, "true").request().get(Map.class);
 
         assertThat(map.get("total")).isEqualTo(1);

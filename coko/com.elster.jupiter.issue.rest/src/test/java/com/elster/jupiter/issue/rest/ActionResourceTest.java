@@ -25,9 +25,6 @@ public class ActionResourceTest extends IssueRestApplicationJerseyTest {
 
     @Test
     public void testGetAllActionPhases() {
-        when(thesaurus.getString(MessageSeeds.ISSUE_ACTION_PHASE_CREATE.getKey(), MessageSeeds.ISSUE_ACTION_PHASE_CREATE.getDefaultFormat())).thenReturn("Create");
-        when(thesaurus.getString(MessageSeeds.ISSUE_ACTION_PHASE_OVERDUE.getKey(), MessageSeeds.ISSUE_ACTION_PHASE_OVERDUE.getDefaultFormat())).thenReturn("Overdue");
-
         String response = target("/actions/phases").request().get(String.class);
 
         JsonModel json = JsonModel.model(response);
@@ -35,7 +32,7 @@ public class ActionResourceTest extends IssueRestApplicationJerseyTest {
         assertThat(json.<Number> get("$.total")).isEqualTo(2);
         assertThat(json.<List<?>> get("$.creationRuleActionPhases")).hasSize(2);
         assertThat(json.<List<String>> get("$.creationRuleActionPhases[*].uuid")).containsExactly("CREATE", "OVERDUE");
-        assertThat(json.<List<String>> get("$.creationRuleActionPhases[*].title")).containsExactly("Create", "Overdue");
+        assertThat(json.<List<String>> get("$.creationRuleActionPhases[*].title")).containsExactly("Issue creation", "Issue overdue");
     }
 
     @Test
