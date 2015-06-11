@@ -21,7 +21,22 @@ Ext.define('Uni.property.view.property.Number', {
             readOnly: me.isReadOnly,
             inputType: me.inputType,
             allowBlank: me.allowBlank,
+            listeners: {
+                change: {
+                    fn: me.checkValidNumber,
+                    scope: me
+                }
+            }
         };
+    },
+
+    checkValidNumber: function () {
+        var me = this,
+            number = me.getField().getValue();
+
+        if (!Ext.isNumber(number)) {
+            me.getField().setValue(null);
+        }
     },
 
     getDisplayCmp: function () {
