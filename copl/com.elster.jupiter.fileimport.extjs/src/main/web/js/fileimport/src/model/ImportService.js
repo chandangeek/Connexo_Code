@@ -29,7 +29,7 @@ Ext.define('Fim.model.ImportService', {
             name: 'statusDisplay',
             persist: false,
             convert: function (value, record) {
-				return record.get('deleted') ? Uni.I18n.translate('general.deleted', 'FIM', 'Deleted') :
+				return record.get('deleted') ? Uni.I18n.translate('general.removed', 'FIM', 'Removed') :
 						!record.get('importerAvailable') ? Uni.I18n.translate('general.notAvailable', 'FIM', 'Not available') :
 						record.get('active') ? Uni.I18n.translate('general.active', 'FIM', 'Active') : Uni.I18n.translate('general.inactive', 'FIM', 'Inactive');                                
             }
