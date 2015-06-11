@@ -51,6 +51,7 @@ Ext.define('Fwc.firmwarecampaigns.controller.Overview', {
         preview.setTitle(record.get('name'));
         Ext.resumeLayouts(true);
         preview.down('firmware-campaigns-action-menu').record = record;
+        preview.down('#firmware-campaigns-detail-action-menu-button').setVisible(record.get('status').id === 'ONGOING');
     },
 
     chooseAction: function (menu, item) {

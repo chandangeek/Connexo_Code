@@ -107,7 +107,7 @@ Ext.define('Fwc.firmwarecampaigns.view.Grid', {
             {
                 xtype: 'uni-actioncolumn',
                 isDisabled: function(view, rowIndex, colIndex, item, record) {
-                    return record.get('status').id === 'CANCELLED';
+                    return record.get('status').id !== 'ONGOING';
                 },
                 menu: {
                     xtype: 'firmware-campaigns-action-menu',
