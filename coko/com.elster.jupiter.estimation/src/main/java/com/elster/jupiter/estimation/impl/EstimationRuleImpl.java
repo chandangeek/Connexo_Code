@@ -223,6 +223,7 @@ class EstimationRuleImpl implements IEstimationRule {
     @Override
     public Map<String, Object> getProps() {
         return getProperties().stream()
+                .filter(rule -> rule.getValue() != null)
                 .collect(Collectors.toMap(EstimationRuleProperties::getName, EstimationRuleProperties::getValue));
     }
 
