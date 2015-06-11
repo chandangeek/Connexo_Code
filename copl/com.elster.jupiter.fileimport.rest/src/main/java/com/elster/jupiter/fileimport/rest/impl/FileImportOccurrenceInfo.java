@@ -13,6 +13,7 @@ public class FileImportOccurrenceInfo {
     public Long occurrenceId;
     public Long importServiceId;
     public String importServiceName;
+    public Long triggeredOn;
     public Long startedOn;
     public Long finishedOn;
     public Long duration;
@@ -30,6 +31,7 @@ public class FileImportOccurrenceInfo {
         this.importServiceId = fileImportOccurrence.getImportSchedule().getId();
         this.importServiceName = fileImportOccurrence.getImportSchedule().getName();
         this.deleted = fileImportOccurrence.getImportSchedule().getObsoleteTime()!=null;
+        triggeredOn = fileImportOccurrence.getTriggerDate().toEpochMilli();
         fileImportOccurrence.getStartDate().ifPresent(sd->this.startedOn = sd.toEpochMilli());
         fileImportOccurrence.getEndDate().ifPresent(sd->this.finishedOn = sd.toEpochMilli());
         this.duration = calculateDuration(startedOn, finishedOn);

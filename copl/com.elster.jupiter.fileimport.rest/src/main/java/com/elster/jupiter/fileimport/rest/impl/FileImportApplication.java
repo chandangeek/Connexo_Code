@@ -16,6 +16,7 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.ws.rs.core.Application;
+import java.nio.file.FileSystem;
 import java.util.*;
 
 @Component(name = "com.elster.jupiter.fileimport.rest", service = {Application.class, InstallService.class}, immediate = true, property = {"alias=/fir", "app=SYS", "name=" + FileImportApplication.COMPONENT_NAME})
@@ -25,6 +26,7 @@ public class FileImportApplication extends Application implements InstallService
     private volatile TransactionService transactionService;
     private volatile RestQueryService restQueryService;
     private volatile CronExpressionParser cronExpressionParser;
+    private volatile FileSystem fileSystem;
 
     private NlsService nlsService;
     private volatile Thesaurus thesaurus;
@@ -43,6 +45,11 @@ public class FileImportApplication extends Application implements InstallService
     @Reference
     public void setTransactionService(TransactionService transactionService) {
         this.transactionService = transactionService;
+    }
+
+    @Reference
+    public void setFileSystem(FileSystem fileSystem) {
+        this.fileSystem = fileSystem;
     }
 
     @Reference
@@ -99,6 +106,7 @@ public class FileImportApplication extends Application implements InstallService
                 bind(cronExpressionParser).to(CronExpressionParser.class);
                 bind(thesaurus).to(Thesaurus.class);
                 bind(transactionService).to(TransactionService.class);
+                bind(fileSystem).to(FileSystem.class);
             }
         });
         return Collections.unmodifiableSet(hashSet);

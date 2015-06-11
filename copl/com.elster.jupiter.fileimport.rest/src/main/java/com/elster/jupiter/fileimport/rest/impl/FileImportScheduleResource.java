@@ -18,6 +18,7 @@ import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
+import java.nio.file.FileSystem;
 import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.List;
@@ -32,16 +33,18 @@ public class FileImportScheduleResource {
     private final TransactionService transactionService;
     private final CronExpressionParser cronExpressionParser;
     private final PropertyUtils propertyUtils;
+    private final FileSystem fileSystem;
 
 
     @Inject
-    public FileImportScheduleResource(RestQueryService queryService, FileImportService fileImportService, Thesaurus thesaurus, TransactionService transactionService, CronExpressionParser cronExpressionParser, PropertyUtils propertyUtils) {
+    public FileImportScheduleResource(RestQueryService queryService, FileImportService fileImportService, Thesaurus thesaurus, TransactionService transactionService, CronExpressionParser cronExpressionParser, PropertyUtils propertyUtils, FileSystem fileSystem) {
         this.queryService = queryService;
         this.fileImportService = fileImportService;
         this.thesaurus = thesaurus;
         this.transactionService = transactionService;
         this.cronExpressionParser = cronExpressionParser;
         this.propertyUtils = propertyUtils;
+        this.fileSystem = fileSystem;
     }
 
 
@@ -92,10 +95,10 @@ public class FileImportScheduleResource {
         ImportScheduleBuilder builder = fileImportService.newBuilder()
                 .setName(info.name)
                 .setPathMatcher(info.pathMatcher)
-                .setImportDirectory(Paths.get(info.importDirectory))
-                .setFailureDirectory(Paths.get(info.failureDirectory))
-                .setSuccessDirectory(Paths.get(info.successDirectory))
-                .setProcessingDirectory(Paths.get(info.inProcessDirectory))
+                .setImportDirectory(fileSystem.getPath(info.importDirectory))
+                .setFailureDirectory(fileSystem.getPath(info.failureDirectory))
+                .setSuccessDirectory(fileSystem.getPath(info.successDirectory))
+                .setProcessingDirectory(fileSystem.getPath(info.inProcessDirectory))
                 .setImporterName(info.importerInfo.name)
                 .setScheduleExpression(ScanFrequency.toScheduleExpression(info.scanFrequency, cronExpressionParser));
 
@@ -147,10 +150,10 @@ public class FileImportScheduleResource {
         try (TransactionContext context = transactionService.getContext()) {
             importSchedule.setName(info.name);
             importSchedule.setActive(info.active);
-            importSchedule.setImportDirectory(Paths.get(info.importDirectory));
-            importSchedule.setFailureDirectory(Paths.get(info.failureDirectory));
-            importSchedule.setSuccessDirectory(Paths.get(info.successDirectory));
-            importSchedule.setProcessingDirectory(Paths.get(info.inProcessDirectory));
+            importSchedule.setImportDirectory(fileSystem.getPath(info.importDirectory));
+            importSchedule.setFailureDirectory(fileSystem.getPath(info.failureDirectory));
+            importSchedule.setSuccessDirectory(fileSystem.getPath(info.successDirectory));
+            importSchedule.setProcessingDirectory(fileSystem.getPath(info.inProcessDirectory));
             importSchedule.setImporterName(info.importerInfo.name);
             importSchedule.setPathMatcher(info.pathMatcher);
             importSchedule.setScheduleExpression(ScanFrequency.toScheduleExpression(info.scanFrequency, cronExpressionParser));
