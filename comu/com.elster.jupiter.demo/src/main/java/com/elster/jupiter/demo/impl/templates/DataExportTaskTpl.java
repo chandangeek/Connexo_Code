@@ -1,9 +1,9 @@
 package com.elster.jupiter.demo.impl.templates;
 
 import com.elster.jupiter.demo.impl.builders.DataExportTaskBuilder;
-import com.elster.jupiter.export.ReadingTypeDataExportTask;
+import com.elster.jupiter.export.ExportTask;
 
-public enum DataExportTaskTpl implements Template<ReadingTypeDataExportTask, DataExportTaskBuilder> {
+public enum DataExportTaskTpl implements Template<ExportTask, DataExportTaskBuilder> {
     NORTH_REGION(DeviceGroupTpl.NORTH_REGION),
     SOUTH_REGION(DeviceGroupTpl.SOUTH_REGION),
     ;
