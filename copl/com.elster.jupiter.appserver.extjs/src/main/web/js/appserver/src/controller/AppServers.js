@@ -519,6 +519,10 @@ Ext.define('Apr.controller.AppServers', {
                     }
                 });
             } else {
+                if (me.importPath == null){
+                    me.importPath = Ext.create('Apr.model.ImportPath');
+                }
+
                 if (!me.importPath.get('appServerName')) {
                     me.importPath.set('appServerName', appServerName);
                 }
