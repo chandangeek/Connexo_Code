@@ -51,6 +51,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     FIRMWARE_MANAGEMENT_DEVICE_STATUS_ONGOING(103, Keys.FIRMWARE_MANAGEMENT_DEVICE_STATUS_PREFIX + FirmwareManagementDeviceStatus.Constants.ONGOING, "Ongoing"),
     FIRMWARE_MANAGEMENT_DEVICE_STATUS_PENDING(104, Keys.FIRMWARE_MANAGEMENT_DEVICE_STATUS_PREFIX + FirmwareManagementDeviceStatus.Constants.PENDING, "Pending"),
     FIRMWARE_MANAGEMENT_DEVICE_STATUS_CONFIGURATION_ERROR(105, Keys.FIRMWARE_MANAGEMENT_DEVICE_STATUS_PREFIX + FirmwareManagementDeviceStatus.Constants.CONFIGURATION_ERROR, "Configuration error"),
+    FIRMWARE_MANAGEMENT_DEVICE_STATUS_CANCELLED(106, Keys.FIRMWARE_MANAGEMENT_DEVICE_STATUS_PREFIX + FirmwareManagementDeviceStatus.Constants.CANCELLED, "Cancelled"),
 
 
     SUPPORTED_FIRMWARE_UPGRADE_OPTIONS_NOT_FOUND(1001, "SupportedFirmwareUpgradeOptionsNotFound", "There is no such supported firmware upgrade option"),
