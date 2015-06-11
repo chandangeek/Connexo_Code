@@ -49,7 +49,7 @@ public class DeviceHistoryResourceTest extends DeviceDataRestApplicationJerseyTe
         when(deviceService.findByUniqueMrid("DeviceMRID")).thenReturn(Optional.of(device));
         DeviceType deviceType = mock(DeviceType.class);
         when(device.getDeviceType()).thenReturn(deviceType);
-        DeviceLifeCycle initialDeviceLifeCycle = mockDeviceLifeCycle(1L, "Default life cycle");
+        DeviceLifeCycle initialDeviceLifeCycle = mockDeviceLifeCycle(1L, "Standard life cycle");
         when(deviceType.getDeviceLifeCycle(deviceCreationDate)).thenReturn(Optional.of(initialDeviceLifeCycle));
     }
 
@@ -90,9 +90,9 @@ public class DeviceHistoryResourceTest extends DeviceDataRestApplicationJerseyTe
 
         assertThat(model.<Number> get("$.total")).isEqualTo(3);
         assertThat(model.<List<Number>> get("$.deviceLifeCycleChanges[*].from.id")).containsExactly(1, 11);
-        assertThat(model.<List<String>> get("$.deviceLifeCycleChanges[*].from.name")).containsExactly("Default life cycle", "In Stock");
+        assertThat(model.<List<String>> get("$.deviceLifeCycleChanges[*].from.name")).containsExactly("Standard life cycle", "In stock");
         assertThat(model.<List<Number>> get("$.deviceLifeCycleChanges[*].to.id")).containsExactly(11, 2, 22);
-        assertThat(model.<List<String>> get("$.deviceLifeCycleChanges[*].to.name")).containsExactly("In Stock", "New device life cycle", "commissioning");
+        assertThat(model.<List<String>> get("$.deviceLifeCycleChanges[*].to.name")).containsExactly("In stock", "New device life cycle", "commissioning");
         assertThat(model.<List<Number>> get("$.deviceLifeCycleChanges[*].modTime")).containsExactly(deviceCreationDate.toEpochMilli(), deviceCreationDate.plusSeconds(1).toEpochMilli(), deviceCreationDate.plusSeconds(3).toEpochMilli());
         assertThat(model.<List<Number>> get("$.deviceLifeCycleChanges[*].author.id")).containsExactly(1, 2, 1);
         assertThat(model.<List<String>> get("$.deviceLifeCycleChanges[*].author.name")).containsExactly("admin", "batch executor", "admin");
