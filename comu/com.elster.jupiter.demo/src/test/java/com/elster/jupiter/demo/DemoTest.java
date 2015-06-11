@@ -3,6 +3,7 @@ package com.elster.jupiter.demo;
 import com.elster.jupiter.appserver.impl.AppServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
+import com.elster.jupiter.datavault.impl.DataVaultServiceImpl;
 import com.elster.jupiter.demo.impl.DemoServiceImpl;
 import com.elster.jupiter.demo.impl.UnableToCreate;
 import com.elster.jupiter.demo.impl.templates.ComTaskTpl;
@@ -153,7 +154,9 @@ import java.util.logging.Logger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class DemoTest {
     private static final Logger LOG = Logger.getLogger(DemoTest.class.getName());
@@ -558,6 +561,7 @@ public class DemoTest {
     protected void doPreparations() {
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             createOracleTablesSubstitutes();
+            injector.getInstance(DataVaultServiceImpl.class).install();
             createRequiredProtocols();
             createDefaultStuff();
             injector.getInstance(DemoServiceImpl.class);
