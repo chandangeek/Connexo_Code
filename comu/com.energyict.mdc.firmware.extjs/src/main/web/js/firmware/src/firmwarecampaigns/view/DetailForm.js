@@ -128,6 +128,9 @@ Ext.define('Fwc.firmwarecampaigns.view.DetailForm', {
                                     case 'configurationError':
                                         iconCls = 'icon-notification';
                                         break;
+                                    case 'cancelled':
+                                        iconCls = 'icon-stop2';
+                                        break;
                                 }
 
                                 if (index) {
