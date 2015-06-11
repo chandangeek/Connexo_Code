@@ -83,7 +83,7 @@ Ext.define('Mdc.controller.setup.DataCollectionKpi', {
 
         Ext.suspendLayouts();
         preview.down('dataCollectionKpisActionMenu').record = record;
-        preview.setTitle(record.get('deviceGroup').name);
+        preview.setTitle(Ext.String.htmlEncode(record.get('deviceGroup').name));
         this.getDataCollectionKpisPreviewForm().loadRecord(record);
         Ext.resumeLayouts(true);
     },
