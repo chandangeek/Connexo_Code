@@ -160,6 +160,7 @@ public class DynamicSearchResourceTest extends SearchApplicationTest {
 
         Response response = target("/search/com.devices/searchcriteria").request().accept("application/json").get();
         JsonModel model = JsonModel.model((ByteArrayInputStream)response.getEntity());
+        assertThat(model.<Integer>get("$.total")).isEqualTo(3);
         assertThat(model.<List>get("$.properties")).hasSize(3);
         assertThat(model.<String>get("$.properties[0].name")).isEqualTo("mRID");
         assertThat(model.<String>get("$.properties[0].type")).isEqualTo("String");

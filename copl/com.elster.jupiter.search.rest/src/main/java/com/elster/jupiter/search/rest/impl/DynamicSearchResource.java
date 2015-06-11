@@ -4,7 +4,6 @@ import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpecPossibleValues;
 import com.elster.jupiter.rest.util.ExceptionFactory;
-import com.elster.jupiter.search.rest.InfoFactoryService;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
@@ -13,6 +12,7 @@ import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
+import com.elster.jupiter.search.rest.InfoFactoryService;
 import com.elster.jupiter.search.rest.MessageSeeds;
 import com.elster.jupiter.util.HasId;
 import java.util.ArrayList;
@@ -72,19 +72,20 @@ public class DynamicSearchResource {
                                                      @BeanParam JsonQueryParameters jsonQueryParameters,
                                                      @Context UriInfo uriInfo) throws InvalidValueException {
         SearchDomain searchDomain = findSearchDomainOrThrowException(domainId);
-        PropertyList propertyList = new PropertyList();
+        List propertyList = new ArrayList();
         if (jsonQueryFilter.hasFilters()) {
             List<SearchablePropertyConstriction> searchablePropertyConstrictions = searchDomain.getProperties().stream().
                     filter(SearchableProperty::affectsAvailableDomainProperties).
                     map(constrainingProperty -> asConstriction(constrainingProperty, jsonQueryFilter)).
                     collect(toList());
-            propertyList.properties = searchDomain.getPropertiesWithConstrictions(searchablePropertyConstrictions).stream().
+            propertyList = searchDomain.getPropertiesWithConstrictions(searchablePropertyConstrictions).stream().
                     map(p -> searchCriterionInfoFactory.asInfoObject(p, uriInfo)).
                     collect(toList());
         } else {
-            propertyList.properties = searchDomain.getProperties().stream().map(p -> searchCriterionInfoFactory.asInfoObject(p, uriInfo)).collect(toList());
+            propertyList = searchDomain.getProperties().stream().map(p -> searchCriterionInfoFactory.asInfoObject(p, uriInfo)).collect(toList());
         }
-        return Response.ok().entity(propertyList).build();
+        PagedInfoList pagedProperties = PagedInfoList.fromCompleteList("properties", propertyList, jsonQueryParameters);
+        return Response.ok().entity(pagedProperties).build();
     }
 
     @GET
@@ -228,10 +229,6 @@ public class DynamicSearchResource {
     class IdWithDisplayValueInfo {
         public Object id;
         public String displayValue;
-    }
-
-    class PropertyList {
-        public List<PropertyInfo> properties;
     }
 
     class ModelInfo {
