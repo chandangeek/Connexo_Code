@@ -34,7 +34,7 @@ public class AuthorizedActionInfo {
         if (action instanceof AuthorizedTransitionAction){
             fromBasicAction(thesaurus, (AuthorizedTransitionAction) action);
         } else {
-            fromBpmAction(thesaurus, (AuthorizedBusinessProcessAction) action);
+            fromBpmAction((AuthorizedBusinessProcessAction) action);
         }
     }
 
@@ -46,7 +46,7 @@ public class AuthorizedActionInfo {
         this.triggeredBy = new StateTransitionEventTypeFactory(thesaurus).from(action.getStateTransition().getEventType());
     }
 
-    private void fromBpmAction(Thesaurus thesaurus, AuthorizedBusinessProcessAction action){
+    private void fromBpmAction(AuthorizedBusinessProcessAction action){
         this.name = action.getName();
     }
 
