@@ -17,6 +17,7 @@ public enum MicroAction {
      * load profiles and log books of the device.
      * Requires that the user specifies that last reading timestamp.
      */
+    // storage = bits 0
     SET_LAST_READING,
 
     /**
@@ -24,16 +25,20 @@ public enum MicroAction {
      * Requires that the user specifies the timestamp
      * from which data should be validated.
      */
+    // storage = bits 2
     ENABLE_VALIDATION,
 
     /**
      * Disables data validation on the device.
      */
+    // storage = bits 4
     DISABLE_VALIDATION,
 
     /**
      * Activates all connection tasks on the device.
+     *
      */
+    // storage = bits 8
     ACTIVATE_CONNECTION_TASKS,
 
     /**
@@ -43,12 +48,14 @@ public enum MicroAction {
      *
      * @see #ACTIVATE_CONNECTION_TASKS
      */
+    // storage = bits 16
     START_COMMUNICATION,
 
     /**
      * Disable communication on the device
      * by putting all connection and communication tasks on hold.
      */
+    // storage = bits 32
     DISABLE_COMMUNICATION,
 
     /**
@@ -56,6 +63,7 @@ public enum MicroAction {
      * Requires that the user specifies the timestamp
      * on which the meter activation should start.
      */
+    // storage = bits 64
     CREATE_METER_ACTIVATION,
 
     /**
@@ -63,18 +71,29 @@ public enum MicroAction {
      * Requires that the user specifies the timestamp
      * on which the meter activation should end.
      */
+    // storage = bits 128
     CLOSE_METER_ACTIVATION,
 
     /**
      * Removes the device from all enumerated device groups
      * it is contained in.
      */
+    // storage = bits 256
     REMOVE_DEVICE_FROM_STATIC_GROUPS,
 
     /**
      * Detaches a slave device from its physical gateway.
      */
-    DETACH_SLAVE_FROM_MASTER;
+    // storage = bits 512
+    DETACH_SLAVE_FROM_MASTER,
+
+    /**
+     * Enables data estimation on the device.
+     * Requires that the user specifies the timestamp
+     * from which data should be validated.
+     */
+    // storage = bits 1024
+    ENABLE_ESTIMATION;
 
     /**
      * Gets the Set of {@link MicroCheck}s that are implied
