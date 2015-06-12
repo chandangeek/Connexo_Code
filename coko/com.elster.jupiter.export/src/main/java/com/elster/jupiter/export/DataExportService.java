@@ -25,6 +25,8 @@ public interface DataExportService {
 
     List<PropertySpec> getPropertiesSpecsForFormatter(String name);
 
+    List<PropertySpec> getPropertiesSpecsForDataSelector(String name);
+
     List<DataSelectorFactory> getAvailableSelectors();
 
     List<DataFormatterFactory> getAvailableFormatters();

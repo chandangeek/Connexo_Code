@@ -77,6 +77,11 @@ final class DataExportPropertyImpl implements DataExportProperty, PersistenceAwa
     }
 
     @Override
+    public boolean instanceOfSpec(PropertySpec spec) {
+        return  getPropertySpec().equals(spec);
+    }
+
+    @Override
     public void setValue(Object value) {
         if (BigDecimal.class.equals(getPropertySpec().getValueFactory().getValueType())) {
             this.stringValue = toStringValue(new BigDecimal(value.toString()));

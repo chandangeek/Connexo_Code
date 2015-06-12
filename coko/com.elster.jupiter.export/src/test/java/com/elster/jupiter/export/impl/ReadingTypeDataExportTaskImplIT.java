@@ -37,6 +37,7 @@ import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.tasks.RecurrentTask;
@@ -197,6 +198,7 @@ public class ReadingTypeDataExportTaskImplIT {
                     new TaskModule(),
                     new MeteringGroupsModule(),
                     new AppServiceModule(),
+                    new BasicPropertiesModule(),
                     new MailModule()
             );
         } catch (Exception e) {
@@ -418,7 +420,7 @@ public class ReadingTypeDataExportTaskImplIT {
             selector.setEndDeviceGroup(anotherEndDeviceGroup);
             selector.addReadingType(anotherReadingType);
             selector.removeReadingType(readingType);
-            selector.update();
+            selector.save();
             readingTypeDataExportTask.save();
             context.commit();
         }

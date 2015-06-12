@@ -71,7 +71,7 @@ class ExportTaskImpl implements IExportTask {
     private Instant modTime;
     private String userName;
     @Valid
-    private Reference<ReadingTypeDataSelector> readingTypeDataSelector = Reference.empty();
+    private Reference<IReadingTypeDataSelector> readingTypeDataSelector = Reference.empty();
     private List<IDataExportDestination> destinations = new ArrayList<>();
 
     @Inject
@@ -144,15 +144,36 @@ class ExportTaskImpl implements IExportTask {
     @Override
     public void save() {
         // TODO  : separate properties per Factory
+
+        List<PropertySpec> propertiesSpecsForProcessor = dataExportService.getPropertiesSpecsForProcessor(dataProcessor);
+        List<PropertySpec> propertiesSpecsForDataSelector = dataExportService.getPropertiesSpecsForDataSelector(dataSelector);
+        List<DataExportProperty> processorProperties = new ArrayList<DataExportProperty>();
+        List<DataExportProperty> selectorProperties = new ArrayList<DataExportProperty>();
+        for (DataExportProperty property : properties) {
+            for (PropertySpec processorPropertySpec : propertiesSpecsForProcessor)   {
+                if (property.instanceOfSpec(processorPropertySpec)) {
+                    processorProperties.add(property);
+                }
+            }
+        }
+        for (DataExportProperty property : properties) {
+            for (PropertySpec selectorPropertySpec : propertiesSpecsForDataSelector)   {
+                if (property.instanceOfSpec(selectorPropertySpec)) {
+                    selectorProperties.add(property);
+                }
+            }
+        }
+
         dataExportService.getDataFormatterFactory(dataFormatter)
-                .ifPresent(dataFormatterFactory -> dataFormatterFactory.validateProperties(properties));
+                .ifPresent(dataProcessorFactory -> dataProcessorFactory.validateProperties(processorProperties));
         dataExportService.getDataSelectorFactory(dataSelector)
-                .ifPresent(dataSelectorFactory -> dataSelectorFactory.validateProperties(properties));
+                .ifPresent(dataSelectorFactory -> dataSelectorFactory.validateProperties(selectorProperties));
         if (id == 0) {
             persist();
         } else {
             update();
         }
+        readingTypeDataSelector.getOptional().ifPresent(ReadingTypeDataSelector::save);
         recurrentTaskDirty = false;
         propertiesDirty = false;
     }
@@ -175,7 +196,7 @@ class ExportTaskImpl implements IExportTask {
     }
 
     void clearChildrenForDelete() {
-        // TODO
+        readingTypeDataSelector.getOptional().ifPresent(dataSelector -> dataSelector.delete());
     }
 
     @Override
@@ -221,7 +242,12 @@ class ExportTaskImpl implements IExportTask {
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        return dataExportService.getDataFormatterFactory(dataFormatter).orElseThrow(()->new IllegalArgumentException("No such data formatter: "+ dataFormatter)).getPropertySpecs();
+        List processorSpecs =  dataExportService.getDataFormatterFactory(dataFormatter).orElseThrow(()->new IllegalArgumentException("No such data formatter: "+dataFormatter)).getPropertySpecs();
+        List selectorSpecs =  dataExportService.getDataSelectorFactory(dataSelector).orElseThrow(()->new IllegalArgumentException("No such data selector: "+dataSelector)).getPropertySpecs();
+        List<PropertySpec> allSpecs = new ArrayList<>();
+        allSpecs.addAll(processorSpecs);
+        allSpecs.addAll(selectorSpecs);
+        return allSpecs;
     }
 
     @Override
@@ -376,7 +402,7 @@ class ExportTaskImpl implements IExportTask {
 
     @Override
     public Optional<ReadingTypeDataSelector> getReadingTypeDataSelector() {
-        return readingTypeDataSelector.getOptional();
+        return readingTypeDataSelector.getOptional().map(ReadingTypeDataSelector.class::cast);
     }
 
     @Override

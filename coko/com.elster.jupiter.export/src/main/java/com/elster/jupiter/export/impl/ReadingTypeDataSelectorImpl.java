@@ -135,6 +135,13 @@ public class ReadingTypeDataSelectorImpl implements IReadingTypeDataSelector {
     }
 
     @Override
+    public void delete() {
+        readingTypes.clear();
+        exportItems.clear();
+        dataModel.mapper(IReadingTypeDataSelector.class).remove(this);
+    }
+
+    @Override
     public List<IReadingTypeDataExportItem> getExportItems() {
         return Collections.unmodifiableList(exportItems);
     }
@@ -148,7 +155,7 @@ public class ReadingTypeDataSelectorImpl implements IReadingTypeDataSelector {
 
     @Override
     public History<ReadingTypeDataSelector> getHistory() {
-        List<JournalEntry<ReadingTypeDataSelector>> journal = dataModel.mapper(ReadingTypeDataSelector.class).getJournal(getId());
+        List<JournalEntry<IReadingTypeDataSelector>> journal = dataModel.mapper(IReadingTypeDataSelector.class).getJournal(getId());
         return new History<>(journal, this);
     }
 
@@ -205,7 +212,7 @@ public class ReadingTypeDataSelectorImpl implements IReadingTypeDataSelector {
 
     @Override
     public Set<ReadingType> getReadingTypes(Instant at) {
-        List<JournalEntry<ReadingTypeInDataSelector>> readingTypes = dataModel.mapper(ReadingTypeInDataSelector.class).at(at).find(ImmutableMap.of("readingTypeDataExportTask", this));
+        List<JournalEntry<ReadingTypeInDataSelector>> readingTypes = dataModel.mapper(ReadingTypeInDataSelector.class).at(at).find(ImmutableMap.of("readingTypeDataSelector", this));
         return readingTypes.stream()
                 .map(JournalEntry::get)
                 .map(ReadingTypeInDataSelector::getReadingType)
@@ -262,11 +269,11 @@ public class ReadingTypeDataSelectorImpl implements IReadingTypeDataSelector {
     }
 
     @Override
-    public void update() {
+    public void save() {
         if (id == 0) {
-            throw new IllegalStateException();
+            dataModel.mapper(IReadingTypeDataSelector.class).persist(this);
         } else {
-            dataModel.mapper(ReadingTypeDataSelector.class).update(this);
+            dataModel.mapper(IReadingTypeDataSelector.class).update(this);
         }
 
     }

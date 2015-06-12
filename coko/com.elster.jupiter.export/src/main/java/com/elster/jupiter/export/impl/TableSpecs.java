@@ -2,7 +2,6 @@ package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportProperty;
-import com.elster.jupiter.export.ReadingTypeDataSelector;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.orm.Column;
@@ -41,7 +40,7 @@ enum TableSpecs {
             table.primaryKey("DES_PK_DATAEXPORTTASK").on(idColumn).add();
         }
     },
-    DES_RTDATASELECTOR(ReadingTypeDataSelector.class) {
+    DES_RTDATASELECTOR(IReadingTypeDataSelector.class) {
         @Override
         void describeTable(Table table) {
             table.map(ReadingTypeDataSelectorImpl.class);
@@ -63,7 +62,6 @@ enum TableSpecs {
                     .references("DES_DATAEXPORTTASK")
                     .map("exportTask")
                     .reverseMap("readingTypeDataSelector")
-                    .composition()
                     .add();
             table.foreignKey("DES_FK_RTDS_EXPORTPERIOD")
                     .on(exportPeriod)
