@@ -225,7 +225,7 @@ Ext.define('Dxp.view.tasks.Add', {
                             {
                                 xtype: 'combobox',
                                 itemId: 'device-group-combo',
-                                name: 'deviceGroup',
+                                name: 'readingTypeDataSelector.value.endDeviceGroup',
                                 width: 235,
                                 store: 'Dxp.store.DeviceGroups',
                                 editable: false,
@@ -315,7 +315,7 @@ Ext.define('Dxp.view.tasks.Add', {
                             {
                                 xtype: 'combobox',
                                 itemId: 'export-period-combo',
-                                name: 'exportPeriod',
+                                name: 'readingTypeDataSelector.value.exportPeriod',
                                 width: 235,
                                 queryMode: 'local',
                                 store: 'Dxp.store.ExportPeriods',
