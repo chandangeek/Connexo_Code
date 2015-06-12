@@ -20,7 +20,7 @@ public class DataExportTaskHistoryInfos {
         addAll(task, occurrences, thesaurus, timeService, propertyUtils);
     }
 
-    public DataExportTaskHistoryInfo add(DataExportOccurrence occurrence, Thesaurus thesaurus, TimeService timeService, PropertyUtils propertyUtils) {
+    private DataExportTaskHistoryInfo add(DataExportOccurrence occurrence, Thesaurus thesaurus, TimeService timeService, PropertyUtils propertyUtils) {
         DataExportTaskHistoryInfo result = new DataExportTaskHistoryInfo(occurrence, thesaurus, timeService, propertyUtils);
         data.add(result);
         total++;

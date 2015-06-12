@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class DataSelectorInfo {
+public class StandardDataSelectorInfo {
 
     public long id;
     public MeterGroupInfo deviceGroup;
@@ -23,10 +23,10 @@ public class DataSelectorInfo {
     public ValidatedDataOption validatedDataOption;
     public List<ReadingTypeInfo> readingTypes = new ArrayList<>();
 
-    public DataSelectorInfo() {
+    public StandardDataSelectorInfo() {
     }
 
-    public DataSelectorInfo(ReadingTypeDataSelector selector, Thesaurus thesaurus) {
+    public StandardDataSelectorInfo(ReadingTypeDataSelector selector, Thesaurus thesaurus) {
         populate(selector, thesaurus);
 
         for (ReadingType readingType : selector.getReadingTypes()) {

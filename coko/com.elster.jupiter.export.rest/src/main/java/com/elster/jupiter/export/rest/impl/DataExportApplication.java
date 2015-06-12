@@ -94,7 +94,7 @@ public class DataExportApplication extends Application implements InstallService
 
     @Activate
     public void activate() {
-
+        System.out.println("activated");
     }
 
     @Deactivate
@@ -109,7 +109,7 @@ public class DataExportApplication extends Application implements InstallService
 
     @Override
     public List<String> getPrerequisiteModules() {
-        return Arrays.asList("ORM", "NLS", "DES");
+        return Arrays.asList("ORM", "NLS", "DES", "APS");
     }
 
     @Override

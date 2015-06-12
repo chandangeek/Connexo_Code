@@ -94,10 +94,10 @@ public class DataExportTaskHistoryInfo {
 
     private void populateForReadingTypeDataExportTask(ExportTask version, DataExportOccurrence dataExportOccurrence, Thesaurus thesaurus) {
         version.getReadingTypeDataSelector(dataExportOccurrence.getTriggerTime()).ifPresent(readingTypeDataSelector -> {
-            task.dataSelectorInfo = new DataSelectorInfo();
-            task.dataSelectorInfo.populate(readingTypeDataSelector, thesaurus);
+            task.standardDataSelector = new StandardDataSelectorInfo();
+            task.standardDataSelector.populate(readingTypeDataSelector, thesaurus);
             for (ReadingType readingType : readingTypeDataSelector.getReadingTypes(dataExportOccurrence.getTriggerTime())) {
-                task.dataSelectorInfo.readingTypes.add(new ReadingTypeInfo(readingType));
+                task.standardDataSelector.readingTypes.add(new ReadingTypeInfo(readingType));
             }
         });
     }
