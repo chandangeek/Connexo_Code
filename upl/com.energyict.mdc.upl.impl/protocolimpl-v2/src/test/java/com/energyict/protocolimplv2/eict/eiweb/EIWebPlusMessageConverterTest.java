@@ -2,7 +2,9 @@ package com.energyict.protocolimplv2.eict.eiweb;
 
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.TypedProperties;
-import com.energyict.mdc.messages.*;
+import com.energyict.mdc.messages.DeviceMessage;
+import com.energyict.mdc.messages.DeviceMessageAttributeImpl;
+import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdw.core.DataVaultProvider;
 import com.energyict.mdw.core.RandomProvider;
 import com.energyict.mdw.crypto.KeyStoreDataVaultProvider;
@@ -11,7 +13,11 @@ import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.mdw.offline.OfflineDeviceMessageAttribute;
 import com.energyict.mdw.offlineimpl.OfflineDeviceMessageAttributeImpl;
 import com.energyict.protocol.MessageEntry;
-import com.energyict.protocolimplv2.messages.*;
+import com.energyict.protocolimplv2.eict.rtuplusserver.eiwebplus.RtuServer;
+import com.energyict.protocolimplv2.messages.DeviceActionMessage;
+import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
+import com.energyict.protocolimplv2.messages.OutputConfigurationMessage;
+import com.energyict.protocolimplv2.messages.PLCConfigurationDeviceMessage;
 import com.energyict.protocolimplv2.messages.convertor.EIWebPlusMessageConverter;
 import com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator;
 import org.junit.Before;
@@ -20,7 +26,9 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
@@ -53,6 +61,12 @@ public class EIWebPlusMessageConverterTest {
     private OfflineDeviceMessage idisDiscoveryConfigurationMessage;
     @Mock
     private OfflineDeviceMessage idisRepeaterCallConfigurationMessage;
+    @Mock
+    private OfflineDeviceMessage IDISPhyConfigurationMessage;
+    @Mock
+    private OfflineDeviceMessage IDISWhitelistConfiguration;
+    @Mock
+    private OfflineDeviceMessage IDISRunAlarmDiscoveryCallNow;
 
     private ExtendedEIWebPlusMessageConverter converter;
 
@@ -66,6 +80,9 @@ public class EIWebPlusMessageConverterTest {
         upgradeBootloaderMessage = createMessage(FirmwareDeviceMessage.UpgradeBootloader);
         idisDiscoveryConfigurationMessage = createMessage(PLCConfigurationDeviceMessage.IDISDiscoveryConfiguration);
         idisRepeaterCallConfigurationMessage = createMessage(PLCConfigurationDeviceMessage.IDISRepeaterCallConfiguration);
+        IDISPhyConfigurationMessage = createMessage(PLCConfigurationDeviceMessage.IDISPhyConfiguration);
+        IDISWhitelistConfiguration = createMessage(PLCConfigurationDeviceMessage.IDISWhitelistConfiguration);
+        IDISRunAlarmDiscoveryCallNow = createMessage(PLCConfigurationDeviceMessage.IDISRunAlarmDiscoveryCallNow);
     }
 
     @Test
@@ -94,6 +111,15 @@ public class EIWebPlusMessageConverterTest {
         messageEntry = getMessageEntryCreator(idisRepeaterCallConfigurationMessage).createMessageEntry(null, idisRepeaterCallConfigurationMessage);
         assertEquals("<IDISRepeaterCallConfiguration><Interval (in minutes)>1</Interval (in minutes)><Reception threshold (dBV)>1</Reception threshold (dBV)><Number of timeslots for NEW systems>1</Number of timeslots for NEW systems></IDISRepeaterCallConfiguration>", messageEntry.getContent());
 
+        messageEntry = getMessageEntryCreator(IDISPhyConfigurationMessage).createMessageEntry(null, IDISPhyConfigurationMessage);
+        assertEquals("<IDISPhyConfiguration><Bit sync>1</Bit sync><Zero cross adjust>1</Zero cross adjust><TX gain>1</TX gain><RX gain>1</RX gain></IDISPhyConfiguration>", messageEntry.getContent());
+
+        messageEntry = getMessageEntryCreator(IDISWhitelistConfiguration).createMessageEntry(null, IDISWhitelistConfiguration);
+        assertEquals("<IDISWhitelistConfiguration><Enabled (true/false)>1</Enabled (true/false)><Group Name (the group containing the meters included in the whitelist)>1</Group Name (the group containing the meters included in the whitelist)></IDISWhitelistConfiguration>", messageEntry.getContent());
+
+        messageEntry = getMessageEntryCreator(IDISRunAlarmDiscoveryCallNow).createMessageEntry(null, IDISRunAlarmDiscoveryCallNow);
+        assertEquals("<IDISRunAlarmDiscoveryCallNow> </IDISRunAlarmDiscoveryCallNow>", messageEntry.getContent());
+
     }
 
     private ExtendedEIWebPlusMessageConverter getConverter() {
@@ -105,17 +131,6 @@ public class EIWebPlusMessageConverterTest {
 
     private MessageEntryCreator getMessageEntryCreator(OfflineDeviceMessage deviceMessage) {
         return getConverter().getRegistry().get(deviceMessage.getSpecification());
-    }
-
-    /**
-     * Make the registry of this converter public, only for test usage
-     */
-    private class ExtendedEIWebPlusMessageConverter extends EIWebPlusMessageConverter {
-
-        @Override
-        public Map<DeviceMessageSpec, MessageEntryCreator> getRegistry() {
-            return super.getRegistry();
-        }
     }
 
     private void mockProviders() {
@@ -135,7 +150,7 @@ public class EIWebPlusMessageConverterTest {
         for (PropertySpec propertySpec : messageSpec.getPropertySpecs()) {
             TypedProperties propertyStorage = TypedProperties.empty();
             propertyStorage.setProperty(propertySpec.getName(), "1");
-            attributes.add(new OfflineDeviceMessageAttributeImpl(new DeviceMessageAttributeImpl(propertySpec, deviceMessage, propertyStorage), new EIWeb()));
+            attributes.add(new OfflineDeviceMessageAttributeImpl(new DeviceMessageAttributeImpl(propertySpec, deviceMessage, propertyStorage), new RtuServer()));
         }
         when(message.getDeviceMessageAttributes()).thenReturn(attributes);
         when(message.getSpecification()).thenReturn(messageSpec);
@@ -146,5 +161,16 @@ public class EIWebPlusMessageConverterTest {
         OfflineDeviceMessage mock = mock(OfflineDeviceMessage.class);
         when(mock.getTrackingId()).thenReturn("");
         return mock;
+    }
+
+    /**
+     * Make the registry of this converter public, only for test usage
+     */
+    private class ExtendedEIWebPlusMessageConverter extends EIWebPlusMessageConverter {
+
+        @Override
+        public Map<DeviceMessageSpec, MessageEntryCreator> getRegistry() {
+            return super.getRegistry();
+        }
     }
 }

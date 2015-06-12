@@ -6,8 +6,13 @@ import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdw.core.UserFile;
 import com.energyict.protocolimplv2.messages.*;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiweb.SimpleEIWebMessageEntry;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiwebplus.*;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.*;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiwebplus.ForceMessageToFailedMessageEntry;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiwebplus.IDISDiscoveryConfigurationMessageEntry;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiwebplus.IDISRepeaterCallConfigurationMessageEntry;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.MultipleAttributeMessageEntry;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.MultipleInnerTagsMessageEntry;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.SimpleTagMessageEntry;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.SimpleValueMessageEntry;
 
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
@@ -66,6 +71,13 @@ public class EIWebPlusMessageConverter extends AbstractMessageConverter {
         //IDIS stuff
         registry.put(PLCConfigurationDeviceMessage.IDISDiscoveryConfiguration, new IDISDiscoveryConfigurationMessageEntry());
         registry.put(PLCConfigurationDeviceMessage.IDISRepeaterCallConfiguration, new IDISRepeaterCallConfigurationMessageEntry());
+        registry.put(PLCConfigurationDeviceMessage.IDISRunRepeaterCallNow, new SimpleTagMessageEntry("IDISRunRepeaterCallNow"));
+        registry.put(PLCConfigurationDeviceMessage.IDISRunNewMeterDiscoveryCallNow, new SimpleTagMessageEntry("IDISRunNewMeterDiscoveryCallNow"));
+        registry.put(PLCConfigurationDeviceMessage.IDISRunAlarmDiscoveryCallNow, new SimpleTagMessageEntry("IDISRunAlarmDiscoveryCallNow"));
+        registry.put(PLCConfigurationDeviceMessage.IDISWhitelistConfiguration, new MultipleInnerTagsMessageEntry("IDISWhitelistConfiguration", "Enabled (true/false)", "Group Name (the group containing the meters included in the whitelist)"));
+        registry.put(PLCConfigurationDeviceMessage.IDISOperatingWindowConfiguration, new MultipleInnerTagsMessageEntry("IDISOperatingWindowConfiguration", "Enabled (true/false)", "Start time (MM:SS) (GMT)", "End time (MM:SS) (GMT)"));
+        registry.put(PLCConfigurationDeviceMessage.IDISPhyConfiguration, new MultipleInnerTagsMessageEntry("IDISPhyConfiguration", "Bit sync", "Zero cross adjust", "TX gain", "RX gain"));
+        registry.put(PLCConfigurationDeviceMessage.IDISCreditManagementConfiguration, new MultipleInnerTagsMessageEntry("IDISCreditManagementConfiguration", "Add credit", "Min credit"));
 
         //Logging
         registry.put(LoggingConfigurationDeviceMessage.DownloadFile, new SimpleValueMessageEntry("DownloadFile"));

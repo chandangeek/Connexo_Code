@@ -158,7 +158,30 @@ public enum PLCConfigurationDeviceMessage implements DeviceMessageSpec {
     SetMaxInactiveMeterTime(60, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.maxInactiveMeterTime)),
     SetKeepAliveRetries(61, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.KeepAliveRetries)),
     SetKeepAliveTimeout(62, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.KeepAliveTimeout)),
-    EnableG3PLCInterface(63, PropertySpecFactory.booleanPropertySpec(DeviceMessageConstants.enablePLC));
+    EnableG3PLCInterface(63, PropertySpecFactory.booleanPropertySpec(DeviceMessageConstants.enablePLC)),
+    IDISRunRepeaterCallNow(64),
+    IDISRunNewMeterDiscoveryCallNow(65),
+    IDISRunAlarmDiscoveryCallNow(66),
+    IDISWhitelistConfiguration(67,
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.enabled),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.groupName)
+    ),
+    IDISOperatingWindowConfiguration(68,
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.enabled),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.startTime),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.endTime)
+    ),
+    IDISPhyConfiguration(69,
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.bitSync),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.zeroCrossAdjust),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.txGain),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.rxGain)
+    ),
+    IDISCreditManagementConfiguration(70,
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.addCredit),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.minCredit)
+    );
+
 
     private static final DeviceMessageCategory category = DeviceMessageCategories.PLC_CONFIGURATION;
 

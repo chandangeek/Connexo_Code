@@ -539,6 +539,13 @@ public class DeviceMessageConstants {
     public static final String KeepAliveRetries = "PLCConfigurationDeviceMessage.keepAliveRetries";
     public static final String KeepAliveTimeout = "PLCConfigurationDeviceMessage.keepAliveTimeout";
 
+    public static final String groupName = "PLCConfigurationDeviceMessage.groupName";
+    public static final String bitSync = "PLCConfigurationDeviceMessage.bitSync";
+    public static final String zeroCrossAdjust = "PLCConfigurationDeviceMessage.zeroCrossAdjust";
+    public static final String txGain = "PLCConfigurationDeviceMessage.txGain";
+    public static final String rxGain = "PLCConfigurationDeviceMessage.rxGain";
+    public static final String addCredit = "PLCConfigurationDeviceMessage.addCredit";
+    public static final String minCredit = "PLCConfigurationDeviceMessage.minCredit";
 
     public static final String interval = "interval";
     public static final String duration = "duration";
@@ -548,6 +555,7 @@ public class DeviceMessageConstants {
     public static final String startTime = "startTime";
     public static final String macAddress = "macAddress";
     public static final String output = "output";
+    public static final String enabled = "enabled";
     public static final String outputId = "OutputConfigurationMessage.outputId";
     public static final String newState = "OutputConfigurationMessage.newState";
 
