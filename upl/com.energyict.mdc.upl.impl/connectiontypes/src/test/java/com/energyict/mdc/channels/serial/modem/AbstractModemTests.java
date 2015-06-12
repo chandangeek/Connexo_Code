@@ -17,7 +17,9 @@ public class AbstractModemTests {
 
     protected static final String RUBBISH_FOR_FLUSH = "rubbishForFlush";
     protected static final String PHONE_NUMBER = "00123456789";
-    protected static final int COMMAND_TIMEOUT_VALUE = 500;
+    protected static final int COMMAND_TIMEOUT_VALUE = 2000;
+    protected static final int TEST_TIMEOUT_MILLIS = 10000;
+    protected static final int TEST_LONG_TIMEOUT_MILLIS = 20000;
     protected final List<String> OK_LIST = Arrays.asList(RUBBISH_FOR_FLUSH, "OK", "OK", "OK", "CONNECT 9600", "OK", "OK");
 
     protected final String comPortName = "blabla";

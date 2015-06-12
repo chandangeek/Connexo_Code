@@ -44,7 +44,6 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class SioCaseModemConnectionTypeTest extends AbstractModemTests{
 
-    private static final int TEST_TIMEOUT_MILLIS = 5000;
     private static final int DTR_TOGGLE_DELAY_VALUE = 100;
 
     private final List<String> OK_LIST = Arrays.asList(RUBBISH_FOR_FLUSH, "ECHO OFF", "DTR NORMAL", "ERROR CORRECTING MODE", "LINK ESTABLISHED");

@@ -51,8 +51,6 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class SioAtModemConnectionTypeTest extends AbstractModemTests{
 
-    private static final int TEST_TIMEOUT_MILLIS = 5000;
-
     @Mock
     private ServerManager manager;
     @Mock
@@ -212,7 +210,7 @@ public class SioAtModemConnectionTypeTest extends AbstractModemTests{
         }
     }
 
-    @Test(timeout = 10000, expected = ConnectionException.class)
+    @Test(timeout = TEST_LONG_TIMEOUT_MILLIS, expected = ConnectionException.class)
     public void testRetriesExceededForHangUp() throws Exception {
         TimeoutSerialComChannel comChannel = getTimeoutSerialComChannel(COMMAND_TIMEOUT_VALUE + 10);
         comChannel.setResponses(Arrays.asList(RUBBISH_FOR_FLUSH, "First_Not_CorrectAnswer", "Second_Not_CorrectAnswer", "Third_Not_CorrectAnswer"));

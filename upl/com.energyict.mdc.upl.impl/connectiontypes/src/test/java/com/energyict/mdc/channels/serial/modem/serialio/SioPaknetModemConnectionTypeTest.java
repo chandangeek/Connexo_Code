@@ -44,7 +44,6 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class SioPaknetModemConnectionTypeTest extends AbstractModemTests {
 
-    private static final int TEST_TIMEOUT_MILLIS = 5000;
     private static final int DTR_TOGGLE_DELAY_VALUE = 100;
 
     protected final List<String> OK_LIST = Arrays.asList(RUBBISH_FOR_FLUSH, "\r\n*\r\n", "\r\n*\r\n", "\r\nXX COM\r\nYY\r\n");

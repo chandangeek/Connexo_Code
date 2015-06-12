@@ -42,11 +42,15 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class SioPEMPModemConnectionTypeTest extends AbstractModemTests{
 
-    private static final int TEST_TIMEOUT_MILLIS = 8000;
     private static final int DTR_TOGGLE_DELAY_VALUE = 100;
     private static final String MODEM_CONFIGURATION_KEY = PEMPModemConfiguration.WWS.getKey();
 
-    protected final List<String> OK_LIST = Arrays.asList(RUBBISH_FOR_FLUSH, "\r\n*\r\n", "\r\nFENS\r\n", "\r\nXX COM\r\nYY\r\n");
+    protected final List<String> OK_LIST = Arrays.asList(
+            RUBBISH_FOR_FLUSH,
+            "\r\n*\r\n",
+            "\r\nFENS\r\n", "\r\nFENS\r\n", "\r\nFENS\r\n", "\r\nFENS\r\n",
+            "\r\nXX COM\r\nYY\r\n"
+    );
 
     @Mock
     private ServerManager manager;
@@ -105,7 +109,7 @@ public class SioPEMPModemConnectionTypeTest extends AbstractModemTests{
         return comPort;
     }
 
-    @Test(timeout = TEST_TIMEOUT_MILLIS, expected = ConnectionException.class)
+    @Test(timeout = TEST_LONG_TIMEOUT_MILLIS, expected = ConnectionException.class)
     public void testInitializePEMPCommandStateFails() throws Exception {
         PEMPModemComponent modemComponent = new PEMPModemComponent(new TypedPEMPModemProperties(getProperProperties()));
         when(this.serialComponentFactory.newPEMPModemComponent(any(AbstractPEMPModemProperties.class))).thenReturn(modemComponent);
@@ -189,7 +193,7 @@ public class SioPEMPModemConnectionTypeTest extends AbstractModemTests{
     @Test(timeout = TEST_TIMEOUT_MILLIS)
     public void verifyConnectSuccessAfterRetry() throws Exception {
         AbstractModemTests.TestableSerialComChannel comChannel = getTestableComChannel();
-        comChannel.setResponses(Arrays.asList(RUBBISH_FOR_FLUSH, "\r\n*\r\n", "\r\nFENS\r\n", "RUBBISH", "\r\nXX COM\r\nYY\r\n"));
+        comChannel.setResponses(Arrays.asList(RUBBISH_FOR_FLUSH, "\r\n*\r\n", "\r\nFENS\r\n", "\r\nFENS\r\n", "\r\nFENS\r\n", "\r\nFENS\r\n", "RUBBISH", "\r\nXX COM\r\nYY\r\n"));
         SioSerialPort sioSerialPort = mock(SioSerialPort.class);
         ComPort comPort = getProperlyMockedComPort(comChannel, sioSerialPort);
 
