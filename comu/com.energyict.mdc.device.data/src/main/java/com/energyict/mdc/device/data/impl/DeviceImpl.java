@@ -22,6 +22,7 @@ import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceEstimation;
+import com.energyict.mdc.device.data.DeviceLifeCycleChangeEvent;
 import com.energyict.mdc.device.data.DeviceProtocolProperty;
 import com.energyict.mdc.device.data.DeviceValidation;
 import com.energyict.mdc.device.data.LoadProfile;
@@ -83,6 +84,7 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.fsm.StateTimeSlice;
 import com.elster.jupiter.fsm.StateTimeline;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
@@ -146,9 +148,11 @@ import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -273,6 +277,7 @@ public class DeviceImpl implements Device, CanLock {
     }
 
     DeviceImpl initialize(DeviceConfiguration deviceConfiguration, String name, String mRID) {
+        this.createTime = this.clock.instant();
         this.deviceConfiguration.set(deviceConfiguration);
         this.setDeviceTypeFromDeviceConfiguration();
         setName(name);
@@ -1789,8 +1794,61 @@ public class DeviceImpl implements Device, CanLock {
     }
 
     @Override
+    public List<DeviceLifeCycleChangeEvent> getDeviceLifeCycleChangeEvents() {
+        // Merge the StateTimeline with the list of change events from my DeviceType.
+        Deque<StateTimeSlice> stateTimeSlices = new LinkedList<>(this.getStateTimeline().getSlices());
+        Deque<com.energyict.mdc.device.config.DeviceLifeCycleChangeEvent> deviceTypeChangeEvents = new LinkedList<>(this.getDeviceTypeLifeCycleChangeEvents());
+        List<DeviceLifeCycleChangeEvent> changeEvents = new ArrayList<>();
+        boolean ready;
+        do {
+            DeviceLifeCycleChangeEvent newEvent = this.newEventForMostRecent(stateTimeSlices, deviceTypeChangeEvents);
+            changeEvents.add(newEvent);
+            ready = stateTimeSlices.isEmpty() && deviceTypeChangeEvents.isEmpty();
+        } while (!ready);
+        return changeEvents;
+    }
+
+    private List<com.energyict.mdc.device.config.DeviceLifeCycleChangeEvent> getDeviceTypeLifeCycleChangeEvents() {
+        return this.getDeviceType()
+                .getDeviceLifeCycleChangeEvents()
+                .stream()
+                .filter(each -> each.getTimestamp().isAfter(this.createTime))
+                .collect(Collectors.toList());
+    }
+
+    private DeviceLifeCycleChangeEvent newEventForMostRecent(Deque<StateTimeSlice> stateTimeSlices, Deque<com.energyict.mdc.device.config.DeviceLifeCycleChangeEvent> deviceTypeChangeEvents) {
+        if (stateTimeSlices.isEmpty()) {
+            return DeviceLifeCycleChangeEventImpl.from(deviceTypeChangeEvents.removeFirst());
+        }
+        else if (deviceTypeChangeEvents.isEmpty()) {
+            return DeviceLifeCycleChangeEventImpl.from(stateTimeSlices.removeFirst());
+        }
+        else {
+            // Compare both timestamps and create event from the most recent one
+            StateTimeSlice stateTimeSlice = stateTimeSlices.peekFirst();
+            com.energyict.mdc.device.config.DeviceLifeCycleChangeEvent deviceLifeCycleChangeEvent = deviceTypeChangeEvents.peekFirst();
+            if (stateTimeSlice.getPeriod().lowerEndpoint().equals(deviceLifeCycleChangeEvent.getTimestamp())) {
+                // Give precedence to the device life cycle change but also consume the state change so the latter is ignored
+                stateTimeSlices.removeFirst();
+                return DeviceLifeCycleChangeEventImpl.from(deviceTypeChangeEvents.removeFirst());
+            }
+            else if (stateTimeSlice.getPeriod().lowerEndpoint().isBefore(deviceLifeCycleChangeEvent.getTimestamp())) {
+                return DeviceLifeCycleChangeEventImpl.from(stateTimeSlices.removeFirst());
+            }
+            else {
+                return DeviceLifeCycleChangeEventImpl.from(deviceTypeChangeEvents.removeFirst());
+            }
+        }
+    }
+
+    @Override
     public long getVersion() {
         return version;
+    }
+    
+    @Override
+    public Instant getCreateTime() {
+        return createTime;
     }
 
     private class InternalDeviceMessageBuilder implements DeviceMessageBuilder{

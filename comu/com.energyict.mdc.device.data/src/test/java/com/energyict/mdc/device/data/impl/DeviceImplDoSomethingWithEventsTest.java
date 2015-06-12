@@ -1,43 +1,5 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
-import com.energyict.mdc.device.data.CommunicationTaskService;
-import com.energyict.mdc.device.data.ConnectionTaskService;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.LoadProfileService;
-import com.energyict.mdc.device.data.LogBookService;
-import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiServiceImpl;
-import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
-import com.energyict.mdc.device.data.impl.security.SecurityPropertyServiceImpl;
-import com.energyict.mdc.device.data.impl.tasks.CommunicationTaskServiceImpl;
-import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskServiceImpl;
-import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
-import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
-import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
-import com.energyict.mdc.dynamic.relation.RelationService;
-import com.energyict.mdc.engine.config.EngineConfigurationService;
-import com.energyict.mdc.engine.config.impl.EngineModelModule;
-import com.energyict.mdc.io.impl.MdcIOModule;
-import com.energyict.mdc.issues.impl.IssuesModule;
-import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.masterdata.impl.MasterDataModule;
-import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
-import com.energyict.mdc.pluggable.impl.PluggableModule;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
-import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
-import com.energyict.mdc.protocol.api.services.IdentificationService;
-import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
-import com.energyict.mdc.scheduling.SchedulingModule;
-import com.energyict.mdc.scheduling.SchedulingService;
-import com.energyict.mdc.tasks.impl.TasksModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
@@ -81,19 +43,62 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
-import com.elster.jupiter.util.beans.BeanService;
-import com.elster.jupiter.util.beans.impl.BeanServiceImpl;
-import com.elster.jupiter.util.cron.CronExpressionParser;
-import com.elster.jupiter.util.json.JsonService;
-import com.elster.jupiter.util.json.impl.JsonServiceImpl;
+import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
+import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
+import com.energyict.mdc.device.data.CommunicationTaskService;
+import com.energyict.mdc.device.data.ConnectionTaskService;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.LoadProfileService;
+import com.energyict.mdc.device.data.LogBookService;
+import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiServiceImpl;
+import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
+import com.energyict.mdc.device.data.impl.security.SecurityPropertyServiceImpl;
+import com.energyict.mdc.device.data.impl.tasks.CommunicationTaskServiceImpl;
+import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskServiceImpl;
+import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
+import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
+import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
+import com.energyict.mdc.dynamic.relation.RelationService;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.engine.config.impl.EngineModelModule;
+import com.energyict.mdc.io.impl.MdcIOModule;
+import com.energyict.mdc.issues.impl.IssuesModule;
+import com.energyict.mdc.masterdata.MasterDataService;
+import com.energyict.mdc.masterdata.impl.MasterDataModule;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
+import com.energyict.mdc.pluggable.impl.PluggableModule;
+import com.energyict.mdc.protocol.api.DeviceProtocol;
+import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
+import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
+import com.energyict.mdc.scheduling.SchedulingModule;
+import com.energyict.mdc.scheduling.SchedulingService;
+import com.energyict.mdc.tasks.impl.TasksModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Provider;
 import com.google.inject.Scopes;
-
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.log.LogService;
@@ -104,21 +109,8 @@ import java.time.Clock;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.*;
-import org.junit.rules.*;
-import org.junit.runner.*;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Copyrights EnergyICT
@@ -266,6 +258,7 @@ public class DeviceImplDoSomethingWithEventsTest {
                     new EventsModule(),
                     new NlsModule(),
                     new DomainUtilModule(),
+                    new UtilModule(clock),
                     new PartyModule(),
                     new UserModule(),
                     new IdsModule(),
@@ -378,13 +371,9 @@ public class DeviceImplDoSomethingWithEventsTest {
             @Override
             protected void configure() {
                 bind(com.elster.jupiter.issue.share.service.IssueService.class).toInstance(mock(com.elster.jupiter.issue.share.service.IssueService.class));
-                bind(JsonService.class).toInstance(new JsonServiceImpl());
-                bind(BeanService.class).toInstance(new BeanServiceImpl());
-                bind(Clock.class).toInstance(clock);
                 bind(EventAdmin.class).toInstance(eventAdmin);
                 bind(BundleContext.class).toInstance(bundleContext);
                 bind(LicenseService.class).toInstance(licenseService);
-                bind(CronExpressionParser.class).toInstance(mock(CronExpressionParser.class, RETURNS_DEEP_STUBS));
                 bind(LogService.class).toInstance(mock(LogService.class));
 
                 bind(SecurityPropertyService.class).to(SecurityPropertyServiceImpl.class).in(Scopes.SINGLETON);

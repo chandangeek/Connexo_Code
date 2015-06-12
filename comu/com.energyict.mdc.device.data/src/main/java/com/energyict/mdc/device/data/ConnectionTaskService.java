@@ -17,6 +17,7 @@ import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 
 import java.time.Instant;
@@ -36,10 +37,16 @@ public interface ConnectionTaskService {
 
     public String FILTER_ITEMIZER_QUEUE_DESTINATION = "ItemizeConnFilterQD";
     public String FILTER_ITEMIZER_QUEUE_SUBSCRIBER = "ItemizeConnFilterQS";
-    public String FILTER_ITEMIZER_QUEUE_DISPLAYNAME = "Itemize connections from filter";
+    public String FILTER_ITEMIZER_QUEUE_DISPLAYNAME = "Itemize connection rescheduling from filter";
     public String CONNECTION_RESCHEDULER_QUEUE_DESTINATION = "ReschConnQD";
     public String CONNECTION_RESCHEDULER_QUEUE_SUBSCRIBER = "ReschConnQS";
-    public String CONNECTION_RESCHEDULER_QUEUE_DISPLAYNAME = "Reschedule connection message handler";
+    public String CONNECTION_RESCHEDULER_QUEUE_DISPLAYNAME = "Handle connection rescheduling";
+    public String FILTER_ITEMIZER_PROPERTIES_QUEUE_DESTINATION = "ItemizeConnPropFilterQD";
+    public String FILTER_ITEMIZER_PROPERTIES_QUEUE_SUBSCRIBER = "ItemizeConnPropFilterQS";
+    public String FILTER_ITEMIZER_PROPERTIES_QUEUE_DISPLAYNAME = "Itemize connection property updates from filter";
+    public String CONNECTION_PROP_UPDATER_QUEUE_DESTINATION = "PropUpConnQD";
+    public String CONNECTION_PROP_UPDATER_QUEUE_SUBSCRIBER = "PropUpConnQS";
+    public String CONNECTION_PROP_UPDATER_QUEUE_DISPLAYNAME = "Handle connection property updates";
 
     public Optional<ConnectionTask> findConnectionTask(long id);
 
@@ -208,6 +215,15 @@ public interface ConnectionTaskService {
      * @return The List of ConnectionTask
      */
     public List<ConnectionTask> findConnectionTasksByFilter(ConnectionTaskFilterSpecification filter, int pageStart, int pageSize);
+
+
+    /**
+     * Finds all {@link ConnectionType}s that match the specified filter.
+     *
+     * @param filter    The ConnectionTaskFilter
+     * @return The List of ConnectionTypes
+     */
+    public List<ConnectionTypePluggableClass> findConnectionTypeByFilter(ConnectionTaskFilterSpecification filter);
 
     /**
      * Sets the specified {@link ConnectionTask} as the default for the Device

@@ -1,20 +1,11 @@
-package com.energyict.mdc.device.data.impl.messagehandlers;
+package com.energyict.mdc.device.data;
 
-import com.elster.jupiter.messaging.DestinationSpec;
-import com.elster.jupiter.messaging.Message;
-import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.data.ConnectionTaskService;
-import com.energyict.mdc.device.data.QueueMessage;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskFilterSpecification;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskFilterSpecificationMessage;
-import com.energyict.mdc.device.data.tasks.ConnectionTaskQueueMessage;
-import com.energyict.mdc.device.data.tasks.ItemizeConnectionFilterQueueMessage;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.engine.config.ComPortPool;
@@ -22,65 +13,32 @@ import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import java.util.EnumSet;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
+import javax.inject.Inject;
 
 import static com.elster.jupiter.util.streams.Functions.asStream;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
 /**
- * This message handler will trigger connections to rerun. Supports both a group of connections identified by a filter and an exhaustive list
- * Created by bvn on 3/25/15.
+ * Created by bvn on 4/15/15.
  */
-public class ConnectionFilterItimizerMessageHandler implements MessageHandler {
+public class FilterFactory {
 
-    private ConnectionTaskService connectionTaskService;
-    private EngineConfigurationService engineConfigurationService;
-    private ProtocolPluggableService protocolPluggableService;
-    private DeviceConfigurationService deviceConfigurationService;
-    private MeteringGroupsService meteringGroupsService;
-    private MessageService messageService;
-    private JsonService jsonService;
+    private final EngineConfigurationService engineConfigurationService;
+    private final ProtocolPluggableService protocolPluggableService;
+    private final DeviceConfigurationService deviceConfigurationService;
+    private final MeteringGroupsService meteringGroupsService;
 
-    @Override
-    public void process(Message message) {
-        Optional<DestinationSpec> destinationSpec = messageService.getDestinationSpec(ConnectionTaskService.CONNECTION_RESCHEDULER_QUEUE_DESTINATION);
-        if (destinationSpec.isPresent()) {
-            ItemizeConnectionFilterQueueMessage filterQueueMessage = jsonService.deserialize(message.getPayload(), ItemizeConnectionFilterQueueMessage.class);
-            ConnectionTaskFilterSpecification connectionTaskFilterSpecification = buildFilterFromJsonQuery(filterQueueMessage.connectionTaskFilterSpecification);
-            List<ConnectionTask> connectionTasks = connectionTaskService.findConnectionTasksByFilter(connectionTaskFilterSpecification, 0, Integer.MAX_VALUE-1);
-            connectionTasks.stream().forEach(c -> processMessagePost(new ConnectionTaskQueueMessage(c.getId(), filterQueueMessage.action), destinationSpec.get()));
-        } else {
-            // LOG failure
-        }
-
-    }
-
-    private void processMessagePost(QueueMessage message, DestinationSpec destinationSpec) {
-        String json = jsonService.serialize(message);
-        destinationSpec.message(json).send();
-    }
-
-
-    @Override
-    public void onMessageDelete(Message message) {
-
-    }
-
-    public MessageHandler init(ConnectionTaskService connectionTaskService, EngineConfigurationService engineConfigurationService, ProtocolPluggableService protocolPluggableService, DeviceConfigurationService deviceConfigurationService, MeteringGroupsService meteringGroupsService, MessageService messageService, JsonService jsonService) {
-        this.connectionTaskService = connectionTaskService;
+    @Inject
+    public FilterFactory(EngineConfigurationService engineConfigurationService, ProtocolPluggableService protocolPluggableService, DeviceConfigurationService deviceConfigurationService, MeteringGroupsService meteringGroupsService) {
         this.engineConfigurationService = engineConfigurationService;
         this.protocolPluggableService = protocolPluggableService;
         this.deviceConfigurationService = deviceConfigurationService;
         this.meteringGroupsService = meteringGroupsService;
-        this.messageService = messageService;
-        this.jsonService = jsonService;
-        return this;
     }
 
-    private ConnectionTaskFilterSpecification buildFilterFromJsonQuery(ConnectionTaskFilterSpecificationMessage primitiveFilter) {
+    public ConnectionTaskFilterSpecification buildFilterFromMessage(ConnectionTaskFilterSpecificationMessage primitiveFilter) {
         ConnectionTaskFilterSpecification filter = new ConnectionTaskFilterSpecification();
         filter.taskStatuses = EnumSet.noneOf(TaskStatus.class);
         if (primitiveFilter.currentStates!=null) {
@@ -137,4 +95,6 @@ public class ConnectionFilterItimizerMessageHandler implements MessageHandler {
 
         return filter;
     }
+
+
 }

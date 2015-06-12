@@ -1,5 +1,27 @@
 package com.energyict.mdc.device.data.impl.security;
 
+import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.datavault.impl.DataVaultModule;
+import com.elster.jupiter.domain.util.impl.DomainUtilModule;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.license.License;
+import com.elster.jupiter.license.LicenseService;
+import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.impl.NlsModule;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.impl.OrmModule;
+import com.elster.jupiter.orm.impl.OrmServiceImpl;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.StringFactory;
+import com.elster.jupiter.properties.impl.BasicPropertiesModule;
+import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.transaction.TransactionContext;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.util.UtilModule;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.TypedProperties;
@@ -32,36 +54,15 @@ import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.SecurityPropertySetRelationAttributeTypeNames;
-
-import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
-import com.elster.jupiter.datavault.impl.DataVaultModule;
-import com.elster.jupiter.domain.util.impl.DomainUtilModule;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.events.impl.EventsModule;
-import com.elster.jupiter.license.License;
-import com.elster.jupiter.license.LicenseService;
-import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.impl.NlsModule;
-import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.impl.OrmModule;
-import com.elster.jupiter.orm.impl.OrmServiceImpl;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.StringFactory;
-import com.elster.jupiter.properties.impl.BasicPropertiesModule;
-import com.elster.jupiter.pubsub.impl.PubSubModule;
-import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
-import com.elster.jupiter.transaction.TransactionContext;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.transaction.impl.TransactionModule;
-import com.elster.jupiter.util.beans.BeanService;
-import com.elster.jupiter.util.beans.impl.BeanServiceImpl;
-import com.elster.jupiter.util.json.JsonService;
-import com.elster.jupiter.util.json.impl.JsonServiceImpl;
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
@@ -77,18 +78,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.*;
-import org.junit.runner.*;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests the {@link SecurityPropertyServiceImpl} component.
@@ -422,9 +416,6 @@ public class SecurityPropertyServiceImplTest {
                     new AbstractModule() {
                         @Override
                         protected void configure() {
-                            bind(JsonService.class).toInstance(new JsonServiceImpl());
-                            bind(BeanService.class).toInstance(new BeanServiceImpl());
-                            bind(Clock.class).toInstance(clock);
                             bind(EventAdmin.class).toInstance(eventAdmin);
                             bind(LicenseService.class).toInstance(licenseService);
                             bind(BundleContext.class).toInstance(bundleContext);
@@ -441,6 +432,7 @@ public class SecurityPropertyServiceImplTest {
                         }
                     },
                     this.bootstrapModule,
+                    new UtilModule(clock),
                     new ThreadSecurityModule(this.principal),
                     new EventsModule(),
                     new PubSubModule(),

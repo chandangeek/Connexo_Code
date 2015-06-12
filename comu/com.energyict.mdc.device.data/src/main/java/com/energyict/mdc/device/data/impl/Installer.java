@@ -44,12 +44,10 @@ public class Installer {
     public static final String COMSCHEDULE_BACKGROUND_OBSOLETION_MESSAGING_DISPLAYNAME = "Handle obsolete communication schedules";
     private static final int DEFAULT_RETRY_DELAY_IN_SECONDS = 60;
 
-    private static final int KPI_CALCULATOR_TASK_RETRY_DELAY = 60;
     private final DataModel dataModel;
     private final EventService eventService;
     private final MessageService messageService;
     private final UserService userService;
-    private final Logger logger = Logger.getLogger(Installer.class.getName());
     private final Thesaurus thesaurus;
 
     public Installer(DataModel dataModel, EventService eventService, MessageService messageService, UserService userService, Thesaurus thesaurus) {
@@ -66,12 +64,12 @@ public class Installer {
         try {
             this.dataModel.install(executeDdl, true);
         } catch (Exception e) {
-            this.logger.log(Level.SEVERE, e.getMessage(), e);
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
         try {
             this.createPrivileges();
         } catch (Exception e) {
-            this.logger.severe(e.getMessage());
+            LOGGER.severe(e.getMessage());
         }
         this.createEventTypes();
         this.createMessageHandlers();
@@ -88,6 +86,12 @@ public class Installer {
         addTranslation(DeviceDataServices.COMPONENT_NAME, ComTaskEnablementConnectionMessageHandlerFactory.SUBSCRIBER_NAME, ComTaskEnablementConnectionMessageHandlerFactory.SUBSCRIBER_DISPLAYNAME);
         addTranslation(DeviceDataServices.COMPONENT_NAME, ComTaskEnablementPriorityMessageHandlerFactory.SUBSCRIBER_NAME, ComTaskEnablementPriorityMessageHandlerFactory.SUBSCRIBER_DISPLAYNAME);
         addTranslation(DeviceDataServices.COMPONENT_NAME, ComTaskEnablementStatusMessageHandlerFactory.SUBSCRIBER_NAME, ComTaskEnablementStatusMessageHandlerFactory.SUBSCRIBER_DISPLAYNAME);
+        addTranslation(DeviceDataServices.COMPONENT_NAME, CommunicationTaskService.COMMUNICATION_RESCHEDULER_QUEUE_SUBSCRIBER, CommunicationTaskService.COMMUNICATION_RESCHEDULER_QUEUE_DISPLAYNAME);
+        addTranslation(DeviceDataServices.COMPONENT_NAME, CommunicationTaskService.FILTER_ITEMIZER_QUEUE_SUBSCRIBER, CommunicationTaskService.FILTER_ITEMIZER_QUEUE_DISPLAYNAME);
+        addTranslation(DeviceDataServices.COMPONENT_NAME, ConnectionTaskService.CONNECTION_RESCHEDULER_QUEUE_SUBSCRIBER, ConnectionTaskService.CONNECTION_RESCHEDULER_QUEUE_DISPLAYNAME);
+        addTranslation(DeviceDataServices.COMPONENT_NAME, ConnectionTaskService.FILTER_ITEMIZER_QUEUE_SUBSCRIBER, ConnectionTaskService.FILTER_ITEMIZER_QUEUE_DISPLAYNAME);
+        addTranslation(DeviceDataServices.COMPONENT_NAME, ConnectionTaskService.CONNECTION_PROP_UPDATER_QUEUE_SUBSCRIBER, ConnectionTaskService.CONNECTION_PROP_UPDATER_QUEUE_DISPLAYNAME);
+        addTranslation(DeviceDataServices.COMPONENT_NAME, ConnectionTaskService.FILTER_ITEMIZER_PROPERTIES_QUEUE_SUBSCRIBER, ConnectionTaskService.FILTER_ITEMIZER_PROPERTIES_QUEUE_DISPLAYNAME);
     }
 
     private void addJupiterEventSubscribers() {
@@ -131,10 +135,12 @@ public class Installer {
             this.createMessageHandler(defaultQueueTableSpec, COMSCHEDULE_BACKGROUND_OBSOLETION_MESSAGING_NAME);
             this.createMessageHandler(defaultQueueTableSpec, ConnectionTaskService.FILTER_ITEMIZER_QUEUE_DESTINATION, ConnectionTaskService.FILTER_ITEMIZER_QUEUE_SUBSCRIBER);
             this.createMessageHandler(defaultQueueTableSpec, ConnectionTaskService.CONNECTION_RESCHEDULER_QUEUE_DESTINATION, ConnectionTaskService.CONNECTION_RESCHEDULER_QUEUE_SUBSCRIBER);
+            this.createMessageHandler(defaultQueueTableSpec, ConnectionTaskService.FILTER_ITEMIZER_PROPERTIES_QUEUE_DESTINATION, ConnectionTaskService.FILTER_ITEMIZER_PROPERTIES_QUEUE_SUBSCRIBER);
+            this.createMessageHandler(defaultQueueTableSpec, ConnectionTaskService.CONNECTION_PROP_UPDATER_QUEUE_DESTINATION, ConnectionTaskService.CONNECTION_PROP_UPDATER_QUEUE_SUBSCRIBER);
             this.createMessageHandler(defaultQueueTableSpec, CommunicationTaskService.FILTER_ITEMIZER_QUEUE_DESTINATION, CommunicationTaskService.FILTER_ITEMIZER_QUEUE_SUBSCRIBER);
             this.createMessageHandler(defaultQueueTableSpec, CommunicationTaskService.COMMUNICATION_RESCHEDULER_QUEUE_DESTINATION, CommunicationTaskService.COMMUNICATION_RESCHEDULER_QUEUE_SUBSCRIBER);
         } catch (Exception e) {
-            this.logger.severe(e.getMessage());
+            LOGGER.severe(e.getMessage());
         }
     }
 
@@ -157,7 +163,7 @@ public class Installer {
                 }
             }
         } catch (Exception e) {
-            this.logger.severe(e.getMessage());
+            LOGGER.severe(e.getMessage());
         }
     }
 
@@ -170,7 +176,7 @@ public class Installer {
             try {
                 eventType.createIfNotExists(this.eventService);
             } catch (Exception e) {
-                this.logger.log(Level.SEVERE, e.getMessage(), e);
+                LOGGER.log(Level.SEVERE, e.getMessage(), e);
             }
         }
     }
