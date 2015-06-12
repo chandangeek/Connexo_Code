@@ -26,7 +26,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     PARAMETER_NAME_READING_TYPE(104, "ParameterNameReadingType", "CIM reading type", Level.INFO),
     PARAMETER_NAME_TREND_PERIOD(105, "ParameterNameTrendPeriod", "Trend period", Level.INFO),
     PARAMETER_NAME_TREND_PERIOD_UNIT(106, "ParameterNameTrendPeriodUnit", "Trend period units", Level.INFO),
-    PARAMETER_NAME_MAX_SLOPE_SUFFIX(107, "ParameterNameTrendPeriodUnitSuffix", "°C", Level.INFO),
+    PARAMETER_NAME_MAX_SLOPE_SUFFIX(107, "ParameterNameTrendPeriodUnitSuffix", "\u00B0C", Level.INFO),
     PARAMETER_NAME_READING_TYPE_DESCRIPTION(108, "ParameterNameReadingTypeDescription", "Provide the value for the 18 attributes of the CIM reading type. Separate each value with a \".\"", Level.INFO),
     PARAMETER_NAME_EVENT_TYPE(109, "ParameterNameEventType", "Event", Level.INFO),
     PARAMETER_NAME_THRESHOLD(110, "ParameterNameThreshold", "Threshold", Level.INFO),
