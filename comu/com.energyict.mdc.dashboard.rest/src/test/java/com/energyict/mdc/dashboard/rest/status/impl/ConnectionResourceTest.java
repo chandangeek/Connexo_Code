@@ -487,11 +487,10 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         PropertySpec hostName = mock(PropertySpec.class);
         when(hostName.getName()).thenReturn("hostName");
         when(hostName.getValueFactory()).thenReturn(new StringFactory());
-        PropertySpec portNumber = mock(PropertySpec.class);
-//        when(portNumber.getName()).thenReturn("portNumber");
-//        when(portNumber.getValueFactory()).thenReturn(new IntegerStringFactory());
         when(pluggableClass.getPropertySpecs()).thenReturn(Arrays.asList(hostName));
         when(pluggableClass.getJavaClassName()).thenReturn(name);
+        TypedProperties properties = TypedProperties.empty();
+        when(pluggableClass.getProperties(any())).thenReturn(properties);
         return pluggableClass;
     }
 
