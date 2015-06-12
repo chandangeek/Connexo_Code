@@ -44,6 +44,9 @@ Ext.define('Fwc.firmwarecampaigns.view.DevicesGrid', {
                         case 'configurationError':
                             iconCls = 'icon-notification';
                             break;
+                        case 'cancelled':
+                            iconCls = 'icon-stop2';
+                            break;
                     }
                     return value ? '<span class="' + iconCls + '"></span>' + value.name : '';
                 }
