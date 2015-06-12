@@ -9,6 +9,7 @@ import com.energyict.mdc.device.data.DeviceLifeCycleChangeEvent;
 import com.energyict.mdc.device.data.DeviceLifeCycleChangeEvent.Type;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
+import com.energyict.mdc.device.lifecycle.config.rest.impl.i18n.DefaultLifeCycleTranslationKey;
 import com.jayway.jsonpath.JsonModel;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,7 +38,7 @@ public class DeviceHistoryResourceTest extends DeviceDataRestApplicationJerseyTe
     public void setUp() throws Exception {
         super.setUp();
         when(thesaurus.getStringBeyondComponent(anyString(), anyString())).thenAnswer(invocationOnMock -> {
-            for (TranslationKey key : DefaultState.values()) {
+            for (TranslationKey key : DefaultLifeCycleTranslationKey.values()) {
                 if (key.getKey().equals(invocationOnMock.getArguments()[0])) {
                     return key.getDefaultFormat();
                 }

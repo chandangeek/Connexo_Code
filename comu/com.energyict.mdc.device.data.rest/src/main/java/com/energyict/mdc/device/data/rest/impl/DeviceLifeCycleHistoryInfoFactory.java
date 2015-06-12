@@ -80,7 +80,7 @@ public class DeviceLifeCycleHistoryInfoFactory {
     private String getStateName(State state) {
         Optional<DefaultState> defaultState = DefaultState.from(state);
         if (defaultState.isPresent()) {
-            return thesaurus.getStringBeyondComponent(defaultState.get().getKey(), defaultState.get().getDefaultFormat());
+            return thesaurus.getStringBeyondComponent(defaultState.get().getKey(), defaultState.get().getKey());
         } else {
             return state.getName();
         }
