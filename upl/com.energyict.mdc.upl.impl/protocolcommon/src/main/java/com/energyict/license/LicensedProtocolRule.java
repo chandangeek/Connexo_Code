@@ -292,6 +292,7 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     WEB_RTU_Z3_MBUS_DEVICE_V2(256, "com.energyict.protocolimplv2.eict.webrtuz3.MBusDevice", FamilyRule.EICT_Z3),
     WEB_RTU_Z3_EMETER_V2(257, "com.energyict.protocolimplv2.eict.webrtuz3.EMeter", FamilyRule.EICT_Z3),
     TRANSPARENT_GATEWAY(258, "com.energyict.protocolimplv2.eict.gateway.TransparentGateway"),
+    G3_AS330D_V2(259, "com.energyict.protocolimplv2.dlms.g3.AS330D", FamilyRule.G3_LINKY_DLMS),
 
     // Deprecated
     FERRANTI(10001, "com.energyict.protocolimpl.iec1107.ferranti.Ferranti"),

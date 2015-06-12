@@ -64,9 +64,9 @@ public class AS330D extends AbstractDlmsSessionProtocol {
     @Override
     protected void doInit() {
         this.clock = new G3Clock(getSession());
-        this.info = new G3DeviceInfo(getSession());
-        this.registerMapper = new G3RegisterMapper(this);
-        this.profile = new G3Profile(getSession(), getProperties().getProfileType(), cache);
+        this.info = new G3DeviceInfo(getSession().getCosemObjectFactory());
+        this.registerMapper = new G3RegisterMapper(getSession().getCosemObjectFactory(), getSession().getTimeZone(), getSession().getLogger());
+        this.profile = new G3Profile(getSession(), getProperties().getProfileType(), cache, "");
         this.events = new G3Events(getSession());
         initMessaging();
     }

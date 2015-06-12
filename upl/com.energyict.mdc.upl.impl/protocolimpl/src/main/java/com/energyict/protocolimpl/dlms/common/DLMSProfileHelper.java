@@ -4,11 +4,16 @@ import com.energyict.cbo.NestedIOException;
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.ParseUtils;
-import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.cosem.CapturedObject;
+import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.cosem.attributes.DemandRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.ExtendedRegisterAttributes;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.ProfileData;
 import com.energyict.protocolimpl.dlms.DLMSProfileIntervals;
 
 import java.io.IOException;
@@ -37,9 +42,19 @@ public class DLMSProfileHelper {
     private int statusMask = 2;       //By default, the second captured_object is the interval status
     private Logger logger = null;
     private TimeZone timeZone = null;
+    private CosemObjectFactory cosemObjectFactory;
+    private String serialNumber = "";
 
     protected void setSession(DlmsSession session) {
         this.session = session;
+    }
+
+    protected String getSerialNumber() {
+        return serialNumber;
+    }
+
+    protected void setSerialNumber(String serialNumber) {
+        this.serialNumber = serialNumber;
     }
 
     protected void setStatusMask(int statusMask) {
@@ -62,6 +77,10 @@ public class DLMSProfileHelper {
         return session;
     }
 
+    protected void setCosemObjectFactory(CosemObjectFactory cosemObjectFactory) {
+        this.cosemObjectFactory = cosemObjectFactory;
+    }
+
     protected void setCache(ProfileCache cache) {
         this.cache = cache;
     }
@@ -70,7 +89,7 @@ public class DLMSProfileHelper {
         this.obisCode = obisCode;
     }
 
-    protected List<ChannelInfo> getChannelInfos() {
+    public List<ChannelInfo> getChannelInfos() {
         return channelInfos;
     }
 
@@ -95,7 +114,7 @@ public class DLMSProfileHelper {
      */
     protected ProfileGeneric getProfileGeneric() throws IOException {
         if (profileGeneric == null) {
-            this.profileGeneric = getSession().getCosemObjectFactory().getProfileGeneric(obisCode);
+            this.profileGeneric = getCosemObjectFactory().getProfileGeneric(obisCode);
         }
         return profileGeneric;
     }
@@ -140,7 +159,7 @@ public class DLMSProfileHelper {
      * @throws java.io.IOException If there was an error while reading the channel info's the meter
      */
     protected void readChannelInfosFromDevice() throws IOException {
-        session.getLogger().info("Reading captured object from device for profile [" + obisCode + "].");
+        getLogger().info("Reading captured object from device for profile [" + obisCode + "].");
 
         this.channelInfos = new ArrayList<ChannelInfo>(getNumberOfChannels());
         List<CapturedObject> universalObjects = getProfileGeneric().getCaptureObjects();
@@ -150,7 +169,7 @@ public class DLMSProfileHelper {
                 ObisCode obis = capturedObject.getObisCode();
                 Unit unit = getUnit(capturedObject);
                 String name = obis.toString();
-                ChannelInfo channelInfo = new ChannelInfo(channelIndex++, name, unit);
+                ChannelInfo channelInfo = new ChannelInfo(channelIndex++, name, unit, getSerialNumber());
                 if (ParseUtils.isObisCodeCumulative(obis)) {
                     channelInfo.setCumulative();
                 }
@@ -206,12 +225,12 @@ public class DLMSProfileHelper {
         final int attr = capturedObject.getAttributeIndex();
         switch (classId) {
             case REGISTER: {
-                return session.getCosemObjectFactory().getRegister(obis).getScalerUnit().getEisUnit();
+                return getCosemObjectFactory().getRegister(obis).getScalerUnit().getEisUnit();
             }
 
             case EXTENDED_REGISTER: {
                 if (attr == ExtendedRegisterAttributes.VALUE.getAttributeNumber()) {
-                    return session.getCosemObjectFactory().getExtendedRegister(obis).getScalerUnit().getEisUnit();
+                    return getCosemObjectFactory().getExtendedRegister(obis).getScalerUnit().getEisUnit();
                 } else if (attr == ExtendedRegisterAttributes.CAPTURE_TIME.getAttributeNumber()) {
                     return Unit.get("ms");
                 }
@@ -220,9 +239,9 @@ public class DLMSProfileHelper {
 
             case DEMAND_REGISTER: {
                 if (attr == DemandRegisterAttributes.CURRENT_AVG_VALUE.getAttributeNumber()) {
-                    return session.getCosemObjectFactory().getDemandRegister(obis).getScalerUnit().getEisUnit();
+                    return getCosemObjectFactory().getDemandRegister(obis).getScalerUnit().getEisUnit();
                 } else if (attr == DemandRegisterAttributes.LAST_AVG_VALUE.getAttributeNumber()) {
-                    return session.getCosemObjectFactory().getDemandRegister(obis).getScalerUnit().getEisUnit();
+                    return getCosemObjectFactory().getDemandRegister(obis).getScalerUnit().getEisUnit();
                 } else if (attr == DemandRegisterAttributes.LAST_AVG_VALUE.getAttributeNumber()) {
                     return Unit.get("ms");
                 }
@@ -234,6 +253,13 @@ public class DLMSProfileHelper {
             }
 
         }
+    }
+
+    protected CosemObjectFactory getCosemObjectFactory() {
+        if (cosemObjectFactory == null) {
+            cosemObjectFactory = getSession().getCosemObjectFactory();
+        }
+        return cosemObjectFactory;
     }
 
     /**

@@ -5,6 +5,7 @@ import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.cosem.ExceptionResponseException;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.exceptions.ComServerExecutionException;
+import com.energyict.protocol.NotInObjectListException;
 import com.energyict.protocol.ProtocolException;
 import com.energyict.protocolimplv2.MdcManager;
 
@@ -59,6 +60,7 @@ public class IOExceptionHandler {
 
     /**
      * Indicates if the exception is a {@link DataAccessResultException} describing an object is not supported by the device
+     * or if it the object is not present in the object list.
      */
     public static boolean isNotSupportedDataAccessResultException(IOException e) {
         if (e instanceof DataAccessResultException) {
@@ -67,6 +69,8 @@ public class IOExceptionHandler {
                 case OBJECT_UNAVAILABLE:
                     return true;
             }
+        } else if (e instanceof NotInObjectListException) {
+            return true;
         }
         return false;
     }

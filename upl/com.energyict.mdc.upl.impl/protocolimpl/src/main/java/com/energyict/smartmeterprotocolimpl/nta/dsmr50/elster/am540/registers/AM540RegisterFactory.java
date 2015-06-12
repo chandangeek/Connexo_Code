@@ -77,7 +77,7 @@ public class AM540RegisterFactory extends DSMR40RegisterFactory {
                 Array executionTime = singleActionSchedule.getExecutionTime();
                 RegisterValue registerValue = new RegisterValue(register, parseExecutionTimeArrayToHumanReadableText(executionTime));                result.add(registerValue);
             } else if (obisCode.equals(BillingProfileObisCode)) {
-                DLMSStoredValues dlmsStoredValues = new DLMSStoredValues(protocol.getDlmsSession(), BillingProfileObisCode);
+                DLMSStoredValues dlmsStoredValues = new DLMSStoredValues(protocol.getDlmsSession().getCosemObjectFactory(), BillingProfileObisCode);
                 Date billingPointTimeDate = dlmsStoredValues.getBillingPointTimeDate(0);
                 RegisterValue registerValue = new RegisterValue(register, new Quantity(BigDecimal.valueOf(billingPointTimeDate.getTime()), Unit.get(BaseUnit.SECOND, -3)), null, null, new Date(), new Date(), -1, billingPointTimeDate.toString());
                 result.add(registerValue);

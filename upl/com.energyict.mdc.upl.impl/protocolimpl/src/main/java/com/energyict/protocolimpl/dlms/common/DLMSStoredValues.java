@@ -1,17 +1,8 @@
 package com.energyict.protocolimpl.dlms.common;
 
 import com.energyict.dlms.DataStructure;
-import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.OctetString;
-import com.energyict.dlms.cosem.CapturedObject;
-import com.energyict.dlms.cosem.Clock;
-import com.energyict.dlms.cosem.CosemObject;
-import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.dlms.cosem.ExtendedRegister;
-import com.energyict.dlms.cosem.HistoricalValue;
-import com.energyict.dlms.cosem.ProfileGeneric;
-import com.energyict.dlms.cosem.Register;
-import com.energyict.dlms.cosem.StoredValues;
+import com.energyict.dlms.cosem.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -31,20 +22,23 @@ import java.util.Map;
 public class DLMSStoredValues implements StoredValues {
 
     public static final ObisCode CLOCK_OBIS = ObisCode.fromString("0.0.1.0.0.255");
-
+    private final CosemObjectFactory cosemObjectFactory;
+    private final ObisCode profileObiscode;
     private ProfileGeneric profileGeneric;
-    private ObisCode profileObiscode;
     private DataStructure buffer;
-    protected DlmsSession session;
-
-    /** HashMap containing CosemObjects linked to their base ObisCode, used for caching purposes.
+    /**
+     * HashMap containing CosemObjects linked to their base ObisCode, used for caching purposes.
      * By using this map, we prevent we have to read out the ScalerUnit attribute of the same CosemObject multiple times
      **/
     private Map<ObisCode, CosemObject> cosemObjectMap = new HashMap<ObisCode, CosemObject>();
 
-    public DLMSStoredValues(DlmsSession session, ObisCode profileObisCode) {
+    public DLMSStoredValues(CosemObjectFactory cosemObjectFactory, ObisCode profileObisCode) {
         this.profileObiscode = profileObisCode;
-        this.session = session;
+        this.cosemObjectFactory = cosemObjectFactory;
+    }
+
+    protected CosemObjectFactory getCosemObjectFactory() {
+        return cosemObjectFactory;
     }
 
     public HistoricalValue getHistoricalValue(ObisCode obisCode) throws IOException {
@@ -65,19 +59,19 @@ public class DLMSStoredValues implements StoredValues {
         if (cao.getClassId() == Register.CLASSID) {
             Register register = (cosemObject != null)
                     ? (Register) cosemObject
-                    : getCosemObjectFactory().getRegister(baseObiscode);
+                    : cosemObjectFactory.getRegister(baseObiscode);
             cosemObjectMap.put(baseObiscode, register);
             register.setValue(intervalData.convert2Long(index));
             historicalValue.setCosemObject(register);
         } else if (cao.getClassId() == ExtendedRegister.CLASSID) {
             ExtendedRegister extendedRegister = (cosemObject != null)
                     ? (ExtendedRegister) cosemObject
-                    : getCosemObjectFactory().getExtendedRegister(baseObiscode);
+                    : cosemObjectFactory.getExtendedRegister(baseObiscode);
             cosemObjectMap.put(baseObiscode, extendedRegister);
             extendedRegister.setValue(intervalData.convert2Long(index));
             historicalValue.setCosemObject(extendedRegister);
 
-            Clock clock = new Clock(getCosemObjectFactory().getProtocolLink(), getCosemObjectFactory().getObjectReference(baseObiscode, 5));
+            Clock clock = new Clock(cosemObjectFactory.getProtocolLink(), cosemObjectFactory.getObjectReference(baseObiscode, 5));
             clock.setDateTime(intervalData.getOctetString(index + 1));
             historicalValue.setEventTime(clock.getDateTime());
         } else {
@@ -88,7 +82,7 @@ public class DLMSStoredValues implements StoredValues {
 
     public Date getBillingPointTimeDate(int billingPoint) throws IOException {
         DataStructure ds = (DataStructure) getBuffer().getElement(getReversedBillingPoint(billingPoint));
-        Clock clock = new Clock(getCosemObjectFactory().getProtocolLink(), getCosemObjectFactory().getObjectReference(CLOCK_OBIS));
+        Clock clock = new Clock(cosemObjectFactory.getProtocolLink(), cosemObjectFactory.getObjectReference(CLOCK_OBIS));
         clock.setDateTime((OctetString) ds.getElement(getCapturedObjectIndex(CLOCK_OBIS)));
         return clock.getDateTime();
     }
@@ -104,16 +98,12 @@ public class DLMSStoredValues implements StoredValues {
     public ProfileGeneric getProfileGeneric() {
         if (profileGeneric == null) {
             try {
-                profileGeneric = getCosemObjectFactory().getProfileGeneric(profileObiscode);
+                profileGeneric = cosemObjectFactory.getProfileGeneric(profileObiscode);
             } catch (IOException e) {
                 //Absorb exception
             }
         }
         return profileGeneric;
-    }
-
-    protected CosemObjectFactory getCosemObjectFactory() {
-        return session.getCosemObjectFactory();
     }
 
     private DataStructure getBuffer() throws IOException {

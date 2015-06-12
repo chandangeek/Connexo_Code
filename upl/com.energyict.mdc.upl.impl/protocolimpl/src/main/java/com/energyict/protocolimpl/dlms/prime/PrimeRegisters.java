@@ -1,19 +1,27 @@
 package com.energyict.protocolimpl.dlms.prime;
 
-import com.energyict.cbo.*;
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
 import com.energyict.dlms.DlmsSession;
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.TypeEnum;
+import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.axrdencoding.util.DateTime;
 import com.energyict.dlms.cosem.*;
-import com.energyict.dlms.cosem.Register;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.dlms.common.DLMSStoredValues;
 import com.energyict.protocolimpl.dlms.prime.messaging.tariff.xml.ActivityCalendarSerializer;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Copyrights EnergyICT
@@ -22,31 +30,20 @@ import java.util.*;
  */
 public class PrimeRegisters {
 
-    private final DlmsSession session;
-    private final PrimeMeterInfo meterInfo;
-    private final List<DLMSStoredValues> storedValuesList = new ArrayList<DLMSStoredValues>();
-    private PrimeProperties properties;
-
     public static final ObisCode DUMMY_OBIS = ObisCode.fromString("0.0.0.0.0.0");
-
     public static final ObisCode PHASE_OBIS = ObisCode.fromString("1.1.94.34.104.255");
-
     public static final ObisCode ACTIVE_QUADRANT_OBIS = ObisCode.fromString("1.1.94.34.100.255");
     public static final ObisCode ACTIVE_QUADRANT_L1_OBIS = ObisCode.fromString("1.1.94.34.101.255");
     public static final ObisCode ACTIVE_QUADRANT_L2_OBIS = ObisCode.fromString("1.1.94.34.102.255");
     public static final ObisCode ACTIVE_QUADRANT_L3_OBIS = ObisCode.fromString("1.1.94.34.103.255");
-
     public static final ObisCode CONTACTOR_STATE_OBIS = ObisCode.fromString("0.0.96.3.10.255");
     public static final ObisCode PREV_CONTACTOR_STATE_OBIS = ObisCode.fromString("0.1.94.34.20.255");
-
     public static final ObisCode CL432_DEVICE_ADDRESS_OBIS = ObisCode.fromString("0.0.28.0.2.255");
     public static final ObisCode CL432_BASE_NODE_ADDRESS_OBIS = ObisCode.fromString("0.0.28.0.3.255");
-
     public static final ObisCode CRC_INCORRECT_COUNT = ObisCode.fromString("0.0.28.1.2.255");
     public static final ObisCode CRC_FAIL_COUNT = ObisCode.fromString("0.0.28.1.3.255");
     public static final ObisCode PHY_TX_DROP_COUNT = ObisCode.fromString("0.0.28.1.4.255");
     public static final ObisCode PHY_RX_DROP_COUNT = ObisCode.fromString("0.0.28.1.5.255");
-
     public static final ObisCode MAC_MIN_SWITCH_SEARCH_TIME = ObisCode.fromString("0.0.28.2.2.255");
     public static final ObisCode MAC_MAX_PROMOTION_PDU_OBIS = ObisCode.fromString("0.0.28.2.3.255");
     public static final ObisCode MAC_PROMOTION_PDU_TX_PERIOD_OBIS = ObisCode.fromString("0.0.28.2.4.255");
@@ -54,7 +51,6 @@ public class PrimeRegisters {
     public static final ObisCode MAC_SCP_MAX_TX_ATTEMPTS_OBIS = ObisCode.fromString("0.0.28.2.6.255");
     public static final ObisCode MAC_CTL_RE_TX_TIMER_OBIS = ObisCode.fromString("0.0.28.2.7.255");
     public static final ObisCode MAC_MAX_CTL_RE_TX_OBIS = ObisCode.fromString("0.0.28.2.8.255");
-
     public static final ObisCode MAC_LNID = ObisCode.fromString("0.0.28.3.2.255");
     public static final ObisCode MAC_LSID = ObisCode.fromString("0.0.28.3.3.255");
     public static final ObisCode MAC_SID = ObisCode.fromString("0.0.28.3.4.255");
@@ -67,73 +63,56 @@ public class PrimeRegisters {
     public static final ObisCode MAC_BEACON_TX_SLOT = ObisCode.fromString("0.0.28.3.11.255");
     public static final ObisCode MAC_BEACON_RX_FREQUENCY = ObisCode.fromString("0.0.28.3.12.255");
     public static final ObisCode MAC_BEACON_TX_FREQUENCY = ObisCode.fromString("0.0.28.3.13.255");
-
     public static final ObisCode EQUIPMENT_IDENTIFIER = ObisCode.fromString("0.0.96.1.1.255");
-
     public static final ObisCode DLMS_PROTOCOL_INFO = ObisCode.fromString("0.0.96.1.2.255");
     public static final ObisCode MAPPED_DLMS_PROTOCOL_VERSION = ObisCode.fromString("0.2.96.1.2.255");
     public static final ObisCode MAPPED_EQUIPMENT_TYPE = ObisCode.fromString("0.1.96.1.2.255");
-
     public static final ObisCode MULTICAST_IDENTIFIER = ObisCode.fromString("0.0.96.1.5.255");
     public static final ObisCode MULTICAST_IDENTIFIER_1 = ObisCode.fromString("0.1.96.1.5.255");
     public static final ObisCode MULTICAST_IDENTIFIER_2 = ObisCode.fromString("0.2.96.1.5.255");
     public static final ObisCode MULTICAST_IDENTIFIER_3 = ObisCode.fromString("0.3.96.1.5.255");
-
     public static final ObisCode PRIME_DEVICE_SETUP = ObisCode.fromString("0.0.28.6.0.255");
-
     //Primary voltage does not exist in the companion pdf
     public static final ObisCode SECONDARY_VOLTAGE = ObisCode.fromString("1.0.32.7.0.255");
     //Primary current does not exist in the companion pdf
     public static final ObisCode SECONDARY_CURRENT = ObisCode.fromString("1.0.90.7.0.255");
     public static final ObisCode REFERENCE_VOLTAGE = ObisCode.fromString("1.0.0.6.4.255");
-
     public static final ObisCode CURRENT_TRANSFORMER_NUMERATOR = ObisCode.fromString("1.0.0.4.2.255");   //Supervision register only
     public static final ObisCode VOLTAGE_TRANSFORMER_NUMERATOR = ObisCode.fromString("1.0.0.4.3.255");   //Supervision register only
     public static final ObisCode CURRENT_TRANSFORMER_DENOMINATOR = ObisCode.fromString("1.0.0.4.5.255"); //Supervision register only
     public static final ObisCode VOLTAGE_TRANSFORMER_DENOMINATOR = ObisCode.fromString("1.0.0.4.6.255"); //Supervision register only
-
     public static final ObisCode DEMAND_CLOSE_CONTRACTED_POWER = ObisCode.fromString("0.0.94.34.70.255");
     public static final ObisCode VOLTAGE_SAG_THRESHOLD = ObisCode.fromString("1.0.12.31.0.255");
     public static final ObisCode VOLTAGE_SWELL_THRESHOLD = ObisCode.fromString("1.0.12.35.0.255");
     public static final ObisCode LONG_POWER_FAILURE_THRESHOLD = ObisCode.fromString("0.0.96.7.20.255");
     public static final ObisCode NR_OF_LONG_POWER_FAILURES_ALL_PHASES = ObisCode.fromString("0.0.96.7.5.255");
-
     public static final ObisCode TIMETHRESHOLD_VOLTAGE_SAG = ObisCode.fromString("1.0.12.43.0.255");
     public static final ObisCode TIMETHRESHOLD_VOLTAGE_SWELL = ObisCode.fromString("1.0.12.44.0.255");
     public static final ObisCode PROFILE_PERIOD = ObisCode.fromString("1.0.99.1.4.255");
-
     public static final ObisCode CONTRACT_DEFINITIONS = ObisCode.fromString("0.0.13.0.0.255");   //Special register, has activity calendar and special days table (xml format) in the description
-
     public static final ObisCode NR_OF_LONG_POWER_FAILURES_L1 = ObisCode.fromString("0.0.96.7.6.255");
     public static final ObisCode NR_OF_LONG_POWER_FAILURES_L2 = ObisCode.fromString("0.0.96.7.7.255");
     public static final ObisCode NR_OF_LONG_POWER_FAILURES_L3 = ObisCode.fromString("0.0.96.7.8.255");
-
     public static final ObisCode ERROR_OBJECT = ObisCode.fromString("0.0.97.97.0.255");
     public static final ObisCode ALARM_OBJECT = ObisCode.fromString("0.0.97.98.0.255");
     public static final ObisCode ALARM_FILTER = ObisCode.fromString("0.0.97.98.10.255");
-
     public static final ObisCode CURRENTLY_ACTIVE_TARIFF_T1 = ObisCode.fromString("0.0.96.14.1.255");
     public static final ObisCode CURRENTLY_ACTIVE_TARIFF_T2 = ObisCode.fromString("0.0.96.14.2.255");
     public static final ObisCode CURRENTLY_ACTIVE_TARIFF_T3 = ObisCode.fromString("0.0.96.14.3.255");
-
     public static final ObisCode AMR_PROFILE_STATUS_LP1 = ObisCode.fromString("0.0.96.10.7.255");
     public static final ObisCode AMR_PROFILE_STATUS_LP2 = ObisCode.fromString("0.0.96.10.8.255");
-
     public static final ObisCode NUMBER_OF_VOLTAGE_SAGS_ANY_PHASE = ObisCode.fromString("1.0.12.32.0.255");
     public static final ObisCode NUMBER_OF_VOLTAGE_SAGS_L1 = ObisCode.fromString("1.0.32.32.0.255");
     public static final ObisCode NUMBER_OF_VOLTAGE_SAGS_L2 = ObisCode.fromString("1.0.52.32.0.255");
     public static final ObisCode NUMBER_OF_VOLTAGE_SAGS_L3 = ObisCode.fromString("1.0.72.32.0.255");
     public static final ObisCode NUMBER_OF_ACG_VOLTAGE_SAGS_ALL_PHASE = ObisCode.fromString("1.0.94.34.90.255");
     public static final ObisCode TIMESTAMP_FOR_POWER_QUALITY_LOG = ObisCode.fromString("0.0.94.34.80.255");
-
     public static final ObisCode NUMBER_OF_VOLTAGE_SWELLS_ANY_PHASE = ObisCode.fromString("1.0.12.36.0.255");
     public static final ObisCode NUMBER_OF_VOLTAGE_SWELLS_L1 = ObisCode.fromString("1.0.32.36.0.255");
     public static final ObisCode NUMBER_OF_VOLTAGE_SWELLS_L2 = ObisCode.fromString("1.0.52.36.0.255");
     public static final ObisCode NUMBER_OF_VOLTAGE_SWELLS_L3 = ObisCode.fromString("1.0.72.36.0.255");
     public static final ObisCode NUMBER_OF_ACG_VOLTAGE_SWELLS_ALL_PHASE = ObisCode.fromString("1.0.94.34.92.255");
-
     public static final ObisCode NUMBER_OF_PHASES = ObisCode.fromString("0.0.96.1.128.255");
-
     public static final ObisCode MAXIMUM_DEMAND_REGISTER_IMPORT_TOT_C1 = ObisCode.fromString("1.0.1.6.10.255");
     public static final ObisCode MAXIMUM_DEMAND_REGISTER_IMPORT_R1_C1 = ObisCode.fromString("1.0.1.6.11.255");
     public static final ObisCode MAXIMUM_DEMAND_REGISTER_IMPORT_R2_C1 = ObisCode.fromString("1.0.1.6.12.255");
@@ -141,7 +120,6 @@ public class PrimeRegisters {
     public static final ObisCode MAXIMUM_DEMAND_REGISTER_IMPORT_R4_C1 = ObisCode.fromString("1.0.1.6.14.255");
     public static final ObisCode MAXIMUM_DEMAND_REGISTER_IMPORT_R5_C1 = ObisCode.fromString("1.0.1.6.15.255");
     public static final ObisCode MAXIMUM_DEMAND_REGISTER_IMPORT_R6_C1 = ObisCode.fromString("1.0.1.6.16.255");
-
     public static final ObisCode MAXIMUM_DEMAND_REGISTER_IMPORT_TOT_C2 = ObisCode.fromString("1.0.1.6.20.255");
     public static final ObisCode MAXIMUM_DEMAND_REGISTER_IMPORT_R1_C2 = ObisCode.fromString("1.0.1.6.21.255");
     public static final ObisCode MAXIMUM_DEMAND_REGISTER_IMPORT_R2_C2 = ObisCode.fromString("1.0.1.6.22.255");
@@ -149,7 +127,6 @@ public class PrimeRegisters {
     public static final ObisCode MAXIMUM_DEMAND_REGISTER_IMPORT_R4_C2 = ObisCode.fromString("1.0.1.6.24.255");
     public static final ObisCode MAXIMUM_DEMAND_REGISTER_IMPORT_R5_C2 = ObisCode.fromString("1.0.1.6.25.255");
     public static final ObisCode MAXIMUM_DEMAND_REGISTER_IMPORT_R6_C2 = ObisCode.fromString("1.0.1.6.26.255");
-
     public static final ObisCode MAXIMUM_DEMAND_REGISTER_IMPORT_TOT_C3 = ObisCode.fromString("1.0.1.6.30.255");
     public static final ObisCode MAXIMUM_DEMAND_REGISTER_IMPORT_R1_C3 = ObisCode.fromString("1.0.1.6.31.255");
     public static final ObisCode MAXIMUM_DEMAND_REGISTER_IMPORT_R2_C3 = ObisCode.fromString("1.0.1.6.32.255");
@@ -157,9 +134,7 @@ public class PrimeRegisters {
     public static final ObisCode MAXIMUM_DEMAND_REGISTER_IMPORT_R4_C3 = ObisCode.fromString("1.0.1.6.34.255");
     public static final ObisCode MAXIMUM_DEMAND_REGISTER_IMPORT_R5_C3 = ObisCode.fromString("1.0.1.6.35.255");
     public static final ObisCode MAXIMUM_DEMAND_REGISTER_IMPORT_R6_C3 = ObisCode.fromString("1.0.1.6.36.255");
-
     public static final ObisCode MAXIMUM_DEMAND_REGISTER_IMPORT_CURRENT_BILLING_PERIOD = ObisCode.fromString("1.0.1.6.255.255");
-
     public static final ObisCode MAXIMUM_DEMAND_REGISTER_EXPORT_TOT_C1 = ObisCode.fromString("1.0.2.6.10.255");
     public static final ObisCode MAXIMUM_DEMAND_REGISTER_EXPORT_R1_C1 = ObisCode.fromString("1.0.2.6.11.255");
     public static final ObisCode MAXIMUM_DEMAND_REGISTER_EXPORT_R2_C1 = ObisCode.fromString("1.0.2.6.12.255");
@@ -167,7 +142,6 @@ public class PrimeRegisters {
     public static final ObisCode MAXIMUM_DEMAND_REGISTER_EXPORT_R4_C1 = ObisCode.fromString("1.0.2.6.14.255");
     public static final ObisCode MAXIMUM_DEMAND_REGISTER_EXPORT_R5_C1 = ObisCode.fromString("1.0.2.6.15.255");
     public static final ObisCode MAXIMUM_DEMAND_REGISTER_EXPORT_R6_C1 = ObisCode.fromString("1.0.2.6.16.255");
-
     public static final ObisCode MAXIMUM_DEMAND_REGISTER_EXPORT_TOT_C2 = ObisCode.fromString("1.0.2.6.20.255");
     public static final ObisCode MAXIMUM_DEMAND_REGISTER_EXPORT_R1_C2 = ObisCode.fromString("1.0.2.6.21.255");
     public static final ObisCode MAXIMUM_DEMAND_REGISTER_EXPORT_R2_C2 = ObisCode.fromString("1.0.2.6.22.255");
@@ -175,7 +149,6 @@ public class PrimeRegisters {
     public static final ObisCode MAXIMUM_DEMAND_REGISTER_EXPORT_R4_C2 = ObisCode.fromString("1.0.2.6.24.255");
     public static final ObisCode MAXIMUM_DEMAND_REGISTER_EXPORT_R5_C2 = ObisCode.fromString("1.0.2.6.25.255");
     public static final ObisCode MAXIMUM_DEMAND_REGISTER_EXPORT_R6_C2 = ObisCode.fromString("1.0.2.6.26.255");
-
     public static final ObisCode MAXIMUM_DEMAND_REGISTER_EXPORT_TOT_C3 = ObisCode.fromString("1.0.2.6.30.255");
     public static final ObisCode MAXIMUM_DEMAND_REGISTER_EXPORT_R1_C3 = ObisCode.fromString("1.0.2.6.31.255");
     public static final ObisCode MAXIMUM_DEMAND_REGISTER_EXPORT_R2_C3 = ObisCode.fromString("1.0.2.6.32.255");
@@ -183,25 +156,62 @@ public class PrimeRegisters {
     public static final ObisCode MAXIMUM_DEMAND_REGISTER_EXPORT_R4_C3 = ObisCode.fromString("1.0.2.6.34.255");
     public static final ObisCode MAXIMUM_DEMAND_REGISTER_EXPORT_R5_C3 = ObisCode.fromString("1.0.2.6.35.255");
     public static final ObisCode MAXIMUM_DEMAND_REGISTER_EXPORT_R6_C3 = ObisCode.fromString("1.0.2.6.36.255");
-
     public static final ObisCode MAXIMUM_DEMAND_REGISTER_EXPORT_CURRENT_BILLING_PERIOD = ObisCode.fromString("1.0.2.6.255.255");
+    private final DlmsSession session;
+    private final PrimeMeterInfo meterInfo;
+    private final List<DLMSStoredValues> storedValuesList = new ArrayList<DLMSStoredValues>();
+    private PrimeProperties properties;
 
     public PrimeRegisters(PrimeProperties properties, DlmsSession session, final PrimeMeterInfo meterInfo) {
         this.properties = properties;
         this.session = session;
         this.meterInfo = meterInfo;
 
-        storedValuesList.add(new DLMSStoredValues(this.session, PrimeProfile.DAILY_CONTRACT1_PROFILE));
-        storedValuesList.add(new DLMSStoredValues(this.session, PrimeProfile.DAILY_CONTRACT2_PROFILE));
-        storedValuesList.add(new DLMSStoredValues(this.session, PrimeProfile.DAILY_CONTRACT3_PROFILE));
+        storedValuesList.add(new DLMSStoredValues(this.session.getCosemObjectFactory(), PrimeProfile.DAILY_CONTRACT1_PROFILE));
+        storedValuesList.add(new DLMSStoredValues(this.session.getCosemObjectFactory(), PrimeProfile.DAILY_CONTRACT2_PROFILE));
+        storedValuesList.add(new DLMSStoredValues(this.session.getCosemObjectFactory(), PrimeProfile.DAILY_CONTRACT3_PROFILE));
 
-        storedValuesList.add(new DLMSStoredValues(this.session, PrimeProfile.MONTHLY_CONTRACT1_PROFILE));
-        storedValuesList.add(new DLMSStoredValues(this.session, PrimeProfile.MONTHLY_CONTRACT2_PROFILE));
-        storedValuesList.add(new DLMSStoredValues(this.session, PrimeProfile.MONTHLY_CONTRACT3_PROFILE));
+        storedValuesList.add(new DLMSStoredValues(this.session.getCosemObjectFactory(), PrimeProfile.MONTHLY_CONTRACT1_PROFILE));
+        storedValuesList.add(new DLMSStoredValues(this.session.getCosemObjectFactory(), PrimeProfile.MONTHLY_CONTRACT2_PROFILE));
+        storedValuesList.add(new DLMSStoredValues(this.session.getCosemObjectFactory(), PrimeProfile.MONTHLY_CONTRACT3_PROFILE));
     }
 
     public static RegisterInfo translateRegister(ObisCode obisCode) {
         return obisCode == null ? null : new RegisterInfo(obisCode.getDescription());
+    }
+
+    /**
+     * Translates the data in the given byte array to ASCII.
+     *
+     * @param data The data to translate.
+     * @return The ASII string.
+     */
+    private static final String translateToASCII(final byte[] data) {
+        final StringBuilder builder = new StringBuilder();
+
+        for (final byte b : data) {
+            builder.append((char) (b & 0xFF));
+        }
+
+        return builder.toString().trim();
+    }
+
+    /**
+     * Translates the given byte array to a hex string.
+     *
+     * @param data The data.
+     * @return The resulting hex string.
+     */
+    private static final String translateToHexString(final byte[] data) {
+        final StringBuilder formatBuilder = new StringBuilder();
+        final Integer[] intData = new Integer[data.length];
+
+        for (int i = 0; i < data.length; i++) {
+            intData[i] = data[i] & 0xFF;
+            formatBuilder.append("%02X");
+        }
+
+        return String.format(formatBuilder.toString(), (Object[]) intData);
     }
 
     public final RegisterValue readRegister(ObisCode obisCode) throws IOException {
@@ -688,30 +698,13 @@ public class PrimeRegisters {
     }
 
     /**
-     * Translates the data in the given byte array to ASCII.
-     *
-     * @param data The data to translate.
-     * @return The ASII string.
-     */
-    private static final String translateToASCII(final byte[] data) {
-        final StringBuilder builder = new StringBuilder();
-
-        for (final byte b : data) {
-            builder.append((char) (b & 0xFF));
-        }
-
-        return builder.toString().trim();
-    }
-
-    /**
      * Gets the specified multicast identifier.
      *
      * @param index         0, 1 or 2.
      * @param objectFactory The COSEM object factory used to fetch the object.
      * @return The register value.
-     * @throws com.energyict.protocol.NoSuchRegisterException
-     *                             If the object could not be obtained or is of the wrong type.
-     * @throws java.io.IOException If an IO error occurs while fetching the object.
+     * @throws com.energyict.protocol.NoSuchRegisterException If the object could not be obtained or is of the wrong type.
+     * @throws java.io.IOException                            If an IO error occurs while fetching the object.
      */
     private final RegisterValue getMulticastIdentifier(final CosemObjectFactory objectFactory, final int index) throws NoSuchRegisterException, IOException {
         final AbstractDataType value = objectFactory.getData(MULTICAST_IDENTIFIER).getValueAttr();
@@ -747,23 +740,5 @@ public class PrimeRegisters {
         }
 
         return new RegisterValue(obisCode, translateToHexString(address));
-    }
-
-    /**
-     * Translates the given byte array to a hex string.
-     *
-     * @param data The data.
-     * @return The resulting hex string.
-     */
-    private static final String translateToHexString(final byte[] data) {
-        final StringBuilder formatBuilder = new StringBuilder();
-        final Integer[] intData = new Integer[data.length];
-
-        for (int i = 0; i < data.length; i++) {
-            intData[i] = data[i] & 0xFF;
-            formatBuilder.append("%02X");
-        }
-
-        return String.format(formatBuilder.toString(), (Object[]) intData);
     }
 }

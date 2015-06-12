@@ -59,6 +59,7 @@
 -keepnames class com.energyict.protocolimplv2.ace4000.ACE4000Outbound
 -keepnames class com.energyict.protocolimplv2.eict.gatewayz3.GateWayZ3
 -keepnames class com.energyict.protocolimplv2.eict.rtuplusserver.g3.RtuPlusServer
+-keepnames class com.energyict.protocolimplv2.dlms.g3.AS330D
 -keep public class com.energyict.protocolimplv2.eict.rtuplusserver.g3.RtuPlusServer {
 	public *;
 	protected *;

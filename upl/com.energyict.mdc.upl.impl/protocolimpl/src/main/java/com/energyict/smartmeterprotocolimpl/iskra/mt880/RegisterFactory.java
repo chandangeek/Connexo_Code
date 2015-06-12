@@ -226,7 +226,7 @@ public class RegisterFactory implements BulkRegisterProtocol {
 
     private DLMSStoredValues getStoredValues() throws IOException {
         if (storedValues == null) {
-            storedValues = new DLMSStoredValues(protocol.getDlmsSession(), BILLING_PROFILE_OBIS);
+            storedValues = new DLMSStoredValues(protocol.getDlmsSession().getCosemObjectFactory(), BILLING_PROFILE_OBIS);
         }
         return storedValues;
     }

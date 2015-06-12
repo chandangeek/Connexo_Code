@@ -133,7 +133,7 @@ public enum DeviceSecurityProperty {
     /**
      * Generates a list of possible values for the client mac address property spec
      */
-    private static ArrayList<BigDecimal> getPossibleClientMacAddressValues(int lowerLimit, int upperLimit) {
+    public static ArrayList<BigDecimal> getPossibleClientMacAddressValues(int lowerLimit, int upperLimit) {
         ArrayList<BigDecimal> result = new ArrayList<>();
         for (int index = lowerLimit; index <= upperLimit; index++) {
             result.add(BigDecimal.valueOf(index));

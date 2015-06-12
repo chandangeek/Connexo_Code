@@ -7,7 +7,7 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.MessageCategorySpec;
 import com.energyict.protocolimpl.dlms.common.AbstractDlmsSessionProtocol;
-import com.energyict.protocolimpl.dlms.common.ProfileCache;
+import com.energyict.protocolimpl.dlms.common.ProfileCacheImpl;
 import com.energyict.protocolimpl.dlms.prime.events.PrimeEventLogs;
 import com.energyict.protocolimpl.dlms.prime.messaging.PrimeMessaging;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -33,7 +33,7 @@ public abstract class AbstractPrimeMeter extends AbstractDlmsSessionProtocol {
     private PrimeRegisters registers;
     private PrimeMeterInfo meterInfo;
     private PrimeMessaging messaging;
-    private ProfileCache cache = new ProfileCache();
+    private ProfileCacheImpl cache = new ProfileCacheImpl();
 
     public String getProtocolVersion() {
         return "$Date$";
@@ -186,8 +186,8 @@ public abstract class AbstractPrimeMeter extends AbstractDlmsSessionProtocol {
 
     @Override
     public void setCache(Object cache) {
-        if ((cache != null) && (cache instanceof ProfileCache)) {
-            this.cache = (ProfileCache) cache;
+        if ((cache != null) && (cache instanceof ProfileCacheImpl)) {
+            this.cache = (ProfileCacheImpl) cache;
         }
     }
 

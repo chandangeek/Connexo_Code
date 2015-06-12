@@ -9,7 +9,7 @@ import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocolimpl.dlms.common.DLMSProfileHelper;
-import com.energyict.protocolimpl.dlms.common.ProfileCache;
+import com.energyict.protocolimpl.dlms.common.ProfileCacheImpl;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
@@ -38,7 +38,7 @@ public class PrimeProfile extends DLMSProfileHelper {
     private static final Unit VARH = Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR);
     private static final Unit MS = Unit.get(BaseUnit.SECOND, -3);
 
-    public PrimeProfile(DlmsSession session, ObisCode profileObisCode, ProfileCache cache) {
+    public PrimeProfile(DlmsSession session, ObisCode profileObisCode, ProfileCacheImpl cache) {
         super.setSession(session);
         super.setCache(cache);
         super.setObisCode(profileObisCode);
@@ -70,12 +70,12 @@ public class PrimeProfile extends DLMSProfileHelper {
      * @throws java.io.IOException
      */
     protected void readChannelInfosFromDevice() throws IOException {
-        getSession().getLogger().info("Reading captured object from device for profile [" + getObisCode() + "].");
+        getLogger().info("Reading captured object from device for profile [" + getObisCode() + "].");
 
         setChannelInfos(new ArrayList<ChannelInfo>(getNumberOfChannels()));
         List<CapturedObject> universalObjects = getProfileGeneric().getCaptureObjects();
         if (universalObjects.size() == 0) {
-            getSession().getLogger().warning("Load profile captured_objects is empty, using the defaults");
+            getLogger().warning("Load profile captured_objects is empty, using the defaults");
             createDefaultChannelInfos();
         } else {
             int channelIndex = 0;

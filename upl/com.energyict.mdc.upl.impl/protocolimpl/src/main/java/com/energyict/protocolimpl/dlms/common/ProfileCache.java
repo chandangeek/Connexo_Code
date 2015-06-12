@@ -5,42 +5,26 @@ import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 
-import java.io.Serializable;
-import java.util.*;
+import java.util.List;
 
 /**
  * Copyrights EnergyICT
- * Date: 5/7/12
- * Time: 6:23 PM
+ *
+ * @author khe
+ * @since 11/06/2015 - 11:13
  */
-public class ProfileCache implements Serializable {
+public interface ProfileCache {
 
-    private Map<ObisCodeAndAttribute, Unit> units = new HashMap<ObisCodeAndAttribute, Unit>();
-    private Map<ObisCode, List<ChannelInfo>> channelInfos = new HashMap<ObisCode, List<ChannelInfo>>();
+    public void cache(final ObisCodeAndAttribute obisCodeAndAttribute, final Unit unit);
 
-    public void cache(final ObisCodeAndAttribute obisCodeAndAttribute, final Unit unit) {
-        this.units.put(obisCodeAndAttribute, unit);
-    }
+    public void cache(final CapturedObject capturedObject, final Unit unit);
 
-    public void cache(final CapturedObject capturedObject, final Unit unit) {
-        ObisCodeAndAttribute obisCodeAndAttribute = new ObisCodeAndAttribute(capturedObject.getAttributeIndex(), capturedObject.getObisCode());
-        this.cache(obisCodeAndAttribute, unit);
-    }
+    public void cache(final ObisCode obis, final List<ChannelInfo> channelInfo);
 
-    public void cache(final ObisCode obis, final List<ChannelInfo> channelInfo) {
-        this.channelInfos.put(obis, channelInfo);
-    }
+    public Unit getUnit(ObisCodeAndAttribute obisCodeAndAttribute);
 
-    public Unit getUnit(ObisCodeAndAttribute obisCodeAndAttribute) {
-        return this.units.get(obisCodeAndAttribute);
-    }
+    public Unit getUnit(CapturedObject capturedObject);
 
-    public Unit getUnit(CapturedObject capturedObject) {
-        ObisCodeAndAttribute obisCodeAndAttribute = new ObisCodeAndAttribute(capturedObject.getAttributeIndex(), capturedObject.getObisCode());
-        return this.getUnit(obisCodeAndAttribute);
-    }
+    public List<ChannelInfo> getChannelInfo(final ObisCode obis);
 
-    public List<ChannelInfo> getChannelInfo(final ObisCode obis) {
-        return this.channelInfos.get(obis);
-    }
 }

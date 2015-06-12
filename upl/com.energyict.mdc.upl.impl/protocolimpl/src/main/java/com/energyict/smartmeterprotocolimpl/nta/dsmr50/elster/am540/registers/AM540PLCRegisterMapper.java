@@ -17,7 +17,7 @@ public class AM540PLCRegisterMapper extends G3RegisterMapper {
     private final DlmsSession dlmsSession;
 
     public AM540PLCRegisterMapper(DlmsSession dlmsSession) {
-        super();
+        super(dlmsSession.getCosemObjectFactory(), dlmsSession.getTimeZone(), dlmsSession.getLogger());
         this.dlmsSession = dlmsSession;
     }
 

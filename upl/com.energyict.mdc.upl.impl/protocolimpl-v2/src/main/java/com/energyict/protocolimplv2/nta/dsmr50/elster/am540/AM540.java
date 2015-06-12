@@ -65,12 +65,10 @@ import java.util.List;
  */
 public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol {
 
-    private Dsmr50ConfigurationSupport dsmr50ConfigurationSupport;
     private Dsmr50LogBookFactory dsmr50LogBookFactory;
     private AM540Messaging am540Messaging;
     private long initialFrameCounter = -1;
     private IDISMeterTopology meterTopology;
-    private DLMSCache dlmsCache;
     private LoadProfileBuilder loadProfileBuilder;
     private Dsmr50RegisterFactory registerFactory;
 
@@ -109,7 +107,7 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
     }
 
     @Override
-    public DeviceProtocolCache getDeviceCache() {
+    public DLMSCache getDeviceCache() {
         if (this.dlmsCache == null || !(this.dlmsCache instanceof AM540Cache)) {
             this.dlmsCache = new AM540Cache();
         }
@@ -216,10 +214,10 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
      * These properties are not related to the security or the protocol dialects.
      */
     protected ConfigurationSupport getDlmsConfigurationSupport() {
-        if (dsmr50ConfigurationSupport == null) {
-            dsmr50ConfigurationSupport = new Dsmr50ConfigurationSupport();
+        if (dlmsConfigurationSupport == null) {
+            dlmsConfigurationSupport = new Dsmr50ConfigurationSupport();
         }
-        return dsmr50ConfigurationSupport;
+        return dlmsConfigurationSupport;
     }
 
     @Override

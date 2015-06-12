@@ -6,7 +6,7 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.dlms.common.AbstractDlmsSessionProtocol;
-import com.energyict.protocolimpl.dlms.common.ProfileCache;
+import com.energyict.protocolimpl.dlms.common.ProfileCacheImpl;
 import com.energyict.protocolimplv2.MdcManager;
 
 import java.io.IOException;
@@ -34,7 +34,7 @@ public class A1800 extends AbstractDlmsSessionProtocol {
     private A1800MeterInfo info;
     private A1800Profile loadProfile;
     private A1800EventLog eventLog;
-    private ProfileCache cache = new ProfileCache();
+    private ProfileCacheImpl cache = new ProfileCacheImpl();
     private RegisterReader registerReader = null;
 
     /**
@@ -151,8 +151,8 @@ public class A1800 extends AbstractDlmsSessionProtocol {
     }
 
     public void setCache(Object cache) {
-        if ((cache != null) && (cache instanceof ProfileCache)) {
-            this.cache = (ProfileCache) cache;
+        if ((cache != null) && (cache instanceof ProfileCacheImpl)) {
+            this.cache = (ProfileCacheImpl) cache;
         }
     }
 }

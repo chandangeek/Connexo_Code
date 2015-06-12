@@ -61,10 +61,10 @@ public class AM130 extends AM500 {
      * These properties are not related to the security or the protocol dialects.
      */
     protected ConfigurationSupport getDlmsConfigurationSupport() {
-        if (idisConfigurationSupport == null) {
-            idisConfigurationSupport = new AM130ConfigurationSupport();
+        if (dlmsConfigurationSupport == null) {
+            dlmsConfigurationSupport = new AM130ConfigurationSupport();
         }
-        return idisConfigurationSupport;
+        return dlmsConfigurationSupport;
     }
 
     public AM130Properties getDlmsSessionProperties() {

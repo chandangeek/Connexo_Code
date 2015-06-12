@@ -19,7 +19,6 @@ import java.util.logging.Level;
 public class AM100 extends WebRTUKP {
 
     private AM100DlmsProperties dlmsProperties;
-    private ConfigurationSupport configurationSupport;
 
     @Override
     protected void checkCacheObjects() {
@@ -37,19 +36,27 @@ public class AM100 extends WebRTUKP {
         }
     }
 
+    private DLMSCache getDlmsCache() {
+        return dlmsCache;
+    }
+
+    private void setDlmsCache(DLMSCache dlmsCache) {
+        this.dlmsCache = dlmsCache;
+    }
+
     protected ConfigurationSupport getDlmsConfigurationSupport() {
-        if (configurationSupport == null) {
-            configurationSupport = new AM100ConfigurationSupport();
+        if (dlmsConfigurationSupport == null) {
+            dlmsConfigurationSupport = new AM100ConfigurationSupport();
         }
-        return configurationSupport;
+        return dlmsConfigurationSupport;
     }
 
     public AM100DlmsProperties getDlmsSessionProperties() {
-         if (dlmsProperties == null) {
-             dlmsProperties = new AM100DlmsProperties();
-         }
-         return dlmsProperties;
-     }
+        if (dlmsProperties == null) {
+            dlmsProperties = new AM100DlmsProperties();
+        }
+        return dlmsProperties;
+    }
 
     @Override
     public String getProtocolDescription() {

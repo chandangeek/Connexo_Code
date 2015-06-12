@@ -49,7 +49,6 @@ public class WebRTUZ3 extends AbstractDlmsProtocol implements MigrateFromV1Proto
     private LoadProfileBuilder loadProfileBuilder;
     private LogBookParser logBookParser;
     private WebRTUZ3RegisterFactory registerFactory;
-    private WebRTUZ3ConfigurationSupport configurationSupport;
     private WebRTUZ3Messaging webRTUZ3Messaging;
 
     @Override
@@ -75,10 +74,10 @@ public class WebRTUZ3 extends AbstractDlmsProtocol implements MigrateFromV1Proto
 
     @Override
     protected ConfigurationSupport getDlmsConfigurationSupport() {
-        if (configurationSupport == null) {
-            configurationSupport = new WebRTUZ3ConfigurationSupport();
+        if (dlmsConfigurationSupport == null) {
+            dlmsConfigurationSupport = new WebRTUZ3ConfigurationSupport();
         }
-        return configurationSupport;
+        return dlmsConfigurationSupport;
     }
 
     public DlmsSessionProperties getDlmsSessionProperties() {

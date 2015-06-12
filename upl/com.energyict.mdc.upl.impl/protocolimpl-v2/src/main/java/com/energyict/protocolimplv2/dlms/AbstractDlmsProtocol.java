@@ -17,7 +17,6 @@ import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 import com.energyict.protocolimplv2.nta.dsmr23.ComposedMeterInfo;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsConfigurationSupport;
@@ -45,18 +44,18 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
     protected DlmsProperties dlmsProperties;
     protected AbstractMeterTopology meterTopology;
     protected OfflineDevice offlineDevice;
+    protected ConfigurationSupport dlmsConfigurationSupport;
+    protected DLMSCache dlmsCache;
+    protected DlmsSecuritySupport dlmsSecuritySupport;
     private ComposedMeterInfo meterInfo;
-    private DlmsConfigurationSupport dlmsConfigurationSupport;
     private DlmsSession dlmsSession;
-    private DLMSCache dlmsCache;
-    private DlmsSecuritySupport dlmsSecuritySupport;
-
     /**
      * Indicating if the meter has a breaker.
      * This implies whether or not we can control the breaker and read the control logbook.
      * This will be set to false in the cryptoserver protocols, because these meters don't have a breaker anymore.
      */
     private boolean hasBreaker = true;
+    private Logger logger;
 
     /**
      * Connect to the device, check the cached object lost and discover its MBus slaves.
@@ -122,7 +121,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
         getDlmsSessionProperties().setSecurityPropertySet(deviceProtocolSecurityPropertySet);
     }
 
-    private DeviceProtocolSecurityCapabilities getSecuritySupport() {
+    protected DeviceProtocolSecurityCapabilities getSecuritySupport() {
         if (dlmsSecuritySupport == null) {
             dlmsSecuritySupport = new DsmrSecuritySupport();
         }
@@ -167,7 +166,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
     }
 
     @Override
-    public DeviceProtocolCache getDeviceCache() {
+    public DLMSCache getDeviceCache() {
         return dlmsCache;
     }
 
@@ -344,18 +343,13 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
     }
 
     public Logger getLogger() {
-        return Logger.getLogger(this.getClass().getName());
+        if (logger == null) {
+            logger = Logger.getLogger(this.getClass().getName());
+        }
+        return logger;
     }
 
     public OfflineDevice getOfflineDevice() {
         return offlineDevice;
-    }
-
-    public DLMSCache getDlmsCache() {
-        return dlmsCache;
-    }
-
-    protected void setDlmsCache(DLMSCache dlmsCache) {
-        this.dlmsCache = dlmsCache;
     }
 }

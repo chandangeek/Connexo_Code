@@ -3,6 +3,7 @@ package com.energyict.protocolimpl.dlms.g3.events;
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
+import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocolimpl.dlms.DLMSMeterEventMapper;
@@ -21,25 +22,32 @@ public class G3BasicEventLog implements EventLog {
 
     private final ObisCode obisCode;
     private final DLMSMeterEventMapper eventMapper;
-    private final DlmsSession session;
     private final String name;
-    private Logger logger;
-    private TimeZone timeZone;
+    private final CosemObjectFactory cosemObjectFactory;
 
-    public G3BasicEventLog(DlmsSession session, ObisCode obisCode, String name, DLMSMeterEventMapper eventMapper) {
-        this.session = session;
+    private final Logger logger;
+    private final TimeZone timeZone;
+
+    public G3BasicEventLog(DlmsSession dlmsSession, ObisCode obisCode, String name, DLMSMeterEventMapper eventMapper) {
+        this.cosemObjectFactory = dlmsSession.getCosemObjectFactory();
+        this.logger = dlmsSession.getLogger();
+        this.timeZone = dlmsSession.getTimeZone();
         this.obisCode = obisCode;
         this.eventMapper = eventMapper;
         this.name = name == null ? "" : name;
     }
 
-    public G3BasicEventLog(ObisCode obisCode, DLMSMeterEventMapper eventMapper, Logger logger, TimeZone timeZone) {
-        this.session = null;
+    public G3BasicEventLog(CosemObjectFactory cosemObjectFactory, ObisCode obisCode, DLMSMeterEventMapper eventMapper, Logger logger, TimeZone timeZone) {
+        this.cosemObjectFactory = cosemObjectFactory;
+        this.logger = logger;
+        this.timeZone = timeZone;
         this.obisCode = obisCode;
         this.eventMapper = eventMapper;
         this.name = "";
-        this.logger = logger;
-        this.timeZone = timeZone;
+    }
+
+    public ObisCode getObisCode() {
+        return obisCode;
     }
 
     public List<MeterEvent> getEvents(Calendar from, Calendar to) throws IOException {
@@ -76,21 +84,19 @@ public class G3BasicEventLog implements EventLog {
     }
 
     private Logger getLogger() {
-        if (logger == null) {
-            logger = session.getLogger();
-        }
         return logger;
     }
 
     private TimeZone getTimeZone() {
-        if (timeZone == null) {
-            timeZone = session.getTimeZone();
-        }
         return timeZone;
     }
 
+    public CosemObjectFactory getCosemObjectFactory() {
+        return cosemObjectFactory;
+    }
+
     private Array getEventArray(Calendar from, Calendar to) throws IOException {
-        byte[] rawData = session.getCosemObjectFactory().getProfileGeneric(obisCode).getBufferData(from, to);
+        byte[] rawData = getCosemObjectFactory().getProfileGeneric(obisCode).getBufferData(from, to);
         return AXDRDecoder.decode(rawData, Array.class);
     }
 

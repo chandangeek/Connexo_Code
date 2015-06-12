@@ -29,26 +29,35 @@ public class G3LqiEventLog implements EventLog {
      */
     private static final int MINIMUM_STRUCTURE_ENTRIES = 2;
 
-    private final DlmsSession session;
     private final ObisCode obisCode;
     private final String name;
     private final Logger logger;
     private final TimeZone timeZone;
+    private final CosemObjectFactory cosemObjectFactory;
 
     public G3LqiEventLog(final DlmsSession session, final ObisCode obisCode, final String name) {
-        this.session = session;
         this.obisCode = obisCode;
         this.name = name;
         this.logger = session.getLogger();
         this.timeZone = session.getTimeZone();
+        this.cosemObjectFactory = session.getCosemObjectFactory();
     }
 
-    public G3LqiEventLog(ObisCode obisCode, Logger logger, TimeZone timeZone) {
-        this.session = null;
+    public G3LqiEventLog(CosemObjectFactory cosemObjectFactory, ObisCode obisCode, Logger logger, TimeZone timeZone) {
         this.obisCode = obisCode;
         this.name = "";
         this.logger = logger;
         this.timeZone = timeZone;
+        this.cosemObjectFactory = cosemObjectFactory;
+    }
+
+    @Override
+    public ObisCode getObisCode() {
+        return obisCode;
+    }
+
+    private CosemObjectFactory getCosemObjectFactory() {
+        return cosemObjectFactory;
     }
 
     public Logger getLogger() {
@@ -62,8 +71,7 @@ public class G3LqiEventLog implements EventLog {
     public final List<MeterEvent> getEvents(final Calendar from, final Calendar to) throws IOException {
         getLogger().log(Level.INFO, "Fetching EVENTS from [" + obisCode + "], [" + name + "] from [" + from.getTime() + "] to [" + to.getTime() + "]");
 
-        final CosemObjectFactory cof = this.session.getCosemObjectFactory();
-        final ProfileGeneric eventLog = cof.getProfileGeneric(obisCode);
+        final ProfileGeneric eventLog = getCosemObjectFactory().getProfileGeneric(obisCode);
 
         final byte[] rawBuffer = eventLog.getBufferData(from, to);
         final Array eventArray = AXDRDecoder.decode(rawBuffer, Array.class);
@@ -162,5 +170,4 @@ public class G3LqiEventLog implements EventLog {
         sb.append('}');
         return sb.toString();
     }
-
 }

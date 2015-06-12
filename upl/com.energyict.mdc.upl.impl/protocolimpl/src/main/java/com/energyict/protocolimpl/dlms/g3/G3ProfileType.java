@@ -22,6 +22,24 @@ public enum G3ProfileType {
         this.obisCode = obisCode;
     }
 
+    public static G3ProfileType fromProfileId(final int profileId) {
+        for (final G3ProfileType profileType : values()) {
+            if (profileType.profileId == profileId) {
+                return profileType;
+            }
+        }
+        throw new IllegalArgumentException("Unknown profile ID [" + profileId + "]. Correct value should be [1 for A+, 2 for A-, 3 for daily profile or 4 for monthly profile].");
+    }
+
+    public static G3ProfileType fromObisCode(ObisCode obisCode) {
+        for (final G3ProfileType profileType : values()) {
+            if (profileType.obisCode.equals(obisCode)) {
+                return profileType;
+            }
+        }
+        throw new IllegalArgumentException("Unknown profile ObisCode [" + obisCode + "].");
+    }
+
     public int getProfileId() {
         return profileId;
     }
@@ -37,14 +55,4 @@ public enum G3ProfileType {
     public boolean isMonthly() {
         return this == MONTHLY_PROFILE;
     }
-
-    public static G3ProfileType fromProfileId(final int profileId) {
-        for (final G3ProfileType profileType : values()) {
-            if (profileType.profileId == profileId) {
-                return profileType;
-            }
-        }
-        throw new IllegalArgumentException("Unknown profile ID [" + profileId + "]. Correct value should be [1 for A+, 2 for A-, 3 for daily profile or 4 for monthly profile].");
-    }
-
 }

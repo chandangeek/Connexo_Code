@@ -122,6 +122,22 @@
 	public *;
 	protected *;
 }
+-keep public class com.energyict.protocolimpl.dlms.g3.profile.G3Profile {
+	public *;
+	protected *;
+}
+-keep public class com.energyict.protocolimpl.dlms.g3.G3DeviceInfo {
+	public *;
+	protected *;
+}
+-keep public class com.energyict.protocolimpl.dlms.g3.profile.G3Profile {
+	public *;
+	protected *;
+}
+-keep public class com.energyict.protocolimpl.dlms.g3.events.* {
+	public *;
+	protected *;
+}
 -keep public class com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.messages.Dsmr50MessageExecutor {
 	public *;
 	protected *;

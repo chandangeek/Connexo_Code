@@ -47,7 +47,6 @@ import java.util.List;
  */
 public class AM500 extends AbstractDlmsProtocol {
 
-    protected ConfigurationSupport idisConfigurationSupport;
     protected IDISLogBookFactory idisLogBookFactory = null;
     protected IDISMessaging idisMessaging = null;
     private IDISRegisterFactory registerFactory = null;
@@ -67,10 +66,10 @@ public class AM500 extends AbstractDlmsProtocol {
      * These properties are not related to the security or the protocol dialects.
      */
     protected ConfigurationSupport getDlmsConfigurationSupport() {
-        if (idisConfigurationSupport == null) {
-            idisConfigurationSupport = new IDISConfigurationSupport();
+        if (dlmsConfigurationSupport == null) {
+            dlmsConfigurationSupport = new IDISConfigurationSupport();
         }
-        return idisConfigurationSupport;
+        return dlmsConfigurationSupport;
     }
 
     public IDISProperties getDlmsSessionProperties() {
@@ -154,9 +153,9 @@ public class AM500 extends AbstractDlmsProtocol {
     }
 
     @Override
-    public DeviceProtocolCache getDeviceCache() {
-        DeviceProtocolCache deviceCache = super.getDeviceCache();
-        if (deviceCache == null || !(deviceCache instanceof DLMSCache)) {
+    public DLMSCache getDeviceCache() {
+        DLMSCache deviceCache = super.getDeviceCache();
+        if (deviceCache == null) {
             deviceCache = new DLMSCache();
         }
         setDeviceCache(deviceCache);

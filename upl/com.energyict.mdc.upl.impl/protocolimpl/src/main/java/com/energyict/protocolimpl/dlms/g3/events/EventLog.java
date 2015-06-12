@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.dlms.g3.events;
 
 import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterEvent;
 
 import java.io.IOException;
@@ -28,5 +29,7 @@ public interface EventLog {
      * This method is used to parse the received array of events into EIServer MeterEvents.
      */
     List<MeterEvent> parseEvents(AbstractDataType buffer) throws IOException;
+
+    public ObisCode getObisCode();
 
 }

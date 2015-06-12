@@ -7,9 +7,9 @@ import com.energyict.dlms.DLMSAttribute;
  */
 public class ComposedRegister {
 
-    private final DLMSAttribute registerValue;
-    private final DLMSAttribute registerUnit;
-    private final DLMSAttribute registerCaptureTime;
+    private DLMSAttribute registerValue;
+    private DLMSAttribute registerUnit;
+    private DLMSAttribute registerCaptureTime;
 
     public ComposedRegister(DLMSAttribute registerValue, DLMSAttribute registerUnit, DLMSAttribute registerCaptureTime) {
         this.registerValue = registerValue;
@@ -23,6 +23,9 @@ public class ComposedRegister {
         this.registerCaptureTime = null;
     }
 
+    public ComposedRegister() {
+    }
+
     public DLMSAttribute getRegisterValueAttribute() {
         return registerValue;
     }
@@ -33,5 +36,17 @@ public class ComposedRegister {
 
     public DLMSAttribute getRegisterCaptureTime() {
         return registerCaptureTime;
+    }
+
+    public void setRegisterCaptureTime(DLMSAttribute registerCaptureTime) {
+        this.registerCaptureTime = registerCaptureTime;
+    }
+
+    public void setRegisterValue(DLMSAttribute registerValue) {
+        this.registerValue = registerValue;
+    }
+
+    public void setRegisterUnit(DLMSAttribute registerUnit) {
+        this.registerUnit = registerUnit;
     }
 }

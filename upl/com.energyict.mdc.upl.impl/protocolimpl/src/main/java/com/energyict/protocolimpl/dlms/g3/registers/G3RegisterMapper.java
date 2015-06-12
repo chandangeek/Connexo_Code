@@ -2,17 +2,19 @@ package com.energyict.protocolimpl.dlms.g3.registers;
 
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.cosem.Clock;
+import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.HistoricalValue;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.RegisterValue;
-import com.energyict.protocolimpl.dlms.g3.AS330D;
 import com.energyict.protocolimpl.dlms.g3.G3ProfileType;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TimeZone;
+import java.util.logging.Logger;
 
 /**
  * Copyrights EnergyICT
@@ -21,23 +23,172 @@ import java.util.List;
  */
 public class G3RegisterMapper {
 
+    /**
+     * Billing period mappings (ERDF-CPT-Linky-SPEC-FONC-CPT-MDD, V1.2, 2)
+     */
+    private static final ObisCode ASYNC_EOB_SCHEDULE_ALL = ObisCode.fromString("0.3.15.0.0.255");
+    private static final ObisCode ASYNC_EOB_SCHEDULE_TYPE = ObisCode.fromString("0.3.15.0.1.255");
+    private static final ObisCode ASYNC_EOB_SCHEDULE_TIME = ObisCode.fromString("0.3.15.0.2.255");
+    private static final ObisCode DAILY_EOB_SCHEDULE_ALL = ObisCode.fromString("0.2.15.0.0.255");
+    private static final ObisCode DAILY_EOB_SCHEDULE_TYPE = ObisCode.fromString("0.2.15.0.1.255");
+    private static final ObisCode DAILY_EOB_SCHEDULE_TIME = ObisCode.fromString("0.2.15.0.2.255");
+    private static final ObisCode MONTHLY_EOB_SCHEDULE_ALL = ObisCode.fromString("0.1.15.0.0.255");
+    private static final ObisCode MONTHLY_EOB_SCHEDULE_TYPE = ObisCode.fromString("0.1.15.0.1.255");
+    private static final ObisCode MONTHLY_EOB_SCHEDULE_TIME = ObisCode.fromString("0.1.15.0.2.255");
+    /**
+     * Breaker management mappings (ERDF-CPT-Linky-SPEC-FONC-CPT-MDD, V1.2, 3)
+     */
+
+    private static final ObisCode BREAKER_STATE = ObisCode.fromString("0.0.96.3.10.255");
+    private static final ObisCode DOWNSTREAM_VOLTAGE_MONITORING = ObisCode.fromString("1.0.12.35.3.255");
+    private static final ObisCode OVERHEAT_CURRENT_LIMIT = ObisCode.fromString("1.0.0.12.1.255");
+    private static final ObisCode OVERHEAT_DURATION_LIMIT = ObisCode.fromString("1.0.0.12.2.255");
+    /**
+     * Communication (ERDF-CPT-Linky-SPEC-FONC-CPT-MDD, V1.2, 4)
+     */
+
+    private static final ObisCode CONSUMER_INTERFACE_SETUP = ObisCode.fromString("0.0.94.33.0.255");
+    private static final ObisCode EURIDIS_PROTOCOL_SETUP = ObisCode.fromString("0.0.23.1.0.255");
+    /**
+     * Database mappings (ERDF-CPT-Linky-SPEC-FONC-CPT-MDD, V1.2, 5)
+     */
+
+    private static final ObisCode FIRMWARE_ENTRIES = ObisCode.fromString("1.0.0.2.0.255");
+    private static final ObisCode FIRMWARE_ENTRY_1 = ObisCode.fromString("1.0.0.2.1.255");
+    private static final ObisCode FIRMWARE_ENTRY_2 = ObisCode.fromString("1.0.0.2.2.255");
+    private static final ObisCode FIRMWARE_ENTRY_3 = ObisCode.fromString("1.0.0.2.3.255");
+    private static final ObisCode FIRMWARE_ENTRY_4 = ObisCode.fromString("1.0.0.2.4.255");
+    private static final ObisCode FIRMWARE_ENTRY_5 = ObisCode.fromString("1.0.0.2.5.255");
+    private static final ObisCode LOGICAL_DEVICE_NAME = ObisCode.fromString("0.0.42.0.0.255");
+    private static final ObisCode PRODUCER_CONSUMER_CODE = ObisCode.fromString("1.0.96.63.11.255");
+    private static final ObisCode TEST_MODE_CODE = ObisCode.fromString("1.0.96.63.12.255");
+    /**
+     * Event manager mappings (ERDF-CPT-Linky-SPEC-FONC-CPT-MDD, V1.2, 7)
+     */
+
+    private static final ObisCode ALARM_FILTER = ObisCode.fromString("0.0.97.98.10.255");
+    private static final ObisCode ALARM_REGISTER = ObisCode.fromString("0.0.97.98.0.255");
+    private static final ObisCode BREAKER_EVENT_CODE = ObisCode.fromString("0.3.96.11.0.255");
+    private static final ObisCode BREAKER_OPENING_COUNTER = ObisCode.fromString("0.0.96.15.1.255");
+    private static final ObisCode BREAKER_OPENING_COUNTER_OVER_MAX_OPENING_CURRENT = ObisCode.fromString("0.0.96.15.2.255");
+    private static final ObisCode COMMUNICATION_EVENT_CODE = ObisCode.fromString("0.4.96.11.0.255");
+    private static final ObisCode COVER_EVENT_CODE = ObisCode.fromString("0.2.96.11.0.255");
+    private static final ObisCode PEAK_EVENT_CODE = ObisCode.fromString("0.6.96.11.0.255");
+    private static final ObisCode COVER_OPENING_COUNTER = ObisCode.fromString("0.0.96.15.0.255");
+    private static final ObisCode ERROR_REGISTER = ObisCode.fromString("0.0.97.97.0.255");
+    private static final ObisCode IMAGE_TRANSFER_COUNTER = ObisCode.fromString("0.0.96.63.10.255");
+    private static final ObisCode MAIN_EVENT_CODE = ObisCode.fromString("0.1.96.11.0.255");
+    private static final ObisCode NUMBER_OF_PROGRAMMING = ObisCode.fromString("0.0.96.2.0.255");
+    private static final ObisCode STATUS_REGISTER = ObisCode.fromString("1.0.96.5.1.255");
+    private static final ObisCode VOLTAGE_CUT_EVENT_CODE = ObisCode.fromString("0.5.96.11.0.255");
+    private static final ObisCode THR_DOWNSTREAM_IMPEDANCE = ObisCode.fromString("1.0.96.31.0.255");
+    /**
+     * Total energy registry mappings (ERDF-CPT-Linky-SPEC-FONC-CPT-MDD, V1.2, 15)
+     */
+
+    private static final ObisCode TOTAL_EXPORT_ACTIVE_ENERGY = ObisCode.fromString("1.1.2.8.0.255");
+    private static final ObisCode TOTAL_IMPORT_ACTIVE_ENERGY = ObisCode.fromString("1.1.1.8.0.255");
+    private static final ObisCode TOTAL_REACTIVE_Q1_ENERGY = ObisCode.fromString("1.1.5.8.0.255");
+    private static final ObisCode TOTAL_REACTIVE_Q2_ENERGY = ObisCode.fromString("1.1.6.8.0.255");
+    private static final ObisCode TOTAL_REACTIVE_Q3_ENERGY = ObisCode.fromString("1.1.7.8.0.255");
+    private static final ObisCode TOTAL_REACTIVE_Q4_ENERGY = ObisCode.fromString("1.1.8.8.0.255");
+    private static final ObisCode ACTIVE_E_CONSIST_CHK_THR = ObisCode.fromString("1.0.11.31.0.255");
+    private static final ObisCode DAILY_MAX_POWER = ObisCode.fromString("1.1.9.19.0.255");
+    private static final ObisCode TARIFF1_IMPORT_ACTIVE_ENERGY_PROVIDER = ObisCode.fromString("1.1.1.8.1.255");
+    private static final ObisCode TARIFF2_IMPORT_ACTIVE_ENERGY_PROVIDER = ObisCode.fromString("1.1.1.8.2.255");
+    private static final ObisCode TARIFF3_IMPORT_ACTIVE_ENERGY_PROVIDER = ObisCode.fromString("1.1.1.8.3.255");
+    private static final ObisCode TARIFF4_IMPORT_ACTIVE_ENERGY_PROVIDER = ObisCode.fromString("1.1.1.8.4.255");
+    private static final ObisCode TARIFF5_IMPORT_ACTIVE_ENERGY_PROVIDER = ObisCode.fromString("1.1.1.8.5.255");
+    private static final ObisCode TARIFF6_IMPORT_ACTIVE_ENERGY_PROVIDER = ObisCode.fromString("1.1.1.8.6.255");
+    private static final ObisCode TARIFF7_IMPORT_ACTIVE_ENERGY_PROVIDER = ObisCode.fromString("1.1.1.8.7.255");
+    private static final ObisCode TARIFF8_IMPORT_ACTIVE_ENERGY_PROVIDER = ObisCode.fromString("1.1.1.8.8.255");
+    private static final ObisCode TARIFF9_IMPORT_ACTIVE_ENERGY_PROVIDER = ObisCode.fromString("1.1.1.8.9.255");
+    private static final ObisCode TARIFF10_IMPORT_ACTIVE_ENERGY_PROVIDER = ObisCode.fromString("1.1.1.8.10.255");
+    private static final ObisCode TARIFF1_IMPORT_ACTIVE_ENERGY_PUBLIC_NETWORK = ObisCode.fromString("1.2.1.8.1.255");
+    private static final ObisCode TARIFF2_IMPORT_ACTIVE_ENERGY_PUBLIC_NETWORK = ObisCode.fromString("1.2.1.8.2.255");
+    private static final ObisCode TARIFF3_IMPORT_ACTIVE_ENERGY_PUBLIC_NETWORK = ObisCode.fromString("1.2.1.8.3.255");
+    private static final ObisCode TARIFF4_IMPORT_ACTIVE_ENERGY_PUBLIC_NETWORK = ObisCode.fromString("1.2.1.8.4.255");
+    /**
+     * Voltage quality measurement mappings (ERDF-CPT-Linky-SPEC-FONC-CPT-MDD, V1.2, 16)
+     */
+
+    private static final ObisCode AVG_ABNORMAL_VOLTAGE_PH1 = ObisCode.fromString("1.1.32.5.0.255");
+    private static final ObisCode AVG_ABNORMAL_VOLTAGE_PH2 = ObisCode.fromString("1.1.52.5.0.255");
+    private static final ObisCode AVG_ABNORMAL_VOLTAGE_PH3 = ObisCode.fromString("1.1.72.5.0.255");
+    private static final ObisCode PH_WITH_ABNORMAL_VOLTAGE = ObisCode.fromString("1.0.12.38.0.255");
+    private static final ObisCode VOLTAGE_CUT_MINIMUM_DURATION = ObisCode.fromString("1.0.12.45.0.255");
+    /**
+     * PLC Statistics mappings, B-field indicates the attribute number
+     */
+    private static final ObisCode PHYS_MAC_LAYER_COUNTERS_ATTR1 = ObisCode.fromString("0.1.29.0.0.255");
+    private static final ObisCode PHYS_MAC_LAYER_COUNTERS_ATTR2 = ObisCode.fromString("0.2.29.0.0.255");
+    private static final ObisCode PHYS_MAC_LAYER_COUNTERS_ATTR3 = ObisCode.fromString("0.3.29.0.0.255");
+    private static final ObisCode PHYS_MAC_LAYER_COUNTERS_ATTR4 = ObisCode.fromString("0.4.29.0.0.255");
+    private static final ObisCode PHYS_MAC_LAYER_COUNTERS_ATTR5 = ObisCode.fromString("0.5.29.0.0.255");
+    private static final ObisCode PHYS_MAC_LAYER_COUNTERS_ATTR6 = ObisCode.fromString("0.6.29.0.0.255");
+    private static final ObisCode PHYS_MAC_LAYER_COUNTERS_ATTR7 = ObisCode.fromString("0.7.29.0.0.255");
+    private static final ObisCode PHYS_MAC_LAYER_COUNTERS_ATTR8 = ObisCode.fromString("0.8.29.0.0.255");
+    private static final ObisCode PHYS_MAC_LAYER_COUNTERS_ATTR9 = ObisCode.fromString("0.9.29.0.0.255");
+    private static final ObisCode PHYS_MAC_LAYER_COUNTERS_ATTR10 = ObisCode.fromString("0.10.29.0.0.255");
+    private static final ObisCode MAC_SETUP_ATTR1 = ObisCode.fromString("0.1.29.1.0.255");
+    private static final ObisCode MAC_SETUP_ATTR2 = ObisCode.fromString("0.2.29.1.0.255");
+    private static final ObisCode MAC_SETUP_ATTR3 = ObisCode.fromString("0.3.29.1.0.255");
+    private static final ObisCode MAC_SETUP_ATTR4 = ObisCode.fromString("0.4.29.1.0.255");
+    private static final ObisCode MAC_SETUP_ATTR7 = ObisCode.fromString("0.7.29.1.0.255");
+    private static final ObisCode MAC_SETUP_ATTR8 = ObisCode.fromString("0.8.29.1.0.255");
+    private static final ObisCode MAC_SETUP_ATTR9 = ObisCode.fromString("0.9.29.1.0.255");
+    private static final ObisCode MAC_SETUP_ATTR10 = ObisCode.fromString("0.10.29.1.0.255");
+    private static final ObisCode MAC_SETUP_ATTR11 = ObisCode.fromString("0.11.29.1.0.255");
+    private static final ObisCode MAC_SETUP_ATTR12 = ObisCode.fromString("0.12.29.1.0.255");
+    private static final ObisCode MAC_SETUP_ATTR13 = ObisCode.fromString("0.13.29.1.0.255");
+    private static final ObisCode MAC_SETUP_ATTR14 = ObisCode.fromString("0.14.29.1.0.255");
+    private static final ObisCode MAC_SETUP_ATTR15 = ObisCode.fromString("0.15.29.1.0.255");
+    private static final ObisCode MAC_SETUP_ATTR16 = ObisCode.fromString("0.16.29.1.0.255");
+    private static final ObisCode MAC_SETUP_ATTR17 = ObisCode.fromString("0.17.29.1.0.255");
+    private static final ObisCode MAC_SETUP_ATTR18 = ObisCode.fromString("0.18.29.1.0.255");
+    private static final ObisCode MAC_SETUP_ATTR20 = ObisCode.fromString("0.20.29.1.0.255");
+    private static final ObisCode MAC_SETUP_ATTR21 = ObisCode.fromString("0.21.29.1.0.255");
+    private static final ObisCode MAC_SETUP_ATTR22 = ObisCode.fromString("0.22.29.1.0.255");
+
+    private static final ObisCode SIXLOWPAN_SETUP_ATTR1 = ObisCode.fromString("0.1.29.2.0.255");
+    private static final ObisCode SIXLOWPAN_SETUP_ATTR2 = ObisCode.fromString("0.2.29.2.0.255");
+    private static final ObisCode SIXLOWPAN_SETUP_ATTR3 = ObisCode.fromString("0.3.29.2.0.255");
+    private static final ObisCode SIXLOWPAN_SETUP_ATTR4 = ObisCode.fromString("0.4.29.2.0.255");
+    private static final ObisCode SIXLOWPAN_SETUP_ATTR5 = ObisCode.fromString("0.5.29.2.0.255");
+    private static final ObisCode SIXLOWPAN_SETUP_ATTR6 = ObisCode.fromString("0.6.29.2.0.255");
+    private static final ObisCode SIXLOWPAN_SETUP_ATTR7 = ObisCode.fromString("0.7.29.2.0.255");
+    private static final ObisCode SIXLOWPAN_SETUP_ATTR8 = ObisCode.fromString("0.8.29.2.0.255");
+    private static final ObisCode SIXLOWPAN_SETUP_ATTR9 = ObisCode.fromString("0.9.29.2.0.255");
+    private static final ObisCode SIXLOWPAN_SETUP_ATTR10 = ObisCode.fromString("0.10.29.2.0.255");
+    private static final ObisCode SIXLOWPAN_SETUP_ATTR11 = ObisCode.fromString("0.11.29.2.0.255");
+    private static final ObisCode SIXLOWPAN_SETUP_ATTR12 = ObisCode.fromString("0.12.29.2.0.255");
+    private static final ObisCode SIXLOWPAN_SETUP_ATTR13 = ObisCode.fromString("0.13.29.2.0.255");
+    private static final ObisCode SIXLOWPAN_SETUP_ATTR14 = ObisCode.fromString("0.14.29.2.0.255");
+    private static final ObisCode SIXLOWPAN_SETUP_ATTR15 = ObisCode.fromString("0.15.29.2.0.255");
+    private static final ObisCode SIXLOWPAN_SETUP_ATTR16 = ObisCode.fromString("0.16.29.2.0.255");
+    private static final ObisCode SIXLOWPAN_SETUP_ATTR17 = ObisCode.fromString("0.17.29.2.0.255");
+    private static final ObisCode SIXLOWPAN_SETUP_ATTR18 = ObisCode.fromString("0.18.29.2.0.255");
+    private static final ObisCode SIXLOWPAN_SETUP_ATTR19 = ObisCode.fromString("0.19.29.2.0.255");
+
+    protected final List<G3Mapping> mappings = new ArrayList<G3Mapping>();
+    private final Logger logger;
+    private final CosemObjectFactory cosemObjectFactory;
+    private final TimeZone deviceTimeZone;
     private G3StoredValues dailyStoredValues;
     private G3StoredValues monthlyStoredValues;
-    protected final List<G3Mapping> mappings = new ArrayList<G3Mapping>();
-    private AS330D as330D;
 
     /**
      * G3 register mapping, used to read ata from the meter as a register value
      */
-    public G3RegisterMapper(AS330D as330D) {
-        this();    //Init mappings
-        this.as330D = as330D;
-        dailyStoredValues = new G3StoredValues(as330D.getSession(), G3ProfileType.DAILY_PROFILE.getObisCode(), true);
-        monthlyStoredValues = new G3StoredValues(as330D.getSession(), G3ProfileType.MONTHLY_PROFILE.getObisCode(), false);
-    }
-
-    public G3RegisterMapper() {
+    public G3RegisterMapper(CosemObjectFactory cosemObjectFactory, TimeZone deviceTimeZone, Logger logger) {
         initializeMappings();
+
+        this.logger = logger;
+        this.cosemObjectFactory = cosemObjectFactory;
+        this.deviceTimeZone = deviceTimeZone;
+
+        dailyStoredValues = new G3StoredValues(cosemObjectFactory, deviceTimeZone, G3ProfileType.DAILY_PROFILE.getObisCode(), true);
+        monthlyStoredValues = new G3StoredValues(cosemObjectFactory, deviceTimeZone, G3ProfileType.MONTHLY_PROFILE.getObisCode(), false);
     }
 
     protected void initializeMappings() {
@@ -78,7 +229,7 @@ public class G3RegisterMapper {
      * @throws java.io.IOException
      */
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
-        as330D.getSession().getLogger().fine("Attempting to read out register [" + obisCode.toString() + "]");
+        logger.fine("Attempting to read out register [" + obisCode.toString() + "]");
         if (obisCode.getF() != 255) {
             HistoricalValue historicalValue = getStoredValuesImpl(obisCode).getHistoricalValue(obisCode);
             return new RegisterValue(obisCode, historicalValue.getQuantityValue(), historicalValue.getEventTime(), historicalValue.getBillingDate());
@@ -86,7 +237,7 @@ public class G3RegisterMapper {
 
         for (G3Mapping mapping : mappings) {
             if (mapping.getObisCode().equals(obisCode)) {
-                final RegisterValue registerValue = mapping.readRegister(as330D);
+                final RegisterValue registerValue = mapping.readRegister(cosemObjectFactory);
                 if (registerValue != null) {
                     return registerValue;
                 }
@@ -119,41 +270,19 @@ public class G3RegisterMapper {
         return basicChecks;
     }
 
-    /**
-     * Billing period mappings (ERDF-CPT-Linky-SPEC-FONC-CPT-MDD, V1.2, 2)
-     */
-    private static final ObisCode ASYNC_EOB_SCHEDULE_ALL = ObisCode.fromString("0.3.15.0.0.255");
-    private static final ObisCode ASYNC_EOB_SCHEDULE_TYPE = ObisCode.fromString("0.3.15.0.1.255");
-    private static final ObisCode ASYNC_EOB_SCHEDULE_TIME = ObisCode.fromString("0.3.15.0.2.255");
-    private static final ObisCode DAILY_EOB_SCHEDULE_ALL = ObisCode.fromString("0.2.15.0.0.255");
-    private static final ObisCode DAILY_EOB_SCHEDULE_TYPE = ObisCode.fromString("0.2.15.0.1.255");
-    private static final ObisCode DAILY_EOB_SCHEDULE_TIME = ObisCode.fromString("0.2.15.0.2.255");
-    private static final ObisCode MONTHLY_EOB_SCHEDULE_ALL = ObisCode.fromString("0.1.15.0.0.255");
-    private static final ObisCode MONTHLY_EOB_SCHEDULE_TYPE = ObisCode.fromString("0.1.15.0.1.255");
-    private static final ObisCode MONTHLY_EOB_SCHEDULE_TIME = ObisCode.fromString("0.1.15.0.2.255");
-
     private final List<G3Mapping> getBillingPeriodMappings() {
         List<G3Mapping> billingMappings = new ArrayList<G3Mapping>();
-        billingMappings.add(new SingleActionScheduleMapping(as330D.getSession().getTimeZone(), ASYNC_EOB_SCHEDULE_ALL));
-        billingMappings.add(new SingleActionScheduleMapping(as330D.getSession().getTimeZone(), ASYNC_EOB_SCHEDULE_TYPE));
-        billingMappings.add(new SingleActionScheduleMapping(as330D.getSession().getTimeZone(), ASYNC_EOB_SCHEDULE_TIME));
-        billingMappings.add(new SingleActionScheduleMapping(as330D.getSession().getTimeZone(), DAILY_EOB_SCHEDULE_ALL));
-        billingMappings.add(new SingleActionScheduleMapping(as330D.getSession().getTimeZone(), DAILY_EOB_SCHEDULE_TYPE));
-        billingMappings.add(new SingleActionScheduleMapping(as330D.getSession().getTimeZone(), DAILY_EOB_SCHEDULE_TIME));
-        billingMappings.add(new SingleActionScheduleMapping(as330D.getSession().getTimeZone(), MONTHLY_EOB_SCHEDULE_ALL));
-        billingMappings.add(new SingleActionScheduleMapping(as330D.getSession().getTimeZone(), MONTHLY_EOB_SCHEDULE_TYPE));
-        billingMappings.add(new SingleActionScheduleMapping(as330D.getSession().getTimeZone(), MONTHLY_EOB_SCHEDULE_TIME));
+        billingMappings.add(new SingleActionScheduleMapping(deviceTimeZone, ASYNC_EOB_SCHEDULE_ALL));
+        billingMappings.add(new SingleActionScheduleMapping(deviceTimeZone, ASYNC_EOB_SCHEDULE_TYPE));
+        billingMappings.add(new SingleActionScheduleMapping(deviceTimeZone, ASYNC_EOB_SCHEDULE_TIME));
+        billingMappings.add(new SingleActionScheduleMapping(deviceTimeZone, DAILY_EOB_SCHEDULE_ALL));
+        billingMappings.add(new SingleActionScheduleMapping(deviceTimeZone, DAILY_EOB_SCHEDULE_TYPE));
+        billingMappings.add(new SingleActionScheduleMapping(deviceTimeZone, DAILY_EOB_SCHEDULE_TIME));
+        billingMappings.add(new SingleActionScheduleMapping(deviceTimeZone, MONTHLY_EOB_SCHEDULE_ALL));
+        billingMappings.add(new SingleActionScheduleMapping(deviceTimeZone, MONTHLY_EOB_SCHEDULE_TYPE));
+        billingMappings.add(new SingleActionScheduleMapping(deviceTimeZone, MONTHLY_EOB_SCHEDULE_TIME));
         return billingMappings;
     }
-
-    /**
-     * Breaker management mappings (ERDF-CPT-Linky-SPEC-FONC-CPT-MDD, V1.2, 3)
-     */
-
-    private static final ObisCode BREAKER_STATE = ObisCode.fromString("0.0.96.3.10.255");
-    private static final ObisCode DOWNSTREAM_VOLTAGE_MONITORING = ObisCode.fromString("1.0.12.35.3.255");
-    private static final ObisCode OVERHEAT_CURRENT_LIMIT = ObisCode.fromString("1.0.0.12.1.255");
-    private static final ObisCode OVERHEAT_DURATION_LIMIT = ObisCode.fromString("1.0.0.12.2.255");
 
     private final List<G3Mapping> getBreakerManagementMappings() {
         final List<G3Mapping> breakerMappings = new ArrayList<G3Mapping>();
@@ -164,33 +293,12 @@ public class G3RegisterMapper {
         return breakerMappings;
     }
 
-    /**
-     * Communication (ERDF-CPT-Linky-SPEC-FONC-CPT-MDD, V1.2, 4)
-     */
-
-    private static final ObisCode CONSUMER_INTERFACE_SETUP = ObisCode.fromString("0.0.94.33.0.255");
-    private static final ObisCode EURIDIS_PROTOCOL_SETUP = ObisCode.fromString("0.0.23.1.0.255");
-
     private final List<G3Mapping> getCommunicationMappings() {
         final List<G3Mapping> communcationMappings = new ArrayList<G3Mapping>();
         communcationMappings.add(new DataValueMapping(CONSUMER_INTERFACE_SETUP));
         communcationMappings.add(new DataValueMapping(EURIDIS_PROTOCOL_SETUP));
         return communcationMappings;
     }
-
-    /**
-     * Database mappings (ERDF-CPT-Linky-SPEC-FONC-CPT-MDD, V1.2, 5)
-     */
-
-    private static final ObisCode FIRMWARE_ENTRIES = ObisCode.fromString("1.0.0.2.0.255");
-    private static final ObisCode FIRMWARE_ENTRY_1 = ObisCode.fromString("1.0.0.2.1.255");
-    private static final ObisCode FIRMWARE_ENTRY_2 = ObisCode.fromString("1.0.0.2.2.255");
-    private static final ObisCode FIRMWARE_ENTRY_3 = ObisCode.fromString("1.0.0.2.3.255");
-    private static final ObisCode FIRMWARE_ENTRY_4 = ObisCode.fromString("1.0.0.2.4.255");
-    private static final ObisCode FIRMWARE_ENTRY_5 = ObisCode.fromString("1.0.0.2.5.255");
-    private static final ObisCode LOGICAL_DEVICE_NAME = ObisCode.fromString("0.0.42.0.0.255");
-    private static final ObisCode PRODUCER_CONSUMER_CODE = ObisCode.fromString("1.0.96.63.11.255");
-    private static final ObisCode TEST_MODE_CODE = ObisCode.fromString("1.0.96.63.12.255");
 
     private final List<G3Mapping> getDataBaseMappings() {
         final List<G3Mapping> dataBaseMappings = new ArrayList<G3Mapping>();
@@ -205,28 +313,6 @@ public class G3RegisterMapper {
         dataBaseMappings.add(new TestModeMapper(TEST_MODE_CODE));
         return dataBaseMappings;
     }
-
-
-    /**
-     * Event manager mappings (ERDF-CPT-Linky-SPEC-FONC-CPT-MDD, V1.2, 7)
-     */
-
-    private static final ObisCode ALARM_FILTER = ObisCode.fromString("0.0.97.98.10.255");
-    private static final ObisCode ALARM_REGISTER = ObisCode.fromString("0.0.97.98.0.255");
-    private static final ObisCode BREAKER_EVENT_CODE = ObisCode.fromString("0.3.96.11.0.255");
-    private static final ObisCode BREAKER_OPENING_COUNTER = ObisCode.fromString("0.0.96.15.1.255");
-    private static final ObisCode BREAKER_OPENING_COUNTER_OVER_MAX_OPENING_CURRENT = ObisCode.fromString("0.0.96.15.2.255");
-    private static final ObisCode COMMUNICATION_EVENT_CODE = ObisCode.fromString("0.4.96.11.0.255");
-    private static final ObisCode COVER_EVENT_CODE = ObisCode.fromString("0.2.96.11.0.255");
-    private static final ObisCode PEAK_EVENT_CODE = ObisCode.fromString("0.6.96.11.0.255");
-    private static final ObisCode COVER_OPENING_COUNTER = ObisCode.fromString("0.0.96.15.0.255");
-    private static final ObisCode ERROR_REGISTER = ObisCode.fromString("0.0.97.97.0.255");
-    private static final ObisCode IMAGE_TRANSFER_COUNTER = ObisCode.fromString("0.0.96.63.10.255");
-    private static final ObisCode MAIN_EVENT_CODE = ObisCode.fromString("0.1.96.11.0.255");
-    private static final ObisCode NUMBER_OF_PROGRAMMING = ObisCode.fromString("0.0.96.2.0.255");
-    private static final ObisCode STATUS_REGISTER = ObisCode.fromString("1.0.96.5.1.255");
-    private static final ObisCode VOLTAGE_CUT_EVENT_CODE = ObisCode.fromString("0.5.96.11.0.255");
-    private static final ObisCode THR_DOWNSTREAM_IMPEDANCE = ObisCode.fromString("1.0.96.31.0.255");
 
     private final List<G3Mapping> getEventManagerMappings() {
         final List<G3Mapping> eventMappings = new ArrayList<G3Mapping>();
@@ -249,19 +335,6 @@ public class G3RegisterMapper {
         return eventMappings;
     }
 
-    /**
-     * Total energy registry mappings (ERDF-CPT-Linky-SPEC-FONC-CPT-MDD, V1.2, 15)
-     */
-
-    private static final ObisCode TOTAL_EXPORT_ACTIVE_ENERGY = ObisCode.fromString("1.1.2.8.0.255");
-    private static final ObisCode TOTAL_IMPORT_ACTIVE_ENERGY = ObisCode.fromString("1.1.1.8.0.255");
-    private static final ObisCode TOTAL_REACTIVE_Q1_ENERGY = ObisCode.fromString("1.1.5.8.0.255");
-    private static final ObisCode TOTAL_REACTIVE_Q2_ENERGY = ObisCode.fromString("1.1.6.8.0.255");
-    private static final ObisCode TOTAL_REACTIVE_Q3_ENERGY = ObisCode.fromString("1.1.7.8.0.255");
-    private static final ObisCode TOTAL_REACTIVE_Q4_ENERGY = ObisCode.fromString("1.1.8.8.0.255");
-    private static final ObisCode ACTIVE_E_CONSIST_CHK_THR = ObisCode.fromString("1.0.11.31.0.255");
-    private static final ObisCode DAILY_MAX_POWER = ObisCode.fromString("1.1.9.19.0.255");
-
     private final List<G3Mapping> getTotalEnergyRegistering() {
         final List<G3Mapping> energyMappings = new ArrayList<G3Mapping>();
         energyMappings.add(new RegisterMapping(TOTAL_EXPORT_ACTIVE_ENERGY));
@@ -274,21 +347,6 @@ public class G3RegisterMapper {
         energyMappings.add(new ExtendedRegisterMapping(DAILY_MAX_POWER));
         return energyMappings;
     }
-
-    private static final ObisCode TARIFF1_IMPORT_ACTIVE_ENERGY_PROVIDER = ObisCode.fromString("1.1.1.8.1.255");
-    private static final ObisCode TARIFF2_IMPORT_ACTIVE_ENERGY_PROVIDER = ObisCode.fromString("1.1.1.8.2.255");
-    private static final ObisCode TARIFF3_IMPORT_ACTIVE_ENERGY_PROVIDER = ObisCode.fromString("1.1.1.8.3.255");
-    private static final ObisCode TARIFF4_IMPORT_ACTIVE_ENERGY_PROVIDER = ObisCode.fromString("1.1.1.8.4.255");
-    private static final ObisCode TARIFF5_IMPORT_ACTIVE_ENERGY_PROVIDER = ObisCode.fromString("1.1.1.8.5.255");
-    private static final ObisCode TARIFF6_IMPORT_ACTIVE_ENERGY_PROVIDER = ObisCode.fromString("1.1.1.8.6.255");
-    private static final ObisCode TARIFF7_IMPORT_ACTIVE_ENERGY_PROVIDER = ObisCode.fromString("1.1.1.8.7.255");
-    private static final ObisCode TARIFF8_IMPORT_ACTIVE_ENERGY_PROVIDER = ObisCode.fromString("1.1.1.8.8.255");
-    private static final ObisCode TARIFF9_IMPORT_ACTIVE_ENERGY_PROVIDER = ObisCode.fromString("1.1.1.8.9.255");
-    private static final ObisCode TARIFF10_IMPORT_ACTIVE_ENERGY_PROVIDER = ObisCode.fromString("1.1.1.8.10.255");
-    private static final ObisCode TARIFF1_IMPORT_ACTIVE_ENERGY_PUBLIC_NETWORK = ObisCode.fromString("1.2.1.8.1.255");
-    private static final ObisCode TARIFF2_IMPORT_ACTIVE_ENERGY_PUBLIC_NETWORK = ObisCode.fromString("1.2.1.8.2.255");
-    private static final ObisCode TARIFF3_IMPORT_ACTIVE_ENERGY_PUBLIC_NETWORK = ObisCode.fromString("1.2.1.8.3.255");
-    private static final ObisCode TARIFF4_IMPORT_ACTIVE_ENERGY_PUBLIC_NETWORK = ObisCode.fromString("1.2.1.8.4.255");
 
     private final List<G3Mapping> getRatedEnergyRegistering() {
         final List<G3Mapping> ratedEnergyMappings = new ArrayList<G3Mapping>();
@@ -309,16 +367,6 @@ public class G3RegisterMapper {
         return ratedEnergyMappings;
     }
 
-    /**
-     * Voltage quality measurement mappings (ERDF-CPT-Linky-SPEC-FONC-CPT-MDD, V1.2, 16)
-     */
-
-    private static final ObisCode AVG_ABNORMAL_VOLTAGE_PH1 = ObisCode.fromString("1.1.32.5.0.255");
-    private static final ObisCode AVG_ABNORMAL_VOLTAGE_PH2 = ObisCode.fromString("1.1.52.5.0.255");
-    private static final ObisCode AVG_ABNORMAL_VOLTAGE_PH3 = ObisCode.fromString("1.1.72.5.0.255");
-    private static final ObisCode PH_WITH_ABNORMAL_VOLTAGE = ObisCode.fromString("1.0.12.38.0.255");
-    private static final ObisCode VOLTAGE_CUT_MINIMUM_DURATION = ObisCode.fromString("1.0.12.45.0.255");
-
     private final List<G3Mapping> getVoltageQualityMeasurements() {
         final List<G3Mapping> voltageMappings = new ArrayList<G3Mapping>();
         voltageMappings.add(new RegisterMapping(AVG_ABNORMAL_VOLTAGE_PH1));
@@ -328,60 +376,6 @@ public class G3RegisterMapper {
         voltageMappings.add(new ExtendedRegisterMapping(PH_WITH_ABNORMAL_VOLTAGE));
         return voltageMappings;
     }
-
-    /**
-     * PLC Statistics mappings, B-field indicates the attribute number
-     */
-    private static final ObisCode PHYS_MAC_LAYER_COUNTERS_ATTR1 = ObisCode.fromString("0.1.29.0.0.255");
-    private static final ObisCode PHYS_MAC_LAYER_COUNTERS_ATTR2 = ObisCode.fromString("0.2.29.0.0.255");
-    private static final ObisCode PHYS_MAC_LAYER_COUNTERS_ATTR3 = ObisCode.fromString("0.3.29.0.0.255");
-    private static final ObisCode PHYS_MAC_LAYER_COUNTERS_ATTR4 = ObisCode.fromString("0.4.29.0.0.255");
-    private static final ObisCode PHYS_MAC_LAYER_COUNTERS_ATTR5 = ObisCode.fromString("0.5.29.0.0.255");
-    private static final ObisCode PHYS_MAC_LAYER_COUNTERS_ATTR6 = ObisCode.fromString("0.6.29.0.0.255");
-    private static final ObisCode PHYS_MAC_LAYER_COUNTERS_ATTR7 = ObisCode.fromString("0.7.29.0.0.255");
-    private static final ObisCode PHYS_MAC_LAYER_COUNTERS_ATTR8 = ObisCode.fromString("0.8.29.0.0.255");
-    private static final ObisCode PHYS_MAC_LAYER_COUNTERS_ATTR9 = ObisCode.fromString("0.9.29.0.0.255");
-    private static final ObisCode PHYS_MAC_LAYER_COUNTERS_ATTR10 = ObisCode.fromString("0.10.29.0.0.255");
-
-    private static final ObisCode MAC_SETUP_ATTR1 = ObisCode.fromString("0.1.29.1.0.255");
-    private static final ObisCode MAC_SETUP_ATTR2 = ObisCode.fromString("0.2.29.1.0.255");
-    private static final ObisCode MAC_SETUP_ATTR3 = ObisCode.fromString("0.3.29.1.0.255");
-    private static final ObisCode MAC_SETUP_ATTR4 = ObisCode.fromString("0.4.29.1.0.255");
-    private static final ObisCode MAC_SETUP_ATTR7 = ObisCode.fromString("0.7.29.1.0.255");
-    private static final ObisCode MAC_SETUP_ATTR8 = ObisCode.fromString("0.8.29.1.0.255");
-    private static final ObisCode MAC_SETUP_ATTR9 = ObisCode.fromString("0.9.29.1.0.255");
-    private static final ObisCode MAC_SETUP_ATTR10 = ObisCode.fromString("0.10.29.1.0.255");
-    private static final ObisCode MAC_SETUP_ATTR11 = ObisCode.fromString("0.11.29.1.0.255");
-    private static final ObisCode MAC_SETUP_ATTR12 = ObisCode.fromString("0.12.29.1.0.255");
-    private static final ObisCode MAC_SETUP_ATTR13 = ObisCode.fromString("0.13.29.1.0.255");
-    private static final ObisCode MAC_SETUP_ATTR14 = ObisCode.fromString("0.14.29.1.0.255");
-    private static final ObisCode MAC_SETUP_ATTR15 = ObisCode.fromString("0.15.29.1.0.255");
-    private static final ObisCode MAC_SETUP_ATTR16 = ObisCode.fromString("0.16.29.1.0.255");
-    private static final ObisCode MAC_SETUP_ATTR17 = ObisCode.fromString("0.17.29.1.0.255");
-    private static final ObisCode MAC_SETUP_ATTR18 = ObisCode.fromString("0.18.29.1.0.255");
-    private static final ObisCode MAC_SETUP_ATTR20 = ObisCode.fromString("0.20.29.1.0.255");
-    private static final ObisCode MAC_SETUP_ATTR21 = ObisCode.fromString("0.21.29.1.0.255");
-    private static final ObisCode MAC_SETUP_ATTR22 = ObisCode.fromString("0.22.29.1.0.255");
-
-    private static final ObisCode SIXLOWPAN_SETUP_ATTR1 = ObisCode.fromString("0.1.29.2.0.255");
-    private static final ObisCode SIXLOWPAN_SETUP_ATTR2 = ObisCode.fromString("0.2.29.2.0.255");
-    private static final ObisCode SIXLOWPAN_SETUP_ATTR3 = ObisCode.fromString("0.3.29.2.0.255");
-    private static final ObisCode SIXLOWPAN_SETUP_ATTR4 = ObisCode.fromString("0.4.29.2.0.255");
-    private static final ObisCode SIXLOWPAN_SETUP_ATTR5 = ObisCode.fromString("0.5.29.2.0.255");
-    private static final ObisCode SIXLOWPAN_SETUP_ATTR6 = ObisCode.fromString("0.6.29.2.0.255");
-    private static final ObisCode SIXLOWPAN_SETUP_ATTR7 = ObisCode.fromString("0.7.29.2.0.255");
-    private static final ObisCode SIXLOWPAN_SETUP_ATTR8 = ObisCode.fromString("0.8.29.2.0.255");
-    private static final ObisCode SIXLOWPAN_SETUP_ATTR9 = ObisCode.fromString("0.9.29.2.0.255");
-    private static final ObisCode SIXLOWPAN_SETUP_ATTR10 = ObisCode.fromString("0.10.29.2.0.255");
-    private static final ObisCode SIXLOWPAN_SETUP_ATTR11 = ObisCode.fromString("0.11.29.2.0.255");
-    private static final ObisCode SIXLOWPAN_SETUP_ATTR12 = ObisCode.fromString("0.12.29.2.0.255");
-    private static final ObisCode SIXLOWPAN_SETUP_ATTR13 = ObisCode.fromString("0.13.29.2.0.255");
-    private static final ObisCode SIXLOWPAN_SETUP_ATTR14 = ObisCode.fromString("0.14.29.2.0.255");
-    private static final ObisCode SIXLOWPAN_SETUP_ATTR15 = ObisCode.fromString("0.15.29.2.0.255");
-    private static final ObisCode SIXLOWPAN_SETUP_ATTR16 = ObisCode.fromString("0.16.29.2.0.255");
-    private static final ObisCode SIXLOWPAN_SETUP_ATTR17 = ObisCode.fromString("0.17.29.2.0.255");
-    private static final ObisCode SIXLOWPAN_SETUP_ATTR18 = ObisCode.fromString("0.18.29.2.0.255");
-    private static final ObisCode SIXLOWPAN_SETUP_ATTR19 = ObisCode.fromString("0.19.29.2.0.255");
 
     protected final List<G3Mapping> getPLCStatisticsMappings() {
         final List<G3Mapping> plcStatistics = new ArrayList<G3Mapping>();

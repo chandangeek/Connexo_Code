@@ -11,7 +11,7 @@ import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocolimpl.dlms.common.DLMSProfileHelper;
-import com.energyict.protocolimpl.dlms.common.ProfileCache;
+import com.energyict.protocolimpl.dlms.common.ProfileCacheImpl;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
@@ -41,7 +41,7 @@ public class A1800Profile extends DLMSProfileHelper {
     private Long multiplier = null;
     private int scaleFactor = 0;
 
-    public A1800Profile(DlmsSession session, ObisCode profileObisCode, ProfileCache cache) {
+    public A1800Profile(DlmsSession session, ObisCode profileObisCode, ProfileCacheImpl cache) {
         super.setSession(session);
         super.setCache(cache);
         super.setObisCode(profileObisCode);
@@ -55,7 +55,7 @@ public class A1800Profile extends DLMSProfileHelper {
      */
     public int getNumberOfChannels() throws IOException {
         final int npc = getProfileGeneric().getNumberOfProfileChannels();
-        getSession().getLogger().info(String.format("Profile has %d captured objects", npc));
+        getLogger().info(String.format("Profile has %d captured objects", npc));
         return npc;
     }
 
@@ -65,7 +65,7 @@ public class A1800Profile extends DLMSProfileHelper {
      * @throws java.io.IOException
      */
     protected void readChannelInfosFromDevice() throws IOException {
-        getSession().getLogger().info("Reading captured object from device for profile [" + getObisCode() + "].");
+        getLogger().info("Reading captured object from device for profile [" + getObisCode() + "].");
 
         setChannelInfos(new ArrayList<ChannelInfo>(getNumberOfChannels()));
         List<CapturedObject> universalObjects = getProfileGeneric().getCaptureObjects();
@@ -101,7 +101,7 @@ public class A1800Profile extends DLMSProfileHelper {
                     channelInfo.setCumulative();
                 }
 
-                getSession().getLogger().info(String.format("Channel %d: %s[%d] = %d - %s [%s] %s",
+                getLogger().info(String.format("Channel %d: %s[%d] = %d - %s [%s] %s",
                         channelIndex, capturedObject.getObisCode(), capturedObject.getAttributeIndex(),
                         channelInfo.getChannelId(), channelInfo.getName(),
                         channelInfo.getUnit(), channelInfo.isCumulative()));
@@ -114,20 +114,20 @@ public class A1800Profile extends DLMSProfileHelper {
 
     private void readMultiplierAndScaleFactor() throws IOException {
         AbstractDataType adt;
-        Data scaleFactorData = getSession().getCosemObjectFactory().getData(SCALE_FACTOR);
+        Data scaleFactorData = getCosemObjectFactory().getData(SCALE_FACTOR);
         adt = scaleFactorData.getValueAttr();
         scaleFactor = adt.getInteger8().intValue();
         BigDecimal sf = new BigDecimal("1");
-        getSession().getLogger().info("Profile scale factor: " + sf.scaleByPowerOfTen(scaleFactor));
+        getLogger().info("Profile scale factor: " + sf.scaleByPowerOfTen(scaleFactor));
 
         if (getObisCode().equals(LOAD_PROFILE_PULSES) ||
                 getObisCode().equals(PROFILE_INSTRUMENTATION_SET1) ||
                 getObisCode().equals(PROFILE_INSTRUMENTATION_SET2)) {
-            Data multiplierData = getSession().getCosemObjectFactory().getData(MULTIPLIER);
+            Data multiplierData = getCosemObjectFactory().getData(MULTIPLIER);
 
             adt = multiplierData.getValueAttr();
             multiplier = adt.longValue();
-            getSession().getLogger().info("Profile multiplier: " + multiplier);
+            getLogger().info("Profile multiplier: " + multiplier);
         }
     }
 
@@ -150,7 +150,7 @@ public class A1800Profile extends DLMSProfileHelper {
 
         int profileEntriesInUse = getProfileGeneric().getEntriesInUse(); // The number of profile entries currently in use
         long interval = this.getProfileInterval();
-        long a1800Time = getSession().getCosemObjectFactory().getClock(A1800.CLOCK_OBIS_CODE).getDateTime().getTime() / 1000;
+        long a1800Time = getCosemObjectFactory().getClock(A1800.CLOCK_OBIS_CODE).getDateTime().getTime() / 1000;
         long fromTime = from.getTimeInMillis() / 1000;
 
         long entriesToRead = ((a1800Time - fromTime) / interval) + 1;
@@ -172,7 +172,7 @@ public class A1800Profile extends DLMSProfileHelper {
         A1800DLMSProfileIntervals intervals = new A1800DLMSProfileIntervals(bufferData, 0x0001, 0x0002, -1, 0x0004, null);
         try {
             intervals.setMultiplier(multiplier);
-            return intervals.parseIntervals(getProfileInterval(), getSession().getTimeZone());
+            return intervals.parseIntervals(getProfileInterval(), getTimeZone());
         } catch (ClassCastException e) {
             throw new IOException(e.getMessage());
         }

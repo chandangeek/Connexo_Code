@@ -5,11 +5,13 @@ import com.energyict.cbo.Unit;
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.OctetString;
 import com.energyict.dlms.cosem.CapturedObject;
+import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.LogicalName;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.dlms.common.DLMSProfileHelper;
+import com.energyict.protocolimpl.dlms.common.ProfileCache;
 import com.energyict.protocolimpl.dlms.g3.G3Cache;
 import com.energyict.protocolimpl.dlms.g3.G3ProfileType;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -30,19 +32,22 @@ public class G3Profile extends DLMSProfileHelper {
 
     private G3ProfileType profileType;
 
-    public G3Profile(DlmsSession session, G3ProfileType profileType, G3Cache cache) {
+    public G3Profile(DlmsSession session, G3ProfileType profileType, G3Cache cache, String serialNumber) {
         super.setSession(session);
         super.setObisCode(profileType.getObisCode());
         super.setCache(cache);
+        super.setSerialNumber(serialNumber);
         this.profileType = profileType;
     }
 
-    public G3Profile(G3ProfileType profileType, Logger logger, TimeZone timeZone) {
+    public G3Profile(G3ProfileType profileType, ProfileCache profileCache, Logger logger, TimeZone timeZone, CosemObjectFactory cosemObjectFactory, String serialNumber) {
+        super.setCosemObjectFactory(cosemObjectFactory);
+        super.setLogger(logger);
+        super.setTimeZone(timeZone);
         super.setObisCode(profileType.getObisCode());
-        super.setCache(new G3Cache());
+        super.setCache(profileCache);
+        super.setSerialNumber(serialNumber);
         this.profileType = profileType;
-        setLogger(logger);
-        setTimeZone(timeZone);
     }
 
     @Override
@@ -81,17 +86,18 @@ public class G3Profile extends DLMSProfileHelper {
     }
 
     @Override
-    protected void readChannelInfosFromDevice() throws IOException {
+    public void readChannelInfosFromDevice() throws IOException {
         if (isDaily() || isMonthly()) {
             super.readChannelInfosFromDevice();   //These profiles contain captured_objects
         } else {
             setChannelInfos(new ArrayList<ChannelInfo>());
             switch (profileType) {
                 case IMPORT_ACTIVE_POWER_PROFILE:
-                    addChannelInfo(new ChannelInfo(0, "A+", Unit.get(BaseUnit.WATT)));
+                    ChannelInfo channelInfo = new ChannelInfo(0, "1.1.1.8.0.255", Unit.get(BaseUnit.WATT), getSerialNumber());
+                    addChannelInfo(channelInfo);
                     break;
                 case EXPORT_ACTIVE_POWER_PROFILE:
-                    addChannelInfo(new ChannelInfo(0, "A-", Unit.get(BaseUnit.WATT)));
+                    addChannelInfo(new ChannelInfo(0, "1.1.2.8.0.255", Unit.get(BaseUnit.WATT), getSerialNumber()));
                     break;
             }
         }
@@ -122,21 +128,38 @@ public class G3Profile extends DLMSProfileHelper {
             byte[] profileRawData = getProfileGeneric().getBufferData(getCalendar(from), getCalendar(to));
             final List<IntervalData> intervalDatas = parseCompactArray(profileRawData);
             profileData.setIntervalDatas(intervalDatas);
+            profileData.sort();
 
             return profileData;
         }
     }
 
     public List<IntervalData> parseCompactArray(byte[] profileRawData) throws IOException {
+        return parseCompactArray(profileRawData, false);
+    }
+
+    /**
+     * @param inverse Indicating if the entries in the compact array are ordered LIFO (true) or FIFO (false).
+     *                Default is false.
+     */
+    public List<IntervalData> parseCompactArray(byte[] profileRawData, boolean inverse) throws IOException {
         final G3CompactProfile g3CompactProfile = new G3CompactProfile(profileRawData);
-        final G3LoadProfileEntry[] entries = g3CompactProfile.getEntries();
+        G3LoadProfileEntry[] entries = g3CompactProfile.getEntries();
+
         if (entries.length == 0) {
             return new ArrayList<IntervalData>();
         }
-        return buildIntervalData(entries);
+
+        if (inverse) {
+            List<G3LoadProfileEntry> g3List = Arrays.asList(entries);
+            Collections.reverse(g3List);
+            entries = g3List.toArray(entries);
+        }
+
+        return buildIntervalData(entries, inverse);
     }
 
-    private final List<IntervalData> buildIntervalData(final G3LoadProfileEntry[] profileEntries) throws IOException {
+    private final List<IntervalData> buildIntervalData(final G3LoadProfileEntry[] profileEntries, boolean inverse) throws IOException {
         final List<IntervalData> intervalDatas = new ArrayList<IntervalData>();
         int latestProfileInterval = getFirstInterval(profileEntries);
         int eiCode = 0;
@@ -158,7 +181,7 @@ public class G3Profile extends DLMSProfileHelper {
                 intervaldata.addValue(entry.getValue());
                 intervalDatas.add(intervaldata);
                 latestProfileInterval = entry.getIntervalInSeconds();
-                calendar.add(Calendar.SECOND, latestProfileInterval); // set the calendar to the next interval endtime
+                calendar.add(Calendar.SECOND, latestProfileInterval);
                 continue;
             }
 
@@ -173,7 +196,7 @@ public class G3Profile extends DLMSProfileHelper {
                 eiCode = 0;
                 intervalDatas.add(intervalData);
                 latestProfileInterval = entry.getIntervalInSeconds();
-                calendar.add(Calendar.SECOND, latestProfileInterval); // set the calendar to the next interval endtime
+                calendar.add(Calendar.SECOND, latestProfileInterval);
                 continue;
             }
 
@@ -195,10 +218,14 @@ public class G3Profile extends DLMSProfileHelper {
                     calendar.set(Calendar.HOUR_OF_DAY, entry.getHours());
                     calendar.set(Calendar.MINUTE, entry.getMinutes());
                     calendar.set(Calendar.SECOND, entry.getSeconds());
+                    if (inverse) {
+                        calendar.add(Calendar.SECOND, -1 * latestProfileInterval);  //Correction for the offset, looks like otherwise all entries are 1 interval later
+                    }
+
                     dateStamp = null; // reset the dateStamp
 
                     if (entry.isStartOfLoadProfile()) {
-                        calendar.add(Calendar.SECOND, latestProfileInterval); // set the calendar to the end of the interval
+                        calendar.add(Calendar.SECOND, latestProfileInterval);
                         // do nothing special...
                     } else if (entry.isPowerOff()) {
                         com.energyict.protocolimpl.base.ParseUtils.roundUp2nearestInterval(calendar, latestProfileInterval);

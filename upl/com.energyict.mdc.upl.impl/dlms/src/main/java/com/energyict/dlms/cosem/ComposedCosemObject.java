@@ -1,11 +1,8 @@
 package com.energyict.dlms.cosem;
 
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
 import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
@@ -31,11 +28,6 @@ public class ComposedCosemObject extends AbstractCosemObject implements Iterable
     private final AbstractDataType[] dataResult;
     private final boolean useGetWithList;
     private Date lastAttributeReadTime;
-
-    @Override
-    protected int getClassId() {
-        return getObjectReference().getClassId();
-    }
 
     public ComposedCosemObject(ProtocolLink protocolLink, boolean useGetWithList, List<DLMSAttribute> dlmsAttributes) {
         this(protocolLink, useGetWithList, dlmsAttributes.toArray(new DLMSAttribute[dlmsAttributes.size()]));
@@ -65,6 +57,11 @@ public class ComposedCosemObject extends AbstractCosemObject implements Iterable
         } else {
             return da;
         }
+    }
+
+    @Override
+    protected int getClassId() {
+        return getObjectReference().getClassId();
     }
 
     public AbstractDataType getAttribute(DLMSAttribute attr) throws IOException {
@@ -158,34 +155,6 @@ public class ComposedCosemObject extends AbstractCosemObject implements Iterable
             }
         }
         return false;
-    }
-
-    public long getValue() throws IOException {
-        return 0;
-    }
-
-    public Date getCaptureTime() throws IOException {
-        return new Date(0);
-    }
-
-    public ScalerUnit getScalerUnit() throws IOException {
-        return new ScalerUnit(0, Unit.getUndefined());
-    }
-
-    public Quantity getQuantityValue() throws IOException {
-        return new Quantity(0, Unit.getUndefined());
-    }
-
-    public Date getBillingDate() throws IOException {
-        return new Date(0);
-    }
-
-    public int getResetCounter() {
-        return 0;
-    }
-
-    public String getText() throws IOException {
-        return toString();
     }
 
     @Override

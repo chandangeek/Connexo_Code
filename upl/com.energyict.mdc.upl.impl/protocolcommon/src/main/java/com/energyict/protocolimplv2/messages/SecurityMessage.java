@@ -51,6 +51,10 @@ public enum SecurityMessage implements DeviceMessageSpec {
     CHANGE_PASSWORD_WITH_NEW_PASSWORD(9, PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newPasswordAttributeName)),   //ASCII password
     CHANGE_LLS_SECRET(10),
     CHANGE_LLS_SECRET_HEX(11, PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.newHexPasswordAttributeName)),          //Hex string
+    @Deprecated
+    /**
+     * For backwards compatibility
+     */
     CHANGE_HLS_SECRET(12),
     CHANGE_HLS_SECRET_HEX(13, PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.newHexPasswordAttributeName)),          //Hex string
     ACTIVATE_DEACTIVATE_TEMPORARY_ENCRYPTION_KEY(14,

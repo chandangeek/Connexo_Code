@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.dlms.g3;
 
-import com.energyict.protocolimpl.dlms.common.ProfileCache;
+import com.energyict.protocolimpl.dlms.common.ProfileCacheImpl;
 
 /**
  * Copyrights EnergyICT
@@ -8,7 +8,7 @@ import com.energyict.protocolimpl.dlms.common.ProfileCache;
  * Time: 13:53
  * Author: khe
  */
-public class G3Cache extends ProfileCache {
+public class G3Cache extends ProfileCacheImpl {
 
     private long frameCounter = 1;
 

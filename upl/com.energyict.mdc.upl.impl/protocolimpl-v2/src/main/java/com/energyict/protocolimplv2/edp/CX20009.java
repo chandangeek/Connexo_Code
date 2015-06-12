@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.edp;
 
+import com.energyict.cbo.ConfigurationSupport;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
@@ -40,7 +41,6 @@ import java.util.List;
  */
 public class CX20009 extends AbstractDlmsProtocol {
 
-    private EDPDlmsConfigurationSupport edpDlmsConfigurationSupport;
     private LogbookReader logbookReader = null;
     private RegisterReader registerReader;
     private EDPMessaging edpMessaging;
@@ -57,11 +57,11 @@ public class CX20009 extends AbstractDlmsProtocol {
      * A collection of general DLMS properties.
      * These properties are not related to the security or the protocol dialects.
      */
-    protected EDPDlmsConfigurationSupport getDlmsConfigurationSupport() {
-        if (edpDlmsConfigurationSupport == null) {
-            edpDlmsConfigurationSupport = new EDPDlmsConfigurationSupport();
+    protected ConfigurationSupport getDlmsConfigurationSupport() {
+        if (dlmsConfigurationSupport == null) {
+            dlmsConfigurationSupport = new EDPDlmsConfigurationSupport();
         }
-        return edpDlmsConfigurationSupport;
+        return dlmsConfigurationSupport;
     }
 
     /**
