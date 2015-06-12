@@ -330,11 +330,11 @@ public class DataExportTaskResource {
 
 
     private EndDeviceGroup endDeviceGroup(long endDeviceGroupId) {
-        return meteringGroupsService.findEndDeviceGroup(endDeviceGroupId).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        return meteringGroupsService.findEndDeviceGroup(endDeviceGroupId).orElse(null);
     }
 
     private RelativePeriod getRelativePeriod(RelativePeriodInfo relativePeriodInfo) {
-        if (relativePeriodInfo == null) {
+        if ((relativePeriodInfo == null) || (relativePeriodInfo.id == null)){
             return null;
         }
         return timeService.findRelativePeriod(relativePeriodInfo.id).orElse(null);
