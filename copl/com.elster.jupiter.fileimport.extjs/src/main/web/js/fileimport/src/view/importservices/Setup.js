@@ -38,7 +38,6 @@ Ext.define('Fim.view.importservices.Setup', {
                             {
                                 text: Uni.I18n.translate('general.addImportService', 'FIM', 'Add import service'),
                                 privileges: Fim.privileges.DataImport.getAdminPrivilege(),
-                                ui: 'action',
                                 href: '#/administration/importservices/add'
                             }
                         ]
