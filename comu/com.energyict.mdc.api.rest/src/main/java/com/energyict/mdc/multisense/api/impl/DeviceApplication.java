@@ -60,36 +60,14 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     public static final String APP_KEY = "MDC";
     public static final String COMPONENT_NAME = "DDA";
 
-    private volatile MasterDataService masterDataService;
-
-    private volatile ConnectionTaskService connectionTaskService;
     private volatile DeviceService deviceService;
-    private volatile TopologyService topologyService;
     private volatile DeviceConfigurationService deviceConfigurationService;
-    private volatile ProtocolPluggableService protocolPluggableService;
-    private volatile DeviceImportService deviceImportService;
+    private volatile TopologyService topologyService;
     private volatile IssueService issueService;
-    private volatile TransactionService transactionService;
-    private volatile YellowfinGroupsService yellowfinGroupsService;
-    private volatile NlsService nlsService;
-    private volatile JsonService jsonService;
-    private volatile Thesaurus thesaurus;
-    private volatile EngineConfigurationService engineConfigurationService;
-    private volatile SchedulingService schedulingService;
-    private volatile ValidationService validationService;
-    private volatile MeteringService meteringService;
-    private volatile MeteringGroupsService meteringGroupsService;
-    private volatile RestQueryService restQueryService;
-    private volatile TaskService taskService;
-    private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
-    private volatile Clock clock;
-    private volatile CommunicationTaskService communicationTaskService;
-    private volatile FavoritesService favoritesService;
-    private volatile DataCollectionKpiService dataCollectionKpiService;
-    private volatile License license;
-    private volatile FirmwareService firmwareService;
-    private volatile FiniteStateMachineService finiteStateMachineService;
     private volatile DeviceLifeCycleService deviceLifeCycleService;
+    private volatile FiniteStateMachineService finiteStateMachineService;
+    private volatile Thesaurus thesaurus;
+    private volatile TransactionService transactionService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -111,28 +89,8 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     }
 
     @Reference
-    public void setMasterDataService(MasterDataService masterDataService) {
-        this.masterDataService = masterDataService;
-    }
-
-    @Reference
-    public void setDeviceImportService(DeviceImportService deviceImportService) {
-        this.deviceImportService = deviceImportService;
-    }
-
-    @Reference
-    public void setConnectionTaskService(ConnectionTaskService connectionTaskService) {
-        this.connectionTaskService = connectionTaskService;
-    }
-
-    @Reference
     public void setDeviceService(DeviceService deviceService) {
         this.deviceService = deviceService;
-    }
-
-    @Reference
-    public void setTopologyService(TopologyService topologyService) {
-        this.topologyService = topologyService;
     }
 
     @Reference
@@ -141,35 +99,28 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     }
 
     @Reference
+    public void setTopologyService(TopologyService topologyService) {
+        this.topologyService = topologyService;
+    }
+
+    @Reference
     public void setIssueService(IssueService issueService) {
         this.issueService = issueService;
     }
 
     @Reference
-    public void setProtocolPluggableService(ProtocolPluggableService protocolPluggableService) {
-        this.protocolPluggableService = protocolPluggableService;
-    }
-
-    @Reference
-    public void setTransactionService(TransactionService transactionService) {
-        this.transactionService = transactionService;
-    }
-
-    @Reference
-    public void setYellowfinGroupsService(YellowfinGroupsService yellowfinGroupsService) {
-        this.yellowfinGroupsService = yellowfinGroupsService;
-    }
-
-
-    @Reference
     public void setNlsService(NlsService nlsService) {
-        this.nlsService = nlsService;
         this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST);
     }
 
     @Reference
     public void setFiniteStateMachineService(FiniteStateMachineService finiteStateMachineService) {
         this.finiteStateMachineService = finiteStateMachineService;
+    }
+
+    @Reference
+    public void setTransactionService(TransactionService transactionService) {
+        this.transactionService = transactionService;
     }
 
     @Override
@@ -187,79 +138,8 @@ public class DeviceApplication extends Application implements TranslationKeyProv
         return new ArrayList<>();
     }
 
-    @Reference
-    public void setJsonService(JsonService jsonService) {
-        this.jsonService = jsonService;
-    }
-
-    @Reference
-    public void setEngineConfigurationService(EngineConfigurationService engineConfigurationService) {
-        this.engineConfigurationService = engineConfigurationService;
-    }
-
-    @Reference
-    public void setSchedulingService(SchedulingService schedulingService) {
-        this.schedulingService = schedulingService;
-    }
-
-    @Reference
-    public void setValidationService(ValidationService validationService) {
-        this.validationService = validationService;
-    }
-
-    @Reference
-    public void setMeteringService(MeteringService meteringService) {
-        this.meteringService = meteringService;
-    }
-
-    @Reference
-    public void setMeteringGroupsService(MeteringGroupsService meteringGroupsService) {
-        this.meteringGroupsService = meteringGroupsService;
-    }
-
-    @Reference
-    public void setRestQueryService(RestQueryService restQueryService) {
-        this.restQueryService = restQueryService;
-    }
-
-    @Reference
-    public void setClockService(Clock clock) {
-        this.clock = clock;
-    }
-
-    @Reference
-    public void setTaskService(TaskService taskService) {
-        this.taskService = taskService;
-    }
-
-    @Reference
-    public void setCommunicationTaskService(CommunicationTaskService communicationTaskService) {
-        this.communicationTaskService = communicationTaskService;
-    }
-
-    @Reference
-    public void setDeviceMessageSpecificationService(DeviceMessageSpecificationService deviceMessageSpecificationService) {
-        this.deviceMessageSpecificationService = deviceMessageSpecificationService;
-    }
-
-    @Reference
-    public void setFavoritesService(FavoritesService favoritesService) {
-        this.favoritesService = favoritesService;
-    }
-
     @Reference(target = "(com.elster.jupiter.license.rest.key=" + APP_KEY + ")")
     public void setLicense(License license) {
-        this.license = license;
-    }
-
-    @Reference
-    public void setDataCollectionKpiService(DataCollectionKpiService dataCollectionKpiService) {
-        this.dataCollectionKpiService = dataCollectionKpiService;
-    }
-
-    @Reference
-    public void setFirmwareService(FirmwareService firmwareService) {
-        this.firmwareService = firmwareService;
     }
 
     @Reference
@@ -271,40 +151,20 @@ public class DeviceApplication extends Application implements TranslationKeyProv
 
         @Override
         protected void configure() {
-            bind(masterDataService).to(MasterDataService.class);
-            bind(connectionTaskService).to(ConnectionTaskService.class);
             bind(deviceService).to(DeviceService.class);
             bind(deviceConfigurationService).to(DeviceConfigurationService.class);
-            bind(protocolPluggableService).to(ProtocolPluggableService.class);
-            bind(transactionService).to(TransactionService.class);
             bind(issueService).to(IssueService.class);
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
             bind(MdcPropertyUtils.class).to(MdcPropertyUtils.class);
-            bind(nlsService).to(NlsService.class);
-            bind(jsonService).to(JsonService.class);
             bind(thesaurus).to(Thesaurus.class);
-            bind(deviceImportService).to(DeviceImportService.class);
-            bind(engineConfigurationService).to(EngineConfigurationService.class);
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
-            bind(schedulingService).to(SchedulingService.class);
-            bind(validationService).to(ValidationService.class);
-            bind(meteringService).to(MeteringService.class);
-            bind(meteringGroupsService).to(MeteringGroupsService.class);
-            bind(restQueryService).to(RestQueryService.class);
-            bind(yellowfinGroupsService).to(YellowfinGroupsService.class);
-            bind(clock).to(Clock.class);
-            bind(deviceMessageSpecificationService).to(DeviceMessageSpecificationService.class);
-            bind(taskService).to(TaskService.class);
-            bind(communicationTaskService).to(CommunicationTaskService.class);
-            bind(favoritesService).to(FavoritesService.class);
             bind(topologyService).to(TopologyService.class);
-            bind(dataCollectionKpiService).to(DataCollectionKpiService.class);
-            bind(firmwareService).to(FirmwareService.class);
             bind(DeviceInfoFactory.class).to(DeviceInfoFactory.class);
             bind(DeviceTypeInfoFactory.class).to(DeviceTypeInfoFactory.class);
             bind(DeviceConfigurationInfoFactory.class).to(DeviceConfigurationInfoFactory.class);
             bind(finiteStateMachineService).to(FiniteStateMachineService.class);
             bind(deviceLifeCycleService).to(DeviceLifeCycleService.class);
+            bind(transactionService).to(TransactionService.class);
         }
     }
 
