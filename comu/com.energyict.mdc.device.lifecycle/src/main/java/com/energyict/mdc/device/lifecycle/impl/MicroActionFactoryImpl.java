@@ -1,16 +1,7 @@
 package com.energyict.mdc.device.lifecycle.impl;
 
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
-import com.energyict.mdc.device.lifecycle.impl.micro.actions.ActivateConnectionTasks;
-import com.energyict.mdc.device.lifecycle.impl.micro.actions.CloseMeterActivation;
-import com.energyict.mdc.device.lifecycle.impl.micro.actions.CreateMeterActivation;
-import com.energyict.mdc.device.lifecycle.impl.micro.actions.DetachSlaveFromMaster;
-import com.energyict.mdc.device.lifecycle.impl.micro.actions.DisableCommunication;
-import com.energyict.mdc.device.lifecycle.impl.micro.actions.DisableValidation;
-import com.energyict.mdc.device.lifecycle.impl.micro.actions.EnableValidation;
-import com.energyict.mdc.device.lifecycle.impl.micro.actions.RemoveDeviceFromStaticGroups;
-import com.energyict.mdc.device.lifecycle.impl.micro.actions.SetLastReading;
-import com.energyict.mdc.device.lifecycle.impl.micro.actions.StartCommunication;
+import com.energyict.mdc.device.lifecycle.impl.micro.actions.*;
 import com.energyict.mdc.device.topology.TopologyService;
 
 import com.elster.jupiter.metering.MeteringService;
@@ -95,6 +86,9 @@ public class MicroActionFactoryImpl implements ServerMicroActionFactory {
             }
             case REMOVE_DEVICE_FROM_STATIC_GROUPS: {
                 return new RemoveDeviceFromStaticGroups(this.meteringService, this.meteringGroupsService);
+            }
+            case ENABLE_ESTIMATION: {
+                return new EnableEstimation();
             }
             default: {
                 throw new IllegalArgumentException("Unknown or unsupported MicroAction " + microAction.name());

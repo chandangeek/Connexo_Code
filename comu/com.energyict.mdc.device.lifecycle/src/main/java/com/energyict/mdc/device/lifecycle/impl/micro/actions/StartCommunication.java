@@ -1,15 +1,18 @@
 package com.energyict.mdc.device.lifecycle.impl.micro.actions;
 
+import com.elster.jupiter.time.TemporalExpression;
+import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.*;
 import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
 import com.energyict.mdc.device.lifecycle.impl.ServerMicroAction;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.energyict.mdc.tasks.ComTask;
 
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Provides an implementation for the {@link ServerMicroAction} interface
@@ -30,8 +33,26 @@ public class StartCommunication implements ServerMicroAction {
 
     @Override
     public void execute(Device device, List<ExecutableActionProperty> properties) {
-        device.getConnectionTasks().forEach(connectionTask -> connectionTask.activate());
+        List<ComTaskExecution> comTaskExecutions = new ArrayList<>(device.getComTaskExecutions());
+        // include the 'unused' enablements
+        List<ComTaskEnablement> comTaskEnablements = device.getDeviceConfiguration().getComTaskEnablements();
+        Set<Long> usedComtaskIds =
+                comTaskExecutions
+                        .stream()
+                        .flatMap(each -> each.getComTasks().stream())
+                        .map(ComTask::getId)
+                        .collect(Collectors.toSet());
+        boolean deviceNeedsToBeSaved = false;
+        for(ComTaskEnablement comTaskEnablement : comTaskEnablements){
+            if(!usedComtaskIds.contains(comTaskEnablement.getComTask().getId())){
+                comTaskExecutions.add(device.newManuallyScheduledComTaskExecution(comTaskEnablement, null ).add()) ;
+                deviceNeedsToBeSaved = true;
+            }
+        }
+        if (deviceNeedsToBeSaved){
+            device.save();
+        }
+        device.getConnectionTasks().forEach(ConnectionTask::activate);
         device.getComTaskExecutions().forEach(ComTaskExecution::scheduleNow);
     }
-
 }
