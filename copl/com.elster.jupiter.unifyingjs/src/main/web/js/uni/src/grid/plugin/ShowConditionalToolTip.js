@@ -27,13 +27,13 @@ Ext.define('Uni.grid.plugin.ShowConditionalToolTip', {
         Ext.Array.each(gridPanel.columns, function (column) {
             var header = Ext.get(gridPanel.getEl().query('#' + column.id + '-titleEl')[0]);
 
-            if (column.text && (header.getWidth(true) < header.getTextWidth())) {
+            if (column.text && header !== null && (header.getWidth(true) < header.getTextWidth())) {
                 header.set({'data-qtip': column.text});
-            } else {
+            } else if (header !== null) {
                 header.set({'data-qtip': undefined});
             }
 
-            if (column.$className === 'Ext.grid.column.Column' || column.$className === 'Ext.grid.column.Date' || column.$className === 'Ext.grid.column.Template'|| column.$className === 'Uni.grid.column.Duration') {
+            if (column.$className === 'Ext.grid.column.Column' || column.$className === 'Ext.grid.column.Date' || column.$className === 'Ext.grid.column.Template' || column.$className === 'Uni.grid.column.Duration') {
                 Ext.Array.each(grid.getEl().query('.x-grid-cell-headerId-' + (column.itemId || column.id)), function (item) {
                     var cell = Ext.get(item),
                         inner = cell.down('.x-grid-cell-inner'),

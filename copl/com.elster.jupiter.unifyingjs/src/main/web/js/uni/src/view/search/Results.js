@@ -1,3 +1,6 @@
+/**
+ * @class Uni.view.search.Results
+ */
 Ext.define('Uni.view.search.Results', {
     extend: 'Ext.grid.Panel',
     xtype: 'uni-view-search-results',
@@ -14,13 +17,16 @@ Ext.define('Uni.view.search.Results', {
     initComponent: function () {
         var me = this;
 
-        me.columns = [
-            {
-                header: Uni.I18n.translate('general.name', 'UNI', 'Name'),
-                dataIndex: 'name',
-                flex: 1
-            }
-        ];
+        if (!Ext.isDefined(me.columns)) {
+            // TODO Remove this.
+            me.columns = [
+                {
+                    header: Uni.I18n.translate('general.name', 'UNI', 'mRID'),
+                    dataIndex: 'mRID',
+                    flex: 1
+                }
+            ];
+        }
 
         me.dockedItems = [
             {

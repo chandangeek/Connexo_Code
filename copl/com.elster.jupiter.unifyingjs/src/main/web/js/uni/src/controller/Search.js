@@ -6,13 +6,16 @@ Ext.define('Uni.controller.Search', {
 
     stores: [
         'Uni.store.search.Domains',
+        'Uni.store.search.Fields',
         'Uni.store.search.Properties',
+        'Uni.store.search.PropertyValues',
         'Uni.store.search.Removables',
         'Uni.store.search.Results'
     ],
 
     requires: [
         'Uni.view.search.Overview',
+        'Uni.view.search.Adapter',
         'Uni.util.Filters'
     ],
 
@@ -48,10 +51,15 @@ Ext.define('Uni.controller.Search', {
         {
             ref: 'clearFiltersButton',
             selector: 'uni-view-search-overview button[action=clearFilters]'
+        },
+        {
+            ref: 'resultsGrid',
+            selector: 'uni-view-search-overview uni-view-search-results'
         }
     ],
 
     filterObjectParam: 'filter',
+    lastRequest: undefined,
 
     filters: Ext.create('Ext.util.MixedCollection', false, function (o) {
         return o ? o.dataIndex : null;
@@ -79,6 +87,7 @@ Ext.define('Uni.controller.Search', {
         me.getApplication().fireEvent('changecontentevent', widget);
 
         me.initComponentListeners();
+        me.filters.removeAll();
 
         searchDomains.load();
     },
@@ -208,6 +217,7 @@ Ext.define('Uni.controller.Search', {
         me.initRemovableCriteria();
 
         Uni.util.Filters.loadHistoryState(me.filters, true);
+        me.applyFilters();
 
         Ext.resumeLayouts(true);
     },
@@ -222,16 +232,14 @@ Ext.define('Uni.controller.Search', {
         propertiesStore.each(function (property) {
             me.addStickyProperty(property);
         });
+
+        propertiesStore.clearFilter();
     },
 
     initRemovableCriteria: function () {
-        var me = this,
-            removablesStore = Ext.getStore('Uni.store.search.Removables');
+        var me = this;
 
         me.removeRemovableProperties();
-
-        // TODO Add removables that are in the URL filled in.
-
         me.updateRemovableContainerVisibility();
     },
 
@@ -256,27 +264,89 @@ Ext.define('Uni.controller.Search', {
             searchDomains = Ext.getStore('Uni.store.search.Domains'),
             searchDomain = searchDomains.findRecord('id', newValue),
             searchResults = Ext.getStore('Uni.store.search.Results'),
-            searchProperties = Ext.getStore('Uni.store.search.Properties');
+            searchProperties = Ext.getStore('Uni.store.search.Properties'),
+            fields = Ext.getStore('Uni.store.search.Fields'),
+            model = 'Uni.model.search.Result';
 
         if (searchDomain !== null && Ext.isDefined(searchDomain)) {
             me.updateSearchDomainHistoryState(searchDomain);
 
-            searchResults.getProxy().url = searchDomain.get('selfHref');
-            searchResults.load();
-
             searchProperties.getProxy().url = searchDomain.get('glossaryHref');
             searchProperties.load();
+
+            fields.getProxy().url = searchDomain.get('describedByHref');
+            fields.load({
+                callback: function (records, operation, success) {
+                    if (success) {
+                        me.updateResultModelAndColumnsFromFields(records);
+
+                        searchResults.removeAll();
+                        searchResults.getProxy().url = searchDomain.get('selfHref');
+                        me.lastRequest = searchResults.load();
+                    }
+                },
+                scope: me
+            });
         }
     },
 
+    updateResultModelAndColumnsFromFields: function (fields) {
+        var me = this,
+            grid = me.getResultsGrid(),
+            fieldItems = [],
+            columnItems = [];
+
+        fields.forEach(function (field) {
+            fieldItems.push(me.createFieldDefinitionFromModel(field));
+            columnItems.push(me.createColumnDefinitionFromModel(field));
+        });
+
+        grid.store.model.setFields(fieldItems);
+        grid.reconfigure(null, columnItems);
+    },
+
+    createColumnDefinitionFromModel: function (field) {
+        var propertyName = field.get('propertyName'),
+            type = field.get('type'),
+            displayValue = field.get('displayValue');
+
+        return {
+            dataIndex: propertyName,
+            header: displayValue,
+            flex: 1
+        };
+    },
+
+    createFieldDefinitionFromModel: function (field) {
+        var propertyName = field.get('propertyName'),
+            type = field.get('type');
+
+        switch (type) {
+            case 'Boolean':
+                type = 'boolean';
+                break;
+            case 'Long':
+                type = 'int';
+                break;
+            case 'String':
+                type = 'string';
+                break;
+            default:
+                type = 'auto';
+                break;
+        }
+
+        return {
+            name: propertyName,
+            type: type
+        };
+    },
+
     updateSearchDomainHistoryState: function (searchDomain) {
-        var params = {
-                searchDomain: searchDomain.get('displayValue')
-            },
+        var params = {searchDomain: searchDomain.get('displayValue')},
             href = Uni.util.QueryString.buildHrefWithQueryString(params, false);
 
         if (location.href !== href) {
-            debugger;
             Uni.util.History.suspendEventsForNextCall();
             location.href = href;
         }
@@ -317,20 +387,27 @@ Ext.define('Uni.controller.Search', {
         Ext.resumeLayouts(true);
     },
 
-    addProperty: function (property, container) {
+    addProperty: function (property, container, removable) {
         var me = this,
-            filter = me.createWidgetForProperty(property);
+            filter = me.createWidgetForProperty(property, removable);
 
         if (Ext.isDefined(filter)) {
             me.filters.add(filter);
             container.add(filter);
 
-            filter.on('filterupdate', me.applyFilters, me);
+            if (removable) {
+                filter.widget.on('filterupdate', me.applyFilters, me);
+            } else {
+                filter.on('filterupdate', me.applyFilters, me);
+            }
+
+            me.updateRemovableContainerVisibility();
         }
     },
 
-    removeProperty: function (property, container) {
+    removeProperty: function (property, container, removable) {
         var me = this,
+            removables = me.getStore('Uni.store.search.Removables'),
             filterResult = undefined;
 
         me.filters.each(function (filter) {
@@ -341,10 +418,28 @@ Ext.define('Uni.controller.Search', {
         });
 
         if (Ext.isDefined(filterResult)) {
-            me.filters.remove(filterResult);
-            container.remove(filterResult);
+            if (removable) {
+                filterResult.widget.un('filterupdate', me.applyFilters, me);
+                filterResult.widget.resetValue();
 
-            filterResult.un('filterupdate', me.applyFilters, me)
+                me.filters.remove(filterResult);
+                container.remove(filterResult);
+
+                try {
+                    removables.add(property);
+                } catch (ex) {
+                    // Ignore the exceptions caused by not rendered components.
+                }
+            } else {
+                filterResult.un('filterupdate', me.applyFilters, me);
+                filterResult.resetValue();
+
+                me.filters.remove(filterResult);
+                container.remove(filterResult);
+            }
+
+            Uni.util.Filters.updateHistoryState(me.filters);
+            me.updateRemovableContainerVisibility();
         }
     },
 
@@ -368,7 +463,12 @@ Ext.define('Uni.controller.Search', {
 
             if (!property.get('sticky')) {
                 me.removeRemovableProperty(property);
-                criteriaStore.add(property);
+
+                try {
+                    criteriaStore.add(property);
+                } catch (ex) {
+                    // Ignore the exceptions caused by not rendered components.
+                }
             }
         });
 
@@ -376,14 +476,14 @@ Ext.define('Uni.controller.Search', {
     },
 
     addRemovableProperty: function (property) {
-        this.addProperty(property, this.getRemovablePropertiesContainer());
+        this.addProperty(property, this.getRemovablePropertiesContainer(), true);
     },
 
     removeRemovableProperty: function (property) {
-        this.removeProperty(property, this.getRemovablePropertiesContainer());
+        this.removeProperty(property, this.getRemovablePropertiesContainer(), true);
     },
 
-    createWidgetForProperty: function (property) {
+    createWidgetForProperty: function (property, removable) {
         var me = this,
             type = property.get('type'),
             displayValue = property.get('displayValue'),
@@ -419,11 +519,16 @@ Ext.define('Uni.controller.Search', {
                         emptyText: displayValue
                     });
                     break;
+                case 'BigDecimal':
+                    widget = Ext.create('Uni.grid.filtertop.Number', {
+                        emptyText: displayValue
+                    });
+                    break;
                 default:
                     // <debug>
                     console.log('Unknown search property type: ' + type);
                     // </debug>
-
+                    return undefined;
                     break;
             }
         }
@@ -432,6 +537,15 @@ Ext.define('Uni.controller.Search', {
             dataIndex: property.get('name'),
             property: property
         });
+
+        if (removable) {
+            widget = Ext.create('Uni.view.search.Adapter', {
+                widget: widget,
+                removeHandler: function () {
+                    me.removeRemovableProperty(property);
+                }
+            });
+        }
 
         return widget;
     },
@@ -448,6 +562,19 @@ Ext.define('Uni.controller.Search', {
     },
 
     applyFilters: function () {
-        Ext.getStore('Uni.store.search.Results').load();
+        var me = this,
+            searchResults = Ext.getStore('Uni.store.search.Results');
+
+        searchResults.removeAll();
+
+        if (me.lastRequest) {
+            Ext.Ajax.abort(me.lastRequest);
+        }
+
+        try {
+            me.lastRequest = searchResults.load();
+        } catch (ex) {
+            // Ignore the 'indexOf' exception caused by interrupted calls.
+        }
     }
 });

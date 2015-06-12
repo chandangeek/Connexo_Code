@@ -24,6 +24,7 @@ Ext.define('Uni.store.search.Properties', {
         }
     ],
 
+    // TODO Remove when back-end fix has been implemented for double properties.
     listeners: {
         load: function (store) {
             // Using a map of already used names.

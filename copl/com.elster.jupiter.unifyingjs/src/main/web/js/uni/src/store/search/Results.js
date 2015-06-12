@@ -14,12 +14,5 @@ Ext.define('Uni.store.search.Results', {
             type: 'json',
             root: 'searchResults'
         }
-    },
-
-    sorters: [
-        {
-            property: 'name',
-            direction: 'ASC'
-        }
-    ]
+    }
 });

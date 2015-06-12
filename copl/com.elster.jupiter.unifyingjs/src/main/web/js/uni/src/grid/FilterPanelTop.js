@@ -12,6 +12,7 @@ Ext.define('Uni.grid.FilterPanelTop', {
         'Uni.grid.filtertop.ComboBox',
         'Uni.grid.filtertop.Date',
         'Uni.grid.filtertop.Interval',
+        'Uni.grid.filtertop.Number',
         'Uni.grid.filtertop.Radio',
         'Uni.grid.filtertop.Text'
     ],
