@@ -50,16 +50,20 @@ public class HasValidPropertiesValidator implements ConstraintValidator<HasValid
     }
 
     private void validateRequiredPropertiesArePresent(Map<String, Object> properties, List<PropertySpec> propertySpecs, ConstraintValidatorContext context) {
-        for (PropertySpec propertySpec : propertySpecs) {
-            if (propertySpec.isRequired() && !properties.containsKey(propertySpec.getName())) {
-                context.buildConstraintViolationWithTemplate("{" + MessageSeeds.Constants.VALIDATOR_REQUIRED_PROPERTY_MISSING_KEY + "}")
-                       .addPropertyNode("properties")
-                       .addPropertyNode(propertySpec.getName())
-                       .addConstraintViolation()
-                       .disableDefaultConstraintViolation();
-                 this.valid = false;
-            }
-        }
+        propertySpecs.stream().filter(propertySpec -> propertySpec.isRequired() &&
+                (!properties.containsKey(propertySpec.getName()) || isEmptyValue(propertySpec, properties.get(propertySpec.getName()))))
+                .forEach(propertySpec -> {
+                    context.buildConstraintViolationWithTemplate("{" + MessageSeeds.Constants.VALIDATOR_REQUIRED_PROPERTY_MISSING_KEY + "}")
+                            .addPropertyNode("properties")
+                            .addPropertyNode(propertySpec.getName())
+                            .addConstraintViolation()
+                            .disableDefaultConstraintViolation();
+                    this.valid = false;
+                });
+    }
+
+    private boolean isEmptyValue(PropertySpec propertySpec, Object property) {
+        return propertySpec.getValueFactory().toStringValue(property).isEmpty();
     }
 
     private void validatePropertyValues(Map<String, Object> properties, List<PropertySpec> propertySpecs, ConstraintValidatorContext context) {
