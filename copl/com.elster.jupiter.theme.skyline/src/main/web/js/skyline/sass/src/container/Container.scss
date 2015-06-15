@@ -3,10 +3,11 @@
 
 @include container('default');
 
+@import "ActionsContainer";
 @import "AppCenter";
 @import "BreadcrumbTrail";
+@import "ContentContainer";
+@import "Login";
 @import "NavigationHeader";
 @import "NavigationMenu";
-@import "ContentContainer";
-@import "ActionsContainer";
-@import "Login";
+@import "Search";

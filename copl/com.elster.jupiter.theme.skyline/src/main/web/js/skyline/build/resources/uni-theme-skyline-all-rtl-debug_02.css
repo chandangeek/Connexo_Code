@@ -7399,6 +7399,16 @@ h6 {
   border: none !important;
 }
 
+/* line 1, ../../sass/src/container/ActionsContainer.scss */
+.x-container-actions {
+  margin-top: 32px;
+  padding-left: 14px;
+}
+/* line 10, ../../sass/src/container/ActionsContainer.scss */
+.x-container-actions *[class*='x-btn-link-'] {
+  margin-left: 16px;
+}
+
 /* line 3, ../../sass/src/container/NavigationMenu.scss */
 .x-container-navigationmenu {
   background: -webkit-linear-gradient(top, #2e587e, #478bae);
@@ -7586,6 +7596,72 @@ h6 {
 .x-container-breadcrumbtrail {
   z-index: 19001;
   margin: 16px;
+}
+
+/* line 1, ../../sass/src/container/ContentContainer.scss */
+.x-container-contentcontainer {
+  background-color: white;
+}
+/* line 4, ../../sass/src/container/ContentContainer.scss */
+.x-container-contentcontainer .west {
+  background-color: white;
+}
+/* line 7, ../../sass/src/container/ContentContainer.scss */
+.x-container-contentcontainer .west .x-panel-header-default {
+  background-color: transparent;
+}
+/* line 11, ../../sass/src/container/ContentContainer.scss */
+.x-container-contentcontainer .west .x-panel-header-text-container-default {
+  color: #007dc3;
+  font-size: 16px;
+}
+/* line 16, ../../sass/src/container/ContentContainer.scss */
+.x-container-contentcontainer .west .x-toolbar-footer {
+  background-color: transparent;
+  padding: 0;
+}
+/* line 22, ../../sass/src/container/ContentContainer.scss */
+.x-container-contentcontainer .center {
+  background-color: transparent;
+  padding: 0px 16px 16px 16px;
+}
+
+/* line 1, ../../sass/src/container/Login.scss */
+body.login {
+  background-image: url("images/container/loginBackground.png") !important;
+  background-repeat: no-repeat;
+  background-position: center top;
+  background-size: cover;
+}
+/* line 7, ../../sass/src/container/Login.scss */
+body.login .x-panel-login {
+  -webkit-border-radius: 10px;
+  -moz-border-radius: 10px;
+  -ms-border-radius: 10px;
+  -o-border-radius: 10px;
+  border-radius: 10px;
+  background-color: white;
+  padding-top: 64px;
+  padding-right: 80px;
+  padding-bottom: 64px;
+  padding-left: 50px;
+}
+/* line 18, ../../sass/src/container/Login.scss */
+body.login .x-panel-login .x-container-logo {
+  background-image: url("images/container/logoConnexo.png");
+  background-position: center top;
+  background-repeat: no-repeat;
+  padding-top: 80px;
+}
+/* line 25, ../../sass/src/container/Login.scss */
+body.login .x-panel-login *[class*='x-btn-action-'] {
+  margin-left: 0 !important;
+}
+/* line 30, ../../sass/src/container/Login.scss */
+body.login .x-panel-login .x-field-error .x-form-display-field {
+  font-style: italic;
+  font-size: 12px;
+  color: #eb5642;
 }
 
 /* line 21, ../../sass/src/container/NavigationHeader.scss */
@@ -7860,80 +7936,43 @@ h6 {
   margin-left: -3px;
 }
 
-/* line 1, ../../sass/src/container/ContentContainer.scss */
-.x-container-contentcontainer {
-  background-color: white;
+/* line 2, ../../sass/src/container/Search.scss */
+.uni-view-search-overview .x-panel-filter {
+  padding-top: 10px;
+  padding-right: 16px;
+  padding-bottom: 10px;
+  padding-left: 16px;
 }
-/* line 4, ../../sass/src/container/ContentContainer.scss */
-.x-container-contentcontainer .west {
-  background-color: white;
+/* line 11, ../../sass/src/container/Search.scss */
+.uni-view-search-overview table.search-table {
+  width: 100%;
 }
-/* line 7, ../../sass/src/container/ContentContainer.scss */
-.x-container-contentcontainer .west .x-panel-header-default {
-  background-color: transparent;
+/* line 16, ../../sass/src/container/Search.scss */
+.uni-view-search-overview table.search-table tr td.search-cell {
+  white-space: nowrap;
+  padding-top: 4px;
+  padding-bottom: 4px;
 }
-/* line 11, ../../sass/src/container/ContentContainer.scss */
-.x-container-contentcontainer .west .x-panel-header-text-container-default {
-  color: #007dc3;
-  font-size: 16px;
+/* line 26, ../../sass/src/container/Search.scss */
+.uni-view-search-overview table.search-table tr td.search-cell.search-label {
+  padding-right: 12px;
+  text-align: right;
 }
-/* line 16, ../../sass/src/container/ContentContainer.scss */
-.x-container-contentcontainer .west .x-toolbar-footer {
-  background-color: transparent;
-  padding: 0;
+/* line 31, ../../sass/src/container/Search.scss */
+.uni-view-search-overview table.search-table tr td.search-cell.search-last {
+  padding-left: 12px;
 }
-/* line 22, ../../sass/src/container/ContentContainer.scss */
-.x-container-contentcontainer .center {
-  background-color: transparent;
-  padding: 0px 16px 16px 16px;
+/* line 35, ../../sass/src/container/Search.scss */
+.uni-view-search-overview table.search-table tr td.search-cell:nth-child(2) {
+  width: 100%;
 }
-
-/* line 1, ../../sass/src/container/ActionsContainer.scss */
-.x-container-actions {
-  margin-top: 32px;
-  padding-left: 14px;
+/* line 41, ../../sass/src/container/Search.scss */
+.uni-view-search-overview table.search-table .x-form-item-label {
+  margin-top: 0;
 }
-/* line 10, ../../sass/src/container/ActionsContainer.scss */
-.x-container-actions *[class*='x-btn-link-'] {
-  margin-left: 16px;
-}
-
-/* line 1, ../../sass/src/container/Login.scss */
-body.login {
-  background-image: url("images/container/loginBackground.png") !important;
-  background-repeat: no-repeat;
-  background-position: center top;
-  background-size: cover;
-}
-/* line 7, ../../sass/src/container/Login.scss */
-body.login .x-panel-login {
-  -webkit-border-radius: 10px;
-  -moz-border-radius: 10px;
-  -ms-border-radius: 10px;
-  -o-border-radius: 10px;
-  border-radius: 10px;
-  background-color: white;
-  padding-top: 64px;
-  padding-right: 80px;
-  padding-bottom: 64px;
-  padding-left: 50px;
-}
-/* line 18, ../../sass/src/container/Login.scss */
-body.login .x-panel-login .x-container-logo {
-  background-image: url("images/container/logoConnexo.png");
-  background-position: center top;
-  background-repeat: no-repeat;
-  padding-top: 80px;
-}
-/* line 25, ../../sass/src/container/Login.scss */
-body.login .x-panel-login *[class*='x-btn-action-'] {
-  margin-left: 0 !important;
-}
-/* line 30, ../../sass/src/container/Login.scss */
-body.login .x-panel-login .x-field-error .x-form-display-field {
-  font-style: italic;
-  font-size: 12px;
-  color: #eb5642;
+/* line 45, ../../sass/src/container/Search.scss */
+.uni-view-search-overview table.search-table .x-table-form-item {
+  margin-bottom: 0;
 }
 
 /* line 3, ../../sass/src/LoadMask.scss */
@@ -16831,11 +16870,4 @@ a:hover, a.x-btn:hover {
 .x-btn-action-toolbar-small-pressed .x-frame-tc,
 .x-btn-action-toolbar-small-pressed .x-frame-bc {
   background-image: url(images/btn/btn-action-toolbar-small-pressed-corners.gif);
-}
-/* line 637, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
-.x-btn-action-toolbar-small-menu-active .x-frame-ml,
-.x-btn-action-toolbar-small-menu-active .x-frame-mr,
-.x-btn-action-toolbar-small-pressed .x-frame-ml,
-.x-btn-action-toolbar-small-pressed .x-frame-mr {
-  background-image: url(images/btn/btn-action-toolbar-small-pressed-sides.gif);
 }

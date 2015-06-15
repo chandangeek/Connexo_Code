@@ -6,5 +6,6 @@
   "summary": "Theme for the Jupiter project called Skyline",
   "detailedDescription": "Long description of package",
   "type": "theme",
-  "extend": "ext-theme-neptune"
+  "extend": "ext-theme-neptune",
+  "local": true
 }

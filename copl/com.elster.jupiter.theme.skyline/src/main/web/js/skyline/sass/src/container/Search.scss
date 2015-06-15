@@ -1,0 +1,49 @@
+.uni-view-search-overview {
+  .x-panel-filter {
+    padding: {
+      top: 10px;
+      right: 16px;
+      bottom: 10px;
+      left: 16px;
+    }
+  }
+
+  table.search-table {
+    width: 100%;
+
+    tr {
+
+      td.search-cell {
+        white-space: nowrap;
+
+        padding: {
+          top: 4px;
+          bottom: 4px;
+        }
+
+        $search-td-padding: 12px;
+
+        &.search-label {
+          padding-right: $search-td-padding;
+          text-align: right;
+        }
+
+        &.search-last {
+          padding-left: $search-td-padding;
+        }
+
+        &:nth-child(2) {
+          width: 100%;
+        }
+      }
+    }
+
+    .x-form-item-label {
+      margin-top: 0;
+    }
+
+    .x-table-form-item {
+      margin-bottom: 0;
+    }
+  }
+}
