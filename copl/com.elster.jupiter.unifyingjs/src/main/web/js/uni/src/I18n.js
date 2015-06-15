@@ -197,7 +197,8 @@ Ext.define('Uni.I18n', {
      * @param {String[]} [values] Values to replace in the translation
      * @returns {String} Translation
      */
-    translate: function (key, component, fallback, values) {
+    translate: function (key, component, fallback, values, htmlEncode) {
+        htmlEncode = typeof htmlEncode !== 'undefined' ? htmlEncode : true;
         var translation = this.lookupTranslation(key, component);
 
         if ((typeof translation === 'undefined' || translation === null)
@@ -213,7 +214,11 @@ Ext.define('Uni.I18n', {
         if (typeof translation !== 'undefined' && translation !== null
             && typeof values !== 'undefined') {
             for (var i = 0; i < values.length; i++) {
-                var value = Ext.String.htmlEncode(values[i]);
+                if(htmlEncode === true){
+                    var value = Ext.String.htmlEncode(values[i]);
+                } else {
+                    var value = values[i];
+                }
                 translation = Uni.util.String.replaceAll(translation, i, value);
             }
         }
