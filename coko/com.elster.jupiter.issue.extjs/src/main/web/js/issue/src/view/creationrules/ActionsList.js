@@ -3,35 +3,31 @@ Ext.define('Isu.view.creationrules.ActionsList', {
     requires: [
         'Ext.grid.column.Template',
         'Uni.grid.column.Action',
-        'Isu.model.CreationRuleAction'
+        'Isu.store.CreationRuleActionPhases',
+        'Isu.store.CreationRuleActions'
     ],
     alias: 'widget.issues-creation-rules-actions-list',
-    store: Ext.create('Ext.data.Store', {
-        model: 'Isu.model.CreationRuleAction'
-    }),
+    store: 'ext-empty-store',
     enableColumnHide: false,
     columns: {
         items: [
             {
                 itemId: 'description',
-                header: 'Description',
-                xtype: 'templatecolumn',
-                tpl: '{type.name}',
-                flex: 1
+                header: Uni.I18n.translate('general.description', 'ISU', 'Description'),
+                dataIndex: 'type',
+                flex: 1,
+                renderer: function (value, metaData, record) {
+                    return record.getType().get('name');
+                }
             },
             {
                 itemId: 'phase',
-                header: 'When to perform',
-                xtype: 'templatecolumn',
-                tpl: new Ext.XTemplate('{[this.getWhenToPerform(values.phase.uuid)]}', {
-                    getWhenToPerform: function (uuid) {
-                        var phasesStore = Ext.getStore('Isu.store.CreationRuleActionPhases'),
-                            whenToPerform = phasesStore.getById(uuid).get('title');
-
-                        return (whenToPerform || '');
-                    }
-                }),
-                flex: 1
+                dataIndex: 'phase',
+                header: Uni.I18n.translate('issueCreationRules.actions.whenToPerform', 'ISU', 'When to perform'),
+                flex: 1,
+                renderer: function (value) {
+                    return value ? value.title : '';
+                }
             },
             {
                 itemId: 'action',

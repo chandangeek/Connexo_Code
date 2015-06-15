@@ -5,7 +5,7 @@ Ext.define('Isu.view.creationrules.Item', {
         'Isu.privileges.Issue'
     ],
     alias: 'widget.issue-creation-rules-item',
-    title: 'Details',
+    title: ' ',
     itemId: 'issue-creation-rules-item',
     frame: true,
     tools: [

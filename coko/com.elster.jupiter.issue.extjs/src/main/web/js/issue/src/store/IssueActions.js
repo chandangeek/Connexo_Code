@@ -9,7 +9,7 @@ Ext.define('Isu.store.IssueActions', {
         type: 'rest',
         reader: {
             type: 'json',
-            root: 'data'
+            root: 'issueActions'
         }
     }
 });

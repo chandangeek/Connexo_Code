@@ -48,21 +48,16 @@ Ext.define('Isu.controller.CreationRules', {
 
     showPreview: function (selectionModel, record) {
         var itemPanel = this.getItemPanel(),
-            form = itemPanel.down('form');
+            form = itemPanel.down('form'),
+            menu = itemPanel.down('menu');
 
-        itemPanel.setLoading(true);
-
-        this.getModel('Isu.model.CreationRule').load(record.getId(), {
-            success: function (record) {
-                if (!form.isDestroyed) {
-                    form.loadRecord(record);
-                    form.up('panel').down('menu').record = record;
-                    itemPanel.setLoading(false);
-                    itemPanel.fireEvent('afterChange',itemPanel);
-                    itemPanel.setTitle(record.data.title);
-                }
-            }
-        });
+        Ext.suspendLayouts();
+        form.loadRecord(record);
+        itemPanel.setTitle(record.get('title'));
+        if (menu) {
+            menu.record = record;
+        }
+        Ext.resumeLayouts(true);
     },
 
     chooseAction: function (menu, item) {
@@ -114,9 +109,6 @@ Ext.define('Isu.controller.CreationRules', {
 
         page.setLoading('Removing...');
         rule.destroy({
-            params: {
-                version: rule.get('version')
-            },
             callback: function (model, operation) {
                 page.setLoading(false);
                 if (operation.response.status == 204) {

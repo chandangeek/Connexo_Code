@@ -3,8 +3,7 @@ Ext.define('Isu.model.IssueAction', {
     proxy: {
         type: 'rest',
         reader: {
-            type: 'json',
-            root: 'data'
+            type: 'json'
         }
     }
 });

@@ -10,7 +10,10 @@ Ext.define('Isu.store.CreationRuleActions', {
         url: '/api/isu/actions',
         reader: {
             type: 'json',
-            root: 'data'
-        }
+            root: 'ruleActionTypes'
+        },
+        pageParam: false,
+        startParam: false,
+        limitParam: false
     }
 });

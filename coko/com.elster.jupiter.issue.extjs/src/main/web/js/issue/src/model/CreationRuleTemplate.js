@@ -1,36 +1,40 @@
 Ext.define('Isu.model.CreationRuleTemplate', {
     extend: 'Ext.data.Model',
     requires: [
-        'Isu.model.CreationRule'
+        'Uni.property.model.Property'
     ],
-    belongsTo: 'Isu.model.CreationRule',
     fields: [
-        {
-            name: 'uid',
-            type: 'string'
-        },
         {
             name: 'name',
             type: 'string'
         },
         {
-            name: 'description',
+            name: 'displayName',
             type: 'string'
         },
         {
-            name: 'parameters',
-            type: 'auto'
+            name: 'description',
+            type: 'string'
         }
     ],
 
-    idProperty: 'uid',
+    idProperty: 'name',
+
+    associations: [
+        {
+            name: 'properties',
+            type: 'hasMany',
+            model: 'Uni.property.model.Property',
+            associationKey: 'properties',
+            foreignKey: 'properties'
+        }
+    ],
 
     proxy: {
         type: 'rest',
         url: '/api/isu/rules/templates',
         reader: {
-            type: 'json',
-            root: 'data'
+            type: 'json'
         }
     }
 });

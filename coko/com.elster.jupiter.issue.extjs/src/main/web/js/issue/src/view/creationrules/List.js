@@ -21,15 +21,13 @@ Ext.define('Isu.view.creationrules.List', {
             {
                 itemId: 'templateColumn',
                 header: Uni.I18n.translate('general.title.ruleTemplate', 'ISU', 'Rule template'),
-                xtype: 'templatecolumn',
-                tpl: '<tpl if="template">{template.name}</tpl>',
+                dataIndex: 'template_name',
                 flex: 1
             },
             {
                 itemId : 'issueType',
                 header: Uni.I18n.translate('general.title.issueType', 'ISU', 'Issue type'),
-                xtype: 'templatecolumn',
-                tpl: '<tpl if="issueType">{issueType.name}</tpl>',
+                dataIndex: 'issueType_name',
                 flex: 1
             },
             {   itemId: 'action',

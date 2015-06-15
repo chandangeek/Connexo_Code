@@ -16,6 +16,9 @@ Ext.define('Isu.model.IssueType', {
     proxy: {
         type: 'rest',
         url: '/api/isu/issuetypes',
+        pageParam: undefined,
+        startParam: undefined,
+        limitParam: undefined,
         reader: {
             type: 'json',
             root: 'data'

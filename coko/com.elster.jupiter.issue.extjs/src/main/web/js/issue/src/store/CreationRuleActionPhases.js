@@ -8,7 +8,7 @@ Ext.define('Isu.store.CreationRuleActionPhases', {
         url: '/api/isu/actions/phases',
         reader: {
             type: 'json',
-            root: 'data'
+            root: 'creationRuleActionPhases'
         },
         pageParam: false,
         startParam: false,

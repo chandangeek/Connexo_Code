@@ -19,6 +19,10 @@ Ext.define('Isu.controller.IssuesOverview', {
                     {
                         type: 'dueDate',
                         value: Uni.component.sort.model.Sort.ASC
+                    },
+                    {
+                        type: 'modTime',
+                        value: Uni.component.sort.model.Sort.ASC
                     }
                 ]);
                 filter.save();
@@ -28,6 +32,10 @@ Ext.define('Isu.controller.IssuesOverview', {
             filter.set('sorting', [
                 {
                     type: 'dueDate',
+                    value: Uni.component.sort.model.Sort.ASC
+                },
+                {
+                    type: 'modTime',
                     value: Uni.component.sort.model.Sort.ASC
                 }
             ]);

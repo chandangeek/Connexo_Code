@@ -25,13 +25,22 @@ Ext.define('Isu.view.issues.Grid', {
                 renderer: function (value, metaData, record) {
                     var url = me.router.getRoute(me.router.currentRoute + '/view').buildUrl({issueId: record.getId()});
 
-                    return '<a href="' + url + '">' + value + '</a>';
+                    return '<a href="' + url + '">' + Ext.String.htmlEncode(value) + '</a>';
                 }
             },
             {
                 itemId: 'issues-grid-due-date',
                 header: Uni.I18n.translate('general.title.dueDate', 'ISU', 'Due date'),
                 dataIndex: 'dueDate',
+                renderer: function (value) {
+                    return value ? Uni.DateTime.formatDateShort(value) : '';
+                },
+                width: 140
+            },
+            {
+                itemId: 'issues-grid-modification-date',
+                header: Uni.I18n.translate('general.title.modificationDate', 'ISU', 'Modification date'),
+                dataIndex: 'modTime',
                 renderer: function (value) {
                     return value ? Uni.DateTime.formatDateShort(value) : '';
                 },
