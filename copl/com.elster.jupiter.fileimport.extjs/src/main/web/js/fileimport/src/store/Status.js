@@ -20,7 +20,7 @@ Ext.define('Fim.store.Status', {
                 },
                 {
                     value: 'SUCCESS_WITH_FAILURES',
-                    display: Uni.I18n.translate('importService.history.successWithFailuresStatus', 'FIM', 'Success with failures'),
+                    display: Uni.I18n.translate('importService.history.successWithErrorsStatus', 'FIM', 'Success with errors'),
                 }
             ],
             fields: [
