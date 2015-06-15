@@ -1,9 +1,10 @@
 package com.elster.jupiter.export.impl;
 
-import com.elster.jupiter.export.FormattedExportData;
+import com.elster.jupiter.export.StructureMarker;
 
-import java.util.List;
+import java.nio.file.Path;
+import java.util.Map;
 
 interface Destination {
-    void send(List<FormattedExportData> data);
+    void send(Map<StructureMarker, Path> files);
 }

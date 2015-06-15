@@ -1,9 +1,11 @@
 package com.elster.jupiter.export.impl;
 
-import com.elster.jupiter.export.FormattedExportData;
+import com.elster.jupiter.export.StructureMarker;
 import com.google.common.collect.ImmutableList;
 
+import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 
 class CompositeDataExportDestination implements Destination {
 
@@ -13,7 +15,8 @@ class CompositeDataExportDestination implements Destination {
         this.components = ImmutableList.copyOf(components);
     }
 
-    public void send(List<FormattedExportData> data) {
-        components.forEach(component -> component.send(data));
+    @Override
+    public void send(Map<StructureMarker, Path> files) {
+        components.forEach(component -> component.send(files));
     }
 }

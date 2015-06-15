@@ -269,7 +269,7 @@ public class DataExportServiceImplIT {
             exportTask.triggerNow();
             RecurrentTask recurrentTask = extractOccurrence(exportTask);
             occurrence = injector.getInstance(TaskService.class).getOccurrences(recurrentTask, Range.<Instant>all()).stream().findFirst().get();
-            new DataExportTaskExecutor(dataExportService, transactionService, thesaurus).execute(occurrence);
+            new DataExportTaskExecutor(dataExportService, transactionService, new LocalFileWriter(dataExportService), thesaurus).execute(occurrence);
 
             context.commit();
         }

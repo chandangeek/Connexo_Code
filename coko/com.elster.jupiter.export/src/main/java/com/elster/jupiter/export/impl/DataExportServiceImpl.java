@@ -31,6 +31,7 @@ import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.google.inject.AbstractModule;
+import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -74,6 +75,8 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
     private volatile TransactionService transactionService;
     private volatile PropertySpecService propertySpecService;
     private volatile MailService mailService;
+    private volatile FileSystem fileSystem;
+    private volatile Path tempDirectory;
 
     private List<DataFormatterFactory> dataFormatterFactories = new CopyOnWriteArrayList<>();
     private List<DataSelectorFactory> dataSelectorFactories = new CopyOnWriteArrayList<>();
@@ -84,7 +87,7 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
     }
 
     @Inject
-    public DataExportServiceImpl(OrmService ormService, TimeService timeService, TaskService taskService, MeteringGroupsService meteringGroupsService, MessageService messageService, NlsService nlsService, MeteringService meteringService, QueryService queryService, Clock clock, UserService userService, AppService appService, TransactionService transactionService, PropertySpecService propertySpecService, MailService mailService) {
+    public DataExportServiceImpl(OrmService ormService, TimeService timeService, TaskService taskService, MeteringGroupsService meteringGroupsService, MessageService messageService, NlsService nlsService, MeteringService meteringService, QueryService queryService, Clock clock, UserService userService, AppService appService, TransactionService transactionService, PropertySpecService propertySpecService, MailService mailService, BundleContext context, FileSystem fileSystem) {
         setOrmService(ormService);
         setTimeService(timeService);
         setTaskService(taskService);
@@ -99,7 +102,8 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
         setTransactionService(transactionService);
         setMailService(mailService);
         setPropertySpecService(propertySpecService);
-        activate();
+        setFileSystem(fileSystem);
+        activate(context);
         if (!dataModel.isInstalled()) {
             install();
         }
@@ -180,6 +184,11 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
         return DefaultStructureMarker.createRoot(clock, root);
     }
 
+    @Override
+    public Path getTempDirectory() {
+        return tempDirectory;
+    }
+
     @Reference
     public void setOrmService(OrmService ormService) {
         dataModel = ormService.newDataModel(COMPONENTNAME, "Data Export");
@@ -222,7 +231,7 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
     }
 
     @Activate
-    public final void activate() {
+    public final void activate(BundleContext context) {
         try {
             dataModel.register(new AbstractModule() {
                 @Override
@@ -240,10 +249,17 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
                     bind(DataExportService.class).toInstance(DataExportServiceImpl.this);
                     bind(FileSystem.class).toInstance(FileSystems.getDefault());
                     bind(MailService.class).toInstance(mailService);
+                    bind(FileSystem.class).toInstance(fileSystem);
                 }
             });
             addSelector(new StandardDataSelectorFactory(transactionService, meteringService, thesaurus));
             addSelector(new SingleDeviceDataSelectorFactory(transactionService, meteringService, thesaurus, propertySpecService, timeService));
+            String tempDirectoryPath = context.getProperty("java.io.tmpdir");
+            if (tempDirectoryPath == null) {
+                tempDirectory = fileSystem.getRootDirectories().iterator().next();
+            } else {
+                tempDirectory = fileSystem.getPath(tempDirectoryPath);
+            }
         } catch (RuntimeException e) {
             e.printStackTrace();
             throw e;
@@ -302,6 +318,11 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
     @Reference
     public void setMailService(MailService mailService) {
         this.mailService = mailService;
+    }
+
+    @Reference
+    public void setFileSystem(FileSystem fileSystem) {
+        this.fileSystem = fileSystem;
     }
 
     @Override
@@ -367,10 +388,14 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
                 .findAny();
     }
 
+    @Override
+    public LocalFileWriter getLocalFileWriter() {
+        return new LocalFileWriter(this);
+    }
+
     private Optional<IExportTask> getReadingTypeDataExportTaskForRecurrentTask(RecurrentTask recurrentTask) {
         return dataModel.mapper(IExportTask.class).getUnique("recurrentTask", recurrentTask);
     }
-
 
 
 }

@@ -3,7 +3,7 @@ package com.elster.jupiter.export.impl;
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.EmailDestination;
-import com.elster.jupiter.export.FormattedExportData;
+import com.elster.jupiter.export.StructureMarker;
 import com.elster.jupiter.mail.MailAddress;
 import com.elster.jupiter.mail.MailMessageBuilder;
 import com.elster.jupiter.mail.MailService;
@@ -13,8 +13,11 @@ import com.elster.jupiter.orm.DataModel;
 import javax.inject.Inject;
 import java.nio.file.FileSystem;
 import java.nio.file.Path;
+import java.time.Clock;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 class EmailDestinationImpl extends AbstractDataExportDestination implements EmailDestination {
 
@@ -26,8 +29,8 @@ class EmailDestinationImpl extends AbstractDataExportDestination implements Emai
     private String attachmentExtension;
 
     @Inject
-    EmailDestinationImpl(DataModel dataModel, Thesaurus thesaurus, DataExportService dataExportService, AppService appService, FileSystem fileSystem, MailService mailService) {
-        super(dataModel, thesaurus, dataExportService, appService, fileSystem);
+    EmailDestinationImpl(DataModel dataModel, Clock clock, Thesaurus thesaurus, DataExportService dataExportService, AppService appService, FileSystem fileSystem, MailService mailService) {
+        super(dataModel, clock, thesaurus, dataExportService, appService, fileSystem);
         this.mailService = mailService;
     }
 
@@ -45,26 +48,31 @@ class EmailDestinationImpl extends AbstractDataExportDestination implements Emai
     }
 
     @Override
-    public void send(List<FormattedExportData> data) {
-        FileUtils fileUtils = new FileUtils(this.getFileSystem(), this.getThesaurus(), this.getDataExportService(), this.getAppService());
-        Path file = fileUtils.createTemporaryFile(data, attachmentName, attachmentExtension);
-        sendMail(file, attachmentName + '.' + attachmentExtension);
+    public void send(Map<StructureMarker, Path> files) {
+        sendMail(files.entrySet().stream()
+                .collect(Collectors.toMap(entry -> toFileName(TagReplacerImpl.asTagReplacer(getClock(), entry.getKey())), Map.Entry::getValue)));
     }
 
-    private void sendMail(Path file, String fileName) {
+    private String toFileName(TagReplacer tagReplacer) {
+        return tagReplacer.replaceTags(attachmentName) + '.' + attachmentExtension;
+    }
+
+    private void sendMail(Map<String, Path> files) {
         List<String> recipients = getRecipientsList();
         if (recipients.isEmpty()) {
             return;
         }
         MailAddress primary = mailService.mailAddress(recipients.get(0));
-        MailMessageBuilder builder = mailService.messageBuilder(primary)
-                .withSubject(subject)
-                .withAttachment(file, fileName);
+        MailMessageBuilder mailBuilder = mailService.messageBuilder(primary)
+                .withSubject(subject);
+
+        files.forEach((fileName, path) -> mailBuilder.withAttachment(path, fileName));
+
         recipients.stream()
                 .skip(1)
                 .map(mailService::mailAddress)
-                .forEach(builder::addRecipient);
-        builder.build().send();
+                .forEach(mailBuilder::addRecipient);
+        mailBuilder.build().send();
     }
 
     @Override

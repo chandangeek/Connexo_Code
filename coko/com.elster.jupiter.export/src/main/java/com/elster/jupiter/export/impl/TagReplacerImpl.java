@@ -24,9 +24,16 @@ class TagReplacerImpl implements TagReplacer {
     private final StructureMarker structureMarker;
     private final Clock clock;
 
-    public TagReplacerImpl(StructureMarker structureMarker, Clock clock) {
+    TagReplacerImpl(StructureMarker structureMarker, Clock clock) {
         this.structureMarker = structureMarker;
         this.clock = clock;
+    }
+
+    static TagReplacer asTagReplacer(Clock clock, StructureMarker structureMarker) {
+        if (structureMarker instanceof TagReplacer) {
+            return (TagReplacer) structureMarker;
+        }
+        return new TagReplacerImpl(structureMarker, clock);
     }
 
     @Override

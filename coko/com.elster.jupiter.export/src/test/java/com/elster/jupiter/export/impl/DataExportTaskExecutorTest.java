@@ -233,7 +233,7 @@ public class DataExportTaskExecutorTest {
 
     @Test
     public void testDataFormatterGetsTheRightNotifications() {
-        DataExportTaskExecutor executor = new DataExportTaskExecutor(dataExportService, transactionService, thesaurus);
+        DataExportTaskExecutor executor = new DataExportTaskExecutor(dataExportService, transactionService, new LocalFileWriter(dataExportService), thesaurus);
 
         try (TransactionContext context = transactionService.getContext()) {
             executor.execute(occurrence);
@@ -279,7 +279,7 @@ public class DataExportTaskExecutorTest {
         MeterReadingData existItemData = new MeterReadingData(this.existingItem, meterReading2, DefaultStructureMarker.createRoot(clock, "newItem"));
         when(readingTypeDataSelector.selectData(dataExportOccurrence)).thenReturn(Arrays.<ExportData>asList(newItemData, existItemData).stream());
 
-        DataExportTaskExecutor executor = new DataExportTaskExecutor(dataExportService, transactionService, thesaurus);
+        DataExportTaskExecutor executor = new DataExportTaskExecutor(dataExportService, transactionService, new LocalFileWriter(dataExportService), thesaurus);
 
         try (TransactionContext context = transactionService.getContext()) {
             executor.execute(occurrence);
@@ -320,7 +320,7 @@ public class DataExportTaskExecutorTest {
 
     @Test
     public void testDataFormatterGetsTheRightNotificationsInTheRightTransactions() {
-        DataExportTaskExecutor executor = new DataExportTaskExecutor(dataExportService, transactionService, thesaurus);
+        DataExportTaskExecutor executor = new DataExportTaskExecutor(dataExportService, transactionService, new LocalFileWriter(dataExportService), thesaurus);
 
         try (TransactionContext context = transactionService.getContext()) {
             executor.execute(occurrence);
@@ -351,7 +351,7 @@ public class DataExportTaskExecutorTest {
     public void testStartExportThrowsFatalException() {
         doThrow(new FatalDataExportException(new RuntimeException())).when(dataFormatter).startExport(eq(dataExportOccurrence), any());
 
-        DataExportTaskExecutor executor = new DataExportTaskExecutor(dataExportService, transactionService, thesaurus);
+        DataExportTaskExecutor executor = new DataExportTaskExecutor(dataExportService, transactionService, new LocalFileWriter(dataExportService), thesaurus);
 
         try {
             try (TransactionContext context = transactionService.getContext()) {
@@ -379,7 +379,7 @@ public class DataExportTaskExecutorTest {
     public void testStartExportThrowsRuntimeException() {
         doThrow(new RuntimeException()).when(dataFormatter).startExport(eq(dataExportOccurrence), any());
 
-        DataExportTaskExecutor executor = new DataExportTaskExecutor(dataExportService, transactionService, thesaurus);
+        DataExportTaskExecutor executor = new DataExportTaskExecutor(dataExportService, transactionService, new LocalFileWriter(dataExportService), thesaurus);
 
         try {
             try (TransactionContext context = transactionService.getContext()) {
@@ -406,7 +406,7 @@ public class DataExportTaskExecutorTest {
     public void testStartItemThrowsFatalException() {
         doThrow(new FatalDataExportException(new RuntimeException())).when(dataFormatter).startItem(existingItem);
 
-        DataExportTaskExecutor executor = new DataExportTaskExecutor(dataExportService, transactionService, thesaurus);
+        DataExportTaskExecutor executor = new DataExportTaskExecutor(dataExportService, transactionService, new LocalFileWriter(dataExportService), thesaurus);
 
         try {
             try (TransactionContext context = transactionService.getContext()) {
@@ -448,7 +448,7 @@ public class DataExportTaskExecutorTest {
     public void testStartItemThrowsRuntimeException() {
         doThrow(new RuntimeException()).when(dataFormatter).startItem(existingItem);
 
-        DataExportTaskExecutor executor = new DataExportTaskExecutor(dataExportService, transactionService, thesaurus);
+        DataExportTaskExecutor executor = new DataExportTaskExecutor(dataExportService, transactionService, new LocalFileWriter(dataExportService), thesaurus);
 
         try {
             try (TransactionContext context = transactionService.getContext()) {
@@ -480,7 +480,7 @@ public class DataExportTaskExecutorTest {
     public void testStartItemThrowsDataExportException() {
         doThrow(DataExportException.class).when(dataFormatter).startItem(newItem);
 
-        DataExportTaskExecutor executor = new DataExportTaskExecutor(dataExportService, transactionService, thesaurus);
+        DataExportTaskExecutor executor = new DataExportTaskExecutor(dataExportService, transactionService, new LocalFileWriter(dataExportService), thesaurus);
 
         try (TransactionContext context = transactionService.getContext()) {
             executor.execute(occurrence);
@@ -513,7 +513,7 @@ public class DataExportTaskExecutorTest {
             return formattedData;
         }).when(dataFormatter).processData(any());
 
-        DataExportTaskExecutor executor = new DataExportTaskExecutor(dataExportService, transactionService, thesaurus);
+        DataExportTaskExecutor executor = new DataExportTaskExecutor(dataExportService, transactionService, new LocalFileWriter(dataExportService), thesaurus);
 
         try {
             try (TransactionContext context = transactionService.getContext()) {
@@ -552,7 +552,7 @@ public class DataExportTaskExecutorTest {
             return formattedData;
         }).when(dataFormatter).processData(any());
 
-        DataExportTaskExecutor executor = new DataExportTaskExecutor(dataExportService, transactionService, thesaurus);
+        DataExportTaskExecutor executor = new DataExportTaskExecutor(dataExportService, transactionService, new LocalFileWriter(dataExportService), thesaurus);
 
         try {
             try (TransactionContext context = transactionService.getContext()) {
@@ -592,7 +592,7 @@ public class DataExportTaskExecutorTest {
             return formattedData;
         }).when(dataFormatter).processData(any());
 
-        DataExportTaskExecutor executor = new DataExportTaskExecutor(dataExportService, transactionService, thesaurus);
+        DataExportTaskExecutor executor = new DataExportTaskExecutor(dataExportService, transactionService, new LocalFileWriter(dataExportService), thesaurus);
 
         try (TransactionContext context = transactionService.getContext()) {
             executor.execute(occurrence);
@@ -618,7 +618,7 @@ public class DataExportTaskExecutorTest {
     public void testEndItemThrowsFatalException() {
         doThrow(new FatalDataExportException(new RuntimeException())).when(dataFormatter).endItem(existingItem);
 
-        DataExportTaskExecutor executor = new DataExportTaskExecutor(dataExportService, transactionService, thesaurus);
+        DataExportTaskExecutor executor = new DataExportTaskExecutor(dataExportService, transactionService, new LocalFileWriter(dataExportService), thesaurus);
 
         try {
             try (TransactionContext context = transactionService.getContext()) {
@@ -651,7 +651,7 @@ public class DataExportTaskExecutorTest {
     public void testEndItemThrowsRuntimeException() {
         doThrow(new RuntimeException()).when(dataFormatter).endItem(existingItem);
 
-        DataExportTaskExecutor executor = new DataExportTaskExecutor(dataExportService, transactionService, thesaurus);
+        DataExportTaskExecutor executor = new DataExportTaskExecutor(dataExportService, transactionService, new LocalFileWriter(dataExportService), thesaurus);
 
         try {
             try (TransactionContext context = transactionService.getContext()) {
@@ -684,7 +684,7 @@ public class DataExportTaskExecutorTest {
     public void testEndItemThrowsDataExportException() {
         doThrow(DataExportException.class).when(dataFormatter).endItem(newItem);
 
-        DataExportTaskExecutor executor = new DataExportTaskExecutor(dataExportService, transactionService, thesaurus);
+        DataExportTaskExecutor executor = new DataExportTaskExecutor(dataExportService, transactionService, new LocalFileWriter(dataExportService), thesaurus);
 
         try (TransactionContext context = transactionService.getContext()) {
             executor.execute(occurrence);

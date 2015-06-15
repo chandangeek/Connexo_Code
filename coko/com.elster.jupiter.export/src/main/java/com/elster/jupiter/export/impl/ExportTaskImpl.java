@@ -145,7 +145,7 @@ class ExportTaskImpl implements IExportTask {
     public void save() {
         // TODO  : separate properties per Factory
 
-        List<PropertySpec> propertiesSpecsForProcessor = dataExportService.getPropertiesSpecsForProcessor(dataProcessor);
+        List<PropertySpec> propertiesSpecsForProcessor = dataExportService.getPropertiesSpecsForFormatter(dataFormatter);
         List<PropertySpec> propertiesSpecsForDataSelector = dataExportService.getPropertiesSpecsForDataSelector(dataSelector);
         List<DataExportProperty> processorProperties = new ArrayList<DataExportProperty>();
         List<DataExportProperty> selectorProperties = new ArrayList<DataExportProperty>();

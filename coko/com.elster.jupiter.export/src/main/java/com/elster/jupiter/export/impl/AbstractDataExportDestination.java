@@ -14,6 +14,7 @@ import com.google.common.collect.ImmutableMap;
 
 import javax.inject.Inject;
 import java.nio.file.FileSystem;
+import java.time.Clock;
 import java.util.Map;
 
 
@@ -28,10 +29,12 @@ public abstract class AbstractDataExportDestination implements IDataExportDestin
     private final DataExportService dataExportService;
     private final AppService appService;
     private final FileSystem fileSystem;
+    private final Clock clock;
 
     @Inject
-    AbstractDataExportDestination(DataModel dataModel, Thesaurus thesaurus, DataExportService dataExportService, AppService appService, FileSystem fileSystem) {
+    AbstractDataExportDestination(DataModel dataModel, Clock clock, Thesaurus thesaurus, DataExportService dataExportService, AppService appService, FileSystem fileSystem) {
         this.dataModel = dataModel;
+        this.clock = clock;
         this.thesaurus = thesaurus;
         this.dataExportService = dataExportService;
         this.appService = appService;
@@ -85,5 +88,9 @@ public abstract class AbstractDataExportDestination implements IDataExportDestin
 
     final FileSystem getFileSystem() {
         return fileSystem;
+    }
+
+    final Clock getClock() {
+        return clock;
     }
 }

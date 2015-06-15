@@ -14,6 +14,7 @@ import com.elster.jupiter.export.FormattedData;
 import com.elster.jupiter.export.FormattedExportData;
 import com.elster.jupiter.export.MeterReadingData;
 import com.elster.jupiter.export.SimpleFormattedData;
+import com.elster.jupiter.export.StructureMarker;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.HasDynamicProperties;
 import com.elster.jupiter.tasks.TaskExecutor;
@@ -21,6 +22,7 @@ import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -34,10 +36,12 @@ class DataExportTaskExecutor implements TaskExecutor {
     private final IDataExportService dataExportService;
     private final TransactionService transactionService;
     private final Thesaurus thesaurus;
+    private final LocalFileWriter localFileWriter;
 
-    public DataExportTaskExecutor(IDataExportService dataExportService, TransactionService transactionService, Thesaurus thesaurus) {
+    public DataExportTaskExecutor(IDataExportService dataExportService, TransactionService transactionService, LocalFileWriter localFileWriter, Thesaurus thesaurus) {
         this.dataExportService = dataExportService;
         this.transactionService = transactionService;
+        this.localFileWriter = localFileWriter;
         this.thesaurus = thesaurus;
     }
 
@@ -100,7 +104,8 @@ class DataExportTaskExecutor implements TaskExecutor {
             } else {
                 formattedData = doProcess(dataFormatter, occurrence, data, itemExporter);
             }
-            task.getCompositeDestination().send(formattedData.getData());
+            Map<StructureMarker, Path> files = localFileWriter.writeToTempFiles(formattedData.getData());
+            task.getCompositeDestination().send(files);
         }).run();
 
         itemExporter.done();

@@ -9,6 +9,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.time.RelativePeriod;
 
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,4 +28,8 @@ interface IDataExportService extends DataExportService {
     List<ExportTask> findExportTaskUsing(RelativePeriod relativePeriod);
 
     Optional<DataSelectorFactory> getDataSelectorFactory(String dataSelector);
+
+    Path getTempDirectory();
+
+    LocalFileWriter getLocalFileWriter();
 }

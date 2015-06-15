@@ -85,4 +85,5 @@ final class DefaultStructureMarker implements StructureMarker, TagReplacer {
     public String replaceTags(String template) {
         return new TagReplacerImpl(this, clock).replaceTags(template);
     }
+
 }

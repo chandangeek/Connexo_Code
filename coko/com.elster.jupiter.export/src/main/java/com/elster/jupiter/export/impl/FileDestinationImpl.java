@@ -1,15 +1,20 @@
 package com.elster.jupiter.export.impl;
 
+import com.elster.jupiter.appserver.AppServer;
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.FileDestination;
-import com.elster.jupiter.export.FormattedExportData;
+import com.elster.jupiter.export.StructureMarker;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 
 import javax.inject.Inject;
+import java.io.IOException;
 import java.nio.file.FileSystem;
-import java.util.List;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.time.Clock;
+import java.util.Map;
 
 class FileDestinationImpl extends AbstractDataExportDestination implements FileDestination {
 
@@ -19,8 +24,8 @@ class FileDestinationImpl extends AbstractDataExportDestination implements FileD
 
 
     @Inject
-    FileDestinationImpl(DataModel dataModel, Thesaurus thesaurus, DataExportService dataExportService, AppService appService, FileSystem fileSystem) {
-        super(dataModel, thesaurus, dataExportService, appService, fileSystem);
+    FileDestinationImpl(DataModel dataModel, Clock clock, Thesaurus thesaurus, DataExportService dataExportService, AppService appService, FileSystem fileSystem) {
+        super(dataModel, clock, thesaurus, dataExportService, appService, fileSystem);
     }
 
     FileDestinationImpl init(IExportTask task, String fileLocation, String fileName, String fileExtension) {
@@ -36,9 +41,42 @@ class FileDestinationImpl extends AbstractDataExportDestination implements FileD
     }
 
     @Override
-    public void send(List<FormattedExportData> data) {
-        FileUtils fileUtils = new FileUtils(this.getFileSystem(), this.getThesaurus(), this.getDataExportService(), this.getAppService());
-        fileUtils.createFile(data, fileName, fileExtension, fileLocation);
+    public void send(Map<StructureMarker, Path> files) {
+        files.forEach(this::copyFile);
+    }
+
+    void copyFile(StructureMarker structureMarker, Path path) {
+        doCopy(path, determineTargetFile(structureMarker));
+    }
+
+    private void doCopy(Path source, Path target) {
+        try {
+            Files.copy(source, target);
+        } catch (IOException e) {
+            throw new FileIOException(getThesaurus(), target, e);
+        }
+    }
+
+    private Path determineTargetFile(StructureMarker structureMarker) {
+        TagReplacer tagReplacer = TagReplacerImpl.asTagReplacer(getClock(), structureMarker);
+        Path targetDirectory = getTargetDirectory(tagReplacer.replaceTags(fileLocation));
+        if (!Files.exists(targetDirectory)) {
+            try {
+                targetDirectory = Files.createDirectories(targetDirectory);
+            } catch (IOException e) {
+                throw new FileIOException(getThesaurus(), targetDirectory, e);
+            }
+        }
+        return targetDirectory.resolve(tagReplacer.replaceTags(fileName) + '.' + fileExtension);
+    }
+
+    private Path getTargetDirectory(String fileLocation) {
+        return getDefaultExportDir().resolve(fileLocation);
+    }
+
+    private Path getDefaultExportDir() {
+        AppServer appServer = getAppService().getAppServer().orElseThrow(IllegalStateException::new);
+        return getDataExportService().getExportDirectory(appServer).orElseGet(() -> getFileSystem().getPath("").toAbsolutePath());
     }
 
     @Override

@@ -1,7 +1,5 @@
 package com.elster.jupiter.export;
 
-import java.util.List;
-
 public interface FileDestination extends DataExportDestination {
 
     String TYPE_IDENTIFIER = "FILE";
@@ -11,8 +9,6 @@ public interface FileDestination extends DataExportDestination {
     String getFileExtension();
 
     String getFileLocation();
-
-    void send(List<FormattedExportData> data);
 
     void setFileLocation(String fileLocation);
 
