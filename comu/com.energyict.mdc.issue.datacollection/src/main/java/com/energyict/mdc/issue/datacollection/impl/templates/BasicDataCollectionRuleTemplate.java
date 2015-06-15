@@ -151,7 +151,6 @@ public class BasicDataCollectionRuleTemplate extends AbstractDataCollectionTempl
         builder.add(getPropertySpecService().newPropertySpecBuilder(new BooleanFactory())
                                        .name(AUTORESOLUTION)
                                        .setDefaultValue(true)
-                                       .markRequired()
                                        .finish());
         return builder.build();
     }
