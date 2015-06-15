@@ -93,7 +93,15 @@ public enum MicroAction {
      * from which data should be validated.
      */
     // storage = bits 1024
-    ENABLE_ESTIMATION;
+    ENABLE_ESTIMATION,
+
+    /**
+     * Enables data estimation on the device.
+     * Requires that the user specifies the timestamp
+     * from which data should be validated.
+     */
+    // storage = bits 2048
+    DISABLE_ESTIMATION;
 
     /**
      * Gets the Set of {@link MicroCheck}s that are implied
