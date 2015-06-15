@@ -354,17 +354,14 @@ Ext.define('Cfg.controller.Tasks', {
                 xtype: 'panel',
                 itemId: 'date-errors',
                 hidden: true,
-                bodyStyle: {
-                    color: '#eb5642',
-                    padding: '0 0 15px 65px'
-                },
-                html: ''
+				cls: 'confirmation-window',
+                html: 'sssss'
             }
         );
 
         confirmationWindow.show({
             msg: Uni.I18n.translate('validationTasks.runMsg', 'CFG', 'This validation task will be queued to run at the earliest possible time.'),
-			title: Ext.String.format(Uni.I18n.translate('validationTasks.runTask', 'CFG', "Run validation task {0}?'"), record.data.name)			
+			title: Ext.String.format(Uni.I18n.translate('validationTasks.runTask', 'CFG', "Run validation task '{0}'?"), record.data.name)			
         });
     },
 

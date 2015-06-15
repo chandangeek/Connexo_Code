@@ -26,6 +26,37 @@ Ext.define('Cfg.store.ValidationRuleSets', {
             type: 'json',
             root: 'ruleSets',
             totalProperty: 'total'
+        },
+		buildUrl: function (request) {
+            var me = this,
+                format = me.format,
+                url = me.getUrl(request),
+                ruleSetId = request.params.ruleSetId;
+            
+			if (ruleSetId){
+				if (!url.match(/\/$/)) {
+					url += '/';
+				}
+
+				url += ruleSetId;
+				
+				if (format) {
+					if (!url.match(/\.$/)) {
+						url += '.';
+					}
+
+					url += format;
+				}
+			}
+			
+			if (me.noCache) {
+				url = Ext.urlAppend(url, Ext.String.format("{0}={1}", me.cacheString, Ext.Date.now()));
+			}
+
+			request.url = url;
+			
+            return url;
         }
+
     }
 });

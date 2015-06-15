@@ -37,7 +37,7 @@ public class CfgUiInstaller implements TranslationKeyProvider {
     public void activate(BundleContext context) {
         HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, HTTP_RESOURCE_LOCAL_NAME, new BundleResolver(context));
         // EXAMPLE: Below is how to enable local development mode.
-//      HttpResource resource =  new HttpResource(HTTP_RESOURCE_ALIAS, "C:\\repo\\com.elster.jupiter.config.extjs\\src\\main\\web\\js\\cfg", new FileResolver());
+//      HttpResource resource =  new HttpResource(HTTP_RESOURCE_ALIAS, "C:\\newrepo\\coko\\com.elster.jupiter.config.extjs\\src\\main\\web\\js\\cfg", new FileResolver());
         registration = context.registerService(HttpResource.class, resource, null);
     }
 

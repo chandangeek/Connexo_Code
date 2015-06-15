@@ -34,7 +34,7 @@ Ext.define('Cfg.view.validationtask.PreviewForm', {
                         name: 'deviceGroup',
                         renderer: function (value) {
                             if (value) {
-                                return value.name;
+                                return Ext.String.htmlEncode(value.name);
                             }
                         }
                     }
