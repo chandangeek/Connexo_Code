@@ -223,9 +223,9 @@ public enum TransitionType {
             return EnumSet.of(MicroCheck.ALL_ISSUES_AND_ALARMS_ARE_CLOSED);
         }
     },
-    DELETE(DefaultState.DECOMMISSIONED, DefaultState.DELETED),
+    DELETE_FROM_DECOMMISSIONED(DefaultState.DECOMMISSIONED, DefaultState.DELETED),
     RECYCLE(DefaultState.DECOMMISSIONED, DefaultState.IN_STOCK),
-    REVOKE(DefaultState.IN_STOCK, DefaultState.DELETED);
+    DELETE_FROM_IN_STOCK(DefaultState.IN_STOCK, DefaultState.DELETED);
 
     private DefaultState from;
     private DefaultState to;
@@ -291,7 +291,7 @@ public enum TransitionType {
      */
     public Set<MicroAction> supportedActions() {
         EnumSet<MicroAction> supportedActions = EnumSet.copyOf(this.requiredActions());
-        supportedActions.addAll(this.requiredActions());
+        supportedActions.addAll(this.optionalActions());
         return supportedActions;
     }
 
@@ -313,17 +313,22 @@ public enum TransitionType {
      * @return The TransitionType
      */
     public static Optional<TransitionType> from(StateTransition transition) {
-        Optional<DefaultState> from = DefaultState.from(transition.getFrom());
-        Optional<DefaultState> to = DefaultState.from(transition.getTo());
+        if (transition != null){
+            return from(transition.getFrom(), transition.getTo());
+        }
+        return Optional.empty();
+    }
+
+    public static Optional<TransitionType> from(State fromSate, State toState) {
+        Optional<DefaultState> from = DefaultState.from(fromSate);
+        Optional<DefaultState> to = DefaultState.from(toState);
         if (from.isPresent() && to.isPresent()) {
             return Stream
                     .of(values())
                     .filter(t -> t.getFrom().equals(from.get()) && t.getTo().equals(to.get()))
                     .findFirst();
-        }
-        else {
+        } else {
             return Optional.empty();
         }
     }
-
 }

@@ -50,14 +50,13 @@ public enum DefaultState implements TranslationKey {
      * @return The DefaultState
      */
     public static Optional<DefaultState> from(State state) {
-        if (!state.isCustom()) {
+        if (state != null && !state.isCustom()) {
             String symbolicName = state.getName();
             return Stream
                     .of(DefaultState.values())
                     .filter(d -> d.getKey().equals(symbolicName))
                     .findFirst();
-        }
-        else {
+        } else {
             return Optional.empty();
         }
     }
