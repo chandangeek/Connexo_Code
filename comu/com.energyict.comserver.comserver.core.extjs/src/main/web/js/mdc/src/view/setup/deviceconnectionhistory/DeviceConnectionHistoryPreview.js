@@ -93,7 +93,8 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionHistoryPrevie
                                 {
                                     xtype: 'displayfield',
                                     fieldLabel: Uni.I18n.translate('deviceconnectionhistory.comPort', 'MDC', 'Communication port'),
-                                    itemId: 'comPort'
+                                    itemId: 'comPort',
+                                    htmlEncode: false
                                 }
 
 
@@ -114,7 +115,8 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionHistoryPrevie
                                     xtype: 'displayfield',
                                     name: 'status',
                                     fieldLabel: Uni.I18n.translate('deviceconnectionhistory.status', 'MDC', 'Status'),
-                                    itemId: 'statusLink'
+                                    itemId: 'statusLink',
+                                    htmlEncode: false
                                 },
                                 {
                                     xtype: 'displayfield',
@@ -123,7 +125,7 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionHistoryPrevie
                                     itemId: 'result',
                                     renderer: function (value) {
                                         if (value) {
-                                            return value.displayValue;
+                                            return Ext.String.htmlEncode(value.displayValue);
                                         }
                                     }
                                 },

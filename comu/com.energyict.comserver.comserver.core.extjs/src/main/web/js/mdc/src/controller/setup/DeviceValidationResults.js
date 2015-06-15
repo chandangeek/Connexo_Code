@@ -49,6 +49,12 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
     mRID: null,
     veto: false,
 	dataValidationLastChecked: null,
+    loadProfileDurations: [],
+    registerDuration: {},
+    validationResultsDataObject: {},
+    jsonValidationResultData: null,
+    isDefaultFilter: true,
+
     init: function () {
 		var me = this;
         me.control({
@@ -107,7 +113,6 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
 
                 var widget = Ext.widget('mdc-device-validation-results-main-view', {device: device});
                 me.getApplication().fireEvent('changecontentevent', widget);
-
                 me.veto = true;
                 me.getValidationResultsTabPanel().setActiveTab(activeTab);
                 if(activeTab == 0)
@@ -132,13 +137,13 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
                 filterParams = {};
 
             if (tab.itemId === 'validationResults-configuration') {				
-                routeParams.mRID = me.mRID;
+                routeParams.mRID = encodeURIComponent(me.mRID);
                 route = 'devices/device/validationresultsconfiguration';
                 route && (route = router.getRoute(route));				
                 route && route.forward(routeParams, router.queryParams);
             }
             else if (tab.itemId === 'validationResults-data') {
-                routeParams.mRID = me.mRID;
+                routeParams.mRID = encodeURIComponent(me.mRID);
                 route = 'devices/device/validationresultsdata';
                 route && (route = router.getRoute(route));
                 route && route.forward(routeParams, router.queryParams);
@@ -153,14 +158,16 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
 	setDefaults : function(){
 		 var me = this,
             router = me.getController('Uni.controller.history.Router'),
-            intervalStart = new Date().getTime(),
+            intervalStart = (new Date()).setHours(0,0,0,0),
 			durationsStore = me.getStore('Mdc.store.ValidationResultsDurations'),
 			firstItem = durationsStore.first();
 			
         router.filter.beginEdit();
-        router.filter.set('intervalStart', me.getIntervalStart(intervalStart, firstItem));
-        router.filter.set('duration', firstItem.get('count') + firstItem.get('timeUnit'));
+        router.filter.set('intervalStart', moment(intervalStart).toDate());
+        router.filter.set('duration', '1years');
 		router.filter.endEdit();
+
+        me.isDefaultFilter = true;
 	},
 
 	getIntervalStart: function (intervalEnd, item) {
@@ -173,20 +180,18 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
             filterView = me.getFilterPanel(),
             filterDataView = me.getFilterDataPanel(),
             intervalStartField = filterForm.down('[name=intervalStart]'),
-            intervalEndField = filterForm.down('[name=duration]'),			
             intervalStart = intervalStartField.getValue(),
-            intervalEnd = intervalEndField.getRawValue(),
             eventDateText = '';
-			
-			
-        eventDateText += intervalEnd + ' ' + intervalStartField.getFieldLabel().toLowerCase() + ' '
-							+ Uni.DateTime.formatDateShort(intervalStart);
-        filterView.setFilter('eventDateChanged', filterForm.down('#fco-date-container').getFieldLabel(), eventDateText, true);
+
+		if(!me.isDefaultFilter) {
+            eventDateText += Uni.DateTime.formatDateShort(intervalStart);
+            filterView.setFilter('eventDateChanged', Uni.I18n.translate('validationResults.intervallabel', 'MDC', 'From'), eventDateText, true);
+            filterDataView.setFilter('eventDateChanged', Uni.I18n.translate('validationResults.intervallabel', 'MDC', 'From'), eventDateText, true);
+        }
+
         filterView.down('#Reset').setText(Uni.I18n.translate('general.reset', 'MDC', 'Reset'));
-						
-        filterDataView.setFilter('eventDateChanged', filterForm.down('#fco-date-container').getFieldLabel(), eventDateText, true);
-		me.setFilterDataView();		
-		filterDataView.down('#Reset').setText(Uni.I18n.translate('general.reset', 'MDC', 'Reset'));			
+		filterDataView.down('#Reset').setText(Uni.I18n.translate('general.reset', 'MDC', 'Reset'));
+        me.setFilterDataView();
 	},
 
 	setFilterDataView: function(){
@@ -257,7 +262,8 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
     },	
 	
     removeFilterItem: function (key) {
-        var router = this.getController('Uni.controller.history.Router'),
+        var me = this,
+            router = this.getController('Uni.controller.history.Router'),
             record = router.filter,
 			routeParams = router.arguments;
 		
@@ -268,13 +274,16 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
 			route && route.forward(routeParams);
             record.set(key, false);
         }
+        me.isDefaultFilter = true;
     },
 
 	applyFilter: function () {
-        var filterForm = this.getSideFilterForm();
-		
+        var me = this,
+            filterForm = this.getSideFilterForm();
+
         filterForm.updateRecord();
         filterForm.getRecord().save();
+        me.isDefaultFilter = false;
     },
 
 	validateNow : function () {		
@@ -522,15 +531,19 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
 
 		if (Ext.isEmpty(router.filter.data.intervalStart)) {
             me.setDefaults();
+        } else{
+            me.isDefaultFilter = false;
         }
-		me.getSideFilterForm().loadRecord(router.filter);
+        me.getSideFilterForm().loadRecord(router.filter);
         me.setFilterView();
 		
 		var updatingStatus = Uni.I18n.translate('validationResults.updatingStatus', 'MDC', 'Updating status...');
 		me.getConfigurationViewDataValidated().setValue(Uni.I18n.translate('device.dataValidation.updatingStatus', 'MDC', 'Updating status...'));
 		me.getConfigurationViewValidationResults().setValue(Uni.I18n.translate('device.dataValidation.updatingStatus', 'MDC', 'Updating status...'));
 
-		models.getProxy().setUrl(me.mRID);
+
+        models.getProxy().setUrl(me.mRID);
+        models.getProxy().setFilterParameters(me.jsonValidationResultData);
 		models.getProxy().setFilterModel(router.filter);
 
         viewport.setLoading();		
@@ -572,48 +585,150 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
         var me = this,
             viewport = Ext.ComponentQuery.query('viewport')[0],
             models = me.getModel('Mdc.model.ValidationResultsDataView'),
-            router = me.getController('Uni.controller.history.Router');
+            zoomLevelsStore = me.getStore('Mdc.store.DataIntervalAndZoomLevels'),
+            loadProfilesList = [],
+            router = me.getController('Uni.controller.history.Router'),
+            filterForm = me.getSideFilterForm(),
+            intervalStartField = filterForm.down('[name=intervalStart]');
 
 		if (Ext.isEmpty(router.filter.data.intervalStart)) {
             me.setDefaults();
+        } else{
+            me.isDefaultFilter = false;
         }
+
         me.getSideFilterForm().loadRecord(router.filter);
         me.setFilterView();
-		
-		var updatingStatus = Uni.I18n.translate('validationResults.updatingStatus', 'MDC', 'Updating status...');
-		me.getDataViewDataValidated().setValue(Uni.I18n.translate('device.dataValidation.updatingStatus', 'MDC', 'Updating status...'));
-		me.getDataViewValidationResults().setValue(Uni.I18n.translate('device.dataValidation.updatingStatus', 'MDC', 'Updating status...'));
-		
-        models.getProxy().setUrl(me.mRID);
-        models.getProxy().setFilterModel(router.filter, router);
 
-        viewport.setLoading();
-        models.load('', {
-            success: function (record) {
-                me.loadValidationResultsDataItems(record);
+        var updatingStatus = Uni.I18n.translate('validationResults.updatingStatus', 'MDC', 'Updating status...');
+        me.getDataViewDataValidated().setValue(Uni.I18n.translate('device.dataValidation.updatingStatus', 'MDC', 'Updating status...'));
+        me.getDataViewValidationResults().setValue(Uni.I18n.translate('device.dataValidation.updatingStatus', 'MDC', 'Updating status...'));
+
+
+        Ext.Ajax.request({
+            url: '../../api/ddr/devices/' + encodeURIComponent(me.mRID) + '/loadprofiles',
+            method: 'GET',
+            timeout: 60000,
+            success: function (response) {
+
                 viewport.setLoading(false);
+                var res = Ext.JSON.decode(response.responseText);
+
+
+                // for load profiles
+                me.loadProfileDurations = [];
+                Ext.Array.each(res.loadProfiles, function (loadProfile) {
+                    me.loadProfileDurations[me.loadProfileDurations.length] = {
+                        id: loadProfile.id,
+                        interval: loadProfile.interval,
+                        intervalInMs: zoomLevelsStore.getIntervalInMs(zoomLevelsStore.getIntervalRecord(loadProfile.interval).get('all')),
+                        intervalRecord: zoomLevelsStore.getIntervalRecord(loadProfile.interval)
+
+                    };
+                    loadProfilesList.push({
+                        id: loadProfile.id,
+                        intervalStart: (me.isDefaultFilter)
+                            ?moment(new Date()).valueOf() - zoomLevelsStore.getIntervalInMs(zoomLevelsStore.getIntervalRecord(loadProfile.interval).get('all'))
+                            :moment(intervalStartField.getValue()).valueOf(),
+                        intervalEnd: (me.isDefaultFilter)
+                            ?moment(new Date()).valueOf()
+                            :moment(intervalStartField.getValue()).valueOf() + zoomLevelsStore.getIntervalInMs(zoomLevelsStore.getIntervalRecord(loadProfile.interval).get('all'))
+                    })
+                });
+
+                // for registers
+                me.registerDuration.interval = {count: 1,timeUnit: 'years'};
+                me.registerDuration.intervalInMs = zoomLevelsStore.getIntervalInMs(me.registerDuration.interval);
+                me.registerDuration.intervalRecord = zoomLevelsStore.getIntervalRecord(me.registerDuration.interval);
+
+                me.validationResultsDataObject = {
+                    loadProfiles: loadProfilesList
+                };
+
+                me.jsonValidationResultData = Ext.encode(loadProfilesList);
+
+                models.getProxy().setUrl(me.mRID);
+                models.getProxy().setFilterParameters(me.jsonValidationResultData);
+                models.getProxy().setFilterModel(router.filter, me.isDefaultFilter);
+
+                viewport.setLoading();
+                models.load('', {
+                    success: function (record) {
+                        me.loadValidationResultsDataItems(record);
+                        viewport.setLoading(false);
+                    },
+                    failure: function (response) {
+                        viewport.setLoading(false);
+                    }
+                });
+
             },
-            failure: function (response) {
+            failure: function (record) {
                 viewport.setLoading(false);
             }
         });
     },
 
     loadValidationResultsDataItems : function(record){
+
         var me = this,
             validationResultsDataForm = me.getValidationResultsLoadProfileRegisterForm();
             loadProfileGrid = me.getLoadProfileGrid(),
             registerGrid = me.getRegisterGrid(),
-			validationResultsDataForm.loadRecord(record);		
-	
-        loadProfileGrid.getStore().loadData(record.get('detailedValidationLoadProfile'));
+			validationResultsDataForm.loadRecord(record),
+            router = me.getController('Uni.controller.history.Router'),
+            detailedValidationLoadProfile = record.get('detailedValidationLoadProfile'),
+            detailedValidationRegister = record.get('detailedValidationRegister'),
+            filterForm = me.getSideFilterForm(),
+            intervalStartField = filterForm.down('[name=intervalStart]');
+
+        loadProfileGrid.router=router;
+        Ext.Array.each(detailedValidationLoadProfile, function (loadProfile) {
+
+            Ext.Array.each(me.loadProfileDurations, function (loadProfileDuration) {
+                if (loadProfile.id == loadProfileDuration.id) {
+                    loadProfile.interval = me.isDefaultFilter ? null: loadProfileDuration.interval;
+                    loadProfile.intervalInMs = loadProfileDuration.intervalInMs;
+                    loadProfile.intervalRecord = loadProfileDuration.intervalRecord;
+
+                    loadProfile.intervalStart = (me.isDefaultFilter)
+                        ? moment(new Date()).valueOf() - loadProfileDuration.intervalInMs
+                        : moment(intervalStartField.getValue()).valueOf();
+                    loadProfile.intervalEnd = (me.isDefaultFilter)
+                        ? moment(new Date()).valueOf()
+                        : moment(intervalStartField.getValue()).valueOf() + loadProfileDuration.intervalInMs;
+
+
+                    return;
+                }
+
+            });
+        });
+        loadProfileGrid.getStore().loadData(detailedValidationLoadProfile);
 		loadProfileGrid.setVisible(record.get('detailedValidationLoadProfile') && record.get('detailedValidationLoadProfile').length >0);				
         loadProfileGrid.getSelectionModel().select(0);
-        
-        registerGrid.getStore().loadData(record.get('detailedValidationRegister'));
+
+
+        registerGrid.router=router;
+        Ext.Array.each(detailedValidationRegister, function (register) {
+            register.interval = me.isDefaultFilter ? null: me.registerDuration.interval;
+            register.intervalInMs = me.registerDuration.intervalInMs;
+            register.intervalRecord = me.registerDuration.intervalRecord;
+
+            register.intervalStart = (me.isDefaultFilter)
+                ? moment(new Date()).valueOf() - me.registerDuration.intervalInMs
+                : moment(intervalStartField.getValue()).valueOf();
+            register.intervalEnd = (me.isDefaultFilter)
+                ? moment(new Date()).valueOf()
+                : moment(intervalStartField.getValue()).valueOf() + me.registerDuration.intervalInMs;
+
+
+        });
+        registerGrid.getStore().loadData(detailedValidationRegister);
 		registerGrid.setVisible(record.get('detailedValidationRegister') && record.get('detailedValidationRegister').length >0);		
         registerGrid.getSelectionModel().select(0);
-		
+
+
 		var dataViewValidateNowBtn = me.getDataViewValidateNowBtn();
 		dataViewValidateNowBtn.setDisabled(!record.get('isActive') || record.get('allDataValidated'));
     },

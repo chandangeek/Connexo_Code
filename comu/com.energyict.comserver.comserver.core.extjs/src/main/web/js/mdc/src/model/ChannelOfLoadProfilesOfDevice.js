@@ -86,7 +86,7 @@ Ext.define('Mdc.model.ChannelOfLoadProfilesOfDevice', {
         reader: {
             type: 'json'
         },
-
+        timeout: 300000,
         setUrl: function (params) {
             this.url = this.urlTpl.replace('{mRID}', encodeURIComponent(params.mRID));
         }

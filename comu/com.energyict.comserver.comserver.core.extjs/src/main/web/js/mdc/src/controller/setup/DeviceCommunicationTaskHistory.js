@@ -100,10 +100,10 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTaskHistory', {
     viewConnectionLog: function () {
         var communicationTaskHistory = this.getDeviceCommunicationTaskHistoryGrid().getSelectionModel().getSelection()[0];
         location.href = '#/devices/' + communicationTaskHistory.getComSession().get('device').id
-        + '/connectionmethods/' + communicationTaskHistory.getComSession().get('connectionMethod').id
-        + '/history/' + communicationTaskHistory.getComSession().get('id')
-        + '/viewlog' +
-        '?logLevels=Error&logLevels=Warning&logLevels=Information&communications=Connections&communications=Communications'
+            + '/connectionmethods/' + communicationTaskHistory.getComSession().get('connectionMethod').id
+            + '/history/' + communicationTaskHistory.getComSession().get('id')
+            + '/viewlog' +
+            '?filter=%7B%22logLevels%22%3A%5B%22Error%22%2C%22Warning%22%2C%22Information%22%5D%2C%22logTypes%22%3A%5B%22connections%22%2C%22communications%22%5D%7D'
     },
 
     showDeviceCommunicationTaskHistoryLog: function (deviceMrId, comTaskId, comTaskHistoryId) {
@@ -115,7 +115,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTaskHistory', {
 
         viewport.setLoading();
 
-        comTaskHistoryModel.getProxy().setExtraParam('mRID', deviceMrId);
+        comTaskHistoryModel.getProxy().setExtraParam('mRID', encodeURIComponent(deviceMrId));
         comTaskHistoryModel.getProxy().setExtraParam('comTaskId', comTaskId);
 
         deviceModel.load(deviceMrId, {
@@ -137,7 +137,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTaskHistory', {
                             success: function (comTask) {
                                 me.getDeviceCommunicationTaskLogOverviewForm().loadRecord(comTaskHistory);
                                 var store = me.getDeviceCommunicationTaskLogStore();
-                                store.getProxy().setExtraParam('mRID', deviceMrId);
+                                store.getProxy().setExtraParam('mRID', encodeURIComponent(deviceMrId));
                                 store.getProxy().setExtraParam('comTaskId', comTaskId);
                                 store.getProxy().setExtraParam('sessionId', comTaskHistoryId);
 

@@ -113,14 +113,14 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                                         if(value && value!==''){
                                             var data = this.up('form').getRecord().data;
 
-                                            var link = '#/devices/' + data.comSession.device.id
+                                            var link = '#/devices/' + encodeURIComponent(data.comSession.device.id)
                                                 + '/connectionmethods/' + data.comSession.connectionMethod.id
                                                 + '/history/' + data.comSession.id
                                                 + '/viewlog' +
                                                 '?filter=%7B%22logLevels%22%3A%5B%22Error%22%2C%22Warning%22%2C%22Information%22%5D%2C%22logTypes%22%3A%5B%22connections%22%2C%22communications%22%5D%7D'
 
 
-                                            return '<a href="'+link+'">'+ value.connectionMethod.name + '</a>'
+                                            return '<a href="'+link+'">'+ Ext.String.htmlEncode(value.connectionMethod.name) + '</a>'
                                         } else {
                                             return '';
                                         }
@@ -186,7 +186,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                                     fieldLabel: Uni.I18n.translate('devicecommunicationtaskhistory.device', 'MDC', 'Device'),
                                     itemId: 'device',
                                     renderer: function (device) {
-                                        return device !== '' ? '<a href="#/devices/' + device.id + '">' + device.name + '</a>' : '';
+                                        return device !== '' ? '<a href="#/devices/' + device.id + '">' + Ext.String.htmlEncode(device.name) + '</a>' : '';
                                     }
                                 },
                                 {
@@ -195,7 +195,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                                     fieldLabel: Uni.I18n.translate('devicecommunicationtaskhistory.deviceType', 'MDC', 'Device type'),
                                     itemId: 'deviceType',
                                     renderer: function (deviceType) {
-                                        return deviceType !== '' ? '<a href="#/administration/devicetypes/' + deviceType.id + '">' + deviceType.name + '</a>' : '';
+                                        return deviceType !== '' ? '<a href="#/administration/devicetypes/' + deviceType.id + '">' + Ext.String.htmlEncode(deviceType.name) + '</a>' : '';
                                     }
                                 },
                                 {
@@ -204,7 +204,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                                     fieldLabel: Uni.I18n.translate('devicecommunicationtaskhistory.deviceConfiguration', 'MDC', 'Device configuration'),
                                     itemId: 'deviceConfiguration',
                                     renderer: function (deviceConfiguration) {
-                                        return deviceConfiguration != '' ? '<a href="#/administration/devicetypes/' + deviceConfiguration.deviceTypeId + '/deviceconfigurations/' + deviceConfiguration.id + '">' + deviceConfiguration.name + '</a>' : '';
+                                        return deviceConfiguration != '' ? '<a href="#/administration/devicetypes/' + deviceConfiguration.deviceTypeId + '/deviceconfigurations/' + deviceConfiguration.id + '">' + Ext.String.htmlEncode(deviceConfiguration.name) + '</a>' : '';
                                     }
                                 },
                                 {
@@ -220,6 +220,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                                 {
                                     xtype: 'displayfield',
                                     itemId: 'comPort',
+                                    htmlEncode: false,
                                     fieldLabel: Uni.I18n.translate('devicecommunicationtaskhistory.communicationPort', 'MDC', 'Communication port')
                                 }
                             ]

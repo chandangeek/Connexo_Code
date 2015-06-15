@@ -17,7 +17,7 @@ Ext.define('Mdc.view.setup.devicevalidationresults.RuleSetVersionRuleList', {
 				sortable: false, 
 				fixed: true,
                 renderer: function (value, metaData, record) {			
-                    return '<a href="#/administration/validation/rulesets/' + record.get('ruleSetId') + '/versions/' + record.get('ruleSetVersionId') + '/rules/' + record.getId() + '">' + value + '</a>';
+                    return '<a href="#/administration/validation/rulesets/' + record.get('ruleSetId') + '/versions/' + record.get('ruleSetVersionId') + '/rules/' + record.getId() + '">' + Ext.String.htmlEncode(value) + '</a>';
                 }
             },
             { 
@@ -32,17 +32,8 @@ Ext.define('Mdc.view.setup.devicevalidationresults.RuleSetVersionRuleList', {
 				header: Uni.I18n.translate('validationResults.result', 'MDC', 'Result'), 
 				dataIndex: 'total', 
 				sortable: false, 
-				fixed: true,
-				renderer: function (value, meta, record) {					
-					var me = this,
-						href = me.router.getRoute('devices/device/validationresultsdatarule').buildUrl(
-							{ mRID: record.get('mRID'), 
-								ruleSetId: record.get('ruleSetId'), 
-								ruleSetVersionId: record.get('ruleSetVersionId'), 
-								ruleId: record.get('id')},
-						me.router.queryParams );
-					return '<a href="' + href + '">' + value + '</a>'
-				}
+				fixed: true
+
             }
         ]
     }

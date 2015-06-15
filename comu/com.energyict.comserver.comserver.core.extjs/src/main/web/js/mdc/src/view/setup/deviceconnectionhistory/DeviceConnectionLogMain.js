@@ -103,7 +103,7 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionLogMain', {
                                                 itemId: 'result',
                                                 renderer: function (value) {
                                                     if (value !== null) {
-                                                        return value.displayValue;
+                                                        return Ext.String.htmlEncode(value.displayValue);
                                                     }
                                                 }
                                             }

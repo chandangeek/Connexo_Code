@@ -310,12 +310,12 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
         });
 
         messageBody.push({
-            html: '<h3>' + messageHeader + '</h3><br>'
+            html: '<h3>' + Ext.String.htmlEncode(messageHeader) + '</h3><br>'
         });
 
         Ext.Array.each(grouping, function (group) {
             messageBody.push({
-                html: group.message,
+                html: Ext.String.htmlEncode(group.message),
                 bbar: [
                     {
                         text: Uni.I18n.translate('searchItems.bulk.viewDevices', 'MDC', 'View devices'),

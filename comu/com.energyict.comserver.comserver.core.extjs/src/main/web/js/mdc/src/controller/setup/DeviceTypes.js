@@ -103,19 +103,19 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
             deviceConfigurationsLink = this.getDeviceConfigurationsLink();
             deviceLifeCycleLink = this.getDeviceLifeCycleLink();
 
-            deviceLifeCycleLink.setHref('#/administration/devicelifecycles/' + record[0].get('deviceLifeCycleId'));
+            deviceLifeCycleLink.setHref('#/administration/devicelifecycles/' + encodeURIComponent(record[0].get('deviceLifeCycleId')));
             deviceLifeCycleLink.setText(record[0].get('deviceLifeCycleName'));
 
-            registerLink.setHref('#/administration/devicetypes/' + deviceTypeId + '/registertypes');
+            registerLink.setHref('#/administration/devicetypes/' + encodeURIComponent(deviceTypeId) + '/registertypes');
             registerLink.setText(deviceTypes[0].get('registerCount') + ' ' + Uni.I18n.translatePlural('devicetype.registers', deviceTypes[0].get('registerCount'), 'MDC', 'register types'));
 
-            logBookLink.setHref('#/administration/devicetypes/' + deviceTypeId + '/logbooktypes');
+            logBookLink.setHref('#/administration/devicetypes/' + encodeURIComponent(deviceTypeId) + '/logbooktypes');
             logBookLink.setText(deviceTypes[0].get('logBookCount') + ' ' + Uni.I18n.translatePlural('devicetype.logbooks', deviceTypes[0].get('logBookCount'), 'MDC', 'logbook types'));
 
-            loadProfilesLink.setHref('#/administration/devicetypes/' + deviceTypeId + '/loadprofiles');
+            loadProfilesLink.setHref('#/administration/devicetypes/' + encodeURIComponent(deviceTypeId) + '/loadprofiles');
             loadProfilesLink.setText(deviceTypes[0].get('loadProfileCount') + ' ' + Uni.I18n.translatePlural('devicetype.loadprofiles', deviceTypes[0].get('loadProfileCount'), 'MDC', 'load profile types'));
 
-            deviceConfigurationsLink.setHref('#/administration/devicetypes/' + deviceTypeId + '/deviceconfigurations');
+            deviceConfigurationsLink.setHref('#/administration/devicetypes/' + encodeURIComponent(deviceTypeId) + '/deviceconfigurations');
             deviceConfigurationsLink.setText(deviceTypes[0].get('deviceConfigurationCount') + ' ' + Uni.I18n.translatePlural('devicetype.deviceconfigurations', deviceTypes[0].get('deviceConfigurationCount'), 'MDC', 'device configurations'));
 
             this.getDeviceTypePreviewForm().loadRecord(deviceTypes[0]);
@@ -148,19 +148,19 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
 
                 widget.down('deviceTypeSideMenu #overviewLink').setText(deviceType.get('name'));
 
-                deviceLifeCycleLink.setHref('#/administration/devicelifecycles/' + deviceType.get('deviceLifeCycleId'));
+                deviceLifeCycleLink.setHref('#/administration/devicelifecycles/' + encodeURIComponent(deviceType.get('deviceLifeCycleId')));
                 deviceLifeCycleLink.setText(deviceType.get('deviceLifeCycleName'));
 
-                registersLink.setHref('#/administration/devicetypes/' + deviceTypeId + '/registertypes');
+                registersLink.setHref('#/administration/devicetypes/' + encodeURIComponent(deviceTypeId) + '/registertypes');
                 registersLink.setText(deviceType.get('registerCount') + ' ' + Uni.I18n.translatePlural('devicetype.registers', deviceType.get('registerCount'), 'MDC', 'register types'));
 
-                logBookLink.setHref('#/administration/devicetypes/' + deviceTypeId + '/logbooktypes');
+                logBookLink.setHref('#/administration/devicetypes/' + encodeURIComponent(deviceTypeId) + '/logbooktypes');
                 logBookLink.setText(deviceType.get('logBookCount') + ' ' + Uni.I18n.translatePlural('devicetype.logbooks', deviceType.get('logBookCount'), 'MDC', 'logbook types'));
 
-                loadProfilesLink.setHref('#/administration/devicetypes/' + deviceTypeId + '/loadprofiles');
+                loadProfilesLink.setHref('#/administration/devicetypes/' + encodeURIComponent(deviceTypeId) + '/loadprofiles');
                 loadProfilesLink.setText(deviceType.get('loadProfileCount') + ' ' + Uni.I18n.translatePlural('devicetype.loadprofiles', deviceType.get('loadProfileCount'), 'MDC', 'loadprofile types'));
 
-                deviceConfigurationsLink.setHref('#/administration/devicetypes/' + deviceTypeId + '/deviceconfigurations');
+                deviceConfigurationsLink.setHref('#/administration/devicetypes/' + encodeURIComponent(deviceTypeId) + '/deviceconfigurations');
                 deviceConfigurationsLink.setText(deviceType.get('deviceConfigurationCount') + ' ' + Uni.I18n.translatePlural('devicetype.deviceconfigurations', deviceType.get('deviceConfigurationCount'), 'MDC', 'device configurations'));
 
                 widget.down('form').loadRecord(deviceType);
@@ -179,11 +179,11 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
     },
 
     editDeviceTypeHistory: function (record) {
-        location.href = '#/administration/devicetypes/' + record.get('id') + '/edit';
+        location.href = '#/administration/devicetypes/' + encodeURIComponent(record.get('id')) + '/edit';
     },
 
     editDeviceTypeHistoryFromPreview: function () {
-        location.href = '#/administration/devicetypes/' + this.getDeviceTypeGrid().getSelectionModel().getSelection()[0].get("id") + '/edit';
+        location.href = '#/administration/devicetypes/' + encodeURIComponent(this.getDeviceTypeGrid().getSelectionModel().getSelection()[0].get("id")) + '/edit';
     },
 
     deleteDeviceType: function (deviceTypeToDelete) {
@@ -335,7 +335,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
             record.save({
                 success: function (record) {
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceType.acknowlegment.added', 'MDC', 'Device type added'));
-                    location.href = '#/administration/devicetypes/' + record.get('id');
+                    location.href = '#/administration/devicetypes/' + encodeURIComponent(record.get('id'));
                 },
                 failure: function (record, operation) {
                     var json = Ext.decode(operation.response.responseText);

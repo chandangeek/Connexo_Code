@@ -17,20 +17,34 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RuleSetVersionsGrid', {
             {
                 header: Uni.I18n.translate('validation.period', 'CFG', 'Period'),
                 dataIndex: 'versionName',
-                flex: 0.3,
+                flex: 6,
                 sortable: false,
                 fixed: true,
                 renderer: function (value, metaData, record) {
-                    metaData.tdAttr = 'data-qtip="' + record.get('description').replace(/(?:\r\n|\r|\n)/g, '<br />') + '"';
+                    metaData.tdAttr = Ext.String.htmlEncode(Ext.String.htmlEncode('data-qtip="' + record.get('description').replace(/(?:\r\n|\r|\n)/g, '<br />') + '"'));
                     return value;
                 }
             },
             {
                 header: Uni.I18n.translate('validation.versionDescription', 'CFG', 'Description'),
                 dataIndex: 'description',
-                flex: 0.3,
+                flex: 6,
                 align: 'left',
                 sortable: false,
+                fixed: true
+            },
+			{
+                header: Uni.I18n.translate('validation.activeRules', 'CFG', 'Active rules'),                
+                dataIndex: 'numberOfActiveRules',
+				align: 'left',
+                flex: 2,
+                fixed: true
+            },
+            {
+                header: Uni.I18n.translate('validation.inactiveRules', 'CFG', 'Inactive rules'),
+                align: 'left',
+                dataIndex: 'numberOfInactiveRules',
+                flex: 2,
                 fixed: true
             }
         ]; 
@@ -41,17 +55,7 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RuleSetVersionsGrid', {
                 displayMsg: Uni.I18n.translate('validation.version.display.msg', 'CFG', '{0} - {1} of {2} versions'),
                 displayMoreMsg: Uni.I18n.translate('validation.version.display.more.msg', 'CFG', '{0} - {1} of more than {2} versions'),
                 emptyMsg: Uni.I18n.translate('validation.version.pagingtoolbartop.emptyMsg', 'CFG', 'There are no versions to display'),
-                dock: 'top',
-                items: [
-                    {
-                        text: Uni.I18n.translate('validation.addVersion', 'CFG', 'Add version'),
-                        privileges: Cfg.privileges.Validation.admin,
-                        itemId: 'newVersion',
-                        xtype: 'button',
-                        href: '#/administration/validation/rulesets/' + me.ruleSetId + '/versions/add',
-                        hrefTarget: '_self'
-                    }
-                ]
+                dock: 'top'               
             },
             {
                 xtype: 'pagingtoolbarbottom',

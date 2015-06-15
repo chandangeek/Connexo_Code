@@ -20,9 +20,18 @@ Ext.define('Mdc.view.setup.device.DeviceDataValidationPanel', {
                         xtype: 'form',
                         flex: 1,
                         itemId: 'deviceDataValidationForm',
+                        layout: {
+                            type: 'vbox',
+                            align: 'stretch'
+                        },
                         defaults: {
                             xtype: 'displayfield',
-                            labelWidth: 150
+                            labelWidth: 150,
+                            style: {
+                                marginRight: '20px',
+                                padding: '20px'
+                            },
+                            flex: 1
                         },
                         items: [
                             {
@@ -43,20 +52,22 @@ Ext.define('Mdc.view.setup.device.DeviceDataValidationPanel', {
                                 }
                             },
                             {
-                                itemId: 'registersField',
-                                fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.registers', 'MDC', 'Registers'),
-                                name: 'registerSuspectCount',
-                                renderer: function (value) {
-                                    return value + ' ' + Uni.I18n.translate('device.suspects.lastYear', 'MDC', 'suspects (last year)');
-                                }
-                            },
-                            {
-                                itemId: 'profilesField',
-                                fieldLabel: Uni.I18n.translate('deviceconfigurationmenu.loadProfiles', 'MDC', 'Load profiles'),
-                                name: 'loadProfileSuspectCount',
-                                renderer: function (value) {
-                                    return value + ' ' + Uni.I18n.translate('device.suspects.lastMonth', 'MDC', 'suspects (last month)');
-                                }
+                                xtype: 'fieldcontainer',
+                                itemId: 'fld-validation-result',
+                                fieldLabel: Uni.I18n.translate('device.dataValidation.validationResult', 'MDC', 'Validation result'),
+                                items: [
+                                    {
+                                        xtype: 'button',
+                                        name: 'validationResultName',
+                                        text: Uni.I18n.translate('device.dataValidation.validationResult', 'MDC', 'Validation result'),
+                                        itemId: 'lnk-validation-result',
+                                        ui: 'link',
+                                        href: '#'
+
+                                    }
+
+                                ]
+
                             },
                             {
                                 fieldLabel: Uni.I18n.translate('device.lastValidation', 'MDC', 'Last validation'),
@@ -78,7 +89,31 @@ Ext.define('Mdc.view.setup.device.DeviceDataValidationPanel', {
         ];
 
         me.callParent();
+
+    },
+    setValidationResult: function () {
+        var me = this,
+            href;
+
+        Ext.Ajax.request({
+            url: '../../api/ddr/devices/' + encodeURIComponent(me.mRID) + '/validationrulesets/validationstatus',
+            method: 'GET',
+            timeout: 60000,
+
+            success: function (response) {
+                var res = Ext.JSON.decode(response.responseText);
+
+                if(res.loadProfileSuspectCount != 0 || res.registerSuspectCount != 0)
+                    me.down('#lnk-validation-result').setText(Uni.I18n.translate('device.dataValidation.recentsuspects', 'MDC', 'Recent suspects'));
+                else
+                    me.down('#lnk-validation-result').setText(Uni.I18n.translate('device.dataValidation.recentsuspects', 'MDC', 'No suspects'));
+
+
+            }
+        });
+
     }
+
 });
 
 

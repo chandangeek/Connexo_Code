@@ -4,28 +4,37 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
     requires: [
         'Mdc.store.DeviceConfigValidationRuleSets',
         'Cfg.store.ValidationRuleSets',
-        'Mdc.store.ValidationRuleSetsForDeviceConfig'
+        'Mdc.store.ValidationRuleSetsForDeviceConfig',
+		'Cfg.store.ValidationRuleSetVersions',
+		'Cfg.view.validation.RulePreview'
     ],
 
     views: [
         'setup.validation.RulesOverview',
-        'setup.validation.AddRuleSets'
+        'setup.validation.AddRuleSets',
+		'Cfg.view.validation.RulePreview'
+		
     ],
 
     stores: [
         'DeviceConfigValidationRuleSets',
-        'Mdc.store.ValidationRuleSetsForDeviceConfig'
+        'Mdc.store.ValidationRuleSetsForDeviceConfig',
+		'Cfg.store.ValidationRuleSets',
+		'Cfg.store.ValidationRuleSetVersions'
     ],
 
     refs: [
         {ref: 'validationRuleSetsOverview', selector: 'validation-rules-overview'},
         {ref: 'validationRuleSetsGrid', selector: 'validation-rules-overview validation-rulesets-grid'},
+		{ref: 'validationVersionsGrid', selector: 'validation-rules-overview validation-versions-grid'},
         {ref: 'validationRulesGrid', selector: 'validation-rules-overview validation-rules-grid'},
         {ref: 'addValidationRuleSets', selector: 'validation-add-rulesets'},
         {ref: 'addValidationRuleSetsGrid', selector: 'validation-add-rulesets validation-add-rulesets-grid'},
         {ref: 'addValidationRulesGrid', selector: 'validation-add-rulesets validation-add-rules-grid'},
         {ref: 'addValidationRulesPreview', selector: 'validation-add-rulesets validation-rule-preview'},
-        {ref: 'validationRulesPreview', selector: 'validation-rules-overview validation-rule-preview'}
+        {ref: 'addValidationVersionsPreview', selector: 'validation-ruleset-view validation-versions-grid'},
+        {ref: 'validationRulesPreview', selector: 'validation-rules-overview validation-rule-preview'},
+		{ref: 'validationVersionsPreview', selector: 'validation-rules-overview validation-versions-view'}
     ],
 
     deviceTypeId: null,
@@ -41,7 +50,7 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
                 selecteditemsadd: this.onSelectedValidationRuleSetsAdd
             },
             'validation-add-rulesets validation-add-rulesets-grid uni-actioncolumn': {
-                menuclick: this.onAddValidationActionMenuClick
+                menuclick: this.onValidationActionMenuClick
             },
             'validation-rules-overview validation-rulesets-grid': {
                 selectionchange: this.onValidationRuleSetsSelectionChange
@@ -60,6 +69,12 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
             },
             'validation-rules-overview validation-rules-grid': {
                 selectionchange: this.onValidationRuleSelectionChange
+            },
+			'validation-rules-overview validation-versions-grid': {
+                selectionchange: this.onValidationVersionsChange
+            },
+            'validation-ruleset-view validation-versions-grid': {
+                selectionchange: this.onAddValidationVersionsChange
             }
         });
     },
@@ -68,8 +83,7 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
         var me = this;
 
         me.deviceTypeId = deviceTypeId;
-        me.deviceConfigId = deviceConfigId;
-
+        me.deviceConfigId = deviceConfigId;		
         me.getDeviceConfigValidationRuleSetsStore().getProxy().extraParams = ({deviceType: deviceTypeId, deviceConfig: deviceConfigId});
         var widget = Ext.widget('validation-rules-overview', {deviceTypeId: deviceTypeId, deviceConfigId: deviceConfigId});
 
@@ -232,7 +246,7 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
         var action = item.action,
             record = menu.record;
         if (action === 'viewRule') {
-            window.location.href = '#/administration/validation/rulesets/' + record.get('ruleSet').id + '/rules/' + record.getId();
+            window.location.href = '#/administration/validation/rulesets/' + record.get('ruleSetId') + '/versions/' + record.get('ruleSetVersionId') + '/rules/' + record.getId();
         } else {
             window.location.href = '#/administration/validation/rulesets/' + record.getId();
         }
@@ -242,17 +256,23 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
         var me = this,
             action = item.action,
             record = menu.record;
-
+		
         switch (action) {
             case 'viewRule':
-                window.location.href = '#/administration/validation/rulesets/' + record.get('ruleSet').id + '/rules/' + record.getId();
+                window.location.href = '#/administration/validation/rulesets/' + record.get('ruleSetId') + '/versions/' + record.get('ruleSetVersionId') + '/rules/' + record.getId();
+                break;
+			case 'viewVersion':
+                window.location.href = '#/administration/validation/rulesets/' + record.get('ruleSetId') + '/versions/' + record.getId();
                 break;
             case 'viewRuleSet':
                 window.location.href = '#/administration/validation/rulesets/' + record.getId();
                 break;
             case 'removeRuleSet':
                 me.removeValidationRuleSet(record);
-                break;
+                break;	
+			default: 
+				window.location.href = '#/administration/validation/rulesets/' + record.getId();			
+				break;
         }
     },
 
@@ -263,7 +283,7 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
 
         switch (action) {
             case 'viewRule':
-                window.location.href = '#/administration/validation/rulesets/' + record.get('ruleSet').id + '/rules/' + record.getId();
+                window.location.href = '#/administration/validation/rulesets/' + record.get('ruleSetId') + '/versions/' + record.get('ruleSetVersionId') + '/rules/' + record.getId();
                 break;
         }
     },
@@ -275,7 +295,7 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
 
         switch (action) {
             case 'viewRule':
-                window.location.href = '#/administration/validation/rulesets/' + record.get('ruleSet').id + '/rules/' + record.getId();
+                window.location.href = '#/administration/validation/rulesets/' + record.get('ruleSetId') + '/versions/' + record.get('ruleSetVersionId') + '/rules/' + record.getId();
                 break;
         }
     },
@@ -356,5 +376,27 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
         if (selection.length > 0) {
             view.updateValidationRule(selection[0]);
         }
+    },
+
+    onValidationVersionsChange: function (grid) {
+        var view = this.getValidationVersionsPreview(),
+            selection = grid.view.getSelectionModel().getSelection();
+
+        if (selection.length > 0) {
+            view.updateValidationVersionSet(selection[0]);
+        }
+    },
+
+    onAddValidationVersionsChange: function (grid) {
+        var view = this.getAddValidationVersionsPreview(),
+            selection = grid.view.getSelectionModel().getSelection();
+
+        if (selection.length > 0) {
+            view.ruleSetId = selection[0].get('ruleSetId');
+            view.versionId = selection[0].get('id');
+            view.updateValidationVersionSet(selection[0]);
+        }
     }
+	
+	
 });

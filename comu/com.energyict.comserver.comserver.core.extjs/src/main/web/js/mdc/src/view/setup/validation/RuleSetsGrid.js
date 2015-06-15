@@ -24,26 +24,18 @@ Ext.define('Mdc.view.setup.validation.RuleSetsGrid', {
                 dataIndex: 'name',
                 renderer: function (value, metaData, record) {
                     metaData.tdAttr = 'data-qtip="' + record.get('description') + '"';
-                    return '<a href="#/administration/validation/rulesets/' + record.getId() + '">' + value + '</a>';
+                    return '<a href="#/administration/validation/rulesets/' + record.getId() + '">' + Ext.String.htmlEncode(value) + '</a>';
                 },
-                flex: 1
+                flex: 3
             },
-            {
-                header: Uni.I18n.translate('validation.activeRules', 'CFG', 'Active rules'),
-                align: 'right',
-                dataIndex: 'numberOfRules',
-                flex: 1,
-                renderer: function (value, b, record) {
-                    var numberOfActiveRules = record.get('numberOfRules') - record.get('numberOfInactiveRules');
-                    return numberOfActiveRules;
-                }
-            },
-            {
-                header: Uni.I18n.translate('validation.inactiveRules', 'CFG', 'Inactive rules'),
-                align: 'right',
-                dataIndex: 'numberOfInactiveRules',
-                flex: 1
-            },
+			{
+                header: Uni.I18n.translate('validation.activeVersion', 'CFG', 'Active version'),
+                dataIndex: 'activeVersion',
+                flex: 5,
+                align: 'left',
+                sortable: false,
+                fixed: true
+            },	            
             {
                 xtype: 'uni-actioncolumn',
                 items: 'Mdc.view.setup.validation.RuleSetActionMenu'

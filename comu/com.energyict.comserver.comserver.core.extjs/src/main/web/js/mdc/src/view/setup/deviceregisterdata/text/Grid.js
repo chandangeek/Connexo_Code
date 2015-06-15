@@ -25,7 +25,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.text.Grid', {
                 dataIndex: 'value',
                 renderer: function (value, metaData, record) {
                     if (!Ext.isEmpty(value) && Ext.isString(value)) {
-                        var val = new String(value);
+                        var val = Ext.String.htmlEncode(value);
                         return val.substr(0, 300);
                     }
                 },

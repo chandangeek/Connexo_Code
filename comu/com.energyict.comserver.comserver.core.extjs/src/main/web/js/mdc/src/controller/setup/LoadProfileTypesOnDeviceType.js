@@ -161,7 +161,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypesOnDeviceType', {
     },
 
     handleSuccessRequest: function (headerText) {
-        window.location.href = '#/administration/devicetypes/' + this.deviceTypeId + '/loadprofiles';
+        window.location.href = '#/administration/devicetypes/' + encodeURIComponent(this.deviceTypeId) + '/loadprofiles';
         this.getApplication().fireEvent('acknowledge', headerText);
     },
 
@@ -189,7 +189,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypesOnDeviceType', {
                     text: 'Cancel',
                     action: 'cancel',
                     ui: 'link',
-                    href: '#/administration/devicetypes/' + me.deviceTypeId + '/loadprofiles',
+                    href: '#/administration/devicetypes/' + encodeURIComponent(me.deviceTypeId) + '/loadprofiles',
                     handler: function (button, event) {
                         this.up('messagebox').hide();
                     }

@@ -6,6 +6,12 @@ Ext.define('Mdc.store.ValidationResultsDurations', {
 	},
     data:  [
 		{
+			id: '1years',
+			count: 1,
+			timeUnit: 'years',
+			localizeValue: 1 + ' ' + Uni.I18n.translatePlural('general.timeUnit.years', 1, 'MDC', 'year')
+		},
+		{
 			id: '3months',
 			count: 3,
 			timeUnit: 'months',

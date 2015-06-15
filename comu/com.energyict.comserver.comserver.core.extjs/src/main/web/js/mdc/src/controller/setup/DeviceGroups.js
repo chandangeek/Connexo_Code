@@ -133,7 +133,7 @@ Ext.define('Mdc.controller.setup.DeviceGroups', {
         if (deviceGroups.length == 1) {
             var deviceGroup = deviceGroups[0];
             this.getDeviceGroupPreviewForm().loadRecord(deviceGroup);
-            this.getDeviceGroupPreview().setTitle(deviceGroup.get('name'));
+            this.getDeviceGroupPreview().setTitle(Ext.String.htmlEncode(deviceGroup.get('name')));
             this.getDeviceGroupPreview().down('device-group-action-menu').record = deviceGroup;
             this.updateCriteria(deviceGroup);
         }
@@ -201,7 +201,7 @@ Ext.define('Mdc.controller.setup.DeviceGroups', {
                         labelAlign: 'left',
                         fieldLabel: criteriaName,
                         renderer: function (value) {
-                            return criteriaValue;
+                            return Ext.String.htmlEncode(criteriaValue);
                         }
                     }
                 )

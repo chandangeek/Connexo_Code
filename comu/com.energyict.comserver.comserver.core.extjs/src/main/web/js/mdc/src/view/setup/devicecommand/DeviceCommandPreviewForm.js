@@ -16,35 +16,35 @@ Ext.define('Mdc.view.setup.devicecommand.DeviceCommandPreviewForm', {
                     fieldLabel: Uni.I18n.translate('deviceCommands.view.cmdName', 'MDC', 'Command name'),
                     name: 'messageSpecification',
                     renderer: function (val) {
-                        return val ? val.name : ''
+                        return val ? Ext.String.htmlEncode(val.name) : ''
                     }
                 },
                 {
                     fieldLabel: Uni.I18n.translate('deviceCommands.view.cmdCategory', 'MDC', 'Command category'),
                     name: 'category',
                     renderer: function (val) {
-                        return val ? val : ''
+                        return val ? Ext.String.htmlEncode(val) : ''
                     }
                 },
                 {
                     fieldLabel: Uni.I18n.translate('deviceCommands.view.cmdStatus', 'MDC', 'Status'),
                     name: 'status',
                     renderer: function (val) {
-                        return val.displayValue ? val.displayValue : ''
+                        return val.displayValue ? Ext.String.htmlEncode(val.displayValue): ''
                     }
                 },
                 {
                     fieldLabel: Uni.I18n.translate('deviceCommands.view.cmdTrackingId', 'MDC', 'Tracking ID'),
                     name: 'trackingId',
                     renderer: function (val) {
-                        return val ? val : ''
+                        return val ? Ext.String.htmlEncode(val) : ''
                     }
                 },
                 {
                     fieldLabel: Uni.I18n.translate('deviceCommands.view.cmdErrorMsg', 'MDC', 'Error message'),
                     name: 'errorMessage',
                     renderer: function (val) {
-                        return val ? val : ''
+                        return val ? Ext.String.htmlEncode(val) : ''
                     }
                 }
             ]
@@ -60,7 +60,7 @@ Ext.define('Mdc.view.setup.devicecommand.DeviceCommandPreviewForm', {
                     fieldLabel: Uni.I18n.translate('deviceCommands.view.cmdCreatedBy', 'MDC', 'Created By'),
                     name: 'user',
                     renderer: function (val) {
-                        return val ? val : ''
+                        return val ? Ext.String.htmlEncode(val) : ''
                     }
                 },
                 {

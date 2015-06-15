@@ -100,7 +100,7 @@ Ext.define('Mdc.view.setup.devicechannels.ValidationPreview', {
                         } else {
                             str = '<span style="word-wrap: break-word; display: inline-block; width: 800px">';
                             if (Cfg.privileges.Validation.canViewOrAdminstrate()) {
-                                str += '<a href="#/administration/validation/rulesets/' + rule.ruleSet.id + '/rules/' + rule.id + '">' + rule.name + '</a>';
+                                str += '<a href="#/administration/validation/rulesets/' + rule.ruleSetVersion.id + '/rules/' + rule.id + '">' + rule.name + '</a>';
                             } else {
                                 str += rule.name;
                             }

@@ -7,5 +7,11 @@ Ext.define('Mdc.model.RegisterDataFilter', {
         type: 'querystring',
         root: 'filter'
     },
-    fields: [ 'onlySuspect', 'onlyNonSuspect' ]
+    fields: [
+        {name: 'intervalStart', type: 'date', dateFormat: 'Y-m-dTH:i:s'},
+        {name: 'duration'},
+        {name: 'onlySuspect'},
+        {name: 'onlyNonSuspect'}
+    ]
+
 });

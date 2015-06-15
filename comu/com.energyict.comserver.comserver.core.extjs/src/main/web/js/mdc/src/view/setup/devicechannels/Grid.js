@@ -36,7 +36,7 @@ Ext.define('Mdc.view.setup.devicechannels.Grid', {
                 header: Uni.I18n.translate('devicechannels.interval', 'MDC', 'Interval'),
                 renderer: function (value) {
                     var res = '';
-                    value ? res = '{count} {timeUnit}'.replace('{count}', value.count).replace('{timeUnit}', value.timeUnit) : null;
+                    value ? res = Ext.String.htmlEncode('{count} {timeUnit}'.replace('{count}', value.count).replace('{timeUnit}', value.timeUnit)) : null;
                     return res
                 }
             },

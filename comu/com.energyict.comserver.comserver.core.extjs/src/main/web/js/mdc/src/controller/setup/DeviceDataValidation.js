@@ -85,7 +85,7 @@ Ext.define('Mdc.controller.setup.DeviceDataValidation', {
     },
     onRulesSetGridAfterRender: function (grid) {
         var me = this;
-        grid.store.getProxy().setExtraParam('mRID', me.mRID);
+        grid.store.getProxy().setExtraParam('mRID', encodeURIComponent(me.mRID));
         grid.store.load({
             callback: function () {
                 grid.getSelectionModel().doSelect(0);
@@ -110,8 +110,10 @@ Ext.define('Mdc.controller.setup.DeviceDataValidation', {
 
 
     onRulesSetVersionGridAfterRender: function (grid) {
-        var ruleSetId = this.getRulesSetGrid().getSelectionModel().getLastSelected().get('id');
-        grid.store.getProxy().setExtraParam('ruleSetId',ruleSetId);
+        var me = this,
+			ruleSetId = this.getRulesSetGrid().getSelectionModel().getLastSelected().get('id');
+		
+		grid.store.getProxy().setExtraParam('ruleSetId',ruleSetId);
 
 
         grid.store.load({
@@ -119,7 +121,7 @@ Ext.define('Mdc.controller.setup.DeviceDataValidation', {
             callback: function () {
 
                 var rec = grid.store.find('status', 'CURRENT');
-                if ((rec>=0)|| (this.getView())) {
+                if ((rec>=0)|| (me.getView())) {
                     grid.getSelectionModel().select(rec);
                 }else{
                     grid.getSelectionModel().doSelect(0);

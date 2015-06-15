@@ -1,8 +1,10 @@
 Ext.define('Mdc.store.RegisterData', {
     extend: 'Ext.data.Store',
     requires: [
-        'Mdc.model.RegisterData'
+        'Mdc.model.RegisterData',
+        'Mdc.store.RegisterDataDurations'
     ],
+
     model: 'Mdc.model.RegisterData',
     storeId: 'RegisterData',
     autoLoad: false,

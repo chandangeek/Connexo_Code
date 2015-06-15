@@ -25,7 +25,9 @@ Ext.define('Mdc.view.setup.registerconfig.RulesForRegisterConfigGrid', {
                 header: Uni.I18n.translate('validation.validationRule', 'CFG', 'Validation rule'),
                 dataIndex: 'name',
                 renderer: function (value, b, record) {
-                    return '<a href="#/administration/validation/rulesets/' + record.data.ruleSet.id + '/rules/' + record.getId() + '">' + value + '</a>';
+                    return '<a href="#/administration/validation/rulesets/' + record.get('ruleSetId') 
+                        + '/versions/' + record.get('ruleSetVersionId') 
+                        + '/rules/' + record.getId() + '">' + Ext.String.htmlEncode(value) + '</a>';
                 },
                 flex: 10
             },
@@ -43,10 +45,16 @@ Ext.define('Mdc.view.setup.registerconfig.RulesForRegisterConfigGrid', {
                 header: Uni.I18n.translate('validation.validationRuleSet', 'CFG', 'Validation rule set'),
                 dataIndex: 'ruleSet',
                 renderer: function (value, metaData, record) {
-                    if (record.data.ruleSet.description) {
-                        metaData.tdAttr = 'data-qtip="' + record.data.ruleSet.description + '"';
-                    }
-                    return '<a href="#/administration/validation/rulesets/' + value.id + '">' + value.name + '</a>';
+                   var ruleSetVersion = record.get('ruleSetVersion');
+					if (ruleSetVersion){
+						var ruleSet = ruleSetVersion.ruleSet;
+						if (ruleSet){
+							metaData.tdAttr = 'data-qtip="' + ruleSet.description + '"';
+							return '<a href="#/administration/validation/rulesets/' + ruleSet.id + '">' + Ext.String.htmlEncode(ruleSet.name) + '</a>';
+						}
+					}
+                    
+                    return '';
                 },
                 flex: 10
             },

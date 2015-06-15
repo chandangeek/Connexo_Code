@@ -273,13 +273,13 @@ Ext.define('Mdc.controller.setup.SearchItems', {
     createCriteriaButton: function (button, container, name, text) {
         if (Ext.isEmpty(button)) {
             button = new Uni.view.button.TagButton({
-                text: text,
+                text: Ext.String.htmlEncode(text),
                 name: name,
                 action: 'customizeFilter'
             });
             container.add(button);
         } else {
-            button.setText(text);
+            button.setText(Ext.String.htmlEncode(text));
         }
     },
 

@@ -33,7 +33,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.DeviceCommunicationTaskGrid',
                 dataIndex: 'comTask',
                 flex: 1,
                 renderer: function (value) {
-                        return value.name;
+                        return Ext.String.htmlEncode(value.name);
                 }
             },
             {
@@ -108,9 +108,9 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.DeviceCommunicationTaskGrid',
                 renderer: function(value,metaData,rowValue) {
                     if(!rowValue.data.connectionDefinedOnDevice){
                          metaData.tdAttr = 'data-qtip="' + Uni.I18n.translate('deviceCommunicationTask.connectionNotDefinedOnDevice', 'MDC', 'This connection method is not defined on the device yet') + '"';
-                         return '<tpl><img src="../sky/build/resources/images/shared/bullet-red.png" class="ct-result ct-failure"><span style="position: relative; top: -3px; left: 4px">' + value + '</span></tpl>'
+                         return '<tpl><img src="../sky/build/resources/images/shared/bullet-red.png" class="ct-result ct-failure"><span style="position: relative; top: -3px; left: 4px">' + Ext.String.htmlEncode(value) + '</span></tpl>'
                     } else {
-                        return value;
+                        return Ext.String.htmlEncode(value);
                     }
                 }
             },

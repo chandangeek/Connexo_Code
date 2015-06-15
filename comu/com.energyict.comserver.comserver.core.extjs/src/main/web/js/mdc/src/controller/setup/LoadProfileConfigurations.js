@@ -104,7 +104,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
             loadProfileConfigurationId = me.loadProfileConfigurationId;
         }
 
-        window.location.href = '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/loadprofiles/' + loadProfileConfigurationId + '/edit';
+        window.location.href = '#/administration/devicetypes/' + encodeURIComponent(me.deviceTypeId) + '/deviceconfigurations/' + encodeURIComponent(me.deviceConfigurationId) + '/loadprofiles/' + encodeURIComponent(loadProfileConfigurationId) + '/edit';
     },
 
     showConfirmationPanel: function () {
@@ -267,7 +267,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
                     text: 'Cancel',
                     action: 'cancel',
                     ui: 'link',
-                    href: '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/loadprofiles',
+                    href: '#/administration/devicetypes/' + encodeURIComponent(me.deviceTypeId) + '/deviceconfigurations/' + encodeURIComponent(me.deviceConfigurationId) + '/loadprofiles',
                     handler: function (button, event) {
                         this.up('messagebox').hide();
                     }
@@ -292,7 +292,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
     loadGridItemDetail: function (selectionModel, record) {
         Ext.suspendLayouts();
         this.getLoadProfileConfigPreviewForm().loadRecord(record);
-        this.getLoadProfileConfigurationPreview().setTitle(record.get('name'));
+        this.getLoadProfileConfigurationPreview().setTitle(Ext.String.htmlEncode(record.get('name')));
         Ext.resumeLayouts(true);
     },
 
@@ -407,7 +407,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
                                 widget.down('displayfield[name=loadprofiletype]').show();
                                 widget.down('[name=obisCode]').setValue(record.obisCode);
                                 widget.down('[name=overruledObisCode]').setValue(overruledObisCode);
-                                var title = Uni.I18n.translate('loadprofileconfigurations.editloadprofileconfigurations', 'MDC', 'Edit') + " '" + record.name + "'";
+                                var title = Uni.I18n.translate('loadprofileconfigurations.editloadprofileconfigurations', 'MDC', 'Edit') + " '" + Ext.String.htmlEncode(record.name) + "'";
                                 widget.down('#LoadProfileConfigurationFormId').setTitle(title);
                             }
                         });

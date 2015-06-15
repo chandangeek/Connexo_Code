@@ -21,7 +21,7 @@ Ext.define('Mdc.deviceconfigurationestimationrules.view.RulesGrid', {
                     var res = '';
                     if (value && record && record.get('id') && record.get('ruleSet').id) {
                         var url = me.router.getRoute('administration/estimationrulesets/estimationruleset/rules/rule').buildUrl({ruleSetId: record.get('ruleSet').id, ruleId: record.get('id') });
-                        res = '<a href="' + url + '">' + value + '</a>'
+                        res = '<a href="' + url + '">' + Ext.String.htmlEncode(value) + '</a>'
                     }
                     return res;
                 }
