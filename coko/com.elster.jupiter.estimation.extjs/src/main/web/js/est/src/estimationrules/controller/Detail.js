@@ -48,7 +48,7 @@ Ext.define('Est.estimationrules.controller.Detail', {
             callback: function (record, operation, success) {
                 widget.setLoading(false);
                 if (success && widget.rendered) {
-                    me.getSideMenu().down('#estimation-rule-link').setText(Ext.String.htmlEncode(record.get('name')));
+                    me.getSideMenu().down('#estimation-rule-link').setText(record.get('name'));
                     me.getApplication().fireEvent('loadEstimationRule', record);
                     widget.down('estimation-rules-detail-form').updateForm(record);
                     widget.down('#estimation-rule-detail-action-menu').record = record;
