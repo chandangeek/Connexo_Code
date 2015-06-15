@@ -74,7 +74,8 @@ Ext.define('Uni.property.controller.Registry', {
         LISTVALUE: 'Uni.property.view.property.Multiselect',
         RELATIVEPERIOD: 'Uni.property.view.property.RelativePeriod',
         ADVANCEREADINGSSETTINGS: 'Uni.property.view.property.AdvanceReadingsSettings',
-        ADVANCEREADINGSSETTINGSWITHOUTNONE: 'Uni.property.view.property.AdvanceReadingsSettingsWithoutNone'
+        ADVANCEREADINGSSETTINGSWITHOUTNONE: 'Uni.property.view.property.AdvanceReadingsSettingsWithoutNone',
+        IDWITHNAME: 'Uni.property.view.property.Reference'
     },
 
 // store must be registered on some ctrl (not in the responsibility of this class: move later?)
