@@ -2,6 +2,8 @@ Ext.define('Uni.override.window.MessageBox', {
     override: 'Ext.window.MessageBox',
     shadow: false,
 
+    title: ' ',
+
     reconfigure: function (cfg) {
         if (((typeof cfg) != 'undefined') && cfg.ui) {
             this.ui = cfg.ui;
@@ -13,7 +15,8 @@ Ext.define('Uni.override.window.MessageBox', {
         var me = this,
             title = me.title;
 
-        me.title = null;
+        me.title = ' ';
+
         this.callParent(arguments);
         this.topContainer.padding = 0;
 

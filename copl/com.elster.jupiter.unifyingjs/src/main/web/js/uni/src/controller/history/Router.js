@@ -125,7 +125,7 @@ Ext.define('Uni.controller.history.Router', {
 
     getQueryString: function () {
         var token = Ext.util.History.getToken() || document.location.href.split('?')[1],
-            queryStringIndex = token?token.indexOf('?'):-1;
+            queryStringIndex = token ? token.indexOf('?') : -1;
         return queryStringIndex < 0 ? '' : token.substring(queryStringIndex + 1);
     },
 
@@ -188,8 +188,9 @@ Ext.define('Uni.controller.history.Router', {
             buildUrl: function (arguments, queryParams) {
                 arguments = Ext.applyIf(arguments || {}, me.arguments);
                 var url = this.crossroad ?
-                    '#' + this.crossroad.interpolate(arguments) :
-                    '#' + this.path;
+                '#' + this.crossroad.interpolate(arguments) :
+                '#' + this.path;
+
                 return _.isEmpty(queryParams) ? url : url + '?' + me.queryParamsToString(queryParams);
             },
 
@@ -224,6 +225,13 @@ Ext.define('Uni.controller.history.Router', {
                 );
 
                 var routeArguments = _.values(_.extend(me.arguments, params));
+
+                Object.keys(routeArguments).forEach(function (key) {
+                    if (typeof routeArguments[key] === 'string') {
+                        routeArguments[key] = decodeURIComponent(routeArguments[key]);
+                    }
+                });
+
                 if (Ext.isDefined(config.redirect)) {
                     // perform redirect on route match
                     if (Ext.isObject(config.redirect)) {
@@ -289,7 +297,6 @@ Ext.define('Uni.controller.history.Router', {
             items.push(route);
             path.pop();
         } while (path.length);
-
         return items;
     },
 

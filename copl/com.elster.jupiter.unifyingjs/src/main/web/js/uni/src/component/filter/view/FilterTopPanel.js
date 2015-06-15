@@ -25,7 +25,7 @@ Ext.define('Uni.component.filter.view.FilterTopPanel', {
                 str = value;
             }
             btnsContainer.add(Ext.create('Uni.view.button.TagButton', {
-                text: name + ': ' + str,
+                text: name + ': ' + Ext.String.htmlEncode(str),
                 name: key,
                 listeners: {
                     closeclick: function () {
@@ -35,7 +35,7 @@ Ext.define('Uni.component.filter.view.FilterTopPanel', {
             }));
         } else {
             btnsContainer.add(Ext.create('Ext.button.Button', {
-                text: name + ': ' + value,
+                text: name + ': ' + Ext.String.htmlEncode(value),
                 name: key,
                 ui: 'tag'
             }));

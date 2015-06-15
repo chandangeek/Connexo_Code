@@ -4,7 +4,7 @@
  * Properties form. used for display properties.
  * Usage example:
  *
- * // assume you have alredy specify property in view like {xtype: 'property-form'}
+ * // assume you have already specified property in view like {xtype: 'property-form'}
  *
  * var form = cmp.down('property-form');
  *
@@ -38,12 +38,15 @@ Ext.define('Uni.property.form.Property', {
     },
     initialised: false,
     isEdit: true,
+    isMultiEdit: false,
     isReadOnly: false,
     inheritedValues: false,
     inputType: 'text',
     passwordAsTextComponent: false,
     userHasEditPrivilege: true,
     userHasViewPrivilege: true,
+    editButtonTooltip: Uni.I18n.translate('general.edit', 'UNI', 'Edit'),
+    removeButtonTooltip: Uni.I18n.translate('general.remove', 'UNI', 'Remove'),
 
     /**
      * Loads record to the form.
@@ -71,8 +74,11 @@ Ext.define('Uni.property.form.Property', {
      * @param {MixedCollection} properties
      */
     initProperties: function (properties) {
-        var me = this;
-        var registry = Uni.property.controller.Registry;
+        var me = this,
+            registry = Uni.property.controller.Registry,
+            type,
+            fieldType,
+            dependOnIsEdited;
 
         Ext.suspendLayouts();
 
@@ -88,9 +94,10 @@ Ext.define('Uni.property.form.Property', {
 
             properties.commitChanges();
 
-            var type = property.getType();
-            var fieldType = registry.getProperty(type);
-            if (fieldType) {
+            type = property.getType();
+            fieldType = registry.getProperty(type);
+            dependOnIsEdited = me.isMultiEdit && !me.isEdit;
+            if ((dependOnIsEdited && property.isEdited) || (!dependOnIsEdited && fieldType)) {
                 var field = Ext.create(fieldType, Ext.apply(me.defaults, {
                     property: property,
                     isEdit: me.isEdit,
@@ -98,7 +105,10 @@ Ext.define('Uni.property.form.Property', {
                     inputType: me.inputType,
                     passwordAsTextComponent: me.passwordAsTextComponent,
                     userHasEditPrivilege: me.userHasEditPrivilege,
-                    userHasViewPrivilege: me.userHasViewPrivilege
+                    userHasViewPrivilege: me.userHasViewPrivilege,
+                    showEditButton: me.isMultiEdit,
+                    editButtonTooltip: me.editButtonTooltip,
+                    removeButtonTooltip: me.removeButtonTooltip
                 }));
                 me.add(field);
                 field.on('checkRestoreAll', function () {
@@ -221,7 +231,9 @@ Ext.define('Uni.property.form.Property', {
         var me = this;
 
         Ext.each(errors, function (error) {
-            me.getPropertyField(error.id).markInvalid(error.msg);
+            if (!!me.getPropertyField(error.id)) {
+                me.getPropertyField(error.id).markInvalid(error.msg);
+            }
         });
     }
 });

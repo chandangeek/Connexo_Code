@@ -1,7 +1,7 @@
 /**
  * @class Uni.override.ApplicationOverride
  */
-Ext.define('Uni.override.form.field.ComboBox', {
+Ext.define('Uni.override.form.field.ComboBoxOverride', {
     override: 'Ext.form.field.ComboBox',
 
     anyMatch: true,
@@ -14,6 +14,13 @@ Ext.define('Uni.override.form.field.ComboBox', {
     },
 
     initComponent: function () {
+        var me=this;
+        me.listConfig = me.listConfig || {};
+        Ext.apply(me.listConfig, {
+            getInnerTpl: function (displayField) {
+                return '{' + displayField  + ':htmlEncode}';
+            }
+        });
         this.callParent(arguments);
     }
 });

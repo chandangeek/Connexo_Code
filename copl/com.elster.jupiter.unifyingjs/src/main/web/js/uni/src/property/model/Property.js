@@ -5,6 +5,7 @@ Ext.define('Uni.property.model.Property', {
     extend: 'Ext.data.Model',
     fields: [
         {name: 'key', type: 'string'},
+        {name: 'name', type: 'string'},
         {name: 'required', type: 'boolean'},
         {name: 'value', persist: false},
         {name: 'default', persist: false},
@@ -36,6 +37,8 @@ Ext.define('Uni.property.model.Property', {
             foreignKey: 'propertyTypeInfo'
         }
     ],
+
+    isEdited: false,
 
     /**
      * Sets property values and defaults based on property associated objects

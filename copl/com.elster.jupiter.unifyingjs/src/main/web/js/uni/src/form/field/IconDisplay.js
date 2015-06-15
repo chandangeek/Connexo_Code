@@ -19,7 +19,7 @@ Ext.define('Uni.form.field.IconDisplay', {
             icon.className = me.iconCls;
             Ext.create('Ext.tip.ToolTip', {
                 target: icon,
-                html: me.tipString
+                html: Ext.String.htmlEncode(me.tipString)
             });
             Ext.defer(this.deferredRenderer, 1, this, [field, icon]);
         }

@@ -1,7 +1,14 @@
 Ext.define('Uni.override.panel.Panel', {
     override: 'Ext.panel.Panel',
 
-    beforeRender: function() {
+    initComponent: function() {
+        if (this.ui === 'large'){
+            this.title = this.title || ' ';
+        }
+        this.callParent(arguments);
+    },
+
+    beforeRender: function () {
         var me = this;
         this.callParent(arguments);
 
@@ -14,7 +21,7 @@ Ext.define('Uni.override.panel.Panel', {
      * Set a title for the panel's header. See {@link Ext.panel.Header#title}.
      * @param {String} subtitle
      */
-    setSubTitle: function(subtitle) {
+    setSubTitle: function (subtitle) {
         var me = this,
             header = me.header;
 

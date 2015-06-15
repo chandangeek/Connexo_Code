@@ -213,7 +213,8 @@ Ext.define('Uni.I18n', {
         if (typeof translation !== 'undefined' && translation !== null
             && typeof values !== 'undefined') {
             for (var i = 0; i < values.length; i++) {
-                translation = Uni.util.String.replaceAll(translation, i, values[i]);
+                var value = Ext.String.htmlEncode(values[i]);
+                translation = Uni.util.String.replaceAll(translation, i, value);
             }
         }
 

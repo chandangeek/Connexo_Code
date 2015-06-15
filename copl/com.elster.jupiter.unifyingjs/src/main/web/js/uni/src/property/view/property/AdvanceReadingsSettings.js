@@ -86,13 +86,7 @@ Ext.define('Uni.property.view.property.AdvanceReadingsSettings', {
     setValue: function (value) {
         var me = this;
         if (!this.isEdit) {
-            if(value.none){
-                this.getDisplayField().setValue('None');
-            } else if (value.bulk){
-                this.getDisplayField().setValue('Bulk');
-            } else {
-                this.getDisplayField().setValue(value.readingType.name);
-            }
+            this.getDisplayField().setValue(this.getValueAsDisplayString(value));
         } else {
             if(value.none){
                 this.down('radiogroup').setValue({advanceRb:1});
@@ -104,6 +98,7 @@ Ext.define('Uni.property.view.property.AdvanceReadingsSettings', {
                 this.down('radiogroup').setValue({advanceRb:3});
                 var readingTypeStore = me.down('#readingTypeCombo').getStore();
                 readingTypeStore.load({
+                    params: {like: value.readingType.aliasName},
                     callback: function () {
                         var model = Ext.create('Mdc.model.ReadingType',value.readingType);
                         me.down('#readingTypeCombo').setValue(model);
@@ -126,16 +121,16 @@ Ext.define('Uni.property.view.property.AdvanceReadingsSettings', {
                 bulk: true
             }
         } else {
+            var value = me.down('#readingTypeCombo').getValue(),
+                record = me.down('#readingTypeCombo').findRecordByValue(value),
+                readingType = record ? record.getData() : { mRID: value };
+
             return {
                 none: false,
                 bulk: false,
-                readingType: {
-                    mRID: me.down('#readingTypeCombo').getValue()
-                }
+                readingType: readingType
             }
         }
-
-
     },
 
     getDisplayCmp: function () {
@@ -159,5 +154,31 @@ Ext.define('Uni.property.view.property.AdvanceReadingsSettings', {
         this.readingTypes = Ext.create('Uni.property.store.PropertyReadingTypes');
 
         this.callParent(arguments);
+    },
+
+    doEnable: function(enable) {
+        if (this.getField()) {
+            if (enable) {
+                this.getField().enable();
+                this.down('reading-type-combo').enable();
+            } else {
+                this.getField().disable();
+                this.down('reading-type-combo').disable();
+            }
+        }
+    },
+
+    getValueAsDisplayString: function (value) {
+        if (Ext.isObject(value)) {
+            if(value.none){
+                return Uni.I18n.translate('general.none', this.translationKey, 'None');
+            } else if (value.bulk){
+                return Uni.I18n.translate('advanceReadingProperty.bulkReading', this.translationKey, 'Bulk Reading');
+            } else {
+                return value.readingType.aliasName;
+            }
+        }
+        return callParent(arguments);
     }
+
 });

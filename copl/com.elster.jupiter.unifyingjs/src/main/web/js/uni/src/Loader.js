@@ -44,14 +44,14 @@ Ext.define('Uni.Loader', {
         'Uni.override.StoreOverride',
         'Uni.override.GridPanelOverride',
         'Uni.override.FormOverride',
-        'Uni.override.form.field.ComboBox',
+        'Uni.override.form.field.ComboBoxOverride',
         'Uni.override.ModelOverride',
         'Uni.override.FieldSetOverride',
 
         'Uni.override.ContainerOverride',
 
         'Uni.override.form.field.Base',
-        'Uni.override.form.field.ComboBox',
+        'Uni.override.form.field.ComboBoxOverride',
         'Uni.override.form.field.Date',
         'Uni.override.form.field.FieldContainer',
         'Uni.override.form.Label',
@@ -66,7 +66,9 @@ Ext.define('Uni.Loader', {
         'Uni.override.window.MessageBox',
         'Uni.override.form.field.Picker',
         'Uni.form.field.ReadingTypeCombo',
-        'Uni.view.grid.BulkSelection'
+        'Uni.view.grid.BulkSelection',
+        'Uni.override.ColumnOverride',
+        'Uni.override.DisplayFieldOverride'
     ],
 
     /**

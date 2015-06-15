@@ -26,7 +26,7 @@ Ext.define('Uni.property.view.property.NullableBoolean', {
                     inputValue: false
                 },
                 {
-                    boxLabel: Uni.I18n.translate('none', me.translationKey, 'None'),
+                    boxLabel: Uni.I18n.translate('general.none', me.translationKey, 'None'),
                     name: 'rb',
                     itemId: 'rb_3_' + me.key,
                     inputValue: null
@@ -46,15 +46,24 @@ Ext.define('Uni.property.view.property.NullableBoolean', {
         }
 
         if (!this.isEdit) {
-            if (value === true) {
-                result = Uni.I18n.translate('yes', this.translationKey, 'Yes');
-            } else if (value === false) {
-                result = Uni.I18n.translate('no', this.translationKey, 'No');
-            } else {
-                result = Uni.I18n.translate('na', this.translationKey, 'N/A');
-            }
+            result = this.getValueAsDisplayString(value);
         }
 
         this.callParent([result]);
+    },
+
+    getValueAsDisplayString: function (value) {
+        if (Ext.isBoolean(value)) {
+            if (value === true) {
+                return Uni.I18n.translate('general.yes', this.translationKey, 'Yes');
+            } else if (value === false) {
+                return Uni.I18n.translate('general.no', this.translationKey, 'No');
+            } else {
+                return Uni.I18n.translate('general.none', this.translationKey, 'None');
+            }
+        } else {
+            return callParent(arguments);
+        }
     }
+
 });

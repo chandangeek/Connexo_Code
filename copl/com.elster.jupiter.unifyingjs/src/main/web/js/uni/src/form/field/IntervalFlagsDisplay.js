@@ -25,7 +25,6 @@ Ext.define('Uni.form.field.IntervalFlagsDisplay', {
             flags += ')</span>';
             result = result + flags + '<span class="uni-icon-info-small" style="display: inline-block; width: 16px; height: 16px; float: left;" data-qtip="' + Ext.htmlEncode(tooltip) + '"></span>';
         }
-        console.log(result);
         return result || this.emptyText;
     }
 });

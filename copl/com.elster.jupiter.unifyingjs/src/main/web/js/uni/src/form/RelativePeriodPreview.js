@@ -131,7 +131,7 @@ Ext.define('Uni.form.RelativePeriodPreview', {
             {
                 xtype: 'component',
                 itemId: 'preview-label',
-                html: me.noPreviewDateErrorMsg,
+                html: Ext.String.htmlEncode(me.noPreviewDateErrorMsg),
                 cls: Ext.baseCSSPrefix + 'form-item-label',
                 style: {
                     fontWeight: 'normal'

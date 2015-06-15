@@ -1,3 +1,6 @@
+/**
+ * @class Uni.grid.filtertop.Base
+ */
 Ext.define('Uni.grid.filtertop.Base', {
     mixins: {
         observable: 'Ext.util.Observable'

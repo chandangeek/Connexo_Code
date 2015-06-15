@@ -11,5 +11,10 @@ Ext.define('Uni.override.menu.Item', {
                 hrefTarget: this.hrefTarget
             });
         }
+    },
+
+    setText: function (text) {
+        arguments[0] = Ext.String.htmlEncode(text);
+        this.callParent(arguments);
     }
 });

@@ -69,7 +69,7 @@ Ext.define("Ext.ux.exporter.csvformatter.CsvFormatter", {
                     var value = record.get(name);
                 }
                 //cells.push("\""+value+"\"");
-                cells.push(value);
+                cells.push(value !== 'undefined'?value:'');
             }
         }, this);
         return cells.join(this.separator);

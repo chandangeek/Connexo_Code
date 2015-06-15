@@ -27,7 +27,7 @@ Ext.define('Uni.view.window.Acknowledgement', {
         msgPanel.removeAll();
         msgPanel.add({
             xtype: 'label',
-            html: message
+            html: Ext.String.htmlEncode(message)
         });
 
         Ext.resumeLayouts();

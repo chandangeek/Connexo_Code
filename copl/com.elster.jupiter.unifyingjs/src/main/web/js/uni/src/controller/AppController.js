@@ -200,7 +200,6 @@ Ext.define('Uni.controller.AppController', {
 
     getApplicationTitle: function (callback) {
         if (Ext.isFunction(callback)) {
-            debugger;
             callback(this.applicationTitle);
         }
     },

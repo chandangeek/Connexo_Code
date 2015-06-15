@@ -1,7 +1,7 @@
 Ext.define('Uni.property.view.property.Date', {
     extend: 'Uni.property.view.property.Base',
 
-    format: 'd M \'y',
+    format: Uni.DateTime.dateShortDefault,
     formats: [
         'd.m.Y',
         'd m Y'
@@ -20,8 +20,24 @@ Ext.define('Uni.property.view.property.Date', {
             required: me.required,
             readOnly: me.isReadOnly,
             inputType: me.inputType,
-            allowBlank: me.allowBlank
+            allowBlank: me.allowBlank,
+            editable: false,
+            listeners: {
+                change: {
+                    fn: me.checkValidDate,
+                    scope: me
+                }
+            }
         };
+    },
+
+    checkValidDate: function () {
+        var me = this,
+            date = me.getField().getValue();
+
+        if (!Ext.isDate(date)) {
+            me.getField().setValue(null);
+        }
     },
 
     getField: function () {
@@ -36,12 +52,12 @@ Ext.define('Uni.property.view.property.Date', {
         this.down('datefield').clearInvalid();
     },
 
-    setValue: function (value) {
+    setValue: function (value /*Date in miliseconds*/) {
         if (value !== null && value !== '') {
-            value = new Date(value);
-
             if (!this.isEdit) {
-                value = value.toLocaleDateString();
+                value = this.getValueAsDisplayString(value);
+            } else {
+                value = new Date(value);
             }
         }
         this.callParent([value]);
@@ -53,5 +69,10 @@ Ext.define('Uni.property.view.property.Date', {
         } else {
             return null;
         }
+    },
+
+    getValueAsDisplayString: function (value /*Date as miliseconds*/) {
+        return (value !== null && value !== '') ? Uni.DateTime.formatDateTimeShort(new Date(value)) : value;
     }
+
 });

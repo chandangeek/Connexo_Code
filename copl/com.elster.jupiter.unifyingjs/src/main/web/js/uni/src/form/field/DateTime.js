@@ -72,6 +72,7 @@ Ext.define('Uni.form.field.DateTime', {
                 allowBlank: false,
                 format: 'd M \'y',
                 width: '100%',
+                editable: false,
                 listeners: {
                     change: {
                         fn: me.onItemChange,
@@ -143,7 +144,7 @@ Ext.define('Uni.form.field.DateTime', {
 
         me.callParent(arguments);
 
-        if(me.value){
+        if (me.value) {
             me.setValue(me.value);
         }
     },
@@ -199,17 +200,21 @@ Ext.define('Uni.form.field.DateTime', {
             date = me.down('#date-time-field-date').getValue(),
             hours = me.down('#date-time-field-hours').getValue(),
             minutes = me.down('#date-time-field-minutes').getValue();
-        if (date) {
+
+        if (Ext.isDate(date)) {
             date = date.getTime();
             if (hours) date += hours * 3600000;
             if (minutes) date += minutes * 60000;
+            if (me.getRawValue) {
+                return date;
+            } else {
+                date = new Date(date);
+                return me.submitFormat ? Ext.Date.format(date, me.submitFormat) : date;
+            }
+        } else {
+            me.down('#date-time-field-date').setValue(null);
+            return null;
         }
-        if (me.getRawValue) return date;
-        if(date){
-            date = new Date(date);
-            return me.submitFormat ? Ext.Date.format(date, me.submitFormat) : date;
-        }
-        return null;
     },
 
     markInvalid: function (fields) {
