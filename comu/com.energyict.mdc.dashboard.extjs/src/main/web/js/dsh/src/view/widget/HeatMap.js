@@ -17,16 +17,23 @@ Ext.define('Dsh.view.widget.HeatMap', {
 
     setXAxis: function (categories, title) {
         var me = this;
-        title = title[0].toUpperCase() + title.slice(1);
-        me.chart.series[0].xAxis.update({title: {text: title}}, false);
-        me.chart.series[0].xAxis.update({categories: categories}, false);
+        if (title && categories) {
+            title = title[0].toUpperCase() + title.slice(1);
+            me.chart.series[0].xAxis.update({title: {text: title}}, false);
+            me.chart.series[0].xAxis.update({categories: categories}, false);
+        }
     },
 
     setYAxis: function (categories, title) {
         var me = this;
-        title = title[0].toUpperCase() + title.slice(1);
-        me.chart.series[0].yAxis.update({title: {text: title}}, false);
-        me.chart.series[0].yAxis.update({categories: categories}, false);
+        if (title && categories) {
+            title = title[0].toUpperCase() + title.slice(1);
+            for(var i=0;i<categories.length;i++){
+                categories[i] = Ext.String.htmlEncode(categories[i]);
+            }
+            me.chart.series[0].yAxis.update({title: {text: title}}, false);
+            me.chart.series[0].yAxis.update({categories: categories}, false);
+        }
     },
 
     findBorders: function (store) {
@@ -88,7 +95,6 @@ Ext.define('Dsh.view.widget.HeatMap', {
             var me = this,
                 ycat = [],
                 xcat = store.collect('displayValue');
-
             Ext.each(store.getAt(0).data.data, function (item) {
                 ycat.push(item.displayName);
             });
@@ -147,8 +153,6 @@ Ext.define('Dsh.view.widget.HeatMap', {
                     combo.select(combo.getStore().getAt(1));
                 }
             })
-        } else if (me.parent == 'communications') {
-            me.reload();
         }
     },
 
@@ -157,21 +161,26 @@ Ext.define('Dsh.view.widget.HeatMap', {
             store = me.store,
             chartHeight;
 
-        store.load({
-            callback: function () {
-                var cmp = me.down('#heatmapchart');
-                if (store.count() && cmp) {
-                    chartHeight =  80 + store.count() * 50
-                    cmp.setHeight(chartHeight);
-                    me.renderChart(cmp.getEl().down('.x-panel-body').dom, me.findBorders(store), chartHeight);
-                    me.loadChart(store, me.getCombo() ? me.getCombo().getDisplayValue() : 'Device type');
-                    me.show();
-                    me.doLayout();
-                } else {
-                    me.hide();
+
+        if (me.parent != 'connections' || (me.getCombo() && me.getCombo().getValue())) {
+            me.setLoading();
+            store.load({
+                callback: function () {
+                    var cmp = me.down('#heatmapchart');
+                    if (store.count() && cmp) {
+                        chartHeight = 80 + store.count() * 50
+                        cmp.setHeight(chartHeight);
+                        me.renderChart(cmp.getEl().down('.x-panel-body').dom, me.findBorders(store), chartHeight);
+                        me.loadChart(store, me.getCombo() ? me.getCombo().getDisplayValue() : 'Device type');
+                        me.show();
+                        me.doLayout();
+                    } else {
+                        me.hide();
+                    }
+                    me.setLoading(false);
                 }
-            }
-        });
+            });
+        }
     },
 
     renderChart: function (container, borders, chartHeight) {

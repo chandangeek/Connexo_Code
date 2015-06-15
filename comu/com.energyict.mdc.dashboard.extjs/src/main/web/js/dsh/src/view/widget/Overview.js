@@ -51,7 +51,7 @@ Ext.define('Dsh.view.widget.Overview', {
                 tbar: {
                     xtype: 'container',
                     itemId: 'title',
-                    html: '<h3>' + item.get('displayName') + '</h3>'
+                    html: '<h3>' + Ext.String.htmlEncode(item.get('displayName')) + '</h3>'
                 },
                 items: {
                     xtype: 'dataview',

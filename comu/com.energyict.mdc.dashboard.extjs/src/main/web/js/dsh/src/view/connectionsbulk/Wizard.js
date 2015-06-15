@@ -4,7 +4,8 @@ Ext.define('Dsh.view.connectionsbulk.Wizard', {
         'Dsh.view.connectionsbulk.Step1',
         'Dsh.view.connectionsbulk.Step2',
         'Dsh.view.connectionsbulk.Step3',
-        'Dsh.view.connectionsbulk.Step4'
+        'Dsh.view.connectionsbulk.Step4',
+        'Dsh.view.connectionsbulk.Step5'
     ],
     alias: 'widget.connections-bulk-wizard',
     layout: 'card',
@@ -19,26 +20,32 @@ Ext.define('Dsh.view.connectionsbulk.Wizard', {
             {
                 xtype: 'connections-bulk-step1',
                 itemId: 'cnbw-step1',
-                title: Ext.String.format(Uni.I18n.translate('general.bulkStepTitle', 'DSH', 'Bulk action - Step {0} of {1}:'), 1, 4)
+                title: Ext.String.format(Uni.I18n.translate('general.bulkStepTitle', 'DSH', 'Bulk action - Step {0} of {1}:'), 1, 5)
                 + ' ' + Uni.I18n.translate('connection.bulk.selectConnections', 'DSH', 'Select connections'),
                 router: me.router
             },
             {
                 xtype: 'connections-bulk-step2',
                 itemId: 'cnbw-step2',
-                title: Ext.String.format(Uni.I18n.translate('general.bulkStepTitle', 'DSH', 'Bulk action - Step {0} of {1}:'), 2, 4)
+                title: Ext.String.format(Uni.I18n.translate('general.bulkStepTitle', 'DSH', 'Bulk action - Step {0} of {1}:'), 2, 5)
                 + ' ' + Uni.I18n.translate('general.selectAction', 'DSH', 'Select action')
             },
             {
                 xtype: 'connections-bulk-step3',
                 itemId: 'cnbw-step3',
-                title: Ext.String.format(Uni.I18n.translate('general.bulkStepTitle', 'DSH', 'Bulk action - Step {0} of {1}:'), 3, 4)
-                + ' ' + Uni.I18n.translate('general.confirmation', 'DSH', 'Confirmation')
+                title: Ext.String.format(Uni.I18n.translate('general.bulkStepTitle', 'DSH', 'Bulk action - Step {0} of {1}:'), 3, 5)
+                + ' ' + Uni.I18n.translate('general.actionDetails', 'DSH', 'Action details')
             },
             {
                 xtype: 'connections-bulk-step4',
                 itemId: 'cnbw-step4',
-                title: Ext.String.format(Uni.I18n.translate('general.bulkStepTitle', 'DSH', 'Bulk action - Step {0} of {1}:'), 4, 4)
+                title: Ext.String.format(Uni.I18n.translate('general.bulkStepTitle', 'DSH', 'Bulk action - Step {0} of {1}:'), 4, 5)
+                + ' ' + Uni.I18n.translate('general.confirmation', 'DSH', 'Confirmation')
+            },
+            {
+                xtype: 'connections-bulk-step5',
+                itemId: 'cnbw-step5',
+                title: Ext.String.format(Uni.I18n.translate('general.bulkStepTitle', 'DSH', 'Bulk action - Step {0} of {1}:'), 5, 5)
                 + ' ' + Uni.I18n.translate('general.status', 'DSH', 'Status'),
                 router: me.router
             }

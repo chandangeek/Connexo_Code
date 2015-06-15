@@ -260,21 +260,24 @@ Ext.define('Dsh.controller.Connections', {
         var me = this,
             router = me.getController('Uni.controller.history.Router');
 
-        router.getRoute('devices/device/connectionmethods/history/viewlog').forward({
-            mRID: record.get('device').id,
-            connectionMethodId: record.get('id'),
-            historyId: record.get('comSessionId')
-        });
+        router.getRoute('devices/device/connectionmethods/history/viewlog').forward(
+            {
+                mRID: encodeURIComponent(record.get('device').id),
+                connectionMethodId: record.get('id'),
+                historyId: record.get('comSessionId')
+            });
     },
 
     viewHistory: function (record) {
         var me = this,
             router = me.getController('Uni.controller.history.Router');
 
-        router.getRoute('devices/device/connectionmethods/history').forward({
-            mRID: record.get('device').id,
-            connectionMethodId: record.get('id')
-        });
+        router.getRoute('devices/device/connectionmethods/history').forward(
+            {
+                mRID: encodeURIComponent(record.get('device').id),
+                connectionMethodId: record.get('id')
+            }
+        );
     },
 
     forwardToBulk: function () {
