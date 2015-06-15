@@ -18,6 +18,7 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.tasks.FirmwareManagementTask;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -48,6 +49,7 @@ public class FirmwareManagementCommandImpl extends SimpleComCommand implements F
 
     @Override
     public void doExecute(DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
+        messagesCollectedData.add(deviceProtocol.updateSentMessages(Collections.emptyList())); // is required in order for old protocols to delegate to the protocol itself ...
         messagesCollectedData.add(deviceProtocol.executePendingMessages(this.firmwareDeviceMessages));
         messagesCollectedData.stream().forEach(collectedMessageList -> collectedMessageList.getCollectedMessages().forEach(collectedMessage -> collectedMessage.setDataCollectionConfiguration(comTaskExecution)));
         addListOfCollectedDataItems(messagesCollectedData);
