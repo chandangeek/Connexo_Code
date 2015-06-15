@@ -25,6 +25,7 @@ import com.energyict.mdc.device.lifecycle.config.rest.info.AuthorizedActionInfoF
 import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleFactory;
 import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCyclePrivilegeFactory;
 import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleStateFactory;
+import com.energyict.mdc.device.lifecycle.config.rest.info.MicroActionAndCheckInfoFactory;
 import com.energyict.mdc.device.lifecycle.config.rest.info.StateTransitionEventTypeFactory;
 import com.google.common.collect.ImmutableSet;
 import java.util.Arrays;
@@ -149,6 +150,7 @@ public class DeviceLifeCycleConfigApplication extends Application implements Tra
             bind(DeviceLifeCyclePrivilegeFactory.class).to(DeviceLifeCyclePrivilegeFactory.class);
             bind(StateTransitionEventTypeFactory.class).to(StateTransitionEventTypeFactory.class);
             bind(DeviceLifeCycleFactory.class).to(DeviceLifeCycleFactory.class);
+            bind(MicroActionAndCheckInfoFactory.class).to(MicroActionAndCheckInfoFactory.class);
 
             bind(deviceLifeCycleConfigurationService).to(DeviceLifeCycleConfigurationService.class);
             bind(finiteStateMachineService).to(FiniteStateMachineService.class);

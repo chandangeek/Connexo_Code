@@ -17,6 +17,7 @@ import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
+import com.energyict.mdc.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.lifecycle.config.rest.impl.DeviceLifeCycleConfigApplication;
 import com.energyict.mdc.device.lifecycle.config.rest.impl.i18n.MessageSeeds;
 import org.mockito.Matchers;
@@ -25,6 +26,7 @@ import org.mockito.Mock;
 import javax.ws.rs.core.Application;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -110,6 +112,7 @@ public class DeviceLifeCycleConfigApplicationJerseyTest extends FelixRestApplica
         String translated = thesaurus.getString(name, name);
         when(transition.getName(Matchers.any(Thesaurus.class))).thenReturn(translated);
         when(action.getStateTransition()).thenReturn(transition);
+        when(action.getActions()).thenReturn(EnumSet.of(MicroAction.ACTIVATE_CONNECTION_TASKS, MicroAction.CREATE_METER_ACTIVATION, MicroAction.ENABLE_VALIDATION));
         return action;
     }
 

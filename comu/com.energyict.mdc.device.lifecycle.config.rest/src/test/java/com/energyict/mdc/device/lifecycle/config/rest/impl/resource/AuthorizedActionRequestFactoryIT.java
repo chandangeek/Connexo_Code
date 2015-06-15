@@ -13,20 +13,25 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.common.rest.ExceptionFactory;
+import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleBuilder;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
+import com.energyict.mdc.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.lifecycle.config.rest.impl.resource.requests.AuthorizedActionChangeRequest;
 import com.energyict.mdc.device.lifecycle.config.rest.impl.resource.requests.AuthorizedActionRequestFactory;
 import com.energyict.mdc.device.lifecycle.config.rest.impl.resource.requests.AuthorizedTransitionActionComplexEditRequest;
 import com.energyict.mdc.device.lifecycle.config.rest.impl.resource.requests.AuthorizedTransitionActionCreateRequest;
 import com.energyict.mdc.device.lifecycle.config.rest.impl.resource.requests.AuthorizedTransitionActionDeleteRequest;
 import com.energyict.mdc.device.lifecycle.config.rest.info.AuthorizedActionInfo;
+import com.energyict.mdc.device.lifecycle.config.rest.info.AuthorizedActionInfoFactory;
 import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCyclePrivilegeInfo;
 import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleStateInfo;
+import com.energyict.mdc.device.lifecycle.config.rest.info.MicroActionAndCheckInfo;
+import com.energyict.mdc.device.lifecycle.config.rest.info.MicroActionAndCheckInfoFactory;
 import com.energyict.mdc.device.lifecycle.config.rest.info.StateTransitionEventTypeInfo;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -39,6 +44,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 
@@ -65,6 +71,8 @@ public class AuthorizedActionRequestFactoryIT {
     @Mock
     private Thesaurus thesaurus;
     private ResourceHelper resourceHelper;
+    private MicroActionAndCheckInfoFactory microActionAndCheckInfoFactory;
+    private AuthorizedActionInfoFactory authorizedActionInfoFactory;
     @Mock
     private DeviceConfigurationService deviceConfigurationService;
 
@@ -132,13 +140,15 @@ public class AuthorizedActionRequestFactoryIT {
                         inMemoryPersistence.getService(FiniteStateMachineService.class),
                         new ExceptionFactory(this.thesaurus),
                         inMemoryPersistence.getService(EventService.class));
+        microActionAndCheckInfoFactory = new MicroActionAndCheckInfoFactory(thesaurus);
+        authorizedActionInfoFactory = new AuthorizedActionInfoFactory(thesaurus, microActionAndCheckInfoFactory);
     }
 
     @Transactional
     @Test
     public void changeToState() {
         DeviceLifeCycle deviceLifeCycle = getDeviceLifeCycleConfigurationService().findDeviceLifeCycleByName("ABC").get();
-        AuthorizedActionInfo actionInfo = new AuthorizedActionInfo(this.thesaurus, deviceLifeCycle.getAuthorizedActions().get(0));
+        AuthorizedActionInfo actionInfo = authorizedActionInfoFactory.from(deviceLifeCycle.getAuthorizedActions().get(0));
         FiniteStateMachine finiteStateMachine = deviceLifeCycle.getFiniteStateMachine();
         long stateAID = finiteStateMachine.getState("A").get().getId();
         long stateCID = finiteStateMachine.getState("C").get().getId();
@@ -162,7 +172,7 @@ public class AuthorizedActionRequestFactoryIT {
     @Test
     public void changeFromState() {
         DeviceLifeCycle deviceLifeCycle = getDeviceLifeCycleConfigurationService().findDeviceLifeCycleByName("ABC").get();
-        AuthorizedActionInfo actionInfo = new AuthorizedActionInfo(this.thesaurus, deviceLifeCycle.getAuthorizedActions().get(0));
+        AuthorizedActionInfo actionInfo = authorizedActionInfoFactory.from(deviceLifeCycle.getAuthorizedActions().get(0));
         FiniteStateMachine finiteStateMachine = deviceLifeCycle.getFiniteStateMachine();
         long stateBID = finiteStateMachine.getState("B").get().getId();
         long stateCID = finiteStateMachine.getState("C").get().getId();
@@ -186,7 +196,7 @@ public class AuthorizedActionRequestFactoryIT {
     @Test
     public void changeFromAndToState() {
         DeviceLifeCycle deviceLifeCycle = getDeviceLifeCycleConfigurationService().findDeviceLifeCycleByName("ABC").get();
-        AuthorizedActionInfo actionInfo = new AuthorizedActionInfo(this.thesaurus, deviceLifeCycle.getAuthorizedActions().get(0));
+        AuthorizedActionInfo actionInfo = authorizedActionInfoFactory.from(deviceLifeCycle.getAuthorizedActions().get(0));
         FiniteStateMachine finiteStateMachine = deviceLifeCycle.getFiniteStateMachine();
         long stateBID = finiteStateMachine.getState("B").get().getId();
         long stateCID = finiteStateMachine.getState("C").get().getId();
@@ -211,7 +221,7 @@ public class AuthorizedActionRequestFactoryIT {
     @Test
     public void changeOnlyLevels() {
         DeviceLifeCycle deviceLifeCycle = getDeviceLifeCycleConfigurationService().findDeviceLifeCycleByName("ABC").get();
-        AuthorizedActionInfo actionInfo = new AuthorizedActionInfo(this.thesaurus, deviceLifeCycle.getAuthorizedActions().get(0));
+        AuthorizedActionInfo actionInfo = authorizedActionInfoFactory.from(deviceLifeCycle.getAuthorizedActions().get(0));
         FiniteStateMachine finiteStateMachine = deviceLifeCycle.getFiniteStateMachine();
         long stateAID = finiteStateMachine.getState("A").get().getId();
         long stateBID = finiteStateMachine.getState("B").get().getId();
@@ -237,7 +247,7 @@ public class AuthorizedActionRequestFactoryIT {
     @Test
     public void changeEverything() {
         DeviceLifeCycle deviceLifeCycle = getDeviceLifeCycleConfigurationService().findDeviceLifeCycleByName("ABC").get();
-        AuthorizedActionInfo actionInfo = new AuthorizedActionInfo(this.thesaurus, deviceLifeCycle.getAuthorizedActions().get(0));
+        AuthorizedActionInfo actionInfo = authorizedActionInfoFactory.from(deviceLifeCycle.getAuthorizedActions().get(0));
         FiniteStateMachine finiteStateMachine = deviceLifeCycle.getFiniteStateMachine();
         long stateBID = finiteStateMachine.getState("B").get().getId();
         long stateCID = finiteStateMachine.getState("C").get().getId();
@@ -248,6 +258,10 @@ public class AuthorizedActionRequestFactoryIT {
         actionInfo.privileges = Arrays.asList(
                 new DeviceLifeCyclePrivilegeInfo(this.thesaurus, AuthorizedAction.Level.THREE),
                 new DeviceLifeCyclePrivilegeInfo(this.thesaurus, AuthorizedAction.Level.FOUR));
+        actionInfo.microActions = new ArrayList<>(1);
+        MicroActionAndCheckInfo microAction = new MicroActionAndCheckInfo();
+        microAction.key = MicroAction.ENABLE_VALIDATION.name();
+        actionInfo.microActions.add(microAction);
         AuthorizedActionChangeRequest request = this.getTestInstance().from(deviceLifeCycle, actionInfo, AuthorizedActionRequestFactory.Operation.MODIFY);
         AuthorizedAction updatedAction = request.perform();
 
@@ -282,6 +296,10 @@ public class AuthorizedActionRequestFactoryIT {
         info.toState = toState;
         info.triggeredBy = eventTypeInfo;
         info.privileges = Collections.singletonList(privilegeInfo);
+        info.microActions = new ArrayList<>(1);
+        MicroActionAndCheckInfo microAction = new MicroActionAndCheckInfo();
+        microAction.key = MicroAction.CREATE_METER_ACTIVATION.name();
+        info.microActions.add(microAction);
 
         AuthorizedActionChangeRequest request = this.getTestInstance().from(deviceLifeCycle, info, AuthorizedActionRequestFactory.Operation.CREATE);
         AuthorizedAction newAction = request.perform();

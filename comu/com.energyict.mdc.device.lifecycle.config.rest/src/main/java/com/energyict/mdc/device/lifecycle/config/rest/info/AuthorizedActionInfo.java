@@ -5,6 +5,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedBusinessProcessAction;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
+import com.energyict.mdc.device.lifecycle.config.MicroAction;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
@@ -21,33 +22,10 @@ public class AuthorizedActionInfo {
     public DeviceLifeCycleStateInfo toState;
     public List<DeviceLifeCyclePrivilegeInfo> privileges;
     public StateTransitionEventTypeInfo triggeredBy;
+    public List<MicroActionAndCheckInfo> microActions;
     public long version;
 
     public AuthorizedActionInfo() {}
-
-    public AuthorizedActionInfo(Thesaurus thesaurus, AuthorizedAction action) {
-        this.id = action.getId();
-        this.privileges = action.getLevels().stream()
-                .map(lvl -> new DeviceLifeCyclePrivilegeInfo(thesaurus, lvl))
-                .collect(Collectors.toList());
-        this.version = action.getVersion();
-        if (action instanceof AuthorizedTransitionAction){
-            fromBasicAction(thesaurus, (AuthorizedTransitionAction) action);
-        } else {
-            fromBpmAction(thesaurus, (AuthorizedBusinessProcessAction) action);
-        }
-    }
-
-    private void fromBasicAction(Thesaurus thesaurus, AuthorizedTransitionAction action){
-        this.name = action.getStateTransition().getName(thesaurus);
-        this.fromState = new DeviceLifeCycleStateInfo(thesaurus, action.getStateTransition().getFrom());
-        this.toState = new DeviceLifeCycleStateInfo(thesaurus, action.getStateTransition().getTo());
-        this.triggeredBy = new StateTransitionEventTypeInfo(thesaurus, action.getStateTransition().getEventType());
-    }
-
-    private void fromBpmAction(Thesaurus thesaurus, AuthorizedBusinessProcessAction action){
-        this.name = action.getName();
-    }
 
     @JsonIgnore
     public Set<AuthorizedAction.Level> getPrivilegeLevels(){
@@ -58,6 +36,18 @@ public class AuthorizedActionInfo {
                 .forEach(levels::add);
         }
         return levels;
+    }
+
+    @JsonIgnore
+    public Set<MicroAction> getMicroActions(){
+        Set<MicroAction> microActions = EnumSet.noneOf(MicroAction.class);
+        if (this.microActions != null){
+            this.microActions.stream()
+                    .filter(candidate -> candidate.checked != null && candidate.checked)
+                    .map(each -> MicroAction.valueOf(each.key))
+                    .forEach(microActions::add);
+        }
+        return microActions;
     }
 
     public boolean isLinkedTo(StateTransition candidate){

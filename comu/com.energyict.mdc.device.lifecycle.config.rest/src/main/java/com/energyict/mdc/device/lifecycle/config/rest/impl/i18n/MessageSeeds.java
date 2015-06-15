@@ -3,6 +3,8 @@ package com.energyict.mdc.device.lifecycle.config.rest.impl.i18n;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.device.lifecycle.config.MicroAction;
+import com.energyict.mdc.device.lifecycle.config.MicroCategory;
 import com.energyict.mdc.device.lifecycle.config.rest.impl.DeviceLifeCycleConfigApplication;
 
 import java.text.MessageFormat;
@@ -54,6 +56,34 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     PRIVILEGE_LEVEL_3(2003, Keys.PRIVILEGE_LEVEL_TRANSLATE_KEY + "THREE", "Level 3", Level.INFO),
     PRIVILEGE_LEVEL_4(2004, Keys.PRIVILEGE_LEVEL_TRANSLATE_KEY + "FOUR", "Level 4", Level.INFO),
 
+    MICRO_ACTION_NAME_SET_LAST_READING(3001, Keys.MICRO_ACTION_NAME_TRANSLATE_KEY + MicroAction.SET_LAST_READING, "Input last meter reading", Level.INFO),
+    MICRO_ACTION_NAME_ENABLE_VALIDATION(3002, Keys.MICRO_ACTION_NAME_TRANSLATE_KEY + MicroAction.ENABLE_VALIDATION, "Activate validation", Level.INFO),
+    MICRO_ACTION_NAME_DISABLE_VALIDATION(3003, Keys.MICRO_ACTION_NAME_TRANSLATE_KEY + MicroAction.DISABLE_VALIDATION, "Deactivate validation", Level.INFO),
+    MICRO_ACTION_NAME_ACTIVATE_CONNECTION_TASKS(3004, Keys.MICRO_ACTION_NAME_TRANSLATE_KEY + MicroAction.ACTIVATE_CONNECTION_TASKS, "Activate connections in use", Level.INFO),
+    MICRO_ACTION_NAME_START_COMMUNICATION(3005, Keys.MICRO_ACTION_NAME_TRANSLATE_KEY + MicroAction.START_COMMUNICATION, "Trigger all communication tasks", Level.INFO),
+    MICRO_ACTION_NAME_DISABLE_COMMUNICATION(3006, Keys.MICRO_ACTION_NAME_TRANSLATE_KEY + MicroAction.DISABLE_COMMUNICATION, "Deactivate communication", Level.INFO),
+    MICRO_ACTION_NAME_CREATE_METER_ACTIVATION(3007, Keys.MICRO_ACTION_NAME_TRANSLATE_KEY + MicroAction.CREATE_METER_ACTIVATION, "Create new meter activation", Level.INFO),
+    MICRO_ACTION_NAME_CLOSE_METER_ACTIVATION(3008, Keys.MICRO_ACTION_NAME_TRANSLATE_KEY + MicroAction.CLOSE_METER_ACTIVATION, "Stop meter activation", Level.INFO),
+    MICRO_ACTION_NAME_REMOVE_DEVICE_FROM_STATIC_GROUPS(3009, Keys.MICRO_ACTION_NAME_TRANSLATE_KEY + MicroAction.REMOVE_DEVICE_FROM_STATIC_GROUPS, "Remove device from static groups", Level.INFO),
+    MICRO_ACTION_NAME_DETACH_SLAVE_FROM_MASTER(3010, Keys.MICRO_ACTION_NAME_TRANSLATE_KEY + MicroAction.DETACH_SLAVE_FROM_MASTER, "Disconnect slave from master", Level.INFO),
+
+    MICRO_ACTION_DESCRIPTION_SET_LAST_READING(4001, Keys.MICRO_ACTION_DESCRIPTION_TRANSLATE_KEY + MicroAction.SET_LAST_READING, "Provide the last meter reading manually based on one or more register group.", Level.INFO),
+    MICRO_ACTION_DESCRIPTION_ENABLE_VALIDATION(4002, Keys.MICRO_ACTION_DESCRIPTION_TRANSLATE_KEY + MicroAction.ENABLE_VALIDATION, "Activate the data validation on this device. This auto action is effective immediately.", Level.INFO),
+    MICRO_ACTION_DESCRIPTION_DISABLE_VALIDATION(4003, Keys.MICRO_ACTION_DESCRIPTION_TRANSLATE_KEY + MicroAction.DISABLE_VALIDATION, "Stop the data validation on this device.", Level.INFO),
+    MICRO_ACTION_DESCRIPTION_ACTIVATE_CONNECTION_TASKS(4004, Keys.MICRO_ACTION_DESCRIPTION_TRANSLATE_KEY + MicroAction.ACTIVATE_CONNECTION_TASKS, "Activate inactive connections used in scheduled communication tasks.", Level.INFO),
+    MICRO_ACTION_DESCRIPTION_START_COMMUNICATION(4005, Keys.MICRO_ACTION_DESCRIPTION_TRANSLATE_KEY + MicroAction.START_COMMUNICATION, "Trigger all the recurring and non-recurring communication tasks and their connections on the date of the transition.", Level.INFO),
+    MICRO_ACTION_DESCRIPTION_DISABLE_COMMUNICATION(4006, Keys.MICRO_ACTION_DESCRIPTION_TRANSLATE_KEY + MicroAction.DISABLE_COMMUNICATION, "Deactivate the connections and communication tasks on this device.", Level.INFO),
+    MICRO_ACTION_DESCRIPTION_CREATE_METER_ACTIVATION(4007, Keys.MICRO_ACTION_DESCRIPTION_TRANSLATE_KEY + MicroAction.CREATE_METER_ACTIVATION, "Create a new meter activation on the transition date.", Level.INFO),
+    MICRO_ACTION_DESCRIPTION_CLOSE_METER_ACTIVATION(4008, Keys.MICRO_ACTION_DESCRIPTION_TRANSLATE_KEY + MicroAction.CLOSE_METER_ACTIVATION, "Stop the meter activation of this device and unlink the device from its usage point.", Level.INFO),
+    MICRO_ACTION_DESCRIPTION_REMOVE_DEVICE_FROM_STATIC_GROUPS(4009, Keys.MICRO_ACTION_DESCRIPTION_TRANSLATE_KEY + MicroAction.REMOVE_DEVICE_FROM_STATIC_GROUPS, "Remove this device from the static device groups.", Level.INFO),
+    MICRO_ACTION_DESCRIPTION_DETACH_SLAVE_FROM_MASTER(4010, Keys.MICRO_ACTION_DESCRIPTION_TRANSLATE_KEY + MicroAction.DETACH_SLAVE_FROM_MASTER, "If this device is a slave, disconnect it from his master.", Level.INFO),
+
+    TRANSITION_ACTION_CHECK_CATEGORY_COMMUNICATION(5001, Keys.TRANSITION_ACTION_CHECK_CATEGORY_KEY + MicroCategory.COMMUNICATION, "Communication", Level.INFO),
+    TRANSITION_ACTION_CHECK_CATEGORY_VALIDATION_AND_ESTIMATION(5002, Keys.TRANSITION_ACTION_CHECK_CATEGORY_KEY + MicroCategory.VALIDATION_AND_ESTIMATION, "Validation and estimation", Level.INFO),
+    TRANSITION_ACTION_CHECK_CATEGORY_DATA_COLLECTION(5003, Keys.TRANSITION_ACTION_CHECK_CATEGORY_KEY + MicroCategory.DATA_COLLECTION, "Data collection", Level.INFO),
+    TRANSITION_ACTION_CHECK_CATEGORY_TOPOLOGY(5004, Keys.TRANSITION_ACTION_CHECK_CATEGORY_KEY + MicroCategory.TOPOLOGY, "Topology", Level.INFO),
+    TRANSITION_ACTION_SUB_CATEGORY_VALIDATION(5005, "subcategory.validation", "Toggle data validation", Level.INFO),
+    TRANSITION_ACTION_SUB_CATEGORY_COMMUNICATION(5006, "subcategory.communication", "Toggle data communication", Level.INFO),
     ;
 
     private final int number;
@@ -118,5 +148,8 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
         private Keys() {}
 
         public static final String PRIVILEGE_LEVEL_TRANSLATE_KEY = "privilege.level.";
+        public static final String MICRO_ACTION_NAME_TRANSLATE_KEY = "transition.microaction.name.";
+        public static final String MICRO_ACTION_DESCRIPTION_TRANSLATE_KEY = "transition.microaction.description.";
+        public static final String TRANSITION_ACTION_CHECK_CATEGORY_KEY = "transition.category.";
     }
 }

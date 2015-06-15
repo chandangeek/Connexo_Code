@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.lifecycle.config.rest.impl.resource;
 
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.rest.util.RestValidationBuilder;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
@@ -7,12 +8,16 @@ import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
+import com.energyict.mdc.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.lifecycle.config.Privileges;
+import com.energyict.mdc.device.lifecycle.config.TransitionType;
 import com.energyict.mdc.device.lifecycle.config.rest.impl.i18n.MessageSeeds;
 import com.energyict.mdc.device.lifecycle.config.rest.impl.resource.requests.AuthorizedActionChangeRequest;
 import com.energyict.mdc.device.lifecycle.config.rest.impl.resource.requests.AuthorizedActionRequestFactory;
 import com.energyict.mdc.device.lifecycle.config.rest.info.AuthorizedActionInfo;
 import com.energyict.mdc.device.lifecycle.config.rest.info.AuthorizedActionInfoFactory;
+import com.energyict.mdc.device.lifecycle.config.rest.info.MicroActionAndCheckInfo;
+import com.energyict.mdc.device.lifecycle.config.rest.info.MicroActionAndCheckInfoFactory;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -25,25 +30,33 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Predicate;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 public class DeviceLifeCycleActionResource {
     private final DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     private final ResourceHelper resourceHelper;
     private final AuthorizedActionInfoFactory authorizedActionInfoFactory;
+    private final MicroActionAndCheckInfoFactory microActionAndCheckInfoFactory;
 
     @Inject
     public DeviceLifeCycleActionResource(
             DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService,
             ResourceHelper resourceHelper,
-            AuthorizedActionInfoFactory authorizedActionInfoFactory) {
+            AuthorizedActionInfoFactory authorizedActionInfoFactory,
+            MicroActionAndCheckInfoFactory microActionAndCheckInfoFactory) {
         this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
         this.resourceHelper = resourceHelper;
         this.authorizedActionInfoFactory = authorizedActionInfoFactory;
+        this.microActionAndCheckInfoFactory = microActionAndCheckInfoFactory;
     }
 
     @GET
@@ -115,5 +128,41 @@ public class DeviceLifeCycleActionResource {
         AuthorizedActionChangeRequest deleteRequest = factory.from(deviceLifeCycle, actionId, AuthorizedActionRequestFactory.Operation.DELETE);
         AuthorizedAction authorizedAction = deleteRequest.perform();
         return Response.ok(authorizedActionInfoFactory.from(authorizedAction)).build();
+    }
+
+    @GET
+    @Path("/microactions")
+    @Consumes(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed({Privileges.VIEW_DEVICE_LIFE_CYCLE})
+    public Response getAvailableMicroActionsForNewTransition(
+            @PathParam("deviceLifeCycleId") Long deviceLifeCycleId,
+            @QueryParam("fromState") long fromStateId,
+            @QueryParam("toState") long toStateId,
+            @BeanParam JsonQueryParameters queryParams) {
+        Optional<TransitionType> defaultTransition = getDefaultTransition(deviceLifeCycleId, fromStateId, toStateId);
+        List<MicroActionAndCheckInfo> microActions = new ArrayList<>();
+        if (defaultTransition.isPresent()){
+            defaultTransition.get().optionalActions()
+                    .stream()
+                    .map(microActionAndCheckInfoFactory::optional)
+                    .forEach(microActions::add);
+            defaultTransition.get().requiredActions()
+                    .stream()
+                    .map(microActionAndCheckInfoFactory::required)
+                    .forEach(microActions::add);
+        } else {
+            Arrays.stream(MicroAction.values())
+                    .map(microActionAndCheckInfoFactory::optional)
+                    .forEach(microActions::add);
+        }
+        return Response.ok(PagedInfoList.fromCompleteList("microActions", microActions, queryParams)).build();
+    }
+
+    private Optional<TransitionType> getDefaultTransition(Long deviceLifeCycleId, long fromStateId, long toStateId) {
+        DeviceLifeCycle deviceLifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(deviceLifeCycleId);
+        State fromState = resourceHelper.findStateByIdOrThrowException(deviceLifeCycle, fromStateId);
+        State toState = resourceHelper.findStateByIdOrThrowException(deviceLifeCycle, toStateId);
+        return TransitionType.from(fromState, toState);
     }
 }

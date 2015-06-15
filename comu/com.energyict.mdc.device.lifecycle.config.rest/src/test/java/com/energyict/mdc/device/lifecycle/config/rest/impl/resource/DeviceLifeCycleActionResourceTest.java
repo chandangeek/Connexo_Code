@@ -1,7 +1,10 @@
 package com.energyict.mdc.device.lifecycle.config.rest.impl.resource;
 
+import com.elster.jupiter.fsm.FiniteStateMachine;
+import com.elster.jupiter.fsm.State;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
+import com.energyict.mdc.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.lifecycle.config.rest.DeviceLifeCycleConfigApplicationJerseyTest;
 import com.energyict.mdc.device.lifecycle.config.rest.impl.i18n.MessageSeeds;
 import com.jayway.jsonpath.JsonModel;
@@ -14,6 +17,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class DeviceLifeCycleActionResourceTest extends DeviceLifeCycleConfigApplicationJerseyTest {
@@ -44,6 +48,7 @@ public class DeviceLifeCycleActionResourceTest extends DeviceLifeCycleConfigAppl
         assertThat(model.<String >get("$.deviceLifeCycleActions[0].privileges[0].name")).isEqualTo(MessageSeeds.PRIVILEGE_LEVEL_1.getDefaultFormat());
         assertThat(model.<String >get("$.deviceLifeCycleActions[0].triggeredBy.symbol")).isEqualTo("#eventType");
         assertThat(model.<String >get("$.deviceLifeCycleActions[0].triggeredBy.name")).isNotEmpty();
+        assertThat(model.<List>get("$.deviceLifeCycleActions[0].microActions")).hasSize(3);
     }
 
     @Test
@@ -82,5 +87,35 @@ public class DeviceLifeCycleActionResourceTest extends DeviceLifeCycleConfigAppl
 
         Response response = target("/devicelifecycles/1/actions/200").request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+    }
+
+    @Test
+    public void testGetAllMicroActions(){
+        List<State> states = mockDefaultStates();
+        List<AuthorizedAction> actions = mockDefaultActions();
+        DeviceLifeCycle dlc = mockSimpleDeviceLifeCycle(1L, "Standard");
+        FiniteStateMachine finiteStateMachine = mock(FiniteStateMachine.class);
+        when(dlc.getFiniteStateMachine()).thenReturn(finiteStateMachine);
+        when(finiteStateMachine.getStates()).thenReturn(states);
+        when(dlc.getAuthorizedActions()).thenReturn(actions);
+        when(deviceLifeCycleConfigurationService.findDeviceLifeCycle(Matchers.anyLong())).thenReturn(Optional.of(dlc));
+
+        String  response = target("/devicelifecycles/1/actions/microactions")
+                .queryParam("fromState", 3)
+                .queryParam("toState", 1)
+                .request()
+                .get(String.class);
+        JsonModel model = JsonModel.create(response);
+
+        assertThat(model.<Number>get("$.total")).isEqualTo(MicroAction.values().length);
+        assertThat(model.<List<?>>get("$.microActions")).isNotNull();
+        assertThat(model.<String>get("$.microActions[0].key")).isNotEmpty();
+        assertThat(model.<String>get("$.microActions[0].name")).isNotEmpty();
+        assertThat(model.<String>get("$.microActions[0].description")).isNotEmpty();
+        assertThat(model.<Object>get("$.microActions[0].category")).isNotNull();
+        assertThat(model.<String>get("$.microActions[0].category.id")).isNotEmpty();
+        assertThat(model.<String>get("$.microActions[0].category.name")).isNotEmpty();
+        assertThat(model.<Boolean>get("$.microActions[0].isRequired")).isEqualTo(false);
+        assertThat(model.<Boolean>get("$.microActions[0].checked")).isNull();
     }
 }

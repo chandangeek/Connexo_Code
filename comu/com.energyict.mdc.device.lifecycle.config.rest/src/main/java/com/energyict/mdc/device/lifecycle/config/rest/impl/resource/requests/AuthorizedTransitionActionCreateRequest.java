@@ -52,7 +52,7 @@ public class AuthorizedTransitionActionCreateRequest implements AuthorizedAction
         AuthorizedTransitionAction authorizedAction = deviceLifeCycleUpdater
                 .newTransitionAction(newStateTransition)
                 .addAllChecks(Collections.<MicroCheck>emptySet()) // TODO Add checks for state transition
-                .addAllActions(Collections.<MicroAction>emptySet()) // TODO Add actions for state transition
+                .addAllActions(this.infoForCreation.getMicroActions())
                 .addAllLevels(this.infoForCreation.getPrivilegeLevels())
                 .complete();
         deviceLifeCycleUpdater.complete();
