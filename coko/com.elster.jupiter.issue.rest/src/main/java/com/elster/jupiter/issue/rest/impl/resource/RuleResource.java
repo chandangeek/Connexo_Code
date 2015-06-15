@@ -1,52 +1,51 @@
 package com.elster.jupiter.issue.rest.impl.resource;
 
-import com.elster.jupiter.issue.rest.resource.StandardParametersBean;
-import com.elster.jupiter.issue.rest.response.AssignmentRuleInfo;
-import com.elster.jupiter.issue.rest.response.cep.CreationRuleTemplateInfo;
-import com.elster.jupiter.issue.rest.response.cep.ParameterInfo;
-import com.elster.jupiter.issue.security.Privileges;
-import com.elster.jupiter.issue.share.cep.CreationRuleTemplate;
-import com.elster.jupiter.issue.share.cep.ParameterDefinition;
-import com.elster.jupiter.issue.share.entity.AssignmentRule;
-import com.elster.jupiter.issue.share.service.IssueAssignmentService;
-import com.elster.jupiter.util.conditions.Condition;
+import static com.elster.jupiter.issue.rest.request.RequestHelper.ISSUE_TYPE;
+import static com.elster.jupiter.issue.rest.response.ResponseHelper.entity;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
-import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
-import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
-import static com.elster.jupiter.issue.rest.request.RequestHelper.ID;
-import static com.elster.jupiter.issue.rest.request.RequestHelper.ISSUE_TYPE;
-import static com.elster.jupiter.issue.rest.request.RequestHelper.KEY;
-import static com.elster.jupiter.issue.rest.response.ResponseHelper.entity;
+import com.elster.jupiter.issue.rest.response.AssignmentRuleInfo;
+import com.elster.jupiter.issue.rest.response.cep.CreationRuleTemplateInfo;
+import com.elster.jupiter.issue.rest.response.cep.CreationRuleTemplateInfoFactory;
+import com.elster.jupiter.issue.security.Privileges;
+import com.elster.jupiter.issue.share.CreationRuleTemplate;
+import com.elster.jupiter.issue.share.entity.AssignmentRule;
+import com.elster.jupiter.issue.share.service.IssueAssignmentService;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.util.conditions.Condition;
 
 @Path("/rules")
-public class RuleResource extends BaseResource{
-    private IssueAssignmentService issueAssignmentService;
-
+public class RuleResource extends BaseResource {
+    
+    private final IssueAssignmentService issueAssignmentService;
+    private final CreationRuleTemplateInfoFactory templateInfoFactory;
+    
     @Inject
-    public void setIssueAssignmentService(IssueAssignmentService issueAssignmentService) {
+    public RuleResource(IssueAssignmentService issueAssignmentService, CreationRuleTemplateInfoFactory templateInfoFactory) {
         this.issueAssignmentService = issueAssignmentService;
+        this.templateInfoFactory = templateInfoFactory;
     }
 
-    /**
-     * <b>API link</b>: <a href="http://confluence.eict.vpdc/display/JUPU/REST+API#RESTAPI-Getassignmentrules">Get assignment rules</a><br />
-     * <b>Pagination</b>: false<br />
-     * <b>Mandatory parameters</b>: none<br />
-     * <b>Optional parameters</b>: none<br />
-     */
+    @Inject
+    public void setIssueAssignmentService() {
+
+    }
+
     @GET
     @Path("/assign")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
@@ -56,86 +55,29 @@ public class RuleResource extends BaseResource{
         return entity(assignmentRules, AssignmentRuleInfo.class).build();
     }
 
-    /**
-     * <b>API link</b>: <a href="http://confluence.eict.vpdc/display/JUPU/REST+API#RESTAPI-Getruletemplates">Get rule templates</a><br />
-     * <b>Pagination</b>: false<br />
-     * <b>Mandatory parameters</b>: '{@value com.elster.jupiter.issue.rest.request.RequestHelper#ISSUE_TYPE}'<br />
-     * <b>Optional parameters</b>: none<br />
-     */
     @GET
     @Path("/templates")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_CREATION_RULE,Privileges.VIEW_CREATION_RULE})
-    public Response getCreationRulesTemplates(@BeanParam StandardParametersBean params){
-        validateMandatory(params, ISSUE_TYPE);
-
-        List<CreationRuleTemplate> templates = getIssueCreationService().getCreationRuleTemplates();
-        List<CreationRuleTemplate> filteredTemplates = new ArrayList<>();
-        String expectedIssueType = params.getFirst(ISSUE_TYPE);
-        for (CreationRuleTemplate template : templates) {
-            if (template.getIssueType().equals(expectedIssueType)){
-                filteredTemplates.add(template);
-            }
+    public PagedInfoList getCreationRulesTemplates(@QueryParam(value = ISSUE_TYPE) String issueType, @BeanParam JsonQueryParameters params){
+        if (issueType == null ) {
+            throw new WebApplicationException(Response.Status.BAD_REQUEST);
         }
-        return entity(filteredTemplates, CreationRuleTemplateInfo.class).build();
+        List<CreationRuleTemplateInfo> infos = getIssueCreationService()
+                .getCreationRuleTemplates().stream()
+                .filter(template -> template.getIssueType().getKey().equals(issueType))
+                .map(templateInfoFactory::asInfo)
+                .collect(Collectors.toList());
+        return PagedInfoList.fromCompleteList("creationRuleTemplates", infos, params);
     }
 
-    /**
-     * <b>API link</b>: <a href="http://confluence.eict.vpdc/display/JUPU/REST+API#RESTAPI-Getruletemplate">Get rule template</a><br />
-     * <b>Pagination</b>: false<br />
-     * <b>Mandatory parameters</b>: '{@value com.elster.jupiter.issue.rest.request.RequestHelper#ID}'<br />
-     * <b>Optional parameters</b>: none<br />
-     */
     @GET
-    @Path("/templates/{" + ID + "}")
+    @Path("/templates/{name}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_CREATION_RULE,Privileges.VIEW_CREATION_RULE})
-    public Response getTemplate(@PathParam(ID) String id){
-        Optional<CreationRuleTemplate> template = getIssueCreationService().findCreationRuleTemplate(id);
-        if (!template.isPresent()){
-            return Response.status(Response.Status.NOT_FOUND).build();
-        }
-        return entity(new CreationRuleTemplateInfo(template.get())).build();
-    }
-
-
-    @PUT
-    @Path("/templates/{" + ID + "}/parameters")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed(Privileges.ADMINISTRATE_CREATION_RULE)
-    public Response getAllParametersValues(@PathParam(ID) String id, Map<String, Object> paramValues){
-        Optional<CreationRuleTemplate> template = getIssueCreationService().findCreationRuleTemplate(id);
-        if (!template.isPresent()){
-            return Response.status(Response.Status.NOT_FOUND).build();
-        }
-        List<ParameterDefinition> parameters = new ArrayList<>();
-        if (template.get().getParameterDefinitions() != null) {
-            for (ParameterDefinition parameter : template.get().getParameterDefinitions().values()) {
-                parameters.add(parameter.getValue(paramValues));
-            }
-        }
-        return entity(parameters, ParameterInfo.class).build();
-    }
-
-
-    @PUT
-    @Path("/templates/{" + ID + "}/parameters/{" + KEY + "}")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed(Privileges.ADMINISTRATE_CREATION_RULE)
-    public Response getSingleParametersValues(@PathParam(ID) String id, @PathParam(KEY) String key, Map<String, Object> paramValues){
-        Optional<CreationRuleTemplate> template = getIssueCreationService().findCreationRuleTemplate(id);
-        if (!template.isPresent()){
-            return Response.status(Response.Status.NOT_FOUND).build();
-        }
-        if (template.get().getParameterDefinitions() == null){
-            return Response.status(Response.Status.NOT_FOUND).build();
-        }
-        ParameterDefinition parameter = template.get().getParameterDefinitions().get(key);
-        if (parameter == null){
-            return Response.status(Response.Status.NOT_FOUND).build();
-        }
-        return entity(new ParameterInfo(parameter.getValue(paramValues))).build();
+    @RolesAllowed({Privileges.ADMINISTRATE_CREATION_RULE, Privileges.VIEW_CREATION_RULE})
+    public Response getTemplate(@PathParam("name") String name) {
+        CreationRuleTemplate template = getIssueCreationService().findCreationRuleTemplate(name)
+                .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        return Response.ok(templateInfoFactory.asInfo(template)).build();
     }
 }

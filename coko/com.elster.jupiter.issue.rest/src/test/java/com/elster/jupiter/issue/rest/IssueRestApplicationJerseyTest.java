@@ -1,20 +1,34 @@
 package com.elster.jupiter.issue.rest;
 
-import com.elster.jupiter.issue.rest.impl.resource.ActionResource;
-import com.elster.jupiter.issue.rest.impl.resource.AssigneeResource;
-import com.elster.jupiter.issue.rest.impl.resource.CreationRuleResource;
-import com.elster.jupiter.issue.rest.impl.resource.IssueTypeResource;
-import com.elster.jupiter.issue.rest.impl.resource.MeterResource;
-import com.elster.jupiter.issue.rest.impl.resource.ReasonResource;
-import com.elster.jupiter.issue.rest.impl.resource.RuleResource;
-import com.elster.jupiter.issue.rest.impl.resource.StatusResource;
-import com.elster.jupiter.issue.rest.response.cep.CreationRuleOrActionValidationExceptionMapper;
-import com.elster.jupiter.issue.share.cep.CreationRuleTemplate;
-import com.elster.jupiter.issue.share.cep.IssueAction;
-import com.elster.jupiter.issue.share.cep.ParameterDefinition;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.io.IOException;
+import java.time.Instant;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
+import javax.annotation.Priority;
+import javax.ws.rs.Priorities;
+import javax.ws.rs.container.ContainerRequestContext;
+import javax.ws.rs.container.ContainerRequestFilter;
+import javax.ws.rs.core.Application;
+import javax.ws.rs.core.SecurityContext;
+import javax.ws.rs.ext.Provider;
+
+import org.mockito.Mock;
+
+import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
+import com.elster.jupiter.issue.rest.impl.IssueApplication;
+import com.elster.jupiter.issue.share.CreationRuleTemplate;
+import com.elster.jupiter.issue.share.IssueAction;
 import com.elster.jupiter.issue.share.entity.AssignmentRule;
 import com.elster.jupiter.issue.share.entity.CreationRule;
-import com.elster.jupiter.issue.share.entity.CreationRuleAction;
 import com.elster.jupiter.issue.share.entity.DueInType;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueActionType;
@@ -30,59 +44,38 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
-import com.elster.jupiter.rest.util.ConstraintViolationInfo;
-import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
-import org.glassfish.jersey.client.ClientConfig;
-import org.glassfish.jersey.jackson.JacksonFeature;
-import org.glassfish.jersey.server.ResourceConfig;
-import org.glassfish.jersey.test.JerseyTest;
-import org.glassfish.jersey.test.TestProperties;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
+import com.elster.jupiter.util.exception.MessageSeed;
 
-import javax.annotation.Priority;
-import javax.ws.rs.Priorities;
-import javax.ws.rs.container.ContainerRequestContext;
-import javax.ws.rs.container.ContainerRequestFilter;
-import javax.ws.rs.core.Application;
-import javax.ws.rs.core.SecurityContext;
-import javax.ws.rs.ext.Provider;
-import java.io.IOException;
-import java.time.Instant;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Optional;
-
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.when;
-
-@Ignore("Mocks")
-public class Mocks extends JerseyTest {
-
-    protected static IssueService issueService;
-    protected static IssueCreationService issueCreationService;
-    protected static IssueAssignmentService issueAssignmentService;
-    protected static IssueActionService issueActionService;
-
-    protected static MeteringService meteringService;
-    protected static UserService userService;
-    protected static NlsService nlsService;
-    protected static Thesaurus thesaurus;
-    protected static TransactionService transactionService;
-    protected static RestQueryService restQueryService;
-    protected static SecurityContext securityContext;
-
+public class IssueRestApplicationJerseyTest extends FelixRestApplicationJerseyTest {
+  
+    @Mock
+    IssueService issueService;
+    @Mock
+    IssueCreationService issueCreationService;
+    @Mock
+    IssueAssignmentService issueAssignmentService;
+    @Mock
+    IssueActionService issueActionService;
+    @Mock
+    MeteringService meteringService;
+    @Mock
+    UserService userService;
+    @Mock
+    NlsService nlsService;
+    @Mock
+    TransactionService transactionService;
+    @Mock
+    RestQueryService restQueryService;
+    @Mock
+    static SecurityContext securityContext;
 
     @Provider
     @Priority(Priorities.AUTHORIZATION)
@@ -92,74 +85,36 @@ public class Mocks extends JerseyTest {
             requestContext.setSecurityContext(securityContext);
         }
     }
-
-    @BeforeClass
-    public static void setUpClass() throws Exception {
-        issueService = mock(IssueService.class);
-        issueCreationService = mock(IssueCreationService.class);
-        issueAssignmentService = mock(IssueAssignmentService.class);
-        issueActionService = mock(IssueActionService.class);
-
-        meteringService = mock(MeteringService.class);
-        userService = mock(UserService.class);
-        nlsService = mock(NlsService.class);
-        thesaurus = mock(Thesaurus.class);
-        transactionService = mock(TransactionService.class);
-        restQueryService = mock(RestQueryService.class);
-        securityContext = mock(SecurityContext.class);
-
-    }
-
+    
     @Override
-    @Before
-    public void setUp() throws Exception {
-        super.setUp();
-        reset(issueService, issueCreationService, issueAssignmentService, issueActionService);
-    }
-
-    @Override
-    protected Application configure() {
-        enable(TestProperties.LOG_TRAFFIC);
-        enable(TestProperties.DUMP_ENTITY);
-        ResourceConfig resourceConfig = new ResourceConfig(
-                AssigneeResource.class,
-                RuleResource.class,
-                ReasonResource.class,
-                StatusResource.class,
-                CreationRuleResource.class,
-                MeterResource.class,
-                IssueTypeResource.class,
-                ActionResource.class,
-                ConstraintViolationExceptionMapper.class,
-                LocalizedExceptionMapper.class,
-                CreationRuleOrActionValidationExceptionMapper.class,
-                SecurityRequestFilter.class);
-        resourceConfig.register(JacksonFeature.class); // Server side JSON processing
-        resourceConfig.register(new AbstractBinder() {
+    protected Application getApplication() {
+        IssueApplication application = new IssueApplication() {
+            //to mock security context
             @Override
-            protected void configure() {
-                bind(issueService).to(IssueService.class);
-                bind(issueAssignmentService).to(IssueAssignmentService.class);
-                bind(issueCreationService).to(IssueCreationService.class);
-                bind(issueActionService).to(IssueActionService.class);
-
-                bind(userService).to(UserService.class);
-                bind(meteringService).to(MeteringService.class);
-                bind(nlsService).to(NlsService.class);
-                bind(thesaurus).to(Thesaurus.class);
-                bind(transactionService).to(TransactionService.class);
-                bind(restQueryService).to(RestQueryService.class);
-
-                bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
+            public Set<Class<?>> getClasses() {
+                Set<Class<?>> hashSet = new HashSet<>(super.getClasses());
+                hashSet.add(SecurityRequestFilter.class);
+                return Collections.unmodifiableSet(hashSet);
             }
-        });
-        return resourceConfig;
+        };
+        when(thesaurus.join(thesaurus)).thenReturn(thesaurus);
+        when(issueService.getIssueCreationService()).thenReturn(issueCreationService);
+        when(issueService.getIssueActionService()).thenReturn(issueActionService);
+        when(issueService.getIssueAssignmentService()).thenReturn(issueAssignmentService);
+        when(nlsService.getThesaurus(IssueService.COMPONENT_NAME, Layer.REST)).thenReturn(thesaurus);
+        when(nlsService.getThesaurus(IssueService.COMPONENT_NAME, Layer.DOMAIN)).thenReturn(thesaurus);
+        application.setIssueService(issueService);
+        application.setMeteringService(meteringService);
+        application.setNlsService(nlsService);
+        application.setTransactionService(transactionService);
+        application.setRestQueryService(restQueryService);
+        application.setUserService(userService);
+        return application;
     }
 
     @Override
-    protected void configureClient(ClientConfig config) {
-        config.register(JacksonFeature.class); // client side JSON processing
-        super.configureClient(config);
+    protected MessageSeed[] getMessageSeeds() {
+        return MessageSeeds.values();
     }
 
     protected IssueStatus mockStatus(String key, String name, boolean isFinal){
@@ -174,9 +129,9 @@ public class Mocks extends JerseyTest {
         return mockStatus("1", "open", false);
     }
 
-    protected IssueType mockIssueType(String uuid, String name){
+    protected IssueType mockIssueType(String key, String name){
         IssueType issueType = mock(IssueType.class);
-        when(issueType.getUUID()).thenReturn(uuid);
+        when(issueType.getKey()).thenReturn(key);
         when(issueType.getName()).thenReturn(name);
         return issueType;
     }
@@ -237,22 +192,19 @@ public class Mocks extends JerseyTest {
         return mockAssignmentRule(1, "Assignment Rule", "Description", 1, assignee);
     }
 
-    protected CreationRuleTemplate mockCreationRuleTemplate(String uuid, String name, String description, IssueType issueType, Map<String, ParameterDefinition> parameters){
+    protected CreationRuleTemplate mockCreationRuleTemplate(String name, String description, IssueType issueType, List<PropertySpec> properties){
         CreationRuleTemplate template = mock(CreationRuleTemplate.class);
-        when(template.getUUID()).thenReturn(uuid);
         when(template.getName()).thenReturn(name);
+        when(template.getDisplayName()).thenReturn("Display Name: " + name);
         when(template.getDescription()).thenReturn(description);
-        if (issueType != null) {
-            String itUuid = issueType.getUUID();
-            when(template.getIssueType()).thenReturn(itUuid);
-        }
-        when(template.getParameterDefinitions()).thenReturn(parameters);
+        when(template.getIssueType()).thenReturn(issueType);
+        when(template.getPropertySpecs()).thenReturn(properties);
         return template;
     }
 
-    protected CreationRuleTemplate getDefaultCreationRuleTemplate(){
+    protected CreationRuleTemplate getDefaultCreationRuleTemplate() {
         IssueType issueType = getDefaultIssueType();
-        return mockCreationRuleTemplate("0-1-2", "Template 1", "Description", issueType, null);
+        return mockCreationRuleTemplate("0-1-2", "Description", issueType, mockPropertySpecs());
     }
 
     protected User mockUser(long id, String name) {
@@ -268,8 +220,9 @@ public class Mocks extends JerseyTest {
 
     protected IssueAction mockIssueAction(String name){
         IssueAction action = mock(IssueAction.class);
-        when(action.getLocalizedName()).thenReturn(name);
-        when(action.getParameterDefinitions()).thenReturn(Collections.<String, ParameterDefinition>emptyMap());
+        when(action.getDisplayName()).thenReturn(name);
+        List<PropertySpec> propertySpec = mockPropertySpecs();
+        when(action.getPropertySpecs()).thenReturn(propertySpec);
         return action;
     }
 
@@ -306,8 +259,8 @@ public class Mocks extends JerseyTest {
         when(rule.getReason()).thenReturn(reason);
         when(rule.getDueInType()).thenReturn(DueInType.DAY);
         when(rule.getDueInValue()).thenReturn(5L);
-        when(rule.getActions()).thenReturn(Collections.<CreationRuleAction>emptyList());
-        when(rule.getParameters()).thenReturn(null);
+        when(rule.getActions()).thenReturn(Collections.emptyList());
+        when(rule.getProperties()).thenReturn(Collections.emptyMap());
         when(rule.getTemplate()).thenReturn(template);
         when(rule.getModTime()).thenReturn(instant);
         when(rule.getCreateTime()).thenReturn(instant);
@@ -340,5 +293,13 @@ public class Mocks extends JerseyTest {
         when(comment.getVersion()).thenReturn(1L);
         when(comment.getUser()).thenReturn(user);
         return comment;
+    }
+    
+    protected List<PropertySpec> mockPropertySpecs() {
+        PropertySpec propertySpec = mock(PropertySpec.class);
+        when(propertySpec.getName()).thenReturn("property");
+        when(propertySpec.getValueFactory()).thenReturn(new StringFactory());
+        when(propertySpec.isRequired()).thenReturn(true);
+        return Arrays.asList(propertySpec);
     }
 }

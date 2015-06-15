@@ -12,7 +12,7 @@ public class IssueTypeInfo {
 
     public IssueTypeInfo(IssueType type) {
         if (type != null) {
-            this.uid = type.getUUID();
+            this.uid = type.getKey();
             this.name = type.getName();
         }
     }
