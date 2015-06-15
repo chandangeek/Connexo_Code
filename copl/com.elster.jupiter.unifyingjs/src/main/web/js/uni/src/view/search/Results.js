@@ -13,20 +13,10 @@ Ext.define('Uni.view.search.Results', {
     ],
 
     store: 'Uni.store.search.Results',
+    columns: [],
 
     initComponent: function () {
         var me = this;
-
-        if (!Ext.isDefined(me.columns)) {
-            // TODO Remove this.
-            me.columns = [
-                {
-                    header: Uni.I18n.translate('general.name', 'UNI', 'mRID'),
-                    dataIndex: 'mRID',
-                    flex: 1
-                }
-            ];
-        }
 
         me.dockedItems = [
             {
