@@ -52,6 +52,16 @@ Ext.define('Fwc.view.firmware.FirmwareVersions', {
                         itemId: 'firmware-filter-top'
                     },
                     {
+                        xtype: 'uni-form-info-message',
+                        name: 'warning',
+                        title: 'Firmware management is not allowed on devices of this device type.',
+                        text: 'Devices of this type won\'t have the option to upload new firmware versions.<br>If you want to activate firmware management for this device type, click <a href="'
+                        + this.router.getRoute('administration/devicetypes/view/firmwareoptions').buildUrl()
+                        + '">here</a>.',
+                        hidden: true,
+                        margin: '0 0 32 0'
+                    },
+                    {
                         xtype: 'emptygridcontainer',
                         grid: {
                             xtype: 'firmware-grid',
