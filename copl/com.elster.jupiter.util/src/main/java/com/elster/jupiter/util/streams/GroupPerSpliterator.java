@@ -2,16 +2,12 @@ package com.elster.jupiter.util.streams;
 
 import com.google.common.collect.ImmutableList;
 
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 class GroupPerSpliterator<E> extends Spliterators.AbstractSpliterator<List<E>> {
 
@@ -50,10 +46,10 @@ class GroupPerSpliterator<E> extends Spliterators.AbstractSpliterator<List<E>> {
         Objects.requireNonNull(action);
         ImmutableList.Builder<E> builder = ImmutableList.builder();
 
-        CapturingConsumer<E> captor = new CapturingConsumer<>();
+        HoldingConsumer<E> captor = new HoldingConsumer<>();
         for (int i = 0; i < produceSize; i++) {
             if (spliterator.tryAdvance(captor)) {
-                builder.add(captor.getCapture());
+                builder.add(captor.getValue());
             }
         }
         ImmutableList<E> list = builder.build();
@@ -79,20 +75,6 @@ class GroupPerSpliterator<E> extends Spliterators.AbstractSpliterator<List<E>> {
         Comparator<? super E> underlying = spliterator.getComparator();
         underlying = underlying == null ? (Comparator<? super E>) Comparator.naturalOrder() : underlying;
         return Comparator.comparing(list -> list.get(0), underlying);
-    }
-
-    private static final class CapturingConsumer<F> implements Consumer<F> {
-
-        private F captured;
-
-        @Override
-        public void accept(F f) {
-            captured = f;
-        }
-
-        F getCapture() {
-            return captured;
-        }
     }
 
 }

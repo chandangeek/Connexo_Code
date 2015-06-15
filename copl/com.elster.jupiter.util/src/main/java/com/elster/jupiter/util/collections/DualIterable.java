@@ -4,6 +4,8 @@ import com.elster.jupiter.util.Pair;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 /**
  * The DualIterable is a wrapper around two Iterables that will loop over matching pairs.
@@ -75,6 +77,10 @@ public final class DualIterable<T, U> implements Iterable<Pair<T, U>> {
 
     public Iterator<Pair<T, U>> iterator() {
         return strategy;
+    }
+
+    public Stream<Pair<T, U>> stream() {
+        return StreamSupport.stream(this.spliterator(), false);
     }
 
     private DualIterable(Iterable<T> first, Iterable<U> second) {

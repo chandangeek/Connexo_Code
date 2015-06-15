@@ -142,6 +142,10 @@ public class DecoratedStream<T> implements Stream<T> {
         return new DecoratedStream<>(decorated.limit(maxSize));
     }
 
+    public DecoratedStream<T> takeWhile(Predicate<? super T> predicate) {
+        return new DecoratedStream<>(StreamSupport.stream(new ConditionedLimitSpliterator<>(decorated.spliterator(), predicate), decorated.isParallel()));
+    }
+
     @Override
     public DecoratedStream<T> skip(long n) {
         return new DecoratedStream<>(decorated.skip(n));
