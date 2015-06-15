@@ -95,4 +95,13 @@ public interface CommunicationSessionProperties {
      * This is the preferred window size of our head-end (ComServer) and should match the devices capabilities.
      */
     public int getGeneralBlockTransferWindowSize();
+
+    /**
+     * Indicate if the framework executing the protocols prefers the usage of polling on the inputstream or not.
+     * E.g. the RTU+Server manages its thread performance itself, and prefers the protocols to avoid polling.
+     * <p/>
+     * Polling: check inputstream.available periodically, read number of bytes if available.
+     * Non polling: use blocking read calls on the inputstream without checking
+     */
+    public boolean isUsePolling();
 }

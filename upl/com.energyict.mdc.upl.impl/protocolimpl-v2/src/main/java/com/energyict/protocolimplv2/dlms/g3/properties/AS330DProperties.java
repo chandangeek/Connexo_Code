@@ -29,6 +29,11 @@ public class AS330DProperties extends DlmsProperties {
         return getProperties().getTypedProperty(AARQ_TIMEOUT_PROPERTY, BigDecimal.ZERO).longValue();
     }
 
+    @Override
+    public boolean isUsePolling() {
+        return false;   //The AS330D protocol will run embedded in the RTU3, so avoid polling on the inputstream
+    }
+
     /**
      * Property indicating to read the cache out (useful because there's no config change state)
      */

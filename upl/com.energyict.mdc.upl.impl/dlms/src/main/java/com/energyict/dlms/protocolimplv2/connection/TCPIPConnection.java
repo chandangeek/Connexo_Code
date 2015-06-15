@@ -15,6 +15,7 @@ import com.energyict.protocolimplv2.MdcManager;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 
 /**
  * Class that implements the TCPIP transport layer wrapper protocol.
@@ -36,6 +37,7 @@ public class TCPIPConnection implements DlmsV2Connection {
     private boolean switchAddresses = false;
     private boolean useGeneralBlockTransfer;
     private int generalBlockTransferWindowSize;
+    private boolean usePolling;
 
     /**
      * The current retry count - 0 = first try / 1 = first retry / ...
@@ -43,6 +45,8 @@ public class TCPIPConnection implements DlmsV2Connection {
     private int currentRetryCount = 0;
 
     private InvokeIdAndPriorityHandler invokeIdAndPriorityHandler;
+    private HHUSignOnV2 hhuSignOn = null;
+    private String meterId = "";
 
     public TCPIPConnection(ComChannel comChannel, CommunicationSessionProperties properties) {
         this.comChannel = (ServerComChannel) comChannel;
@@ -56,6 +60,7 @@ public class TCPIPConnection implements DlmsV2Connection {
         this.invokeIdAndPriorityHandler = new NonIncrementalInvokeIdAndPriorityHandler();
         this.useGeneralBlockTransfer = properties.useGeneralBlockTransfer();
         this.generalBlockTransferWindowSize = properties.getGeneralBlockTransferWindowSize();
+        this.usePolling = properties.isUsePolling();
     }
 
     public long getForceDelay() {
@@ -82,14 +87,6 @@ public class TCPIPConnection implements DlmsV2Connection {
         this.boolTCPIPConnected = false;
     }
 
-    private enum State {
-        STATE_HEADER_VERSION,
-        STATE_HEADER_SOURCE,
-        STATE_HEADER_DESTINATION,
-        STATE_HEADER_LENGTH,
-        STATE_DATA
-    }
-
     /**
      * Listen for a while, to receive a response from the meter
      *
@@ -102,133 +99,188 @@ public class TCPIPConnection implements DlmsV2Connection {
         State state = State.STATE_HEADER_VERSION;
         int count = 0;
         WPDU wpdu = null;
-        ByteArrayOutputStream resultArrayOutputStream = new ByteArrayOutputStream();
 
         interFrameTimeout = System.currentTimeMillis() + this.timeout;
         protocolTimeout = System.currentTimeMillis() + TIMEOUT;
 
-        resultArrayOutputStream.reset();
         comChannel.startReading();
 
-        while (true) {
-            if ((kar = readIn()) != -1) {
-                switch (state) {
+        if (!usePolling) {
+            wpdu = new WPDU();
+
+            ByteBuffer header = readHeader();
+            readVersion(wpdu, header);
+            readSourceField(wpdu, header);
+            readDestinationField(wpdu, header);
+            short length = header.getShort();
+            wpdu.setLength(length);
+
+            byte[] frame = new byte[length];
+            int readBytes = comChannel.read(frame);
+            if (readBytes != length) {
+                throw MdcManager.getComServerExceptionFactory().createProtocolParseException(new ProtocolException("Attempted to read out full frame (" + length + " bytes), but received " + readBytes + " bytes instead..."));
+            }
+
+            byte[] hdlcLegacyBytes = new byte[3];
+            wpdu.setData(ProtocolTools.concatByteArrays(header.array(), hdlcLegacyBytes, frame));
+
+            return wpdu;
+        } else {
+            ByteArrayOutputStream resultArrayOutputStream = new ByteArrayOutputStream();
+            resultArrayOutputStream.reset();
+
+            while (true) {
+                if ((kar = readIn()) != -1) {
+                    switch (state) {
 
                     /*
                      * Read the header version of the WPDU packet (2 bytes, and should be 0x0001)
                      */
-                    case STATE_HEADER_VERSION: {
-                        if (count == 0) {
-                            wpdu = new WPDU();
-                            wpdu.setVersion(kar);
-                            count++;
-                        } else {
-                            wpdu.setVersion(wpdu.getVersion() * 256 + kar);
-                            count = 0;
-                            if (wpdu.getVersion() == WRAPPER_VERSION) {
-                                state = State.STATE_HEADER_SOURCE;
+                        case STATE_HEADER_VERSION: {
+                            if (count == 0) {
+                                wpdu = new WPDU();
+                                wpdu.setVersion(kar);
+                                count++;
                             } else {
-                                throw new ProtocolException("Received WPDU with wrong WPDU version! " +
-                                        "Expected [" + WRAPPER_VERSION + "] but received [" + wpdu.getVersion() + "].");
+                                wpdu.setVersion(wpdu.getVersion() * 256 + kar);
+                                count = 0;
+                                if (wpdu.getVersion() == WRAPPER_VERSION) {
+                                    state = State.STATE_HEADER_SOURCE;
+                                } else {
+                                    throw new ProtocolException("Received WPDU with wrong WPDU version! " +
+                                            "Expected [" + WRAPPER_VERSION + "] but received [" + wpdu.getVersion() + "].");
+                                }
                             }
                         }
-                    }
-                    break;
+                        break;
 
                     /*
                      * Read the header source address of the WPDU packet (2 bytes)
                      */
-                    case STATE_HEADER_SOURCE: {
-                        if (count == 0) {
-                            wpdu.setSource(kar);
-                            count++;
-                        } else {
-                            wpdu.setSource(wpdu.getSource() * 256 + kar);
-                            count = 0;
-
-                            int address = this.switchAddresses ? this.serverAddress : this.clientAddress;
-                            if (wpdu.getSource() != address) {
-                                state = State.STATE_HEADER_VERSION;
-                                throw new ProtocolException("Received WPDU with wrong source address! Expected [" + address + "] but received [" + wpdu.getSource() + "].");
+                        case STATE_HEADER_SOURCE: {
+                            if (count == 0) {
+                                wpdu.setSource(kar);
+                                count++;
                             } else {
-                                state = State.STATE_HEADER_DESTINATION;
+                                wpdu.setSource(wpdu.getSource() * 256 + kar);
+                                count = 0;
+
+                                int address = this.switchAddresses ? this.serverAddress : this.clientAddress;
+                                if (wpdu.getSource() != address) {
+                                    state = State.STATE_HEADER_VERSION;
+                                    throw new ProtocolException("Received WPDU with wrong source address! Expected [" + address + "] but received [" + wpdu.getSource() + "].");
+                                } else {
+                                    state = State.STATE_HEADER_DESTINATION;
+                                }
                             }
                         }
-                    }
-                    break;
+                        break;
 
                     /*
                      * Read the header destination address of the WPDU packet (2 bytes)
                      */
-                    case STATE_HEADER_DESTINATION: {
-                        if (count == 0) {
-                            wpdu.setDestination(kar);
-                            count++;
-                        } else {
-                            wpdu.setDestination(wpdu.getDestination() * 256 + kar);
-                            count = 0;
-
-                            int address = switchAddresses ? this.clientAddress : this.serverAddress;
-                            if (wpdu.getDestination() != address) {
-                                state = State.STATE_HEADER_VERSION;
-                                throw new ProtocolException("Received WPDU with wrong destination address! " +
-                                        "Expected [" + address + "] but received [" + wpdu.getDestination() + "].");
+                        case STATE_HEADER_DESTINATION: {
+                            if (count == 0) {
+                                wpdu.setDestination(kar);
+                                count++;
                             } else {
-                                state = State.STATE_HEADER_LENGTH;
+                                wpdu.setDestination(wpdu.getDestination() * 256 + kar);
+                                count = 0;
+
+                                int address = switchAddresses ? this.clientAddress : this.serverAddress;
+                                if (wpdu.getDestination() != address) {
+                                    state = State.STATE_HEADER_VERSION;
+                                    throw new ProtocolException("Received WPDU with wrong destination address! " +
+                                            "Expected [" + address + "] but received [" + wpdu.getDestination() + "].");
+                                } else {
+                                    state = State.STATE_HEADER_LENGTH;
+                                }
                             }
                         }
-                    }
-                    break;
+                        break;
 
                     /*
                      * Read the length header source address of the WPDU packet (2 bytes)
                      */
-                    case STATE_HEADER_LENGTH: {
-                        if (count == 0) {
-                            wpdu.setLength(kar);
-                            count++;
-                        } else {
-                            wpdu.setLength(wpdu.getLength() * 256 + kar);
-                            count = wpdu.getLength();
+                        case STATE_HEADER_LENGTH: {
+                            if (count == 0) {
+                                wpdu.setLength(kar);
+                                count++;
+                            } else {
+                                wpdu.setLength(wpdu.getLength() * 256 + kar);
+                                count = wpdu.getLength();
 
-                            // Add padding of 3 bytes to fake the HDLC LLC. Very tricky to reuse all code written in the early days when only HDLC existed...
-                            resultArrayOutputStream.write(0);
-                            resultArrayOutputStream.write(0);
-                            resultArrayOutputStream.write(0);
+                                // Add padding of 3 bytes to fake the HDLC LLC. Very tricky to reuse all code written in the early days when only HDLC existed...
+                                resultArrayOutputStream.write(0);
+                                resultArrayOutputStream.write(0);
+                                resultArrayOutputStream.write(0);
 
 
-                            state = State.STATE_DATA;
+                                state = State.STATE_DATA;
+                            }
                         }
-                    }
-                    break; // case STATE_HEADER_LENGTH
+                        break; // case STATE_HEADER_LENGTH
 
-                    case STATE_DATA: {
+                        case STATE_DATA: {
 
-                        interFrameTimeout = System.currentTimeMillis() + this.timeout;
+                            interFrameTimeout = System.currentTimeMillis() + this.timeout;
 
-                        resultArrayOutputStream.write(kar);
-                        if (--count <= 0) {
-                            wpdu.setData(resultArrayOutputStream.toByteArray());
-                            return wpdu;
+                            resultArrayOutputStream.write(kar);
+                            if (--count <= 0) {
+                                wpdu.setData(resultArrayOutputStream.toByteArray());
+                                return wpdu;
+                            }
+
                         }
+                        break; // STATE_DATA STATE_IDLE
 
                     }
-                    break; // STATE_DATA STATE_IDLE
 
                 }
 
-            }
+                if (((System.currentTimeMillis() - protocolTimeout)) > 0) {
+                    throw new IOException("receiveResponse() response timeout error");
+                }
 
-            if (((System.currentTimeMillis() - protocolTimeout)) > 0) {
-                throw new IOException("receiveResponse() response timeout error");
-            }
+                if (((System.currentTimeMillis() - interFrameTimeout)) > 0) {
+                    throw new IOException("receiveResponse() interframe timeout error");
+                }
 
-            if (((System.currentTimeMillis() - interFrameTimeout)) > 0) {
-                throw new IOException("receiveResponse() interframe timeout error");
-            }
-
-        } // while(true)
+            } // while(true)
+        }
     } // private byte waitForTCPIPFrameStateMachine()
+
+    private void readDestinationField(WPDU wpdu, ByteBuffer header) throws ProtocolException {
+        wpdu.setDestination(header.getShort());
+        int address = switchAddresses ? this.clientAddress : this.serverAddress;
+        if (wpdu.getDestination() != address) {
+            throw new ProtocolException("Received WPDU with wrong destination address! Expected [" + address + "] but received [" + wpdu.getDestination() + "].");
+        }
+    }
+
+    private void readSourceField(WPDU wpdu, ByteBuffer header) throws ProtocolException {
+        wpdu.setSource(header.getShort());
+        int address = this.switchAddresses ? this.serverAddress : this.clientAddress;
+        if (wpdu.getSource() != address) {
+            throw new ProtocolException("Received WPDU with wrong source address! Expected [" + address + "] but received [" + wpdu.getSource() + "].");
+        }
+    }
+
+    private void readVersion(WPDU wpdu, ByteBuffer header) throws ProtocolException {
+        wpdu.setVersion(header.getShort());
+        if (wpdu.getVersion() != WRAPPER_VERSION) {
+            throw new ProtocolException("Received WPDU with wrong WPDU version! Expected [" + WRAPPER_VERSION + "] but received [" + wpdu.getVersion() + "].");
+        }
+    }
+
+    private ByteBuffer readHeader() {
+        byte[] header = new byte[8];
+        int readBytes = comChannel.read(header);
+        if (readBytes != 8) {
+            throw MdcManager.getComServerExceptionFactory().createProtocolParseException(new ProtocolException("Attempted to read out 8 header bytes but received " + readBytes + " bytes instead..."));
+        }
+        return ByteBuffer.wrap(header);
+    }
 
     private int readIn() {
         if (comChannel.available() != 0) {
@@ -252,7 +304,6 @@ public class TCPIPConnection implements DlmsV2Connection {
             throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
         }
     }
-
 
     public void setSwitchAddresses(boolean type) {
 
@@ -344,12 +395,12 @@ public class TCPIPConnection implements DlmsV2Connection {
         comChannel.write(frameData);
     }
 
-    public void setTimeout(long timeout) {
-        this.timeout = timeout;
-    }
-
     public long getTimeout() {
         return timeout;
+    }
+
+    public void setTimeout(long timeout) {
+        this.timeout = timeout;
     }
 
     public void setRetries(int retries) {
@@ -371,9 +422,6 @@ public class TCPIPConnection implements DlmsV2Connection {
         sendOut(wpdu.getFrameData());
     }
 
-    private HHUSignOnV2 hhuSignOn = null;
-    private String meterId = "";
-
     public void setHHUSignOn(HHUSignOn hhuSignOn, String meterId) {
         this.hhuSignOn = (HHUSignOnV2) hhuSignOn;
         this.meterId = meterId;
@@ -385,6 +433,57 @@ public class TCPIPConnection implements DlmsV2Connection {
 
     public HHUSignOn getHhuSignOn() {
         return this.hhuSignOn;
+    }
+
+    private void resetCurrentRetryCount() {
+        this.currentRetryCount = 0;
+    }
+
+    /**
+     * *****************************************************************************************************
+     * Invoke-Id-And-Priority byte setting
+     * ******************************************************************************************************
+     */
+
+    public InvokeIdAndPriorityHandler getInvokeIdAndPriorityHandler() {
+        return this.invokeIdAndPriorityHandler;
+    }
+
+    public void setInvokeIdAndPriorityHandler(InvokeIdAndPriorityHandler iiapHandler) {
+        this.invokeIdAndPriorityHandler = iiapHandler;
+    }
+
+    public int getMaxRetries() {
+        return maxRetries;
+    }
+
+    @Override
+    public int getMaxTries() {
+        return getMaxRetries() + 1;
+    }
+
+    @Override
+    public boolean useGeneralBlockTransfer() {
+        return useGeneralBlockTransfer;
+    }
+
+    @Override
+    public int getGeneralBlockTransferWindowSize() {
+        return generalBlockTransferWindowSize;
+    }
+
+    @Override
+    public void prepareComChannelForReceiveOfNextPacket() {
+        comChannel.startWriting();
+        comChannel.sessionCountersStartWriting();
+    }
+
+    private enum State {
+        STATE_HEADER_VERSION,
+        STATE_HEADER_SOURCE,
+        STATE_HEADER_DESTINATION,
+        STATE_HEADER_LENGTH,
+        STATE_DATA
     }
 
     class WPDU {
@@ -472,48 +571,5 @@ public class TCPIPConnection implements DlmsV2Connection {
             result = ProtocolTools.concatByteArrays(result, ProtocolUtils.getSubArray(getData(), 3));   //Strip HDLC 3 leading bytes again
             return result;
         }
-    }
-
-    private void resetCurrentRetryCount() {
-        this.currentRetryCount = 0;
-    }
-
-    /**
-     * *****************************************************************************************************
-     * Invoke-Id-And-Priority byte setting
-     * ******************************************************************************************************
-     */
-
-    public InvokeIdAndPriorityHandler getInvokeIdAndPriorityHandler() {
-        return this.invokeIdAndPriorityHandler;
-    }
-
-    public void setInvokeIdAndPriorityHandler(InvokeIdAndPriorityHandler iiapHandler) {
-        this.invokeIdAndPriorityHandler = iiapHandler;
-    }
-
-    public int getMaxRetries() {
-        return maxRetries;
-    }
-
-    @Override
-    public int getMaxTries() {
-        return getMaxRetries() + 1;
-    }
-
-    @Override
-    public boolean useGeneralBlockTransfer() {
-        return useGeneralBlockTransfer;
-    }
-
-    @Override
-    public int getGeneralBlockTransferWindowSize() {
-        return generalBlockTransferWindowSize;
-    }
-
-    @Override
-    public void prepareComChannelForReceiveOfNextPacket() {
-        comChannel.startWriting();
-        comChannel.sessionCountersStartWriting();
     }
 }
