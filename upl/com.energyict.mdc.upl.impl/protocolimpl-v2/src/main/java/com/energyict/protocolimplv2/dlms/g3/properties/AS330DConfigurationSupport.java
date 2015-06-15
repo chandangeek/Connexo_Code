@@ -2,6 +2,8 @@ package com.energyict.protocolimplv2.dlms.g3.properties;
 
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
+import com.energyict.dlms.common.DlmsProtocolProperties;
+import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.protocolimpl.dlms.g3.G3Properties;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsConfigurationSupport;
 import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.Dsmr50Properties;
@@ -29,10 +31,21 @@ public class AS330DConfigurationSupport extends DlmsConfigurationSupport {
         optionalProperties.add(aarqTimeoutPropertySpec());
         optionalProperties.add(aarqRetriesPropertySpec());
         optionalProperties.add(readCachePropertySpec());
+        optionalProperties.add(callHomeIdPropertySpec());
+        optionalProperties.add(serverUpperMacAddressPropertySpec());
         optionalProperties.remove(ntaSimulationToolPropertySpec());
         optionalProperties.remove(manufacturerPropertySpec());
         optionalProperties.remove(fixMbusHexShortIdPropertySpec());
+        optionalProperties.remove(deviceId());
         return optionalProperties;
+    }
+
+    protected PropertySpec callHomeIdPropertySpec() {
+        return PropertySpecFactory.hexStringPropertySpec(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME);
+    }
+
+    protected PropertySpec serverUpperMacAddressPropertySpec() {
+        return PropertySpecFactory.bigDecimalPropertySpec(DlmsProtocolProperties.SERVER_UPPER_MAC_ADDRESS, BigDecimal.ONE);
     }
 
     private PropertySpec pskPropertySpec() {
