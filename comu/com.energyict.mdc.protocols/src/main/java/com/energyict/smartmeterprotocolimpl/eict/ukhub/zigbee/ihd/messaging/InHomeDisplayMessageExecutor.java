@@ -3,21 +3,18 @@ package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.ihd.messaging;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.cosem.ImageTransfer;
 import com.energyict.dlms.cosem.SingleActionSchedule;
-import com.energyict.protocolimpl.generic.MessageParser;
-import com.energyict.protocolimpl.generic.ParseUtils;
-import com.energyict.protocolimpl.generic.messages.MessageHandler;
-import com.energyict.smartmeterprotocolimpl.eict.NTAMessageHandler;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.mdc.protocol.api.UserFileFactory;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
-
-import com.energyict.protocolimpl.base.Base64EncoderDecoder;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
+import com.energyict.protocolimpl.generic.MessageParser;
+import com.energyict.protocolimpl.generic.messages.GenericMessaging;
+import com.energyict.protocolimpl.generic.messages.MessageHandler;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
+import com.energyict.smartmeterprotocolimpl.eict.NTAMessageHandler;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.ihd.InHomeDisplay;
 
 import java.io.IOException;
@@ -89,11 +86,9 @@ public class InHomeDisplayMessageExecutor extends MessageParser {
     private void updateFirmware(MessageHandler messageHandler, String content) throws IOException, InterruptedException {
         log(Level.INFO, "Handling message Firmware upgrade");
 
-        String userFileID = messageHandler.getUserFileId();
-        if (!ParseUtils.isInteger(userFileID)) {
-            throw new IOException("Not a valid entry for the userFile.");
-        }
-        UserFile uf = this.findUserFile(Integer.parseInt(userFileID));
+        String firmwareContent = messageHandler.getFirmwareContent();
+
+        byte[] imageData = GenericMessaging.b64DecodeAndUnZipToOriginalContent(firmwareContent);
 
         String[] parts = content.split("=");
         Date date = null;
@@ -112,7 +107,6 @@ public class InHomeDisplayMessageExecutor extends MessageParser {
             throw new NestedIOException(e);
         }
 
-        byte[] imageData = new Base64EncoderDecoder().decode(uf.loadFileInByteArray());
         ImageTransfer it = ((InHomeDisplay) protocol).getCosemObjectFactory().getImageTransfer(IMAGE_TRANSFER_OBIS);
         it.upgrade(imageData);
         if (date != null) {
@@ -122,10 +116,6 @@ public class InHomeDisplayMessageExecutor extends MessageParser {
         } else {
             it.imageActivation();
         }
-    }
-
-    private UserFile findUserFile(int userFileId) {
-        return this.userFileFactory.findUserFile(userFileId);
     }
 
     private void log(final Level level, final String msg) {

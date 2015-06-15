@@ -1,14 +1,13 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
-import com.energyict.mdc.protocol.api.UserFile;
+import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-
-import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.protocolimpl.generic.messages.GenericMessaging;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.ABBA230UserFileMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.SimpleTagMessageEntry;
 
-import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -40,7 +39,8 @@ public class ABBA230MessageConverter extends AbstractMessageConverter {
     @Override
     public String format(PropertySpec propertySpec, Object messageAttribute) {
         if (propertySpec.getName().equals(DeviceMessageConstants.firmwareUpdateFileAttributeName) || propertySpec.getName().equals(DeviceMessageConstants.MeterScheme)) {
-            return new String(((UserFile) messageAttribute).loadFileInByteArray(), Charset.forName(CHARSET)); // Content should be a valid XML
+            FirmwareVersion firmwareVersion = ((FirmwareVersion) messageAttribute);
+            return GenericMessaging.zipAndB64EncodeContent(firmwareVersion.getFirmwareFile());  //Bytes of the firmwareFile as string
         } else {
             return messageAttribute.toString();
         }

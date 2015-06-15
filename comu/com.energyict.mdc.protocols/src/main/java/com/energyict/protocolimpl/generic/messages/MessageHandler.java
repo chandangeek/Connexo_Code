@@ -269,16 +269,16 @@ public class MessageHandler extends DefaultHandler {
         return administrativeStatus;
     }
 
-	/* FirmwareUpgrade Related messages
+	/* FirmwareUpload Related messages
     /**********************************************/
 
 
-    private String userfileId;
+    private String firmwareContent;
     private String activationDate;
     private String imageIdentifier;
 
     private void handleFirmWareUpgrade(Attributes attrbs) {
-        this.userfileId = attrbs.getValue(RtuMessageConstant.FIRMWARE);
+        this.firmwareContent = attrbs.getValue(RtuMessageConstant.FIRMWARE_CONTENT);
         this.activationDate = ProtocolTools.getEpochTimeFromString(attrbs.getValue(RtuMessageConstant.FIRMWARE_ACTIVATE_DATE));
         this.imageIdentifier = attrbs.getValue(RtuMessageConstant.FIRMWARE_IMAGE_IDENTIFIER);
     }
@@ -287,8 +287,8 @@ public class MessageHandler extends DefaultHandler {
         return imageIdentifier;
     }
 
-    public String getUserFileId() {
-        return this.userfileId;
+    public String getFirmwareContent() {
+        return this.firmwareContent;
     }
 
     public String getActivationDate() {

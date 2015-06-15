@@ -1,5 +1,11 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages;
 
+import com.energyict.dlms.DLMSMeterConfig;
+import com.energyict.dlms.DlmsSession;
+import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
+import com.energyict.dlms.cosem.*;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.ObisCode;
@@ -7,63 +13,16 @@ import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
-import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.mdc.protocol.api.codetables.Code;
 import com.energyict.mdc.protocol.api.codetables.CodeCalendar;
-import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
-import com.energyict.mdc.protocol.api.device.data.IntervalData;
-import com.energyict.mdc.protocol.api.device.data.MessageEntry;
-import com.energyict.mdc.protocol.api.device.data.MessageResult;
-import com.energyict.mdc.protocol.api.device.data.MeterData;
-import com.energyict.mdc.protocol.api.device.data.MeterDataMessageResult;
-import com.energyict.mdc.protocol.api.device.data.MeterReadingData;
-import com.energyict.mdc.protocol.api.device.data.ProfileData;
+import com.energyict.mdc.protocol.api.device.data.*;
 import com.energyict.mdc.protocol.api.device.data.Register;
-import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.lookups.Lookup;
 import com.energyict.mdc.protocol.api.lookups.LookupEntry;
-
-import com.energyict.dlms.DLMSMeterConfig;
-import com.energyict.dlms.DlmsSession;
-import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.AxdrType;
-import com.energyict.dlms.axrdencoding.BitString;
-import com.energyict.dlms.axrdencoding.BooleanObject;
-import com.energyict.dlms.axrdencoding.Integer16;
-import com.energyict.dlms.axrdencoding.Integer32;
-import com.energyict.dlms.axrdencoding.Integer64;
-import com.energyict.dlms.axrdencoding.Integer8;
-import com.energyict.dlms.axrdencoding.NullData;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.axrdencoding.TypeEnum;
-import com.energyict.dlms.axrdencoding.Unsigned16;
-import com.energyict.dlms.axrdencoding.Unsigned32;
-import com.energyict.dlms.axrdencoding.Unsigned8;
-import com.energyict.dlms.axrdencoding.VisibleString;
-import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.dlms.cosem.ActivityCalendar;
-import com.energyict.dlms.cosem.AssociationLN;
-import com.energyict.dlms.cosem.AssociationSN;
-import com.energyict.dlms.cosem.AutoConnect;
-import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.dlms.cosem.Data;
-import com.energyict.dlms.cosem.Disconnector;
-import com.energyict.dlms.cosem.ExtendedRegister;
-import com.energyict.dlms.cosem.ImageTransfer;
-import com.energyict.dlms.cosem.Limiter;
-import com.energyict.dlms.cosem.PPPSetup;
-import com.energyict.dlms.cosem.ScriptTable;
-import com.energyict.dlms.cosem.SecuritySetup;
-import com.energyict.dlms.cosem.SingleActionSchedule;
-import com.energyict.dlms.cosem.SpecialDaysTable;
 import com.energyict.protocolimpl.generic.MessageParser;
-import com.energyict.protocolimpl.generic.ParseUtils;
 import com.energyict.protocolimpl.generic.messages.ActivityCalendarMessage;
+import com.energyict.protocolimpl.generic.messages.GenericMessaging;
 import com.energyict.protocolimpl.generic.messages.MessageHandler;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -75,12 +34,7 @@ import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.time.Clock;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Level;
 
 /**
@@ -128,7 +82,7 @@ public class Dsmr23MessageExecutor extends MessageParser {
                         break;
                     }
                     case RtuMessageConstant.FIRMWARE_UPGRADE: {
-                        doFirmwareUpgrade(messageHandler);
+                        doFirmwareUpgrade(messageHandler, msgEntry);
                         break;
                     }
                     case RtuMessageConstant.P1CODEMESSAGE: {
@@ -577,10 +531,6 @@ public class Dsmr23MessageExecutor extends MessageParser {
         doGlobalReset();
     }
 
-    private UserFile findUserFile() {
-        throw new UnsupportedOperationException("UserFiles are not longer supported by Jupiter");
-    }
-
     private void setGPRSCredentials(MessageHandler messageHandler) throws IOException {
         log(Level.INFO, "Handling message Changing gprs modem credentials");
 
@@ -980,18 +930,12 @@ public class Dsmr23MessageExecutor extends MessageParser {
         getCosemObjectFactory().getData(getMeterConfig().getXMLConfig().getObisCode()).setValueAttr(OctetString.fromString(xmlConfigStr));
     }
 
-    protected void doFirmwareUpgrade(MessageHandler messageHandler) throws IOException {
+    protected void doFirmwareUpgrade(MessageHandler messageHandler, MessageEntry messageEntry) throws IOException {
         log(Level.INFO, "Handling message Firmware upgrade");
 
-        String userFileID = messageHandler.getUserFileId();
+        String firmwareContent = messageHandler.getFirmwareContent();
 
-        if (!ParseUtils.isInteger(userFileID)) {
-            String str = "Not a valid entry for the userFile.";
-            throw new IOException(str);
-        }
-        UserFile uf = this.findUserFile();
-
-        byte[] imageData = uf.loadFileInByteArray();
+        byte[] imageData = GenericMessaging.b64DecodeAndUnZipToOriginalContent(firmwareContent);
         ImageTransfer it = getCosemObjectFactory().getImageTransfer();
         it.upgrade(imageData);
         if ("".equalsIgnoreCase(messageHandler.getActivationDate())) { // Do an execute now

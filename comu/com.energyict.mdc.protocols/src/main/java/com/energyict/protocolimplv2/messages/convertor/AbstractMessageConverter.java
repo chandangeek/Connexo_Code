@@ -6,11 +6,10 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.exceptions.GeneralParseException;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+import com.energyict.mdc.protocol.api.messaging.LegacyMessageConverter;
 import com.energyict.mdc.protocol.api.messaging.Messaging;
-
 import com.energyict.protocolimpl.messages.codetableparsing.CodeTableXmlParsing;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
-import com.energyict.mdc.protocol.api.messaging.LegacyMessageConverter;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.text.SimpleDateFormat;
@@ -31,6 +30,7 @@ public abstract class AbstractMessageConverter implements LegacyMessageConverter
     protected final SimpleDateFormat europeanDateTimeFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 
     private Messaging messagingProtocol;
+    private String characterEncodingForZipping = "UTF-8";
 
     /**
      * Get the registry which contains the mapping between the {@link DeviceMessageId}s

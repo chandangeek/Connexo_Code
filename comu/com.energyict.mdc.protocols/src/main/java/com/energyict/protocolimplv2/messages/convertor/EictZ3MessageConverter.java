@@ -1,10 +1,10 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
-import com.energyict.mdc.common.HexString;
-import com.energyict.mdc.protocol.api.UserFile;
-import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-
 import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.mdc.common.HexString;
+import com.energyict.mdc.firmware.FirmwareVersion;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+import com.energyict.protocolimpl.generic.messages.GenericMessaging;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.ConnectControlModeMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.ConnectLoadWithActivationDateMessageEntry;
@@ -17,11 +17,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.contactorActivationDateAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.contactorModeAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.firmwareUpdateFileAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.openKeyAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.transferKeyAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.*;
 
 /**
  * Represents a MessageConverter for the legacy EictZ3 protocol
@@ -50,7 +46,8 @@ public class EictZ3MessageConverter extends AbstractMessageConverter {
             HexString hex = (HexString) messageAttribute;
             return hex.getContent();
         } else if (propertySpec.getName().equals(firmwareUpdateFileAttributeName)) {
-            return new String(((UserFile) messageAttribute).loadFileInByteArray());
+            FirmwareVersion firmwareVersion = ((FirmwareVersion) messageAttribute);
+            return GenericMessaging.zipAndB64EncodeContent(firmwareVersion.getFirmwareFile());  //Bytes of the firmwareFile as string
         }
         return EMPTY_FORMAT;
     }

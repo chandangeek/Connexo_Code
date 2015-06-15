@@ -1,10 +1,11 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.HexString;
+import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-
-import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.protocolimpl.generic.messages.GenericMessaging;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.AdvancedTagMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.MultipleAttributeMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.SimpleTagMessageEntry;
@@ -15,12 +16,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.MulticastAddress1AttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.MulticastAddress2AttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.MulticastAddress3AttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.activationDatedAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.contractsXmlUserFileAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.firmwareUpdateFileAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.*;
 
 /**
  * Represents a MessageConverter for the Prime meter protocols
@@ -74,7 +70,8 @@ public class PrimeMeterMessageConverter extends AbstractMessageConverter {
                 || propertySpec.getName().equals(MulticastAddress3AttributeName)) {
             return ((HexString) messageAttribute).getContent();
         } else if (propertySpec.getName().equals(firmwareUpdateFileAttributeName)) {
-            return new String(((UserFile) messageAttribute).loadFileInByteArray());
+            FirmwareVersion firmwareVersion = ((FirmwareVersion) messageAttribute);
+            return GenericMessaging.zipAndB64EncodeContent(firmwareVersion.getFirmwareFile());  //Bytes of the firmwareFile as string
         }
         return messageAttribute.toString();
     }

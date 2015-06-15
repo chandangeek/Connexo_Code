@@ -1,5 +1,14 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.messaging;
 
+import com.energyict.dlms.DLMSUtils;
+import com.energyict.dlms.DlmsSession;
+import com.energyict.dlms.ParseUtils;
+import com.energyict.dlms.ScalerUnit;
+import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.util.DateTime;
+import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.xmlparsing.GenericDataToWrite;
+import com.energyict.dlms.xmlparsing.XmlToDlms;
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.NestedIOException;
@@ -10,32 +19,7 @@ import com.energyict.mdc.protocol.api.UserFileShadow;
 import com.energyict.mdc.protocol.api.codetables.CodeFactory;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
-
-import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.DlmsSession;
-import com.energyict.dlms.ParseUtils;
-import com.energyict.dlms.ScalerUnit;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.BitString;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.axrdencoding.Unsigned16;
-import com.energyict.dlms.axrdencoding.Unsigned32;
-import com.energyict.dlms.axrdencoding.util.DateTime;
-import com.energyict.dlms.cosem.ActivePassive;
-import com.energyict.dlms.cosem.ChangeOfSupplierManagement;
-import com.energyict.dlms.cosem.ChangeOfTenantManagement;
-import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.dlms.cosem.Disconnector;
-import com.energyict.dlms.cosem.GenericInvoke;
-import com.energyict.dlms.cosem.GenericRead;
-import com.energyict.dlms.cosem.GenericWrite;
-import com.energyict.dlms.cosem.ImageTransfer;
-import com.energyict.dlms.cosem.SingleActionSchedule;
-import com.energyict.dlms.xmlparsing.GenericDataToWrite;
-import com.energyict.dlms.xmlparsing.XmlToDlms;
 import com.energyict.protocolimpl.base.ActivityCalendarController;
-import com.energyict.protocolimpl.base.Base64EncoderDecoder;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
 import com.energyict.protocolimpl.generic.MessageParser;
 import com.energyict.protocolimpl.generic.csvhandling.CSVParser;
@@ -507,17 +491,13 @@ public class ZigbeeMessageExecutor extends MessageParser {
     private void doFirmwareUpgrade(MessageHandler messageHandler, final String content, final String trackingId) throws IOException {
         log(Level.INFO, "Handling message Firmware upgrade");
 
-        String userFileID = messageHandler.getUserFileId();
         boolean resume = false;
         if ((trackingId != null) && trackingId.toLowerCase().contains(RESUME)) {
             resume = true;
         }
+        String firmwareContent = messageHandler.getFirmwareContent();
 
-        if (!com.energyict.protocolimpl.generic.ParseUtils.isInteger(userFileID)) {
-            String str = "Not a valid entry for the userFile.";
-            throw new IOException(str);
-        }
-        UserFile uf = this.findUserFile(Integer.parseInt(userFileID));
+        byte[] imageData = GenericMessaging.b64DecodeAndUnZipToOriginalContent(firmwareContent);
 
         String[] parts = content.split("=");
         Date date = null;
@@ -536,7 +516,6 @@ public class ZigbeeMessageExecutor extends MessageParser {
             throw new NestedIOException(e);
         }
 
-        byte[] imageData = new Base64EncoderDecoder().decode(uf.loadFileInByteArray());
         ImageTransfer it = getCosemObjectFactory().getImageTransfer(ObisCodeProvider.FIRMWARE_UPDATE);
         if (resume) {
             int lastTransferredBlockNumber = it.readFirstNotTransferedBlockNumber().intValue();
@@ -842,10 +821,6 @@ public class ZigbeeMessageExecutor extends MessageParser {
         }
     }
 
-
-    private UserFile findUserFile(int userFileID) {
-        return this.userFileFactory.findUserFile(userFileID);
-    }
 
     private UserFile createUserFile(UserFileShadow shadow) throws SQLException, BusinessException {
         return this.userFileFactory.createUserFile(shadow);

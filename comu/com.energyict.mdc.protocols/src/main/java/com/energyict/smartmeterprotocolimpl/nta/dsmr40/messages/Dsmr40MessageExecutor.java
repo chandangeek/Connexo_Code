@@ -1,32 +1,17 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.messages;
 
+import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
+import com.energyict.dlms.cosem.*;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.topology.TopologyService;
-import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.mdc.protocol.api.codetables.Code;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
-
-import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.BitString;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.axrdencoding.Unsigned16;
-import com.energyict.dlms.axrdencoding.Unsigned32;
-import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.dlms.cosem.ActivityCalendar;
-import com.energyict.dlms.cosem.Data;
-import com.energyict.dlms.cosem.DataAccessResultCode;
-import com.energyict.dlms.cosem.DataAccessResultException;
-import com.energyict.dlms.cosem.ImageTransfer;
-import com.energyict.dlms.cosem.Limiter;
-import com.energyict.dlms.cosem.ScriptTable;
-import com.energyict.dlms.cosem.SingleActionSchedule;
-import com.energyict.protocolimpl.generic.ParseUtils;
 import com.energyict.protocolimpl.generic.messages.ActivityCalendarMessage;
+import com.energyict.protocolimpl.generic.messages.GenericMessaging;
 import com.energyict.protocolimpl.generic.messages.MessageHandler;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
@@ -74,21 +59,12 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
         return new LoadProfileToRegisterParser().parse(messageResult);
     }
 
-    protected void doFirmwareUpgrade(MessageHandler messageHandler, MessageEntry messageEntry) throws IOException, InterruptedException {
+    protected void doFirmwareUpgrade(MessageHandler messageHandler, MessageEntry messageEntry) throws IOException {
         log(Level.INFO, "Handling message Firmware upgrade");
 
-        String userFileID = messageHandler.getUserFileId();
-        if (!ParseUtils.isInteger(userFileID)) {
-            String str = "Not a valid entry for the userFile.";
-            throw new IOException(str);
-        }
-        UserFile uf = findUserFile(userFileID);
-        if (uf == null) {
-            String str = "Not a valid entry for the userfileID " + userFileID;
-            throw new IOException(str);
-        }
+        String firmwareContent = messageHandler.getFirmwareContent();
 
-        byte[] imageData = uf.loadFileInByteArray();
+        byte[] imageData = GenericMessaging.b64DecodeAndUnZipToOriginalContent(firmwareContent);
         ImageTransfer it = getCosemObjectFactory().getImageTransfer();
         if (isResume(messageEntry)) {
             int lastTransferredBlockNumber = it.readFirstNotTransferedBlockNumber().intValue();
@@ -406,10 +382,6 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
      */
     protected int getBooleanValue() {
         return 0xFF;
-    }
-
-    private UserFile findUserFile(String userFileId) {
-        throw new UnsupportedOperationException("UserFiles are not longer supported by Jupiter");
     }
 
 }

@@ -103,7 +103,7 @@ public class RtuMessageConstant {
      */
     public static final String FIRMWARE_UPGRADE = "FirmwareUpgrade";
     public static final String RF_FIRMWARE_UPGRADE = "RFFirmwareUpgrade";
-    public static final String FIRMWARE = "UserFileID";
+    public static final String FIRMWARE_CONTENT = "ZippedB64FirmwareContent";
     public static final String FIRMWARE_USER_FILE = "FirmwareUserFile";
     public static final String FIRMWARE_METERS = "GroupID of meters to receive new firmware";
     public static final String FIRMWARE_ACTIVATE_NOW = "Activate_now";

@@ -1,10 +1,10 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
-import com.energyict.mdc.protocol.api.UserFile;
+import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-
-import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.protocolimpl.generic.messages.GenericMessaging;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.WebRTUFirmwareUpgradeWithUserFileActivationDateMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.WebRTUFirmwareUpgradeWithUserFileMessageEntry;
 
@@ -33,7 +33,8 @@ public class IHDMessageConverter extends AbstractMessageConverter {
             case DeviceMessageConstants.firmwareUpdateActivationDateAttributeName:
                 return europeanDateTimeFormat.format((Date) messageAttribute);
             case DeviceMessageConstants.firmwareUpdateFileAttributeName:
-                return Integer.toString(((UserFile) messageAttribute).getId());
+                FirmwareVersion firmwareVersion = ((FirmwareVersion) messageAttribute);
+                return GenericMessaging.zipAndB64EncodeContent(firmwareVersion.getFirmwareFile());  //Bytes of the firmwareFile as string
             default:
                 return messageAttribute.toString();
         }

@@ -1,12 +1,13 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
+import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.mdc.protocol.api.codetables.Code;
-import com.energyict.mdc.protocol.api.exceptions.GeneralParseException;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
+import com.energyict.mdc.protocol.api.exceptions.GeneralParseException;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-
-import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.protocolimpl.generic.messages.GenericMessaging;
 import com.energyict.protocolimpl.messages.codetableparsing.CodeTableXmlParsing;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.WebRTUFirmwareUpgradeWithUserFileActivationDateMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.WebRTUFirmwareUpgradeWithUserFileMessageEntry;
@@ -23,9 +24,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.activityCalendarActivationDateAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.activityCalendarCodeTableAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.activityCalendarNameAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.*;
 
 /**
  * Represents a MessageConverter for the legacy IC ZigbeeGas protocol.
@@ -57,7 +56,8 @@ public class ZigbeeGasMessageConverter extends AbstractMessageConverter {
                 return europeanDateTimeFormat.format((Date) messageAttribute);
             case DeviceMessageConstants.UserFileConfigAttributeName:
             case DeviceMessageConstants.firmwareUpdateFileAttributeName:
-                return Integer.toString(((UserFile) messageAttribute).getId());
+                FirmwareVersion firmwareVersion = ((FirmwareVersion) messageAttribute);
+                return GenericMessaging.zipAndB64EncodeContent(firmwareVersion.getFirmwareFile());  //Bytes of the firmwareFile as string
             case DeviceMessageConstants.activityCalendarActivationDateAttributeName:
                 return String.valueOf(((Date) messageAttribute).getTime()); //Millis since 1970
             case activityCalendarCodeTableAttributeName:
@@ -95,7 +95,7 @@ public class ZigbeeGasMessageConverter extends AbstractMessageConverter {
 
         // Pricing Information
         registry.put(DeviceMessageId.PRICING_GET_INFORMATION, new SimpleTagMessageEntry("ReadPricePerUnit"));
-        registry.put(DeviceMessageId.PRICING_SET_INFORMATION, new ConfigWithUserFileAndActivationDateMessageEntry(DeviceMessageConstants.PricingInformationUserFileAttributeName, DeviceMessageConstants.PricingInformationActivationDateAttributeName ,"SetPricePerUnit"));
+        registry.put(DeviceMessageId.PRICING_SET_INFORMATION, new ConfigWithUserFileAndActivationDateMessageEntry(DeviceMessageConstants.PricingInformationUserFileAttributeName, DeviceMessageConstants.PricingInformationActivationDateAttributeName, "SetPricePerUnit"));
         registry.put(DeviceMessageId.PRICING_SET_STANDING_CHARGE, new MultipleAttributeMessageEntry("SetStandingCharge", "Standing charge", ActivationDate));
         registry.put(DeviceMessageId.PRICING_UPDATE_INFORMATION, new ConfigWithUserFileMessageEntry(DeviceMessageConstants.PricingInformationUserFileAttributeName, "Update_Pricing_Information"));
 

@@ -1,12 +1,8 @@
 package com.energyict.protocolimplv2.edp.messages;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.axrdencoding.Unsigned16;
-import com.energyict.dlms.axrdencoding.Unsigned8;
-import com.energyict.mdc.protocol.api.UserFile;
+import com.energyict.dlms.axrdencoding.*;
+import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.protocol.api.codetables.Code;
 import com.energyict.mdc.protocol.api.codetables.CodeCalendar;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
@@ -14,6 +10,7 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.exceptions.GeneralParseException;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
+import com.energyict.protocolimpl.generic.messages.GenericMessaging;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractDlmsMessaging;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
@@ -91,7 +88,8 @@ public class EDPMessaging extends AbstractDlmsMessaging implements DeviceMessage
                 return parseSpecialDays((Code) messageAttribute);
             case configUserFileAttributeName:
             case firmwareUpdateFileAttributeName:
-                return new String(((UserFile) messageAttribute).loadFileInByteArray());
+                FirmwareVersion firmwareVersion = ((FirmwareVersion) messageAttribute);
+                return GenericMessaging.zipAndB64EncodeContent(firmwareVersion.getFirmwareFile());  //Bytes of the firmwareFile as string
             case activityCalendarActivationDateAttributeName:
                 return String.valueOf(((Date) messageAttribute).getTime());     //Epoch
             default:

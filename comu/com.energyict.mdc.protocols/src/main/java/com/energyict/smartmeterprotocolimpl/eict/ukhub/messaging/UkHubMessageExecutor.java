@@ -1,5 +1,11 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.messaging;
 
+import com.energyict.dlms.DLMSUtils;
+import com.energyict.dlms.DlmsSession;
+import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.cosem.attributeobjects.RegisterZigbeeDeviceData;
+import com.energyict.dlms.cosem.attributeobjects.ZigBeeIEEEAddress;
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.NestedIOException;
@@ -9,38 +15,12 @@ import com.energyict.mdc.protocol.api.UserFileFactory;
 import com.energyict.mdc.protocol.api.UserFileShadow;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
-
-import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.DlmsSession;
-import com.energyict.dlms.axrdencoding.AXDRDecoder;
-import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.BitString;
-import com.energyict.dlms.axrdencoding.BooleanObject;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.axrdencoding.Unsigned16;
-import com.energyict.dlms.axrdencoding.Unsigned32;
-import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.dlms.cosem.Data;
-import com.energyict.dlms.cosem.GenericInvoke;
-import com.energyict.dlms.cosem.GenericRead;
-import com.energyict.dlms.cosem.GenericWrite;
-import com.energyict.dlms.cosem.ImageTransfer;
-import com.energyict.dlms.cosem.ProfileGeneric;
-import com.energyict.dlms.cosem.SingleActionSchedule;
-import com.energyict.dlms.cosem.ZigBeeSASStartup;
-import com.energyict.dlms.cosem.ZigBeeSETCControl;
-import com.energyict.dlms.cosem.ZigbeeHanManagement;
-import com.energyict.dlms.cosem.attributeobjects.RegisterZigbeeDeviceData;
-import com.energyict.dlms.cosem.attributeobjects.ZigBeeIEEEAddress;
-import com.energyict.protocolimpl.base.Base64EncoderDecoder;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
 import com.energyict.protocolimpl.generic.MessageParser;
 import com.energyict.protocolimpl.generic.ParseUtils;
 import com.energyict.protocolimpl.generic.csvhandling.CSVParser;
 import com.energyict.protocolimpl.generic.csvhandling.TestObject;
+import com.energyict.protocolimpl.generic.messages.GenericMessaging;
 import com.energyict.protocolimpl.generic.messages.MessageHandler;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -269,17 +249,13 @@ public class UkHubMessageExecutor extends MessageParser {
     private void firmwareUpdate(MessageHandler messageHandler, String content, String trackingId) throws IOException {
         log(Level.INFO, "Handling message Firmware upgrade");
 
-        String userFileID = messageHandler.getUserFileId();
         boolean resume = false;
         if ((trackingId != null) && trackingId.toLowerCase().contains(RESUME)) {
             resume = true;
         }
+        String firmwareContent = messageHandler.getFirmwareContent();
 
-        if (!ParseUtils.isInteger(userFileID)) {
-            String str = "Not a valid entry for the userFile.";
-            throw new IOException(str);
-        }
-        UserFile uf = this.findUserFile(Integer.parseInt(userFileID));
+        byte[] imageData = GenericMessaging.b64DecodeAndUnZipToOriginalContent(firmwareContent);
 
         String[] parts = content.split("=");
         Date date = null;
@@ -298,7 +274,6 @@ public class UkHubMessageExecutor extends MessageParser {
             throw new NestedIOException(e);
         }
 
-        byte[] imageData = new Base64EncoderDecoder().decode(uf.loadFileInByteArray());
         ImageTransfer it = getCosemObjectFactory().getImageTransfer(ObisCodeProvider.FIRMWARE_UPDATE);
         if (resume) {
             int lastTransferredBlockNumber = it.readFirstNotTransferedBlockNumber().intValue();
@@ -322,15 +297,9 @@ public class UkHubMessageExecutor extends MessageParser {
 
     private void zigbeeNCPFirmwareUpdate(MessageHandler messageHandler, String content) throws IOException {
         getLogger().info("Executing Zigbee NCP firmware update message");
-            int userFileId = messageHandler.getZigbeeNCPFirmwareUpgradeUserFileId();
-            if (userFileId == -1) {
-                throw new IOException("Invalid UserFileId value : " + userFileId);
-            }
+        String firmwareContent = messageHandler.getFirmwareContent();
 
-            UserFile uf = this.findUserFile(userFileId);
-            if (uf == null) {
-                throw new IOException("No UserFile found with ID : " + userFileId);
-            }
+        byte[] imageData = GenericMessaging.b64DecodeAndUnZipToOriginalContent(firmwareContent);
 
             String[] parts = content.split("=");
             Date date = null;
@@ -349,7 +318,6 @@ public class UkHubMessageExecutor extends MessageParser {
                 throw new NestedIOException(e);
             }
 
-            byte[] imageData = new Base64EncoderDecoder().decode(uf.loadFileInByteArray());
             ImageTransfer it = getCosemObjectFactory().getImageTransfer(ObisCodeProvider.ZIGBEE_NCP_FIRMWARE_UPDATE);
             it.upgrade(imageData);
             if (date != null) {

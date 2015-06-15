@@ -2,9 +2,11 @@ package com.energyict.protocolimplv2.messages.convertor;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.Password;
+import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+import com.energyict.protocolimpl.generic.messages.GenericMessaging;
 
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
@@ -124,9 +126,7 @@ public class EIWebPlusMessageConverter extends AbstractMessageConverter {
 
     @Override
     public String format(PropertySpec propertySpec, Object messageAttribute) {
-        if (propertySpec.getName().equals(DeviceMessageConstants.waveCardFirmware)
-                || propertySpec.getName().equals(DeviceMessageConstants.sslCertificateUserFile)
-                || propertySpec.getName().equals(DeviceMessageConstants.firmwareUpdateFileAttributeName)
+        if (propertySpec.getName().equals(DeviceMessageConstants.sslCertificateUserFile)
                 || propertySpec.getName().equals(DeviceMessageConstants.PricingInformationUserFileAttributeName)
                 || propertySpec.getName().equals(DeviceMessageConstants.nodeListUserFile)) {
             try {
@@ -134,6 +134,9 @@ public class EIWebPlusMessageConverter extends AbstractMessageConverter {
             } catch (UnsupportedEncodingException e) {
                 return new String(((UserFile) messageAttribute).loadFileInByteArray());
             }
+        } else if (propertySpec.getName().equals(DeviceMessageConstants.waveCardFirmware) || propertySpec.getName().equals(DeviceMessageConstants.firmwareUpdateFileAttributeName)) {
+            FirmwareVersion firmwareVersion = ((FirmwareVersion) messageAttribute);
+            return GenericMessaging.zipAndB64EncodeContent(firmwareVersion.getFirmwareFile());  //Bytes of the firmwareFile as string
         } else if (propertySpec.getName().equals(DeviceMessageConstants.newPasswordAttributeName)) {
             return ((Password) messageAttribute).getValue();
         }
