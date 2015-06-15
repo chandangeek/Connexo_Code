@@ -1,20 +1,25 @@
 package com.elster.jupiter.demo.impl.builders;
 
+import static com.elster.jupiter.util.conditions.Where.where;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+
+import javax.inject.Inject;
+
 import com.elster.jupiter.demo.impl.Log;
 import com.elster.jupiter.demo.impl.UnableToCreate;
-import com.elster.jupiter.issue.share.cep.CreationRuleTemplate;
+import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.DueInType;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
+import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleBuilder;
 import com.elster.jupiter.issue.share.service.IssueService;
-
-import javax.inject.Inject;
-import java.util.Optional;
-
-import static com.elster.jupiter.util.conditions.Where.where;
+import com.energyict.mdc.issue.datacollection.impl.templates.BasicDataCollectionRuleTemplate;
 
 public class IssueRuleBuilder extends NamedBuilder<CreationRule, IssueRuleBuilder> {
-    private static final String BASIC_DATA_COLLECTION_UUID = "e29b-41d4-a716";
+    private static final String BASIC_DATA_COLLECTION_RULE_TEMPLATE = "BasicDataCollectionRuleTemplate";
     private final IssueCreationService issueCreationService;
     private final IssueService issueService;
 
@@ -46,18 +51,19 @@ public class IssueRuleBuilder extends NamedBuilder<CreationRule, IssueRuleBuilde
     @Override
     public CreationRule create() {
         Log.write(this);
-        CreationRule rule = issueCreationService.createRule();
-        rule.setName(getName());
-        rule.setReason(getReasonForRule());
-        rule.setTemplateUuid(BASIC_DATA_COLLECTION_UUID);
-        rule.setDueInType(DueInType.WEEK);
-        rule.setDueInValue(1);
-        rule.setContent(getCreationRuleTemplate().getContent());
-        rule.addParameter("eventType", type);
-        rule.addParameter("autoResolution", "true");
-        rule.validate();
-        rule.save();
-        rule.updateContent();
+        CreationRuleBuilder builder = issueCreationService.newCreationRule();
+        builder.setName(getName());
+        builder.setReason(getReasonForRule());
+        builder.setDueInTime(DueInType.WEEK, 1);
+        CreationRuleTemplate template = getCreationRuleTemplate();
+        builder.setTemplate(template.getName());
+        Map<String, Object> properties = new HashMap<>();
+        properties.put(BasicDataCollectionRuleTemplate.EVENTTYPE,
+                template.getPropertySpec(BasicDataCollectionRuleTemplate.EVENTTYPE).getValueFactory().fromStringValue(type));
+        properties.put(BasicDataCollectionRuleTemplate.AUTORESOLUTION,
+                template.getPropertySpec(BasicDataCollectionRuleTemplate.AUTORESOLUTION).getValueFactory().fromStringValue("1"));
+        builder.setProperties(properties);
+        CreationRule rule = builder.complete();
         rule.save();
         return rule;
     }
@@ -69,11 +75,11 @@ public class IssueRuleBuilder extends NamedBuilder<CreationRule, IssueRuleBuilde
         }
         return reasonRef.get();
     }
-
+    
     private CreationRuleTemplate getCreationRuleTemplate() {
-        CreationRuleTemplate template = issueCreationService.findCreationRuleTemplate(BASIC_DATA_COLLECTION_UUID).orElse(null);
+        CreationRuleTemplate template = issueCreationService.findCreationRuleTemplate(BASIC_DATA_COLLECTION_RULE_TEMPLATE).orElse(null);
         if (template == null) {
-            throw new UnableToCreate("Unable to find creation rule template with id = " + BASIC_DATA_COLLECTION_UUID);
+            throw new UnableToCreate("Unable to find creation rule template = " + BASIC_DATA_COLLECTION_RULE_TEMPLATE);
         }
         return template;
     }
