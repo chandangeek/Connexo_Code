@@ -96,16 +96,10 @@ public class Installer {
 
     private void setAQSubscriber() {
         addTranslation(IssueDataCollectionService.COMPONENT_NAME, ModuleConstants.AQ_DATA_COLLECTION_EVENT_SUBSC, ModuleConstants.AQ_DATA_COLLECTION_EVENT_DISPLAYNAME);
-        addTranslation(IssueDataCollectionService.COMPONENT_NAME, ModuleConstants.AQ_METER_READING_EVENT_SUBSC, ModuleConstants.AQ_METER_READING_EVENT_DISPLAYNAME);
 
         DestinationSpec destinationSpec = messageService.getDestinationSpec(EventService.JUPITER_EVENTS).get();
         try {
             destinationSpec.subscribe(ModuleConstants.AQ_DATA_COLLECTION_EVENT_SUBSC);
-        } catch (DuplicateSubscriberNameException e) {
-            // subscriber already exists, ignoring
-        }
-        try {
-            destinationSpec.subscribe(ModuleConstants.AQ_METER_READING_EVENT_SUBSC);
         } catch (DuplicateSubscriberNameException e) {
             // subscriber already exists, ignoring
         }

@@ -11,12 +11,9 @@ public final class ModuleConstants {
     public static final String REASON_CONNECTION_FAILED = "reason.connection.failed";
     public static final String REASON_POWER_OUTAGE = "reason.power.outage";
     public static final String REASON_TYME_SYNC_FAILED = "reason.tyme.sync.failed";
-    public static final String REASON_SLOPE_DETECTION = "reason.slope.detection";
 
     public static final String AQ_DATA_COLLECTION_EVENT_SUBSC = "IssueCreationDC";
     public static final String AQ_DATA_COLLECTION_EVENT_DISPLAYNAME = "Create data collection issues";
-    public static final String AQ_METER_READING_EVENT_SUBSC = "IssueCreationSlope";
-    public static final String AQ_METER_READING_EVENT_DISPLAYNAME = "Detect slope in meter data";
 
     public static final String DEVICE_IDENTIFIER = "deviceIdentifier";
     public static final String MASTER_DEVICE_IDENTIFIER = "masterDeviceId";
