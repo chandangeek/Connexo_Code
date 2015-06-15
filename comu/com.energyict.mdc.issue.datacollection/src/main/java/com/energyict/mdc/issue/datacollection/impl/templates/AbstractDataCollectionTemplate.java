@@ -4,7 +4,6 @@ import javax.inject.Inject;
 
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
 
 public abstract class AbstractDataCollectionTemplate implements CreationRuleTemplate {
@@ -21,11 +20,6 @@ public abstract class AbstractDataCollectionTemplate implements CreationRuleTemp
 
     public PropertySpecService getPropertySpecService() {
         return propertySpecService;
-    }
-    
-    @Override
-    public PropertySpec getPropertySpec(String name) {
-        return getPropertySpecs().stream().filter(property -> property.getName().equals(name)).findFirst().orElse(null);
     }
 
     @Inject
