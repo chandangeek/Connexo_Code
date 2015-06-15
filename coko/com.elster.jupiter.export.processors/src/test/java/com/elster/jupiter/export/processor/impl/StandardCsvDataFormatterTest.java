@@ -55,6 +55,8 @@ import java.util.Optional;
 import java.util.logging.Logger;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
@@ -219,6 +221,8 @@ public class StandardCsvDataFormatterTest {
 
         when(appService.getAppServer()).thenReturn(Optional.of(appServer));
         when(dataExportService.getExportDirectory(appServer)).thenReturn(Optional.of(fileSystem.getPath("c:\\appserver\\export")));
+
+        doAnswer(invocation -> DefaultStructureMarker.createRoot(clock, invocation.getArguments()[0].toString())).when(dataExportService).forRoot(any());
     }
 
     @Test
