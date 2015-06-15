@@ -10,6 +10,7 @@ import com.elster.jupiter.rest.util.properties.*;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.validation.*;
 import com.jayway.jsonpath.JsonModel;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -18,6 +19,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
+
 import java.io.ByteArrayInputStream;
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -619,7 +621,7 @@ public class ValidationResourceTest extends BaseValidationRestTest {
         return validator;
     }
 
-    private static class ListValueBean implements ListValueEntry {
+    private static class ListValueBean extends HasIdAndName {
 
         private String id;
         private String name;
@@ -640,14 +642,14 @@ public class ValidationResourceTest extends BaseValidationRestTest {
         }
     }
 
-    private static class Finder implements FindById<ListValueBean> {
+    private static class Finder implements CanFindByStringKey<ListValueBean> {
 
         static ListValueBean bean1 = new ListValueBean("1", "first");
         static ListValueBean bean2 = new ListValueBean("2", "second");
 
         @Override
-        public Optional<ListValueBean> findById(final String id) {
-            switch (id) {
+        public Optional<ListValueBean> find(String key) {
+            switch (key) {
             case "1":
                 return Optional.of(bean1);
             case "2":
@@ -655,6 +657,11 @@ public class ValidationResourceTest extends BaseValidationRestTest {
             default:
                 return Optional.empty();
             }
+        }
+        
+        @Override
+        public Class<ListValueBean> valueDomain() {
+            return ListValueBean.class;
         }
     }
 }
