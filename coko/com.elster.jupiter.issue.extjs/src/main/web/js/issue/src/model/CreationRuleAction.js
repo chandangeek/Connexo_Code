@@ -1,5 +1,9 @@
 Ext.define('Isu.model.CreationRuleAction', {
     extend: 'Ext.data.Model',
+    requires: [
+        'Uni.property.model.Property',
+        'Isu.model.Action'
+    ],
     idProperty: 'id',
     fields: [
         {
@@ -7,16 +11,25 @@ Ext.define('Isu.model.CreationRuleAction', {
             type: 'int'
         },
         {
-            name: 'type',
-            type: 'auto'
-        },
-        {
             name: 'phase',
             type: 'auto'
+        }
+    ],
+    associations: [
+        {
+            name: 'properties',
+            type: 'hasMany',
+            model: 'Uni.property.model.Property',
+            associationKey: 'properties',
+            foreignKey: 'properties'
         },
         {
-            name: 'parameters',
-            type: 'auto'
+            type: 'hasOne',
+            model: 'Isu.model.Action',
+            associatedName: 'type',
+            associationKey: 'type',
+            getterName: 'getType',
+            setterName: 'setType'
         }
     ]
 });

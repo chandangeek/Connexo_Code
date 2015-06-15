@@ -1,5 +1,8 @@
 Ext.define('Isu.model.Action', {
     extend: 'Ext.data.Model',
+    requires: [
+        'Uni.property.model.Property'
+    ],
     fields: [
         {
             name: 'id',
@@ -12,18 +15,22 @@ Ext.define('Isu.model.Action', {
         {
             name: 'issueType',
             type: 'text'
-        },
+        }
+    ],
+    associations: [
         {
-            name: 'parameters',
-            type: 'auto'
+            name: 'properties',
+            type: 'hasMany',
+            model: 'Uni.property.model.Property',
+            associationKey: 'properties',
+            foreignKey: 'properties'
         }
     ],
     proxy: {
         type: 'rest',
         url: '/api/idc/actions',
         reader: {
-            type: 'json',
-            root: 'data'
+            type: 'json'
         }
     }
 });

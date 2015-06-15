@@ -8,7 +8,7 @@ Ext.define('Isu.store.CreationRuleTemplates', {
         url: '/api/isu/rules/templates',
         reader: {
             type: 'json',
-            root: 'data'
+            root: 'creationRuleTemplates'
         },
         pageParam: false,
         startParam: false,

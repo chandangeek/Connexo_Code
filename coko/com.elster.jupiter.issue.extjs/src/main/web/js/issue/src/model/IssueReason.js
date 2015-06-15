@@ -18,6 +18,9 @@ Ext.define('Isu.model.IssueReason', {
     proxy: {
         type: 'rest',
         url: '/api/isu/reasons',
+        pageParam: undefined,
+        startParam: undefined,
+        limitParam: undefined,
         reader: {
             type: 'json',
             root: 'data'

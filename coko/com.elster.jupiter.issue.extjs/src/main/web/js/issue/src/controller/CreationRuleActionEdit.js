@@ -5,7 +5,8 @@ Ext.define('Isu.controller.CreationRuleActionEdit', {
         'Isu.store.CreationRuleActions',
         'Isu.store.CreationRuleActionPhases',
         'Isu.store.Clipboard',
-        'Isu.store.Users'
+        'Isu.store.Users',
+        'Isu.store.IssueTypes'
     ],
 
     views: [
@@ -14,238 +15,120 @@ Ext.define('Isu.controller.CreationRuleActionEdit', {
 
     refs: [
         {
-            ref: 'page',
-            selector: 'issues-creation-rules-edit-action'
-        },
-        {
-            ref: 'pageTitle',
-            selector: 'issues-creation-rules-edit-action [name=pageTitle]'
-        },
-        {
-            ref: 'actionOperationBtn',
-            selector: 'issues-creation-rules-edit-action button[name=actionOperation]'
-        },
-        {
             ref: 'actionForm',
             selector: 'issues-creation-rules-edit-action form'
-        },
-        {
-            ref: 'phasesRadioGroup',
-            selector: 'issues-creation-rules-edit-action form [name=phasesRadioGroup]'
-        },
-        {
-            ref: 'actionTypeDetails',
-            selector: 'issues-creation-rules-edit-action form [name=actionTypeDetails]'
         }
     ],
 
     models: [
-        'Isu.model.CreationRuleAction'
+        'Isu.model.CreationRuleAction',
+        'Isu.model.CreationRule'
     ],
-
-    mixins: [
-        'Isu.util.CreatingControl'
-    ],
-
-    savedCreateActionTypeIds: [],
-    savedOverdueActionTypeIds: [],
 
     init: function () {
         this.control({
-            'issues-creation-rules-edit-action form [name=actionType]': {
-                change: this.setActionTypeDetails
-            },
-            'issues-creation-rules-edit-action button[action=cancel]': {
-                click: this.finishEdit
-            },
-            'issues-creation-rules-edit-action button[action=actionOperation]': {
+            'issues-creation-rules-edit-action button[action=saveRuleAction]': {
                 click: this.saveAction
-            },
-            'issues-creation-rules-edit-action #phasesRadioGroup': {
-                change: this.updateActionList
             }
         });
     },
 
-    showCreate: function (id) {
+    showEdit: function (id) {
         var me = this,
-            widget;
-
-        if (!this.getStore('Isu.store.Clipboard').get('issuesCreationRuleState')) {
-            this.getStore('Isu.store.Clipboard').set('issuesCreationRuleState', Ext.create('Isu.model.CreationRule'));
-        } else {
-            this.getStore('Isu.store.Clipboard').get('issuesCreationRuleState').actionsStore.each(function(record) {
-                if (record.get('phase').uuid === 'CREATE') {
-                    me.savedCreateActionTypeIds.push(record.get('type').id);
-                } else if (record.get('phase').uuid === 'OVERDUE') {
-                    me.savedOverdueActionTypeIds.push(record.get('type').id);
+            router = me.getController('Uni.controller.history.Router'),
+            clipboard = me.getStore('Isu.store.Clipboard'),
+            widget = Ext.widget('issues-creation-rules-edit-action', {
+                isEdit: false,
+                router: router,
+                returnLink: router.getRoute(router.currentRoute.replace('/addaction', '')).buildUrl()
+            }),
+            dependenciesCounter = 1,
+            dependenciesOnLoad = function () {
+                dependenciesCounter--;
+                if (!dependenciesCounter) {
+                    if (widget.rendered) {
+                        widget.down('form').loadRecord(Ext.create('Isu.model.CreationRuleAction'));
+                        me.getStore('Isu.store.CreationRuleActionPhases').load(function (records) {
+                            if (widget.rendered) {
+                                widget.down('issues-creation-rules-edit-action-form').addPhases(records);
+                                widget.setLoading(false);
+                            }
+                        });
+                    }
                 }
-            });
+            };
+
+        Ext.util.History.on('change', this.checkRoute, me);
+
+        me.getApplication().fireEvent('changecontentevent', widget);
+        widget.setLoading();
+
+        if (!clipboard.get('issuesCreationRuleState')) {
+            if (id) {
+                me.getModel('Isu.model.CreationRule').load(id, {
+                    success: function (record) {
+                        clipboard.set('issuesCreationRuleState', record);
+                        me.getApplication().fireEvent('issueCreationRuleEdit', record);
+                        dependenciesOnLoad();
+                    }
+                });
+            } else {
+                me.getStore('Isu.store.IssueTypes').load(function (records) {
+                    var rule = Ext.create('Isu.model.CreationRule');
+
+                    rule.setIssueType(records[0]);
+                    clipboard.set('issuesCreationRuleState', rule);
+                    dependenciesOnLoad();
+                });
+            }
+        } else {
+            dependenciesOnLoad();
         }
-
-        widget = Ext.widget('issues-creation-rules-edit-action');
-
-        Ext.util.History.on('change', this.checkRoute, this);
-
-        this.setPage(id, 'create');
-        this.getApplication().fireEvent('changecontentevent', widget);
-        widget.setLoading(true);
     },
 
     checkRoute: function (token) {
-        var clipboard = this.getStore('Isu.store.Clipboard'),
-            createRegexp = /administration\/creationrules\/add/,
-            editRegexp = /administration\/creationrules\/\d+\/edit/;
+        var me = this,
+            currentRoute = me.getController('Uni.controller.history.Router').currentRoute,
+            allowableRoutes = [
+                'administration/creationrules/add',
+                'administration/creationrules/edit'
+            ];
 
-        Ext.util.History.un('change', this.checkRoute, this);
+        Ext.util.History.un('change', me.checkRoute, me);
 
-        if (token.search(createRegexp) == -1 && token.search(editRegexp) == -1) {
-            clipboard.clear('issuesCreationRuleState');
+        if (!Ext.Array.findBy(allowableRoutes, function (item) {return item === currentRoute})) {
+            me.getStore('Isu.store.Clipboard').clear('issuesCreationRuleState');
         }
-    },
-
-    setPage: function (id, action) {
-        var me = this,
-            actionTypesStore = me.getStore('Isu.store.CreationRuleActions'),
-            actionTypesPhases = me.getStore('Isu.store.CreationRuleActionPhases'),
-            loadedStoresCount = 0,
-            prefix,
-            btnTxt;
-
-        var checkLoadedStores = function () {
-            loadedStoresCount++;
-
-            if (loadedStoresCount == 2) {
-                switch (action) {
-                    case 'create':
-                        prefix = btnTxt = 'Add ';
-                        me.actionModel = Ext.create('Isu.model.CreationRuleAction');
-                        break;
-                }
-
-                me.getPageTitle().setTitle(prefix + 'action');
-                me.getActionOperationBtn().setText(btnTxt);
-                me.getPage().setLoading(false);
-            }
-        };
-
-        actionTypesPhases.load(function (records) {
-            var phasesRadioGroup = me.getPhasesRadioGroup();
-            Ext.suspendLayouts();
-            Ext.Array.each(records, function (record, index) {
-                phasesRadioGroup.add({
-                    boxLabel: record.get('title'),
-                    name: 'phase',
-                    inputValue: record.get('uuid'),
-                    itemId: 'when-to-perform-radio-button-'+record.get('uuid'),
-                    afterSubTpl: '<span style="color: #686868; font-style: italic">' + record.get('description') + '</span>',
-                    checked: !index
-                });
-            });
-            actionTypesStore.getProxy().setExtraParam('issueType', me.getStore('Isu.store.Clipboard').get('issuesCreationRuleState').get('issueType').uid);
-            actionTypesStore.getProxy().setExtraParam('createdActions', me.savedCreateActionTypeIds);
-            actionTypesStore.getProxy().setExtraParam('reason', me.getStore('Isu.store.Clipboard').get('issuesCreationRuleState').get('reason').id);
-            actionTypesStore.getProxy().setExtraParam('phase', records[0].get('uuid'));
-            actionTypesStore.load(checkLoadedStores);
-            Ext.resumeLayouts();
-            checkLoadedStores();
-        });
-    },
-
-    formToModel: function (model) {
-        var form = this.getActionForm(),
-            phaseField = form.down('[name=phasesRadioGroup]'),
-            actionStore = this.getStore('Isu.store.CreationRuleActions'),
-            actionField = form.down('[name=actionType]'),
-            action = actionStore.getById(actionField.getValue()),
-            parameters = {};
-        model.beginEdit();
-        model.set('type', action.getData());
-        delete model.get('type').parameters;
-        model.set('phase', {
-            uuid: phaseField.getValue().phase
-        });
-        Ext.Array.each(form.down('[name=actionTypeDetails]').query(), function (formItem) {
-            if (formItem.isFormField) {
-                if (!parameters[formItem.name])
-                     parameters[formItem.name] = formItem.getValue() ? formItem.getValue() : "";
-            }
-        });
-        model.set('parameters', parameters);
-        model.endEdit();
-        return model;
-    },
-
-    setActionTypeDetails: function (combo, newValue) {
-        var me = this,
-            actionTypesStore = me.getStore('Isu.store.CreationRuleActions'),
-            parameters = newValue ? actionTypesStore.getById(newValue).get('parameters') : [],
-            actionTypeDetails = me.getActionTypeDetails();
-
-        actionTypeDetails.removeAll();
-
-        Ext.Object.each(parameters, function(key, value) {
-            var formItem = me.createControl(value);
-
-            formItem && actionTypeDetails.add(formItem);
-        });
     },
 
     saveAction: function () {
-        var rule = this.getStore('Isu.store.Clipboard').get('issuesCreationRuleState'),
-            form = this.getActionForm().getForm(),
-            formErrorsPanel = this.getActionForm().down('[name=form-errors]'),
-            newAction,
-            actions;
+        var me = this,
+            form = me.getActionForm(),
+            baseForm = form.getForm(),
+            formErrorsPanel = form.down('uni-form-error-message'),
+            record;
 
-        if (rule) {
-            if (form.isValid()) {
-                newAction = this.formToModel(this.actionModel);
-                actions = rule.actions();
-                formErrorsPanel.hide();
-                actions.add(newAction);
-                this.finishEdit();
-            } else {
-                formErrorsPanel.show();
-            }
-        } else {
-            this.finishEdit();
-        }
+        baseForm.clearInvalid();
+        formErrorsPanel.hide();
+        form.setLoading();
+        form.updateRecord();
+        record = form.getRecord();
+        record.getProxy().url = '/api/isu/creationrules/validateaction';
+        record.save({
+            callback: function (validatedRecord, operation, success) {
+                var json;
 
-    },
-
-    finishEdit: function () {
-        var router = this.getController('Uni.controller.history.Router'),
-            rule = this.getStore('Isu.store.Clipboard').get('issuesCreationRuleState');
-
-        this.savedCreateActionTypeIds.length = 0;
-        this.savedOverdueActionTypeIds.length = 0;
-        if (rule) {
-            if (rule.getId()) {
-                router.getRoute('administration/creationrules/edit').forward({id: rule.getId()});
-            } else {
-                router.getRoute('administration/creationrules/add').forward();
-            }
-        } else {
-            router.getRoute('administration/creationrules').forward();
-        }
-    },
-    
-    updateActionList: function (radionGroup, newValue) {
-    	var me = this,
-    	    actionField = me.getActionForm().down('[name=actionType]'),
-    	    actionTypesStore = me.getStore('Isu.store.CreationRuleActions');
-        if (newValue.phase === 'CREATE') {
-            actionTypesStore.getProxy().setExtraParam('createdActions', me.savedCreateActionTypeIds);
-        } else if (newValue.phase === 'OVERDUE') {
-            actionTypesStore.getProxy().setExtraParam('createdActions', me.savedOverdueActionTypeIds);
-        }
-    	actionTypesStore.getProxy().setExtraParam('phase', newValue);
-        actionTypesStore.load(function(records, operation, success) {
-            var action = actionTypesStore.getById(actionField.getValue());
-            if (!action) {
-            	actionField.reset();
-            	me.getActionTypeDetails().removeAll();
+                form.setLoading(false);
+                if (success) {
+                    me.getStore('Isu.store.Clipboard').get('issuesCreationRuleState').actions().add(record);
+                    window.location.href = form.returnLink;
+                } else {
+                    json = Ext.decode(operation.response.responseText, true);
+                    if (json && json.errors) {
+                        baseForm.markInvalid(json.errors);
+                        formErrorsPanel.show();
+                    }
+                }
             }
         });
     }

@@ -5,10 +5,6 @@ Ext.define('Isu.controller.ApplyIssueAction', {
         'Isu.view.issues.ActionView'
     ],
 
-    mixins: [
-        'Isu.util.CreatingControl'
-    ],
-
     showOverview: function (issueModelClass, issueId, actionId, widgetItemId) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
@@ -33,13 +29,6 @@ Ext.define('Isu.controller.ApplyIssueAction', {
         actionModel.load(actionId, {
             success: function (record) {
                 me.getApplication().fireEvent('issueActionLoad', record);
-                Ext.suspendLayouts();
-                form.setTitle(record.get('name'));
-                Ext.Object.each(record.get('parameters'), function (key, value) {
-                    var formItem = me.createControl(value);
-                    formItem && form.add(formItem);
-                });
-                Ext.resumeLayouts();
                 form.loadRecord(record);
                 //todo: this definitely should be refactored. BE should send action button translation instead of this splitting
                 if (form.title === 'Close issue' || form.title === 'Notify user' || form.title === 'Assign issue' ) {

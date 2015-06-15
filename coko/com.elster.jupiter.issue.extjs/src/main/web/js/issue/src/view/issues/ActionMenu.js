@@ -101,7 +101,7 @@ Ext.define('Isu.view.issues.ActionMenu', {
                 privileges: privileges
             };
 
-            if (Ext.isEmpty(record.get('parameters'))) {
+            if (Ext.isEmpty(record.properties().count())) {
                 menuItem.actionRecord = record;
             } else {
                 menuItem.href = me.router.getRoute(me.router.currentRoute.replace('/view', '') + '/view/action').buildUrl(

@@ -30,13 +30,13 @@ Ext.define('Isu.controller.history.Administration', {
                             route: 'add',
                             controller: 'Isu.controller.CreationRuleEdit',
                             privileges: Isu.privileges.Issue.createRule,
-                            action: 'showCreate',
+                            action: 'showEdit',
                             items: {
                                 addaction: {
                                     title: Uni.I18n.translate('route.addAction', 'ISU', 'Add action'),
                                     route: 'addaction',
                                     controller: 'Isu.controller.CreationRuleActionEdit',
-                                    action: 'showCreate'
+                                    action: 'showEdit'
                                 }
                             }
                         },
@@ -48,11 +48,19 @@ Ext.define('Isu.controller.history.Administration', {
                             privileges: Isu.privileges.Issue.createRule,
                             callback: function (route) {
                                 this.getApplication().on('issueCreationRuleEdit', function (record) {
-                                    route.setTitle('Edit' + " '" + record.data.name + "'");
+                                    route.setTitle('Edit' + " '" + record.get('name') + "'");
                                     return true;
                                 }, {single: true});
 
                                 return this;
+                            },
+                            items: {
+                                addaction: {
+                                    title: Uni.I18n.translate('route.addAction', 'ISU', 'Add action'),
+                                    route: 'addaction',
+                                    controller: 'Isu.controller.CreationRuleActionEdit',
+                                    action: 'showEdit'
+                                }
                             }
                         }
                     }
