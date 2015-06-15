@@ -1,28 +1,37 @@
 package com.energyict.mdc.issue.datacollection.impl;
 
-import com.elster.jupiter.issue.share.cep.ActionLoadFailedException;
-import com.elster.jupiter.issue.share.cep.IssueAction;
-import com.elster.jupiter.issue.share.cep.IssueActionFactory;
-import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.device.data.CommunicationTaskService;
-import com.energyict.mdc.device.data.ConnectionTaskService;
-import com.energyict.mdc.issue.datacollection.impl.actions.RetryCommunicationTaskAction;
-import com.energyict.mdc.issue.datacollection.impl.actions.RetryCommunicationTaskNowAction;
-import com.energyict.mdc.issue.datacollection.impl.actions.RetryConnectionTaskAction;
-import com.google.inject.*;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.logging.Logger;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.validation.MessageInterpolator;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.logging.Logger;
+
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+
+import com.elster.jupiter.issue.share.IssueAction;
+import com.elster.jupiter.issue.share.IssueActionFactory;
+import com.elster.jupiter.issue.share.entity.IssueActionClassLoadFailedException;
+import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
+import com.energyict.mdc.device.data.CommunicationTaskService;
+import com.energyict.mdc.device.data.ConnectionTaskService;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.issue.datacollection.impl.actions.RetryCommunicationTaskAction;
+import com.energyict.mdc.issue.datacollection.impl.actions.RetryCommunicationTaskNowAction;
+import com.energyict.mdc.issue.datacollection.impl.actions.RetryConnectionTaskAction;
+import com.google.inject.AbstractModule;
+import com.google.inject.ConfigurationException;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.ProvisionException;
 
 @Component(name = "com.energyict.mdc.issue.datacollection.actions.factory", service = IssueActionFactory.class, immediate = true)
 public class DataCollectionActionsFactory implements IssueActionFactory {
@@ -34,6 +43,8 @@ public class DataCollectionActionsFactory implements IssueActionFactory {
     private volatile ConnectionTaskService connectionTaskService;
     private volatile CommunicationTaskService communicationTaskService;
     private volatile IssueService issueService;
+    private volatile PropertySpecService propertySpecService;
+    private volatile DataModel dataModel;
 
     private Injector injector;
     private Map<String, Provider<? extends IssueAction>> actionProviders = new HashMap<>();
@@ -50,6 +61,8 @@ public class DataCollectionActionsFactory implements IssueActionFactory {
         setThesaurus(nlsService);
         setConnectionTaskService(connectionTaskService);
         setCommunicationTaskService(communicationTaskService);
+        setIssueService(issueService);
+        setPropertySpecService(propertySpecService);
 
         activate();
     }
@@ -59,12 +72,14 @@ public class DataCollectionActionsFactory implements IssueActionFactory {
         injector = Guice.createInjector(new AbstractModule() {
             @Override
             protected void configure() {
+                bind(DataModel.class).toInstance(dataModel);
                 bind(NlsService.class).toInstance(nlsService);
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(ConnectionTaskService.class).toInstance(connectionTaskService);
                 bind(CommunicationTaskService.class).toInstance(communicationTaskService);
                 bind(IssueService.class).toInstance(issueService);
+                bind(PropertySpecService.class).toInstance(propertySpecService);
             }
         });
 
@@ -74,7 +89,7 @@ public class DataCollectionActionsFactory implements IssueActionFactory {
     public IssueAction createIssueAction(String issueActionClassName) {
         Provider<? extends IssueAction> provider = actionProviders.get(issueActionClassName);
         if (provider == null) {
-            throw new ActionLoadFailedException(thesaurus);
+            throw new IssueActionClassLoadFailedException(thesaurus, issueActionClassName);
         }
         return provider.get();
     }
@@ -103,6 +118,16 @@ public class DataCollectionActionsFactory implements IssueActionFactory {
     @Reference
     public final void setIssueService(IssueService issueService) {
         this.issueService = issueService;
+    }
+    
+    @Reference
+    public void setPropertySpecService(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
+    
+    @Reference
+    public void setOrmService(OrmService ormService) {
+        this.dataModel = ormService.getDataModel(IssueService.COMPONENT_NAME).orElse(null);
     }
 
     private void addDefaultActions() {

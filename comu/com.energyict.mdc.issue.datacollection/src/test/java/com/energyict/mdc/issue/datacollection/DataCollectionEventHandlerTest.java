@@ -1,7 +1,7 @@
-package com.energyict.mdc.issue.tests;
+package com.energyict.mdc.issue.datacollection;
 
 import com.elster.jupiter.issue.impl.service.IssueCreationServiceImpl;
-import com.elster.jupiter.issue.share.cep.IssueEvent;
+import com.elster.jupiter.issue.share.IssueEvent;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueService;
@@ -37,7 +37,7 @@ import static org.mockito.Mockito.when;
 public class DataCollectionEventHandlerTest extends BaseTest {
     @Test
     public void testSuccessfullProcess() {
-        Map messageMap = new HashMap<>();
+        Map<String, Object> messageMap = new HashMap<>();
         messageMap.put(EventConstants.EVENT_TOPIC, "com/energyict/mdc/inboundcommunication/UNKNOWNDEVICE");
         messageMap.put(EventConstants.TIMESTAMP, Instant.now().toEpochMilli());
         messageMap.put(ModuleConstants.DEVICE_IDENTIFIER, "1");
@@ -56,7 +56,7 @@ public class DataCollectionEventHandlerTest extends BaseTest {
 
     @Test
     public void testUnmappedEvent() {
-        Map messageMap = new HashMap<>();
+        Map<String, Object> messageMap = new HashMap<>();
         messageMap.put(EventConstants.EVENT_TOPIC, "com/energyict/mdc/unknown/EVENT");
         messageMap.put(EventConstants.TIMESTAMP, Instant.now().toEpochMilli());
         messageMap.put(ModuleConstants.DEVICE_IDENTIFIER, "1");
@@ -72,7 +72,7 @@ public class DataCollectionEventHandlerTest extends BaseTest {
 
     @Test
     public void testEventMappingConnectionLost() {
-        Map messageMap = new HashMap<>();
+        Map<String, Object> messageMap = new HashMap<>();
         messageMap.put(EventConstants.EVENT_TOPIC, "com/energyict/mdc/connectiontask/COMPLETION");
         messageMap.put(EventConstants.TIMESTAMP, Instant.now().toEpochMilli());
         messageMap.put(ModuleConstants.SKIPPED_TASK_IDS, "1");
@@ -86,7 +86,7 @@ public class DataCollectionEventHandlerTest extends BaseTest {
 
     @Test
     public void testEventSplittingConnectionLost() {
-        Map messageMap = new HashMap<>();
+        Map<String, Object> messageMap = new HashMap<>();
         messageMap.put(EventConstants.EVENT_TOPIC, "com/energyict/mdc/connectiontask/COMPLETION");
         messageMap.put(EventConstants.TIMESTAMP, Instant.now().toEpochMilli());
         messageMap.put(ModuleConstants.SKIPPED_TASK_IDS, "1, 10, 47");
@@ -100,7 +100,7 @@ public class DataCollectionEventHandlerTest extends BaseTest {
 
     @Test
     public void testEventMappingDeviceCommunicationFailed() {
-        Map messageMap = new HashMap<>();
+        Map<String, Object> messageMap = new HashMap<>();
         messageMap.put(EventConstants.EVENT_TOPIC, "com/energyict/mdc/connectiontask/COMPLETION");
         messageMap.put(EventConstants.TIMESTAMP, Instant.now().toEpochMilli());
         messageMap.put(ModuleConstants.FAILED_TASK_IDS, "1");
@@ -114,7 +114,7 @@ public class DataCollectionEventHandlerTest extends BaseTest {
 
     @Test
     public void testEventSplittingDeviceCommunicationFailed() {
-        Map messageMap = new HashMap<>();
+        Map<String, Object> messageMap = new HashMap<>();
         messageMap.put(EventConstants.EVENT_TOPIC, "com/energyict/mdc/connectiontask/COMPLETION");
         messageMap.put(EventConstants.TIMESTAMP, Instant.now().toEpochMilli());
         messageMap.put(ModuleConstants.FAILED_TASK_IDS, "1, 17, 56, 57");
@@ -128,7 +128,7 @@ public class DataCollectionEventHandlerTest extends BaseTest {
 
     @Test
     public void testEventSplittingSeveralEvents() {
-        Map messageMap = new HashMap<>();
+        Map<String, Object> messageMap = new HashMap<>();
         messageMap.put(EventConstants.EVENT_TOPIC, "com/energyict/mdc/connectiontask/COMPLETION");
         messageMap.put(EventConstants.TIMESTAMP, Instant.now().toEpochMilli());
         messageMap.put(ModuleConstants.SKIPPED_TASK_IDS, "2,41,");
@@ -143,7 +143,7 @@ public class DataCollectionEventHandlerTest extends BaseTest {
 
     @Test
     public void testEventMappingUnableToConnect() {
-        Map messageMap = new HashMap<>();
+        Map<String, Object> messageMap = new HashMap<>();
         messageMap.put(EventConstants.EVENT_TOPIC, "com/energyict/mdc/connectiontask/FAILURE");
         messageMap.put(EventConstants.TIMESTAMP, Instant.now().toEpochMilli());
         messageMap.put(ModuleConstants.DEVICE_IDENTIFIER, 1);
@@ -155,7 +155,7 @@ public class DataCollectionEventHandlerTest extends BaseTest {
 
     @Test
     public void testEventMappingUnknownInboundDevice() {
-        Map messageMap = new HashMap<>();
+        Map<String, Object> messageMap = new HashMap<>();
         messageMap.put(EventConstants.EVENT_TOPIC, "com/energyict/mdc/inboundcommunication/UNKNOWNDEVICE");
         messageMap.put(EventConstants.TIMESTAMP, Instant.now().toEpochMilli());
         messageMap.put(ModuleConstants.DEVICE_IDENTIFIER, "1");
@@ -167,7 +167,7 @@ public class DataCollectionEventHandlerTest extends BaseTest {
 
     @Test
     public void testEventMappingUnknownOutboundDevice() {
-        Map messageMap = new HashMap<>();
+        Map<String, Object> messageMap = new HashMap<>();
         messageMap.put(EventConstants.EVENT_TOPIC, "com/energyict/mdc/outboundcommunication/UNKNOWNSLAVEDEVICE");
         messageMap.put(EventConstants.TIMESTAMP, Instant.now().toEpochMilli());
         messageMap.put(ModuleConstants.DEVICE_IDENTIFIER, "1");
@@ -220,6 +220,7 @@ public class DataCollectionEventHandlerTest extends BaseTest {
         private List<Class<? extends IssueEvent>> expectedClasses;
         private int size = 0;
 
+        @SafeVarargs
         public CheckEventTypeServiceMock(Class<? extends IssueEvent>... expectedClasses) {
             this.expectedClasses = new ArrayList<>(Arrays.asList(expectedClasses));
         }

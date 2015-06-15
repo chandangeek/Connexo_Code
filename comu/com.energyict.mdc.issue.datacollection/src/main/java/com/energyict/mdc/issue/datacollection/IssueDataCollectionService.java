@@ -12,10 +12,12 @@ import java.util.Optional;
 public interface IssueDataCollectionService {
 
     public static final String COMPONENT_NAME = "IDC";
-    public static final String ISSUE_TYPE_UUID = "datacollection";
+    public static final String DATA_COLLECTION_ISSUE = "datacollection";
 
-    Optional<IssueDataCollection> findIssue(long id);
+    Optional<? extends IssueDataCollection> findIssue(long id);
+
     Optional<OpenIssueDataCollection> findOpenIssue(long id);
+
     Optional<HistoricalIssueDataCollection> findHistoricalIssue(long id);
 
     OpenIssueDataCollection createIssue(Issue baseIssue);

@@ -1,5 +1,7 @@
 package com.energyict.mdc.issue.datacollection.impl.templates;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import javax.inject.Inject;
@@ -8,55 +10,59 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-import com.elster.jupiter.issue.share.cep.CreationRuleTemplate;
-import com.elster.jupiter.issue.share.cep.IssueEvent;
-import com.elster.jupiter.issue.share.entity.CreationRule;
+import com.elster.jupiter.issue.share.CreationRuleTemplate;
+import com.elster.jupiter.issue.share.IssueEvent;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
+import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.properties.BooleanFactory;
+import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.entity.OpenIssueDataCollection;
+import com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventDescription;
 import com.energyict.mdc.issue.datacollection.impl.i18n.MessageSeeds;
-import com.energyict.mdc.issue.datacollection.impl.templates.params.AutoResolutionParameter;
-import com.energyict.mdc.issue.datacollection.impl.templates.params.EventTypeParameter;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableList.Builder;
 
 @Component(name = "com.energyict.mdc.issue.datacollection.BasicDatacollectionRuleTemplate",
-           property = {"uuid=" + BasicDatacollectionRuleTemplate.BASIC_TEMPLATE_UUID},
+           property = {"name=" + BasicDataCollectionRuleTemplate.NAME},
            service = CreationRuleTemplate.class,
            immediate = true)
-public class BasicDatacollectionRuleTemplate extends AbstractTemplate {
-    public static final String BASIC_TEMPLATE_UUID = "e29b-41d4-a716";
-
-    private volatile MeteringService meteringService;
+public class BasicDataCollectionRuleTemplate extends AbstractDataCollectionTemplate {
+    static final String NAME = "BasicDataCollectionRuleTemplate";
+    
+    public static final String EVENTTYPE = NAME + ".eventType";
+    public static final String AUTORESOLUTION = NAME + ".autoresolution";
+    
     private volatile IssueDataCollectionService issueDataCollectionService;
     private volatile IssueService issueService;
 
-    public BasicDatacollectionRuleTemplate() {
+    //for OSGI
+    public BasicDataCollectionRuleTemplate() {
     }
 
     @Inject
-    public BasicDatacollectionRuleTemplate(MeteringService meteringService, IssueDataCollectionService issueDataCollectionService, NlsService nlsService, IssueService issueService) {
-        setMeteringService(meteringService);
+    public BasicDataCollectionRuleTemplate(IssueDataCollectionService issueDataCollectionService, NlsService nlsService, IssueService issueService, PropertySpecService propertySpecService) {
         setIssueDataCollectionService(issueDataCollectionService);
         setNlsService(nlsService);
         setIssueService(issueService);
+        setPropertySpecService(propertySpecService);
 
         activate();
     }
 
     @Activate
-    public void activate(){
-        addParameterDefinition(new EventTypeParameter(false, getThesaurus(), meteringService));
-        addParameterDefinition(new AutoResolutionParameter(getThesaurus()));
+    public void activate() {
     }
 
     @Reference
     public final void setNlsService(NlsService nlsService) {
-        setThesaurus(nlsService.getThesaurus(IssueDataCollectionService.COMPONENT_NAME, Layer.DOMAIN));
+        super.setThesaurus(nlsService.getThesaurus(IssueDataCollectionService.COMPONENT_NAME, Layer.DOMAIN));
     }
 
     @Reference
@@ -68,25 +74,20 @@ public class BasicDatacollectionRuleTemplate extends AbstractTemplate {
     public final void setIssueService(IssueService issueService) {
         this.issueService = issueService;
     }
-
+    
     @Reference
-    public final void setMeteringService(MeteringService meteringService) {
-        this.meteringService = meteringService;
-    }
-
-    @Override
-    public String getUUID() {
-        return BasicDatacollectionRuleTemplate.BASIC_TEMPLATE_UUID;
+    public final void setPropertySpecService(PropertySpecService propertySpecService) {
+        super.setPropertySpecService(propertySpecService);
     }
 
     @Override
     public String getName() {
-        return getString(MessageSeeds.BASIC_TEMPLATE_DATACOLLECTION_NAME);
+        return BasicDataCollectionRuleTemplate.NAME;
     }
 
     @Override
     public String getDescription() {
-        return getString(MessageSeeds.BASIC_TEMPLATE_DATACOLLECTION_DESCRIPTION);
+        return MessageSeeds.BASIC_TEMPLATE_DATACOLLECTION_DESCRIPTION.getTranslated(getThesaurus());
     }
 
     @Override
@@ -96,17 +97,17 @@ public class BasicDatacollectionRuleTemplate extends AbstractTemplate {
                "global com.elster.jupiter.issue.share.service.IssueCreationService issueCreationService;\n" +
                "rule \"Basic datacollection rule @{ruleId}\"\n"+
                "when\n"+
-               "\tevent : DataCollectionEvent( eventType == \"@{eventType}\", resolveEvent == false )\n"+
+               "\tevent : DataCollectionEvent( eventType == \"@{" + EVENTTYPE + "}\", resolveEvent == false )\n"+
                "then\n"+
                "\tSystem.out.println(\"Trying to create issue by basic datacollection rule=@{ruleId}\");\n"+
-               "\tissueCreationService.processIssueEvent(@{ruleId}, event);\n"+
+               "\tissueCreationService.processIssueCreationEvent(@{ruleId}, event);\n"+
                "end\n" +
                "rule \"Auto-resolution section @{ruleId}\"\n"+
                "when\n"+
-               "\tevent : DataCollectionEvent( eventType == \"@{eventType}\", resolveEvent == true, @{"+ AutoResolutionParameter.AUTO_RESOLUTION_PARAMETER_KEY + "} == true )\n"+
+               "\tevent : DataCollectionEvent( eventType == \"@{" + EVENTTYPE + "}\", resolveEvent == true, @{"+ AUTORESOLUTION + "} == 1 )\n"+
                "then\n"+
                "\tSystem.out.println(\"Trying to resolve issue by basic datacollection rule=@{ruleId}\");\n"+
-               "\tissueCreationService.processIssueResolveEvent(@{ruleId}, event);\n"+
+               "\tissueCreationService.processIssueResolutionEvent(@{ruleId}, event);\n"+
                "end";
     }
 
@@ -128,12 +129,39 @@ public class BasicDatacollectionRuleTemplate extends AbstractTemplate {
     }
 
     @Override
-    public Optional<? extends Issue> resolveIssue(CreationRule rule, IssueEvent event) {
+    public Optional<? extends Issue> resolveIssue(IssueEvent event) {
         Optional<? extends Issue> issue = event.findExistingIssue();
         if (issue.isPresent() && !issue.get().getStatus().isHistorical()) {
             OpenIssue openIssue = (OpenIssue) issue.get();
             issue = Optional.of(openIssue.close(issueService.findStatus(IssueStatus.RESOLVED).get()));
         }
         return issue;
+    }
+    
+    @Override
+    public IssueType getIssueType() {
+        return issueService.findIssueType(IssueDataCollectionService.DATA_COLLECTION_ISSUE).get();
+    }
+    
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        Builder<PropertySpec> builder = ImmutableList.builder();
+        EventTypes eventTypes = new EventTypes(getThesaurus(), DataCollectionEventDescription.values());
+        builder.add(getPropertySpecService().stringReferencePropertySpec(EVENTTYPE, true, eventTypes, eventTypes.getEventTypes()));
+        builder.add(getPropertySpecService().newPropertySpecBuilder(new BooleanFactory())
+                                       .name(AUTORESOLUTION)
+                                       .setDefaultValue(true)
+                                       .markRequired()
+                                       .finish());
+        return builder.build();
+    }
+    
+    public Object[] getPossibleValuesForEventTypes() {
+        return Arrays.asList(DataCollectionEventDescription.values()).stream().map(DataCollectionEventDescription::name).toArray();
+    }
+    
+    @Override
+    public String getDisplayName() {
+        return MessageSeeds.BASIC_TEMPLATE_DATACOLLECTION_NAME.getTranslated(getThesaurus());
     }
 }

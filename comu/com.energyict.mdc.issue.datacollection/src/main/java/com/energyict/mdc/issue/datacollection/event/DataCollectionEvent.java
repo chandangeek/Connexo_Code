@@ -1,7 +1,7 @@
 package com.energyict.mdc.issue.datacollection.event;
 
 import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.issue.share.cep.IssueEvent;
+import com.elster.jupiter.issue.share.IssueEvent;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.EndDevice;

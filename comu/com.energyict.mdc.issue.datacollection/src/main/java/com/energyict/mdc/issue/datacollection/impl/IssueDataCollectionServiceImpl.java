@@ -3,12 +3,12 @@ package com.energyict.mdc.issue.datacollection.impl;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.issue.share.IssueProvider;
 import com.elster.jupiter.issue.share.entity.Entity;
 import com.elster.jupiter.issue.share.entity.HistoricalIssue;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueActionService;
-import com.elster.jupiter.issue.share.service.IssueProvider;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Layer;
@@ -31,12 +31,14 @@ import com.energyict.mdc.issue.datacollection.impl.i18n.MessageSeeds;
 import com.energyict.mdc.issue.datacollection.impl.install.Installer;
 import com.energyict.mdc.issue.datacollection.impl.records.OpenIssueDataCollectionImpl;
 import com.google.inject.AbstractModule;
+
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -55,7 +57,6 @@ public class IssueDataCollectionServiceImpl implements InstallService, Translati
     private volatile DataModel dataModel;
 
     // For OSGi framework
-    @SuppressWarnings("unused")
     public IssueDataCollectionServiceImpl() {
     }
 
@@ -159,12 +160,12 @@ public class IssueDataCollectionServiceImpl implements InstallService, Translati
     }
 
     @Override
-    public Optional<IssueDataCollection> findIssue(long id) {
-        Optional<? extends IssueDataCollection> issue = findOpenIssue(id);
-        if (!issue.isPresent()) {
-            issue = findHistoricalIssue(id);
+    public Optional<? extends IssueDataCollection> findIssue(long id) {
+        Optional<OpenIssueDataCollection> issue = findOpenIssue(id);
+        if (issue.isPresent()) {
+            return issue;
         }
-        return (Optional<IssueDataCollection>) issue;
+        return findHistoricalIssue(id);
     }
 
     @Override

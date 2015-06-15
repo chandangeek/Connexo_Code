@@ -1,40 +1,40 @@
 package com.energyict.mdc.issue.datacollection.impl.actions;
 
-
-import com.elster.jupiter.issue.share.cep.AbstractIssueAction;
-import com.elster.jupiter.issue.share.cep.IssueActionResult;
-import com.elster.jupiter.issue.share.cep.controls.DefaultActionResult;
-import com.elster.jupiter.issue.share.entity.Issue;
-import com.elster.jupiter.issue.share.entity.IssueStatus;
-import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
-import com.energyict.mdc.issue.datacollection.entity.IssueDataCollection;
-import com.energyict.mdc.issue.datacollection.impl.i18n.MessageSeeds;
-import com.energyict.mdc.protocol.api.ConnectionType;
+import java.util.Collections;
+import java.util.List;
 
 import javax.inject.Inject;
 
-import java.util.Map;
+import com.elster.jupiter.issue.share.AbstractIssueAction;
+import com.elster.jupiter.issue.share.IssueActionResult;
+import com.elster.jupiter.issue.share.IssueActionResult.DefaultActionResult;
+import com.elster.jupiter.issue.share.entity.Issue;
+import com.elster.jupiter.issue.share.entity.IssueStatus;
+import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.issue.datacollection.entity.IssueDataCollection;
+import com.energyict.mdc.issue.datacollection.impl.i18n.MessageSeeds;
+import com.energyict.mdc.protocol.api.ConnectionType;
 
 public class RetryCommunicationTaskNowAction extends AbstractIssueAction {
     private IssueService issueService;
 
     @Inject
-    public RetryCommunicationTaskNowAction(NlsService nlsService, Thesaurus thesaurus, IssueService issueService) {
-        super(nlsService, thesaurus);
+    public RetryCommunicationTaskNowAction(DataModel dataModel, Thesaurus thesaurus, PropertySpecService propertySpecService, IssueService issueService) {
+        super(dataModel, thesaurus, propertySpecService);
         this.issueService = issueService;
     }
 
     @Override
-    public IssueActionResult execute(Issue issue, Map<String, String> actionParameters) {
-        validateParametersOrThrowException(actionParameters);
-        
+    public IssueActionResult execute(Issue issue) {
         DefaultActionResult result = new DefaultActionResult();
-        if (isApplicable(issue)){
+        if (isApplicable(issue)) {
             issue.setStatus(issueService.findStatus(IssueStatus.IN_PROGRESS).get());
             issue.save();
             ComTaskExecution comTaskExecution = ((IssueDataCollection) issue).getCommunicationTask().get();
@@ -56,9 +56,14 @@ public class RetryCommunicationTaskNowAction extends AbstractIssueAction {
         }
         return false;
     }
-
+    
     @Override
-    public String getLocalizedName() {
-        return MessageSeeds.ACTION_RETRY_NOW.getTranslated(getThesaurus());
+    public String getDisplayName() {
+        return  MessageSeeds.ACTION_RETRY_NOW.getTranslated(getThesaurus());
+    }
+    
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        return Collections.emptyList();
     }
 }

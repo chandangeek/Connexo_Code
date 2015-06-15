@@ -1,4 +1,4 @@
-package com.energyict.mdc.issue.tests;
+package com.energyict.mdc.issue.datacollection;
 
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -14,9 +14,14 @@ import org.junit.rules.TestRule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 
+import org.kie.api.KieBaseConfiguration;
 import org.kie.api.io.KieResources;
+import org.kie.internal.KnowledgeBase;
 import org.kie.internal.KnowledgeBaseFactoryService;
+import org.kie.internal.builder.KnowledgeBuilder;
+import org.kie.internal.builder.KnowledgeBuilderConfiguration;
 import org.kie.internal.builder.KnowledgeBuilderFactoryService;
+import org.kie.internal.runtime.StatefulKnowledgeSession;
 import org.mockito.Matchers;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
@@ -32,10 +37,12 @@ import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.issue.impl.module.IssueModule;
 import com.elster.jupiter.issue.impl.service.IssueServiceImpl;
-import com.elster.jupiter.issue.share.cep.IssueEvent;
+import com.elster.jupiter.issue.share.CreationRuleTemplate;
+import com.elster.jupiter.issue.share.IssueEvent;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.DueInType;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
+import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleBuilder;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.kpi.impl.KpiModule;
 import com.elster.jupiter.license.LicenseService;
@@ -89,6 +96,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 
 public abstract class BaseTest {
+    
     private static Injector injector;
     private static InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
 
@@ -105,8 +113,8 @@ public abstract class BaseTest {
             bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
 
             bind(KieResources.class).toInstance(mock(KieResources.class));
-            bind(KnowledgeBaseFactoryService.class).toInstance(mock(KnowledgeBaseFactoryService.class));
-            bind(KnowledgeBuilderFactoryService.class).toInstance(mock(KnowledgeBuilderFactoryService.class));
+            bind(KnowledgeBaseFactoryService.class).toInstance(mockKnowledgeBaseFactoryService());
+            bind(KnowledgeBuilderFactoryService.class).toInstance(mockKnowledgeBuilderFactoryService());
             bind(LicenseService.class).toInstance(mock(LicenseService.class));
 
             Thesaurus thesaurus = mock(Thesaurus.class);
@@ -237,17 +245,25 @@ public abstract class BaseTest {
         doThrow(new DispatchCreationEventException("processed!")).when(issueCreationService).dispatchCreationEvent(Matchers.anyListOf(IssueEvent.class));
         return issueCreationService;
     }
+    
+    protected CreationRuleTemplate getMockCreationRuleTemplate() {
+        CreationRuleTemplate template = mock(CreationRuleTemplate.class);
+        when(template.getName()).thenReturn("template");
+        when(template.getContent()).thenReturn("Content");
+        ((IssueServiceImpl)getIssueService()).addCreationRuleTemplate(template);
+        return template;
+    }
 
 
     protected CreationRule getCreationRule(String name, String reasonKey) {
-        CreationRule rule = getIssueService().getIssueCreationService().createRule();
-        rule.setName(name);
-        rule.setComment("Comment for rule");
-        rule.setContent("Empty content");
-        rule.setReason(getIssueService().findReason(reasonKey).orElse(null));
-        rule.setDueInValue(15L);
-        rule.setDueInType(DueInType.DAY);
-        rule.setTemplateUuid("Parent template uuid");
+        CreationRuleBuilder builder = getIssueService().getIssueCreationService().newCreationRule();
+        builder.setName(name);
+        builder.setComment("Comment for rule");
+        builder.setReason(getIssueService().findReason(reasonKey).orElse(null));
+        builder.setDueInTime(DueInType.DAY, 15L);
+        CreationRuleTemplate template = getMockCreationRuleTemplate();
+        builder.setTemplate(template.getName());
+        CreationRule rule = builder.complete();
         rule.save();
         return rule;
     }
@@ -259,8 +275,38 @@ public abstract class BaseTest {
     protected DataModel getIssueDataModel() {
         return ((IssueServiceImpl)getIssueService()).getDataModel();
     }
+    
+    protected static KnowledgeBuilderFactoryService mockKnowledgeBuilderFactoryService() {
+        KnowledgeBuilderConfiguration config = mock(KnowledgeBuilderConfiguration.class);
+        KnowledgeBuilder builder = mock(KnowledgeBuilder.class);
+        KnowledgeBuilderFactoryService service = mock(KnowledgeBuilderFactoryService.class);
+        when(service.newKnowledgeBuilderConfiguration(Matchers.<java.util.Properties>any(), Matchers.<java.lang.ClassLoader[]>any())).thenReturn(config);
+        when(service.newKnowledgeBuilder(Matchers.<KnowledgeBuilderConfiguration>any())).thenReturn(builder);
+        return service;
+    }
+    
+    protected static KnowledgeBaseFactoryService mockKnowledgeBaseFactoryService() {
+        KieBaseConfiguration config = mock(KieBaseConfiguration.class);
+        @SuppressWarnings("deprecation")
+        KnowledgeBase base = mockKnowledgeBase();
+        KnowledgeBaseFactoryService service = mock(KnowledgeBaseFactoryService.class);
+        when(service.newKnowledgeBaseConfiguration(Matchers.<java.util.Properties>any(), Matchers.<java.lang.ClassLoader[]>any())).thenReturn(config);
+        when(service.newKnowledgeBase(Matchers.<KieBaseConfiguration>any())).thenReturn(base);
+        return service;
+    }
+    
+    @SuppressWarnings("deprecation")
+    protected static KnowledgeBase mockKnowledgeBase() {
+        StatefulKnowledgeSession ksession = mock(StatefulKnowledgeSession.class);
+        KnowledgeBase base = mock(KnowledgeBase.class);
+        when(base.newStatefulKnowledgeSession()).thenReturn(ksession);
+        return base;
+    }
 
     protected static class DispatchCreationEventException extends RuntimeException {
+
+        private static final long serialVersionUID = 1L;
+
         public DispatchCreationEventException(String message) {
             super(message);
         }

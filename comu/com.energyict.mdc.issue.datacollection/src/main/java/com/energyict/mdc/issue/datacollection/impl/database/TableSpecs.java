@@ -78,7 +78,7 @@ public enum TableSpecs {
     private static class TableBuilder{
         private static final int EXPECTED_FK_KEYS_LENGTH = 4;
 
-        static void buildIssueTable(Table table, Column idColumn, String issueTable, String pkKey, String... fkKeys){
+        static void buildIssueTable(Table<?> table, Column idColumn, String issueTable, String pkKey, String... fkKeys){
             Column issueColRef = table.column(IDC_BASE_ISSUE).number().conversion(NUMBER2LONG).notNull().add();
             Column connectionTaskColRef = table.column(IDC_CONNECTION_TASK).number().conversion(NUMBER2LONG).add();
             Column comTaskColRef = table.column(IDC_COMMUNICATION_TASK).number().conversion(NUMBER2LONG).add();

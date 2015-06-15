@@ -1,4 +1,4 @@
-package com.energyict.mdc.issue.tests;
+package com.energyict.mdc.issue.datacollection;
 
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.share.entity.IssueReason;
@@ -15,7 +15,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
 public class InstallerTest extends BaseTest {
-    private static final int DEFAULT_REASON_COUNT = 8;
+    private static final int DEFAULT_REASON_COUNT = 7;
     
     @Test
     public void testDefaultReasons(){

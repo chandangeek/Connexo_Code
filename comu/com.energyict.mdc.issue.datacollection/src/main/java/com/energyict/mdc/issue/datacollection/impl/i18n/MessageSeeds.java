@@ -4,6 +4,8 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.issue.datacollection.impl.templates.BasicDataCollectionRuleTemplate;
+import com.energyict.mdc.issue.datacollection.impl.templates.EventAggregationRuleTemplate;
 
 import java.text.MessageFormat;
 import java.util.logging.Level;
@@ -14,29 +16,14 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     // Templates 1 - 99
     BASIC_TEMPLATE_DATACOLLECTION_NAME(1, "TemapleBasicDataCollectionName", "Create issue when specific event occurs", Level.INFO),
     BASIC_TEMPLATE_DATACOLLECTION_DESCRIPTION(2, "TemapleBasicDataCollectionDescription", "Create issue when specific event occurs", Level.INFO),
-    SLOPE_DETECTION_TEMPLATE_NAME(3, "TemapleSlopeDetectionName", "Create issue when slope is detected", Level.INFO),
-    SLOPE_DETECTION_TEMPLATE_DESCRIPTION(4, "TemapleSlopeDetectionDescription", "Create an issue based on predictive analysis / correlations", Level.INFO),
     TEMPLATE_EVT_AGGREGATION_NAME(5, "TemapleEvtAggregationName", "Events from meters of concentrator", Level.INFO),
     TEMPLATE_EVT_AGGREGATION_DESCRIPTION(6, "TemapleEvtAggregationDescription", "Create an issue based on multiple events that are related", Level.INFO),
 
     // Parameters 101 - 499
-    PARAMETER_TREND_PERIOD_UNIT_DAYS(101, "TrendPeriodUnitDays", " days", Level.INFO),
-    PARAMETER_TREND_PERIOD_UNIT_HOURS(102, "TrendPeriodUnitHours", " hours", Level.INFO),
-    PARAMETER_NAME_MAX_SLOPE(103, "ParameterNameMaxSlope", "Threshold", Level.INFO),
-    PARAMETER_NAME_READING_TYPE(104, "ParameterNameReadingType", "CIM reading type", Level.INFO),
-    PARAMETER_NAME_TREND_PERIOD(105, "ParameterNameTrendPeriod", "Trend period", Level.INFO),
-    PARAMETER_NAME_TREND_PERIOD_UNIT(106, "ParameterNameTrendPeriodUnit", "Trend period units", Level.INFO),
-    PARAMETER_NAME_MAX_SLOPE_SUFFIX(107, "ParameterNameTrendPeriodUnitSuffix", "\u00B0C", Level.INFO),
-    PARAMETER_NAME_READING_TYPE_DESCRIPTION(108, "ParameterNameReadingTypeDescription", "Provide the value for the 18 attributes of the CIM reading type. Separate each value with a \".\"", Level.INFO),
-    PARAMETER_NAME_EVENT_TYPE(109, "ParameterNameEventType", "Event", Level.INFO),
-    PARAMETER_NAME_THRESHOLD(110, "ParameterNameThreshold", "Threshold", Level.INFO),
-    PARAMETER_NAME_THRESHOLD_SUFFIX(111, "ParameterNameThresholdSuffix", "%", Level.INFO),
-    PARAMETER_NAME_MAX_SLOPE_SUFFIX_PER_HOUR(112, "ParameterNameTrendPeriodUnitSuffixPerHour", "/hour", Level.INFO),
-    PARAMETER_AUTO_RESOLUTION(113, "ParameterAutoResolve", "Auto resolution", Level.SEVERE),
-
-    // Generall messages for all parameters 501 - 699
-    ISSUE_CREATION_RULE_PARAMETER_ABSENT(501, "IssueCreationRuleParameterAbsent", "Required parameter is absent", Level.SEVERE),
-    ISSUE_CREATION_RULE_PARAMETER_INCORRECT(502, "IssueCreationRuleParameterIncorrect", "Parameter has wrong value", Level.SEVERE),
+    PARAMETER_NAME_EVENT_TYPE(109, BasicDataCollectionRuleTemplate.EVENTTYPE, "Event", Level.INFO),
+    PARAMETER_AUTO_RESOLUTION(110, BasicDataCollectionRuleTemplate.AUTORESOLUTION, "Auto resolution", Level.INFO),
+    PARAMETER_NAME_THRESHOLD(111, EventAggregationRuleTemplate.THRESHOLD, "Threshold (%)", Level.INFO),
+    PARAMETER_NAME_EVENT_TYPE_FOR_AGGREGATION(112, EventAggregationRuleTemplate.EVENTTYPE, "Event", Level.INFO),
 
     // Events 701 - 999
     EVENT_BAD_DATA_NO_DEVICE(701, "EventBadDataNoDevice", "Unable to process issue creation event because target device (id = {0}) wasn't found", Level.SEVERE),
@@ -46,9 +33,6 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     EVENT_TITLE_DEVICE_COMMUNICATION_FAILURE(706, "EventTitleDeviceCommunicationFailure", "Device communication failure", Level.INFO),
     EVENT_TITLE_UNABLE_TO_CONNECT(706, "EventTitleUnableToConnect", "Unable to connect", Level.INFO),
     EVENT_TITLE_CONNECTION_LOST(707, "EventTitleConnectionLost", "Connection lost", Level.INFO),
-    EVENT_TITLE_DEVICE_EVENT(708, "EventTitleDeviceCreated", "Device Created", Level.INFO),
-    EVENT_BAD_DATA_NO_EVENT_IDENTIFIER(709, "EventBadDataNoVentIdentifier", "Unable to process issue creation event because target event identifier wasn't found", Level.SEVERE),
-    EVENT_BAD_DATA_WRONG_EVENT_TYPE(710, "EventBadDataWrongEventType", "Unable to process issue creation event because endDeviceEventType doesn't match to eventRecord type mrId", Level.SEVERE),
 
     // Reasons & issue types 1000 - 1099
     ISSUE_TYPE_DATA_COLELCTION(1000, "IssueTypeDataCollection", "Data Collection", Level.INFO),
@@ -59,11 +43,9 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     ISSUE_REASON_CONNECTION_FAILED(1005, "IssueReasonConnectionFailed", "Connection failed", Level.INFO),
     ISSUE_REASON_POWER_OUTAGE(1006, "IssueReasonPowerOutage", "Power outage", Level.INFO),
     ISSUE_REASON_TIME_SYNC_FAILED(1007, "IssueReasonSyncFailed", "Time sync failed", Level.INFO),
-    ISSUE_REASON_SLOPE_DETECTION(1008, "IssueReasonSlopeDetection", "Slope detection", Level.INFO),
 
     // Validation 1101 - 1499
     FIELD_CAN_NOT_BE_EMPTY (1101, Keys.FIELD_CAN_NOT_BE_EMPTY, "Field can't be empty", Level.SEVERE),
-    ISSUE_CREATION_RULE_THRESHOLD_PARAMETER_INCORRECT(1102, "IssueCreationRuleThresholdParameterIncorrect", "Invalid value. It should be a decimal number between %s and %s", Level.SEVERE),
 
     // Actions 1501 -
     ACTION_RETRY_NOW(1501, "ActionRetryNow", "Retry now", Level.INFO),
