@@ -211,10 +211,10 @@ public class DataExportTaskResource {
                 selector.setUpdatePeriod(getRelativePeriod(info.standardDataSelector.updatePeriod));
                 selector.setEndDeviceGroup(endDeviceGroup(info.standardDataSelector.deviceGroup.id));
                 selector.save();
+                updateReadingTypes(info, task);
             }
 
             updateProperties(info, task);
-            updateReadingTypes(info, task);
             updateDestinations(info, task);
 
             task.save();

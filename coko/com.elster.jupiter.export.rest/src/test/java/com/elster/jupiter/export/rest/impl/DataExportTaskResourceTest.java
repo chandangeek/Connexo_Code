@@ -107,9 +107,7 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
         info.id = TASK_ID;
         info.name = "newName";
         info.nextRun = 250L;
-        info.dataSelectorInfo = new DataSelectorInfo();
-        info.dataSelectorInfo.deviceGroup = new MeterGroupInfo();
-        info.dataSelectorInfo.deviceGroup.id = 5;
+        info.dataSelector = new SelectorInfo();
         info.dataProcessor = new ProcessorInfo();
         info.dataProcessor.name = "dataProcessor";
         DestinationInfo fileDestinationInfo = new DestinationInfo();
