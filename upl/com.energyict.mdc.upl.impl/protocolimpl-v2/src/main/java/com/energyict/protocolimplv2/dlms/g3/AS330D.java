@@ -2,10 +2,12 @@ package com.energyict.protocolimplv2.dlms.g3;
 
 import com.energyict.cbo.ConfigurationSupport;
 import com.energyict.cpo.PropertySpec;
+import com.energyict.cpo.TypedProperties;
 import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.cosem.ExceptionResponseException;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
+import com.energyict.mdc.channels.ComChannelType;
 import com.energyict.mdc.exceptions.ComServerExecutionException;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.meterdata.*;
@@ -15,6 +17,7 @@ import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.tasks.ConnectionType;
+import com.energyict.mdc.tasks.ConnectionTypeImpl;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
@@ -59,6 +62,13 @@ public class AS330D extends AbstractDlmsProtocol {
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
         this.offlineDevice = offlineDevice;
         getDlmsSessionProperties().setSerialNumber(offlineDevice.getSerialNumber());
+
+        //If no type is provided, use 'SocketComChannel', resulting in the TCP/IP connection layer.
+        if (!comChannel.getProperties().hasValueFor(ComChannelType.TYPE)) {
+            TypedProperties comChannelProperties = ConnectionTypeImpl.createTypeProperty(ComChannelType.SocketComChannel);
+            comChannel.addProperties(comChannelProperties);
+        }
+
         setDlmsSession(new DlmsSession(comChannel, getDlmsSessionProperties()));
     }
 

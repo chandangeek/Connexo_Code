@@ -160,7 +160,7 @@ public abstract class ConnectionTypeImpl implements ConnectionType {
      * Create a property that indicates the type of the ComChannel.
      * This is used by the protocols to determine the transport layer.
      */
-    protected TypedProperties createTypeProperty(ComChannelType comChannelType) {
+    public static TypedProperties createTypeProperty(ComChannelType comChannelType) {
         TypedProperties typedProperties = TypedProperties.empty();
         typedProperties.setProperty(ComChannelType.TYPE, comChannelType.getType());
         return typedProperties;
