@@ -115,7 +115,8 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionHistoryPrevie
                                     xtype: 'displayfield',
                                     name: 'status',
                                     fieldLabel: Uni.I18n.translate('deviceconnectionhistory.status', 'MDC', 'Status'),
-                                    itemId: 'statusLink'
+                                    itemId: 'statusLink',
+                                    htmlEncode: false
                                 },
                                 {
                                     xtype: 'displayfield',
