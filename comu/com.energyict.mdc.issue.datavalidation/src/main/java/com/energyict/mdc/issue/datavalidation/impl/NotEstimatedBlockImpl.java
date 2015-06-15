@@ -16,6 +16,7 @@ public class NotEstimatedBlockImpl implements NotEstimatedBlock {
     public enum Fields {
         ISSUE("issue"),
         CHANNEL("channel"),
+        READINGTYPE("readingType"),
         STARTTIME("startTime"),
         ENDTIME("endTime");
 
@@ -33,12 +34,12 @@ public class NotEstimatedBlockImpl implements NotEstimatedBlock {
     @IsPresent
     private Reference<Channel> channel = ValueReference.absent();
     
-    @NotNull
-    private ReadingType readingType;
+    @IsPresent
+    private Reference<ReadingType> readingType = ValueReference.absent();
 
     NotEstimatedBlockImpl init(Channel channel, ReadingType readingType, Instant startTime, Instant endTime) {
         this.channel.set(channel);
-        this.readingType = readingType;
+        this.readingType.set(readingType);
         this.startTime = startTime;
         this.endTime = endTime;
         return this;
@@ -57,7 +58,7 @@ public class NotEstimatedBlockImpl implements NotEstimatedBlock {
     
     @Override
     public ReadingType getReadingType() {
-        return readingType;
+        return readingType.get();
     }
     
     @Override

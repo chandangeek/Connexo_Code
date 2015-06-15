@@ -25,9 +25,9 @@ public class CannotEstimateDataEvent implements IssueEvent {
 
     @Override
     public void apply(Issue issue) {
-        if (issue instanceof IssueDataValidation) {
-            IssueDataValidation dataValidationIssue = (IssueDataValidation) issue;
-            
+        if (issue instanceof OpenIssueDataValidation) {
+            OpenIssueDataValidation dataValidationIssue = (OpenIssueDataValidation) issue;
+//            dataValidationIssue.addNotEstimatedBlock(channel, readingType, timeStamp);
         }
     }
 }

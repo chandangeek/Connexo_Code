@@ -7,7 +7,9 @@ import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.orm.OrmService;
+import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
 import com.google.inject.AbstractModule;
+import com.google.inject.Scopes;
 
 public class DataValidationIssueModule extends AbstractModule {
 
@@ -22,7 +24,7 @@ public class DataValidationIssueModule extends AbstractModule {
         requireBinding(NlsService.class);
 //        requireBinding(DeviceService.class);
 
-//        bind(IssueDataCollectionService.class).to(IssueDataCollectionServiceImpl.class).in(Scopes.SINGLETON);
+        bind(IssueDataValidationService.class).to(IssueDataValidationServiceImpl.class).in(Scopes.SINGLETON);
 //        bind(DataCollectionEventHandlerFactory.class).in(Scopes.SINGLETON);
     }
 }

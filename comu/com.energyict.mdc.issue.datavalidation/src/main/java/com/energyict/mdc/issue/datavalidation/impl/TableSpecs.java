@@ -1,6 +1,7 @@
 package com.energyict.mdc.issue.datavalidation.impl;
 
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
+import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.MeteringService;
@@ -70,10 +71,11 @@ public enum TableSpecs {
             
             Column issueRef = table.column("ISSUE").number().conversion(NUMBER2LONG).notNull().add();
             Column channelRef = table.column("CHANNEL").number().conversion(NUMBER2LONG).notNull().add();
+            Column readingTypeRef = table.column("READINGTYPE").varChar(NAME_LENGTH).notNull().add();
             Column startTime = table.column("STARTTIME").number().conversion(ColumnConversion.NUMBER2INSTANT).map(NotEstimatedBlockImpl.Fields.STARTTIME.fieldName()).notNull().add();
             table.column("ENDTIME").number().map(NotEstimatedBlockImpl.Fields.ENDTIME.fieldName()).conversion(ColumnConversion.NUMBER2INSTANT).notNull().add();
             
-            table.primaryKey("IDV_NOTESTBLOCK_PK").on(issueRef, channelRef, startTime).add();
+            table.primaryKey("IDV_NOTESTBLOCK_PK").on(issueRef, channelRef, readingTypeRef, startTime).add();
             table.foreignKey("IDV_NOTESTBLOCK_FK_ISSUE")
                     .on(issueRef).references(IDV_ISSUE_OPEN.name())
                     .map(NotEstimatedBlockImpl.Fields.ISSUE.fieldName())
@@ -81,7 +83,12 @@ public enum TableSpecs {
                     .onDelete(DeleteRule.CASCADE).add();
             table.foreignKey("IDV_NOTESTBLOCK_FK_CHANNEL")
                     .on(channelRef).map(NotEstimatedBlockImpl.Fields.CHANNEL.fieldName())
-                    .references(MeteringService.COMPONENTNAME, "MTR_CHANNEL").onDelete(DeleteRule.CASCADE).add();
+                    .references(MeteringService.COMPONENTNAME, "MTR_CHANNEL")
+                    .onDelete(DeleteRule.CASCADE).add();
+            table.foreignKey("IDV_NOTESTBLOCK_FK_RT")
+                    .on(readingTypeRef).map(NotEstimatedBlockImpl.Fields.READINGTYPE.fieldName())
+                    .references(MeteringService.COMPONENTNAME, "MTR_READINGTYPE")
+                    .onDelete(DeleteRule.CASCADE).add();
         }
     },
     
@@ -93,10 +100,11 @@ public enum TableSpecs {
             
             Column issueRef = table.column("ISSUE").number().conversion(NUMBER2LONG).notNull().add();
             Column channelRef = table.column("CHANNEL").number().conversion(NUMBER2LONG).notNull().add();
+            Column readingTypeRef = table.column("READINGTYPE").varChar(NAME_LENGTH).notNull().add();
             Column startTime = table.column("STARTTIME").number().conversion(ColumnConversion.NUMBER2INSTANT).map(NotEstimatedBlockImpl.Fields.STARTTIME.fieldName()).notNull().add();
             table.column("ENDTIME").number().map(NotEstimatedBlockImpl.Fields.ENDTIME.fieldName()).conversion(ColumnConversion.NUMBER2INSTANT).notNull().add();
             
-            table.primaryKey("IDV_HISTNOTESTBLOCK_PK").on(issueRef, channelRef, startTime).add();
+            table.primaryKey("IDV_HISTNOTESTBLOCK_PK").on(issueRef, channelRef, readingTypeRef, startTime).add();
             table.foreignKey("IDV_HISTNOTESTBLOCK_FK_ISSUE")
                     .on(issueRef).references(IDV_ISSUE_HISTORY.name())
                     .map(NotEstimatedBlockImpl.Fields.ISSUE.fieldName())
@@ -104,7 +112,12 @@ public enum TableSpecs {
                     .onDelete(DeleteRule.CASCADE).add();
             table.foreignKey("IDV_HISTNOTESTBLOCK_FK_CHANNEL")
                     .on(channelRef).map(NotEstimatedBlockImpl.Fields.CHANNEL.fieldName())
-                    .references(MeteringService.COMPONENTNAME, "MTR_CHANNEL").onDelete(DeleteRule.CASCADE).add();
+                    .references(MeteringService.COMPONENTNAME, "MTR_CHANNEL")
+                    .onDelete(DeleteRule.CASCADE).add();
+            table.foreignKey("IDV_HISTNOTESTBLOCK_FK_RT")
+                    .on(readingTypeRef).map(NotEstimatedBlockImpl.Fields.READINGTYPE.fieldName())
+                    .references(MeteringService.COMPONENTNAME, "MTR_READINGTYPE")
+                    .onDelete(DeleteRule.CASCADE).add();
         }
     },
     

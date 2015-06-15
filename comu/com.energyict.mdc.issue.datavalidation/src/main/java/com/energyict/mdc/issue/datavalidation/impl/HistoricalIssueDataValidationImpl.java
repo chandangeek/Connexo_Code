@@ -38,7 +38,11 @@ public class HistoricalIssueDataValidationImpl extends IssueDataValidationImpl i
     }
 
     public void copy(OpenIssueDataValidationImpl openIssueDataValidation) {
-        //TODO
+        for(NotEstimatedBlock block : openIssueDataValidation.getNotEstimatedBlocks()) {
+            HistoricalIssueNotEstimatedBlockImpl historicalBlock = getDataModel().getInstance(HistoricalIssueNotEstimatedBlockImpl.class);
+            historicalBlock.init(this, block);
+            notEstimatedBlocks.add(historicalBlock);
+        }
     }
     
     @Override

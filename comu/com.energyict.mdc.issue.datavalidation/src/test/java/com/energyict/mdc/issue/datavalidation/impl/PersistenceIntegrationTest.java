@@ -29,7 +29,6 @@ public abstract class PersistenceIntegrationTest {
 
         try (TransactionContext ctx = inMemoryPersistence.getTransactionService().getContext()) {
             inMemoryPersistence.getService(IssueDataValidationService.class);
-            
             ctx.commit();
         }
     }

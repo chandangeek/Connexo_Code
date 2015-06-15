@@ -50,11 +50,11 @@ import com.google.inject.Injector;
 
 public class InMemoryIntegrationPersistence {
 
-    private final Clock clock = mock(Clock.class);
-    private BundleContext bundleContext;
     private TransactionService transactionService;
     private InMemoryBootstrapModule bootstrapModule;
     private Injector injector;
+    
+    private final Clock clock = mock(Clock.class);
 
     public InMemoryIntegrationPersistence() {
         super();
@@ -78,7 +78,7 @@ public class InMemoryIntegrationPersistence {
                 new UtilModule(),
                 new ThreadSecurityModule(),
                 new PubSubModule(),
-                new TransactionModule(),
+                new TransactionModule(showSqlLogging),
                 new NlsModule(),
                 new UserModule(),
                 new IssueModule(),
@@ -91,17 +91,12 @@ public class InMemoryIntegrationPersistence {
         this.transactionService = this.injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = this.transactionService.getContext()) {
             this.transactionService = this.injector.getInstance(TransactionService.class);
-            
             ctx.commit();
         }
     }
 
     private void initializeMocks(String testName) {
-        this.bundleContext = mock(BundleContext.class);
-    }
-
-    public BundleContext getBundleContext() {
-        return bundleContext;
+        
     }
 
     public void cleanUpDataBase() throws SQLException {
@@ -138,7 +133,7 @@ public class InMemoryIntegrationPersistence {
         }
     }
 
-    protected static KnowledgeBuilderFactoryService mockKnowledgeBuilderFactoryService() {
+    protected KnowledgeBuilderFactoryService mockKnowledgeBuilderFactoryService() {
         KnowledgeBuilderConfiguration config = mock(KnowledgeBuilderConfiguration.class);
         KnowledgeBuilder builder = mock(KnowledgeBuilder.class);
         KnowledgeBuilderFactoryService service = mock(KnowledgeBuilderFactoryService.class);
@@ -147,7 +142,7 @@ public class InMemoryIntegrationPersistence {
         return service;
     }
     
-    protected static KnowledgeBaseFactoryService mockKnowledgeBaseFactoryService() {
+    protected KnowledgeBaseFactoryService mockKnowledgeBaseFactoryService() {
         KieBaseConfiguration config = mock(KieBaseConfiguration.class);
         @SuppressWarnings("deprecation")
         KnowledgeBase base = mockKnowledgeBase();
@@ -158,7 +153,7 @@ public class InMemoryIntegrationPersistence {
     }
     
     @SuppressWarnings("deprecation")
-    protected static KnowledgeBase mockKnowledgeBase() {
+    protected KnowledgeBase mockKnowledgeBase() {
         StatefulKnowledgeSession ksession = mock(StatefulKnowledgeSession.class);
         KnowledgeBase base = mock(KnowledgeBase.class);
         when(base.newStatefulKnowledgeSession()).thenReturn(ksession);

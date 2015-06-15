@@ -17,15 +17,20 @@ public class DataValidationIssueFilter {
 
     private List<IssueStatus> statuses = new ArrayList<>();
 
+    private boolean unassignedOnly = false;
+    
     private Optional<User> assignee = Optional.empty();
 
     private Optional<IssueReason> issueReason = Optional.empty();
 
     private Optional<EndDevice> device = Optional.empty();
 
-    //set 'null' for unassigned
+    public void setUnassignedOnly() {
+        this.unassignedOnly = true;
+    }
+    
     public void setAssignee(User assignee) {
-        this.assignee = Optional.ofNullable(assignee);
+        this.assignee = Optional.of(assignee);
     }
 
     public void setDevice(EndDevice device) {
@@ -42,6 +47,10 @@ public class DataValidationIssueFilter {
 
     public Optional<User> getAssignee() {
         return assignee;
+    }
+    
+    public boolean isUnassignedOnly() {
+        return unassignedOnly;
     }
     
     public Optional<EndDevice> getDevice() {

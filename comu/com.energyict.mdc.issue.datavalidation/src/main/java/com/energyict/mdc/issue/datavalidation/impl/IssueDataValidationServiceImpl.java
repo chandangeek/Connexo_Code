@@ -85,7 +85,7 @@ public class IssueDataValidationServiceImpl implements IssueDataValidationServic
     
     @Override
     public List<String> getPrerequisiteModules() {
-        return Arrays.asList("NLS", "ISU", "ORM", "MTR");
+        return Arrays.asList("NLS", "ORM", "MTR", "ISU");
     }
     
     @Override
@@ -107,7 +107,7 @@ public class IssueDataValidationServiceImpl implements IssueDataValidationServic
 
     @Override
     public Optional<HistoricalIssueDataValidation> findHistoricalIssue(long id) {
-        return dataModel.query(HistoricalIssueDataValidation.class, OpenIssue.class)
+        return dataModel.query(HistoricalIssueDataValidation.class, HistoricalIssue.class)
                         .select(Where.where(IssueDataValidationImpl.Fields.BASEISSUE.fieldName() + ".id").isEqualTo(id))
                         .stream()
                         .findFirst();
@@ -186,12 +186,17 @@ public class IssueDataValidationServiceImpl implements IssueDataValidationServic
     private Condition buildConditionFromFilter(DataValidationIssueFilter filter) {
         Condition condition = Condition.TRUE;
         //filter by assignee
+        Condition assigneeCondition = Condition.TRUE;
         if (filter.getAssignee().isPresent()) {
-            condition = condition.and(where(IssueDataValidationImpl.Fields.BASEISSUE.fieldName() + ".user").isEqualTo(filter.getAssignee().get()));
+            assigneeCondition = where(IssueDataValidationImpl.Fields.BASEISSUE.fieldName() + ".user").isEqualTo(filter.getAssignee().get());
         }
+        if (filter.isUnassignedOnly()) {
+            assigneeCondition = where(IssueDataValidationImpl.Fields.BASEISSUE.fieldName() + ".user").isNull();
+        }
+        condition = condition.and(assigneeCondition);
         //filter by reason
         if (filter.getIssueReason().isPresent()) {
-            condition = condition.and(where(IssueDataValidationImpl.Fields.BASEISSUE.fieldName() + "reason").isEqualTo(filter.getIssueReason().get()));
+            condition = condition.and(where(IssueDataValidationImpl.Fields.BASEISSUE.fieldName() + ".reason").isEqualTo(filter.getIssueReason().get()));
         }
         //filter by device
         if (filter.getDevice().isPresent()) {

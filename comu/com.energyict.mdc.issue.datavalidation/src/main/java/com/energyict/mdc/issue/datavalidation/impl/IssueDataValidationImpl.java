@@ -1,6 +1,7 @@
 package com.energyict.mdc.issue.datavalidation.impl;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 
 import javax.inject.Inject;
@@ -19,8 +20,9 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.users.User;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidation;
+import com.energyict.mdc.issue.datavalidation.NotEstimatedBlock;
 
-public abstract class IssueDataValidationImpl implements IssueDataValidation {
+public class IssueDataValidationImpl implements IssueDataValidation {
     
     public enum Fields {
         BASEISSUE("baseIssue"),
@@ -178,9 +180,7 @@ public abstract class IssueDataValidationImpl implements IssueDataValidation {
     }
 
     public void save() {
-        if (getBaseIssue().getCreateTime() == null) {
-            getBaseIssue().save();
-        }
+        getBaseIssue().save();
         if (this.createTime == null) {
             Save.CREATE.save(dataModel, this);
         } else {
@@ -192,6 +192,11 @@ public abstract class IssueDataValidationImpl implements IssueDataValidation {
         dataModel.remove(this);
     }
     
+    @Override
+    public List<NotEstimatedBlock> getNotEstimatedBlocks() {
+        throw new UnsupportedOperationException();
+    }
+
     protected DataModel getDataModel() {
         return dataModel;
     }
