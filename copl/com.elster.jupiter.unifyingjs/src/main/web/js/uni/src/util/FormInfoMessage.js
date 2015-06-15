@@ -10,6 +10,7 @@ Ext.define('Uni.util.FormInfoMessage', {
         align: 'middle'
     },
     margin: '7 0 32 0',
+    htmlEncode: true,
     iconCmp: null,
     beforeRender: function () {
         var me = this;
@@ -28,7 +29,7 @@ Ext.define('Uni.util.FormInfoMessage', {
             {
                 ui: 'form-error',
                 name: 'errormsgpanel',
-                html: Ext.String.htmlEncode(me.text)
+                html: me.text
             }
         ]);
 
