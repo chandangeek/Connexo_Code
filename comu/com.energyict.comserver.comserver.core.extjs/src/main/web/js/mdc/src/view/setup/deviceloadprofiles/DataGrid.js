@@ -59,7 +59,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.DataGrid', {
                 flex: 1,
                 renderer: function (data, metaData, record) {
                     if (record.data.channelValidationData && record.data.channelValidationData[channel.id]) {
-                        var result = record.data.channelValidationData[channel.id].validationResult,
+                        var result = record.data.channelValidationData[channel.id].mainValidationInfo.validationResult,
                             status = result.split('.')[1],
                             cls = 'icon-validation-cell';
                         if (status === 'suspect') {
@@ -71,7 +71,9 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.DataGrid', {
                         metaData.tdCls = cls;
                     }
                     if (!Ext.isEmpty(data[channel.id])) {
-                        return  console.log(); ;
+                        return  data[channel.id] ;
+                    } else {
+                        return '';
                     }
                 }
             });
