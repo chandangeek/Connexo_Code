@@ -184,14 +184,6 @@ public class CreationRuleImpl extends EntityImpl implements CreationRule {
     }
     
     @Override
-    public PropertySpec getPropertySpec(String propertyName) {
-        return getPropertySpecs().stream()
-                .filter(p -> propertyName.equals(p.getName()))
-                .findFirst()
-                .orElse(null);
-    }
-    
-    @Override
     public List<PropertySpec> getPropertySpecs() {
         CreationRuleTemplate template = getTemplate();
         return template != null ? template.getPropertySpecs() : Collections.emptyList();

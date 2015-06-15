@@ -199,7 +199,7 @@ public class IssueImpl extends EntityImpl implements Issue {
     public void assignTo(String type, long id) {
         Optional<IssueAssignee> assignee = issueService.findIssueAssignee(AssigneeType.fromString(type), id);
         if (assignee.isPresent()) {
-            assignTo(assignee.get());    
+            assignTo(assignee.get());
         }
     }
 

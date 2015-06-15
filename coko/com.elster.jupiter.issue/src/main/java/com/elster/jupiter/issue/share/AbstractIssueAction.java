@@ -12,7 +12,6 @@ import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.HasValidProperties;
-import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 
 @ConsumerType
@@ -42,11 +41,6 @@ public abstract class AbstractIssueAction implements IssueAction {
         this.properties = properties;
         Save.CREATE.validate(dataModel, this);
         return this;
-    }
-    
-    @Override
-    public PropertySpec getPropertySpec(String name) {
-        return getPropertySpecs().stream().filter(property -> property.getName().equals(name)).findFirst().orElse(null);
     }
 
     @Override

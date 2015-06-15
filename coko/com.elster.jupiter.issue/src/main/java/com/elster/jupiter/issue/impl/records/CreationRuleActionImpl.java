@@ -91,14 +91,6 @@ public class CreationRuleActionImpl implements CreationRuleAction {
     }
 
     @Override
-    public PropertySpec getPropertySpec(String propertyName) {
-        return getPropertySpecs().stream()
-                .filter(p -> propertyName.equals(p.getName()))
-                .findFirst()
-                .orElse(null);
-    }
-
-    @Override
     public Map<String, Object> getProperties() {
         return this.properties.stream().collect(Collectors.toMap(CreationRuleActionProperty::getName, CreationRuleActionProperty::getValue));
     }
