@@ -8,7 +8,7 @@
         <version>1.0.3</version>
     </parent>
     <artifactId>messaging.oracle</artifactId>
-    <version>1.0.3</version>
+    <version>1.0.4-SNAPSHOT</version>
     <packaging>bundle</packaging>
     <name>[Jupiter] com.elster.jupiter.messaging.oracle</name>
 
