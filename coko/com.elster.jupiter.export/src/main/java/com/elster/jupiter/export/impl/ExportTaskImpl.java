@@ -225,12 +225,20 @@ public class ExportTaskImpl implements IExportTask {
     }
 
     public List<PropertySpec> getPropertySpecs() {
-        List processorSpecs =  dataExportService.getDataProcessorFactory(dataProcessor).orElseThrow(()->new IllegalArgumentException("No such data processor: "+dataProcessor)).getPropertySpecs();
-        List selectorSpecs =  dataExportService.getDataSelectorFactory(dataSelector).orElseThrow(()->new IllegalArgumentException("No such data selector: "+dataSelector)).getPropertySpecs();
         List<PropertySpec> allSpecs = new ArrayList<PropertySpec>();
-        allSpecs.addAll(processorSpecs);
-        allSpecs.addAll(selectorSpecs);
+        allSpecs.addAll(getDataProcessorPropertySpecs());
+        allSpecs.addAll(getDataSelectorPropertySpecs());
         return allSpecs;
+    }
+
+    @Override
+    public List getDataSelectorPropertySpecs() {
+        return dataExportService.getDataSelectorFactory(dataSelector).orElseThrow(()->new IllegalArgumentException("No such data selector: "+dataSelector)).getPropertySpecs();
+    }
+
+    @Override
+    public List getDataProcessorPropertySpecs() {
+        return dataExportService.getDataProcessorFactory(dataProcessor).orElseThrow(()->new IllegalArgumentException("No such data processor: "+dataProcessor)).getPropertySpecs();
     }
 
     public ScheduleExpression getScheduleExpression() {

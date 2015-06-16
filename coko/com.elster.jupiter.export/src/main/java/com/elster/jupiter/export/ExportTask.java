@@ -47,6 +47,10 @@ public interface ExportTask extends HasName, HasAuditInfo {
 
     List<PropertySpec> getPropertySpecs();
 
+    List<PropertySpec> getDataSelectorPropertySpecs();
+
+    List<PropertySpec> getDataProcessorPropertySpecs();
+
     ScheduleExpression getScheduleExpression();
 
     Optional<? extends DataExportOccurrence> getLastOccurrence();
