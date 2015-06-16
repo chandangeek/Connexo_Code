@@ -213,13 +213,15 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
             this.getAddSharedCommunicationSchedulePreviewForm().down('#comTaskPreviewContainer').removeAll();
             if (communicationSchedules[0].comTaskUsages().data.items.length === 0) {
                 me.getAddSharedCommunicationSchedulePreviewForm().down('#comTaskPreviewContainer').add({
-                    xtype: 'displayfield'
+                    xtype: 'displayfield',
+                    htmlEncode: false
                 });
             } else {
                 Ext.each(communicationSchedules[0].comTaskUsages().data.items, function (comTaskUsage) {
                     me.getAddSharedCommunicationSchedulePreviewForm().down('#comTaskPreviewContainer').add({
                         xtype: 'displayfield',
-                        value: '<li>' + comTaskUsage.get('name') + '</li>'
+                        value: '<li>' + comTaskUsage.get('name') + '</li>',
+                        htmlEncode: false
                     })
                 });
             }
