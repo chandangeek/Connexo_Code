@@ -173,6 +173,13 @@ Ext.define('Isu.view.creationrules.EditForm', {
                                 listeners: {
                                     focus: {
                                         fn: Ext.bind(me.chooseDueInRadio, me)
+                                    },
+                                    change: {
+                                        fn: function (field, newValue) {
+                                            if (newValue < 0) {
+                                                field.setValue(Math.abs(newValue));
+                                            }
+                                        }
                                     }
                                 }
                             },
