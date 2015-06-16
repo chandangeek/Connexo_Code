@@ -23,11 +23,9 @@ public class EventInfo {
     private static final int UNKNOWN = 0;
     private static final String PROTOCOL_EVENTVALUE = Environment.getDefault().getTranslation("protocol.eventvalue");
     private String info;
-    private int logBookId;
 
-    public EventInfo(String info, int logBookId) {
+    public EventInfo(String info) {
         this.info = info;
-        this.logBookId = logBookId;
     }
 
     public MeterProtocolEvent parse() {

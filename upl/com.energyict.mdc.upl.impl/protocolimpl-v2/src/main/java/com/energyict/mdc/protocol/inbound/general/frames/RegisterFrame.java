@@ -2,14 +2,12 @@ package com.energyict.mdc.protocol.inbound.general.frames;
 
 import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.meterdata.CollectedRegisterList;
-import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdc.meterdata.identifiers.RegisterIdentifier;
 import com.energyict.mdc.protocol.inbound.general.frames.parsing.RegisterInfo;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.identifiers.CallHomeIdPlaceHolder;
-import com.energyict.protocolimplv2.identifiers.DialHomeIdPlaceHolderDeviceIdentifier;
 import com.energyict.protocolimplv2.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
 
 import java.util.ArrayList;
@@ -84,28 +82,19 @@ public class RegisterFrame extends AbstractInboundFrame {
             deviceRegister.setReadTime(readTime);
         }
 
-        if (this.getDevice() == null) {
-            deviceRegister.setFailureInformation(ResultType.ConfigurationMisMatch, MdcManager.getIssueCollector().addWarning(deviceRegister, "protocol.rtunotfound", getInboundParameters().getSerialNumber()));
-        } else if (this.getDevice().getRegister(register.getObisCode()) == null) {
-            deviceRegister.setFailureInformation(ResultType.ConfigurationMisMatch, MdcManager.getIssueCollector().addWarning(deviceRegister, "protocol.registernotfound", register.getObisCode(), getInboundParameters().getSerialNumber()));
-        }
         return deviceRegister;
     }
 
     private CollectedRegisterList getCollectedRegisterList() {
         if (this.collectedRegisterList == null) {
-            this.collectedRegisterList = MdcManager.getCollectedDataFactory().createCollectedRegisterList(getDeviceIdentifier());
+            this.collectedRegisterList = MdcManager.getCollectedDataFactory().createCollectedRegisterList(getDeviceIdentifierByDialHomeIdPlaceHolder());
             getCollectedDatas().add(this.collectedRegisterList);
         }
         return this.collectedRegisterList;
     }
 
     private RegisterIdentifier getRegisterIdentifier(ObisCode registerObisCode) {
-        return new RegisterDataIdentifierByObisCodeAndDevice(registerObisCode, getDeviceIdentifier());
-    }
-
-    private DialHomeIdPlaceHolderDeviceIdentifier getDeviceIdentifier() {
-        return new DialHomeIdPlaceHolderDeviceIdentifier(callHomeIdPlaceHolder);
+        return new RegisterDataIdentifierByObisCodeAndDevice(registerObisCode, getDeviceIdentifierByDialHomeIdPlaceHolder());
     }
 
 }

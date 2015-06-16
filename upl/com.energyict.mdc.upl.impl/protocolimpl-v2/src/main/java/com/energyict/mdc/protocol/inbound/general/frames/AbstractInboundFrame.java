@@ -1,10 +1,7 @@
 package com.energyict.mdc.protocol.inbound.general.frames;
 
-import com.energyict.cbo.NotFoundException;
-import com.energyict.cpo.Environment;
 import com.energyict.mdc.meterdata.CollectedData;
 import com.energyict.mdc.protocol.inbound.general.frames.parsing.InboundParameters;
-import com.energyict.mdw.core.Device;
 import com.energyict.protocolimplv2.identifiers.CallHomeIdPlaceHolder;
 import com.energyict.protocolimplv2.identifiers.DialHomeIdPlaceHolderDeviceIdentifier;
 
@@ -33,7 +30,6 @@ public abstract class AbstractInboundFrame {
     }
 
     private String frame;
-    private Device device = null;
     private InboundParameters inboundParameters = null;
     private List<CollectedData> collectedDatas;
     private String[] parameters = new String[0];
@@ -58,10 +54,6 @@ public abstract class AbstractInboundFrame {
         return frame;
     }
 
-    public Device getDevice() {
-        return device;
-    }
-
     public String[] getParameters() {
         return parameters;
     }
@@ -81,27 +73,8 @@ public abstract class AbstractInboundFrame {
         buildParameterList();
         inboundParameters = new InboundParameters(parameters);  //All frames contain some parameters, parse them here
         inboundParameters.parse();
-
-        if (findDevice()) {
-            doParse();
-        }
-    }
-
-    /**
-     * Find the unique device, based on its serialNumber.
-     *
-     * @return true if an unique device has been found
-     * false if no unique device could be found
-     */
-    private boolean findDevice() {
         this.callHomeIdPlaceHolder.setSerialNumber(getInboundParameters().getSerialNumber());
-        try {
-            device = getDeviceIdentifierByDialHomeIdPlaceHolder().findDevice();
-        } catch (NotFoundException e) {
-            return false;
-        }
-        Environment.getDefault().closeConnection();
-        return device != null;
+        doParse();
     }
 
     public abstract void doParse();   //Parsing of meter data is specific for every sub class

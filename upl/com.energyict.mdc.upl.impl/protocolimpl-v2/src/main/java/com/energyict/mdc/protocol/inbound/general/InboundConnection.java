@@ -1,7 +1,12 @@
 package com.energyict.mdc.protocol.inbound.general;
 
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.inbound.general.frames.*;
+import com.energyict.mdc.protocol.inbound.general.frames.AbstractInboundFrame;
+import com.energyict.mdc.protocol.inbound.general.frames.DeployFrame;
+import com.energyict.mdc.protocol.inbound.general.frames.EventFrame;
+import com.energyict.mdc.protocol.inbound.general.frames.EventPOFrame;
+import com.energyict.mdc.protocol.inbound.general.frames.RegisterFrame;
+import com.energyict.mdc.protocol.inbound.general.frames.RequestFrame;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.identifiers.CallHomeIdPlaceHolder;
 
@@ -256,6 +261,10 @@ public class InboundConnection {
 
     private byte[] createAck(String frameTag) {
         return ("<" + frameTag + ">" + "OK" + "</" + frameTag + ">").getBytes();
+    }
+
+    public CallHomeIdPlaceHolder getSerialNumberPlaceHolder() {
+        return callHomeIdPlaceHolder;
     }
 
     public void updateSerialNumberPlaceHolder(String serialNumber) {

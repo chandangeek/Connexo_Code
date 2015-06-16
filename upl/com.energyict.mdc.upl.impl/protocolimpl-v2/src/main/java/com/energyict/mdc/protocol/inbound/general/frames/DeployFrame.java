@@ -4,7 +4,6 @@ import com.energyict.mdc.meterdata.CollectedTopology;
 import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.identifiers.CallHomeIdPlaceHolder;
-import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
 
 /**
  * Copyrights EnergyICT
@@ -25,7 +24,7 @@ public class DeployFrame extends AbstractInboundFrame {
 
     @Override
     public void doParse() {
-        CollectedTopology deviceTopology = MdcManager.getCollectedDataFactory().createCollectedTopology(new DialHomeIdDeviceIdentifier(getSerialNumber()));
+        CollectedTopology deviceTopology = MdcManager.getCollectedDataFactory().createCollectedTopology(getDeviceIdentifierByDialHomeIdPlaceHolder());
         String meterType = getInboundParameters().getMeterType();
         //TODO use info for topology
 

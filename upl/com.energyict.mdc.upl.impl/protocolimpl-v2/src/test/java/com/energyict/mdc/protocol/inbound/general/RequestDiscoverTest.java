@@ -3,7 +3,6 @@ package com.energyict.mdc.protocol.inbound.general;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.TimeDuration;
 import com.energyict.cbo.Unit;
-import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.meterdata.CollectedData;
@@ -13,21 +12,13 @@ import com.energyict.mdc.meterdata.CollectedLogBook;
 import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.meterdata.CollectedRegisterList;
 import com.energyict.mdc.meterdata.CollectedTopology;
-import com.energyict.mdc.meterdata.NoLogBooksCollectedData;
 import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdc.meterdata.identifiers.LogBookIdentifier;
 import com.energyict.mdc.meterdata.identifiers.RegisterIdentifier;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.inbound.InboundDeviceProtocol;
-import com.energyict.mdw.core.Device;
-import com.energyict.mdw.core.DeviceFactory;
-import com.energyict.mdw.core.DeviceFactoryProvider;
-import com.energyict.mdw.core.LogBook;
-import com.energyict.mdw.core.LogBookFactory;
-import com.energyict.mdw.core.LogBookFactoryProvider;
 import com.energyict.mdw.core.LogBookSpec;
-import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterProtocolEvent;
 import com.energyict.util.IssueCollector;
 import com.energyict.util.IssueCollectorProvider;
@@ -35,14 +26,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatcher;
-import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static org.fest.assertions.api.Assertions.assertThat;
@@ -63,19 +51,7 @@ public class RequestDiscoverTest {
     @Mock
     protected ComChannel comChannel;
     @Mock
-    private DeviceFactoryProvider deviceFactoryProvider;
-    @Mock
-    protected DeviceFactory deviceFactory;
-    @Mock
-    protected Device device;
-    @Mock
-    protected LogBook logBook;
-    @Mock
     protected LogBookSpec logBookSpec;
-    @Mock
-    protected LogBookFactoryProvider logBookFactoryProvider;
-    @Mock
-    protected LogBookFactory logBookFactory;
     @Mock
     protected CollectedDataFactoryProvider collectedDataFactoryProvider;
     @Mock
@@ -94,21 +70,6 @@ public class RequestDiscoverTest {
 
     @Before
     public void initialize() {
-        ArrayList<LogBook> logBooks = new ArrayList<>();
-        logBooks.add(logBook);
-        when(logBook.getId()).thenReturn(LOGBOOK_ID);
-        when(logBook.getLogBookSpec()).thenReturn(logBookSpec);
-        when(logBookSpec.getDeviceObisCode()).thenReturn(ObisCode.fromString("0.0.99.98.0.255"));
-        when(this.device.getLogBooks()).thenReturn(logBooks);
-        when(this.deviceFactory.findByNotInheritedProtocolProperty(Matchers.<PropertySpec>any(), Matchers.<Object>any())).thenReturn(Arrays.asList(this.device));
-        when(this.deviceFactoryProvider.getDeviceFactory()).thenReturn(deviceFactory);
-        DeviceFactoryProvider.instance.set(deviceFactoryProvider);
-
-        LogBookFactoryProvider.instance.set(logBookFactoryProvider);
-        when(logBookFactoryProvider.getLogBookFactory()).thenReturn(logBookFactory);
-        when(logBookFactory.findGenericLogBook(device)).thenReturn(logBook);
-        when(logBookFactory.find(LOGBOOK_ID)).thenReturn(logBook);
-
         when(collectedDataFactoryProvider.getCollectedDataFactory()).thenReturn(collectedDataFactory);
         CollectedDataFactoryProvider.instance.set(collectedDataFactoryProvider);
 
@@ -229,25 +190,6 @@ public class RequestDiscoverTest {
     }
 
     @Test
-    public void testEventPOForDeviceHavingNoLogBooksConfigured() throws IOException {
-        NoLogBooksCollectedData noLogBooksCollectedData = mock(NoLogBooksCollectedData.class);
-        when(collectedDataFactory.createNoLogBookCollectedData(any(DeviceIdentifier.class))).thenReturn(noLogBooksCollectedData);
-        inboundFrame = "<EVENTPO>meterType=AS230,serialId=1234567890,dbaseId=5,ipAddress=192.168.0.1,event=10000101100110</EVENTPO>".getBytes();
-        when(this.device.getLogBooks()).thenReturn(new ArrayList<LogBook>());
-        mockComChannel();
-
-        RequestDiscover requestDiscover = getProtocolInstance();
-        requestDiscover.initComChannel(comChannel);
-        InboundDeviceProtocol.DiscoverResultType discoverResultType = requestDiscover.doDiscovery();
-
-        assertThat(discoverResultType).isEqualTo(InboundDeviceProtocol.DiscoverResultType.DATA);
-        assertThat(requestDiscover.getCollectedData()).isNotNull();
-        assertThat(requestDiscover.getCollectedData()).hasSize(1);
-        assertThat(requestDiscover.getDeviceIdentifier().toString()).contains("1234567890");
-        assertThat(requestDiscover.getCollectedData().get(0)).isEqualTo(noLogBooksCollectedData);
-    }
-
-    @Test
     public void testEvents() throws IOException {
         CollectedLogBook collectedLogBook = mock(CollectedLogBook.class);
         when(collectedDataFactory.createCollectedLogBook(any(LogBookIdentifier.class))).thenReturn(collectedLogBook);
@@ -284,25 +226,6 @@ public class RequestDiscoverTest {
                         && meterProtocolEvent2.getTime().getTime() == 1210757105000L;
             }
         }));
-    }
-
-    @Test
-    public void testEventsForDeviceHavingNoLogBooksConfigured() throws IOException {
-        NoLogBooksCollectedData noLogBooksCollectedData = mock(NoLogBooksCollectedData.class);
-        when(collectedDataFactory.createNoLogBookCollectedData(any(DeviceIdentifier.class))).thenReturn(noLogBooksCollectedData);
-        inboundFrame = "<EVENT>serialId=204006174,event0=123 8 080514092400, event1=20 6995 080514092505</EVENT>".getBytes();
-        when(this.device.getLogBooks()).thenReturn(new ArrayList<LogBook>());
-        mockComChannel();
-
-        RequestDiscover requestDiscover = getProtocolInstance();
-        requestDiscover.initComChannel(comChannel);
-        InboundDeviceProtocol.DiscoverResultType discoverResultType = requestDiscover.doDiscovery();
-
-        assertThat(discoverResultType).isEqualTo(InboundDeviceProtocol.DiscoverResultType.DATA);
-        assertThat(requestDiscover.getCollectedData()).isNotNull();
-        assertThat(requestDiscover.getCollectedData()).hasSize(1);
-        assertThat(requestDiscover.getDeviceIdentifier().toString()).contains("204006174");
-        assertThat(requestDiscover.getCollectedData().get(0)).isEqualTo(noLogBooksCollectedData);
     }
 
     private RequestDiscover getProtocolInstance() {

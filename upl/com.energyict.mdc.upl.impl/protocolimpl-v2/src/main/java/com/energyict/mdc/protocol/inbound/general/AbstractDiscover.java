@@ -70,6 +70,13 @@ public abstract class AbstractDiscover implements BinaryInboundDeviceProtocol {
 
     @Override
     public DeviceIdentifier getDeviceIdentifier () {
+        if (deviceIdentifier == null) {
+            if (getInboundConnection() != null &&       // As fall-back try to use the serialNumber from inboundConnection
+                    getInboundConnection().getSerialNumberPlaceHolder() != null &&
+                    getInboundConnection().getSerialNumberPlaceHolder().getSerialNumber() != null) {
+                setDeviceIdentifier(new DialHomeIdDeviceIdentifier(getInboundConnection().getSerialNumberPlaceHolder().getSerialNumber()));
+            }
+        }
         return deviceIdentifier;
     }
 
