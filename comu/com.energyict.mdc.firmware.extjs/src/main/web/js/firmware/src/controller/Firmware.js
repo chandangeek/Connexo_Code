@@ -412,7 +412,8 @@ Ext.define('Fwc.controller.Firmware', {
     },
 
     showFirmwareVersions: function (deviceTypeId) {
-        var me = this;
+        var me = this,
+            model = me.getModel('Fwc.model.FirmwareManagementOptions');
 
         me.loadDeviceType(deviceTypeId, function (deviceType) {
             var firmwareStore = Ext.getStore('Fwc.store.Firmwares');
@@ -424,6 +425,14 @@ Ext.define('Fwc.controller.Firmware', {
             me.getApplication().fireEvent('changecontentevent', 'firmware-versions', {deviceType: deviceType});
             me.getContainer().down('deviceTypeSideMenu #overviewLink').setText(deviceType.get('name'));
             me.getContainer().down('firmware-side-filter #side-filter-firmware-type').setVisible(false);
+
+            model.getProxy().setUrl(deviceTypeId);
+            model.load(1, {
+                success: function (record) {
+                    if (!record.data.isAllowed)
+                    me.getContainer().down('uni-form-info-message[name=warning]').show();
+                }
+            });
             me.initFilter();
         });
     },
