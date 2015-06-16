@@ -10,8 +10,7 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.ValueFactory;
 
 import java.time.Instant;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 import org.junit.*;
 import org.junit.runner.*;
@@ -69,7 +68,7 @@ public class EnableValidationTest {
         when(property.getValue()).thenReturn(now);
 
         // Business method
-        enableValidation.execute(this.device, Arrays.asList(property));
+        enableValidation.execute(this.device, Collections.singletonList(property));
 
         // Asserts
         verify(deviceValidation).activateValidation(now);

@@ -1,5 +1,9 @@
 package com.energyict.mdc.device.lifecycle.impl;
 
+import com.elster.jupiter.estimation.EstimationService;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.lifecycle.impl.micro.actions.*;
 import com.energyict.mdc.device.topology.TopologyService;
@@ -24,6 +28,10 @@ public class MicroActionFactoryImpl implements ServerMicroActionFactory {
     private volatile MeteringService meteringService;
     private volatile MeteringGroupsService meteringGroupsService;
     private volatile TopologyService topologyService;
+    private volatile ThreadPrincipalService threadPrincipalService;
+    private volatile TransactionService transactionService;
+    private volatile ValidationService validationService;
+    private volatile EstimationService estimationService;
 
     // For OSGi purposes only
     public MicroActionFactoryImpl() {
@@ -52,6 +60,25 @@ public class MicroActionFactoryImpl implements ServerMicroActionFactory {
     @Reference
     public void setTopologyService(TopologyService topologyService) {
         this.topologyService = topologyService;
+    }
+
+    @Reference
+    public void setTransactionService(TransactionService transactionService) {
+        this.transactionService = transactionService;
+    }
+    @Reference
+    public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
+        this.threadPrincipalService = threadPrincipalService;
+    }
+
+    @Reference
+    public void setValidationService(ValidationService validationService) {
+        this.validationService = validationService;
+    }
+
+    @Reference
+    public void setEstimationService(EstimationService estimationService) {
+        this.estimationService = estimationService;
     }
 
     @Override
@@ -90,6 +117,8 @@ public class MicroActionFactoryImpl implements ServerMicroActionFactory {
             case ENABLE_ESTIMATION: {
                 return new EnableEstimation();
             }
+            case FORCE_VALIDATION_AND_ESTIMATION:
+                return new ForceValidationAndEstimation(this.threadPrincipalService, this.transactionService, this.validationService, this.estimationService);
             default: {
                 throw new IllegalArgumentException("Unknown or unsupported MicroAction " + microAction.name());
             }
