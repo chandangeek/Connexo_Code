@@ -1,14 +1,14 @@
 Ext.define('Cfg.view.validationtask.History', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.cfg-validation-tasks-history',
+
     requires: [
         'Cfg.view.validationtask.Menu',
         'Cfg.view.validationtask.HistoryPreview',
         'Cfg.view.validationtask.HistoryPreviewForm',
         'Cfg.view.validationtask.PreviewForm',
         'Cfg.view.validationtask.HistoryGrid',
-        'Cfg.view.validationtask.HistoryFilterForm',
-        'Uni.component.filter.view.FilterTopPanel'
+        'Cfg.view.validationtask.HistoryFilter'
     ],
 
     router: null,
@@ -27,11 +27,6 @@ Ext.define('Cfg.view.validationtask.History', {
                         itemId: 'tasks-view-menu',
                         taskId: me.taskId,
                         router: me.router
-                    },
-                    {
-                        xtype: 'cfg-history-filter-form',
-                        itemId: 'side-filter',
-                        router: me.router
                     }
                 ]
             }
@@ -43,10 +38,6 @@ Ext.define('Cfg.view.validationtask.History', {
             title: Uni.I18n.translate('validationTasks.general.history', 'CFG', 'History'),
             items: [
                 {
-                    xtype: 'filter-top-panel',
-                    itemId: 'tasks-history-filter-top-panel'
-                },
-                {
                     xtype: 'preview-container',
                     grid: {
                         xtype: 'cfg-tasks-history-grid',
@@ -57,14 +48,22 @@ Ext.define('Cfg.view.validationtask.History', {
                         title: Uni.I18n.translate('validationTasks.validationTasksHistory.empty.title', 'CFG', 'No validation history found'),
                         reasons: [
                             Uni.I18n.translate('validationTasks.validationTasksHistory.empty.list.item1', 'CFG', 'There is no history available for this validation task.')
-                        ]
+                        ],
+                        margin: '16 0 0 0'
                     },
                     previewComponent: {
                         xtype: 'cfg-tasks-history-preview'
                     }
                 }
+            ],
+            dockedItems: [
+                {
+                    dock: 'top',
+                    xtype: 'cfg-view-validationtask-historyfilter'
+                }
             ]
         };
+
         me.callParent(arguments);
     }
 });

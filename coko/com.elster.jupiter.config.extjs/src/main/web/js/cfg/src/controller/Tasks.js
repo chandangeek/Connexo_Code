@@ -1,30 +1,35 @@
 Ext.define('Cfg.controller.Tasks', {
     extend: 'Ext.app.Controller',
-    requires:[,
+
+    requires: [,
         'Cfg.privileges.Validation'
     ],
+
     views: [
         'Cfg.view.validationtask.Add',
         'Cfg.view.validationtask.Setup',
         'Cfg.view.validationtask.Details',
-		'Cfg.view.validationtask.History',
+        'Cfg.view.validationtask.History',
         'Cfg.view.validationtask.HistoryPreview',
         'Cfg.view.validationtask.HistoryPreviewForm',
         'Uni.form.field.DateTime'
     ],
+
     stores: [
         'Cfg.store.DeviceGroups',
-        'Cfg.store.DaysWeeksMonths',		
+        'Cfg.store.DaysWeeksMonths',
         'Cfg.store.ValidationTasks',
-		'Cfg.store.ValidationTasksHistory'
+        'Cfg.store.ValidationTasksHistory'
     ],
+
     models: [
         'Cfg.model.DeviceGroup',
-        'Cfg.model.DayWeekMonth',        
+        'Cfg.model.DayWeekMonth',
         'Cfg.model.ValidationTask',
-		'Cfg.model.ValidationTaskHistory',
-		'Cfg.model.HistoryFilter'
+        'Cfg.model.ValidationTaskHistory',
+        'Cfg.model.HistoryFilter'
     ],
+
     refs: [
         {
             ref: 'page',
@@ -42,23 +47,24 @@ Ext.define('Cfg.controller.Tasks', {
             ref: 'actionMenu',
             selector: 'cfg-validation-tasks-action-menu'
         },
-		{
+        {
             ref: 'history',
             selector: 'cfg-validation-tasks-history'
         },
-		   {
+        {
             ref: 'filterTopPanel',
             selector: '#tasks-history-filter-top-panel'
         },
-		{
+        {
             ref: 'sideFilterForm',
             selector: '#side-filter #filter-form'
         }
     ],
+
     fromDetails: false,
     fromEdit: false,
     taskModel: null,
-    taskId: null,    
+    taskId: null,
 
     init: function () {
         this.control({
@@ -68,7 +74,7 @@ Ext.define('Cfg.controller.Tasks', {
             'cfg-validation-tasks-add #add-button': {
                 click: this.addTask
             },
-			'validation-tasks-setup cfg-validation-tasks-grid': {
+            'validation-tasks-setup cfg-validation-tasks-grid': {
                 select: this.showPreview
             },
             'cfg-validation-tasks-action-menu': {
@@ -79,16 +85,6 @@ Ext.define('Cfg.controller.Tasks', {
             },
             'cfg-validation-tasks-history cfg-tasks-history-grid': {
                 select: this.showHistoryPreview
-            },
-			 'cfg-history-filter-form  button[action=applyfilter]': {
-                click: this.applyHistoryFilter
-            },
-            'cfg-history-filter-form  button[action=clearfilter]': {
-                click: this.clearHistoryFilter
-            },
-            '#tasks-history-filter-top-panel': {
-                removeFilter: this.removeHistoryFilter,
-                clearAllFilters: this.clearHistoryFilter
             }
         });
     },
@@ -100,13 +96,13 @@ Ext.define('Cfg.controller.Tasks', {
             });
 
         me.fromDetails = false;
-        me.getApplication().fireEvent('changecontentevent', view);   
+        me.getApplication().fireEvent('changecontentevent', view); 
+        
 		if ( Cfg.privileges.Validation.canRun()) {
             Ext.Array.each(Ext.ComponentQuery.query('#run-task'), function (item) {
                 item.show();
             });
         }
-		
     },
 
     showValidationTaskDetailsView: function (currentTaskId) {
@@ -143,7 +139,7 @@ Ext.define('Cfg.controller.Tasks', {
         });
     },
 
-	showValidationTaskHistory: function (currentTaskId) {
+    showValidationTaskHistory: function (currentTaskId) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             store = me.getStore('Cfg.store.ValidationTasksHistory'),
@@ -151,12 +147,14 @@ Ext.define('Cfg.controller.Tasks', {
             view;
 
         store.getProxy().setUrl(router.arguments);
+
         view = Ext.widget('cfg-validation-tasks-history', {
             router: router,
             taskId: currentTaskId
         });
+
         me.getApplication().fireEvent('changecontentevent', view);
-        me.initFilter();
+        store.load();
 
         taskModel.load(currentTaskId, {
             success: function (record) {
@@ -191,7 +189,7 @@ Ext.define('Cfg.controller.Tasks', {
 
     showAddValidationTask: function () {
         var me = this,
-            view = Ext.create('Cfg.view.validationtask.Add'),            
+            view = Ext.create('Cfg.view.validationtask.Add'),
             deviceGroupCombo = view.down('#cbo-validation-task-device-group'),
             recurrenceTypeCombo = view.down('#cbo-recurrence-type');
 
@@ -199,17 +197,17 @@ Ext.define('Cfg.controller.Tasks', {
 
         me.taskModel = null;
         me.taskId = null;
-        me.fromEdit = false;		
-		 
-		deviceGroupCombo.store.load(function () {
-			if (this.getCount() === 0) {
-				deviceGroupCombo.allowBlank = true;
-				deviceGroupCombo.hide();
-				view.down('#no-device').show();
-			}
-		});
-		recurrenceTypeCombo.setValue(recurrenceTypeCombo.store.getAt(2));
-        
+        me.fromEdit = false;
+
+        deviceGroupCombo.store.load(function () {
+            if (this.getCount() === 0) {
+                deviceGroupCombo.allowBlank = true;
+                deviceGroupCombo.hide();
+                view.down('#no-device').show();
+            }
+        });
+        recurrenceTypeCombo.setValue(recurrenceTypeCombo.store.getAt(2));
+
     },
 
     showEditValidationTask: function (taskId) {
@@ -231,51 +229,51 @@ Ext.define('Cfg.controller.Tasks', {
             taskForm = view.down('#frm-add-validation-task'),
             deviceGroupCombo = view.down('#cbo-validation-task-device-group'),
             recurrenceTypeCombo = view.down('#cbo-recurrence-type');
-			
+
         if (!Cfg.privileges.Validation.canAdministrate()) {
-            deviceGroupCombo.disabled = true;         
+            deviceGroupCombo.disabled = true;
         }
         me.fromEdit = true;
         me.taskId = taskId;
-    		
-		 taskModel.load(taskId, {
-                    success: function (record) {
-                        var schedule = record.get('schedule');
-                        me.taskModel = record;
-                        me.getApplication().fireEvent('validationtaskload', record);
-                        taskForm.setTitle(Uni.I18n.translate('validationTasks.general.edit', 'CFG', 'Edit') + " '" + record.get('name') + "'");
-                        	taskForm.loadRecord(record);
-                        
-							deviceGroupCombo.store.load({
-                                callback: function () {
-                                    if (this.getCount() === 0) {
-                                        deviceGroupCombo.allowBlank = true;
-                                        deviceGroupCombo.hide();
-                                        view.down('#no-device').show();
-                                    }
-                                    deviceGroupCombo.setValue(deviceGroupCombo.store.getById(record.data.deviceGroup.id));
-                                }
-                            });      
-							if (record.data.nextRun && (record.data.nextRun !== 0)) {
-							//if (schedule) {
-                                view.down('#rgr-validation-tasks-recurrence-trigger').setValue({recurrence: true});
-                                view.down('#num-recurrence-number').setValue(schedule.count);
-                                recurrenceTypeCombo.setValue(schedule.timeUnit);
-                                view.down('#start-on').setValue(record.data.nextRun);
-                            } else {
-                                recurrenceTypeCombo.setValue(recurrenceTypeCombo.store.getAt(2));
-                            }
-							
-                        view.setLoading(false);
+
+        taskModel.load(taskId, {
+            success: function (record) {
+                var schedule = record.get('schedule');
+                me.taskModel = record;
+                me.getApplication().fireEvent('validationtaskload', record);
+                taskForm.setTitle(Uni.I18n.translate('validationTasks.general.edit', 'CFG', 'Edit') + " '" + record.get('name') + "'");
+                taskForm.loadRecord(record);
+
+                deviceGroupCombo.store.load({
+                    callback: function () {
+                        if (this.getCount() === 0) {
+                            deviceGroupCombo.allowBlank = true;
+                            deviceGroupCombo.hide();
+                            view.down('#no-device').show();
+                        }
+                        deviceGroupCombo.setValue(deviceGroupCombo.store.getById(record.data.deviceGroup.id));
                     }
                 });
-				
-				
+                if (record.data.nextRun && (record.data.nextRun !== 0)) {
+                    //if (schedule) {
+                    view.down('#rgr-validation-tasks-recurrence-trigger').setValue({recurrence: true});
+                    view.down('#num-recurrence-number').setValue(schedule.count);
+                    recurrenceTypeCombo.setValue(schedule.timeUnit);
+                    view.down('#start-on').setValue(record.data.nextRun);
+                } else {
+                    recurrenceTypeCombo.setValue(recurrenceTypeCombo.store.getAt(2));
+                }
+
+                view.setLoading(false);
+            }
+        });
+
+
         me.getApplication().fireEvent('changecontentevent', view);
         view.setLoading();
     },
 
-    showPreview: function (selectionModel, record) {	
+    showPreview: function (selectionModel, record) {
         var me = this,
             page = me.getPage(),
             preview = page.down('cfg-tasks-preview'),
@@ -310,7 +308,7 @@ Ext.define('Cfg.controller.Tasks', {
             router = me.getController('Uni.controller.history.Router'),
             route;
 
-		if (me.getHistory()) {
+        if (me.getHistory()) {
             router.arguments.occurrenceId = menu.record.getId();
         } else {
             router.arguments.taskId = menu.record.getId();
@@ -325,8 +323,8 @@ Ext.define('Cfg.controller.Tasks', {
                 break;
             case 'removeTask':
                 me.removeTask(menu.record);
-                break;         
-			case 'viewLog':
+                break;
+            case 'viewLog':
                 route = 'administration/validationtasks/validationtask/history/occurrence';
                 break;
             case 'viewHistory':
@@ -415,42 +413,6 @@ Ext.define('Cfg.controller.Tasks', {
         });
     },
 
-	initFilter: function () {
-        var me = this,
-            router = this.getController('Uni.controller.history.Router'),
-            filter = router.filter,
-            date;
-
-        me.getSideFilterForm().loadRecord(filter);
-        for (var f in filter.getData()) {
-            var name = '', validationPeriod;
-            switch (f) {
-                case 'startedOnFrom':
-                    name = Uni.I18n.translate('validationTasks.general.startedFrom', 'CFG', 'Started from');
-                    break;
-                case 'startedOnTo':
-                    name = Uni.I18n.translate('validationTasks.general.startedTo', 'CFG', 'Started to');
-                    break;
-                case 'finishedOnFrom':
-                    name = Uni.I18n.translate('validationTasks.general.finishedFrom', 'CFG', 'Finished from');
-                    name = 'Finished from';
-                    break;
-                case 'finishedOnTo':
-                    name = Uni.I18n.translate('validationTasks.general.finishedTo', 'CFG', 'Finished to');
-                    break;                
-            }
-            if (!Ext.isEmpty(filter.get(f))) {
-                date = new Date(filter.get(f));
-                me.getFilterTopPanel().setFilter(f, name, validationPeriod
-                    ? Uni.DateTime.formatDateLong(date)
-                    : Uni.DateTime.formatDateLong(date)
-                + ' ' + Uni.I18n.translate('validationTasks.general.at', 'CFG', 'At').toLowerCase() + ' '
-                + Uni.DateTime.formatTimeShort(date));
-            }
-        }
-        me.getFilterTopPanel().setVisible(true);
-    },
-
     removeTask: function (record) {
         var me = this,
             confirmationWindow = Ext.create('Uni.view.window.Confirmation');
@@ -488,8 +450,8 @@ Ext.define('Cfg.controller.Tasks', {
                 if (json && json.errors) {
                     errorText = json.errors[0].msg;
                 }
-               
-			   if (!Ext.ComponentQuery.query('#remove-error-messagebox')[0]) {
+
+                if (!Ext.ComponentQuery.query('#remove-error-messagebox')[0]) {
                     Ext.widget('messagebox', {
                         itemId: 'remove-error-messagebox',
                         buttons: [
@@ -522,19 +484,18 @@ Ext.define('Cfg.controller.Tasks', {
         });
     },
 
-
     addTask: function (button) {
         var me = this,
             page = me.getAddPage(),
             form = page.down('#frm-add-validation-task'),
-            formErrorsPanel = form.down('#form-errors'),           
+            formErrorsPanel = form.down('#form-errors'),
             lastDayOfMonth = false,
             startOnDate,
             timeUnitValue,
             dayOfMonth,
             hours,
             minutes;
-        
+
         if (form.isValid()) {
             var record = me.taskModel || Ext.create('Cfg.model.ValidationTask');
 
@@ -542,8 +503,8 @@ Ext.define('Cfg.controller.Tasks', {
             if (!formErrorsPanel.isHidden()) {
                 formErrorsPanel.hide();
             }
-          
-			record.set('name', form.down('#txt-task-name').getValue());
+
+            record.set('name', form.down('#txt-task-name').getValue());
             record.set('deviceGroup', {
                 id: form.down('#cbo-validation-task-device-group').getValue(),
                 name: form.down('#cbo-validation-task-device-group').getRawValue()
@@ -613,11 +574,11 @@ Ext.define('Cfg.controller.Tasks', {
                 }
                 record.set('nextRun', startOnDate);
             } else {
-				record.set('nextRun', null);
+                record.set('nextRun', null);
                 record.set('schedule', null);
             }
-     
-			record.endEdit();
+
+            record.endEdit();
             record.save({
                 success: function () {
                     if (button.action === 'editTask' && me.fromDetails) {
@@ -643,38 +604,18 @@ Ext.define('Cfg.controller.Tasks', {
             formErrorsPanel.show();
         }
     },
-   
-   onRecurrenceTriggerChange: function (field, newValue, oldValue) {
+
+    onRecurrenceTriggerChange: function (field, newValue, oldValue) {
         var me = this,
             page = me.getAddPage(),
             recurrenceNumberField = page.down('#num-recurrence-number'),
             recurrenceTypeCombo = page.down('#cbo-recurrence-type');
 
         if (newValue.recurrence && !recurrenceNumberField.getValue()) {
-            recurrenceNumberField.setValue(recurrenceNumberField.minValue);            
-        }  
-		if (newValue.recurrence && !recurrenceTypeCombo.getValue()) {            
+            recurrenceNumberField.setValue(recurrenceNumberField.minValue);
+        }
+        if (newValue.recurrence && !recurrenceTypeCombo.getValue()) {
             recurrenceTypeCombo.setValue(recurrenceTypeCombo.store.getAt(0));
-        }  		
-    },
-	
-	 applyHistoryFilter: function () {
-        this.getSideFilterForm().updateRecord();
-        this.getSideFilterForm().getRecord().save();
-    },
-
-    clearHistoryFilter: function () {
-        this.getSideFilterForm().getForm().reset();
-        this.getFilterTopPanel().setVisible(false);
-        this.getSideFilterForm().getRecord().getProxy().destroy();
-    },
-
-    removeHistoryFilter: function (key) {
-        var router = this.getController('Uni.controller.history.Router'),
-            record = router.filter;
-        if (record) {
-            delete record.data[key];
-            record.save();
         }
     }
 });

@@ -60,7 +60,8 @@ Ext.define('Cfg.view.validationtask.HistoryGrid', {
                 xtype: 'pagingtoolbarbottom',
                 store: me.store,
                 itemsPerPageMsg: Uni.I18n.translate('validationTasks.pagingtoolbarbottom.itemsPerPage', 'CFG', 'Validation tasks per page'),
-                dock: 'bottom'
+                dock: 'bottom',
+                deferLoading: true
             }
         ];
 
