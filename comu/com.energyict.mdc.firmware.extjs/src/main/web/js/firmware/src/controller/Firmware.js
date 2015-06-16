@@ -27,8 +27,6 @@ Ext.define('Fwc.controller.Firmware', {
     refs: [
         {ref: 'firmwareForm', selector: '#firmwareForm'},
         {ref: 'container', selector: 'viewport > #contentPanel'},
-        {ref: 'sideFilterForm', selector: 'firmware-versions firmware-side-filter'},
-        {ref: 'filterPanel', selector: 'firmware-versions filter-top-panel'},
         {ref: 'firmwareOptionsEditForm', selector: '#firmwareOptionsEditForm'}
     ],
 
@@ -56,16 +54,6 @@ Ext.define('Fwc.controller.Firmware', {
             'firmware-add [action=saveFirmware]': {
                 click: this.saveFirmware
             },
-            'firmware-versions filter-top-panel': {
-                removeFilter: this.clearFilterByKey,
-                clearAllFilters: this.clearFilter
-            },
-            'firmware-versions firmware-side-filter button[action=applyfilter]': {
-                click: this.applyFilter
-            },
-            'firmware-versions firmware-side-filter button[action=clearfilter]': {
-                click: this.clearFilter
-            },
             'firmware-options [action=editFirmwareOptions]': {
                 click: function () {
                     this.getController('Uni.controller.history.Router')
@@ -75,70 +63,6 @@ Ext.define('Fwc.controller.Firmware', {
             },
             'firmware-options-edit [action=saveOptionsAction]': {
                 click: this.saveOptionsAction
-            }
-        });
-    },
-
-    applyFilter: function () {
-        this.getSideFilterForm().updateRecord();
-        this.getSideFilterForm().getRecord().save();
-    },
-
-    clearFilter: function () {
-        this.getSideFilterForm().getRecord().getProxy().destroy();
-    },
-
-    clearFilterByKey: function (key) {
-        var router = this.getController('Uni.controller.history.Router'),
-            record = router.filter,
-            data = hydrator.extract(record),
-            clone = record.copy();
-
-        data[key] = undefined;
-        hydrator.hydrate(data, clone);
-        clone.save();
-    },
-
-    initFilter: function () {
-        var me = this,
-            supportedFirmwareTypesStore = Ext.getStore('Fwc.store.SupportedFirmwareTypes'),
-            onFirmwareTypesLoad = function () {
-                var checked = me.getSideFilterForm().down('firmware-type').getChecked();
-                if (checked.length) {
-                    me.getFilterPanel().setFilter(
-                        'firmwareType',
-                        Uni.I18n.translate('firmware.filter.type', 'FWC', 'Type'),
-                        checked.map(function (ch) {
-                            return ch.boxLabel;
-                        }).join(', ')
-                    );
-                }
-            },
-            router = this.getController('Uni.controller.history.Router');
-
-        me.getSideFilterForm().loadRecord(router.filter);
-
-        me.getFilterPanel().getContainer().removeAll();
-        Ext.getStore('Fwc.store.FirmwareStatuses').on('load', function () {
-            var checked = me.getSideFilterForm().down('firmware-status').getChecked();
-            if (checked.length) {
-                me.getFilterPanel().setFilter(
-                    'firmwareStatus',
-                    Uni.I18n.translate('firmware.filter.status', 'FWC', 'Status'),
-                    checked.map(function (ch) {
-                        return ch.boxLabel;
-                    }).join(', ')
-                );
-            }
-        }, this, {single: true});
-
-        Ext.getStore('Fwc.store.FirmwareTypes').on('load', onFirmwareTypesLoad, this, {single: true});
-        supportedFirmwareTypesStore.on('load', onFirmwareTypesLoad, this, {single: true});
-
-        supportedFirmwareTypesStore.load({
-            scope: this,
-            callback: function () {
-                me.getContainer().down('firmware-side-filter #side-filter-firmware-type').setVisible(supportedFirmwareTypesStore.totalCount !== 1);
             }
         });
     },
@@ -413,6 +337,7 @@ Ext.define('Fwc.controller.Firmware', {
 
     showFirmwareVersions: function (deviceTypeId) {
         var me = this,
+            supportedFirmwareTypesStore = Ext.getStore('Fwc.store.SupportedFirmwareTypes'),
             model = me.getModel('Fwc.model.FirmwareManagementOptions');
 
         me.loadDeviceType(deviceTypeId, function (deviceType) {
@@ -424,7 +349,6 @@ Ext.define('Fwc.controller.Firmware', {
 
             me.getApplication().fireEvent('changecontentevent', 'firmware-versions', {deviceType: deviceType});
             me.getContainer().down('deviceTypeSideMenu #overviewLink').setText(deviceType.get('name'));
-            me.getContainer().down('firmware-side-filter #side-filter-firmware-type').setVisible(false);
 
             model.getProxy().setUrl(deviceTypeId);
             model.load(1, {
@@ -433,7 +357,13 @@ Ext.define('Fwc.controller.Firmware', {
                     me.getContainer().down('uni-form-info-message[name=warning]').show();
                 }
             });
-            me.initFilter();
+            supportedFirmwareTypesStore.load({
+                scope: this,
+                callback: function () {
+                    me.getContainer().down('fwc-view-firmware-versions-topfilter').showOrHideFirmwareTypeFilter(supportedFirmwareTypesStore.totalCount !== 1);
+                }
+            });
+
         });
     },
 
