@@ -187,16 +187,13 @@ class ExportTaskImpl implements IExportTask {
             throw new CannotDeleteWhileBusy();
         }
         properties.clear();
-        clearChildrenForDelete();
+        destinations.clear();
+        readingTypeDataSelector.getOptional().ifPresent(IReadingTypeDataSelector::delete);
         dataModel.mapper(DataExportOccurrence.class).remove(getOccurrences());
         dataModel.remove(this);
         if (recurrentTask.isPresent()) {
             recurrentTask.get().delete();
         }
-    }
-
-    void clearChildrenForDelete() {
-        readingTypeDataSelector.getOptional().ifPresent(dataSelector -> dataSelector.delete());
     }
 
     @Override

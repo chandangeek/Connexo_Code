@@ -95,7 +95,7 @@ import static org.assertj.core.data.MapEntry.entry;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ReadingTypeDataExportTaskImplIT {
+public class ExportTaskImplIT {
 
     public static final String NAME = "NAME";
     private EnumeratedEndDeviceGroup anotherEndDeviceGroup;
@@ -267,7 +267,6 @@ public class ReadingTypeDataExportTaskImplIT {
         assertThat(emailDestination.getFileExtension()).isEqualTo("csv");
         assertThat(emailDestination.getSubject()).isEqualTo("test report");
 
-
     }
 
     @Test
@@ -329,7 +328,7 @@ public class ReadingTypeDataExportTaskImplIT {
         assertThat(readingTypeDataExportTask.getProperties()).hasSize(1).contains(entry("propy", BigDecimal.valueOf(100, 0)));
     }
 
-    @Test
+   @Test
     public void testHistory() throws InterruptedException {
 
         clock.setSubsequent(
