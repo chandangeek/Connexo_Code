@@ -17,7 +17,7 @@ public enum MicroAction {
      * load profiles and log books of the device.
      * Requires that the user specifies that last reading timestamp.
      */
-    // storage = bits 0
+    // storage = bits 1
     SET_LAST_READING,
 
     /**
