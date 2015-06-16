@@ -44,11 +44,12 @@ Ext.define('Fwc.view.firmware.FirmwareVersions', {
                     {
                         xtype: 'uni-form-info-message',
                         name: 'warning',
-                        title: 'Firmware management is not allowed on devices of this device type.',
+                        title: Uni.I18n.translate('deviceFirmware.title.optionsDisabled', 'MDC', 'Firmware management is not allowed on devices of this device type.'),
                         html: Uni.I18n.translate('deviceFirmware.optionsDisabled', 'MDC', 'Devices of this type won\'t have the option to upload new firmware versions.<br>If you want to activate firmware management for this device type, click')
-                        + '<a href="' + this.router.getRoute('administration/devicetypes/view/firmwareoptions').buildUrl() + '"> here</a>',
+                        + '<a href="' + this.router.getRoute('administration/devicetypes/view/firmwareoptions').buildUrl() + '"> '
+                        + Uni.I18n.translate('general.here', 'MDC', 'here') + '</a>',
                         hidden: true,
-                        margin: '0 0 32 0',
+                        margin: '32 0 32 0',
                         height: 130
                     },
                     {
