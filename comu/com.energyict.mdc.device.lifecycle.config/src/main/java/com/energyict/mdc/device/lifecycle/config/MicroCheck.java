@@ -13,17 +13,17 @@ public enum MicroCheck {
     /**
      * Checks that there is a default connection available on the device.
      */
-    DEFAULT_CONNECTION_AVAILABLE,
+    DEFAULT_CONNECTION_AVAILABLE(MicroCategory.COMMUNICATION),
 
     /**
      * Checks that there is at least one communication task scheduled on the device.
      */
-    AT_LEAST_ONE_MANUALLY_SCHEDULED_COMMUNICATION_TASK_AVAILABLE,
+    AT_LEAST_ONE_MANUALLY_SCHEDULED_COMMUNICATION_TASK_AVAILABLE(MicroCategory.COMMUNICATION),
 
     /**
      * Checks that there is at least one shared communication schedule on the device.
      */
-    AT_LEAST_ONE_SCHEDULED_COMMUNICATION_TASK_AVAILABLE,
+    AT_LEAST_ONE_SCHEDULED_COMMUNICATION_TASK_AVAILABLE(MicroCategory.COMMUNICATION),
 
     /**
      * Checks that all data (in both load profiles and registers)
@@ -31,7 +31,7 @@ public enum MicroCheck {
      * This holds true if the last reading is set and is
      * equal to the effective timestamp of the transition.
      */
-    ALL_DATA_COLLECTED,
+    ALL_DATA_COLLECTED(MicroCategory.DATA_COLLECTION),
 
     /**
      * Checks that all data (in both load profiles and registers)
@@ -39,50 +39,59 @@ public enum MicroCheck {
      * This holds true if the last reading is equal to
      * the last checked timestamp.
      */
-    ALL_DATA_VALID,
+    ALL_DATA_VALID(MicroCategory.VALIDATION_AND_ESTIMATION),
 
     /**
      * Checks that all general protocol property values are valid,
      * i.e. will check that all required attributes are specified
      * because the values itself are validated when saved.
      */
-    GENERAL_PROTOCOL_PROPERTIES_ARE_ALL_VALID,
+    GENERAL_PROTOCOL_PROPERTIES_ARE_ALL_VALID(MicroCategory.COMMUNICATION),
 
     /**
      * Checks that all protocol dialect property values are valid,
      * i.e. will check that all required attributes are specified
      * because the values itself are validated when saved.
      */
-    PROTOCOL_DIALECT_PROPERTIES_ARE_ALL_VALID,
+    PROTOCOL_DIALECT_PROPERTIES_ARE_ALL_VALID(MicroCategory.COMMUNICATION),
 
     /**
      * Checks that all security property values are valid,
      * i.e. will check that all required attributes are specified
      * because the values itself are validated when saved.
      */
-    SECURITY_PROPERTIES_ARE_ALL_VALID,
+    SECURITY_PROPERTIES_ARE_ALL_VALID(MicroCategory.COMMUNICATION),
 
     /**
      * Checks that all connection property values are valid,
      * i.e. will check that all required attributes are specified
      * because the values itself are validated when saved.
      */
-    CONNECTION_PROPERTIES_ARE_ALL_VALID,
+    CONNECTION_PROPERTIES_ARE_ALL_VALID(MicroCategory.COMMUNICATION),
 
     /**
      * Checks that a slave device is connected to a gateway.
      */
-    SLAVE_DEVICE_HAS_GATEWAY,
+    SLAVE_DEVICE_HAS_GATEWAY(MicroCategory.TOPOLOGY),
 
     /**
      * Checks that the device is linked to a usagepoint.
      */
-    LINKED_WITH_USAGE_POINT,
+    LINKED_WITH_USAGE_POINT(MicroCategory.INSTALLATION),
 
     /**
      * Checks that all issues and alarms that were
      * registered against the device are closed.
      */
-    ALL_ISSUES_AND_ALARMS_ARE_CLOSED;
+    ALL_ISSUES_AND_ALARMS_ARE_CLOSED(MicroCategory.ISSUES_AND_ALARMS);
 
+    private MicroCategory category;
+
+    MicroCheck(MicroCategory category) {
+        this.category = category;
+    }
+
+    public MicroCategory getCategory() {
+        return category;
+    }
 }

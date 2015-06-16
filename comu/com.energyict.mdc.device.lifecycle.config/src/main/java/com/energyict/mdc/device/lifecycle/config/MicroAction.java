@@ -24,12 +24,12 @@ public enum MicroAction {
      * Requires that the user specifies the timestamp
      * from which data should be validated.
      */
-    ENABLE_VALIDATION(MicroCategory.VALIDATION_AND_ESTIMATION, "subcategory.validation"),
+    ENABLE_VALIDATION(MicroCategory.VALIDATION_AND_ESTIMATION, "subcategory_validation"),
 
     /**
      * Disables data validation on the device.
      */
-    DISABLE_VALIDATION(MicroCategory.VALIDATION_AND_ESTIMATION, "subcategory.validation"),
+    DISABLE_VALIDATION(MicroCategory.VALIDATION_AND_ESTIMATION, "subcategory_validation"),
 
     /**
      * Activates all connection tasks on the device.
@@ -43,13 +43,13 @@ public enum MicroAction {
      *
      * @see #ACTIVATE_CONNECTION_TASKS
      */
-    START_COMMUNICATION(MicroCategory.COMMUNICATION, "subcategory.communication"),
+    START_COMMUNICATION(MicroCategory.COMMUNICATION, "subcategory_communication"),
 
     /**
      * Disable communication on the device
      * by putting all connection and communication tasks on hold.
      */
-    DISABLE_COMMUNICATION(MicroCategory.COMMUNICATION, "subcategory.communication"),
+    DISABLE_COMMUNICATION(MicroCategory.COMMUNICATION, "subcategory_communication"),
 
     /**
      * Creates a meter activation for the device.

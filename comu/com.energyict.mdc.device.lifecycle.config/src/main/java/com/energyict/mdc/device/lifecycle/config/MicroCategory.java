@@ -5,5 +5,7 @@ public enum MicroCategory {
     VALIDATION_AND_ESTIMATION,
     DATA_COLLECTION,
     TOPOLOGY,
+    ISSUES_AND_ALARMS,
+    INSTALLATION,
     ;
 }
