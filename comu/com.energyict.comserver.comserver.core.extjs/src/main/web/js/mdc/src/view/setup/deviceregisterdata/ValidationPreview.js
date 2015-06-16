@@ -24,6 +24,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.ValidationPreview', {
         {
             fieldLabel: Uni.I18n.translate('device.registerData.dataValidated', 'MDC', 'Data validated'),
             name: 'dataValidated',
+            htmlEncode: false,
             renderer: function (value) {
                 return value ? Uni.I18n.translate('general.yes', 'MDC', 'Yes')
                     : Uni.I18n.translate('general.no', 'MDC', 'No') + ' ' + '<span class="icon-validation icon-validation-black"></span>';
