@@ -37,7 +37,7 @@ final class FileImportOccurrenceImpl implements FileImportOccurrence {
     private Instant endDate;
     private Instant triggerTime;
     private transient InputStream inputStream;
-    private final FileUtils importFileSystem;
+    private final FileUtils fileUtils;
     private final DataModel dataModel;
     private final FileNameCollisionResolver fileNameCollisionResolver;
     private final Thesaurus thesaurus;
@@ -49,8 +49,8 @@ final class FileImportOccurrenceImpl implements FileImportOccurrence {
     private Clock clock;
 
     @Inject
-    private FileImportOccurrenceImpl(FileImportService fileImportService, FileUtils importFileSystem, DataModel dataModel, FileNameCollisionResolver fileNameCollisionResolver, Thesaurus thesaurus, Clock clock, FileSystem fileSystem) {
-        this.importFileSystem = importFileSystem;
+    private FileImportOccurrenceImpl(FileImportService fileImportService, FileUtils fileUtils, DataModel dataModel, FileNameCollisionResolver fileNameCollisionResolver, Thesaurus thesaurus, Clock clock, FileSystem fileSystem) {
+        this.fileUtils = fileUtils;
         this.dataModel = dataModel;
         this.fileNameCollisionResolver = fileNameCollisionResolver;
         this.thesaurus = thesaurus;
@@ -93,7 +93,7 @@ final class FileImportOccurrenceImpl implements FileImportOccurrence {
     @Override
     public InputStream getContents() {
         if (inputStream == null) {
-            inputStream = importFileSystem.getInputStream(fileImportService.getBasePath().resolve(path));
+            inputStream = fileUtils.getInputStream(fileImportService.getBasePath().resolve(path));
         }
         return inputStream;
     }
@@ -222,11 +222,16 @@ final class FileImportOccurrenceImpl implements FileImportOccurrence {
     }
 
     private void moveFile() {
-        Path filePath = fileImportService.getBasePath().resolve(path);
-        if (Files.exists(filePath)) {
-            Path target = targetPath(filePath);
-            importFileSystem.move(filePath, target);
-            path = fileImportService.getBasePath().relativize(target);
+        try {
+            Path filePath = fileImportService.getBasePath().resolve(path);
+            if (Files.exists(filePath)) {
+                Path target = targetPath(filePath);
+                fileUtils.move(filePath, target);
+                path = fileImportService.getBasePath().relativize(target);
+            }
+        }
+        catch(Exception e){
+            getLogger().log(Level.SEVERE, e.getMessage(),e);
         }
     }
 
