@@ -4,6 +4,7 @@ import com.energyict.cbo.ConfigurationSupport;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.dlms.aso.ApplicationServiceObject;
+import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.cosem.ExceptionResponseException;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
@@ -15,16 +16,17 @@ import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.DeviceProtocolCache;
 import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityCapabilities;
-import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.ConnectionTypeImpl;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.mdw.offline.OfflineRegister;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.ProtocolException;
+import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.dlms.g3.G3DeviceInfo;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dialects.NoParamsDeviceProtocolDialect;
@@ -36,12 +38,16 @@ import com.energyict.protocolimplv2.dlms.g3.properties.AS330DConfigurationSuppor
 import com.energyict.protocolimplv2.dlms.g3.properties.AS330DProperties;
 import com.energyict.protocolimplv2.dlms.g3.registers.RegisterFactory;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
+import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 import com.energyict.protocolimplv2.security.AS330DSecuritySupport;
+import com.energyict.protocolimplv2.security.DeviceProtocolSecurityPropertySetImpl;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Protocol that reads out the G3 e-meter connected to an RTU3 gateway / concentrator (for the G3 international project).
@@ -53,9 +59,11 @@ import java.util.List;
  */
 public class AS330D extends AbstractDlmsProtocol {
 
+    private static final ObisCode FRAMECOUNTER_OBISCODE = ObisCode.fromString("0.3.43.0.0.255");
+    private static final BigDecimal PUBLIC_CLIENT = BigDecimal.valueOf(16);
+
     private RegisterFactory registerFactory;
     private LogBookFactory logBookFactory;
-    private long initialFrameCounter = -1;
     private ProfileDataFactory profileDataFactory;
 
     @Override
@@ -69,7 +77,41 @@ public class AS330D extends AbstractDlmsProtocol {
             comChannel.addProperties(comChannelProperties);
         }
 
+        readFrameCounter(comChannel);
         setDlmsSession(new DlmsSession(comChannel, getDlmsSessionProperties()));
+    }
+
+    /**
+     * First read out the frame counter for the management client, using the public client.
+     * Note that this happens without setting up an association, since the it's pre-established for the public client.
+     */
+    protected void readFrameCounter(ComChannel comChannel) {
+        TypedProperties clone = getDlmsSessionProperties().getProperties().clone();
+        clone.setProperty(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, PUBLIC_CLIENT);
+        AS330DProperties publicClientProperties = new AS330DProperties();
+        publicClientProperties.addProperties(clone);
+        publicClientProperties.setSecurityPropertySet(new DeviceProtocolSecurityPropertySetImpl(0, 0, clone));    //SecurityLevel 0:0
+
+        DlmsSession publicDlmsSession = new DlmsSession(comChannel, publicClientProperties);
+
+        //Read out the frame counter using the public client, it has a pre-established association
+        publicDlmsSession.assumeConnected(publicClientProperties.getMaxRecPDUSize(), publicClientProperties.getConformanceBlock());
+
+        long frameCounter;
+        try {
+            Structure frameCountersStructure = publicDlmsSession.getCosemObjectFactory().getData(FRAMECOUNTER_OBISCODE).getValueAttr().getStructure();
+            if (frameCountersStructure != null && frameCountersStructure.nrOfDataTypes() >= 1) {
+                frameCounter = frameCountersStructure.getDataType(0).longValue();
+            } else {
+                frameCounter = new Random().nextInt();
+            }
+        } catch (DataAccessResultException | ProtocolException e) {
+            frameCounter = new Random().nextInt();
+        } catch (IOException e) {
+            throw IOExceptionHandler.handle(e, publicDlmsSession);
+        }
+
+        getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(frameCounter + 1);
     }
 
     @Override
@@ -113,12 +155,6 @@ public class AS330D extends AbstractDlmsProtocol {
     }
 
     @Override
-    public void setSecurityPropertySet(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
-        super.setSecurityPropertySet(deviceProtocolSecurityPropertySet);
-        this.getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(initialFrameCounter == -1 ? 1 : initialFrameCounter);    //Set the frameCounter from last session (which has been loaded from cache)
-    }
-
-    @Override
     protected DeviceProtocolSecurityCapabilities getSecuritySupport() {
         if (dlmsSecuritySupport == null) {
             dlmsSecuritySupport = new AS330DSecuritySupport();
@@ -143,9 +179,7 @@ public class AS330D extends AbstractDlmsProtocol {
         if (this.dlmsCache == null || !(this.dlmsCache instanceof G3Cache)) {
             this.dlmsCache = new G3Cache();
         }
-        G3Cache g3Cache = (G3Cache) this.dlmsCache;
-        g3Cache.setFrameCounter(getDlmsSession().getAso().getSecurityContext().getFrameCounter());     //Save this for the next session
-        return g3Cache;
+        return (G3Cache) this.dlmsCache;
     }
 
     /**
@@ -156,7 +190,6 @@ public class AS330D extends AbstractDlmsProtocol {
     public void setDeviceCache(DeviceProtocolCache deviceProtocolCache) {
         if ((deviceProtocolCache != null) && (deviceProtocolCache instanceof G3Cache)) {
             this.dlmsCache = (G3Cache) deviceProtocolCache;
-            this.initialFrameCounter = ((G3Cache) this.dlmsCache).getFrameCounter() + 1;
         }
     }
 
