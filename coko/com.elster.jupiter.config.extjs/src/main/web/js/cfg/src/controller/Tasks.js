@@ -241,7 +241,7 @@ Ext.define('Cfg.controller.Tasks', {
                 var schedule = record.get('schedule');
                 me.taskModel = record;
                 me.getApplication().fireEvent('validationtaskload', record);
-                taskForm.setTitle(Uni.I18n.translate('validationTasks.general.edit', 'CFG', 'Edit') + " '" + record.get('name') + "'");
+                taskForm.setTitle(Uni.I18n.translate('validationTasks.general.edit', 'CFG', 'Edit') + " '" + Ext.String.htmlEncode(record.get('name')) + "'");
                 taskForm.loadRecord(record);
 
                 deviceGroupCombo.store.load({
@@ -297,7 +297,7 @@ Ext.define('Cfg.controller.Tasks', {
                 });
             }
         }
-        preview.setTitle(record.get('name'));
+        preview.setTitle(Ext.String.htmlEncode(record.get('name')));
         previewForm.loadRecord(record);
         preview.down('cfg-validation-tasks-action-menu').record = record;
         Ext.resumeLayouts();

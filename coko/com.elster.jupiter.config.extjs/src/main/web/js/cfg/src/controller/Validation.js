@@ -966,7 +966,7 @@ Ext.define('Cfg.controller.Validation', {
                         return;
                     }
                     me.ruleModel = rule;
-                    me.ruleTitle = "Edit '" + rule.get('name') + "'"
+                    me.ruleTitle = "Edit '" + Ext.String.htmlEncode(rule.get('name')) + "'"
 
                     me.getApplication().fireEvent('loadRule', rule);
 

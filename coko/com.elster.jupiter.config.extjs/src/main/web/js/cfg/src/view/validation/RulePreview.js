@@ -97,7 +97,7 @@ Ext.define('Cfg.view.validation.RulePreview', {
         }
 
         me.loadRecord(validationRule);
-        me.setTitle(validationRule.get('name'));
+        me.setTitle(Ext.String.htmlEncode(validationRule.get('name')));
         me.addProperties(validationRule);
         me.addReadingTypes(validationRule);
 
