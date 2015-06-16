@@ -177,6 +177,7 @@ enum TableSpecs {
             table.column("SUBJECT").varChar(Table.NAME_LENGTH).map("subject").add();
             table.column("ATTACHMENTNAME").varChar(Table.NAME_LENGTH).map("attachmentName").add();
             table.column("ATTACHMENTEXTENSION").varChar(Table.NAME_LENGTH).map("attachmentExtension").add();
+            table.addAuditColumns();
 
             table.primaryKey("DES_PK_DESTINATION").on(idColumn).add();
             table.foreignKey("DES_DEST_TASK")

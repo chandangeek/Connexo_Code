@@ -7,6 +7,7 @@ import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
 import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.export.DataExportDestination;
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataFormatter;
@@ -88,6 +89,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 
 import static com.elster.jupiter.devtools.tests.assertions.JupiterAssertions.assertThat;
 import static com.elster.jupiter.time.RelativeField.*;
@@ -109,14 +111,14 @@ public class ExportTaskImplIT {
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(LogService.class).toInstance(logService);
 
-            bind (FileImportService.class).toInstance(fileImportService);
+            bind(FileImportService.class).toInstance(fileImportService);
         }
     }
 
     public static final String FORMATTER = "formatter";
 
     private static final ZonedDateTime NOW = ZonedDateTime.of(2012, 10, 12, 9, 46, 12, 241615214, TimeZoneNeutral.getMcMurdo());
-    private final ProgrammableClock clock = new ProgrammableClock(ZoneId.systemDefault(), NOW.toInstant());
+    private ProgrammableClock clock = new ProgrammableClock(ZoneId.systemDefault(), NOW.toInstant());
 
     @Rule
     public TestRule veryColdHere = Using.timeZoneOfMcMurdo();
@@ -328,35 +330,48 @@ public class ExportTaskImplIT {
         assertThat(readingTypeDataExportTask.getProperties()).hasSize(1).contains(entry("propy", BigDecimal.valueOf(100, 0)));
     }
 
-   @Test
+    @Test
     public void testHistory() throws InterruptedException {
 
-        clock.setSubsequent(
-                NOW.plusSeconds(1).toInstant(),
-                NOW.plusSeconds(2).toInstant(),
-                NOW.plusSeconds(3).toInstant(),
-                NOW.plusSeconds(4).toInstant(),
-                NOW.plusSeconds(5).toInstant(),
-                NOW.plusSeconds(6).toInstant(),
-                NOW.plusSeconds(7).toInstant(),
-                NOW.plusSeconds(8).toInstant()
-        );
+        clock.setTicker(new Supplier<Instant>() {
+            private ZonedDateTime last = NOW.plusSeconds(1);
 
-        ExportTask exportTask = createAndSaveTask();
+            @Override
+            public Instant get() {
+                try {
+                    return last.toInstant();
+                } finally {
+                    last = last.plusSeconds(1);
+                }
+            }
+        });
+
+        ExportTask exportTask = createAndSaveTask(); // version 1
+        try (TransactionContext context = transactionService.getContext()) {
+            exportTask.addFileDestination("tmp", "file", "csv"); // version 2
+            exportTask.addEmailDestination("info@elster.com", "test report", "file", "csv"); // version 3
+
+            context.commit();
+        }
 
         exportTask.setName("NEWNAME");
         BigDecimal value1 = new BigDecimal("101");
         exportTask.setProperty("propy", value1);
 
         try (TransactionContext context = transactionService.getContext()) {
-            exportTask.save();
+            exportTask.save(); // version 4
             context.commit();
         }
 
         BigDecimal value2 = new BigDecimal("102");
         exportTask.setProperty("propy", value2);
         try (TransactionContext context = transactionService.getContext()) {
-            exportTask.save();
+            exportTask.save(); // version 5
+            context.commit();
+        }
+        try (TransactionContext context = transactionService.getContext()) {
+            DataExportDestination dataExportDestination = exportTask.getDestinations().get(0);
+            exportTask.removeDestination(dataExportDestination);
             context.commit();
         }
 
@@ -367,12 +382,21 @@ public class ExportTaskImplIT {
         assertThat(version1.get().getName()).isEqualTo(NAME);
         Optional<? extends ExportTask> version2 = history.getVersion(2);
         assertThat(version2).isPresent();
-        assertThat(version2.get().getName()).isEqualTo("NEWNAME");
-        assertThat(version2.get().getProperties(NOW.toInstant().plusSeconds(7))).containsEntry("propy", value1);
+        assertThat(version2.get().getDestinations(version2.get().getModTime().minusSeconds(1))).hasSize(1);
         Optional<? extends ExportTask> version3 = history.getVersion(3);
         assertThat(version3).isPresent();
-        assertThat(version3.get().getName()).isEqualTo("NEWNAME");
-        assertThat(version3.get().getProperties(NOW.toInstant().plusSeconds(8))).containsEntry("propy", value2);
+        assertThat(version3.get().getDestinations(version3.get().getModTime().minusSeconds(1))).hasSize(2);
+        Optional<? extends ExportTask> version4 = history.getVersion(4);
+        assertThat(version4).isPresent();
+        assertThat(version4.get().getName()).isEqualTo("NEWNAME");
+        assertThat(version4.get().getProperties(version4.get().getModTime())).containsEntry("propy", value1);
+        Optional<? extends ExportTask> version5 = history.getVersion(5);
+        assertThat(version5).isPresent();
+        assertThat(version5.get().getName()).isEqualTo("NEWNAME");
+        assertThat(version5.get().getProperties(version5.get().getModTime())).containsEntry("propy", value2);
+        Optional<? extends ExportTask> version6 = history.getVersion(6);
+        assertThat(version6).isPresent();
+        assertThat(version6.get().getDestinations(version6.get().getModTime().minusSeconds(1))).hasSize(1);
     }
 
     @Test

@@ -85,4 +85,6 @@ public interface ExportTask extends HasName, HasAuditInfo {
     void removeDestination(DataExportDestination destination);
 
     List<DataExportDestination> getDestinations();
+
+    List<DataExportDestination> getDestinations(Instant at);
 }

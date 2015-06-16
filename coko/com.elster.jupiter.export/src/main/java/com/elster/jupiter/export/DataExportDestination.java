@@ -1,11 +1,8 @@
 package com.elster.jupiter.export;
 
-import java.util.List;
+import com.elster.jupiter.orm.HasAuditInfo;
 
-/**
- * Created by igh on 22/05/2015.
- */
-public interface DataExportDestination {
+public interface DataExportDestination extends HasAuditInfo {
 
     ExportTask getTask();
 
