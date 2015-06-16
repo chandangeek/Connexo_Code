@@ -350,7 +350,7 @@ public class ReadingTypeDataExportTaskImplIT {
             selector.setEndDeviceGroup(anotherEndDeviceGroup);
             selector.addReadingType(anotherReadingType);
             selector.removeReadingType(readingType);
-            selector.update();
+            selector.save();
             readingTypeDataExportTask.save();
             context.commit();
         }
