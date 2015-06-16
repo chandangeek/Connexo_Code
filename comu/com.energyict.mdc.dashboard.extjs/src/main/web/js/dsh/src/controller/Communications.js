@@ -189,13 +189,14 @@ Ext.define('Dsh.controller.Communications', {
         location.href = '#/devices/' + item.action.comTask.mRID
         + '/communicationtasks/' + item.action.comTask.comTaskId
         + '/history/' + item.action.comTask.sessionId
-        + '/viewlog' +
-        '?filter=%7B%22logLevels%22%3A%5B%22Error%22%2C%22Warning%22%2C%22Information%22%5D%2C%22id%22%3Anull%7D';
+        + '/viewlog'
+        + '?filter=%7B%22logLevels%22%3A%5B%22Error%22%2C%22Warning%22%2C%22Information%22%5D%2C%22id%22%3Anull%7D';
     },
 
     viewConnectionLog: function (item) {
-        location.href = '#/devices/' + encodeURIComponent(item.action.connection.mRID) + '/connectionmethods/' + item.action.connection.connectionMethodId + '/history/' + item.action.connection.sessionId + '/viewlog' +
-            '?filter=%7B%22logLevels%22%3A%5B%22Error%22%2C%22Warning%22%2C%22Information%22%5D%2C%22logTypes%22%3A%5B%22Connections%22%2C%22Communications%22%5D%7D'
+        location.href = '#/devices/' + encodeURIComponent(item.action.connection.mRID) + '/connectionmethods/'
+        + item.action.connection.connectionMethodId + '/history/' + item.action.connection.sessionId + '/viewlog'
+        + '?logLevels=Error&logLevels=Warning&logLevels=Information&communications=Connections&communications=Communications'
     },
 
     onGenerateReport: function () {

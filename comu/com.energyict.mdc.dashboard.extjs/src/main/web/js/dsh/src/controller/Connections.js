@@ -190,8 +190,8 @@ Ext.define('Dsh.controller.Connections', {
         location.href = '#/devices/' + item.action.comTask.mRID
         + '/communicationtasks/' + item.action.comTask.comTaskId
         + '/history/' + item.action.comTask.sessionId
-        + '/viewlog' +
-        '?filter=%7B%22logLevels%22%3A%5B%22Error%22%2C%22Warning%22%2C%22Information%22%5D%2C%22id%22%3Anull%7D';
+        + '/viewlog'
+        + '?filter=%7B%22logLevels%22%3A%5B%22Error%22%2C%22Warning%22%2C%22Information%22%5D%2C%22id%22%3Anull%7D';
     },
 
     onGenerateReport: function () {
