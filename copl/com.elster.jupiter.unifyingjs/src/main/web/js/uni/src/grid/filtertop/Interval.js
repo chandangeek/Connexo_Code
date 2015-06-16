@@ -328,9 +328,9 @@ Ext.define('Uni.grid.filtertop.Interval', {
 
     getFromDateValue: function () {
         var me = this,
-            date = me.getFromDateField().getValue(),
-            hours = me.getFromHourField().getValue(),
-            minutes = me.getFromMinuteField().getValue();
+            date = me.getFromDateField() ? me.getFromDateField().getValue() : undefined,
+            hours = me.getFromHourField() ? me.getFromHourField().getValue() : undefined,
+            minutes = me.getFromMinuteField() ? me.getFromMinuteField().getValue() : undefined;
 
         return me.createDateFromValues(date, hours, minutes);
     },
@@ -347,9 +347,9 @@ Ext.define('Uni.grid.filtertop.Interval', {
 
     getToDateValue: function () {
         var me = this,
-            date = me.getToDateField().getValue(),
-            hours = me.getToHourField().getValue(),
-            minutes = me.getToMinuteField().getValue();
+            date = me.getToDateField() ? me.getToDateField().getValue() : undefined,
+            hours = me.getToHourField() ? me.getToHourField().getValue() : undefined,
+            minutes = me.getToMinuteField() ? me.getToMinuteField().getValue() : undefined;
 
         return me.createDateFromValues(date, hours, minutes);
     },
