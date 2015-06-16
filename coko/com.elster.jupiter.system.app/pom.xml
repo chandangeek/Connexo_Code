@@ -10,7 +10,7 @@
 
     <artifactId>system.app</artifactId>
     <packaging>bundle</packaging>
-    <version>1.0.4</version>
+    <version>1.0.5-SNAPSHOT</version>
     <name>[Jupiter] com.elster.jupiter.system.app</name>
     <description>
         Contains ExtJS code for the system administration app
