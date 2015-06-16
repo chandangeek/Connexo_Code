@@ -106,6 +106,7 @@ public class DataExportServiceImplIT {
     public static final String FORMATTER = "formatter";
 
     private static final ZonedDateTime NOW = ZonedDateTime.of(2012, 10, 12, 9, 46, 12, 241615214, TimeZoneNeutral.getMcMurdo());
+    public static final Clock CLOCK = Clock.fixed(NOW.toInstant(), ZoneId.systemDefault());
 
     @Rule
     public TestRule veryColdHere = Using.timeZoneOfMcMurdo();
@@ -183,7 +184,7 @@ public class DataExportServiceImplIT {
                     new EventsModule(),
                     new DomainUtilModule(),
                     new OrmModule(),
-                    new UtilModule(Clock.fixed(NOW.toInstant(), ZoneId.systemDefault())),
+                    new UtilModule(CLOCK),
                     new ThreadSecurityModule(),
                     new PubSubModule(),
                     new TransactionModule(),
@@ -269,7 +270,7 @@ public class DataExportServiceImplIT {
             exportTask.triggerNow();
             RecurrentTask recurrentTask = extractOccurrence(exportTask);
             occurrence = injector.getInstance(TaskService.class).getOccurrences(recurrentTask, Range.<Instant>all()).stream().findFirst().get();
-            new DataExportTaskExecutor(dataExportService, transactionService, new LocalFileWriter(dataExportService), thesaurus).execute(occurrence);
+            new DataExportTaskExecutor(dataExportService, transactionService, new LocalFileWriter(dataExportService), thesaurus, CLOCK).execute(occurrence);
 
             context.commit();
         }

@@ -21,6 +21,44 @@ import java.util.stream.Collectors;
 
 class EmailDestinationImpl extends AbstractDataExportDestination implements EmailDestination {
 
+    private class Sender {
+
+        private final TagReplacerFactory tagReplacerFactory;
+
+        private Sender(TagReplacerFactory tagReplacerFactory) {
+            this.tagReplacerFactory = tagReplacerFactory;
+        }
+
+        private void send(Map<StructureMarker, Path> files) {
+            sendMail(files.entrySet().stream()
+                    .collect(Collectors.toMap(entry -> toFileName(entry.getKey()), Map.Entry::getValue)));
+        }
+
+        private void sendMail(Map<String, Path> files) {
+            List<String> recipients = getRecipientsList();
+            if (recipients.isEmpty()) {
+                return;
+            }
+            MailAddress primary = mailService.mailAddress(recipients.get(0));
+            MailMessageBuilder mailBuilder = mailService.messageBuilder(primary)
+                    .withSubject(subject);
+
+            files.forEach((fileName, path) -> mailBuilder.withAttachment(path, fileName));
+
+            recipients.stream()
+                    .skip(1)
+                    .map(mailService::mailAddress)
+                    .forEach(mailBuilder::addRecipient);
+            mailBuilder.build().send();
+        }
+
+        private String toFileName(StructureMarker structureMarker) {
+            return tagReplacerFactory.forMarker(structureMarker).replaceTags(attachmentName) + '.' + attachmentExtension;
+        }
+
+
+    }
+
     private final MailService mailService;
 
     private String recipients;
@@ -48,31 +86,8 @@ class EmailDestinationImpl extends AbstractDataExportDestination implements Emai
     }
 
     @Override
-    public void send(Map<StructureMarker, Path> files) {
-        sendMail(files.entrySet().stream()
-                .collect(Collectors.toMap(entry -> toFileName(TagReplacerImpl.asTagReplacer(getClock(), entry.getKey())), Map.Entry::getValue)));
-    }
-
-    private String toFileName(TagReplacer tagReplacer) {
-        return tagReplacer.replaceTags(attachmentName) + '.' + attachmentExtension;
-    }
-
-    private void sendMail(Map<String, Path> files) {
-        List<String> recipients = getRecipientsList();
-        if (recipients.isEmpty()) {
-            return;
-        }
-        MailAddress primary = mailService.mailAddress(recipients.get(0));
-        MailMessageBuilder mailBuilder = mailService.messageBuilder(primary)
-                .withSubject(subject);
-
-        files.forEach((fileName, path) -> mailBuilder.withAttachment(path, fileName));
-
-        recipients.stream()
-                .skip(1)
-                .map(mailService::mailAddress)
-                .forEach(mailBuilder::addRecipient);
-        mailBuilder.build().send();
+    public void send(Map<StructureMarker, Path> files, TagReplacerFactory tagReplacerFactory) {
+        new Sender(tagReplacerFactory).send(files);
     }
 
     @Override

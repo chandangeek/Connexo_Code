@@ -5,6 +5,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.tasks.TaskOccurrence;
+import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.logging.LogEntry;
 import com.elster.jupiter.util.logging.LogEntryFinder;
@@ -12,7 +13,6 @@ import com.elster.jupiter.util.time.Interval;
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
-import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -29,14 +29,14 @@ class DataExportOccurrenceImpl implements IDataExportOccurrence {
     private String failureReason;
 
     private final DataModel dataModel;
-    private final Clock clock;
+    private final TaskService taskService;
 
     private transient Range<Instant> exportedDataRange;
 
     @Inject
-    DataExportOccurrenceImpl(DataModel dataModel, Clock clock) {
+    DataExportOccurrenceImpl(DataModel dataModel, TaskService taskService) {
         this.dataModel = dataModel;
-        this.clock = clock;
+        this.taskService = taskService;
     }
 
     static DataExportOccurrenceImpl from(DataModel model, TaskOccurrence occurrence, IExportTask task) {
@@ -140,5 +140,11 @@ class DataExportOccurrenceImpl implements IDataExportOccurrence {
     @Override
     public TaskOccurrence getTaskOccurrence() {
         return taskOccurrence.get();
+    }
+
+    @Override
+    public int nthSince(Instant since) {
+        List<TaskOccurrence> occurrences = taskService.getOccurrences(taskOccurrence.get().getRecurrentTask(), Range.closedOpen(since, getTriggerTime()));
+        return occurrences.size() + 1;
     }
 }

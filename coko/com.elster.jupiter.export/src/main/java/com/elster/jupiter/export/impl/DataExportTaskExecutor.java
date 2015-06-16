@@ -23,6 +23,10 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 
 import java.nio.file.Path;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoField;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -37,12 +41,14 @@ class DataExportTaskExecutor implements TaskExecutor {
     private final TransactionService transactionService;
     private final Thesaurus thesaurus;
     private final LocalFileWriter localFileWriter;
+    private final Clock clock;
 
-    public DataExportTaskExecutor(IDataExportService dataExportService, TransactionService transactionService, LocalFileWriter localFileWriter, Thesaurus thesaurus) {
+    public DataExportTaskExecutor(IDataExportService dataExportService, TransactionService transactionService, LocalFileWriter localFileWriter, Thesaurus thesaurus, Clock clock) {
         this.dataExportService = dataExportService;
         this.transactionService = transactionService;
         this.localFileWriter = localFileWriter;
         this.thesaurus = thesaurus;
+        this.clock = clock;
     }
 
     @Override
@@ -105,7 +111,7 @@ class DataExportTaskExecutor implements TaskExecutor {
                 formattedData = doProcess(dataFormatter, occurrence, data, itemExporter);
             }
             Map<StructureMarker, Path> files = localFileWriter.writeToTempFiles(formattedData.getData());
-            task.getCompositeDestination().send(files);
+            task.getCompositeDestination().send(files, new TagReplacerFactoryForOccurrence(occurrence));
         }).run();
 
         itemExporter.done();
@@ -252,6 +258,20 @@ class DataExportTaskExecutor implements TaskExecutor {
             if (lazy != null) {
                 lazy.done();
             }
+        }
+    }
+
+    private class TagReplacerFactoryForOccurrence implements TagReplacerFactory {
+        private final int sequenceNumber;
+
+        public TagReplacerFactoryForOccurrence(IDataExportOccurrence occurrence) {
+            Instant startOfDay = ZonedDateTime.ofInstant(clock.instant(), clock.getZone()).with(ChronoField.MILLI_OF_DAY, 0L).toInstant();
+            this.sequenceNumber = occurrence.nthSince(startOfDay);
+        }
+
+        @Override
+        public TagReplacer forMarker(StructureMarker structureMarker) {
+            return TagReplacerImpl.asTagReplacer(clock, structureMarker, sequenceNumber);
         }
     }
 }

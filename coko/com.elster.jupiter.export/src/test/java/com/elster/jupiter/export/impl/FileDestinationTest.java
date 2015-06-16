@@ -43,6 +43,12 @@ public class FileDestinationTest {
     public static final String RELATIVE_DIR = "datadir";
 
     private Clock clock = Clock.systemDefaultZone();
+    private TagReplacerFactory tagReplacerFactory = new TagReplacerFactory() {
+        @Override
+        public TagReplacer forMarker(StructureMarker structureMarker) {
+            return TagReplacerImpl.asTagReplacer(clock, structureMarker, 17);
+        }
+    };
 
     @Mock
     private AppService appService;
@@ -80,7 +86,7 @@ public class FileDestinationTest {
     public void testExportToCsvWithAbsolutePath() {
         FileDestinationImpl fileDestination = new FileDestinationImpl(dataModel, clock, thesaurus, dataExportService, appService,fileSystem);
         fileDestination.init(null, ABSOLUTE_DIR, FILENAME, EXTENSION);
-        fileDestination.send(ImmutableMap.of(DefaultStructureMarker.createRoot(clock, "root"), file1));
+        fileDestination.send(ImmutableMap.of(DefaultStructureMarker.createRoot(clock, "root"), file1), tagReplacerFactory);
         Path file = fileSystem.getPath(ABSOLUTE_DIR, FILENAME + "." + EXTENSION);
         assertThat(Files.exists(file)).isTrue();
         assertThat(getContent(file)).isEqualTo(DATA1 + DATA2);
@@ -90,7 +96,7 @@ public class FileDestinationTest {
     public void testExportToCsvWithRelativePath() {
         FileDestinationImpl fileDestination = new FileDestinationImpl(dataModel, clock, thesaurus, dataExportService, appService, fileSystem);
         fileDestination.init(null, RELATIVE_DIR, FILENAME, EXTENSION);
-        fileDestination.send(ImmutableMap.of(DefaultStructureMarker.createRoot(clock, "root"), file1));
+        fileDestination.send(ImmutableMap.of(DefaultStructureMarker.createRoot(clock, "root"), file1), tagReplacerFactory);
         Path file = fileSystem.getPath(APPSERVER_PATH, RELATIVE_DIR, FILENAME + "." + EXTENSION);
         assertThat(Files.exists(file)).isTrue();
         assertThat(getContent(file)).isEqualTo(DATA1 + DATA2);
@@ -119,7 +125,7 @@ public class FileDestinationTest {
         StructureMarker marker1 = DefaultStructureMarker.createRoot(clock, "file1");
         StructureMarker marker2 = DefaultStructureMarker.createRoot(clock, "file2");
 
-        fileDestination.send(ImmutableMap.of(marker1, file1, marker2, file2));
+        fileDestination.send(ImmutableMap.of(marker1, file1, marker2, file2), tagReplacerFactory);
 
         assertThat(fileSystem.getPath("/appserver/export/a/b/exportfile1.txt")).exists();
     }

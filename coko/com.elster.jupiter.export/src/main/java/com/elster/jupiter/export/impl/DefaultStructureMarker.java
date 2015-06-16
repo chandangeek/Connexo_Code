@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-final class DefaultStructureMarker implements StructureMarker, TagReplacer {
+final class DefaultStructureMarker implements StructureMarker {
 
     private final DefaultStructureMarker parent;
     private final String structure;
@@ -79,11 +79,6 @@ final class DefaultStructureMarker implements StructureMarker, TagReplacer {
     @Override
     public int hashCode() {
         return Objects.hash(path);
-    }
-
-    @Override
-    public String replaceTags(String template) {
-        return new TagReplacerImpl(this, clock).replaceTags(template);
     }
 
 }

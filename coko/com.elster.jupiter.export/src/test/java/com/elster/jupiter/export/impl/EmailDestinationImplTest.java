@@ -2,6 +2,7 @@ package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.export.DataExportService;
+import com.elster.jupiter.export.StructureMarker;
 import com.elster.jupiter.mail.MailMessageBuilder;
 import com.elster.jupiter.mail.MailService;
 import com.elster.jupiter.mail.OutboundMailMessage;
@@ -44,6 +45,12 @@ public class EmailDestinationImplTest {
     private Clock clock = Clock.systemDefaultZone();
 
     private FileSystem fileSystem;
+    private TagReplacerFactory tagReplacerFactory = new TagReplacerFactory() {
+        @Override
+        public TagReplacer forMarker(StructureMarker structureMarker) {
+            return TagReplacerImpl.asTagReplacer(clock, structureMarker, 17);
+        }
+    };
     private Path file1, file2;
     @Mock
     private DataModel dataModel;
@@ -98,7 +105,7 @@ public class EmailDestinationImplTest {
         EmailDestinationImpl emailDestination = new EmailDestinationImpl(dataModel, clock, thesaurus, dataExportService, appService, fileSystem, mailService);
         emailDestination.init(null, "target@mailinator.com", SUBJECT, "file", "txt");
 
-        emailDestination.send(ImmutableMap.of(DefaultStructureMarker.createRoot(clock, "root"), file1));
+        emailDestination.send(ImmutableMap.of(DefaultStructureMarker.createRoot(clock, "root"), file1), tagReplacerFactory);
 
         verify(mailService).messageBuilder(MailAddressImpl.of("target@mailinator.com"));
         verify(builder.get()).withSubject(SUBJECT);
@@ -111,7 +118,7 @@ public class EmailDestinationImplTest {
         EmailDestinationImpl emailDestination = new EmailDestinationImpl(dataModel, clock, thesaurus, dataExportService, appService, fileSystem, mailService);
         emailDestination.init(null, "target@mailinator.com", SUBJECT, "file<identifier>", "txt");
 
-        emailDestination.send(ImmutableMap.of(DefaultStructureMarker.createRoot(clock, "root"), file1, DefaultStructureMarker.createRoot(clock, "root2"), file2));
+        emailDestination.send(ImmutableMap.of(DefaultStructureMarker.createRoot(clock, "root"), file1, DefaultStructureMarker.createRoot(clock, "root2"), file2), tagReplacerFactory);
 
         verify(mailService).messageBuilder(MailAddressImpl.of("target@mailinator.com"));
         verify(builder.get()).withSubject(SUBJECT);

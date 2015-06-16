@@ -18,7 +18,7 @@ public class TagReplacerImplTest {
     private ZonedDateTime to = ZonedDateTime.of(2015, 5, 9, 10, 44, 38, 354057457, TimeZoneNeutral.getMcMurdo());
     private Range<Instant> period = Range.closed(from.toInstant(), to.toInstant());
     private StructureMarker structureMarker = DefaultStructureMarker.createRoot(clock, "root").withPeriod(period);
-    private TagReplacerImpl tagReplacer = new TagReplacerImpl(structureMarker, clock);
+    private TagReplacerImpl tagReplacer = new TagReplacerImpl(structureMarker, clock, 17);
 
     @Test
     public void testSeconds() {
@@ -131,6 +131,22 @@ public class TagReplacerImplTest {
         String expected = "aFlurryOfTextInter201504spersedWithTags";
 
         assertThat(tagReplacer.replaceTags(template)).isEqualTo(expected);
+    }
+
+    @Test
+    public void testSeqNr() {
+        String template = "aFlurryOfTextInter<seqnrwithinday>spersedWithTags";
+        String expected = "aFlurryOfTextInter17spersedWithTags";
+
+        assertThat(tagReplacer.replaceTags(template)).isEqualTo(expected);
+    }
+
+    @Test
+    public void testSeqNrNeedingFill() {
+        String template = "aFlurryOfTextInter<seqnrwithinday>spersedWithTags";
+        String expected = "aFlurryOfTextInter03spersedWithTags";
+
+        assertThat(new TagReplacerImpl(structureMarker, clock, 3).replaceTags(template)).isEqualTo(expected);
     }
 
     @Test

@@ -23,17 +23,16 @@ class TagReplacerImpl implements TagReplacer {
     public static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("HHmmss");
     private final StructureMarker structureMarker;
     private final Clock clock;
+    private final int sequenceNumber;
 
-    TagReplacerImpl(StructureMarker structureMarker, Clock clock) {
+    TagReplacerImpl(StructureMarker structureMarker, Clock clock, int sequenceNumber) {
         this.structureMarker = structureMarker;
         this.clock = clock;
+        this.sequenceNumber = sequenceNumber;
     }
 
-    static TagReplacer asTagReplacer(Clock clock, StructureMarker structureMarker) {
-        if (structureMarker instanceof TagReplacer) {
-            return (TagReplacer) structureMarker;
-        }
-        return new TagReplacerImpl(structureMarker, clock);
+    static TagReplacer asTagReplacer(Clock clock, StructureMarker structureMarker, int sequenceNumber) {
+        return new TagReplacerImpl(structureMarker, clock, sequenceNumber);
     }
 
     @Override
@@ -61,7 +60,8 @@ class TagReplacerImpl implements TagReplacer {
                 replaceDataTime(),
                 replaceDataEndDate(),
                 replaceDataEndTime(),
-                replaceDataYearAndMonth()
+                replaceDataYearAndMonth(),
+                replaceSeqNrWithinDay()
                 );
 
         private UnaryOperator<String> replaceDataYearAndMonth() {
@@ -164,6 +164,10 @@ class TagReplacerImpl implements TagReplacer {
 
         private UnaryOperator<String> replaceDate() {
             return string -> string.replace("<date>", DATE_FORMAT.format(now));
+        }
+
+        private UnaryOperator<String> replaceSeqNrWithinDay() {
+            return string -> string.replace("<seqnrwithinday>", new DecimalFormat("00").format(sequenceNumber));
         }
     }
 

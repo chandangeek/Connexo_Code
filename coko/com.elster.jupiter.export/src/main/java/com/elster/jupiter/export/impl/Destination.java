@@ -6,5 +6,5 @@ import java.nio.file.Path;
 import java.util.Map;
 
 interface Destination {
-    void send(Map<StructureMarker, Path> files);
+    void send(Map<StructureMarker, Path> files, TagReplacerFactory tagReplacerFactory);
 }

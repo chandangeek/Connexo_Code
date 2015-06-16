@@ -35,13 +35,6 @@ public class DefaultStructureMarkerTest extends EqualsContractTest {
     }
 
     @Test
-    public void testReplaceTags() {
-        DefaultStructureMarker child = DefaultStructureMarker.createRoot(clock, "root").child("level1");
-
-        assertThat(child.replaceTags("test<identifier>test")).isEqualTo("testroottest");
-    }
-
-    @Test
     public void testDiffersAt0() {
         DefaultStructureMarker child = DefaultStructureMarker.createRoot(clock, "root").child("level1");
 

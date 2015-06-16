@@ -16,7 +16,7 @@ class CompositeDataExportDestination implements Destination {
     }
 
     @Override
-    public void send(Map<StructureMarker, Path> files) {
-        components.forEach(component -> component.send(files));
+    public void send(Map<StructureMarker, Path> files, TagReplacerFactory tagReplacerFactory) {
+        components.forEach(component -> component.send(files, tagReplacerFactory));
     }
 }
