@@ -751,7 +751,7 @@ Ext.define('Cfg.controller.Validation', {
             callback: function () {
                 view.setLoading(false);
                 ruleSet = this.getById(parseInt(ruleSetId));
-                view.down('#editRuleSetTitle').setTitle("Edit '" + ruleSet.get('name') + "'");
+                view.down('#editRuleSetTitle').setTitle("Edit '" + Ext.String.htmlEncode(ruleSet.get('name')) + "'");
                 me.getApplication().fireEvent('loadRuleSet', ruleSet);
                 me.ruleSetModel = ruleSet;
                 form.loadRecord(ruleSet);
