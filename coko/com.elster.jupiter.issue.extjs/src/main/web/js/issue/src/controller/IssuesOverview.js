@@ -216,6 +216,7 @@ Ext.define('Isu.controller.IssuesOverview', {
 
     resetFilter: function () {
         this.getController('Uni.controller.history.Router').filter.destroy();
+        this.getFilterForm().updateRecord();
     },
 
     setFilterItem: function (button) {
