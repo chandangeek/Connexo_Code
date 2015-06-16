@@ -19,6 +19,8 @@ import static com.energyict.mdc.device.lifecycle.impl.DeviceLifeCyclePropertySup
  * timestamp of the transition.
  * @see {@link com.energyict.mdc.device.lifecycle.config.MicroAction#CREATE_METER_ACTIVATION}
  *
+ * action bits: 64
+ *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-05-2 5(14:19)
  */

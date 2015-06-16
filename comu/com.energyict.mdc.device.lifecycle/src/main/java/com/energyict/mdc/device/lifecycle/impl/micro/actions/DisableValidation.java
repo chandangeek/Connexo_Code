@@ -15,6 +15,8 @@ import java.util.List;
  * that will disable validation on the Device.
  * @see {@link com.energyict.mdc.device.lifecycle.config.MicroAction#DISABLE_VALIDATION}
  *
+ * action bits: 4
+ *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-05-05 (08:43)
  */

@@ -22,6 +22,8 @@ import static com.energyict.mdc.device.lifecycle.impl.DeviceLifeCyclePropertySup
  * timestamp of the transition.
  * @see {@link com.energyict.mdc.device.lifecycle.config.MicroAction#DETACH_SLAVE_FROM_MASTER}
  *
+ * action bits: 512
+ *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-05-06 (15:11)
  */

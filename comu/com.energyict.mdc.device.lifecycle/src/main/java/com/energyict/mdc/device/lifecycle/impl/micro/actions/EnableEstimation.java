@@ -12,6 +12,9 @@ import java.util.*;
  * Provides an implementation for the {@link ServerMicroAction} interface
  * that will enable estimation on the Device.
  * @see {@link com.energyict.mdc.device.lifecycle.config.MicroAction#ENABLE_ESTIMATION}
+ *
+ * action bits: 1024
+ *
  */
 public class EnableEstimation implements ServerMicroAction {
 

@@ -17,6 +17,8 @@ import java.util.List;
  * by putting all connection and communication tasks on hold.
  * @see {@link com.energyict.mdc.device.lifecycle.config.MicroAction#DISABLE_COMMUNICATION}
  *
+ * action bits: 32
+ *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-05-05 (16:58)
  */

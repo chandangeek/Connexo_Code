@@ -21,6 +21,8 @@ import static com.energyict.mdc.device.lifecycle.impl.DeviceLifeCyclePropertySup
  * that will disable validation on the Device.
  * @see {@link com.energyict.mdc.device.lifecycle.config.MicroAction#SET_LAST_READING}
  *
+ * action bits: 1
+ *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-05-05 (09:09)
  */

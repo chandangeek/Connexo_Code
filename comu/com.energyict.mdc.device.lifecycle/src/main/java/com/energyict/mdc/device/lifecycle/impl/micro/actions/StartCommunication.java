@@ -21,6 +21,8 @@ import java.util.stream.Collectors;
  * to execute now.
  * @see {@link com.energyict.mdc.device.lifecycle.config.MicroAction#START_COMMUNICATION}
  *
+ * action bits: 16
+ *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-05-13 (14:32)
  */

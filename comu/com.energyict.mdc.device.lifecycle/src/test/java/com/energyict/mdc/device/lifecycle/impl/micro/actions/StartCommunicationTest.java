@@ -64,6 +64,8 @@ public class StartCommunicationTest {
         ConnectionTask connectionTask1 = mock(ConnectionTask.class);
         ConnectionTask connectionTask2 = mock(ConnectionTask.class);
         when(this.device.getConnectionTasks()).thenReturn(Arrays.asList(connectionTask1, connectionTask2));
+        when(this.device.getDeviceConfiguration()).thenReturn(this.deviceConfiguration);
+
         StartCommunication microAction = this.getTestInstance();
 
         // Business method
@@ -79,7 +81,6 @@ public class StartCommunicationTest {
         ComTaskExecution comTaskExecution1 = mock(ComTaskExecution.class);
         ComTaskExecution comTaskExecution2 = mock(ComTaskExecution.class);
         ManuallyScheduledComTaskExecution comTaskExecution3= mock(ManuallyScheduledComTaskExecution.class);
-        when(this.device.getComTaskExecutions()).thenReturn(Arrays.asList(comTaskExecution1, comTaskExecution2));
         when(this.device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         when(deviceConfiguration.getComTaskEnablements()).thenReturn(Arrays.asList(comTaskEnablement1, comTaskEnablement2, comTaskEnablement3 ));
         when(device.newManuallyScheduledComTaskExecution(any(ComTaskEnablement.class), any(TemporalExpression.class))).thenReturn(comTaskExecutionBuilder);
@@ -92,6 +93,7 @@ public class StartCommunicationTest {
         when(comTask1.getId()).thenReturn(1L);
         when(comTask2.getId()).thenReturn(2L);
         when(comTask3.getId()).thenReturn(3L);
+        when(this.device.getComTaskExecutions()).thenReturn(Arrays.asList(comTaskExecution1, comTaskExecution2, comTaskExecution3));
         StartCommunication microAction = this.getTestInstance();
 
         // Business method

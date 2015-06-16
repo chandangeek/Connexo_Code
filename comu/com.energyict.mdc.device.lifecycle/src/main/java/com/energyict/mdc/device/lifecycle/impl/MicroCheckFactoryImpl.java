@@ -1,19 +1,9 @@
 package com.energyict.mdc.device.lifecycle.impl;
 
+import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.config.MicroCheck;
-import com.energyict.mdc.device.lifecycle.impl.micro.checks.AllDataValid;
-import com.energyict.mdc.device.lifecycle.impl.micro.checks.AllIssuesAreClosed;
-import com.energyict.mdc.device.lifecycle.impl.micro.checks.ConnectionPropertiesAreValid;
-import com.energyict.mdc.device.lifecycle.impl.micro.checks.DefaultConnectionTaskAvailable;
-import com.energyict.mdc.device.lifecycle.impl.micro.checks.DeviceIsLinkedWithUsagePoint;
-import com.energyict.mdc.device.lifecycle.impl.micro.checks.GeneralProtocolPropertiesAreValid;
-import com.energyict.mdc.device.lifecycle.impl.micro.checks.AllDataCollected;
-import com.energyict.mdc.device.lifecycle.impl.micro.checks.ProtocolDialectPropertiesAreValid;
-import com.energyict.mdc.device.lifecycle.impl.micro.checks.ManuallyScheduledCommunicationTaskAvailable;
-import com.energyict.mdc.device.lifecycle.impl.micro.checks.ScheduledCommunicationTaskAvailable;
-import com.energyict.mdc.device.lifecycle.impl.micro.checks.SecurityPropertiesAreValid;
-import com.energyict.mdc.device.lifecycle.impl.micro.checks.SlaveDeviceHasGateway;
+import com.energyict.mdc.device.lifecycle.impl.micro.checks.*;
 import com.energyict.mdc.device.topology.TopologyService;
 
 import com.elster.jupiter.nls.Layer;
@@ -36,6 +26,7 @@ public class MicroCheckFactoryImpl implements ServerMicroCheckFactory {
 
     private Thesaurus thesaurus;
     private TopologyService topologyService;
+    private ValidationService validationService;
 
     // For OSGi purposes
     public MicroCheckFactoryImpl() {
@@ -44,10 +35,11 @@ public class MicroCheckFactoryImpl implements ServerMicroCheckFactory {
 
     // For testing purposes
     @Inject
-    public MicroCheckFactoryImpl(NlsService nlsService, TopologyService topologyService) {
+    public MicroCheckFactoryImpl(NlsService nlsService, TopologyService topologyService, ValidationService validationService) {
         this();
         this.setNlsService(nlsService);
         this.setTopologyService(topologyService);
+        this.setValidationService(validationService);
     }
 
     @Reference
@@ -58,6 +50,10 @@ public class MicroCheckFactoryImpl implements ServerMicroCheckFactory {
     @Reference
     public void setTopologyService(TopologyService topologyService) {
         this.topologyService = topologyService;
+    }
+
+    public void setValidationService(ValidationService validationService) {
+        this.validationService = validationService;
     }
 
     @Override
@@ -98,6 +94,9 @@ public class MicroCheckFactoryImpl implements ServerMicroCheckFactory {
             }
             case ALL_ISSUES_AND_ALARMS_ARE_CLOSED: {
                 return new AllIssuesAreClosed(this.thesaurus);
+            }
+            case ALL_DATA_VALIDATED: {
+                return new AllDataValidated(this.validationService, this.thesaurus);
             }
             default: {
                 throw new IllegalArgumentException("Unknown or unsupported MicroCheck: " + check);

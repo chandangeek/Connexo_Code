@@ -15,6 +15,9 @@ import java.util.List;
  * that will activate all connection tasks on the Device.
  * @see {@link com.energyict.mdc.device.lifecycle.config.MicroAction#ACTIVATE_CONNECTION_TASKS}
  *
+ *
+ * action bits: 8
+ *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-05-05 (12:49)
  */

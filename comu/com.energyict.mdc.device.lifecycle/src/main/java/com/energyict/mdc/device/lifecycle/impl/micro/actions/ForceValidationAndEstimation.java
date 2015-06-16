@@ -27,6 +27,9 @@ import static com.energyict.mdc.device.lifecycle.impl.DeviceLifeCyclePropertySup
  * A runtime error is thrown when the device is not set for validation and/or estimation.
  * When after validation and estimation still invalid values are encountered, the action is undone.
  * @see {@link com.energyict.mdc.device.lifecycle.config.MicroAction#FORCE_VALIDATION_AND_ESTIMATION}
+ *
+ * action bits: 4096
+ *
  */
 public class ForceValidationAndEstimation implements ServerMicroAction {
 

@@ -22,6 +22,8 @@ import java.util.Optional;
  * that will remove the Device from all static device groups.
  * @see {@link com.energyict.mdc.device.lifecycle.config.MicroAction#REMOVE_DEVICE_FROM_STATIC_GROUPS}
  *
+ * action bits: 256
+ *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-05-07 (12:40)
  */

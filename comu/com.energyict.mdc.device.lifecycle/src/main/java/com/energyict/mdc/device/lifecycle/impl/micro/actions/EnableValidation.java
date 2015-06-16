@@ -18,6 +18,8 @@ import static com.energyict.mdc.device.lifecycle.impl.DeviceLifeCyclePropertySup
  * that will enable validation on the Device.
  * @see {@link com.energyict.mdc.device.lifecycle.config.MicroAction#ENABLE_VALIDATION}
  *
+ * action bits: 2
+ *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-04-20 (09:29)
  */

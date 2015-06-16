@@ -117,6 +117,9 @@ public class MicroActionFactoryImpl implements ServerMicroActionFactory {
             case ENABLE_ESTIMATION: {
                 return new EnableEstimation();
             }
+            case DISABLE_ESTIMATION: {
+                return new DisableEstimation();
+            }
             case FORCE_VALIDATION_AND_ESTIMATION:
                 return new ForceValidationAndEstimation(this.threadPrincipalService, this.transactionService, this.validationService, this.estimationService);
             default: {

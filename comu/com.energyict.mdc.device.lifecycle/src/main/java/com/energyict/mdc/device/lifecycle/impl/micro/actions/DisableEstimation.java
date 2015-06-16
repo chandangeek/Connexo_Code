@@ -13,6 +13,9 @@ import java.util.List;
  * Provides an implementation for the {@link ServerMicroAction} interface
  * that will disable estimation on the Device.
  * @see {@link com.energyict.mdc.device.lifecycle.config.MicroAction#DISABLE_ESTIMATION}
+ *
+ * action bits: 2048
+ *
  */
 public class DisableEstimation implements ServerMicroAction {
 

@@ -24,6 +24,9 @@ import java.util.Optional;
  * equals to a mismatch with the effective timestamp
  * and will therefore fail this check.
  *
+ *
+ * check bits: 8
+ *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-04-15 (09:48)
  */

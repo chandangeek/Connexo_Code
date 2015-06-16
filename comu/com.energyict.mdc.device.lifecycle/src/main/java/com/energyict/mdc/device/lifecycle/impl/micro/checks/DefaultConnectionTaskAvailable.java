@@ -16,6 +16,9 @@ import java.util.Optional;
  * Provides an implementation for the {@link ServerMicroCheck} interface
  * that checks that there is a default connection task on the device.
  *
+ *
+ * check bits: 1
+ *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-04-14 (15:31)
  */

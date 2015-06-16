@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.lifecycle.impl;
 
+import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 import com.energyict.mdc.device.topology.TopologyService;
@@ -35,6 +36,8 @@ public class MicroCheckFactoryImplTest {
     private NlsService nlsService;
     @Mock
     private TopologyService topologyService;
+    @Mock
+    private ValidationService validationService;
 
     @Before
     public void initializeMocks() {
@@ -65,7 +68,7 @@ public class MicroCheckFactoryImplTest {
     }
 
     private MicroCheckFactoryImpl getTestInstance() {
-        return new MicroCheckFactoryImpl(this.nlsService, this.topologyService);
+        return new MicroCheckFactoryImpl(this.nlsService, this.topologyService, this.validationService);
     }
 
 }
