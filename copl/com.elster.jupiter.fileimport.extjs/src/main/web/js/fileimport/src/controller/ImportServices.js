@@ -474,7 +474,7 @@ Ext.define('Fim.controller.ImportServices', {
             items: [
                 {
                     xtype: 'container',
-                    html: Uni.I18n.translate('importService.filePatternInfo.title', 'FIM', 'Pattern to filter which files will be importer, based on file name and/or extension.') + '<br><br>' +
+                    html: Uni.I18n.translate('importService.filePatternInfo.title', 'FIM', 'Pattern to filter which files will be imported, based on file name and/or extension.') + '<br><br>' +
                     Uni.I18n.translate('importService.filePatternInfo.example', 'FIM', 'Here are some examples of pattern syntax:') + '<br><ul>' +
                     '<li>' + '&nbsp' + Uni.I18n.translate('importService.filePatternInfo.ex1', 'FIM', '*.html – Matches all strings that end in .html') + '</li>' + '<br>' +
                     '<li>' + '&nbsp' + Uni.I18n.translate('importService.filePatternInfo.ex2', 'FIM', '??? – Matches all strings with exactly three letters or digits') + '</li>' + '<br>' +
