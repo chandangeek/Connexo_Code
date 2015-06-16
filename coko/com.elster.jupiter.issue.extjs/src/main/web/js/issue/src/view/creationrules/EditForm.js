@@ -11,7 +11,9 @@ Ext.define('Isu.view.creationrules.EditForm', {
     isEdit: false,
     defaults: {
         labelWidth: 260,
-        width: 595
+        width: 595,
+        validateOnChange: false,
+        validateOnBlur: false
     },
     initComponent: function () {
         var me = this;
@@ -77,7 +79,7 @@ Ext.define('Isu.view.creationrules.EditForm', {
                     {
                         itemId: 'rule-template-info',
                         xtype: 'displayfield',
-                        margin: '0 0 0 10',
+                        margin: '0 0 -8 10',
                         htmlEncode: false,
                         hidden: true,
                         value: '<div class="uni-icon-info-small" style="width: 16px; height: 16px;"></div>',
@@ -98,7 +100,9 @@ Ext.define('Isu.view.creationrules.EditForm', {
                 itemId: 'property-form',
                 xtype: 'property-form',
                 defaults: {
-                    labelWidth: me.defaults.labelWidth
+                    labelWidth: me.defaults.labelWidth,
+                    width: 320,
+                    resetButtonHidden: true
                 }
             },
             {
@@ -257,7 +261,8 @@ Ext.define('Isu.view.creationrules.EditForm', {
             typeCombo = me.down('[name=issueType]'),
             actionsGrid = me.down('issues-creation-rules-actions-list'),
             dueIn = record.get('dueIn'),
-            actions = record.actions();
+            actions = record.actions(),
+            template;
 
         typeCombo.suspendEvent('change');
         templateCombo.suspendEvent('change');
@@ -297,6 +302,10 @@ Ext.define('Isu.view.creationrules.EditForm', {
         } else {
             actionsGrid.hide();
             me.down('#issues-creation-rule-no-actions').show();
+        }
+        template = templateCombo.findRecordByValue(templateCombo.getValue());
+        if (template) {
+            me.down('#rule-template-info').setTooltip(template.get('description'));
         }
         me.updateLayout();
         Ext.resumeLayouts(true);
