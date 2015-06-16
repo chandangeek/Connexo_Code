@@ -20,7 +20,7 @@ import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.impl.DataExportServiceImpl;
 import com.elster.jupiter.export.impl.ExportModule;
-import com.elster.jupiter.export.processor.impl.StandardCsvDataProcessorFactory;
+import com.elster.jupiter.export.processor.impl.StandardCsvDataFormatterFactory;
 import com.elster.jupiter.fileimport.impl.FileImportModule;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
@@ -618,7 +618,7 @@ public class DemoTest {
         ((ValidationServiceImpl) injector.getInstance(ValidationService.class)).addResource(defaultValidatorFactory);
 
         ((DeviceConfigurationServiceImpl) injector.getInstance(DeviceConfigurationService.class)).setQueryService(injector.getInstance(QueryService.class));
-        ((DataExportServiceImpl) injector.getInstance(DataExportService.class)).addProcessor(injector.getInstance(StandardCsvDataProcessorFactory.class));
+        ((DataExportServiceImpl) injector.getInstance(DataExportService.class)).addFormatter(injector.getInstance(StandardCsvDataFormatterFactory.class));
 
         injector.getInstance(IssueDataCollectionService.class);
         fixIssueTemplates();
