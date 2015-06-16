@@ -36,7 +36,6 @@ public enum MicroAction {
 
     /**
      * Activates all connection tasks on the device.
-     *
      */
     // storage = bits 8
     ACTIVATE_CONNECTION_TASKS,
@@ -89,19 +88,26 @@ public enum MicroAction {
 
     /**
      * Enables data estimation on the device.
-     * Requires that the user specifies the timestamp
-     * from which data should be validated.
      */
     // storage = bits 1024
     ENABLE_ESTIMATION,
 
     /**
-     * Enables data estimation on the device.
-     * Requires that the user specifies the timestamp
-     * from which data should be validated.
+     * Disables data estimation on the device.
      */
     // storage = bits 2048
-    DISABLE_ESTIMATION;
+    DISABLE_ESTIMATION,
+
+    /**
+     * Moving forward lastreading dates of channels and registers, and perform
+     * a validation followed by an estimation => channels/registers have an estimated value on given date.
+     * Requires that the user specifies the timestamp
+     * on which the lastreading of channels and registers should be set.
+     */
+    // storage = bits 4096
+    FORCE_VALIDATION_AND_ESTIMATION;
+
+
 
     /**
      * Gets the Set of {@link MicroCheck}s that are implied
@@ -115,4 +121,4 @@ public enum MicroAction {
         return EnumSet.noneOf(MicroCheck.class);
     }
 
-}
+    }
