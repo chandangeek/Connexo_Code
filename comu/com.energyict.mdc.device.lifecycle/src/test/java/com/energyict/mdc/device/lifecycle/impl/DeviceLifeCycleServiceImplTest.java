@@ -16,7 +16,6 @@ import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.lifecycle.config.MicroCheck;
-
 import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.fsm.CustomStateTransitionEventType;
 import com.elster.jupiter.fsm.FiniteStateMachine;
@@ -45,6 +44,7 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -52,6 +52,7 @@ import java.util.stream.Collectors;
 import org.junit.*;
 import org.junit.runner.*;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -127,6 +128,7 @@ public class DeviceLifeCycleServiceImplTest {
         when(this.thesaurus.getString(anyString(), anyString())).thenAnswer(invocationOnMock -> invocationOnMock.getArguments()[0]);
         NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
         when(messageFormat.format(anyVararg())).thenAnswer(invocationOnMock -> invocationOnMock.getArguments()[0]);
+        when(messageFormat.format(anyString())).thenAnswer(invocationOnMock -> invocationOnMock.getArguments()[0]);
         when(this.thesaurus.getFormat(MessageSeeds.MULTIPLE_MICRO_CHECKS_FAILED)).thenReturn(messageFormat);
         when(this.nlsService.getThesaurus(anyString(), any(Layer.class))).thenReturn(this.thesaurus);
         when(this.lifeCycle.getId()).thenReturn(DEVICE_LIFE_CYCLE_ID);
