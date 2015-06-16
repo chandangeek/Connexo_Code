@@ -5,9 +5,11 @@ import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedBusinessProcessAction;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
+import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -47,11 +49,20 @@ public class AuthorizedActionInfoFactory {
         info.triggeredBy = new StateTransitionEventTypeInfo(thesaurus, action.getStateTransition().getEventType());
         Set<MicroAction> microActions = action.getActions();
         if (!microActions.isEmpty()){
-            info.microActions = new ArrayList<>(microActions.size());
+            info.microActions = new HashSet<>(microActions.size());
             for (MicroAction microAction : microActions) {
                 MicroActionAndCheckInfo microActionInfo = microActionAndCheckInfoFactory.optional(microAction);
                 microActionInfo.checked = true;
                 info.microActions.add(microActionInfo);
+            }
+        }
+        Set<MicroCheck> microChecks = action.getChecks();
+        if (!microChecks.isEmpty()){
+            info.microChecks = new HashSet<>(microChecks.size());
+            for (MicroCheck microCheck : microChecks) {
+                MicroActionAndCheckInfo microActionInfo = microActionAndCheckInfoFactory.optional(microCheck);
+                microActionInfo.checked = true;
+                info.microChecks.add(microActionInfo);
             }
         }
     }

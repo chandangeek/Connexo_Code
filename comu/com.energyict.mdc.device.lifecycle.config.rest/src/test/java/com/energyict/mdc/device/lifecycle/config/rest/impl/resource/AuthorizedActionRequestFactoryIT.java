@@ -21,6 +21,7 @@ import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleBuilder;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
+import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 import com.energyict.mdc.device.lifecycle.config.rest.impl.resource.requests.AuthorizedActionChangeRequest;
 import com.energyict.mdc.device.lifecycle.config.rest.impl.resource.requests.AuthorizedActionRequestFactory;
 import com.energyict.mdc.device.lifecycle.config.rest.impl.resource.requests.AuthorizedTransitionActionComplexEditRequest;
@@ -47,6 +48,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -258,10 +260,17 @@ public class AuthorizedActionRequestFactoryIT {
         actionInfo.privileges = Arrays.asList(
                 new DeviceLifeCyclePrivilegeInfo(this.thesaurus, AuthorizedAction.Level.THREE),
                 new DeviceLifeCyclePrivilegeInfo(this.thesaurus, AuthorizedAction.Level.FOUR));
-        actionInfo.microActions = new ArrayList<>(1);
+
+        actionInfo.microActions = new HashSet<>(1);
         MicroActionAndCheckInfo microAction = new MicroActionAndCheckInfo();
         microAction.key = MicroAction.ENABLE_VALIDATION.name();
         actionInfo.microActions.add(microAction);
+
+        actionInfo.microChecks = new HashSet<>(1);
+        MicroActionAndCheckInfo microCheck = new MicroActionAndCheckInfo();
+        microCheck.key = MicroCheck.CONNECTION_PROPERTIES_ARE_ALL_VALID.name();
+        actionInfo.microChecks.add(microAction);
+
         AuthorizedActionChangeRequest request = this.getTestInstance().from(deviceLifeCycle, actionInfo, AuthorizedActionRequestFactory.Operation.MODIFY);
         AuthorizedAction updatedAction = request.perform();
 
@@ -296,10 +305,16 @@ public class AuthorizedActionRequestFactoryIT {
         info.toState = toState;
         info.triggeredBy = eventTypeInfo;
         info.privileges = Collections.singletonList(privilegeInfo);
-        info.microActions = new ArrayList<>(1);
+
+        info.microActions = new HashSet<>(1);
         MicroActionAndCheckInfo microAction = new MicroActionAndCheckInfo();
         microAction.key = MicroAction.CREATE_METER_ACTIVATION.name();
         info.microActions.add(microAction);
+
+        info.microChecks = new HashSet<>(1);
+        MicroActionAndCheckInfo microCheck = new MicroActionAndCheckInfo();
+        microCheck.key = MicroCheck.CONNECTION_PROPERTIES_ARE_ALL_VALID.name();
+        info.microChecks.add(microAction);
 
         AuthorizedActionChangeRequest request = this.getTestInstance().from(deviceLifeCycle, info, AuthorizedActionRequestFactory.Operation.CREATE);
         AuthorizedAction newAction = request.perform();

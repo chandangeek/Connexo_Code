@@ -1,28 +1,27 @@
 package com.energyict.mdc.device.lifecycle.config.rest.info;
 
 import com.elster.jupiter.fsm.StateTransition;
-import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
-import com.energyict.mdc.device.lifecycle.config.AuthorizedBusinessProcessAction;
-import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
+import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class AuthorizedActionInfo {
+
     public long id;
     public String name;
     public DeviceLifeCycleStateInfo fromState;
     public DeviceLifeCycleStateInfo toState;
     public List<DeviceLifeCyclePrivilegeInfo> privileges;
     public StateTransitionEventTypeInfo triggeredBy;
-    public List<MicroActionAndCheckInfo> microActions;
+    public Set<MicroActionAndCheckInfo> microActions;
+    public Set<MicroActionAndCheckInfo> microChecks;
     public long version;
 
     public AuthorizedActionInfo() {}
@@ -48,6 +47,23 @@ public class AuthorizedActionInfo {
                     .forEach(microActions::add);
         }
         return microActions;
+    }
+
+    @JsonIgnore
+    public Set<MicroCheck> getMicroChecks(){
+        Set<MicroCheck> microChecks = EnumSet.noneOf(MicroCheck.class);
+        if (this.microChecks != null){
+            this.microChecks.stream()
+                    .filter(candidate -> candidate.checked != null && candidate.checked)
+                    .forEach(microCheck -> {
+                        if (MicroActionAndCheckInfoFactory.CONSOLIDATED_MICRO_CHECKS_KEY.equals(microCheck.key)){
+                            microChecks.addAll(MicroActionAndCheckInfoFactory.CONSOLIDATED_MICRO_CHECKS);
+                        } else {
+                            microChecks.add(MicroCheck.valueOf(microCheck.key));
+                        }
+                    });
+        }
+        return microChecks;
     }
 
     public boolean isLinkedTo(StateTransition candidate){

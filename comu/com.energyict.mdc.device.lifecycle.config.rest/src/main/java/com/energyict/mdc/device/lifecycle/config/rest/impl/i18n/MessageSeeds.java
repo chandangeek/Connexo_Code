@@ -5,7 +5,9 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.lifecycle.config.MicroCategory;
+import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 import com.energyict.mdc.device.lifecycle.config.rest.impl.DeviceLifeCycleConfigApplication;
+import com.energyict.mdc.device.lifecycle.config.rest.info.MicroActionAndCheckInfoFactory;
 
 import java.text.MessageFormat;
 import java.util.logging.Level;
@@ -82,8 +84,31 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     TRANSITION_ACTION_CHECK_CATEGORY_VALIDATION_AND_ESTIMATION(5002, Keys.TRANSITION_ACTION_CHECK_CATEGORY_KEY + MicroCategory.VALIDATION_AND_ESTIMATION, "Validation and estimation", Level.INFO),
     TRANSITION_ACTION_CHECK_CATEGORY_DATA_COLLECTION(5003, Keys.TRANSITION_ACTION_CHECK_CATEGORY_KEY + MicroCategory.DATA_COLLECTION, "Data collection", Level.INFO),
     TRANSITION_ACTION_CHECK_CATEGORY_TOPOLOGY(5004, Keys.TRANSITION_ACTION_CHECK_CATEGORY_KEY + MicroCategory.TOPOLOGY, "Topology", Level.INFO),
-    TRANSITION_ACTION_SUB_CATEGORY_VALIDATION(5005, "subcategory.validation", "Toggle data validation", Level.INFO),
-    TRANSITION_ACTION_SUB_CATEGORY_COMMUNICATION(5006, "subcategory.communication", "Toggle data communication", Level.INFO),
+    TRANSITION_ACTION_SUB_CATEGORY_VALIDATION(5005, "subcategory_validation", "Toggle data validation", Level.INFO),
+    TRANSITION_ACTION_SUB_CATEGORY_COMMUNICATION(5006, "subcategory_communication", "Toggle data communication", Level.INFO),
+    TRANSITION_ACTION_CHECK_CATEGORY_ISSUES_AND_ALARMS(5007, Keys.TRANSITION_ACTION_CHECK_CATEGORY_KEY + MicroCategory.ISSUES_AND_ALARMS, "Issues and alarms", Level.INFO),
+    TRANSITION_ACTION_CHECK_CATEGORY_INSTALLATION(5008, Keys.TRANSITION_ACTION_CHECK_CATEGORY_KEY + MicroCategory.INSTALLATION, "Installation", Level.INFO),
+
+
+    MICRO_CHECK_NAME_DEFAULT_CONNECTION_AVAILABLE(6001, Keys.MICRO_CHECK_NAME_TRANSLATE_KEY + MicroCheck.DEFAULT_CONNECTION_AVAILABLE, "Default connection available", Level.INFO),
+    MICRO_CHECK_NAME_AT_LEAST_ONE_MANUALLY_SCHEDULED_COMMUNICATION_TASK_AVAILABLE(6002, Keys.MICRO_CHECK_NAME_TRANSLATE_KEY + MicroCheck.AT_LEAST_ONE_MANUALLY_SCHEDULED_COMMUNICATION_TASK_AVAILABLE, "At least one scheduled communication task", Level.INFO),
+    MICRO_CHECK_NAME_AT_LEAST_ONE_SCHEDULED_COMMUNICATION_TASK_AVAILABLE(6003, Keys.MICRO_CHECK_NAME_TRANSLATE_KEY + MicroCheck.AT_LEAST_ONE_SCHEDULED_COMMUNICATION_TASK_AVAILABLE, "At least one shared communication schedule", Level.INFO),
+    MICRO_CHECK_NAME_ALL_DATA_COLLECTED(6004, Keys.MICRO_CHECK_NAME_TRANSLATE_KEY + MicroCheck.ALL_DATA_COLLECTED, "All data collected", Level.INFO),
+    MICRO_CHECK_NAME_ALL_DATA_VALID(6005, Keys.MICRO_CHECK_NAME_TRANSLATE_KEY + MicroCheck.ALL_DATA_VALID, "All data valid", Level.INFO),
+    MICRO_CHECK_NAME_SLAVE_DEVICE_HAS_GATEWAY(6006, Keys.MICRO_CHECK_NAME_TRANSLATE_KEY + MicroCheck.SLAVE_DEVICE_HAS_GATEWAY, "Check for master device", Level.INFO),
+    MICRO_CHECK_NAME_LINKED_WITH_USAGE_POINT(6007, Keys.MICRO_CHECK_NAME_TRANSLATE_KEY + MicroCheck.LINKED_WITH_USAGE_POINT, "Connected to usage point", Level.INFO),
+    MICRO_CHECK_NAME_ALL_ISSUES_AND_ALARMS_ARE_CLOSED(6008, Keys.MICRO_CHECK_NAME_TRANSLATE_KEY + MicroCheck.ALL_ISSUES_AND_ALARMS_ARE_CLOSED, "All issues closed",Level.INFO),
+    MICRO_CHECK_NAME_MANDATORY_COMMUNICATION_ATTRIBUTES_AVAILABLE(6009, Keys.MICRO_CHECK_NAME_TRANSLATE_KEY + MicroActionAndCheckInfoFactory.CONSOLIDATED_MICRO_CHECKS_KEY, "Mandatory communication attributes available", Level.INFO),
+
+    MICRO_CHECK_DESCRIPTION_DEFAULT_CONNECTION_AVAILABLE(7001, Keys.MICRO_CHECK_DESCRIPTION_TRANSLATE_KEY + MicroCheck.DEFAULT_CONNECTION_AVAILABLE, "Check if a default connection is available on the device.", Level.INFO),
+    MICRO_CHECK_DESCRIPTION_AT_LEAST_ONE_MANUALLY_SCHEDULED_COMMUNICATION_TASK_AVAILABLE(7002, Keys.MICRO_CHECK_DESCRIPTION_TRANSLATE_KEY + MicroCheck.AT_LEAST_ONE_MANUALLY_SCHEDULED_COMMUNICATION_TASK_AVAILABLE, "Check if at least one communication task has been scheduled.", Level.INFO),
+    MICRO_CHECK_DESCRIPTION_AT_LEAST_ONE_SCHEDULED_COMMUNICATION_TASK_AVAILABLE(7003, Keys.MICRO_CHECK_DESCRIPTION_TRANSLATE_KEY + MicroCheck.AT_LEAST_ONE_SCHEDULED_COMMUNICATION_TASK_AVAILABLE, "Check if at least one shared communication schedule has been added to the device.", Level.INFO),
+    MICRO_CHECK_DESCRIPTION_ALL_DATA_COLLECTED(7004, Keys.MICRO_CHECK_DESCRIPTION_TRANSLATE_KEY + MicroCheck.ALL_DATA_COLLECTED, "Check if all the data of this device has been collected.", Level.INFO),
+    MICRO_CHECK_DESCRIPTION_ALL_DATA_VALID(7005, Keys.MICRO_CHECK_DESCRIPTION_TRANSLATE_KEY + MicroCheck.ALL_DATA_VALID, "Check if all the collected data is valid.", Level.INFO),
+    MICRO_CHECK_DESCRIPTION_SLAVE_DEVICE_HAS_GATEWAY(7006, Keys.MICRO_CHECK_DESCRIPTION_TRANSLATE_KEY + MicroCheck.SLAVE_DEVICE_HAS_GATEWAY, "If this device is a slave, check if the device has been linked to a master device.", Level.INFO),
+    MICRO_CHECK_DESCRIPTION_LINKED_WITH_USAGE_POINT(7007, Keys.MICRO_CHECK_DESCRIPTION_TRANSLATE_KEY + MicroCheck.LINKED_WITH_USAGE_POINT, "Check if this device is connected to a usage point.", Level.INFO),
+    MICRO_CHECK_DESCRIPTION_ALL_ISSUES_AND_ALARMS_ARE_CLOSED(7008, Keys.MICRO_CHECK_DESCRIPTION_TRANSLATE_KEY + MicroCheck.ALL_ISSUES_AND_ALARMS_ARE_CLOSED, "Check if all the issues on this device are closed.", Level.INFO),
+    MICRO_CHECK_DESCRIPTION_MANDATORY_COMMUNICATION_ATTRIBUTES_AVAILABLE(7009, Keys.MICRO_CHECK_DESCRIPTION_TRANSLATE_KEY + MicroActionAndCheckInfoFactory.CONSOLIDATED_MICRO_CHECKS_KEY, "Check if the mandatory communication attributes are available on the device: protocol dialect attributes, security setting attributes, connection attributes, general attributes.", Level.INFO),
     ;
 
     private final int number;
@@ -123,33 +148,20 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
         return this.level;
     }
 
-    public String getFormatted(Object... args){
-        return MessageFormat.format(this.getDefaultFormat(), args);
-    }
-
-    public static String getString(MessageSeed messageSeed, Thesaurus thesaurus, Object... args){
+    public static String getString(MessageSeed messageSeed, Thesaurus thesaurus, Object... args) {
         String text = thesaurus.getString(messageSeed.getKey(), messageSeed.getDefaultFormat());
         return MessageFormat.format(text, args);
     }
 
-
-    public static MessageSeeds getByKey(String key) {
-        if (key != null) {
-            for (MessageSeeds column : MessageSeeds.values()) {
-                if (column.getKey().equals(key)) {
-                    return column;
-                }
-            }
-        }
-        return null;
-    }
-
     public static class Keys {
-        private Keys() {}
+        private Keys() {
+        }
 
         public static final String PRIVILEGE_LEVEL_TRANSLATE_KEY = "privilege.level.";
         public static final String MICRO_ACTION_NAME_TRANSLATE_KEY = "transition.microaction.name.";
         public static final String MICRO_ACTION_DESCRIPTION_TRANSLATE_KEY = "transition.microaction.description.";
         public static final String TRANSITION_ACTION_CHECK_CATEGORY_KEY = "transition.category.";
+        public static final String MICRO_CHECK_NAME_TRANSLATE_KEY = "transition.microcheck.name.";
+        public static final String MICRO_CHECK_DESCRIPTION_TRANSLATE_KEY = "transition.microcheck.description.";
     }
 }

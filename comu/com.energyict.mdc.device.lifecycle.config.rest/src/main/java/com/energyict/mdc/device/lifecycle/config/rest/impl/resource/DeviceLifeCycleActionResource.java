@@ -9,6 +9,7 @@ import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
+import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 import com.energyict.mdc.device.lifecycle.config.Privileges;
 import com.energyict.mdc.device.lifecycle.config.TransitionType;
 import com.energyict.mdc.device.lifecycle.config.rest.impl.i18n.MessageSeeds;
@@ -35,8 +36,11 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
@@ -135,7 +139,7 @@ public class DeviceLifeCycleActionResource {
     @Consumes(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE_LIFE_CYCLE})
-    public Response getAvailableMicroActionsForNewTransition(
+    public Response getAvailableMicroActionsForTransition(
             @PathParam("deviceLifeCycleId") Long deviceLifeCycleId,
             @QueryParam("fromState") long fromStateId,
             @QueryParam("toState") long toStateId,
@@ -157,6 +161,35 @@ public class DeviceLifeCycleActionResource {
                     .forEach(microActions::add);
         }
         return Response.ok(PagedInfoList.fromCompleteList("microActions", microActions, queryParams)).build();
+    }
+
+    @GET
+    @Path("/microchecks")
+    @Consumes(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed({Privileges.VIEW_DEVICE_LIFE_CYCLE})
+    public Response getAvailableMicroChecksForTransition(
+            @PathParam("deviceLifeCycleId") Long deviceLifeCycleId,
+            @QueryParam("fromState") long fromStateId,
+            @QueryParam("toState") long toStateId,
+            @BeanParam JsonQueryParameters queryParams) {
+        Optional<TransitionType> defaultTransition = getDefaultTransition(deviceLifeCycleId, fromStateId, toStateId);
+        Set<MicroActionAndCheckInfo> microChecks = new HashSet<>();
+        if (defaultTransition.isPresent()){
+            defaultTransition.get().optionalChecks()
+                    .stream()
+                    .map(microActionAndCheckInfoFactory::optional)
+                    .forEach(microChecks::add);
+            defaultTransition.get().requiredChecks()
+                    .stream()
+                    .map(microActionAndCheckInfoFactory::required)
+                    .forEach(microChecks::add);
+        } else {
+            Arrays.stream(MicroCheck.values())
+                    .map(microActionAndCheckInfoFactory::optional)
+                    .forEach(microChecks::add);
+        }
+        return Response.ok(PagedInfoList.fromCompleteList("microChecks", new ArrayList<>(microChecks), queryParams)).build();
     }
 
     private Optional<TransitionType> getDefaultTransition(Long deviceLifeCycleId, long fromStateId, long toStateId) {

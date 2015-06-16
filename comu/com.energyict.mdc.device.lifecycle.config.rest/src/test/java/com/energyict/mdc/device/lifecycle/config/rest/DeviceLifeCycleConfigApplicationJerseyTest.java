@@ -18,6 +18,7 @@ import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
+import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 import com.energyict.mdc.device.lifecycle.config.rest.impl.DeviceLifeCycleConfigApplication;
 import com.energyict.mdc.device.lifecycle.config.rest.impl.i18n.MessageSeeds;
 import org.mockito.Matchers;
@@ -113,6 +114,14 @@ public class DeviceLifeCycleConfigApplicationJerseyTest extends FelixRestApplica
         when(transition.getName(Matchers.any(Thesaurus.class))).thenReturn(translated);
         when(action.getStateTransition()).thenReturn(transition);
         when(action.getActions()).thenReturn(EnumSet.of(MicroAction.ACTIVATE_CONNECTION_TASKS, MicroAction.CREATE_METER_ACTIVATION, MicroAction.ENABLE_VALIDATION));
+        when(action.getChecks()).thenReturn(EnumSet.of(
+                MicroCheck.ALL_DATA_VALID,
+                MicroCheck.CONNECTION_PROPERTIES_ARE_ALL_VALID,
+                MicroCheck.GENERAL_PROTOCOL_PROPERTIES_ARE_ALL_VALID,
+                MicroCheck.PROTOCOL_DIALECT_PROPERTIES_ARE_ALL_VALID,
+                MicroCheck.SECURITY_PROPERTIES_ARE_ALL_VALID,
+                MicroCheck.DEFAULT_CONNECTION_AVAILABLE
+                ));
         return action;
     }
 
