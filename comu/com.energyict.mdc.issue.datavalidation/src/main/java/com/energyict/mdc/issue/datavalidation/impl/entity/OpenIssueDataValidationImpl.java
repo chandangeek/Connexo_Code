@@ -1,4 +1,4 @@
-package com.energyict.mdc.issue.datavalidation.impl;
+package com.energyict.mdc.issue.datavalidation.impl.entity;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -21,6 +21,7 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.Pair;
 import com.energyict.mdc.issue.datavalidation.HistoricalIssueDataValidation;
+import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
 import com.energyict.mdc.issue.datavalidation.NotEstimatedBlock;
 import com.energyict.mdc.issue.datavalidation.OpenIssueDataValidation;
 import com.google.common.collect.Range;
@@ -34,8 +35,8 @@ public class OpenIssueDataValidationImpl extends IssueDataValidationImpl impleme
     private List<OpenIssueNotEstimatedBlockImpl> notEstimatedBlocks = new ArrayList<>();  
 
     @Inject
-    public OpenIssueDataValidationImpl(DataModel dataModel) {
-        super(dataModel);
+    public OpenIssueDataValidationImpl(DataModel dataModel, IssueDataValidationService issueDataValidationService) {
+        super(dataModel, issueDataValidationService);
     }
 
     @Override
@@ -43,7 +44,7 @@ public class OpenIssueDataValidationImpl extends IssueDataValidationImpl impleme
         return baseIssue.orNull();
     }
     
-    void setIssue(OpenIssue baseIssue) {
+    public void setIssue(OpenIssue baseIssue) {
         this.baseIssue.set(baseIssue);
     }
 
@@ -59,10 +60,8 @@ public class OpenIssueDataValidationImpl extends IssueDataValidationImpl impleme
     }
     
     @Override
-    public void addNotEstimatedBlock(Channel channel, ReadingType readingType, Instant timeStamp) {
-        Instant startTime = timeStamp;
-        Instant endTime = startTime.plus(channel.getIntervalLength().get());
-        Range<Instant> interval = Range.closedOpen(startTime, endTime);
+    public void addNotEstimatedBlock(Channel channel, ReadingType readingType, Instant startTime, Instant endTime) {
+        Range<Instant> interval = Range.closedOpen(startTime, endTime.plus(channel.getIntervalLength().get()));
         
         List<Pair<Range<Instant>, OpenIssueNotEstimatedBlockImpl>> connectedBlocks = notEstimatedBlocks.stream()
                 .filter(block -> block.getChannel().getId() == channel.getId())
@@ -71,24 +70,15 @@ public class OpenIssueDataValidationImpl extends IssueDataValidationImpl impleme
                 .filter(block -> block.getFirst().isConnected(interval))
                 .sorted((block1, block2) -> block1.getFirst().lowerEndpoint().compareTo(block2.getFirst().lowerEndpoint()))
                 .collect(Collectors.toList());
-        
-        if (connectedBlocks.isEmpty()) {//create new block since nothing exists
-            createNewBlock(channel, readingType, startTime, endTime);
-        } else if (connectedBlocks.size() == 1) {//prepend or append interval to connected block
-            Pair<Range<Instant>, OpenIssueNotEstimatedBlockImpl> connectedBlock = connectedBlocks.get(0);
-            Range<Instant> newRange = connectedBlock.getFirst().span(interval);
-            notEstimatedBlocks.remove(connectedBlock.getLast());
-            createNewBlock(channel, readingType, newRange.lowerEndpoint(), newRange.upperEndpoint());
-        } else if (connectedBlocks.size() == 2) {//make one long block instead of two old short ones
-            Pair<Range<Instant>, OpenIssueNotEstimatedBlockImpl> firstBlock = connectedBlocks.get(0);
-            Pair<Range<Instant>, OpenIssueNotEstimatedBlockImpl> lastBlock = connectedBlocks.get(1);
-            Range<Instant> newRange = firstBlock.getFirst().span(interval).span(lastBlock.getFirst());
-            notEstimatedBlocks.remove(firstBlock.getLast());
-            notEstimatedBlocks.remove(lastBlock.getLast());
-            createNewBlock(channel, readingType, newRange.lowerEndpoint(), newRange.upperEndpoint());
-        } else {
-            throw new RuntimeException("Should never happen exception");
-        }
+
+        Range<Instant> newInterval = connectedBlocks.stream()
+                .map(pair -> pair.getFirst())
+                .reduce((interval1, interval2) -> interval1.span(interval2))
+                .map(range -> range.span(interval))
+                .orElse(interval);
+
+        connectedBlocks.stream().forEach(block -> notEstimatedBlocks.remove(block.getLast()));
+        createNewBlock(channel, readingType, newInterval.lowerEndpoint(), newInterval.upperEndpoint());
     }
     
     @Override

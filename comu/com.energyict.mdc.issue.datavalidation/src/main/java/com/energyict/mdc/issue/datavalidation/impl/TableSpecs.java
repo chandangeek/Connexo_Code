@@ -15,6 +15,12 @@ import com.energyict.mdc.issue.datavalidation.HistoricalIssueNotEstimatedBlock;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidation;
 import com.energyict.mdc.issue.datavalidation.OpenIssueDataValidation;
 import com.energyict.mdc.issue.datavalidation.OpenIssueNotEstimatedBlock;
+import com.energyict.mdc.issue.datavalidation.impl.entity.HistoricalIssueDataValidationImpl;
+import com.energyict.mdc.issue.datavalidation.impl.entity.HistoricalIssueNotEstimatedBlockImpl;
+import com.energyict.mdc.issue.datavalidation.impl.entity.IssueDataValidationImpl;
+import com.energyict.mdc.issue.datavalidation.impl.entity.NotEstimatedBlockImpl;
+import com.energyict.mdc.issue.datavalidation.impl.entity.OpenIssueDataValidationImpl;
+import com.energyict.mdc.issue.datavalidation.impl.entity.OpenIssueNotEstimatedBlockImpl;
 
 public enum TableSpecs {
 
@@ -120,7 +126,6 @@ public enum TableSpecs {
                     .onDelete(DeleteRule.CASCADE).add();
         }
     },
-    
     
     ;
 

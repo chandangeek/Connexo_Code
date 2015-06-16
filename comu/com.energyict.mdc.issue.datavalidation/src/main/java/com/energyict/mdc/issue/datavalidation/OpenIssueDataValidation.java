@@ -8,7 +8,7 @@ import com.elster.jupiter.metering.ReadingType;
 
 public interface OpenIssueDataValidation extends OpenIssue, IssueDataValidation {
 
-    void addNotEstimatedBlock(Channel channel, ReadingType readingType, Instant timeStamp);
+    void addNotEstimatedBlock(Channel channel, ReadingType readingType, Instant startTime, Instant endTime);
     
     void removeNotEstimatedBlock(Channel channel, ReadingType readingType, Instant timeStamp);
 }

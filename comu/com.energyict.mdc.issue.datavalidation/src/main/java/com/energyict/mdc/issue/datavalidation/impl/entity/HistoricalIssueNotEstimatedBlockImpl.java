@@ -1,4 +1,4 @@
-package com.energyict.mdc.issue.datavalidation.impl;
+package com.energyict.mdc.issue.datavalidation.impl.entity;
 
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;

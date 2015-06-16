@@ -1,11 +1,13 @@
-package com.energyict.mdc.issue.datavalidation;
+package com.energyict.mdc.issue.datavalidation.impl;
+
+import java.text.MessageFormat;
+import java.util.logging.Level;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
-
-import java.text.MessageFormat;
-import java.util.logging.Level;
+import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
+import com.energyict.mdc.issue.datavalidation.impl.event.DataValidationEventHandlerFactory;
 
 public enum MessageSeeds implements MessageSeed, TranslationKey {
 
@@ -13,6 +15,10 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     DATA_VALIDATION_ISSUE_REASON(2, "DataValidationIssueReason", "Can't estimate data on", Level.INFO),
     DATA_VALIDATION_ISSUE_RULE_TEMPLATE_NAME(3, "DataValidationIssueRuleTemplateName", "Create issue when suspects can't be estimated", Level.INFO),
     DATA_VALIDATION_ISSUE_RULE_TEMPLATE_DESCRIPTION(4, "DataValidationIssueRuleTemplateName", "Create issue when suspects can't be estimated", Level.INFO),
+    
+    AQ_SUBSCRIBER(1001, DataValidationEventHandlerFactory.AQ_DATA_VALIDATION_EVENT_SUBSCRIBER, "Create data validation issues", Level.INFO),
+    
+    UNABLE_TO_CREATE_EVENT(2001, "DataValidationIssueUnableToMapEvent", "Unable to create event from event payload: {0}", Level.INFO),
     
     ;
 

@@ -1,5 +1,5 @@
 package com.energyict.mdc.issue.datavalidation;
 
-public interface HistoricalIssueNotEstimatedBlock {
+public interface HistoricalIssueNotEstimatedBlock extends NotEstimatedBlock {
 
 }

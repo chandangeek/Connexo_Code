@@ -1,6 +1,7 @@
-package com.energyict.mdc.issue.datavalidation.impl;
+package com.energyict.mdc.issue.datavalidation.impl.entity;
 
 import java.time.Instant;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,6 +21,7 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.users.User;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidation;
+import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
 import com.energyict.mdc.issue.datavalidation.NotEstimatedBlock;
 
 public class IssueDataValidationImpl implements IssueDataValidation {
@@ -48,11 +50,13 @@ public class IssueDataValidationImpl implements IssueDataValidation {
     private Instant modTime;
     private String userName;
 
-    private DataModel dataModel;    
+    private DataModel dataModel;
+    private IssueDataValidationService issueDataValidationService;    
     
     @Inject
-    public IssueDataValidationImpl(DataModel dataModel) {
+    public IssueDataValidationImpl(DataModel dataModel, IssueDataValidationService issueDataValidationService) {
         this.dataModel = dataModel;
+        this.issueDataValidationService = issueDataValidationService;
     }
     
     Issue getBaseIssue() {
@@ -194,7 +198,13 @@ public class IssueDataValidationImpl implements IssueDataValidation {
     
     @Override
     public List<NotEstimatedBlock> getNotEstimatedBlocks() {
-        throw new UnsupportedOperationException();
+        Optional<? extends IssueDataValidation> issue = null;
+        if (getStatus().isHistorical()) {
+            issue = issueDataValidationService.findHistoricalIssue(getId());
+        } else {
+            issue = issueDataValidationService.findIssue(getId());
+        }
+        return issue.map(IssueDataValidation::getNotEstimatedBlocks).orElse(Collections.emptyList());
     }
 
     protected DataModel getDataModel() {
