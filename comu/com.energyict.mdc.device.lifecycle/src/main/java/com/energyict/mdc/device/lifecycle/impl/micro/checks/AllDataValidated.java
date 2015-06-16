@@ -44,8 +44,8 @@ public class AllDataValidated implements ServerMicroCheck {
     private DeviceLifeCycleActionViolationImpl newViolation() {
         return new DeviceLifeCycleActionViolationImpl(
                 this.thesaurus,
-                MessageSeeds.ALL_DATA_VALID,
-                MicroCheck.ALL_DATA_VALID);
+                MessageSeeds.ALL_DATA_VALIDATED,
+                MicroCheck.ALL_DATA_VALIDATED);
     }
 
 }

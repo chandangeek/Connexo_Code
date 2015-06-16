@@ -49,7 +49,7 @@ public class AllDataValidatedTest {
 
         // Asserts
         assertThat(violation).isPresent();
-        assertThat(violation.get().getCheck()).isEqualTo(MicroCheck.ALL_DATA_VALID);
+        assertThat(violation.get().getCheck()).isEqualTo(MicroCheck.ALL_DATA_VALIDATED);
     }
 
     @Test
@@ -93,7 +93,7 @@ public class AllDataValidatedTest {
         Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now());
 
         assertThat(violation).isPresent();
-        assertThat(violation.get().getCheck()).isEqualTo(MicroCheck.ALL_DATA_VALID);
+        assertThat(violation.get().getCheck()).isEqualTo(MicroCheck.ALL_DATA_VALIDATED);
     }
 
 
