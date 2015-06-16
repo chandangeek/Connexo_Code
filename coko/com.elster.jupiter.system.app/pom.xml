@@ -5,12 +5,12 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>kore</artifactId>
-        <version>1.0.4-SNAPSHOT</version>
+        <version>1.0.4</version>
     </parent>
 
     <artifactId>system.app</artifactId>
     <packaging>bundle</packaging>
-    <version>1.0.4-SNAPSHOT</version>
+    <version>1.0.4</version>
     <name>[Jupiter] com.elster.jupiter.system.app</name>
     <description>
         Contains ExtJS code for the system administration app
@@ -58,12 +58,12 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>systemadmin.extjs</artifactId>
-            <version>1.0.4-SNAPSHOT</version>
+            <version>1.0.4</version>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>export.extjs</artifactId>
-            <version>1.0.4-SNAPSHOT</version>
+            <version>1.0.4</version>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
