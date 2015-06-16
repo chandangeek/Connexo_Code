@@ -138,9 +138,7 @@ Ext.define('Uni.property.view.property.Base', {
 
             if (me.isEdit) {
                 me.required = property.get('required');
-                if (me.required) {
-                    me.allowBlank = false
-                }
+                me.allowBlank = !me.required;
             }
         }
     },
