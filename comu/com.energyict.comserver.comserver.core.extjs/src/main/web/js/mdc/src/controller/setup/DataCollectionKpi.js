@@ -203,7 +203,7 @@ Ext.define('Mdc.controller.setup.DataCollectionKpi', {
                             form.down('[name=deviceGroup]').disable();
                             form.down('[name=frequency]').disable();
                             widget.down('#dataCollectionKpiEditForm').setTitle(editTitle);
-                            me.getApplication().fireEvent('loadDataCollectionKpi', editTitle);
+                            me.getApplication().fireEvent('loadDataCollectionKpi', Uni.I18n.translate('general.edit', 'MDC', 'Edit') + " '" + kpiRecord.get('deviceGroup').name + "'");
                             createBtn.setText(Uni.I18n.translate('general.save', 'MDC', 'Save'));
                             createBtn.action = 'save';
                             Ext.resumeLayouts(true);
