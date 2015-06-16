@@ -7169,15 +7169,15 @@
   vertical-align: top;
 }
 /* line 23, ../../sass/src/fonts/Icons.scss */
-.firmware-campaign-status .icon-checkmark {
+.firmware-campaign-status .icon-checkmark-circle {
   color: #41aa4c;
 }
 /* line 27, ../../sass/src/fonts/Icons.scss */
-.firmware-campaign-status .icon-close, .firmware-campaign-status .icon-notification {
+.firmware-campaign-status .icon-cancel-circle, .firmware-campaign-status .icon-notification {
   color: #b05044;
 }
-/* line 30, ../../sass/src/fonts/Icons.scss */
-.firmware-campaign-status .icon-stop2 {
+/* line 32, ../../sass/src/fonts/Icons.scss */
+.firmware-campaign-status .icon-spinner3, .firmware-campaign-status .icon-forward2, .firmware-campaign-status .icon-blocked {
   color: #a9a9a9;
 }
 

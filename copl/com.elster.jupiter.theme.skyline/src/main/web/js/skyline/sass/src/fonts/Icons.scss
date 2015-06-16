@@ -20,14 +20,16 @@
     height: 13px;
     vertical-align: top;
   }
-  .icon-checkmark {
+  .icon-checkmark-circle {
     color: #41aa4c;
   }
-  .icon-close,
+  .icon-cancel-circle,
   .icon-notification {
     color: #b05044;
   }
-  .icon-stop2 {
+  .icon-spinner3,
+  .icon-forward2,
+  .icon-blocked{
     color: #a9a9a9;
   }
 }

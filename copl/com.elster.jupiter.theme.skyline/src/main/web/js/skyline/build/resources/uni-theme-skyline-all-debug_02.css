@@ -5333,16 +5333,18 @@
   vertical-align: top;
 }
 /* line 23, ../../sass/src/fonts/Icons.scss */
-.firmware-campaign-status .icon-checkmark {
+.firmware-campaign-status .icon-checkmark-circle {
   color: #41aa4c;
 }
 /* line 27, ../../sass/src/fonts/Icons.scss */
-.firmware-campaign-status .icon-close,
+.firmware-campaign-status .icon-cancel-circle,
 .firmware-campaign-status .icon-notification {
   color: #b05044;
 }
-/* line 30, ../../sass/src/fonts/Icons.scss */
-.firmware-campaign-status .icon-stop2 {
+/* line 32, ../../sass/src/fonts/Icons.scss */
+.firmware-campaign-status .icon-spinner3,
+.firmware-campaign-status .icon-forward2,
+.firmware-campaign-status .icon-blocked {
   color: #a9a9a9;
 }
 
@@ -16345,14 +16347,4 @@ a:hover, a.x-btn:hover {
 /* line 319, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
 .x-btn-tag-large-tr {
   background-position: right -15px;
-}
-
-/* line 323, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
-.x-btn-tag-large-bl {
-  background-position: 0 -20px;
-}
-
-/* line 327, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
-.x-btn-tag-large-br {
-  background-position: right -25px;
 }
