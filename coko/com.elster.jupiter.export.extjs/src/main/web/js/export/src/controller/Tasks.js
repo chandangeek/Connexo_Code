@@ -398,6 +398,7 @@ Ext.define('Dxp.controller.Tasks', {
             fileFormatterCombo = view.down('#file-formatter-combo'),
             deviceGroupCombo = view.down('#device-group-combo'),
             exportPeriodCombo = view.down('#export-period-combo'),
+            dataSelectorCombo = view.down('#data-selector-combo'),
             recurrenceTypeCombo = view.down('#recurrence-type');
         if ( Dxp.privileges.DataExport.canUpdate()) {
             deviceGroupCombo.disabled = false;
@@ -410,6 +411,14 @@ Ext.define('Dxp.controller.Tasks', {
             callback: function () {
                 taskModel.load(taskId, {
                     success: function (record) {
+                        var dataSelector = record.get('dataSelector');
+
+                        dataSelectorCombo.store.load({
+                            callback: function () {
+                                dataSelectorCombo.setValue(dataSelectorCombo.store.getById(record.getDataSelector().data.name));
+                            }
+                        });
+
                         var schedule = record.get('schedule');
                         me.taskModel = record;
                         me.getApplication().fireEvent('dataexporttaskload', record);
@@ -418,32 +427,38 @@ Ext.define('Dxp.controller.Tasks', {
                             me.setFormValues(view);
                         } else {
                             taskForm.loadRecord(record);
-                            var taskReadingTypes = record.get('standardDataSelector').get('readingTypes'),
-                                readingTypesGrid = view.down('#readingTypesGridPanel');
 
-                            readingTypesGrid.getStore().removeAll();
+                            if (record.getDataSelector().get('isDefault')) {
 
-                            Ext.each(taskReadingTypes, function (readingType) {
-                                readingTypesGrid.getStore().add({readingType: readingType})
-                            });
-                            exportPeriodCombo.store.load({
-                                params: {
-                                    category: 'relativeperiod.category.dataExport'
-                                },
-                                callback: function () {
-                                    exportPeriodCombo.setValue(exportPeriodCombo.store.getById(record.data.standardDataSelector.data.exportperiod.id));
-                                }
-                            });
-                            deviceGroupCombo.store.load({
-                                callback: function () {
-                                    if (this.getCount() === 0) {
-                                        deviceGroupCombo.allowBlank = true;
-                                        deviceGroupCombo.hide();
-                                        view.down('#no-device').show();
+                                var taskReadingTypes = record.getStandardDataSelector().get('readingTypes'),
+                                    readingTypesGrid = view.down('#readingTypesGridPanel');
+
+                                readingTypesGrid.getStore().removeAll();
+
+                                Ext.each(taskReadingTypes, function (readingType) {
+                                    readingTypesGrid.getStore().add({readingType: readingType})
+                                });
+
+                                exportPeriodCombo.store.load({
+                                    params: {
+                                        category: 'relativeperiod.category.dataExport'
+                                    },
+                                    callback: function () {
+                                        exportPeriodCombo.setValue(exportPeriodCombo.store.getById(record.getStandardDataSelector().data.exportPeriod.id));
                                     }
-                                    deviceGroupCombo.setValue(deviceGroupCombo.store.getById(record.data.standardDataSelector.data.deviceGroup.id));
-                                }
-                            });
+                                });
+                                deviceGroupCombo.store.load({
+                                    callback: function () {
+                                        if (this.getCount() === 0) {
+                                            deviceGroupCombo.allowBlank = true;
+                                            deviceGroupCombo.hide();
+                                            view.down('#no-device').show();
+                                        }
+                                        deviceGroupCombo.setValue(deviceGroupCombo.store.getById(record.getStandardDataSelector().data.deviceGroup.id));
+                                    }
+                                });
+
+                            }
                             fileFormatterCombo.setValue(fileFormatterCombo.store.getById(record.data.dataProcessor.name));
                             if (record.data.nextRun && (record.data.nextRun !== 0)) {
                                 view.down('#recurrence-trigger').setValue({recurrence: true});
