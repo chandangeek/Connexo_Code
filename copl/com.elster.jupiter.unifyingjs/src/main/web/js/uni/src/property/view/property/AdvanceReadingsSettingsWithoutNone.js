@@ -94,7 +94,7 @@ Ext.define('Uni.property.view.property.AdvanceReadingsSettingsWithoutNone', {
                 me.down('radiogroup').setValue({advanceRb:3});
                 var readingTypeStore = me.down('#readingTypeCombo').getStore();
                 readingTypeStore.load({
-                    params: {like: value.readingType.aliasName},
+                    params: {like: value.readingType && value.readingType.aliasName},
                     callback: function () {
                         var model = Ext.create('Mdc.model.ReadingType',value.readingType);
                         me.down('#readingTypeCombo').setValue(model);
@@ -164,7 +164,7 @@ Ext.define('Uni.property.view.property.AdvanceReadingsSettingsWithoutNone', {
                 return value.readingType.aliasName;
             }
         }
-        return callParent(arguments);
+        return this.callParent(arguments);
     }
 
 });

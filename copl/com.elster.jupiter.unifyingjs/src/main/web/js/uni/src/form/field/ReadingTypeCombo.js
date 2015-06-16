@@ -67,7 +67,7 @@ Ext.define('Uni.form.field.ReadingTypeCombo', {
     ),
     listeners: {
         change: function (field, newValue) {
-            field.el.down('a').setVisible(!!newValue && newValue.length > 0);
+            field.el.down('a') && field.el.down('a').setVisible(!!newValue && newValue.length > 0);
         }
     },
     initComponent: function () {
