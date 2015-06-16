@@ -116,9 +116,10 @@ Ext.define('Mdc.controller.setup.DeviceConnectionHistory', {
 
         me.getDeviceConnectionHistoryPreviewForm().loadRecord(connectionHistory);
 
-        me.getStatusLink().setValue('<a href="#/devices/' + this.deviceMrId + '/connectionmethods/'
+        me.getStatusLink().setValue('<a href="#/devices/' + this.deviceMrId
+        + '/connectionmethods/'
         + me.connectionMethodId + '/history/' + me.getDeviceConnectionHistoryGrid().getSelectionModel().getSelection()[0].get('id') + '/viewlog'
-        + '?filter=%7B%22logLevels%22%3A%5B%22Error%22%2C%22Warning%22%2C%22Information%22%5D%2C%22logTypes%22%3A%5B%22Connections%22%2C%22Communications%22%5D%7D">'
+        + '?logLevels=Error&logLevels=Warning&logLevels=Information&communications=Connections&communications=Communications">'
         + connectionHistory.get('status') + '</a>');
 
         me.getComPortField().setValue(Ext.String.format(Uni.I18n.translate('deviceconnectionhistory.on', 'MDC', '{0} on {1}'), connectionHistory.get('comPort'), '<a href="#/administration/comservers/' + connectionHistory.get('comServer').id + '/overview">' + connectionHistory.get('comServer').name + '</a>'));

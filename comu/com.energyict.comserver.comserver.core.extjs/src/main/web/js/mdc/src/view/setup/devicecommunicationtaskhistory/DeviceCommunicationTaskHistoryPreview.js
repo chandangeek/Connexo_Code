@@ -27,7 +27,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                     text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
                     iconCls: 'x-uni-action-iconD',
                     menu: {
-                      //  xtype: 'device-communication-task-history-action-menu'
+                        //  xtype: 'device-communication-task-history-action-menu'
                         items: [
                             {
                                 text: Uni.I18n.translate('devicecommunicationtaskhistory.viewCommunicationLog', 'MDC', 'View communication log'),
@@ -109,18 +109,17 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                                     name: 'comSession',
                                     fieldLabel: Uni.I18n.translate('devicecommunicationtaskhistory.connectionUsed', 'MDC', 'Connection used'),
                                     itemId: 'comSession',
-                                    renderer: function(value){
-                                        if(value && value!==''){
+                                    renderer: function (value) {
+                                        if (value && value !== '') {
                                             var data = this.up('form').getRecord().data;
 
                                             var link = '#/devices/' + encodeURIComponent(data.comSession.device.id)
                                                 + '/connectionmethods/' + data.comSession.connectionMethod.id
                                                 + '/history/' + data.comSession.id
-                                                + '/viewlog' +
-                                                '?filter=%7B%22logLevels%22%3A%5B%22Error%22%2C%22Warning%22%2C%22Information%22%5D%2C%22logTypes%22%3A%5B%22connections%22%2C%22communications%22%5D%7D'
+                                                + '/viewlog'
+                                                + '?logLevels=Error&logLevels=Warning&logLevels=Information&communications=Connections&communications=Communications';
 
-
-                                            return '<a href="'+link+'">'+ Ext.String.htmlEncode(value.connectionMethod.name) + '</a>'
+                                            return '<a href="' + link + '">' + Ext.String.htmlEncode(value.connectionMethod.name) + '</a>'
                                         } else {
                                             return '';
                                         }
@@ -255,10 +254,10 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                                     name: 'comTaskCount',
                                     cls: 'communication-tasks-status',
                                     renderer: function (val) {
-                                        var template = '';                                    
-                                            template += '<tpl><span class="icon-checkmark"></span>' + (val.numberOfSuccessfulTasks ? val.numberOfSuccessfulTasks : '0') + '<br></tpl>';
-                                            template += '<tpl><span class="icon-close"></span>' + (val.numberOfFailedTasks ? val.numberOfFailedTasks : '0') + '<br></tpl>';
-                                            template += '<tpl><span  class="icon-stop2"></span>' + (val.numberOfIncompleteTasks ? val.numberOfIncompleteTasks : '0') + '</tpl>';                                        
+                                        var template = '';
+                                        template += '<tpl><span class="icon-checkmark"></span>' + (val.numberOfSuccessfulTasks ? val.numberOfSuccessfulTasks : '0') + '<br></tpl>';
+                                        template += '<tpl><span class="icon-close"></span>' + (val.numberOfFailedTasks ? val.numberOfFailedTasks : '0') + '<br></tpl>';
+                                        template += '<tpl><span  class="icon-stop2"></span>' + (val.numberOfIncompleteTasks ? val.numberOfIncompleteTasks : '0') + '</tpl>';
                                         return template;
                                     }
                                 },
