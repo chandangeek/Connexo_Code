@@ -40,6 +40,11 @@ Ext.define('Uni.util.QueryString', {
         var me = this,
             url = location.href.split('?')[0],
             queryString = me.buildQueryString(config, recursive);
+
+        if (Ext.isEmpty(queryString)) {
+            return url;
+        }
+
         return url + '?' + queryString;
     },
 
