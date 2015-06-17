@@ -15,7 +15,7 @@ public enum Functions {
      * @return a function that converts an Optional to a Stream
      */
     public static <T> Function<Optional<? extends T>, Stream<T>> asStream() {
-        return op -> op.map(t -> Stream.of(t)).orElseGet(Stream::empty);
+        return op -> op.map(Stream::of).orElseGet(Stream::empty);
     }
 
 }
