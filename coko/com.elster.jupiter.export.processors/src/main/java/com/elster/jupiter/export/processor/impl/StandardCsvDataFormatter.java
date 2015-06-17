@@ -83,7 +83,6 @@ public class StandardCsvDataFormatter implements DataFormatter {
     public void startExport(DataExportOccurrence dataExportOccurrence, Logger logger) {
     }
 
-    @Override
     public void startItem(ReadingTypeDataExportItem item) {
         readingContainer = item.getReadingContainer();
         readingType = item.getReadingType();
@@ -159,7 +158,6 @@ public class StandardCsvDataFormatter implements DataFormatter {
         return Optional.empty();
     }
 
-    @Override
     public void endItem(ReadingTypeDataExportItem item) {
         if (!item.getReadingType().getMRID().equals(readingType.getMRID())) {
             throw new IllegalArgumentException("ReadingTypeDataExportItems passed to startItem() and EndItem() methods are different");
