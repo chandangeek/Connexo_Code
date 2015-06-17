@@ -7,6 +7,7 @@ import com.elster.jupiter.export.DataExportException;
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportProperty;
 import com.elster.jupiter.export.DataExportService;
+import com.elster.jupiter.export.FormattedData;
 import com.elster.jupiter.export.FormattedExportData;
 import com.elster.jupiter.export.MeterReadingData;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
@@ -53,12 +54,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class StandardCsvDataFormatterTest {
@@ -103,7 +103,7 @@ public class StandardCsvDataFormatterTest {
     @Mock
     Logger logger;
 
-    @Mock
+    @Mock(extraInterfaces = IntervalReading.class)
     Reading reading, reading1, reading2;
 
     @Mock
@@ -231,7 +231,8 @@ public class StandardCsvDataFormatterTest {
 
         processor.startExport(dataExportOccurrence, logger);
         processor.startItem(item);
-        List<FormattedExportData> lines = processor.processData(new MeterReadingData(item, data, DefaultStructureMarker.createRoot(clock, "root")));
+        FormattedData formattedData = processor.processData(Stream.of(new MeterReadingData(item, data, DefaultStructureMarker.createRoot(clock, "root"))));
+        List<FormattedExportData> lines = formattedData.getData();
         processor.endItem(item);
         assertThat(lines).hasSize(3);
         assertThat(lines.get(0).getAppendablePayload()).isEqualTo("2014-11-24 12:00:12;DeviceMRID;0.0.5.1.16.1.12.0.0.0.0.0.0.0.0.3.73.0;10;suspect;\n");
@@ -240,12 +241,36 @@ public class StandardCsvDataFormatterTest {
 
         processor.startExport(dataExportOccurrence, logger);
         processor.startItem(item1);
-        lines = processor.processData(new MeterReadingData(item1, data, DefaultStructureMarker.createRoot(clock, "root")));
+        formattedData = processor.processData(Stream.of(new MeterReadingData(item1, this.data, DefaultStructureMarker.createRoot(clock, "root"))));
+        lines = formattedData.getData();
         processor.endItem(item1);
         assertThat(lines).hasSize(3);
         assertThat(lines.get(0).getAppendablePayload()).isEqualTo("2014-11-24 12:00:12;AnotherDeviceMRID;0.0.5.1.17.1.13.0.0.0.0.0.0.0.0.4.75.1;10;suspect;\n");
         assertThat(lines.get(1).getAppendablePayload()).isEqualTo("2014-11-24 12:00:12;AnotherDeviceMRID;0.0.5.1.17.1.13.0.0.0.0.0.0.0.0.4.75.1;1;suspect;\n");
         assertThat(lines.get(2).getAppendablePayload()).isEqualTo("2014-11-24 12:00:12;AnotherDeviceMRID;0.0.5.1.17.1.13.0.0.0.0.0.0.0.0.4.75.1;0;suspect;\n");
+    }
+
+    @Test
+    public void testLinesAreOkForLoadProfile() {
+        processor = new StandardCsvDataFormatter(getPropertyMap(properties), thesaurus, validationService, dataExportService);
+
+        processor.startExport(dataExportOccurrence, logger);
+        processor.startItem(item);
+        FormattedData formattedData = processor.processData(Stream.of(new MeterReadingData(item, dataLoadProfile, DefaultStructureMarker.createRoot(clock, "root"))));
+        List<FormattedExportData> lines = formattedData.getData();
+        processor.endItem(item);
+        assertThat(lines).hasSize(2);
+        assertThat(lines.get(0).getAppendablePayload()).isEqualTo("2014-11-24 12:00:12;DeviceMRID;0.0.5.1.16.1.12.0.0.0.0.0.0.0.0.3.73.0;1;;\n");
+        assertThat(lines.get(1).getAppendablePayload()).isEqualTo("2014-11-24 12:00:12;DeviceMRID;0.0.5.1.16.1.12.0.0.0.0.0.0.0.0.3.73.0;10;;\n");
+
+        processor.startExport(dataExportOccurrence, logger);
+        processor.startItem(item1);
+        formattedData = processor.processData(Stream.of(new MeterReadingData(item1, this.dataLoadProfile, DefaultStructureMarker.createRoot(clock, "root"))));
+        lines = formattedData.getData();
+        processor.endItem(item1);
+        assertThat(lines).hasSize(2);
+        assertThat(lines.get(0).getAppendablePayload()).isEqualTo("2014-11-24 12:00:12;AnotherDeviceMRID;0.0.5.1.17.1.13.0.0.0.0.0.0.0.0.4.75.1;1;;\n");
+        assertThat(lines.get(1).getAppendablePayload()).isEqualTo("2014-11-24 12:00:12;AnotherDeviceMRID;0.0.5.1.17.1.13.0.0.0.0.0.0.0.0.4.75.1;10;;\n");
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -254,7 +279,7 @@ public class StandardCsvDataFormatterTest {
 
         processor.startExport(dataExportOccurrence, logger);
         processor.startItem(item);
-        processor.processData(new MeterReadingData(item, data, DefaultStructureMarker.createRoot(clock ,"root")));
+        processor.processData(Stream.of(new MeterReadingData(item, data, DefaultStructureMarker.createRoot(clock ,"root"))));
         processor.endItem(item1);
     }
 
@@ -265,7 +290,7 @@ public class StandardCsvDataFormatterTest {
 
         processor.startExport(dataExportOccurrence, logger);
         processor.startItem(item);
-        processor.processData(new MeterReadingData(item, data, DefaultStructureMarker.createRoot(clock, "root")));
+        processor.processData(Stream.of(new MeterReadingData(item, data, DefaultStructureMarker.createRoot(clock, "root"))));
     }
 
     private Map<String, Object> getPropertyMap(List<DataExportProperty> properties) {

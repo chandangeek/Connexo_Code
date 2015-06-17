@@ -9,6 +9,7 @@ import com.elster.jupiter.export.FormattedExportData;
 import com.elster.jupiter.export.MeterReadingData;
 import com.elster.jupiter.export.ReadingDataFormatter;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
+import com.elster.jupiter.export.SimpleFormattedData;
 import com.elster.jupiter.export.StructureMarker;
 import com.elster.jupiter.export.TextLineExportData;
 import com.elster.jupiter.metering.Channel;
@@ -35,6 +36,8 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -47,6 +50,14 @@ import java.util.stream.Stream;
 
 public class StandardCsvDataFormatter implements ReadingDataFormatter {
 
+    public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    public static final String VALID_STRING = "valid";
+    public static final String INVALID_STRING = "suspect";
+    public static final String SEMICOLON_VALUE = "semicolon";
+    public static final String COMMA_VALUE = "comma";
+    public static final String SEMICOLON_SEPARATOR = ";";
+    public static final String COMMA_SEPARATOR = ",";
+    public static final String DEFAULT_SEPARATOR = COMMA_SEPARATOR;
     private final ValidationService validationService;
     private final DataExportService dataExportService;
 
@@ -71,7 +82,7 @@ public class StandardCsvDataFormatter implements ReadingDataFormatter {
         if (propertyMap.containsKey(FormatterProperties.SEPARATOR.getKey())) {
             defineSeparator(propertyMap.get(FormatterProperties.SEPARATOR.getKey()).toString());
         } else {
-            this.fieldSeparator = ",";
+            this.fieldSeparator = DEFAULT_SEPARATOR;
         }
     }
 
@@ -90,11 +101,13 @@ public class StandardCsvDataFormatter implements ReadingDataFormatter {
 
     @Override
     public FormattedData processData(Stream<ExportData> exportDatas) {
-        exportDatas.forEach(this::processData);
-        return null; // TODO proper
+        return exportDatas.map(this::processData)
+                .map(pair -> SimpleFormattedData.of(pair.getLast(), pair.getFirst()))
+                .reduce(SimpleFormattedData::merged)
+                .orElseGet(() -> SimpleFormattedData.of(Collections.emptyList()));
     }
 
-    List<FormattedExportData> processData(ExportData exportData) {
+    private Pair<Instant, List<FormattedExportData>> processData(ExportData exportData) {
         StructureMarker main = dataExportService.forRoot("main");
         MeterReading data = ((MeterReadingData) exportData).getMeterReading();
         List<Reading> readings = data.getReadings();
@@ -122,17 +135,27 @@ public class StandardCsvDataFormatter implements ReadingDataFormatter {
                     .flatMap(Functions.asStream())
                     .map(line -> TextLineExportData.of(main.adopt(exportData.getStructureMarker()), line));
         }
-        return Stream.of(readingStream, intervalReadings).flatMap(Function.identity()).collect(Collectors.toList());
+        Instant lastExported = determineLastExported(readings, intervalBlocks);
+        return Pair.of(lastExported, Stream.of(readingStream, intervalReadings).flatMap(Function.identity()).collect(Collectors.toList()));
+    }
+
+    private Instant determineLastExported(List<Reading> readings, List<IntervalBlock> intervalBlocks) {
+        return Stream.of(intervalBlocks.stream()
+                .map(IntervalBlock::getIntervals)
+                .flatMap(Collection::stream), readings.stream())
+                    .flatMap(Function.identity())
+                    .map(BaseReading::getTimeStamp)
+                    .max(Comparator.naturalOrder())
+                    .orElse(null);
     }
 
     private Optional<String> writeReading(BaseReading reading, DataValidationStatus status) {
 
         if (reading.getValue() != null) {
             StringBuilder writer = new StringBuilder();
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
             // TODO correct ZoneId
             ZonedDateTime date = ZonedDateTime.ofInstant(reading.getTimeStamp(), ZoneId.systemDefault());
-            writer.append(date.format(formatter));
+            writer.append(date.format(DATE_TIME_FORMATTER));
             writer.append(fieldSeparator);
             writer.append(meter.getMRID());
             writer.append(fieldSeparator);
@@ -144,10 +167,10 @@ public class StandardCsvDataFormatter implements ReadingDataFormatter {
                 ValidationResult validationResult = status.getValidationResult();
                 switch (validationResult) {
                     case VALID:
-                        writer.append("valid");
+                        writer.append(VALID_STRING);
                         break;
                     case SUSPECT:
-                        writer.append("suspect");
+                        writer.append(INVALID_STRING);
                         break;
                 }
             }
@@ -173,12 +196,12 @@ public class StandardCsvDataFormatter implements ReadingDataFormatter {
 
     private void defineSeparator(String separator) {
         switch (separator) {
-            case "semicolon":
-                this.fieldSeparator = ";";
+            case SEMICOLON_VALUE:
+                this.fieldSeparator = SEMICOLON_SEPARATOR;
                 break;
-            case "comma":
+            case COMMA_VALUE:
             default:
-                this.fieldSeparator = ",";
+                this.fieldSeparator = COMMA_SEPARATOR;
                 break;
         }
     }
