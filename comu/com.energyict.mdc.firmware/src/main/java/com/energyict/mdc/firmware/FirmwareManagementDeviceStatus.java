@@ -374,7 +374,7 @@ public enum FirmwareManagementDeviceStatus {
     },
 
     CONFIGURATION_ERROR(Constants.CONFIGURATION_ERROR),
-    CANCELLED(Constants.FAILED),
+    CANCELLED(Constants.CANCELLED),
     ;
 
     private String statusKey;
@@ -510,5 +510,6 @@ public enum FirmwareManagementDeviceStatus {
         public static final String ONGOING = "ongoing";
         public static final String PENDING = "pending";
         public static final String CONFIGURATION_ERROR = "configurationError";
+        public static final String CANCELLED = "cancelled";
     }
 }

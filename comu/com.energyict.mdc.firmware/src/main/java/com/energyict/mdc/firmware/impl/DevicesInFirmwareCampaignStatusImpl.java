@@ -35,6 +35,7 @@ public class DevicesInFirmwareCampaignStatusImpl{
         result.put(FirmwareManagementDeviceStatus.Constants.CONFIGURATION_ERROR, this.configurationError);
         result.put(FirmwareManagementDeviceStatus.Constants.ONGOING, this.ongoing);
         result.put(FirmwareManagementDeviceStatus.Constants.PENDING, this.pending);
+        result.put(FirmwareManagementDeviceStatus.Constants.CANCELLED, this.cancelled);
         return result;
     }
 
@@ -44,7 +45,8 @@ public class DevicesInFirmwareCampaignStatusImpl{
         STATUS_FAILED("failed"),
         STATUS_ONGOING("ongoing"),
         STATUS_PENDING("pending"),
-        STATUS_CONFIGURATION_ERROR("configurationError"),;
+        STATUS_CONFIGURATION_ERROR("configurationError"),
+        STATUS_CANCELLED("cancelled"),;
 
         private String name;
 
@@ -65,6 +67,7 @@ public class DevicesInFirmwareCampaignStatusImpl{
     private long ongoing = 0;
     private long pending = 0;
     private long configurationError = 0;
+    private long cancelled = 0;
 
     private final DataModel dataModel;
 
@@ -89,6 +92,7 @@ public class DevicesInFirmwareCampaignStatusImpl{
                     this.ongoing = rs.getLong(FirmwareManagementDeviceStatus.Constants.ONGOING.toUpperCase());
                     this.pending = rs.getLong(FirmwareManagementDeviceStatus.Constants.PENDING.toUpperCase());
                     this.configurationError = rs.getLong(FirmwareManagementDeviceStatus.Constants.CONFIGURATION_ERROR.toUpperCase());
+                    this.cancelled = rs.getLong(FirmwareManagementDeviceStatus.Constants.CANCELLED.toUpperCase());
                     dataModel.update(this);
                 }
             }
@@ -155,5 +159,9 @@ public class DevicesInFirmwareCampaignStatusImpl{
 
     public long getConfigurationError() {
         return configurationError;
+    }
+
+    public long getCancelled() {
+        return cancelled;
     }
 }
