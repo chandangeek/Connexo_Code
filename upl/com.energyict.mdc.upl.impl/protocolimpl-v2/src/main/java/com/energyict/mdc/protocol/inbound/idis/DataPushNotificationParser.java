@@ -151,7 +151,7 @@ public class DataPushNotificationParser extends EventPushNotificationParser {
 
             addCollectedRegister(obisCode, value, scalerUnit, eventTime, text);
         } catch (IndexOutOfBoundsException | ProtocolException e) {
-           getComServerExceptionFactory().createProtocolParseException(new ProtocolException(e, "Failed to parse the register data from the Data-notification body: " + e.getMessage()));
+           throw getComServerExceptionFactory().createProtocolParseException(new ProtocolException(e, "Failed to parse the register data from the Data-notification body: " + e.getMessage()));
         }
     }
 
