@@ -77,23 +77,23 @@ public enum MicroAction {
     DETACH_SLAVE_FROM_MASTER(MicroCategory.TOPOLOGY);
 
     private MicroCategory category;
-    private String subCategoryKey;
+    private String conflictGroupKey;
 
     MicroAction(MicroCategory category) {
         this.category = category;
     }
 
-    MicroAction(MicroCategory category, String subCategoryKey) {
+    MicroAction(MicroCategory category, String conflictGroupKey) {
         this(category);
-        this.subCategoryKey = subCategoryKey;
+        this.conflictGroupKey = conflictGroupKey;
     }
 
     public MicroCategory getCategory() {
         return category;
     }
 
-    public String getSubCategoryKey() {
-        return subCategoryKey;
+    public String getConflictGroupKey() {
+        return conflictGroupKey;
     }
 
     /**
