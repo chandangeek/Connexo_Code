@@ -384,6 +384,7 @@ Ext.define('Isu.view.creationrules.EditForm', {
         if (type) {
             Ext.suspendLayouts();
             templateCombo.reset();
+            me.down('#rule-template-info').setTooltip(null);
             issueReasonCombo.reset();
             me.down('property-form').loadRecord(Ext.create('Isu.model.CreationRuleTemplate'));
             Ext.resumeLayouts(true);
