@@ -33,8 +33,7 @@ Ext.define('Dxp.view.tasks.Setup', {
                         title: Uni.I18n.translate('dataExportTasks.empty.title', 'DES', 'No data export tasks found'),
                         reasons: [
                             Uni.I18n.translate('dataExportTasks.empty.list.item1', 'DES', 'No data export tasks have been defined yet.'),
-                            Uni.I18n.translate('dataExportTasks.empty.list.item2', 'DES', 'Data export tasks exist, but you do not have permission to view them.'),
-                            Uni.I18n.translate('dataExportTasks.empty.list.item3', 'DES', 'The filter is too narrow.')
+                            Uni.I18n.translate('dataExportTasks.empty.list.item2', 'DES', 'Data export tasks exist, but you do not have permission to view them.')
                         ],
                         stepItems: [
                             {
