@@ -120,7 +120,7 @@ public class Dsmr23MessageConverterTest {
         final String currentDateFormatting = dsmr23MessageConverter.format(propertySpec, currentDate);
 
         // asserts
-        assertThat(currentDateFormatting).isEqualTo(String.valueOf(millis));
+        assertThat(currentDateFormatting).isEqualTo(String.valueOf(millis / 1000));
     }
 
     @Test
@@ -135,7 +135,7 @@ public class Dsmr23MessageConverterTest {
         final String currentDateFormatting = dsmr23MessageConverter.format(propertySpec, currentDate);
 
         // asserts
-        assertThat(currentDateFormatting).isEqualTo(String.valueOf(millis));
+        assertThat(currentDateFormatting).isEqualTo(String.valueOf(millis / 1000));
     }
 
     @Test
@@ -196,7 +196,7 @@ public class Dsmr23MessageConverterTest {
         final String currentDateFormatting = dsmr23MessageConverter.format(propertySpec, currentDate);
 
         // asserts
-        assertThat(currentDateFormatting).isEqualTo(String.valueOf(millis));
+        assertThat(currentDateFormatting).isEqualTo(String.valueOf(millis / 1000));
     }
 
     @Test
@@ -377,14 +377,14 @@ public class Dsmr23MessageConverterTest {
         final Dsmr23MessageConverter dsmr23MessageConverter = new Dsmr23MessageConverter();
         PropertySpec propertySpec = mock(PropertySpec.class);
         when(propertySpec.getName()).thenReturn(emergencyProfileActivationDateAttributeName);
-        final String timeInMilliSeconds = "1364983938654";
-        final Date activationDate = new Date(Long.valueOf(timeInMilliSeconds));
+        final long timeInMilliSeconds = 1364983938654L;
+        final Date activationDate = new Date(timeInMilliSeconds);
 
         // business method
         final String formattedActivationDate = dsmr23MessageConverter.format(propertySpec, activationDate);
 
         // asserts
-        assertThat(formattedActivationDate).isEqualTo(timeInMilliSeconds);
+        assertThat(formattedActivationDate).isEqualTo(String.valueOf(timeInMilliSeconds / 1000));
     }
 
     @Test
