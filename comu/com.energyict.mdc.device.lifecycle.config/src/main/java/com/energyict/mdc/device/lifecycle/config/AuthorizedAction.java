@@ -69,6 +69,12 @@ public interface AuthorizedAction {
     public Instant getCreationTimestamp();
 
     /**
+     * Gets the name
+     * @return The name
+     */
+    public String getName();
+
+    /**
      * Gets the timestamp on which this AuthorizedAction was last modified.
      *
      * @return The timestamp of last modification

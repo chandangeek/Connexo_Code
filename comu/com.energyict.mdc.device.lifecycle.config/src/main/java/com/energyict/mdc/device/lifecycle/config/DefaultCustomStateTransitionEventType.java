@@ -1,4 +1,4 @@
-package com.energyict.mdc.device.lifecycle.config.impl;
+package com.energyict.mdc.device.lifecycle.config;
 
 import com.elster.jupiter.fsm.CustomStateTransitionEventType;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
@@ -17,17 +17,25 @@ public enum DefaultCustomStateTransitionEventType {
     DEACTIVATED("#deactivated"),
     DECOMMISSIONED("#decommissioned"),
     DELETED("#deleted"),
-    RECYCLED("#recycled"),
-    REVOKED("#revoked");
+    RECYCLED("#recycled", false);
 
     private String symbol;
+    private boolean isStandard;
 
     DefaultCustomStateTransitionEventType(String symbol) {
+        this(symbol,true);
+    }
+    // isStandard => used within the standard device life cycle
+    DefaultCustomStateTransitionEventType(String symbol, boolean isStandard) {
         this.symbol = symbol;
+        this.isStandard = isStandard;
     }
 
     public String getSymbol() {
         return this.symbol;
+    }
+    public boolean isStandardEventType(){
+        return isStandard;
     }
 
     public CustomStateTransitionEventType findOrCreate(FiniteStateMachineService service) {

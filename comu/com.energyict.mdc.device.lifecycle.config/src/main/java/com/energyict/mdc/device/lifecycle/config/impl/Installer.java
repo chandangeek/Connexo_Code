@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.lifecycle.config.impl;
 
 import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
+import com.energyict.mdc.device.lifecycle.config.DefaultCustomStateTransitionEventType;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleBuilder;
@@ -105,6 +106,7 @@ public class Installer {
         this.logger.fine(() -> "Finding (or creating) default finite state machine transitions...");
         Map<String, CustomStateTransitionEventType> eventTypes = Stream
             .of(DefaultCustomStateTransitionEventType.values())
+            .filter(DefaultCustomStateTransitionEventType::isStandardEventType)
             .map(each -> each.findOrCreate(this.stateMachineService))
             .collect(Collectors.toMap(
                     StateTransitionEventType::getSymbol,
@@ -135,17 +137,14 @@ public class Installer {
         StateTransitionEventType deactivated = eventTypes.get(DefaultCustomStateTransitionEventType.DEACTIVATED.getSymbol());
         StateTransitionEventType decommissionedEventType = eventTypes.get(DefaultCustomStateTransitionEventType.DECOMMISSIONED.getSymbol());
         StateTransitionEventType deletedEventType = eventTypes.get(DefaultCustomStateTransitionEventType.DELETED.getSymbol());
-        StateTransitionEventType recycled = eventTypes.get(DefaultCustomStateTransitionEventType.RECYCLED.getSymbol());
-        StateTransitionEventType revoked = eventTypes.get(DefaultCustomStateTransitionEventType.REVOKED.getSymbol());
 
         FiniteStateMachineBuilder builder = this.stateMachineService.newFiniteStateMachine(name);
         // Create default States
-        State deleted = builder.newStandardState(DefaultState.DELETED.getKey()).complete();
+        State removed = builder.newStandardState(DefaultState.REMOVED.getKey()).complete();
         FiniteStateMachineBuilder.StateBuilder inStockBuilder = builder.newStandardState(DefaultState.IN_STOCK.getKey());
         State decommissioned = builder
                 .newStandardState(DefaultState.DECOMMISSIONED.getKey())
-                .on(deletedEventType).transitionTo(deleted)
-                .on(recycled).transitionTo(inStockBuilder)
+                .on(deletedEventType).transitionTo(removed)
                 .complete();
         FiniteStateMachineBuilder.StateBuilder activeBuilder = builder.newStandardState(DefaultState.ACTIVE.getKey());
         FiniteStateMachineBuilder.StateBuilder inactiveBuilder = builder.newStandardState(DefaultState.INACTIVE.getKey());
@@ -157,7 +156,7 @@ public class Installer {
                 .on(activated).transitionTo(active)
                 .on(decommissionedEventType).transitionTo(decommissioned)
                 .complete();
-        State commissioned = builder
+        State commissioning = builder
                 .newStandardState(DefaultState.COMMISSIONING.getKey())
                 .on(activated).transitionTo(active)
                 .on(deactivated).transitionTo(inactive)
@@ -165,8 +164,8 @@ public class Installer {
         State inStock = inStockBuilder
                 .on(activated).transitionTo(active)
                 .on(deactivated).transitionTo(inactive)
-                .on(commissioningEventType).transitionTo(commissioned)
-                .on(revoked).transitionTo(deleted)
+                .on(commissioningEventType).transitionTo(commissioning)
+                .on(deletedEventType).transitionTo(removed)
                 .complete();
         FiniteStateMachine stateMachine = builder.complete(inStock);
         this.logger.fine(() -> "Creating default finite state machine...");

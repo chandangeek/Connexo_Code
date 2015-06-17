@@ -624,7 +624,7 @@ public class DeviceLifeCycleIT {
         builder
             .newTransitionAction(stateTransition)
             .addAllActions(EnumSet.of(MicroAction.ENABLE_VALIDATION, MicroAction.REMOVE_DEVICE_FROM_STATIC_GROUPS))
-            .addAllChecks(EnumSet.of(MicroCheck.DEFAULT_CONNECTION_AVAILABLE, MicroCheck.AT_LEAST_ONE_MANUALLY_SCHEDULED_COMMUNICATION_TASK_AVAILABLE))
+            .addAllChecks(EnumSet.of(MicroCheck.DEFAULT_CONNECTION_AVAILABLE, MicroCheck.AT_LEAST_ONE_SCHEDULED_COMMUNICATION_TASK_AVAILABLE))
             .addAllLevels(EnumSet.of(AuthorizedAction.Level.ONE, AuthorizedAction.Level.TWO))
             .complete();
         DeviceLifeCycle deviceLifeCycle = builder.complete();
@@ -645,7 +645,7 @@ public class DeviceLifeCycleIT {
         assertThat(authorizedAction).isInstanceOf(AuthorizedStandardTransitionAction.class);
         AuthorizedStandardTransitionAction transitionAction = (AuthorizedStandardTransitionAction) authorizedAction;
         assertThat(transitionAction.getType()).isEqualTo(TransitionType.from(stateTransition).get());
-        assertThat(transitionAction.getChecks()).containsOnly(MicroCheck.DEFAULT_CONNECTION_AVAILABLE, MicroCheck.AT_LEAST_ONE_MANUALLY_SCHEDULED_COMMUNICATION_TASK_AVAILABLE);
+        assertThat(transitionAction.getChecks()).containsOnly(MicroCheck.DEFAULT_CONNECTION_AVAILABLE, MicroCheck.AT_LEAST_ONE_SCHEDULED_COMMUNICATION_TASK_AVAILABLE);
         assertThat(transitionAction.getActions()).containsOnly(MicroAction.ENABLE_VALIDATION, MicroAction.REMOVE_DEVICE_FROM_STATIC_GROUPS);
     }
 
@@ -694,7 +694,7 @@ public class DeviceLifeCycleIT {
 
         // Asserts
         List<AuthorizedAction> authorizedActions = anotherDefault.getAuthorizedActions();
-        assertThat(authorizedActions).hasSize(12);
+        assertThat(authorizedActions).hasSize(11);
         assertThat(authorizedActions).are(new Condition<AuthorizedAction>() {
             @Override
             public boolean matches(AuthorizedAction action) {

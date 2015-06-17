@@ -17,6 +17,7 @@ public enum MicroAction {
      * load profiles and log books of the device.
      * Requires that the user specifies that last reading timestamp.
      */
+    // storage = bits 1
     SET_LAST_READING(MicroCategory.DATA_COLLECTION),
 
     /**
@@ -24,16 +25,19 @@ public enum MicroAction {
      * Requires that the user specifies the timestamp
      * from which data should be validated.
      */
+    // storage = bits 2
     ENABLE_VALIDATION(MicroCategory.VALIDATION_AND_ESTIMATION, "subcategory_validation"),
 
     /**
      * Disables data validation on the device.
      */
+    // storage = bits 4
     DISABLE_VALIDATION(MicroCategory.VALIDATION_AND_ESTIMATION, "subcategory_validation"),
 
     /**
      * Activates all connection tasks on the device.
      */
+    // storage = bits 8
     ACTIVATE_CONNECTION_TASKS(MicroCategory.COMMUNICATION),
 
     /**
@@ -43,12 +47,14 @@ public enum MicroAction {
      *
      * @see #ACTIVATE_CONNECTION_TASKS
      */
+    // storage = bits 16
     START_COMMUNICATION(MicroCategory.COMMUNICATION, "subcategory_communication"),
 
     /**
      * Disable communication on the device
      * by putting all connection and communication tasks on hold.
      */
+    // storage = bits 32
     DISABLE_COMMUNICATION(MicroCategory.COMMUNICATION, "subcategory_communication"),
 
     /**
@@ -56,6 +62,7 @@ public enum MicroAction {
      * Requires that the user specifies the timestamp
      * on which the meter activation should start.
      */
+    // storage = bits 64
     CREATE_METER_ACTIVATION(MicroCategory.DATA_COLLECTION),
 
     /**
@@ -63,18 +70,42 @@ public enum MicroAction {
      * Requires that the user specifies the timestamp
      * on which the meter activation should end.
      */
+    // storage = bits 128
     CLOSE_METER_ACTIVATION(MicroCategory.DATA_COLLECTION),
 
     /**
      * Removes the device from all enumerated device groups
      * it is contained in.
      */
+    // storage = bits 256
     REMOVE_DEVICE_FROM_STATIC_GROUPS(MicroCategory.DATA_COLLECTION),
 
     /**
      * Detaches a slave device from its physical gateway.
      */
-    DETACH_SLAVE_FROM_MASTER(MicroCategory.TOPOLOGY);
+    // storage = bits 512
+    DETACH_SLAVE_FROM_MASTER(MicroCategory.TOPOLOGY),
+
+    /**
+     * Enables data estimation on the device.
+     */
+    // storage = bits 1024
+    ENABLE_ESTIMATION(MicroCategory.VALIDATION_AND_ESTIMATION),
+
+    /**
+     * Disables data estimation on the device.
+     */
+    // storage = bits 2048
+    DISABLE_ESTIMATION(MicroCategory.VALIDATION_AND_ESTIMATION, "subcategory_estimation"),
+
+    /**
+     * Moving forward lastreading dates of channels and registers, and perform
+     * a validation followed by an estimation => channels/registers have an estimated value on given date.
+     * Requires that the user specifies the timestamp
+     * on which the lastreading of channels and registers should be set.
+     */
+    // storage = bits 4096
+    FORCE_VALIDATION_AND_ESTIMATION(MicroCategory.VALIDATION_AND_ESTIMATION, "subcategory_estimation");
 
     private MicroCategory category;
     private String conflictGroupKey;
@@ -108,4 +139,4 @@ public enum MicroAction {
         return EnumSet.noneOf(MicroCheck.class);
     }
 
-}
+    }

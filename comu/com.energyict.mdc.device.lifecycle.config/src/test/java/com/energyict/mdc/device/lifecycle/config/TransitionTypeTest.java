@@ -97,9 +97,9 @@ public class TransitionTypeTest {
         this.testStandardTransition(DefaultState.INACTIVE, DefaultState.ACTIVE, TransitionType.ACTIVATE);
         this.testStandardTransition(DefaultState.INACTIVE, DefaultState.DECOMMISSIONED, TransitionType.DECOMMISSION);
         this.testStandardTransition(DefaultState.ACTIVE, DefaultState.DECOMMISSIONED, TransitionType.DEACTIVATE_AND_DECOMMISSION);
-        this.testStandardTransition(DefaultState.DECOMMISSIONED, DefaultState.DELETED, TransitionType.DELETE_FROM_DECOMMISSIONED);
-        this.testStandardTransition(DefaultState.DECOMMISSIONED, DefaultState.IN_STOCK, TransitionType.RECYCLE);
-        this.testStandardTransition(DefaultState.IN_STOCK, DefaultState.DELETED, TransitionType.DELETE_FROM_IN_STOCK);
+        this.testStandardTransition(DefaultState.DECOMMISSIONED, DefaultState.REMOVED, TransitionType.DELETE_FROM_DECOMMISSIONED);
+        this.testStandardTransition(DefaultState.IN_STOCK, DefaultState.REMOVED, TransitionType.DELETE_FROM_IN_STOCK);
+
     }
 
     private void testStandardTransition(DefaultState defaultFrom, DefaultState defaultTo, TransitionType expectedTransitionType) {
