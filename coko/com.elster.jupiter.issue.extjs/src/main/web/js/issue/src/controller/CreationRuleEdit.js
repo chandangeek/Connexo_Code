@@ -93,7 +93,7 @@ Ext.define('Isu.controller.CreationRuleEdit', {
                 issueTypesStore.on('load', function (store, types) {
                     rule.setIssueType(types[0]);
                     me.loadDependencies(types[0], dependenciesOnLoad);
-                }, me, {singel: true});
+                }, me, {single: true});
             }
         }
 
