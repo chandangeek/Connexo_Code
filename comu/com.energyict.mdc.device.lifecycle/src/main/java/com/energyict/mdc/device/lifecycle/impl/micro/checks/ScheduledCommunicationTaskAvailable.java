@@ -2,25 +2,28 @@ package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolation;
 import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 import com.energyict.mdc.device.lifecycle.impl.MessageSeeds;
 import com.energyict.mdc.device.lifecycle.impl.ServerMicroCheck;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.streams.Predicates;
 
 import java.time.Instant;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 /**
  * Provides an implementation for the {@link ServerMicroCheck} interface
- * that checks that there is a {@link ScheduledComTaskExecution} on the device.
+ * that checks that there is a {@link ManuallyScheduledComTaskExecution} on the device.
  *
- * check bits: 4
+ * check bits: 2
+ *
  *
  * @author Rudi Vankeirsbilck (rudi)
- * @since 2015-05-13 (09:00)
+ * @since 2015-04-15 (09:28)
  */
 public class ScheduledCommunicationTaskAvailable implements ServerMicroCheck {
 
@@ -33,7 +36,7 @@ public class ScheduledCommunicationTaskAvailable implements ServerMicroCheck {
 
     @Override
     public Optional<DeviceLifeCycleActionViolation> evaluate(Device device, Instant effectiveTimestamp) {
-        if (!anyScheduledCommunicationTask(device).isPresent()) {
+        if (!anyManuallyScheduledCommunicationTask(device).isPresent()) {
             return Optional.of(
                     new DeviceLifeCycleActionViolationImpl(
                             this.thesaurus,
@@ -45,12 +48,17 @@ public class ScheduledCommunicationTaskAvailable implements ServerMicroCheck {
         }
     }
 
-    private Optional<ComTaskExecution> anyScheduledCommunicationTask(Device device) {
-        return device
-                .getComTaskExecutions()
-                .stream()
-                .filter(ComTaskExecution::usesSharedSchedule)
-                .findAny();
+    private Optional<ComTaskExecution> anyManuallyScheduledCommunicationTask(Device device) {
+        return Stream.<ComTaskExecution>concat(device
+                            .getComTaskExecutions()
+                            .stream()
+                            .filter(ComTaskExecution::isScheduledManually)
+                            .filter(Predicates.not(ComTaskExecution::isAdHoc))
+                            ,device
+                            .getComTaskExecutions()
+                            .stream()
+                            .filter(ComTaskExecution::usesSharedSchedule)
+                ).findAny();
     }
 
 }

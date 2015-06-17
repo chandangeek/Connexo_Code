@@ -62,11 +62,11 @@ public class MicroCheckFactoryImpl implements ServerMicroCheckFactory {
             case DEFAULT_CONNECTION_AVAILABLE: {
                 return new DefaultConnectionTaskAvailable(this.thesaurus);
             }
-            case AT_LEAST_ONE_MANUALLY_SCHEDULED_COMMUNICATION_TASK_AVAILABLE: {
-                return new ManuallyScheduledCommunicationTaskAvailable(this.thesaurus);
-            }
             case AT_LEAST_ONE_SCHEDULED_COMMUNICATION_TASK_AVAILABLE: {
                 return new ScheduledCommunicationTaskAvailable(this.thesaurus);
+            }
+            case AT_LEAST_ONE_SHARED_SCHEDULED_COMMUNICATION_TASK_AVAILABLE: {
+                return new SharedScheduledCommunicationTaskAvailable(this.thesaurus);
             }
             case ALL_DATA_COLLECTED: {
                 return new AllDataCollected(this.thesaurus);
