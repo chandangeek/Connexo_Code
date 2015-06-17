@@ -5,6 +5,7 @@ import com.elster.jupiter.demo.impl.UnableToCreate;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.GatewayType;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.RegisterType;
@@ -158,10 +159,23 @@ public class DeviceConfigurationBuilder extends NamedBuilder<DeviceConfiguration
                 throw new UnableToCreate("Please specify at least one security set");
             }
             for (ComTask comTask : comTasks) {
-                configuration.enableComTask(comTask, configuration.getSecurityPropertySets().get(0), configuration.getProtocolDialectConfigurationPropertiesList().get(0))
+                configuration.enableComTask(comTask, configuration.getSecurityPropertySets().get(0), getProtocolDialectConfigurationProperties(configuration))
                         .setIgnoreNextExecutionSpecsForInbound(true)
                         .setPriority(100).add().save();
             }
         }
+    }
+
+    private ProtocolDialectConfigurationProperties getProtocolDialectConfigurationProperties(DeviceConfiguration configuration) {
+        Optional<ProtocolDialectConfigurationProperties> tcpDialect = findTheTCPDialect(configuration);
+        return tcpDialect.orElse(configuration.getProtocolDialectConfigurationPropertiesList().get(0));
+    }
+
+    private Optional<ProtocolDialectConfigurationProperties> findTheTCPDialect(DeviceConfiguration configuration) {
+        return configuration.getProtocolDialectConfigurationPropertiesList()
+                    .stream()
+                    .filter(protocolDialectConfigurationProperties ->
+                            protocolDialectConfigurationProperties.getDeviceProtocolDialectName().toLowerCase().contains("tcp"))
+                    .findFirst();
     }
 }
