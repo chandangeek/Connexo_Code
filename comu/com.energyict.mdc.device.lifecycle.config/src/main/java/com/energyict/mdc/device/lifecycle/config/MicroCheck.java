@@ -102,7 +102,13 @@ public enum MicroCheck {
      * the last checked timestamp.
      */
     // check bits: 4096
-    ALL_DATA_VALIDATED;
+    ALL_DATA_VALIDATED,
+
+    /**
+     * Check if at least one connection is available on the device with the status: "Active".
+     */
+    // check bits: 8192
+    AT_LEAST_ONE_ACTIVE_CONNECTION_AVAILABLE;
 
 
 }
