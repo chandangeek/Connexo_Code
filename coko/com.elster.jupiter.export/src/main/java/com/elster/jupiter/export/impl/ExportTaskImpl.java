@@ -239,8 +239,8 @@ class ExportTaskImpl implements IExportTask {
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        List processorSpecs =  dataExportService.getDataFormatterFactory(dataFormatter).orElseThrow(()->new IllegalArgumentException("No such data formatter: "+dataFormatter)).getPropertySpecs();
-        List selectorSpecs =  dataExportService.getDataSelectorFactory(dataSelector).orElseThrow(()->new IllegalArgumentException("No such data selector: "+dataSelector)).getPropertySpecs();
+        List<PropertySpec> processorSpecs =  dataExportService.getDataFormatterFactory(dataFormatter).orElseThrow(()->new IllegalArgumentException("No such data formatter: "+dataFormatter)).getPropertySpecs();
+        List<PropertySpec> selectorSpecs =  dataExportService.getDataSelectorFactory(dataSelector).orElseThrow(()->new IllegalArgumentException("No such data selector: "+dataSelector)).getPropertySpecs();
         List<PropertySpec> allSpecs = new ArrayList<>();
         allSpecs.addAll(processorSpecs);
         allSpecs.addAll(selectorSpecs);
