@@ -5,6 +5,7 @@ import com.elster.jupiter.export.DataExportProperty;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataFormatter;
 import com.elster.jupiter.export.DataFormatterFactory;
+import com.elster.jupiter.export.DataSelectorFactory;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.NlsService;
@@ -32,6 +33,7 @@ import java.util.regex.Pattern;
  * Time: 9:41
  */
 @Component(name = "com.elster.jupiter.export.processor.StandardCsvDataProcessorFactory",
+        property = { DataExportService.DATA_TYPE_PROPERTY + "="+ DataExportService.STANDARD_DATA_TYPE},
         service = DataFormatterFactory.class, immediate = true)
 public class StandardCsvDataFormatterFactory implements DataFormatterFactory {
 

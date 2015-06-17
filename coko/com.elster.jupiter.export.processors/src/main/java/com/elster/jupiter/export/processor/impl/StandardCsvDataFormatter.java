@@ -3,11 +3,11 @@ package com.elster.jupiter.export.processor.impl;
 import com.elster.jupiter.export.DataExportException;
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportService;
-import com.elster.jupiter.export.DataFormatter;
 import com.elster.jupiter.export.ExportData;
 import com.elster.jupiter.export.FormattedData;
 import com.elster.jupiter.export.FormattedExportData;
 import com.elster.jupiter.export.MeterReadingData;
+import com.elster.jupiter.export.ReadingDataFormatter;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.export.StructureMarker;
 import com.elster.jupiter.export.TextLineExportData;
@@ -45,7 +45,7 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class StandardCsvDataFormatter implements DataFormatter {
+public class StandardCsvDataFormatter implements ReadingDataFormatter {
 
     private final ValidationService validationService;
     private final DataExportService dataExportService;
