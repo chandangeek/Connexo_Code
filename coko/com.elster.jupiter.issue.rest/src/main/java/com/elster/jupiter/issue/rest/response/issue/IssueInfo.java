@@ -9,14 +9,15 @@ import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.metering.EndDevice;
 
 public class IssueInfo<T extends DeviceInfo, I extends Issue> {
-    private long id;
-    private IssueReasonInfo reason;
-    private IssueStatusInfo status;
-    private long dueDate;
-    private IssueAssigneeInfo assignee;
-    private DeviceInfo device;
-    private long creationDate;
-    private long version;
+    public long id;
+    public IssueReasonInfo reason;
+    public IssueStatusInfo status;
+    public long dueDate;
+    public IssueAssigneeInfo assignee;
+    public DeviceInfo device;
+    public long creationDate;
+    public long modTime;
+    public long version;
 
     public IssueInfo(I issue){
         init(issue, DeviceShortInfo.class);
@@ -38,71 +39,8 @@ public class IssueInfo<T extends DeviceInfo, I extends Issue> {
             } catch (ReflectiveOperationException e) {
             }
             this.creationDate = issue.getCreateTime().toEpochMilli();
+            this.modTime = issue.getModTime().toEpochMilli();
             this.version = issue.getVersion();
         }
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public IssueReasonInfo getReason() {
-        return reason;
-    }
-
-    public void setReason(IssueReasonInfo reason) {
-        this.reason = reason;
-    }
-
-    public IssueStatusInfo getStatus() {
-        return status;
-    }
-
-    public void setStatus(IssueStatusInfo status) {
-        this.status = status;
-    }
-
-    public long getDueDate() {
-        return dueDate;
-    }
-
-    public void setDueDate(long dueDate) {
-        this.dueDate = dueDate;
-    }
-
-    public IssueAssigneeInfo getAssignee() {
-        return assignee;
-    }
-
-    public void setAssignee(IssueAssigneeInfo assignee) {
-        this.assignee = assignee;
-    }
-
-    public DeviceInfo getDevice() {
-        return device;
-    }
-
-    public void setDevice(T device) {
-        this.device = device;
-    }
-
-    public long getCreationDate() {
-        return creationDate;
-    }
-
-    public void setCreationDate(long creationDate) {
-        this.creationDate = creationDate;
-    }
-
-    public long getVersion() {
-        return version;
-    }
-
-    public void setVersion(long version) {
-        this.version = version;
     }
 }

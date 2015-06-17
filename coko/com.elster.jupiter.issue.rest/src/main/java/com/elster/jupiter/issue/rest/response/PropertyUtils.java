@@ -141,7 +141,7 @@ public class PropertyUtils {
     }
 
     private ListValue<HasIdAndName> parseListValueInfo(PropertySpec propertySpec, Object value) {
-        String stringValue = (String) value;
+        String stringValue = value.toString();
         Object obj = propertySpec.getValueFactory().fromStringValue(stringValue);
         return (ListValue<HasIdAndName>) obj;
     }
