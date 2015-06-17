@@ -48,10 +48,8 @@ public class MicroActionAndCheckInfoFactory {
             info.category = new IdWithNameInfo();
             info.category.id = microAction.getCategory().name();
             info.category.name = thesaurus.getString(MessageSeeds.Keys.TRANSITION_ACTION_CHECK_CATEGORY_KEY + microAction.getCategory().name(), microAction.getCategory().name());
-            if (microAction.getSubCategoryKey() != null){
-                info.subCategory = new IdWithNameInfo();
-                info.subCategory.id = microAction.getSubCategoryKey();
-                info.subCategory.name = thesaurus.getString(microAction.getSubCategoryKey(), microAction.getSubCategoryKey());
+            if (microAction.getConflictGroupKey() != null){
+                info.conflictGroup = new MicroActionConflictGroupInfo(microAction.getConflictGroupKey(), thesaurus);
             }
         }
         return info;

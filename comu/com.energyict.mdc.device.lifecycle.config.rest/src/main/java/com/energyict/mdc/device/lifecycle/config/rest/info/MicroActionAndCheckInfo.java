@@ -8,7 +8,7 @@ public class MicroActionAndCheckInfo {
     public String name;
     public String description;
     public IdWithNameInfo category;
-    public IdWithNameInfo subCategory;
+    public MicroActionConflictGroupInfo conflictGroup;
     public Boolean isRequired;
     public Boolean checked;
 
