@@ -11,7 +11,6 @@ import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -31,6 +30,7 @@ public interface ValidationEvaluator {
 	}
 
     boolean isAllDataValidated(MeterActivation meterActivation);
+    boolean isAllDataValid(MeterActivation meterActivation);
 
     default List<DataValidationStatus> getValidationStatus(Channel channel, List<? extends BaseReading> readings) {
         List<DataValidationStatus> dataValidationStatuses;

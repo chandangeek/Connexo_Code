@@ -1,13 +1,11 @@
 package com.elster.jupiter.validation.impl;
 
-import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.CimChannel;
-import com.elster.jupiter.metering.ReadingQualityRecord;
-import com.elster.jupiter.metering.ReadingQualityType;
+import com.elster.jupiter.cbo.QualityCodeIndex;
+import com.elster.jupiter.cbo.QualityCodeSystem;
+import com.elster.jupiter.metering.*;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.ReadingQuality;
-import com.elster.jupiter.validation.DataValidationStatus;
-import com.elster.jupiter.validation.ValidationEvaluator;
+import com.elster.jupiter.validation.*;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
@@ -24,6 +22,13 @@ import java.util.stream.Collectors;
  * Time: 11:52
  */
 public abstract class AbstractValidationEvaluator implements ValidationEvaluator {
+
+    public boolean isAllDataValid(MeterActivation meterActivation){
+        ReadingQualityType suspect = ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT);
+        return meterActivation.getChannels().stream()
+                .flatMap(channel -> channel.findActualReadingQuality(suspect, meterActivation.getRange()).stream())
+                .count() == 0;
+    }
     @Override
     public List<DataValidationStatus> getValidationStatus(CimChannel channel, List<? extends BaseReading> readings) {
         return getValidationStatus(channel, readings, getInterval(readings));
