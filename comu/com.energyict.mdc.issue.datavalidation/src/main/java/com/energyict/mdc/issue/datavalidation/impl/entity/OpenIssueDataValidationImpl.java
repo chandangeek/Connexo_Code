@@ -106,14 +106,14 @@ public class OpenIssueDataValidationImpl extends IssueDataValidationImpl impleme
         }
     }
 
+    @Override
+    public List<NotEstimatedBlock> getNotEstimatedBlocks() {
+        return Collections.unmodifiableList(notEstimatedBlocks);
+    }
+
     private void createNewBlock(Channel channel, ReadingType readingType, Instant startTime, Instant endTime) {
         OpenIssueNotEstimatedBlockImpl block = getDataModel().getInstance(OpenIssueNotEstimatedBlockImpl.class);
         block.init(this, channel, readingType, startTime, endTime);
         notEstimatedBlocks.add(block);
-    }
-    
-    @Override
-    public List<NotEstimatedBlock> getNotEstimatedBlocks() {
-        return Collections.unmodifiableList(notEstimatedBlocks);
     }
 }

@@ -10,6 +10,7 @@ import com.elster.jupiter.util.exception.ExceptionCatcher;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
 import com.energyict.mdc.issue.datavalidation.impl.event.DataValidationEventDescription;
 import com.energyict.mdc.issue.datavalidation.impl.event.DataValidationEventHandlerFactory;
+import com.google.inject.Inject;
 
 public class Installer {
 
@@ -18,9 +19,10 @@ public class Installer {
     private final EventService eventService;
     private final MessageService messageService;
 
+    @Inject
     public Installer(DataModel dataModel, IssueService issueService, EventService eventService, MessageService messageService) {
-        this.issueService = issueService;
         this.dataModel = dataModel;
+        this.issueService = issueService;
         this.eventService = eventService;
         this.messageService = messageService;
     }

@@ -27,6 +27,7 @@ import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.issue.impl.service.IssueServiceImpl;
+import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.DueInType;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
@@ -38,14 +39,17 @@ import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.ListValue;
+import com.elster.jupiter.properties.ListValueFactory;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.PropertySpecPossibleValues;
 import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -55,6 +59,7 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.issue.datavalidation.DataValidationIssueFilter;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidation;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
+import com.energyict.mdc.issue.datavalidation.impl.DataValidationIssueCreationRuleTemplate.DeviceConfigurationInfo;
 import com.energyict.mdc.issue.datavalidation.impl.event.DataValidationEventHandlerFactory;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 
@@ -62,10 +67,12 @@ public class DataValidationIssueCreationRuleTemplateTest extends PersistenceInte
     
     private static final Instant fixedTime = LocalDateTime.of(2015, 6, 16, 0, 0).toInstant(ZoneOffset.UTC);
 
+    private DataValidationIssueCreationRuleTemplate template;
     private IssueService issueService;
     private IssueCreationService issueCreationService;
     private IssueDataValidationService issueDataValidationService;
     private MessageHandler messageHandler;
+    private DeviceType deviceType;
     private DeviceConfiguration deviceConfiguration;
     private Meter meter;
     private Channel channel;
@@ -74,14 +81,14 @@ public class DataValidationIssueCreationRuleTemplateTest extends PersistenceInte
     @Before
     public void setUp() throws Exception {
         issueService = inMemoryPersistence.getService(IssueService.class);
-        DataValidationIssueCreationRuleTemplate template = inMemoryPersistence.getService(DataValidationIssueCreationRuleTemplate.class);
+        template = inMemoryPersistence.getService(DataValidationIssueCreationRuleTemplate.class);
         ((IssueServiceImpl)issueService).addCreationRuleTemplate(template);
         issueCreationService = issueService.getIssueCreationService();
         issueDataValidationService = inMemoryPersistence.getService(IssueDataValidationService.class);
         messageHandler = inMemoryPersistence.getService(DataValidationEventHandlerFactory.class).newMessageHandler();
         
-        DeviceType deviceType = createDeviceType();
-        deviceConfiguration = createDeviceConfiguration(deviceType);
+        deviceType = createDeviceType();
+        deviceConfiguration = createDeviceConfiguration(deviceType, "Default");
         String readingTypeCode = ReadingTypeCodeBuilder
                 .of(Commodity.ELECTRICITY_SECONDARY_METERED)
                 .measure(MeasurementKind.ENERGY)
@@ -91,13 +98,44 @@ public class DataValidationIssueCreationRuleTemplateTest extends PersistenceInte
                 .period(TimeAttribute.MINUTE1)
                 .code();
         readingType = inMemoryPersistence.getService(MeteringService.class).createReadingType(readingTypeCode, "RT");
-        meter = createMeter(deviceConfiguration);
-        MeterActivation meterActivation = meter.activate(fixedTime);
-        channel = meterActivation.createChannel(readingType);
+        meter = createMeter(deviceConfiguration, "Device #1");
+        channel = meter.activate(fixedTime).createChannel(readingType);
         
-        createRuleForDeviceConfiguration(deviceConfiguration);
+        createRuleForDeviceConfiguration("Rule #1", deviceConfiguration);
         assertThat(issueCreationService.reReadRules()).as("Drools compilation of the rule: there are errors").isTrue();
-
+    }
+    
+    @Test
+    @Transactional
+    public void testTemplateGetters() {
+        Thesaurus thesaurus = inMemoryPersistence.getService(Thesaurus.class);
+        
+        assertThat(template.getDisplayName()).isEqualTo(MessageSeeds.DATA_VALIDATION_ISSUE_RULE_TEMPLATE_NAME.getTranslated(thesaurus));
+        assertThat(template.getDescription()).isEqualTo(MessageSeeds.DATA_VALIDATION_ISSUE_RULE_TEMPLATE_DESCRIPTION.getTranslated(thesaurus));
+        assertThat(template.getIssueType().getId()).isEqualTo(issueService.findIssueType(IssueDataValidationService.ISSUE_TYPE_NAME).get().getId());        
+    }
+    
+    @Test
+    @Transactional
+    @SuppressWarnings("unchecked")
+    public void testTemplatePropertySpecs() {
+        List<PropertySpec> propertySpecs = template.getPropertySpecs();
+        
+        assertThat(propertySpecs).hasSize(1);
+        
+        PropertySpec propertySpec = propertySpecs.get(0);
+        assertThat(propertySpec.getName()).isEqualTo(DataValidationIssueCreationRuleTemplate.DEVICE_CONFIGURATIONS);
+        assertThat(propertySpec.getValueFactory().getClass()).isEqualTo(ListValueFactory.class);
+        
+        PropertySpecPossibleValues possibleValues = propertySpec.getPossibleValues();
+        assertThat(possibleValues.getAllValues()).hasSize(1);
+        
+        DeviceConfigurationInfo value = (DeviceConfigurationInfo) ((ListValue<?>)possibleValues.getAllValues().get(0)).getValue();
+        assertThat(value.getId()).isEqualTo(deviceConfiguration.getId());
+        assertThat(value.getName()).isEqualTo(deviceConfiguration.getName());
+        assertThat(value.isActive()).isEqualTo(deviceConfiguration.isActive());
+        assertThat(value.getDeviceTypeId()).isEqualTo(deviceType.getId());
+        assertThat(value.getDeviceTypeName()).isEqualTo(deviceType.getName());
     }
     
     @Test
@@ -115,6 +153,29 @@ public class DataValidationIssueCreationRuleTemplateTest extends PersistenceInte
         assertThat(issueDataValidation.getNotEstimatedBlocks().get(0).getReadingType()).isEqualTo(readingType);
         assertThat(issueDataValidation.getNotEstimatedBlocks().get(0).getStartTime()).isEqualTo(now);
         assertThat(issueDataValidation.getNotEstimatedBlocks().get(0).getEndTime()).isEqualTo(now.plus(1, ChronoUnit.MINUTES));
+    }
+    
+    @Test
+    @Transactional
+    public void testFilterByDeviceConfiguration() {
+        DeviceConfiguration altDeviceConfiguration = createDeviceConfiguration(deviceType, "Alternative");
+        Meter meter = createMeter(altDeviceConfiguration, "Device #2");
+        Channel channel = meter.activate(fixedTime).createChannel(readingType);
+        
+        Instant now = Instant.now();
+        Message message = mockCanntEstimateDataMessage(now, now, channel, readingType);
+        messageHandler.process(message);
+        
+        List<? extends IssueDataValidation> issues = issueDataValidationService.findAllDataValidationIssues(new DataValidationIssueFilter()).find();
+        assertThat(issues).hasSize(0);//nothing has been created because device configuration in not mentioned in the rule
+        
+        CreationRule rule = createRuleForDeviceConfiguration("Rule #2", deviceConfiguration, altDeviceConfiguration);
+        assertThat(issueCreationService.reReadRules()).as("Drools compilation of the rule: there are errors").isTrue();
+        messageHandler.process(message);
+        issues = issueDataValidationService.findAllDataValidationIssues(new DataValidationIssueFilter()).find();
+        assertThat(issues).hasSize(1);
+        assertThat(issues.get(0).getDevice().getId()).isEqualTo(meter.getId());
+        assertThat(issues.get(0).getRule().getId()).isEqualTo(rule.getId());
     }
     
     @Test
@@ -140,7 +201,7 @@ public class DataValidationIssueCreationRuleTemplateTest extends PersistenceInte
     
     @Test
     @Transactional
-    public void testCreateNewIssueBecauseExistingClosed() {
+    public void testCreateNewIssueWhileHistoricalExists() {
         Instant now = Instant.now();
         Message message = mockCanntEstimateDataMessage(now, now, channel, readingType);
         messageHandler.process(message);
@@ -160,7 +221,7 @@ public class DataValidationIssueCreationRuleTemplateTest extends PersistenceInte
     
     @Test
     @Transactional
-    public void testAutoresolution() {
+    public void testResolveIssue() {
         MeterReadingImpl reading = MeterReadingImpl.newInstance();
         IntervalBlockImpl block = IntervalBlockImpl.of(readingType.getMRID());
         block.addIntervalReading(IntervalReadingImpl.of(fixedTime, BigDecimal.valueOf(50L)));
@@ -229,36 +290,39 @@ public class DataValidationIssueCreationRuleTemplateTest extends PersistenceInte
         return deviceType;
     }
     
-    private DeviceConfiguration createDeviceConfiguration(DeviceType deviceType) {
-        DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("DeviceConfig").add();
+    private DeviceConfiguration createDeviceConfiguration(DeviceType deviceType, String name) {
+        DeviceConfiguration deviceConfiguration = deviceType.newConfiguration(name).add();
         deviceConfiguration.activate();
         deviceConfiguration.save();
         return deviceConfiguration;
     }
     
-    private Meter createMeter(DeviceConfiguration deviceConfiguration) {
+    private Meter createMeter(DeviceConfiguration deviceConfiguration, String name) {
         DeviceService deviceService = inMemoryPersistence.getService(DeviceService.class);
-        Device device = deviceService.newDevice(deviceConfiguration, "DeviceName", "DeviceMRID");
+        Device device = deviceService.newDevice(deviceConfiguration, name, name);
         device.save();
         MeteringService meteringService = inMemoryPersistence.getService(MeteringService.class);
         AmrSystem amrSystem  = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
         return amrSystem.findMeter(String.valueOf(device.getId())).get();
     }
     
-    private void createRuleForDeviceConfiguration(DeviceConfiguration deviceConfiguration) {
+    private CreationRule createRuleForDeviceConfiguration(String name, DeviceConfiguration... deviceConfiguration) {
         CreationRuleBuilder ruleBuilder = issueCreationService.newCreationRule();
         Map<String, Object> props = new HashMap<>();
         ListValue<HasIdAndName> value = new ListValue<>();
-        HasIdAndName deviceConfig = mock(HasIdAndName.class);
-        when(deviceConfig.getId()).thenReturn(deviceConfiguration.getId());
-        value.addValue(deviceConfig);
+        for(DeviceConfiguration config : deviceConfiguration) {
+            HasIdAndName deviceConfig = mock(HasIdAndName.class);
+            when(deviceConfig.getId()).thenReturn(config.getId());
+            value.addValue(deviceConfig);
+        }
         props.put(DataValidationIssueCreationRuleTemplate.DEVICE_CONFIGURATIONS, value);
-        ruleBuilder.setTemplate(DataValidationIssueCreationRuleTemplate.NAME)
-                   .setName("Test")
+        CreationRule creationRule = ruleBuilder.setTemplate(DataValidationIssueCreationRuleTemplate.NAME)
+                   .setName(name)
                    .setReason(issueService.findReason(IssueDataValidationService.DATA_VALIDATION_ISSUE_REASON).get())
                    .setDueInTime(DueInType.YEAR, 5)
                    .setProperties(props)
-                   .complete()
-                   .save();
+                   .complete();
+        creationRule.save();
+        return creationRule;
     }
 }

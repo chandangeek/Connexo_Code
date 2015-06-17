@@ -37,9 +37,6 @@ public class CreateIssueViewOperation {
     }
 
     protected PreparedStatement buildStatement(Connection connection, SqlBuilder sql) throws SQLException {
-        if (connection == null) {
-            throw new IllegalArgumentException("Connection can't be null");
-        }
         return sql.prepare(connection);
     }
 }

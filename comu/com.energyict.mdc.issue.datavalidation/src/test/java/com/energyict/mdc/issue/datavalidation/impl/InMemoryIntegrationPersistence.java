@@ -1,9 +1,9 @@
 package com.energyict.mdc.issue.datavalidation.impl;
 
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.sql.SQLException;
-import java.time.Clock;
 
 import javax.validation.MessageInterpolator;
 
@@ -13,6 +13,7 @@ import org.drools.core.io.impl.ResourceFactoryServiceImpl;
 import org.kie.api.io.KieResources;
 import org.kie.internal.KnowledgeBaseFactoryService;
 import org.kie.internal.builder.KnowledgeBuilderFactoryService;
+import org.mockito.Matchers;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.log.LogService;
@@ -68,8 +69,6 @@ public class InMemoryIntegrationPersistence {
     private InMemoryBootstrapModule bootstrapModule;
     private Injector injector;
     
-    private final Clock clock = mock(Clock.class);
-
     public InMemoryIntegrationPersistence() {
         super();
     }
@@ -133,10 +132,6 @@ public class InMemoryIntegrationPersistence {
         this.bootstrapModule.deactivate();
     }
 
-    public Clock getClock() {
-        return clock;
-    }
-
     public TransactionService getTransactionService() {
         return transactionService;
     }
@@ -156,6 +151,7 @@ public class InMemoryIntegrationPersistence {
             bind(KnowledgeBuilderFactoryService.class).to(KnowledgeBuilderFactoryServiceImpl.class);
 
             Thesaurus thesaurus = mock(Thesaurus.class);
+            when(thesaurus.getString(Matchers.anyString(), Matchers.anyString())).then(invocation -> invocation.getArgumentAt(1, String.class));
             bind(Thesaurus.class).toInstance(thesaurus);
             bind(MessageInterpolator.class).toInstance(thesaurus);
 

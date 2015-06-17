@@ -1,5 +1,8 @@
 package com.energyict.mdc.issue.datavalidation;
 
-public interface OpenIssueNotEstimatedBlock {
+import aQute.bnd.annotation.ProviderType;
+
+@ProviderType
+public interface OpenIssueNotEstimatedBlock extends NotEstimatedBlock {
 
 }

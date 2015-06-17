@@ -20,5 +20,4 @@ public class OpenIssueNotEstimatedBlockImpl extends NotEstimatedBlockImpl implem
         super.init(channel, readingType, startTime, endTime);
         return this;
     }
-    
 }

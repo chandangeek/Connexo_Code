@@ -46,7 +46,10 @@ import com.energyict.mdc.issue.datavalidation.impl.entity.IssueDataValidationImp
 import com.energyict.mdc.issue.datavalidation.impl.entity.OpenIssueDataValidationImpl;
 import com.google.inject.AbstractModule;
 
-@Component(name = "com.energyict.mdc.issue.datavalidation", service = {InstallService.class, TranslationKeyProvider.class, IssueDataValidationService.class, IssueProvider.class}, property = "name=" + IssueDataValidationService.COMPONENT_NAME, immediate = true)
+@Component(name = "com.energyict.mdc.issue.datavalidation",
+           service = { InstallService.class, TranslationKeyProvider.class, IssueDataValidationService.class, IssueProvider.class },
+           property = "name=" + IssueDataValidationService.COMPONENT_NAME,
+           immediate = true)
 public class IssueDataValidationServiceImpl implements IssueDataValidationService, TranslationKeyProvider, InstallService, IssueProvider {
 
     private volatile IssueService issueService;
@@ -82,18 +85,20 @@ public class IssueDataValidationServiceImpl implements IssueDataValidationServic
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(IssueService.class).toInstance(issueService);
                 bind(IssueDataValidationService.class).toInstance(IssueDataValidationServiceImpl.this);
+                bind(EventService.class).toInstance(eventService);
+                bind(MessageService.class).toInstance(messageService);
             }
         });
     }
     
     @Override
     public void install() {
-        new Installer(dataModel, issueService, eventService, messageService).install();
+        dataModel.getInstance(Installer.class).install();
     }
     
     @Override
     public List<String> getPrerequisiteModules() {
-        return Arrays.asList("NLS", "ORM", "MSG", "EVT", "MTR", "ISU");
+        return Arrays.asList("ORM", "NLS", "MSG", "EVT", "MTR", "ISU");
     }
     
     @Override
@@ -145,7 +150,7 @@ public class IssueDataValidationServiceImpl implements IssueDataValidationServic
 
     @Reference
     public void setOrmService(OrmService ormService) {
-        dataModel = ormService.newDataModel(IssueDataValidationService.COMPONENT_NAME, "Issue Datavalidation");
+        dataModel = ormService.newDataModel(IssueDataValidationService.COMPONENT_NAME, "Issue Data Validation");
         for (TableSpecs spec : TableSpecs.values()) {
             spec.addTo(dataModel);
         }

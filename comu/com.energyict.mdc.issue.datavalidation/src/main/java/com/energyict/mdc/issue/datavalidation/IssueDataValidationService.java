@@ -2,9 +2,12 @@ package com.energyict.mdc.issue.datavalidation;
 
 import java.util.Optional;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.issue.share.entity.Issue;
 
+@ProviderType
 public interface IssueDataValidationService {
 
     public static final String COMPONENT_NAME = "IDV";

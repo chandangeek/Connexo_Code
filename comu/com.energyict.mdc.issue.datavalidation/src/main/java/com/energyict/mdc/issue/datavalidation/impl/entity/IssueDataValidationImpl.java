@@ -50,8 +50,8 @@ public class IssueDataValidationImpl implements IssueDataValidation {
     private Instant modTime;
     private String userName;
 
-    private DataModel dataModel;
-    private IssueDataValidationService issueDataValidationService;    
+    private final DataModel dataModel;
+    private final IssueDataValidationService issueDataValidationService;    
     
     @Inject
     public IssueDataValidationImpl(DataModel dataModel, IssueDataValidationService issueDataValidationService) {

@@ -86,7 +86,7 @@ public class DataValidationIssueCreationRuleTemplate implements CreationRuleTemp
                "when\n" +
                "\tevent : CannotEstimateDataEvent(device.deviceConfiguration.id in (@{" + DEVICE_CONFIGURATIONS +"}))\n" +
                "then\n" +
-               "\tLOGGER.info(\"Trying to create issue by datavalidation rule=@{ruleId}\");\n" +
+               "\tLOGGER.info(\"Trying to create issue by datavalidation rule [id = @{ruleId}]\");\n" +
                "\tissueCreationService.processIssueCreationEvent(@{ruleId}, event);\n" +
                "end\n" +
                "\n" +
@@ -94,7 +94,7 @@ public class DataValidationIssueCreationRuleTemplate implements CreationRuleTemp
                "when\n" +
                "\tevent: SuspectDeletedEvent(device.deviceConfiguration.id in (@{" + DEVICE_CONFIGURATIONS +"}))\n" +
                "then\n" +
-               "\tLOGGER.info(\"Trying to resolve issue by datavalidation rule=@{ruleId}\");\n" +
+               "\tLOGGER.info(\"Trying to resolve issue by datavalidation rule [id = @{ruleId}]\");\n" +
                "\tissueCreationService.processIssueResolutionEvent(@{ruleId}, event);\n" +
                "end\n";
     }
@@ -138,7 +138,8 @@ public class DataValidationIssueCreationRuleTemplate implements CreationRuleTemp
 
     @Override
     public Optional<? extends Issue> createIssue(Issue baseIssue, IssueEvent event) {
-        Issue issue = event.findExistingIssue().orElseGet(() -> issueDataValidationService.createIssue(baseIssue));
+        Optional<? extends Issue> issueOptional = event.findExistingIssue();
+        Issue issue = issueOptional.isPresent() ? issueOptional.get() : issueDataValidationService.createIssue(baseIssue);
         event.apply(issue);
         issue.save();
         return Optional.of(issue);
@@ -180,9 +181,8 @@ public class DataValidationIssueCreationRuleTemplate implements CreationRuleTemp
         }
     }
     
-    @SuppressWarnings("unused")
     @XmlRootElement
-    private static class DeviceConfigurationInfo extends HasIdAndName {
+    static class DeviceConfigurationInfo extends HasIdAndName {
         
         private transient DeviceConfiguration deviceConfiguration;
         

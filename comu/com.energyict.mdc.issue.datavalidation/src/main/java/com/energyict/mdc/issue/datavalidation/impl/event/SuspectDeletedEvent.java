@@ -4,8 +4,8 @@ import java.time.Instant;
 import java.util.Map;
 import java.util.Optional;
 
+import com.elster.jupiter.issue.share.UnableToCreateEventException;
 import com.elster.jupiter.issue.share.entity.Issue;
-import com.elster.jupiter.issue.share.exception.UnableToCreateEventException;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;

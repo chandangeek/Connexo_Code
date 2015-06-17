@@ -37,6 +37,12 @@ public class NotEstimatedBlockImpl implements NotEstimatedBlock {
     @IsPresent
     private Reference<ReadingType> readingType = ValueReference.absent();
 
+    @NotNull
+    private Instant startTime;
+
+    @NotNull
+    private Instant endTime;
+
     NotEstimatedBlockImpl init(Channel channel, ReadingType readingType, Instant startTime, Instant endTime) {
         this.channel.set(channel);
         this.readingType.set(readingType);
@@ -44,12 +50,6 @@ public class NotEstimatedBlockImpl implements NotEstimatedBlock {
         this.endTime = endTime;
         return this;
     }
-    
-    @NotNull
-    private Instant startTime;
-
-    @NotNull
-    private Instant endTime;
 
     @Override
     public Channel getChannel() {
