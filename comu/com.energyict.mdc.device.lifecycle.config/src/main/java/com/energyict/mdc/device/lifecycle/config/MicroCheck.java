@@ -20,13 +20,13 @@ public enum MicroCheck {
      * Checks that there is at least one communication task scheduled on the device.
      */
     // check bits: 2
-    AT_LEAST_ONE_MANUALLY_SCHEDULED_COMMUNICATION_TASK_AVAILABLE,
+    AT_LEAST_ONE_SCHEDULED_COMMUNICATION_TASK_AVAILABLE,
 
     /**
      * Checks that there is at least one shared communication schedule on the device.
      */
     // check bits: 4
-    AT_LEAST_ONE_SCHEDULED_COMMUNICATION_TASK_AVAILABLE,
+    AT_LEAST_ONE_SHARED_SCHEDULED_COMMUNICATION_TASK_AVAILABLE,
 
     /**
      * Checks that all data (in both load profiles and registers)

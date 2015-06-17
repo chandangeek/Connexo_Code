@@ -22,7 +22,7 @@ public enum TransitionType {
         public Set<MicroCheck> optionalChecks() {
             return EnumSet.of(
                     MicroCheck.DEFAULT_CONNECTION_AVAILABLE,
-                    MicroCheck.AT_LEAST_ONE_MANUALLY_SCHEDULED_COMMUNICATION_TASK_AVAILABLE,
+                    MicroCheck.AT_LEAST_ONE_SCHEDULED_COMMUNICATION_TASK_AVAILABLE,
                     MicroCheck.ALL_DATA_COLLECTED,
                     MicroCheck.PROTOCOL_DIALECT_PROPERTIES_ARE_ALL_VALID,
                     MicroCheck.SECURITY_PROPERTIES_ARE_ALL_VALID,
@@ -48,7 +48,7 @@ public enum TransitionType {
         public Set<MicroCheck> optionalChecks() {
             return EnumSet.of(
                     MicroCheck.DEFAULT_CONNECTION_AVAILABLE,
-                    MicroCheck.AT_LEAST_ONE_MANUALLY_SCHEDULED_COMMUNICATION_TASK_AVAILABLE,
+                    MicroCheck.AT_LEAST_ONE_SCHEDULED_COMMUNICATION_TASK_AVAILABLE,
                     MicroCheck.ALL_DATA_COLLECTED,
                     MicroCheck.SLAVE_DEVICE_HAS_GATEWAY,
                     MicroCheck.LINKED_WITH_USAGE_POINT);
@@ -80,7 +80,7 @@ public enum TransitionType {
         public Set<MicroCheck> optionalChecks() {
             return EnumSet.of(
                     MicroCheck.DEFAULT_CONNECTION_AVAILABLE,
-                    MicroCheck.AT_LEAST_ONE_MANUALLY_SCHEDULED_COMMUNICATION_TASK_AVAILABLE,
+                    MicroCheck.AT_LEAST_ONE_SCHEDULED_COMMUNICATION_TASK_AVAILABLE,
                     MicroCheck.ALL_DATA_COLLECTED,
                     MicroCheck.PROTOCOL_DIALECT_PROPERTIES_ARE_ALL_VALID,
                     MicroCheck.SECURITY_PROPERTIES_ARE_ALL_VALID,
@@ -110,7 +110,7 @@ public enum TransitionType {
         public Set<MicroCheck> optionalChecks() {
             return EnumSet.of(
                     MicroCheck.DEFAULT_CONNECTION_AVAILABLE,
-                    MicroCheck.AT_LEAST_ONE_MANUALLY_SCHEDULED_COMMUNICATION_TASK_AVAILABLE,
+                    MicroCheck.AT_LEAST_ONE_SCHEDULED_COMMUNICATION_TASK_AVAILABLE,
                     MicroCheck.ALL_DATA_COLLECTED,
                     MicroCheck.PROTOCOL_DIALECT_PROPERTIES_ARE_ALL_VALID,
                     MicroCheck.SECURITY_PROPERTIES_ARE_ALL_VALID,
@@ -138,7 +138,7 @@ public enum TransitionType {
         public Set<MicroCheck> optionalChecks() {
             return EnumSet.of(
                     MicroCheck.DEFAULT_CONNECTION_AVAILABLE,
-                    MicroCheck.AT_LEAST_ONE_MANUALLY_SCHEDULED_COMMUNICATION_TASK_AVAILABLE,
+                    MicroCheck.AT_LEAST_ONE_SCHEDULED_COMMUNICATION_TASK_AVAILABLE,
                     MicroCheck.ALL_DATA_COLLECTED,
                     MicroCheck.PROTOCOL_DIALECT_PROPERTIES_ARE_ALL_VALID,
                     MicroCheck.SECURITY_PROPERTIES_ARE_ALL_VALID,
@@ -169,7 +169,7 @@ public enum TransitionType {
         public Set<MicroCheck> optionalChecks() {
             return EnumSet.of(
                     MicroCheck.DEFAULT_CONNECTION_AVAILABLE,
-                    MicroCheck.AT_LEAST_ONE_MANUALLY_SCHEDULED_COMMUNICATION_TASK_AVAILABLE,
+                    MicroCheck.AT_LEAST_ONE_SCHEDULED_COMMUNICATION_TASK_AVAILABLE,
                     MicroCheck.ALL_DATA_COLLECTED,
                     MicroCheck.SLAVE_DEVICE_HAS_GATEWAY,
                     MicroCheck.LINKED_WITH_USAGE_POINT);
