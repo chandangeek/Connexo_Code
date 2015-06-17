@@ -36,7 +36,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     AT_LEAST_ONE_SCHEDULED_COMMUNICATION_TASK_AVAILABLE(10012, MicroCheck.AT_LEAST_ONE_SCHEDULED_COMMUNICATION_TASK_AVAILABLE, "At least one shared communication schedule has added to the device"),
     ALL_DATA_VALID(10013, MicroCheck.ALL_DATA_VALID, "All the collected data on the device must be valid"),
     ALL_DATA_VALIDATED(10014, MicroCheck.ALL_DATA_VALIDATED, "All the collected data on the device is validated"),
-
+    AT_LEAST_ONE_ACTIVE_CONNECTION_AVAILABLE(10015, MicroCheck.AT_LEAST_ONE_ACTIVE_CONNECTION_AVAILABLE, "There should at least one active connection on the device"),
     // MicroActions
     MISSING_REQUIRED_PROPERTY_VALUES(20001, Keys.MISSING_REQUIRED_PROPERTY_VALUES, "No value was specified for the following property spec of the configured actions: {0}")
     ;

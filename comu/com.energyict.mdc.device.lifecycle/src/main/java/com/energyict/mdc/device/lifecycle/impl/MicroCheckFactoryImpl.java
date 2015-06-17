@@ -98,6 +98,9 @@ public class MicroCheckFactoryImpl implements ServerMicroCheckFactory {
             case ALL_DATA_VALIDATED: {
                 return new AllDataValidated(this.validationService, this.thesaurus);
             }
+            case AT_LEAST_ONE_ACTIVE_CONNECTION_AVAILABLE:{
+                return new ActiveConnectionAvailable(this.thesaurus);
+            }
             default: {
                 throw new IllegalArgumentException("Unknown or unsupported MicroCheck: " + check);
             }
