@@ -102,8 +102,8 @@ public class DeviceLifeCycleActionResourceTest extends DeviceLifeCycleConfigAppl
         when(deviceLifeCycleConfigurationService.findDeviceLifeCycle(Matchers.anyLong())).thenReturn(Optional.of(dlc));
 
         String  response = target("/devicelifecycles/1/actions/microactions")
-                .queryParam("fromState", 3)
-                .queryParam("toState", 1)
+                .queryParam("fromState", 1)
+                .queryParam("toState", 3)
                 .request()
                 .get(String.class);
         JsonModel model = JsonModel.create(response);
@@ -132,8 +132,8 @@ public class DeviceLifeCycleActionResourceTest extends DeviceLifeCycleConfigAppl
         when(deviceLifeCycleConfigurationService.findDeviceLifeCycle(Matchers.anyLong())).thenReturn(Optional.of(dlc));
 
         String  response = target("/devicelifecycles/1/actions/microchecks")
-                .queryParam("fromState", 3)
-                .queryParam("toState", 1)
+                .queryParam("fromState", 1)
+                .queryParam("toState", 3)
                 .request()
                 .get(String.class);
         JsonModel model = JsonModel.create(response);

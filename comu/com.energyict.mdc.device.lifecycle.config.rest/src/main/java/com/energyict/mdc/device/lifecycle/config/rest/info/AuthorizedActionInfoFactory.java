@@ -41,12 +41,12 @@ public class AuthorizedActionInfoFactory {
         return info;
     }
 
-
     private void fromBasicAction(AuthorizedActionInfo info, AuthorizedTransitionAction action){
-        info.name = action.getStateTransition().getName(thesaurus);
+        String name = action.getStateTransition().getFrom().getName() + action.getStateTransition().getEventType().getSymbol();
+        info.name = thesaurus.getString(name, name);
         info.fromState = new DeviceLifeCycleStateInfo(thesaurus, action.getStateTransition().getFrom());
         info.toState = new DeviceLifeCycleStateInfo(thesaurus, action.getStateTransition().getTo());
-        info.triggeredBy = new StateTransitionEventTypeInfo(thesaurus, action.getStateTransition().getEventType());
+        info.triggeredBy = new StateTransitionEventTypeFactory(thesaurus).from(action.getStateTransition().getEventType());
         Set<MicroAction> microActions = action.getActions();
         if (!microActions.isEmpty()){
             info.microActions = new HashSet<>(microActions.size());
