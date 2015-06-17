@@ -121,7 +121,7 @@ public class Dsmr23MessageConverter extends AbstractMessageConverter {
                 || propertySpec.getName().equals(firmwareUpdateActivationDateAttributeName)
                 || propertySpec.getName().equals(activityCalendarActivationDateAttributeName)
                 || propertySpec.getName().equals(emergencyProfileActivationDateAttributeName)) {
-            return String.valueOf(((Date) messageAttribute).getTime()); // WebRTU format of the dateTime is milliseconds
+            return String.valueOf(((Date) messageAttribute).getTime() / 1000); // WebRTU format of the dateTime is seconds
         } else if (propertySpec.getName().equals(firmwareUpdateUserFileAttributeName)) {
             return String.valueOf(((UserFile) messageAttribute).getId());
         } else if (propertySpec.getName().equals(activityCalendarCodeTableAttributeName) || propertySpec.getName().equals(specialDaysCodeTableAttributeName)) {
