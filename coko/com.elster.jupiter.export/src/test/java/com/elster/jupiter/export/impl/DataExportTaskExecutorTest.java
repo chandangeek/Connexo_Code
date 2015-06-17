@@ -7,12 +7,12 @@ import com.elster.jupiter.export.DataExportException;
 import com.elster.jupiter.export.DataExportProperty;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataExportStrategy;
-import com.elster.jupiter.export.DataFormatter;
 import com.elster.jupiter.export.DataFormatterFactory;
 import com.elster.jupiter.export.ExportData;
 import com.elster.jupiter.export.FatalDataExportException;
 import com.elster.jupiter.export.FormattedData;
 import com.elster.jupiter.export.MeterReadingData;
+import com.elster.jupiter.export.ReadingDataFormatter;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.IntervalReadingRecord;
@@ -120,7 +120,7 @@ public class DataExportTaskExecutorTest {
     @Mock
     private DataExportProperty dataExportProperty;
     @Mock
-    private DataFormatter dataFormatter;
+    private ReadingDataFormatter dataFormatter;
     @Mock
     private TaskLogHandler taskLogHandler;
     @Mock
