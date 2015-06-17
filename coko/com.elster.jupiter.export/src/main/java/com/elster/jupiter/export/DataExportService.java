@@ -14,6 +14,8 @@ public interface DataExportService {
 
     String COMPONENTNAME = "DES";
     String STANDARD_DATA_SELECTOR = "Standard Data Selector";
+    String DATA_TYPE_PROPERTY = "dataType";
+    String STANDARD_DATA_TYPE = "standardDataType";
 
     Optional<DataFormatterFactory> getDataFormatterFactory(String name);
 
@@ -44,4 +46,6 @@ public interface DataExportService {
     Map<AppServer, Path> getAllExportDirecties();
 
     StructureMarker forRoot(String root);
+
+    List<DataFormatterFactory> formatterFactoriesMatching(DataSelectorFactory selectorFactory);
 }

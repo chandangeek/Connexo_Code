@@ -30,6 +30,8 @@ import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.HasName;
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
@@ -46,12 +48,14 @@ import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.time.Clock;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Operator.EQUAL;
@@ -62,6 +66,8 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
     public static final String DESTINATION_NAME = "DataExport";
     public static final String SUBSCRIBER_NAME = "DataExport";
     public static final String SUBSCRIBER_DISPLAYNAME = "Handle data export";
+    public static final String MODULE_DESCRIPTION = "Data Export";
+    public static final String JAVA_TEMP_DIR_PROPERTY = "java.io.tmpdir";
     private volatile DataModel dataModel;
     private volatile TimeService timeService;
     private volatile TaskService taskService;
@@ -78,8 +84,8 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
     private volatile FileSystem fileSystem;
     private volatile Path tempDirectory;
 
-    private List<DataFormatterFactory> dataFormatterFactories = new CopyOnWriteArrayList<>();
-    private List<DataSelectorFactory> dataSelectorFactories = new CopyOnWriteArrayList<>();
+    private Map<DataFormatterFactory, List<String>> dataFormatterFactories = new ConcurrentHashMap<>();
+    private Map<DataSelectorFactory, String> dataSelectorFactories = new ConcurrentHashMap<>();
     private Optional<DestinationSpec> destinationSpec = Optional.empty();
     private QueryService queryService;
 
@@ -111,19 +117,23 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
 
     @Override
     public Optional<DataFormatterFactory> getDataFormatterFactory(String name) {
-        return dataFormatterFactories.stream()
+        return dataFormatterFactories.keySet().stream()
                 .filter(factory -> factory.getName().equals(name))
                 .findAny();
     }
 
     @Override
     public List<DataFormatterFactory> getAvailableFormatters() {
-        return Collections.unmodifiableList(dataFormatterFactories);
+        ArrayList<DataFormatterFactory> dataFormatterFactories = new ArrayList<>(this.dataFormatterFactories.keySet());
+        dataFormatterFactories.sort(Comparator.comparing(HasName::getName));
+        return dataFormatterFactories;
     }
 
     @Override
     public List<DataSelectorFactory> getAvailableSelectors() {
-        return Collections.unmodifiableList(dataSelectorFactories);
+        ArrayList<DataSelectorFactory> dataSelectorfactories = new ArrayList<>(this.dataSelectorFactories.keySet());
+        dataSelectorfactories.sort(Comparator.comparing(HasName::getName));
+        return dataSelectorfactories;
     }
 
     @Override
@@ -191,20 +201,32 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
 
     @Reference
     public void setOrmService(OrmService ormService) {
-        dataModel = ormService.newDataModel(COMPONENTNAME, "Data Export");
+        dataModel = ormService.newDataModel(COMPONENTNAME, MODULE_DESCRIPTION);
         for (TableSpecs spec : TableSpecs.values()) {
             spec.addTo(dataModel);
         }
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
-    public void addFormatter(DataFormatterFactory dataFormatterFactory) {
-        dataFormatterFactories.add(dataFormatterFactory);
+    public void addFormatter(DataFormatterFactory dataFormatterFactory, Map<String, Object> map) {
+        Object value = map.get(DATA_TYPE_PROPERTY);
+        List<String> dataTypes;
+        if (value instanceof String) {
+            String dataType = (String) value;
+            dataTypes = new ArrayList<>();
+            dataTypes.add(dataType);
+        } else if (value instanceof String[]) {
+            dataTypes = Arrays.asList((String[]) value);
+        } else {
+            dataTypes = Collections.emptyList();
+        }
+        dataFormatterFactories.put(dataFormatterFactory, dataTypes);
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
-    public void addSelector(DataSelectorFactory dataSelectorFactory) {
-        dataSelectorFactories.add(dataSelectorFactory);
+    public void addSelector(DataSelectorFactory dataSelectorFactory, Map<String, Object> map) {
+        String dataType = (String) map.get(DATA_TYPE_PROPERTY);
+        dataSelectorFactories.put(dataSelectorFactory, dataType);
     }
 
     @Reference
@@ -252,9 +274,9 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
                     bind(FileSystem.class).toInstance(fileSystem);
                 }
             });
-            addSelector(new StandardDataSelectorFactory(transactionService, meteringService, thesaurus));
-            addSelector(new SingleDeviceDataSelectorFactory(transactionService, meteringService, thesaurus, propertySpecService, timeService));
-            String tempDirectoryPath = context.getProperty("java.io.tmpdir");
+            addSelector(new StandardDataSelectorFactory(transactionService, meteringService, thesaurus), ImmutableMap.of(DATA_TYPE_PROPERTY, STANDARD_DATA_TYPE));
+//            addSelector(new SingleDeviceDataSelectorFactory(transactionService, meteringService, thesaurus, propertySpecService, timeService));
+            String tempDirectoryPath = context.getProperty(JAVA_TEMP_DIR_PROPERTY);
             if (tempDirectoryPath == null) {
                 tempDirectory = fileSystem.getRootDirectories().iterator().next();
             } else {
@@ -383,7 +405,7 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
 
     @Override
     public Optional<DataSelectorFactory> getDataSelectorFactory(String name) {
-        return dataSelectorFactories.stream()
+        return dataSelectorFactories.keySet().stream()
                 .filter(factory -> factory.getName().equals(name))
                 .findAny();
     }
@@ -393,9 +415,17 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
         return new LocalFileWriter(this);
     }
 
+    @Override
+    public List<DataFormatterFactory> formatterFactoriesMatching(DataSelectorFactory selectorFactory) {
+        String dataType = dataSelectorFactories.get(selectorFactory);
+        return dataFormatterFactories.entrySet().stream()
+                .filter(entry -> entry.getValue().contains(dataType))
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
+    }
+
     private Optional<IExportTask> getReadingTypeDataExportTaskForRecurrentTask(RecurrentTask recurrentTask) {
         return dataModel.mapper(IExportTask.class).getUnique("recurrentTask", recurrentTask);
     }
-
 
 }

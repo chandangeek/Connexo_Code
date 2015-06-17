@@ -26,6 +26,7 @@ import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,11 +43,14 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Optional;
 
+import static com.elster.jupiter.export.DataExportService.DATA_TYPE_PROPERTY;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -140,7 +144,7 @@ public class DataExportServiceImplTest {
         dataExportService.setQueryService(queryService);
         dataExportService.setClock(clock);
         dataExportService.setUserService(userService);
-        dataExportService.addFormatter(dataFormatterFactory);
+        dataExportService.addFormatter(dataFormatterFactory, ImmutableMap.of(DATA_TYPE_PROPERTY, DataExportService.STANDARD_DATA_TYPE));
     }
 
     @Test
@@ -211,4 +215,26 @@ public class DataExportServiceImplTest {
 
         assertThat(dataExportService.getPropertiesSpecsForFormatter("factory")).isEqualTo(Arrays.asList(propertySpec1, propertySpec2, propertySpec3));
     }
+
+    @Test
+    public void testFormattersMatchingSelector() {
+        String requiredType = "requiredType";
+        DataSelectorFactory dataSelector = mock(DataSelectorFactory.class);
+        dataExportService.addSelector(dataSelector, ImmutableMap.of(DATA_TYPE_PROPERTY, requiredType));
+
+        DataFormatterFactory nonMatch = mock(DataFormatterFactory.class);
+        DataFormatterFactory trivialMatch = mock(DataFormatterFactory.class);
+        DataFormatterFactory complexMatch = mock(DataFormatterFactory.class);
+        DataFormatterFactory noDataTypes = mock(DataFormatterFactory.class);
+        DataFormatterFactory complexNonMatch = mock(DataFormatterFactory.class);
+
+        dataExportService.addFormatter(nonMatch, ImmutableMap.of(DATA_TYPE_PROPERTY, "nope"));
+        dataExportService.addFormatter(trivialMatch, ImmutableMap.of(DATA_TYPE_PROPERTY, requiredType));
+        dataExportService.addFormatter(complexMatch, ImmutableMap.of(DATA_TYPE_PROPERTY, new String[] {"nope", requiredType, "anotherNope"}));
+        dataExportService.addFormatter(noDataTypes, Collections.emptyMap());
+        dataExportService.addFormatter(complexNonMatch, ImmutableMap.of(DATA_TYPE_PROPERTY, new String[] {"nope", "anotherNope", "andYetAnother"}));
+
+        assertThat(dataExportService.formatterFactoriesMatching(dataSelector)).hasSize(2).containsExactly(complexMatch, trivialMatch);
+    }
+
 }

@@ -58,6 +58,7 @@ import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.time.Never;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -216,7 +217,7 @@ public class ExportTaskImplIT {
         });
         readingType = meteringService.getReadingType("0.0.5.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
         anotherReadingType = meteringService.getReadingType("0.0.2.1.19.1.12.0.0.0.0.0.0.0.0.0.72.0").get();
-        dataExportService.addFormatter(dataFormatterFactory);
+        dataExportService.addFormatter(dataFormatterFactory, ImmutableMap.of(DataExportService.DATA_TYPE_PROPERTY, DataExportService.STANDARD_DATA_TYPE));
         when(dataFormatterFactory.getName()).thenReturn(FORMATTER);
         when(dataFormatterFactory.getPropertySpecs()).thenReturn(Arrays.asList(propertySpec));
         when(propertySpec.getName()).thenReturn("propy");
