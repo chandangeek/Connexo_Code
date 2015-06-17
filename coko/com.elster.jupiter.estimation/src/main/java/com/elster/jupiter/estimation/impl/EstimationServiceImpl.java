@@ -230,7 +230,12 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
     public EstimationReport estimate(MeterActivation meterActivation, Range<Instant> period, Logger logger) {
         EstimationReportImpl report = previewEstimate(meterActivation, period, logger);
         estimationEngine.applyEstimations(report);
+        logEstimationReport(meterActivation, period, logger, report);
+        postEvents(report);
+        return report;
+    }
 
+    private void logEstimationReport(MeterActivation meterActivation, Range<Instant> period, Logger logger, EstimationReportImpl report) {
         long notEstimated = report.getResults().values().stream()
                 .map(EstimationResult::remainingToBeEstimated)
                 .flatMap(Collection::stream)
@@ -244,8 +249,15 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
         String to = period.hasUpperBound() ? formatter.format(period.upperEndpoint()) : "now";
         String message = "{0} blocks estimated.\nSuccessful estimations {1}, failed estimations {2}\nPeriod of estimation from {3} until {4}";
         LoggingContext.get().info(logger, message, estimated + notEstimated, estimated, notEstimated, from, to);
-
-        return report;
+    }
+    
+    private void postEvents(EstimationReportImpl report) {
+        report.getResults().values().stream()
+                .map(EstimationResult::remainingToBeEstimated)
+                .flatMap(Collection::stream)
+                .forEach(estimationBlock -> {
+                    eventService.postEvent(EventType.ESTIMATIONBLOCK_FAILURE.topic(), EstimationBlockEventInfo.forFailure(estimationBlock));
+                });
     }
 
     @Override

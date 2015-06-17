@@ -11,6 +11,16 @@ public enum EventType {
     ESTIMATIONRULESET_UPDATED("estimationruleset/UPDATED", true),
     ESTIMATIONRULESET_DELETED("estimationruleset/DELETED", true),
     
+    ESTIMATIONBLOCK_FAILURE("/estimationblock/FAILURE", false) {
+        @Override
+        EventTypeBuilder addCustomProperties(EventTypeBuilder eventTypeBuilder) {
+            return super.addCustomProperties(eventTypeBuilder).
+                    withProperty("startTime", ValueType.LONG, "startTime").
+                    withProperty("endTime", ValueType.LONG, "endTime").
+                    withProperty("channelId", ValueType.LONG, "channelId").
+                    withProperty("readingType", ValueType.STRING, "readingType");
+        }
+    }
     ;
 
     private static final String NAMESPACE = "com/elster/jupiter/estimation/";
