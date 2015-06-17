@@ -27,7 +27,7 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksAddEdit', {
 
     init: function () {
         this.control({
-            '#add-button': {
+            'estimationtasks-addedit #add-button': {
                 click: this.createEstimationTask
             }
         });
