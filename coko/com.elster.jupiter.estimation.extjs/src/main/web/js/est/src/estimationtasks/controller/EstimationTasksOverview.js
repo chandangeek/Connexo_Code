@@ -50,7 +50,7 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksOverview', {
             }
         }
 
-        me.getPreview().setTitle(record.get('name'));
+        me.getPreview().setTitle(Ext.String.htmlEncode(record.get('name')));
         me.getPreviewForm().loadRecord(record);
         me.getPreview().down('estimationtasks-action-menu').record = record;
 

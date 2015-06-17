@@ -129,7 +129,7 @@ Ext.define('Est.estimationrulesets.controller.EstimationRuleSets', {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             rulesStore = me.getStore('Est.estimationrules.store.Rules');
-        me.getRuleSetRulesGrid().setTitle(record.get('name'));
+        me.getRuleSetRulesGrid().setTitle(Ext.String.htmlEncode(record.get('name')));
         rulesStore.getProxy().setUrl(record.getId());
         rulesStore.load();
         router.arguments.ruleSetId = record.getId();
@@ -194,7 +194,7 @@ Ext.define('Est.estimationrulesets.controller.EstimationRuleSets', {
             success: function (record) {
                 me.getApplication().fireEvent('loadEstimationRuleSet', record);
                 widget.down('#rule-set-edit-form').loadRecord(record);
-                widget.down('#rule-set-edit-form').setTitle(Uni.I18n.translate('estimationrulesets.edit.title', 'EST', 'Edit \'{0}\'', [record.get('name')]));
+                widget.down('#rule-set-edit-form').setTitle(Uni.I18n.translate('estimationrulesets.edit.title', 'EST', 'Edit \'{0}\'', [Ext.String.htmlEncode(record.get('name'))]));
                 widget.down('#rule-set-edit-form #save-button').setText(Uni.I18n.translate('general.save', 'EST', 'Save'));
                 widget.setLoading(false);
             },

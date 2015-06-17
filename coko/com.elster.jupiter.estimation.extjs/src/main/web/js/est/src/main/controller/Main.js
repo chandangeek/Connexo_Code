@@ -3,7 +3,8 @@ Ext.define('Est.main.controller.Main', {
 
     requires: [
         'Uni.controller.Navigation',
-        'Uni.store.PortalItems'
+        'Uni.store.PortalItems',
+        'Est.privileges.EstimationConfiguration'
     ],
 
     controllers: [

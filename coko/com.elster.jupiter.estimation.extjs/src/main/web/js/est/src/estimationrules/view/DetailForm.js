@@ -57,7 +57,7 @@ Ext.define('Est.estimationrules.view.DetailForm', {
 
         Ext.suspendLayouts();
         if (!me.staticTitle) {
-            me.setTitle(record.get('name'));
+            me.setTitle(Ext.String.htmlEncode(record.get('name')));
         }
         me.loadRecord(record);
         readingTypesField.removeAll();

@@ -70,6 +70,7 @@ Ext.define('Est.estimationtasks.view.AddEdit', {
                                 itemId: 'no-device',
                                 hidden: true,
                                 value: '<div style="color: #FF0000">' + Uni.I18n.translate('estimationtasks.general.noDeviceGroup', 'EST', 'No device group defined yet.') + '</div>',
+                                htmlEncode: false,
                                 width: 235
                             }
                         ]

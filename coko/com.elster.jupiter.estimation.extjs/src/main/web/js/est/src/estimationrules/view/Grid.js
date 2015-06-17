@@ -28,7 +28,7 @@ Ext.define('Est.estimationrules.view.Grid', {
                 dataIndex: 'name',
                 flex: 1,
                 renderer: function (value, metaData, record) {
-                    return '<a href="' + me.router.getRoute('administration/estimationrulesets/estimationruleset/rules/rule').buildUrl({ruleId: record.getId()}) +'">' + value + '</a>';
+                    return '<a href="' + me.router.getRoute('administration/estimationrulesets/estimationruleset/rules/rule').buildUrl({ruleId: record.getId()}) +'">' + Ext.String.htmlEncode(value) + '</a>';
                 }
             },
             {

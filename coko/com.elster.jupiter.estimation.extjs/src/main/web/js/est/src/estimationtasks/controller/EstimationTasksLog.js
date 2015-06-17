@@ -42,11 +42,13 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksLog', {
                     widget = Ext.widget('estimationtasks-log-setup', {
                         router: router,
                         task: record,
-                        runStartedOn: runStartedOnFormatted
+                        runStartedOn: runStartedOnFormatted,
+                        taskId: taskId,
+                        occurenceId: occurrenceId
                     });
                     sideMenu = widget.down('#estimationtasks-log-menu');
                     me.getApplication().fireEvent('estimationTaskLoaded', record);
-                    sideMenu.setTitle(record.get('name'));
+                    widget.down("#estimationtasks-overview-link").setText(record.get('name'));
                     widget.down('#estimationtasks-log-preview-form').loadRecord(occurrenceTask);
                     widget.down('#run-started-on').setValue(runStartedOnFormatted);
                     me.getApplication().fireEvent('changecontentevent', widget);
