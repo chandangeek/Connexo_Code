@@ -51,7 +51,6 @@ Ext.define('Fim.controller.history.DataImport', {
                                     route: 'history',
                                     controller: 'Fim.controller.History',
                                     action: 'showImportServicesHistory',
-                                    filter: 'Fim.model.HistoryFilter',
                                     privileges: Fim.privileges.DataImport.canView,
                                     items: {
                                         occurrence: {
@@ -73,7 +72,6 @@ Ext.define('Fim.controller.history.DataImport', {
                     route: 'importhistory',
                     controller: 'Fim.controller.History',
                     action: 'showImportServicesHistory',
-                    filter: 'Fim.model.HistoryFilter',
                     privileges: Fim.privileges.DataImport.canView
                 }
             }

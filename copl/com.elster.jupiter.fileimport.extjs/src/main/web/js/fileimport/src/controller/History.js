@@ -7,13 +7,9 @@ Ext.define('Fim.controller.History', {
         'Fim.view.history.History'
     ],
     stores: [
-        'Fim.store.ImportServicesFilter',
         'Fim.store.Status',
-		'Fim.store.ImportServicesHistory'
-
-    ],
-    models: [
-        'Fim.model.HistoryFilter'
+		'Fim.store.ImportServicesHistory',
+        'Fim.store.ImportServicesFilter'
     ],
     refs: [
         {
@@ -23,18 +19,6 @@ Ext.define('Fim.controller.History', {
         {
             ref: 'historyViewMenu',
             selector: '#history-view-menu'
-        },
-        {
-            ref: 'sideFilterForm',
-            selector: '#history-filter-form #filter-form'
-        },
-        {
-            ref: 'filterTopPanel',
-            selector: '#flt-import-service-history-top-panel'
-        },
-        {
-            ref: 'statusFilter',
-            selector: '#cbo-status'
         },
         {
             ref: 'historyGrid',
@@ -52,30 +36,17 @@ Ext.define('Fim.controller.History', {
             'fim-import-service-history fim-history-grid': {
                 select: this.showPreview
             },
-            'fim-import-service-history filter-top-panel': {
-                removeFilter: this.removeFilter,
-                clearAllFilters: this.clearFilter
-            },
-            'fim-import-service-history #history-filter-form uni-filter-combo': {
-                updateTopFilterPanelTagButtons: this.onFilterChange
-            },
-            'fim-import-service-history button[action=applyfilter]': {
-                click: this.applyFilter
-            },
-            'fim-import-service-history button[action=clearfilter]': {
-                click: this.clearFilter
-            },
             'fim-history-sort-menu': {
                 click: this.chooseSort
             },
             '#fim-history-sort-toolbar button[action=clear]': {
-                click: this.clearSort
+                click: this.clearAllSorting
             },
             '#fim-history-sort-toolbar button': {
-                closeclick: this.sortCloseclick
+                closeclick: this.onSortCloseClicked
             },
             '#fim-history-sort-toolbar #itemsContainer button': {
-                click: this.switchSort
+                click: this.switchSortingOrder
             },
             'fim-history-action-menu': {
                 click: this.chooseAction
@@ -90,25 +61,28 @@ Ext.define('Fim.controller.History', {
             router = me.getController('Uni.controller.history.Router'),
             store = me.getStore('Fim.store.ImportServicesHistory'),
             importServiceModel = me.getModel('Fim.model.ImportServiceDetails'),
-            showImportService = (importServiceId === undefined),
-            historyViewMenu = me.getHistoryViewMenu(),
-            view;
+            noSpecificImportService = (importServiceId === undefined),
+            view,
+            proxyArgument = {};
 
-        me.setDefaultSort(router.filter);
-        store.setFilterModel(router.filter);
-        store.getProxy().setUrl(router.arguments);
+        proxyArgument.importServiceId = importServiceId;
+        store.getProxy().setUrl(proxyArgument);
+        me.setDefaultSort();
 
         view = Ext.widget('fim-import-service-history', {
             router: router,
             importServiceId: importServiceId,
-            showImportService: showImportService
+            showImportService: noSpecificImportService
         });
 
         me.getApplication().fireEvent('changecontentevent', view);
-        me.getHistoryViewMenu().setTitle(showImportService ? Uni.I18n.translate('general.importHistory', 'FIM', 'Import history') : Uni.I18n.translate('general.importService', 'FIM', 'Import services'));
-        me.initFilter();
+        if (!noSpecificImportService) {
+            me.getHistoryViewMenu().setTitle(Uni.I18n.translate('general.importService', 'FIM', 'Import services'));
+        }
 
-        if (!showImportService) {
+        me.updateSortingToolbar();
+
+        if (!noSpecificImportService) {
             importServiceModel.load(importServiceId, {
                 success: function (record) {
                     view.down('#history-view-menu #import-service-view-link').setText(record.get('name'));
@@ -118,40 +92,7 @@ Ext.define('Fim.controller.History', {
         }
     },
 
-    initFilter: function () {
-        var me = this,
-            router = me.getController('Uni.controller.history.Router'),
-            filter = router.filter,
-            date;
-
-        me.getSideFilterForm().loadRecord(filter);
-
-        for (var f in filter.getData()) {
-            var name = '', val = filter.get(f), filterDisplay = [];
-
-            if ((f === 'status') && !Ext.isEmpty(val)) {
-                var combo = me.getStatusFilter();
-                var store = combo.getStore();
-
-                Ext.Array.each(val, function (v) {
-                    var rec = store.findRecord('value', v);
-                    if (rec) {
-                        filterDisplay.push(rec.get('display'));
-                    }
-                });
-                me.getFilterTopPanel().setFilter(combo.getName(), combo.getFieldLabel(), filterDisplay);
-            }
-        }
-
-        me.setFilterTimeInterval('startedOnFrom', filter.get('startedOnFrom'), 'startedFrom', 'Started from');
-        me.setFilterTimeInterval('startedOnTo', filter.get('startedOnTo'), 'startedTo', 'Started to');
-        me.setFilterTimeInterval('finishedOnFrom', filter.get('finishedOnFrom'), 'finishedFrom', 'Finished from');
-        me.setFilterTimeInterval('finishedOnTo', filter.get('finishedOnTo'), 'finishedTo', 'Finished to');
-        me.setSortingToolbar(filter);
-        me.getFilterTopPanel().setVisible(true);
-    },
-
-    setSortingToolbar: function (filter) {
+    updateSortingToolbar: function () {
         var me = this,
             page = me.getPage(),
             sortContainer = page.down('container[name=sortitemspanel]').getContainer(),
@@ -182,7 +123,7 @@ Ext.define('Fim.controller.History', {
         }
     },
 
-    setDefaultSort: function (filter) {
+    setDefaultSort: function () {
         var me = this,
             store = me.getStore('Fim.store.ImportServicesHistory'),
             sorting = store.getProxy().extraParams['sort'];
@@ -201,15 +142,6 @@ Ext.define('Fim.controller.History', {
         }
     },
 
-    setFilterTimeInterval: function (field, value, resource, defaultValue) {
-        var me = this, name;
-
-        if (value) {
-            name = Uni.I18n.translate('importService.history.' + resource, 'FIM', defaultValue);
-            me.getFilterTopPanel().setFilter(field, name, Uni.DateTime.formatDateLong(new Date(value)));
-        }
-    },
-
     showPreview: function (selectionModel, record) {
         var me = this,
             page = me.getPage(),
@@ -223,37 +155,11 @@ Ext.define('Fim.controller.History', {
         Ext.resumeLayouts();
     },
 
-    onFilterChange: function (combo) {
-        if (!_.isEmpty(combo.getRawValue())) {
-            this.getFilterTopPanel().setFilter(combo.getName(), combo.getFieldLabel(), combo.getRawValue());
-        }
-    },
-
-    applyFilter: function () {
-        this.getSideFilterForm().updateRecord();
-        this.getSideFilterForm().getRecord().save();
-    },
-
-    clearFilter: function () {
-        this.getSideFilterForm().getRecord().getProxy().destroy();
-    },
-
-    removeFilter: function (key) {
-        var router = this.getController('Uni.controller.history.Router'),
-            record = router.filter;
-
-        record.set(key, null);
-        record.save();
-    },
-
     chooseSort: function (menu, item) {
         var me = this,
             name = item.name,
-            router = me.getController('Uni.controller.history.Router'),
-            filter = router.filter,
             store = me.getStore('Fim.store.ImportServicesHistory'),
             sorting = Ext.JSON.decode(store.getProxy().extraParams['sort']);
-
 
         if (Ext.isArray(sorting)) {
             sortingItem = Ext.Array.findBy(sorting, function (item) {
@@ -262,15 +168,13 @@ Ext.define('Fim.controller.History', {
 
             if (sortingItem) {
                 return;
-            }
-            else {
+            } else {
                 sorting.push({
                     property: name,
                     direction: Uni.component.sort.model.Sort.DESC
                 });
             }
-        }
-        else {
+        } else {
             sorting = [
                 {
                     property: name,
@@ -279,25 +183,20 @@ Ext.define('Fim.controller.History', {
             ];
         }
         store.getProxy().setExtraParam('sort', Ext.JSON.encode(sorting));
-        filter.save();
+        me.updateSortingToolbarAndResults();
     },
 
-    clearSort: function (btn) {
-
+    clearAllSorting: function (btn) {
         var me = this,
-            router = me.getController('Uni.controller.history.Router'),
-            filter = router.filter,
             store = me.getStore('Fim.store.ImportServicesHistory');
 
         sorting = [];
         store.getProxy().setExtraParam('sort', Ext.JSON.encode(sorting));
-        filter.save();
+        me.updateSortingToolbarAndResults();
     },
 
-    sortCloseclick: function (btn) {
-
+    onSortCloseClicked: function (btn) {
         var me = this,
-            filter = me.getController('Uni.controller.history.Router').filter,
             store = me.getStore('Fim.store.ImportServicesHistory'),
             sorting = Ext.JSON.decode(store.getProxy().extraParams['sort']);
 
@@ -307,13 +206,11 @@ Ext.define('Fim.controller.History', {
             }));
         }
         store.getProxy().setExtraParam('sort', Ext.JSON.encode(sorting));
-        filter.save();
+        me.updateSortingToolbarAndResults();
     },
 
-    switchSort: function (btn) {
-
+    switchSortingOrder: function (btn) {
         var me = this,
-            filter = me.getController('Uni.controller.history.Router').filter,
             store = me.getStore('Fim.store.ImportServicesHistory'),
             sorting = Ext.JSON.decode(store.getProxy().extraParams['sort']),
             sortingItem;
@@ -331,7 +228,19 @@ Ext.define('Fim.controller.History', {
             }
         }
         store.getProxy().setExtraParam('sort', Ext.JSON.encode(sorting));
-        filter.save();
+        me.updateSortingToolbarAndResults();
+    },
+
+    updateSortingToolbarAndResults: function() {
+        var me = this,
+            gridView = me.getHistoryGrid(),
+            store = me.getStore('Fim.store.ImportServicesHistory');
+
+        me.updateSortingToolbar();
+        gridView.setLoading();
+        store.load(function(records, operation, success) {
+            gridView.setLoading(false);
+        });
     },
 
     chooseAction: function (menu, item) {
