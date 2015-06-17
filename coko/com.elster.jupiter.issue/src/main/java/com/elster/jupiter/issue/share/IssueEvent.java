@@ -17,4 +17,5 @@ public interface IssueEvent {
     Optional<? extends Issue> findExistingIssue();
 
     void apply(Issue issue);
+
 }
