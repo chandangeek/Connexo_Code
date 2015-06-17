@@ -15,7 +15,7 @@ public enum PropertyType implements com.elster.jupiter.rest.util.properties.Prop
     NULLABLE_BOOLEAN(ThreeStateFactory.class),
     BOOLEAN(BooleanFactory.class),
     TEXTAREA(StringFactory.class),
-    LISTVALUE(ListValueFactory.class),
+    DEVICECONFIGURATIONLIST(ListValueFactory.class),
     IDWITHNAME(StringReferenceFactory.class),
     LONG(LongFactory.class)
     ;

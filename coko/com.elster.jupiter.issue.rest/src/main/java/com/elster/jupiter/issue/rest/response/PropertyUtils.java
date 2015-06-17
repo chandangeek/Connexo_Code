@@ -96,9 +96,6 @@ public class PropertyUtils {
         }
 
         PropertySelectionMode selectionMode = PropertySelectionMode.UNSPECIFIED;
-        if ( PropertyType.LISTVALUE == propertyType ) {
-            selectionMode = PropertySelectionMode.LIST;
-        }
         if (PropertyType.IDWITHNAME == propertyType) {
             selectionMode = PropertySelectionMode.COMBOBOX;
         }

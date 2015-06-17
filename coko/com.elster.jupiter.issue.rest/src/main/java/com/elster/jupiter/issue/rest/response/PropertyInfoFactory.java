@@ -28,8 +28,7 @@ public class PropertyInfoFactory {
         if (property instanceof ListValue) {
             ListValue<HasIdAndName> value = (ListValue<HasIdAndName>) property;
             if (value.hasSingleValue()) {
-                HasIdAndName entry = value.getValue();
-                return asInfo(entry.getId(), entry.getName());
+                return value.getValue();
             }
         }
         if (property instanceof HasIdAndName) {
