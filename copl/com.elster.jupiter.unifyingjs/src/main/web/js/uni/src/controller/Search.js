@@ -389,19 +389,50 @@ Ext.define('Uni.controller.Search', {
 
     addProperty: function (property, container, removable) {
         var me = this,
-            filter = me.createWidgetForProperty(property, removable);
+            filter = me.createWidgetForProperty(property, removable),
+            constraints = property.get('constraints'),
+            widget = removable ? filter.widget : filter;
 
         if (Ext.isDefined(filter)) {
             me.filters.add(filter);
             container.add(filter);
 
-            if (removable) {
-                filter.widget.on('filterupdate', me.applyFilters, me);
-            } else {
-                filter.on('filterupdate', me.applyFilters, me);
-            }
-
+            widget.on('filterupdate', me.applyFilters, me);
+            me.applyConstraintListeners(property, widget);
             me.updateRemovableContainerVisibility();
+        }
+    },
+
+    applyConstraintListeners: function (property, widget) {
+        var me = this,
+            constraints,
+            removable;
+
+        me.filters.each(function (filter) {
+            constraints = filter.property.get('constraints');
+            removable = !filter.property.get('sticky');
+
+            if (Ext.isArray(constraints) && !Ext.isEmpty(constraints)) {
+                for (var i = 0; i < constraints.length; i++) {
+                    if (property.get('name') === constraints[i]) {
+                        widget.on('filterupdate', function () {
+                            me.updateConstraints(removable ? filter.widget : filter, property.get('name'), widget.getParamValue());
+                        }, me);
+                    }
+                }
+            }
+        });
+    },
+
+    updateConstraints: function (widget, filterName, filterValues) {
+        var store = widget.store;
+
+        if (Ext.isDefined(store)) {
+            try {
+                store.filter(filterName, filterValues);
+            } catch (ex) {
+                // Ignore failures due to not implemented filtering at the back-end.
+            }
         }
     },
 
@@ -418,29 +449,36 @@ Ext.define('Uni.controller.Search', {
         });
 
         if (Ext.isDefined(filterResult)) {
+            var widget = removable ? filterResult.widget : filterResult;
+
+            me.removeFilterUpdateListeners(widget);
+            widget.resetValue();
+
             if (removable) {
-                filterResult.widget.un('filterupdate', me.applyFilters, me);
-                filterResult.widget.resetValue();
-
-                me.filters.remove(filterResult);
-                container.remove(filterResult);
-
                 try {
                     removables.add(property);
                 } catch (ex) {
                     // Ignore the exceptions caused by not rendered components.
                 }
-            } else {
-                filterResult.un('filterupdate', me.applyFilters, me);
-                filterResult.resetValue();
-
-                me.filters.remove(filterResult);
-                container.remove(filterResult);
             }
+
+            me.filters.remove(filterResult);
+            container.remove(filterResult);
 
             Uni.util.Filters.updateHistoryState(me.filters);
             me.updateRemovableContainerVisibility();
         }
+    },
+
+    removeFilterUpdateListeners: function (filter) {
+        var eventName = 'filterupdate';
+
+        Ext.each(filter.events[eventName].listeners, function (listener) {
+            var scope = listener.scope,
+                filterUpdateListener = listener.fn;
+
+            filter.un(eventName, filterUpdateListener, scope);
+        });
     },
 
     addStickyProperty: function (property) {
@@ -483,6 +521,34 @@ Ext.define('Uni.controller.Search', {
         this.removeProperty(property, this.getRemovablePropertiesContainer(), true);
     },
 
+    clearFilters: function () {
+        var me = this;
+
+        me.filters.each(function (filter) {
+            filter.resetValue();
+        }, me);
+
+        me.removeRemovableProperties();
+        me.applyFilters();
+    },
+
+    applyFilters: function () {
+        var me = this,
+            searchResults = Ext.getStore('Uni.store.search.Results');
+
+        searchResults.removeAll();
+
+        if (me.lastRequest) {
+            Ext.Ajax.abort(me.lastRequest);
+        }
+
+        try {
+            me.lastRequest = searchResults.load();
+        } catch (ex) {
+            // Ignore the 'indexOf' exception caused by interrupted calls.
+        }
+    },
+
     createWidgetForProperty: function (property, removable) {
         var me = this,
             type = property.get('type'),
@@ -493,6 +559,9 @@ Ext.define('Uni.controller.Search', {
             var store = Ext.create('Uni.store.search.PropertyValues', {
                 proxy: {
                     type: 'ajax',
+                    pageParam: undefined,
+                    startParam: undefined,
+                    limitParam: undefined,
                     url: property.get('linkHref'),
                     reader: {
                         type: 'json',
@@ -548,33 +617,5 @@ Ext.define('Uni.controller.Search', {
         }
 
         return widget;
-    },
-
-    clearFilters: function () {
-        var me = this;
-
-        me.filters.each(function (filter) {
-            filter.resetValue();
-        }, me);
-
-        me.removeRemovableProperties();
-        me.applyFilters();
-    },
-
-    applyFilters: function () {
-        var me = this,
-            searchResults = Ext.getStore('Uni.store.search.Results');
-
-        searchResults.removeAll();
-
-        if (me.lastRequest) {
-            Ext.Ajax.abort(me.lastRequest);
-        }
-
-        try {
-            me.lastRequest = searchResults.load();
-        } catch (ex) {
-            // Ignore the 'indexOf' exception caused by interrupted calls.
-        }
     }
 });
