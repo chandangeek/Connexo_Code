@@ -25,7 +25,7 @@ public class DeviceLifeCycleStateInfo {
         this.version = state.getVersion();
         Optional<DefaultState> defaultState = DefaultState.from(state);
         if (defaultState.isPresent()){
-            this.name = thesaurus.getStringBeyondComponent(defaultState.get().getKey(), defaultState.get().getDefaultFormat()) ;
+            this.name = thesaurus.getString(defaultState.get().getKey(), defaultState.get().getKey()) ;
         } else {
             this.name = state.getName();
         }

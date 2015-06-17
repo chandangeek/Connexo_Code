@@ -1,13 +1,12 @@
 package com.energyict.mdc.device.lifecycle.config.rest.impl.resource;
 
 import com.elster.jupiter.fsm.State;
-import com.elster.jupiter.rest.util.RestValidationBuilder;
-import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.rest.util.RestValidationBuilder;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 import com.energyict.mdc.device.lifecycle.config.Privileges;
@@ -19,7 +18,7 @@ import com.energyict.mdc.device.lifecycle.config.rest.info.AuthorizedActionInfo;
 import com.energyict.mdc.device.lifecycle.config.rest.info.AuthorizedActionInfoFactory;
 import com.energyict.mdc.device.lifecycle.config.rest.info.MicroActionAndCheckInfo;
 import com.energyict.mdc.device.lifecycle.config.rest.info.MicroActionAndCheckInfoFactory;
-
+import java.util.stream.Collectors;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
@@ -38,26 +37,21 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Predicate;
 import java.util.stream.Collector;
-import java.util.stream.Collectors;
 
 public class DeviceLifeCycleActionResource {
-    private final DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
+
     private final ResourceHelper resourceHelper;
     private final AuthorizedActionInfoFactory authorizedActionInfoFactory;
     private final MicroActionAndCheckInfoFactory microActionAndCheckInfoFactory;
 
     @Inject
     public DeviceLifeCycleActionResource(
-            DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService,
             ResourceHelper resourceHelper,
             AuthorizedActionInfoFactory authorizedActionInfoFactory,
             MicroActionAndCheckInfoFactory microActionAndCheckInfoFactory) {
-        this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
         this.resourceHelper = resourceHelper;
         this.authorizedActionInfoFactory = authorizedActionInfoFactory;
         this.microActionAndCheckInfoFactory = microActionAndCheckInfoFactory;
