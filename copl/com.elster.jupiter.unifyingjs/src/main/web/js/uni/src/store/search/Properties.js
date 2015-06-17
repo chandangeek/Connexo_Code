@@ -19,8 +19,10 @@ Ext.define('Uni.store.search.Properties', {
 
     sorters: [
         {
-            property: 'displayValue',
-            direction: 'ASC'
+            sorterFn: function (o1, o2) {
+                // TODO Implement custom sorting based on constraints, if it is sticky. Just on name if not.
+                return o1.get('displayValue') < o2.get('displayValue') ? -1 : 1;
+            }
         }
     ],
 
