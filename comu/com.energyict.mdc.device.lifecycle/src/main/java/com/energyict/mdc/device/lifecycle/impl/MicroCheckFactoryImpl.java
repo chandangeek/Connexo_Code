@@ -72,7 +72,7 @@ public class MicroCheckFactoryImpl implements ServerMicroCheckFactory {
                 return new AllDataCollected(this.thesaurus);
             }
             case ALL_DATA_VALID: {
-                return new AllDataValid(this.thesaurus);
+                return new AllDataValid(this.validationService, this.thesaurus);
             }
             case PROTOCOL_DIALECT_PROPERTIES_ARE_ALL_VALID: {
                 return new ProtocolDialectPropertiesAreValid(this.thesaurus);

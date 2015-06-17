@@ -67,7 +67,7 @@ public class AllDataValidatedTest {
     }
 
     @Test
-    public void deviceWithMeterActivationWithAllDataValidatedated(){
+    public void deviceWithMeterActivationWithAllDataValidated(){
         AllDataValidated microCheck = this.getTestInstance();
         doReturn(Optional.of(meterActivation)).when(this.device).getCurrentMeterActivation();
         when(meterActivation.getMeter()).thenReturn(Optional.of(meter));
@@ -82,7 +82,7 @@ public class AllDataValidatedTest {
     }
 
     @Test
-    public void deviceWithMeterActivationWithNotAllDataValidatedated(){
+    public void deviceWithMeterActivationWithNotAllDataValidated(){
         AllDataValidated microCheck = this.getTestInstance();
         doReturn(Optional.of(meterActivation)).when(this.device).getCurrentMeterActivation();
         when(meterActivation.getMeter()).thenReturn(Optional.of(meter));
