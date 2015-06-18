@@ -59,6 +59,31 @@ Ext.define('Isu.view.issues.ActionMenu', {
         this.callParent(arguments);
     },
 
+    // this method overwritten to avoid firing click event twice in menu
+    onClick: function(e) {
+        var me = this,
+            item;
+
+        if (me.disabled) {
+            e.stopEvent();
+            return;
+        }
+
+        item = (e.type === 'click') ? me.getItemFromEvent(e) : me.activeItem;
+        if (item && item.isMenuItem) {
+            if (!item.menu || !me.ignoreParentClicks) {
+                //item.onClick(e);
+            } else {
+                e.stopEvent();
+            }
+        }
+        // Click event may be fired without an item, so we need a second check
+        if (!item || item.disabled) {
+            item = undefined;
+        }
+        me.fireEvent('click', me, item, e);
+    },
+
     onLoad: function () {
         var me = this,
             issueId = me.record.getId(),
