@@ -20,13 +20,13 @@ public enum MicroCheck {
      * Checks that there is at least one communication task scheduled on the device.
      */
     // check bits: 2
-    AT_LEAST_ONE_MANUALLY_SCHEDULED_COMMUNICATION_TASK_AVAILABLE,
+    AT_LEAST_ONE_SCHEDULED_COMMUNICATION_TASK_AVAILABLE,
 
     /**
      * Checks that there is at least one shared communication schedule on the device.
      */
     // check bits: 4
-    AT_LEAST_ONE_SCHEDULED_COMMUNICATION_TASK_AVAILABLE,
+    AT_LEAST_ONE_SHARED_COMMUNICATION_SCHEDULE_AVAILABLE,
 
     /**
      * Checks that all loadProfile data
@@ -39,7 +39,7 @@ public enum MicroCheck {
 
     /**
      * Checks that all data (in both load profiles and registers)
-     * that has been collected on the device is also valid.
+     * that has been collected on the device is also valid.(=No suspects)
      */
     // check bits: 16
     ALL_DATA_VALID,
@@ -96,8 +96,7 @@ public enum MicroCheck {
     ALL_ISSUES_AND_ALARMS_ARE_CLOSED,
 
     /**
-     * Checks if all the collected data was validated
-     * that has been collected on the device is also valid.
+     * Checks if all the collected data was validated (Validation has run)
      * This holds true if the last reading is equal to
      * the last checked timestamp.
      */
