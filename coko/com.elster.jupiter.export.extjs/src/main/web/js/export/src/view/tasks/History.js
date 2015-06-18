@@ -1,14 +1,14 @@
 Ext.define('Dxp.view.tasks.History', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.data-export-tasks-history',
+
     requires: [
         'Dxp.view.tasks.Menu',
         'Dxp.view.tasks.HistoryPreview',
         'Dxp.view.tasks.HistoryPreviewForm',
         'Dxp.view.tasks.PreviewForm',
         'Dxp.view.tasks.HistoryGrid',
-        'Dxp.view.tasks.HistoryFilterForm',
-        'Uni.component.filter.view.FilterTopPanel'
+        'Dxp.view.tasks.HistoryFilter'
     ],
 
     router: null,
@@ -27,11 +27,6 @@ Ext.define('Dxp.view.tasks.History', {
                         itemId: 'tasks-view-menu',
                         taskId: me.taskId,
                         router: me.router
-                    },
-                    {
-                        xtype: 'history-filter-form',
-                        itemId: 'side-filter',
-                        router: me.router
                     }
                 ]
             }
@@ -43,10 +38,6 @@ Ext.define('Dxp.view.tasks.History', {
             title: Uni.I18n.translate('general.history', 'DES', 'History'),
             items: [
                 {
-                    xtype: 'filter-top-panel',
-                    itemId: 'tasks-history-filter-top-panel'
-                },
-                {
                     xtype: 'preview-container',
                     grid: {
                         xtype: 'dxp-tasks-history-grid',
@@ -57,14 +48,22 @@ Ext.define('Dxp.view.tasks.History', {
                         title: Uni.I18n.translate('dataExportTasksHistory.empty.title', 'DES', 'No data export history found'),
                         reasons: [
                             Uni.I18n.translate('dataExportTasksHistory.empty.list.item1', 'DES', 'There is no history available for this data export task.')
-                        ]
+                        ],
+                        margin: '16 0 0 0'
                     },
                     previewComponent: {
                         xtype: 'dxp-tasks-history-preview'
                     }
                 }
+            ],
+            dockedItems: [
+                {
+                    dock: 'top',
+                    xtype: 'dxp-view-tasks-historyfilter'
+                }
             ]
         };
+
         me.callParent(arguments);
     }
 });
