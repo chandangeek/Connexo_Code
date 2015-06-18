@@ -153,21 +153,22 @@ public class IssueCreationServiceImpl implements IssueCreationService {
 
     @Override
     public void processIssueCreationEvent(long ruleId, IssueEvent event) {
-        CreationRule firedRule = findCreationRuleById(ruleId).orElse(null);
-        CreationRuleTemplate template = firedRule.getTemplate();
-        Issue baseIssue = dataModel.getInstance(OpenIssueImpl.class);
-        baseIssue.setReason(firedRule.getReason());
-        baseIssue.setStatus(issueService.findStatus(IssueStatus.OPEN).orElse(null));
-        baseIssue.setDueDate(Instant.ofEpochMilli(firedRule.getDueInType().dueValueFor(firedRule.getDueInValue())));
-        baseIssue.setOverdue(false);
-        baseIssue.setRule(firedRule);
-        baseIssue.setDevice(event.getEndDevice());
-        Optional<? extends Issue> newIssue = template.createIssue(baseIssue, event);
-        if (newIssue.isPresent()) {
-            newIssue.get().addComment(firedRule.getComment(), userService.findUser("batch executor").orElse(null));
-            newIssue.get().autoAssign();
-            executeCreationActions(newIssue.get());
-        }
+        findCreationRuleById(ruleId).ifPresent(firedRule -> {
+            CreationRuleTemplate template = firedRule.getTemplate();
+            Issue baseIssue = dataModel.getInstance(OpenIssueImpl.class);
+            baseIssue.setReason(firedRule.getReason());
+            baseIssue.setStatus(issueService.findStatus(IssueStatus.OPEN).orElse(null));
+            baseIssue.setDueDate(Instant.ofEpochMilli(firedRule.getDueInType().dueValueFor(firedRule.getDueInValue())));
+            baseIssue.setOverdue(false);
+            baseIssue.setRule(firedRule);
+            baseIssue.setDevice(event.getEndDevice());
+            Optional<? extends Issue> newIssue = template.createIssue(baseIssue, event);
+            if (newIssue.isPresent()) {
+                newIssue.get().addComment(firedRule.getComment(), userService.findUser("batch executor").orElse(null));
+                newIssue.get().autoAssign();
+                executeCreationActions(newIssue.get());
+            }
+        });
     }
 
     @Override
