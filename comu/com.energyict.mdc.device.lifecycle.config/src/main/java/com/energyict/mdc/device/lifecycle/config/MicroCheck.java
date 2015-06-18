@@ -29,13 +29,13 @@ public enum MicroCheck {
     AT_LEAST_ONE_SCHEDULED_COMMUNICATION_TASK_AVAILABLE,
 
     /**
-     * Checks that all data (in both load profiles and registers)
+     * Checks that all loadProfile data
      * has been collected on the device.
      * This holds true if the last reading is set and is
-     * equal to the effective timestamp of the transition.
+     * before the end of each <i>current</i> LoadProfile period.
      */
     // check bits: 8
-    ALL_DATA_COLLECTED,
+    ALL_LOADPROFILE_DATA_COLLECTED,
 
     /**
      * Checks that all data (in both load profiles and registers)
