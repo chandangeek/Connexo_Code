@@ -269,7 +269,7 @@ public class ReadingTypeDataSelectorImpl implements IReadingTypeDataSelector {
         if (id == 0) {
             dataModel.mapper(IReadingTypeDataSelector.class).persist(this);
         } else {
-            dataModel.mapper(IReadingTypeDataSelector.class).update(this);
+            Save.UPDATE.save(dataModel, this);
         }
 
     }
