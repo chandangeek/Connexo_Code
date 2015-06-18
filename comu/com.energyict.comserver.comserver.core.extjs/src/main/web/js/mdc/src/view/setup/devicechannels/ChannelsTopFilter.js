@@ -14,7 +14,7 @@ Ext.define('Mdc.view.setup.devicechannels.ChannelsTopFilter', {
             type: 'combobox',
             dataIndex: 'loadProfileName',
             emptyText: Uni.I18n.translate('devicechannels.channelstopfilter.loadprofile.emptytext', 'MDC', 'Load profile name'),
-            multiSelect: false,
+            multiSelect: true,
             displayField: 'name',
             valueField: 'name',
             store: 'Mdc.store.LoadProfilesOfDevice'
