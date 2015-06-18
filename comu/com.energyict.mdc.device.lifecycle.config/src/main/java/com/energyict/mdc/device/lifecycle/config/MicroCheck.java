@@ -35,7 +35,7 @@ public enum MicroCheck {
      * before the end of each <i>current</i> LoadProfile period.
      */
     // check bits: 8
-    ALL_LOADPROFILE_DATA_COLLECTED,
+    ALL_LOAD_PROFILE_DATA_COLLECTED,
 
     /**
      * Checks that all data (in both load profiles and registers)
