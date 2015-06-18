@@ -139,7 +139,7 @@ Ext.define('Dxp.model.DataExportTask', {
             setterName: 'setDataSelector'
         },
         {
-            name: 'standarDataSelector',
+            name: 'standardDataSelector',
             type: 'hasOne',
             model:'Dxp.model.StandardDataSelector',
             associationKey: 'standardDataSelector',

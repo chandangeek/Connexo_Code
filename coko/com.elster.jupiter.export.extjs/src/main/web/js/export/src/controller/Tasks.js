@@ -400,10 +400,7 @@ Ext.define('Dxp.controller.Tasks', {
             exportPeriodCombo = view.down('#export-period-combo'),
             dataSelectorCombo = view.down('#data-selector-combo'),
             recurrenceTypeCombo = view.down('#recurrence-type');
-        if ( Dxp.privileges.DataExport.canUpdate()) {
-            deviceGroupCombo.disabled = false;
-            exportPeriodCombo.disabled = false;
-        }
+        dataSelectorCombo.disabled = true;
         me.fromEdit = true;
         me.taskId = taskId;
         Ext.util.History.on('change', this.checkRoute, this);
@@ -416,9 +413,11 @@ Ext.define('Dxp.controller.Tasks', {
                         dataSelectorCombo.store.load({
                             callback: function () {
                                 dataSelectorCombo.setValue(dataSelectorCombo.store.getById(record.getDataSelector().data.name));
+                                if (!record.getDataSelector().get('isDefault')) {
+                                    taskForm.down('#data-selector-properties').loadRecord(record.getDataSelector());
+                                }
                             }
                         });
-
                         var schedule = record.get('schedule');
                         me.taskModel = record;
                         me.getApplication().fireEvent('dataexporttaskload', record);
@@ -458,7 +457,10 @@ Ext.define('Dxp.controller.Tasks', {
                                     }
                                 });
 
-                            }
+
+                            } /*else {
+                                taskForm.down('#data-selector-properties').loadRecord(record.getDataSelector());
+                            }*/
                             fileFormatterCombo.setValue(fileFormatterCombo.store.getById(record.data.dataProcessor.name));
                             if (record.data.nextRun && (record.data.nextRun !== 0)) {
                                 view.down('#recurrence-trigger').setValue({recurrence: true});
@@ -720,6 +722,9 @@ Ext.define('Dxp.controller.Tasks', {
     },
 
     updateDataSelectorProperties: function (field, newValue) {
+        if (newValue == "") {
+            return;
+        }
         var me = this,
             page = me.getAddPage(),
             record = Ext.getStore('Dxp.store.DataSelectors').getById(newValue),
@@ -874,12 +879,13 @@ Ext.define('Dxp.controller.Tasks', {
 
             var selectedDataSelector = dataSelectorCombo.findRecord(dataSelectorCombo.valueField , dataSelectorCombo.getValue());
 
+
             if (selectedDataSelector.get('isDefault')) {
 
+                record.setStandardDataSelector(null);
                 readingTypesStore.each(function (record) {
                     arrReadingTypes.push(record.getData().readingType);
                 });
-
                 record.set('standardDataSelector', {
                     deviceGroup: {
                         id: form.down('#device-group-combo').getValue(),
@@ -1172,7 +1178,12 @@ Ext.define('Dxp.controller.Tasks', {
 
         var formModel = Ext.create('Dxp.model.AddDataExportTaskForm', obj);
         view.down('#add-data-export-task-form').loadRecord(formModel);
-        view.down('#recurrence-trigger').setValue({recurrence: formModel.get('recurrence')});
+
+        view.down('#data-selector-combo').setValue(formModel.get('readingTypeDataSelector.value.dataSelector'));
+        view.down('#device-group-combo').setValue(formModel.get('readingTypeDataSelector.value.endDeviceGroup'));
+        view.down('#export-period-combo').setValue(formModel.get('readingTypeDataSelector.value.exportPeriod'));
+
+
         Ext.suspendLayouts();
         Ext.Array.each(view.down('grouped-property-form').query('[isFormField=true]'), function (formItem) {
             if (formItem.name in obj) {

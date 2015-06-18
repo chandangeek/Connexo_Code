@@ -189,7 +189,7 @@ Ext.define('Dxp.view.tasks.Add', {
                              {
                                  xtype: 'combobox',
                                  itemId: 'data-selector-combo',
-                                 name: 'dataSelector',
+                                 name: 'readingTypeDataSelector.value.dataSelector',
                                  width: 235,
                                  queryMode: 'local',
                                  store: 'Dxp.store.DataSelectors',

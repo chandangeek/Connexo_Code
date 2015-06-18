@@ -3,7 +3,13 @@ Ext.define('Dxp.model.StandardDataSelector', {
 
 
     fields: [
-        'deviceGroup', 'exportPeriod', 'exportContinuousData', 'exportUpdate', 'updatePeriod', 'validatedDataOption', 'readingTypes'
+        'deviceGroup',
+        'exportPeriod',
+        //'exportContinuousData',
+        //'exportUpdate',
+        //'updatePeriod',
+        //'validatedDataOption',
+        'readingTypes'
     ],
 
     idProperty: 'name',
