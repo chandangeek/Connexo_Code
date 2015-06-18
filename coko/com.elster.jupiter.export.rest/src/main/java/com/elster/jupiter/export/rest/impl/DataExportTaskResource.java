@@ -208,10 +208,11 @@ public class DataExportTaskResource {
                 selector.setUpdatePeriod(getRelativePeriod(info.standardDataSelector.updatePeriod));
                 selector.setEndDeviceGroup(endDeviceGroup(info.standardDataSelector.deviceGroup.id));
                 selector.save();
+                updateReadingTypes(info, task);
             }
 
             updateProperties(info, task);
-            updateReadingTypes(info, task);
+
 
             task.save();
             context.commit();
@@ -316,12 +317,20 @@ public class DataExportTaskResource {
     }
 
     private void updateProperties(DataExportTaskInfo info, ExportTask task) {
-        List<PropertySpec> propertiesSpecs = dataExportService.getPropertiesSpecsForProcessor(info.dataProcessor.name);
-        propertiesSpecs.stream()
+        List<PropertySpec> propertiesSpecsForDataProcessor = dataExportService.getPropertiesSpecsForProcessor(info.dataProcessor.name);
+        propertiesSpecsForDataProcessor.stream()
                 .forEach(spec -> {
                     Object value = propertyUtils.findPropertyValue(spec, info.properties);
                     task.setProperty(spec.getName(), value);
                 });
+        if (!info.dataSelector.isDefault) {
+            List<PropertySpec> propertiesSpecsForDataSelector = dataExportService.getPropertiesSpecsForDataSelector(info.dataSelector.name);
+            propertiesSpecsForDataSelector.stream()
+                    .forEach(spec -> {
+                        Object value = propertyUtils.findPropertyValue(spec, info.properties);
+                        task.setProperty(spec.getName(), value);
+                    });
+        }
     }
 
     private ScheduleExpression getScheduleExpression(DataExportTaskInfo info) {
