@@ -199,6 +199,11 @@
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
+                <artifactId>mdc.issue.datavalidation</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.energyict</groupId>
                 <artifactId>mdc.firmware</artifactId>
                 <version>1.0.0-SNAPSHOT</version>
             </dependency>
@@ -430,6 +435,8 @@
                 <module>../com.energyict.mdc.issue.datacollection</module>
                 <module>../com.energyict.mdc.issue.datacollection.rest</module>
                 <module>../com.energyict.mdc.issue.datacollection.extjs</module>
+                <module>../com.energyict.mdc.issue.datavalidation</module>
+                <module>../com.energyict.mdc.issue.datavalidation.rest</module>
                 <module>../com.energyict.mdc.issues</module>
                 <module>../com.energyict.mdc.masterdata</module>
                 <module>../com.energyict.mdc.masterdata.rest</module>
