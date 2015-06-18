@@ -37,8 +37,8 @@ public class SharedScheduledCommunicationTaskAvailable implements ServerMicroChe
             return Optional.of(
                     new DeviceLifeCycleActionViolationImpl(
                             this.thesaurus,
-                            MessageSeeds.AT_LEAST_ONE_SCHEDULED_COMMUNICATION_TASK_AVAILABLE,
-                            MicroCheck.AT_LEAST_ONE_SHARED_SCHEDULED_COMMUNICATION_TASK_AVAILABLE));
+                            MessageSeeds.AT_LEAST_ONE_SHARED_COMMUNICATION_SCHEDULE_AVAILABLE,
+                            MicroCheck.AT_LEAST_ONE_SHARED_COMMUNICATION_SCHEDULE_AVAILABLE));
         }
         else {
             return Optional.empty();

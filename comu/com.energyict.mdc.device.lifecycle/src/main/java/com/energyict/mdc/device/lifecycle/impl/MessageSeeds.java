@@ -33,7 +33,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     SLAVE_DEVICE_HAS_GATEWAY(10009, MicroCheck.SLAVE_DEVICE_HAS_GATEWAY, "A slave device must have a gateway device"),
     LINKED_WITH_USAGE_POINT(10010, MicroCheck.LINKED_WITH_USAGE_POINT, "A device must be linked to a usage point"),
     ALL_ISSUES_AND_ALARMS_ARE_CLOSED(10011, MicroCheck.ALL_ISSUES_AND_ALARMS_ARE_CLOSED, "All issues and alarms must have been closed or resolved on the device"),
-    AT_LEAST_ONE_SHARED_SCHEDULED_COMMUNICATION_TASK_AVAILABLE(10012, MicroCheck.AT_LEAST_ONE_SHARED_SCHEDULED_COMMUNICATION_TASK_AVAILABLE, "At least one shared communication schedule should be available on the device"),
+    AT_LEAST_ONE_SHARED_COMMUNICATION_SCHEDULE_AVAILABLE(10012, MicroCheck.AT_LEAST_ONE_SHARED_COMMUNICATION_SCHEDULE_AVAILABLE, "At least one shared communication schedule should be available on the device"),
     ALL_DATA_VALID(10013, MicroCheck.ALL_DATA_VALID, "All the collected data on the device must be valid"),
     ALL_DATA_VALIDATED(10014, MicroCheck.ALL_DATA_VALIDATED, "All the collected data on the device is validated"),
     AT_LEAST_ONE_ACTIVE_CONNECTION_AVAILABLE(10015, MicroCheck.AT_LEAST_ONE_ACTIVE_CONNECTION_AVAILABLE, "There should at least one active connection on the device"),

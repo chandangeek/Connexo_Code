@@ -65,7 +65,7 @@ public class MicroCheckFactoryImpl implements ServerMicroCheckFactory {
             case AT_LEAST_ONE_SCHEDULED_COMMUNICATION_TASK_AVAILABLE: {
                 return new ScheduledCommunicationTaskAvailable(this.thesaurus);
             }
-            case AT_LEAST_ONE_SHARED_SCHEDULED_COMMUNICATION_TASK_AVAILABLE: {
+            case AT_LEAST_ONE_SHARED_COMMUNICATION_SCHEDULE_AVAILABLE: {
                 return new SharedScheduledCommunicationTaskAvailable(this.thesaurus);
             }
             case ALL_DATA_COLLECTED: {

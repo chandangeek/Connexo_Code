@@ -45,7 +45,7 @@ public class SharedScheduledCommunicationTaskAvailableTest {
 
         // Asserts
         assertThat(violation).isPresent();
-        assertThat(violation.get().getCheck()).isEqualTo(MicroCheck.AT_LEAST_ONE_SHARED_SCHEDULED_COMMUNICATION_TASK_AVAILABLE);
+        assertThat(violation.get().getCheck()).isEqualTo(MicroCheck.AT_LEAST_ONE_SHARED_COMMUNICATION_SCHEDULE_AVAILABLE);
     }
 
     @Test
@@ -66,7 +66,7 @@ public class SharedScheduledCommunicationTaskAvailableTest {
 
         // Asserts
         assertThat(violation).isPresent();
-        assertThat(violation.get().getCheck()).isEqualTo(MicroCheck.AT_LEAST_ONE_SHARED_SCHEDULED_COMMUNICATION_TASK_AVAILABLE);
+        assertThat(violation.get().getCheck()).isEqualTo(MicroCheck.AT_LEAST_ONE_SHARED_COMMUNICATION_SCHEDULE_AVAILABLE);
     }
 
     @Test
