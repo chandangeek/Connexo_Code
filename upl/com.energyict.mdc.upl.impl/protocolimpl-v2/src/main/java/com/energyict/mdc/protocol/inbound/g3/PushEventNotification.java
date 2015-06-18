@@ -1,6 +1,5 @@
 package com.energyict.mdc.protocol.inbound.g3;
 
-import com.energyict.cbo.HexString;
 import com.energyict.cbo.TimePeriod;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.TypedProperties;
@@ -20,6 +19,7 @@ import com.energyict.mdc.meterdata.CollectedTopology;
 import com.energyict.mdc.ports.InboundComPort;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.ConnectionException;
+import com.energyict.mdc.protocol.DeviceProtocol;
 import com.energyict.mdc.protocol.inbound.BinaryInboundDeviceProtocol;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.inbound.InboundDiscoveryContext;
@@ -28,12 +28,12 @@ import com.energyict.mdc.tasks.ConnectionTaskProperty;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.protocol.ProtocolException;
+import com.energyict.protocolimpl.dlms.g3.G3Properties;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.RtuPlusServer;
 import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
-import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.Dsmr50Properties;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -53,11 +53,11 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
     private static final int METER_HAS_LEFT = 0xC3;
     private static final int METER_JOIN_ATTEMPT = 0xC5;
     protected ComChannel tcpComChannel;
-    private ComChannel comChannel;
-    private InboundDiscoveryContext context;
-    private CollectedLogBook collectedLogBook;
-    private CollectedTopology collectedTopology;
-    private EventPushNotificationParser parser;
+    protected InboundDiscoveryContext context;
+    protected ComChannel comChannel;
+    protected CollectedLogBook collectedLogBook;
+    protected CollectedTopology collectedTopology;
+    protected EventPushNotificationParser parser;
 
     @Override
     public void initComChannel(ComChannel comChannel) {
@@ -86,20 +86,17 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
         collectedLogBook = parser.getCollectedLogBook();
 
         if (isJoinAttempt() || isSuccessfulJoin() || isMeterLeft()) {
-            RtuPlusServer gatewayProtocol = null;
+            DeviceProtocol gatewayProtocol = new RtuPlusServer();
             try {
-                gatewayProtocol = initializeGatewayProtocol(parser.getSecurityPropertySet());
-                DlmsSession dlmsSession = gatewayProtocol.getDlmsSession();
+                gatewayProtocol = initializeGatewayProtocol(parser.getSecurityPropertySet(), gatewayProtocol);
                 if (isJoinAttempt()) {
-                    providePSK(dlmsSession);
+                    providePSK(getDlmsSession(gatewayProtocol));
                 } else if (isSuccessfulJoin() || isMeterLeft()) {
                     collectedTopology = gatewayProtocol.getDeviceTopology();
                 }
             } finally {
-                if (gatewayProtocol != null) {
-                    gatewayProtocol.logOff();
-                    gatewayProtocol.terminate();
-                }
+                gatewayProtocol.logOff();
+                gatewayProtocol.terminate();
                 if (tcpComChannel != null) {
                     tcpComChannel.close();
                 }
@@ -109,13 +106,18 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
         return DiscoverResultType.DATA;
     }
 
+
+    protected DlmsSession getDlmsSession(DeviceProtocol gatewayProtocol) {
+        return ((RtuPlusServer) gatewayProtocol).getDlmsSession();
+    }
+
     /**
      * Create a protocol instance that will setup a DLMS session to the RTU+Server
      * JUnit test overrides this
      */
-    protected RtuPlusServer initializeGatewayProtocol(DeviceProtocolSecurityPropertySet securityPropertySet) {
-        RtuPlusServer gatewayProtocol = new RtuPlusServer();
-        TypedProperties protocolProperties = context.getInboundDAO().getDeviceProtocolProperties(getDeviceIdentifier());
+    protected DeviceProtocol initializeGatewayProtocol(DeviceProtocolSecurityPropertySet securityPropertySet, DeviceProtocol gatewayProtocol) {
+        final TypedProperties deviceProtocolProperties = context.getInboundDAO().getDeviceProtocolProperties(getDeviceIdentifier());
+        TypedProperties protocolProperties = deviceProtocolProperties == null ? TypedProperties.empty() : deviceProtocolProperties;
         protocolProperties.setProperty(DlmsProtocolProperties.READCACHE_PROPERTY, false);
         TypedProperties dialectProperties = context.getInboundDAO().getDeviceDialectProperties(getDeviceIdentifier(), context.getComPort());
         if (dialectProperties == null) {
@@ -158,6 +160,10 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
         }
     }
 
+    /**
+     * Read out attribute 'joining_slaves' of object G3NetworkManagement. It is the list of slaves that are joining and need a PSK.
+     * Find their PSK properties in EIServer and provide them to the Rtu+Server.
+     */
     protected void providePSK(DlmsSession dlmsSession) {
         context.getLogger().info("Received joining attempt notification, will create a DLMS session to provide the PSK key(s)");
         G3NetworkManagement g3NetworkManagement;
@@ -166,24 +172,28 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
         } catch (ProtocolException e) {
             throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e);
         }
+
         try {
-            Array joiningNodes = g3NetworkManagement.getJoiningNodes();
             Array macKeyPairs = new Array();
+            Array joiningNodes = g3NetworkManagement.getJoiningNodes();
             for (AbstractDataType joiningNode : joiningNodes) {
                 OctetString macAddressOctetString = joiningNode.getOctetString();
                 if (macAddressOctetString != null) {
                     String macAddress = ProtocolTools.getHexStringFromBytes((macAddressOctetString).getOctetStr(), "");
-                    OfflineDevice offlineDevice = context.getInboundDAO().findOfflineDevice(new DialHomeIdDeviceIdentifier(macAddress));
 
-                    if (offlineDevice != null) {
-                        Dsmr50Properties g3MeterProperties = new Dsmr50Properties();
-                        g3MeterProperties.addProperties(offlineDevice.getAllProperties());
-                        HexString psk = g3MeterProperties.getPSK();
-                        if (psk != null && psk.getContent().length() > 0) {
-                            Structure macAndKeyPair = new Structure();
-                            macAndKeyPair.addDataType(macAddressOctetString);
-                            macAndKeyPair.addDataType(OctetString.fromByteArray(ProtocolTools.getBytesFromHexString(psk.getContent(), "")));
-                            macKeyPairs.addDataType(macAndKeyPair);
+                    final TypedProperties deviceProtocolProperties = context.getInboundDAO().getDeviceProtocolProperties(new DialHomeIdDeviceIdentifier(macAddress));
+                    if (deviceProtocolProperties != null) {
+                        final String psk = deviceProtocolProperties.<String>getTypedProperty(G3Properties.PSK);
+                        if (psk != null && psk.length() > 0) {
+                            final OctetString pskOctetString = parsePSK(psk);
+                            if (pskOctetString != null) {
+                                Structure macAndKeyPair = new Structure();
+                                macAndKeyPair.addDataType(macAddressOctetString);
+                                macAndKeyPair.addDataType(pskOctetString);
+                                macKeyPairs.addDataType(macAndKeyPair);
+                            } else {
+                                context.getLogger().warning("Device with MAC address " + macAddress + " has an invalid PSK property: '" + psk + "'. Should be 32 hex characters. Skipping.");
+                            }
                         } else {
                             context.getLogger().warning("Device with MAC address " + macAddress + " does not have a PSK property in EIServer, skipping.");
                         }
@@ -200,6 +210,17 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
         }
     }
 
+    private OctetString parsePSK(String psk) {
+        if (psk.length() != 32) {
+            return null;
+        }
+        try {
+            return OctetString.fromByteArray(ProtocolTools.getBytesFromHexString(psk, ""));
+        } catch (IndexOutOfBoundsException | NumberFormatException e) {
+            return null;
+        }
+    }
+
     private List<ConnectionTaskProperty> toPropertySpecs(Date now, TypedProperties typedProperties) {
         List<ConnectionTaskProperty> properties = new ArrayList<>();
         for (String propertyName : typedProperties.propertyNames()) {
@@ -208,15 +229,15 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
         return properties;
     }
 
-    private boolean isMeterLeft() {
+    protected boolean isMeterLeft() {
         return collectedLogBook.getCollectedMeterEvents().get(0).getProtocolCode() == METER_HAS_LEFT;
     }
 
-    private boolean isSuccessfulJoin() {
+    protected boolean isSuccessfulJoin() {
         return collectedLogBook.getCollectedMeterEvents().get(0).getProtocolCode() == METER_HAS_JOINED;
     }
 
-    private boolean isJoinAttempt() {
+    protected boolean isJoinAttempt() {
         return collectedLogBook.getCollectedMeterEvents().get(0).getProtocolCode() == METER_JOIN_ATTEMPT;
     }
 
