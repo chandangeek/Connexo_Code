@@ -16,7 +16,10 @@ Ext.define('Uni.controller.Search', {
     requires: [
         'Uni.view.search.Overview',
         'Uni.view.search.Adapter',
-        'Uni.util.Filters'
+        'Uni.util.Filters',
+        // Grid columns.
+        'Uni.grid.column.search.DeviceType',
+        'Uni.grid.column.search.DeviceConfiguration'
     ],
 
     refs: [
@@ -308,12 +311,32 @@ Ext.define('Uni.controller.Search', {
     createColumnDefinitionFromModel: function (field) {
         var propertyName = field.get('propertyName'),
             type = field.get('type'),
-            displayValue = field.get('displayValue');
+            displayValue = field.get('displayValue'),
+            columnType = 'gridcolumn';
+
+        switch (type) {
+            case 'Long':
+                columnType = 'numbercolumn';
+                break;
+            case 'Date':
+                columnType = 'datecolumn';
+                break;
+            case 'Boolean':
+                columnType = 'booleancolumn';
+                break;
+            // Custom grid columns.
+            case 'DeviceType':
+                columnType = 'uni-grid-column-search-devicetype';
+                break;
+            case 'DeviceConfiguration':
+                columnType = 'uni-grid-column-search-deviceconfiguration';
+                break;
+        }
 
         return {
             dataIndex: propertyName,
             header: displayValue,
-            flex: 1
+            xtype: columnType
         };
     },
 
@@ -415,23 +438,42 @@ Ext.define('Uni.controller.Search', {
             if (Ext.isArray(constraints) && !Ext.isEmpty(constraints)) {
                 for (var i = 0; i < constraints.length; i++) {
                     if (property.get('name') === constraints[i]) {
-                        widget.on('filterupdate', function () {
+                        widget.on('change', function () {
                             me.updateConstraints(removable ? filter.widget : filter, property.get('name'), widget.getParamValue());
                         }, me);
                     }
                 }
             }
         });
+
+        constraints = property.get('constraints');
+        removable = !property.get('sticky');
+
+        for (var i = 0; i < constraints.length; i++) {
+            me.filters.each(function (filter) {
+                if (filter.property.get('name') === constraints[i]) {
+                    if (removable) {
+                        filter.widget.on('change', function () {
+                            me.updateConstraints(widget, filter.property.get('name'), filter.widget.getParamValue());
+                        }, me);
+                    } else {
+                        filter.on('change', function () {
+                            me.updateConstraints(widget, filter.property.get('name'), filter.getParamValue());
+                        }, me);
+                    }
+                }
+            });
+        }
     },
 
     updateConstraints: function (widget, filterName, filterValues) {
         var store = widget.store;
 
         if (Ext.isDefined(store)) {
-            try {
+            if (!Ext.isEmpty(filterValues)) {
                 store.filter(filterName, filterValues);
-            } catch (ex) {
-                // Ignore failures due to not implemented filtering at the back-end.
+            } else {
+                store.clearFilter();
             }
         }
     },
@@ -451,7 +493,6 @@ Ext.define('Uni.controller.Search', {
         if (Ext.isDefined(filterResult)) {
             var widget = removable ? filterResult.widget : filterResult;
 
-            me.removeFilterUpdateListeners(widget);
             widget.resetValue();
 
             if (removable) {
@@ -468,17 +509,6 @@ Ext.define('Uni.controller.Search', {
             Uni.util.Filters.updateHistoryState(me.filters);
             me.updateRemovableContainerVisibility();
         }
-    },
-
-    removeFilterUpdateListeners: function (filter) {
-        var eventName = 'filterupdate';
-
-        Ext.each(filter.events[eventName].listeners, function (listener) {
-            var scope = listener.scope,
-                filterUpdateListener = listener.fn;
-
-            filter.un(eventName, filterUpdateListener, scope);
-        });
     },
 
     addStickyProperty: function (property) {

@@ -13,6 +13,7 @@ Ext.define('Uni.view.search.Results', {
     ],
 
     store: 'Uni.store.search.Results',
+    forceFit: true,
     columns: [],
 
     initComponent: function () {
