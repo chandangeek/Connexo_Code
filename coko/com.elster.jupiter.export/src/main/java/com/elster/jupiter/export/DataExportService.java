@@ -48,4 +48,6 @@ public interface DataExportService {
     StructureMarker forRoot(String root);
 
     List<DataFormatterFactory> formatterFactoriesMatching(DataSelectorFactory selectorFactory);
+
+    Optional<DataSelectorFactory> getDataSelectorFactory(String dataSelector);
 }
