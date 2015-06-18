@@ -5,7 +5,12 @@ import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.channels.inbound.EIWebPlusConnectionType;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.messages.LegacyMessageConverter;
-import com.energyict.mdc.meterdata.*;
+import com.energyict.mdc.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.meterdata.CollectedLogBook;
+import com.energyict.mdc.meterdata.CollectedMessageList;
+import com.energyict.mdc.meterdata.CollectedRegister;
+import com.energyict.mdc.meterdata.CollectedTopology;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.DeviceProtocol;
 import com.energyict.mdc.protocol.DeviceProtocolCache;
@@ -39,7 +44,7 @@ import java.util.List;
  * functionality to read out meter data, this is all done by the EIWebPlus servlet. This servlet runs in a separate tomcat, not in the comserver.
  * <p/>
  * In order to create a valid connection task on this concentrator device, it should have a communication port pool (a place holder that is empty) and a connection type {@link EIWebPlusConnectionType}.
- * On this connection task, you can then define a connection strategy (read now vs read every X), this configures when the RTU+Server will post its the collected data.
+ * On this connection task, you can then define a connection strategy (read now vs read every X), this configures when the RTU+Server will post its collected data.
  * Note2: in order to prevent this device from being executed by the comserver, its communication port pool should be a placeholder that is empty (has no ports).
  * <p/>
  * Copyrights EnergyICT
