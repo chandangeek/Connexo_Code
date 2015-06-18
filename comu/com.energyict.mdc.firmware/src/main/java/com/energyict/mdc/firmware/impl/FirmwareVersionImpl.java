@@ -150,6 +150,8 @@ public class FirmwareVersionImpl implements FirmwareVersion, PersistenceAware {
     public final void setFirmwareVersion(String firmwareVersion) {
         if (!Checks.is(firmwareVersion).emptyOrOnlyWhiteSpace()) {
             this.firmwareVersion = firmwareVersion.trim();
+        } else {
+            this.firmwareVersion = null;
         }
     }
 
