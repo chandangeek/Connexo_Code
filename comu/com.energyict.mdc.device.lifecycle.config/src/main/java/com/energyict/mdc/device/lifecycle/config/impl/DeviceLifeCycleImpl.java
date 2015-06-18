@@ -93,7 +93,10 @@ public class DeviceLifeCycleImpl implements DeviceLifeCycle {
 
     @Override
     public String getName() {
-        return this.thesaurus.getString(this.name, this.name);
+        if (DefaultLifeCycleTranslationKey.DEFAULT_DEVICE_LIFE_CYCLE_NAME.getKey().equals(this.name)){
+            return this.thesaurus.getString(this.name, this.name);
+        }
+        return this.name;
     }
 
     void setName(String name) {
