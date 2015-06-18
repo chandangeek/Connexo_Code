@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 
+import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolation;
 import com.energyict.mdc.device.lifecycle.config.MicroCheck;
@@ -34,12 +35,16 @@ public class SlaveDeviceHasGatewayTest {
     @Mock
     private TopologyService topologyService;
     @Mock
+    private DeviceConfiguration deviceConfiguration;
+    @Mock
     private Device device;
 
     @Test
     public void gatewayDevice() {
         SlaveDeviceHasGateway microCheck = this.getTestInstance();
         when(this.device.isLogicalSlave()).thenReturn(false);
+        when(this.device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        when(deviceConfiguration.isDirectlyAddressable()).thenReturn(true);
 
         // Business method
         Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now());
@@ -66,6 +71,22 @@ public class SlaveDeviceHasGatewayTest {
     public void slaveDeviceWithoutGateway() {
         SlaveDeviceHasGateway microCheck = this.getTestInstance();
         when(this.device.isLogicalSlave()).thenReturn(true);
+        when(this.topologyService.getPhysicalGateway(this.device)).thenReturn(Optional.empty());
+
+        // Business method
+        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now());
+
+        // Asserts
+        assertThat(violation).isPresent();
+        assertThat(violation.get().getCheck()).isEqualTo(MicroCheck.SLAVE_DEVICE_HAS_GATEWAY);
+    }
+
+    @Test
+    public void slaveDevice2WithoutGateway() {
+        SlaveDeviceHasGateway microCheck = this.getTestInstance();
+        when(this.device.isLogicalSlave()).thenReturn(false);
+        when(this.device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        when(deviceConfiguration.isDirectlyAddressable()).thenReturn(false);
         when(this.topologyService.getPhysicalGateway(this.device)).thenReturn(Optional.empty());
 
         // Business method

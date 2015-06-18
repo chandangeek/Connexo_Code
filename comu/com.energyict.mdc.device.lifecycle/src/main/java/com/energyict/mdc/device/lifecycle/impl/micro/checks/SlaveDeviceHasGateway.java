@@ -32,7 +32,7 @@ public class SlaveDeviceHasGateway implements ServerMicroCheck {
 
     @Override
     public Optional<DeviceLifeCycleActionViolation> evaluate(Device device, Instant effectiveTimestamp) {
-        if (device.isLogicalSlave() && !this.hasGateway(device)) {
+        if (isLogicalSlave(device) && !this.hasGateway(device)) {
             return Optional.of(
                     new DeviceLifeCycleActionViolationImpl(
                             this.thesaurus,
@@ -46,6 +46,9 @@ public class SlaveDeviceHasGateway implements ServerMicroCheck {
 
     private boolean hasGateway(Device device) {
         return this.topologyService.getPhysicalGateway(device).isPresent();
+    }
+    private boolean isLogicalSlave(Device device){
+        return device.isLogicalSlave() || !device.getDeviceConfiguration().isDirectlyAddressable();
     }
 
 }

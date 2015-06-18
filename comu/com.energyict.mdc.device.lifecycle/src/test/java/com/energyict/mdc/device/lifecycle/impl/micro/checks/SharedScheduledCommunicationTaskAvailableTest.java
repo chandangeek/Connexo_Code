@@ -14,7 +14,6 @@ import java.util.Optional;
 
 import org.junit.*;
 import org.junit.runner.*;
-
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -23,13 +22,13 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests the {@link ManuallyScheduledCommunicationTaskAvailable} component.
+ * Tests the {@link SharedScheduledCommunicationTaskAvailable} component.
  *
  * @author Rudi Vankeirsbilck (rudi)
- * @since 2015-04-15 (09:34)
+ * @since 2015-05-13 (09:04)
  */
 @RunWith(MockitoJUnitRunner.class)
-public class ManuallyScheduledCommunicationTaskAvailableTest {
+public class SharedScheduledCommunicationTaskAvailableTest {
 
     @Mock
     private Thesaurus thesaurus;
@@ -38,7 +37,7 @@ public class ManuallyScheduledCommunicationTaskAvailableTest {
 
     @Test
     public void deviceWithoutCommunicationTasks() {
-        ManuallyScheduledCommunicationTaskAvailable microCheck = this.getTestInstance();
+        SharedScheduledCommunicationTaskAvailable microCheck = this.getTestInstance();
         when(this.device.getComTaskExecutions()).thenReturn(Collections.emptyList());
 
         // Business method
@@ -46,16 +45,18 @@ public class ManuallyScheduledCommunicationTaskAvailableTest {
 
         // Asserts
         assertThat(violation).isPresent();
-        assertThat(violation.get().getCheck()).isEqualTo(MicroCheck.AT_LEAST_ONE_MANUALLY_SCHEDULED_COMMUNICATION_TASK_AVAILABLE);
+        assertThat(violation.get().getCheck()).isEqualTo(MicroCheck.AT_LEAST_ONE_SHARED_COMMUNICATION_SCHEDULE_AVAILABLE);
     }
 
     @Test
-    public void deviceWithOnlyAdHocCommunicationTasks() {
-        ManuallyScheduledCommunicationTaskAvailable microCheck = this.getTestInstance();
+    public void deviceWithOnlyManuallyScheduledCommunicationTasks() {
+        SharedScheduledCommunicationTaskAvailable microCheck = this.getTestInstance();
         ComTaskExecution cte1 = mock(ComTaskExecution.class);
+        when(cte1.usesSharedSchedule()).thenReturn(false);
         when(cte1.isScheduledManually()).thenReturn(true);
         when(cte1.isAdHoc()).thenReturn(true);
         ComTaskExecution cte2 = mock(ComTaskExecution.class);
+        when(cte2.usesSharedSchedule()).thenReturn(false);
         when(cte2.isScheduledManually()).thenReturn(true);
         when(cte2.isAdHoc()).thenReturn(true);
         when(this.device.getComTaskExecutions()).thenReturn(Arrays.asList(cte1, cte2));
@@ -65,14 +66,15 @@ public class ManuallyScheduledCommunicationTaskAvailableTest {
 
         // Asserts
         assertThat(violation).isPresent();
-        assertThat(violation.get().getCheck()).isEqualTo(MicroCheck.AT_LEAST_ONE_MANUALLY_SCHEDULED_COMMUNICATION_TASK_AVAILABLE);
+        assertThat(violation.get().getCheck()).isEqualTo(MicroCheck.AT_LEAST_ONE_SHARED_COMMUNICATION_SCHEDULE_AVAILABLE);
     }
 
     @Test
-    public void deviceWithOneManuallyScheduledCommunicationTask() {
-        ManuallyScheduledCommunicationTaskAvailable microCheck = this.getTestInstance();
+    public void deviceWithOneScheduledCommunicationTask() {
+        SharedScheduledCommunicationTaskAvailable microCheck = this.getTestInstance();
         ComTaskExecution cte1 = mock(ComTaskExecution.class);
-        when(cte1.isScheduledManually()).thenReturn(true);
+        when(cte1.usesSharedSchedule()).thenReturn(true);
+        when(cte1.isScheduledManually()).thenReturn(false);
         when(cte1.isAdHoc()).thenReturn(false);
         when(this.device.getComTaskExecutions()).thenReturn(Arrays.asList(cte1));
 
@@ -85,17 +87,19 @@ public class ManuallyScheduledCommunicationTaskAvailableTest {
 
     @Test
     public void deviceWithMixOfCommunicationTasks() {
-        ManuallyScheduledCommunicationTaskAvailable microCheck = this.getTestInstance();
+        SharedScheduledCommunicationTaskAvailable microCheck = this.getTestInstance();
         ComTaskExecution cte1 = mock(ComTaskExecution.class);
-        when(cte1.isScheduledManually()).thenReturn(true);
-        when(cte1.isAdHoc()).thenReturn(true);
+        when(cte1.usesSharedSchedule()).thenReturn(true);
+        when(cte1.isAdHoc()).thenReturn(false);
+        when(cte1.isAdHoc()).thenReturn(false);
         ComTaskExecution cte2 = mock(ComTaskExecution.class);
+        when(cte2.usesSharedSchedule()).thenReturn(false);
         when(cte2.isScheduledManually()).thenReturn(true);
         when(cte2.isAdHoc()).thenReturn(false);
         ComTaskExecution cte3 = mock(ComTaskExecution.class);
-        when(cte3.usesSharedSchedule()).thenReturn(true);
-        when(cte3.isScheduledManually()).thenReturn(false);
-        when(cte3.isAdHoc()).thenReturn(false);
+        when(cte3.usesSharedSchedule()).thenReturn(false);
+        when(cte3.isScheduledManually()).thenReturn(true);
+        when(cte3.isAdHoc()).thenReturn(true);
         when(this.device.getComTaskExecutions()).thenReturn(Arrays.asList(cte1, cte2, cte3));
 
         // Business method
@@ -105,8 +109,8 @@ public class ManuallyScheduledCommunicationTaskAvailableTest {
         assertThat(violation).isEmpty();
     }
 
-    private ManuallyScheduledCommunicationTaskAvailable getTestInstance() {
-        return new ManuallyScheduledCommunicationTaskAvailable(this.thesaurus);
+    private SharedScheduledCommunicationTaskAvailable getTestInstance() {
+        return new SharedScheduledCommunicationTaskAvailable(this.thesaurus);
     }
 
 }

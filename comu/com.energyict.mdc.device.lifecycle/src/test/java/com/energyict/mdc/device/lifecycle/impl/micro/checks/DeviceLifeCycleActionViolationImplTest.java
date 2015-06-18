@@ -42,7 +42,7 @@ public class DeviceLifeCycleActionViolationImplTest {
 
     @Test
     public void getLocalizedMessage() {
-        DeviceLifeCycleActionViolationImpl violation = this.getTestInstance(MicroCheck.AT_LEAST_ONE_MANUALLY_SCHEDULED_COMMUNICATION_TASK_AVAILABLE);
+        DeviceLifeCycleActionViolationImpl violation = this.getTestInstance(MicroCheck.AT_LEAST_ONE_SCHEDULED_COMMUNICATION_TASK_AVAILABLE);
 
         // Business method
         violation.getLocalizedMessage();
