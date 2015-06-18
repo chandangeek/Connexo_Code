@@ -1,23 +1,20 @@
 package com.energyict.mdc.device.lifecycle.impl;
 
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 import com.energyict.mdc.device.topology.TopologyService;
-
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-
-import org.junit.*;
-import org.junit.runner.*;
-
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -38,6 +35,8 @@ public class MicroCheckFactoryImplTest {
     private TopologyService topologyService;
     @Mock
     private ValidationService validationService;
+    @Mock
+    private MeteringService meteringService;
 
     @Before
     public void initializeMocks() {
@@ -68,7 +67,7 @@ public class MicroCheckFactoryImplTest {
     }
 
     private MicroCheckFactoryImpl getTestInstance() {
-        return new MicroCheckFactoryImpl(this.nlsService, this.topologyService, this.validationService);
+        return new MicroCheckFactoryImpl(this.nlsService, this.topologyService, this.validationService, meteringService);
     }
 
 }

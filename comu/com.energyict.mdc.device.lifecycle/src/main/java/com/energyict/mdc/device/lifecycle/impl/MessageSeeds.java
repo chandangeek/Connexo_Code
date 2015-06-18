@@ -25,7 +25,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     MULTIPLE_MICRO_CHECKS_FAILED(10000, Keys.MULTIPLE_MICRO_CHECKS_FAILED, "Action cannot be triggered because the following checks have failed: {0}"),
     DEFAULT_CONNECTION_AVAILABLE(10001, MicroCheck.DEFAULT_CONNECTION_AVAILABLE, "There should at least be a default connection task"),
     AT_LEAST_ONE_MANUALLY_SCHEDULED_COMMUNICATION_TASK_AVAILABLE(10002, MicroCheck.AT_LEAST_ONE_MANUALLY_SCHEDULED_COMMUNICATION_TASK_AVAILABLE, "At least one communication task has been scheduled"),
-    ALL_DATA_COLLECTED(10003, MicroCheck.ALL_DATA_COLLECTED, "All the data on the device must have been collected"),
+    ALL_LOADPROFILE_DATA_COLLECTED(10003, MicroCheck.ALL_LOADPROFILE_DATA_COLLECTED, "All the loadprofile data on the device must have been collected"),
     GENERAL_PROTOCOL_PROPERTIES_ARE_ALL_VALID(10004, MicroCheck.GENERAL_PROTOCOL_PROPERTIES_ARE_ALL_VALID, "All mandatory general protocol properties should be valid and specified"),
     PROTOCOL_DIALECT_PROPERTIES_ARE_ALL_VALID(10005, MicroCheck.PROTOCOL_DIALECT_PROPERTIES_ARE_ALL_VALID, "All mandatory protocol dialect properties should be valid and specified"),
     SECURITY_PROPERTIES_ARE_ALL_VALID(10006, MicroCheck.SECURITY_PROPERTIES_ARE_ALL_VALID, "All mandatory security properties should be valid and specified"),

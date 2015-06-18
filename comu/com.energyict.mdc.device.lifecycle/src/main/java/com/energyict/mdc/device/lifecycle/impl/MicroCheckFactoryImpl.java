@@ -1,14 +1,14 @@
 package com.energyict.mdc.device.lifecycle.impl;
 
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 import com.energyict.mdc.device.lifecycle.impl.micro.checks.*;
 import com.energyict.mdc.device.topology.TopologyService;
-
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -24,9 +24,10 @@ import javax.inject.Inject;
 @SuppressWarnings("unused")
 public class MicroCheckFactoryImpl implements ServerMicroCheckFactory {
 
-    private Thesaurus thesaurus;
-    private TopologyService topologyService;
-    private ValidationService validationService;
+    private volatile Thesaurus thesaurus;
+    private volatile TopologyService topologyService;
+    private volatile ValidationService validationService;
+    private volatile MeteringService meteringService;
 
     // For OSGi purposes
     public MicroCheckFactoryImpl() {
@@ -35,7 +36,7 @@ public class MicroCheckFactoryImpl implements ServerMicroCheckFactory {
 
     // For testing purposes
     @Inject
-    public MicroCheckFactoryImpl(NlsService nlsService, TopologyService topologyService, ValidationService validationService) {
+    public MicroCheckFactoryImpl(NlsService nlsService, TopologyService topologyService, ValidationService validationService, MeteringService meteringService) {
         this();
         this.setNlsService(nlsService);
         this.setTopologyService(topologyService);
@@ -52,8 +53,14 @@ public class MicroCheckFactoryImpl implements ServerMicroCheckFactory {
         this.topologyService = topologyService;
     }
 
+    @Reference
     public void setValidationService(ValidationService validationService) {
         this.validationService = validationService;
+    }
+
+    @Reference
+    public void setMeteringService(MeteringService meteringService) {
+        this.meteringService = meteringService;
     }
 
     @Override
@@ -68,8 +75,8 @@ public class MicroCheckFactoryImpl implements ServerMicroCheckFactory {
             case AT_LEAST_ONE_SCHEDULED_COMMUNICATION_TASK_AVAILABLE: {
                 return new ScheduledCommunicationTaskAvailable(this.thesaurus);
             }
-            case ALL_DATA_COLLECTED: {
-                return new AllDataCollected(this.thesaurus);
+            case ALL_LOADPROFILE_DATA_COLLECTED: {
+                return new AllLoadProfileDataCollected(this.thesaurus, meteringService);
             }
             case ALL_DATA_VALID: {
                 return new AllDataValid(this.validationService, this.thesaurus);
@@ -98,7 +105,7 @@ public class MicroCheckFactoryImpl implements ServerMicroCheckFactory {
             case ALL_DATA_VALIDATED: {
                 return new AllDataValidated(this.validationService, this.thesaurus);
             }
-            case AT_LEAST_ONE_ACTIVE_CONNECTION_AVAILABLE:{
+            case AT_LEAST_ONE_ACTIVE_CONNECTION_AVAILABLE: {
                 return new ActiveConnectionAvailable(this.thesaurus);
             }
             default: {
