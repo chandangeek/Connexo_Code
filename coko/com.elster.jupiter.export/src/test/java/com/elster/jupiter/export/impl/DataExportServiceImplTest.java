@@ -234,7 +234,7 @@ public class DataExportServiceImplTest {
         dataExportService.addFormatter(noDataTypes, Collections.emptyMap());
         dataExportService.addFormatter(complexNonMatch, ImmutableMap.of(DATA_TYPE_PROPERTY, new String[] {"nope", "anotherNope", "andYetAnother"}));
 
-        assertThat(dataExportService.formatterFactoriesMatching(dataSelector)).hasSize(2).containsExactly(complexMatch, trivialMatch);
+        assertThat(dataExportService.formatterFactoriesMatching(dataSelector)).hasSize(2).containsOnly(complexMatch, trivialMatch);
     }
 
 }
