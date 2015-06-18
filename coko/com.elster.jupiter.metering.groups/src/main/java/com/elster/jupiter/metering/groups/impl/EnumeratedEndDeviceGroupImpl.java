@@ -187,6 +187,7 @@ public class EnumeratedEndDeviceGroupImpl extends AbstractEndDeviceGroup impleme
                 getMemberships().remove(membership);
             }
         }
+        save();
     }
 
     @Override
