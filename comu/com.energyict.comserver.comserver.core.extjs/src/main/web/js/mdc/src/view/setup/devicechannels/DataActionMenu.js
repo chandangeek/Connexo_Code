@@ -1,7 +1,6 @@
 Ext.define('Mdc.view.setup.devicechannels.DataActionMenu', {
     extend: 'Ext.menu.Menu',
     alias: 'widget.deviceLoadProfileChannelDataActionMenu',
-    itemId: 'deviceLoadProfileChannelDataActionMenu',
     plain: true,
     border: false,
     shadow: false,
@@ -10,7 +9,8 @@ Ext.define('Mdc.view.setup.devicechannels.DataActionMenu', {
         {
             itemId: 'viewHistory',
             text: Uni.I18n.translate('deviceloadprofiles.viewHistory', 'MDC', 'View history'),
-            action: 'viewHistory'
+            action: 'viewHistory',
+            hidden: true
         }
     ]
 });

@@ -74,6 +74,15 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             '#deviceLoadProfileChannelData #deviceloadprofileschanneldatafilterpanel': {
                 removeFilter: this.removeFilterItem,
                 clearAllFilters: this.clearFilter
+            },
+            'deviceLoadProfileChannelDataActionMenu': {
+                click: this.chooseAction
+            },
+            '#deviceLoadProfileChannelData #save-changes-button': {
+                click: this.saveChannelDataChanges
+            },
+            '#deviceLoadProfileChannelData #undo-button': {
+                click: this.undoChannelDataChanges
             }
         });
     },
@@ -382,8 +391,11 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 
     showPreview: function (selectionModel, record) {
         var me = this,
-            previewPanel = me.getDeviceLoadProfileChannelDataPreview();
-        previewPanel.updateForm(record)
+            previewPanel = me.getDeviceLoadProfileChannelDataPreview(),
+            mainStatus = record.getValidationInfo().getMainValidationInfo().get('validationResult').split('.')[1],
+            bulkStatus = record.getValidationInfo().getBulkValidationInfo().get('validationResult').split('.')[1];
+
+        previewPanel.updateForm(record);
     },
 
     applyFilter: function () {
@@ -411,6 +423,44 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         if (graphView.chart) {
             graphView.chart.setSize(width, height, false);
         }
+    },
+
+    chooseAction: function (menu, item) {
+        var me = this;
+
+        switch (item.action) {
+            case 'estimateValue':
+                me.estimateValue(menu.record);
+                break;
+        }
+    },
+
+    estimateValue: function (record) {
+        var me = this;
+
+        me.getPage().setLoading();
+        me.getStore('Mdc.store.Estimators').load(function () {
+            me.getPage().setLoading(false);
+            Ext.widget('reading-estimation-window', {
+                record: record
+            }).show();
+        });
+    },
+
+    estimateReading: function () {
+        var me = this;
+
+        me.getPage().down('#save-changes-button').show();
+        me.getPage().down('#undo-button').show();
+
+    },
+
+    saveChannelDataChanges: function () {
+
+    },
+
+    undoChannelDataChanges: function () {
+
     }
 });
 

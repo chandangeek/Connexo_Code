@@ -18,7 +18,6 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
         loadMask: false,
         enableTextSelection: true
     },
-
     channelRecord: null,
     router: null,
 
@@ -111,6 +110,14 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                 dataIndex: 'intervalFlags',
                 align: 'right',
                 width: 150
+            },
+            {
+                xtype: 'uni-actioncolumn',
+                itemId: 'channel-data-grid-action-column',
+                menu: {
+                    xtype: 'deviceLoadProfileChannelDataActionMenu',
+                    itemId: 'channel-data-grid-action-menu'
+                }
             }
         ];
 
@@ -121,7 +128,21 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                 dock: 'top',
                 store: me.store,
                 isFullTotalCount: true,
-                displayMsg: '{2} reading(s)'
+                displayMsg: '{2} reading(s)',
+                items: [
+                    {
+                        xtype: 'button',
+                        itemId: 'save-changes-button',
+                        text: Uni.I18n.translate('general.saveChanges', 'MDC', 'Save changes'),
+                        hidden: true
+                    },
+                    {
+                        xtype: 'button',
+                        itemId: 'undo-button',
+                        text: Uni.I18n.translate('general.undo', 'MDC', 'Undo'),
+                        hidden: true
+                    }
+                ]
             }
         ];
 
