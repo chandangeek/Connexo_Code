@@ -45,7 +45,7 @@ public class DataExportApplication extends Application implements InstallService
                 DataExportTaskResource.class,
                 ExportDirectoryResource.class,
                 MeterGroupsResource.class,
-                ProcessorsResource.class,
+                FormattersResource.class,
                 SelectorsResource.class);
     }
 

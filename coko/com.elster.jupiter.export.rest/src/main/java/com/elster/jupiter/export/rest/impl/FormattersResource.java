@@ -12,23 +12,20 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriInfo;
+import java.util.Collections;
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- * Date: 6/11/2014
- * Time: 13:48
- */
 @Path("/processors")
-public class ProcessorsResource {
+public class FormattersResource {
 
     private final DataExportService dataExportService;
     private final Thesaurus thesaurus;
     private final PropertyUtils propertyUtils;
 
     @Inject
-    public ProcessorsResource(DataExportService dataExportService, Thesaurus thesaurus, PropertyUtils propertyUtils) {
+    public FormattersResource(DataExportService dataExportService, Thesaurus thesaurus, PropertyUtils propertyUtils) {
         this.dataExportService = dataExportService;
         this.thesaurus = thesaurus;
         this.propertyUtils = propertyUtils;
@@ -37,14 +34,33 @@ public class ProcessorsResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DATA_EXPORT_TASK, Privileges.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.UPDATE_DATA_EXPORT_TASK, Privileges.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.RUN_DATA_EXPORT_TASK})
-    public ProcessorInfos getAvailableProcessors(@Context UriInfo uriInfo) {
+    public ProcessorInfos getAvailableFormatters(@Context UriInfo uriInfo) {
+        MultivaluedMap<String, String> parameters = uriInfo.getQueryParameters();
+        if (parameters.containsKey("selector")) {
+            return getAvailableFormatters(parameters.get("selector").get(0));
+        }
+        return getAllAvailableFormatters();
+    }
+
+    private ProcessorInfos getAllAvailableFormatters() {
+        return toInfos(dataExportService.getAvailableFormatters());
+    }
+
+    private ProcessorInfos toInfos(List<DataFormatterFactory> formatters) {
         ProcessorInfos infos = new ProcessorInfos();
-        List<DataFormatterFactory> processors = dataExportService.getAvailableFormatters();
-        for (DataFormatterFactory processor : processors) {
+        for (DataFormatterFactory processor : formatters) {
             infos.add(processor.getName(), thesaurus.getStringBeyondComponent(processor.getName(), processor.getName()),
                     propertyUtils.convertPropertySpecsToPropertyInfos(processor.getPropertySpecs()));
         }
-        infos.total = processors.size();
+        infos.total = formatters.size();
         return infos;
     }
+
+    private ProcessorInfos getAvailableFormatters(String selector) {
+        List<DataFormatterFactory> dataFormatterFactories = dataExportService.getDataSelectorFactory(selector)
+                .map(selectorFactory -> dataExportService.formatterFactoriesMatching(selectorFactory))
+                .orElseGet(Collections::emptyList);
+        return toInfos(dataFormatterFactories);
+    }
+
 }
