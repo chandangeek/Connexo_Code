@@ -118,9 +118,9 @@ Ext.define('Isu.controller.CreationRuleEdit', {
             formErrorsPanel = me.getRuleForm().down('[name=form-errors]'),
             page = me.getPage();
 
-        page.setLoading();
         basicForm.clearInvalid();
         formErrorsPanel.hide();
+        page.setLoading();
         form.updateRecord();
         form.getRecord().save({
             callback: function (record, operation, success) {
