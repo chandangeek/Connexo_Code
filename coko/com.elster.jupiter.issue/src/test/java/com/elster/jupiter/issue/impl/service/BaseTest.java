@@ -1,30 +1,5 @@
 package com.elster.jupiter.issue.impl.service;
 
-import static com.elster.jupiter.util.conditions.Where.where;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import java.time.Instant;
-import java.util.Collections;
-import java.util.List;
-import java.util.logging.Level;
-
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.rules.TestRule;
-import org.kie.api.KieBaseConfiguration;
-import org.kie.api.io.KieResources;
-import org.kie.internal.KnowledgeBase;
-import org.kie.internal.KnowledgeBaseFactoryService;
-import org.kie.internal.builder.KnowledgeBuilder;
-import org.kie.internal.builder.KnowledgeBuilderConfiguration;
-import org.kie.internal.builder.KnowledgeBuilderFactoryService;
-import org.kie.internal.runtime.StatefulKnowledgeSession;
-import org.mockito.Matchers;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.event.EventAdmin;
-
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
@@ -40,12 +15,7 @@ import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.IssueAction;
 import com.elster.jupiter.issue.share.IssueActionFactory;
 import com.elster.jupiter.issue.share.IssueEvent;
-import com.elster.jupiter.issue.share.entity.CreationRule;
-import com.elster.jupiter.issue.share.entity.Issue;
-import com.elster.jupiter.issue.share.entity.IssueComment;
-import com.elster.jupiter.issue.share.entity.IssueStatus;
-import com.elster.jupiter.issue.share.entity.IssueType;
-import com.elster.jupiter.issue.share.entity.OpenIssue;
+import com.elster.jupiter.issue.share.entity.*;
 import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueAssignmentService;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
@@ -77,6 +47,30 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.rules.TestRule;
+import org.kie.api.KieBaseConfiguration;
+import org.kie.api.io.KieResources;
+import org.kie.internal.KnowledgeBase;
+import org.kie.internal.KnowledgeBaseFactoryService;
+import org.kie.internal.builder.KnowledgeBuilder;
+import org.kie.internal.builder.KnowledgeBuilderConfiguration;
+import org.kie.internal.builder.KnowledgeBuilderFactoryService;
+import org.kie.internal.runtime.StatefulKnowledgeSession;
+import org.mockito.Matchers;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.event.EventAdmin;
+
+import java.time.Instant;
+import java.util.Collections;
+import java.util.List;
+import java.util.logging.Level;
+
+import static com.elster.jupiter.util.conditions.Where.where;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @SuppressWarnings("deprecation")
 public class BaseTest {
@@ -226,6 +220,7 @@ public class BaseTest {
         CreationRuleBuilder builder = getIssueCreationService().newCreationRule();
         builder.setName(name);
         builder.setTemplate(mockCreationRuleTemplate().getName());
+        builder.setIssueType(getIssueService().findIssueType(ISSUE_DEFAULT_TYPE_UUID).orElse(null));
         builder.setReason(getIssueService().findReason(ISSUE_DEFAULT_REASON).orElse(null));
         CreationRule creationRule = builder.complete();
         creationRule.save();

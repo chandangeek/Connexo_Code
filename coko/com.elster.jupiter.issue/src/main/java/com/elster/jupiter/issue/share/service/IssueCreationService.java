@@ -1,20 +1,14 @@
 package com.elster.jupiter.issue.share.service;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
 import aQute.bnd.annotation.ProviderType;
-
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.IssueEvent;
-import com.elster.jupiter.issue.share.entity.CreationRule;
-import com.elster.jupiter.issue.share.entity.CreationRuleAction;
-import com.elster.jupiter.issue.share.entity.CreationRuleActionPhase;
-import com.elster.jupiter.issue.share.entity.DueInType;
-import com.elster.jupiter.issue.share.entity.IssueActionType;
-import com.elster.jupiter.issue.share.entity.IssueReason;
+import com.elster.jupiter.issue.share.entity.*;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @ProviderType
 public interface IssueCreationService {
@@ -45,7 +39,9 @@ public interface IssueCreationService {
         CreationRuleBuilder setName(String name);
         
         CreationRuleBuilder setComment(String comment);
-        
+
+        CreationRuleBuilder setIssueType(IssueType issueType);
+
         CreationRuleBuilder setReason(IssueReason reason);
         
         CreationRuleBuilder setDueInTime(DueInType dueInType, long dueInValue);

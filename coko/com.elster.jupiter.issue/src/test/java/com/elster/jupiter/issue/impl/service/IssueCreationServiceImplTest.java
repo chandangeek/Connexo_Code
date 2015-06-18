@@ -1,26 +1,5 @@
 package com.elster.jupiter.issue.impl.service;
 
-import static com.elster.jupiter.util.conditions.Where.where;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Matchers;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
-
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.domain.util.Query;
@@ -31,22 +10,25 @@ import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.IssueAction;
 import com.elster.jupiter.issue.share.IssueActionFactory;
 import com.elster.jupiter.issue.share.IssueEvent;
-import com.elster.jupiter.issue.share.entity.CreationRule;
-import com.elster.jupiter.issue.share.entity.CreationRuleAction;
-import com.elster.jupiter.issue.share.entity.CreationRuleActionPhase;
-import com.elster.jupiter.issue.share.entity.CreationRuleProperty;
-import com.elster.jupiter.issue.share.entity.DueInType;
-import com.elster.jupiter.issue.share.entity.Issue;
-import com.elster.jupiter.issue.share.entity.IssueActionType;
-import com.elster.jupiter.issue.share.entity.IssueReason;
-import com.elster.jupiter.issue.share.entity.IssueStatus;
-import com.elster.jupiter.issue.share.entity.IssueType;
-import com.elster.jupiter.issue.share.entity.OpenIssue;
+import com.elster.jupiter.issue.share.entity.*;
 import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleBuilder;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.util.conditions.Condition;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Matchers;
+import org.mockito.runners.MockitoJUnitRunner;
+
+import java.math.BigDecimal;
+import java.util.*;
+
+import static com.elster.jupiter.util.conditions.Where.where;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class IssueCreationServiceImplTest extends BaseTest {
@@ -99,6 +81,7 @@ public class IssueCreationServiceImplTest extends BaseTest {
     public void testCreateRuleNoReason() {
         CreationRuleBuilder builder = getIssueCreationService().newCreationRule();
         builder.setName("Name");
+        builder.setIssueType(getIssueService().findIssueType(ISSUE_DEFAULT_TYPE_UUID).orElse(null));
         builder.setTemplate(template.getName());
         Map<String, Object> props = new HashMap<>();
         props.put("decimal_property", BigDecimal.valueOf(10));
@@ -114,6 +97,7 @@ public class IssueCreationServiceImplTest extends BaseTest {
     public void testCreateRuleNoTemplate() {
         CreationRuleBuilder builder = getIssueCreationService().newCreationRule();
         builder.setName("Name");
+        builder.setIssueType(getIssueService().findIssueType(ISSUE_DEFAULT_TYPE_UUID).orElse(null));
         builder.setReason(getIssueService().findReason(ISSUE_DEFAULT_REASON).orElse(null));
         builder.setTemplate(null);
         CreationRule rule = builder.complete();
@@ -126,6 +110,7 @@ public class IssueCreationServiceImplTest extends BaseTest {
     public void testCreateRuleNoMandatoryProperties() {
         CreationRuleBuilder builder = getIssueCreationService().newCreationRule();
         builder.setName("Name");
+        builder.setIssueType(getIssueService().findIssueType(ISSUE_DEFAULT_TYPE_UUID).orElse(null));
         builder.setReason(getIssueService().findReason(ISSUE_DEFAULT_REASON).orElse(null));
         builder.setTemplate(template.getName());
         CreationRule rule = builder.complete();
@@ -172,7 +157,7 @@ public class IssueCreationServiceImplTest extends BaseTest {
         assertThat(properties.get(1).getValue()).isEqualTo(BigDecimal.valueOf(10));
 
         //update both properties
-        Map<String, Object> props = new HashMap<String, Object>();
+        Map<String, Object> props = new HashMap<>();
         props.put("string_property", "new string");
         props.put("decimal_property", BigDecimal.valueOf(12));
         rule.startUpdate().setProperties(props).complete();
@@ -187,7 +172,7 @@ public class IssueCreationServiceImplTest extends BaseTest {
         assertThat(properties.get(1).getValue()).isEqualTo(BigDecimal.valueOf(12));
         
         //update one property and remove another one
-        props = new HashMap<String, Object>();
+        props = new HashMap<>();
         props.put("decimal_property", BigDecimal.valueOf(15));
         
         rule.startUpdate().setProperties(props).complete();
@@ -200,7 +185,7 @@ public class IssueCreationServiceImplTest extends BaseTest {
         assertThat(properties.get(0).getValue()).isEqualTo(BigDecimal.valueOf(15));
         
         //add property
-        props = new HashMap<String, Object>();
+        props = new HashMap<>();
         props.put("decimal_property", BigDecimal.valueOf(17));
         props.put("string_property", "string again");
         
@@ -224,7 +209,7 @@ public class IssueCreationServiceImplTest extends BaseTest {
         rule = getIssueCreationService().findCreationRuleById(rule.getId()).orElse(null);
         assertThat(rule.getContent()).isEqualTo("bla bla bla 10 bla bla string bla " + rule.getId());
 
-        Map<String, Object> props = new HashMap<String, Object>();
+        Map<String, Object> props = new HashMap<>();
         props.put("string_property", "new string");
         props.put("decimal_property", BigDecimal.valueOf(12));
         rule.startUpdate().setProperties(props).complete();
@@ -465,14 +450,10 @@ public class IssueCreationServiceImplTest extends BaseTest {
         when(template.getContent()).thenReturn("bla bla bla @{decimal_property} bla bla @{string_property} bla @{ruleId}");
         IssueType issueType = getIssueService().findIssueType(ISSUE_DEFAULT_TYPE_UUID).get();
         when(template.getIssueType()).thenReturn(issueType);
-        when(template.createIssue(Matchers.any(), Matchers.any())).thenAnswer(new Answer<Optional<?>>() {
-
-            @Override
-            public Optional<?> answer(InvocationOnMock invocation) throws Throwable {
+        when(template.createIssue(Matchers.any(), Matchers.any())).thenAnswer(invocation -> {
                 invocation.getArgumentAt(0, Issue.class).save();
                 return Optional.of(invocation.getArgumentAt(0, Issue.class));
-            }
-        });
+            });
         return template;
     }
     
@@ -494,6 +475,7 @@ public class IssueCreationServiceImplTest extends BaseTest {
         CreationRuleBuilder builder = getIssueCreationService().newCreationRule();
         builder.setName(name);
         builder.setComment("Comment for rule");
+        builder.setIssueType(getIssueService().findIssueType(ISSUE_DEFAULT_TYPE_UUID).orElse(null));
         builder.setReason(getIssueService().findReason(ISSUE_DEFAULT_REASON).orElse(null));
         builder.setDueInTime(DueInType.DAY, 15L);
         builder.setTemplate(template.getName());

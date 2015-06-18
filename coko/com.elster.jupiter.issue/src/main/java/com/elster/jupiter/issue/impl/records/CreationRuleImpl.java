@@ -1,33 +1,10 @@
 package com.elster.jupiter.issue.impl.records;
 
-import static com.elster.jupiter.util.conditions.Where.where;
-
-import java.nio.charset.Charset;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import javax.inject.Inject;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
-
-import org.hibernate.validator.constraints.NotBlank;
-
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
-import com.elster.jupiter.issue.share.entity.CreationRule;
-import com.elster.jupiter.issue.share.entity.CreationRuleAction;
-import com.elster.jupiter.issue.share.entity.CreationRuleProperty;
-import com.elster.jupiter.issue.share.entity.DueInType;
-import com.elster.jupiter.issue.share.entity.Issue;
-import com.elster.jupiter.issue.share.entity.IssueReason;
+import com.elster.jupiter.issue.share.entity.*;
 import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleUpdater;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.orm.DataModel;
@@ -39,6 +16,22 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.collections.ArrayDiffList;
 import com.elster.jupiter.util.collections.DiffList;
 import com.elster.jupiter.util.conditions.Condition;
+import org.hibernate.validator.constraints.NotBlank;
+
+import javax.inject.Inject;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import java.nio.charset.Charset;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import static com.elster.jupiter.util.conditions.Where.where;
 
 @HasUniqueName(message = "{" + MessageSeeds.Keys.CREATION_RULE_UNIQUE_NAME + "}")
 @HasValidProperties(requiredPropertyMissingMessage = "{" + MessageSeeds.Keys.PROPERTY_MISSING + "}",
@@ -53,6 +46,8 @@ public class CreationRuleImpl extends EntityImpl implements CreationRule {
     private String comment;
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     private String content = "no content";
+    @IsPresent(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
+    private Reference<IssueType>  issueType = ValueReference.absent();//transient in fact - needed for form validation
     @IsPresent(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     private Reference<IssueReason> reason = ValueReference.absent();
     private long dueInValue;
@@ -114,6 +109,15 @@ public class CreationRuleImpl extends EntityImpl implements CreationRule {
 
     void setReason(IssueReason reason) {
         this.reason.set(reason);
+    }
+
+    @Override
+    public IssueType getIssueType() {
+        return getReason().getIssueType();
+    }
+
+    void setIssueType(IssueType issueType) {
+        this.issueType.set(issueType);
     }
 
     @Override
@@ -231,6 +235,7 @@ public class CreationRuleImpl extends EntityImpl implements CreationRule {
         if (this.getCreateTime() == null) {
             Save.CREATE.save(getDataModel(), this);
         }
+        updateIssueType();
         updateContent();
         Save.UPDATE.save(getDataModel(), this);
         persistentActions.addAll(actions);
@@ -259,6 +264,10 @@ public class CreationRuleImpl extends EntityImpl implements CreationRule {
         setContent(rawContent);
     }
 
+    private void updateIssueType() {
+        this.reason.getOptional().ifPresent(reason -> this.setIssueType(reason.getIssueType()));
+    }
+
     private String replaceParameterInContent(String source, String key, String value) {
         String result = source;
         key = "@{" + key + "}";
@@ -270,5 +279,5 @@ public class CreationRuleImpl extends EntityImpl implements CreationRule {
 
     private void setObsoleteTime(Instant obsoleteTime) {
         this.obsoleteTime = obsoleteTime;
-    };
+    }
 }
