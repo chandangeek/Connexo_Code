@@ -341,9 +341,6 @@ Ext.define('Fwc.controller.Firmware', {
             model = me.getModel('Fwc.model.FirmwareManagementOptions');
 
         me.loadDeviceType(deviceTypeId, function (deviceType) {
-            var firmwareStore = Ext.getStore('Fwc.store.Firmwares');
-            firmwareStore.getProxy().setUrl(deviceType.getId());
-            firmwareStore.load();
             Ext.getStore('Fwc.store.SupportedFirmwareTypes').getProxy().setUrl(deviceType.getId());
             Ext.getStore('Fwc.store.FirmwareStatuses').clearFilter(true);
 
@@ -363,7 +360,9 @@ Ext.define('Fwc.controller.Firmware', {
                     me.getContainer().down('fwc-view-firmware-versions-topfilter').showOrHideFirmwareTypeFilter(supportedFirmwareTypesStore.totalCount !== 1);
                 }
             });
-
+            var firmwareStore = Ext.getStore('Fwc.store.Firmwares');
+            firmwareStore.getProxy().setUrl(deviceType.getId());
+            firmwareStore.load();
         });
     },
 
