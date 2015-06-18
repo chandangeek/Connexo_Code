@@ -55,7 +55,8 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.DataPreview', {
                     },
                     {
                         fieldLabel: Uni.I18n.translate('device.registerData.dataValidated', 'MDC', 'Data validated'),
-                        itemId: 'channelDataValidated' + channel.id
+                        itemId: 'channelDataValidated' + channel.id,
+                        htmlEncode: false
                     },
                     {
                         fieldLabel: Uni.I18n.translate('device.dataValidation.validationResult', 'MDC', 'Validation result'),

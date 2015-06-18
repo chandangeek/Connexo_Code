@@ -26,7 +26,8 @@ Ext.define('Mdc.view.setup.devicechannels.ValidationOverview', {
             },
             {
                 fieldLabel: Uni.I18n.translate('device.registerData.allDataValidated', 'MDC', 'All data validated'),
-                name: 'validationInfo_dataValidated'
+                name: 'validationInfo_dataValidated',
+                htmlEncode: false
             },
             {
                 fieldLabel: Uni.I18n.translate('deviceloadprofiles.validation.suspects', 'MDC', 'Suspects (last month)'),

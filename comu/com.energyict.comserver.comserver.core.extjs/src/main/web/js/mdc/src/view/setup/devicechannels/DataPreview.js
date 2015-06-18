@@ -153,6 +153,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
             {
                 fieldLabel: Uni.I18n.translate('devicechannelsreadings.dataValidated.title', 'MDC', 'Data validated'),
                 itemId: 'readingDataValidated',
+                htmlEncode: false,
                 renderer: function (value) {
                     return value ? Uni.I18n.translate('validationResults.dataValidatedYes', 'MDC', 'Yes') :
                         Uni.I18n.translate('validationResults.dataValidatedNo', 'MDC', 'No')
