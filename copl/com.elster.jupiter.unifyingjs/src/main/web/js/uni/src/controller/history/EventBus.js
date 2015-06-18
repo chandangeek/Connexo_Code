@@ -13,7 +13,9 @@ Ext.define('Uni.controller.history.EventBus', {
     config: {
         defaultToken: '',
         previousPath: null,
-        currentPath: null
+        currentPath: null,
+        previousQueryString: null,
+        currentQueryString: null
     },
 
     onLaunch: function () {
@@ -62,22 +64,29 @@ Ext.define('Uni.controller.history.EventBus', {
     },
 
     onHistoryChange: function (token) {
+        var queryString;
         var queryStringIndex = token.indexOf('?');
 
         if (typeof token === 'undefined' || token === null || token === '') {
             token = this.getDefaultToken();
             Ext.util.History.add(token);
         }
-
+        queryString = token.substring(queryStringIndex, token.length);
+        if(queryString !== this.getCurrentQueryString()){
+            Uni.util.QueryString.changed();
+        }
+        if(this.getCurrentQueryString() !== this.getPreviousQueryString() || (this.getCurrentQueryString()===null && this.getPreviousQueryString()===null)) {
+            this.setPreviousQueryString(this.getCurrentQueryString());
+            this.setCurrentQueryString(queryString);
+        }
         if (queryStringIndex > 0) {
             token = token.substring(0, queryStringIndex);
         }
-
-        if (this.getCurrentPath() !== null) {
+        if(this.getCurrentPath() !== this.getPreviousPath() || (this.getCurrentPath()===null && this.getPreviousPath()===null)) {
             this.setPreviousPath(this.getCurrentPath());
+            this.setCurrentPath(token);
+            crossroads.parse(token);
         }
-        this.setCurrentPath(token);
 
-        crossroads.parse(token);
     }
 });
