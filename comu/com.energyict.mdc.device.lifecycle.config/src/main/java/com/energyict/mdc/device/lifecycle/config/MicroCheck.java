@@ -29,17 +29,17 @@ public enum MicroCheck {
     AT_LEAST_ONE_SHARED_COMMUNICATION_SCHEDULE_AVAILABLE,
 
     /**
-     * Checks that all data (in both load profiles and registers)
+     * Checks that all loadProfile data
      * has been collected on the device.
      * This holds true if the last reading is set and is
-     * equal to the effective timestamp of the transition.
+     * before the end of each <i>current</i> LoadProfile period.
      */
     // check bits: 8
-    ALL_DATA_COLLECTED,
+    ALL_LOAD_PROFILE_DATA_COLLECTED,
 
     /**
      * Checks that all data (in both load profiles and registers)
-     * that has been collected on the device is also valid.
+     * that has been collected on the device is also valid.(=No suspects)
      */
     // check bits: 16
     ALL_DATA_VALID,
@@ -96,8 +96,7 @@ public enum MicroCheck {
     ALL_ISSUES_AND_ALARMS_ARE_CLOSED,
 
     /**
-     * Checks if all the collected data was validated
-     * that has been collected on the device is also valid.
+     * Checks if all the collected data was validated (Validation has run)
      * This holds true if the last reading is equal to
      * the last checked timestamp.
      */
