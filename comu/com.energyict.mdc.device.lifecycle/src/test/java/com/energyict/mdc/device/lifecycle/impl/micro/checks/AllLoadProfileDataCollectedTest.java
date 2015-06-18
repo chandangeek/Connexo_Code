@@ -92,7 +92,7 @@ public class AllLoadProfileDataCollectedTest {
 
         // Asserts
         assertThat(violation).isPresent();
-        assertThat(violation.get().getCheck()).isEqualTo(MicroCheck.ALL_LOADPROFILE_DATA_COLLECTED);
+        assertThat(violation.get().getCheck()).isEqualTo(MicroCheck.ALL_LOAD_PROFILE_DATA_COLLECTED);
     }
 
     @Test
@@ -112,7 +112,7 @@ public class AllLoadProfileDataCollectedTest {
 
         // Asserts
         assertThat(violation).isPresent();
-        assertThat(violation.get().getCheck()).isEqualTo(MicroCheck.ALL_LOADPROFILE_DATA_COLLECTED);
+        assertThat(violation.get().getCheck()).isEqualTo(MicroCheck.ALL_LOAD_PROFILE_DATA_COLLECTED);
     }
 
     private LoadProfile getMockedLoadProfile(Device device, Instant lastReadingTimestamp) {
@@ -156,7 +156,7 @@ public class AllLoadProfileDataCollectedTest {
 
         // Asserts
         assertThat(violation).isPresent();
-        assertThat(violation.get().getCheck()).isEqualTo(MicroCheck.ALL_LOADPROFILE_DATA_COLLECTED);
+        assertThat(violation.get().getCheck()).isEqualTo(MicroCheck.ALL_LOAD_PROFILE_DATA_COLLECTED);
     }
 
     @Test

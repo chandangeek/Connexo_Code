@@ -56,8 +56,8 @@ public class AllLoadProfileDataCollected implements ServerMicroCheck {
     private DeviceLifeCycleActionViolationImpl newViolation() {
         return new DeviceLifeCycleActionViolationImpl(
                 this.thesaurus,
-                MessageSeeds.ALL_LOADPROFILE_DATA_COLLECTED,
-                MicroCheck.ALL_LOADPROFILE_DATA_COLLECTED);
+                MessageSeeds.ALL_LOAD_PROFILE_DATA_COLLECTED,
+                MicroCheck.ALL_LOAD_PROFILE_DATA_COLLECTED);
     }
 
     private Optional<LoadProfile> anyLoadProfileWithIncorrectLastReading(Device device, Instant effectiveTimestamp) {
