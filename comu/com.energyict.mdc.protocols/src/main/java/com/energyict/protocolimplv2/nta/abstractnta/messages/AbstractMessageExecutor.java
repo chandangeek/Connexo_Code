@@ -201,4 +201,11 @@ public abstract class AbstractMessageExecutor {
         return this.collectedDataFactory;
     }
 
+    protected int getIntegerAttribute(OfflineDeviceMessage pendingMessage) {
+        return Integer.parseInt(pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue());
+    }
+
+    protected boolean getBooleanAttribute(OfflineDeviceMessage pendingMessage) {
+        return Boolean.parseBoolean(pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue());
+    }
 }

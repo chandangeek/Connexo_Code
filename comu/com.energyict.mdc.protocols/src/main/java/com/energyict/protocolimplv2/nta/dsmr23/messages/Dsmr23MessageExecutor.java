@@ -815,7 +815,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
      * @param deviceMessages a List of all OfflineDeviceMessages
      * @return the list of OfflineDeviceMessages who belong to the master device
      */
-    private List<OfflineDeviceMessage> getMessagesOfMaster(List<OfflineDeviceMessage> deviceMessages) {
+    protected List<OfflineDeviceMessage> getMessagesOfMaster(List<OfflineDeviceMessage> deviceMessages) {
         List<OfflineDeviceMessage> messages = new ArrayList<>();
 
         for (OfflineDeviceMessage pendingMessage : deviceMessages) {
@@ -832,7 +832,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
      * @param deviceMessages a List of all OfflineDeviceMessages
      * @return the list of OfflineDeviceMessages who belong to a MBus slave device
      */
-    private List<OfflineDeviceMessage> getMbusMessages(List<OfflineDeviceMessage> deviceMessages) {
+    protected List<OfflineDeviceMessage> getMbusMessages(List<OfflineDeviceMessage> deviceMessages) {
         List<OfflineDeviceMessage> mbusMessages = new ArrayList<>();
 
         for (OfflineDeviceMessage pendingMessage : deviceMessages) {
@@ -843,4 +843,15 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
         return mbusMessages;
     }
 
+    public Clock getClock() {
+        return clock;
+    }
+
+    public TopologyService getTopologyService() {
+        return topologyService;
+    }
+
+    public LoadProfileFactory getLoadProfileFactory() {
+        return loadProfileFactory;
+    }
 }

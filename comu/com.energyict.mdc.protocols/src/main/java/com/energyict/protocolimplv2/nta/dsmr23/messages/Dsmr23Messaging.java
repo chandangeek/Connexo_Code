@@ -104,6 +104,31 @@ public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMess
     );
     public static final String SEPARATOR = ";";
 
+    /**
+     * Boolean indicating whether or not to show the MBus related messages in EIServer
+     */
+    protected boolean supportMBus = true;
+
+    /**
+     * Boolean indicating whether or not to show the GPRS related messages in EIServer
+     */
+    protected boolean supportGPRS = true;
+
+    /**
+     * Boolean indicating whether or not to show the messages related to resetting the meter in EIServer
+     */
+    protected boolean supportMeterReset = true;
+
+    /**
+     * Boolean indicating whether or not to show the messages related to configuring the limiter in EIServer
+     */
+    protected boolean supportLimiter = true;
+
+    /**
+     * Boolean indicating whether or not to show the message to reset the alarm window in EIServer
+     */
+    protected boolean supportResetWindow = true;
+
     private final AbstractMessageExecutor messageExecutor;
     private final TopologyService topologyService;
 
@@ -166,6 +191,26 @@ public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMess
         return getMessageExecutor().executePendingMessages(pendingMessages);
     }
 
+    public void setSupportMBus(boolean supportMBus) {
+        this.supportMBus = supportMBus;
+    }
+
+    public void setSupportGPRS(boolean supportGPRS) {
+        this.supportGPRS = supportGPRS;
+    }
+
+    public void setSupportMeterReset(boolean supportMeterReset) {
+        this.supportMeterReset = supportMeterReset;
+    }
+
+    public void setSupportLimiter(boolean supportsLimiter) {
+        this.supportLimiter = supportsLimiter;
+    }
+
+    public void setSupportResetWindow(boolean supportResetWindow) {
+        this.supportResetWindow = supportResetWindow;
+    }
+
     /**
      * Parse the special days of the given code table into the proper AXDR array.
      */
@@ -209,7 +254,7 @@ public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMess
     }
 
 
-    private AbstractMessageExecutor getMessageExecutor() {
+    protected AbstractMessageExecutor getMessageExecutor() {
         return messageExecutor;
     }
 }

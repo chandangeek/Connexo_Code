@@ -456,6 +456,14 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
         return identificationService;
     }
 
+    public TopologyService getTopologyService() {
+        return topologyService;
+    }
+
+    public LoadProfileFactory getLoadProfileFactory() {
+        return loadProfileFactory;
+    }
+
     @Override
     public CollectedFirmwareVersion getFirmwareVersions() {
         CollectedFirmwareVersion firmwareVersionsCollectedData = getCollectedDataFactory().createFirmwareVersionsCollectedData(this.offlineDevice.getDeviceIdentifier());

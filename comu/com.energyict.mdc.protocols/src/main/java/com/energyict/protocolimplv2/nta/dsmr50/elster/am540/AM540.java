@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.nta.dsmr50.elster.am540;
 
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.UniversalObject;
@@ -9,6 +10,8 @@ import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.protocolimplv2.ApplicationServiceObjectV2;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.common.ComServerRuntimeException;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
@@ -26,13 +29,8 @@ import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
-import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
-import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
-import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
-import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
-import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
-import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
+import com.energyict.mdc.protocol.api.device.data.*;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
@@ -42,13 +40,15 @@ import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.protocolimpl.dlms.idis.AM540ObjectList;
 import com.energyict.protocolimplv2.elster.garnet.SerialDeviceProtocolDialect;
+import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.messages.AM540MessageExecutor;
+import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.messages.AM540Messaging;
+import com.energyict.protocolimplv2.nta.dsmr50.registers.Dsmr50RegisterFactory;
 import com.energyict.protocols.mdc.protocoltasks.TcpDeviceProtocolDialect;
 import com.energyict.protocolimplv2.g3.common.G3Topology;
 import com.energyict.protocolimplv2.hhusignon.IEC1107HHUSignOn;
 import com.energyict.protocolimplv2.nta.abstractnta.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.nta.dsmr23.profiles.LoadProfileBuilder;
 import com.energyict.protocolimplv2.nta.dsmr40.landisgyr.profiles.LGLoadProfileBuilder;
-import com.energyict.protocolimplv2.nta.dsmr50.registers.Dsmr50RegisterFactory;
 import com.energyict.protocols.impl.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.protocols.impl.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
 import com.energyict.protocols.impl.channels.serial.optical.serialio.SioOpticalConnectionType;
@@ -56,13 +56,9 @@ import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.AM540Cache;
 
 import javax.inject.Inject;
+import java.math.BigDecimal;
 import java.time.Clock;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Level;
 
 /**
@@ -76,6 +72,7 @@ import java.util.logging.Level;
 public class AM540 extends AbstractDlmsProtocol {
 
     private G3Topology g3Topology;
+    private AM540Messaging am540Messaging;
 
     @Inject
     public AM540(PropertySpecService propertySpecService, SocketService socketService, SerialComponentService serialComponentService, IssueService issueService, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, MeteringService meteringService, LoadProfileFactory loadProfileFactory, Clock clock) {
@@ -252,22 +249,22 @@ public class AM540 extends AbstractDlmsProtocol {
 
     @Override
     public Set<DeviceMessageId> getSupportedMessages() {
-        return EnumSet.noneOf(DeviceMessageId.class);
+        return getAM540Messaging().getSupportedMessages();
     }
 
     @Override
     public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> list) {
-        return null;
+        return getAM540Messaging().executePendingMessages(list);
     }
 
     @Override
     public CollectedMessageList updateSentMessages(List<OfflineDeviceMessage> list) {
-        return null;
+        return getAM540Messaging().updateSentMessages(list);
     }
 
     @Override
     public String format(PropertySpec propertySpec, Object o) {
-        return null;
+        return getAM540Messaging().format(propertySpec, o);
     }
 
     @Override
@@ -285,6 +282,13 @@ public class AM540 extends AbstractDlmsProtocol {
             this.registerFactory = new Dsmr50RegisterFactory(this, getIssueService(), getReadingTypeUtilService(), getDlmsProperties().isBulkRequest(), getCollectedDataFactory());
         }
         return (Dsmr50RegisterFactory) registerFactory;
+    }
+
+    AM540Messaging getAM540Messaging() {
+        if (this.am540Messaging == null) {
+            this.am540Messaging = new AM540Messaging(new AM540MessageExecutor(this, getClock(), getTopologyService(), getIssueService(), getReadingTypeUtilService(), getCollectedDataFactory(), getLoadProfileFactory()), getTopologyService());
+        }
+        return am540Messaging;
     }
 
     @Override
@@ -313,6 +317,83 @@ public class AM540 extends AbstractDlmsProtocol {
             dlmsProperties = new DSMR50Properties(getPropertySpecService());
         }
         return (DSMR50Properties) dlmsProperties;
+    }
+
+
+    @Override
+    public CollectedFirmwareVersion getFirmwareVersions() {
+        CollectedFirmwareVersion firmwareVersionsCollectedData = getCollectedDataFactory().createFirmwareVersionsCollectedData(this.offlineDevice.getDeviceIdentifier());
+        List<CollectedRegister> collectedRegisters = getRegisterFactory().readRegisters(Collections.singletonList(getFirmwareRegister()));
+        firmwareVersionsCollectedData.setActiveMeterFirmwareVersion(collectedRegisters.get(0).getText());
+        return firmwareVersionsCollectedData;
+    }
+
+    private OfflineRegister getFirmwareRegister() {
+        return new OfflineRegister() {
+
+            // Module Version identification
+            private ObisCode firmwareObisCode = ObisCode.fromString("1.1.0.2.0.255");
+
+            @Override
+            public long getRegisterId() {
+                return 0;
+            }
+
+            @Override
+            public ObisCode getObisCode() {
+                return firmwareObisCode;
+            }
+
+            @Override
+            public boolean inGroup(long registerGroupId) {
+                return false;
+            }
+
+            @Override
+            public boolean inAtLeastOneGroup(Collection<Long> registerGroupIds) {
+                return false;
+            }
+
+            @Override
+            public Unit getUnit() {
+                return Unit.getUndefined();
+            }
+
+            @Override
+            public String getDeviceMRID() {
+                return null;
+            }
+
+            @Override
+            public String getDeviceSerialNumber() {
+                return AM540.this.getOfflineDevice().getSerialNumber();
+            }
+
+            @Override
+            public ObisCode getAmrRegisterObisCode() {
+                return firmwareObisCode;
+            }
+
+            @Override
+            public DeviceIdentifier<?> getDeviceIdentifier() {
+                return AM540.this.getOfflineDevice().getDeviceIdentifier();
+            }
+
+            @Override
+            public ReadingType getReadingType() {
+                return null;
+            }
+
+            @Override
+            public BigDecimal getOverFlowValue() {
+                return null;
+            }
+
+            @Override
+            public boolean isText() {
+                return true;
+            }
+        };
     }
 
     @Override

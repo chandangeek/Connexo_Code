@@ -27,8 +27,10 @@ public class DSMR50Properties extends G3Properties {
     public static final String READCACHE_PROPERTY = "ReadCache";
     public static final String CumulativeCaptureTimeChannel = "CumulativeCaptureTimeChannel";
     public static final String PSK_PROPERTY = "PSK";
+    public static final String CHECK_NUMBER_OF_BLOCKS_DURING_FIRMWARE_RESUME = "CheckNumberOfBlocksDuringFirmwareResume";
     private TimeDuration DEFAULT_AARQ_TIMEOUT_PROPERTY = TimeDuration.NONE;
     private BigDecimal DEFAULT_AARQ_RETRIES_PROPERTY = BigDecimal.valueOf(2);
+    private boolean DEFAULT_CHECK_NUMBER_OF_BLOCKS_DURING_FIRMWARE_RESUME = true;
 
     public DSMR50Properties(PropertySpecService propertySpecService) {
         super(propertySpecService);
@@ -50,7 +52,7 @@ public class DSMR50Properties extends G3Properties {
     }
 
     public long getAARQTimeout() {
-        return getProperties().getTypedProperty(AARQ_TIMEOUT_PROPERTY, DEFAULT_AARQ_TIMEOUT_PROPERTY).getSeconds();
+        return getProperties().getTypedProperty(AARQ_TIMEOUT_PROPERTY, DEFAULT_AARQ_TIMEOUT_PROPERTY).getMilliSeconds();
     }
 
     public long getAARQRetries() {
@@ -86,5 +88,9 @@ public class DSMR50Properties extends G3Properties {
         propertySpecs.add(cumulativeCaptureTimePropertySPec());
         propertySpecs.add(readCachePropertySpec());
         return propertySpecs;
+    }
+
+    public boolean getCheckNumberOfBlocksDuringFirmwareResume() {
+        return getProperties().getTypedProperty(CHECK_NUMBER_OF_BLOCKS_DURING_FIRMWARE_RESUME, DEFAULT_CHECK_NUMBER_OF_BLOCKS_DURING_FIRMWARE_RESUME);
     }
 }

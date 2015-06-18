@@ -89,6 +89,7 @@ public class ImageTransfer extends AbstractCosemObject {
     private int startIndex = 0;
     private long delayBeforeSendingBlocks = 0;
     private int booleanValue = 0xFF;        //Default byte value representing boolean TRUE is 0xFF
+    private boolean checkNumberOfBlocksInPreviousSession = true;
 
     /**
      * The number of the first block that should be transferred.
@@ -108,6 +109,20 @@ public class ImageTransfer extends AbstractCosemObject {
 
     public void setDelayBeforeSendingBlocks(long delayBeforeSendingBlocks) {
         this.delayBeforeSendingBlocks = delayBeforeSendingBlocks;
+    }
+
+    /**
+     * If disabled (set to false) during resume process, the check if number of blocks in previous session equals
+     * number of blocks in current session will be skipped. <br/>
+     * <b>Warning:</b> Only disable in some specific cases, by default this check should be enabled!
+     * @param checkNumberOfBlocksInPreviousSession
+     */
+    public void setCheckNumberOfBlocksInPreviousSession(boolean checkNumberOfBlocksInPreviousSession) {
+        this.checkNumberOfBlocksInPreviousSession = checkNumberOfBlocksInPreviousSession;
+    }
+
+    public boolean checkNumberOfBlocksInPreviousSession() {
+        return checkNumberOfBlocksInPreviousSession;
     }
 
     public ImageTransfer(ProtocolLink protocolLink) {
@@ -250,7 +265,8 @@ public class ImageTransfer extends AbstractCosemObject {
             if (imageTransferStatus.getValue() < 1 || imageTransferStatus.getValue() > 3) {
                 getLogger().warning("Cannot resume the image transfer. The current transfer state (" + imageTransferStatus.getValue() + ") should be 'Image transfer initiated (1)', 'Image verification initiated (2)' or 'Image verification successful (3)'. Will start from block 0.");
                 startIndex = 0;
-            } else if (getNumberOfBlocksInPreviousSession() != blockCount) {
+            }
+            if (checkNumberOfBlocksInPreviousSession() && getNumberOfBlocksInPreviousSession() != blockCount) {
                 getLogger().warning("Cannot resume the image transfer. The number of blocks is different since the last image transfer session. Will start from block 0.");
                 startIndex = 0;
             }
