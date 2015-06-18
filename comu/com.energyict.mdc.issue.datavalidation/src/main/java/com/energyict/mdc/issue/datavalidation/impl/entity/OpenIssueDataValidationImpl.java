@@ -1,15 +1,5 @@
 package com.energyict.mdc.issue.datavalidation.impl.entity;
 
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import javax.inject.Inject;
-import javax.validation.Valid;
-
 import com.elster.jupiter.issue.share.entity.HistoricalIssue;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
@@ -25,6 +15,15 @@ import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
 import com.energyict.mdc.issue.datavalidation.NotEstimatedBlock;
 import com.energyict.mdc.issue.datavalidation.OpenIssueDataValidation;
 import com.google.common.collect.Range;
+
+import javax.inject.Inject;
+import javax.validation.Valid;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class OpenIssueDataValidationImpl extends IssueDataValidationImpl implements OpenIssueDataValidation {
 
@@ -65,7 +64,7 @@ public class OpenIssueDataValidationImpl extends IssueDataValidationImpl impleme
         
         List<Pair<Range<Instant>, OpenIssueNotEstimatedBlockImpl>> connectedBlocks = notEstimatedBlocks.stream()
                 .filter(block -> block.getChannel().getId() == channel.getId())
-                .filter(block -> block.getReadingType().equals(readingType))
+//                .filter(block -> block.getReadingType().equals(readingType))
                 .map(block -> Pair.of(Range.closedOpen(block.getStartTime(), block.getEndTime()), block))
                 .filter(block -> block.getFirst().isConnected(interval))
                 .sorted((block1, block2) -> block1.getFirst().lowerEndpoint().compareTo(block2.getFirst().lowerEndpoint()))
@@ -89,7 +88,7 @@ public class OpenIssueDataValidationImpl extends IssueDataValidationImpl impleme
         
         Optional<OpenIssueNotEstimatedBlockImpl> enclosingBlock = notEstimatedBlocks.stream()
                 .filter(block -> block.getChannel().getId() == channel.getId())
-                .filter(block -> block.getReadingType().equals(readingType))
+//                .filter(block -> block.getReadingType().equals(readingType))
                 .filter(block -> Range.closedOpen(block.getStartTime(), block.getEndTime()).encloses(interval))
                 .findFirst();
         if (enclosingBlock.isPresent()) {

@@ -15,6 +15,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     DATA_VALIDATION_ISSUE_REASON(2, "DataValidationIssueReason", "Can''t estimate data on", Level.INFO),
     DATA_VALIDATION_ISSUE_RULE_TEMPLATE_NAME(3, "DataValidationIssueRuleTemplateName", "Create issue when suspects can''t be estimated", Level.INFO),
     DATA_VALIDATION_ISSUE_RULE_TEMPLATE_DESCRIPTION(4, "DataValidationIssueRuleTemplateDescription", "Create issue when suspects can''t be estimated", Level.INFO),
+    DEVICECONFIG_PROPERTY(5, DataValidationIssueCreationRuleTemplate.DEVICE_CONFIGURATIONS, "Device configurations", Level.INFO),
     
     AQ_SUBSCRIBER(1001, DataValidationEventHandlerFactory.AQ_DATA_VALIDATION_EVENT_SUBSCRIBER, "Create data validation issues", Level.INFO),
     

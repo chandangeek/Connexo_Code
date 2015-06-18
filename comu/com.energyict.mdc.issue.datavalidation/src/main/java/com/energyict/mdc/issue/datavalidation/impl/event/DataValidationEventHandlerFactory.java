@@ -39,6 +39,10 @@ public class DataValidationEventHandlerFactory implements MessageHandlerFactory 
     private volatile DeviceService deviceService;
     private volatile IssueDataValidationService issueDataValidationService;
     
+    //for OSGI
+    public DataValidationEventHandlerFactory() {
+    }
+    
     @Inject
     public DataValidationEventHandlerFactory(JsonService jsonService, IssueService issueService, NlsService nlsService, MeteringService meteringService, DeviceService deviceService, IssueDataValidationService issueDataValidationService) {
         setJsonService(jsonService);

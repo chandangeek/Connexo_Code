@@ -1,14 +1,5 @@
 package com.energyict.mdc.issue.datavalidation.impl;
 
-import java.util.List;
-import java.util.Optional;
-
-import javax.inject.Inject;
-import javax.xml.bind.annotation.XmlRootElement;
-
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.IssueEvent;
 import com.elster.jupiter.issue.share.entity.Issue;
@@ -28,6 +19,13 @@ import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
 import com.energyict.mdc.issue.datavalidation.OpenIssueDataValidation;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+
+import javax.inject.Inject;
+import javax.xml.bind.annotation.XmlRootElement;
+import java.util.List;
+import java.util.Optional;
 
 @Component(name = "com.energyict.mdc.issue.datavalidation.impl.DataValidationIssueCreationRuleTemplate",
            property = { "name=" + DataValidationIssueCreationRuleTemplate.NAME },
@@ -165,7 +163,11 @@ public class DataValidationIssueCreationRuleTemplate implements CreationRuleTemp
 
         @Override
         public Optional<DeviceConfigurationInfo> find(String key) {
-            return deviceConfigurationService.findDeviceConfiguration(Long.parseLong(key)).map(DeviceConfigurationInfo::new);
+            try {
+                return deviceConfigurationService.findDeviceConfiguration(Long.parseLong(key)).map(DeviceConfigurationInfo::new);
+            } catch (NumberFormatException e) {
+                return Optional.empty();
+            }
         }
 
         @Override
