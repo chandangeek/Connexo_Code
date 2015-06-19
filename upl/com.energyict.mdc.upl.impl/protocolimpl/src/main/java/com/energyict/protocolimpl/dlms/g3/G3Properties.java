@@ -102,8 +102,9 @@ public class G3Properties extends DlmsProtocolProperties {
 
     @Override
     public String getServerMacAddress() {
-        final String oldMacAddress = getStringValue(SERVER_MAC_ADDRESS, "1:16");
-        return oldMacAddress.replaceAll("x", getNodeAddress());
+        return getNodeAddress();
+        //final String oldMacAddress = getStringValue(SERVER_MAC_ADDRESS, "1:16");
+        //return oldMacAddress.replaceAll("x", getNodeAddress());
     }
 
     @Override

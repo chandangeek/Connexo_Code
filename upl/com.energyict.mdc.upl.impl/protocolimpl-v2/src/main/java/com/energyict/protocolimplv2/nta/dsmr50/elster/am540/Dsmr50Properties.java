@@ -9,7 +9,6 @@ import com.energyict.protocolimplv2.nta.dsmr50.Dsmr50ConfigurationSupport;
 import java.math.BigDecimal;
 
 import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_UPPER_SERVER_MAC_ADDRESS;
-import static com.energyict.dlms.common.DlmsProtocolProperties.SERVER_UPPER_MAC_ADDRESS;
 
 /**
  * Extension of the standard DLMS properties, adding DSMR50 stuff
@@ -51,11 +50,7 @@ public class Dsmr50Properties extends DlmsProperties {
 
     @Override
     public int getServerUpperMacAddress() {
-        final int oldMacAddress = parseBigDecimalProperty(SERVER_UPPER_MAC_ADDRESS, new BigDecimal(-1));
-        if (oldMacAddress == -1) {
-            return getNodeAddress();
-        }
-        return oldMacAddress;
+        return getNodeAddress();
     }
 
     public int getNodeAddress() {
