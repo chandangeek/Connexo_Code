@@ -108,7 +108,6 @@ Ext.define('Uni.grid.FilterPanelTop', {
     onQueryStringChanged: function(queryString) {
         var me = this;
         // Adapt the filters visually
-        debugger;
         if (Ext.isArray(me.filters.items)) {
             var queryObject = Uni.util.QueryString.getQueryStringValues(false);
             Ext.Array.each(me.filters.items, function (filter) {
@@ -302,7 +301,6 @@ Ext.define('Uni.grid.FilterPanelTop', {
     },
 
     loadHistoryState: function () {
-        debugger;
         var me = this,
             queryObject = Uni.util.QueryString.getQueryStringValues(false),
             objectQueue = {};

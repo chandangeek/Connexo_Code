@@ -73,7 +73,6 @@ Ext.define('Uni.controller.history.EventBus', {
         }
         queryString = queryStringIndex===-1 ? null : token.substring(queryStringIndex+1, token.length);
         if(queryString !== this.getPreviousQueryString()){
-            debugger;
             this.setPreviousQueryString(queryString);
             if (!Uni.util.History.isSuspended()) {
                 queryStringChanged = true;
@@ -83,7 +82,6 @@ Ext.define('Uni.controller.history.EventBus', {
             token = token.substring(0, queryStringIndex);
         }
         if (this.getPreviousPath()===null || token !== this.getPreviousPath()) {
-            debugger;
             this.setPreviousPath(token);
             if (!Uni.util.History.isSuspended()) {
                 pathChanged = true;
@@ -97,7 +95,6 @@ Ext.define('Uni.controller.history.EventBus', {
         }
 
         if (Uni.util.History.isSuspended()) {
-            debugger;
             Uni.util.History.setSuspended(false);
         }
     }
