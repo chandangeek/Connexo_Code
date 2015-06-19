@@ -37,16 +37,20 @@ Ext.define('Dlc.devicelifecycletransitions.view.widget.StatePropertiesForm', {
             });
 
             Ext.iterate(subCategoryIds, function (key, value) {
-                mergedSubcategoryItems.push(
-                    {
-                        isRequired: mergedSubcategories[key][0].get('isRequired'),
-                        category: mergedSubcategories[key][0].get('category'),
-                        description: mergedSubcategories[key][0].get('conflictGroup').description,
-                        key: key,
-                        name: value,
-                        checked: false,
-                        radioGroup: mergedSubcategories[key]
-                    })
+                if (mergedSubcategories[key].length === 1) {
+                    mergedSubcategoryItems.push(mergedSubcategories[key][0].getData());
+                } else {
+                    mergedSubcategoryItems.push(
+                        {
+                            isRequired: mergedSubcategories[key][0].get('isRequired'),
+                            category: mergedSubcategories[key][0].get('category'),
+                            description: mergedSubcategories[key][0].get('conflictGroup').description,
+                            key: key,
+                            name: value,
+                            checked: false,
+                            radioGroup: mergedSubcategories[key]
+                        });
+                }
             });
         }
 
@@ -231,11 +235,18 @@ Ext.define('Dlc.devicelifecycletransitions.view.widget.StatePropertiesForm', {
             } else {
                 var combo = me.getFieldById(item.conflictGroup.id),
                     radigroupValue = {};
+                if (combo) {
+                    radigroupValue[item.conflictGroup.id] = item.key;
+                    combo.setValue(true);
 
-                radigroupValue[item.conflictGroup.id] = item.key;
-                combo.setValue(true);
+                    combo.up('container[name=mainContainer]').down('radiogroup').setValue(radigroupValue);
+                } else {
+                    var field = me.getFieldById(item.key);
+                    if (field) {
+                        field.setValue(item.checked);
+                    }
+                }
 
-                combo.up('container[name=mainContainer]').down('radiogroup').setValue(radigroupValue);
             }
         })
     },
@@ -348,7 +359,7 @@ Ext.define('Dlc.devicelifecycletransitions.view.widget.StatePropertiesForm', {
         } else {
             switch (me.itemStack) {
                 case 'actions':
-                    noItemsMessage = Uni.I18n.translate('deviceLifeCycleTransitions.add.noMandatoryAction', 'DLC',  'No auto actions are available.');
+                    noItemsMessage = Uni.I18n.translate('deviceLifeCycleTransitions.add.noMandatoryAction', 'DLC', 'No auto actions are available.');
                     break;
                 case 'checks':
                     noItemsMessage = Uni.I18n.translate('deviceLifeCycleTransitions.add.noMandatoryChecks', 'DLC', 'No pretransition checks are available.');
