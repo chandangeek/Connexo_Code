@@ -12,7 +12,6 @@ import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.channels.ComChannelType;
-import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
 import com.energyict.mdc.channels.serial.optical.serialio.SioOpticalConnectionType;
 import com.energyict.mdc.exceptions.ComServerExecutionException;
@@ -27,7 +26,6 @@ import com.energyict.mdc.protocol.v2migration.MigrateFromV1Protocol;
 import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.mdc.tasks.SerialDeviceProtocolDialect;
-import com.energyict.mdc.tasks.TcpDeviceProtocolDialect;
 import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.mdw.offline.OfflineRegister;
@@ -36,6 +34,7 @@ import com.energyict.protocol.LogBookReader;
 import com.energyict.protocolimpl.dlms.idis.AM540ObjectList;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.protocolimplv2.dialects.NoParamsDeviceProtocolDialect;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.idis.topology.IDISMeterTopology;
 import com.energyict.protocolimplv2.hhusignon.IEC1107HHUSignOn;
@@ -276,7 +275,7 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        return Arrays.<DeviceProtocolDialect>asList(new SerialDeviceProtocolDialect());
+        return Arrays.<DeviceProtocolDialect>asList(new SerialDeviceProtocolDialect(), new NoParamsDeviceProtocolDialect());
     }
 
     @Override
