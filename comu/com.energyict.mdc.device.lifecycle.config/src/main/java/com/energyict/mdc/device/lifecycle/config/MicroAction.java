@@ -105,9 +105,15 @@ public enum MicroAction {
      * on which the lastreading of channels and registers should be set.
      */
     // storage = bits 4096
-    FORCE_VALIDATION_AND_ESTIMATION;
+    FORCE_VALIDATION_AND_ESTIMATION,
 
-
+    /**
+    * Starts the recurring communication on the device
+    * by activating all connection and schedule all
+    * recurrent communication tasks to execute now.
+    */
+    // storage = bits 8192
+    START_RECURRING_COMMUNICATION;
 
     /**
      * Gets the Set of {@link MicroCheck}s that are implied
