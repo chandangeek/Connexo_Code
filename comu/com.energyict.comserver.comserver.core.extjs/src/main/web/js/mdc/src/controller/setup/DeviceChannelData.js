@@ -57,7 +57,10 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
     init: function () {
         this.control({
             '#deviceLoadProfileChannelData #deviceLoadProfileChannelDataGrid': {
-                select: this.showPreview
+                select: this.showPreview,
+                beforeedit: this.beforeEditRecord,
+                edit: this.resumeEditorFieldValidation,
+                canceledit: this.resumeEditorFieldValidation
             },
             '#deviceLoadProfileChannelDataSideFilter #deviceLoadProfileDataFilterApplyBtn': {
                 click: this.applyFilter
@@ -196,6 +199,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         });
         dataStore.load(function () {
             dataGrid.setLoading(false);
+            dataStore.rejectChanges();
             me.showGraphView(channel, dataStore)
         });
     },
@@ -263,13 +267,11 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             series.push(seriesObject);
             Ext.suspendLayouts();
             container.down('#graphContainer').show();
-            container.down('#ctr-graph-no-data').hide();
             container.drawGraph(yAxis, series, intervalLengthInMs, channelName, unitOfMeasure, zoomLevels, data.missedValues);
             Ext.resumeLayouts(true);
         } else {
             Ext.suspendLayouts();
             container.down('#graphContainer').hide();
-            container.down('#ctr-graph-no-data').show();
             Ext.resumeLayouts(true);
         }
         me.getPage().doLayout();
@@ -300,12 +302,10 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             var bulkValidationInfo = record.getValidationInfo().getBulkValidationInfo();
             var deltaModificationFlag = deltaValidationInfo ? deltaValidationInfo.get('modificationFlag') : null;
             var bulkModificationFlag = bulkValidationInfo ? bulkValidationInfo.get('modificationFlag') : null;
-            var confirmed = false;
-            var estimated = false;
-            var edited = deltaModificationFlag || bulkModificationFlag;
             var properties = record.get('readingProperties');
 
             point.x = record.get('interval').start;
+            point.id = point.x;
             point.y = parseFloat(record.get('value'));
             point.intervalEnd = record.get('interval').end;
             point.collectedValue = record.get('collectedValue');
@@ -325,20 +325,18 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 point.color = notValidatedColor;
                 point.tooltipColor = tooltipNotValidatedColor
             }
+            if (record.get('modificationFlag')) {
+                point.edited = true;
+            }
 
-            // for test purposes, need to implement
-            if (estimated) {
+           /* if (estimated) {
                 point.color = estimatedColor;
                 point.tooltipColor = tooltipNotValidatedColor
             }
             if (confirmed) {
                 point.color = okColor;
                 point.tooltipColor = tooltipOkColor
-            }
-            if (edited) {
-                point.color = okColor;
-                point.tooltipColor = tooltipOkColor
-            }
+            }*/
 
             Ext.merge(point, properties);
             data.unshift(point);
@@ -426,41 +424,136 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
     },
 
     chooseAction: function (menu, item) {
-        var me = this;
+        var me = this,
+            point,
+            chart = me.getPage().down('#deviceLoadProfileChannelGraphView').chart;
 
         switch (item.action) {
-            case 'estimateValue':
-                me.estimateValue(menu.record);
+            case 'editValue':
+                me.getPage().down('#deviceLoadProfileChannelDataGrid').getPlugin('cellplugin').startEdit(menu.record, 1);
+                break;
+            case 'removeReading':
+                menu.record.set('value', null);
+                menu.record.set('intervalFlags', []);
+
+                chart.xAxis[0].addPlotBand({
+                    from: menu.record.get('interval').start,
+                    to: menu.record.get('interval').end,
+                    color: 'rgba(235, 86, 66, 0.3)'
+                });
+                point = chart.get(menu.record.get('interval').start);
+                point.update(Ext.apply(point, { y: null }));
+                me.showButtons();
                 break;
         }
     },
 
-    estimateValue: function (record) {
-        var me = this;
-
-        me.getPage().setLoading();
-        me.getStore('Mdc.store.Estimators').load(function () {
-            me.getPage().setLoading(false);
-            Ext.widget('reading-estimation-window', {
-                record: record
-            }).show();
-        });
-    },
-
-    estimateReading: function () {
+    showButtons: function () {
         var me = this;
 
         me.getPage().down('#save-changes-button').show();
         me.getPage().down('#undo-button').show();
-
     },
 
     saveChannelDataChanges: function () {
+        var me = this,
+            page = me.getPage(),
+            router = me.getController('Uni.controller.history.Router'),
+            changedData = me.getChangedData(me.getStore('Mdc.store.ChannelOfLoadProfileOfDeviceData'));
 
+        if (changedData.length) {
+            page.setLoading(Uni.I18n.translate('general.saving', 'MDC', 'Saving...'));
+            Ext.Ajax.request({
+                url: Ext.String.format('/api/ddr/devices/{0}/channels/{1}/data', encodeURIComponent(router.arguments.mRID), router.arguments.channelId),
+                method: 'PUT',
+                jsonData: Ext.encode(changedData),
+                timeout: 300000,
+                callback: function () {
+                    page.setLoading(false);
+                },
+                success: function () {
+                    router.getRoute('devices/device/channels/channeldata').forward(router.arguments, router.queryParams);
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('devicechannels.successSavingMessage', 'MDC', 'Channel data have been saved'));
+                },
+                failure: function (response) {
+                    var failureResponseText;
+
+                    if (response.status == 400) {
+                        failureResponseText = Ext.decode(response.responseText, true);
+
+                        if (failureResponseText) {
+                            Ext.create('Uni.view.window.Confirmation', {
+                                confirmText: Uni.I18n.translate('general.retry', 'MDC', 'Retry'),
+                                closeAction: 'destroy',
+                                confirmation: function () {
+                                    this.close();
+                                    me.saveChannelDataChanges();
+                                },
+                                cancellation: function () {
+                                    this.close();
+                                    router.getRoute('devices/device/channels/channeldata').forward(router.arguments, router.queryParams);
+                                }
+                            }).show({
+                                msg: failureResponseText.message ? failureResponseText.message :
+                                    Uni.I18n.translate('general.emptyField', 'MDC', 'Value field can not be empty'),
+                                title: failureResponseText.error ? failureResponseText.error :
+                                    Uni.I18n.translate('general.during.editing', 'MDC,', 'Error during editing')
+                            });
+                        }
+                    }
+                }
+            });
+        }
     },
 
     undoChannelDataChanges: function () {
+        var router = this.getController('Uni.controller.history.Router');
+        router.getRoute('devices/device/channels/channeldata').forward(router.arguments, router.queryParams);
+    },
 
+    getChangedData: function (store) {
+        var changedData = [];
+
+        Ext.Array.each(store.getUpdatedRecords(), function (record) {
+            changedData.push(_.pick(record.getData(), 'interval', 'value'));
+        });
+
+        return changedData;
+    },
+
+    beforeEditRecord: function (editor, event) {
+        var intervalFlags = event.record.get('intervalFlags');
+
+        event.column.getEditor().allowBlank = !(intervalFlags && intervalFlags.length);
+    },
+
+    resumeEditorFieldValidation: function (editor, event) {
+        var me = this,
+            chart = me.getPage().down('#deviceLoadProfileChannelGraphView').chart,
+            point,
+            updatedObj;
+
+        event.column.getEditor().allowBlank = true;
+
+        if (event.record.isModified('value')) {
+            me.getPage().down('#save-changes-button').isHidden() && me.showButtons();
+            point = chart.get(event.record.get('interval').start);
+            if (!event.record.get('value')) {
+                chart.xAxis[0].addPlotBand({
+                    from: event.record.get('interval').start,
+                    to: event.record.get('interval').end,
+                    color: 'rgba(235, 86, 66, 0.3)'
+                });
+                point.update(Ext.apply(point, { y: null }));
+            } else {
+                updatedObj = {
+                    y: parseFloat(event.record.get('value')),
+                    color: 'rgba(112,187,81,0.3)',
+                    edited: true
+                };
+                point.update(Ext.apply(point, updatedObj));
+            }
+        }
     }
 });
 

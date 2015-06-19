@@ -12,7 +12,13 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
         'Uni.grid.column.Action'
     ],
     plugins: [
-        'bufferedrenderer'
+        'bufferedrenderer',
+        'showConditionalToolTip',
+        {
+            ptype: 'cellediting',
+            clicksToEdit: 1,
+            pluginId: 'cellplugin'
+        }
     ],
     viewConfig: {
         loadMask: false,
@@ -71,7 +77,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
             {
                 xtype: 'edited-column',
                 header: '',
-                dataIndex: 'mainModificationState',
+                dataIndex: 'modificationState',
                 width: 30
             },
             {
@@ -100,12 +106,6 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                 }
             },
             {
-                xtype: 'edited-column',
-                header: '',
-                dataIndex: 'bulkModificationState',
-                width: 30
-            },
-            {
                 xtype: 'interval-flags-column',
                 dataIndex: 'intervalFlags',
                 align: 'right',
@@ -128,6 +128,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                 dock: 'top',
                 store: me.store,
                 isFullTotalCount: true,
+                noBottomPaging: true,
                 displayMsg: '{2} reading(s)',
                 items: [
                     {

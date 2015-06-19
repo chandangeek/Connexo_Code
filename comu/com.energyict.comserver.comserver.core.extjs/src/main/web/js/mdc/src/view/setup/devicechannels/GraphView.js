@@ -15,14 +15,6 @@ Ext.define('Mdc.view.setup.devicechannels.GraphView', {
             style: {
                 width: '100%'
             }
-        },
-        {
-            xtype: 'no-items-found-panel',
-            itemId: 'ctr-graph-no-data',
-            hidden: true,
-            title: Uni.I18n.translate('deviceloadprofiles.data.empty.title', 'MDC', 'No readings found'),
-            reasons: [
-                Uni.I18n.translate('deviceloadprofiles.data.empty.list.item1', 'MDC', 'No readings have been defined yet.') ]
         }
     ],
 
@@ -113,11 +105,10 @@ Ext.define('Mdc.view.setup.devicechannels.GraphView', {
                         bulkIcon,
                         bgColor,
                         iconSpan = '<span class="{icon}" ' + 'style="height: 16px; ' + 'width: 16px; ' +
+                            'display: inline-block; ' + 'vertical-align: top; ' + 'margin-left: 4px"></span>',
+                        editedIconSpan = '<span class="uni-icon-edit"' + 'style="height: 13px; ' + 'width: 13px; ' +
                             'display: inline-block; ' + 'vertical-align: top; ' + 'margin-left: 4px"></span>';
 
-//                     suspect: 'icon-validation-red',
-//                     edited: 'icon-pencil2',
-//                     editedNotSaved: 'icon-pencil2',
 //                     confirmed: 'icon-checkmark'
 
                     if (point.delta.suspect) {
@@ -133,7 +124,7 @@ Ext.define('Mdc.view.setup.devicechannels.GraphView', {
                     html += '<table style="margin-top: 10px"><tbody>';
                     bgColor = point.tooltipColor;
                     html += '<tr><td><b>' + point.series.name + ':</b></td><td>' + point.y + ' ' +
-                        point.mesurementType + iconSpan.replace('{icon}', deltaIcon) + '</td></tr>';
+                        point.mesurementType + (point.edited ? editedIconSpan : '') + iconSpan.replace('{icon}', deltaIcon) + '</td></tr>';
                     html += '<tr><td><b>' + 'Bulk value:' + '</b></td><td>' + point.collectedValue + ' ' +
                         point.mesurementType + iconSpan.replace('{icon}', bulkIcon) + '</td></tr>';
 
@@ -162,6 +153,9 @@ Ext.define('Mdc.view.setup.devicechannels.GraphView', {
                 },
                 line: {
                     color: '#70BB51'
+                },
+                series: {
+                    cropThreshold: Number.MAX_VALUE
                 }
             },
 

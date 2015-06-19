@@ -13,6 +13,7 @@ Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
         {name: 'collectedValue', type: 'auto'},
         {name: 'intervalFlags', type: 'auto'},
         {name: 'validationStatus', type: 'auto'},
+        {name: 'modificationFlag', type: 'auto'},
         {
             name: 'interval_start',
             persist: false,
@@ -131,28 +132,6 @@ Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
                 var result = {};
                 if (data.validationInfo && data.validationInfo.bulkValidationInfo) {
                     result = data.validationInfo.bulkValidationInfo;
-                }
-                return result;
-            }
-        },
-        {
-            name: 'mainModificationState',
-            persist: false,
-            mapping: function (data) {
-                var result = null;
-                if (data.validationInfo && data.validationInfo.mainValidationInfo) {
-                    result = data.validationInfo.mainValidationInfo.modificationState;
-                }
-                return result;
-            }
-        },
-        {
-            name: 'bulkModificationState',
-            persist: false,
-            mapping: function (data) {
-                var result = null;
-                if (data.validationInfo && data.validationInfo.bulkValidationInfo) {
-                    result = data.validationInfo.bulkValidationInfo.modificationState;
                 }
                 return result;
             }

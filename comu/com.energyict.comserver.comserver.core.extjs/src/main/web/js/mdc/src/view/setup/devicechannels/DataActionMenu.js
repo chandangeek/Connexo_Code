@@ -11,6 +11,16 @@ Ext.define('Mdc.view.setup.devicechannels.DataActionMenu', {
             text: Uni.I18n.translate('deviceloadprofiles.viewHistory', 'MDC', 'View history'),
             action: 'viewHistory',
             hidden: true
+        },
+        {
+            itemId: 'edit-value',
+            text: Uni.I18n.translate('devicechannels.editReadings.editValue', 'MDC', 'Edit value'),
+            action: 'editValue'
+        },
+        {
+            itemId: 'remove-reading',
+            text: Uni.I18n.translate('devicechannels.editReadings.removeReading', 'MDC', 'Remove reading'),
+            action: 'removeReading'
         }
     ]
 });
