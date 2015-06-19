@@ -10,17 +10,32 @@ Ext.define('Uni.util.History', {
         'Uni.util.Application'
     ],
 
+    config: {
+        suspended: false
+    },
+
     suspendEventsForNextCall: function () {
-        var currentHref = location.href;
+        if (!this.isSuspended()) {
+            this.setSuspended(true);
+        }
+        //var currentHref = location.href;
+        //
+        //Ext.util.History.suspendEvents();
+        //
+        //new Ext.util.DelayedTask(function () {
+        //    if (location.href !== currentHref) {
+        //        Ext.util.History.resumeEvents();
+        //        this.stopped = true;
+        //    }
+        //}).delay(100);
+    },
 
-        Ext.util.History.suspendEvents();
+     isSuspended: function() {
+        return this.suspended;
+    },
 
-        new Ext.util.DelayedTask(function () {
-            if (location.href !== currentHref) {
-                Ext.util.History.resumeEvents();
-                this.stopped = true;
-            }
-        }).delay(100);
+    setSuspended: function(suspend) {
+        this.suspended = suspend;
     },
 
     getRouterController: function () {

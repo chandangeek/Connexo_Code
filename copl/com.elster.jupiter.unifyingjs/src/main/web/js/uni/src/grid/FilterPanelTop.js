@@ -95,6 +95,32 @@ Ext.define('Uni.grid.FilterPanelTop', {
 
         me.reconfigureStore(store);
         me.initActions();
+
+        Uni.util.QueryString.on('querystringchanged', me.onQueryStringChanged, me);
+        this.on('beforedestroy', function() {
+            Uni.util.QueryString.un('querystringchanged', me.onQueryStringChanged, me);
+            if (me.store && me.storeListeners) {
+                me.store.un(me.storeListeners);
+            }
+        });
+    },
+
+    onQueryStringChanged: function(queryString) {
+        var me = this;
+        // Adapt the filters visually
+        debugger;
+        if (Ext.isArray(me.filters.items)) {
+            var queryObject = Uni.util.QueryString.getQueryStringValues(false);
+            Ext.Array.each(me.filters.items, function (filter) {
+                if (filter && filter.dataIndex && queryObject[filter.dataIndex]) {
+                    filter.setFilterValue(queryObject[filter.dataIndex]);
+                } else {
+                    filter.resetValue();
+                }
+            }, me);
+
+            me.applyFilters();
+        }
     },
 
     reconfigureStore: function (store) {
@@ -334,6 +360,7 @@ Ext.define('Uni.grid.FilterPanelTop', {
             href = Uni.util.QueryString.buildHrefWithQueryString(params, false);
 
         if (location.href !== href) {
+            Uni.util.History.suspendEventsForNextCall();
             location.href = href;
         }
     },

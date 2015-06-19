@@ -13,7 +13,7 @@ Ext.define('Uni.controller.history.EventBus', {
     config: {
         defaultToken: '',
         previousPath: null,
-        previousQueryString: null
+        previousQueryString: null,
     },
 
     onLaunch: function () {
@@ -62,18 +62,22 @@ Ext.define('Uni.controller.history.EventBus', {
     },
 
     onHistoryChange: function (token) {
-        var queryString;
-        var queryStringIndex = token.indexOf('?');
+        var queryString,
+            queryStringIndex = token.indexOf('?'),
+            queryStringChanged = false,
+            pathChanged = false;
 
         if (typeof token === 'undefined' || token === null || token === '') {
             token = this.getDefaultToken();
             Ext.util.History.add(token);
         }
-        queryString = token.substring(queryStringIndex+1, token.length);
+        queryString = queryStringIndex===-1 ? null : token.substring(queryStringIndex+1, token.length);
         if(queryString !== this.getPreviousQueryString()){
             debugger;
             this.setPreviousQueryString(queryString);
-            Uni.util.QueryString.changed(queryString);
+            if (!Uni.util.History.isSuspended()) {
+                queryStringChanged = true;
+            }
         }
         if (queryStringIndex > 0) {
             token = token.substring(0, queryStringIndex);
@@ -81,7 +85,20 @@ Ext.define('Uni.controller.history.EventBus', {
         if (this.getPreviousPath()===null || token !== this.getPreviousPath()) {
             debugger;
             this.setPreviousPath(token);
+            if (!Uni.util.History.isSuspended()) {
+                pathChanged = true;
+            }
+        }
+        if (pathChanged) {
             crossroads.parse(token);
+            this.setPreviousQueryString(null);
+        } else if (queryStringChanged) {
+            Uni.util.QueryString.changed(queryString);
+        }
+
+        if (Uni.util.History.isSuspended()) {
+            debugger;
+            Uni.util.History.setSuspended(false);
         }
     }
 });
