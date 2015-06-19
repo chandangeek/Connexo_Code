@@ -64,8 +64,8 @@ Ext.define('Uni.util.QueryString', {
         return Ext.Object.fromQueryString(this.getQueryString(), recursive);
     },
 
-    changed: function(){
-        this.fireEvent('querystringchanged');
+    changed: function(queryString){
+        this.fireEvent('querystringchanged', queryString);
     },
 
     constructor: function(){

@@ -95,9 +95,6 @@ Ext.define('Uni.grid.FilterPanelTop', {
 
         me.reconfigureStore(store);
         me.initActions();
-        Uni.util.QueryString.on('querystringchanged',function(){
-            me.loadHistoryState();
-        });
     },
 
     reconfigureStore: function (store) {

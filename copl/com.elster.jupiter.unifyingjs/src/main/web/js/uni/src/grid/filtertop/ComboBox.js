@@ -44,6 +44,20 @@ Ext.define('Uni.grid.filtertop.ComboBox', {
                 me.fireFilterUpdateEvent();
             }
         }, me);
+
+        Uni.util.QueryString.on('querystringchanged',function(queryString){
+            var queryObject = Uni.util.QueryString.getQueryStringValues(false);
+
+            for (var dataIndex in queryObject) {
+                if (dataIndex === me.dataIndex) {
+                    var value = queryObject[dataIndex];
+                    if (queryObject.hasOwnProperty(dataIndex) && Ext.isDefined(value) && !Ext.isEmpty(value)) {
+                        me.setFilterValue(value);
+                        me.fireFilterUpdateEvent();
+                    }
+                }
+            }
+        });
     },
 
     setFilterValue: function (data) {

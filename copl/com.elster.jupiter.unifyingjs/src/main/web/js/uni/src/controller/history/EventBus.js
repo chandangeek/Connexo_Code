@@ -13,9 +13,7 @@ Ext.define('Uni.controller.history.EventBus', {
     config: {
         defaultToken: '',
         previousPath: null,
-        currentPath: null,
-        previousQueryString: null,
-        currentQueryString: null
+        previousQueryString: null
     },
 
     onLaunch: function () {
@@ -71,22 +69,19 @@ Ext.define('Uni.controller.history.EventBus', {
             token = this.getDefaultToken();
             Ext.util.History.add(token);
         }
-        queryString = token.substring(queryStringIndex, token.length);
-        if(queryString !== this.getCurrentQueryString()){
-            Uni.util.QueryString.changed();
-        }
-        if(this.getCurrentQueryString() !== this.getPreviousQueryString() || (this.getCurrentQueryString()===null && this.getPreviousQueryString()===null)) {
-            this.setPreviousQueryString(this.getCurrentQueryString());
-            this.setCurrentQueryString(queryString);
+        queryString = token.substring(queryStringIndex+1, token.length);
+        if(queryString !== this.getPreviousQueryString()){
+            debugger;
+            this.setPreviousQueryString(queryString);
+            Uni.util.QueryString.changed(queryString);
         }
         if (queryStringIndex > 0) {
             token = token.substring(0, queryStringIndex);
         }
-        if(this.getCurrentPath() !== this.getPreviousPath() || (this.getCurrentPath()===null && this.getPreviousPath()===null)) {
-            this.setPreviousPath(this.getCurrentPath());
-            this.setCurrentPath(token);
+        if (this.getPreviousPath()===null || token !== this.getPreviousPath()) {
+            debugger;
+            this.setPreviousPath(token);
             crossroads.parse(token);
         }
-
     }
 });
