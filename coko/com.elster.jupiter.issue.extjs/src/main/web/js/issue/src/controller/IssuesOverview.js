@@ -5,7 +5,7 @@ Ext.define('Isu.controller.IssuesOverview', {
         'Isu.util.IsuComboTooltip'
     ],
 
-    showOverview: function (issueType, widgetXtype) {
+    showOverview: function (issueType, widgetXtype, callback) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             grouping = router.filter.get('grouping'),
@@ -51,6 +51,7 @@ Ext.define('Isu.controller.IssuesOverview', {
             }));
 
             me.setFilter();
+            callback ? callback() : null;
         }
     },
 

@@ -30,10 +30,12 @@ Ext.define('Isu.controller.IssueDetail', {
                     Ext.resumeLayouts(true);
                     widget.down('issues-action-menu').record = record;
                     me.loadComments(record);
-                    if (queryParams) {
-                        var breadcrumbLink = Ext.ComponentQuery.query('breadcrumbLink[href=#/workspace/datacollectionissues]')[0];
-                        breadcrumbLink.getEl().down('a').set({href: router.getRoute(routeToList).buildUrl(null, queryParams)});
-                    }
+
+                    // todo: disabled due to bug in data validation issues (link is hardcoded)
+                    //if (queryParams) {
+                        //var breadcrumbLink = Ext.ComponentQuery.query('breadcrumbLink[href=#/workspace/datacollectionissues]')[0];
+                        //breadcrumbLink.getEl().down('a').set({href: router.getRoute(routeToList).buildUrl(null, queryParams)});
+                    //}
                 }
             },
             failure: function () {
