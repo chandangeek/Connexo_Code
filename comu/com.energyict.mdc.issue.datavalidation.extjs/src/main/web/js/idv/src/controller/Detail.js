@@ -72,8 +72,8 @@ Ext.define('Idv.controller.Detail', {
         me.callParent([id, 'Idv.model.Issue', 'Idv.store.Issues', 'data-validation-issue-detail', 'workspace/datavalidationissues', 'datavalidation']);
         me.getApplication().on('issueLoad', function(record) {
             var data = [];
-            record.raw.nonEstimatedData.map(function(item) {
-                item.nonEstimatedBlocks.map(function(block) {
+            record.raw.notEstimatedData.map(function(item) {
+                item.notEstimatedBlocks.map(function(block) {
                     data.push(Ext.apply({}, {
                         channelId: item.channelId,
                         readingType: item.readingType

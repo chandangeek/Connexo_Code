@@ -116,7 +116,10 @@ Ext.define('Idv.controller.Overview', {
     },
 
     showOverview: function () {
-        this.callParent(['datavalidation', 'data-validation-issues-overview']);
-        this.getFilterForm().down('#filter-by-reason').hide();
+        var me = this;
+
+        me.callParent(['datavalidation', 'data-validation-issues-overview', function () {
+            me.getFilterForm().down('#filter-by-reason').hide();
+        }]);
     }
 });
