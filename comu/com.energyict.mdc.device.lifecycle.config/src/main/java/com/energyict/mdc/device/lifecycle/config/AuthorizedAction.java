@@ -26,8 +26,8 @@ import java.util.Set;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-11 (14:17)
  */
-public interface AuthorizedAction {
 
+public interface AuthorizedAction {
     public enum Level {
         ONE(Privileges.INITIATE_ACTION_1),
         TWO(Privileges.INITIATE_ACTION_2),
