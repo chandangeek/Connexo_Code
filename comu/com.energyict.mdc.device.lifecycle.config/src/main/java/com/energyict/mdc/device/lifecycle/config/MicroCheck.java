@@ -26,20 +26,20 @@ public enum MicroCheck {
      * Checks that there is at least one shared communication schedule on the device.
      */
     // check bits: 4
-    AT_LEAST_ONE_SHARED_SCHEDULED_COMMUNICATION_TASK_AVAILABLE(MicroCategory.COMMUNICATION),
+    AT_LEAST_ONE_SHARED_COMMUNICATION_SCHEDULE_AVAILABLE(MicroCategory.COMMUNICATION),
 
     /**
-     * Checks that all data (in both load profiles and registers)
+     * Checks that all loadProfile data
      * has been collected on the device.
      * This holds true if the last reading is set and is
-     * equal to the effective timestamp of the transition.
+     * before the end of each <i>current</i> LoadProfile period.
      */
     // check bits: 8
-    ALL_DATA_COLLECTED(MicroCategory.DATA_COLLECTION),
+    ALL_LOAD_PROFILE_DATA_COLLECTED(MicroCategory.DATA_COLLECTION),
 
     /**
      * Checks that all data (in both load profiles and registers)
-     * that has been collected on the device is also valid.
+     * that has been collected on the device is also valid.(=No suspects)
      */
     // check bits: 16
     ALL_DATA_VALID(MicroCategory.VALIDATION_AND_ESTIMATION),
@@ -96,8 +96,7 @@ public enum MicroCheck {
     ALL_ISSUES_AND_ALARMS_ARE_CLOSED(MicroCategory.ISSUES_AND_ALARMS),
 
     /**
-     * Checks if all the collected data was validated
-     * that has been collected on the device is also valid.
+     * Checks if all the collected data was validated (Validation has run)
      * This holds true if the last reading is equal to
      * the last checked timestamp.
      */

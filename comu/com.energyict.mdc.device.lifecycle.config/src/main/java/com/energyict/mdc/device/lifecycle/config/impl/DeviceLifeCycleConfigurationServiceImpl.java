@@ -17,7 +17,9 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.users.Privilege;
+import com.elster.jupiter.users.UserPreferencesService;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.streams.Functions;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedBusinessProcessAction;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
@@ -30,8 +32,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
@@ -103,7 +109,10 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
 
     @Override
     public List<String> getPrerequisiteModules() {
-        return Arrays.asList("ORM", FiniteStateMachineService.COMPONENT_NAME);
+        return Arrays.asList(
+                OrmService.COMPONENTNAME,
+                FiniteStateMachineService.COMPONENT_NAME,
+                UserService.COMPONENTNAME);
     }
 
     @Activate
@@ -254,4 +263,9 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
                 .findAny();
     }
 
+    public Map<Locale, String> getAllTranslationsForKey(String translationKey){
+        return userService.getUserPreferencesService().getSupportedLocales()
+                .stream()
+                .collect(Collectors.toMap(Function.<Locale>identity(), locale -> thesaurus.getString(locale, translationKey, translationKey)));
+    }
 }
