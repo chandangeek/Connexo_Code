@@ -39,11 +39,6 @@ public class RemoveDeviceFromStaticGroups implements ServerMicroAction {
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs(PropertySpecService propertySpecService) {
-        return Collections.emptyList();
-    }
-
-    @Override
     public void execute(Device device, List<ExecutableActionProperty> properties) {
         this.toEndDevice(device).ifPresent(this::execute);
     }

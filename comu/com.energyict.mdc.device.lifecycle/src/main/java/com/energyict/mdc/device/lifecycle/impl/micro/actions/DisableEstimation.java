@@ -20,11 +20,6 @@ import java.util.List;
 public class DisableEstimation implements ServerMicroAction {
 
     @Override
-    public List<PropertySpec> getPropertySpecs(PropertySpecService propertySpecService) {
-        return Collections.emptyList();
-    }
-
-    @Override
     public void execute(Device device, List<ExecutableActionProperty> properties) {
         device.forEstimation().deactivateEstimation();
     }

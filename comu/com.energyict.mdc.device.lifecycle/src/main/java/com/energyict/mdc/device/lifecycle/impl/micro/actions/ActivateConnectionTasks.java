@@ -24,11 +24,6 @@ import java.util.List;
 public class ActivateConnectionTasks implements ServerMicroAction {
 
     @Override
-    public List<PropertySpec> getPropertySpecs(PropertySpecService propertySpecService) {
-        return Collections.emptyList();
-    }
-
-    @Override
     public void execute(Device device, List<ExecutableActionProperty> properties) {
         device.getConnectionTasks().forEach(ct -> ct.activate());
     }

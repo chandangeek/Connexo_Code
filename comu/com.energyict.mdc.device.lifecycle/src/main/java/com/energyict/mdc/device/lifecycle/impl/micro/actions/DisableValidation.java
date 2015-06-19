@@ -23,11 +23,6 @@ import java.util.List;
 public class DisableValidation implements ServerMicroAction {
 
     @Override
-    public List<PropertySpec> getPropertySpecs(PropertySpecService propertySpecService) {
-        return Collections.emptyList();
-    }
-
-    @Override
     public void execute(Device device, List<ExecutableActionProperty> properties) {
         device.forValidation().deactivateValidation();
     }

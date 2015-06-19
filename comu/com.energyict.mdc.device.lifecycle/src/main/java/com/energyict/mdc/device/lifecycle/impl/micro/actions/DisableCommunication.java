@@ -25,11 +25,6 @@ import java.util.List;
 public class DisableCommunication implements ServerMicroAction {
 
     @Override
-    public List<PropertySpec> getPropertySpecs(PropertySpecService propertySpecService) {
-        return Collections.emptyList();
-    }
-
-    @Override
     public void execute(Device device, List<ExecutableActionProperty> properties) {
         device.getConnectionTasks().forEach(connectionTask -> connectionTask.deactivate());
         device.getComTaskExecutions().forEach(ComTaskExecution::putOnHold);

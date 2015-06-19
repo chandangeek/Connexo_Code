@@ -16,7 +16,7 @@ import java.util.Optional;
  * Provides an implementation for the {@link ServerMicroCheck} interface
  * that checks that all the {@link ConnectionTask}s of a Device are complete.
  * @see ConnectionTask#getStatus()
- * @see ConnectionTask.ConnectionTaskLifecycleStatus#ACTIVE
+ * @see ConnectionTask.ConnectionTaskLifecycleStatus#INCOMPLETE
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-04-15 (09:48)

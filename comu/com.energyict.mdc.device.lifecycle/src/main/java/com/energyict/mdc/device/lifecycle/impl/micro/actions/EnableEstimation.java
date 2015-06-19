@@ -19,11 +19,6 @@ import java.util.*;
 public class EnableEstimation implements ServerMicroAction {
 
     @Override
-    public List<PropertySpec> getPropertySpecs(PropertySpecService propertySpecService) {
-        return Collections.emptyList();
-    }
-
-    @Override
     public void execute(Device device, List<ExecutableActionProperty> properties) {
         device.forEstimation().activateEstimation();
     }
