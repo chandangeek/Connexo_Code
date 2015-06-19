@@ -203,7 +203,6 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
     @Override
     public List<ConnectionType> getSupportedConnectionTypes() {
         List<ConnectionType> result = new ArrayList<>();
-        result.add(new OutboundTcpIpConnectionType());
         result.add(new SioOpticalConnectionType());
         result.add(new RxTxOpticalConnectionType());
         return result;
@@ -277,7 +276,7 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        return Arrays.<DeviceProtocolDialect>asList(new SerialDeviceProtocolDialect(), new TcpDeviceProtocolDialect());
+        return Arrays.<DeviceProtocolDialect>asList(new SerialDeviceProtocolDialect());
     }
 
     @Override
