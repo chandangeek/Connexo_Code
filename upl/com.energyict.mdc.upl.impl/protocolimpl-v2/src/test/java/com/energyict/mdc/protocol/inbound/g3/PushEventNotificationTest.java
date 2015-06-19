@@ -8,8 +8,8 @@ import com.energyict.mdc.exceptions.DefaultComServerExceptionFactoryProvider;
 import com.energyict.mdc.meterdata.*;
 import com.energyict.mdc.meterdata.identifiers.LogBookIdentifier;
 import com.energyict.mdc.ports.InboundComPort;
+import com.energyict.mdc.protocol.DeviceProtocol;
 import com.energyict.mdc.protocol.SynchroneousComChannel;
-import com.energyict.mdc.protocol.VoidComChannel;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.inbound.InboundDAO;
 import com.energyict.mdc.protocol.inbound.InboundDeviceProtocol;
@@ -46,7 +46,9 @@ public class PushEventNotificationTest extends TestCase {
 
     private static final String AK = "B6C52294F40A30B9BDF9FE4270B03685";
     private static final String EK = "EFD82FCB93E5826ED805E38A6B2EC9F1";
-
+    @Mock
+    private final DummyComChannel voidTcpComChannel = spy(new DummyComChannel());
+    private final MockRtuPlusServer mockRtuPlusServer = new MockRtuPlusServer();
     @Mock
     protected CollectedDataFactoryProvider collectedDataFactoryProvider;
     @Mock
@@ -55,10 +57,6 @@ public class PushEventNotificationTest extends TestCase {
     private InboundDiscoveryContext context;
     @Mock
     private InboundDAO inboundDAO;
-    @Mock
-    private final DummyComChannel voidTcpComChannel = spy(new DummyComChannel());
-
-    private final MockRtuPlusServer mockRtuPlusServer = new MockRtuPlusServer();
 
     @Before
     public void doBefore() throws IOException {
@@ -178,7 +176,7 @@ public class PushEventNotificationTest extends TestCase {
         private int providePSKMethodCalled = 0;
 
         @Override
-        protected RtuPlusServer initializeGatewayProtocol(DeviceProtocolSecurityPropertySet securityPropertySet) {
+        protected DeviceProtocol initializeGatewayProtocol(DeviceProtocolSecurityPropertySet securityPropertySet, DeviceProtocol deviceProtocol) {
             tcpComChannel = voidTcpComChannel;
             return mockRtuPlusServer;
         }
