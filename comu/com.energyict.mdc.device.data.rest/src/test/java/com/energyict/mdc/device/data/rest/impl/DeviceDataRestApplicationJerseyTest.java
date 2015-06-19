@@ -1,16 +1,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.cbo.Accumulation;
-import com.elster.jupiter.cbo.Aggregate;
-import com.elster.jupiter.cbo.Commodity;
-import com.elster.jupiter.cbo.FlowDirection;
-import com.elster.jupiter.cbo.MacroPeriod;
-import com.elster.jupiter.cbo.MeasurementKind;
-import com.elster.jupiter.cbo.MetricMultiplier;
-import com.elster.jupiter.cbo.Phase;
-import com.elster.jupiter.cbo.RationalNumber;
-import com.elster.jupiter.cbo.ReadingTypeUnit;
-import com.elster.jupiter.cbo.TimeAttribute;
+import com.elster.jupiter.cbo.*;
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.issue.share.service.IssueService;
@@ -33,22 +23,21 @@ import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.favorites.FavoritesService;
 import com.energyict.mdc.firmware.FirmwareService;
+import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
-
-import java.time.Clock;
-import java.util.Currency;
-import java.util.Optional;
-
-import javax.ws.rs.core.Application;
-
 import com.energyict.mdc.tasks.impl.SystemComTask;
 import org.junit.Before;
 import org.mockito.Mock;
+
+import javax.ws.rs.core.Application;
+import java.time.Clock;
+import java.util.Currency;
+import java.util.Optional;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
@@ -78,6 +67,8 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
     EngineConfigurationService engineConfigurationService;
     @Mock
     IssueService issueService;
+    @Mock
+    IssueDataValidationService issueDataValidationService;
     @Mock
     SchedulingService schedulingService;
     @Mock
@@ -146,6 +137,7 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         application.setDeviceImportService(deviceImportService);
         application.setEngineConfigurationService(engineConfigurationService);
         application.setIssueService(issueService);
+        application.setIssueDataValidationService(issueDataValidationService);
         application.setMeteringGroupsService(meteringGroupService);
         application.setMeteringService(meteringService);
         application.setSchedulingService(schedulingService);

@@ -4,10 +4,10 @@ import com.elster.jupiter.cbo.EndDeviceDomain;
 import com.elster.jupiter.cbo.EndDeviceEventorAction;
 import com.elster.jupiter.cbo.EndDeviceSubDomain;
 import com.elster.jupiter.cbo.EndDeviceType;
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.fsm.State;
-import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
-import com.elster.jupiter.metering.IntervalReadingRecord;
-import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.issue.share.entity.IssueStatus;
+import com.elster.jupiter.metering.*;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.readings.ProfileStatus;
@@ -17,19 +17,9 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.Ranges;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.device.config.ChannelSpec;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.LoadProfileSpec;
-import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.config.PartialInboundConnectionTask;
+import com.energyict.mdc.device.config.*;
 import com.energyict.mdc.device.data.Channel;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceEstimation;
-import com.energyict.mdc.device.data.DeviceValidation;
-import com.energyict.mdc.device.data.LoadProfile;
-import com.energyict.mdc.device.data.LoadProfileReading;
-import com.energyict.mdc.device.data.LogBook;
+import com.energyict.mdc.device.data.*;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
@@ -55,27 +45,12 @@ import javax.ws.rs.core.Response;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Created by bvn on 6/19/14.
@@ -86,7 +61,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     public ReadingType readingType;
 
     @Before
-    public void setupStubs(){
+    public void setupStubs() {
         readingType = mockReadingType("0.1.2.3.5.6.7.8.9.1.2.3.4.5.6.7.8");
     }
 
@@ -1158,6 +1133,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(device.forEstimation()).thenReturn(deviceEstimation);
         State state = mockDeviceState("In stock");
         when(device.getState()).thenReturn(state);
+        mockForCountDataValidationIssues();
         return device;
     }
 
@@ -1228,5 +1204,17 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         State state = mock(State.class);
         when(state.getName()).thenReturn(name);
         return state;
+    }
+
+    private void mockForCountDataValidationIssues() {
+        AmrSystem amrSystem = mock(AmrSystem.class);
+        when(meteringService.findAmrSystem(KnownAmrSystem.MDC.getId())).thenReturn(Optional.of(amrSystem));
+        Meter meter = mock(Meter.class);
+        when(amrSystem.findMeter(Matchers.anyString())).thenReturn(Optional.of(meter));
+        IssueStatus status = mock(IssueStatus.class);
+        when(issueService.findStatus(Matchers.anyString())).thenReturn(Optional.of(status));
+        Finder finder = mock(Finder.class);
+        when(issueDataValidationService.findAllDataValidationIssues(Matchers.any())).thenReturn(finder);
+        when(finder.find()).thenReturn(Collections.emptyList());
     }
 }

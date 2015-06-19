@@ -151,7 +151,6 @@ public class DeviceResource {
         this.thesaurus = thesaurus;
     }
 
-
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
@@ -201,7 +200,7 @@ public class DeviceResource {
         if (info.estimationStatus != null) {
             updateEstimationStatus(info.estimationStatus, device);
         }
-        return DeviceInfo.from(device, getSlaveDevicesForDevice(device), deviceImportService, topologyService, issueService, thesaurus);
+        return deviceInfoFactory.from(device, getSlaveDevicesForDevice(device));
     }
 
     private DeviceInfo updateGateway(DeviceInfo info, Device device) {

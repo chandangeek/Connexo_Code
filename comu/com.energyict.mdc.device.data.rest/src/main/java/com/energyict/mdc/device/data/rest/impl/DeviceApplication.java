@@ -9,12 +9,7 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.SimpleTranslationKey;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.nls.TranslationKeyProvider;
+import com.elster.jupiter.nls.*;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionService;
@@ -42,6 +37,7 @@ import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.favorites.FavoritesService;
 import com.energyict.mdc.firmware.FirmwareService;
+import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
@@ -49,17 +45,14 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 import com.google.common.collect.ImmutableSet;
-import java.time.Clock;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.logging.Logger;
-import javax.ws.rs.core.Application;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+
+import javax.ws.rs.core.Application;
+import java.time.Clock;
+import java.util.*;
+import java.util.logging.Logger;
 
 @Component(name = "com.energyict.ddr.rest", service = {Application.class, TranslationKeyProvider.class}, immediate = true, property = {"alias=/ddr", "app=MDC", "name=" + DeviceApplication.COMPONENT_NAME})
 public class DeviceApplication extends Application implements TranslationKeyProvider {
@@ -78,6 +71,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     private volatile ProtocolPluggableService protocolPluggableService;
     private volatile DeviceImportService deviceImportService;
     private volatile IssueService issueService;
+    private volatile IssueDataValidationService issueDataValidationService;
     private volatile TransactionService transactionService;
     private volatile YellowfinGroupsService yellowfinGroupsService;
     private volatile NlsService nlsService;
@@ -173,6 +167,11 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     @Reference
     public void setIssueService(IssueService issueService) {
         this.issueService = issueService;
+    }
+
+    @Reference
+    public void setIssueDataValidationService(IssueDataValidationService issueDataValidationService) {
+        this.issueDataValidationService = issueDataValidationService;
     }
 
     @Reference
@@ -331,6 +330,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(protocolPluggableService).to(ProtocolPluggableService.class);
             bind(transactionService).to(TransactionService.class);
             bind(issueService).to(IssueService.class);
+            bind(issueDataValidationService).to(IssueDataValidationService.class);
             bind(ResourceHelper.class).to(ResourceHelper.class);
             bind(ChannelResourceHelper.class).to(ChannelResourceHelper.class);
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
