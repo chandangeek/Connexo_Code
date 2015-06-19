@@ -234,12 +234,12 @@ Ext.define('Dlc.devicelifecycletransitions.view.widget.StatePropertiesForm', {
                 }
             } else {
                 var combo = me.getFieldById(item.conflictGroup.id),
-                    radigroupValue = {};
+                    radiogroupValue = {};
                 if (combo) {
-                    radigroupValue[item.conflictGroup.id] = item.key;
+                    radiogroupValue[item.conflictGroup.id] = item.key;
                     combo.setValue(true);
 
-                    combo.up('container[name=mainContainer]').down('radiogroup').setValue(radigroupValue);
+                    combo.up('container[name=mainContainer]').down('radiogroup').setValue(radiogroupValue);
                 } else {
                     var field = me.getFieldById(item.key);
                     if (field) {
