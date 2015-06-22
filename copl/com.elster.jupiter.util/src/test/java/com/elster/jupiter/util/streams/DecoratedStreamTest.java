@@ -39,6 +39,13 @@ public class DecoratedStreamTest {
         }
     }
 
+    private static class SubclassedCustomer extends Customer {
+
+        private SubclassedCustomer(String name, String address) {
+            super(name, address);
+        }
+    }
+
     @Test
     public void testDistinctByProperty() {
         List<Customer> customers = Arrays.asList(
@@ -107,6 +114,20 @@ public class DecoratedStreamTest {
                 .collect(Collectors.joining());
 
         assertThat(characters).isEqualTo("");
+    }
+
+    @Test
+    public void testFilterSubType() {
+        List<String> strings = Arrays.asList("B", "C", "E", "G", "H", "I", "K");
+        List<SubclassedCustomer> collect = decorate(strings.stream())
+                .map(letter -> (letter.charAt(0) - 'A') % 2 == 1 ? new SubclassedCustomer(letter, "address") : new Customer(letter, "address"))
+                .filterSubType(SubclassedCustomer.class)
+                .collect(Collectors.toList());
+
+        assertThat(collect).hasSize(2);
+
+        assertThat(collect.get(0).getName()).isEqualTo("B");
+        assertThat(collect.get(1).getName()).isEqualTo("H");
     }
 
 }

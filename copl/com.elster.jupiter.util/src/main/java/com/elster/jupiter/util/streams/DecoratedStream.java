@@ -259,6 +259,10 @@ public class DecoratedStream<T> implements Stream<T> {
         return new DecoratedStream<>(decorated.onClose(closeHandler));
     }
 
+    public <S extends T> DecoratedStream<S> filterSubType(Class<S> clazz) {
+        return decorate(decorated.filter(clazz::isInstance).map(clazz::cast));
+    }
+
     @Override
     public void close() {
         decorated.close();
