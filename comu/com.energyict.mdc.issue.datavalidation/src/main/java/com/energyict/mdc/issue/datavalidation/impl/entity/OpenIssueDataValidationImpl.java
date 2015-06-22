@@ -64,7 +64,7 @@ public class OpenIssueDataValidationImpl extends IssueDataValidationImpl impleme
         
         List<Pair<Range<Instant>, OpenIssueNotEstimatedBlockImpl>> connectedBlocks = notEstimatedBlocks.stream()
                 .filter(block -> block.getChannel().getId() == channel.getId())
-//                .filter(block -> block.getReadingType().equals(readingType))
+                .filter(block -> block.getReadingType().equals(readingType))
                 .map(block -> Pair.of(Range.closedOpen(block.getStartTime(), block.getEndTime()), block))
                 .filter(block -> block.getFirst().isConnected(interval))
                 .sorted((block1, block2) -> block1.getFirst().lowerEndpoint().compareTo(block2.getFirst().lowerEndpoint()))
@@ -88,7 +88,7 @@ public class OpenIssueDataValidationImpl extends IssueDataValidationImpl impleme
         
         Optional<OpenIssueNotEstimatedBlockImpl> enclosingBlock = notEstimatedBlocks.stream()
                 .filter(block -> block.getChannel().getId() == channel.getId())
-//                .filter(block -> block.getReadingType().equals(readingType))
+                .filter(block -> block.getReadingType().equals(readingType))
                 .filter(block -> Range.closedOpen(block.getStartTime(), block.getEndTime()).encloses(interval))
                 .findFirst();
         if (enclosingBlock.isPresent()) {

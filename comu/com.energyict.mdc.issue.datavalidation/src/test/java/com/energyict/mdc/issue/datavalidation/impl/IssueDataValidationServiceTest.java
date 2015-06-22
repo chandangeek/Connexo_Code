@@ -1,8 +1,22 @@
 package com.energyict.mdc.issue.datavalidation.impl;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.issue.impl.service.IssueServiceImpl;
+import com.elster.jupiter.issue.share.IssueEvent;
+import com.elster.jupiter.issue.share.IssueProvider;
+import com.elster.jupiter.issue.share.entity.*;
+import com.elster.jupiter.issue.share.service.IssueCreationService;
+import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleBuilder;
+import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.metering.*;
+import com.elster.jupiter.properties.HasIdAndName;
+import com.elster.jupiter.properties.ListValue;
+import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.conditions.Condition;
+import com.energyict.mdc.issue.datavalidation.*;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -11,42 +25,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Test;
-
-import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.elster.jupiter.issue.impl.service.IssueServiceImpl;
-import com.elster.jupiter.issue.share.IssueEvent;
-import com.elster.jupiter.issue.share.IssueProvider;
-import com.elster.jupiter.issue.share.entity.CreationRule;
-import com.elster.jupiter.issue.share.entity.DueInType;
-import com.elster.jupiter.issue.share.entity.HistoricalIssue;
-import com.elster.jupiter.issue.share.entity.IssueAssignee;
-import com.elster.jupiter.issue.share.entity.IssueReason;
-import com.elster.jupiter.issue.share.entity.IssueStatus;
-import com.elster.jupiter.issue.share.entity.OpenIssue;
-import com.elster.jupiter.issue.share.service.IssueCreationService;
-import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleBuilder;
-import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.metering.AmrSystem;
-import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.EndDevice;
-import com.elster.jupiter.metering.KnownAmrSystem;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.properties.HasIdAndName;
-import com.elster.jupiter.properties.ListValue;
-import com.elster.jupiter.users.User;
-import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.conditions.Condition;
-import com.energyict.mdc.issue.datavalidation.DataValidationIssueFilter;
-import com.energyict.mdc.issue.datavalidation.HistoricalIssueDataValidation;
-import com.energyict.mdc.issue.datavalidation.IssueDataValidation;
-import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
-import com.energyict.mdc.issue.datavalidation.NotEstimatedBlock;
-import com.energyict.mdc.issue.datavalidation.OpenIssueDataValidation;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class IssueDataValidationServiceTest extends PersistenceIntegrationTest {
 
@@ -72,6 +53,7 @@ public class IssueDataValidationServiceTest extends PersistenceIntegrationTest {
         props.put(DataValidationIssueCreationRuleTemplate.DEVICE_CONFIGURATIONS, value);
         issueCreationRule = ruleBuilder.setTemplate(DataValidationIssueCreationRuleTemplate.NAME)
                    .setName("Test")
+                   .setIssueType(issueService.findIssueType(IssueDataValidationService.ISSUE_TYPE_NAME).get())
                    .setReason(issueService.findReason(IssueDataValidationService.DATA_VALIDATION_ISSUE_REASON).get())
                    .setDueInTime(DueInType.YEAR, 5)
                    .setProperties(props)

@@ -1,30 +1,6 @@
 package com.energyict.mdc.issue.datavalidation.impl;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import java.math.BigDecimal;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.time.temporal.ChronoUnit;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mockito;
-
-import com.elster.jupiter.cbo.Accumulation;
-import com.elster.jupiter.cbo.Commodity;
-import com.elster.jupiter.cbo.FlowDirection;
-import com.elster.jupiter.cbo.MeasurementKind;
-import com.elster.jupiter.cbo.MetricMultiplier;
-import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
-import com.elster.jupiter.cbo.ReadingTypeUnit;
-import com.elster.jupiter.cbo.TimeAttribute;
+import com.elster.jupiter.cbo.*;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.issue.impl.service.IssueServiceImpl;
 import com.elster.jupiter.issue.share.entity.CreationRule;
@@ -35,21 +11,12 @@ import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleB
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
-import com.elster.jupiter.metering.AmrSystem;
-import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.KnownAmrSystem;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.*;
 import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.properties.HasIdAndName;
-import com.elster.jupiter.properties.ListValue;
-import com.elster.jupiter.properties.ListValueFactory;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.PropertySpecPossibleValues;
+import com.elster.jupiter.properties.*;
 import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -62,6 +29,22 @@ import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
 import com.energyict.mdc.issue.datavalidation.impl.DataValidationIssueCreationRuleTemplate.DeviceConfigurationInfo;
 import com.energyict.mdc.issue.datavalidation.impl.event.DataValidationEventHandlerFactory;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class DataValidationIssueCreationRuleTemplateTest extends PersistenceIntegrationTest {
     
@@ -318,6 +301,7 @@ public class DataValidationIssueCreationRuleTemplateTest extends PersistenceInte
         props.put(DataValidationIssueCreationRuleTemplate.DEVICE_CONFIGURATIONS, value);
         CreationRule creationRule = ruleBuilder.setTemplate(DataValidationIssueCreationRuleTemplate.NAME)
                    .setName(name)
+                   .setIssueType(issueService.findIssueType(IssueDataValidationService.ISSUE_TYPE_NAME).get())
                    .setReason(issueService.findReason(IssueDataValidationService.DATA_VALIDATION_ISSUE_REASON).get())
                    .setDueInTime(DueInType.YEAR, 5)
                    .setProperties(props)
