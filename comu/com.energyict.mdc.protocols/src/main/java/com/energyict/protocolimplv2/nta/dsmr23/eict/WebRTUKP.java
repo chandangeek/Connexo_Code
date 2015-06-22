@@ -1,9 +1,12 @@
 package com.energyict.protocolimplv2.nta.dsmr23.eict;
 
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
@@ -17,7 +20,8 @@ import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
-import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
+import com.energyict.mdc.protocol.api.device.data.*;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
 import com.energyict.mdc.protocol.api.dialer.core.HHUSignOnV2;
@@ -28,12 +32,6 @@ import com.energyict.protocols.mdc.protocoltasks.TcpDeviceProtocolDialect;
 import com.energyict.protocolimplv2.hhusignon.IEC1107HHUSignOn;
 import com.energyict.mdc.io.ComChannelType;
 import com.energyict.protocols.impl.channels.ip.socket.OutboundTcpIpConnectionType;
-import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
-import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
-import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
-import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
-import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
@@ -42,11 +40,9 @@ import com.energyict.protocols.impl.channels.serial.optical.rxtx.RxTxOpticalConn
 import com.energyict.protocols.impl.channels.serial.optical.serialio.SioOpticalConnectionType;
 
 import javax.inject.Inject;
+import java.math.BigDecimal;
 import java.time.Clock;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * General error handling principle:
@@ -168,5 +164,81 @@ public class WebRTUKP extends AbstractDlmsProtocol {
     @Override
     public String getProtocolDescription() {
         return "EnergyICT WebRTU KP DLMS (NTA DSMR2.3)";
+    }
+
+    @Override
+    public CollectedFirmwareVersion getFirmwareVersions() {
+        CollectedFirmwareVersion firmwareVersionsCollectedData = getCollectedDataFactory().createFirmwareVersionsCollectedData(this.offlineDevice.getDeviceIdentifier());
+        List<CollectedRegister> collectedRegisters = getRegisterFactory().readRegisters(Collections.singletonList(getFirmwareRegister()));
+        firmwareVersionsCollectedData.setActiveMeterFirmwareVersion(collectedRegisters.get(0).getText());
+        return firmwareVersionsCollectedData;
+    }
+
+    private OfflineRegister getFirmwareRegister() {
+        return new OfflineRegister() {
+
+            // Module Version identification
+            private ObisCode firmwareObisCode = ObisCode.fromString("1.1.0.2.0.255");
+
+            @Override
+            public long getRegisterId() {
+                return 0;
+            }
+
+            @Override
+            public ObisCode getObisCode() {
+                return firmwareObisCode;
+            }
+
+            @Override
+            public boolean inGroup(long registerGroupId) {
+                return false;
+            }
+
+            @Override
+            public boolean inAtLeastOneGroup(Collection<Long> registerGroupIds) {
+                return false;
+            }
+
+            @Override
+            public Unit getUnit() {
+                return Unit.getUndefined();
+            }
+
+            @Override
+            public String getDeviceMRID() {
+                return null;
+            }
+
+            @Override
+            public String getDeviceSerialNumber() {
+                return WebRTUKP.this.getOfflineDevice().getSerialNumber();
+            }
+
+            @Override
+            public ObisCode getAmrRegisterObisCode() {
+                return firmwareObisCode;
+            }
+
+            @Override
+            public DeviceIdentifier<?> getDeviceIdentifier() {
+                return WebRTUKP.this.getOfflineDevice().getDeviceIdentifier();
+            }
+
+            @Override
+            public ReadingType getReadingType() {
+                return null;
+            }
+
+            @Override
+            public BigDecimal getOverFlowValue() {
+                return null;
+            }
+
+            @Override
+            public boolean isText() {
+                return true;
+            }
+        };
     }
 }

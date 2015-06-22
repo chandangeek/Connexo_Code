@@ -111,7 +111,7 @@ public abstract class AbstractMessageExecutor {
     }
 
     protected Issue createUnsupportedWarning(OfflineDeviceMessage pendingMessage) {
-        return this.issueService.newIssueCollector().addWarning(
+        return this.issueService.newIssueCollector().addProblem(
                 pendingMessage,
                 com.energyict.mdc.protocol.api.MessageSeeds.DEVICEMESSAGE_NOT_SUPPORTED.getKey(),
                 pendingMessage.getDeviceMessageId(),
