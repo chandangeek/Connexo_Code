@@ -1,6 +1,8 @@
 package com.energyict.mdc.device.lifecycle.config;
 
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.util.HasName;
+import com.energyict.mdc.common.HasId;
 
 import java.time.Instant;
 import java.util.Optional;
@@ -27,8 +29,8 @@ import java.util.Set;
  * @since 2015-03-11 (14:17)
  */
 
-public interface AuthorizedAction {
-    public enum Level {
+public interface AuthorizedAction extends HasId, HasName{
+    enum Level {
         ONE(Privileges.INITIATE_ACTION_1),
         TWO(Privileges.INITIATE_ACTION_2),
         THREE(Privileges.INITIATE_ACTION_3),
@@ -55,31 +57,23 @@ public interface AuthorizedAction {
 
     }
 
-    public long getId();
+    long getVersion();
 
-    public long getVersion();
-
-    public DeviceLifeCycle getDeviceLifeCycle();
+    DeviceLifeCycle getDeviceLifeCycle();
 
     /**
      * Gets the timestamp on which this AuthorizedAction was created.
      *
      * @return The creation timestamp
      */
-    public Instant getCreationTimestamp();
-
-    /**
-     * Gets the name
-     * @return The name
-     */
-    public String getName();
+    Instant getCreationTimestamp();
 
     /**
      * Gets the timestamp on which this AuthorizedAction was last modified.
      *
      * @return The timestamp of last modification
      */
-    public Instant getModifiedTimestamp();
+    Instant getModifiedTimestamp();
 
     /**
      * Gets the {@link Level}s that authorizes a user to
@@ -90,13 +84,12 @@ public interface AuthorizedAction {
      *
      * @return The Set of Level
      */
-    public Set<Level> getLevels();
+    Set<Level> getLevels();
 
     /**
      * Gets the {@link State} on which this action is authorized.
      *
      * @return The State
      */
-    public State getState();
-
+    State getState();
 }
