@@ -80,6 +80,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
+import java.util.logging.Logger;
 
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.*;
 
@@ -118,9 +119,11 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
                     .forEach(result::addCollectedMessages);
         }
 
+        Logger logger = Logger.getLogger(Dsmr23MessageExecutor.class.getName());
         for (OfflineDeviceMessage pendingMessage : masterMessages) {
             CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);   //Optimistic
+            logger.severe("DeviceMessage: " + pendingMessage.getDeviceMessageId() + " - id: " + pendingMessage.getDeviceMessageId().dbValue());
             try {
                 if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.CONTACTOR_OPEN)) {
                     doDisconnect();
