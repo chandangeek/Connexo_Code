@@ -142,6 +142,23 @@ public class MeterActivationImpl implements MeterActivation {
     }
 
 	@Override
+	public List<? extends BaseReadingRecord> getReadingsUpdatedSince(Range<Instant> range, ReadingType readingType, Instant since) {
+		if (!range.isConnected(getRange())) {
+			return Collections.emptyList();
+		}
+		Range<Instant> active = range.intersection(getRange());
+		if (active.hasUpperBound() && since.isAfter(active.upperEndpoint())) {
+			return Collections.emptyList();
+		}
+		Channel channel = getChannel(readingType);
+		if (channel == null) {
+			return Collections.emptyList();
+		} else {
+			return channel.getReadingsUpdatedSince(readingType, active, since);
+		}
+	}
+
+	@Override
 	public List<BaseReadingRecord> getReadingsBefore(Instant when, ReadingType readingType, int count) {
         Channel channel = getChannel(readingType);
         if (channel == null) {

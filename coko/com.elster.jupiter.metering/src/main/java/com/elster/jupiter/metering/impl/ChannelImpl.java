@@ -28,6 +28,7 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.streams.ExtraCollectors;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
 
@@ -284,13 +285,10 @@ public final class ChannelImpl implements ChannelContract {
         if (!isRegular()) {
             return Collections.emptyList();
         }
-        List<TimeSeriesEntry> entries = getTimeSeries().getEntries(interval);
-        ImmutableList.Builder<IntervalReadingRecord> builder = ImmutableList.builder();
-        for (TimeSeriesEntry entry : entries) {
-            IntervalReadingRecordImpl reading = new IntervalReadingRecordImpl(this, entry);
-            builder.add(reading.filter(readingType));
-        }
-        return builder.build();
+        return getTimeSeries().getEntries(interval).stream()
+                .map(entry -> new IntervalReadingRecordImpl(this, entry))
+                .map(reading -> reading.filter(readingType))
+                .collect(ExtraCollectors.toImmutableList());
     }
 
     @Override
@@ -298,27 +296,32 @@ public final class ChannelImpl implements ChannelContract {
         if (isRegular()) {
             return Collections.emptyList();
         }
-        List<TimeSeriesEntry> entries = getTimeSeries().getEntries(interval);
-        ImmutableList.Builder<ReadingRecord> builder = ImmutableList.builder();
-        for (TimeSeriesEntry entry : entries) {
-            ReadingRecordImpl reading = new ReadingRecordImpl(this, entry);
-            builder.add(reading.filter(readingType));
-        }
-        return builder.build();
+        return getTimeSeries().getEntries(interval).stream()
+                .map(entry -> new ReadingRecordImpl(this, entry))
+                .map(reading -> reading.filter(readingType))
+                .collect(ExtraCollectors.toImmutableList());
     }
 
     @Override
     public List<BaseReadingRecord> getReadings(ReadingType readingType, Range<Instant> interval) {
-        boolean isRegular = isRegular();
         List<TimeSeriesEntry> entries = getTimeSeries().getEntries(interval);
-        ImmutableList.Builder<BaseReadingRecord> builder = ImmutableList.builder();
-        for (TimeSeriesEntry entry : entries) {
-        	BaseReadingRecord reading = isRegular ?
-                    new IntervalReadingRecordImpl(this, entry) :
-                    new ReadingRecordImpl(this, entry);
-            builder.add(reading.filter(readingType));
-        }
-        return builder.build();
+        return toReadings(readingType, entries);
+    }
+
+    @Override
+    public List<BaseReadingRecord> getReadingsUpdatedSince(ReadingType readingType, Range<Instant> interval, Instant since) {
+        List<TimeSeriesEntry> entries = getTimeSeries().getEntriesUpdatedSince(interval, since);
+        return toReadings(readingType, entries);
+    }
+
+    private List<BaseReadingRecord> toReadings(ReadingType readingType, List<TimeSeriesEntry> entries) {
+        Function<TimeSeriesEntry, BaseReadingRecord> readingMapper = isRegular() ?
+                entry -> new IntervalReadingRecordImpl(this, entry) :
+                entry -> new ReadingRecordImpl(this, entry);
+        return entries.stream()
+                .map(readingMapper)
+                .map(reading -> reading.filter(readingType))
+                .collect(ExtraCollectors.toImmutableList());
     }
 
     @Override
@@ -326,12 +329,9 @@ public final class ChannelImpl implements ChannelContract {
         if (isRegular()) {
             return Collections.emptyList();
         }
-        List<TimeSeriesEntry> entries = getTimeSeries().getEntries(interval);
-        ImmutableList.Builder<ReadingRecord> builder = ImmutableList.builder();
-        for (TimeSeriesEntry entry : entries) {
-            builder.add(new ReadingRecordImpl(this, entry));
-        }
-        return builder.build();
+        return getTimeSeries().getEntries(interval).stream()
+                .map(entry -> new ReadingRecordImpl(this, entry))
+                .collect(ExtraCollectors.toImmutableList());
     }
 
     @Override

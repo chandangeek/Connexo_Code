@@ -28,6 +28,7 @@ import com.google.common.collect.Range;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -232,14 +233,12 @@ public class UsagePointImpl implements UsagePoint {
 	}
 	
 	@Override
-	public MeterActivation getCurrentMeterActivation() {
-		for (MeterActivation each : meterActivations) {
-			if (each.isCurrent()) {
-				return each;
-			}
-		}
-		return null;
-	}
+	public Optional<MeterActivation> getCurrentMeterActivation() {
+        return meterActivations.stream()
+                .filter(MeterActivation::isCurrent)
+                .map(MeterActivation.class::cast)
+                .findAny();
+    }
 	
 	@Override
 	public Instant getCreateDate() {
@@ -372,6 +371,11 @@ public class UsagePointImpl implements UsagePoint {
 	}
 
 	@Override
+	public List<? extends BaseReadingRecord> getReadingsUpdatedSince(Range<Instant> range, ReadingType readingType, Instant since) {
+		return MeterActivationsImpl.from(meterActivations, range).getReadingsUpdatedSince(range, readingType, since);
+	}
+
+	@Override
 	public Set<ReadingType> getReadingTypes(Range<Instant> range) {
 		return MeterActivationsImpl.from(meterActivations, range).getReadingTypes(range);
 	}
@@ -427,4 +431,11 @@ public class UsagePointImpl implements UsagePoint {
     public Optional<UsagePoint> getUsagePoint(Instant instant) {
         return Optional.of(this);
     }
+
+	@Override
+	public ZoneId getZoneId() {
+		return getCurrentMeterActivation()
+				.map(MeterActivation::getZoneId)
+				.orElse(ZoneId.systemDefault());
+	}
 }

@@ -29,6 +29,7 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -127,6 +128,11 @@ public class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter
     }
 
     @Override
+    public List<? extends BaseReadingRecord> getReadingsUpdatedSince(Range<Instant> range, ReadingType readingType, Instant since) {
+        return MeterActivationsImpl.from(meterActivations, range).getReadingsUpdatedSince(range, readingType, since);
+    }
+
+    @Override
     public Set<ReadingType> getReadingTypes(Range<Instant> range) {
         return MeterActivationsImpl.from(meterActivations, range).getReadingTypes(range);
     }
@@ -180,5 +186,12 @@ public class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter
     @Override
     public Optional<UsagePoint> getUsagePoint(Instant instant) {
         return getMeterActivation(instant).flatMap(MeterActivation::getUsagePoint);
+    }
+
+    @Override
+    public ZoneId getZoneId() {
+        return getCurrentMeterActivation()
+                .map(MeterActivation::getZoneId)
+                .orElse(ZoneId.systemDefault());
     }
 }

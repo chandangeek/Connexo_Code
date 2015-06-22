@@ -2,18 +2,21 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingContainer;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
+import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class MeterActivationsImpl implements ReadingContainer {
 	
@@ -25,20 +28,24 @@ public class MeterActivationsImpl implements ReadingContainer {
 
 	@Override
 	public List<? extends BaseReadingRecord> getReadings(Range<Instant> range, ReadingType readingType) {
-		List<BaseReadingRecord> result = new ArrayList<>();
-		for (MeterActivationImpl meterActivation : meterActivations)  {
-			result.addAll(meterActivation.getReadings(range, readingType));
-		}
-		return result;
+		return meterActivations.stream()
+				.flatMap(meterActivation -> meterActivation.getReadings(range, readingType).stream())
+				.collect(Collectors.toList());
+	}
+
+	@Override
+	public List<? extends BaseReadingRecord> getReadingsUpdatedSince(Range<Instant> range, ReadingType readingType, Instant since) {
+		return meterActivations.stream()
+				.flatMap(meterActivation -> meterActivation.getReadingsUpdatedSince(range, readingType, since).stream())
+				.collect(Collectors.toList());
 	}
 
 	@Override
 	public Set<ReadingType> getReadingTypes(Range<Instant> range) {
-		Set<ReadingType> result = new HashSet<>();
-		for (MeterActivationImpl meterActivation : meterActivations)  {
-			result.addAll(meterActivation.getReadingTypes());
-		}
-		return result;	
+		return meterActivations.stream()
+				.map(MeterActivation::getReadingTypes)
+				.flatMap(Collection::stream)
+				.collect(Collectors.toSet());
 	}
 
 	@Override
@@ -78,19 +85,16 @@ public class MeterActivationsImpl implements ReadingContainer {
 	
 	public static MeterActivationsImpl from(List<MeterActivationImpl> candidates , Range<Instant> range) {
 		MeterActivationsImpl meterActivations = new MeterActivationsImpl();
-		for (MeterActivationImpl meterActivation : candidates) {
-			if (meterActivation.overlaps(range)) {
-				meterActivations.add(meterActivation);
-			}
-		}
+		candidates.stream()
+				.filter(meterActivation -> meterActivation.overlaps(range))
+				.forEach(meterActivations::add);
 		return meterActivations;
 	}
 	
 	public static MeterActivationsImpl from(List<MeterActivationImpl> candidates) {
 		MeterActivationsImpl meterActivations = new MeterActivationsImpl();
-		for (MeterActivationImpl meterActivation : candidates) {
-			meterActivations.add(meterActivation);
-		}
+		candidates.stream()
+				.forEach(meterActivations::add);
 		return meterActivations;
 	}
 
@@ -113,5 +117,13 @@ public class MeterActivationsImpl implements ReadingContainer {
                 .filter(activation -> activation.getRange().contains(instant))
                 .findAny()
                 .flatMap(MeterActivationImpl::getUsagePoint);
+    }
+
+    @Override
+    public ZoneId getZoneId() {
+        return meterActivations.stream()
+                .findAny()
+                .map(MeterActivation::getZoneId)
+                .orElse(ZoneId.systemDefault());
     }
 }
