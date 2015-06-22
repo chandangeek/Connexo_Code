@@ -69,13 +69,6 @@ public interface AuthorizedAction extends HasId, HasName {
     public Instant getCreationTimestamp();
 
     /**
-     * Gets the name of this AuthorizedAction.
-     *
-     * @return The name
-     */
-    public String getName();
-
-    /**
      * Gets the timestamp on which this AuthorizedAction was last modified.
      *
      * @return The timestamp of last modification
