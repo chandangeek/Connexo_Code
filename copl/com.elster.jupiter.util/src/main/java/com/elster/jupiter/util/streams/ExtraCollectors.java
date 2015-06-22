@@ -1,6 +1,10 @@
 package com.elster.jupiter.util.streams;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableRangeSet;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Range;
+import com.google.common.collect.RangeSet;
 
 import java.util.Collections;
 import java.util.Set;
@@ -38,6 +42,35 @@ public enum ExtraCollectors {
             @Override
             public Set<Characteristics> characteristics() {
                 return Collections.emptySet();
+            }
+        };
+    }
+
+    public static <T extends Comparable<? super T>> Collector<Range<T>, ?, RangeSet<T>> toImmutableRangeSet() {
+        return new Collector<Range<T>, ImmutableRangeSet.Builder<T>, RangeSet<T>>() {
+            @Override
+            public Supplier<ImmutableRangeSet.Builder<T>> supplier() {
+                return ImmutableRangeSet::builder;
+            }
+
+            @Override
+            public BiConsumer<ImmutableRangeSet.Builder<T>, Range<T>> accumulator() {
+                return ImmutableRangeSet.Builder::add;
+            }
+
+            @Override
+            public BinaryOperator<ImmutableRangeSet.Builder<T>> combiner() {
+                return (b1, b2) -> b1.addAll(b2.build());
+            }
+
+            @Override
+            public Function<ImmutableRangeSet.Builder<T>, RangeSet<T>> finisher() {
+                return ImmutableRangeSet.Builder::build;
+            }
+
+            @Override
+            public Set<Characteristics> characteristics() {
+                return ImmutableSet.of(Characteristics.UNORDERED);
             }
         };
     }
