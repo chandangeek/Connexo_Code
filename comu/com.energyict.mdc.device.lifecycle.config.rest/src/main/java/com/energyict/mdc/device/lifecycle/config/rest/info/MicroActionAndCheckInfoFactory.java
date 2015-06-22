@@ -48,9 +48,7 @@ public class MicroActionAndCheckInfoFactory {
             info.category = new IdWithNameInfo();
             info.category.id = microAction.getCategory().name();
             info.category.name = thesaurus.getString(MessageSeeds.Keys.TRANSITION_ACTION_CHECK_CATEGORY_KEY + microAction.getCategory().name(), microAction.getCategory().name());
-            if (microAction.getConflictGroupKey() != null){
-                info.conflictGroup = new MicroActionConflictGroupInfo(microAction.getConflictGroupKey(), thesaurus);
-            }
+            microAction.getConflictGroupKey().ifPresent(key -> info.conflictGroup = new MicroActionConflictGroupInfo(key, thesaurus));
         }
         return info;
     }
