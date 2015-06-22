@@ -1,6 +1,6 @@
 package com.energyict.mdc.device.data.impl.security;
 
-import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.elster.jupiter.util.streams.Functions;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.dynamic.relation.CompositeFilterCriterium;
@@ -16,7 +16,6 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.SecurityPropertySetRelationAttributeTypeNames;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.util.streams.Predicates;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -24,12 +23,9 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.function.Function;
+import java.util.*;
 import java.util.stream.Collectors;
+
 
 /**
  * Provides an implementation for the {@link SecurityPropertyService} interface.
@@ -133,26 +129,7 @@ public class SecurityPropertyServiceImpl implements SecurityPropertyService {
 
     @Override
     public boolean securityPropertiesAreValid(Device device) {
-        return !anySecurityPropertySetWithMissingOrIncompleteProperties(device).isPresent();
-    }
-
-    private Optional<SecurityPropertySet> anySecurityPropertySetWithMissingOrIncompleteProperties(Device device) {
-        return this.getSecurityPropertySets(device)
-                .stream()
-                .filter(each -> this.isMissingOrIncomplete(device, each))
-                .findAny();
-    }
-
-    private Collection<SecurityPropertySet> getSecurityPropertySets(Device device) {
-        return device
-                .getDeviceConfiguration()
-                .getComTaskEnablements()
-                .stream()
-                .map(ComTaskEnablement::getSecurityPropertySet)
-                .collect(Collectors.toMap(
-                    SecurityPropertySet::getId,
-                    Function.identity()))
-                .values();
+        return device.getDeviceConfiguration().getComTaskEnablements().stream().noneMatch(enablement -> isMissingOrIncomplete(device, enablement.getSecurityPropertySet()));
     }
 
     private boolean isMissingOrIncomplete(Device device, SecurityPropertySet securityPropertySet) {
@@ -160,9 +137,7 @@ public class SecurityPropertyServiceImpl implements SecurityPropertyService {
         return securityProperties.isEmpty()
             || securityProperties
                     .stream()
-                    .filter(Predicates.not(SecurityProperty::isComplete))
-                    .findAny()
-                    .isPresent();
+                    .anyMatch(Predicates.not(SecurityProperty::isComplete));
     }
 
     @Reference
