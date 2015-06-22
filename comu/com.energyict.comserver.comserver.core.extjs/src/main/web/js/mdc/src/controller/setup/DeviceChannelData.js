@@ -438,16 +438,19 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 menu.record.set('value', null);
                 menu.record.set('intervalFlags', []);
 
-                chart.xAxis[0].addPlotBand({
-                    id: menu.record.get('interval').start,
-                    from: menu.record.get('interval').start,
-                    to: menu.record.get('interval').end,
-                    color: 'rgba(235, 86, 66, 0.3)'
-                });
+                if (!menu.record.get('plotBand')) {
+                    chart.xAxis[0].addPlotBand({
+                        id: menu.record.get('interval').start,
+                        from: menu.record.get('interval').start,
+                        to: menu.record.get('interval').end,
+                        color: 'rgba(235, 86, 66, 0.3)'
+                    });
 
-                menu.record.set('plotBand', true);
-                point = chart.get(menu.record.get('interval').start);
-                point.update(Ext.apply(point, { y: null }));
+                    menu.record.set('plotBand', true);
+                    point = chart.get(menu.record.get('interval').start);
+                    point.update(Ext.apply(point, { y: null }));
+                }
+
                 me.showButtons();
                 break;
         }
@@ -544,18 +547,20 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             me.getPage().down('#save-changes-button').isHidden() && me.showButtons();
             point = chart.get(event.record.get('interval').start);
             if (!event.record.get('value')) {
-                chart.xAxis[0].addPlotBand({
-                    id: event.record.get('interval').start,
-                    from: event.record.get('interval').start,
-                    to: event.record.get('interval').end,
-                    color: 'rgba(235, 86, 66, 0.3)'
-                });
+                if (!event.record.get('plotBand')) {
+                    chart.xAxis[0].addPlotBand({
+                        id: event.record.get('interval').start,
+                        from: event.record.get('interval').start,
+                        to: event.record.get('interval').end,
+                        color: 'rgba(235, 86, 66, 0.3)'
+                    });
+                }
                 event.record.set('plotBand', true);
                 point.update(Ext.apply(point, { y: null }));
             } else {
                 if (event.record.get('plotBand')) {
                     chart.xAxis[0].removePlotBand(event.record.get('interval').start);
-                    event.record.get('plotBand', false);
+                    event.record.set('plotBand', false);
                 }
                 updatedObj = {
                     y: parseFloat(event.record.get('value')),
