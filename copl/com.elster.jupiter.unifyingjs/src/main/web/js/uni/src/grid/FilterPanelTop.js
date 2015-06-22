@@ -97,12 +97,16 @@ Ext.define('Uni.grid.FilterPanelTop', {
         me.initActions();
 
         Uni.util.QueryString.on('querystringchanged', me.onQueryStringChanged, me);
-        this.on('beforedestroy', function() {
-            Uni.util.QueryString.un('querystringchanged', me.onQueryStringChanged, me);
-            if (me.store && me.storeListeners) {
-                me.store.un(me.storeListeners);
-            }
-        });
+    },
+
+    onDestroy: function() {
+        var me = this;
+
+        Uni.util.QueryString.un('querystringchanged', me.onQueryStringChanged, me);
+        if (me.store && me.storeListeners) {
+            me.store.un(me.storeListeners);
+        }
+        me.callParent(arguments);
     },
 
     onQueryStringChanged: function(queryString) {
