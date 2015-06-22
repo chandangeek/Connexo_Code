@@ -12,6 +12,8 @@ public interface DataExportStrategy {
 
     Optional<RelativePeriod> getUpdatePeriod();
 
+    Optional<RelativePeriod> getUpdateWindow();
+
     boolean isExportContinuousData();
 
     ValidatedDataOption getValidatedDataOption();
