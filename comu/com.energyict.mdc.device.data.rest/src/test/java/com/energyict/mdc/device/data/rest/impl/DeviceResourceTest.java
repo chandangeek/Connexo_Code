@@ -1,39 +1,5 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.math.BigDecimal;
-import java.net.URLEncoder;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-
-import javax.validation.ConstraintViolationException;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Response;
-
-import org.assertj.core.data.MapEntry;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Matchers;
-
 import com.elster.jupiter.cbo.EndDeviceDomain;
 import com.elster.jupiter.cbo.EndDeviceEventorAction;
 import com.elster.jupiter.cbo.EndDeviceSubDomain;
@@ -78,6 +44,38 @@ import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
+import org.assertj.core.data.MapEntry;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Matchers;
+
+import javax.validation.ConstraintViolationException;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Response;
+import java.math.BigDecimal;
+import java.net.URLEncoder;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Created by bvn on 6/19/14.
@@ -366,7 +364,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(device1.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         when(device1.newScheduledComTaskExecution(any(ComSchedule.class))).thenReturn(builder);
         when(deviceService.findByUniqueMrid("mrid1")).thenReturn(Optional.of(device1));
-        when(thesaurus.getString(anyString(), anyString())).thenReturn("translated");
+        doReturn("translated").when(thesaurus).getString(anyString(), anyString());
 
         Device device2 = mock(Device.class);
         when(device2.getmRID()).thenReturn("mrid2");
@@ -397,7 +395,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         LoadProfile loadProfile3 = mockLoadProfile("lp1", 1, new TimeDuration(10, TimeDuration.TimeUnit.MINUTES), channel1);
         when(device1.getLoadProfiles()).thenReturn(Arrays.asList(loadProfile1, loadProfile2, loadProfile3));
         when(deviceService.findByUniqueMrid("mrid1")).thenReturn(Optional.of(device1));
-        when(thesaurus.getString(anyString(), anyString())).thenReturn("translated");
+        doReturn("translated").when(thesaurus).getString(anyString(), anyString());
         when(channel1.getReadingType()).thenReturn(readingType);
 
         Map response = target("/devices/mrid1/loadprofiles").request().get(Map.class);
@@ -419,7 +417,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         LoadProfile loadProfile3 = mockLoadProfile("lp1", 1, new TimeDuration(10, TimeDuration.TimeUnit.MINUTES), channel1);
         when(device1.getLoadProfiles()).thenReturn(Arrays.asList(loadProfile1, loadProfile2, loadProfile3));
         when(deviceService.findByUniqueMrid("mrid1")).thenReturn(Optional.of(device1));
-        when(thesaurus.getString(anyString(), anyString())).thenReturn("translated");
+        doReturn("translated").when(thesaurus).getString(anyString(), anyString());
     }
 
     @Test
@@ -432,7 +430,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         LoadProfile loadProfile3 = mockLoadProfile("lp3", 3, new TimeDuration(15, TimeDuration.TimeUnit.MINUTES));
         when(device1.getLoadProfiles()).thenReturn(Arrays.asList(loadProfile1, loadProfile2, loadProfile3));
         when(deviceService.findByUniqueMrid("mrid1")).thenReturn(Optional.of(device1));
-        when(thesaurus.getString(anyString(), anyString())).thenReturn("translated");
+        doReturn("translated").when(thesaurus).getString(anyString(), anyString());
         when(clock.instant()).thenReturn(NOW);
         when(channel1.getDevice()).thenReturn(device1);
         when(channel2.getDevice()).thenReturn(device1);
@@ -474,7 +472,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         LoadProfile loadProfile3 = mockLoadProfile("lp3", 3, new TimeDuration(15, TimeDuration.TimeUnit.MINUTES));
         when(device1.getLoadProfiles()).thenReturn(Arrays.asList(loadProfile1, loadProfile2, loadProfile3));
         when(deviceService.findByUniqueMrid("mrid1")).thenReturn(Optional.of(device1));
-        when(thesaurus.getString(anyString(), anyString())).thenReturn("translated");
+        doReturn("translated").when(thesaurus).getString(anyString(), anyString());
 
         Response response = target("/devices/mrid1/loadprofiles/7").request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
@@ -640,7 +638,6 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(endDeviceEventType.getSubDomain()).thenReturn(EndDeviceSubDomain.VOLTAGE);
         when(endDeviceEventType.getEventOrAction()).thenReturn(EndDeviceEventorAction.DECREASED);
         when(nlsService.getThesaurus(Matchers.anyString(), Matchers.<Layer>any())).thenReturn(thesaurus);
-        when(thesaurus.getString(Matchers.anyString(), Matchers.anyString())).thenAnswer(invocation -> invocation.getArguments()[1]);
 
         LogBookInfo info = target("/devices/mrid/logbooks/1").request().get(LogBookInfo.class);
 
@@ -764,7 +761,6 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(endDeviceType.getEventOrAction()).thenReturn(eventorAction);
 
         when(nlsService.getThesaurus(Matchers.anyString(), Matchers.<Layer>any())).thenReturn(thesaurus);
-        when(thesaurus.getString(Matchers.anyString(), Matchers.anyString())).thenAnswer(invocation -> invocation.getArguments()[1]);
 
         Map<?, ?> response = target("/devices/mrid/logbooks/1/data")
                 .queryParam("filter", ("[{\"property\":\"intervalStart\",\"value\":1},"
@@ -781,7 +777,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
                 .contains(MapEntry.entry("eventDate", start.toEpochMilli()))
                 .contains(MapEntry.entry("deviceCode", deviceCode))
                 .contains(MapEntry.entry("eventLogId", eventLogId))
-                .contains(MapEntry.entry("readingDate", start.toEpochMilli()))
+                .contains(MapEntry.entry("readingDate", end.toEpochMilli()))
                 .contains(MapEntry.entry("message", message));
 
         Map<String, Object> eventType = (Map<String, Object>) ((Map<String, Object>) infos.get(0)).get("eventType");

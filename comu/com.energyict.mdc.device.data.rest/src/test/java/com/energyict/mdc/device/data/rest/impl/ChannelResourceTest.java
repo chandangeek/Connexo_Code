@@ -1,15 +1,5 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.common.rest.IntervalInfo;
-import com.energyict.mdc.device.config.ChannelSpec;
-import com.energyict.mdc.device.data.Channel;
-import com.energyict.mdc.device.data.ChannelDataUpdater;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceValidation;
-import com.energyict.mdc.device.data.LoadProfile;
-import com.energyict.mdc.device.data.LoadProfileReading;
-
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
@@ -22,9 +12,21 @@ import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.impl.DataValidationStatusImpl;
 import com.elster.jupiter.validation.impl.IValidationRule;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.common.rest.IntervalInfo;
+import com.energyict.mdc.device.config.ChannelSpec;
+import com.energyict.mdc.device.data.Channel;
+import com.energyict.mdc.device.data.ChannelDataUpdater;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceValidation;
+import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.device.data.LoadProfileReading;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
@@ -35,9 +37,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-
-import org.junit.*;
-import org.mockito.Mock;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -95,7 +94,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(channel.getChannelData(interval)).thenReturn(asList(loadProfileReading, addedloadProfileReading, editedProfileReading, removedProfileReading));
         when(loadProfileReading.getRange()).thenReturn(interval);
         when(loadProfileReading.getFlags()).thenReturn(Arrays.asList(ProfileStatus.Flag.BATTERY_LOW));
-        when(thesaurus.getString(BATTERY_LOW, BATTERY_LOW)).thenReturn(BATTERY_LOW);
+        doReturn(BATTERY_LOW).when(thesaurus).getString(BATTERY_LOW, BATTERY_LOW);
         when(loadProfileReading.getChannelValues()).thenReturn(ImmutableMap.of(channel, readingRecord));
         when(readingRecord.getValue()).thenReturn(BigDecimal.valueOf(200, 0));
         when(readingRecord.getReportedDateTime()).thenReturn(LAST_READING);
@@ -130,6 +129,8 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         doReturn(Arrays.asList(rule1)).when(ruleSet).getRules();
         when(rule1.isActive()).thenReturn(true);
         when(loadProfileReading.getChannelValidationStates()).thenReturn(ImmutableMap.of(channel, state1));
+        when(addedloadProfileReading.getChannelValidationStates()).thenReturn(ImmutableMap.of(channel, state1));
+        when(editedProfileReading.getChannelValidationStates()).thenReturn(ImmutableMap.of(channel, state1));
         when(validationService.getEvaluator()).thenReturn(evaluator);
         when(evaluator.getValidationResult(any())).thenReturn(ValidationResult.SUSPECT);
         when(rule1.getImplementation()).thenReturn("isPrime");
@@ -166,12 +167,12 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         assertThat(jsonModel.<String>get("$.data[0].intervalFlags[0]")).isEqualTo(BATTERY_LOW);
         String value = jsonModel.<String>get("$.data[0].value");
         assertThat(value).isEqualTo("200.000");
-        assertThat(jsonModel.<Boolean>get("$.data[0].dataValidated")).isTrue();
-        assertThat(jsonModel.<String>get("$.data[0].validationResult")).isEqualTo("validationStatus.suspect");
-        assertThat(jsonModel.<List<?>>get("$.data[0].suspectReason")).hasSize(1);
-        assertThat(jsonModel.<Boolean>get("$.data[0].suspectReason[0].active")).isTrue();
-        assertThat(jsonModel.<String>get("$.data[0].suspectReason[0].implementation")).isEqualTo("isPrime");
-        assertThat(jsonModel.<String>get("$.data[0].suspectReason[0].displayName")).isEqualTo("Primes only");
+        assertThat(jsonModel.<Boolean>get("$.data[0].validationInfo.dataValidated")).isTrue();
+        assertThat(jsonModel.<String>get("$.data[0].validationInfo.mainValidationInfo.validationResult")).isEqualTo("validationStatus.suspect");
+        assertThat(jsonModel.<List<?>>get("$.data[0].validationInfo.mainValidationInfo.validationRules")).hasSize(1);
+        assertThat(jsonModel.<Boolean>get("$.data[0].validationInfo.mainValidationInfo.validationRules[0].active")).isTrue();
+        assertThat(jsonModel.<String>get("$.data[0].validationInfo.mainValidationInfo.validationRules[0].implementation")).isEqualTo("isPrime");
+        assertThat(jsonModel.<String>get("$.data[0].validationInfo.mainValidationInfo.validationRules[0].displayName")).isEqualTo("Primes only");
         assertThat(jsonModel.<String>get("$.data[0].modificationFlag")).isNull();
         assertThat(jsonModel.<Long>get("$.data[0].reportedDateTime")).isEqualTo(LAST_READING.toEpochMilli());
 
@@ -248,7 +249,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
 
         JsonModel jsonModel = JsonModel.create(json);
 
-        assertThat(jsonModel.<List<?>>get("$.data")).hasSize(1);
+        assertThat(jsonModel.<List<?>>get("$.data")).hasSize(3);
     }
 
     @Test

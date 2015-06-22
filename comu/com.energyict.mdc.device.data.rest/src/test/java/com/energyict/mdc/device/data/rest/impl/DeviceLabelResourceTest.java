@@ -1,29 +1,28 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
-
 import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.rest.DeviceLabelInfo;
 import com.energyict.mdc.favorites.DeviceLabel;
 import com.energyict.mdc.favorites.LabelCategory;
 import com.jayway.jsonpath.JsonModel;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class DeviceLabelResourceTest extends DeviceDataRestApplicationJerseyTest {
 
@@ -39,7 +38,7 @@ public class DeviceLabelResourceTest extends DeviceDataRestApplicationJerseyTest
         when(device.getId()).thenReturn(100L);
         when(device.getmRID()).thenReturn("1");
         when(category.getName()).thenReturn("mycategory");
-        when(thesaurus.getString("mycategory", "mycategory")).thenReturn("My category");
+        doReturn("My category").when(thesaurus).getString("mycategory", "mycategory");
         when(favoritesService.findLabelCategory("mycategory")).thenReturn(Optional.of(category));
     }
 

@@ -11,12 +11,7 @@ import com.energyict.mdc.device.configuration.rest.ConnectionStrategyAdapter;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.rest.CompletionCodeInfo;
 import com.energyict.mdc.device.data.rest.TaskStatusAdapter;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
-import com.energyict.mdc.device.data.tasks.TaskStatus;
+import com.energyict.mdc.device.data.tasks.*;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.scheduling.rest.ComTaskInfo;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
@@ -77,7 +72,7 @@ public class DeviceComTaskInfoFactory {
     private void setFieldsForIndividualScheduleExecution(DeviceComTaskInfo deviceComTasksInfo, ComTaskExecution comTaskExecution) {
         deviceComTasksInfo.scheduleTypeKey = ScheduleTypeKey.INDIVIDUAL.name();
         deviceComTasksInfo.scheduleType = thesaurus.getString("individualSchedule","Individual schedule");
-        deviceComTasksInfo.protocolDialect = ((ManuallyScheduledComTaskExecution)comTaskExecution).getProtocolDialectConfigurationProperties().getDeviceProtocolDialect().getDisplayName();
+        deviceComTasksInfo.protocolDialect = ((SingleComTaskComTaskExecution)comTaskExecution).getProtocolDialectConfigurationProperties().getDeviceProtocolDialect().getDisplayName();
         if(comTaskExecution.getNextExecutionSpecs().isPresent()){
             deviceComTasksInfo.temporalExpression = TemporalExpressionInfo.from(comTaskExecution.getNextExecutionSpecs().get().getTemporalExpression());
         }

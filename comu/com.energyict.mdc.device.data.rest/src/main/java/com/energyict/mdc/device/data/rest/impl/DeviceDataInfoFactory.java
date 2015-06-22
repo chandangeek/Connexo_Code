@@ -63,16 +63,18 @@ public class DeviceDataInfoFactory {
 
         Set<Map.Entry<Channel, DataValidationStatus>> states = loadProfileReading.getChannelValidationStates().entrySet();    //  only one channel
         for (Map.Entry<Channel, DataValidationStatus> entry : states) {
-            ValidationInfo validationInfo = validationInfoFactory.createValidationInfoFor(entry.getValue(), deviceValidation);
-            channelIntervalInfo.validationResult = validationInfo.validationResult;
-            channelIntervalInfo.suspectReason = validationInfo.validationRules;
-            channelIntervalInfo.dataValidated = validationInfo.dataValidated;
+            channelIntervalInfo.validationInfo = validationInfoFactory.createValidationInfoFor(entry, deviceValidation);;
         }
         if (loadProfileReading.getChannelValues().isEmpty() && loadProfileReading.getChannelValidationStates().isEmpty()) {
             // we have a reading with no data and no validation result => it's a placeholder (missing value) which hasn't validated ( = detected ) yet
-            channelIntervalInfo.validationResult = ValidationStatus.NOT_VALIDATED;
-            channelIntervalInfo.suspectReason = Collections.EMPTY_SET;
-            channelIntervalInfo.dataValidated = false;
+            channelIntervalInfo.validationInfo = new ValidationInfo();
+            channelIntervalInfo.validationInfo.mainValidationInfo.validationResult = ValidationStatus.NOT_VALIDATED;
+            channelIntervalInfo.validationInfo.mainValidationInfo.validationRules = Collections.EMPTY_SET;
+            if(channelIntervalInfo.isBulk) {
+                channelIntervalInfo.validationInfo.bulkValidationInfo.validationResult = ValidationStatus.NOT_VALIDATED;
+                channelIntervalInfo.validationInfo.bulkValidationInfo.validationRules = Collections.EMPTY_SET;
+            }
+            channelIntervalInfo.validationInfo.dataValidated = false;
         }
         return channelIntervalInfo;
     }
@@ -109,7 +111,7 @@ public class DeviceDataInfoFactory {
         }
 
         for (Map.Entry<Channel, DataValidationStatus> entry : loadProfileReading.getChannelValidationStates().entrySet()) {
-            channelIntervalInfo.channelValidationData.put(entry.getKey().getId(), validationInfoFactory.createValidationInfoFor(entry.getValue(), deviceValidation));
+            channelIntervalInfo.channelValidationData.put(entry.getKey().getId(), validationInfoFactory.createValidationInfoFor(entry, deviceValidation));
         }
 
         for (Channel channel : channels) {
@@ -118,8 +120,12 @@ public class DeviceDataInfoFactory {
                 // This means it is a missing value what hasn't been validated( = detected ) yet
                 ValidationInfo notValidatedMissing = new ValidationInfo();
                 notValidatedMissing.dataValidated = false;
-                notValidatedMissing.validationResult = ValidationStatus.NOT_VALIDATED;
-                notValidatedMissing.validationRules = Collections.EMPTY_SET;
+                notValidatedMissing.mainValidationInfo.validationResult = ValidationStatus.NOT_VALIDATED;
+                notValidatedMissing.mainValidationInfo.validationRules = Collections.EMPTY_SET;
+                if(channel.getReadingType().isCumulative()) {
+                    notValidatedMissing.bulkValidationInfo.validationResult = ValidationStatus.NOT_VALIDATED;
+                    notValidatedMissing.bulkValidationInfo.validationRules = Collections.EMPTY_SET;
+                }
                 channelIntervalInfo.channelValidationData.put(channel.getId(), notValidatedMissing);
             }
         }

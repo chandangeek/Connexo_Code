@@ -37,6 +37,7 @@ import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
+import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
 
 import java.time.Clock;
@@ -45,10 +46,12 @@ import java.util.Optional;
 
 import javax.ws.rs.core.Application;
 
+import com.energyict.mdc.tasks.impl.SystemComTask;
 import org.junit.Before;
 import org.mockito.Mock;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -56,6 +59,11 @@ import static org.mockito.Mockito.when;
  * Created by bvn on 9/19/14.
  */
 public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJerseyTest {
+
+    static long firmwareComTaskId = 445632136865L;
+
+    @Mock(extraInterfaces = ComTask.class)
+    SystemComTask firmwareComTask;
     @Mock
     ConnectionTaskService connectionTaskService;
     @Mock
@@ -107,9 +115,14 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
     @Mock
     FirmwareService firmwareService;
 
+
     @Before
     public void setup() {
         when(thesaurus.getStringBeyondComponent(any(String.class), any(String.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArguments()[1]);
+        when(taskService.findComTask(anyLong())).thenReturn(Optional.empty());
+        when(taskService.findComTask(firmwareComTaskId)).thenReturn(Optional.of(firmwareComTask));
+        when(firmwareComTask.isSystemComTask()).thenReturn(true);
+        when(firmwareComTask.isUserComTask()).thenReturn(false);
     }
 
     @Override

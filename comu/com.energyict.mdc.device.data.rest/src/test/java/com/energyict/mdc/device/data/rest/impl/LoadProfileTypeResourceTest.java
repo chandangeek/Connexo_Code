@@ -38,7 +38,10 @@ import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class LoadProfileTypeResourceTest extends DeviceDataRestApplicationJerseyTest {
 
@@ -86,7 +89,7 @@ public class LoadProfileTypeResourceTest extends DeviceDataRestApplicationJersey
         when(loadProfile.getChannelData(interval)).thenReturn(asList(loadProfileReading));
         when(loadProfileReading.getRange()).thenReturn(interval);
         when(loadProfileReading.getFlags()).thenReturn(Arrays.asList(ProfileStatus.Flag.BATTERY_LOW));
-        when(thesaurus.getString(BATTERY_LOW, BATTERY_LOW)).thenReturn(BATTERY_LOW);
+        doReturn(BATTERY_LOW).when(thesaurus).getString(BATTERY_LOW, BATTERY_LOW);
         when(loadProfileReading.getChannelValues()).thenReturn(ImmutableMap.of(channel1, readingRecord1, channel2, readingRecord2));
         when(clock.instant()).thenReturn(NOW);
         when(readingRecord1.getValue()).thenReturn(BigDecimal.valueOf(200, 0));
@@ -141,11 +144,11 @@ public class LoadProfileTypeResourceTest extends DeviceDataRestApplicationJersey
         Map validations = jsonModel.<Map>get("$.data[0].channelValidationData");
         assertThat(validations).hasSize(1).containsKey(String.valueOf(CHANNEL_ID1));
         assertThat(jsonModel.<Boolean>get("$.data[0].channelValidationData." + CHANNEL_ID1 + ".dataValidated")).isTrue();
-        assertThat(jsonModel.<String>get("$.data[0].channelValidationData." + CHANNEL_ID1 + ".validationResult")).isEqualTo("validationStatus.suspect");
-        assertThat(jsonModel.<List<?>>get("$.data[0].channelValidationData." + CHANNEL_ID1 + ".validationRules")).hasSize(1);
-        assertThat(jsonModel.<Boolean>get("$.data[0].channelValidationData." + CHANNEL_ID1 + ".validationRules[0].active")).isTrue();
-        assertThat(jsonModel.<String>get("$.data[0].channelValidationData." + CHANNEL_ID1 + ".validationRules[0].implementation")).isEqualTo("isPrime");
-        assertThat(jsonModel.<String>get("$.data[0].channelValidationData." + CHANNEL_ID1 + ".validationRules[0].displayName")).isEqualTo("Primes only");
+        assertThat(jsonModel.<String>get("$.data[0].channelValidationData." + CHANNEL_ID1 + ".mainValidationInfo.validationResult")).isEqualTo("validationStatus.suspect");
+        assertThat(jsonModel.<List<?>>get("$.data[0].channelValidationData." + CHANNEL_ID1 + ".mainValidationInfo.validationRules")).hasSize(1);
+        assertThat(jsonModel.<Boolean>get("$.data[0].channelValidationData." + CHANNEL_ID1 + ".mainValidationInfo.validationRules[0].active")).isTrue();
+        assertThat(jsonModel.<String>get("$.data[0].channelValidationData." + CHANNEL_ID1 + ".mainValidationInfo.validationRules[0].implementation")).isEqualTo("isPrime");
+        assertThat(jsonModel.<String>get("$.data[0].channelValidationData." + CHANNEL_ID1 + ".mainValidationInfo.validationRules[0].displayName")).isEqualTo("Primes only");
     }
 
     @Test
