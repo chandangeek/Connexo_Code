@@ -286,9 +286,13 @@ public final class TimeSeriesImpl implements TimeSeries {
 	public List<TimeSeriesEntry> getEntries(Range<Instant> interval) {
 		return getVault().getEntries(this, interval);
 	}
-	
-    
-    @Override 
+
+	@Override
+	public List<TimeSeriesEntry> getEntriesUpdatedSince(Range<Instant> interval, Instant since) {
+		return getVault().getEntriesUpdatedSince(this, interval, since);
+	}
+
+	@Override
     public Optional<TimeSeriesEntry> getEntry(Instant when) {
     	return getVault().getEntry(this,when);
     }

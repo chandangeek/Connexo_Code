@@ -23,7 +23,10 @@ public interface TimeSeries {
 	RecordSpec getRecordSpec();
 	boolean add(Instant dateTime , boolean overrule , Object... values);
     List<TimeSeriesEntry> getEntries(Range<Instant> interval);
-    Optional<TimeSeriesEntry> getEntry(Instant when);
+
+	List<TimeSeriesEntry> getEntriesUpdatedSince(Range<Instant> interval, Instant since);
+
+	Optional<TimeSeriesEntry> getEntry(Instant when);
     List<TimeSeriesEntry> getEntriesBefore(Instant when,int entryCount);
     List<TimeSeriesEntry> getEntriesOnOrBefore(Instant when, int entryCount);
 	boolean isValidInstant(Instant instant);

@@ -38,6 +38,7 @@ public class VaultImpl implements Vault {
     private static final int FROM_COLUMN_INDEX = 2;
     private static final int TO_COLUMN_INDEX = 3;
     private static final int WHEN_COLUMN_INDEX = 2;
+    private static final int RECORDTIME_INDEX = 4;
 
     //persistent fields
     private String componentName;
@@ -352,6 +353,14 @@ public class VaultImpl implements Vault {
         }
     }
 
+    List<TimeSeriesEntry> getEntriesUpdatedSince(TimeSeriesImpl timeSeries, Range<Instant> interval, Instant since) {
+        try {
+            return doGetEntriesSince(timeSeries, interval, since);
+        } catch (SQLException ex) {
+            throw new UnderlyingSQLFailedException(ex);
+        }
+    }
+
     Optional<TimeSeriesEntry> getEntry(TimeSeriesImpl timeSeries, Instant when) {
         try {
             return Optional.ofNullable(doGetEntry(timeSeries, when));
@@ -370,7 +379,26 @@ public class VaultImpl implements Vault {
         if (range.hasUpperBound() && range.upperBoundType() == BoundType.CLOSED) {
         	builder.append("=");
         }
-        builder.append(" ? order by UTCSTAMP");
+        builder.append(" ?");
+        builder.append(" order by UTCSTAMP");
+        return builder.toString();
+    }
+
+    private String rangeUpdatedSinceSql(TimeSeriesImpl timeSeries, Range<Instant> range) {
+        StringBuilder builder = selectSql(timeSeries);
+        builder.append(" AND UTCSTAMP >");
+        if (range.hasLowerBound() && range.lowerBoundType() == BoundType.CLOSED) {
+            builder.append("=");
+        }
+        builder.append(" ? and UTCSTAMP <");
+        if (range.hasUpperBound() && range.upperBoundType() == BoundType.CLOSED) {
+            builder.append("=");
+        }
+        builder.append(" ?");
+
+        builder.append(" and RECORDTIME > ?");
+
+        builder.append(" order by UTCSTAMP");
         return builder.toString();
     }
 
@@ -387,6 +415,24 @@ public class VaultImpl implements Vault {
             	statement.setLong(ID_COLUMN_INDEX, timeSeries.getId());
                 statement.setLong(FROM_COLUMN_INDEX, interval.hasLowerBound() ? interval.lowerEndpoint().toEpochMilli() : Long.MIN_VALUE);
                 statement.setLong(TO_COLUMN_INDEX, interval.hasUpperBound() ? interval.upperEndpoint().toEpochMilli() : Long.MAX_VALUE);
+                try (ResultSet rs = statement.executeQuery()) {
+                    while (rs.next()) {
+                        result.add(new TimeSeriesEntryImpl(timeSeries, rs));
+                    }
+                }
+            }
+        }
+        return result;
+    }
+
+    private List<TimeSeriesEntry> doGetEntriesSince(TimeSeriesImpl timeSeries, Range<Instant> interval, Instant since) throws SQLException {
+        List<TimeSeriesEntry> result = new ArrayList<>();
+        try (Connection connection = getConnection(false)) {
+            try (PreparedStatement statement = connection.prepareStatement(rangeUpdatedSinceSql(timeSeries, interval))) {
+                statement.setLong(ID_COLUMN_INDEX, timeSeries.getId());
+                statement.setLong(FROM_COLUMN_INDEX, interval.hasLowerBound() ? interval.lowerEndpoint().toEpochMilli() : Long.MIN_VALUE);
+                statement.setLong(TO_COLUMN_INDEX, interval.hasUpperBound() ? interval.upperEndpoint().toEpochMilli() : Long.MAX_VALUE);
+                statement.setLong(RECORDTIME_INDEX, since.toEpochMilli());
                 try (ResultSet rs = statement.executeQuery()) {
                     while (rs.next()) {
                         result.add(new TimeSeriesEntryImpl(timeSeries, rs));
