@@ -37,6 +37,8 @@ public interface ReadingTypeDataSelector extends DataSelector, HasAuditInfo {
 
     void setUpdatePeriod(RelativePeriod relativePeriod);
 
+    void setUpdateWindow(RelativePeriod updateWindow);
+
     Set<ReadingType> getReadingTypes(Instant at);
 
     void setValidatedDataOption(ValidatedDataOption validatedDataOption);

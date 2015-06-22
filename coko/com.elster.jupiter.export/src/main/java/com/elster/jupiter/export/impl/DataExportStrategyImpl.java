@@ -18,10 +18,12 @@ class DataExportStrategyImpl implements DataExportStrategy {
     private final PeriodBehaviour periodBehaviour;
     private final ValidatedDataOption validatedDataOption;
     private final RelativePeriod updatePeriod;
+    private final RelativePeriod updateWindow;
 
-    DataExportStrategyImpl(boolean exportUpdate, boolean exportContinuousData, ValidatedDataOption validatedDataOption, RelativePeriod updatePeriod) {
+    DataExportStrategyImpl(boolean exportUpdate, boolean exportContinuousData, ValidatedDataOption validatedDataOption, RelativePeriod updatePeriod, RelativePeriod updateWindow) {
         this.exportUpdate = exportUpdate;
         this.updatePeriod = updatePeriod;
+        this.updateWindow = updateWindow;
         this.periodBehaviour = exportContinuousData ? PeriodBehaviour.CONTINUOUS : PeriodBehaviour.REQUESTED;
         this.validatedDataOption = validatedDataOption;
     }
@@ -49,6 +51,11 @@ class DataExportStrategyImpl implements DataExportStrategy {
     @Override
     public Optional<RelativePeriod> getUpdatePeriod() {
         return Optional.ofNullable(updatePeriod);
+    }
+
+    @Override
+    public Optional<RelativePeriod> getUpdateWindow() {
+        return Optional.ofNullable(updateWindow);
     }
 
     private enum PeriodBehaviour {

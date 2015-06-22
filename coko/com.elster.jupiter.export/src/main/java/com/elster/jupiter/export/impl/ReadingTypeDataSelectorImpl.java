@@ -56,6 +56,7 @@ public class ReadingTypeDataSelectorImpl implements IReadingTypeDataSelector {
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     private Reference<EndDeviceGroup> endDeviceGroup = ValueReference.absent();
     private Reference<RelativePeriod> updatePeriod = ValueReference.absent();
+    private Reference<RelativePeriod> updateWindow = ValueReference.absent();
     private Reference<IExportTask> exportTask = ValueReference.absent();
 
     private boolean exportUpdate;
@@ -170,7 +171,7 @@ public class ReadingTypeDataSelectorImpl implements IReadingTypeDataSelector {
 
     @Override
     public DataExportStrategy getStrategy() {
-        return new DataExportStrategyImpl(exportUpdate, exportContinuousData, validatedDataOption, updatePeriod.orNull());
+        return new DataExportStrategyImpl(exportUpdate, exportContinuousData, validatedDataOption, updatePeriod.orNull(), updateWindow.orNull());
     }
 
     @Override
@@ -217,6 +218,11 @@ public class ReadingTypeDataSelectorImpl implements IReadingTypeDataSelector {
     @Override
     public void setUpdatePeriod(RelativePeriod updatePeriod) {
         this.updatePeriod.set(updatePeriod);
+    }
+
+    @Override
+    public void setUpdateWindow(RelativePeriod updateWindow) {
+        this.updateWindow.set(updateWindow);
     }
 
     @Override

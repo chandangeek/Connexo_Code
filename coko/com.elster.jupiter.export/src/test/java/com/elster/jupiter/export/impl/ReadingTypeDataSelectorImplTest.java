@@ -52,6 +52,11 @@ public class ReadingTypeDataSelectorImplTest {
     private static final Range<Instant> UPDATE_INTERVAL = Range.closed(UPDATE_START.toInstant(), START.toInstant());
     private static final Range<ZonedDateTime> UPDATE_PERIOD = Range.closed(UPDATE_START, START);
     private static final ZonedDateTime SINCE = ZonedDateTime.of(2014, 6, 15, 0, 0, 0, 0, TimeZoneNeutral.getMcMurdo());
+    private static final ZonedDateTime UPDATED_WINDOW_START = ZonedDateTime.of(2014, 5, 24, 0, 0, 0, 0, TimeZoneNeutral.getMcMurdo());
+    private static final ZonedDateTime UPDATED_RECORD_TIME = ZonedDateTime.of(2014, 5, 24, 14, 0, 0, 0, TimeZoneNeutral.getMcMurdo());
+    private static final ZonedDateTime UPDATED_WINDOW_END = ZonedDateTime.of(2014, 5, 25, 0, 0, 0, 0, TimeZoneNeutral.getMcMurdo());
+    private static final Range<ZonedDateTime> UPDATE_WINDOW_PERIOD = Range.closed(UPDATED_WINDOW_START, UPDATED_WINDOW_END);
+    private static final Range<Instant> UPDATE_WINDOW_INTERVAL = Range.closed(UPDATED_WINDOW_START.toInstant(), UPDATED_WINDOW_END.toInstant());
     public static final String READING_TYPE_MRID = "1.0.0.21.12.0.0.0";
 
     @Rule
@@ -69,7 +74,7 @@ public class ReadingTypeDataSelectorImplTest {
     @Mock
     private IExportTask task;
     @Mock
-    private RelativePeriod exportPeriod, updatePeriod;
+    private RelativePeriod exportPeriod, updatePeriod, updateWindow;
     @Mock
     private EndDeviceGroup endDeviceGroup;
     @Mock
@@ -85,7 +90,7 @@ public class ReadingTypeDataSelectorImplTest {
     @Mock
     private ValidatorFactory validatorFactory;
     @Mock
-    private ReadingRecord readingRecord1, readingRecord2, readingRecord3, readingRecord4;
+    private ReadingRecord readingRecord1, readingRecord2, readingRecord3, readingRecord4, extraReadingForUpdate;
 
     @Before
     public void setUp() {
@@ -122,9 +127,14 @@ public class ReadingTypeDataSelectorImplTest {
         doReturn(Arrays.asList(readingRecord2)).when(meter2).getReadings(EXPORTED_INTERVAL, readingType);
         doReturn(Arrays.asList(readingRecord3)).when(meter1).getReadingsUpdatedSince(UPDATE_INTERVAL, readingType, SINCE.toInstant());
         doReturn(Arrays.asList(readingRecord4)).when(meter2).getReadingsUpdatedSince(UPDATE_INTERVAL, readingType, SINCE.toInstant());
+        doReturn(Arrays.asList(readingRecord3, extraReadingForUpdate)).when(meter1).getReadings(UPDATE_WINDOW_INTERVAL, readingType);
+        doReturn(Arrays.asList(readingRecord4, extraReadingForUpdate)).when(meter2).getReadings(UPDATE_WINDOW_INTERVAL, readingType);
+        doReturn(UPDATED_RECORD_TIME.toInstant()).when(readingRecord3).getTimeStamp();
+        doReturn(UPDATED_RECORD_TIME.toInstant()).when(readingRecord4).getTimeStamp();
         doReturn(SINCE.toInstant()).when(occurrence).getTriggerTime();
         doReturn(UPDATE_PERIOD).when(updatePeriod).getInterval(any());
         doReturn(READING_TYPE_MRID).when(readingType).getMRID();
+        doReturn(UPDATE_WINDOW_PERIOD).when(updateWindow).getInterval(UPDATED_RECORD_TIME);
 
     }
 
@@ -165,6 +175,44 @@ public class ReadingTypeDataSelectorImplTest {
         assertThat(collect.get(3)).isInstanceOf(MeterReadingData.class);
         MeterReadingData meterReadingData4 = (MeterReadingData) collect.get(3);
         assertThat(meterReadingData4.getStructureMarker().getStructurePath()).isEqualTo(Arrays.asList("meter2", "", READING_TYPE_MRID, "update"));
+    }
+
+    @Test
+    public void testSelectWithUpdateAndWindow() {
+
+        ReadingTypeDataSelectorImpl selector = ReadingTypeDataSelectorImpl.from(dataModel, task, exportPeriod, endDeviceGroup);
+        selector.addReadingType(readingType);
+        selector.setExportUpdate(true);
+        selector.setUpdatePeriod(updatePeriod);
+        selector.setUpdateWindow(updateWindow);
+
+        doReturn(Optional.of(selector)).when(task).getReadingTypeDataSelector();
+
+        List<ExportData> collect = selector.selectData(occurrence).collect(Collectors.toList());
+
+        assertThat(collect).hasSize(2);
+
+        collect = selector.selectData(occurrence).collect(Collectors.toList());
+
+        assertThat(collect).hasSize(4);
+
+        assertThat(collect.get(0)).isInstanceOf(MeterReadingData.class);
+        MeterReadingData meterReadingData1 = (MeterReadingData) collect.get(0);
+        assertThat(meterReadingData1.getStructureMarker().getStructurePath()).isEqualTo(Arrays.asList("meter1", "", READING_TYPE_MRID, "export"));
+
+        assertThat(collect.get(1)).isInstanceOf(MeterReadingData.class);
+        MeterReadingData meterReadingData2 = (MeterReadingData) collect.get(1);
+        assertThat(meterReadingData2.getStructureMarker().getStructurePath()).isEqualTo(Arrays.asList("meter1", "", READING_TYPE_MRID, "update"));
+        assertThat(meterReadingData2.getMeterReading().getReadings()).hasSize(2);
+
+        assertThat(collect.get(2)).isInstanceOf(MeterReadingData.class);
+        MeterReadingData meterReadingData3 = (MeterReadingData) collect.get(2);
+        assertThat(meterReadingData3.getStructureMarker().getStructurePath()).isEqualTo(Arrays.asList("meter2", "", READING_TYPE_MRID, "export"));
+
+        assertThat(collect.get(3)).isInstanceOf(MeterReadingData.class);
+        MeterReadingData meterReadingData4 = (MeterReadingData) collect.get(3);
+        assertThat(meterReadingData4.getStructureMarker().getStructurePath()).isEqualTo(Arrays.asList("meter2", "", READING_TYPE_MRID, "update"));
+        assertThat(meterReadingData4.getMeterReading().getReadings()).hasSize(2);
     }
 
     private static class FakeRefAny implements RefAny {
