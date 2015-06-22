@@ -65,7 +65,7 @@ public class StandardDataSelectorFactory implements DataSelectorFactory {
         return SimpleNlsKey.key(DataExportService.COMPONENTNAME, Layer.DOMAIN, ReadingTypeDataSelectorImpl.class.getName());
     }
 
-    private static enum DelegatingDataSelector implements DataSelector {
+    private enum DelegatingDataSelector implements DataSelector {
 
         INSTANCE;
 

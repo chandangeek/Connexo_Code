@@ -318,8 +318,8 @@ public class ExportTaskImplIT {
         assertThat(readingTypeDataExportTask.getReadingTypeDataSelector()).isPresent();
         assertThat(readingTypeDataExportTask.getReadingTypeDataSelector().get().getEndDeviceGroup().getId()).isEqualTo(endDeviceGroup.getId());
         assertThat(readingTypeDataExportTask.getReadingTypeDataSelector().get().getExportPeriod().getId()).isEqualTo(lastYear.getId());
-        assertThat(readingTypeDataExportTask.getReadingTypeDataSelector().get().getUpdatePeriod()).isPresent();
-        assertThat(readingTypeDataExportTask.getReadingTypeDataSelector().get().getUpdatePeriod().get().getId()).isEqualTo(oneYearBeforeLastYear.getId());
+        assertThat(readingTypeDataExportTask.getReadingTypeDataSelector().get().getStrategy().getUpdatePeriod()).isPresent();
+        assertThat(readingTypeDataExportTask.getReadingTypeDataSelector().get().getStrategy().getUpdatePeriod().get().getId()).isEqualTo(oneYearBeforeLastYear.getId());
         assertThat(readingTypeDataExportTask.getLastRun()).isEmpty();
         assertThat(readingTypeDataExportTask.getNextExecution()).isEqualTo(NOW.truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant());
         assertThat(readingTypeDataExportTask.getOccurrences(/*Range.<Instant>all()*/)).isEmpty();
@@ -456,7 +456,7 @@ public class ExportTaskImplIT {
         assertThat(found.get().getNextExecution()).isEqualTo(instant);
         assertThat(found.get().getScheduleExpression()).isEqualTo(Never.NEVER);
         assertThat(found.get().getReadingTypeDataSelector().get().getExportPeriod().getId()).isEqualTo(oneYearBeforeLastYear.getId());
-        assertThat(found.get().getReadingTypeDataSelector().get().getUpdatePeriod()).isEmpty();
+        assertThat(found.get().getReadingTypeDataSelector().get().getStrategy().getUpdatePeriod()).isEmpty();
         assertThat(found.get().getReadingTypeDataSelector().get().getEndDeviceGroup().getId()).isEqualTo(anotherEndDeviceGroup.getId());
         assertThat(found.get().getProperties().get("propy")).isEqualTo(BigDecimal.valueOf(20000, 2));
         assertThat(found.get().getReadingTypeDataSelector().get().getReadingTypes()).containsExactly(anotherReadingType);
