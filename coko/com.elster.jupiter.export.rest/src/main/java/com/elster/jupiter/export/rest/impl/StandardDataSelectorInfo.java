@@ -41,7 +41,7 @@ public class StandardDataSelectorInfo {
         exportPeriod = new RelativePeriodInfo(selector.getExportPeriod(), thesaurus);
         exportContinuousData = selector.getStrategy().isExportContinuousData();
         exportUpdate = selector.getStrategy().isExportUpdate();
-        Optional<RelativePeriod> dataExportTaskUpdatePeriod = selector.getUpdatePeriod();
+        Optional<RelativePeriod> dataExportTaskUpdatePeriod = selector.getStrategy().getUpdatePeriod();
         if (dataExportTaskUpdatePeriod.isPresent()) {
             updatePeriod = new RelativePeriodInfo(dataExportTaskUpdatePeriod.get(), thesaurus);
         }
