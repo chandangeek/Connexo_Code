@@ -1,74 +1,18 @@
 package com.energyict.mdc.issue.datacollection.rest.resource;
 
-import static com.elster.jupiter.issue.rest.request.RequestHelper.ASSIGNEE_ID;
-import static com.elster.jupiter.issue.rest.request.RequestHelper.ASSIGNEE_TYPE;
-import static com.elster.jupiter.issue.rest.request.RequestHelper.FIELD;
-import static com.elster.jupiter.issue.rest.request.RequestHelper.ID;
-import static com.elster.jupiter.issue.rest.request.RequestHelper.ISSUE_TYPE;
-import static com.elster.jupiter.issue.rest.request.RequestHelper.KEY;
-import static com.elster.jupiter.issue.rest.request.RequestHelper.LIMIT;
-import static com.elster.jupiter.issue.rest.request.RequestHelper.METER;
-import static com.elster.jupiter.issue.rest.request.RequestHelper.REASON;
-import static com.elster.jupiter.issue.rest.request.RequestHelper.START;
-import static com.elster.jupiter.issue.rest.request.RequestHelper.STATUS;
-import static com.elster.jupiter.issue.rest.response.ResponseHelper.entity;
-import static com.elster.jupiter.util.conditions.Where.where;
-import static com.energyict.mdc.issue.datacollection.rest.i18n.MessageSeeds.getString;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import javax.annotation.security.RolesAllowed;
-import javax.inject.Inject;
-import javax.ws.rs.BeanParam;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.SecurityContext;
-
 import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.issue.rest.request.AssignIssueRequest;
-import com.elster.jupiter.issue.rest.request.BulkIssueRequest;
-import com.elster.jupiter.issue.rest.request.CloseIssueRequest;
-import com.elster.jupiter.issue.rest.request.CreateCommentRequest;
-import com.elster.jupiter.issue.rest.request.EntityReference;
-import com.elster.jupiter.issue.rest.request.PerformActionRequest;
+import com.elster.jupiter.issue.rest.request.*;
 import com.elster.jupiter.issue.rest.resource.StandardParametersBean;
 import com.elster.jupiter.issue.rest.response.ActionInfo;
 import com.elster.jupiter.issue.rest.response.IssueCommentInfo;
-import com.elster.jupiter.issue.rest.response.IssueGroupInfo;
 import com.elster.jupiter.issue.rest.response.PropertyUtils;
 import com.elster.jupiter.issue.rest.response.cep.CreationRuleActionInfoFactory;
 import com.elster.jupiter.issue.rest.response.cep.CreationRuleActionTypeInfo;
 import com.elster.jupiter.issue.rest.response.device.DeviceInfo;
 import com.elster.jupiter.issue.rest.transactions.AssignIssueTransaction;
-import com.elster.jupiter.issue.rest.transactions.CreateCommentTransaction;
 import com.elster.jupiter.issue.security.Privileges;
 import com.elster.jupiter.issue.share.IssueActionResult;
-import com.elster.jupiter.issue.share.entity.HistoricalIssue;
-import com.elster.jupiter.issue.share.entity.Issue;
-import com.elster.jupiter.issue.share.entity.IssueActionType;
-import com.elster.jupiter.issue.share.entity.IssueComment;
-import com.elster.jupiter.issue.share.entity.IssueGroup;
-import com.elster.jupiter.issue.share.entity.IssueReason;
-import com.elster.jupiter.issue.share.entity.IssueStatus;
-import com.elster.jupiter.issue.share.entity.IssueType;
-import com.elster.jupiter.issue.share.entity.OpenIssue;
-import com.elster.jupiter.issue.share.service.IssueGroupFilter;
+import com.elster.jupiter.issue.share.entity.*;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
@@ -83,6 +27,22 @@ import com.energyict.mdc.issue.datacollection.entity.IssueDataCollection;
 import com.energyict.mdc.issue.datacollection.entity.OpenIssueDataCollection;
 import com.energyict.mdc.issue.datacollection.rest.i18n.MessageSeeds;
 import com.energyict.mdc.issue.datacollection.rest.response.DataCollectionIssueInfoFactory;
+
+import javax.annotation.security.RolesAllowed;
+import javax.inject.Inject;
+import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.SecurityContext;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import static com.elster.jupiter.issue.rest.request.RequestHelper.*;
+import static com.elster.jupiter.issue.rest.response.ResponseHelper.entity;
+import static com.elster.jupiter.util.conditions.Where.where;
+import static com.energyict.mdc.issue.datacollection.rest.i18n.MessageSeeds.getString;
 
 @Path("/issue")
 public class IssueResource extends BaseResource {
@@ -129,31 +89,6 @@ public class IssueResource extends BaseResource {
     }
 
     @GET
-    @Path("/groupedlist")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.VIEW_ISSUE,Privileges.ASSIGN_ISSUE,Privileges.CLOSE_ISSUE,Privileges.COMMENT_ISSUE,Privileges.ACTION_ISSUE})
-    public Response getGroupedList(@BeanParam StandardParametersBean params) {
-        validateMandatory(params, ISSUE_TYPE, START, LIMIT, FIELD);
-        List<IssueGroup> resultList = Collections.<IssueGroup>emptyList();
-        try (TransactionContext context = getTransactionService().getContext()) {
-            IssueGroupFilter filter = new IssueGroupFilter();
-            filter.using(getQueryApiClass(params)) // Issues, Historical Issues or Both
-                    .onlyGroupWithKey(params.getFirst(ID)) // Reason id
-                    .withIssueType(params.getFirst(ISSUE_TYPE)) // Reasons only with specific issue type
-                    .withStatuses(params.get(STATUS)) // All selected statuses
-                    .withAssigneeType(params.getFirst(ASSIGNEE_TYPE)) // User, Group or Role type of assignee
-                    .withAssigneeId(params.getFirstLong(ASSIGNEE_ID)) // Id of selected assignee
-                    .withMeterMrid(params.getFirst(METER)) // Filter by meter MRID
-                    .groupBy(params.getFirst(FIELD)) // Main grouping column
-                    .setAscOrder(false) // Sorting (descending direction)
-                    .from(params.getFrom()).to(params.getTo()); // Pagination
-            resultList = getIssueService().getIssueGroupList(filter);
-            context.commit();
-        }
-        return entity(resultList, IssueGroupInfo.class, params.getStart(), params.getLimit()).build();
-    }
-
-    @GET
     @Path("/{" + ID + "}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_ISSUE,Privileges.ASSIGN_ISSUE,Privileges.CLOSE_ISSUE,Privileges.COMMENT_ISSUE,Privileges.ACTION_ISSUE})
@@ -168,11 +103,12 @@ public class IssueResource extends BaseResource {
     @Path("/{" + ID + "}/comments")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_ISSUE,Privileges.ASSIGN_ISSUE,Privileges.CLOSE_ISSUE,Privileges.COMMENT_ISSUE,Privileges.ACTION_ISSUE})
-    public Response getComments(@PathParam(ID) long id, @BeanParam StandardParametersBean params) {
+    public PagedInfoList getComments(@PathParam(ID) long id, @BeanParam JsonQueryParameters queryParameters) {
         Condition condition = where("issueId").isEqualTo(id);
         Query<IssueComment> query = getIssueService().query(IssueComment.class, User.class);
         List<IssueComment> commentsList = query.select(condition, Order.ascending("createTime"));
-        return entity(commentsList, IssueCommentInfo.class).build();
+        List<IssueCommentInfo> infos = commentsList.stream().map(IssueCommentInfo::new).collect(Collectors.toList());
+        return PagedInfoList.fromCompleteList("comments", infos, queryParameters);
     }
 
     @POST
@@ -181,12 +117,13 @@ public class IssueResource extends BaseResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.COMMENT_ISSUE)
     public Response postComment(@PathParam("id") long id, CreateCommentRequest request, @Context SecurityContext securityContext) {
-        User author = (User) securityContext.getUserPrincipal();
-        if (request.getComment() == null) {
-            throw new WebApplicationException(Response.Status.BAD_REQUEST);
+        try (TransactionContext context = getTransactionService().getContext()) {
+            IssueDataCollection issue = getIssueDataCollectionService().findIssue(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+            User author = (User) securityContext.getUserPrincipal();
+            IssueComment comment = issue.addComment(request.getComment(), author).orElseThrow(() -> new WebApplicationException(Response.Status.BAD_REQUEST));
+            context.commit();
+            return Response.ok(new IssueCommentInfo(comment)).status(Response.Status.CREATED).build();
         }
-        IssueComment comment = getTransactionService().execute(new CreateCommentTransaction(id, request.getComment(), author, getIssueService()));
-        return entity(new IssueCommentInfo(comment)).status(Response.Status.CREATED).build();
     }
 
     @GET

@@ -5,46 +5,26 @@ import com.elster.jupiter.issue.rest.request.AssignIssueRequest;
 import com.elster.jupiter.issue.rest.request.CloseIssueRequest;
 import com.elster.jupiter.issue.rest.request.EntityReference;
 import com.elster.jupiter.issue.rest.request.PerformActionRequest;
-import com.elster.jupiter.issue.share.entity.IssueActionType;
-import com.elster.jupiter.issue.share.entity.IssueAssignee;
-import com.elster.jupiter.issue.share.entity.IssueComment;
-import com.elster.jupiter.issue.share.entity.IssueGroup;
-import com.elster.jupiter.issue.share.entity.IssueReason;
-import com.elster.jupiter.issue.share.entity.IssueStatus;
-import com.elster.jupiter.issue.share.entity.IssueType;
-import com.elster.jupiter.issue.share.entity.OpenIssue;
-import com.elster.jupiter.issue.share.service.IssueGroupFilter;
+import com.elster.jupiter.issue.share.entity.*;
 import com.elster.jupiter.metering.EndDevice;
-import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.issue.datacollection.entity.IssueDataCollection;
 import com.energyict.mdc.issue.datacollection.entity.OpenIssueDataCollection;
-
 import org.junit.Test;
 import org.mockito.Matchers;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
+import java.time.Instant;
+import java.util.*;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
-import static com.elster.jupiter.issue.rest.request.RequestHelper.FIELD;
-import static com.elster.jupiter.issue.rest.request.RequestHelper.ISSUE_TYPE;
-import static com.elster.jupiter.issue.rest.request.RequestHelper.LIMIT;
-import static com.elster.jupiter.issue.rest.request.RequestHelper.START;
-import static com.elster.jupiter.issue.rest.request.RequestHelper.STATUS;
+import static com.elster.jupiter.issue.rest.request.RequestHelper.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyLong;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class IssueResourceTest extends IssueDataCollectionApplicationJerseyTest {
 
@@ -123,7 +103,7 @@ public class IssueResourceTest extends IssueDataCollectionApplicationJerseyTest 
 
         assertThat(map.get("total")).isEqualTo(1);
 
-        Map<?, ?> commentMap = (Map<?, ?>) ((List<?>) map.get("data")).get(0);
+        Map<?, ?> commentMap = (Map<?, ?>) ((List<?>) map.get("comments")).get(0);
 
         assertThat(commentMap.get("id")).isEqualTo(1);
         assertThat(commentMap.get("comment")).isEqualTo("My comment");
@@ -138,9 +118,18 @@ public class IssueResourceTest extends IssueDataCollectionApplicationJerseyTest 
 
     @Test
     public void testPostComment() {
+        OpenIssueDataCollection issue = mock(OpenIssueDataCollection.class);
+        doReturn(Optional.of(issue)).when(issueDataCollectionService).findIssue(1L);
+        IssueComment comment = mock(IssueComment.class);
+        when(issue.addComment(Matchers.anyString(), Matchers.any())).thenReturn(Optional.of(comment));
+        when(comment.getCreateTime()).thenReturn(Instant.now());
+        User user = mockUser(1, "user");
+        when(comment.getUser()).thenReturn(user);
+
         Map<String, String> params = new HashMap<>(1);
         params.put("comment", "Comment");
         Entity<Map<String, String>> json = Entity.json(params);
+
         Response response = target("/issue/1/comments").request().post(json);
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
@@ -148,9 +137,15 @@ public class IssueResourceTest extends IssueDataCollectionApplicationJerseyTest 
 
     @Test
     public void testPostEmptyComment() {
+        OpenIssueDataCollection issue = mock(OpenIssueDataCollection.class);
+        doReturn(Optional.of(issue)).when(issueDataCollectionService).findIssue(1L);
+        IssueComment comment = mock(IssueComment.class);
+        when(issue.addComment(Matchers.anyString(), Matchers.any())).thenReturn(Optional.empty());
         Map<String, String> params = new HashMap<>(0);
         Entity<Map<String, String>> json = Entity.json(params);
+
         Response response = target("/issue/1/comments").request().post(json);
+
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
@@ -214,39 +209,6 @@ public class IssueResourceTest extends IssueDataCollectionApplicationJerseyTest 
 
         Response response = target("issue/1/action").request().put(Entity.json(request));
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
-    }
-
-    @Test
-    public void testGroupedListWithoutParameters() {
-        Response response = target("issue/groupedlist").request().get();
-        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-    }
-
-    @Test
-    public void testGroupedList() {
-        IssueGroup entity = mock(IssueGroup.class);
-        when(entity.getGroupKey()).thenReturn(1L);
-        when(entity.getGroupName()).thenReturn("Reason 1");
-        when(entity.getCount()).thenReturn(5L);
-
-        List<IssueGroup> groupedList = Arrays.asList(entity);
-        when(issueService.getIssueGroupList(Matchers.<IssueGroupFilter>anyObject())).thenReturn(groupedList);
-
-        TransactionContext context = mock(TransactionContext.class);
-        when(transactionService.getContext()).thenReturn(context);
-
-        Map<?, ?> map = target("issue/groupedlist").queryParam(ISSUE_TYPE, "datacollection")
-                .queryParam(START, 0).queryParam(LIMIT, 1).queryParam(FIELD, "reason").request().get(Map.class);
-
-        assertThat(map.get("total")).isEqualTo(1);
-
-        List<?> groups = (List<?>) map.get("data");
-        assertThat(groups).hasSize(1);
-
-        Map<?, ?> groupMap = (Map<?, ?>) groups.get(0);
-        assertThat(groupMap.get("id")).isEqualTo(1);
-        assertThat(groupMap.get("reason")).isEqualTo("Reason 1");
-        assertThat(groupMap.get("number")).isEqualTo(5);
     }
 
     private void assertDefaultIssueMap(Map<?, ?> issueMap) {
