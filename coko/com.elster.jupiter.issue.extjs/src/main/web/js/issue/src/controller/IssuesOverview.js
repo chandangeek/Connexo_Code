@@ -109,14 +109,11 @@ Ext.define('Isu.controller.IssuesOverview', {
 
     setFilter: function () {
         var me = this,
-            router = me.getController('Uni.controller.history.Router'),
-            filterForm = me.getFilterForm();
+            router = me.getController('Uni.controller.history.Router');
 
-        filterForm.setLoading(true);
         me.loadFilterFormDependencies(router.filter, function () {
-            filterForm.loadRecord(router.filter);
-            filterForm.setLoading(false);
-            me.setFilterToolbar(filterForm);
+            me.getFilterForm().loadRecord(router.filter);
+            me.setFilterToolbar(me.getFilterForm());
         });
         me.setGrouping(router.filter);
         me.setSortingToolbar(router.filter);

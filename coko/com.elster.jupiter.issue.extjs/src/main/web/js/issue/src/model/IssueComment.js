@@ -39,7 +39,7 @@ Ext.define('Isu.model.IssueComment', {
         url: '/api/idc/issue/{issue_id}/comments',
         reader: {
             type: 'json',
-            root: 'data'
+            root: 'comments'
         },
         pageParam: false,
         startParam: false,
