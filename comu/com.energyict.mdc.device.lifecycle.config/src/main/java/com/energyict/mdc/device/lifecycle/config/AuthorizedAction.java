@@ -57,8 +57,6 @@ public interface AuthorizedAction extends HasId, HasName {
 
     }
 
-    public long getId();
-
     public long getVersion();
 
     public DeviceLifeCycle getDeviceLifeCycle();
