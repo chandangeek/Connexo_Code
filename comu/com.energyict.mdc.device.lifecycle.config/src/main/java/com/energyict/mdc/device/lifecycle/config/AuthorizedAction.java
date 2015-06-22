@@ -1,6 +1,8 @@
 package com.energyict.mdc.device.lifecycle.config;
 
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.util.HasName;
+import com.energyict.mdc.common.HasId;
 
 import java.time.Instant;
 import java.util.Optional;
@@ -27,8 +29,8 @@ import java.util.Set;
  * @since 2015-03-11 (14:17)
  */
 
-public interface AuthorizedAction {
-    public enum Level {
+public interface AuthorizedAction extends HasId, HasName {
+    enum Level {
         ONE(Privileges.INITIATE_ACTION_1),
         TWO(Privileges.INITIATE_ACTION_2),
         THREE(Privileges.INITIATE_ACTION_3),
