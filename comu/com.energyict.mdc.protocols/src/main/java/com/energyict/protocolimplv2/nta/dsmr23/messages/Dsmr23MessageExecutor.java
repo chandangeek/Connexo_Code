@@ -124,6 +124,8 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
             CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);   //Optimistic
             logger.severe("DeviceMessage: " + pendingMessage.getDeviceMessageId() + " - id: " + pendingMessage.getDeviceMessageId().dbValue());
+            System.out.println("DeviceMessage: " + pendingMessage.getDeviceMessageId() + " - id: " + pendingMessage.getDeviceMessageId().dbValue());
+            getIssueService().newIssueCollector().addWarning("Just to test - DeviceMessage: " + pendingMessage.getDeviceMessageId() + " - id: " + pendingMessage.getDeviceMessageId().dbValue());
             try {
                 if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.CONTACTOR_OPEN)) {
                     doDisconnect();
