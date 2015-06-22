@@ -100,7 +100,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
                                 me.getApplication().fireEvent('changecontentevent', widget);
                                 tabController.showTab(1);
                                 var dataReport = Ext.widget('deviceregisterreportsetup-' + type, {
-                                    mRID: mRID,
+                                    mRID: encodeURIComponent(mRID),
                                     registerId: registerId
                                 });
                                 widget.down('#register-data').add(dataReport);
