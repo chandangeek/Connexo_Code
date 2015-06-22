@@ -18,6 +18,9 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.rest.impl.i18n.DefaultLifeCycleTranslationKey;
 import com.energyict.mdc.device.lifecycle.config.rest.impl.i18n.MessageSeeds;
+import com.energyict.mdc.device.lifecycle.config.rest.impl.i18n.MicroActionTranslationKey;
+import com.energyict.mdc.device.lifecycle.config.rest.impl.i18n.MicroCategoryTranslationKey;
+import com.energyict.mdc.device.lifecycle.config.rest.impl.i18n.MicroCheckTranslationKey;
 import com.energyict.mdc.device.lifecycle.config.rest.impl.resource.DeviceLifeCycleActionResource;
 import com.energyict.mdc.device.lifecycle.config.rest.impl.resource.DeviceLifeCycleResource;
 import com.energyict.mdc.device.lifecycle.config.rest.impl.resource.DeviceLifeCycleStateResource;
@@ -122,6 +125,9 @@ public class DeviceLifeCycleConfigApplication extends Application implements Tra
     public List<TranslationKey> getKeys() {
         List<TranslationKey> keys = new ArrayList<>(Arrays.<TranslationKey>asList(MessageSeeds.values()));
         keys.addAll(Arrays.<TranslationKey>asList(DefaultLifeCycleTranslationKey.values()));
+        keys.addAll(Arrays.<TranslationKey>asList(MicroActionTranslationKey.values()));
+        keys.addAll(Arrays.<TranslationKey>asList(MicroCheckTranslationKey.values()));
+        keys.addAll(Arrays.<TranslationKey>asList(MicroCategoryTranslationKey.values()));
         return keys;
     }
 
