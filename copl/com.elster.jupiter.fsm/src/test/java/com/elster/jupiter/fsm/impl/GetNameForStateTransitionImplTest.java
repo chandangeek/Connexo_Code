@@ -48,6 +48,20 @@ public class GetNameForStateTransitionImplTest {
     }
 
     @Test
+    public void doesNotDelegateToThesaurusWhenNameIsNotEmpty() {
+        StateTransitionImpl stateTransition = this.getTestInstance();
+        String expectedName = "doesNotDelegateToThesaurusWhenNameIsNotEmpty";
+        stateTransition.setName(expectedName);
+
+        // Business method
+        String name = stateTransition.getName(this.thesaurus);
+
+        // Asserts
+        verify(this.thesaurus, never()).getString(anyString(), anyString());
+        assertThat(name).isEqualTo(expectedName);
+    }
+
+    @Test
     public void delegatesToThesaurusWhenNameIsEmpty() {
         StateTransitionImpl stateTransition = this.getTestInstance();
 
