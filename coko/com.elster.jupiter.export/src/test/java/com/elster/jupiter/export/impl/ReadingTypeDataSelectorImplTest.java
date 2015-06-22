@@ -48,15 +48,15 @@ public class ReadingTypeDataSelectorImplTest {
     private static final ZonedDateTime UPDATE_START = ZonedDateTime.of(2014, 5, 19, 0, 0, 0, 0, TimeZoneNeutral.getMcMurdo());
     private static final ZonedDateTime START = ZonedDateTime.of(2014, 6, 19, 0, 0, 0, 0, TimeZoneNeutral.getMcMurdo());
     private static final ZonedDateTime END = ZonedDateTime.of(2014, 7, 19, 0, 0, 0, 0, TimeZoneNeutral.getMcMurdo());
-    private static final Range<Instant> EXPORTED_INTERVAL = Range.closed(START.toInstant(), END.toInstant());
-    private static final Range<Instant> UPDATE_INTERVAL = Range.closed(UPDATE_START.toInstant(), START.toInstant());
-    private static final Range<ZonedDateTime> UPDATE_PERIOD = Range.closed(UPDATE_START, START);
+    private static final Range<Instant> EXPORTED_INTERVAL = Range.openClosed(START.toInstant(), END.toInstant());
+    private static final Range<Instant> UPDATE_INTERVAL = Range.openClosed(UPDATE_START.toInstant(), START.toInstant());
+    private static final Range<ZonedDateTime> UPDATE_PERIOD = Range.openClosed(UPDATE_START, START);
     private static final ZonedDateTime SINCE = ZonedDateTime.of(2014, 6, 15, 0, 0, 0, 0, TimeZoneNeutral.getMcMurdo());
     private static final ZonedDateTime UPDATED_WINDOW_START = ZonedDateTime.of(2014, 5, 24, 0, 0, 0, 0, TimeZoneNeutral.getMcMurdo());
     private static final ZonedDateTime UPDATED_RECORD_TIME = ZonedDateTime.of(2014, 5, 24, 14, 0, 0, 0, TimeZoneNeutral.getMcMurdo());
     private static final ZonedDateTime UPDATED_WINDOW_END = ZonedDateTime.of(2014, 5, 25, 0, 0, 0, 0, TimeZoneNeutral.getMcMurdo());
-    private static final Range<ZonedDateTime> UPDATE_WINDOW_PERIOD = Range.closed(UPDATED_WINDOW_START, UPDATED_WINDOW_END);
-    private static final Range<Instant> UPDATE_WINDOW_INTERVAL = Range.closed(UPDATED_WINDOW_START.toInstant(), UPDATED_WINDOW_END.toInstant());
+    private static final Range<ZonedDateTime> UPDATE_WINDOW_PERIOD = Range.openClosed(UPDATED_WINDOW_START, UPDATED_WINDOW_END);
+    private static final Range<Instant> UPDATE_WINDOW_INTERVAL = Range.openClosed(UPDATED_WINDOW_START.toInstant(), UPDATED_WINDOW_END.toInstant());
     public static final String READING_TYPE_MRID = "1.0.0.21.12.0.0.0";
 
     @Rule
