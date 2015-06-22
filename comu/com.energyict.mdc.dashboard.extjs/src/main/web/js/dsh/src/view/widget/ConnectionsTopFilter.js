@@ -7,8 +7,8 @@ Ext.define('Dsh.view.widget.ConnectionsTopFilter', {
     filters: [
         {
             type: 'combobox',
-            dataIndex: 'deviceGroup',
-            emptyText: Uni.I18n.translate('connection.widget.sideFilter.deviceGroup', 'DSH', 'Device group'),
+            dataIndex: 'deviceGroups',
+         //   emptyText: Uni.I18n.translate('connection.widget.sideFilter.deviceGroup', 'DSH', 'Device group'),
             multiSelect: true,
             displayField: 'name',
             valueField: 'id',
