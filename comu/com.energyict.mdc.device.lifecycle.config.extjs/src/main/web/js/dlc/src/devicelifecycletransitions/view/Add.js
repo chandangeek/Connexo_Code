@@ -4,6 +4,10 @@ Ext.define('Dlc.devicelifecycletransitions.view.Add', {
     router: null,
     edit: false,
 
+    requires: [
+        "Dlc.devicelifecycletransitions.view.widget.StatePropertiesForm"
+    ],
+
     setEdit: function (edit) {
         if (edit) {
             this.edit = edit;
@@ -14,6 +18,61 @@ Ext.define('Dlc.devicelifecycletransitions.view.Add', {
             this.down('#add-button').setText(Uni.I18n.translate('general.add', 'DLC', 'Add'));
             this.down('#add-button').action = 'addTransition';
         }
+    },
+
+    fillActionsAndChecks: function (fromComboValue, toComboValue) {
+        if (!!fromComboValue && !!toComboValue && (fromComboValue != this.fromValue || this.toValue != toComboValue)) {
+            this.fromValue = fromComboValue
+            this.toValue = toComboValue
+            this.fillActions(fromComboValue, toComboValue);
+            this.fillChecks(fromComboValue, toComboValue);
+        }
+    },
+
+    fillActions: function (fromComboValue, toComboValue) {
+        var me = this,
+            autoActionsContainer = me.down('#autoActionsContainer'),
+            store = Ext.create('Dlc.devicelifecycletransitions.store.DeviceLifeCycleTransitionAutoActions');
+
+        store.getProxy().setUrl(me.router.arguments, fromComboValue, toComboValue);
+
+        store.load(
+            function () {
+                autoActionsContainer.removeAll();
+                autoActionsContainer.add({
+                    xtype: 'state-properties-form',
+                    propertiesStore: this,
+                    itemId: 'actions-property-form',
+                    margin: '0 0 -20 0',
+                    itemStack: 'actions'
+                });
+                autoActionsContainer.fireEvent('rendered', autoActionsContainer);
+                autoActionsContainer.show();
+            }
+        );
+    },
+
+    fillChecks: function (fromComboValue, toComboValue) {
+        var me = this,
+            pretransitionChecksContainer = this.down('#pretansitionsContainer'),
+            store = Ext.create('Dlc.devicelifecycletransitions.store.DeviceLifeCycleTransitionChecks');
+
+        store.getProxy().setUrl(me.router.arguments, fromComboValue, toComboValue);
+
+        store.load(
+            function () {
+                pretransitionChecksContainer.removeAll();
+                pretransitionChecksContainer.add({
+                    xtype: 'state-properties-form',
+                    propertiesStore: this,
+                    margin: '0 0 -20 0',
+                    itemId: 'checks-property-form',
+                    itemStack: 'checks'
+                });
+                pretransitionChecksContainer.fireEvent('rendered', pretransitionChecksContainer);
+                pretransitionChecksContainer.show();
+            }
+        );
     },
 
     initComponent: function () {
@@ -79,15 +138,20 @@ Ext.define('Dlc.devicelifecycletransitions.view.Add', {
                                 displayField: 'name',
                                 valueField: 'id',
                                 listeners: {
-                                    select: function(combo, chosenState) {
-                                        var store = me.down('#transition-to-combo').getStore();
-                                        me.down('#transition-to-combo').getStore().filterBy(function (state) {
-                                            var id = Ext.isArray(chosenState) ? chosenState[0].getId() : chosenState.getId();
+                                    select: function (combo, chosenState) {
+                                        var transitionToCombo = me.down('#transition-to-combo'),
+                                            transitionFromCombo = this,
+                                            store = transitionToCombo.getStore(),
+                                            id;
+
+                                        me.fillActionsAndChecks(transitionFromCombo.getValue(), transitionToCombo.getValue());
+                                        transitionToCombo.getStore().filterBy(function (state) {
+                                            id = Ext.isArray(chosenState) ? chosenState[0].getId() : chosenState.getId();
                                             return state.getId() !== id;
                                         });
                                         if (store.getCount() == 0) {
-                                            me.down('#transition-to-combo').hide();
-                                            me.down('#transition-to-combo').nextSibling().show();
+                                            transitionToCombo.hide();
+                                            transitionToCombo.nextSibling().show();
                                         }
                                     }
                                 }
@@ -133,15 +197,22 @@ Ext.define('Dlc.devicelifecycletransitions.view.Add', {
                                 displayField: 'name',
                                 valueField: 'id',
                                 listeners: {
-                                    select: function(combo, chosenState) {
-                                        var store = me.down('#transition-from-combo').getStore();
+                                    select: function (combo, chosenState) {
+                                        var transitionFromCombo = me.down('#transition-from-combo'),
+                                            transitionToCombo = this,
+                                            store = transitionFromCombo.getStore(),
+                                            id;
+
+                                        me.fillActionsAndChecks(transitionFromCombo.getValue(), transitionToCombo.getValue());
+
                                         store.filterBy(function (state) {
-                                            var id = Ext.isArray(chosenState) ? chosenState[0].getId() : chosenState.getId();
+                                            id = Ext.isArray(chosenState) ? chosenState[0].getId() : chosenState.getId();
                                             return state.getId() !== id;
                                         });
+
                                         if (store.getCount() == 0) {
-                                            me.down('#transition-from-combo').hide();
-                                            me.down('#transition-from-combo').nextSibling().show();
+                                            transitionFromCombo.hide();
+                                            transitionFromCombo.nextSibling().show();
                                         }
                                     }
                                 }
@@ -175,6 +246,18 @@ Ext.define('Dlc.devicelifecycletransitions.view.Add', {
                         itemId: 'privileges-checkboxgroup',
                         columns: 1,
                         vertical: true
+                    },
+                    {
+                        xtype: 'fieldcontainer',
+                        itemId: 'pretansitionsContainer',
+                        fieldLabel: Uni.I18n.translate('deviceLifeCycleTransitions.add.pretransitionChecks', 'DLC', 'Pretransition checks'),
+                        hidden: true
+                    },
+                    {
+                        xtype: 'fieldcontainer',
+                        itemId: 'autoActionsContainer',
+                        fieldLabel: Uni.I18n.translate('deviceLifeCycleTransitions.add.autoActions', 'DLC', 'Auto actions'),
+                        hidden: true
                     },
                     {
                         xtype: 'fieldcontainer',
