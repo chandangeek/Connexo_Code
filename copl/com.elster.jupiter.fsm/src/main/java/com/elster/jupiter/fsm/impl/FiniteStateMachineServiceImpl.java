@@ -24,8 +24,6 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Where;
-import com.elster.jupiter.util.streams.Functions;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -333,11 +331,15 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
     }
 
     private void cloneTransition(StateTransition source, FiniteStateMachineBuilder.StateBuilder builder, Map<Long, FiniteStateMachineBuilder.StateBuilder> otherBuilders) {
-        Optional<String> customName = source.getName();
-        if (customName.isPresent()) {
+        if (source.getName().isPresent()) {
             builder
                 .on(source.getEventType())
-                .transitionTo(otherBuilders.get(source.getTo().getId()), customName.get());
+                .transitionTo(otherBuilders.get(source.getTo().getId()), source.getName().get());
+        }
+        else if (source.getTranslationKey().isPresent()) {
+            builder
+                .on(source.getEventType())
+                .transitionTo(otherBuilders.get(source.getTo().getId()), new TranslationKeyFromString(source.getTranslationKey().get()));
         }
         else {
             builder
@@ -366,4 +368,21 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
                 .select(eventTypeMatches);
     }
 
+    private class TranslationKeyFromString implements TranslationKey {
+        private final String key;
+        private TranslationKeyFromString(String key) {
+            super();
+            this.key = key;
+        }
+
+        @Override
+        public String getKey() {
+            return this.key;
+        }
+
+        @Override
+        public String getDefaultFormat() {
+            return this.key;
+        }
+    }
 }

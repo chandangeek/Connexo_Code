@@ -1,5 +1,7 @@
 package com.elster.jupiter.fsm;
 
+import com.elster.jupiter.nls.TranslationKey;
+
 /**
  * Assists in building {@link FiniteStateMachine}s.
  * Most of the methods return the same builder to support method chaining.
@@ -92,8 +94,10 @@ public interface FiniteStateMachineBuilder {
     public interface TransitionBuilder {
         public StateBuilder transitionTo(State state);
         public StateBuilder transitionTo(State state, String name);
+        public StateBuilder transitionTo(State state, TranslationKey translationKey);
         public StateBuilder transitionTo(StateBuilder state);
         public StateBuilder transitionTo(StateBuilder stateBuilder, String name);
+        public StateBuilder transitionTo(StateBuilder stateBuilder, TranslationKey translationKey);
     }
 
 }

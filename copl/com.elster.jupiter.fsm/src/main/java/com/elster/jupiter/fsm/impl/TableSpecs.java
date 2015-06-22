@@ -111,6 +111,7 @@ public enum TableSpecs {
             Column from = table.column("FROMSTATE").number().notNull().add();
             Column to = table.column("TOSTATE").number().notNull().add();
             table.column("NAME").varChar().map(StateTransitionImpl.Fields.NAME.fieldName()).add();
+            table.column("NAMEKEY").varChar().map(StateTransitionImpl.Fields.NAME_KEY.fieldName()).add();
             Column eventType = table.column("EVENTTYPE").number().notNull().add();
             Column finiteStateMachine = table.column("FSM").number().notNull().add();
             table.primaryKey("PK_FSM_STATE_TRANSITION").on(id).add();

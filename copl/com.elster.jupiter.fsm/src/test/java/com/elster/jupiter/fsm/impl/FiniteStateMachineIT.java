@@ -4,8 +4,10 @@ import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViol
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.FiniteStateMachineBuilder;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.FiniteStateMachineUpdater;
 import com.elster.jupiter.fsm.MessageSeeds;
 import com.elster.jupiter.fsm.ProcessReference;
@@ -15,7 +17,13 @@ import com.elster.jupiter.fsm.StateTransitionEventType;
 import com.elster.jupiter.fsm.UnknownProcessReferenceException;
 import com.elster.jupiter.fsm.UnknownStateException;
 import com.elster.jupiter.fsm.UnsupportedStateTransitionException;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.users.UserService;
 import com.google.common.base.Strings;
 
 import java.sql.SQLException;
@@ -26,6 +34,10 @@ import org.junit.*;
 import org.junit.rules.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Integration test for the {@link FiniteStateMachineImpl} component.
@@ -555,6 +567,41 @@ public class FiniteStateMachineIT {
         assertThat(stateTransition.getEventType().getId()).isEqualTo(commissionedEventType.getId());
         assertThat(stateTransition.getName().isPresent()).isTrue();
         assertThat(stateTransition.getName().get()).isEqualTo(expectedTransitionName);
+        assertThat(stateTransition.getTranslationKey().isPresent()).isFalse();
+        assertThat(stateTransition.getFrom().getId()).isEqualTo(inStock.getId());
+        assertThat(stateTransition.getTo().getId()).isEqualTo(commissioned.getId());
+    }
+
+    @Transactional
+    @Test
+    public void createStateMachineWithOneTranslatableNamedStateTransition() {
+        String expectedName = "createStateMachineWithOneTranslatableNamedStateTransition";
+        StateTransitionEventType commissionedEventType = this.createNewStateTransitionEventType("#commissioned");
+        Thesaurus thesaurus = mock(Thesaurus.class);
+        String translationKeyKey = "expected.translation.key";
+        String translation = "Commission (custom translation)";
+        when(thesaurus.getString(eq(translationKeyKey), anyString())).thenReturn(translation);
+        FiniteStateMachineBuilder builder = this.getTestService(thesaurus).newFiniteStateMachine(expectedName);
+        State commissioned = builder.newCustomState("Commissioned").complete();
+        TranslationKey translationKey = mock(TranslationKey.class);
+        when(translationKey.getKey()).thenReturn(translationKeyKey);
+        when(translationKey.getDefaultFormat()).thenReturn(translation);
+        State inStock = builder.newCustomState("InStock").on(commissionedEventType).transitionTo(commissioned, translationKey).complete();
+        FiniteStateMachine stateMachine = builder.complete(inStock);
+
+        // Business method
+        stateMachine.save();
+
+        // Asserts
+        assertThat(stateMachine.getName()).isEqualTo(expectedName);
+        assertThat(stateMachine.getStates()).hasSize(2);
+        List<StateTransition> transitions = stateMachine.getTransitions();
+        assertThat(transitions).hasSize(1);
+        StateTransition stateTransition = transitions.get(0);
+        assertThat(stateTransition.getEventType().getId()).isEqualTo(commissionedEventType.getId());
+        assertThat(stateTransition.getName().isPresent()).isFalse();
+        assertThat(stateTransition.getTranslationKey().isPresent()).isTrue();
+        assertThat(stateTransition.getTranslationKey().get()).isEqualTo(translationKeyKey);
         assertThat(stateTransition.getFrom().getId()).isEqualTo(inStock.getId());
         assertThat(stateTransition.getTo().getId()).isEqualTo(commissioned.getId());
     }
@@ -1794,6 +1841,63 @@ public class FiniteStateMachineIT {
 
     @Transactional
     @Test
+    public void cloneStateMachineWithTranslatableName() {
+        Thesaurus thesaurus = mock(Thesaurus.class);
+        String tk1 = "cloneStateMachineWithTranslatableName.activate";
+        String t1 = "Activate (custom translation)";
+        when(thesaurus.getString(eq(tk1), anyString())).thenReturn(t1);
+        String tk2 = "cloneStateMachineWithTranslatableName.deactivate";
+        String t2 = "Deactivate (custom translation)";
+        when(thesaurus.getString(eq(tk2), anyString())).thenReturn(t2);
+        FiniteStateMachineServiceImpl service = this.getTestService(thesaurus);
+        StateTransitionEventType activatedEventType = this.createNewStateTransitionEventType("#activated");
+        StateTransitionEventType deactivatedEventType = this.createNewStateTransitionEventType("#deactivated");
+        FiniteStateMachineBuilder builder = service.newFiniteStateMachine("cloneStateMachineWithCustomTransitionName");
+        FiniteStateMachineBuilder.StateBuilder inactive = builder.newCustomState("Inactive");
+        FiniteStateMachineBuilder.StateBuilder active = builder.newCustomState("Active");
+        TranslationKey activateTranslationKey = mock(TranslationKey.class);
+        when(activateTranslationKey.getKey()).thenReturn(tk1);
+        when(activateTranslationKey.getDefaultFormat()).thenReturn(t1);
+        inactive.on(activatedEventType).transitionTo(active, activateTranslationKey);
+        TranslationKey deactivateTranslationKey = mock(TranslationKey.class);
+        when(deactivateTranslationKey.getKey()).thenReturn(tk2);
+        when(deactivateTranslationKey.getDefaultFormat()).thenReturn(t2);
+        active.on(deactivatedEventType).transitionTo(inactive, deactivateTranslationKey);
+        inactive.complete();
+        FiniteStateMachine stateMachine = builder.complete(active.complete());
+        stateMachine.save();
+
+        String expectedName = "Cloned";
+        // Business method
+        FiniteStateMachine cloned = service.cloneFiniteStateMachine(stateMachine, expectedName);
+
+        // Asserts
+        assertThat(cloned.getName()).isEqualTo(expectedName);
+        assertThat(cloned.getStates()).hasSize(2);
+        List<StateTransition> transitions = cloned.getTransitions();
+        assertThat(transitions).hasSize(2);
+        for (StateTransition transition : transitions) {
+            switch (transition.getEventType().getSymbol()) {
+                case "#activated": {
+                    assertThat(transition.getName().isPresent()).isFalse();
+                    assertThat(transition.getTranslationKey().isPresent()).isTrue();
+                    assertThat(transition.getTranslationKey().get()).isEqualTo(tk1);
+                    break;
+                }
+                case "#deactivated": {
+                    assertThat(transition.getName().isPresent()).isFalse();
+                    assertThat(transition.getTranslationKey().isPresent()).isTrue();
+                    assertThat(transition.getTranslationKey().get()).isEqualTo(tk2);
+                    break;
+                }
+                default: {
+                }
+            }
+        }
+    }
+
+    @Transactional
+    @Test
     public void cloneDefaultLifeCycle() {
         FiniteStateMachineServiceImpl service = this.getTestService();
         // Create default StateTransitionEventTypes
@@ -1925,6 +2029,17 @@ public class FiniteStateMachineIT {
 
     private FiniteStateMachineServiceImpl getTestService() {
         return inMemoryPersistence.getFiniteStateMachineService();
+    }
+
+    private FiniteStateMachineServiceImpl getTestService(Thesaurus thesaurus) {
+        NlsService nlsService = mock(NlsService.class);
+        when(nlsService.getThesaurus(FiniteStateMachineService.COMPONENT_NAME, Layer.DOMAIN)).thenReturn(thesaurus);
+        return new FiniteStateMachineServiceImpl(
+                inMemoryPersistence.getService(OrmService.class),
+                nlsService,
+                inMemoryPersistence.getService(UserService.class),
+                inMemoryPersistence.getService(EventService.class),
+                inMemoryPersistence.getService(TransactionService.class));
     }
 
 }

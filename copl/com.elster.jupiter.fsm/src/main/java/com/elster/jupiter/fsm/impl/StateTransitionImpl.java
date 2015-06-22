@@ -28,6 +28,7 @@ public class StateTransitionImpl implements StateTransition {
 
     public enum Fields {
         NAME("name"),
+        NAME_KEY("nameTranslationKey"),
         FINITE_STATE_MACHINE("finiteStateMachine"),
         FROM("from"),
         TO("to"),
@@ -56,6 +57,8 @@ public class StateTransitionImpl implements StateTransition {
     private long id;
     @Size(max= Table.NAME_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String name;
+    @Size(max= Table.SHORT_DESCRIPTION_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String nameTranslationKey;
     @IsPresent
     private Reference<FiniteStateMachine> finiteStateMachine = Reference.empty();
     @IsPresent
@@ -84,18 +87,29 @@ public class StateTransitionImpl implements StateTransition {
     }
 
     @Override
+    public Optional<String> getTranslationKey() {
+        return Optional.ofNullable(this.nameTranslationKey);
+    }
+
+    void setTranslationKey(String nameTranslationKey) {
+        this.nameTranslationKey = nameTranslationKey;
+    }
+
+    @Override
     public String getName(Thesaurus thesaurus) {
         if (this.getName().isPresent()){
             return this.getName().get();
         }
+        else if (this.getTranslationKey().isPresent()) {
+            return this.getNameUsingThesaurus(thesaurus, this.getTranslationKey().get());
+        }
         else {
-            return this.getNameUsingThesaurus(thesaurus);
+            return this.getNameUsingThesaurus(thesaurus, this.getEventType().getSymbol());
         }
     }
 
-    private String getNameUsingThesaurus(Thesaurus thesaurus) {
-        String symbol = this.getEventType().getSymbol();
-        return thesaurus.getString(symbol, symbol);
+    private String getNameUsingThesaurus(Thesaurus thesaurus, String key) {
+        return thesaurus.getString(key, key);
     }
 
     @Override

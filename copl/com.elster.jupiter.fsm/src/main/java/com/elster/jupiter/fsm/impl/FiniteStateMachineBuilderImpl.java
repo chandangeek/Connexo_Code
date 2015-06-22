@@ -4,6 +4,7 @@ import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.FiniteStateMachineBuilder;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransitionEventType;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModel;
 
 import java.util.Optional;
@@ -171,6 +172,14 @@ public class FiniteStateMachineBuilderImpl implements FiniteStateMachineBuilder 
         }
 
         @Override
+        public StateBuilder transitionTo(State state, TranslationKey translationKey) {
+            StateTransitionImpl stateTransition = dataModel.getInstance(StateTransitionImpl.class).initialize(underConstruction, this.from, state, this.eventType);
+            stateTransition.setTranslationKey(translationKey.getKey());
+            underConstruction.add(stateTransition);
+            return this.continuation;
+        }
+
+        @Override
         public StateBuilder transitionTo(StateBuilder stateBuilder) {
             return this.transitionTo((ServerStateBuilder) stateBuilder, Optional.<String>empty());
         }
@@ -183,6 +192,18 @@ public class FiniteStateMachineBuilderImpl implements FiniteStateMachineBuilder 
         private StateBuilder transitionTo(ServerStateBuilder stateBuilder, Optional<String> name) {
             StateTransitionImpl stateTransition = dataModel.getInstance(StateTransitionImpl.class).initialize(underConstruction, this.from, stateBuilder.getUnderConstruction(), this.eventType);
             name.ifPresent(stateTransition::setName);
+            underConstruction.add(stateTransition);
+            return this.continuation;
+        }
+
+        @Override
+        public StateBuilder transitionTo(StateBuilder stateBuilder, TranslationKey translationKey) {
+            return this.transitionTo((ServerStateBuilder) stateBuilder, translationKey);
+        }
+
+        private StateBuilder transitionTo(ServerStateBuilder stateBuilder, TranslationKey translationKey) {
+            StateTransitionImpl stateTransition = dataModel.getInstance(StateTransitionImpl.class).initialize(underConstruction, this.from, stateBuilder.getUnderConstruction(), this.eventType);
+            stateTransition.setTranslationKey(translationKey.getKey());
             underConstruction.add(stateTransition);
             return this.continuation;
         }

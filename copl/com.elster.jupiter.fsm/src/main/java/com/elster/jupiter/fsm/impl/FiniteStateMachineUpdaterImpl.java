@@ -7,8 +7,8 @@ import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransitionEventType;
 import com.elster.jupiter.fsm.UnknownStateException;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.util.Checks;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -122,9 +122,12 @@ public class FiniteStateMachineUpdaterImpl extends FiniteStateMachineBuilderImpl
 
     @Override
     public FiniteStateMachine complete(State initial) {
-        Optional<State> oldInitialState = getUnderConstruction().getStates().stream()
-                .filter(state -> state.isInitial())
-                .findFirst();
+        Optional<State> oldInitialState =
+                getUnderConstruction()
+                        .getStates()
+                        .stream()
+                        .filter(State::isInitial)
+                        .findFirst();
         getUnderConstruction().setInitialState((StateImpl) initial);
         if (oldInitialState.isPresent() && !stateWillBeAutoSaved(oldInitialState.get())){
             new StateUpdaterImpl((StateImpl) oldInitialState.get()).complete();
@@ -244,6 +247,13 @@ public class FiniteStateMachineUpdaterImpl extends FiniteStateMachineBuilderImpl
             return this;
         }
 
+        public StateBuilder addTransition(State from, State to, StateTransitionEventType eventType, TranslationKey translationKey) {
+            StateTransitionImpl stateTransition = getDataModel().getInstance(StateTransitionImpl.class).initialize(this.stateMachine, from, to, eventType);
+            stateTransition.setTranslationKey(translationKey.getKey());
+            this.transitionsUnderConstruction.add(stateTransition);
+            return this;
+        }
+
         @Override
         public State complete() {
             FiniteStateMachineUpdaterImpl.this.completedNewStates.add(this);
@@ -281,6 +291,11 @@ public class FiniteStateMachineUpdaterImpl extends FiniteStateMachineBuilderImpl
         }
 
         @Override
+        public StateBuilder transitionTo(State state, TranslationKey translationKey) {
+            return this.continuation.addTransition(this.from, state, this.eventType, translationKey);
+        }
+
+        @Override
         public StateBuilder transitionTo(StateBuilder stateBuilder) {
             return this.transitionTo((ServerStateBuilder) stateBuilder, Optional.<String>empty());
         }
@@ -294,6 +309,14 @@ public class FiniteStateMachineUpdaterImpl extends FiniteStateMachineBuilderImpl
             return this.continuation.addTransition(this.from, stateBuilder.getUnderConstruction(), this.eventType, name);
         }
 
+        @Override
+        public StateBuilder transitionTo(StateBuilder stateBuilder, TranslationKey translationKey) {
+            return this.transitionTo((ServerStateBuilder) stateBuilder, translationKey);
+        }
+
+        private StateBuilder transitionTo(ServerStateBuilder stateBuilder, TranslationKey translationKey) {
+            return this.continuation.addTransition(this.from, stateBuilder.getUnderConstruction(), this.eventType, translationKey);
+        }
     }
 
     private class AddTransitionToExistingState implements FiniteStateMachineUpdater.TransitionBuilder {

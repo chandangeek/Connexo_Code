@@ -62,7 +62,7 @@ public class GetNameForStateTransitionImplTest {
     }
 
     @Test
-    public void delegatesToThesaurusWhenNameIsEmpty() {
+    public void delegatesToThesaurusWithEventTypeSymbolWhenNameAndTranslationNameKeyAreEmpty() {
         StateTransitionImpl stateTransition = this.getTestInstance();
 
         // Business method
@@ -70,6 +70,20 @@ public class GetNameForStateTransitionImplTest {
 
         // Asserts
         verify(this.thesaurus).getString(eq(EVENT_TYPE_SYMBOL), anyString());
+        assertThat(name).isNotEmpty();
+    }
+
+    @Test
+    public void delegatesToThesaurusWhenTranslationNameKeyIsNotEmpty() {
+        StateTransitionImpl stateTransition = this.getTestInstance();
+        String translationKey = "delegatesToThesaurusWhenTranslationNameKeyIsNotEmpty";
+        stateTransition.setTranslationKey(translationKey);
+
+        // Business method
+        String name = stateTransition.getName(this.thesaurus);
+
+        // Asserts
+        verify(this.thesaurus).getString(eq(translationKey), anyString());
         assertThat(name).isNotEmpty();
     }
 
