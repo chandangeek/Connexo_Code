@@ -7,13 +7,14 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionLogMain', {
         'Mdc.view.setup.device.DeviceMenu',
         'Uni.view.container.PreviewContainer',
         'Uni.view.notifications.NoItemsFoundPanel',
-        'Uni.form.field.Duration'
+        'Uni.form.field.Duration',
+        'Mdc.view.setup.deviceconnectionhistory.DeviceConnectionLogFilter'
     ],
 
     initComponent: function () {
         var me = this;
 
-        this.side = [
+        me.side = [
             {
                 xtype: 'panel',
                 ui: 'medium',
@@ -25,13 +26,10 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionLogMain', {
                         toggleId: 'connectionMethodsLink'
                     }
                 ]
-            },
-            {
-                xtype: 'deviceconnectionhistorySideFilter'
             }
         ];
 
-        this.content = [
+        me.content = [
             {
                 ui: 'large',
                 xtype: 'panel',
@@ -50,7 +48,6 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionLogMain', {
                                 xtype: 'container',
                                 layout: {
                                     type: 'column'
-//                        align: 'stretch'
                                 },
                                 items: [
                                     {
@@ -106,7 +103,7 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionLogMain', {
                                                 itemId: 'result',
                                                 renderer: function (value) {
                                                     if (value !== null) {
-                                                        return value.displayValue;
+                                                        return Ext.String.htmlEncode(value.displayValue);
                                                     }
                                                 }
                                             }
@@ -117,15 +114,13 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionLogMain', {
                         ]
                     },
                     {
-                        xtype: 'filter-top-panel',
-                        itemId: 'deviceConnectionLogFilterTopPanel'
+                        xtype: 'mdc-view-setup-deviceconnectionhistory-connectionlogfilter'
                     },
                     {
                         xtype: 'preview-container',
-                        //itemId: 'previewContainer',
                         grid: {
                             xtype: 'deviceConnectionLogGrid',
-                            mrid: this.mrid
+                            mrid: me.mrid
                         },
                         emptyComponent: {
                             xtype: 'no-items-found-panel',
@@ -133,7 +128,8 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionLogMain', {
                             reasons: [
                                 Uni.I18n.translate('deviceconnectionhistoryLog.empty.list.item1', 'MDC', 'The communication failed before communication logs could be created'),
                                 Uni.I18n.translate('deviceconnectionhistoryLog.empty.list.item2', 'MDC', 'The filter is too narrow')
-                            ]
+                            ],
+                            margin: '16 0 0 0'
                         },
                         previewComponent: {
                             xtype: 'deviceConnectionLogPreview'
@@ -143,6 +139,6 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionLogMain', {
             }
         ];
 
-        this.callParent(arguments);
+        me.callParent(arguments);
     }
 });

@@ -44,7 +44,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                 flex: 1,
                 renderer: function(value){
                     if(value){
-                        return value.connectionMethod.name;
+                        return Ext.String.htmlEncode(value.connectionMethod.name);
                     } else {
                         return '';
                     }

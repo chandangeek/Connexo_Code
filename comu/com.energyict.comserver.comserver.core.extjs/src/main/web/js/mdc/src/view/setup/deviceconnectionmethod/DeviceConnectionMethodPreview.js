@@ -152,7 +152,7 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodPreview'
                                             var connectionStrategiesStore = Ext.StoreManager.get('ConnectionStrategies');
                                             return connectionStrategiesStore.findRecord('connectionStrategy', value).get('localizedValue');
                                         } else {
-                                            return value || Uni.I18n.translate('general.undefined', 'MDC', 'Undefined');
+                                            return Ext.String.htmlEncode(value) || Uni.I18n.translate('general.undefined', 'MDC', 'Undefined');
                                         }
                                     }
                                 },

@@ -21,20 +21,20 @@ Ext.define('Mdc.view.setup.validation.RulesGrid', {
 
         me.columns = [
             {
-                header: Uni.I18n.translate('validation.ruleName', 'MDC', 'Validation rule'),
+				header: Uni.I18n.translate('validation.ruleName', 'MDC', 'Validation rule'),				
                 dataIndex: 'name',
                 flex: 3,
-                renderer: function (value, b, record) {
+                renderer: function (value, b, record) {				
 					return '<a href="#/administration/validation/rulesets/' + record.get('ruleSetId') 
                         + '/versions/' + record.get('ruleSetVersionId') 
-                        + '/rules/' + record.getId() + '">' + value + '</a>';
+                        + '/rules/' + record.getId() + '">' + Ext.String.htmlEncode(value) + '</a>';
                 }
             },
             {
-                header: Uni.I18n.translate('validation.status', 'CFG', 'Status'),
+				header: Uni.I18n.translate('validation.status', 'CFG', 'Status'),
                 dataIndex: 'active',
                 flex: 5,
-                renderer: function (value) {
+                renderer: function (value) {				
                     if (value) {
                         return Uni.I18n.translate('validation.active', 'CFG', 'Active')
                     } else {

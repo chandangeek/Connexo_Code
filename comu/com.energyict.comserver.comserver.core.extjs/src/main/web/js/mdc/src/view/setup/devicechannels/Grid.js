@@ -3,6 +3,7 @@ Ext.define('Mdc.view.setup.devicechannels.Grid', {
     alias: 'widget.deviceLoadProfileChannelsGrid',
     itemId: 'deviceLoadProfileChannelsGrid',
     store: 'Mdc.store.ChannelsOfLoadProfilesOfDevice',
+
     requires: [
         'Uni.grid.column.Action',
         'Uni.grid.column.Obis',
@@ -23,7 +24,10 @@ Ext.define('Mdc.view.setup.devicechannels.Grid', {
                 flex: 2,
                 showTimeAttribute: false,
                 makeLink: function (record) {
-                    return me.router.getRoute('devices/device/channels/channeldata').buildUrl({mRID: me.mRID, channelId: record.getId()});
+                    return me.router.getRoute('devices/device/channels/channeldata').buildUrl({
+                        mRID: me.mRID,
+                        channelId: record.getId()
+                    });
                 }
             },
             {
@@ -32,7 +36,7 @@ Ext.define('Mdc.view.setup.devicechannels.Grid', {
                 header: Uni.I18n.translate('devicechannels.interval', 'MDC', 'Interval'),
                 renderer: function (value) {
                     var res = '';
-                    value ? res = '{count} {timeUnit}'.replace('{count}', value.count).replace('{timeUnit}', value.timeUnit) : null;
+                    value ? res = Ext.String.htmlEncode('{count} {timeUnit}'.replace('{count}', value.count).replace('{timeUnit}', value.timeUnit)) : null;
                     return res
                 }
             },
@@ -66,7 +70,8 @@ Ext.define('Mdc.view.setup.devicechannels.Grid', {
                 xtype: 'pagingtoolbarbottom',
                 store: me.store,
                 itemsPerPageMsg: Uni.I18n.translate('devicechannels.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Channels per page'),
-                dock: 'bottom'
+                dock: 'bottom',
+                deferLoading: true
             }
         ];
 

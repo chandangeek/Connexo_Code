@@ -1,0 +1,30 @@
+{
+    "total" : 5,
+    "validationBlocks": [
+        {
+            "startTime": 1432565000000,
+            "endTime": 1432566900000,
+            "amountOfSuspects": 1
+        },
+        {
+            "startTime": 1432566900000,
+            "endTime": 1432567800000,
+            "amountOfSuspects": 1
+        },
+        {
+            "startTime": 1432567800000,
+            "endTime": 1432568700000,
+            "amountOfSuspects": 1
+        },
+        {
+            "startTime": 1432568700000,
+            "endTime": 1432569600000,
+            "amountOfSuspects": 1
+        },
+        {
+            "startTime": 1432569600000,
+            "endTime": 1432570500000,
+            "amountOfSuspects": 1
+        }
+    ]
+}

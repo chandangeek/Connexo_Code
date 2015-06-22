@@ -91,7 +91,7 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step3', {
                                 renderer: function (value) {
                                     var result = '';
                                     Ext.isArray(value) && Ext.Array.each(value, function (item) {
-                                        result += item.name + '<br>';
+                                        result += Ext.String.htmlEncode(item.name) + '<br>';
                                     });
                                     return result;
                                 }

@@ -8,16 +8,22 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
         'Mdc.view.setup.devicechannels.DataActionMenu',
         'Uni.grid.column.IntervalFlags',
         'Uni.grid.column.Edited',
-        'Uni.view.toolbar.PagingTop'
+        'Uni.view.toolbar.PagingTop',
+        'Uni.grid.column.Action'
     ],
     plugins: [
-        'bufferedrenderer'
+        'bufferedrenderer',
+        'showConditionalToolTip',
+        {
+            ptype: 'cellediting',
+            clicksToEdit: 1,
+            pluginId: 'cellplugin'
+        }
     ],
     viewConfig: {
         loadMask: false,
         enableTextSelection: true
     },
-
     channelRecord: null,
     router: null,
 
@@ -45,18 +51,16 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                 flex: 1,
                 align: 'right',
                 renderer: function (v, metaData, record) {
-                    if (record.get('validationResult')) {
-                        var result = record.get('validationResult'),
-                            status = result.split('.')[1],
-                            cls = 'icon-validation-cell';
-                        if (status === 'suspect') {
-                            cls +=  ' icon-validation-red'
+                    var validationInfo = record.get('readingProperties'),
+                        cls = 'icon-validation-cell';
+                    if (!record.getValidationInfo().get('dataValidated')) {
+                        cls += ' icon-validation-black';
+                    } else if (validationInfo.delta) {
+                        if (validationInfo.delta.suspect) {
+                            cls += ' icon-validation-red'
                         }
-                        if (status === 'notValidated') {
-                            cls +=  ' icon-validation-black'
-                        }
-                        metaData.tdCls = cls;
                     }
+                    metaData.tdCls = cls;
                     if (!Ext.isEmpty(v)) {
                         var value = Uni.Number.formatNumber(v, -1);
                         return !Ext.isEmpty(value) ? value : '';
@@ -82,18 +86,38 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                 flex: 1,
                 align: 'right',
                 hidden: Ext.isEmpty(calculatedReadingType),
-                renderer: function (v) {
+                renderer: function (v, metaData, record) {
+                    var validationInfo = record.get('readingProperties'),
+                        cls = 'icon-validation-cell';
+
+                    if (!record.getValidationInfo().get('dataValidated')) {
+                        cls += ' icon-validation-black';
+                    } else if (validationInfo.bulk) {
+                        if (validationInfo.bulk.suspect) {
+                            cls += ' icon-validation-red'
+                        }
+                    }
+
+                    metaData.tdCls = cls;
                     if (!Ext.isEmpty(v)) {
                         var value = Uni.Number.formatNumber(v, -1);
                         return !Ext.isEmpty(value) ? value : '';
                     }
-                }}
-            ,
+                }
+            },
             {
                 xtype: 'interval-flags-column',
                 dataIndex: 'intervalFlags',
                 align: 'right',
                 width: 150
+            },
+            {
+                xtype: 'uni-actioncolumn',
+                itemId: 'channel-data-grid-action-column',
+                menu: {
+                    xtype: 'deviceLoadProfileChannelDataActionMenu',
+                    itemId: 'channel-data-grid-action-menu'
+                }
             }
         ];
 
@@ -104,16 +128,20 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                 dock: 'top',
                 store: me.store,
                 isFullTotalCount: true,
+                noBottomPaging: true,
                 displayMsg: '{2} reading(s)',
                 items: [
                     {
                         xtype: 'button',
-                        itemId: 'device-load-profile-channel-data-edit-readings-button',
-                        text: Uni.I18n.translate('deviceloadprofilechannels.data.editReadings', 'MDC', 'Edit readings'),
-                        privileges: Mdc.privileges.Device.administrateDeviceData,
-                        href: typeof me.router.getRoute('devices/device/channels/channeltableData/editreadings') !== 'undefined'
-                            ? me.router.getRoute('devices/device/channels/channeltableData/editreadings').buildUrl(me.router.arguments, me.router.queryParams) : null
-
+                        itemId: 'save-changes-button',
+                        text: Uni.I18n.translate('general.saveChanges', 'MDC', 'Save changes'),
+                        hidden: true
+                    },
+                    {
+                        xtype: 'button',
+                        itemId: 'undo-button',
+                        text: Uni.I18n.translate('general.undo', 'MDC', 'Undo'),
+                        hidden: true
                     }
                 ]
             }

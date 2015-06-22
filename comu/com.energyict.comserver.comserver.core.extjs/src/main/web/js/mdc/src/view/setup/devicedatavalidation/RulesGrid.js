@@ -18,19 +18,19 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RulesGrid', {
             {
                 header: Uni.I18n.translate('validation.ruleName', 'MDC', 'Validation rule'),
                 dataIndex: 'name',
-                flex: 1,
+                flex: 6,
                 renderer: function (value, b, record) {
                     /*
                     return '<a href="#/administration/validation/rulesets/' + record.get('ruleSetId')
                         + '/rules/' + record.getId() + '">' + value + '</a>';
                     */
-                    return '<a href="#/administration/validation/rulesets/' + record.get('ruleSetVersion').ruleSet.id + '/versions/' + record.get('ruleSetVersion').id + '/rules/' + record.getId() + '">' + value + '</a>';
+                    return '<a href="#/administration/validation/rulesets/' + record.get('ruleSetVersion').ruleSet.id + '/versions/' + record.get('ruleSetVersion').id + '/rules/' + record.getId() + '">' + Ext.String.htmlEncode(value) + '</a>';
                 }
             },
             {
                 header: Uni.I18n.translate('validation.status', 'CFG', 'Status'),
                 dataIndex: 'active',
-                flex: 1,
+                flex: 10,
                 renderer: function (value) {
                     if (value) {
                         return Uni.I18n.translate('validation.active', 'CFG', 'Active')

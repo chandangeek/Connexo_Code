@@ -48,9 +48,13 @@ Ext.define('Mdc.controller.setup.ChangeDeviceLifeCycle', {
             success: function (deviceType) {
                 me.deviceType = deviceType;
                 me.getApplication().fireEvent('loadDeviceType', deviceType);
-                view.down('#change-device-life-cycle-combo').getStore().load(function() {
-                    view.down('#change-device-life-cycle-combo').setValue(deviceType.get('deviceLifeCycleId'));
-                    view.setLoading(false);
+                view.down('#change-device-life-cycle-combo').getStore().load({
+                    callback: function () {
+                        view.down('#change-device-life-cycle-combo').getStore().filterBy(function(rec) {
+                            return rec.get('id') != deviceType.get('deviceLifeCycleId');
+                        });
+                        view.setLoading(false);
+                    }
                 });
             }
         });
@@ -66,31 +70,36 @@ Ext.define('Mdc.controller.setup.ChangeDeviceLifeCycle', {
             finishBtn = wizard.down('#change-device-life-cycle-finish'),
             lifeCycleCombo = wizard.down('#change-device-life-cycle-combo');
 
-        lifeCycleCombo.getStore().load(lifeCycleCombo.getValue(), {
-            success: function (lifeCycle) {
-                Ext.Ajax.request({
-                    url: '/api/dtc/devicetypes/{id}/devicelifecycle'.replace('{id}', router.arguments.deviceTypeId),
-                    method: 'PUT',
-                    jsonData: {
-                        version: me.deviceType.get('version'),
-                        targetDeviceLifeCycle: {
-                            id: lifeCycleCombo.getValue(),
-                            version: lifeCycle.get('version')
-                        }
-                    },
-                    callback: function (response, success) {
-                        var result = Ext.decode(response.responseText, true);
-                        wizard.down('change-device-life-cycle-step2').setResultMessage(result, success);
-                    }
-                });
+        lifeCycleCombo.clearInvalid();
+        wizard.down('#form-errors').hide();
+        wizard.setLoading();
+        Ext.Ajax.suspendEvent('requestexception');
+        Ext.Ajax.request({
+            url: '/api/dtc/devicetypes/{id}/devicelifecycle'.replace('{id}', router.arguments.deviceTypeId),
+            method: 'PUT',
+            jsonData: {
+                version: me.deviceType.get('version'),
+                targetDeviceLifeCycle: {
+                    id: lifeCycleCombo.getValue()
+                }
+            },
+            callback: function (options, success, response) {
+                wizard.setLoading(false);
+                var result = Ext.decode(response.responseText, true);
+                if (lifeCycleCombo.getValue()) {
+                    nextBtn.hide();
+                    backBtn.hide();
+                    cancelBtn.hide();
+                    finishBtn.show();
+                    wizard.getLayout().setActiveItem(1);
+                    me.getNavigation().moveToStep(2);
+                    wizard.down('change-device-life-cycle-step2').setResultMessage(result, success);
+                } else {
+                    lifeCycleCombo.markInvalid(result.errors[0].msg);
+                    wizard.down('#form-errors').show();
+                }
+                Ext.Ajax.resumeEvent('requestexception');
             }
         });
-
-        nextBtn.hide();
-        backBtn.hide();
-        cancelBtn.hide();
-        finishBtn.show();
-        wizard.getLayout().setActiveItem(1);
-        me.getNavigation().moveToStep(2);
     }
 });

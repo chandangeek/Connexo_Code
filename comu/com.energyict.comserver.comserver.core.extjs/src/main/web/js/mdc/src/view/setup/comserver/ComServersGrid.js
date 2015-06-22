@@ -16,8 +16,10 @@ Ext.define('Mdc.view.setup.comserver.ComServersGrid', {
         {
             header: Uni.I18n.translate('comserver.title.communicationServer', 'MDC', 'Communication server'),
             flex: 1,
-            xtype: 'templatecolumn',
-            tpl: '<a href="#/administration/comservers/{id}/overview">{name}</a>'
+            dataIndex: 'name',
+            renderer: function (value, b, record) {
+                return '<a href="#/administration/comservers/' + record.get('id') + '/overview">' + Ext.String.htmlEncode(value) + '</a>';
+            }
         },
         {
             header: Uni.I18n.translate('general.type', 'MDC', 'Type'),

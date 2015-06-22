@@ -21,6 +21,7 @@ Ext.define('Mdc.view.setup.validation.RuleSetView', {
             {
 
                 xtype: 'preview-container',
+				selectByDefault: false,
                 emptyComponent: {
                     xtype: 'no-items-found-panel',
                     itemId: 'ctr-no-validation-rule',

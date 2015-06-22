@@ -21,7 +21,7 @@ Ext.define('Mdc.model.RuleDeviceConfiguration', {
             name: 'config_name_link',
             persist: false,
             mapping: function (data) {
-                return '<a href="#/administration/devicetypes/' + data.deviceType.id + '/deviceconfigurations/' + data.config.id + '">' + data.config.name + '</a>';
+                return '<a href="#/administration/devicetypes/' + data.deviceType.id + '/deviceconfigurations/' + data.config.id + '">' + Ext.String.htmlEncode(data.config.name) + '</a>';
             }
         },
         {

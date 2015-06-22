@@ -21,7 +21,8 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.ValidationPreview', {
             },
             {
                 fieldLabel: Uni.I18n.translate('device.registerData.allDataValidated', 'MDC', 'All data validated'),
-                name: 'validationInfo_dataValidated'
+                name: 'validationInfo_dataValidated',
+                htmlEncode: false
             },
             {
                 fieldLabel: Uni.I18n.translate('deviceloadprofiles.validation.suspects', 'MDC', 'Suspects (last month)'),
@@ -63,7 +64,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.ValidationPreview', {
                             if (!Ext.isEmpty(value)) {
                                 field.up('#lastCheckedCont').show();
                                 this.nextSibling('button').setVisible(value ? true : false);
-                                return value;
+                                return Ext.String.htmlEncode(value);
                             } else {
                                 field.up('#lastCheckedCont').hide();
                             }

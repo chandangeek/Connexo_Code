@@ -2,36 +2,35 @@ Ext.define('Mdc.view.setup.deviceevents.Data', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.deviceLogbookData',
     itemId: 'deviceLogbookData',
+
     requires: [
-        'Mdc.view.setup.devicelogbooks.SideFilter',
         'Mdc.view.setup.deviceevents.DataSortingToolbar',
         'Mdc.view.setup.deviceevents.DataTableView',
-        'Uni.component.filter.view.FilterTopPanel'
+        'Uni.component.filter.view.FilterTopPanel',
+        'Mdc.view.setup.deviceevents.EventFilter'
     ],
+
     toggleId: null,
     router: null,
     title: null,
     device: null,
     eventsView: null,
     side: true,
+
     initComponent: function () {
         var me = this,
             title = null;
+
         if (me.eventsView) {
             title = me.title
         }
+
         me.content = {
             ui: 'large',
             title: title,
             items: [
                 {
-                    xtype: 'filter-top-panel',
-                    itemId: 'device-logbook-data-filter-toolbar',
-                    emptyText: Uni.I18n.translate('general.none', 'MDC', 'None'),
-                    hideEmpty: false
-                },
-                {
-                    xtype: 'menuseparator'
+                    xtype: 'mdc-view-setup-deviceevents-eventfilter'
                 },
                 {
                     xtype: 'deviceLogbookDataSortingToolbar',
@@ -46,6 +45,7 @@ Ext.define('Mdc.view.setup.deviceevents.Data', {
                 }
             ]
         };
+
         if (me.side) {
             me.side = [
                 {
@@ -65,15 +65,12 @@ Ext.define('Mdc.view.setup.deviceevents.Data', {
                                     toggleId: me.toggleId
                                 }
                             ]
-                        },
-                        {
-                            xtype: 'deviceLogbookDataSideFilter',
-                            itemId: 'deviceLogbookDataSideFilter'
                         }
                     ]
                 }
             ]
         }
+
         me.callParent(arguments);
     }
 });

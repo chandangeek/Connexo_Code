@@ -51,7 +51,7 @@ Ext.define('Mdc.view.setup.devicetype.changedevicelifecycle.Wizard', {
                     action: 'finish',
                     itemId: 'change-device-life-cycle-finish',
                     hidden: true,
-                    href: me.router.getRoute('administration/devicetypes').buildUrl()
+                    href: me.router.getQueryStringValues().previousRoute || me.router.getRoute('administration/devicetypes').buildUrl()
                 },
                 {
                     text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),

@@ -74,35 +74,21 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
                             device: record
                         });
                         me.getApplication().fireEvent('changecontentevent', widget);
-                        me.initFilter();
+                        channelsOfLoadProfilesOfDeviceStore.load();
                     }
                 });
             };
-        me.getStore('Mdc.store.Clipboard').set('latest-device-channels-filter', router.queryParams.filter);
+
         me.mRID = mRID;
         loadProfilesStore.getProxy().setUrl(mRID);
-        channelsOfLoadProfilesOfDeviceStore.setFilterModel(router.filter);
         channelsOfLoadProfilesOfDeviceStore.getProxy().setUrl(mRID);
+
         Uni.util.Common.loadNecessaryStores([
             'Mdc.store.LoadProfilesOfDevice',
             'TimeUnits'
         ], function () {
             showPage();
         });
-    },
-
-    applyFilter: function () {
-        this.getChannelsFilterForm().updateRecord();
-        this.getChannelsFilterForm().getRecord().save();
-    },
-
-    clearFilter: function () {
-        this.getChannelsFilterForm().getRecord().getProxy().destroy();
-    },
-
-    initFilter: function () {
-        var router = this.getController('Uni.controller.history.Router');
-        this.getChannelsFilterForm().loadRecord(router.filter);
     },
 
     showPreview: function (selectionModel, record) {
@@ -145,7 +131,7 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
                 break;
             case 'viewSuspects':
                 filterParams.onlySuspect = true;
-                route = 'devices/device/channels/channeltableData';
+                route = 'devices/device/channels/channeldata';
                 break;
         }
 
@@ -178,7 +164,7 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
                     } else {
                         me.dataValidationLastChecked = new Date();
                     }
-                    confirmationWindow.insert(1,me.getValidationContent());
+                    confirmationWindow.insert(1, me.getValidationContent());
                     confirmationWindow.show({
                         title: Uni.I18n.translatePlural('deviceloadprofiles.channels.validateNow', record.get('name'), 'MDC', 'Validate data of channel {0}?'),
                         msg: ''

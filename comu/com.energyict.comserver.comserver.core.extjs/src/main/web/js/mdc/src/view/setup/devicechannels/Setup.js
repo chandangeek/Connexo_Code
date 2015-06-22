@@ -5,12 +5,12 @@ Ext.define('Mdc.view.setup.devicechannels.Setup', {
     mRID: null,
     router: null,
     device: null,
+
     requires: [
         'Uni.view.notifications.NoItemsFoundPanel',
         'Mdc.view.setup.devicechannels.Grid',
         'Mdc.view.setup.devicechannels.Preview',
-        'Mdc.view.setup.devicechannels.ChannelsFilter'
-
+        'Mdc.view.setup.devicechannels.ChannelsTopFilter'
     ],
 
     initComponent: function () {
@@ -29,9 +29,6 @@ Ext.define('Mdc.view.setup.devicechannels.Setup', {
                         mRID: me.mRID
                     }
                 ]
-            },
-            {
-                xtype: 'device-channels-filter'
             }
         ];
 
@@ -54,13 +51,20 @@ Ext.define('Mdc.view.setup.devicechannels.Setup', {
                         reasons: [
                             Uni.I18n.translate('devicechannels.empty.list.item1', 'MDC', 'No channels have been defined yet.'),
                             Uni.I18n.translate('devicechannels.empty.list.item2', 'MDC', 'No channels comply to the filter.')
-                        ]
+                        ],
+                        margins: '16 0 0 0'
                     },
                     previewComponent: {
                         xtype: 'deviceLoadProfileChannelsPreview',
                         router: me.router,
                         device: me.device
                     }
+                }
+            ],
+            dockedItems: [
+                {
+                    dock: 'top',
+                    xtype: 'mdc-view-setup-devicechannels-channelstopfilter'
                 }
             ]
         };

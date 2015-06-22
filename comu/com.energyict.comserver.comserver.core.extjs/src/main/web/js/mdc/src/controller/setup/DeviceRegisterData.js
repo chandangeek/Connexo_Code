@@ -72,13 +72,12 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
             contentPanel = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
             registersOfDeviceStore = me.getStore('RegisterConfigsOfDevice'),
             router = me.getController('Uni.controller.history.Router');
-
         contentPanel.setLoading(true);
         Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
             success: function (device) {
                 me.getApplication().fireEvent('loadDevice', device);
                 var model = Ext.ModelManager.getModel('Mdc.model.Register');
-                model.getProxy().setExtraParam('mRID', mRID);
+                model.getProxy().setExtraParam('mRID', encodeURIComponent(mRID));
 
                 model.load(registerId, {
                     success: function (register) {

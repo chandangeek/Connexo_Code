@@ -47,6 +47,7 @@ Ext.define('Mdc.view.setup.datacollectionkpis.Edit', {
                     itemId: 'devicegroupDisplayField',
                     fieldLabel: Uni.I18n.translate('datacollectionkpis.deviceGroup', 'MDC', 'Device group'),
                     required: true,
+                    htmlEncode: false,
                     hidden: true
                 },
                 {

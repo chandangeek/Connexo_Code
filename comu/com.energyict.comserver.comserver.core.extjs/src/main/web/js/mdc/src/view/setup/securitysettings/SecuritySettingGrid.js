@@ -28,7 +28,7 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingGrid', {
                 dataIndex: 'authenticationLevel',
                 flex: 3,
                 renderer: function (value) {
-                    return value.name;
+                    return Ext.String.htmlEncode(value.name);
                 }
             },
             {
@@ -36,7 +36,7 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingGrid', {
                 dataIndex: 'encryptionLevel',
                 flex: 3,
                 renderer: function (value) {
-                    return value.name;
+                    return Ext.String.htmlEncode(value.name);
                 }
             },
             {

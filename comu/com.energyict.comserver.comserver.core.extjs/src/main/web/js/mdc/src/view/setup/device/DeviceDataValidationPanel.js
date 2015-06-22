@@ -46,6 +46,7 @@ Ext.define('Mdc.view.setup.device.DeviceDataValidationPanel', {
                                 itemId: 'allDataValidatedField',
                                 fieldLabel: Uni.I18n.translate('device.registerData.allDataValidated', 'MDC', 'All data validated'),
                                 name: 'allDataValidated',
+                                htmlEncode: false,
                                 renderer: function (value) {
                                     return value ? Uni.I18n.translate('general.yes', 'MDC', 'Yes') :
                                         Uni.I18n.translate('general.no', 'MDC', 'No') + ' ' + '<span class="icon-validation icon-validation-black"></span>';
@@ -96,7 +97,7 @@ Ext.define('Mdc.view.setup.device.DeviceDataValidationPanel', {
             href;
 
         Ext.Ajax.request({
-            url: '../../api/ddr/devices/' + me.mRID + '/validationrulesets/validationstatus',
+            url: '../../api/ddr/devices/' + encodeURIComponent(me.mRID) + '/validationrulesets/validationstatus',
             method: 'GET',
             timeout: 60000,
 

@@ -73,7 +73,7 @@ Ext.define('Mdc.view.setup.device.DeviceConnections', {
                     renderer: function (val, metaData, record) {
                         var me = this;
                         metaData.tdAttr = 'data-qtip="' + Ext.htmlEncode(me.connectionTpl.apply(record.getData())) + '"';
-                        return val ? val.name : ''
+                        return val ? Ext.String.htmlEncode(val.name) : ''
                     }
                 },
                 {
@@ -82,7 +82,7 @@ Ext.define('Mdc.view.setup.device.DeviceConnections', {
                     dataIndex: 'currentState',
                     flex: 10,
                     renderer: function (val) {
-                        return val ? val.displayValue : ''
+                        return val ? Ext.String.htmlEncode(val.displayValue) : ''
                     }
                 },
                 {
@@ -91,7 +91,7 @@ Ext.define('Mdc.view.setup.device.DeviceConnections', {
                     dataIndex: 'latestStatus',
                     flex: 10,
                     renderer: function (val) {
-                        return val ? val.displayValue : ''
+                        return val ? Ext.String.htmlEncode(val.displayValue) : ''
                     }
                 },
                 {
@@ -101,7 +101,7 @@ Ext.define('Mdc.view.setup.device.DeviceConnections', {
                     name: 'latestResult',
                     flex: 10,
                     renderer: function (val) {
-                        return val ? val.displayValue : ''
+                        return val ? Ext.String.htmlEncode(val.displayValue) : ''
 
                     }
                 },

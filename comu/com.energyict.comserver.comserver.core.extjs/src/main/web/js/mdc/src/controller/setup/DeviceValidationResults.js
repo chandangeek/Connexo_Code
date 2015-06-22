@@ -137,13 +137,13 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
                 filterParams = {};
 
             if (tab.itemId === 'validationResults-configuration') {				
-                routeParams.mRID = me.mRID;
+                routeParams.mRID = encodeURIComponent(me.mRID);
                 route = 'devices/device/validationresultsconfiguration';
                 route && (route = router.getRoute(route));				
                 route && route.forward(routeParams, router.queryParams);
             }
             else if (tab.itemId === 'validationResults-data') {
-                routeParams.mRID = me.mRID;
+                routeParams.mRID = encodeURIComponent(me.mRID);
                 route = 'devices/device/validationresultsdata';
                 route && (route = router.getRoute(route));
                 route && route.forward(routeParams, router.queryParams);
@@ -163,7 +163,7 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
 			firstItem = durationsStore.first();
 			
         router.filter.beginEdit();
-        router.filter.set('intervalStart', moment(intervalStart).subtract(firstItem.get('timeUnit'), firstItem.get('count')).toDate());
+        router.filter.set('intervalStart', moment(intervalStart).toDate());
         router.filter.set('duration', '1years');
 		router.filter.endEdit();
 
@@ -185,8 +185,8 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
 
 		if(!me.isDefaultFilter) {
             eventDateText += Uni.DateTime.formatDateShort(intervalStart);
-            filterView.setFilter('eventDateChanged', Uni.I18n.translate('validationResults.intervallabel', 'MDC', 'Beginning of intervals'), eventDateText, true);
-            filterDataView.setFilter('eventDateChanged', Uni.I18n.translate('validationResults.intervallabel', 'MDC', 'Beginning of intervals'), eventDateText, true);
+            filterView.setFilter('eventDateChanged', Uni.I18n.translate('validationResults.intervallabel', 'MDC', 'From'), eventDateText, true);
+            filterDataView.setFilter('eventDateChanged', Uni.I18n.translate('validationResults.intervallabel', 'MDC', 'From'), eventDateText, true);
         }
 
         filterView.down('#Reset').setText(Uni.I18n.translate('general.reset', 'MDC', 'Reset'));
@@ -649,7 +649,7 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
 
                 models.getProxy().setUrl(me.mRID);
                 models.getProxy().setFilterParameters(me.jsonValidationResultData);
-                models.getProxy().setFilterModel(router.filter, router);
+                models.getProxy().setFilterModel(router.filter, me.isDefaultFilter);
 
                 viewport.setLoading();
                 models.load('', {

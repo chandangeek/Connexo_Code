@@ -83,7 +83,7 @@ Ext.define('Mdc.controller.setup.DataCollectionKpi', {
 
         Ext.suspendLayouts();
         preview.down('dataCollectionKpisActionMenu').record = record;
-        preview.setTitle(record.get('deviceGroup').name);
+        preview.setTitle(Ext.String.htmlEncode(record.get('deviceGroup').name));
         this.getDataCollectionKpisPreviewForm().loadRecord(record);
         Ext.resumeLayouts(true);
     },
@@ -196,14 +196,14 @@ Ext.define('Mdc.controller.setup.DataCollectionKpi', {
                     widget.down('#dataCollectionKpiEditForm').setTitle(Uni.I18n.translate('datacollectionkpis.editDataCollectionKpi', 'MDC', 'Edit data collection KPI'));
                     kpiModel.load(id, {
                         success: function (kpiRecord) {
-                            var editTitle = Uni.I18n.translate('general.edit', 'MDC', 'Edit') + " '" + kpiRecord.get('deviceGroup').name + "'";
+                            var editTitle = Uni.I18n.translate('general.edit', 'MDC', 'Edit') + " '" + Ext.String.htmlEncode(kpiRecord.get('deviceGroup').name) + "'";
 
                             Ext.suspendLayouts();
                             form.loadRecord(kpiRecord);
                             form.down('[name=deviceGroup]').disable();
                             form.down('[name=frequency]').disable();
                             widget.down('#dataCollectionKpiEditForm').setTitle(editTitle);
-                            me.getApplication().fireEvent('loadDataCollectionKpi', editTitle);
+                            me.getApplication().fireEvent('loadDataCollectionKpi', Uni.I18n.translate('general.edit', 'MDC', 'Edit') + " '" + kpiRecord.get('deviceGroup').name + "'");
                             createBtn.setText(Uni.I18n.translate('general.save', 'MDC', 'Save'));
                             createBtn.action = 'save';
                             Ext.resumeLayouts(true);

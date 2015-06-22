@@ -35,6 +35,9 @@ Ext.define('Mdc.view.setup.validation.AddRuleSetsGrid', {
         'Select validation rule sets in table'
     ),
 
+	gridHeight: undefined,
+	gridHeaderHeight: undefined,
+
     allChosenByDefault: false,
 
     initComponent: function () {
@@ -46,25 +49,17 @@ Ext.define('Mdc.view.setup.validation.AddRuleSetsGrid', {
                 dataIndex: 'name',
                 renderer: function (value, metaData, record) {
                     metaData.tdAttr = 'data-qtip="' + record.get('description') + '"';
-                    return '<a href="#/administration/validation/rulesets/' + record.getId() + '">' + value + '</a>';
+                    return '<a href="#/administration/validation/rulesets/' + record.getId() + '">' + Ext.String.htmlEncode(value) + '</a>';
                 },
-                flex: 1
+                flex: 3
             },
             {
-                header: Uni.I18n.translate('validation.activeRules', 'CFG', 'Active rules'),
-                dataIndex: 'numberOfRules',
-                align: 'right',
-                flex: 1,
-                renderer: function (value, b, record) {
-                    var numberOfActiveRules = record.get('numberOfRules') - record.get('numberOfInactiveRules');
-                    return numberOfActiveRules;
-                }
-            },
-            {
-                header: Uni.I18n.translate('validation.inactiveRules', 'CFG', 'Inactive rules'),
-                dataIndex: 'numberOfInactiveRules',
-                align: 'right',
-                flex: 1
+                header: Uni.I18n.translate('validation.activeVersion', 'CFG', 'Active version'),
+                dataIndex: 'activeVersion',
+                flex: 5,
+                align: 'left',
+                sortable: false,
+                fixed: true
             },
             {
                 xtype: 'uni-actioncolumn',
@@ -74,6 +69,14 @@ Ext.define('Mdc.view.setup.validation.AddRuleSetsGrid', {
 
         me.cancelHref = '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigId + '/validationrulesets';
         me.callParent(arguments);
-    }
+    },
+	
+	
+	 onChangeSelectionGroupType: function (radiogroup, value) {
+		var me = this;			
+			
+		me.up('validation-add-rulesets').down('validation-ruleset-view').setVisible(!me.isAllSelected());
+		this.callParent(arguments);
+	 }
 });
 

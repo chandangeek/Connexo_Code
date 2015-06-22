@@ -27,10 +27,10 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
         {ref: 'communicationTaskGridPanel', selector: '#communicationTaskGrid'},
         {ref: 'communicationTaskPreviewPanel', selector: '#communicationTaskPreview'},
         {ref: 'communicationTaskPreviewForm', selector: '#communicationTaskPreviewForm'},
-        {ref: 'communicationTaskEditForm',selector: '#communicationTaskEditForm'},
-        {ref: 'communicationTaskEditPanel',selector: '#communicationTaskEdit'},
-        {ref: 'communicationTaskSetupPanel',selector: '#communicationTaskSetup'},
-        {ref: 'scheduleField',selector: '#communicationTaskEditForm #scheduleField #scheduleFieldItem'}
+        {ref: 'communicationTaskEditForm', selector: '#communicationTaskEditForm'},
+        {ref: 'communicationTaskEditPanel', selector: '#communicationTaskEdit'},
+        {ref: 'communicationTaskSetupPanel', selector: '#communicationTaskSetup'},
+        {ref: 'scheduleField', selector: '#communicationTaskEditForm #scheduleField #scheduleFieldItem'}
     ],
 
     init: function () {
@@ -42,10 +42,10 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
             '#communicationTaskSetup': {
                 afterrender: me.loadCommunicationTasksStore
             },
-            '#addEditButton[action=addCommunicationTaskAction]':{
+            '#addEditButton[action=addCommunicationTaskAction]': {
                 click: me.addCommunicationTask
             },
-            '#addEditButton[action=editCommunicationTaskAction]':{
+            '#addEditButton[action=editCommunicationTaskAction]': {
                 click: me.editCommunicationTask
             },
             '#communicationTaskEditForm #scheduleField #enableScheduleFieldItem': {
@@ -71,27 +71,27 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
         });
     },
 
-    setupMenuItems: function(record) {
+    setupMenuItems: function (record) {
         var me = this,
             suspended = record.get('suspended');
 
-        if(!Ext.isEmpty(suspended)) {
+        if (!Ext.isEmpty(suspended)) {
             var textKey = ((suspended == true) ? 'communicationtasks.activate' : 'communicationtasks.deactivate'),
                 text = ((suspended == true) ? 'Activate' : 'Deactivate'),
                 menuItems = Ext.ComponentQuery.query('menu menuitem[action=activatecommunicationtask]');
 
-            if(!Ext.isEmpty(menuItems)) {
-                Ext.Array.each(menuItems, function(item) {
+            if (!Ext.isEmpty(menuItems)) {
+                Ext.Array.each(menuItems, function (item) {
                     item.setText(Uni.I18n.translate(textKey, 'MDC', text));
                 });
             }
         }
     },
 
-    enableScheduleFieldItemChanged: function(item, newValue, oldValue, eOpts) {
+    enableScheduleFieldItemChanged: function (item, newValue, oldValue, eOpts) {
         var me = this;
 
-        if(newValue === false) {
+        if (newValue === false) {
             me.getScheduleField().clearOnlyOffsetValues();
             me.getScheduleField().setValue({
                 every: {
@@ -109,7 +109,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
         }
     },
 
-    loadCommunicationTasksStore: function() {
+    loadCommunicationTasksStore: function () {
         var me = this;
 
         me.getCommunicationTaskConfigsOfDeviceConfigurationStore().load({
@@ -119,7 +119,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
         });
     },
 
-    loadCommunicationTaskDetail: function(rowmodel, record, index) {
+    loadCommunicationTaskDetail: function (rowmodel, record, index) {
         var me = this;
         me.previewConnectionTask(record);
         me.setupMenuItems(record);
@@ -134,7 +134,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
         me.clearPreLoader();
     },
 
-    checkCommunicationTasksCount : function() {
+    checkCommunicationTasksCount: function () {
         var me = this,
             grid = me.getCommunicationTaskGridPanel();
         if (!Ext.isEmpty(grid)) {
@@ -144,7 +144,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                 communicationTasksCount = me.getCommunicationTaskConfigsOfDeviceConfigurationStore().getCount(),
                 word = Uni.I18n.translatePlural('communicationtasks.commtaskconfigurations', communicationTasksCount, 'MDC', 'communication task configurations'),
                 widget = Ext.widget('container', {
-                    html: communicationTasksCount + ' ' + word
+                    html: Ext.String.htmlEncode(communicationTasksCount + ' ' + word)
                 });
             Ext.suspendLayouts();
             numberOfCommunicationTasksContainer.removeAll(true);
@@ -157,13 +157,19 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
         }
     },
 
-    showCommunicationTasks: function(deviceTypeId, deviceConfigurationId) {
+    showCommunicationTasks: function (deviceTypeId, deviceConfigurationId) {
         var me = this;
         this.deviceTypeId = deviceTypeId;
         this.deviceConfigurationId = deviceConfigurationId;
-        var widget = Ext.widget('communicationTaskSetup', {deviceTypeId: deviceTypeId, deviceConfigurationId: deviceConfigurationId});
+        var widget = Ext.widget('communicationTaskSetup', {
+            deviceTypeId: deviceTypeId,
+            deviceConfigurationId: deviceConfigurationId
+        });
 
-        me.getCommunicationTaskConfigsOfDeviceConfigurationStore().getProxy().extraParams = ({deviceType: deviceTypeId, deviceConfig: deviceConfigurationId});
+        me.getCommunicationTaskConfigsOfDeviceConfigurationStore().getProxy().extraParams = ({
+            deviceType: deviceTypeId,
+            deviceConfig: deviceConfigurationId
+        });
 
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
             success: function (deviceType) {
@@ -181,7 +187,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
         });
     },
 
-    showAddCommunicationTaskView: function(deviceTypeId, deviceConfigurationId) {
+    showAddCommunicationTaskView: function (deviceTypeId, deviceConfigurationId) {
         var me = this,
             comTasksStore = me.getComTasksStore(),
             securityPropertySetsStore = me.getSecuritySettingsOfDeviceConfigurationStore(),
@@ -191,7 +197,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
         me.deviceConfigurationId = deviceConfigurationId;
         var widget = Ext.widget('communicationTaskEdit', {
             edit: false,
-            returnLink: '#/administration/devicetypes/'+me.deviceTypeId+'/deviceconfigurations/'+me.deviceConfigurationId+'/comtaskenablements',
+            returnLink: '#/administration/devicetypes/' + encodeURIComponent(me.deviceTypeId) + '/deviceconfigurations/' + encodeURIComponent(me.deviceConfigurationId) + '/comtaskenablements',
             comTasksStore: comTasksStore,
             securityPropertySetsStore: securityPropertySetsStore,
             connectionMethodsStore: connectionMethodsStore,
@@ -207,40 +213,40 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                 model.load(deviceConfigurationId, {
                     success: function (deviceConfig) {
                         me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfig);
-                        comTasksStore.getProxy().extraParams = ({deviceType: deviceTypeId, deviceConfig: deviceConfigurationId, available: true});
+                        comTasksStore.getProxy().extraParams = ({
+                            deviceType: deviceTypeId,
+                            deviceConfig: deviceConfigurationId,
+                            available: true
+                        });
                         comTasksStore.getProxy().pageParam = false;
                         comTasksStore.getProxy().limitParam = false;
                         comTasksStore.getProxy().startParam = false;
                         comTasksStore.load({
-                            callback: function(){
-                                securityPropertySetsStore.getProxy().extraParams = ({deviceType: deviceTypeId, deviceConfig: deviceConfigurationId});
+                            callback: function () {
+                                securityPropertySetsStore.getProxy().extraParams = ({
+                                    deviceType: deviceTypeId,
+                                    deviceConfig: deviceConfigurationId
+                                });
                                 securityPropertySetsStore.load({
-                                    callback: function(){
-                                        connectionMethodsStore.getProxy().extraParams = ({deviceType: deviceTypeId, deviceConfig: deviceConfigurationId});
+                                    callback: function () {
+                                        connectionMethodsStore.getProxy().extraParams = ({
+                                            deviceType: deviceTypeId,
+                                            deviceConfig: deviceConfigurationId
+                                        });
                                         connectionMethodsStore.load({
-                                            callback: function() {
+                                            callback: function () {
                                                 connectionMethodsStore.add(Ext.create('Mdc.model.ConnectionMethod', {
                                                     id: -1,
                                                     name: Uni.I18n.translate('communicationtasks.form.selectPartialConnectionTask', 'MDC', 'Use the default connection method')
                                                 }));
-                                                protocolDialectsStore.getProxy().extraParams = ({deviceType: deviceTypeId, deviceConfig: deviceConfigurationId});
+                                                protocolDialectsStore.getProxy().extraParams = ({
+                                                    deviceType: deviceTypeId,
+                                                    deviceConfig: deviceConfigurationId
+                                                });
                                                 protocolDialectsStore.load({
-                                                    callback: function() {
-//                                                        protocolDialectsStore.add(Ext.create('Mdc.model.ProtocolDialect', {
-//                                                            id: -1,
-//                                                            name: Uni.I18n.translate('communicationtasks.form.selectProtocolDialectConfigurationProperties', 'MDC', 'Use the default protocol dialect')
-//                                                        }));
-//                                                        var communicationTask = Ext.create('Mdc.model.CommunicationTaskConfig', {
-//                                                            partialConnectionTask: {
-//                                                                id: -1
-//                                                            },
-//                                                            protocolDialectConfigurationProperties: {
-//                                                                id: -1
-//                                                            }
-//                                                        })
+                                                    callback: function () {
                                                         var title = Uni.I18n.translate('communicationtasks.add', 'MDC', 'Add communication task configuration');
                                                         widget.down('#communicationTaskEditForm').setTitle(title);
-//                                                        widget.setValues(communicationTask);
                                                         widget.setLoading(false);
                                                     }
                                                 });
@@ -256,14 +262,14 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
         });
     },
 
-    editCommunicationTaskHistory: function() {
+    editCommunicationTaskHistory: function () {
         var me = this,
             grid = me.getCommunicationTaskGridPanel(),
             lastSelected = grid.getView().getSelectionModel().getLastSelected();
-        location.href = '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/comtaskenablements/' + lastSelected.getData().id + '/edit';
+        location.href = '#/administration/devicetypes/' + encodeURIComponent(me.deviceTypeId) + '/deviceconfigurations/' + encodeURIComponent(me.deviceConfigurationId) + '/comtaskenablements/' + encodeURIComponent(lastSelected.getData().id) + '/edit';
     },
 
-    showEditCommunicationTaskView: function(deviceTypeId, deviceConfigurationId, comTaskEnablementId) {
+    showEditCommunicationTaskView: function (deviceTypeId, deviceConfigurationId, comTaskEnablementId) {
         var me = this,
             comTasksStore = me.getComTasksStore(),
             securityPropertySetsStore = me.getSecuritySettingsOfDeviceConfigurationStore(),
@@ -279,7 +285,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                 me.getApplication().fireEvent('loadCommunicationTaskModel', communicationTask);
                 var widget = Ext.widget('communicationTaskEdit', {
                     edit: true,
-                    returnLink: '#/administration/devicetypes/'+me.deviceTypeId+'/deviceconfigurations/'+me.deviceConfigurationId+'/comtaskenablements',
+                    returnLink: '#/administration/devicetypes/' + encodeURIComponent(me.deviceTypeId) + '/deviceconfigurations/' + encodeURIComponent(me.deviceConfigurationId) + '/comtaskenablements',
                     comTasksStore: comTasksStore,
                     securityPropertySetsStore: securityPropertySetsStore,
                     connectionMethodsStore: connectionMethodsStore,
@@ -295,19 +301,25 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                         model.load(deviceConfigurationId, {
                             success: function (deviceConfig) {
                                 me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfig);
-                                securityPropertySetsStore.getProxy().extraParams = ({deviceType: deviceTypeId, deviceConfig: deviceConfigurationId});
+                                securityPropertySetsStore.getProxy().extraParams = ({
+                                    deviceType: deviceTypeId,
+                                    deviceConfig: deviceConfigurationId
+                                });
                                 securityPropertySetsStore.load({
-                                    callback: function(){
-                                        connectionMethodsStore.getProxy().extraParams = ({deviceType: deviceTypeId, deviceConfig: deviceConfigurationId});
+                                    callback: function () {
+                                        connectionMethodsStore.getProxy().extraParams = ({
+                                            deviceType: deviceTypeId,
+                                            deviceConfig: deviceConfigurationId
+                                        });
                                         connectionMethodsStore.load({
-                                            callback: function() {
+                                            callback: function () {
                                                 connectionMethodsStore.add(Ext.create('Mdc.model.ConnectionMethod', {
                                                     id: -1,
                                                     name: Uni.I18n.translate('communicationtasks.form.selectPartialConnectionTask', 'MDC', 'Use the default connection method')
                                                 }));
                                                 widget.down('form').loadRecord(communicationTask);
                                                 var comTaskName = '';
-                                                if(!Ext.isEmpty(communicationTask.get('comTask'))) {
+                                                if (!Ext.isEmpty(communicationTask.get('comTask'))) {
                                                     comTaskName = communicationTask.get('comTask').name;
                                                 }
                                                 var title = Uni.I18n.translate('communicationtasks.edit', 'MDC', 'Edit') + " '" + comTaskName + "'";
@@ -326,19 +338,19 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
         });
     },
 
-    addCommunicationTask: function() {
+    addCommunicationTask: function () {
         var me = this;
         me.setPreLoader(me.getCommunicationTaskEditPanel(), Uni.I18n.translate('communicationtasks.creating', 'MDC', 'Creating communication task'));
         me.updateCommunicationTask('add');
     },
 
-    editCommunicationTask: function() {
+    editCommunicationTask: function () {
         var me = this;
         me.setPreLoader(me.getCommunicationTaskEditPanel(), Uni.I18n.translate('communicationtasks.updating', 'MDC', 'Updating communication task'));
         me.updateCommunicationTask('edit');
     },
 
-    removeCommunicationTask: function() {
+    removeCommunicationTask: function () {
         var me = this,
             grid = me.getCommunicationTaskGridPanel(),
             lastSelected = grid.getView().getSelectionModel().getLastSelected();
@@ -354,13 +366,13 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
         });
     },
 
-    activateCommunicationTask: function() {
+    activateCommunicationTask: function () {
         var me = this,
             grid = me.getCommunicationTaskGridPanel(),
             lastSelected = grid.getView().getSelectionModel().getLastSelected(),
             suspended = lastSelected.get('suspended');
 
-        if(!Ext.isEmpty(suspended)) {
+        if (!Ext.isEmpty(suspended)) {
             var action = ((suspended == true) ? 'activate' : 'deactivate');
 
             Ext.Ajax.request({
@@ -373,12 +385,12 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                     me.loadCommunicationTasksStore();
                 },
                 failure: function (response, request) {
-                    if(response.status == 400) {
+                    if (response.status == 400) {
                         var errorText = Uni.I18n.translate('communicationtasks.error.unknown', 'MDC', 'Unknown error occurred');
-                        if(!Ext.isEmpty(response.statusText)) {
+                        if (!Ext.isEmpty(response.statusText)) {
                             errorText = response.statusText;
                         }
-                        if(!Ext.isEmpty(response.responseText)) {
+                        if (!Ext.isEmpty(response.responseText)) {
                             var json = Ext.decode(response.responseText, true);
 
                             if (json && json.error) {
@@ -389,7 +401,6 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                         var titleKey = ((suspended == true) ? 'communicationtasks.activate.operation.failed' : 'communicationtasks.deactivate.operation.failed'),
                             titleValue = ((suspended == true) ? 'Activate operation failed' : 'Deactivate operation failed');
 
-
                         me.getApplication().getController('Uni.controller.Error').showError(Uni.I18n.translate(titleKey, 'MDC', titleValue), errorText);
                     }
                 }
@@ -397,7 +408,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
         }
     },
 
-    updateCommunicationTask: function(operation) {
+    updateCommunicationTask: function (operation) {
         var me = this,
             form = me.getCommunicationTaskEditForm();
         if (!me.getCommunicationTaskEditForm().down('#communicationTaskEditFormErrors').isHidden()) {
@@ -409,7 +420,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
         me[operation + 'CommunicationTaskRecord'](form.getValues(), {operation: operation});
     },
 
-    editCommunicationTaskRecord: function(values, cfg) {
+    editCommunicationTaskRecord: function (values, cfg) {
         var me = this,
             record = me.getCommunicationTaskEditForm().getRecord();
         me.updateRecord(record, values, Ext.apply({
@@ -417,7 +428,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
         }, cfg));
     },
 
-    addCommunicationTaskRecord: function(values, cfg) {
+    addCommunicationTaskRecord: function (values, cfg) {
         var me = this,
             record = Ext.create(Mdc.model.CommunicationTaskConfig);
         me.updateRecord(record, values, Ext.apply({
@@ -425,56 +436,43 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
         }, cfg));
     },
 
-    removeCommunicationTaskRecord: function(btn, text, cfg) {
+    removeCommunicationTaskRecord: function (btn, text, cfg) {
         if (btn === 'confirm') {
             var me = cfg.config.me,
                 communicationTaskToDelete = cfg.config.communicationTaskToDelete;
-                communicationTaskToDelete.getProxy().extraParams = ({deviceType: me.deviceTypeId, deviceConfig: me.deviceConfigurationId});
-                communicationTaskToDelete.destroy({
-                    callback: function (record, operation) {
-                        if(operation.wasSuccessful()) {
-                            location.href = '#/administration/devicetypes/'+me.deviceTypeId+'/deviceconfigurations/'+me.deviceConfigurationId+'/comtaskenablements';
-                            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('communicationtasks.removed', 'MDC', 'Communication task successfully removed'));
-                            me.loadCommunicationTasksStore();
-                        } /*else {
-                            if(operation.response.status == 400) {
-                                var errorText = Uni.I18n.translate('communicationtasks.error.unknown', 'MDC', 'Unknown error occurred');
-                                if(!Ext.isEmpty(operation.response.statusText)) {
-                                    errorText = operation.response.statusText;
-                                }
-                                if(!Ext.isEmpty(operation.response.responseText)) {
-                                    var json = Ext.decode(operation.response.responseText, true);
-                                    if (json && json.error) {
-                                        errorText = json.error;
-                                    }
-                                }
-
-                                me.getApplication().getController('Uni.controller.Error').showError(Uni.I18n.translate('communicationtasks.remove.operation.failed', 'MDC', 'Remove operation failed'), errorText);
-                            }
-                        }*/
-
+            communicationTaskToDelete.getProxy().extraParams = ({
+                deviceType: me.deviceTypeId,
+                deviceConfig: me.deviceConfigurationId
+            });
+            communicationTaskToDelete.destroy({
+                callback: function (record, operation) {
+                    if (operation.wasSuccessful()) {
+                        location.href = '#/administration/devicetypes/' + encodeURIComponent(me.deviceTypeId) + '/deviceconfigurations/' + encodeURIComponent(me.deviceConfigurationId) + '/comtaskenablements';
+                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('communicationtasks.removed', 'MDC', 'Communication task successfully removed'));
+                        me.loadCommunicationTasksStore();
                     }
-                });
+                }
+            });
         }
     },
 
-    updateRecord: function(record, values, cfg) {
+    updateRecord: function (record, values, cfg) {
         var me = this;
         if (record) {
             me.setRecordValues(record, values);
             record.getProxy().extraParams = ({deviceType: me.deviceTypeId, deviceConfig: me.deviceConfigurationId});
             record.save({
                 success: function (record) {
-                    location.href = '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/comtaskenablements';
+                    location.href = '#/administration/devicetypes/' + encodeURIComponent(me.deviceTypeId) + '/deviceconfigurations/' + encodeURIComponent(me.deviceConfigurationId) + '/comtaskenablements';
                     me.getApplication().fireEvent('acknowledge', cfg.successMessage);
                 },
                 failure: function (record, operation) {
-                    if(operation.response.status == 400) {
+                    if (operation.response.status == 400) {
                         var errorText = Uni.I18n.translate('communicationtasks.error.unknown', 'MDC', 'Unknown error occurred');
-                        if(!Ext.isEmpty(operation.response.statusText)) {
+                        if (!Ext.isEmpty(operation.response.statusText)) {
                             errorText = operation.response.statusText;
                         }
-                        if(!Ext.isEmpty(operation.response.responseText)) {
+                        if (!Ext.isEmpty(operation.response.responseText)) {
                             var json = Ext.decode(operation.response.responseText, true);
                             if (json && json.errors) {
                                 me.showErrorPanel();
@@ -496,27 +494,27 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                         me.getApplication().getController('Uni.controller.Error').showError(Uni.I18n.translate(titleKey, 'MDC', titleValue), errorText);
                     }
                 },
-                callback: function() {
+                callback: function () {
                     me.clearPreLoader();
                 }
             });
         }
     },
 
-    setRecordValues: function(record, values) {
+    setRecordValues: function (record, values) {
         record.set("comTask", {id: values.comTaskId});
         record.set("securityPropertySet", {id: values.securityPropertySetId});
-        if(!Ext.isEmpty(values.partialConnectionTaskId)) {
+        if (!Ext.isEmpty(values.partialConnectionTaskId)) {
             record.set("partialConnectionTask", {id: values.partialConnectionTaskId});
         }
-        if(!Ext.isEmpty(values.protocolDialectConfigurationPropertiesId)) {
+        if (!Ext.isEmpty(values.protocolDialectConfigurationPropertiesId)) {
             record.set("protocolDialectConfigurationProperties", {id: values.protocolDialectConfigurationPropertiesId});
         }
         record.set("priority", values.priority);
         record.set("ignoreNextExecutionSpecsForInbound", values.ignoreNextExecutionSpecsForInbound);
     },
 
-    setPreLoader: function(target, message) {
+    setPreLoader: function (target, message) {
         var me = this;
         me.preloader = Ext.create('Ext.LoadMask', {
             msg: message,
@@ -525,15 +523,15 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
         me.preloader.show();
     },
 
-    clearPreLoader: function() {
+    clearPreLoader: function () {
         var me = this;
-        if(!Ext.isEmpty(me.preloader)) {
+        if (!Ext.isEmpty(me.preloader)) {
             me.preloader.destroy();
             me.preloader = null;
         }
     },
 
-    showErrorPanel: function() {
+    showErrorPanel: function () {
         var me = this,
             formErrorsPlaceHolder = me.getCommunicationTaskEditForm().down('#communicationTaskEditFormErrors');
 
@@ -545,7 +543,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
         formErrorsPlaceHolder.show();
     },
 
-    hideErrorPanel: function() {
+    hideErrorPanel: function () {
         var me = this,
             formErrorsPlaceHolder = me.getCommunicationTaskEditForm().down('#communicationTaskEditFormErrors');
 

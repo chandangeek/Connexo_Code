@@ -22,7 +22,8 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.ValidationPreview', {
             {
                 xtype: 'displayfield',
                 fieldLabel: Uni.I18n.translate('device.registerData.allDataValidated', 'MDC', 'All data validated'),
-                name: 'validationInfo_dataValidated'
+                name: 'validationInfo_dataValidated',
+                htmlEncode: false
             },
             {
                 xtype: 'displayfield',
@@ -66,7 +67,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.ValidationPreview', {
                             if (!_.isEmpty(value)) {
                                 field.up('#lastCheckedCont').show();
                                 this.nextSibling('button').setVisible(value ? true : false);
-                                return value;
+                                return Ext.String.htmlEncode(value);
                             } else {
                                 field.up('#lastCheckedCont').hide();
                             }

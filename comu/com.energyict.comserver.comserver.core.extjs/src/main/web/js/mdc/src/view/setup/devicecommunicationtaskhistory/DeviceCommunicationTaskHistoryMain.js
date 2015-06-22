@@ -12,7 +12,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
     initComponent: function () {
         var me = this;
 
-        this.side = [
+        me.side = [
             {
                 xtype: 'panel',
                 ui: 'medium',
@@ -27,7 +27,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
             }
         ];
 
-        this.content = [
+        me.content = [
             {
                 ui: 'large',
                 xtype: 'panel',
@@ -36,11 +36,10 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                 items: [
                     {
                         xtype: 'preview-container',
-                        //itemId: 'previewContainer',
                         grid: {
                             xtype: 'deviceCommunicationTaskHistoryGrid',
-                            mRID: this.mrid,
-                            comTaskId: this.comTaskId
+                            mRID: me.mrid,
+                            comTaskId: me.comTaskId
                         },
                         emptyComponent: {
                             xtype: 'no-items-found-panel',
@@ -68,6 +67,6 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
             }
         ];
 
-        this.callParent(arguments);
+        me.callParent(arguments);
     }
 });

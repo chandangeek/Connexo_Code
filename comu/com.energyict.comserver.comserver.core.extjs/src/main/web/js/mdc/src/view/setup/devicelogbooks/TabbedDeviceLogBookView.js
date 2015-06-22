@@ -2,11 +2,14 @@ Ext.define('Mdc.view.setup.devicelogbooks.TabbedDeviceLogBookView', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.tabbedDeviceLogBookView',
     itemId: 'tabbedDeviceLogBookView',
+
     requires: [
         'Uni.view.toolbar.PreviousNextNavigation'
     ],
+
     initComponent: function () {
         var me = this;
+
         me.content = [
             {
                 xtype: 'tabpanel',
@@ -42,6 +45,7 @@ Ext.define('Mdc.view.setup.devicelogbooks.TabbedDeviceLogBookView', {
                 }
             }
         ];
+
         me.side = [
             {
                 xtype: 'panel',
@@ -61,16 +65,11 @@ Ext.define('Mdc.view.setup.devicelogbooks.TabbedDeviceLogBookView', {
                                 toggleId: 'logbooksLink'
                             }
                         ]
-                    },
-                    {
-                        xtype: 'deviceLogbookDataSideFilter',
-                        itemId: 'logBookFilter',
-                        hidden: true
                     }
                 ]
             }
-
         ];
+
         me.callParent(arguments);
     }
 });

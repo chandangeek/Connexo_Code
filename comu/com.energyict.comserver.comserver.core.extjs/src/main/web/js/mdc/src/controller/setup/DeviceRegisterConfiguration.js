@@ -68,7 +68,6 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
         var me = this,
             viewport = Ext.ComponentQuery.query('viewport')[0];
         me.mRID = mRID;
-
         viewport.setLoading();
 
         Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
@@ -117,7 +116,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
             success: function (device) {
                 me.getApplication().fireEvent('loadDevice', device);
                 var model = Ext.ModelManager.getModel('Mdc.model.Register');
-                model.getProxy().setExtraParam('mRID', mRID);
+                model.getProxy().setExtraParam('mRID', encodeURIComponent(mRID));
                 model.load(registerId, {
                     success: function (register) {
                         var type = register.get('type');
@@ -125,7 +124,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
                         var func = function () {
                             me.getApplication().fireEvent('changecontentevent', widget);
                             widget.down('#registerTabPanel').setTitle(register.get('readingType').fullAliasName);
-                            var config = Ext.widget('deviceRegisterConfigurationDetail-' + type, {mRID: mRID, registerId: registerId, router: me.getController('Uni.controller.history.Router')});
+                            var config = Ext.widget('deviceRegisterConfigurationDetail-' + type, {mRID: encodeURIComponent(mRID), registerId: registerId, router: me.getController('Uni.controller.history.Router')});
                             var form = config.down('#deviceRegisterConfigurationDetailForm');
                             me.getApplication().fireEvent('loadRegisterConfiguration', register);
                             form.loadRecord(register);
@@ -136,7 +135,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
                             widget.down('#register-specifications').add(config);
                         };
                         if (registersOfDeviceStore.getTotalCount() === 0) {
-                            registersOfDeviceStore.getProxy().url = registersOfDeviceStore.getProxy().url.replace('{mRID}', mRID);
+                            registersOfDeviceStore.getProxy().url = registersOfDeviceStore.getProxy().url.replace('{mRID}', encodeURIComponent(mRID));
                             registersOfDeviceStore.load(function () {
                                 func();
                             });
