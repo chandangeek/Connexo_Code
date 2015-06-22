@@ -136,7 +136,7 @@ public class Installer {
         StateTransitionEventType activated = eventTypes.get(DefaultCustomStateTransitionEventType.ACTIVATED.getSymbol());
         StateTransitionEventType deactivated = eventTypes.get(DefaultCustomStateTransitionEventType.DEACTIVATED.getSymbol());
         StateTransitionEventType decommissionedEventType = eventTypes.get(DefaultCustomStateTransitionEventType.DECOMMISSIONED.getSymbol());
-        StateTransitionEventType deletedEventType = eventTypes.get(DefaultCustomStateTransitionEventType.DELETED.getSymbol());
+        StateTransitionEventType deletedEventType = eventTypes.get(DefaultCustomStateTransitionEventType.REMOVED.getSymbol());
 
         FiniteStateMachineBuilder builder = this.stateMachineService.newFiniteStateMachine(name);
         // Create default States
@@ -144,28 +144,28 @@ public class Installer {
         FiniteStateMachineBuilder.StateBuilder inStockBuilder = builder.newStandardState(DefaultState.IN_STOCK.getKey());
         State decommissioned = builder
                 .newStandardState(DefaultState.DECOMMISSIONED.getKey())
-                .on(deletedEventType).transitionTo(removed)
+                .on(deletedEventType).transitionTo(removed, DefaultLifeCycleTranslationKey.TRANSITION_FROM_DECOMMISSIONED_TO_REMOVED)
                 .complete();
         FiniteStateMachineBuilder.StateBuilder activeBuilder = builder.newStandardState(DefaultState.ACTIVE.getKey());
         FiniteStateMachineBuilder.StateBuilder inactiveBuilder = builder.newStandardState(DefaultState.INACTIVE.getKey());
         State active = activeBuilder
-                .on(decommissionedEventType).transitionTo(decommissioned)
-                .on(deactivated).transitionTo(inactiveBuilder)
+                .on(decommissionedEventType).transitionTo(decommissioned, DefaultLifeCycleTranslationKey.TRANSITION_FROM_ACTIVE_TO_DECOMMISSIONED)
+                .on(deactivated).transitionTo(inactiveBuilder, DefaultLifeCycleTranslationKey.TRANSITION_FROM_ACTIVE_TO_INACTIVE)
                 .complete();
         State inactive = inactiveBuilder
-                .on(activated).transitionTo(active)
-                .on(decommissionedEventType).transitionTo(decommissioned)
+                .on(activated).transitionTo(active, DefaultLifeCycleTranslationKey.TRANSITION_FROM_INACTIVE_TO_ACTIVE)
+                .on(decommissionedEventType).transitionTo(decommissioned, DefaultLifeCycleTranslationKey.TRANSITION_FROM_INACTIVE_TO_DECOMMISSIONED)
                 .complete();
         State commissioning = builder
                 .newStandardState(DefaultState.COMMISSIONING.getKey())
-                .on(activated).transitionTo(active)
-                .on(deactivated).transitionTo(inactive)
+                .on(activated).transitionTo(active, DefaultLifeCycleTranslationKey.TRANSITION_FROM_COMMISSIONING_TO_ACTIVE)
+                .on(deactivated).transitionTo(inactive, DefaultLifeCycleTranslationKey.TRANSITION_FROM_COMMISSIONING_TO_INACTIVE)
                 .complete();
         State inStock = inStockBuilder
-                .on(activated).transitionTo(active)
-                .on(deactivated).transitionTo(inactive)
-                .on(commissioningEventType).transitionTo(commissioning)
-                .on(deletedEventType).transitionTo(removed)
+                .on(activated).transitionTo(active, DefaultLifeCycleTranslationKey.TRANSITION_FROM_IN_STOCK_TO_ACTIVE)
+                .on(deactivated).transitionTo(inactive, DefaultLifeCycleTranslationKey.TRANSITION_FROM_IN_STOCK_TO_INACTIVE)
+                .on(commissioningEventType).transitionTo(commissioning, DefaultLifeCycleTranslationKey.TRANSITION_FROM_IN_STOCK_TO_COMMISSIONING)
+                .on(deletedEventType).transitionTo(removed, DefaultLifeCycleTranslationKey.TRANSITION_FROM_IN_STOCK_TO_REMOVED)
                 .complete();
         FiniteStateMachine stateMachine = builder.complete(inStock);
         this.logger.fine(() -> "Creating default finite state machine...");

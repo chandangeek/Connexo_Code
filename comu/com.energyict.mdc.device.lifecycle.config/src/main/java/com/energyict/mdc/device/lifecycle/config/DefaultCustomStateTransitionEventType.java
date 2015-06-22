@@ -16,7 +16,7 @@ public enum DefaultCustomStateTransitionEventType {
     ACTIVATED("#activated"),
     DEACTIVATED("#deactivated"),
     DECOMMISSIONED("#decommissioned"),
-    DELETED("#deleted"),
+    REMOVED("#removed"),
     RECYCLED("#recycled", false);
 
     private String symbol;
