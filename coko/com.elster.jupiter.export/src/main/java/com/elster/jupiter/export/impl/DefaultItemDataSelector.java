@@ -20,6 +20,7 @@ import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.util.Ranges;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
+import com.google.common.collect.TreeRangeSet;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -111,6 +112,14 @@ class DefaultItemDataSelector implements ItemDataSelector {
     }
 
     private Range<Instant> determineUpdateInterval(DataExportOccurrence occurrence, ReadingTypeDataExportItem item) {
+        TreeRangeSet<Instant> base = TreeRangeSet.create();
+        Range<Instant> baseRange = determineBaseUpdateInterval(occurrence, item);
+        base.add(baseRange);
+        base.remove(occurrence.getExportedDataInterval());
+        return base.asRanges().stream().findFirst().orElse(baseRange);
+    }
+
+    private Range<Instant> determineBaseUpdateInterval(DataExportOccurrence occurrence, ReadingTypeDataExportItem item) {
         return occurrence.getTask().getReadingTypeDataSelector()
                 .map(ReadingTypeDataSelector::getStrategy)
                 .filter(DataExportStrategy::isExportUpdate)
