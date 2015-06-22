@@ -1,8 +1,10 @@
 package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.export.DataExportOccurrence;
+import com.elster.jupiter.export.DataExportStrategy;
 import com.elster.jupiter.export.MeterReadingData;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
+import com.elster.jupiter.export.ReadingTypeDataSelector;
 import com.elster.jupiter.export.StructureMarker;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.IntervalReadingRecord;
@@ -14,10 +16,12 @@ import com.elster.jupiter.metering.readings.IntervalReading;
 import com.elster.jupiter.metering.readings.Reading;
 import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
+import com.elster.jupiter.util.Ranges;
 import com.google.common.collect.Range;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -44,10 +48,37 @@ class DefaultItemDataSelector implements ItemDataSelector {
         return Optional.empty();
     }
 
+    @Override
+    public Optional<MeterReadingData> selectDataForUpdate(DataExportOccurrence occurrence, IReadingTypeDataExportItem item, Instant since) {
+        boolean exportUpdates = occurrence.getTask().getReadingTypeDataSelector()
+                .map(ReadingTypeDataSelector::getStrategy)
+                .map(DataExportStrategy::isExportUpdate)
+                .orElse(false);
+        if (!exportUpdates) {
+            return Optional.empty();
+        }
+        Range<Instant> updateInterval = determineUpdateInterval(occurrence, item);
+        List<? extends BaseReadingRecord> readings = item.getReadingContainer().getReadingsUpdatedSince(updateInterval, item.getReadingType(), since);
+
+        if (!readings.isEmpty()) {
+            MeterReadingImpl meterReading = asMeterReading(item, readings);
+            return Optional.of(new MeterReadingData(item, meterReading, structureMarkerForUpdate(item, readings.get(0).getTimeStamp())));
+        }
+        return Optional.empty();
+    }
+
     private StructureMarker structureMarker(IReadingTypeDataExportItem item, Instant instant) {
         return DefaultStructureMarker.createRoot(clock, item.getReadingContainer().getMeter(instant).map(Meter::getMRID).orElse(""))
                 .child(item.getReadingContainer().getUsagePoint(instant).map(UsagePoint::getMRID).orElse(""))
-                .child(item.getReadingType().getMRID() == null ? "" : item.getReadingType().getMRID());
+                .child(item.getReadingType().getMRID() == null ? "" : item.getReadingType().getMRID())
+                .child("export");
+    }
+
+    private StructureMarker structureMarkerForUpdate(IReadingTypeDataExportItem item, Instant instant) {
+        return DefaultStructureMarker.createRoot(clock, item.getReadingContainer().getMeter(instant).map(Meter::getMRID).orElse(""))
+                .child(item.getReadingContainer().getUsagePoint(instant).map(UsagePoint::getMRID).orElse(""))
+                .child(item.getReadingType().getMRID() == null ? "" : item.getReadingType().getMRID())
+                .child("update");
     }
 
     private Range<Instant> determineExportInterval(DataExportOccurrence occurrence, ReadingTypeDataExportItem item) {
@@ -55,6 +86,16 @@ class DefaultItemDataSelector implements ItemDataSelector {
                 .map(IReadingTypeDataSelector.class::cast)
                 .map(selector -> selector.adjustedExportPeriod(occurrence, item))
                 .orElse(occurrence.getExportedDataInterval());
+    }
+
+    private Range<Instant> determineUpdateInterval(DataExportOccurrence occurrence, ReadingTypeDataExportItem item) {
+        return occurrence.getTask().getReadingTypeDataSelector()
+                .map(ReadingTypeDataSelector::getStrategy)
+                .filter(DataExportStrategy::isExportUpdate)
+                .flatMap(DataExportStrategy::getUpdatePeriod)
+                .map(relativePeriod -> relativePeriod.getInterval(ZonedDateTime.ofInstant(occurrence.getTriggerTime(), item.getReadingContainer().getZoneId())))
+                .map(period -> Ranges.map(period, ZonedDateTime::toInstant))
+                .orElse(null);
     }
 
     private MeterReadingImpl asMeterReading(IReadingTypeDataExportItem item, List<? extends BaseReadingRecord> readings) {
