@@ -1,11 +1,11 @@
-package com.energyict.mdc.device.lifecycle.config.rest.impl.i18n;
+package com.energyict.mdc.device.lifecycle.config.rest.i18n;
 
 import com.energyict.mdc.device.lifecycle.config.MicroCategory;
 
 import com.elster.jupiter.nls.TranslationKey;
 
 /**
- * Contains translation keys for the {@link com.energyict.mdc.device.lifecycle.config.MicroCategory }s.
+ * Contains translation keys for the {@link com.energyict.mdc.device.lifecycle.config.MicroCategory micro categories}.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-06-22 (11:11)
@@ -20,8 +20,8 @@ public enum MicroCategoryTranslationKey implements TranslationKey {
     TRANSITION_ACTION_CHECK_CATEGORY_VALIDATION(Keys.TRANSITION_ACTION_CHECK_CATEGORY_KEY + MicroCategory.INSTALLATION, "Installation"),
     TRANSITION_ACTION_SUB_CATEGORY_ESTIMATION("conflict_estimation", "Toggle data estimation"),
     TRANSITION_ACTION_SUB_CATEGORY_VALIDATION("conflict_validation", "Toggle data validation"),
-    TRANSITION_ACTION_SUB_CATEGORY_DESCR_ESTIMATION(Keys.TRANSITION_ACTION_SUB_CATEGORY_DESCRIPTION_KEY + "conflict_estimation", "Activate or deactivate the data estimation on this device. This auto action is effective immediately."),
-    TRANSITION_ACTION_SUB_CATEGORY_DESCR_COMMUNICATION(Keys.TRANSITION_ACTION_SUB_CATEGORY_DESCRIPTION_KEY + "conflict_validation", "Activate or deactivate the data validation on this device. This auto action is effective immediately.");
+    TRANSITION_ACTION_SUB_CATEGORY_ESTIMATION_DESCRIPTION(Keys.TRANSITION_ACTION_SUB_CATEGORY_DESCRIPTION_KEY + "conflict_estimation", "Activate or deactivate the data estimation on this device. This auto action is effective immediately."),
+    TRANSITION_ACTION_SUB_CATEGORY_COMMUNICATION_DESCRIPTION(Keys.TRANSITION_ACTION_SUB_CATEGORY_DESCRIPTION_KEY + "conflict_validation", "Activate or deactivate the data validation on this device. This auto action is effective immediately.");
 
     private final String key;
     private final String defaultFormat;

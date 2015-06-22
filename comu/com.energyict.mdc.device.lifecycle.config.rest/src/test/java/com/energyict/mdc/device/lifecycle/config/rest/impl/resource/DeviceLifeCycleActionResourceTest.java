@@ -35,7 +35,7 @@ public class DeviceLifeCycleActionResourceTest extends DeviceLifeCycleConfigAppl
         assertThat(model.<List<?>>get("$.deviceLifeCycleActions")).isNotNull();
         assertThat(model.<List<?>>get("$.deviceLifeCycleActions")).hasSize(2);
         assertThat(model.<Number>get("$.deviceLifeCycleActions[1].id")).isEqualTo(1);
-        assertThat(model.<String>get("$.deviceLifeCycleActions[1].name")).isEqualTo(DefaultLifeCycleTranslationKey.TRANSITION_START_COMMISSIONING.getDefaultFormat());
+        assertThat(model.<String>get("$.deviceLifeCycleActions[1].name")).isEqualTo(com.energyict.mdc.device.lifecycle.config.impl.DefaultLifeCycleTranslationKey.TRANSITION_FROM_IN_STOCK_TO_COMMISSIONING.getKey());
         assertThat(model.<Object>get("$.deviceLifeCycleActions[1].fromState")).isNotNull();
         assertThat(model.<Number>get("$.deviceLifeCycleActions[1].fromState.id")).isEqualTo(3);
         assertThat(model.<String>get("$.deviceLifeCycleActions[1].fromState.name")).isEqualTo("In stock");
@@ -47,7 +47,7 @@ public class DeviceLifeCycleActionResourceTest extends DeviceLifeCycleConfigAppl
         assertThat(model.<String>get("$.deviceLifeCycleActions[1].privileges[0].privilege")).isEqualTo("ONE");
         assertThat(model.<String >get("$.deviceLifeCycleActions[1].privileges[0].name")).isEqualTo(DefaultLifeCycleTranslationKey.PRIVILEGE_LEVEL_1.getDefaultFormat());
         assertThat(model.<String >get("$.deviceLifeCycleActions[1].triggeredBy.symbol")).isEqualTo("#commissioning");
-        assertThat(model.<String >get("$.deviceLifeCycleActions[1].triggeredBy.name")).isEqualTo(DefaultLifeCycleTranslationKey.TRANSITION_START_COMMISSIONING.getDefaultFormat());
+        assertThat(model.<String >get("$.deviceLifeCycleActions[1].triggeredBy.name")).isEqualTo(com.energyict.mdc.device.lifecycle.config.impl.DefaultLifeCycleTranslationKey.TRANSITION_FROM_IN_STOCK_TO_COMMISSIONING.getDefaultFormat());
         assertThat(model.<List>get("$.deviceLifeCycleActions[0].microActions")).hasSize(3);
         assertThat(model.<List>get("$.deviceLifeCycleActions[0].microChecks")).hasSize(3);
     }
@@ -76,7 +76,7 @@ public class DeviceLifeCycleActionResourceTest extends DeviceLifeCycleConfigAppl
         String stringResponse = target("/devicelifecycles/1/actions/1").request().get(String.class);
         JsonModel model = JsonModel.create(stringResponse);
         assertThat(model.<Number>get("$.id")).isEqualTo(1);
-        assertThat(model.<String>get("$.name")).isEqualTo(DefaultLifeCycleTranslationKey.TRANSITION_START_COMMISSIONING.getDefaultFormat());
+        assertThat(model.<String>get("$.name")).isEqualTo(com.energyict.mdc.device.lifecycle.config.impl.DefaultLifeCycleTranslationKey.TRANSITION_FROM_IN_STOCK_TO_COMMISSIONING.getKey());
     }
 
     @Test

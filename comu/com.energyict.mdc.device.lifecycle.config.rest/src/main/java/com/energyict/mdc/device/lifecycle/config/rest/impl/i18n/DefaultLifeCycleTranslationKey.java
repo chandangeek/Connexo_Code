@@ -21,7 +21,7 @@ public enum DefaultLifeCycleTranslationKey implements TranslationKey {
     STATE_TRANSITION_EVENT_TYPE_ACTIVATE(DefaultCustomStateTransitionEventType.ACTIVATED.getSymbol(), "Activate"),
     STATE_TRANSITION_EVENT_TYPE_DEACTIVATE(DefaultCustomStateTransitionEventType.DEACTIVATED.getSymbol(), "Deactivate"),
     STATE_TRANSITION_EVENT_TYPE_DECOMMISSION(DefaultCustomStateTransitionEventType.DECOMMISSIONED.getSymbol(), "Decommission"),
-    STATE_TRANSITION_EVENT_TYPE_REMOVE(DefaultCustomStateTransitionEventType.DELETED.getSymbol(), "Remove"),
+    STATE_TRANSITION_EVENT_TYPE_REMOVE(DefaultCustomStateTransitionEventType.REMOVED.getSymbol(), "Remove"),
 
     TRANSITION_COMTASK_CREATED("com/energyict/mdc/device/data/comtaskexecution/CREATED", "Creation of a communication task on a device"),
     TRANSITION_COMTASK_UPDATED("com/energyict/mdc/device/data/comtaskexecution/UPDATED", "Change a communication taks of a device"),

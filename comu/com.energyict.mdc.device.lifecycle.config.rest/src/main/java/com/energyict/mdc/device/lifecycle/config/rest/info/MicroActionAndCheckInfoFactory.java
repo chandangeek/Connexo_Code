@@ -4,7 +4,9 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.lifecycle.config.MicroCheck;
-import com.energyict.mdc.device.lifecycle.config.rest.impl.i18n.MessageSeeds;
+import com.energyict.mdc.device.lifecycle.config.rest.i18n.MicroActionTranslationKey;
+import com.energyict.mdc.device.lifecycle.config.rest.i18n.MicroCategoryTranslationKey;
+import com.energyict.mdc.device.lifecycle.config.rest.i18n.MicroCheckTranslationKey;
 
 import javax.inject.Inject;
 import java.util.EnumSet;
@@ -43,11 +45,11 @@ public class MicroActionAndCheckInfoFactory {
         MicroActionAndCheckInfo info = new MicroActionAndCheckInfo();
         if (microAction != null) {
             info.key = microAction.name();
-            info.name = thesaurus.getString(MessageSeeds.Keys.MICRO_ACTION_NAME_TRANSLATE_KEY + microAction.name(), microAction.name());
-            info.description = thesaurus.getString(MessageSeeds.Keys.MICRO_ACTION_DESCRIPTION_TRANSLATE_KEY + microAction.name(), microAction.name());
+            info.name = thesaurus.getString(MicroActionTranslationKey.Keys.MICRO_ACTION_NAME_TRANSLATE_KEY + microAction.name(), microAction.name());
+            info.description = thesaurus.getString(MicroActionTranslationKey.Keys.MICRO_ACTION_DESCRIPTION_TRANSLATE_KEY + microAction.name(), microAction.name());
             info.category = new IdWithNameInfo();
             info.category.id = microAction.getCategory().name();
-            info.category.name = thesaurus.getString(MessageSeeds.Keys.TRANSITION_ACTION_CHECK_CATEGORY_KEY + microAction.getCategory().name(), microAction.getCategory().name());
+            info.category.name = thesaurus.getString(MicroCategoryTranslationKey.Keys.TRANSITION_ACTION_CHECK_CATEGORY_KEY + microAction.getCategory().name(), microAction.getCategory().name());
             microAction.getConflictGroupKey().ifPresent(key -> info.conflictGroup = new MicroActionConflictGroupInfo(key, thesaurus));
         }
         return info;
@@ -71,19 +73,18 @@ public class MicroActionAndCheckInfoFactory {
         if (microCheck != null) {
             if (CONSOLIDATED_MICRO_CHECKS.contains(microCheck)){
                 info.key = CONSOLIDATED_MICRO_CHECKS_KEY;
-                info.name = thesaurus.getString(MessageSeeds.Keys.MICRO_CHECK_NAME_TRANSLATE_KEY + CONSOLIDATED_MICRO_CHECKS_KEY, CONSOLIDATED_MICRO_CHECKS_KEY);
-                info.description = thesaurus.getString(MessageSeeds.Keys.MICRO_CHECK_DESCRIPTION_TRANSLATE_KEY + CONSOLIDATED_MICRO_CHECKS_KEY, CONSOLIDATED_MICRO_CHECKS_KEY);
+                info.name = thesaurus.getString(MicroCheckTranslationKey.Keys.MICRO_CHECK_NAME_TRANSLATE_KEY + CONSOLIDATED_MICRO_CHECKS_KEY, CONSOLIDATED_MICRO_CHECKS_KEY);
+                info.description = thesaurus.getString(MicroCheckTranslationKey.Keys.MICRO_CHECK_DESCRIPTION_TRANSLATE_KEY + CONSOLIDATED_MICRO_CHECKS_KEY, CONSOLIDATED_MICRO_CHECKS_KEY);
             } else {
                 info.key = microCheck.name();
-                info.name = thesaurus.getString(MessageSeeds.Keys.MICRO_CHECK_NAME_TRANSLATE_KEY + microCheck.name(), microCheck.name());
-                info.description = thesaurus.getString(MessageSeeds.Keys.MICRO_CHECK_DESCRIPTION_TRANSLATE_KEY + microCheck.name(), microCheck.name());
+                info.name = thesaurus.getString(MicroCheckTranslationKey.Keys.MICRO_CHECK_NAME_TRANSLATE_KEY + microCheck.name(), microCheck.name());
+                info.description = thesaurus.getString(MicroCheckTranslationKey.Keys.MICRO_CHECK_DESCRIPTION_TRANSLATE_KEY + microCheck.name(), microCheck.name());
             }
             info.category = new IdWithNameInfo();
             info.category.id = microCheck.getCategory().name();
-            info.category.name = thesaurus.getString(MessageSeeds.Keys.TRANSITION_ACTION_CHECK_CATEGORY_KEY + microCheck.getCategory().name(), microCheck.getCategory().name());
+            info.category.name = thesaurus.getString(MicroCategoryTranslationKey.Keys.TRANSITION_ACTION_CHECK_CATEGORY_KEY + microCheck.getCategory().name(), microCheck.getCategory().name());
         }
         return info;
     }
-
 
 }

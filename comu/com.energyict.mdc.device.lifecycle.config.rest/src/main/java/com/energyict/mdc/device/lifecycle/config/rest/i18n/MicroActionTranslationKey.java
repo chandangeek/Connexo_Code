@@ -1,4 +1,4 @@
-package com.energyict.mdc.device.lifecycle.config.rest.impl.i18n;
+package com.energyict.mdc.device.lifecycle.config.rest.i18n;
 
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
 
