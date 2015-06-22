@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.lifecycle.config;
 
 import java.util.EnumSet;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -17,7 +18,6 @@ public enum MicroAction {
      * load profiles and log books of the device.
      * Requires that the user specifies that last reading timestamp.
      */
-    // storage = bits 1
     SET_LAST_READING(MicroCategory.DATA_COLLECTION),
 
     /**
@@ -25,19 +25,16 @@ public enum MicroAction {
      * Requires that the user specifies the timestamp
      * from which data should be validated.
      */
-    // storage = bits 2
     ENABLE_VALIDATION(MicroCategory.VALIDATION_AND_ESTIMATION, "conflict_validation"),
 
     /**
      * Disables data validation on the device.
      */
-    // storage = bits 4
     DISABLE_VALIDATION(MicroCategory.VALIDATION_AND_ESTIMATION, "conflict_validation"),
 
     /**
      * Activates all connection tasks on the device.
      */
-    // storage = bits 8
     ACTIVATE_CONNECTION_TASKS(MicroCategory.COMMUNICATION),
 
     /**
@@ -47,14 +44,12 @@ public enum MicroAction {
      *
      * @see #ACTIVATE_CONNECTION_TASKS
      */
-    // storage = bits 16
     START_COMMUNICATION(MicroCategory.COMMUNICATION),
 
     /**
      * Disable communication on the device
      * by putting all connection and communication tasks on hold.
      */
-    // storage = bits 32
     DISABLE_COMMUNICATION(MicroCategory.COMMUNICATION),
 
     /**
@@ -62,7 +57,6 @@ public enum MicroAction {
      * Requires that the user specifies the timestamp
      * on which the meter activation should start.
      */
-    // storage = bits 64
     CREATE_METER_ACTIVATION(MicroCategory.DATA_COLLECTION, "conflict_meter_activation"),
 
     /**
@@ -70,41 +64,35 @@ public enum MicroAction {
      * Requires that the user specifies the timestamp
      * on which the meter activation should end.
      */
-    // storage = bits 128
     CLOSE_METER_ACTIVATION(MicroCategory.DATA_COLLECTION),
 
     /**
      * Removes the device from all enumerated device groups
      * it is contained in.
      */
-    // storage = bits 256
     REMOVE_DEVICE_FROM_STATIC_GROUPS(MicroCategory.DATA_COLLECTION),
 
     /**
      * Detaches a slave device from its physical gateway.
      */
-    // storage = bits 512
     DETACH_SLAVE_FROM_MASTER(MicroCategory.TOPOLOGY),
 
     /**
      * Enables data estimation on the device.
      */
-    // storage = bits 1024
     ENABLE_ESTIMATION(MicroCategory.VALIDATION_AND_ESTIMATION, "conflict_estimation"),
 
     /**
      * Disables data estimation on the device.
      */
-    // storage = bits 2048
     DISABLE_ESTIMATION(MicroCategory.VALIDATION_AND_ESTIMATION, "conflict_estimation"),
 
     /**
-     * Moving forward lastreading dates of channels and registers, and perform
+     * Moving forward last reading dates of channels and registers, and perform
      * a validation followed by an estimation => channels/registers have an estimated value on given date.
      * Requires that the user specifies the timestamp
-     * on which the lastreading of channels and registers should be set.
+     * on which the last reading of channels and registers should be set.
      */
-    // storage = bits 4096
     FORCE_VALIDATION_AND_ESTIMATION(MicroCategory.VALIDATION_AND_ESTIMATION),
 
     /**
@@ -112,8 +100,7 @@ public enum MicroAction {
      * by activating all connection and schedule all
      * recurrent communication tasks to execute now.
      */
-    // storage = bits 8192
-    START_RECURRING_COMMUNICATION;
+    START_RECURRING_COMMUNICATION(MicroCategory.COMMUNICATION);
 
     private MicroCategory category;
     private String conflictGroupKey;
@@ -131,8 +118,8 @@ public enum MicroAction {
         return category;
     }
 
-    public String getConflictGroupKey() {
-        return conflictGroupKey;
+    public Optional<String> getConflictGroupKey() {
+        return Optional.ofNullable(this.conflictGroupKey);
     }
 
     /**
@@ -147,4 +134,4 @@ public enum MicroAction {
         return EnumSet.noneOf(MicroCheck.class);
     }
 
-    }
+}
