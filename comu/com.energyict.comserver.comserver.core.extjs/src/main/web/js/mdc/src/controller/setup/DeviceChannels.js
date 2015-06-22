@@ -47,12 +47,6 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
             },
             '#channelActionMenu': {
                 click: this.chooseAction
-            },
-            '#device-channels-filter button[action=applyfilter]': {
-                click: this.applyFilter
-            },
-            '#device-channels-filter button[action=clearfilter]': {
-                click: this.clearFilter
             }
         });
     },
