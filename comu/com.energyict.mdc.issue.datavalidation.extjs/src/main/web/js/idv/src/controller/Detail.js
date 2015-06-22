@@ -75,6 +75,7 @@ Ext.define('Idv.controller.Detail', {
             record.raw.notEstimatedData.map(function(item) {
                 item.notEstimatedBlocks.map(function(block) {
                     data.push(Ext.apply({}, {
+                        mRID: item.readingType.mRID,
                         channelId: item.channelId,
                         readingType: item.readingType
                     }, block))
