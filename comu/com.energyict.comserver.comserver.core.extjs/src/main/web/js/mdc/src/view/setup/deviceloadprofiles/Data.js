@@ -41,7 +41,6 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.Data', {
                 {
                     xtype: 'mdc-loadprofiles-topfilter',
                     itemId: 'deviceloadprofilesdatafilterpanel'
-                    //emptyText: Uni.I18n.translate('general.none', 'MDC', 'None')
                 },
                 {
                     items: [
