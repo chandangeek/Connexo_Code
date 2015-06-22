@@ -37,7 +37,7 @@ Ext.define('Uni.grid.filtertop.ComboBox', {
         }
 
         me.callParent(arguments);
-
+        me.store.load();
         me.on('specialkey', function (field, event) {
             if (event.getKey() === event.ENTER) {
                 me.assertValue();
@@ -48,14 +48,14 @@ Ext.define('Uni.grid.filtertop.ComboBox', {
 
     setFilterValue: function (data) {
         var me = this;
+           if (Ext.isArray(data) && me.isArrayOfNumbers(data)) {
+               for (var i = 0; i < data.length; i++) {
+                   data[i] = parseInt(data[i]);
+               }
+           }
+        !isNaN(parseInt(data))? me.setValue(parseInt(data)): me.setValue(data);
 
-        if (Ext.isArray(data) && me.isArrayOfNumbers(data)) {
-            for (var i = 0; i < data.length; i++) {
-                data[i] = parseInt(data[i]);
-            }
-        }
 
-        me.setValue(data);
     },
 
     isArrayOfNumbers: function (array) {
