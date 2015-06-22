@@ -18,17 +18,12 @@ import static com.elster.jupiter.issue.rest.response.ResponseHelper.entity;
 @Path("/issuetypes")
 public class IssueTypeResource extends BaseResource {
 
-    /**
-     * <b>API link</b>: <a href="http://confluence.eict.vpdc/display/JUPU/REST+API#RESTAPI-Getissuetypes">Get issue types</a><br />
-     * <b>Pagination</b>: false<br />
-     * <b>Mandatory parameters</b>: none<br />
-     * <b>Optional parameters</b>: none<br />
-     */
     @GET
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.VIEW_ISSUE,Privileges.ASSIGN_ISSUE,Privileges.CLOSE_ISSUE,Privileges.COMMENT_ISSUE,Privileges.ACTION_ISSUE})
-    public Response getIssueTypes(){
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.VIEW_ISSUE, Privileges.ASSIGN_ISSUE, Privileges.CLOSE_ISSUE, Privileges.COMMENT_ISSUE, Privileges.ACTION_ISSUE})
+    public Response getIssueTypes() {
         List<IssueType> issueTypes = getIssueService().query(IssueType.class).select(Condition.TRUE);
+        issueTypes.sort((it1, it2) -> it1.getName().compareToIgnoreCase(it2.getName()));
         return entity(issueTypes, IssueTypeInfo.class).build();
     }
 }
