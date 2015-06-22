@@ -15,23 +15,15 @@ import javax.inject.Inject;
  */
 public class AuthorizedCustomTransitionActionImpl extends AuthorizedTransitionActionImpl {
 
-    private final Thesaurus thesaurus;
-
     @Inject
     public AuthorizedCustomTransitionActionImpl(DataModel dataModel, Thesaurus thesaurus) {
-        super(dataModel);
-        this.thesaurus = thesaurus;
+        super(dataModel, thesaurus);
     }
 
     public AuthorizedCustomTransitionActionImpl initialize(DeviceLifeCycleImpl deviceLifeCycle, StateTransition stateTransition) {
         this.setDeviceLifeCycle(deviceLifeCycle);
         this.setStateTransition(stateTransition);
         return this;
-    }
-
-    @Override
-    public String getName() {
-        return getStateTransition().getName(thesaurus);
     }
 
     @Override

@@ -1,5 +1,8 @@
 package com.energyict.mdc.device.lifecycle.config.impl;
 
+import com.energyict.mdc.device.lifecycle.config.DefaultCustomStateTransitionEventType;
+import com.energyict.mdc.device.lifecycle.config.DefaultState;
+
 import com.elster.jupiter.nls.TranslationKey;
 
 /**
@@ -12,7 +15,19 @@ import com.elster.jupiter.nls.TranslationKey;
  */
 public enum DefaultLifeCycleTranslationKey implements TranslationKey {
 
-    DEFAULT_DEVICE_LIFE_CYCLE_NAME("dlc.standard.device.life.cycle", "Standard device life cycle");
+    DEFAULT_DEVICE_LIFE_CYCLE_NAME("dlc.standard.device.life.cycle", "Standard device life cycle"),
+
+    TRANSITION_START_COMMISSIONING(DefaultState.IN_STOCK.getKey()+DefaultCustomStateTransitionEventType.COMMISSIONING.getSymbol(), "Start commissioning"),
+    TRANSITION_ACTIVATE(DefaultState.INACTIVE.getKey()+DefaultCustomStateTransitionEventType.ACTIVATED.getSymbol(), "Activate"),
+    TRANSITION_INSTALL_ACTIVE(DefaultState.IN_STOCK.getKey()+DefaultCustomStateTransitionEventType.ACTIVATED.getSymbol(), "Install active"),
+    TRANSITION_INSTALL_INACTIVE_FROM_INSTOCK(DefaultState.IN_STOCK.getKey()+DefaultCustomStateTransitionEventType.DEACTIVATED.getSymbol(), "Install inactive"),
+    TRANSITION_INSTALL_INACTIVE_FROM_COMM(DefaultState.COMMISSIONING.getKey()+DefaultCustomStateTransitionEventType.DEACTIVATED.getSymbol(), "Install inactive"),
+    TRANSITION_INSTALL_ACTIVE_FROM_COMM(DefaultState.COMMISSIONING.getKey()+DefaultCustomStateTransitionEventType.ACTIVATED.getSymbol(), "Install active"),
+    TRANSITION_DEACTIVATE(DefaultState.ACTIVE.getKey()+DefaultCustomStateTransitionEventType.DEACTIVATED.getSymbol(), "Deactivate"),
+    TRANSITION_DEACTIVATE_DECOMMISSION(DefaultState.ACTIVE.getKey()+DefaultCustomStateTransitionEventType.DECOMMISSIONED.getSymbol(), "Deactivate and decommission"),
+    TRANSITION_DECOMMISSION(DefaultState.INACTIVE.getKey()+DefaultCustomStateTransitionEventType.DECOMMISSIONED.getSymbol(), "Decommission"),
+    TRANSITION_REMOVE(DefaultState.DECOMMISSIONED.getKey()+DefaultCustomStateTransitionEventType.DELETED.getSymbol(), "Remove"),
+    TRANSITION_REMOVE_FROM_IN_STOCK(DefaultState.IN_STOCK.getKey()+DefaultCustomStateTransitionEventType.DELETED.getSymbol(), "Remove");
 
     private final String key;
     private final String defaultFormat;

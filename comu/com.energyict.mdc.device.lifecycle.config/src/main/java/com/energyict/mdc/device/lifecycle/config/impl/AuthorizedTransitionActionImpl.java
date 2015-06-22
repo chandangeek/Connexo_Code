@@ -7,6 +7,7 @@ import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransition;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
@@ -24,6 +25,8 @@ import java.util.Set;
  */
 public abstract class AuthorizedTransitionActionImpl extends AuthorizedActionImpl implements AuthorizedTransitionAction {
 
+    private final Thesaurus thesaurus;
+
     @IsPresent(message = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}", groups = { Save.Create.class, Save.Update.class })
     private Reference<StateTransition> stateTransition = ValueReference.absent();
     @SuppressWarnings("unused")
@@ -33,8 +36,9 @@ public abstract class AuthorizedTransitionActionImpl extends AuthorizedActionImp
     private long actionBits;
     private EnumSet<MicroAction> actions = EnumSet.noneOf(MicroAction.class);
 
-    protected AuthorizedTransitionActionImpl(DataModel dataModel) {
+    protected AuthorizedTransitionActionImpl(DataModel dataModel, Thesaurus thesaurus) {
         super(dataModel);
+        this.thesaurus = thesaurus;
     }
 
     @Override
@@ -64,6 +68,11 @@ public abstract class AuthorizedTransitionActionImpl extends AuthorizedActionImp
             }
             mask = mask * 2;
         }
+    }
+
+    @Override
+    public String getName() {
+        return getStateTransition().getName(this.thesaurus);
     }
 
     @Override

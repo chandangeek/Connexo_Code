@@ -2,7 +2,6 @@ package com.energyict.mdc.device.lifecycle.config.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedStandardTransitionAction;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.TransitionType;
 
 import com.elster.jupiter.domain.util.Save;
@@ -20,15 +19,12 @@ import javax.validation.constraints.NotNull;
  */
 public class AuthorizedStandardTransitionActionImpl extends AuthorizedTransitionActionImpl implements AuthorizedStandardTransitionAction {
 
-    private final Thesaurus thesaurus;
-
     @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.CAN_NOT_BE_EMPTY+"}")
     private TransitionType type;
 
     @Inject
     public AuthorizedStandardTransitionActionImpl(DataModel dataModel, Thesaurus thesaurus) {
-        super(dataModel);
-        this.thesaurus = thesaurus;
+        super(dataModel, thesaurus);
     }
 
     public AuthorizedTransitionActionImpl initialize(DeviceLifeCycleImpl deviceLifeCycle, StateTransition stateTransition) {
@@ -36,11 +32,6 @@ public class AuthorizedStandardTransitionActionImpl extends AuthorizedTransition
         this.setStateTransition(stateTransition);
         this.type = TransitionType.from(stateTransition).get();
         return this;
-    }
-
-    @Override
-    public String getName() {
-        return getStateTransition().getName(thesaurus);
     }
 
     @Override

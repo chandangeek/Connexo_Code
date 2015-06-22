@@ -69,7 +69,8 @@ public interface AuthorizedAction {
     public Instant getCreationTimestamp();
 
     /**
-     * Gets the name
+     * Gets the name of this AuthorizedAction.
+     *
      * @return The name
      */
     public String getName();
