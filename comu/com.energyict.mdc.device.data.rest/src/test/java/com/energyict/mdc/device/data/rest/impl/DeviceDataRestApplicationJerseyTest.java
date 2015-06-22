@@ -28,6 +28,7 @@ import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.imp.DeviceImportService;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
+import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
@@ -114,6 +115,8 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
     YellowfinGroupsService yellowfinGroupsService;
     @Mock
     FirmwareService firmwareService;
+    @Mock
+    DeviceLifeCycleService deviceLifeCycleService;
 
 
     @Before
@@ -159,6 +162,7 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         application.setDataCollectionKpiService(dataCollectionKpiService);
         application.setYellowfinGroupsService(yellowfinGroupsService);
         application.setFirmwareService(firmwareService);
+        application.setDeviceLifeCycleService(deviceLifeCycleService);
         return application;
     }
 

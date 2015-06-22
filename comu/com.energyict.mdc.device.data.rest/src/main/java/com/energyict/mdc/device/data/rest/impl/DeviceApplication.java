@@ -37,6 +37,8 @@ import com.energyict.mdc.device.data.kpi.rest.KpiResource;
 import com.energyict.mdc.device.data.rest.DeviceConnectionTaskInfoFactory;
 import com.energyict.mdc.device.data.rest.DeviceInfoFactory;
 import com.energyict.mdc.device.data.rest.SecurityPropertySetInfoFactory;
+import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleStateFactory;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
@@ -98,6 +100,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     private volatile DataCollectionKpiService dataCollectionKpiService;
     private volatile License license;
     private volatile FirmwareService firmwareService;
+    private volatile DeviceLifeCycleService deviceLifeCycleService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -128,7 +131,8 @@ public class DeviceApplication extends Application implements TranslationKeyProv
                 KpiResource.class,
                 AdhocGroupResource.class,
                 DeviceEstimationResource.class,
-                DeviceHistoryResource.class
+                DeviceHistoryResource.class,
+                DeviceLifeCycleActionResource.class
         );
     }
 
@@ -320,6 +324,11 @@ public class DeviceApplication extends Application implements TranslationKeyProv
         this.firmwareService = firmwareService;
     }
 
+    @Reference
+    public void setDeviceLifeCycleService(DeviceLifeCycleService deviceLifeCycleService) {
+        this.deviceLifeCycleService = deviceLifeCycleService;
+    }
+
     class HK2Binder extends AbstractBinder {
 
         @Override
@@ -378,6 +387,8 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(ValidationRuleInfoFactory.class).to(ValidationRuleInfoFactory.class);
             bind(DeviceDataInfoFactory.class).to(DeviceDataInfoFactory.class);
             bind(PropertyUtils.class).to(PropertyUtils.class);
+            bind(deviceLifeCycleService).to(DeviceLifeCycleService.class);
+            bind(DeviceLifeCycleActionInfoFactory.class).to(DeviceLifeCycleActionInfoFactory.class);
         }
     }
 

@@ -86,6 +86,7 @@ public class DeviceResource {
     private final DeviceMessageCategoryInfoFactory deviceMessageCategoryInfoFactory;
     private final Provider<DeviceProtocolPropertyResource> devicePropertyResourceProvider;
     private final Provider<DeviceHistoryResource> deviceHistoryResourceProvider;
+    private final Provider<DeviceLifeCycleActionResource> deviceLifeCycleActionResourceProvider;
     private final DeviceInfoFactory deviceInfoFactory;
     private final Thesaurus thesaurus;
 
@@ -118,6 +119,7 @@ public class DeviceResource {
             Provider<ChannelResource> channelsOnDeviceResourceProvider,
             Provider<DeviceProtocolPropertyResource> devicePropertyResourceProvider,
             Provider<DeviceHistoryResource> deviceHistoryResourceProvider,
+            Provider<DeviceLifeCycleActionResource> deviceLifeCycleActionResourceProvider,
             DeviceInfoFactory deviceInfoFactory,
             Thesaurus thesaurus) {
         this.resourceHelper = resourceHelper;
@@ -147,6 +149,7 @@ public class DeviceResource {
         this.channelsOnDeviceResourceProvider = channelsOnDeviceResourceProvider;
         this.devicePropertyResourceProvider = devicePropertyResourceProvider;
         this.deviceHistoryResourceProvider = deviceHistoryResourceProvider;
+        this.deviceLifeCycleActionResourceProvider = deviceLifeCycleActionResourceProvider;
         this.deviceInfoFactory = deviceInfoFactory;
         this.thesaurus = thesaurus;
     }
@@ -394,6 +397,11 @@ public class DeviceResource {
     @Path("/{mRID}/history")
     public DeviceHistoryResource getDeviceHistoryResource() {
         return deviceHistoryResourceProvider.get();
+    }
+
+    @Path("/{mRID}/transitions")
+    public DeviceLifeCycleActionResource getDeviceLifeCycleActionsResource() {
+        return deviceLifeCycleActionResourceProvider.get();
     }
 
     @GET

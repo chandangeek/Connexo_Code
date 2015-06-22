@@ -200,7 +200,9 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     IMPOSSIBLE_TO_SET_MASTER_DEVICE(229, "ImpossibleToSetMasterDevice", "Device {0} is directly addressable. It is not possible to set master device"),
     FIELD_CAN_NOT_BE_EMPTY(230, Keys.FIELD_CAN_NOT_BE_EMPTY, "Field can not be empty"),
     NO_SUCH_COM_TASK_EXEC(231, "NoSuchComTaskExec" , "No such communication task execution exists"),
-    CAN_NOT_PERFOMR_ACTION_ON_SYSTEM_COMTASK(232, "CanNotPerformActionOnSystemComTask" , "You can not perform an action on a system communication task");
+    CAN_NOT_PERFOMR_ACTION_ON_SYSTEM_COMTASK(232, "CanNotPerformActionOnSystemComTask" , "You can not perform an action on a system communication task"),
+    NO_SUCH_DEVICE_LIFE_CYCLE_ACTION(233, "NoSuchDeviceLifeCycleAction" , "No device life cycle action with id = {0}"),
+            ;
     private final int number;
     private final String key;
     private final String format;
