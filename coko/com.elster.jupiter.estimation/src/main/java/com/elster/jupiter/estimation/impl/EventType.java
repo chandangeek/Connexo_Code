@@ -4,36 +4,36 @@ import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.EventTypeBuilder;
 import com.elster.jupiter.events.ValueType;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.orm.TransactionRequired;
 
 public enum EventType {
-    ESTIMATIONRULESET_CREATED("estimationruleset/CREATED", true),
-    ESTIMATIONRULESET_UPDATED("estimationruleset/UPDATED", true),
-    ESTIMATIONRULESET_DELETED("estimationruleset/DELETED", true),
+    ESTIMATIONRULESET_CREATED("estimationruleset/CREATED"),
+    ESTIMATIONRULESET_UPDATED("estimationruleset/UPDATED"),
+    ESTIMATIONRULESET_DELETED("estimationruleset/DELETED"),
     
-    ESTIMATIONBLOCK_FAILURE("/estimationblock/FAILURE", false) {
+    ESTIMATIONBLOCK_FAILURE("estimationblock/FAILURE") {
         @Override
-        EventTypeBuilder addCustomProperties(EventTypeBuilder eventTypeBuilder) {
-            return super.addCustomProperties(eventTypeBuilder).
-                    withProperty("startTime", ValueType.LONG, "startTime").
-                    withProperty("endTime", ValueType.LONG, "endTime").
-                    withProperty("channelId", ValueType.LONG, "channelId").
-                    withProperty("readingType", ValueType.STRING, "readingType");
+        public void install(EventService eventService) {
+            eventService.buildEventTypeWithTopic(topic())
+                    .name(name())
+                    .component(MeteringService.COMPONENTNAME)
+                    .category("Crud")
+                    .scope("System")
+                    .withProperty("startTime", ValueType.LONG, "startTime")
+                    .withProperty("endTime", ValueType.LONG, "endTime")
+                    .withProperty("channelId", ValueType.LONG, "channelId")
+                    .withProperty("readingType", ValueType.STRING, "readingType")
+                    .create().save();
         }
     }
     ;
 
     private static final String NAMESPACE = "com/elster/jupiter/estimation/";
     private final String topic;
-    private boolean hasMRID;
 
     EventType(String topic) {
         this.topic = topic;
-    }
-
-    EventType(String topic, boolean mRID) {
-        this.topic = topic;
-        this.hasMRID = mRID;
     }
 
     public String topic() {
@@ -48,10 +48,8 @@ public enum EventType {
                 .category("Crud")
                 .scope("System")
                 .withProperty("id", ValueType.LONG, "id")
-                .withProperty("version", ValueType.LONG, "version");
-        if (hasMRID) {
-            builder.withProperty("MRID", ValueType.STRING, "MRID");
-        }
+                .withProperty("version", ValueType.LONG, "version")
+                .withProperty("MRID", ValueType.STRING, "MRID");
         addCustomProperties(builder).create().save();
     }
 
