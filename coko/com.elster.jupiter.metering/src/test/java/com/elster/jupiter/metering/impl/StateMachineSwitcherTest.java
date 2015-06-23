@@ -4,7 +4,10 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.Message;
+import com.elster.jupiter.messaging.MessageBuilder;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.IncompatibleFiniteStateMachineChangeException;
@@ -85,6 +88,8 @@ public class StateMachineSwitcherTest {
     @Mock
     private JsonService jsonService;
     @Mock
+    private MessageService messageService;
+    @Mock
     private FiniteStateMachineService finiteStateMachineService;
 
     @Before
@@ -136,12 +141,19 @@ public class StateMachineSwitcherTest {
         StateMachineSwitcher publisher = this.getPublishingTestInstance(BATCH_SIZE);
         this.mockNoIncompatibleStates();
         this.mockEndDevices(5);
+        DestinationSpec destinationSpec = mock(DestinationSpec.class);
+        MessageBuilder messageBuilder = mock(MessageBuilder.class);
+        when(destinationSpec.message(anyString())).thenReturn(messageBuilder);
+        when(destinationSpec.message(any(byte[].class))).thenReturn(messageBuilder);
+        when(this.messageService.getDestinationSpec(SwitchStateMachineEvent.DESTINATION)).thenReturn(Optional.of(destinationSpec));
 
         // Business method
         publisher.publishEvents(EFFECTIVE_TIMESTAMP, this.oldStateMachine, this.newStateMachine, this.deviceAmrIdSubquery);
 
         // Asserts: 5 devices in batches of 2 should create 3 batches
-        verify(this.eventService, times(3)).postEvent(anyString(), any());
+        verify(destinationSpec, times(3)).message(anyString());
+        // All 3 batch messages should have been sent to the destination
+        verify(messageBuilder, times(3)).send();
     }
 
     @Test
@@ -302,11 +314,11 @@ public class StateMachineSwitcherTest {
     }
 
     private StateMachineSwitcher getPublishingTestInstance(int batchSize) {
-        return StateMachineSwitcher.forPublishing(batchSize, this.dataModel, this.eventService);
+        return StateMachineSwitcher.forPublishing(batchSize, this.dataModel, this.messageService, this.jsonService);
     }
 
     private StateMachineSwitcher getHandlingTestInstance() {
-        return StateMachineSwitcher.forHandling(this.dataModel, this.jsonService, this.finiteStateMachineService, this.eventService);
+        return StateMachineSwitcher.forHandling(this.dataModel, this.eventService, this.jsonService, this.finiteStateMachineService);
     }
 
 }

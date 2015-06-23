@@ -98,12 +98,6 @@ public class InstallerImpl {
                 LOGGER.log(Level.SEVERE, "Could not create event type : " + eventType.name(), e);
             }
         }
-        try {
-            SwitchStateMachineEvent.install(eventService);
-        }
-        catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Could not create topic : " + SwitchStateMachineEvent.TOPIC, e);
-        }
     }
 
     private void createEndDeviceEventTypes() {
