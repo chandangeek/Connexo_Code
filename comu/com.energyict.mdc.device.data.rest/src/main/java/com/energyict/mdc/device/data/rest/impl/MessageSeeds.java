@@ -202,7 +202,8 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     NO_SUCH_COM_TASK_EXEC(231, "NoSuchComTaskExec" , "No such communication task execution exists"),
     CAN_NOT_PERFOMR_ACTION_ON_SYSTEM_COMTASK(232, "CanNotPerformActionOnSystemComTask" , "You can not perform an action on a system communication task"),
     NO_SUCH_DEVICE_LIFE_CYCLE_ACTION(233, "NoSuchDeviceLifeCycleAction" , "No device life cycle action with id = {0}"),
-            ;
+    THIS_FIELD_IS_REQUIRED(234, "ThisFieldIsRequired" , "This field is required"),
+    ;
     private final int number;
     private final String key;
     private final String format;

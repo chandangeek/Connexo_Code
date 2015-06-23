@@ -17,6 +17,7 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.rest.util.RestValidationExceptionMapper;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.validation.ValidationService;
@@ -53,6 +54,7 @@ import com.energyict.mdc.tasks.TaskService;
 import com.google.common.collect.ImmutableSet;
 import java.time.Clock;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -106,6 +108,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     public Set<Class<?>> getClasses() {
         return ImmutableSet.of(
                 TransactionWrapper.class,
+                RestValidationExceptionMapper.class,
                 ExceptionLogger.class,
                 DeviceResource.class,
                 ProtocolDialectResource.class,
@@ -241,6 +244,8 @@ public class DeviceApplication extends Application implements TranslationKeyProv
                 keys.add(new SimpleTranslationKey(eventOrAction.toString(), eventOrAction.getMnemonic()));
             }
         }
+        Arrays.stream(DefaultTranslationKey.values())
+                .forEach(keys::add);
         return keys;
     }
 
