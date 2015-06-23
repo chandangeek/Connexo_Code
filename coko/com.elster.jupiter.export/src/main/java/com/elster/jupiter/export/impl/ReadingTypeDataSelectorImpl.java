@@ -61,6 +61,7 @@ public class ReadingTypeDataSelectorImpl implements IReadingTypeDataSelector {
 
     private boolean exportUpdate;
     private boolean exportContinuousData;
+    private boolean exportOnlyIfComplete;
     private ValidatedDataOption validatedDataOption;
     @Valid
     @Size(min=1, message = "{" + MessageSeeds.Keys.MUST_SELECT_AT_LEAST_ONE_READING_TYPE + "}")
@@ -171,7 +172,7 @@ public class ReadingTypeDataSelectorImpl implements IReadingTypeDataSelector {
 
     @Override
     public DataExportStrategy getStrategy() {
-        return new DataExportStrategyImpl(exportUpdate, exportContinuousData, validatedDataOption, updatePeriod.orNull(), updateWindow.orNull());
+        return new DataExportStrategyImpl(exportUpdate, exportContinuousData, exportOnlyIfComplete, validatedDataOption, updatePeriod.orNull(), updateWindow.orNull());
     }
 
     @Override
@@ -271,6 +272,11 @@ public class ReadingTypeDataSelectorImpl implements IReadingTypeDataSelector {
     @Override
     public void setExportContinuousData(boolean exportContinuousData) {
         this.exportContinuousData = exportContinuousData;
+    }
+
+    @Override
+    public void setExportOnlyIfComplete(boolean exportOnlyIfComplete) {
+        this.exportOnlyIfComplete = exportOnlyIfComplete;
     }
 
     @Override

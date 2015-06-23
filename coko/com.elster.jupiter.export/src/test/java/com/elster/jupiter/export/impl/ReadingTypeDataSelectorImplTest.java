@@ -39,8 +39,10 @@ import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ReadingTypeDataSelectorImplTest {
@@ -129,6 +131,8 @@ public class ReadingTypeDataSelectorImplTest {
         doReturn(Arrays.asList(readingRecord4)).when(meter2).getReadingsUpdatedSince(UPDATE_INTERVAL, readingType, SINCE.toInstant());
         doReturn(Arrays.asList(readingRecord3, extraReadingForUpdate)).when(meter1).getReadings(UPDATE_WINDOW_INTERVAL, readingType);
         doReturn(Arrays.asList(readingRecord4, extraReadingForUpdate)).when(meter2).getReadings(UPDATE_WINDOW_INTERVAL, readingType);
+        doReturn(END.toInstant()).when(readingRecord1).getTimeStamp();
+        doReturn(END.toInstant()).when(readingRecord2).getTimeStamp();
         doReturn(UPDATED_RECORD_TIME.toInstant()).when(readingRecord3).getTimeStamp();
         doReturn(UPDATED_RECORD_TIME.toInstant()).when(readingRecord4).getTimeStamp();
         doReturn(SINCE.toInstant()).when(occurrence).getTriggerTime();
@@ -214,6 +218,67 @@ public class ReadingTypeDataSelectorImplTest {
         assertThat(meterReadingData4.getStructureMarker().getStructurePath()).isEqualTo(Arrays.asList("meter2", "", READING_TYPE_MRID, "update"));
         assertThat(meterReadingData4.getMeterReading().getReadings()).hasSize(2);
     }
+
+    @Test
+    public void testSelectWithComplete() {
+
+        when(meter1.toList(eq(readingType), any())).thenReturn(Arrays.asList(END.toInstant()));
+        when(meter2.toList(eq(readingType), any())).thenReturn(Arrays.asList(START.toInstant(), END.toInstant()));
+
+        ReadingTypeDataSelectorImpl selector = ReadingTypeDataSelectorImpl.from(dataModel, task, exportPeriod, endDeviceGroup);
+        selector.addReadingType(readingType);
+        selector.setExportUpdate(false);
+        selector.setExportOnlyIfComplete(true);
+
+        doReturn(Optional.of(selector)).when(task).getReadingTypeDataSelector();
+
+        List<ExportData> collect = selector.selectData(occurrence).collect(Collectors.toList());
+
+        assertThat(collect).hasSize(1);
+
+    }
+
+    @Test
+    public void testSelectWithUpdateAndWindowAndComplete() {
+
+        when(meter1.toList(readingType, EXPORTED_INTERVAL)).thenReturn(Arrays.asList(END.toInstant()));
+        when(meter2.toList(readingType, EXPORTED_INTERVAL)).thenReturn(Arrays.asList(END.toInstant()));
+        when(meter1.toList(readingType, UPDATE_WINDOW_INTERVAL)).thenReturn(Arrays.asList(UPDATED_RECORD_TIME.toInstant()));
+        when(meter2.toList(readingType, UPDATE_WINDOW_INTERVAL)).thenReturn(Arrays.asList(UPDATED_RECORD_TIME.toInstant(), UPDATED_RECORD_TIME.plusMinutes(5).toInstant()));
+
+        ReadingTypeDataSelectorImpl selector = ReadingTypeDataSelectorImpl.from(dataModel, task, exportPeriod, endDeviceGroup);
+        selector.addReadingType(readingType);
+        selector.setExportUpdate(true);
+        selector.setUpdatePeriod(updatePeriod);
+        selector.setUpdateWindow(updateWindow);
+        selector.setExportOnlyIfComplete(true);
+
+        doReturn(Optional.of(selector)).when(task).getReadingTypeDataSelector();
+
+        List<ExportData> collect = selector.selectData(occurrence).collect(Collectors.toList());
+
+        assertThat(collect).hasSize(2);
+
+        collect = selector.selectData(occurrence).collect(Collectors.toList());
+
+        assertThat(collect).hasSize(3);
+
+        assertThat(collect.get(0)).isInstanceOf(MeterReadingData.class);
+        MeterReadingData meterReadingData1 = (MeterReadingData) collect.get(0);
+        assertThat(meterReadingData1.getStructureMarker().getStructurePath()).isEqualTo(Arrays.asList("meter1", "", READING_TYPE_MRID, "export"));
+
+        assertThat(collect.get(1)).isInstanceOf(MeterReadingData.class);
+        MeterReadingData meterReadingData2 = (MeterReadingData) collect.get(1);
+        assertThat(meterReadingData2.getStructureMarker().getStructurePath()).isEqualTo(Arrays.asList("meter1", "", READING_TYPE_MRID, "update"));
+        assertThat(meterReadingData2.getMeterReading().getReadings()).hasSize(2);
+
+        assertThat(collect.get(2)).isInstanceOf(MeterReadingData.class);
+        MeterReadingData meterReadingData3 = (MeterReadingData) collect.get(2);
+        assertThat(meterReadingData3.getStructureMarker().getStructurePath()).isEqualTo(Arrays.asList("meter2", "", READING_TYPE_MRID, "export"));
+
+    }
+
+
 
     private static class FakeRefAny implements RefAny {
         private final Object value;

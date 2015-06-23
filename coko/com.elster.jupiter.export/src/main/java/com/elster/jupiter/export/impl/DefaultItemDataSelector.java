@@ -25,9 +25,12 @@ import com.google.common.collect.TreeRangeSet;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZonedDateTime;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.elster.jupiter.export.impl.IntervalReadingImpl.intervalReading;
 import static com.elster.jupiter.export.impl.ReadingImpl.reading;
@@ -46,11 +49,23 @@ class DefaultItemDataSelector implements ItemDataSelector {
         Range<Instant> exportInterval = determineExportInterval(occurrence, item);
         List<? extends BaseReadingRecord> readings = item.getReadingContainer().getReadings(exportInterval, item.getReadingType());
 
+        if (item.getSelector().getStrategy().isExportCompleteData() && !isComplete(item, exportInterval, readings)) {
+            return Optional.empty();
+        }
+
         if (!readings.isEmpty()) {
             MeterReadingImpl meterReading = asMeterReading(item, readings);
             return Optional.of(new MeterReadingData(item, meterReading, structureMarker(item, readings.get(0).getTimeStamp())));
         }
         return Optional.empty();
+    }
+
+    private boolean isComplete(IReadingTypeDataExportItem item, Range<Instant> exportInterval, List<? extends BaseReadingRecord> readings) {
+        Set<Instant> instants = new HashSet<>(item.getReadingContainer().toList(item.getReadingType(), exportInterval));
+        readings.stream()
+                .map(BaseReadingRecord::getTimeStamp)
+                .forEach(instants::remove);
+        return instants.isEmpty();
     }
 
     @Override
@@ -61,7 +76,7 @@ class DefaultItemDataSelector implements ItemDataSelector {
         Range<Instant> updateInterval = determineUpdateInterval(occurrence, item);
         List<? extends BaseReadingRecord> readings = item.getReadingContainer().getReadingsUpdatedSince(updateInterval, item.getReadingType(), since);
 
-        List<? extends  BaseReadingRecord> updatedReadings = readings;
+        List<? extends BaseReadingRecord> updatedReadings = readings;
         Optional<RelativePeriod> updateWindow = occurrence.getTask().getReadingTypeDataSelector()
                 .map(ReadingTypeDataSelector::getStrategy)
                 .flatMap(DataExportStrategy::getUpdateWindow);
@@ -72,7 +87,15 @@ class DefaultItemDataSelector implements ItemDataSelector {
                     .map(period -> Ranges.map(period, ZonedDateTime::toInstant))
                     .collect(toImmutableRangeSet());
             readings = rangeSet.asRanges().stream()
-                    .flatMap(range -> item.getReadingContainer().getReadings(range, item.getReadingType()).stream())
+                    .flatMap(range -> {
+                        List<? extends BaseReadingRecord> found = item.getReadingContainer().getReadings(range, item.getReadingType());
+                        if (occurrence.getTask().getReadingTypeDataSelector().get().getStrategy().isExportCompleteData()) {
+                            if (!isComplete(item, range, found)) {
+                                return Stream.empty();
+                            }
+                        }
+                        return found.stream();
+                    })
                     .collect(Collectors.toList());
         }
 
@@ -85,9 +108,9 @@ class DefaultItemDataSelector implements ItemDataSelector {
 
     private boolean isExportUpdates(DataExportOccurrence occurrence) {
         return occurrence.getTask().getReadingTypeDataSelector()
-                    .map(ReadingTypeDataSelector::getStrategy)
-                    .map(DataExportStrategy::isExportUpdate)
-                    .orElse(false);
+                .map(ReadingTypeDataSelector::getStrategy)
+                .map(DataExportStrategy::isExportUpdate)
+                .orElse(false);
     }
 
     private StructureMarker structureMarker(IReadingTypeDataExportItem item, Instant instant) {

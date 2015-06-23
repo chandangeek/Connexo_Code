@@ -52,6 +52,7 @@ enum TableSpecs {
             Column updateWindow = table.column("UPDATE_WINDOW").number().add();
             Column endDeviceGroupId = table.column("ENDDEVICEGROUP").number().notNull().conversion(ColumnConversion.NUMBER2LONG).add();
             table.column("EXPORT_UPDATE").bool().map("exportUpdate").add();
+            table.column("EXPORT_COMPLETE").bool().map("exportOnlyIfComplete").add();
             table.column("EXPORT_CONTINUOUS_DATA").bool().map("exportContinuousData").add();
             table.column("VALIDATED_DATA_OPTION").number().conversion(ColumnConversion.NUMBER2ENUM).map("validatedDataOption").add();
 
