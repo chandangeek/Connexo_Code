@@ -50,9 +50,10 @@ Ext.define('Idv.controller.Detail', {
             },
             'no-estimated-data-grid uni-actioncolumn': {
                 viewData: function(record) {
-                    this.getController('Uni.controller.history.Router').getRoute('devices/channels/validationblocks').forward(
+                    var me = this;
+                    this.getController('Uni.controller.history.Router').getRoute('devices/device/channels/channelvalidationblocks').forward(
                         {
-                            mRID: record.get('readingType').mRID,
+                            mRID: me.getDetailForm().getRecord().get('device').serialNumber,
                             channelId: record.get('channelId'),
                             issueId: record.getId()
                         },
@@ -83,7 +84,7 @@ Ext.define('Idv.controller.Detail', {
             });
 
             var store = Ext.create('Idv.store.NonEstimatedDataStore', {data: data});
-            var widget = Ext.widget('no-estimated-data-grid', {store: store, router: router});
+            var widget = Ext.widget('no-estimated-data-grid', {store: store, router: router, issue: record});
             me.getPage().getCenterContainer().down('#no-estimated-data-panel').add(widget);
         });
     }
