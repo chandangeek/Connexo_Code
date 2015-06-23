@@ -45,14 +45,6 @@ public interface TopologyService {
      */
     public void clearPhysicalGateway(Device slave);
 
-    /**
-     * Clears the physical gateway of the slave {@link Device},
-     * i.e. removes to physical gateway on the specified Device.
-     *
-     * @param slave The slave Device
-     * @param when The instant in time on which the link with the gateway will terminate
-     */
-    public void clearPhysicalGateway(Device slave, Instant when);
 
     /**
      * Finds the {@link Device}s that are physically connected to the specified Device.
