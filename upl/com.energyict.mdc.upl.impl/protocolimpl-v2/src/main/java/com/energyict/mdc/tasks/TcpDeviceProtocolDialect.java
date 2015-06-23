@@ -40,15 +40,10 @@ public class TcpDeviceProtocolDialect extends AbstractDeviceProtocolDialect {
     @Override
     public List<PropertySpec> getOptionalProperties() {
         return Arrays.asList(
-                this.serverUpperMacAddressPropertySpec(),
                 this.timeoutPropertySpec(),
                 this.retriesPropertySpec(),
                 this.roundTripCorrectionPropertySpec()
         );
-    }
-
-    protected PropertySpec serverUpperMacAddressPropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(DlmsProtocolProperties.SERVER_UPPER_MAC_ADDRESS, BigDecimal.ONE);
     }
 
     protected PropertySpec retriesPropertySpec() {
@@ -66,8 +61,6 @@ public class TcpDeviceProtocolDialect extends AbstractDeviceProtocolDialect {
     @Override
     public PropertySpec getPropertySpec(String name) {
         switch (name) {
-            case DlmsProtocolProperties.SERVER_UPPER_MAC_ADDRESS:
-                return this.serverUpperMacAddressPropertySpec();
             case DlmsProtocolProperties.RETRIES:
                 return this.retriesPropertySpec();
             case DlmsProtocolProperties.TIMEOUT:

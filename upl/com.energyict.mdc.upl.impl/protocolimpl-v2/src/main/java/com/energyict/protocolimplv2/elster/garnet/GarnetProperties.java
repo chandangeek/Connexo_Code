@@ -109,12 +109,12 @@ public class GarnetProperties implements ConfigurationSupport {
             if (hex != null) {
                 this.manufacturerKey = DLMSUtils.hexStringToByteArray(hex);
                 if (this.manufacturerKey.length != 16) {
-                    MdcManager.getComServerExceptionFactory().createCipheringException(
+                    throw MdcManager.getComServerExceptionFactory().createCipheringException(
                             new GarnetException("Invalid security set used - the " + SecurityPropertySpecName.ENCRYPTION_KEY_MANUFACTURER + " has an invalid length!")
                     );
                 }
             } else {
-                MdcManager.getComServerExceptionFactory().createCipheringException(
+                throw MdcManager.getComServerExceptionFactory().createCipheringException(
                         new GarnetException("Invalid security set used - the " + SecurityPropertySpecName.ENCRYPTION_KEY_MANUFACTURER + " is missing!")
                 );
             }
@@ -128,13 +128,13 @@ public class GarnetProperties implements ConfigurationSupport {
             if (hex != null) {
                 this.customerKey = DLMSUtils.hexStringToByteArray(hex);
                 if (this.customerKey.length != 16) {
-                    MdcManager.getComServerExceptionFactory().createCipheringException(
+                    throw MdcManager.getComServerExceptionFactory().createCipheringException(
                             new GarnetException("Invalid security set used - the " + SecurityPropertySpecName.ENCRYPTION_KEY_CUSTOMER + " has an invalid length!")
                     );
                 }
             } else {
                 GarnetException exception = new GarnetException("Invalid security set used - the " + SecurityPropertySpecName.ENCRYPTION_KEY_CUSTOMER + " is missing!");
-                MdcManager.getComServerExceptionFactory().createCipheringException(exception);
+                throw MdcManager.getComServerExceptionFactory().createCipheringException(exception);
             }
         }
         return this.customerKey;

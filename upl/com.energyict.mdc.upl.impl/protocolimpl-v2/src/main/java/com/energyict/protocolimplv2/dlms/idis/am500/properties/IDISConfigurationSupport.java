@@ -2,14 +2,10 @@ package com.energyict.protocolimplv2.dlms.idis.am500.properties;
 
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.protocolimpl.dlms.idis.IDIS;
 import com.energyict.protocolimplv2.dlms.idis.am130.properties.AM130ConfigurationSupport;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.energyict.dlms.common.DlmsProtocolProperties.SERVER_UPPER_MAC_ADDRESS;
 
 /**
  * Same like the AM130 properties, adds 'CallingAPTitle' and 'SwapServerAndClientAddress'

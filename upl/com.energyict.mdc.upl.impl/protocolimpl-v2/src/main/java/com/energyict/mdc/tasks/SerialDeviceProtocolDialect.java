@@ -41,8 +41,6 @@ public class SerialDeviceProtocolDialect extends AbstractDeviceProtocolDialect {
     public List<PropertySpec> getOptionalProperties() {
         return Arrays.asList(
                 this.addressingModePropertySpec(),
-                this.serverUpperMacAddressPropertySpec(),
-                this.serverLowerMacAddressPropertySpec(),
                 this.informationFieldSizePropertySpec(),
                 this.timeoutPropertySpec(),
                 this.retriesPropertySpec(),
@@ -52,14 +50,6 @@ public class SerialDeviceProtocolDialect extends AbstractDeviceProtocolDialect {
 
     private PropertySpec addressingModePropertySpec() {
         return PropertySpecFactory.bigDecimalPropertySpecWithValues(BigDecimal.valueOf(2), DlmsProtocolProperties.ADDRESSING_MODE, BigDecimal.valueOf(1), BigDecimal.valueOf(2), BigDecimal.valueOf(4));
-    }
-
-    private PropertySpec serverUpperMacAddressPropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(DlmsProtocolProperties.SERVER_UPPER_MAC_ADDRESS, BigDecimal.ONE);
-    }
-
-    protected PropertySpec serverLowerMacAddressPropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(DlmsProtocolProperties.SERVER_LOWER_MAC_ADDRESS, BigDecimal.ZERO);
     }
 
     private PropertySpec informationFieldSizePropertySpec() {
@@ -83,10 +73,6 @@ public class SerialDeviceProtocolDialect extends AbstractDeviceProtocolDialect {
         switch (name) {
             case DlmsProtocolProperties.ADDRESSING_MODE:
                 return this.addressingModePropertySpec();
-            case DlmsProtocolProperties.SERVER_UPPER_MAC_ADDRESS:
-                return this.serverUpperMacAddressPropertySpec();
-            case DlmsProtocolProperties.SERVER_LOWER_MAC_ADDRESS:
-                return this.serverLowerMacAddressPropertySpec();
             case DlmsProtocolProperties.INFORMATION_FIELD_SIZE:
                 return this.informationFieldSizePropertySpec();
             case DlmsProtocolProperties.RETRIES:

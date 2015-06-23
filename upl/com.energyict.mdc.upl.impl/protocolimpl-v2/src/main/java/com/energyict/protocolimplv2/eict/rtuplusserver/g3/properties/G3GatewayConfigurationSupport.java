@@ -6,6 +6,7 @@ import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dlms.common.DlmsProtocolProperties;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -37,8 +38,13 @@ public class G3GatewayConfigurationSupport implements ConfigurationSupport {
                 this.timeZonePropertySpec(),
                 this.aarqTimeoutPropertySpec(),
                 this.readCachePropertySpec(),
+                this.serverUpperMacAddressPropertySpec(),
                 this.validateInvokeIdPropertySpec()
         );
+    }
+
+    private PropertySpec serverUpperMacAddressPropertySpec() {
+        return PropertySpecFactory.bigDecimalPropertySpec(DlmsProtocolProperties.SERVER_UPPER_MAC_ADDRESS, BigDecimal.ONE);
     }
 
     private PropertySpec timeZonePropertySpec() {

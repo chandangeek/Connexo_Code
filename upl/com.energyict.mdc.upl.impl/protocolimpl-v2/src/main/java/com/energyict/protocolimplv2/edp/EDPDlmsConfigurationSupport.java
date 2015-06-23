@@ -6,7 +6,10 @@ import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dlms.common.DlmsProtocolProperties;
 
-import java.util.*;
+import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import static com.energyict.dlms.common.DlmsProtocolProperties.*;
 
@@ -33,11 +36,21 @@ public class EDPDlmsConfigurationSupport implements ConfigurationSupport {
                 this.forcedDelayPropertySpec(),
                 this.maxRecPduSizePropertySpec(),
                 this.timeZonePropertySpec(),
+                this.serverUpperMacAddressPropertySpec(),
+                this.serverLowerMacAddressPropertySpec(),
                 this.readCachePropertySpec());
     }
 
     private PropertySpec timeZonePropertySpec() {
         return PropertySpecFactory.timeZoneInUseReferencePropertySpec(TIMEZONE);
+    }
+
+    private PropertySpec serverUpperMacAddressPropertySpec() {
+        return PropertySpecFactory.bigDecimalPropertySpec(DlmsProtocolProperties.SERVER_UPPER_MAC_ADDRESS, BigDecimal.ONE);
+    }
+
+    private PropertySpec serverLowerMacAddressPropertySpec() {
+        return PropertySpecFactory.bigDecimalPropertySpec(DlmsProtocolProperties.SERVER_LOWER_MAC_ADDRESS, BigDecimal.valueOf(16));
     }
 
     private PropertySpec readCachePropertySpec() {

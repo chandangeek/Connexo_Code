@@ -5,6 +5,7 @@ import com.energyict.cbo.TimeDuration;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dlms.aso.ConformanceBlock;
+import com.energyict.dlms.common.DlmsProtocolProperties;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -46,7 +47,17 @@ public class DlmsConfigurationSupport implements ConfigurationSupport {
                 this.requestTimeZonePropertySpec(),
                 this.timeZonePropertySpec(),
                 this.validateInvokeIdPropertySpec(),
+                this.serverUpperMacAddressPropertySpec(),
+                this.serverLowerMacAddressPropertySpec(),
                 this.deviceId());
+    }
+
+    protected PropertySpec serverUpperMacAddressPropertySpec() {
+        return PropertySpecFactory.bigDecimalPropertySpec(DlmsProtocolProperties.SERVER_UPPER_MAC_ADDRESS, BigDecimal.ONE);
+    }
+
+    protected PropertySpec serverLowerMacAddressPropertySpec() {
+        return PropertySpecFactory.bigDecimalPropertySpec(DlmsProtocolProperties.SERVER_LOWER_MAC_ADDRESS, BigDecimal.ZERO);
     }
 
     protected PropertySpec timeZonePropertySpec() {

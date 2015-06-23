@@ -4,7 +4,9 @@ import com.energyict.cbo.ConfigurationSupport;
 import com.energyict.cbo.TimeDuration;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
+import com.energyict.dlms.common.DlmsProtocolProperties;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -27,7 +29,17 @@ public class WebRTUZ3ConfigurationSupport implements ConfigurationSupport {
                 this.maxRecPduSizePropertySpec(),
                 this.bulkRequestPropertySpec(),
                 this.timeZonePropertySpec(),
+                this.serverUpperMacAddressPropertySpec(),
+                this.serverLowerMacAddressPropertySpec(),
                 this.validateInvokeIdPropertySpec());
+    }
+
+    private PropertySpec serverUpperMacAddressPropertySpec() {
+        return PropertySpecFactory.bigDecimalPropertySpec(DlmsProtocolProperties.SERVER_UPPER_MAC_ADDRESS, BigDecimal.ONE);
+    }
+
+    private PropertySpec serverLowerMacAddressPropertySpec() {
+        return PropertySpecFactory.bigDecimalPropertySpec(DlmsProtocolProperties.SERVER_LOWER_MAC_ADDRESS, BigDecimal.ZERO);
     }
 
     protected PropertySpec timeZonePropertySpec() {

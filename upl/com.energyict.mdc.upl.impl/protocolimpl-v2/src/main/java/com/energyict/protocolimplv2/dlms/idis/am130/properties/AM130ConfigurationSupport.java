@@ -12,7 +12,6 @@ import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.Dsmr50Properties;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
 
@@ -51,8 +50,13 @@ public class AM130ConfigurationSupport implements ConfigurationSupport {
                 this.generalBlockTransferWindowSizePropertySpec(),
                 this.cipheringTypePropertySpec(),
                 this.callingAPTitlePropertySpec(),
+                this.serverUpperMacAddressPropertySpec(),
                 this.callHomeIdPropertySpec()
         );
+    }
+
+    private PropertySpec serverUpperMacAddressPropertySpec() {
+        return PropertySpecFactory.bigDecimalPropertySpec(DlmsProtocolProperties.SERVER_UPPER_MAC_ADDRESS, BigDecimal.ONE);
     }
 
     protected PropertySpec useGeneralBlockTransferPropertySpec() {
@@ -105,7 +109,7 @@ public class AM130ConfigurationSupport implements ConfigurationSupport {
     }
 
     protected PropertySpec callHomeIdPropertySpec() {
-        return  PropertySpecFactory.stringPropertySpec(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME);
+        return PropertySpecFactory.stringPropertySpec(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME);
     }
 
 }

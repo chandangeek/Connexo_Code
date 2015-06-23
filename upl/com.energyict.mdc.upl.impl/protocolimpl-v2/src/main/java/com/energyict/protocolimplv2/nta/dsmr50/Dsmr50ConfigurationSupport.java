@@ -4,6 +4,7 @@ import com.energyict.cbo.ConfigurationSupport;
 import com.energyict.cbo.TimeDuration;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
+import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocolimpl.dlms.g3.G3Properties;
@@ -57,9 +58,19 @@ public class Dsmr50ConfigurationSupport implements ConfigurationSupport {
                 this.cumulativeCaptureTimeChannelPropertySpec(),
                 this.nodeAddressPropertySpec(),
                 this.callHomeIdPropertySpec(),
+                this.serverUpperMacAddressPropertySpec(),
+                this.serverLowerMacAddressPropertySpec(),
                 this.checkNumberOfBlocksDuringFirmwareResumePropertySpec(),
                 this.useEquipmentIdentifierAsSerialNumberPropertySpec()
         );
+    }
+
+    private PropertySpec serverUpperMacAddressPropertySpec() {
+        return PropertySpecFactory.bigDecimalPropertySpec(DlmsProtocolProperties.SERVER_UPPER_MAC_ADDRESS, BigDecimal.ONE);
+    }
+
+    private PropertySpec serverLowerMacAddressPropertySpec() {
+        return PropertySpecFactory.bigDecimalPropertySpec(DlmsProtocolProperties.SERVER_LOWER_MAC_ADDRESS, BigDecimal.ZERO);
     }
 
     protected PropertySpec nodeAddressPropertySpec() {
@@ -91,7 +102,7 @@ public class Dsmr50ConfigurationSupport implements ConfigurationSupport {
     }
 
     protected PropertySpec pskPropertySpec() {
-        return PropertySpecFactory.hexStringPropertySpec(G3Properties.PSK);
+        return PropertySpecFactory.encryptedStringPropertySpec(G3Properties.PSK);
     }
 
     protected PropertySpec aarqTimeoutPropertySpec() {
