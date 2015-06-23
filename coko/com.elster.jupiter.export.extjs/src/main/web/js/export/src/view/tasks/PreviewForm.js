@@ -23,7 +23,7 @@ Ext.define('Dxp.view.tasks.PreviewForm', {
             },
             {
                 xtype: 'fieldcontainer',
-                fieldLabel: Uni.I18n.translate('general.dataSources', 'DES', 'Data sources'),
+                fieldLabel: Uni.I18n.translate('general.dataSelection', 'DES', 'Data selection'),
                 labelAlign: 'top',
                 layout: 'vbox',
                 defaults: {
@@ -32,8 +32,8 @@ Ext.define('Dxp.view.tasks.PreviewForm', {
                 },
                 items: [
                     {
-                        fieldLabel: Uni.I18n.translate('general.deviceGroup', 'DES', 'Device group'),
-                        name: 'deviceGroup',
+                        fieldLabel: Uni.I18n.translate('general.dataSelector', 'DES', 'Data selector'),
+                        name: 'dataSelector',
                         renderer: function (value) {
                             if (value) {
                                 return Ext.String.htmlEncode(value.name);
@@ -41,8 +41,21 @@ Ext.define('Dxp.view.tasks.PreviewForm', {
                         }
                     },
                     {
+                        fieldLabel: Uni.I18n.translate('general.deviceGroup', 'DES', 'Device group'),
+                        name: 'deviceGroup',
+                        hidden: true,
+                        itemId: 'data-selector-deviceGroup-preview',
+                        renderer: function (value) {
+                            if (value) {
+                                return Ext.String.htmlEncode(value);
+                            }
+                        }
+                    },
+                    {
                         fieldLabel: Uni.I18n.translate('general.readingTypes', 'DES', 'Reading type(s)'),
                         name: 'readingTypes',
+                        hidden: true,
+                        itemId: 'data-selector-readingTypes-preview',
                         renderer: function (value) {
                             if (value) {
                                 return value.length + ' ' + Uni.I18n.translate('general.readingtypes', 'DES', 'reading type(s)');
@@ -66,8 +79,31 @@ Ext.define('Dxp.view.tasks.PreviewForm', {
                                 });
                             }
                         }
+                    },
+                    {
+                        fieldLabel: Uni.I18n.translate('general.exportPeriod', 'DES', 'Export period'),
+                        name: 'exportPeriod',
+                        hidden: true,
+                        itemId: 'data-selector-exportPeriod-preview',
+                        renderer: function (value) {
+                            if (value) {
+                                return Ext.String.htmlEncode(value);
+                            }
+                        }
                     }
                 ]
+            },
+            {
+                xtype: 'property-form',
+                itemId: 'data-selector-properties-preview',
+                isEdit: false,
+                frame: false,
+                defaults: {
+                    xtype: 'container',
+                    resetButtonHidden: true,
+                    labelWidth: 250
+                }
+
             },
             {
                 xtype: 'fieldcontainer',
@@ -128,27 +164,7 @@ Ext.define('Dxp.view.tasks.PreviewForm', {
                     }
                 ]
             },
-            {
-                xtype: 'fieldcontainer',
-                fieldLabel: Uni.I18n.translate('general.dataOptions', 'DES', 'Data options'),
-                labelAlign: 'top',
-                layout: 'vbox',
-                defaults: {
-                    xtype: 'displayfield',
-                    labelWidth: 250
-                },
-                items: [
-                    {
-                        fieldLabel: Uni.I18n.translate('general.exportPeriod', 'DES', 'Export period'),
-                        name: 'exportperiod',
-                        renderer: function (value) {
-                            if (value) {
-                                return Ext.String.htmlEncode(value.name);
-                            }
-                        }
-                    }
-                ]
-            },
+
             {
                 xtype: 'fieldcontainer',
                 fieldLabel: Uni.I18n.translate('general.formatter', 'DES', 'Formatter'),
@@ -173,6 +189,7 @@ Ext.define('Dxp.view.tasks.PreviewForm', {
             {
                 xtype: 'grouped-property-form',
                 isEdit: false,
+                itemId: 'task-properties-preview',
                 frame: false,
                 defaults: {
                     xtype: 'container',
@@ -182,5 +199,21 @@ Ext.define('Dxp.view.tasks.PreviewForm', {
             }
         ];
         me.callParent();
+    },
+
+    fillReadings: function (record) {
+        this.down('#readingTypesArea').removeAll();
+        for (var i = 0; i < record.get('readingTypes').length; i++) {
+            var readingType = record.get('readingTypes')[i];
+
+            this.down('#readingTypesArea').add(
+                {
+                    xtype: 'reading-type-displayfield',
+                    fieldLabel: undefined,
+                    value: readingType,
+                    margin: '0 0 -10 0'
+                }
+            );
+        }
     }
 });

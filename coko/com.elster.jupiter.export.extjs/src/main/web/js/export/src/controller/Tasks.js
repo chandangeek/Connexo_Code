@@ -193,7 +193,11 @@ Ext.define('Dxp.controller.Tasks', {
         taskModel.load(currentTaskId, {
             success: function (record) {
                 var detailsForm = view.down('dxp-tasks-preview-form'),
-                    propertyForm = detailsForm.down('property-form');
+                    propertyForm = detailsForm.down('#task-properties-preview'),
+                    selectorPropertyForm = detailsForm.down('#data-selector-properties-preview'),
+                    deviceGroup = detailsForm.down('#data-selector-deviceGroup-preview'),
+                    exportPeriod = detailsForm.down('#data-selector-exportPeriod-preview'),
+                    readingTypes = detailsForm.down('#data-selector-readingTypes-preview');
 
                 actionsMenu.record = record;
                 actionsMenu.down('#view-details').hide();
@@ -210,6 +214,19 @@ Ext.define('Dxp.controller.Tasks', {
                 }
                 if (record.properties() && record.properties().count()) {
                     propertyForm.loadRecord(record);
+                }
+                if ((record.getDataSelector()) && (record.getDataSelector().properties()) && (record.getDataSelector().properties().count())) {
+                    selectorPropertyForm.setVisible(true);
+                    deviceGroup.setVisible(false);
+                    exportPeriod.setVisible(false);
+                    readingTypes.setVisible(false);
+                    selectorPropertyForm.loadRecord(record.getDataSelector());
+
+                } else {
+                    selectorPropertyForm.setVisible(false);
+                    deviceGroup.setVisible(true);
+                    exportPeriod.setVisible(true);
+                    readingTypes.setVisible(true);
                 }
             }
         });
@@ -472,7 +489,11 @@ Ext.define('Dxp.controller.Tasks', {
             page = me.getPage(),
             preview = page.down('dxp-tasks-preview'),
             previewForm = page.down('dxp-tasks-preview-form'),
-            propertyForm = previewForm.down('property-form');
+            selectorPropertyForm = previewForm.down('#data-selector-properties-preview'),
+            deviceGroup = previewForm.down('#data-selector-deviceGroup-preview'),
+            exportPeriod = previewForm.down('#data-selector-exportPeriod-preview'),
+            readingTypes = previewForm.down('#data-selector-readingTypes-preview'),
+            propertyForm = previewForm.down('#task-properties-preview');
 
         Ext.suspendLayouts();
 
@@ -500,6 +521,20 @@ Ext.define('Dxp.controller.Tasks', {
         if (record.properties() && record.properties().count()) {
             propertyForm.loadRecord(record);
         }
+
+        if ((record.getDataSelector()) && (record.getDataSelector().properties()) && (record.getDataSelector().properties().count())) {
+            selectorPropertyForm.show();
+            deviceGroup.hide();
+            exportPeriod.hide();
+            readingTypes.hide();
+            selectorPropertyForm.loadRecord(record.getDataSelector());
+        } else {
+            selectorPropertyForm.hide();
+            deviceGroup.show();
+            exportPeriod.show();
+            readingTypes.show();
+        }
+
 
         Ext.resumeLayouts();
     },
@@ -842,6 +877,7 @@ Ext.define('Dxp.controller.Tasks', {
             var selectorModel = Ext.create('Dxp.model.DataSelector', {
                 name: dataSelectorCombo.getValue(),
             })
+            record.setDataSelector(selectorModel);
 
             var selectedDataSelector = dataSelectorCombo.findRecord(dataSelectorCombo.valueField , dataSelectorCombo.getValue());
 
@@ -865,7 +901,7 @@ Ext.define('Dxp.controller.Tasks', {
                 });
             } else {
                 record.set('standardDataSelector', null);
-                record.setDataSelector(selectorModel);
+                //record.setDataSelector(selectorModel);
                 selectorPropertyForm.updateRecord();
 
                 record.propertiesStore.add(selectorPropertyForm.getRecord().properties().data.items)

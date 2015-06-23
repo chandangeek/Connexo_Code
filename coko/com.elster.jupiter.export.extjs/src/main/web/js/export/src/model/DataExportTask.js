@@ -6,10 +6,43 @@ Ext.define('Dxp.model.DataExportTask', {
         'Dxp.model.StandardDataSelector'
     ],
     fields: [
-        'id', 'name', 'dataProcessor', 'standardDataSelector', 'schedule', 'properties', 'nextRun', 'lastRun',
+        'id', 'name', 'dataProcessor', 'dataSelector', 'standardDataSelector', 'schedule', 'properties', 'nextRun', 'lastRun',
         {
             name: 'lastExportOccurence',
             persist: false
+        },
+        {
+            name: 'deviceGroup',
+            persist: false,
+            mapping: function (data) {
+                if ((data.standardDataSelector) && (data.standardDataSelector.deviceGroup)) {
+                    return data.standardDataSelector.deviceGroup.name;
+                } else {
+                    return null;
+                }
+            }
+        },
+        {
+            name: 'exportPeriod',
+            persist: false,
+            mapping: function (data) {
+                if ((data.standardDataSelector) && (data.standardDataSelector.exportPeriod)) {
+                    return data.standardDataSelector.exportPeriod.name;
+                } else {
+                    return null;
+                }
+            }
+        },
+        {
+            name: 'readingTypes',
+            persist: false,
+            mapping: function (data) {
+                if ((data.standardDataSelector) && (data.standardDataSelector.readingTypes)) {
+                    return data.standardDataSelector.readingTypes;
+                } else {
+                    return null;
+                }
+            }
         },
         {
             name: 'lastRun_formatted',
