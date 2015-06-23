@@ -1260,7 +1260,13 @@ public class DeviceImpl implements Device, CanLock {
     @Override
     public MeterActivation activate(Instant start) {
         AmrSystem amrSystem = this.getMdcAmrSystem().orElseThrow(this.mdcAMRSystemDoesNotExist());
-        return this.findOrCreateKoreMeter(amrSystem).activate(start);
+        Meter meter = this.findOrCreateKoreMeter(amrSystem);
+        Optional<UsagePoint> usagePoint = meter.getUsagePoint(start);
+        if(usagePoint.isPresent()){
+            return usagePoint.get().activate(meter, start);
+        } else {
+            return meter.activate(start);
+        }
     }
 
     @Override
