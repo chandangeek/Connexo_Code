@@ -16,6 +16,8 @@ public interface DataExportStrategy {
 
     boolean isExportContinuousData();
 
+    boolean isExportCompleteData();
+
     ValidatedDataOption getValidatedDataOption();
 
     Range<Instant> adjustedExportPeriod(DataExportOccurrence occurrence, ReadingTypeDataExportItem item);
