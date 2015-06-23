@@ -12,6 +12,7 @@ import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.time.DefaultRelativePeriodDefinition;
 import com.elster.jupiter.time.RelativeDate;
 import com.elster.jupiter.time.RelativeField;
 import com.elster.jupiter.time.RelativePeriod;
@@ -26,6 +27,7 @@ import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
+import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -56,6 +58,11 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TimeServiceIT {
+
+    @Rule
+    public TestRule neutralLocale = Using.localeOfMalta();
+    @Rule
+    public TestRule timeZoneNeutral = Using.timeZoneOfMcMurdo();
 
     private class MockModule extends AbstractModule {
 
@@ -201,4 +208,21 @@ public class TimeServiceIT {
         assertThat(relativePeriods.get(1).getName()).isEqualTo("inB1");
         assertThat(relativePeriods.get(2).getName()).isEqualTo("inB2");
     }
+
+    @Test
+    public void testThisWeekOfDefaultPeriods() {
+        RelativePeriod thisWeek = timeService.getRelativePeriods().stream()
+                .filter(relativePeriod -> DefaultRelativePeriodDefinition.THIS_WEEK.getPeriodName().equals(relativePeriod.getName()))
+                .findFirst().get();
+
+        ZonedDateTime zonedDateTime = ZonedDateTime.of(2015, 6, 22, 15, 16, 12, 212551252, TimeZoneNeutral.getMcMurdo());
+
+        Range<ZonedDateTime> interval = thisWeek.getInterval(zonedDateTime);
+        assertThat(interval.hasLowerBound()).isTrue();
+        assertThat(interval.lowerEndpoint()).isEqualTo(ZonedDateTime.of(2015, 6, 21, 0, 0, 0, 0, TimeZoneNeutral.getMcMurdo()));
+        assertThat(interval.hasUpperBound()).isTrue();
+        assertThat(interval.upperEndpoint()).isEqualTo(ZonedDateTime.of(2015, 6, 23, 0, 0, 0, 0, TimeZoneNeutral.getMcMurdo()));
+
+    }
+
 }
