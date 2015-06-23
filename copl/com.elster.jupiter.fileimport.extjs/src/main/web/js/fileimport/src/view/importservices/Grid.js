@@ -27,7 +27,11 @@ Ext.define('Fim.view.importservices.Grid', {
             },
             {
                 header: Uni.I18n.translate('general.status', 'FIM', 'Status'),
-                dataIndex: 'statusDisplay',                
+                dataIndex: 'statusDisplay',
+                renderer: function (value, metaData, record) {
+                    metaData.tdAttr = 'data-qtip="' + record.get('statusTooltip') + '"';
+                    return value;
+                },
                 flex: 1
             },
             {

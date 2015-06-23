@@ -15,7 +15,7 @@ Ext.define('Fim.controller.ImportServices', {
     ],
     models: [
         'Fim.model.ImportService',
-		'Fim.model.ImportServiceDetails',
+        'Fim.model.ImportServiceDetails',
         'Fim.model.FileImporter'
     ],
     refs: [
@@ -26,11 +26,11 @@ Ext.define('Fim.controller.ImportServices', {
         {
             ref: 'addPage',
             selector: 'fim-add-import-service'
-        },		
+        },
         {
             ref: 'detailsImportService',
             selector: 'fin-details-import-service'
-        },		
+        },
         {
             ref: 'importServicesGrid',
             selector: '#grd-import-services'
@@ -83,7 +83,7 @@ Ext.define('Fim.controller.ImportServices', {
     showImportService: function (importServiceId) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
-			importServiceModel = me.getModel('Fim.model.ImportService'),
+            importServiceModel = me.getModel('Fim.model.ImportService'),
             importServiceModelDetails = me.getModel('Fim.model.ImportServiceDetails'),
             view = Ext.widget('fin-details-import-service', {
                 router: router,
@@ -98,20 +98,26 @@ Ext.define('Fim.controller.ImportServices', {
 
                 me.getApplication().fireEvent('changecontentevent', view);
 
-				if (!recordDetails.get('deleted')){
-					importServiceModel.load(importServiceId, {
-					success: function (record) {
-						if (actionsMenu) {
-							actionsMenu.record = record;	
-						}
-					}
-				   });
-				}
+                if (!recordDetails.get('deleted')) {
+                    importServiceModel.load(importServiceId, {
+                        success: function (record) {
+                            if (actionsMenu) {
+                                actionsMenu.record = record;
+                            }
+                        }
+                    });
+                }
                 else {
                     actionsMenu.record = recordDetails;
                 }
-				
-				view.down('#import-service-view-menu #import-services-view-link').setText(recordDetails.get('name'));
+
+                view.down('#import-service-view-menu #import-services-view-link').setText(recordDetails.get('name'));
+                new Ext.ToolTip({
+                    target: view.down('#dsf-status-display').getEl(),
+                    dismissDelay: 5000,
+                    html: recordDetails.get('statusTooltip')
+                });
+
                 me.getApplication().fireEvent('importserviceload', recordDetails);
 
                 detailsForm.loadRecord(recordDetails);
@@ -134,6 +140,11 @@ Ext.define('Fim.controller.ImportServices', {
 
         preview.setTitle(record.get('name'));
         previewForm.loadRecord(record);
+        new Ext.ToolTip({
+            target: previewForm.down('#dsf-status-display').getEl(),
+            dismissDelay: 5000,
+            html: record.get('statusTooltip')
+        });
         preview.down('fim-import-service-action-menu').record = record;
         Ext.resumeLayouts();
     },
@@ -280,14 +291,14 @@ Ext.define('Fim.controller.ImportServices', {
             active = menu.record.get('active');
 
 
-        if (menu.record.get('deleted')){
+        if (menu.record.get('deleted')) {
             edit && edit.setVisible(false);
             remove && remove.setVisible(false);
             view && view.setVisible(false);
             activate && activate.setVisible(false);
             deactivate && deactivate.setVisible(false);
         }
-        else if (!menu.record.get('importerAvailable')){
+        else if (!menu.record.get('importerAvailable')) {
             edit && edit.setVisible(false);
             view && view.setVisible(false);
             activate && activate.setVisible(false);
@@ -382,7 +393,7 @@ Ext.define('Fim.controller.ImportServices', {
 
         importServiceRecord.set('importerInfo', {
             name: addImportServiceForm.down('#cbo-file-importer').getValue()
-        });        
+        });
         importServiceRecord.endEdit();
 
         importServiceRecord.save({

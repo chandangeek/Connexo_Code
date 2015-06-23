@@ -30,7 +30,9 @@ Ext.define('Fim.view.importservices.PreviewForm', {
             {
                 xtype: 'displayfield',
                 fieldLabel: Uni.I18n.translate('importService.status', 'FIM', 'Status'),
-                name: 'statusDisplay'
+                name: 'statusDisplay',
+                itemId: 'dsf-status-display'
+                //inputAttrTpl: " data-qtip=" +
             },
             {
                 xtype: 'displayfield',
