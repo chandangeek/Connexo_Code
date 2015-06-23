@@ -3,6 +3,7 @@ package com.energyict.mdc.device.lifecycle;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,6 +32,10 @@ public class MultipleMicroCheckViolationsException extends DeviceLifeCycleAction
     @Override
     public String getLocalizedMessage() {
         return this.thesaurus.getFormat(this.messageSeed).format(this.violationMessagesAsCommaSeparatedList());
+    }
+
+    public List<DeviceLifeCycleActionViolation> getViolatedChecks(){
+        return Collections.unmodifiableList(this.violations);
     }
 
     private String violationMessagesAsCommaSeparatedList() {
