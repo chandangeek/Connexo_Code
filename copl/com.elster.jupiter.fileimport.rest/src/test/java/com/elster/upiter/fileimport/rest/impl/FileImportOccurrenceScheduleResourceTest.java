@@ -23,6 +23,7 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -66,7 +67,7 @@ public class FileImportOccurrenceScheduleResourceTest extends FileImportOccurren
     @Test
     public void testAddImportSchedules() {
         ImportSchedule schedule = mockImportSchedule(1);
-        FileImportScheduleInfo info = new FileImportScheduleInfo(schedule, thesaurus, propertyUtils);
+        FileImportScheduleInfo info = new FileImportScheduleInfo(schedule, appService, thesaurus, propertyUtils);
         info.importerInfo = new FileImporterInfo();
         info.importerInfo.name = "Test importer";
         info.importerInfo.displayName = "Display test importer";
@@ -99,7 +100,7 @@ public class FileImportOccurrenceScheduleResourceTest extends FileImportOccurren
     public void testEditImportSchedule() {
         ImportSchedule schedule = mockImportSchedule(1);
 
-        FileImportScheduleInfo info = new FileImportScheduleInfo(schedule, thesaurus, propertyUtils);
+        FileImportScheduleInfo info = new FileImportScheduleInfo(schedule, appService, thesaurus, propertyUtils);
         info.importerInfo = new FileImporterInfo();
         info.name = "New name";
         info.importDirectory = "New folder";
@@ -153,6 +154,7 @@ public class FileImportOccurrenceScheduleResourceTest extends FileImportOccurren
     }
 
     private void mockImportSchedules(ImportSchedule... importSchedules) {
+        when(appService.getImportScheduleAppServers(Matchers.anyLong())).thenReturn(Collections.emptyList());
         Finder<ImportSchedule> finder = mock(Finder.class);
         when(fileImportService.findImportSchedules(Matchers.anyString())).thenReturn(finder);
         when(finder.from(any())).thenReturn(finder);

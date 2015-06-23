@@ -29,6 +29,7 @@ import javax.ws.rs.core.Response;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -72,7 +73,7 @@ public class FileImportScheduleResourceTest  extends FileImportApplicationTest {
     @Test
     public void testAddImportSchedules() {
         ImportSchedule schedule = mockImportSchedule(1);
-        FileImportScheduleInfo info = new FileImportScheduleInfo(schedule, thesaurus, propertyUtils);
+        FileImportScheduleInfo info = new FileImportScheduleInfo(schedule, appService, thesaurus, propertyUtils);
         info.importerInfo = new FileImporterInfo();
         info.importerInfo.name = "Test importer";
         info.importerInfo.displayName = "Display test importer";
@@ -105,7 +106,7 @@ public class FileImportScheduleResourceTest  extends FileImportApplicationTest {
     public void testEditImportSchedule() {
         ImportSchedule schedule = mockImportSchedule(1);
 
-        FileImportScheduleInfo info = new FileImportScheduleInfo(schedule, thesaurus, propertyUtils);
+        FileImportScheduleInfo info = new FileImportScheduleInfo(schedule, appService, thesaurus, propertyUtils);
         info.importerInfo = new FileImporterInfo();
         info.name = "New name";
         info.importDirectory = "New folder";
@@ -149,7 +150,7 @@ public class FileImportScheduleResourceTest  extends FileImportApplicationTest {
     private void mockImporters() {
         FileImporterFactory importerFactory = mock(FileImporterFactory.class);
         FileImporter importer = mock(FileImporter.class);
-
+        when(appService.getImportScheduleAppServers(Matchers.anyLong())).thenReturn(Collections.emptyList());
         when(fileImportService.getAvailableImporters("SYS")).thenReturn(ImmutableList.of(importerFactory));
         when(importerFactory.getApplicationName()).thenReturn("SYS");
         when(importerFactory.getName()).thenReturn("Test importer");

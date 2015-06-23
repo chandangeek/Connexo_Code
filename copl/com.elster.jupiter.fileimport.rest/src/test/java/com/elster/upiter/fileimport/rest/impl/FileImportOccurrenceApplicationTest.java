@@ -42,6 +42,7 @@ public class FileImportOccurrenceApplicationTest extends FileImportApplicationTe
         application.setCronExpressionParser(cronExpressionParser);
         application.setNlsService(nlsService);
         application.setFileSystem(fileSystem);
+        application.setAppService(appService);
         return application;
     }
 }

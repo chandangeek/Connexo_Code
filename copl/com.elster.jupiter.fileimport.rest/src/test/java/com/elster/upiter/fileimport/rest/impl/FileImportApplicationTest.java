@@ -1,5 +1,6 @@
 package com.elster.upiter.fileimport.rest.impl;
 
+import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fileimport.rest.impl.FileImportApplication;
@@ -33,6 +34,9 @@ public class FileImportApplicationTest extends FelixRestApplicationJerseyTest {
     @Mock
     PropertyUtils propertyUtils;
 
+    @Mock
+    public AppService appService;
+
     @Override
     protected MessageSeed[] getMessageSeeds() {
         return new MessageSeed[0];
@@ -49,6 +53,7 @@ public class FileImportApplicationTest extends FelixRestApplicationJerseyTest {
         application.setCronExpressionParser(cronExpressionParser);
         application.setNlsService(nlsService);
         application.setFileSystem(fileSystem);
+        application.setAppService(appService);
 
         return application;
     }

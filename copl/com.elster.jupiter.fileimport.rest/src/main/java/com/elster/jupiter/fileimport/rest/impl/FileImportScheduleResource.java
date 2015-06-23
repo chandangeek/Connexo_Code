@@ -1,13 +1,17 @@
 package com.elster.jupiter.fileimport.rest.impl;
 
 
+import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.fileimport.*;
 import com.elster.jupiter.fileimport.security.Privileges;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.rest.util.*;
+import com.elster.jupiter.rest.util.JsonQueryFilter;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.CommitException;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -19,7 +23,6 @@ import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.nio.file.FileSystem;
-import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -34,10 +37,11 @@ public class FileImportScheduleResource {
     private final CronExpressionParser cronExpressionParser;
     private final PropertyUtils propertyUtils;
     private final FileSystem fileSystem;
+    private final AppService appService;
 
 
     @Inject
-    public FileImportScheduleResource(RestQueryService queryService, FileImportService fileImportService, Thesaurus thesaurus, TransactionService transactionService, CronExpressionParser cronExpressionParser, PropertyUtils propertyUtils, FileSystem fileSystem) {
+    public FileImportScheduleResource(RestQueryService queryService, FileImportService fileImportService, Thesaurus thesaurus, TransactionService transactionService, CronExpressionParser cronExpressionParser, PropertyUtils propertyUtils, FileSystem fileSystem, AppService appService) {
         this.queryService = queryService;
         this.fileImportService = fileImportService;
         this.thesaurus = thesaurus;
@@ -45,6 +49,7 @@ public class FileImportScheduleResource {
         this.cronExpressionParser = cronExpressionParser;
         this.propertyUtils = propertyUtils;
         this.fileSystem = fileSystem;
+        this.appService = appService;
     }
 
 
@@ -53,8 +58,10 @@ public class FileImportScheduleResource {
     @RolesAllowed({Privileges.ADMINISTRATE_IMPORT_SERVICES, Privileges.VIEW_IMPORT_SERVICES, Privileges.VIEW_MDC_IMPORT_SERVICES})
     public PagedInfoList getImportSchedules(@Context UriInfo uriInfo, @BeanParam JsonQueryParameters queryParameters, @QueryParam("application") String applicationName) {
 
+
         List<ImportSchedule> list = fileImportService.findImportSchedules(applicationName).from(queryParameters).find();
-        List<FileImportScheduleInfo> data = list.stream().map(each -> new FileImportScheduleInfo(each, thesaurus, propertyUtils)).collect(Collectors.toList());
+        List<FileImportScheduleInfo> data = list.stream().map(each -> new FileImportScheduleInfo(each, appService, thesaurus, propertyUtils)).collect(Collectors.toList());
+
         return PagedInfoList.fromPagedList("importSchedules",data,queryParameters);
     }
 
@@ -75,7 +82,7 @@ public class FileImportScheduleResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_IMPORT_SERVICES, Privileges.VIEW_IMPORT_SERVICES, Privileges.VIEW_MDC_IMPORT_SERVICES})
     public FileImportScheduleInfo getImportSchedule(@PathParam("id") long id, @Context SecurityContext securityContext) {
-        return new FileImportScheduleInfo(fetchImportSchedule(id), thesaurus, propertyUtils);
+        return new FileImportScheduleInfo(fetchImportSchedule(id), appService, thesaurus, propertyUtils);
     }
 
     @GET
@@ -83,7 +90,7 @@ public class FileImportScheduleResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_IMPORT_SERVICES, Privileges.VIEW_IMPORT_SERVICES, Privileges.VIEW_MDC_IMPORT_SERVICES})
     public FileImportScheduleInfo getImportScheduleIncludeDeleted(@PathParam("id") long id, @Context SecurityContext securityContext) {
-        return new FileImportScheduleInfo(fetchImportScheduleIncludeDeleted(id), thesaurus, propertyUtils);
+        return new FileImportScheduleInfo(fetchImportScheduleIncludeDeleted(id), appService, thesaurus, propertyUtils);
     }
 
 
@@ -117,7 +124,7 @@ public class FileImportScheduleResource {
             importSchedule.save();
             context.commit();
         }
-        return Response.status(Response.Status.CREATED).entity(new FileImportScheduleInfo(importSchedule, thesaurus, propertyUtils)).build();
+        return Response.status(Response.Status.CREATED).entity(new FileImportScheduleInfo(importSchedule, appService, thesaurus, propertyUtils)).build();
     }
 
     @DELETE
@@ -162,7 +169,7 @@ public class FileImportScheduleResource {
             importSchedule.save();
             context.commit();
         }
-        return Response.status(Response.Status.CREATED).entity(new FileImportScheduleInfo(importSchedule, thesaurus, propertyUtils)).build();
+        return Response.status(Response.Status.CREATED).entity(new FileImportScheduleInfo(importSchedule, appService, thesaurus, propertyUtils)).build();
     }
 
     @GET

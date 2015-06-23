@@ -1,5 +1,6 @@
 package com.elster.jupiter.fileimport.rest.impl;
 
+import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.fileimport.ImportSchedule;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
@@ -22,6 +23,7 @@ public class FileImportScheduleInfo {
     public String name;
     public Boolean active;
     public Boolean deleted;
+    public Boolean scheduled;
     public Boolean importerAvailable;
     //public String destinationName;
     public String importDirectory;
@@ -39,8 +41,9 @@ public class FileImportScheduleInfo {
     public FileImportScheduleInfo(){
 
     }
-    public FileImportScheduleInfo(ImportSchedule importSchedule, Thesaurus thesaurus, PropertyUtils propertyUtils) {
+    public FileImportScheduleInfo(ImportSchedule importSchedule, AppService appService, Thesaurus thesaurus, PropertyUtils propertyUtils) {
 
+        //
         id = importSchedule.getId();
         active = importSchedule.isActive();
         name = importSchedule.getName();
@@ -75,7 +78,11 @@ public class FileImportScheduleInfo {
             }
         }
 
+        scheduled = appService.getImportScheduleAppServers(id).size() > 0;
+
+
         properties = propertyUtils.convertPropertySpecsToPropertyInfos(importSchedule.getPropertySpecs(), importSchedule.getProperties());
 
     }
+
 }
