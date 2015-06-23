@@ -183,10 +183,9 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
     }
 
     private void createStandardEventType(StandardEventPredicate predicate) {
-        try (TransactionContext context = this.transactionService.getContext()) {
+        transactionService.builder().principal(() -> "Fsm Install").run(() -> {
             this.createStandardEventType(predicate, this.eventService.getEventTypes());
-            context.commit();
-        }
+        });
     }
 
     private void createStandardEventType(StandardEventPredicate predicate, List<com.elster.jupiter.events.EventType> allEventTypes) {
