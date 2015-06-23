@@ -1,6 +1,7 @@
 package com.elster.jupiter.appserver;
 
 import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.fileimport.ImportSchedule;
 import com.elster.jupiter.util.cron.CronExpression;
 
 import java.nio.file.Path;
@@ -37,4 +38,5 @@ public interface AppService {
 
     Map<AppServer, Optional<Path>> getAllImportDirectories();
 
+    List<AppServer> getImportScheduleAppServers(Long importScheduleId);
 }

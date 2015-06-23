@@ -435,6 +435,17 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber {
                 .collect(Collectors.toMap(ImportFolderForAppServer::getAppServer, ImportFolderForAppServer::getImportFolder));
     }
 
+
+    @Override
+    public List<AppServer> getImportScheduleAppServers(Long importScheduleId) {
+        return dataModel.mapper(ImportScheduleOnAppServer.class)
+                .find("importScheduleId", importScheduleId )
+                .stream()
+                .filter(i->i.getImportSchedule().isPresent())
+                .map(ImportScheduleOnAppServer::getAppServer)
+                .collect(Collectors.toList());
+    }
+
     public DataModel getDataModel() {
         return dataModel;
     }
