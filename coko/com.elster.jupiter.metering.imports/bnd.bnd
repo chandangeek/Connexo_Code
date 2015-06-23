@@ -1,0 +1,6 @@
+-classpath: target/classes 
+-dsannotations: *
+Private-Package: com.elster.jupiter.metering.imports.impl
+Export-Package: com.elster.jupiter.metering.imports,\
+	com.elster.jupiter.metering.imports.security
+
