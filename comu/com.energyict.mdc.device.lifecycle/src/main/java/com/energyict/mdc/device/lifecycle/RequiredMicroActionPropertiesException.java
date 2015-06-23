@@ -4,6 +4,8 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.exception.MessageSeed;
 
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -33,6 +35,10 @@ public class RequiredMicroActionPropertiesException extends DeviceLifeCycleActio
     @Override
     public String getLocalizedMessage() {
         return this.thesaurus.getFormat(this.messageSeed).format(this.propertySpecNamesAsCommaSeparatedList());
+    }
+
+    public Set<String> getViolatedProperties(){
+        return Collections.unmodifiableSet(this.propertySpecNames);
     }
 
     private String propertySpecNamesAsCommaSeparatedList() {
