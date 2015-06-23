@@ -51,7 +51,6 @@ import static org.mockito.Mockito.when;
 public class DeviceLifeCycleIT extends PersistenceIntegrationTest {
 
     private static final String DEVICE_NAME = "deviceName";
-    public static final String APP_SERVER_NAME = "DLC-IT";
 
     @Before
     public void restoreDefaultLifeCycle() {
@@ -407,49 +406,6 @@ public class DeviceLifeCycleIT extends PersistenceIntegrationTest {
         assertThat(device.getLifecycleDates().getRetiredDate()).contains(decommissioningTime);
     }
 
-    /**
-     * Creates an additional FiniteStateMachine and DeviceLifeCycle
-     * with a matching State so that the DeviceType can be switched.
-     * Todo: Figure out with Kore team on how to setup the app server so that it correctly process the queue
-     */
-    @Test
-    @Transactional
-    @Ignore
-    public void changeDeviceLifeCycleWithSuccess() throws InterruptedException {
-        SubscriberSpec subscriberSpec = inMemoryPersistence.getService(MessageService.class)
-                .getSubscriberSpec("SwitchStateMachineEventDest", "SwitchStateMachineEventSubsc")
-                .get();
-        when(inMemoryPersistence.getBundleContext().getProperty(AppService.SERVER_NAME_PROPERTY_NAME)).thenReturn(APP_SERVER_NAME);
-        when(inMemoryPersistence.getClock().instant()).thenReturn(Instant.now());
-        AppService appService = inMemoryPersistence.getAppService();
-        MessageHandlerLauncherService launcherService = inMemoryPersistence.getService(MessageHandlerLauncherService.class);
-        launcherService.activate();
-        CountDownLatch latch = new CountDownLatch(1);
-        launcherService
-                .addResource(
-                    new LatchDrivenSwitchStateMachineEventHandlerFactory(latch),
-                    ImmutableMap.of("destination", "SwitchStateMachineEventDest", "subscriber", "SwitchStateMachineEventSubsc"));
-        AppServer appServer = appService.createAppServer(APP_SERVER_NAME, new DefaultCronExpressionParser().parse("0 0 * * * ? *").get());
-        appServer.createSubscriberExecutionSpec(subscriberSpec, 1);
-        appServer.activate();
-        AppServiceConsoleService consoleService = inMemoryPersistence.getService(AppServiceConsoleService.class);
-        consoleService.become(APP_SERVER_NAME);
-
-        DeviceLifeCycle clone = inMemoryPersistence.getDeviceLifeCycleConfigurationService().cloneDeviceLifeCycle(deviceType.getDeviceLifeCycle(), "Cloned");
-        Optional<State> clonedInStock = clone.getFiniteStateMachine().getState(DefaultState.IN_STOCK.getKey());
-        assertThat(clonedInStock).isPresent();
-        DeviceConfigurationService deviceConfigurationService = inMemoryPersistence.getDeviceConfigurationService();
-        Device device = this.createSimpleDevice("changeDeviceLifeCycleWithSuccess");
-
-        // Business method
-        deviceConfigurationService.changeDeviceLifeCycle(deviceType, clone);
-
-        // Asserts: need to reload the device because it was updated as part of the change of device life cycle
-        latch.await();
-        Device reloaded = inMemoryPersistence.getDeviceService().findDeviceById(device.getId()).get();
-        assertThat(reloaded.getState().getId()).isEqualTo(clonedInStock.get().getId());
-    }
-
     private void changeInitialState(DefaultState defaultState) {
         FiniteStateMachine stateMachine = deviceType.getDeviceLifeCycle().getFiniteStateMachine();
         Optional<State> state = stateMachine.getState(defaultState.getKey());
@@ -458,44 +414,6 @@ public class DeviceLifeCycleIT extends PersistenceIntegrationTest {
 
     private Device createSimpleDevice(String mRID) {
         return createSimpleDeviceWithName(DEVICE_NAME, mRID);
-    }
-
-    private class LatchDrivenSwitchStateMachineEventHandlerFactory implements MessageHandlerFactory {
-        private final CountDownLatch latch;
-        private final SwitchStateMachineEventHandlerFactory actualFactory;
-
-        private LatchDrivenSwitchStateMachineEventHandlerFactory(CountDownLatch latch) {
-            super();
-            this.latch = latch;
-            this.actualFactory = inMemoryPersistence.getService(SwitchStateMachineEventHandlerFactory.class);
-        }
-
-        @Override
-        public MessageHandler newMessageHandler() {
-            return new LatchDrivenMessageHandler(this.latch, this.actualFactory.newMessageHandler());
-        }
-    }
-
-    private class LatchDrivenMessageHandler implements MessageHandler {
-        private final CountDownLatch latch;
-        private final MessageHandler actualHandler;
-
-        private LatchDrivenMessageHandler(CountDownLatch latch, MessageHandler actualHandler) {
-            super();
-            this.latch = latch;
-            this.actualHandler = actualHandler;
-        }
-
-        @Override
-        public void process(Message message) {
-            this.actualHandler.process(message);
-            this.latch.countDown();
-        }
-
-        @Override
-        public void onMessageDelete(Message message) {
-            this.actualHandler.onMessageDelete(message);
-        }
     }
 
 }
