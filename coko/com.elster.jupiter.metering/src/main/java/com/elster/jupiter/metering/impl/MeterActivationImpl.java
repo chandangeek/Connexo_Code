@@ -287,6 +287,11 @@ public class MeterActivationImpl implements MeterActivation {
 	}
 
 	@Override
+	public List<Instant> toList(ReadingType readingType, Range<Instant> exportInterval) {
+		return Optional.ofNullable(getChannel(readingType)).map(channel -> channel.toList(exportInterval)).orElseGet(Collections::emptyList);
+	}
+
+	@Override
 	public void advanceStartDate(Instant startTime) {
 		if (!startTime.isBefore(getRange().lowerEndpoint())) {
 			throw new IllegalArgumentException("startDate must be before the current startdate");

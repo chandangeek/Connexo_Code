@@ -31,6 +31,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -193,5 +194,12 @@ public class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter
         return getCurrentMeterActivation()
                 .map(MeterActivation::getZoneId)
                 .orElse(ZoneId.systemDefault());
+    }
+
+    @Override
+    public List<Instant> toList(ReadingType readingType, Range<Instant> exportInterval) {
+        return getCurrentMeterActivation()
+                .map(meterActivation -> meterActivation.toList(readingType, exportInterval))
+                .orElseGet(Collections::emptyList);
     }
 }

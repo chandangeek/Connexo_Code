@@ -90,7 +90,15 @@ public class MeterActivationsImpl implements ReadingContainer {
 				.forEach(meterActivations::add);
 		return meterActivations;
 	}
-	
+
+	@Override
+	public List<Instant> toList(ReadingType readingType, Range<Instant> exportInterval) {
+		return meterActivations.stream()
+				.findFirst()
+				.map(meterActivation -> meterActivation.toList(readingType, exportInterval))
+				.orElseGet(Collections::emptyList);
+	}
+
 	public static MeterActivationsImpl from(List<MeterActivationImpl> candidates) {
 		MeterActivationsImpl meterActivations = new MeterActivationsImpl();
 		candidates.stream()

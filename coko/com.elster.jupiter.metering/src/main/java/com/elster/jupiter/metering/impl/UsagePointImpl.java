@@ -30,6 +30,7 @@ import javax.inject.Provider;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -274,8 +275,15 @@ public class UsagePointImpl implements UsagePoint {
 		adopt(result);
 		return result;
 	}
-    
-    public void adopt(MeterActivationImpl meterActivation) {
+
+	@Override
+	public List<Instant> toList(ReadingType readingType, Range<Instant> exportInterval) {
+		return getCurrentMeterActivation()
+				.map(meterActivation -> meterActivation.toList(readingType, exportInterval))
+				.orElseGet(Collections::emptyList);
+	}
+
+	public void adopt(MeterActivationImpl meterActivation) {
         meterActivations.stream()
                 .filter(activation -> activation.getId() != meterActivation.getId())
                 .reduce((m1, m2) -> m2)
