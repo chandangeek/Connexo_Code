@@ -37,7 +37,7 @@ public class RequiredMicroActionPropertiesException extends DeviceLifeCycleActio
         return this.thesaurus.getFormat(this.messageSeed).format(this.propertySpecNamesAsCommaSeparatedList());
     }
 
-    public Set<String> getViolatedProperties(){
+    public Set<String> getViolatedPropertySpecNames(){
         return Collections.unmodifiableSet(this.propertySpecNames);
     }
 

@@ -34,7 +34,7 @@ public class MultipleMicroCheckViolationsException extends DeviceLifeCycleAction
         return this.thesaurus.getFormat(this.messageSeed).format(this.violationMessagesAsCommaSeparatedList());
     }
 
-    public List<DeviceLifeCycleActionViolation> getViolatedChecks(){
+    public List<DeviceLifeCycleActionViolation> getViolations(){
         return Collections.unmodifiableList(this.violations);
     }
 
