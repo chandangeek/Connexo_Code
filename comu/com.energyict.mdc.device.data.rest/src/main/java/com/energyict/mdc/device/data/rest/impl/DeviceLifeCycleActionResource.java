@@ -29,6 +29,7 @@ import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -71,6 +72,7 @@ public class DeviceLifeCycleActionResource {
         List<IdWithNameInfo> availableActions = deviceLifeCycleService.getExecutableActions(device)
                 .stream()
                 .map(executableAction -> new IdWithNameInfo(executableAction.getAction()))
+                .sorted((a1, a2) -> a1.name.compareToIgnoreCase(a2.name))
                 .collect(Collectors.toList());
         return Response.ok(PagedInfoList.fromCompleteList("transitions", availableActions, queryParameters)).build();
     }
@@ -86,7 +88,7 @@ public class DeviceLifeCycleActionResource {
         return Response.ok(info).build();
     }
 
-    @POST
+    @PUT
     @Path("/{actionId}")
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.VIEW_DEVICE})
@@ -96,11 +98,12 @@ public class DeviceLifeCycleActionResource {
             @BeanParam JsonQueryParameters queryParameters,
             DeviceLifeCycleActionInfo info){
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
+        resourceHelper.findDeviceAndLock(device.getId(), info.deviceVersion);
         ExecutableAction requestedAction = getExecuteActionByIdOrThrowException(actionId, device);
         DeviceLifeCycleActionResultInfo wizardResult = new DeviceLifeCycleActionResultInfo();
         if (requestedAction.getAction() instanceof AuthorizedTransitionAction){
             if (info.properties != null){
-                Map<String, PropertySpec> allPropertySpecsForAction = ((AuthorizedTransitionAction) requestedAction).getActions()
+                Map<String, PropertySpec> allPropertySpecsForAction = ((AuthorizedTransitionAction) requestedAction.getAction()).getActions()
                         .stream()
                         .flatMap(microAction -> deviceLifeCycleService.getPropertySpecsFor(microAction).stream())
                         .collect(Collectors.toMap(propertySpec -> propertySpec.getName(), Function.<PropertySpec>identity(), (prop1, prop2) -> prop1));
@@ -109,10 +112,10 @@ public class DeviceLifeCycleActionResource {
                     requestedAction.execute(executableProperties);
                     wizardResult.message = getSuccessfulExecutionMessage((AuthorizedTransitionAction) requestedAction);
                 } catch (SecurityException ex){
-                    wizardResult.success = false;
+                    wizardResult.result = false;
                     wizardResult.message = ex.getLocalizedMessage();
                 } catch (ActionDoesNotRelateToDeviceStateException violationEx){
-                    wizardResult.success = false;
+                    wizardResult.result = false;
                     wizardResult.message = violationEx.getLocalizedMessage();
                 } catch (RequiredMicroActionPropertiesException violationEx){
                     wrapWithFormValidationErrorAndRethrow(violationEx);
@@ -126,7 +129,7 @@ public class DeviceLifeCycleActionResource {
 
     private void wrapWithFormValidationErrorAndRethrow(RequiredMicroActionPropertiesException violationEx) {
         RestValidationBuilder formValidationErrorBuilder = new RestValidationBuilder();
-        violationEx.getViolatedProperties()
+        violationEx.getViolatedPropertySpecNames()
                 .stream()
                 .forEach( propertyName ->
                     formValidationErrorBuilder.addValidationError(
@@ -145,9 +148,9 @@ public class DeviceLifeCycleActionResource {
     }
 
     private void getFailedExecutionMessage(MultipleMicroCheckViolationsException microChecksViolationEx, DeviceLifeCycleActionResultInfo wizardResult) {
-        wizardResult.success = false;
+        wizardResult.result = false;
         wizardResult.message = DefaultTranslationKey.PRE_TRANSITION_CHECKS_FAILED.translateWith(thesaurus);
-        wizardResult.microChecks = microChecksViolationEx.getViolatedChecks()
+        wizardResult.microChecks = microChecksViolationEx.getViolations()
                 .stream()
                 .map(violation -> {
                     IdWithNameInfo microCheckInfo = new IdWithNameInfo();
@@ -170,14 +173,18 @@ public class DeviceLifeCycleActionResource {
             PropertySpec propertySpec = allPropertySpecsForAction.get(property.key);
             if (propertySpec != null && property.propertyValueInfo != null){
                 try {
-                    executableProperties.add(deviceLifeCycleService.toExecutableActionProperty(property.propertyValueInfo.value, propertySpec));
+                    Object value = null;
+                    if (property.propertyValueInfo.value != null) {
+                        propertySpec.getValueFactory().fromStringValue(String.valueOf(property.propertyValueInfo.value));
+                    }
+                    executableProperties.add(deviceLifeCycleService.toExecutableActionProperty(value, propertySpec));
                 } catch (InvalidValueException e) {
                     // Enable form validation
                     String propertyName = propertySpec.getName();
                     if (e.getArguments() != null && e.getArguments().length > 0){
                         propertyName = (String) e.getArguments()[0]; // property name from exception
                     }
-                    throw new FieldValidationException(propertyName, e.getDefaultPattern());
+                    throw new LocalizedFieldValidationException(MessageSeeds.THIS_FIELD_IS_REQUIRED, propertyName);
                 }
             }
         }

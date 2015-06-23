@@ -32,6 +32,7 @@ public class DeviceLifeCycleActionInfoFactory {
 
     public DeviceLifeCycleActionInfo from(ExecutableAction executableAction){
         DeviceLifeCycleActionInfo info = new DeviceLifeCycleActionInfo();
+        info.deviceVersion = executableAction.getDevice().getVersion();
         if (executableAction != null && executableAction.getAction() instanceof AuthorizedTransitionAction){
             info.id = executableAction.getAction().getId();
             info.name = executableAction.getAction().getName();

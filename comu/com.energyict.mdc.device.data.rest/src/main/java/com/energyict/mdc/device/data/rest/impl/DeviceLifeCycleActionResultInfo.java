@@ -5,7 +5,7 @@ import com.energyict.mdc.common.rest.IdWithNameInfo;
 import java.util.List;
 
 public class DeviceLifeCycleActionResultInfo {
-    public boolean success = true; // default = true
+    public boolean result = true; // default = true, don't change to 'success'!
     public String message;
     public List<IdWithNameInfo> microChecks;
 

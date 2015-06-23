@@ -8,6 +8,7 @@ public class DeviceLifeCycleActionInfo {
     public long id;
     public String name;
     public List<PropertyInfo> properties;
+    public long deviceVersion;
 
     public DeviceLifeCycleActionInfo() {
     }
