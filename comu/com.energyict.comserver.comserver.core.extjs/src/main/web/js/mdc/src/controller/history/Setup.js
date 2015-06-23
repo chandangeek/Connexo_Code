@@ -993,6 +993,12 @@ Ext.define('Mdc.controller.history.Setup', {
                             controller: 'Mdc.controller.setup.DeviceHistory',
                             action: 'showDeviceHistory'
                         },
+                        transitions: {
+                            title: Uni.I18n.translate('', 'MDC', 'Transition'),
+                            route: 'transitions/{transitionId}',
+                            controller: 'Mdc.controller.setup.DeviceTransitionExecute',
+                            action: 'showExecuteTransition'
+                        },
                         commands: {
                             title: 'Commands',
                             route: 'commands',

@@ -53,7 +53,7 @@ Ext.define('Mdc.view.setup.device.DeviceOpenIssuesPanel', {
         me.down('#dataValidationIssuesContainer').add(
             {
                 xtype: 'button',
-                text: Uni.I18n.translatePlural('deviceOpenIssues.dataValidationIssuesOnMeter', +device.get('nbrOfDataValidationIssues'), 'MDC', '{0} data validation issues'),
+//                text: Uni.I18n.translatePlural('deviceOpenIssues.dataValidationIssuesOnMeter', + device.get('nbrOfDataValidationIssues'), 'MDC', '{0} data validation issues'),
                 ui: 'link',
                 href: typeof me.router.getRoute('workspace/datavalidationissues') !== 'undefined'
                     ? me.router.getRoute('workspace/datavalidationissues').buildUrl(null, assignedFilter) : null
