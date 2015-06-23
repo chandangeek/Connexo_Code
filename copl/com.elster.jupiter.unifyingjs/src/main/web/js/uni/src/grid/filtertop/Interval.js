@@ -80,7 +80,7 @@ Ext.define('Uni.grid.filtertop.Interval', {
                                     {
                                         xtype: 'numberfield',
                                         itemId: 'fromHour',
-                                        value: me.defaultFromDate.getHours(),
+                                        value: me.defaultFromDate?me.defaultFromDate.getHours():undefined,
                                         minValue: 0,
                                         maxValue: 23,
                                         editable: false,
@@ -103,7 +103,7 @@ Ext.define('Uni.grid.filtertop.Interval', {
                                     {
                                         xtype: 'numberfield',
                                         itemId: 'fromMinute',
-                                        value: me.defaultFromDate.getMinutes(),
+                                        value: me.defaultFromDate?me.defaultFromDate.getMinutes():undefined,
                                         minValue: 0,
                                         maxValue: 59,
                                         editable: false,
@@ -164,7 +164,7 @@ Ext.define('Uni.grid.filtertop.Interval', {
                                     {
                                         xtype: 'numberfield',
                                         itemId: 'toHour',
-                                        value: me.defaultToDate.getHours(),
+                                        value: me.defaultToDate?me.defaultToDate.getHours():undefined,
                                         minValue: 0,
                                         maxValue: 23,
                                         editable: false,
@@ -187,7 +187,7 @@ Ext.define('Uni.grid.filtertop.Interval', {
                                     {
                                         xtype: 'numberfield',
                                         itemId: 'toMinute',
-                                        value: me.defaultToDate.getMinutes(),
+                                        value: me.defaultToDate?me.defaultToDate.getMinutes():undefined,
                                         minValue: 0,
                                         maxValue: 59,
                                         editable: false,
