@@ -361,6 +361,7 @@ Ext.define('Uni.grid.FilterPanelTop', {
             params = me.getFilterParams(true, true),
             href = Uni.util.QueryString.buildHrefWithQueryString(params, false);
         if (location.href !== href) {
+            Uni.util.History.setParsePath(false);
             Uni.util.History.suspendEventsForNextCall();
             location.href = href;
         }

@@ -87,7 +87,7 @@ Ext.define('Uni.controller.history.EventBus', {
                 pathChanged = true;
             }
         }
-        if (pathChanged) {
+        if (Uni.util.History.isParsePath() || pathChanged) {
             crossroads.parse(token);
             this.setPreviousQueryString(null);
         } else if (queryStringChanged) {
@@ -96,6 +96,9 @@ Ext.define('Uni.controller.history.EventBus', {
 
         if (Uni.util.History.isSuspended()) {
             Uni.util.History.setSuspended(false);
+        }
+        if (!Uni.util.History.isParsePath()) {
+            Uni.util.History.setParsePath(true);
         }
     }
 });

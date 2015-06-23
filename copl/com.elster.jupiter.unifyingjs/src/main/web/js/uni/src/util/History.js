@@ -11,7 +11,8 @@ Ext.define('Uni.util.History', {
     ],
 
     config: {
-        suspended: false
+        suspended: false,
+        parsePath: true
     },
 
     suspendEventsForNextCall: function () {
@@ -26,6 +27,14 @@ Ext.define('Uni.util.History', {
 
     setSuspended: function(suspend) {
         this.suspended = suspend;
+    },
+
+    isParsePath: function(){
+        return this.parsePath;
+    },
+
+    setParsePath: function(doParse){
+        this.parsePath = doParse;
     },
 
     getRouterController: function () {

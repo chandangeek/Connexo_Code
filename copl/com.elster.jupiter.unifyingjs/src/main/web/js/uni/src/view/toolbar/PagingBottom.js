@@ -195,6 +195,7 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
 
     updateHrefIfNecessary: function (href) {
         if (this.updatePagingParams && location.href !== href) {
+            Uni.util.History.setParsePath(false);
             Uni.util.History.suspendEventsForNextCall();
             location.href = href;
         }
