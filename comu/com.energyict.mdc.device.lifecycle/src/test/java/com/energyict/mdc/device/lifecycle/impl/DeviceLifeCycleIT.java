@@ -1,37 +1,22 @@
 package com.energyict.mdc.device.lifecycle.impl;
 
-import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.ExecutableAction;
 import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
-import com.energyict.mdc.device.lifecycle.config.DefaultState;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DefaultCustomStateTransitionEventType;
+import com.energyict.mdc.device.lifecycle.config.DefaultState;
 
-import com.elster.jupiter.appserver.AppServer;
-import com.elster.jupiter.appserver.AppService;
-import com.elster.jupiter.appserver.impl.AppServiceConsoleService;
-import com.elster.jupiter.appserver.impl.MessageHandlerLauncherService;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.fsm.CustomStateTransitionEventType;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.State;
-import com.elster.jupiter.messaging.Message;
-import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.messaging.SubscriberSpec;
-import com.elster.jupiter.messaging.subscriber.MessageHandler;
-import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
-import com.elster.jupiter.metering.impl.SwitchStateMachineEventHandlerFactory;
 import com.elster.jupiter.properties.InstantFactory;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.util.cron.impl.DefaultCronExpressionParser;
-import com.google.common.collect.ImmutableMap;
 
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Optional;
-import java.util.concurrent.CountDownLatch;
 
 import org.junit.*;
 
