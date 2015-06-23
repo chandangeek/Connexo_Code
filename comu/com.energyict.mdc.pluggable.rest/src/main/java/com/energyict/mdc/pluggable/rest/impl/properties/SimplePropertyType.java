@@ -3,6 +3,7 @@ package com.energyict.mdc.pluggable.rest.impl.properties;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.BooleanFactory;
+import com.elster.jupiter.properties.InstantFactory;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.ThreeStateFactory;
 import com.elster.jupiter.properties.ValueFactory;
@@ -50,7 +51,9 @@ public enum SimplePropertyType implements PropertyType {
     LOGBOOK(JupiterReferenceFactory.class, LogBook.class),
     REGISTER(JupiterReferenceFactory.class, Register.class),
     TEXT(StringFactory.class),
-    FIRMWAREVERSION(JupiterReferenceFactory.class, FirmwareVersion.class);
+    FIRMWAREVERSION(JupiterReferenceFactory.class, FirmwareVersion.class),
+    TIMESTAMP(InstantFactory.class),
+    ;
 
     private Class valueFactoryClass;
     private Class domainClass;
