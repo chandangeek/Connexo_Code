@@ -2,12 +2,7 @@ package com.elster.jupiter.gogo;
 
 import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.TimeAttribute;
-import com.elster.jupiter.metering.AmrSystem;
-import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.*;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.readings.ProfileStatus;
@@ -24,18 +19,10 @@ import org.osgi.service.component.annotations.Reference;
 
 import java.math.BigDecimal;
 import java.security.Principal;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.time.format.DateTimeParseException;
+import java.util.*;
 
 /**
  * Copyrights EnergyICT
@@ -46,6 +33,7 @@ import java.util.Set;
         property = {"osgi.command.scope=metering",
                 "osgi.command.function=createMeter",
                 "osgi.command.function=createActivation",
+                "osgi.command.function=createUsagePoint",
                 "osgi.command.function=listReadingTypes",
                 "osgi.command.function=storeRegisterData",
                 "osgi.command.function=storeIntervalData",
@@ -58,6 +46,7 @@ public class MeteringCommands {
     private volatile MeteringService meteringService;
     private volatile TransactionService transactionService;
     private volatile ThreadPrincipalService threadPrincipalService;
+    private volatile Clock clock;
     private static DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private static DateTimeFormatter dateTimeFormat = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
 
@@ -76,6 +65,11 @@ public class MeteringCommands {
         this.threadPrincipalService = threadPrincipalService;
     }
 
+    @Reference
+    public void setClock(Clock clock){
+        this.clock = clock;
+    }
+
     public void createMeter(final String amrId, final String mrId) {
         Meter meter = executeTransaction(new Transaction<Meter>() {
             @Override
@@ -88,6 +82,54 @@ public class MeteringCommands {
         });
         System.out.println("meter = " + meter);
         System.out.println(" id = " + meter.getId());
+    }
+
+    public void createUsagePoint(String mrid, String startDate) {
+        Optional<UsagePoint> usagePoint = executeTransaction(new Transaction<Optional<UsagePoint>>() {
+            @Override
+            public Optional<UsagePoint> perform() {
+                Optional<Meter> meter = meteringService.findMeter(mrid);
+                final Instant activationDate = parseEffectiveTimestamp(startDate);
+                if(!meter.isPresent()){
+                    System.out.println("No meter found with mrid : " + mrid);
+                    return Optional.empty();
+                }
+                Optional<ServiceCategory> serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY);
+                if (serviceCategory.isPresent()) {
+                    UsagePoint newUsagePoint = serviceCategory.get().newUsagePoint(mrid);
+                    MeterActivation meterActivation = newUsagePoint.activate(activationDate);
+                    newUsagePoint.save();
+                    meterActivation.setMeter(meter.get());
+                    return Optional.of(newUsagePoint);
+                } else {
+                    System.out.println("No servicecategory found for ELECTRICITY, this should not happen ...");
+                    return Optional.empty();
+                }
+            }
+        });
+        if(usagePoint.isPresent()){
+            System.out.println("New UsagePoint created with mrid : " + usagePoint.get().getMRID());
+        } else {
+            System.out.println("No UsagePoint created for " + mrid);
+        }
+    }
+
+    private Instant parseEffectiveTimestamp(String effectiveTimestamp) {
+        try {
+            if (effectiveTimestamp == null) {
+                return this.clock.instant();
+            }
+            else {
+                return LocalDate
+                        .from(DateTimeFormatter.ISO_LOCAL_DATE.parse(effectiveTimestamp))
+                        .atStartOfDay(ZoneId.systemDefault())
+                        .toInstant();
+            }
+        }
+        catch (DateTimeParseException e) {
+            System.out.println("Please respect the following format for the effective timestamp: " + DateTimeFormatter.ISO_LOCAL_DATE.toFormat().toString());
+            throw e;
+        }
     }
 
     public void createActivation(long id, String date, final String... readingTypes) {
@@ -198,11 +240,11 @@ public class MeteringCommands {
         }
     }
 
-    public void storeCumulativeIntervalData(String mRID, String readingType, String startDateTime, int numberOfInterval, double startValue,  double minValue, double maxValue) {
+    public void storeCumulativeIntervalData(String mRID, String readingType, String startDateTime, int numberOfInterval, double startValue, double minValue, double maxValue) {
         storeCumulativeIntervalData(mRID, readingType, startDateTime, numberOfInterval, startValue, minValue, maxValue, null);
     }
 
-    public void storeCumulativeIntervalData(String mRID, String readingType, String startDateTime, int numberOfInterval, double startValue,  double minValue, double maxValue, String intervalFlagCimCode) {
+    public void storeCumulativeIntervalData(String mRID, String readingType, String startDateTime, int numberOfInterval, double startValue, double minValue, double maxValue, String intervalFlagCimCode) {
         final Optional<Meter> endDevice = meteringService.findMeter(mRID);
         if (endDevice.isPresent()) {
             try {
@@ -230,7 +272,7 @@ public class MeteringCommands {
                                 endDevice.get().store(meterReading);
                             }
                         });
-                    } catch (Exception e){
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
 
