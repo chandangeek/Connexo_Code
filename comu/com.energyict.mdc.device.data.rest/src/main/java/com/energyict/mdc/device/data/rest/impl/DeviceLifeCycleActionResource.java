@@ -126,7 +126,7 @@ public class DeviceLifeCycleActionResource {
 
     private void wrapWithFormValidationErrorAndRethrow(RequiredMicroActionPropertiesException violationEx) {
         RestValidationBuilder formValidationErrorBuilder = new RestValidationBuilder();
-        violationEx.getViolatedProperties()
+        violationEx.getViolatedPropertySpecNames()
                 .stream()
                 .forEach( propertyName ->
                     formValidationErrorBuilder.addValidationError(
@@ -147,7 +147,7 @@ public class DeviceLifeCycleActionResource {
     private void getFailedExecutionMessage(MultipleMicroCheckViolationsException microChecksViolationEx, DeviceLifeCycleActionResultInfo wizardResult) {
         wizardResult.success = false;
         wizardResult.message = DefaultTranslationKey.PRE_TRANSITION_CHECKS_FAILED.translateWith(thesaurus);
-        wizardResult.microChecks = microChecksViolationEx.getViolatedChecks()
+        wizardResult.microChecks = microChecksViolationEx.getViolations()
                 .stream()
                 .map(violation -> {
                     IdWithNameInfo microCheckInfo = new IdWithNameInfo();
