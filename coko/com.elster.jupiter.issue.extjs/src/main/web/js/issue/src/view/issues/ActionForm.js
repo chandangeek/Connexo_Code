@@ -23,7 +23,9 @@ Ext.define('Isu.view.issues.ActionForm', {
                 itemId: 'property-form',
                 xtype: 'property-form',
                 defaults: {
-                    labelWidth: me.defaults.labelWidth
+                    labelWidth: me.defaults.labelWidth,
+                    width: 320,
+                    resetButtonHidden: true
                 }
             },
             {
