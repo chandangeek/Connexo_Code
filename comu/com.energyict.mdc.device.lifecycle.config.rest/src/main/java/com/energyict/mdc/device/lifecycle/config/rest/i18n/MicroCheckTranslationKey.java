@@ -5,6 +5,9 @@ import com.energyict.mdc.device.lifecycle.config.rest.info.MicroActionAndCheckIn
 
 import com.elster.jupiter.nls.TranslationKey;
 
+import java.util.Arrays;
+import java.util.Optional;
+
 /**
  * Contains translation keys for the {@link com.energyict.mdc.device.lifecycle.config.MicroCheck}s.
  *
@@ -49,6 +52,23 @@ public enum MicroCheckTranslationKey implements TranslationKey {
     @Override
     public String getDefaultFormat() {
         return defaultFormat;
+    }
+
+    public static Optional<MicroCheckTranslationKey> getNameTranslation(MicroCheck microCheck){
+        return getTranslation(microCheck, Keys.MICRO_CHECK_NAME_TRANSLATE_KEY);
+    }
+
+    public static Optional<MicroCheckTranslationKey> getDescriptionTranslation(MicroCheck microCheck){
+        return getTranslation(microCheck, Keys.MICRO_CHECK_DESCRIPTION_TRANSLATE_KEY);
+    }
+
+    private static Optional<MicroCheckTranslationKey> getTranslation(MicroCheck microCheck, String prefix) {
+        if (microCheck != null){
+            return Arrays.stream(MicroCheckTranslationKey.values())
+                    .filter(candidate -> candidate.key.equals(prefix + microCheck.name()))
+                    .findFirst();
+        }
+        return Optional.empty();
     }
 
     public static class Keys {
