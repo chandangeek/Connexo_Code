@@ -85,9 +85,9 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
                             dataStore = me.getStore(type.charAt(0).toUpperCase() + type.substring(1) + 'RegisterData');
 
                         if ((type === 'billing' || type === 'numerical') && !router.queryParams.interval) {
-                            var intervalStart = (new Date()).setHours(0, 0, 0, 0);
+                            var intervalStart = moment().startOf('day').subtract(1,'years').valueOf();
                             router.getRoute().forward(null, Ext.apply(router.queryParams, {
-                                interval: intervalStart + '-' + moment(intervalStart).add('years', 1).valueOf()
+                                interval: intervalStart + '-' + moment().startOf('day').valueOf()
                             }));
                         } else {
                             var widget = Ext.widget('tabbedDeviceRegisterView', {
