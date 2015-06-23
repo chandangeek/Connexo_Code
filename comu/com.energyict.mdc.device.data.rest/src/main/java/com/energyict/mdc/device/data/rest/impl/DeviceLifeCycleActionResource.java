@@ -110,7 +110,7 @@ public class DeviceLifeCycleActionResource {
                 List<ExecutableActionProperty> executableProperties = getExecutableActionPropertiesFromInfo(info, allPropertySpecsForAction);
                 try {
                     requestedAction.execute(executableProperties);
-                    wizardResult.message = getSuccessfulExecutionMessage((AuthorizedTransitionAction) requestedAction);
+                    wizardResult.message = getSuccessfulExecutionMessage((AuthorizedTransitionAction) requestedAction.getAction());
                 } catch (SecurityException ex){
                     wizardResult.result = false;
                     wizardResult.message = ex.getLocalizedMessage();
