@@ -1,5 +1,6 @@
 package com.energyict.mdc.protocol.inbound.g3;
 
+import com.energyict.cbo.HexString;
 import com.energyict.cbo.TimePeriod;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.TypedProperties;
@@ -183,9 +184,9 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
 
                     final TypedProperties deviceProtocolProperties = context.getInboundDAO().getDeviceProtocolProperties(new DialHomeIdDeviceIdentifier(macAddress));
                     if (deviceProtocolProperties != null) {
-                        final String psk = deviceProtocolProperties.<String>getTypedProperty(G3Properties.PSK);
-                        if (psk != null && psk.length() > 0) {
-                            final OctetString pskOctetString = parsePSK(psk);
+                        final HexString psk = deviceProtocolProperties.<HexString>getTypedProperty(G3Properties.PSK);
+                        if (psk != null && psk.getContent() != null && psk.getContent().length() > 0) {
+                            final OctetString pskOctetString = parsePSK(psk.getContent());
                             if (pskOctetString != null) {
                                 Structure macAndKeyPair = new Structure();
                                 macAndKeyPair.addDataType(macAddressOctetString);
