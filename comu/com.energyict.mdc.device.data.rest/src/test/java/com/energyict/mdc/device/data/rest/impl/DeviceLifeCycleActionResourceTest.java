@@ -1,33 +1,42 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.properties.InstantFactory;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.StringFactory;
-import com.energyict.mdc.device.config.DeviceType;
+import com.elster.jupiter.rest.util.properties.PropertyInfo;
+import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.lifecycle.ActionDoesNotRelateToDeviceStateException;
+import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolation;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.ExecutableAction;
+import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
+import com.energyict.mdc.device.lifecycle.MultipleMicroCheckViolationsException;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.lifecycle.config.MicroCheck;
-import com.energyict.mdc.device.lifecycle.config.rest.impl.i18n.DefaultLifeCycleTranslationKey;
-import com.energyict.mdc.device.lifecycle.impl.micro.actions.EnableValidation;
+import com.energyict.mdc.device.lifecycle.impl.MessageSeeds;
+import com.energyict.mdc.device.lifecycle.impl.micro.checks.DeviceLifeCycleActionViolationImpl;
 import com.jayway.jsonpath.JsonModel;
 import org.junit.Test;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
+import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -37,6 +46,9 @@ public class DeviceLifeCycleActionResourceTest extends DeviceDataRestApplication
     @Mock
     Device device;
 
+    @Mock
+    State state;
+
     @Override
     public void setUp() throws Exception {
         super.setUp();
@@ -44,6 +56,7 @@ public class DeviceLifeCycleActionResourceTest extends DeviceDataRestApplication
         when(device.getmRID()).thenReturn(MAIN_DEVICE_MRID);
         when(device.getId()).thenReturn(1L);
         when(device.getVersion()).thenReturn(1L);
+        when(state.getName()).thenReturn("Target state");
     }
 
     protected List<PropertySpec> mockLastCheckedPropertySpec() {
@@ -112,5 +125,160 @@ public class DeviceLifeCycleActionResourceTest extends DeviceDataRestApplication
 
         Response response = target("/devices/" + MAIN_DEVICE_MRID + "/transitions/1").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
+    }
+
+    @Test
+    public void testExecuteAndThrowSecurityException() throws Exception{
+        when(deviceService.findAndLockDeviceByIdAndVersion(1L, 1L)).thenReturn(Optional.of(device));
+        AuthorizedTransitionAction action = mock(AuthorizedTransitionAction.class);
+        when(action.getId()).thenReturn(1L);
+        when(action.getName()).thenReturn("Transition name 1");
+        when(action.getActions()).thenReturn(new HashSet<MicroAction>(Arrays.asList(MicroAction.values())));
+        when(action.getChecks()).thenReturn(new HashSet<MicroCheck>(Arrays.asList(MicroCheck.values())));
+        StateTransition transition = mock(StateTransition.class);
+        when(transition.getTo()).thenReturn(state);
+        when(action.getStateTransition()).thenReturn(transition);
+        List<ExecutableAction> executableActions = Arrays.asList(mockExecutableAction(device, action));
+        when(deviceLifeCycleService.getExecutableActions(device)).thenReturn(executableActions);
+        List<PropertySpec> propertySpecs = mockLastCheckedPropertySpec();
+        when(deviceLifeCycleService.getPropertySpecsFor(MicroAction.ENABLE_VALIDATION)).thenReturn(propertySpecs);
+        ExecutableActionProperty actionProperty = mock(ExecutableActionProperty.class);
+        doReturn(actionProperty).when(deviceLifeCycleService).toExecutableActionProperty(Matchers.any(Object.class), Matchers.eq(propertySpecs.get(0)));
+        doThrow(new SecurityException("Security exception")).when(executableActions.get(0)).execute(Matchers.anyList());
+
+        DeviceLifeCycleActionInfo info = new DeviceLifeCycleActionInfo();
+        info.id = 1L;
+        info.deviceVersion = 1L;
+        info.properties = new ArrayList<>();
+        PropertyInfo property = new PropertyInfo();
+        info.properties.add(property);
+        property.key = propertySpecs.get(0).getName();
+        property.propertyValueInfo = new PropertyValueInfo<Long>(Instant.now().toEpochMilli(), null);
+
+        Response response = target("/devices/" + MAIN_DEVICE_MRID + "/transitions/1").request().put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        assertThat(response.getEntity()).isNotNull();
+        DeviceLifeCycleActionResultInfo wizardResult = response.readEntity(DeviceLifeCycleActionResultInfo.class);
+        assertThat(wizardResult.message).isEqualTo("Security exception");
+        assertThat(wizardResult.targetState).isEqualTo("Target state");
+        assertThat(wizardResult.result).isFalse();
+    }
+
+    @Test
+    public void testExecuteAndWrongState() throws Exception{
+        when(deviceService.findAndLockDeviceByIdAndVersion(1L, 1L)).thenReturn(Optional.of(device));
+        AuthorizedTransitionAction action = mock(AuthorizedTransitionAction.class);
+        when(action.getId()).thenReturn(1L);
+        when(action.getName()).thenReturn("Transition name 1");
+        when(action.getActions()).thenReturn(new HashSet<MicroAction>(Arrays.asList(MicroAction.values())));
+        when(action.getChecks()).thenReturn(new HashSet<MicroCheck>(Arrays.asList(MicroCheck.values())));
+        StateTransition transition = mock(StateTransition.class);
+        when(transition.getTo()).thenReturn(state);
+        when(action.getStateTransition()).thenReturn(transition);
+        List<ExecutableAction> executableActions = Arrays.asList(mockExecutableAction(device, action));
+        when(deviceLifeCycleService.getExecutableActions(device)).thenReturn(executableActions);
+        List<PropertySpec> propertySpecs = mockLastCheckedPropertySpec();
+        when(deviceLifeCycleService.getPropertySpecsFor(MicroAction.ENABLE_VALIDATION)).thenReturn(propertySpecs);
+        ExecutableActionProperty actionProperty = mock(ExecutableActionProperty.class);
+        doReturn(actionProperty).when(deviceLifeCycleService).toExecutableActionProperty(Matchers.any(Object.class), Matchers.eq(propertySpecs.get(0)));
+
+        com.energyict.mdc.device.lifecycle.impl.MessageSeeds errorMessageSeeds = MessageSeeds.TRANSITION_ACTION_SOURCE_IS_NOT_CURRENT_STATE;
+        ActionDoesNotRelateToDeviceStateException exception = new ActionDoesNotRelateToDeviceStateException(action, device, thesaurus, errorMessageSeeds);
+        doThrow(exception).when(executableActions.get(0)).execute(Matchers.anyList());
+
+        DeviceLifeCycleActionInfo info = new DeviceLifeCycleActionInfo();
+        info.id = 1L;
+        info.deviceVersion = 1L;
+        info.properties = new ArrayList<>();
+        PropertyInfo property = new PropertyInfo();
+        info.properties.add(property);
+        property.key = propertySpecs.get(0).getName();
+        property.propertyValueInfo = new PropertyValueInfo<Long>(Instant.now().toEpochMilli(), null);
+
+        Response response = target("/devices/" + MAIN_DEVICE_MRID + "/transitions/1").request().put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        assertThat(response.getEntity()).isNotNull();
+        DeviceLifeCycleActionResultInfo wizardResult = response.readEntity(DeviceLifeCycleActionResultInfo.class);
+        assertThat(wizardResult.message).isNotEmpty();
+        assertThat(wizardResult.targetState).isEqualTo("Target state");
+        assertThat(wizardResult.result).isFalse();
+    }
+
+    @Test
+    public void testExecuteAndCheckFailed() throws Exception{
+        when(deviceService.findAndLockDeviceByIdAndVersion(1L, 1L)).thenReturn(Optional.of(device));
+        AuthorizedTransitionAction action = mock(AuthorizedTransitionAction.class);
+        when(action.getId()).thenReturn(1L);
+        when(action.getName()).thenReturn("Transition name 1");
+        when(action.getActions()).thenReturn(new HashSet<MicroAction>(Arrays.asList(MicroAction.values())));
+        when(action.getChecks()).thenReturn(new HashSet<MicroCheck>(Arrays.asList(MicroCheck.values())));
+        StateTransition transition = mock(StateTransition.class);
+        when(transition.getTo()).thenReturn(state);
+        when(action.getStateTransition()).thenReturn(transition);
+        List<ExecutableAction> executableActions = Arrays.asList(mockExecutableAction(device, action));
+        when(deviceLifeCycleService.getExecutableActions(device)).thenReturn(executableActions);
+        List<PropertySpec> propertySpecs = mockLastCheckedPropertySpec();
+        when(deviceLifeCycleService.getPropertySpecsFor(MicroAction.ENABLE_VALIDATION)).thenReturn(propertySpecs);
+        ExecutableActionProperty actionProperty = mock(ExecutableActionProperty.class);
+        doReturn(actionProperty).when(deviceLifeCycleService).toExecutableActionProperty(Matchers.any(Object.class), Matchers.eq(propertySpecs.get(0)));
+
+        DeviceLifeCycleActionViolation violation = new DeviceLifeCycleActionViolationImpl(thesaurus,
+                com.energyict.mdc.device.lifecycle.impl.MessageSeeds.ALL_DATA_VALID, MicroCheck.ALL_DATA_VALIDATED);
+        MultipleMicroCheckViolationsException exception = new MultipleMicroCheckViolationsException(thesaurus,
+                com.energyict.mdc.device.lifecycle.impl.MessageSeeds.MULTIPLE_MICRO_CHECKS_FAILED, Collections.singletonList(violation));
+        doThrow(exception).when(executableActions.get(0)).execute(Matchers.anyList());
+
+        DeviceLifeCycleActionInfo info = new DeviceLifeCycleActionInfo();
+        info.id = 1L;
+        info.deviceVersion = 1L;
+        info.properties = new ArrayList<>();
+        PropertyInfo property = new PropertyInfo();
+        info.properties.add(property);
+        property.key = propertySpecs.get(0).getName();
+        property.propertyValueInfo = new PropertyValueInfo<Long>(Instant.now().toEpochMilli(), null);
+
+        Response response = target("/devices/" + MAIN_DEVICE_MRID + "/transitions/1").request().put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        assertThat(response.getEntity()).isNotNull();
+        DeviceLifeCycleActionResultInfo wizardResult = response.readEntity(DeviceLifeCycleActionResultInfo.class);
+        assertThat(wizardResult.message).isNotEmpty();
+        assertThat(wizardResult.targetState).isEqualTo("Target state");
+        assertThat(wizardResult.result).isFalse();
+    }
+
+    @Test
+    public void testExecuteSuccessful() throws Exception{
+        when(deviceService.findAndLockDeviceByIdAndVersion(1L, 1L)).thenReturn(Optional.of(device));
+        AuthorizedTransitionAction action = mock(AuthorizedTransitionAction.class);
+        when(action.getId()).thenReturn(1L);
+        when(action.getName()).thenReturn("Transition name 1");
+        when(action.getActions()).thenReturn(new HashSet<MicroAction>(Arrays.asList(MicroAction.values())));
+        when(action.getChecks()).thenReturn(new HashSet<MicroCheck>(Arrays.asList(MicroCheck.values())));
+        StateTransition transition = mock(StateTransition.class);
+        when(transition.getTo()).thenReturn(state);
+        when(action.getStateTransition()).thenReturn(transition);
+        List<ExecutableAction> executableActions = Arrays.asList(mockExecutableAction(device, action));
+        when(deviceLifeCycleService.getExecutableActions(device)).thenReturn(executableActions);
+        List<PropertySpec> propertySpecs = mockLastCheckedPropertySpec();
+        when(deviceLifeCycleService.getPropertySpecsFor(MicroAction.ENABLE_VALIDATION)).thenReturn(propertySpecs);
+        ExecutableActionProperty actionProperty = mock(ExecutableActionProperty.class);
+        doReturn(actionProperty).when(deviceLifeCycleService).toExecutableActionProperty(Matchers.any(Object.class), Matchers.eq(propertySpecs.get(0)));
+
+        DeviceLifeCycleActionInfo info = new DeviceLifeCycleActionInfo();
+        info.id = 1L;
+        info.deviceVersion = 1L;
+        info.properties = new ArrayList<>();
+        PropertyInfo property = new PropertyInfo();
+        info.properties.add(property);
+        property.key = propertySpecs.get(0).getName();
+        property.propertyValueInfo = new PropertyValueInfo<Long>(Instant.now().toEpochMilli(), null);
+
+        Response response = target("/devices/" + MAIN_DEVICE_MRID + "/transitions/1").request().put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        assertThat(response.getEntity()).isNotNull();
+        DeviceLifeCycleActionResultInfo wizardResult = response.readEntity(DeviceLifeCycleActionResultInfo.class);
+        assertThat(wizardResult.message).isNull();
+        assertThat(wizardResult.targetState).isEqualTo("Target state");
+        assertThat(wizardResult.result).isTrue();
     }
 }

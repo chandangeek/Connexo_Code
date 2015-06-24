@@ -7,7 +7,6 @@ import java.text.MessageFormat;
 import java.util.Objects;
 
 public enum DefaultTranslationKey implements TranslationKey {
-    DEVICE_LIFE_CYCLE_STATE_SUCCESSFUL_CHANGED("DeviceLifeCycleStateSuccessfulChanged" , "Successfully changed device state to '{0}'"),
     PRE_TRANSITION_CHECKS_FAILED("PreTransitionChecksFailed" , "Pretransition checks failed"),
     ;
 

@@ -60,7 +60,7 @@ public class DeviceScheduleResource {
         Optional<ComTask> comTask = taskService.findComTask(comTaskId);
         comTask.ifPresent(comTask1 -> {
             if(comTask1.isSystemComTask()){
-                throw exceptionFactory.newException(MessageSeeds.CAN_NOT_PERFOMR_ACTION_ON_SYSTEM_COMTASK);
+                throw exceptionFactory.newException(MessageSeeds.CAN_NOT_PERFORM_ACTION_ON_SYSTEM_COMTASK);
             }
         });
     }

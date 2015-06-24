@@ -377,7 +377,7 @@ public class DeviceScheduleResourceTest extends DeviceDataRestApplicationJerseyT
         Response response = target("/devices/1/schedules").request().post(Entity.json(schedulingInfo));
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
         JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
-        assertThat(jsonModel.<String>get("$.error")).isEqualTo(MessageSeeds.CAN_NOT_PERFOMR_ACTION_ON_SYSTEM_COMTASK.getKey());
+        assertThat(jsonModel.<String>get("$.error")).isEqualTo(MessageSeeds.CAN_NOT_PERFORM_ACTION_ON_SYSTEM_COMTASK.getKey());
     }
 
     @Test
@@ -387,7 +387,7 @@ public class DeviceScheduleResourceTest extends DeviceDataRestApplicationJerseyT
         Response response = target("/devices/1/schedules").request().put(Entity.json(schedulingInfo));
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
         JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
-        assertThat(jsonModel.<String>get("$.error")).isEqualTo(MessageSeeds.CAN_NOT_PERFOMR_ACTION_ON_SYSTEM_COMTASK.getKey());
+        assertThat(jsonModel.<String>get("$.error")).isEqualTo(MessageSeeds.CAN_NOT_PERFORM_ACTION_ON_SYSTEM_COMTASK.getKey());
     }
 
     @Test
@@ -397,6 +397,6 @@ public class DeviceScheduleResourceTest extends DeviceDataRestApplicationJerseyT
         Response response = target("/devices/1/schedules/"+firmwareComTaskId).request().delete();
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
         JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
-        assertThat(jsonModel.<String>get("$.error")).isEqualTo(MessageSeeds.CAN_NOT_PERFOMR_ACTION_ON_SYSTEM_COMTASK.getKey());
+        assertThat(jsonModel.<String>get("$.error")).isEqualTo(MessageSeeds.CAN_NOT_PERFORM_ACTION_ON_SYSTEM_COMTASK.getKey());
     }
 }

@@ -10,7 +10,6 @@ import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.RestValidationBuilder;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.energyict.mdc.common.rest.ExceptionFactory;
-import com.energyict.mdc.common.rest.FieldValidationException;
 import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.security.Privileges;
@@ -28,7 +27,6 @@ import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
-import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -102,15 +100,16 @@ public class DeviceLifeCycleActionResource {
         ExecutableAction requestedAction = getExecuteActionByIdOrThrowException(actionId, device);
         DeviceLifeCycleActionResultInfo wizardResult = new DeviceLifeCycleActionResultInfo();
         if (requestedAction.getAction() instanceof AuthorizedTransitionAction){
+            AuthorizedTransitionAction authorizedAction = (AuthorizedTransitionAction) requestedAction.getAction();
+            wizardResult.targetState = getTargetStateName(authorizedAction);
             if (info.properties != null){
-                Map<String, PropertySpec> allPropertySpecsForAction = ((AuthorizedTransitionAction) requestedAction.getAction()).getActions()
+                Map<String, PropertySpec> allPropertySpecsForAction = authorizedAction.getActions()
                         .stream()
                         .flatMap(microAction -> deviceLifeCycleService.getPropertySpecsFor(microAction).stream())
                         .collect(Collectors.toMap(propertySpec -> propertySpec.getName(), Function.<PropertySpec>identity(), (prop1, prop2) -> prop1));
                 List<ExecutableActionProperty> executableProperties = getExecutableActionPropertiesFromInfo(info, allPropertySpecsForAction);
                 try {
                     requestedAction.execute(executableProperties);
-                    wizardResult.message = getSuccessfulExecutionMessage((AuthorizedTransitionAction) requestedAction.getAction());
                 } catch (SecurityException ex){
                     wizardResult.result = false;
                     wizardResult.message = ex.getLocalizedMessage();
@@ -137,14 +136,14 @@ public class DeviceLifeCycleActionResource {
         formValidationErrorBuilder.validate();
     }
 
-    private String getSuccessfulExecutionMessage(AuthorizedTransitionAction requestedAction) {
+    private String getTargetStateName(AuthorizedTransitionAction requestedAction) {
         State targetState  = requestedAction.getStateTransition().getTo();
         String targetStateName = targetState.getName();
         Optional<DefaultState> defaultState = DefaultState.from(targetState);
         if (defaultState.isPresent()){
             targetStateName = thesaurus.getString(defaultState.get().getKey(), defaultState.get().getKey()) ;
         }
-        return DefaultTranslationKey.DEVICE_LIFE_CYCLE_STATE_SUCCESSFUL_CHANGED.formatWith(thesaurus, targetStateName);
+        return targetStateName;
     }
 
     private void getFailedExecutionMessage(MultipleMicroCheckViolationsException microChecksViolationEx, DeviceLifeCycleActionResultInfo wizardResult) {
