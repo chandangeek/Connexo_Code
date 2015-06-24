@@ -58,6 +58,7 @@ Ext.define('Uni.property.controller.Registry', {
         NULLABLE_BOOLEAN: 'Uni.property.view.property.NullableBoolean',
         DATE: 'Uni.property.view.property.Date',
         CLOCK: 'Uni.property.view.property.DateTime',
+        TIMESTAMP: 'Uni.property.view.property.DateTime',
         TIMEDURATION: 'Uni.property.view.property.Period',
         TIMEOFDAY: 'Uni.property.view.property.Time',
         CODETABLE: 'Uni.property.view.property.CodeTable',
