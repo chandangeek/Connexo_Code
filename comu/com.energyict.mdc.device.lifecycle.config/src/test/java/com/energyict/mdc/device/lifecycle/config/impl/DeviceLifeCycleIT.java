@@ -18,6 +18,7 @@ import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViol
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.fsm.*;
+import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.TransactionService;
 import com.google.common.base.Strings;
 
@@ -131,6 +132,156 @@ public class DeviceLifeCycleIT {
 
         // Business method
         DeviceLifeCycle deviceLifeCycle = this.getTestService().newDeviceLifeCycleUsing(duplicateName, stateMachine).complete();
+        deviceLifeCycle.save();
+
+        // Asserts: see expected constraint violation rule
+    }
+
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}", property = "maximumFutureEffectiveTimeShift")
+    @Test
+    public void createDeviceLifeCycleWithoutMaximumFutureEffectiveTimeShift() {
+        FiniteStateMachine stateMachine = this.findDefaultFiniteStateMachine();
+        String name = "createDeviceLifeCycleWithoutMaximumFutureEffectiveTimeShift";
+        this.getTestService()
+                .newDeviceLifeCycleUsing(name, stateMachine)
+                .maximumFutureEffectiveTimeShift(null)
+                .complete().save();
+
+        // Business method
+        DeviceLifeCycle deviceLifeCycle = this.getTestService().newDeviceLifeCycleUsing(name, stateMachine).complete();
+        deviceLifeCycle.save();
+
+        // Asserts: see expected constraint violation rule
+    }
+
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}", property = "maximumPastEffectiveTimeShift")
+    @Test
+    public void createDeviceLifeCycleWithoutMaximumPastEffectiveTimeShift() {
+        FiniteStateMachine stateMachine = this.findDefaultFiniteStateMachine();
+        String name = "createDeviceLifeCycleWithoutMaximumPastEffectiveTimeShift";
+        this.getTestService()
+                .newDeviceLifeCycleUsing(name, stateMachine)
+                .maximumPastEffectiveTimeShift(null)
+                .complete().save();
+
+        // Business method
+        DeviceLifeCycle deviceLifeCycle = this.getTestService().newDeviceLifeCycleUsing(name, stateMachine).complete();
+        deviceLifeCycle.save();
+
+        // Asserts: see expected constraint violation rule
+    }
+
+    @Transactional
+    @Test
+    public void createDeviceLifeCycleWithMaximumFutureEffectiveTimeShift() {
+        FiniteStateMachine stateMachine = this.findDefaultFiniteStateMachine();
+        String name = "createDeviceLifeCycleWithMaximumFutureEffectiveTimeShift";
+        TimeDuration expectedMaximumFutureEffectiveTimeShift = TimeDuration.days(1);
+
+        // Business method
+        DeviceLifeCycle deviceLifeCycle = this.getTestService()
+                .newDeviceLifeCycleUsing(name, stateMachine)
+                .maximumFutureEffectiveTimeShift(expectedMaximumFutureEffectiveTimeShift)
+                .complete();
+        deviceLifeCycle.save();
+
+        // Asserts
+        assertThat(deviceLifeCycle.getMaximumFutureEffectiveTimeShift()).isNotNull();
+        assertThat(deviceLifeCycle.getMaximumFutureEffectiveTimeShift()).isEqualTo(expectedMaximumFutureEffectiveTimeShift);
+    }
+
+    @Transactional
+    @Test
+    public void createDeviceLifeCycleWithMaximumPastEffectiveTimeShift() {
+        FiniteStateMachine stateMachine = this.findDefaultFiniteStateMachine();
+        String name = "createDeviceLifeCycleWithMaximumPastEffectiveTimeShift";
+        TimeDuration expectedMaximumPastEffectiveTimeShift = TimeDuration.days(1);
+
+        // Business method
+        DeviceLifeCycle deviceLifeCycle = this.getTestService()
+                .newDeviceLifeCycleUsing(name, stateMachine)
+                .maximumPastEffectiveTimeShift(expectedMaximumPastEffectiveTimeShift)
+                .complete();
+        deviceLifeCycle.save();
+
+        // Asserts
+        assertThat(deviceLifeCycle.getMaximumPastEffectiveTimeShift()).isNotNull();
+        assertThat(deviceLifeCycle.getMaximumPastEffectiveTimeShift()).isEqualTo(expectedMaximumPastEffectiveTimeShift);
+    }
+
+    @Transactional
+    @Test
+    public void maximumFutureEffectiveTimeShiftIsCorrectAfterReload() {
+        FiniteStateMachine stateMachine = this.findDefaultFiniteStateMachine();
+        String name = "maximumFutureEffectiveTimeShiftIsCorrectAfterReload";
+        TimeDuration expectedMaximumFutureEffectiveTimeShift = TimeDuration.days(1);
+        DeviceLifeCycle deviceLifeCycle = this.getTestService()
+                .newDeviceLifeCycleUsing(name, stateMachine)
+                .maximumFutureEffectiveTimeShift(expectedMaximumFutureEffectiveTimeShift)
+                .complete();
+        deviceLifeCycle.save();
+        DeviceLifeCycle reloaded = this.getTestService().findDeviceLifeCycle(deviceLifeCycle.getId()).get();
+
+        // Business method
+        TimeDuration timeShift = reloaded.getMaximumFutureEffectiveTimeShift();
+
+        // Asserts
+        assertThat(timeShift).isNotNull();
+        assertThat(timeShift).isEqualTo(expectedMaximumFutureEffectiveTimeShift);
+    }
+
+    @Transactional
+    @Test
+    public void maximumPastEffectiveTimeShiftIsCorrectAfterReload() {
+        FiniteStateMachine stateMachine = this.findDefaultFiniteStateMachine();
+        String name = "maximumPastEffectiveTimeShiftIsCorrectAfterReload";
+        TimeDuration expectedMaximumPastEffectiveTimeShift = TimeDuration.days(1);
+        DeviceLifeCycle deviceLifeCycle = this.getTestService()
+                .newDeviceLifeCycleUsing(name, stateMachine)
+                .maximumPastEffectiveTimeShift(expectedMaximumPastEffectiveTimeShift)
+                .complete();
+        deviceLifeCycle.save();
+        DeviceLifeCycle reloaded = this.getTestService().findDeviceLifeCycle(deviceLifeCycle.getId()).get();
+
+        // Business method
+        TimeDuration timeShift = reloaded.getMaximumPastEffectiveTimeShift();
+
+        // Asserts
+        assertThat(timeShift).isNotNull();
+        assertThat(timeShift).isEqualTo(expectedMaximumPastEffectiveTimeShift);
+    }
+
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.MAXIMUM_FUTURE_EFFECTIVE_TIME_SHIFT_NOT_IN_RANGE + "}", property = "maximumFutureEffectiveTimeShift")
+    @Test
+    public void createDeviceLifeCycleWithTooBigMaximumFutureEffectiveTimeShift() {
+        FiniteStateMachine stateMachine = this.findDefaultFiniteStateMachine();
+        String name = "createDeviceLifeCycleWithTooBigMaximumFutureEffectiveTimeShift";
+
+        // Business method
+        DeviceLifeCycle deviceLifeCycle = this.getTestService()
+                .newDeviceLifeCycleUsing(name, stateMachine)
+                .maximumFutureEffectiveTimeShift(TimeDuration.days(365))
+                .complete();
+        deviceLifeCycle.save();
+
+        // Asserts: see expected constraint violation rule
+    }
+
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.MAXIMUM_PAST_EFFECTIVE_TIME_SHIFT_NOT_IN_RANGE + "}", property = "maximumPastEffectiveTimeShift")
+    @Test
+    public void createDeviceLifeCycleWithTooBigMaximumPastEffectiveTimeShift() {
+        FiniteStateMachine stateMachine = this.findDefaultFiniteStateMachine();
+        String name = "createDeviceLifeCycleWithTooBigMaximumPastEffectiveTimeShift";
+
+        // Business method
+        DeviceLifeCycle deviceLifeCycle = this.getTestService()
+                .newDeviceLifeCycleUsing(name, stateMachine)
+                .maximumPastEffectiveTimeShift(TimeDuration.days(365))
+                .complete();
         deviceLifeCycle.save();
 
         // Asserts: see expected constraint violation rule

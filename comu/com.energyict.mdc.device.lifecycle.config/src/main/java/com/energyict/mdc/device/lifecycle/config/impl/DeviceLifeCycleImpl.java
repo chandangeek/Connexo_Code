@@ -4,6 +4,8 @@ import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleUpdater;
+import com.energyict.mdc.device.lifecycle.config.impl.constraints.MaximumFutureEffectiveTimeShiftInRange;
+import com.energyict.mdc.device.lifecycle.config.impl.constraints.MaximumPastEffectiveTimeShiftInRange;
 import com.energyict.mdc.device.lifecycle.config.impl.constraints.Unique;
 
 import com.elster.jupiter.domain.util.Save;
@@ -36,6 +38,8 @@ import java.util.stream.Collectors;
  * @since 2015-03-11 (10:30)
  */
 @Unique(message = "{" + MessageSeeds.Keys.UNIQUE_DEVICE_LIFE_CYCLE_NAME + "}", groups = { Save.Create.class, Save.Update.class })
+@MaximumFutureEffectiveTimeShiftInRange(message = "{" + MessageSeeds.Keys.MAXIMUM_FUTURE_EFFECTIVE_TIME_SHIFT_NOT_IN_RANGE + "}", groups = { Save.Create.class, Save.Update.class })
+@MaximumPastEffectiveTimeShiftInRange(message = "{" + MessageSeeds.Keys.MAXIMUM_PAST_EFFECTIVE_TIME_SHIFT_NOT_IN_RANGE + "}", groups = { Save.Create.class, Save.Update.class })
 public class DeviceLifeCycleImpl implements DeviceLifeCycle {
 
     public enum Fields {
@@ -121,9 +125,17 @@ public class DeviceLifeCycleImpl implements DeviceLifeCycle {
         return this.maximumFutureEffectiveTimeShift;
     }
 
+    void setMaximumFutureEffectiveTimeShift(TimeDuration maximumFutureEffectiveTimeShift) {
+        this.maximumFutureEffectiveTimeShift = maximumFutureEffectiveTimeShift;
+    }
+
     @Override
     public TimeDuration getMaximumPastEffectiveTimeShift() {
         return this.maximumPastEffectiveTimeShift;
+    }
+
+    void setMaximumPastEffectiveTimeShift(TimeDuration maximumPastEffectiveTimeShift) {
+        this.maximumPastEffectiveTimeShift = maximumPastEffectiveTimeShift;
     }
 
     @Override

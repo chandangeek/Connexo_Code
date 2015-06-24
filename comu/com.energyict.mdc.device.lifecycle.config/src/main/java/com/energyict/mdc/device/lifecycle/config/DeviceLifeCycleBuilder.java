@@ -2,6 +2,7 @@ package com.energyict.mdc.device.lifecycle.config;
 
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransition;
+import com.elster.jupiter.time.TimeDuration;
 
 import java.util.Set;
 
@@ -12,6 +13,28 @@ import java.util.Set;
  * @since 2015-03-12 (16:31)
  */
 public interface DeviceLifeCycleBuilder {
+
+    /**
+     * Sets the maximum time shift in the future
+     * that can be used for the effective timestamp
+     * of a device life cycle transition.
+     *
+     * @param timeDuration The TimeDuration
+     * @return The DeviceLifeCycleBuilder to support method chaining
+     * @see DeviceLifeCycle#getMaximumFutureEffectiveTimeShift()
+     */
+    public DeviceLifeCycleBuilder maximumFutureEffectiveTimeShift(TimeDuration timeDuration);
+
+    /**
+     * Sets the maximum time shift in the past
+     * that can be used for the effective timestamp
+     * of a device life cycle transition.
+     *
+     * @param timeDuration The TimeDuration
+     * @return The DeviceLifeCycleBuilder to support method chaining
+     * @see DeviceLifeCycle#getMaximumPastEffectiveTimeShift()
+     */
+    public DeviceLifeCycleBuilder maximumPastEffectiveTimeShift(TimeDuration timeDuration);
 
     /**
      * Starts the building process to authorize the initiation of the external process definition
