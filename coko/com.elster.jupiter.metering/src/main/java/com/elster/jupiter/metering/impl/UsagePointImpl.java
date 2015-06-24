@@ -290,8 +290,11 @@ public class UsagePointImpl implements UsagePoint {
                 });
     	Optional<Meter> meter = meterActivation.getMeter();
     	if (meter.isPresent()) {
-    		((MeterImpl) meter.get()).adopt(meterActivation);
-    	}
+			// if meter happens to be the same meter of the last meteractivation that we just closed a few lines above,
+			// best is to refresh the meter so the updated meteractivations are refetched from db. see COPL-854
+			Meter existing = dataModel.mapper(Meter.class).getExisting(meter.get().getId());
+			((MeterImpl) existing).adopt(meterActivation);
+		}
     	meterActivations.add(meterActivation);
     }
 	
@@ -382,12 +385,12 @@ public class UsagePointImpl implements UsagePoint {
 
 	@Override
 	public List<? extends BaseReadingRecord> getReadingsBefore(Instant when, ReadingType readingType, int count) {
-		return MeterActivationsImpl.from(meterActivations).getReadingsBefore(when,readingType,count);
+		return MeterActivationsImpl.from(meterActivations).getReadingsBefore(when, readingType, count);
 	}
 
 	@Override
 	public List<? extends BaseReadingRecord> getReadingsOnOrBefore(Instant when, ReadingType readingType, int count) {
-		return MeterActivationsImpl.from(meterActivations).getReadingsOnOrBefore(when,readingType,count);
+		return MeterActivationsImpl.from(meterActivations).getReadingsOnOrBefore(when, readingType, count);
 	}
 
     @Override
@@ -397,7 +400,7 @@ public class UsagePointImpl implements UsagePoint {
 
 	@Override
 	public Optional<Party> getCustomer(Instant when) {
-		return getResponsibleParty(when,MarketRoleKind.ENERGYSERVICECONSUMER);
+		return getResponsibleParty(when, MarketRoleKind.ENERGYSERVICECONSUMER);
 	}
 
 	@Override
