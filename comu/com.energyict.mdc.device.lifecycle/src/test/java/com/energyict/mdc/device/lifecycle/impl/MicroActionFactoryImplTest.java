@@ -3,8 +3,12 @@ package com.energyict.mdc.device.lifecycle.impl;
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.topology.TopologyService;
 
+import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.validation.ValidationService;
 
 import org.junit.*;
 import org.junit.runner.*;
@@ -29,6 +33,14 @@ public class MicroActionFactoryImplTest {
     private MeteringGroupsService meteringGroupsService;
     @Mock
     private TopologyService topologyService;
+    @Mock
+    private ThreadPrincipalService threadPrincipalService;
+    @Mock
+    private TransactionService transactionService;
+    @Mock
+    private ValidationService validationService;
+    @Mock
+    private EstimationService estimationService;
 
     @Test
     public void allMicroActionsAreCovered() {
@@ -45,7 +57,7 @@ public class MicroActionFactoryImplTest {
     }
 
     private MicroActionFactoryImpl getTestInstance() {
-        return new MicroActionFactoryImpl(this.meteringService, this.meteringGroupsService, this.topologyService);
+        return new MicroActionFactoryImpl(this.meteringService, this.meteringGroupsService, this.topologyService, this.transactionService, this.threadPrincipalService, this.validationService, this.estimationService);
     }
 
 }

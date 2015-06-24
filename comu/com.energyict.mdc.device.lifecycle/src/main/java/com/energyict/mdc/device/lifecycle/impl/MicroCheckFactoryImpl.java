@@ -41,6 +41,7 @@ public class MicroCheckFactoryImpl implements ServerMicroCheckFactory {
         this.setNlsService(nlsService);
         this.setTopologyService(topologyService);
         this.setValidationService(validationService);
+        this.setMeteringService(meteringService);
     }
 
     @Reference

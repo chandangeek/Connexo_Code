@@ -40,11 +40,15 @@ public class MicroActionFactoryImpl implements ServerMicroActionFactory {
 
     // For unit testing purposes
     @Inject
-    public MicroActionFactoryImpl(MeteringService meteringService, MeteringGroupsService meteringGroupsService, TopologyService topologyService) {
+    public MicroActionFactoryImpl(MeteringService meteringService, MeteringGroupsService meteringGroupsService, TopologyService topologyService, TransactionService transactionService, ThreadPrincipalService threadPrincipalService, ValidationService validationService, EstimationService estimationService) {
         this();
         this.setMeteringService(meteringService);
         this.setMeteringGroupsService(meteringGroupsService);
         this.setTopologyService(topologyService);
+        this.setTransactionService(transactionService);
+        this.setThreadPrincipalService(threadPrincipalService);
+        this.setValidationService(validationService);
+        this.setEstimationService(estimationService);
     }
 
     @Reference
