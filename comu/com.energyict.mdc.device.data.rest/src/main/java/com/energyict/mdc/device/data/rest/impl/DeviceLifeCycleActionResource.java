@@ -174,7 +174,7 @@ public class DeviceLifeCycleActionResource {
                 try {
                     Object value = null;
                     if (property.propertyValueInfo.value != null) {
-                        propertySpec.getValueFactory().fromStringValue(String.valueOf(property.propertyValueInfo.value));
+                        value = propertySpec.getValueFactory().fromStringValue(String.valueOf(property.propertyValueInfo.value));
                     }
                     executableProperties.add(deviceLifeCycleService.toExecutableActionProperty(value, propertySpec));
                 } catch (InvalidValueException e) {
