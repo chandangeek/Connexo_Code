@@ -1,10 +1,5 @@
 package com.energyict.mdc.issue.datavalidation.impl.event;
 
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Optional;
-import java.util.logging.Logger;
-
 import com.elster.jupiter.issue.share.IssueEvent;
 import com.elster.jupiter.issue.share.UnableToCreateEventException;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
@@ -12,6 +7,12 @@ import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.util.json.JsonService;
 import com.google.inject.Injector;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Optional;
+import java.util.logging.Logger;
 
 public class DataValidationEventHandler implements MessageHandler {
     
@@ -32,15 +33,15 @@ public class DataValidationEventHandler implements MessageHandler {
         Map<?, ?> map = jsonService.deserialize(message.getPayload(), Map.class);
         Optional<IssueEvent> event = createEvent(map);
         if (event.isPresent()) {
-            issueCreationService.dispatchCreationEvent(Arrays.asList(event.get()));
+            issueCreationService.dispatchCreationEvent(Collections.singletonList(event.get()));
         }
     }
 
     private Optional<IssueEvent> createEvent(Map<?, ?> map) {
         return Arrays.asList(DataValidationEventDescription.values()).stream()
-                .filter(eventDescr -> eventDescr.matches(map))
+                .filter(eventDescription -> eventDescription.matches(map))
                 .findFirst()
-                .map(eventDescr -> createEventsBasedOnDescription(map, eventDescr))
+                .map(eventDescription -> createEventsBasedOnDescription(map, eventDescription))
                 .orElse(Optional.empty());
     }
 
