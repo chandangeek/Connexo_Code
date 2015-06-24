@@ -13,6 +13,7 @@ import java.util.List;
 import org.junit.*;
 import org.junit.runner.*;
 
+import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -30,7 +31,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class ActivateConnectionTasksTest {
 
-    @Mock
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private PropertySpecService propertySpecService;
     @Mock
     private Device device;

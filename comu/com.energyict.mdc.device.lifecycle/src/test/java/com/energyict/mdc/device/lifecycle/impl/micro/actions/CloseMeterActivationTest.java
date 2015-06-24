@@ -15,6 +15,7 @@ import java.util.List;
 
 import org.junit.*;
 import org.junit.runner.*;
+import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -35,7 +36,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class CloseMeterActivationTest {
 
-    @Mock
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private PropertySpecService propertySpecService;
     @Mock
     private Device device;
@@ -50,10 +51,7 @@ public class CloseMeterActivationTest {
         // Asserts
         int numberOfSpecs = propertySpecs.size();
         verify(this.propertySpecService, times(numberOfSpecs))
-                .basicPropertySpec(
-                        anyString(),
-                        anyBoolean(),
-                        any(ValueFactory.class));
+                .newPropertySpecBuilder(any(ValueFactory.class));
     }
 
     @Test

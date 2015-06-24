@@ -14,6 +14,7 @@ import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -44,7 +45,7 @@ public class ForceValidationAndEstimationTest {
     private ValidationEvaluator validationEvaluator;
     @Mock
     private EstimationService estimationService;
-    @Mock
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private PropertySpecService propertySpecService;
     @Mock
     private Device device;
@@ -64,10 +65,7 @@ public class ForceValidationAndEstimationTest {
         // Asserts
         int numberOfSpecs = propertySpecs.size();
         verify(this.propertySpecService, times(numberOfSpecs))
-                .basicPropertySpec(
-                        anyString(),
-                        anyBoolean(),
-                        any(ValueFactory.class));
+                .newPropertySpecBuilder(any(ValueFactory.class));
     }
 
     @Test(expected = ForceValidationAndEstimation.ForceValidationAndEstimationException.class)
