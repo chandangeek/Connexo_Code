@@ -23,6 +23,7 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.UserService;
 import com.google.inject.AbstractModule;
@@ -268,4 +269,25 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
                 .stream()
                 .collect(Collectors.toMap(Function.<Locale>identity(), locale -> thesaurus.getString(locale, translationKey, translationKey)));
     }
+
+    @Override
+    public TimeDuration getMaximumFutureEffectiveTimeShift() {
+        return EffectiveTimeShift.FUTURE.maximumValue();
+    }
+
+    @Override
+    public TimeDuration getDefaultFutureEffectiveTimeShift() {
+        return EffectiveTimeShift.FUTURE.defaultValue();
+    }
+
+    @Override
+    public TimeDuration getMaximumPastEffectiveTimeShift() {
+        return EffectiveTimeShift.PAST.maximumValue();
+    }
+
+    @Override
+    public TimeDuration getDefaultPastEffectiveTimeShift() {
+        return EffectiveTimeShift.PAST.defaultValue();
+    }
+
 }

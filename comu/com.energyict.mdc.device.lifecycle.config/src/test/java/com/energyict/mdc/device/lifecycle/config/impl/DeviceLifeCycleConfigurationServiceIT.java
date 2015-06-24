@@ -11,6 +11,7 @@ import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.TransactionService;
 
 import java.sql.SQLException;
@@ -183,6 +184,50 @@ public class DeviceLifeCycleConfigurationServiceIT {
         Stream
             .of(Privileges.CONFIGURE_DEVICE_LIFE_CYCLE, Privileges.VIEW_DEVICE_LIFE_CYCLE)
             .forEach(this::testShouldNotFindInitiateActionPrivilege);
+    }
+
+    @Test
+    public void maximumFutureEffectiveTimeShiftIsNotNull() {
+        DeviceLifeCycleConfigurationServiceImpl service = this.getTestInstance();
+
+        // Business method
+        TimeDuration timeShift = service.getMaximumFutureEffectiveTimeShift();
+
+        // Asserts
+        assertThat(timeShift).isNotNull();
+    }
+
+    @Test
+    public void defaultFutureEffectiveTimeShiftIsNotNull() {
+        DeviceLifeCycleConfigurationServiceImpl service = this.getTestInstance();
+
+        // Business method
+        TimeDuration timeShift = service.getDefaultFutureEffectiveTimeShift();
+
+        // Asserts
+        assertThat(timeShift).isNotNull();
+    }
+
+    @Test
+    public void maximumPastEffectiveTimeShiftIsNotNull() {
+        DeviceLifeCycleConfigurationServiceImpl service = this.getTestInstance();
+
+        // Business method
+        TimeDuration timeShift = service.getMaximumPastEffectiveTimeShift();
+
+        // Asserts
+        assertThat(timeShift).isNotNull();
+    }
+
+    @Test
+    public void defaultPastEffectiveTimeShiftIsNotNull() {
+        DeviceLifeCycleConfigurationServiceImpl service = this.getTestInstance();
+
+        // Business method
+        TimeDuration timeShift = service.getDefaultPastEffectiveTimeShift();
+
+        // Asserts
+        assertThat(timeShift).isNotNull();
     }
 
     private void testFindInitiateActionPrivilege(String privilegeName) {

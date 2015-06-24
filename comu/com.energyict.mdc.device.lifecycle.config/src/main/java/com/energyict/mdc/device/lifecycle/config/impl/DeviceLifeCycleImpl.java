@@ -16,10 +16,12 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.time.TimeDuration;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -39,6 +41,8 @@ public class DeviceLifeCycleImpl implements DeviceLifeCycle {
     public enum Fields {
         NAME("name"),
         STATE_MACHINE("stateMachine"),
+        MAX_FUTURE_EFFECTIVE_TIME_SHIFT("maximumFutureEffectiveTimeShift"),
+        MAX_PAST_EFFECTIVE_TIME_SHIFT("maximumPastEffectiveTimeShift"),
         ACTIONS("actions");
 
         private final String javaFieldName;
@@ -62,6 +66,10 @@ public class DeviceLifeCycleImpl implements DeviceLifeCycle {
     private String name;
     @IsPresent(message = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}", groups = { Save.Create.class, Save.Update.class })
     private Reference<FiniteStateMachine> stateMachine = ValueReference.absent();
+    @NotNull(message = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}", groups = { Save.Create.class, Save.Update.class })
+    private TimeDuration maximumFutureEffectiveTimeShift = EffectiveTimeShift.FUTURE.defaultValue();
+    @NotNull(message = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}", groups = { Save.Create.class, Save.Update.class })
+    private TimeDuration maximumPastEffectiveTimeShift = EffectiveTimeShift.PAST.defaultValue();
     @Valid
     private List<AuthorizedAction> actions = new ArrayList<>();
     private List<AuthorizedActionImpl> updated = new ArrayList<>();
@@ -106,6 +114,16 @@ public class DeviceLifeCycleImpl implements DeviceLifeCycle {
     @Override
     public FiniteStateMachine getFiniteStateMachine() {
         return this.stateMachine.get();
+    }
+
+    @Override
+    public TimeDuration getMaximumFutureEffectiveTimeShift() {
+        return this.maximumFutureEffectiveTimeShift;
+    }
+
+    @Override
+    public TimeDuration getMaximumPastEffectiveTimeShift() {
+        return this.maximumPastEffectiveTimeShift;
     }
 
     @Override

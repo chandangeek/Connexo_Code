@@ -3,6 +3,7 @@ package com.energyict.mdc.device.lifecycle.config;
 import com.elster.jupiter.domain.util.Finder;
 
 import com.elster.jupiter.fsm.FiniteStateMachine;
+import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.users.Privilege;
 
 import java.util.Optional;
@@ -86,5 +87,47 @@ public interface DeviceLifeCycleConfigurationService {
      * @return The Finder that supports paging and sorting
      */
     public Finder<DeviceLifeCycle> findAllDeviceLifeCycles();
+
+    /**
+     * Gets the system wide maximum time shift in the future
+     * that can be used for the effective timestamp of a
+     * device life cycle transition.
+     * Any attempt to set maximum future effective time shift
+     * of a {@link DeviceLifeCycle} will result in a business
+     * exception, failing the creation or update of the DeviceLifeCycle.
+     *
+     * @return The maximum time shift
+     */
+    public TimeDuration getMaximumFutureEffectiveTimeShift();
+
+    /**
+     * Gets the system wide default time shift in the future
+     * that can be used for the effective timestamp of a
+     * device life cycle transition.
+     *
+     * @return The default time shift
+     */
+    public TimeDuration getDefaultFutureEffectiveTimeShift();
+
+    /**
+     * Gets the system wide maximum time shift in the past
+     * that can be used for the effective timestamp of a
+     * device life cycle transition.
+     * Any attempt to set maximum past effective time shift
+     * of a {@link DeviceLifeCycle} will result in a business
+     * exception, failing the creation or update of the DeviceLifeCycle.
+     *
+     * @return The maximum time shift
+     */
+    public TimeDuration getMaximumPastEffectiveTimeShift();
+
+    /**
+     * Gets the system wide default time shift in the past
+     * that can be used for the effective timestamp of a
+     * device life cycle transition.
+     *
+     * @return The default time shift
+     */
+    public TimeDuration getDefaultPastEffectiveTimeShift();
 
 }

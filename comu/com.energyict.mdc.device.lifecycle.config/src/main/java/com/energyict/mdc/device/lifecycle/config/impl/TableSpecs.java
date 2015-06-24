@@ -9,6 +9,8 @@ import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
+
 /**
  * Models the database tables that hold the data of the
  * entities that are managed by this bundle.
@@ -26,6 +28,10 @@ public enum TableSpecs {
             table.addAuditColumns();
             Column name = table.column("NAME").varChar().notNull().map(DeviceLifeCycleImpl.Fields.NAME.fieldName()).add();
             Column stateMachine = table.column("FSM").number().notNull().add();
+            table.column("MAXFUTUREEFFTIMESHIFTVALUE").number().notNull().conversion(NUMBER2INT).map(DeviceLifeCycleImpl.Fields.MAX_FUTURE_EFFECTIVE_TIME_SHIFT.fieldName() + ".count").add();
+            table.column("MAXFUTUREEFFTIMESHIFTUNIT").number().notNull().conversion(NUMBER2INT).map(DeviceLifeCycleImpl.Fields.MAX_FUTURE_EFFECTIVE_TIME_SHIFT.fieldName() + ".timeUnitCode").add();
+            table.column("MAXPASTEFFTIMESHIFTVALUE").number().notNull().conversion(NUMBER2INT).map(DeviceLifeCycleImpl.Fields.MAX_PAST_EFFECTIVE_TIME_SHIFT.fieldName() + ".count").add();
+            table.column("MAXPASTEFFTIMESHIFTUNIT").number().notNull().conversion(NUMBER2INT).map(DeviceLifeCycleImpl.Fields.MAX_PAST_EFFECTIVE_TIME_SHIFT.fieldName() + ".timeUnitCode").add();
             table.unique("UK_DLD_DEVICELIFECYCLENAME").on(name).add();
             table.primaryKey("PK_DLD_DEVICELIFECYCLE").on(id).add();
             table.foreignKey("FK_DLD_FSM")
