@@ -195,6 +195,7 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
 
     updateHrefIfNecessary: function (href) {
         if (this.updatePagingParams && location.href !== href) {
+            Uni.util.History.setParsePath(false);
             Uni.util.History.suspendEventsForNextCall();
             location.href = href;
         }
@@ -374,13 +375,7 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
             last = pageCount < me.totalPages ? me.totalPages : pageCount;
 
         if (me.fireEvent('beforechange', me, last) !== false) {
-            me.initExtraParams();
-
-            me.store.loadPage(last, {
-                params: me.params
-            });
-
-            me.updateQueryString();
+            me.doLoadPage(last);
             return true;
         }
         return false;
@@ -390,13 +385,7 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
         var me = this;
 
         if (this.fireEvent('beforechange', this, 1) !== false) {
-            me.initExtraParams();
-
-            me.store.loadPage(1, {
-                params: me.params
-            });
-
-            me.updateQueryString();
+            me.doLoadPage(1);
             return true;
         }
         return false;
@@ -409,13 +398,7 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
 
         if (prev > 0) {
             if (me.fireEvent('beforechange', me, prev) !== false) {
-                me.initExtraParams();
-
-                store.loadPage(store.currentPage - 1, {
-                    params: me.params
-                });
-
-                me.updateQueryString();
+                me.doLoadPage(store.currentPage - 1);
                 return true;
             }
         }
@@ -430,17 +413,21 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
 
         if (next <= total) {
             if (me.fireEvent('beforechange', me, next) !== false) {
-                me.initExtraParams();
-
-                store.loadPage(store.currentPage + 1, {
-                    params: me.params
-                });
-
-                me.updateQueryString();
+                me.doLoadPage(store.currentPage + 1);
                 return true;
             }
         }
         return false;
+    },
+
+    doLoadPage : function(page) {
+        var me = this;
+
+        me.initExtraParams();
+        me.store.loadPage(page, {
+            params: me.params
+        });
+        me.updateQueryString();
     },
 
     initPageNavItems: function (container, currPage, pageCount) {
@@ -493,17 +480,10 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
 
     addNavItemClickHandler: function (me, page, navItem) {
         navItem.getEl().on('click', function () {
-            Ext.History.suspendEvents();
-            me.initExtraParams();
-            me.store.loadPage(page, {
-                params: me.params,
-                callback: function () {
-                    var task = Ext.create('Ext.util.DelayedTask', function () {
-                        Ext.History.resumeEvents();
-                    });
-                    task.delay(250);
-                }
-            });
+            if (me.fireEvent('beforechange', me, next) !== false) {
+                me.doLoadPage(page);
+                return true;
+            }
         });
     },
 

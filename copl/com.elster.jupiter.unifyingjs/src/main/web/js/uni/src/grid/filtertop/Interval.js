@@ -11,6 +11,9 @@ Ext.define('Uni.grid.filtertop.Interval', {
 
     dataIndexFrom: null,
     dataIndexTo: null,
+    defaultFromDate: undefined,
+    defaultToDate: undefined,
+
 
     initComponent: function () {
         var me = this;
@@ -52,7 +55,7 @@ Ext.define('Uni.grid.filtertop.Interval', {
                                         xtype: 'datefield',
                                         itemId: 'fromDate',
                                         editable: false,
-                                        value: undefined,
+                                        value: me.defaultFromDate,
                                         margins: '0 1 0 0',
                                         format: Uni.util.Preferences.lookup(Uni.DateTime.dateLongKey, Uni.DateTime.dateLongDefault),
                                         emptyText: Uni.I18n.translate('grid.filter.date.datefield.emptytext', 'UNI', 'Select a date'),
@@ -77,7 +80,7 @@ Ext.define('Uni.grid.filtertop.Interval', {
                                     {
                                         xtype: 'numberfield',
                                         itemId: 'fromHour',
-                                        value: 0,
+                                        value: me.defaultFromDate?me.defaultFromDate.getHours():undefined,
                                         minValue: 0,
                                         maxValue: 23,
                                         editable: false,
@@ -100,7 +103,7 @@ Ext.define('Uni.grid.filtertop.Interval', {
                                     {
                                         xtype: 'numberfield',
                                         itemId: 'fromMinute',
-                                        value: 0,
+                                        value: me.defaultFromDate?me.defaultFromDate.getMinutes():undefined,
                                         minValue: 0,
                                         maxValue: 59,
                                         editable: false,
@@ -136,7 +139,7 @@ Ext.define('Uni.grid.filtertop.Interval', {
                                         xtype: 'datefield',
                                         itemId: 'toDate',
                                         editable: false,
-                                        value: undefined,
+                                        value: me.defaultToDate,
                                         margins: '0 1 0 0',
                                         format: Uni.util.Preferences.lookup(Uni.DateTime.dateLongKey, Uni.DateTime.dateLongDefault),
                                         emptyText: Uni.I18n.translate('grid.filter.date.datefield.emptytext', 'UNI', 'Select a date'),
@@ -161,7 +164,7 @@ Ext.define('Uni.grid.filtertop.Interval', {
                                     {
                                         xtype: 'numberfield',
                                         itemId: 'toHour',
-                                        value: 0,
+                                        value: me.defaultToDate?me.defaultToDate.getHours():undefined,
                                         minValue: 0,
                                         maxValue: 23,
                                         editable: false,
@@ -184,7 +187,7 @@ Ext.define('Uni.grid.filtertop.Interval', {
                                     {
                                         xtype: 'numberfield',
                                         itemId: 'toMinute',
-                                        value: 0,
+                                        value: me.defaultToDate?me.defaultToDate.getMinutes():undefined,
                                         minValue: 0,
                                         maxValue: 59,
                                         editable: false,
@@ -265,7 +268,6 @@ Ext.define('Uni.grid.filtertop.Interval', {
 
     resetValue: function () {
         var me = this;
-
         me.getFromDateField().reset();
         me.getFromHourField().reset();
         me.getFromMinuteField().reset();
@@ -328,9 +330,9 @@ Ext.define('Uni.grid.filtertop.Interval', {
 
     getFromDateValue: function () {
         var me = this,
-            date = me.getFromDateField().getValue(),
-            hours = me.getFromHourField().getValue(),
-            minutes = me.getFromMinuteField().getValue();
+            date = me.getFromDateField() ? me.getFromDateField().getValue() : undefined,
+            hours = me.getFromHourField() ? me.getFromHourField().getValue() : undefined,
+            minutes = me.getFromMinuteField() ? me.getFromMinuteField().getValue() : undefined;
 
         return me.createDateFromValues(date, hours, minutes);
     },
@@ -347,9 +349,9 @@ Ext.define('Uni.grid.filtertop.Interval', {
 
     getToDateValue: function () {
         var me = this,
-            date = me.getToDateField().getValue(),
-            hours = me.getToHourField().getValue(),
-            minutes = me.getToMinuteField().getValue();
+            date = me.getToDateField() ? me.getToDateField().getValue() : undefined,
+            hours = me.getToHourField() ? me.getToHourField().getValue() : undefined,
+            minutes = me.getToMinuteField() ? me.getToMinuteField().getValue() : undefined;
 
         return me.createDateFromValues(date, hours, minutes);
     },
