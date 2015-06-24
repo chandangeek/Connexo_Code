@@ -1,41 +1,32 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
-import com.elster.jupiter.util.Ranges;
-import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.util.Ranges;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceValidation;
 import com.energyict.mdc.device.data.LoadProfileReading;
 import com.energyict.mdc.device.data.security.Privileges;
+import com.energyict.mdc.issue.datavalidation.IssueDataValidation;
+import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
+import com.energyict.mdc.issue.datavalidation.NotEstimatedBlock;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.inject.Provider;
-import javax.ws.rs.BeanParam;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
-
+import javax.ws.rs.*;
+import javax.ws.rs.core.*;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -48,14 +39,16 @@ public class ChannelResource {
     private final Thesaurus thesaurus;
     private final Clock clock;
     private final DeviceDataInfoFactory deviceDataInfoFactory;
+    private final IssueDataValidationService issueDataValidationService;
 
     @Inject
-    public ChannelResource(Provider<ChannelResourceHelper> channelHelper, ResourceHelper resourceHelper, Thesaurus thesaurus, Clock clock, DeviceDataInfoFactory deviceDataInfoFactory) {
+    public ChannelResource(Provider<ChannelResourceHelper> channelHelper, ResourceHelper resourceHelper, Thesaurus thesaurus, Clock clock, DeviceDataInfoFactory deviceDataInfoFactory, IssueDataValidationService issueDataValidationService) {
         this.channelHelper = channelHelper;
         this.resourceHelper = resourceHelper;
         this.thesaurus = thesaurus;
         this.clock = clock;
         this.deviceDataInfoFactory = deviceDataInfoFactory;
+        this.issueDataValidationService = issueDataValidationService;
     }
 
     @GET
@@ -206,5 +199,44 @@ public class ChannelResource {
         }
         deviceValidation.validateChannel(channel);
         return Response.ok().build();
+    }
+
+    @GET
+    @Path("{channelid}/datavalidationissues/{issueid}/validationblocks")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.ADMINISTRATE_DEVICE_DATA})
+    public PagedInfoList getValidationBlocksOfIssue(@PathParam("mRID") String mRID, @PathParam("channelid") long channelId, @PathParam("issueid") long issueId, @BeanParam JsonQueryParameters parameters) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+        Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(device, channelId);
+        IssueDataValidation issue = issueDataValidationService.findIssue(issueId).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+
+        Map<ReadingType, List<NotEstimatedBlock>> groupedBlocks = issue.getNotEstimatedBlocks().stream().collect(Collectors.groupingBy(NotEstimatedBlock::getReadingType));
+        ReadingType mainReadingType = channel.getReadingType();
+        List<NotEstimatedBlock> allNotEstimatedBlocks = new ArrayList<>();
+        if (groupedBlocks.containsKey(mainReadingType)) {
+            allNotEstimatedBlocks.addAll(groupedBlocks.get(mainReadingType));
+        }
+        Optional<ReadingType> calculatedReadingType = mainReadingType.getCalculatedReadingType();
+        if (calculatedReadingType.isPresent() && groupedBlocks.containsKey(calculatedReadingType.get())) {
+            allNotEstimatedBlocks.addAll(groupedBlocks.get(calculatedReadingType.get()));
+        }
+        List<Range<Instant>> result = new ArrayList<>();
+        allNotEstimatedBlocks.stream()
+                .map(block -> Range.closedOpen(block.getStartTime(), block.getEndTime()))
+                .sorted((range1, range2) -> range1.lowerEndpoint().compareTo(range2.lowerEndpoint()))
+                .reduce((range1, range2) -> {
+                    if (range1.isConnected(range2)) {
+                        return range1.span(range2);
+                    }
+                    result.add(range1);
+                    return range2;
+                }).ifPresent(result::add);
+        List<Map<?, ?>> validationBlocksInfo = result.stream().map(block -> {
+            Map<String, Object> info = new HashMap<>();
+            info.put("startTime", block.lowerEndpoint());
+            info.put("endTime", block.upperEndpoint());
+            return info;
+        }).collect(Collectors.toList());
+        return PagedInfoList.fromCompleteList("validationBlocks", validationBlocksInfo, parameters);
     }
 }
