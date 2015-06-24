@@ -1,10 +1,6 @@
 Ext.define('Mdc.controller.setup.DeviceTransitionExecute', {
     extend: 'Ext.app.Controller',
 
-//    requires: [
-//        'Mdc.model.DeviceTransition'
-//    ],
-
     views: [
         'Mdc.view.setup.devicetransitionexecute.Browse'
     ],
@@ -58,10 +54,11 @@ Ext.define('Mdc.controller.setup.DeviceTransitionExecute', {
             success: function (record, operation) {
                 step2Page.handleSuccessRequest(Ext.decode(operation.response.responseText), router);
             },
-            failure: function (record, resp) {
+            failure: function () {
                 Ext.suspendLayouts();
                 layout.setActiveItem(layout.getPrev());
                 me.showWizardBtns();
+                me.getNavigationMenu().movePrevStep();
                 Ext.resumeLayouts(true);
             }
         });
@@ -93,8 +90,6 @@ Ext.define('Mdc.controller.setup.DeviceTransitionExecute', {
                 console.log('callback')
             }
         });
-
     }
-
 });
 

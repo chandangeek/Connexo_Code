@@ -9,9 +9,13 @@ Ext.define('Mdc.view.setup.devicetransitionexecute.Step2', {
         align: 'stretch'
     },
 
+    requires: [
+        'Mdc.view.setup.devicetransitionexecute.ResultPanel'
+    ],
+
     title: Uni.I18n.translate('devicetransitionexecute.wizard.step2title', 'MDC', 'Step 2 of 2:  Status'),
 
-    showProgressBar: function() {
+    showProgressBar: function () {
         var me = this,
             pb = Ext.create('Ext.ProgressBar', {width: '50%'});
 
@@ -27,34 +31,17 @@ Ext.define('Mdc.view.setup.devicetransitionexecute.Step2', {
         Ext.resumeLayouts(true);
     },
 
-    handleSuccessRequest: function(response, router) {
-        var messagePanel;
-        if (response.result) {
-            var msgParams = {
-                type: 'success',
-                msgBody: [
-                    {html: '1'}
-                ],
-                closeBtn: false
-            };
-        } else {
-            var msgParams = {
-                type: 'error',
-                msgBody: [
-                    {html: '2'}
-                ],
-                btns: [
-                    {text: "Finish", hnd: function () {
-                        router.getRoute('devices/device').forward();
-                    }}
-                ],
-                closeBtn: false
-            };
-        }
-        Ext.suspendLayouts();
-        messagePanel = Ext.widget('message-panel', msgParams);
-        this.removeAll(true);
-        this.add(messagePanel);
+    handleSuccessRequest: function (response, router) {
+        var me = this;
+
+        Ext.suspendLayouts(true);
+        me.removeAll(true);
+        me.add({
+                xtype: 'transition-result-panel',
+                response: response,
+                router: router
+            }
+        );
         Ext.resumeLayouts(true);
     }
 });

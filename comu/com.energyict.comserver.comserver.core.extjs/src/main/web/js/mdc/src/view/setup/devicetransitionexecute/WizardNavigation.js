@@ -3,7 +3,7 @@ Ext.define('Mdc.view.setup.devicetransitionexecute.WizardNavigation', {
     alias: 'widget.deviceTransitionWizardNavigation',
     width: 256,
     jumpForward: false,
-    jumpBack: true,
+    jumpBack: false,
     ui: 'medium',
     padding: '0 0 0 0',
     margin: '0 0 0 0',
