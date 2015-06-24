@@ -82,7 +82,7 @@ public class DataValidationIssueCreationRuleTemplate implements CreationRuleTemp
                "global com.elster.jupiter.issue.share.service.IssueCreationService issueCreationService;\n" +
                "rule \"Data validation rule @{ruleId}\"\n" +
                "when\n" +
-               "\tevent : CannotEstimateDataEvent(device.deviceConfiguration.id in (@{" + DEVICE_CONFIGURATIONS +"}))\n" +
+               "\tevent : CannotEstimateDataEvent(deviceConfigurationId in (@{" + DEVICE_CONFIGURATIONS +"}))\n" +
                "then\n" +
                "\tLOGGER.info(\"Trying to create issue by datavalidation rule [id = @{ruleId}]\");\n" +
                "\tissueCreationService.processIssueCreationEvent(@{ruleId}, event);\n" +
@@ -90,7 +90,7 @@ public class DataValidationIssueCreationRuleTemplate implements CreationRuleTemp
                "\n" +
                "rule \"Autoresolution section @{ruleId}\"\n" +
                "when\n" +
-               "\tevent: SuspectDeletedEvent(device.deviceConfiguration.id in (@{" + DEVICE_CONFIGURATIONS +"}))\n" +
+               "\tevent: SuspectDeletedEvent(deviceConfigurationId in (@{" + DEVICE_CONFIGURATIONS +"}))\n" +
                "then\n" +
                "\tLOGGER.info(\"Trying to resolve issue by datavalidation rule [id = @{ruleId}]\");\n" +
                "\tissueCreationService.processIssueResolutionEvent(@{ruleId}, event);\n" +
