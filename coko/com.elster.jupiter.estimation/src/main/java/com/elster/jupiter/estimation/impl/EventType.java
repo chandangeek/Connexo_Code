@@ -4,7 +4,6 @@ import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.EventTypeBuilder;
 import com.elster.jupiter.events.ValueType;
-import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.orm.TransactionRequired;
 
 public enum EventType {
@@ -17,7 +16,7 @@ public enum EventType {
         public void install(EventService eventService) {
             eventService.buildEventTypeWithTopic(topic())
                     .name(name())
-                    .component(MeteringService.COMPONENTNAME)
+                    .component(EstimationService.COMPONENTNAME)
                     .category("Crud")
                     .scope("System")
                     .withProperty("startTime", ValueType.LONG, "startTime")
