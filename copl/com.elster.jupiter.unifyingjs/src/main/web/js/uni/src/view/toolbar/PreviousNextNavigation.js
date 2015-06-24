@@ -64,17 +64,7 @@ Ext.define('Uni.view.toolbar.PreviousNextNavigation', {
      * Name of url query parameter for storing total records amount.
      */
     totalProperty: 'total',
-
-    /**
-     * @cfg {String} [indexLocation="arguments"]
-     * Part of Uni.controller.history.Router that contains {@link #routerIdArgument}.
-     */
     indexLocation: 'arguments',
-
-    /**
-     * @cfg {Boolean} [isFullTotalCount=false]
-     * True if Ext.data.reader.Reader.totalProperty is ultimate value.
-     */
     isFullTotalCount: false,
 
     initComponent: function () {
