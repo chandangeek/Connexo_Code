@@ -60,7 +60,7 @@ public class IssueReasonImpl extends EntityImpl implements IssueReason{
 
     @Override
     public String getName() {
-        return this.thesaurus.getString(this.key, this.defaultName);
+        return this.thesaurus.getStringBeyondComponent(this.translationKey, this.defaultName);
     }
 
     @Override

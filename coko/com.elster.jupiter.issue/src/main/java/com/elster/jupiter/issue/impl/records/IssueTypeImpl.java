@@ -47,6 +47,6 @@ public class IssueTypeImpl extends EntityImpl implements IssueType {
 
     @Override
     public String getName() {
-        return this.thesaurus.getString(this.key, this.defaultName);
+        return this.thesaurus.getStringBeyondComponent(this.translationKey, this.defaultName);
     }
 }
