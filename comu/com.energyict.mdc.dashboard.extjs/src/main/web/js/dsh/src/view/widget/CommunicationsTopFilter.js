@@ -12,7 +12,8 @@ Ext.define('Dsh.view.widget.CommunicationsTopFilter', {
             multiSelect: true,
             displayField: 'name',
             valueField: 'id',
-            store: 'Dsh.store.filter.DeviceGroup'
+            store: 'Dsh.store.filter.DeviceGroup',
+            itemId: 'device-group-filter'
         },
         {
             type: 'combobox',
@@ -21,7 +22,8 @@ Ext.define('Dsh.view.widget.CommunicationsTopFilter', {
             multiSelect: true,
             displayField: 'localizedValue',
             valueField: 'taskStatus',
-            store: 'Dsh.store.filter.CurrentState'
+            store: 'Dsh.store.filter.CurrentState',
+            itemId: 'current-state-filter'
         },
         {
             type: 'combobox',
@@ -30,7 +32,8 @@ Ext.define('Dsh.view.widget.CommunicationsTopFilter', {
             multiSelect: true,
             displayField: 'localizedValue',
             valueField: 'completionCode',
-            store: 'Dsh.store.filter.CompletionCodes'
+            store: 'Dsh.store.filter.CompletionCodes',
+            itemId: 'latest-result-filter'
         },
         {
             type: 'combobox',
@@ -39,7 +42,8 @@ Ext.define('Dsh.view.widget.CommunicationsTopFilter', {
             multiSelect: true,
             displayField: 'name',
             valueField: 'id',
-            store: 'Dsh.store.filter.CommunicationTask'
+            store: 'Dsh.store.filter.CommunicationTask',
+            itemId: 'com-task-filter'
         },
         {
             type: 'combobox',
@@ -48,7 +52,8 @@ Ext.define('Dsh.view.widget.CommunicationsTopFilter', {
             multiSelect: true,
             displayField: 'name',
             valueField: 'id',
-            store: 'Dsh.store.filter.CommunicationSchedule'
+            store: 'Dsh.store.filter.CommunicationSchedule',
+            itemId: 'com-schedule-filter'
         },
         {
             type: 'combobox',
@@ -57,21 +62,24 @@ Ext.define('Dsh.view.widget.CommunicationsTopFilter', {
             multiSelect: true,
             displayField: 'name',
             valueField: 'id',
-            store: 'Dsh.store.filter.DeviceType'
+            store: 'Dsh.store.filter.DeviceType',
+            itemId: 'device-type-filter'
         },
         {
             type: 'interval',
             dataIndex: 'startInterval',
             dataIndexFrom: 'startIntervalFrom',
             dataIndexTo: 'startIntervalTo',
-            text: Uni.I18n.translate('communications.widget.topfilter.startedBetween', 'DSH', 'Started between')
+            text: Uni.I18n.translate('communications.widget.topfilter.startedBetween', 'DSH', 'Started between'),
+            itemId: 'start-interval-filter'
         },
         {
             type: 'interval',
             dataIndex: 'finishInterval',
             dataIndexFrom: 'finishIntervalFrom',
             dataIndexTo: 'finishIntervalTo',
-            text: Uni.I18n.translate('communications.widget.topfilter.finishedBetween', 'DSH', 'Finished between')
+            text: Uni.I18n.translate('communications.widget.topfilter.finishedBetween', 'DSH', 'Finished between'),
+            itemId: 'finish-interval-filter'
         }
     ]
 });
