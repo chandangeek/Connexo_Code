@@ -68,18 +68,26 @@ public class DeviceLifeCycleIT extends PersistenceIntegrationTest {
         Instant activationTime = Instant.ofEpochMilli(20000L);
         when(inMemoryPersistence.getClock().instant()).thenReturn(activationTime);
         CustomStateTransitionEventType activatedEventType = DefaultCustomStateTransitionEventType.ACTIVATED.findOrCreate(inMemoryPersistence.getFiniteStateMachineService());
-        ExecutableActionProperty actionProperty = mock(ExecutableActionProperty.class);
-        PropertySpec propertySpec = inMemoryPersistence.getPropertySpecService()
+        ExecutableActionProperty effectiveTimestampProperty = mock(ExecutableActionProperty.class);
+        PropertySpec effectiveTimestampPropertySpec = inMemoryPersistence.getPropertySpecService()
                 .basicPropertySpec(
                         DeviceLifeCycleService.MicroActionPropertyName.EFFECTIVE_TIMESTAMP.key(),
                         true,
                         new InstantFactory());
-        when(actionProperty.getPropertySpec()).thenReturn(propertySpec);
-        when(actionProperty.getValue()).thenReturn(activationTime);
+        when(effectiveTimestampProperty.getPropertySpec()).thenReturn(effectiveTimestampPropertySpec);
+        when(effectiveTimestampProperty.getValue()).thenReturn(activationTime);
+        ExecutableActionProperty lastCheckedProperty = mock(ExecutableActionProperty.class);
+        PropertySpec lastCheckedPropertySpec = inMemoryPersistence.getPropertySpecService()
+                .basicPropertySpec(
+                        DeviceLifeCycleService.MicroActionPropertyName.LAST_CHECKED.key(),
+                        true,
+                        new InstantFactory());
+        when(lastCheckedProperty.getPropertySpec()).thenReturn(lastCheckedPropertySpec);
+        when(lastCheckedProperty.getValue()).thenReturn(activationTime);
         ExecutableAction installAndActivateAction = inMemoryPersistence.getDeviceLifeCycleService().getExecutableActions(device, activatedEventType).get();
 
         // Business method
-        installAndActivateAction.execute(Arrays.asList(actionProperty));
+        installAndActivateAction.execute(Arrays.asList(effectiveTimestampProperty, lastCheckedProperty));
 
         // Asserts
         assertThat(device.getLifecycleDates()).isNotNull();
@@ -101,18 +109,26 @@ public class DeviceLifeCycleIT extends PersistenceIntegrationTest {
         Instant activationTime = Instant.ofEpochMilli(20000L);
         when(inMemoryPersistence.getClock().instant()).thenReturn(activationTime);
         CustomStateTransitionEventType activatedEventType = DefaultCustomStateTransitionEventType.DEACTIVATED.findOrCreate(inMemoryPersistence.getFiniteStateMachineService());
-        ExecutableActionProperty actionProperty = mock(ExecutableActionProperty.class);
-        PropertySpec propertySpec = inMemoryPersistence.getPropertySpecService()
+        ExecutableActionProperty effectiveTimestampProperty = mock(ExecutableActionProperty.class);
+        PropertySpec effectiveTimestampPropertySpec = inMemoryPersistence.getPropertySpecService()
                 .basicPropertySpec(
                         DeviceLifeCycleService.MicroActionPropertyName.EFFECTIVE_TIMESTAMP.key(),
                         true,
                         new InstantFactory());
-        when(actionProperty.getPropertySpec()).thenReturn(propertySpec);
-        when(actionProperty.getValue()).thenReturn(activationTime);
+        when(effectiveTimestampProperty.getPropertySpec()).thenReturn(effectiveTimestampPropertySpec);
+        when(effectiveTimestampProperty.getValue()).thenReturn(activationTime);
+        ExecutableActionProperty lastCheckedProperty = mock(ExecutableActionProperty.class);
+        PropertySpec lastCheckedPropertySpec = inMemoryPersistence.getPropertySpecService()
+                .basicPropertySpec(
+                        DeviceLifeCycleService.MicroActionPropertyName.LAST_CHECKED.key(),
+                        true,
+                        new InstantFactory());
+        when(lastCheckedProperty.getPropertySpec()).thenReturn(lastCheckedPropertySpec);
+        when(lastCheckedProperty.getValue()).thenReturn(activationTime);
         ExecutableAction installAndActivateAction = inMemoryPersistence.getDeviceLifeCycleService().getExecutableActions(device, activatedEventType).get();
 
         // Business method
-        installAndActivateAction.execute(Arrays.asList(actionProperty));
+        installAndActivateAction.execute(Arrays.asList(effectiveTimestampProperty, lastCheckedProperty));
 
         // Asserts
         assertThat(device.getLifecycleDates()).isNotNull();
@@ -168,18 +184,26 @@ public class DeviceLifeCycleIT extends PersistenceIntegrationTest {
         Instant activationTime = Instant.ofEpochMilli(20000L);
         when(inMemoryPersistence.getClock().instant()).thenReturn(activationTime);
         CustomStateTransitionEventType activatedEventType = DefaultCustomStateTransitionEventType.ACTIVATED.findOrCreate(inMemoryPersistence.getFiniteStateMachineService());
-        ExecutableActionProperty actionProperty = mock(ExecutableActionProperty.class);
-        PropertySpec propertySpec = inMemoryPersistence.getPropertySpecService()
+        ExecutableActionProperty effectiveTimestampProperty = mock(ExecutableActionProperty.class);
+        PropertySpec effectiveTimestampPropertySpec = inMemoryPersistence.getPropertySpecService()
                 .basicPropertySpec(
                         DeviceLifeCycleService.MicroActionPropertyName.EFFECTIVE_TIMESTAMP.key(),
                         true,
                         new InstantFactory());
-        when(actionProperty.getPropertySpec()).thenReturn(propertySpec);
-        when(actionProperty.getValue()).thenReturn(activationTime);
+        when(effectiveTimestampProperty.getPropertySpec()).thenReturn(effectiveTimestampPropertySpec);
+        when(effectiveTimestampProperty.getValue()).thenReturn(activationTime);
+        ExecutableActionProperty lastCheckedProperty = mock(ExecutableActionProperty.class);
+        PropertySpec lastCheckedPropertySpec = inMemoryPersistence.getPropertySpecService()
+                .basicPropertySpec(
+                        DeviceLifeCycleService.MicroActionPropertyName.LAST_CHECKED.key(),
+                        true,
+                        new InstantFactory());
+        when(lastCheckedProperty.getPropertySpec()).thenReturn(lastCheckedPropertySpec);
+        when(lastCheckedProperty.getValue()).thenReturn(activationTime);
         ExecutableAction installAndActivateAction = inMemoryPersistence.getDeviceLifeCycleService().getExecutableActions(device, activatedEventType).get();
 
         // Business method
-        installAndActivateAction.execute(Arrays.asList(actionProperty));
+        installAndActivateAction.execute(Arrays.asList(effectiveTimestampProperty, lastCheckedProperty));
 
         // Asserts
         assertThat(device.getLifecycleDates()).isNotNull();
@@ -202,18 +226,26 @@ public class DeviceLifeCycleIT extends PersistenceIntegrationTest {
         Instant activationTime = Instant.ofEpochMilli(20000L);
         when(inMemoryPersistence.getClock().instant()).thenReturn(activationTime);
         CustomStateTransitionEventType activatedEventType = DefaultCustomStateTransitionEventType.DEACTIVATED.findOrCreate(inMemoryPersistence.getFiniteStateMachineService());
-        ExecutableActionProperty actionProperty = mock(ExecutableActionProperty.class);
-        PropertySpec propertySpec = inMemoryPersistence.getPropertySpecService()
+        ExecutableActionProperty effectiveTimestampProperty = mock(ExecutableActionProperty.class);
+        PropertySpec effectiveTimestampPropertySpec = inMemoryPersistence.getPropertySpecService()
                 .basicPropertySpec(
                         DeviceLifeCycleService.MicroActionPropertyName.EFFECTIVE_TIMESTAMP.key(),
                         true,
                         new InstantFactory());
-        when(actionProperty.getPropertySpec()).thenReturn(propertySpec);
-        when(actionProperty.getValue()).thenReturn(activationTime);
+        when(effectiveTimestampProperty.getPropertySpec()).thenReturn(effectiveTimestampPropertySpec);
+        when(effectiveTimestampProperty.getValue()).thenReturn(activationTime);
+        ExecutableActionProperty lastCheckedProperty = mock(ExecutableActionProperty.class);
+        PropertySpec lastCheckedPropertySpec = inMemoryPersistence.getPropertySpecService()
+                .basicPropertySpec(
+                        DeviceLifeCycleService.MicroActionPropertyName.LAST_CHECKED.key(),
+                        true,
+                        new InstantFactory());
+        when(lastCheckedProperty.getPropertySpec()).thenReturn(lastCheckedPropertySpec);
+        when(lastCheckedProperty.getValue()).thenReturn(activationTime);
         ExecutableAction installAndActivateAction = inMemoryPersistence.getDeviceLifeCycleService().getExecutableActions(device, activatedEventType).get();
 
         // Business method
-        installAndActivateAction.execute(Arrays.asList(actionProperty));
+        installAndActivateAction.execute(Arrays.asList(effectiveTimestampProperty, lastCheckedProperty));
 
         // Asserts
         assertThat(device.getLifecycleDates()).isNotNull();
@@ -236,18 +268,26 @@ public class DeviceLifeCycleIT extends PersistenceIntegrationTest {
         Instant deactivationTime = Instant.ofEpochMilli(20000L);
         when(inMemoryPersistence.getClock().instant()).thenReturn(deactivationTime);
         CustomStateTransitionEventType activatedEventType = DefaultCustomStateTransitionEventType.DEACTIVATED.findOrCreate(inMemoryPersistence.getFiniteStateMachineService());
-        ExecutableActionProperty actionProperty = mock(ExecutableActionProperty.class);
-        PropertySpec propertySpec = inMemoryPersistence.getPropertySpecService()
+        ExecutableActionProperty effectiveTimestampProperty = mock(ExecutableActionProperty.class);
+        PropertySpec effectiveTimestampPropertySpec = inMemoryPersistence.getPropertySpecService()
                 .basicPropertySpec(
                         DeviceLifeCycleService.MicroActionPropertyName.EFFECTIVE_TIMESTAMP.key(),
                         true,
                         new InstantFactory());
-        when(actionProperty.getPropertySpec()).thenReturn(propertySpec);
-        when(actionProperty.getValue()).thenReturn(deactivationTime);
+        when(effectiveTimestampProperty.getPropertySpec()).thenReturn(effectiveTimestampPropertySpec);
+        when(effectiveTimestampProperty.getValue()).thenReturn(deactivationTime);
+        ExecutableActionProperty lastCheckedProperty = mock(ExecutableActionProperty.class);
+        PropertySpec lastCheckedPropertySpec = inMemoryPersistence.getPropertySpecService()
+                .basicPropertySpec(
+                        DeviceLifeCycleService.MicroActionPropertyName.LAST_CHECKED.key(),
+                        true,
+                        new InstantFactory());
+        when(lastCheckedProperty.getPropertySpec()).thenReturn(lastCheckedPropertySpec);
+        when(lastCheckedProperty.getValue()).thenReturn(deactivationTime);
         ExecutableAction installAndActivateAction = inMemoryPersistence.getDeviceLifeCycleService().getExecutableActions(device, activatedEventType).get();
 
         // Business method
-        installAndActivateAction.execute(Arrays.asList(actionProperty));
+        installAndActivateAction.execute(Arrays.asList(effectiveTimestampProperty));
 
         // Asserts
         assertThat(device.getLifecycleDates()).isNotNull();
@@ -270,16 +310,24 @@ public class DeviceLifeCycleIT extends PersistenceIntegrationTest {
         Instant initialActivationTime = Instant.ofEpochMilli(20000L);
         when(inMemoryPersistence.getClock().instant()).thenReturn(initialActivationTime);
         CustomStateTransitionEventType activatedEventType = DefaultCustomStateTransitionEventType.ACTIVATED.findOrCreate(inMemoryPersistence.getFiniteStateMachineService());
-        ExecutableActionProperty activateActionProperty = mock(ExecutableActionProperty.class);
-        PropertySpec activatePropertySpec = inMemoryPersistence.getPropertySpecService()
+        ExecutableActionProperty effectiveTimestampProperty = mock(ExecutableActionProperty.class);
+        PropertySpec effectiveTimestampPropertySpec = inMemoryPersistence.getPropertySpecService()
                 .basicPropertySpec(
                         DeviceLifeCycleService.MicroActionPropertyName.EFFECTIVE_TIMESTAMP.key(),
                         true,
                         new InstantFactory());
-        when(activateActionProperty.getPropertySpec()).thenReturn(activatePropertySpec);
-        when(activateActionProperty.getValue()).thenReturn(initialActivationTime);
+        when(effectiveTimestampProperty.getPropertySpec()).thenReturn(effectiveTimestampPropertySpec);
+        when(effectiveTimestampProperty.getValue()).thenReturn(initialActivationTime);
+        ExecutableActionProperty lastCheckedProperty = mock(ExecutableActionProperty.class);
+        PropertySpec lastCheckedPropertySpec = inMemoryPersistence.getPropertySpecService()
+                .basicPropertySpec(
+                        DeviceLifeCycleService.MicroActionPropertyName.LAST_CHECKED.key(),
+                        true,
+                        new InstantFactory());
+        when(lastCheckedProperty.getPropertySpec()).thenReturn(lastCheckedPropertySpec);
+        when(lastCheckedProperty.getValue()).thenReturn(initialActivationTime);
         ExecutableAction installAndActivateAction = inMemoryPersistence.getDeviceLifeCycleService().getExecutableActions(device, activatedEventType).get();
-        installAndActivateAction.execute(Arrays.asList(activateActionProperty));
+        installAndActivateAction.execute(Arrays.asList(effectiveTimestampProperty, lastCheckedProperty));
         device = inMemoryPersistence.getDeviceService().findDeviceById(device.getId()).get();
         State state = device.getState();
         assertThat(DefaultState.from(state)).isPresent();
@@ -307,11 +355,11 @@ public class DeviceLifeCycleIT extends PersistenceIntegrationTest {
         // Activate the device again
         Instant activationTime = Instant.ofEpochMilli(40000L);
         when(inMemoryPersistence.getClock().instant()).thenReturn(activationTime);
-        when(activateActionProperty.getValue()).thenReturn(activationTime);
+        when(effectiveTimestampProperty.getValue()).thenReturn(activationTime);
         ExecutableAction activateAction = inMemoryPersistence.getDeviceLifeCycleService().getExecutableActions(device, activatedEventType).get();
 
         // Business method
-        activateAction.execute(Arrays.asList(activateActionProperty));
+        activateAction.execute(Arrays.asList(effectiveTimestampProperty, lastCheckedProperty));
 
         // Asserts
         assertThat(device.getLifecycleDates()).isNotNull();

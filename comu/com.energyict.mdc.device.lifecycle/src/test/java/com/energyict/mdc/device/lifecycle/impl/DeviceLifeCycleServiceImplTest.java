@@ -4,6 +4,8 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.ActionDoesNotRelateToDeviceStateException;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolation;
+import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
+import com.energyict.mdc.device.lifecycle.EffectiveTimestampNotInRangeException;
 import com.energyict.mdc.device.lifecycle.ExecutableAction;
 import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
 import com.energyict.mdc.device.lifecycle.MultipleMicroCheckViolationsException;
@@ -35,6 +37,7 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
+import com.elster.jupiter.util.exception.MessageSeed;
 
 import java.math.BigDecimal;
 import java.security.Principal;
@@ -446,6 +449,56 @@ public class DeviceLifeCycleServiceImplTest {
 
         // Business method
         service.execute(this.action, this.device, Collections.emptyList());
+
+        // Asserts: see expected exception rule
+    }
+
+    @Test(expected = EffectiveTimestampNotInRangeException.class)
+    public void executeWithEffectiveTimestampTooFarInThePast() {
+        DeviceLifeCycleServiceImpl service = this.getTestInstance();
+        when(this.action.getActions()).thenReturn(new HashSet<>(Arrays.asList(MicroAction.SET_LAST_READING)));
+        when(this.action.getLevels()).thenReturn(EnumSet.of(AuthorizedAction.Level.FOUR));
+        when(this.user.hasPrivilege(this.privilege)).thenReturn(true);
+        PropertySpec setLastReadingPropertySpec = mock(PropertySpec.class);
+        when(setLastReadingPropertySpec.getName()).thenReturn(DeviceLifeCycleService.MicroActionPropertyName.EFFECTIVE_TIMESTAMP.key());
+        when(setLastReadingPropertySpec.isRequired()).thenReturn(true);
+        ExecutableActionProperty lastReading = mock(ExecutableActionProperty.class);
+        when(lastReading.getPropertySpec()).thenReturn(setLastReadingPropertySpec);
+        when(lastReading.getValue()).thenReturn(Instant.EPOCH);
+        ServerMicroAction setLastReading = mock(ServerMicroAction.class);
+        when(setLastReading.getPropertySpecs(any(PropertySpecService.class))).thenReturn(Arrays.asList(setLastReadingPropertySpec));
+        when(this.microActionFactory.from(MicroAction.SET_LAST_READING)).thenReturn(setLastReading);
+        when(this.lifeCycle.getMaximumFutureEffectiveTimestamp()).thenReturn(Instant.ofEpochSecond(10000));
+        when(this.lifeCycle.getMaximumPastEffectiveTimestamp()).thenReturn(Instant.ofEpochSecond(1000));
+        when(this.thesaurus.getFormat(any(MessageSeed.class))).thenReturn(mock(NlsMessageFormat.class));
+
+        // Business method
+        service.execute(this.action, this.device, Arrays.asList(lastReading));
+
+        // Asserts: see expected exception rule
+    }
+
+    @Test(expected = EffectiveTimestampNotInRangeException.class)
+    public void executeWithEffectiveTimestampTooFarInTheFuture() {
+        DeviceLifeCycleServiceImpl service = this.getTestInstance();
+        when(this.action.getActions()).thenReturn(new HashSet<>(Arrays.asList(MicroAction.SET_LAST_READING)));
+        when(this.action.getLevels()).thenReturn(EnumSet.of(AuthorizedAction.Level.FOUR));
+        when(this.user.hasPrivilege(this.privilege)).thenReturn(true);
+        PropertySpec setLastReadingPropertySpec = mock(PropertySpec.class);
+        when(setLastReadingPropertySpec.getName()).thenReturn(DeviceLifeCycleService.MicroActionPropertyName.EFFECTIVE_TIMESTAMP.key());
+        when(setLastReadingPropertySpec.isRequired()).thenReturn(true);
+        ExecutableActionProperty lastReading = mock(ExecutableActionProperty.class);
+        when(lastReading.getPropertySpec()).thenReturn(setLastReadingPropertySpec);
+        when(lastReading.getValue()).thenReturn(Instant.ofEpochSecond(10100));
+        ServerMicroAction setLastReading = mock(ServerMicroAction.class);
+        when(setLastReading.getPropertySpecs(any(PropertySpecService.class))).thenReturn(Arrays.asList(setLastReadingPropertySpec));
+        when(this.microActionFactory.from(MicroAction.SET_LAST_READING)).thenReturn(setLastReading);
+        when(this.lifeCycle.getMaximumFutureEffectiveTimestamp()).thenReturn(Instant.ofEpochSecond(10000));
+        when(this.lifeCycle.getMaximumPastEffectiveTimestamp()).thenReturn(Instant.ofEpochSecond(1000));
+        when(this.thesaurus.getFormat(any(MessageSeed.class))).thenReturn(mock(NlsMessageFormat.class));
+
+        // Business method
+        service.execute(this.action, this.device, Arrays.asList(lastReading));
 
         // Asserts: see expected exception rule
     }

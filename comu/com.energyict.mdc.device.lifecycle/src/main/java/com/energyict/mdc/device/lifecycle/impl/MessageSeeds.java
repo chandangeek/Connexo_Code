@@ -38,7 +38,8 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     ALL_DATA_VALIDATED(10014, MicroCheck.ALL_DATA_VALIDATED, "All the collected data on the device is validated"),
     AT_LEAST_ONE_ACTIVE_CONNECTION_AVAILABLE(10015, MicroCheck.AT_LEAST_ONE_ACTIVE_CONNECTION_AVAILABLE, "There should at least one active connection on the device"),
     // MicroActions
-    MISSING_REQUIRED_PROPERTY_VALUES(20001, Keys.MISSING_REQUIRED_PROPERTY_VALUES, "No value was specified for the following property spec of the configured actions: {0}")
+    MISSING_REQUIRED_PROPERTY_VALUES(20001, Keys.MISSING_REQUIRED_PROPERTY_VALUES, "No value was specified for the following property spec of the configured actions: {0}"),
+    EFFECTIVE_TIMESTAMP_NOT_IN_RANGE(20002, Keys.EFFECTIVE_TIMESTAMP_NOT_IN_RANGE, "The transition date should be between {0} and {1}")
     ;
 
     private final int number;
@@ -92,6 +93,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
         public static final String NOT_ALLOWED_2_EXECUTE = "authorizedAction.notAllowed2Execute";
         public static final String MULTIPLE_MICRO_CHECKS_FAILED = "authorizedAction.multiple.microChecksFailed";
         public static final String MISSING_REQUIRED_PROPERTY_VALUES = "authorizedAction.microAction.required.properties.multipleMissing";
+        public static final String EFFECTIVE_TIMESTAMP_NOT_IN_RANGE = "authorizedAction.microAction.effectiveTimstamp.notInRange";
     }
 
 }

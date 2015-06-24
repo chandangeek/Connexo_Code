@@ -5,6 +5,7 @@ import com.energyict.mdc.device.lifecycle.ActionDoesNotRelateToDeviceStateExcept
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolation;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolationException;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
+import com.energyict.mdc.device.lifecycle.EffectiveTimestampNotInRangeException;
 import com.energyict.mdc.device.lifecycle.ExecutableAction;
 import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
 import com.energyict.mdc.device.lifecycle.MultipleMicroCheckViolationsException;
@@ -13,6 +14,7 @@ import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedBusinessProcessAction;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedStandardTransitionAction;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
 
@@ -31,6 +33,7 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.streams.Functions;
+import com.google.common.collect.Range;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -240,6 +243,7 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
     private void validateTriggerExecution(AuthorizedTransitionAction action, Device device, List<ExecutableActionProperty> properties) {
         this.validateTriggerExecution(action, device);
         this.valueAvailableForAllRequiredProperties(action, properties);
+        this.effectiveTimestampIsInRange(properties, action.getDeviceLifeCycle());
     }
 
     private void valueAvailableForAllRequiredProperties(AuthorizedTransitionAction action, List<ExecutableActionProperty> properties) {
@@ -259,6 +263,20 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
                 .collect(Collectors.toSet());
         if (!missingRequiredPropertySpecNames.isEmpty()) {
             throw new RequiredMicroActionPropertiesException(this.thesaurus, MessageSeeds.MISSING_REQUIRED_PROPERTY_VALUES, missingRequiredPropertySpecNames);
+        }
+    }
+
+    private void effectiveTimestampIsInRange(List<ExecutableActionProperty> properties, DeviceLifeCycle deviceLifeCycle) {
+        DeviceLifeCyclePropertySupport
+            .getOptionalEffectiveTimestamp(properties)
+            .ifPresent(effectiveTimestamp -> this.effectiveTimestampIsInRange(effectiveTimestamp, deviceLifeCycle));
+    }
+
+    private void effectiveTimestampIsInRange(Instant effectiveTimestamp, DeviceLifeCycle deviceLifeCycle) {
+        Instant now = this.clock.instant();
+        Range<Instant> range = Range.closed(deviceLifeCycle.getMaximumPastEffectiveTimestamp(), deviceLifeCycle.getMaximumFutureEffectiveTimestamp());
+        if (!range.contains(effectiveTimestamp)) {
+            throw new EffectiveTimestampNotInRangeException(this.thesaurus, MessageSeeds.EFFECTIVE_TIMESTAMP_NOT_IN_RANGE, deviceLifeCycle);
         }
     }
 

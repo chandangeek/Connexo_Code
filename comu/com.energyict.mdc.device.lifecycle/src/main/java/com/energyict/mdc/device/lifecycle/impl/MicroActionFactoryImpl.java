@@ -66,6 +66,7 @@ public class MicroActionFactoryImpl implements ServerMicroActionFactory {
     public void setTransactionService(TransactionService transactionService) {
         this.transactionService = transactionService;
     }
+
     @Reference
     public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
         this.threadPrincipalService = threadPrincipalService;
