@@ -12,6 +12,7 @@ import com.elster.jupiter.properties.PropertySpecService;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
 
@@ -121,6 +122,7 @@ public final class DeviceLifeCyclePropertySupport {
                 .stream()
                 .filter(predicate)
                 .map(ExecutableActionProperty::getValue)
+                .filter(Objects::nonNull)
                 .map(Instant.class::cast)
                 .findAny();
     }

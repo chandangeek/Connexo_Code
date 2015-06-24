@@ -11,6 +11,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.streams.Predicates;
 
 import java.time.Instant;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -39,6 +40,7 @@ public class ProtocolDialectPropertiesAreValid implements ServerMicroCheck {
             .getComTaskEnablements()
             .stream()
             .map(ComTaskEnablement::getProtocolDialectConfigurationProperties)
+            .filter(Objects::nonNull)
             .map(pcp -> device.getProtocolDialectProperties(pcp.getDeviceProtocolDialectName()))
             .filter(Predicates.not(Optional::isPresent))
             .count();
