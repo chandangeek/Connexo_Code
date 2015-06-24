@@ -31,7 +31,6 @@ import javax.ws.rs.core.Application;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -128,6 +127,7 @@ public class DataExportApplicationJerseyTest extends FelixRestApplicationJerseyT
         when(exportPeriod.getRelativeDateFrom()).thenReturn(new RelativeDate(RelativeField.DAY.minus(1)));
         when(exportPeriod.getRelativeDateTo()).thenReturn(new RelativeDate());
         when(readingTypeDataSelector.getStrategy()).thenReturn(strategy);
+        when(strategy.getUpdateWindow()).thenReturn(Optional.empty());
         when(readingTypeDataSelector.getStrategy().getUpdatePeriod()).thenReturn(Optional.of(exportPeriod));
         when(exportTask.getNextExecution()).thenReturn(DataExportTaskResourceTest.NEXT_EXECUTION.toInstant());
         when(meteringGroupsService.findEndDeviceGroup(5)).thenReturn(Optional.of(endDeviceGroup));
@@ -136,7 +136,7 @@ public class DataExportApplicationJerseyTest extends FelixRestApplicationJerseyT
         when(exportTask.getOccurrencesFinder()).thenReturn(finder);
         when(exportTask.getName()).thenReturn("Name");
         when(exportTask.getLastOccurrence()).thenReturn(Optional.empty());
-        when(exportTask.getLastRun()).thenReturn(Optional.<Instant>empty());
+        when(exportTask.getLastRun()).thenReturn(Optional.empty());
 
         doReturn(Optional.of(exportTask)).when(dataExportService).findExportTask(DataExportTaskResourceTest.TASK_ID);
         setUpStubs();

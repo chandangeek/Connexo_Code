@@ -141,9 +141,11 @@ public class DataExportTaskResource {
             DataExportTaskBuilder.StandardSelectorBuilder selectorBuilder = builder.selectingStandard()
                     .fromExportPeriod(getRelativePeriod(info.standardDataSelector.exportPeriod))
                     .fromUpdatePeriod(getRelativePeriod(info.standardDataSelector.updatePeriod))
+                    .withUpdateWindow(getRelativePeriod(info.standardDataSelector.updateWindow))
                     .withValidatedDataOption(info.standardDataSelector.validatedDataOption)
                     .fromEndDeviceGroup(endDeviceGroup(info.standardDataSelector.deviceGroup.id))
                     .continuousData(info.standardDataSelector.exportContinuousData)
+                    .exportComplete(info.standardDataSelector.exportComplete)
                     .exportUpdate(info.standardDataSelector.exportUpdate);
             info.standardDataSelector.readingTypes.stream()
                     .map(r -> r.mRID)
