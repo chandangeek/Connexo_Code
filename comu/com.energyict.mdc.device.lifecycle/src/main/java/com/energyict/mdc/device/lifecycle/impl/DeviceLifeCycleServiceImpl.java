@@ -5,6 +5,7 @@ import com.energyict.mdc.device.lifecycle.ActionDoesNotRelateToDeviceStateExcept
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolation;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolationException;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
+import com.energyict.mdc.device.lifecycle.EffectiveTimestampBeforeLastStateChangeException;
 import com.energyict.mdc.device.lifecycle.EffectiveTimestampNotInRangeException;
 import com.energyict.mdc.device.lifecycle.ExecutableAction;
 import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
@@ -20,6 +21,7 @@ import com.energyict.mdc.device.lifecycle.config.MicroAction;
 
 import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.fsm.CustomStateTransitionEventType;
+import com.elster.jupiter.fsm.StateTimeSlice;
 import com.elster.jupiter.fsm.StateTransitionEventType;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
@@ -244,6 +246,7 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
         this.validateTriggerExecution(action, device);
         this.valueAvailableForAllRequiredProperties(action, properties);
         this.effectiveTimestampIsInRange(properties, action.getDeviceLifeCycle());
+        this.effectiveTimestampNotBeforeLastStateChange(properties, device);
     }
 
     private void valueAvailableForAllRequiredProperties(AuthorizedTransitionAction action, List<ExecutableActionProperty> properties) {
@@ -277,6 +280,33 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
         Range<Instant> range = Range.closed(deviceLifeCycle.getMaximumPastEffectiveTimestamp(), deviceLifeCycle.getMaximumFutureEffectiveTimestamp());
         if (!range.contains(effectiveTimestamp)) {
             throw new EffectiveTimestampNotInRangeException(this.thesaurus, MessageSeeds.EFFECTIVE_TIMESTAMP_NOT_IN_RANGE, deviceLifeCycle);
+        }
+    }
+
+    private void effectiveTimestampNotBeforeLastStateChange(List<ExecutableActionProperty> properties, Device device) {
+        DeviceLifeCyclePropertySupport
+                .getOptionalEffectiveTimestamp(properties)
+                .ifPresent(effectiveTimestamp -> this.effectiveTimestampNotBeforeLastStateChange(effectiveTimestamp, device));
+    }
+
+    private void effectiveTimestampNotBeforeLastStateChange(Instant effectiveTimestamp, Device device) {
+        List<StateTimeSlice> stateTimeSlices = device.getStateTimeline().getSlices();
+        this.lastSlice(stateTimeSlices).ifPresent(lastSlice -> this.effectiveTimestampNotBeforeLastStateChange(effectiveTimestamp, device, lastSlice));
+    }
+
+    private Optional<StateTimeSlice> lastSlice(List<StateTimeSlice> stateTimeSlices) {
+        if (stateTimeSlices.isEmpty()) {
+            // MDC device always have at least one state
+            return Optional.empty();
+        }
+        else {
+            return Optional.of(stateTimeSlices.get(stateTimeSlices.size() - 1));
+        }
+    }
+
+    private void effectiveTimestampNotBeforeLastStateChange(Instant effectiveTimestamp, Device device, StateTimeSlice lastStateTimeSlice) {
+        if (effectiveTimestamp.isBefore(lastStateTimeSlice.getPeriod().lowerEndpoint())) {
+            throw new EffectiveTimestampBeforeLastStateChangeException(this.thesaurus, MessageSeeds.EFFECTIVE_TIMESTAMP_NOT_BEFORE_LAST_STATE_CHANGE, device, effectiveTimestamp,  lastStateTimeSlice.getPeriod().lowerEndpoint());
         }
     }
 

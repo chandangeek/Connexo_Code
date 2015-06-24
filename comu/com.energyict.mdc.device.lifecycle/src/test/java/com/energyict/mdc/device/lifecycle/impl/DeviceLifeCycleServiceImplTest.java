@@ -5,6 +5,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.ActionDoesNotRelateToDeviceStateException;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolation;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
+import com.energyict.mdc.device.lifecycle.EffectiveTimestampBeforeLastStateChangeException;
 import com.energyict.mdc.device.lifecycle.EffectiveTimestampNotInRangeException;
 import com.energyict.mdc.device.lifecycle.ExecutableAction;
 import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
@@ -23,6 +24,8 @@ import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.fsm.CustomStateTransitionEventType;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.fsm.StateTimeSlice;
+import com.elster.jupiter.fsm.StateTimeline;
 import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.fsm.StateTransitionEventType;
 import com.elster.jupiter.fsm.StateTransitionTriggerEvent;
@@ -38,6 +41,7 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
 import java.security.Principal;
@@ -144,6 +148,11 @@ public class DeviceLifeCycleServiceImplTest {
         when(this.action.getDeviceLifeCycle()).thenReturn(this.lifeCycle);
         when(this.action.getState()).thenReturn(this.state);
         when(this.action.getStateTransition()).thenReturn(this.stateTransition);
+        StateTimeline stateTimeline = mock(StateTimeline.class);
+        StateTimeSlice timeSlice = mock(StateTimeSlice.class);
+        when(timeSlice.getPeriod()).thenReturn(Range.atLeast(Instant.EPOCH));
+        when(stateTimeline.getSlices()).thenReturn(Arrays.asList(timeSlice));
+        when(this.device.getStateTimeline()).thenReturn(stateTimeline);
         when(this.stateTransition.getEventType()).thenReturn(this.eventType);
         when(this.user.getName()).thenReturn(DeviceLifeCycleServiceImplTest.class.getSimpleName());
         when(this.threadPrincipleService.getPrincipal()).thenReturn(this.user);
@@ -459,21 +468,21 @@ public class DeviceLifeCycleServiceImplTest {
         when(this.action.getActions()).thenReturn(new HashSet<>(Arrays.asList(MicroAction.SET_LAST_READING)));
         when(this.action.getLevels()).thenReturn(EnumSet.of(AuthorizedAction.Level.FOUR));
         when(this.user.hasPrivilege(this.privilege)).thenReturn(true);
-        PropertySpec setLastReadingPropertySpec = mock(PropertySpec.class);
-        when(setLastReadingPropertySpec.getName()).thenReturn(DeviceLifeCycleService.MicroActionPropertyName.EFFECTIVE_TIMESTAMP.key());
-        when(setLastReadingPropertySpec.isRequired()).thenReturn(true);
-        ExecutableActionProperty lastReading = mock(ExecutableActionProperty.class);
-        when(lastReading.getPropertySpec()).thenReturn(setLastReadingPropertySpec);
-        when(lastReading.getValue()).thenReturn(Instant.EPOCH);
+        PropertySpec effectiveTimestampPropertySpec = mock(PropertySpec.class);
+        when(effectiveTimestampPropertySpec.getName()).thenReturn(DeviceLifeCycleService.MicroActionPropertyName.EFFECTIVE_TIMESTAMP.key());
+        when(effectiveTimestampPropertySpec.isRequired()).thenReturn(true);
+        ExecutableActionProperty effectiveTimestamp = mock(ExecutableActionProperty.class);
+        when(effectiveTimestamp.getPropertySpec()).thenReturn(effectiveTimestampPropertySpec);
+        when(effectiveTimestamp.getValue()).thenReturn(Instant.EPOCH);
         ServerMicroAction setLastReading = mock(ServerMicroAction.class);
-        when(setLastReading.getPropertySpecs(any(PropertySpecService.class))).thenReturn(Arrays.asList(setLastReadingPropertySpec));
+        when(setLastReading.getPropertySpecs(any(PropertySpecService.class))).thenReturn(Arrays.asList(effectiveTimestampPropertySpec));
         when(this.microActionFactory.from(MicroAction.SET_LAST_READING)).thenReturn(setLastReading);
         when(this.lifeCycle.getMaximumFutureEffectiveTimestamp()).thenReturn(Instant.ofEpochSecond(10000));
         when(this.lifeCycle.getMaximumPastEffectiveTimestamp()).thenReturn(Instant.ofEpochSecond(1000));
         when(this.thesaurus.getFormat(any(MessageSeed.class))).thenReturn(mock(NlsMessageFormat.class));
 
         // Business method
-        service.execute(this.action, this.device, Arrays.asList(lastReading));
+        service.execute(this.action, this.device, Arrays.asList(effectiveTimestamp));
 
         // Asserts: see expected exception rule
     }
@@ -484,21 +493,51 @@ public class DeviceLifeCycleServiceImplTest {
         when(this.action.getActions()).thenReturn(new HashSet<>(Arrays.asList(MicroAction.SET_LAST_READING)));
         when(this.action.getLevels()).thenReturn(EnumSet.of(AuthorizedAction.Level.FOUR));
         when(this.user.hasPrivilege(this.privilege)).thenReturn(true);
-        PropertySpec setLastReadingPropertySpec = mock(PropertySpec.class);
-        when(setLastReadingPropertySpec.getName()).thenReturn(DeviceLifeCycleService.MicroActionPropertyName.EFFECTIVE_TIMESTAMP.key());
-        when(setLastReadingPropertySpec.isRequired()).thenReturn(true);
-        ExecutableActionProperty lastReading = mock(ExecutableActionProperty.class);
-        when(lastReading.getPropertySpec()).thenReturn(setLastReadingPropertySpec);
-        when(lastReading.getValue()).thenReturn(Instant.ofEpochSecond(10100));
+        PropertySpec effectiveTimestampPropertySpec = mock(PropertySpec.class);
+        when(effectiveTimestampPropertySpec.getName()).thenReturn(DeviceLifeCycleService.MicroActionPropertyName.EFFECTIVE_TIMESTAMP.key());
+        when(effectiveTimestampPropertySpec.isRequired()).thenReturn(true);
+        ExecutableActionProperty effectiveTimestamp = mock(ExecutableActionProperty.class);
+        when(effectiveTimestamp.getPropertySpec()).thenReturn(effectiveTimestampPropertySpec);
+        when(effectiveTimestamp.getValue()).thenReturn(Instant.ofEpochSecond(10100));
         ServerMicroAction setLastReading = mock(ServerMicroAction.class);
-        when(setLastReading.getPropertySpecs(any(PropertySpecService.class))).thenReturn(Arrays.asList(setLastReadingPropertySpec));
+        when(setLastReading.getPropertySpecs(any(PropertySpecService.class))).thenReturn(Arrays.asList(effectiveTimestampPropertySpec));
         when(this.microActionFactory.from(MicroAction.SET_LAST_READING)).thenReturn(setLastReading);
         when(this.lifeCycle.getMaximumFutureEffectiveTimestamp()).thenReturn(Instant.ofEpochSecond(10000));
         when(this.lifeCycle.getMaximumPastEffectiveTimestamp()).thenReturn(Instant.ofEpochSecond(1000));
         when(this.thesaurus.getFormat(any(MessageSeed.class))).thenReturn(mock(NlsMessageFormat.class));
 
         // Business method
-        service.execute(this.action, this.device, Arrays.asList(lastReading));
+        service.execute(this.action, this.device, Arrays.asList(effectiveTimestamp));
+
+        // Asserts: see expected exception rule
+    }
+
+    @Test(expected = EffectiveTimestampBeforeLastStateChangeException.class)
+    public void executeWithEffectiveTimestampBeforeLastStateChange() {
+        DeviceLifeCycleServiceImpl service = this.getTestInstance();
+        when(this.action.getActions()).thenReturn(new HashSet<>(Arrays.asList(MicroAction.SET_LAST_READING)));
+        when(this.action.getLevels()).thenReturn(EnumSet.of(AuthorizedAction.Level.FOUR));
+        when(this.user.hasPrivilege(this.privilege)).thenReturn(true);
+        PropertySpec effectiveTimestampPropertySpec = mock(PropertySpec.class);
+        when(effectiveTimestampPropertySpec.getName()).thenReturn(DeviceLifeCycleService.MicroActionPropertyName.EFFECTIVE_TIMESTAMP.key());
+        when(effectiveTimestampPropertySpec.isRequired()).thenReturn(true);
+        ExecutableActionProperty effectiveTimestamp = mock(ExecutableActionProperty.class);
+        when(effectiveTimestamp.getPropertySpec()).thenReturn(effectiveTimestampPropertySpec);
+        when(effectiveTimestamp.getValue()).thenReturn(Instant.ofEpochMilli(50000L));
+        ServerMicroAction setLastReading = mock(ServerMicroAction.class);
+        when(setLastReading.getPropertySpecs(any(PropertySpecService.class))).thenReturn(Arrays.asList(effectiveTimestampPropertySpec));
+        when(this.microActionFactory.from(MicroAction.SET_LAST_READING)).thenReturn(setLastReading);
+        when(this.lifeCycle.getMaximumFutureEffectiveTimestamp()).thenReturn(Instant.ofEpochMilli(100000L));
+        when(this.lifeCycle.getMaximumPastEffectiveTimestamp()).thenReturn(Instant.ofEpochMilli(10000L));
+        when(this.thesaurus.getFormat(any(MessageSeed.class))).thenReturn(mock(NlsMessageFormat.class));
+        StateTimeline stateTimeline = mock(StateTimeline.class);
+        StateTimeSlice timeSlice = mock(StateTimeSlice.class);
+        when(timeSlice.getPeriod()).thenReturn(Range.atLeast(Instant.ofEpochMilli(60000L)));
+        when(stateTimeline.getSlices()).thenReturn(Arrays.asList(timeSlice));
+        when(this.device.getStateTimeline()).thenReturn(stateTimeline);
+
+        // Business method
+        service.execute(this.action, this.device, Arrays.asList(effectiveTimestamp));
 
         // Asserts: see expected exception rule
     }
