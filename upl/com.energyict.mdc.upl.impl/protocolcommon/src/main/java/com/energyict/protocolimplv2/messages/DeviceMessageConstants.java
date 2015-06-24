@@ -90,6 +90,7 @@ public class DeviceMessageConstants {
     public static final String maxCredit = "ConfigurationChangeDeviceMessage.maxCredit";
     public static final String zeroCrossDelay = "ConfigurationChangeDeviceMessage.zeroCrossDelay";
     public static final String synchronisationBit = "ConfigurationChangeDeviceMessage.synchronisationBit";
+    public static final String EnableEventNotifications ="EnableEventNotifications";
 
     public static final String managedWhiteListPhoneNumbersAttributeName = "NetworkConnectivityMessage.managed.whitelist.phonenumbers";
     public static final String smsCenterPhoneNumberAttributeName = "NetworkConnectivityMessage.smscenter.phonenumber";
