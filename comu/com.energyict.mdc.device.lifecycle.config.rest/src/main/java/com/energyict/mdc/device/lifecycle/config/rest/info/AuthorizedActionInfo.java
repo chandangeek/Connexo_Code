@@ -67,8 +67,10 @@ public class AuthorizedActionInfo {
     }
 
     public boolean isLinkedTo(StateTransition candidate){
-        if (this.fromState != null && this.toState != null){
-            return candidate.getFrom().getId() == this.fromState.id && candidate.getTo().getId() == this.toState.id;
+        if (this.fromState != null && this.toState != null && this.triggeredBy != null){
+            return candidate.getEventType().getSymbol().equals(this.triggeredBy.symbol)
+                    && candidate.getFrom().getId() == this.fromState.id
+                    && candidate.getTo().getId() == this.toState.id;
         }
         return false;
     }
