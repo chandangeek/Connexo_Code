@@ -76,12 +76,14 @@ Ext.define('Uni.grid.FilterPanelTop', {
                     xtype: 'button',
                     ui: 'action',
                     text: Uni.I18n.translate('general.apply', 'UNI', 'Apply'),
-                    action: 'applyAll'
+                    action: 'applyAll',
+                    itemId: 'filter-apply-all'
                 },
                 {
                     xtype: 'button',
                     text: Uni.I18n.translate('general.clearAll', 'UNI', 'Clear all'),
-                    action: 'clearAll'
+                    action: 'clearAll',
+                    itemId: 'filter-clear-all'
                 }
             ]
         }
