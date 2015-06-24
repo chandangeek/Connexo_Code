@@ -6,6 +6,7 @@ import com.elster.jupiter.fsm.CustomStateTransitionEventType;
 import com.elster.jupiter.fsm.StandardEventPredicate;
 import com.elster.jupiter.fsm.StandardStateTransitionEventType;
 import com.elster.jupiter.fsm.StateTransitionEventType;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.streams.Functions;
@@ -136,6 +137,8 @@ public class FiniteStateMachineServiceImplIT {
     @Test
     public void findBySymbolForCustomEventType() {
         TransactionService transactionService = inMemoryPersistence.getService(TransactionService.class);
+        ThreadPrincipalService threadPrincipalService = inMemoryPersistence.getService(ThreadPrincipalService.class);
+        threadPrincipalService.set(() -> "test");
         try (TransactionContext context = transactionService.getContext()) {
             FiniteStateMachineServiceImpl service = this.getTestService();
             String symbol = "#findBySymbolForCustomEventType";
@@ -152,12 +155,15 @@ public class FiniteStateMachineServiceImplIT {
         }
         finally {
             this.deleteAllStandardStateTransitionEventTypesIfAny();
+            threadPrincipalService.clear();
         }
     }
 
     @Test
     public void findBySymbolForStandardEventType() {
         TransactionService transactionService = inMemoryPersistence.getService(TransactionService.class);
+        ThreadPrincipalService threadPrincipalService = inMemoryPersistence.getService(ThreadPrincipalService.class);
+        threadPrincipalService.set(() -> "Test");
         try (TransactionContext context = transactionService.getContext()) {
             FiniteStateMachineServiceImpl service = this.getTestService();
             String symbol = com.elster.jupiter.fsm.impl.EventType.TRIGGER_EVENT.topic();
@@ -176,6 +182,7 @@ public class FiniteStateMachineServiceImplIT {
         }
         finally {
             this.deleteAllStandardStateTransitionEventTypesIfAny();
+            threadPrincipalService.clear();
         }
     }
 
