@@ -1,32 +1,5 @@
 package com.energyict.mdc.issue.datacollection;
 
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import javax.validation.MessageInterpolator;
-
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.rules.TestRule;
-
-import com.elster.jupiter.fsm.FiniteStateMachineService;
-import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
-
-import org.kie.api.KieBaseConfiguration;
-import org.kie.api.io.KieResources;
-import org.kie.internal.KnowledgeBase;
-import org.kie.internal.KnowledgeBaseFactoryService;
-import org.kie.internal.builder.KnowledgeBuilder;
-import org.kie.internal.builder.KnowledgeBuilderConfiguration;
-import org.kie.internal.builder.KnowledgeBuilderFactoryService;
-import org.kie.internal.runtime.StatefulKnowledgeSession;
-import org.mockito.Matchers;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.event.EventAdmin;
-import org.osgi.service.log.LogService;
-
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
@@ -34,6 +7,8 @@ import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.estimation.impl.EstimationModule;
 import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.issue.impl.module.IssueModule;
 import com.elster.jupiter.issue.impl.service.IssueServiceImpl;
@@ -79,7 +54,6 @@ import com.energyict.mdc.device.topology.impl.TopologyModule;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.engine.config.impl.EngineModelModule;
 import com.energyict.mdc.io.impl.MdcIOModule;
-import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.impl.IssueDataCollectionModule;
 import com.energyict.mdc.issue.datacollection.impl.IssueDataCollectionServiceImpl;
 import com.energyict.mdc.issues.impl.IssuesModule;
@@ -94,6 +68,26 @@ import com.energyict.mdc.tasks.impl.TasksModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.rules.TestRule;
+import org.kie.api.KieBaseConfiguration;
+import org.kie.api.io.KieResources;
+import org.kie.internal.KnowledgeBase;
+import org.kie.internal.KnowledgeBaseFactoryService;
+import org.kie.internal.builder.KnowledgeBuilder;
+import org.kie.internal.builder.KnowledgeBuilderConfiguration;
+import org.kie.internal.builder.KnowledgeBuilderFactoryService;
+import org.kie.internal.runtime.StatefulKnowledgeSession;
+import org.mockito.Matchers;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.event.EventAdmin;
+import org.osgi.service.log.LogService;
+
+import javax.validation.MessageInterpolator;
+
+import static org.mockito.Mockito.*;
 
 public abstract class BaseTest {
     
@@ -259,6 +253,7 @@ public abstract class BaseTest {
         CreationRuleBuilder builder = getIssueService().getIssueCreationService().newCreationRule();
         builder.setName(name);
         builder.setComment("Comment for rule");
+        builder.setIssueType(getIssueService().findIssueType(IssueDataCollectionService.DATA_COLLECTION_ISSUE).get());
         builder.setReason(getIssueService().findReason(reasonKey).orElse(null));
         builder.setDueInTime(DueInType.DAY, 15L);
         CreationRuleTemplate template = getMockCreationRuleTemplate();
