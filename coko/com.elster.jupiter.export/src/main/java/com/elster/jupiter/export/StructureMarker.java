@@ -24,6 +24,20 @@ public interface StructureMarker {
 
     Optional<Range<Instant>> getPeriod();
 
+    default boolean contains(String element) {
+        return getStructurePath().stream()
+                .anyMatch(pathElement -> Objects.equals(element, pathElement));
+    }
+
+    default boolean hasAt(String element, int index) {
+        return getStructurePath().get(index).equals(element);
+    }
+
+    default boolean endsWith(String element) {
+        List<String> structurePath = getStructurePath();
+        return structurePath.get(structurePath.size() - 1).equals(element);
+    }
+
     default int differsAt(StructureMarker other) {
         return (int) decorate(DualIterable.endWithLongest(getStructurePath(), other.getStructurePath()).stream())
                 .takeWhile(pair -> Objects.equals(pair.getFirst(), pair.getLast()))

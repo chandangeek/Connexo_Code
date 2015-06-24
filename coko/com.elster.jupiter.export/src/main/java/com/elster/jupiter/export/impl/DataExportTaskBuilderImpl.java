@@ -29,11 +29,13 @@ class DataExportTaskBuilderImpl implements DataExportTaskBuilder {
     private String dataFormatter;
     private RelativePeriod exportPeriod;
     private RelativePeriod updatePeriod;
+    private RelativePeriod updateWindow;
     private List<ReadingTypeDefinition> readingTypes = new ArrayList<>();
     private EndDeviceGroup endDeviceGroup;
     private ValidatedDataOption validatedDataOption;
     private boolean exportUpdate;
     private boolean exportContinuousData;
+    private boolean exportComplete;
 
     private interface ReadingTypeDefinition {
         public void addTo(ReadingTypeDataSelector readingTypeDataSelector);
@@ -99,6 +101,8 @@ class DataExportTaskBuilderImpl implements DataExportTaskBuilder {
             readingTypeDataSelector.setValidatedDataOption(validatedDataOption);
             readingTypeDataSelector.setExportUpdate(exportUpdate);
             readingTypeDataSelector.setExportContinuousData(exportContinuousData);
+            readingTypeDataSelector.setUpdateWindow(updateWindow);
+            readingTypeDataSelector.setExportOnlyIfComplete(exportComplete);
             readingTypes.stream().forEach(d -> d.addTo(readingTypeDataSelector));
             exportTask.setReadingTypeDataSelector(readingTypeDataSelector);
         }
@@ -170,6 +174,18 @@ class DataExportTaskBuilderImpl implements DataExportTaskBuilder {
         @Override
         public StandardSelectorBuilderImpl continuousData(boolean continuous) {
             exportContinuousData = continuous;
+            return this;
+        }
+
+        @Override
+        public StandardSelectorBuilderImpl exportComplete(boolean complete) {
+            exportComplete = complete;
+            return this;
+        }
+
+        @Override
+        public StandardSelectorBuilderImpl withUpdateWindow(RelativePeriod window) {
+            updateWindow = window;
             return this;
         }
 
