@@ -182,7 +182,7 @@ Ext.define('Dxp.view.tasks.Add', {
 
                     {
                          xtype: 'fieldcontainer',
-                         fieldLabel: Uni.I18n.translate('general.dataSelection', 'DES', 'Data selection'),
+                         fieldLabel: Uni.I18n.translate('general.dataSelector', 'DES', 'Data selector'),
                          //required: true,
                          layout: 'hbox',
                          items: [
