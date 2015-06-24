@@ -44,6 +44,14 @@ public interface DeviceLifeCycle extends HasId, HasName {
     TimeDuration getMaximumFutureEffectiveTimeShift();
 
     /**
+     * Gets the maximum value for the effective timestamp property
+     * when executing a device life cycle transition.
+     *
+     * @return The maximum value
+     */
+    Instant getMaximumFutureEffectiveTimestamp();
+
+    /**
      * Gets the maximum time shift in the past
      * that can be used for the effective timestamp
      * of a device life cycle transition.
@@ -55,6 +63,14 @@ public interface DeviceLifeCycle extends HasId, HasName {
      * @return The maximum time shift
      */
     TimeDuration getMaximumPastEffectiveTimeShift();
+
+    /**
+     * Gets the maximum value for the effective timestamp property
+     * when executing a device life cycle transition.
+     *
+     * @return The maximum value
+     */
+    Instant getMaximumPastEffectiveTimestamp();
 
     /**
      * Gets the timestamp on which this DeviceLifeCycle was created.

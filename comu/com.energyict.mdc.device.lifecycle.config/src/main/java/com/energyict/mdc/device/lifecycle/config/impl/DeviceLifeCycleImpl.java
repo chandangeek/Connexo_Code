@@ -25,6 +25,7 @@ import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -62,6 +63,7 @@ public class DeviceLifeCycleImpl implements DeviceLifeCycle {
 
     private final DataModel dataModel;
     private final Thesaurus thesaurus;
+    private final Clock clock;
 
     @SuppressWarnings("unused")
     private long id;
@@ -87,9 +89,10 @@ public class DeviceLifeCycleImpl implements DeviceLifeCycle {
     private Instant modTime;
 
     @Inject
-    public DeviceLifeCycleImpl(DataModel dataModel, Thesaurus thesaurus) {
+    public DeviceLifeCycleImpl(DataModel dataModel, Thesaurus thesaurus, Clock clock) {
         this.dataModel = dataModel;
         this.thesaurus = thesaurus;
+        this.clock = clock;
     }
 
     public DeviceLifeCycleImpl initialize(String name, FiniteStateMachine stateMachine) {
@@ -130,12 +133,22 @@ public class DeviceLifeCycleImpl implements DeviceLifeCycle {
     }
 
     @Override
+    public Instant getMaximumFutureEffectiveTimestamp() {
+        return this.clock.instant().plusMillis(this.getMaximumFutureEffectiveTimeShift().getMilliSeconds());
+    }
+
+    @Override
     public TimeDuration getMaximumPastEffectiveTimeShift() {
         return this.maximumPastEffectiveTimeShift;
     }
 
     void setMaximumPastEffectiveTimeShift(TimeDuration maximumPastEffectiveTimeShift) {
         this.maximumPastEffectiveTimeShift = maximumPastEffectiveTimeShift;
+    }
+
+    @Override
+    public Instant getMaximumPastEffectiveTimestamp() {
+        return this.clock.instant().plusMillis(this.getMaximumPastEffectiveTimeShift().getMilliSeconds());
     }
 
     @Override
