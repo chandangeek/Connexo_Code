@@ -1,13 +1,5 @@
 package com.elster.jupiter.demo.impl.builders;
 
-import static com.elster.jupiter.util.conditions.Where.where;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-
-import javax.inject.Inject;
-
 import com.elster.jupiter.demo.impl.Log;
 import com.elster.jupiter.demo.impl.UnableToCreate;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
@@ -18,7 +10,14 @@ import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleB
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.energyict.mdc.issue.datacollection.impl.templates.BasicDataCollectionRuleTemplate;
 
-public class IssueRuleBuilder extends NamedBuilder<CreationRule, IssueRuleBuilder> {
+import javax.inject.Inject;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+
+import static com.elster.jupiter.util.conditions.Where.where;
+
+public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.NamedBuilder<CreationRule, IssueRuleBuilder> {
     private static final String BASIC_DATA_COLLECTION_RULE_TEMPLATE = "BasicDataCollectionRuleTemplate";
     private final IssueCreationService issueCreationService;
     private final IssueService issueService;
@@ -53,6 +52,7 @@ public class IssueRuleBuilder extends NamedBuilder<CreationRule, IssueRuleBuilde
         Log.write(this);
         CreationRuleBuilder builder = issueCreationService.newCreationRule();
         builder.setName(getName());
+        builder.setIssueType(getReasonForRule().getIssueType());
         builder.setReason(getReasonForRule());
         builder.setDueInTime(DueInType.WEEK, 1);
         CreationRuleTemplate template = getCreationRuleTemplate();
