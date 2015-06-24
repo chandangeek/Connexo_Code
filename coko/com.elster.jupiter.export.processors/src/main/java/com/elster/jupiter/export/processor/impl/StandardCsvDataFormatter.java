@@ -66,6 +66,8 @@ public class StandardCsvDataFormatter implements ReadingDataFormatter {
     private ReadingContainer readingContainer;
     private final Thesaurus thesaurus;
     private Meter meter;
+    private String tag;
+    private String updateTag;
 
     @Inject
     public StandardCsvDataFormatter(Thesaurus thesaurus, ValidationService validationService, DataExportService dataExportService) {
@@ -84,6 +86,8 @@ public class StandardCsvDataFormatter implements ReadingDataFormatter {
         } else {
             this.fieldSeparator = DEFAULT_SEPARATOR;
         }
+        tag = getStringProperty(propertyMap, FormatterProperties.TAG.getKey(), "export");
+        updateTag = getStringProperty(propertyMap, FormatterProperties.UPDATE_TAG.getKey(), "update");
     }
 
     private String getStringProperty(Map<String, Object> propertyMap, String key, String defaultValue) {
@@ -108,7 +112,8 @@ public class StandardCsvDataFormatter implements ReadingDataFormatter {
     }
 
     private Pair<Instant, List<FormattedExportData>> processData(ExportData exportData) {
-        StructureMarker main = dataExportService.forRoot("main");
+        StructureMarker main = dataExportService.forRoot(tag);
+        StructureMarker update = dataExportService.forRoot(updateTag);
         MeterReading data = ((MeterReadingData) exportData).getMeterReading();
         List<Reading> readings = data.getReadings();
         List<IntervalBlock> intervalBlocks = data.getIntervalBlocks();
@@ -118,7 +123,7 @@ public class StandardCsvDataFormatter implements ReadingDataFormatter {
         Stream<FormattedExportData> readingStream = readings.stream()
                 .map(reading -> writeReading(reading, statuses.get(reading.getTimeStamp())))
                 .flatMap(Functions.asStream())
-                .map(line -> TextLineExportData.of(main.adopt(exportData.getStructureMarker()), line));
+                .map(line -> TextLineExportData.of(createStructureMarker(exportData, main, update), line));
 
         Stream<FormattedExportData> intervalReadings = Stream.empty();
         if (!intervalBlocks.isEmpty()) {
@@ -133,10 +138,18 @@ public class StandardCsvDataFormatter implements ReadingDataFormatter {
                     })
                     .map(pair -> writeReading(pair.getFirst(), pair.getLast()))
                     .flatMap(Functions.asStream())
-                    .map(line -> TextLineExportData.of(main.adopt(exportData.getStructureMarker()), line));
+                    .map(line -> TextLineExportData.of(createStructureMarker(exportData, main, update), line));
         }
         Instant lastExported = determineLastExported(readings, intervalBlocks);
         return Pair.of(lastExported, Stream.of(readingStream, intervalReadings).flatMap(Function.identity()).collect(Collectors.toList()));
+    }
+
+    private StructureMarker createStructureMarker(ExportData exportData, StructureMarker main, StructureMarker update) {
+        StructureMarker structureMarker = exportData.getStructureMarker();
+        if (structureMarker.endsWith("update")) {
+            return update.adopt(structureMarker);
+        }
+        return main.adopt(structureMarker);
     }
 
     private Instant determineLastExported(List<Reading> readings, List<IntervalBlock> intervalBlocks) {

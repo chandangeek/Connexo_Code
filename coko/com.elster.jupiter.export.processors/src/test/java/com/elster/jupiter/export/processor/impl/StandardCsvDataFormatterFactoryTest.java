@@ -18,34 +18,10 @@ public class StandardCsvDataFormatterFactoryTest {
         factory.setPropertySpecService(new PropertySpecServiceImpl());
 
         List<PropertySpec> properties = factory.getPropertySpecs();
-        assertThat(properties).hasSize(4);
+        assertThat(properties).hasSize(3);
 
         // Order IS important
         PropertySpec property = properties.get(0);
-        assertThat(property.getName()).isEqualTo("fileFormat.filenamePrefix");
-        assertThat(property.isRequired()).isTrue();
-        assertThat(property.getValueFactory()).isInstanceOf(StringFactory.class);
-        property = properties.get(1);
-        assertThat(property.getName()).isEqualTo("fileFormat.fileExtension");
-        assertThat(property.isRequired()).isFalse();
-        assertThat(property.getValueFactory()).isInstanceOf(StringFactory.class);
-        assertThat(property.getPossibleValues().getDefault()).isEqualTo("csv");
-        assertThat(property.getPossibleValues().isExhaustive()).isFalse();
-       /* property = properties.get(2);
-        assertThat(property.getName()).isEqualTo("fileFormat.updatedData.separateFile");
-        assertThat(property.isRequired()).isFalse();
-        assertThat(property.getValueFactory()).isInstanceOf(BooleanFactory.class);
-        property = properties.get(3);
-        assertThat(property.getName()).isEqualTo("fileFormat.updatedData.updateFilenamePrefix");
-        assertThat(property.isRequired()).isFalse();
-        assertThat(property.getValueFactory()).isInstanceOf(StringFactory.class);
-        property = properties.get(4);
-        assertThat(property.getName()).isEqualTo("fileFormat.updatedData.updateFileExtension");
-        assertThat(property.isRequired()).isFalse();
-        assertThat(property.getValueFactory()).isInstanceOf(StringFactory.class);
-        assertThat(property.getPossibleValues().getDefault()).isEqualTo("csv");
-        assertThat(property.getPossibleValues().isExhaustive()).isFalse();*/
-        property = properties.get(2);
         assertThat(property.getName()).isEqualTo("formatterProperties.separator");
         assertThat(property.isRequired()).isTrue();
         assertThat(property.getValueFactory()).isInstanceOf(StringFactory.class);
@@ -53,11 +29,15 @@ public class StandardCsvDataFormatterFactoryTest {
         List<String> allValues = (List<String>) property.getPossibleValues().getAllValues();
         assertThat(allValues).hasSize(2);
         assertThat(allValues).containsExactly("comma", "semicolon");
-        property = properties.stream()
-                .filter(a -> a.getName().equals("fileFormat.path"))
-                .findFirst()
-                .orElseThrow(() -> new AssertionError("PropertySpecs did not contain a property named fileFormat.path"));
-        assertThat(property.isRequired()).isFalse();
+        property = properties.get(1);
+        assertThat(property.getName()).isEqualTo("formatterProperties.tag");
+        assertThat(property.isRequired()).isTrue();
         assertThat(property.getValueFactory()).isInstanceOf(StringFactory.class);
+        assertThat(property.getPossibleValues().isExhaustive()).isFalse();
+        property = properties.get(2);
+        assertThat(property.getName()).isEqualTo("formatterProperties.update.tag");
+        assertThat(property.isRequired()).isTrue();
+        assertThat(property.getValueFactory()).isInstanceOf(StringFactory.class);
+        assertThat(property.getPossibleValues().isExhaustive()).isFalse();
     }
 }
