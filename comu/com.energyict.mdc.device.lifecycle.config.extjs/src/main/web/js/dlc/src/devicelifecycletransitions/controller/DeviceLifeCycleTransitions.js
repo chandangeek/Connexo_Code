@@ -12,6 +12,8 @@ Ext.define('Dlc.devicelifecycletransitions.controller.DeviceLifeCycleTransitions
         'Dlc.devicelifecycletransitions.store.DeviceLifeCycleTransitionPrivileges',
         'Dlc.devicelifecycletransitions.store.DeviceLifeCycleTransitionFromState',
         'Dlc.devicelifecycletransitions.store.DeviceLifeCycleTransitionToState',
+        'Dlc.devicelifecycletransitions.store.DeviceLifeCycleTransitionAutoActions',
+        'Dlc.devicelifecycletransitions.store.DeviceLifeCycleTransitionChecks',
         'Dlc.main.store.Clipboard'
     ],
 
@@ -145,7 +147,9 @@ Ext.define('Dlc.devicelifecycletransitions.controller.DeviceLifeCycleTransitions
             transitionModel = me.getModel('Dlc.devicelifecycletransitions.model.DeviceLifeCycleTransition'),
             statesStore = me.getStore('Dlc.devicelifecycletransitions.store.DeviceLifeCycleTransitionFromState'),
             privilegesStore = me.getStore('Dlc.devicelifecycletransitions.store.DeviceLifeCycleTransitionPrivileges'),
-            deviceLifeCycleModel = me.getModel('Dlc.devicelifecycles.model.DeviceLifeCycle');
+            deviceLifeCycleModel = me.getModel('Dlc.devicelifecycles.model.DeviceLifeCycle'),
+            autoActionsContainer = view.down('#autoActionsContainer'),
+            pretranstionChecksContainer = view.down('#pretansitionsContainer');
 
         Ext.util.History.on('change', me.checkRoute, me);
         me.transition = null;
@@ -197,6 +201,12 @@ Ext.define('Dlc.devicelifecycletransitions.controller.DeviceLifeCycleTransitions
                                     toCombo.setValue(toValue);
                                     fromCombo.fireEvent('select', fromCombo, fromValue);
                                     toCombo.fireEvent('select', toCombo, toValue);
+                                    autoActionsContainer.on('rendered',function (container) {
+                                        container.down('#actions-property-form').setValue(transition.get('microActions'))
+                                    }, me, {single: true});
+                                    pretranstionChecksContainer.on('rendered',function (container){
+                                        container.down('#checks-property-form').setValue(transition.get('microChecks'))
+                                    }, me, {single: true});
                                     Ext.Array.each(transition.get('privileges'), function (transitionPrivilege) {
                                         privilegesArray.push(transitionPrivilege.privilege);
                                     });
@@ -224,6 +234,8 @@ Ext.define('Dlc.devicelifecycletransitions.controller.DeviceLifeCycleTransitions
             formErrorsPanel = form.down('#form-errors'),
             router = me.getController('Uni.controller.history.Router'),
             privilegesCheckboxgroupValue = page.down('#privileges-checkboxgroup').getValue(),
+            autoActionComponent = page.down('#actions-property-form'),
+            pretransitionCheckComponent = page.down('#checks-property-form'),
             record = me.transition || Ext.create('Dlc.devicelifecycletransitions.model.DeviceLifeCycleTransition'),
             privilegesArray = [];
 
@@ -235,6 +247,7 @@ Ext.define('Dlc.devicelifecycletransitions.controller.DeviceLifeCycleTransitions
         Ext.Array.each(privilegesCheckboxgroupValue.privilege, function (transitionPrivilege) {
             privilegesArray.push({ privilege: transitionPrivilege});
         });
+
         !me.transition && record.getProxy().setUrl(router.arguments);
         record.beginEdit();
         record.set('name', form.down('#transition-name').getValue());
@@ -242,6 +255,8 @@ Ext.define('Dlc.devicelifecycletransitions.controller.DeviceLifeCycleTransitions
         record.set('toState', { id: form.down('#transition-to-combo').getValue() });
         record.set('triggeredBy', { symbol: form.down('#transition-triggered-by-combo').getValue() });
         record.set('privileges', privilegesArray);
+        record.set('microActions', autoActionComponent.getValue());
+        record.set('microChecks', pretransitionCheckComponent.getValue());
         record.endEdit();
         page.setLoading();
         record.save({
