@@ -10,6 +10,7 @@ import java.util.Optional;
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 
+import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -53,26 +54,31 @@ public class UserServiceImpl implements UserService, InstallService, Translation
     private volatile QueryService queryService;
     private volatile Thesaurus thesaurus;
     private volatile UserPreferencesService userPreferencesService;
-    
+    private static final String TRUSTSTORE_PATH="com.elster.jupiter.users.truststore";
+    private static final String TRUSTSTORE_PASS="com.elster.jupiter.users.truststorepass";
+    private String trustStorePath;
+
     private static final String JUPITER_REALM = "Local";
 
     public UserServiceImpl() {
     }
 
     @Inject
-    public UserServiceImpl(OrmService ormService, TransactionService transactionService, QueryService queryService, NlsService nlsService) {
+    public UserServiceImpl(OrmService ormService, TransactionService transactionService, QueryService queryService, NlsService nlsService,BundleContext context) {
         setTransactionService(transactionService);
         setQueryService(queryService);
         setOrmService(ormService);
         setNlsService(nlsService);
-        activate();
+        activate(context);
         if (!dataModel.isInstalled()) {
             install();
         }
     }
 
     @Activate
-    public void activate() {
+    public void activate(BundleContext context) {
+        System.setProperty("javax.net.ssl.trustStore",context.getProperty(TRUSTSTORE_PATH).toString().replace("/","\\"));
+        System.setProperty("javax.net.ssl.trustStorePassword",context.getProperty(TRUSTSTORE_PASS));
         dataModel.register(new AbstractModule() {
             @Override
             protected void configure() {
