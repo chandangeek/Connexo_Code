@@ -6,7 +6,6 @@ Ext.define('Mdc.view.setup.devicegroup.Browse', {
     requires: [
         'Mdc.view.setup.devicegroup.Navigation',
         'Mdc.view.setup.devicegroup.Wizard',
-        'Mdc.view.setup.devicesearch.DevicesSideFilter'
     ],
 
     side: {
@@ -21,11 +20,6 @@ Ext.define('Mdc.view.setup.devicegroup.Browse', {
             {
                 itemId: 'devicegroupaddnavigation',
                 xtype: 'devicegroup-add-navigation'
-            },
-            {
-                margin: '16 0 0 0',
-                xtype: 'mdc-search-results-side-filter',
-                itemId: 'addDeviceGroupSideFilter'
             }
         ]
     },

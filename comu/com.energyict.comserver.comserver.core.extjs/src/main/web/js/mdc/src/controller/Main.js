@@ -51,7 +51,6 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.controller.setup.DeviceRegisterDataEdit',
         'Mdc.controller.setup.Devices',
         'Mdc.controller.setup.DevicesAddGroupController',
-        'Mdc.controller.setup.DevicesSearchController',
         'Mdc.controller.setup.DeviceSecuritySettings',
         'Mdc.controller.setup.DeviceTopology',
         'Mdc.controller.setup.DeviceTypeLogbooks',

@@ -50,20 +50,12 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
             selector: '#adddevicegroupwizard'
         },
         {
-            ref: 'addDeviceGroupSideFilter',
-            selector: 'add-devicegroup-browse #addDeviceGroupSideFilter'
-        },
-        {
             ref: 'nameTextField',
             selector: '#deviceGroupNameTextField'
         },
         {
             ref: 'dynamicRadioButton',
             selector: 'devicegroup-wizard-step1 #dynamicDeviceGroup'
-        },
-        {
-            ref: 'filterForm',
-            selector: '#addDeviceGroupSideFilter form'
         },
         {
             ref: 'step1Form',
@@ -94,10 +86,28 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
             selector: 'mdc-search-results #dynamic-grid-container'
         },
         {
+            ref: 'dynamicGridFilter',
+            selector: 'devicegroup-wizard-step2 mdc-view-setup-devicesearch-devicestopfilter'
+        },
+        {
+            ref: 'staticGridFilter',
+            selector: 'devicegroup-wizard-step2 mdc-view-setup-devicesearch-buffereddevicestopfilter'
+        },
+        {
             ref: 'editPage',
             selector: 'device-group-edit'
+        },
+        {
+            ref: 'editDynamicGridFilter',
+            selector: 'device-group-edit mdc-view-setup-devicesearch-devicestopfilter'
+        },
+        {
+            ref: 'editStaticGridFilter',
+            selector: 'device-group-edit mdc-view-setup-devicesearch-buffereddevicestopfilter'
         }
     ],
+
+    stepTwo: 'deviceGroupWizardStep2',
 
     addDeviceGroupWidget: null,
     dynamic: false,
@@ -140,16 +150,13 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
         var layout = this.getAddDeviceGroupWizard().getLayout(),
             nameField = this.getNameTextField(),
             step1ErrorMsg = this.getStep1FormErrorMessage();
-        if ((layout.getNext().name == 'deviceGroupWizardStep2') &&
-            (nameField.getValue() == '')) {
+        if (layout.getNext().name === this.stepTwo && nameField.getValue() === '') {
             Ext.suspendLayouts();
             step1ErrorMsg.show();
             nameField.markInvalid(Uni.I18n.translate('general.nameIsRequired', 'MDC', 'Name is required'));
             Ext.resumeLayouts(true);
             this.createWidget = true;
-        } else if ((layout.getNext().name == 'deviceGroupWizardStep2') &&
-            (nameField.getValue() !== '') &&
-            (this.nameExists())) {
+        } else if (layout.getNext().name === this.stepTwo && nameField.getValue() !== '' && this.nameExistsAlready()) {
             Ext.suspendLayouts();
             step1ErrorMsg.show();
             nameField.markInvalid(Uni.I18n.translate('devicegroup.duplicatename', 'MDC', 'A device group with this name already exists.'));
@@ -159,12 +166,16 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
             if (this.createWidget) {
                 this.createWidget = false;
             }
-            if (layout.getNext().name == 'deviceGroupWizardStep2') {
+            if (layout.getNext().name === this.stepTwo) {
                 if (this.getDynamicRadioButton().checked) {
+                    this.getStaticGridFilter().setVisible(false);
                     this.getStaticGridContainer().setVisible(false);
+                    this.getDynamicGridFilter().setVisible(true);
                     this.getDynamicGridContainer().setVisible(true);
                 } else {
+                    this.getDynamicGridFilter().setVisible(false);
                     this.getDynamicGridContainer().setVisible(false);
+                    this.getStaticGridFilter().setVisible(true);
                     this.getStaticGridContainer().setVisible(true);
                 }
             }
@@ -174,14 +185,14 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
             Ext.resumeLayouts(true);
             this.getNavigationMenu().moveNextStep();
             this.changeContent(layout.getNext(), layout.getActiveItem());
-            if (layout.getActiveItem().name == 'deviceGroupWizardStep2') {
-                this.getApplication().getController('Mdc.controller.setup.DevicesAddGroupController').applyFilter();
+            if (layout.getActiveItem().name == this.stepTwo) {
+                this.getApplication().getController('Mdc.controller.setup.DevicesAddGroupController').applyFilters();
             }
         }
         this.getStep2FormErrorMessage().setVisible(false);
     },
 
-    nameExists: function () {
+    nameExistsAlready: function () {
         var store = this.getDeviceGroupsStore();
         var newName = this.getNameTextField().getValue();
         store.clearFilter();
@@ -202,16 +213,15 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
     },
 
     finishClick: function () {
-        if (!(this.getDynamicRadioButton().checked)) {
+        if (this.getDynamicRadioButton().checked) {
+            this.addDeviceGroupAndReturnToList();
+        } else {
             var numberOfDevices = this.getStaticGrid().getSelectionModel().getSelection().length;
             if ((numberOfDevices == 0) && (!(this.getStaticGrid().allChosenByDefault))) {
                 this.getStep2FormErrorMessage().setVisible(true);
-            }
-            else {
+            } else {
                 this.addDeviceGroupAndReturnToList();
             }
-        } else {
-            this.addDeviceGroupAndReturnToList();
         }
     },
 
@@ -229,7 +239,7 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
         var me = this,
             record = Ext.create('Mdc.model.DeviceGroup'),
             preloader = Ext.create('Ext.LoadMask', {
-                msg: "Loading...",
+                msg: Uni.I18n.translate('general.loading', 'MDC', 'Loading...'),
                 target: this.getAddDeviceGroupWizard()
             });
 
@@ -239,7 +249,7 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
             record.set('name', this.getNameTextField().getValue());
             var isDynamic = this.getDynamicRadioButton().checked;
             record.set('dynamic', isDynamic);
-            record.set('filter', this.getController('Uni.controller.history.Router').filter.data);
+            record.set('filter', me.getFilterObjectFromQueryString());
             record.set('devices', []);
             if (!isDynamic) {
                 var grid = this.getStaticGrid();
@@ -294,8 +304,6 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
                 this.router = undefined;
             }
             this.getApplication().fireEvent('changecontentevent', this.addDeviceGroupWidget);
-            this.getApplication().getController('Mdc.controller.setup.DevicesAddGroupController').initFilterModel();
-            this.getAddDeviceGroupSideFilter().setVisible(false);
         }
         this.createWidget = true;
     },
@@ -322,7 +330,6 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
                 backBtn.setDisabled(true);
                 finishBtn.hide();
                 cancelBtn.show();
-                this.getAddDeviceGroupSideFilter().setVisible(false);
                 break;
             case 'deviceGroupWizardStep2' :
                 backBtn.show();
@@ -331,7 +338,6 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
                 backBtn.setDisabled(false);
                 finishBtn.show();
                 cancelBtn.show();
-                this.getAddDeviceGroupSideFilter().setVisible(true);
                 break;
         }
     },
@@ -344,7 +350,9 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
             view,
             isDynamic,
             store,
-            staticDevices;
+            staticDevices,
+            deviceTypesProcessed = false,
+            extraQueryStringPart = '';
 
         if (Ext.isEmpty(Ext.ComponentQuery.query('device-group-edit')[0])) {
             me.fromDeviceGroupDetails = router.queryParams.fromDetails === 'true';
@@ -370,14 +378,34 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
                         switch (criteria.criteriaName) {
                             case 'serialNumber':
                                 router.filter.set('serialNumber', criteria.criteriaValues[0]);
+                                extraQueryStringPart = extraQueryStringPart.concat('&serialNumber=', criteria.criteriaValues[0]);
                                 break;
                             case 'mRID':
                                 router.filter.set('mRID', criteria.criteriaValues[0]);
+                                extraQueryStringPart = extraQueryStringPart.concat('&mRID=', criteria.criteriaValues[0]);
                                 break;
                             case 'deviceConfiguration.deviceType.name':
+                                if (deviceTypesProcessed) {
+                                    break;
+                                }
+                                deviceTypesProcessed = true;
                                 router.filter.set('deviceTypes', record.get('deviceTypeIds'));
+                                if (Ext.isArray(record.get('deviceTypeIds'))) {
+                                    Ext.Array.each(record.get('deviceTypeIds'), function (eachDeviceTypeId) {
+                                        extraQueryStringPart = extraQueryStringPart.concat('&deviceTypes=', eachDeviceTypeId);
+                                    });
+                                } else {
+                                    extraQueryStringPart = extraQueryStringPart.concat('&deviceTypes=', record.get('deviceTypeIds'));
+                                }
                                 if (record.get('deviceTypeIds').length === 1 && !Ext.isEmpty(record.get('deviceConfigurationIds'))) {
                                     router.filter.set('deviceConfigurations', record.get('deviceConfigurationIds'));
+                                    if (Ext.isArray(record.get('deviceConfigurationIds'))) {
+                                        Ext.Array.each(record.get('deviceConfigurationIds'), function (eachDeviceCfgId) {
+                                            extraQueryStringPart = extraQueryStringPart.concat('&deviceConfigurations=', eachDeviceCfgId);
+                                        });
+                                    } else {
+                                        extraQueryStringPart = extraQueryStringPart.concat('&deviceConfigurations=', record.get('deviceConfigurationIds'));
+                                    }
                                 }
                                 break;
                         }
@@ -389,7 +417,9 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
                     if (me.dynamic) {
                         me.getStaticGridContainer().setVisible(false);
                         me.getDynamicGridContainer().setVisible(true);
-                        me.getApplication().getController('Mdc.controller.setup.DevicesAddGroupController').applyFilter();
+                        if (extraQueryStringPart.length > 0) {
+                            view.setDynamicFilter(me.getQueryObjectFromQueryString(extraQueryStringPart));
+                        }
                     } else {
                         view.setLoading();
                         Ext.suspendLayouts();
@@ -452,6 +482,11 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
                     me.getNameTextField().setValue(record.get('name'));
                     isDynamic = record.get('dynamic') ? Uni.I18n.translate('general.dynamic', 'MDC', 'Dynamic') : Uni.I18n.translate('general.static', 'MDC', 'Static');
                     view.down('#device-group-type').setValue(isDynamic);
+                    if (me.dynamic) {
+                        view.showDynamicFilter();
+                    } else {
+                        view.showStaticFilter();
+                    }
                     Ext.resumeLayouts(true);
                     me.getApplication().fireEvent('loadDeviceGroup', record);
                 }
@@ -472,12 +507,12 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
         if (!me.dynamic) {
             selection = me.getStaticGrid().getSelectionModel().getSelection();
         }
-        if (nameValue == '') {
+        if (nameValue === '') {
             Ext.suspendLayouts();
             step1ErrorMsg.show();
             nameField.markInvalid(Uni.I18n.translate('general.nameIsRequired', 'MDC', 'Name is required.'));
             Ext.resumeLayouts(true);
-        } else if ((nameValue !== me.deviceGroupName) && me.nameExists()) {
+        } else if (nameValue !== me.deviceGroupName && me.nameExistsAlready()) {
             Ext.suspendLayouts();
             step1ErrorMsg.show();
             nameField.markInvalid(Uni.I18n.translate('devicegroup.duplicatename', 'MDC', 'A device group with this name already exists.'));
@@ -489,7 +524,7 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
             record.criteriaStore.removeAll();
             record.set('name', nameValue);
             record.set('dynamic', me.dynamic);
-            record.set('filter', router.filter.data);
+            record.set('filter', me.getFilterObjectFromQueryString());
             record.set('devices', []);
             if (!me.dynamic) {
                 var devicesList = [];
@@ -516,5 +551,43 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
                 }
             });
         }
+    },
+
+    getFilterObjectFromQueryString: function() {
+        var filterObject = Uni.util.QueryString.getQueryStringValues(false);
+        this.adaptFilterObject(filterObject);
+        return filterObject;
+    },
+
+    getQueryObjectFromQueryString: function(queryString) {
+        var queryObject = Ext.Object.fromQueryString(queryString, false);
+        this.adaptFilterObject(queryObject);
+        return queryObject;
+    },
+
+    adaptFilterObject: function(filterObject) {
+        if (filterObject.hasOwnProperty('deviceTypes')) {
+            if (Ext.isArray(filterObject.deviceTypes)) {
+                for (i = 0; i < filterObject.deviceTypes.length; i++) {
+                    filterObject.deviceTypes[i] = parseInt(filterObject.deviceTypes[i]);
+                }
+            } else {
+                var theOneDeviceType = filterObject.deviceTypes;
+                filterObject.deviceTypes = [];
+                filterObject.deviceTypes[0] = !Ext.isNumber(theOneDeviceType) ? parseInt(theOneDeviceType) : theOneDeviceType;
+            }
+        }
+        if (filterObject.hasOwnProperty('deviceConfigurations')) {
+            if (Ext.isArray(filterObject.deviceConfigurations)) {
+                for (i = 0; i < filterObject.deviceConfigurations.length; i++) {
+                    filterObject.deviceConfigurations[i] = parseInt(filterObject.deviceConfigurations[i]);
+                }
+            } else {
+                var theOneDeviceCfg = filterObject.deviceConfigurations;
+                filterObject.deviceConfigurations = [];
+                filterObject.deviceConfigurations[0] = !Ext.isNumber(theOneDeviceCfg) ? parseInt(theOneDeviceCfg) : theOneDeviceCfg;
+            }
+        }
     }
+
 });
