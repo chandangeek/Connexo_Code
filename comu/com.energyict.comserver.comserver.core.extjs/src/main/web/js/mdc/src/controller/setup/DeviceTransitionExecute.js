@@ -5,8 +5,8 @@ Ext.define('Mdc.controller.setup.DeviceTransitionExecute', {
         'Mdc.view.setup.devicetransitionexecute.Browse'
     ],
 
-
     models: [
+        'Mdc.model.Device',
         'Mdc.model.DeviceTransition'
     ],
 
@@ -15,7 +15,8 @@ Ext.define('Mdc.controller.setup.DeviceTransitionExecute', {
         {ref: 'deviceTransitionExecuteWizard', selector: '#deviceTransitionExecuteWizard'},
         {ref: 'nextBtn', selector: 'deviceTransitionExecuteWizard #nextButton'},
         {ref: 'cancelBtn', selector: 'deviceTransitionExecuteWizard #wizardCancelButton'},
-        {ref: 'step2', selector: '#devicetransitionexecute-wizard-step2'}
+        {ref: 'step2', selector: '#devicetransitionexecute-wizard-step2'},
+        {ref: 'transitionDateField', selector: '#transitionDateField'}
     ],
 
     init: function () {
@@ -40,6 +41,8 @@ Ext.define('Mdc.controller.setup.DeviceTransitionExecute', {
             propertyForm = me.getDeviceTransitionExecuteWizard().down('property-form'),
             router = me.getController('Uni.controller.history.Router'),
             step2Page = me.getStep2(),
+            transitionDateField = me.getTransitionDateField(),
+            transitionFieldValue = transitionDateField.getValue(),
             record;
 
         me.getNavigationMenu().moveNextStep();
@@ -50,6 +53,8 @@ Ext.define('Mdc.controller.setup.DeviceTransitionExecute', {
         propertyForm.updateRecord();
         record = propertyForm.getRecord();
 
+        record.set('transitionNow', transitionFieldValue.transitionNow);
+        record.set('effectiveTimestamp', transitionFieldValue.time);
         record.save({
             success: function (record, operation) {
                 step2Page.handleSuccessRequest(Ext.decode(operation.response.responseText), router);
@@ -79,15 +84,23 @@ Ext.define('Mdc.controller.setup.DeviceTransitionExecute', {
             widget = Ext.widget('deviceTransitionExecuteBrowse'),
             transitionModel = me.getModel('Mdc.model.DeviceTransition');
 
-        transitionModel.getProxy().setUrl(mRID);
+        Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
+            success: function (device) {
+                me.getApplication().fireEvent('loadDevice', device);
+            }
+        });
 
+        transitionModel.getProxy().setUrl(mRID);
+        me.getApplication().fireEvent('changecontentevent', widget);
+
+        widget.setLoading();
         transitionModel.load(transition, {
             success: function (record) {
-                me.getApplication().fireEvent('changecontentevent', widget);
                 widget.down('property-form').loadRecord(record);
+                me.getApplication().fireEvent('loadDeviceTransition', record);
             },
             callback: function () {
-                console.log('callback')
+                widget.setLoading(false);
             }
         });
     }

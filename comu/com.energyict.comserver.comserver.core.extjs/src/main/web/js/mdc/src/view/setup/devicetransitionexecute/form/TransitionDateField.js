@@ -41,7 +41,7 @@ Ext.define('Mdc.view.setup.devicetransitionexecute.form.TransitionDateField', {
                             uploadFileDateContainer.setValue(null);
                         } else {
                             uploadFileDateContainer.enable();
-                            uploadFileDateContainer.setValue(new Date());
+                            uploadFileDateContainer.setValue(moment().startOf('day').add('days', 1));
                         }
                     }
                 }
@@ -69,9 +69,9 @@ Ext.define('Mdc.view.setup.devicetransitionexecute.form.TransitionDateField', {
                 dateField = me.down('#uploadFileDateContainer');
 
             if (radiogroup.getValue()[me.groupName]) {
-                return null;
+                return {transitionNow: true, time: new Date().getTime()};
             } else {
-                return dateField.getValue();
+                return {transitionNow: false, time: dateField.getValue().getTime()};
             }
         };
 

@@ -49,7 +49,7 @@ Ext.define('Mdc.view.setup.devicetransitionexecute.ResultPanel', {
                 {
                     xtype: 'panel',
                     ui: 'large',
-                    title: Uni.I18n.translatePlural('devicetransitionexecute.wizard.step2success', me.response.state, 'MDC', "Successfully changed device state to '{0}'")
+                    title: me.response.transitionNow ? Uni.I18n.translatePlural('devicetransitionexecute.wizard.step2successNow', me.response.targetState, 'MDC', "Successfully changed device state to '{0}'") : Uni.I18n.translatePlural('devicetransitionexecute.wizard.step2success', Uni.DateTime.formatDateTimeLong(new Date(me.response.effectiveTimestamp)), 'MDC', "Device state will be changed at {0}")
                 }
             ];
         } else {
@@ -64,7 +64,7 @@ Ext.define('Mdc.view.setup.devicetransitionexecute.ResultPanel', {
                 {
                     xtype: 'panel',
                     ui: 'large',
-                    title: Uni.I18n.translatePlural('devicetransitionexecute.wizard.step2fail',  me.response.state, 'MDC', "Unable to change device state to '{0}'"),
+                    title: Uni.I18n.translatePlural('devicetransitionexecute.wizard.step2fail',  me.response.targetState, 'MDC', "Unable to change device state to '{0}'"),
                     items: [
                         {
                             xtype: 'container',

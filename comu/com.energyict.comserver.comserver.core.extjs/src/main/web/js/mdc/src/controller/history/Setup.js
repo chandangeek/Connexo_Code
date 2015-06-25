@@ -997,7 +997,15 @@ Ext.define('Mdc.controller.history.Setup', {
                             title: Uni.I18n.translate('', 'MDC', 'Transition'),
                             route: 'transitions/{transitionId}',
                             controller: 'Mdc.controller.setup.DeviceTransitionExecute',
-                            action: 'showExecuteTransition'
+                            action: 'showExecuteTransition',
+                            callback: function (route) {
+                                this.getApplication().on('loadDeviceTransition', function (record) {
+                                    route.setTitle(record.get('name'));
+                                    return true;
+                                }, {single: true});
+
+                                return this;
+                            }
                         },
                         commands: {
                             title: 'Commands',
