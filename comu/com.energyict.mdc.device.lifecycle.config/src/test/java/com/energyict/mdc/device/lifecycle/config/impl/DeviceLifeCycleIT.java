@@ -17,7 +17,12 @@ import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViol
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
-import com.elster.jupiter.fsm.*;
+import com.elster.jupiter.fsm.CustomStateTransitionEventType;
+import com.elster.jupiter.fsm.FiniteStateMachine;
+import com.elster.jupiter.fsm.FiniteStateMachineBuilder;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.TransactionService;
 import com.google.common.base.Strings;
@@ -27,6 +32,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.assertj.core.api.Condition;
 import org.junit.*;
@@ -1133,6 +1139,128 @@ public class DeviceLifeCycleIT {
         // Asserts
         List<AuthorizedAction> authorizedActions = updated.getAuthorizedActions();
         assertThat(authorizedActions).isEmpty();
+    }
+
+    @Transactional
+    @Test
+    public void obsoleteDeviceLifeCycle() {
+        FiniteStateMachine stateMachine = this.findDefaultFiniteStateMachine();
+        StateTransition stateTransition = stateMachine.getTransitions().get(0);
+        DeviceLifeCycleBuilder builder = this.getTestService().newDeviceLifeCycleUsing("Test", stateMachine);
+        builder
+            .newTransitionAction(stateTransition)
+            .addAction(MicroAction.ENABLE_VALIDATION)
+            .addCheck(MicroCheck.DEFAULT_CONNECTION_AVAILABLE)
+            .addAllLevels(EnumSet.of(AuthorizedAction.Level.ONE, AuthorizedAction.Level.TWO))
+            .complete();
+        DeviceLifeCycle deviceLifeCycle = builder.complete();
+        deviceLifeCycle.save();
+
+        // Business method
+        deviceLifeCycle.makeObsolete();
+
+        // Asserts
+        assertThat(deviceLifeCycle.isObsolete()).isTrue();
+        assertThat(deviceLifeCycle.getObsoleteTimestamp()).isNotNull();
+    }
+
+    @Transactional
+    @Test
+    public void obsoleteDeviceLifeCycleWithReload() {
+        FiniteStateMachine stateMachine = this.findDefaultFiniteStateMachine();
+        StateTransition stateTransition = stateMachine.getTransitions().get(0);
+        DeviceLifeCycleBuilder builder = this.getTestService().newDeviceLifeCycleUsing("Test", stateMachine);
+        builder
+            .newTransitionAction(stateTransition)
+            .addAction(MicroAction.ENABLE_VALIDATION)
+            .addCheck(MicroCheck.DEFAULT_CONNECTION_AVAILABLE)
+            .addAllLevels(EnumSet.of(AuthorizedAction.Level.ONE, AuthorizedAction.Level.TWO))
+            .complete();
+        DeviceLifeCycle deviceLifeCycle = builder.complete();
+        deviceLifeCycle.save();
+
+        // Business method
+        deviceLifeCycle.makeObsolete();
+
+        // Asserts
+        DeviceLifeCycle reloaded = this.getTestService().findDeviceLifeCycle(deviceLifeCycle.getId()).get();
+        assertThat(reloaded.isObsolete()).isTrue();
+        assertThat(reloaded.getObsoleteTimestamp()).isNotNull();
+    }
+
+    @Transactional
+    @Test
+    public void obsoleteDeviceLifeCycleShowsUpInFindById() {
+        FiniteStateMachine stateMachine = this.findDefaultFiniteStateMachine();
+        StateTransition stateTransition = stateMachine.getTransitions().get(0);
+        DeviceLifeCycleBuilder builder = this.getTestService().newDeviceLifeCycleUsing("Test", stateMachine);
+        builder
+            .newTransitionAction(stateTransition)
+            .addAction(MicroAction.ENABLE_VALIDATION)
+            .addCheck(MicroCheck.DEFAULT_CONNECTION_AVAILABLE)
+            .addAllLevels(EnumSet.of(AuthorizedAction.Level.ONE, AuthorizedAction.Level.TWO))
+            .complete();
+        DeviceLifeCycle deviceLifeCycle = builder.complete();
+        deviceLifeCycle.save();
+
+        // Business method
+        deviceLifeCycle.makeObsolete();
+
+        // Asserts
+        Optional<DeviceLifeCycle> shouldBePresent = this.getTestService().findDeviceLifeCycle(deviceLifeCycle.getId());
+        assertThat(shouldBePresent).isPresent();
+    }
+
+    @Transactional
+    @Test
+    public void obsoleteDeviceLifeCycleDoesNotShowUpInFindByName() {
+        FiniteStateMachine stateMachine = this.findDefaultFiniteStateMachine();
+        StateTransition stateTransition = stateMachine.getTransitions().get(0);
+        DeviceLifeCycleBuilder builder = this.getTestService().newDeviceLifeCycleUsing("Test", stateMachine);
+        builder
+            .newTransitionAction(stateTransition)
+            .addAction(MicroAction.ENABLE_VALIDATION)
+            .addCheck(MicroCheck.DEFAULT_CONNECTION_AVAILABLE)
+            .addAllLevels(EnumSet.of(AuthorizedAction.Level.ONE, AuthorizedAction.Level.TWO))
+            .complete();
+        DeviceLifeCycle deviceLifeCycle = builder.complete();
+        deviceLifeCycle.save();
+
+        // Business method
+        deviceLifeCycle.makeObsolete();
+
+        // Asserts
+        Optional<DeviceLifeCycle> shouldNotBePresent = this.getTestService().findDeviceLifeCycleByName(deviceLifeCycle.getName());
+        assertThat(shouldNotBePresent).isEmpty();
+    }
+
+    @Transactional
+    @Test
+    public void obsoleteDeviceLifeCycleDoesNotShowUpInFindAll() {
+        FiniteStateMachine stateMachine = this.findDefaultFiniteStateMachine();
+        StateTransition stateTransition = stateMachine.getTransitions().get(0);
+        DeviceLifeCycleBuilder builder = this.getTestService().newDeviceLifeCycleUsing("Test", stateMachine);
+        builder
+            .newTransitionAction(stateTransition)
+            .addAction(MicroAction.ENABLE_VALIDATION)
+            .addCheck(MicroCheck.DEFAULT_CONNECTION_AVAILABLE)
+            .addAllLevels(EnumSet.of(AuthorizedAction.Level.ONE, AuthorizedAction.Level.TWO))
+            .complete();
+        DeviceLifeCycle deviceLifeCycle = builder.complete();
+        deviceLifeCycle.save();
+
+        // Business method
+        deviceLifeCycle.makeObsolete();
+
+        // Asserts
+        List<Long> deviceLifeCycleIds =
+                this.getTestService()
+                        .findAllDeviceLifeCycles()
+                        .find()
+                        .stream()
+                        .map(DeviceLifeCycle::getId)
+                        .collect(Collectors.toList());
+        assertThat(deviceLifeCycleIds).doesNotContain(deviceLifeCycle.getId());
     }
 
     @Transactional

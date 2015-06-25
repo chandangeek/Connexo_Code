@@ -4,6 +4,7 @@ import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 
 import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.fsm.impl.FiniteStateMachineImpl;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
@@ -27,6 +28,7 @@ public enum TableSpecs {
             Column id = table.addAutoIdColumn();
             table.addAuditColumns();
             Column name = table.column("NAME").varChar().notNull().map(DeviceLifeCycleImpl.Fields.NAME.fieldName()).add();
+            table.column("OBSOLETE_TIMESTAMP").number().conversion(ColumnConversion.NUMBER2INSTANT).map(DeviceLifeCycleImpl.Fields.OBSOLETE_TIMESTAMP.fieldName()).add();
             Column stateMachine = table.column("FSM").number().notNull().add();
             table.column("MAXFUTUREEFFTIMESHIFTVALUE").number().notNull().conversion(NUMBER2INT).map(DeviceLifeCycleImpl.Fields.MAX_FUTURE_EFFECTIVE_TIME_SHIFT.fieldName() + ".count").add();
             table.column("MAXFUTUREEFFTIMESHIFTUNIT").number().notNull().conversion(NUMBER2INT).map(DeviceLifeCycleImpl.Fields.MAX_FUTURE_EFFECTIVE_TIME_SHIFT.fieldName() + ".timeUnitCode").add();

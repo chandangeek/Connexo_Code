@@ -21,11 +21,13 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.NotUniqueException;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.conditions.Condition;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -45,6 +47,8 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static com.elster.jupiter.util.conditions.Where.where;
 
 /**
  * Provides an implementation for the {@link DeviceLifeCycleConfigurationService} interface.
@@ -238,7 +242,19 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
 
     @Override
     public Optional<DeviceLifeCycle> findDeviceLifeCycleByName(String name) {
-        return this.dataModel.mapper(DeviceLifeCycle.class).getUnique(DeviceLifeCycleImpl.Fields.NAME.fieldName(), name);
+        Condition condition =       where(DeviceLifeCycleImpl.Fields.NAME.fieldName()).isEqualTo(name)
+                               .and(where(DeviceLifeCycleImpl.Fields.OBSOLETE_TIMESTAMP.fieldName()).isNull());
+        List<DeviceLifeCycle> deviceLifeCycles = this.dataModel.query(DeviceLifeCycle.class).select(condition);
+        // Expecting at most one
+        if (deviceLifeCycles.isEmpty()) {
+            return Optional.empty();
+        }
+        else if (deviceLifeCycles.size() > 1) {
+            throw new NotUniqueException(name);
+        }
+        else {
+            return Optional.of(deviceLifeCycles.get(0));
+        }
     }
 
     @Override
@@ -250,6 +266,7 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
     public Finder<DeviceLifeCycle> findAllDeviceLifeCycles() {
         return DefaultFinder.of(
                 DeviceLifeCycle.class,
+                where(DeviceLifeCycleImpl.Fields.OBSOLETE_TIMESTAMP.fieldName()).isNull(),
                 this.dataModel,
                 AuthorizedAction.class, // join actions and finite state machine details
                 FiniteStateMachine.class, State.class, StateTransition.class,

@@ -2,6 +2,7 @@ package com.energyict.mdc.device.lifecycle.config;
 
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.HasName;
 import com.energyict.mdc.common.HasId;
@@ -25,6 +26,21 @@ import java.util.List;
  * @since 2015-03-11 (10:18)
  */
 public interface DeviceLifeCycle extends HasId, HasName {
+
+    /**
+     * Tests if this DeviceLifeCycle was previously marked as obsolete.
+     *
+     * @return A flag that indicates if this DeviceLifeCycle has been marked as obsolete
+     */
+    boolean isObsolete();
+
+    /**
+     * Gets the timestamp on which this DeviceLifeCycle was
+     * marked as obsolete.
+     *
+     * @return The obsolete timestamp
+     */
+    Instant getObsoleteTimestamp();
 
     FiniteStateMachine getFiniteStateMachine();
 
@@ -104,6 +120,19 @@ public interface DeviceLifeCycle extends HasId, HasName {
 
     void save();
 
+    /**
+     * Marks this DeviceLifeCycle as obsolete
+     * so that it can no longer be used.
+     */
+    void makeObsolete();
+
+    /**
+     * Deletes this DeviceLifeCycle,
+     * along with its {@link AuthorizedAction}s.
+     * This is only intended for cleanup operations,
+     * it makes not attempt to cleanup references to this
+     * DeviceLifeCycle outside of the device life cycle configuration bundle.
+     */
     void delete();
 
 }

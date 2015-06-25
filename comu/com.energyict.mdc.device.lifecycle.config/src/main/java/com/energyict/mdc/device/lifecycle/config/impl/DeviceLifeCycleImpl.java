@@ -45,6 +45,7 @@ public class DeviceLifeCycleImpl implements DeviceLifeCycle {
 
     public enum Fields {
         NAME("name"),
+        OBSOLETE_TIMESTAMP("obsoleteTimestamp"),
         STATE_MACHINE("stateMachine"),
         MAX_FUTURE_EFFECTIVE_TIME_SHIFT("maximumFutureEffectiveTimeShift"),
         MAX_PAST_EFFECTIVE_TIME_SHIFT("maximumPastEffectiveTimeShift"),
@@ -70,6 +71,8 @@ public class DeviceLifeCycleImpl implements DeviceLifeCycle {
     @NotEmpty(groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.CAN_NOT_BE_EMPTY+"}")
     @Size(max= Table.NAME_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.FIELD_TOO_LONG+"}")
     private String name;
+    @SuppressWarnings("unused")
+    private Instant obsoleteTimestamp;
     @IsPresent(message = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}", groups = { Save.Create.class, Save.Update.class })
     private Reference<FiniteStateMachine> stateMachine = ValueReference.absent();
     @NotNull(message = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}", groups = { Save.Create.class, Save.Update.class })
@@ -116,6 +119,16 @@ public class DeviceLifeCycleImpl implements DeviceLifeCycle {
 
     void setName(String name) {
         this.name = name;
+    }
+
+    @Override
+    public boolean isObsolete() {
+        return this.obsoleteTimestamp != null;
+    }
+
+    @Override
+    public Instant getObsoleteTimestamp() {
+        return obsoleteTimestamp;
     }
 
     @Override
@@ -199,9 +212,20 @@ public class DeviceLifeCycleImpl implements DeviceLifeCycle {
     }
 
     @Override
+    public void makeObsolete() {
+        this.obsoleteTimestamp = this.clock.instant();
+        this.deleteActions();
+        this.dataModel.update(this, Fields.OBSOLETE_TIMESTAMP.fieldName());
+    }
+
+    @Override
     public void delete() {
-        this.actions.clear();
+        this.deleteActions();
         this.dataModel.remove(this);
+    }
+
+    private void deleteActions() {
+        this.actions.clear();
     }
 
     @Override
