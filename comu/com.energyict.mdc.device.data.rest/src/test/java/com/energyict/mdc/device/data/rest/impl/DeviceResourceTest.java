@@ -7,6 +7,7 @@ import com.elster.jupiter.cbo.EndDeviceType;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
 import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.LifecycleDates;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
@@ -55,6 +56,7 @@ import javax.ws.rs.core.Response;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -1157,6 +1159,13 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(device.forEstimation()).thenReturn(deviceEstimation);
         State state = mockDeviceState("In stock");
         when(device.getState()).thenReturn(state);
+        Instant now = Instant.now();
+        LifecycleDates dates = mock(LifecycleDates.class);
+        when(dates.getReceivedDate()).thenReturn(Optional.of(now.minus(5, ChronoUnit.DAYS)));
+        when(dates.getInstalledDate()).thenReturn(Optional.of(now.minus(4, ChronoUnit.DAYS)));
+        when(dates.getRemovedDate()).thenReturn(Optional.of(now.minus(3, ChronoUnit.DAYS)));
+        when(dates.getRetiredDate()).thenReturn(Optional.of(now.minus(2, ChronoUnit.DAYS)));
+        when(device.getLifecycleDates()).thenReturn(dates);
         return device;
     }
 

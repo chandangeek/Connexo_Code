@@ -1,6 +1,8 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.metering.LifecycleDates;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.config.GatewayType;
@@ -11,8 +13,11 @@ import com.energyict.mdc.device.data.imp.DeviceImportService;
 import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleStateInfo;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
@@ -44,6 +49,7 @@ public class DeviceInfo {
     public String usagePoint;
     public DeviceEstimationStatusInfo estimationStatus;
     public DeviceLifeCycleStateInfo state;
+    public List<DeviceDateInfo> dates;
     public long version;
 
     public DeviceInfo() {
@@ -89,8 +95,20 @@ public class DeviceInfo {
                             }));
         }
         deviceInfo.estimationStatus = new DeviceEstimationStatusInfo(device);
-        deviceInfo.state = new DeviceLifeCycleStateInfo(thesaurus, device.getState());
+        State deviceState = device.getState();
+        deviceInfo.state = new DeviceLifeCycleStateInfo(thesaurus, deviceState);
         deviceInfo.version = device.getVersion();
+        LifecycleDates lifecycleDates = device.getLifecycleDates();
+        deviceInfo.dates = Arrays.stream(DeviceDateInfo.DateAttribute.values())
+                .map(date -> {
+                    DeviceDateInfo dateInfo = new DeviceDateInfo();
+                    dateInfo.matchCurrentState = date.isMatchedCurrentState(deviceState);
+                    dateInfo.name = date.getDateName();
+                    dateInfo.timestamp = date.getValue(lifecycleDates);
+                    return dateInfo;
+                })
+                .collect(Collectors.toList());
+
         return deviceInfo;
     }
 
