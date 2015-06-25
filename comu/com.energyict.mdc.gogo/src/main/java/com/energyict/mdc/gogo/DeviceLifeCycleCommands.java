@@ -136,7 +136,7 @@ public class DeviceLifeCycleCommands {
 
     private void triggerEvent(CustomStateTransitionEventType eventType, Device device) {
         this.executeTransaction(() -> {
-            deviceLifeCycleService.triggerEvent(eventType, device);
+            deviceLifeCycleService.triggerEvent(eventType, device, Instant.now());
             return null;
         });
     }
@@ -207,15 +207,12 @@ public class DeviceLifeCycleCommands {
                     .distinct(PropertySpec::getName)
                     .map(ps -> this.toExecutableActionProperty(ps, effectiveTimestamp))
                     .collect(Collectors.toList());
-        action.execute(properties);
+        action.execute(effectiveTimestamp, properties);
     }
 
     private ExecutableActionProperty toExecutableActionProperty(PropertySpec propertySpec, Instant effectiveTimestamp) {
         try {
-            if (DeviceLifeCycleService.MicroActionPropertyName.EFFECTIVE_TIMESTAMP.key().equals(propertySpec.getName())) {
-                return this.deviceLifeCycleService.toExecutableActionProperty(effectiveTimestamp, propertySpec);
-            }
-            else if (DeviceLifeCycleService.MicroActionPropertyName.LAST_CHECKED.key().equals(propertySpec.getName())) {
+            if (DeviceLifeCycleService.MicroActionPropertyName.LAST_CHECKED.key().equals(propertySpec.getName())) {
                 return this.deviceLifeCycleService.toExecutableActionProperty(effectiveTimestamp, propertySpec);
             }
             else {
