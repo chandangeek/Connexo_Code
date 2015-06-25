@@ -38,8 +38,10 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     ALL_DATA_VALIDATED(10014, MicroCheck.ALL_DATA_VALIDATED, "All the collected data on the device is validated"),
     AT_LEAST_ONE_ACTIVE_CONNECTION_AVAILABLE(10015, MicroCheck.AT_LEAST_ONE_ACTIVE_CONNECTION_AVAILABLE, "There should at least one active connection on the device"),
     // MicroActions
-    MISSING_REQUIRED_PROPERTY_VALUES(20001, Keys.MISSING_REQUIRED_PROPERTY_VALUES, "No value was specified for the following property spec of the configured actions: {0}")
-    ;
+    MISSING_REQUIRED_PROPERTY_VALUES(20001, Keys.MISSING_REQUIRED_PROPERTY_VALUES, "No value was specified for the following property spec of the configured actions: {0}"),
+    VALIDATION_NOT_SET_ON_DEVICE(20002," microAction.exception.validationNotSetOnDeviceX","Validation not set on device '{0}'"),
+    ESTIMATION_NOT_SET_ON_DEVICE(20003," microAction.exception.estimationNotSetOnDeviceX","Estimation not set on device '{0}'"),
+    NOT_ALL_DATA_VALID_FOR_DEVICE(20004,"microAction.exception.notAllDataValidForDeviceX","Device {0} has still suspect values: Action is undone.");
 
     private final int number;
     private final String key;
@@ -94,4 +96,4 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
         public static final String MISSING_REQUIRED_PROPERTY_VALUES = "authorizedAction.microAction.required.properties.multipleMissing";
     }
 
-}
+    }
