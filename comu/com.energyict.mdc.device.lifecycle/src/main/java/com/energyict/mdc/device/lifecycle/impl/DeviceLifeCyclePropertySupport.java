@@ -1,5 +1,9 @@
 package com.energyict.mdc.device.lifecycle.impl;
 
+import com.elster.jupiter.properties.InstantFactory;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.PropertySpecBuilder;
+import com.elster.jupiter.properties.PropertySpecService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
@@ -32,10 +36,11 @@ public final class DeviceLifeCyclePropertySupport {
      * @return The PropertySpec
      */
     public static PropertySpec lastCheckedTimestamp(PropertySpecService service) {
-        return service.basicPropertySpec(
-                DeviceLifeCycleService.MicroActionPropertyName.LAST_CHECKED.key(),
-                true,
-                new InstantFactory());
+        return service.newPropertySpecBuilder(new InstantFactory())
+                .name(DeviceLifeCycleService.MicroActionPropertyName.LAST_CHECKED.key())
+                .markRequired()
+                .setDefaultValue(Instant.now())
+                .finish();
     }
 
     /**

@@ -15,6 +15,15 @@ import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationService;
+import com.energyict.mdc.device.data.*;
+import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
+import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Answers;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.time.Instant;
 import java.util.Arrays;
@@ -56,7 +65,7 @@ public class ForceValidationAndEstimationTest {
     private ValidationEvaluator validationEvaluator;
     @Mock
     private EstimationService estimationService;
-    @Mock
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private PropertySpecService propertySpecService;
     @Mock
     private Device device;
@@ -76,10 +85,7 @@ public class ForceValidationAndEstimationTest {
         // Asserts
         int numberOfSpecs = propertySpecs.size();
         verify(this.propertySpecService, times(numberOfSpecs))
-                .basicPropertySpec(
-                        anyString(),
-                        anyBoolean(),
-                        any(ValueFactory.class));
+                .newPropertySpecBuilder(any(ValueFactory.class));
     }
 
     @Test(expected = ForceValidationAndEstimation.ForceValidationAndEstimationException.class)

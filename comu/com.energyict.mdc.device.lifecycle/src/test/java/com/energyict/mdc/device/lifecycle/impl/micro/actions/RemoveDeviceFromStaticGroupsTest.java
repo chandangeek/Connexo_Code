@@ -20,6 +20,7 @@ import java.util.Optional;
 import org.junit.*;
 import org.junit.runner.*;
 
+import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -46,7 +47,7 @@ public class RemoveDeviceFromStaticGroupsTest {
     private MeteringService meteringService;
     @Mock
     private MeteringGroupsService meteringGroupsService;
-    @Mock
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private PropertySpecService propertySpecService;
     @Mock
     private AmrSystem amrSystem;
