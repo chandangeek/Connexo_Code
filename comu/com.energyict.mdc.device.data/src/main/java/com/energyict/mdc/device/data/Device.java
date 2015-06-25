@@ -3,6 +3,7 @@ package com.energyict.mdc.device.data;
 import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTimeline;
+import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
 import com.elster.jupiter.metering.LifecycleDates;
 import com.elster.jupiter.metering.MeterActivation;
@@ -339,6 +340,11 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      * @return A flag that indicates if there are open issues against this Device
      */
     public boolean hasOpenIssues();
+
+    /**
+     * @return a list of Issues which have the status open
+     */
+    public List<OpenIssue> getOpenIssues();
 
     /**
      * Gets the current {@link State} of this Device.

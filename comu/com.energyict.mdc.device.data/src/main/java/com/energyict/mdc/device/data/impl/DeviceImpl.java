@@ -1096,8 +1096,8 @@ public class DeviceImpl implements Device, CanLock {
         ZonedDateTime nextAttempt =
                 ZonedDateTime
                     .ofInstant(
-                        requestedIntervalClippedToMeterActivation.lowerEndpoint(),
-                        zoneId)
+                            requestedIntervalClippedToMeterActivation.lowerEndpoint(),
+                            zoneId)
                     .truncatedTo(this.truncationUnit(loadProfile));    // round start time to interval boundary
         ZonedDateTime latestAttemptBefore = nextAttempt;
 
@@ -1119,8 +1119,8 @@ public class DeviceImpl implements Device, CanLock {
         ZonedDateTime nextAttempt =
                 ZonedDateTime
                     .ofInstant(
-                        requestedIntervalClippedToMeterActivation.lowerEndpoint(),
-                        zoneId)
+                            requestedIntervalClippedToMeterActivation.lowerEndpoint(),
+                            zoneId)
                     .with(ChronoField.DAY_OF_MONTH, 1).toLocalDate().atStartOfDay(zoneId);
 
         while (nextAttempt.toInstant().isAfter(requestedIntervalClippedToMeterActivation.lowerEndpoint()) || nextAttempt.toInstant().equals(requestedIntervalClippedToMeterActivation.lowerEndpoint())) {
@@ -1730,17 +1730,16 @@ public class DeviceImpl implements Device, CanLock {
 
     @Override
     public boolean hasOpenIssues() {
-        return this.getOptionalMeterAspect(this::hasOpenIssues).get();
+        return !getOpenIssues().isEmpty();
     }
 
-    public Optional<Boolean> hasOpenIssues(Meter meter) {
-        List<OpenIssue> openIssues = this.issueService.query(OpenIssue.class).select(where("device").isEqualTo(meter));
-        if (openIssues.isEmpty()) {
-            return Optional.of(false);
-        }
-        else {
-            return Optional.of(true);
-        }
+    @Override
+    public List<OpenIssue> getOpenIssues() {
+        return getListMeterAspect(this::getOpenIssuesForMeter);
+    }
+
+    private List<OpenIssue> getOpenIssuesForMeter(Meter meter) {
+        return this.issueService.query(OpenIssue.class).select(where("device").isEqualTo(meter));
     }
 
     @Override
@@ -1845,7 +1844,7 @@ public class DeviceImpl implements Device, CanLock {
     public long getVersion() {
         return version;
     }
-    
+
     @Override
     public Instant getCreateTime() {
         return createTime;
