@@ -99,6 +99,7 @@ public class DeviceLifeCycleActionResource {
         resourceHelper.findDeviceAndLock(device.getId(), info.deviceVersion);
         ExecutableAction requestedAction = getExecuteActionByIdOrThrowException(actionId, device);
         DeviceLifeCycleActionResultInfo wizardResult = new DeviceLifeCycleActionResultInfo();
+        wizardResult.transitionNow = info.transitionNow;
         if (requestedAction.getAction() instanceof AuthorizedTransitionAction){
             AuthorizedTransitionAction authorizedAction = (AuthorizedTransitionAction) requestedAction.getAction();
             wizardResult.targetState = getTargetStateName(authorizedAction);

@@ -2,11 +2,10 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
-import com.elster.jupiter.util.streams.Functions;
+import com.elster.jupiter.util.streams.DecoratedStream;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.ExecutableAction;
-import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 
@@ -14,9 +13,7 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Function;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 public class DeviceLifeCycleActionInfoFactory {
@@ -37,15 +34,12 @@ public class DeviceLifeCycleActionInfoFactory {
             info.id = executableAction.getAction().getId();
             info.name = executableAction.getAction().getName();
             AuthorizedTransitionAction castedAction = (AuthorizedTransitionAction) executableAction.getAction();
-            List<PropertySpec> allPropertySpecsForMicroActions = castedAction.getActions()
-                    .stream()
-                    .flatMap(microAction -> deviceLifeCycleService.getPropertySpecsFor(microAction).stream())
-                    .collect(Collectors.toList());
-            // Remove duplicates with the same key
-            Collection<PropertyInfo> propertyInfos = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(allPropertySpecsForMicroActions, TypedProperties.empty(), executableAction.getDevice())
-                    .stream()
-                    .collect(Collectors.toMap(propertyInfo -> propertyInfo.key, Function.<PropertyInfo>identity(), (prop1, prop2) -> prop1))
-                    .values();
+            List<PropertySpec> uniquePropertySpecsForMicroActions =
+                    DecoratedStream.decorate(castedAction.getActions().stream())
+                            .flatMap(microAction -> deviceLifeCycleService.getPropertySpecsFor(microAction).stream())
+                            .distinct(PropertySpec::getName)
+                            .collect(Collectors.toList());
+            Collection<PropertyInfo> propertyInfos = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(uniquePropertySpecsForMicroActions, TypedProperties.empty(), executableAction.getDevice());
             info.properties = new ArrayList<>(propertyInfos);
         }
         // For now there is no available actions for BPM transition

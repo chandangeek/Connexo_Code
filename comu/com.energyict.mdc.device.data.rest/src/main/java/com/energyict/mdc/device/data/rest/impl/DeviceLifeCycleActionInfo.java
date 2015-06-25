@@ -7,6 +7,7 @@ import java.util.List;
 public class DeviceLifeCycleActionInfo {
     public long id;
     public String name;
+    public boolean transitionNow = true;
     public List<PropertyInfo> properties;
     public long deviceVersion;
 
