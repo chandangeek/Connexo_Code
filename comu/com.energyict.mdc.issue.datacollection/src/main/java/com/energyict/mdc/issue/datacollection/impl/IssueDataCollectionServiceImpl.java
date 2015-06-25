@@ -181,7 +181,7 @@ public class IssueDataCollectionServiceImpl implements InstallService, Translati
     @Override
     public OpenIssueDataCollection createIssue(Issue baseIssue) {
         OpenIssueDataCollectionImpl instance = dataModel.getInstance(OpenIssueDataCollectionImpl.class);
-        instance.init(baseIssue);
+        instance.setIssue((OpenIssue) baseIssue);
         return instance;
     }
 

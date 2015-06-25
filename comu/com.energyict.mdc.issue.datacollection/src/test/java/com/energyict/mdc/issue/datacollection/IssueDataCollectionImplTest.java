@@ -5,6 +5,7 @@ import com.elster.jupiter.issue.impl.records.OpenIssueImpl;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
+import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.energyict.mdc.issue.datacollection.entity.HistoricalIssueDataCollection;
@@ -25,7 +26,7 @@ public class IssueDataCollectionImplTest extends BaseTest {
     public void testIDCCreationWithoutBaseIssue() {
         try (TransactionContext context = getContext()) {
             OpenIssueDataCollectionImpl dcIssue = getDataModel().getInstance(OpenIssueDataCollectionImpl.class);
-            dcIssue.init(null);
+            dcIssue.setIssue(null);
             dcIssue.save();
         }
     }
@@ -36,7 +37,7 @@ public class IssueDataCollectionImplTest extends BaseTest {
             CreationRule rule = getCreationRule("testIDCSuccessfullCreation", ModuleConstants.REASON_UNKNOWN_INBOUND_DEVICE);
             Issue baseIssue = getBaseIssue(rule);
             OpenIssueDataCollectionImpl dcIssue = getDataModel().getInstance(OpenIssueDataCollectionImpl.class);
-            dcIssue.init(baseIssue);
+            dcIssue.setIssue((OpenIssue) baseIssue);
             dcIssue.save();
         }
     }
@@ -48,7 +49,7 @@ public class IssueDataCollectionImplTest extends BaseTest {
             CreationRule rule = getCreationRule("testIDCCloseOperation", ModuleConstants.REASON_UNKNOWN_INBOUND_DEVICE);
             Issue baseIssue = getBaseIssue(rule);
             dcIssue = getDataModel().getInstance(OpenIssueDataCollectionImpl.class);
-            dcIssue.init(baseIssue);
+            dcIssue.setIssue((OpenIssue) baseIssue);
             dcIssue.setDeviceMRID("001234");
             dcIssue.save();
             context.commit();
