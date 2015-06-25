@@ -12,27 +12,16 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 
 import javax.annotation.security.RolesAllowed;
-import javax.ws.rs.BeanParam;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
-
 import java.util.List;
 import java.util.Optional;
 
 import static com.elster.jupiter.issue.rest.MessageSeeds.ISSUE_ASSIGNEE_UNASSIGNED;
-import static com.elster.jupiter.issue.rest.MessageSeeds.getString;
-import static com.elster.jupiter.issue.rest.request.RequestHelper.ASSIGNEE_TYPE;
-import static com.elster.jupiter.issue.rest.request.RequestHelper.ID;
-import static com.elster.jupiter.issue.rest.request.RequestHelper.LIKE;
-import static com.elster.jupiter.issue.rest.request.RequestHelper.ME;
+import static com.elster.jupiter.issue.rest.request.RequestHelper.*;
 import static com.elster.jupiter.issue.rest.response.ResponseHelper.entity;
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -77,7 +66,7 @@ public class AssigneeResource extends BaseResource {
         if (!assignee.isPresent()) {
             //Takes care of Unassigned issues which would have userId of "-1"
             if (id < 0){
-                String unassignedText = getString(ISSUE_ASSIGNEE_UNASSIGNED, getThesaurus());
+                String unassignedText = ISSUE_ASSIGNEE_UNASSIGNED.getTranslated(getThesaurus());
                 return entity(new IssueAssigneeInfo("UnexistingType", -1L, unassignedText)).build();
             }
             //Not unassigned, so this user really doesn't exist

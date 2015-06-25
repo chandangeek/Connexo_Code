@@ -8,7 +8,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CreationRuleActionInfo {
     public CreationRuleActionPhaseInfo phase;
-    public CreationRuleActionTypeInfo type;
+    public IssueActionTypeInfo type;
     public List<PropertyInfo> properties;
 
 }

@@ -1,29 +1,9 @@
 package com.elster.jupiter.issue.rest.impl.resource;
 
-import static com.elster.jupiter.issue.rest.request.RequestHelper.CREATED_ACTIONS;
-import static com.elster.jupiter.issue.rest.request.RequestHelper.ISSUE_TYPE;
-import static com.elster.jupiter.issue.rest.request.RequestHelper.PHASE;
-import static com.elster.jupiter.issue.rest.request.RequestHelper.REASON;
-import static com.elster.jupiter.util.conditions.Where.where;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import javax.annotation.security.RolesAllowed;
-import javax.inject.Inject;
-import javax.ws.rs.BeanParam;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
-
 import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.issue.rest.response.cep.CreationRuleActionInfoFactory;
+import com.elster.jupiter.issue.rest.response.IssueActionInfoFactory;
 import com.elster.jupiter.issue.rest.response.cep.CreationRuleActionPhaseInfo;
-import com.elster.jupiter.issue.rest.response.cep.CreationRuleActionTypeInfo;
+import com.elster.jupiter.issue.rest.response.cep.IssueActionTypeInfo;
 import com.elster.jupiter.issue.security.Privileges;
 import com.elster.jupiter.issue.share.entity.CreationRuleActionPhase;
 import com.elster.jupiter.issue.share.entity.IssueActionType;
@@ -33,13 +13,25 @@ import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.util.conditions.Condition;
 
+import javax.annotation.security.RolesAllowed;
+import javax.inject.Inject;
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static com.elster.jupiter.issue.rest.request.RequestHelper.*;
+import static com.elster.jupiter.util.conditions.Where.where;
+
 @Path("/actions")
 public class ActionResource extends BaseResource {
     
-    private final CreationRuleActionInfoFactory actionInfoFactory;
+    private final IssueActionInfoFactory actionInfoFactory;
     
     @Inject
-    public ActionResource(CreationRuleActionInfoFactory actionInfoFactory) {
+    public ActionResource(IssueActionInfoFactory actionInfoFactory) {
         this.actionInfoFactory = actionInfoFactory;
     }
 
@@ -61,7 +53,7 @@ public class ActionResource extends BaseResource {
         Condition phaseCondition = buildCondition("phase", phase);
         Condition condition = (typeCondition).and(reasonCondition).and(phaseCondition);
         
-        List<CreationRuleActionTypeInfo> ruleActionTypes = query.select(condition).stream()
+        List<IssueActionTypeInfo> ruleActionTypes = query.select(condition).stream()
                 .filter(at -> at.createIssueAction().isPresent() && !createdActionTypeIds.contains(at.getId()))
                 .map(actionInfoFactory::asInfo)
                 .collect(Collectors.toList());

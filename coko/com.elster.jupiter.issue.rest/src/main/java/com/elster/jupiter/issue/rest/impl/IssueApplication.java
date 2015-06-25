@@ -2,6 +2,7 @@ package com.elster.jupiter.issue.rest.impl;
 
 import com.elster.jupiter.issue.rest.MessageSeeds;
 import com.elster.jupiter.issue.rest.impl.resource.*;
+import com.elster.jupiter.issue.rest.response.IssueActionInfoFactory;
 import com.elster.jupiter.issue.rest.response.PropertyUtils;
 import com.elster.jupiter.issue.rest.response.cep.CreationRuleActionInfoFactory;
 import com.elster.jupiter.issue.rest.response.cep.CreationRuleInfoFactory;
@@ -131,6 +132,7 @@ public class IssueApplication extends Application implements TranslationKeyProvi
             bind(CreationRuleTemplateInfoFactory.class).to(CreationRuleTemplateInfoFactory.class);
             bind(CreationRuleInfoFactory.class).to(CreationRuleInfoFactory.class);
             bind(CreationRuleActionInfoFactory.class).to(CreationRuleActionInfoFactory.class);
+            bind(IssueActionInfoFactory.class).to(IssueActionInfoFactory.class);
         }
     }
 }

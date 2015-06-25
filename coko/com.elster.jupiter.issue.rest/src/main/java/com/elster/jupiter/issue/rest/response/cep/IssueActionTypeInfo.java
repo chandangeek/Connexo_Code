@@ -7,7 +7,7 @@ import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class CreationRuleActionTypeInfo {
+public class IssueActionTypeInfo {
     public long id;
     public String name;
     public IssueTypeInfo issueType;

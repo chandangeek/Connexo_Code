@@ -27,7 +27,7 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.rest.response.IssueReasonInfo;
 import com.elster.jupiter.issue.rest.response.cep.CreationRuleActionInfo;
 import com.elster.jupiter.issue.rest.response.cep.CreationRuleActionPhaseInfo;
-import com.elster.jupiter.issue.rest.response.cep.CreationRuleActionTypeInfo;
+import com.elster.jupiter.issue.rest.response.cep.IssueActionTypeInfo;
 import com.elster.jupiter.issue.rest.response.cep.CreationRuleInfo;
 import com.elster.jupiter.issue.rest.response.cep.CreationRuleInfo.DueInInfo;
 import com.elster.jupiter.issue.rest.response.cep.CreationRuleTemplateInfo;
@@ -208,7 +208,7 @@ public class CreationRuleResourceTest extends IssueRestApplicationJerseyTest {
         info.properties = Arrays.asList(rulePropertyInfo);
         CreationRuleActionInfo actionInfo = new CreationRuleActionInfo();
         actionInfo.phase = new CreationRuleActionPhaseInfo(CreationRuleActionPhase.CREATE, thesaurus);
-        actionInfo.type = new CreationRuleActionTypeInfo();
+        actionInfo.type = new IssueActionTypeInfo();
         actionInfo.type.id = 5L;
         PropertyInfo actionPropertyInfo = new PropertyInfo();
         actionPropertyInfo.key = "property2";
@@ -271,7 +271,7 @@ public class CreationRuleResourceTest extends IssueRestApplicationJerseyTest {
         info.properties = Arrays.asList(rulePropertyInfo);
         CreationRuleActionInfo actionInfo = new CreationRuleActionInfo();
         actionInfo.phase = new CreationRuleActionPhaseInfo(CreationRuleActionPhase.CREATE, thesaurus);
-        actionInfo.type = new CreationRuleActionTypeInfo();
+        actionInfo.type = new IssueActionTypeInfo();
         actionInfo.type.id = 5L;
         PropertyInfo actionPropertyInfo = new PropertyInfo();
         actionPropertyInfo.key = "property2";
