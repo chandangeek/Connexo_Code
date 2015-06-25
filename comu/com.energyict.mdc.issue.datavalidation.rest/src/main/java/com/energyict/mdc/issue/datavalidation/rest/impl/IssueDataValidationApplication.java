@@ -1,7 +1,8 @@
 package com.energyict.mdc.issue.datavalidation.rest.impl;
 
+import com.elster.jupiter.issue.rest.resource.IssueResourceHelper;
+import com.elster.jupiter.issue.rest.response.IssueActionInfoFactory;
 import com.elster.jupiter.issue.rest.response.PropertyUtils;
-import com.elster.jupiter.issue.rest.response.cep.CreationRuleActionInfoFactory;
 import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.license.License;
@@ -107,7 +108,8 @@ public class IssueDataValidationApplication extends Application {
             bind(nlsService).to(NlsService.class);
             bind(deviceService).to(DeviceService.class);
             bind(DataValidationIssueInfoFactory.class).to(DataValidationIssueInfoFactory.class);
-            bind(CreationRuleActionInfoFactory.class).to(CreationRuleActionInfoFactory.class);
+            bind(IssueResourceHelper.class).to(IssueResourceHelper.class);
+            bind(IssueActionInfoFactory.class).to(IssueActionInfoFactory.class);
             bind(PropertyUtils.class).to(PropertyUtils.class);
         }
     }

@@ -15,6 +15,7 @@ import com.energyict.mdc.issue.datavalidation.rest.impl.DataValidationIssueInfo.
 
 import javax.inject.Inject;
 import java.time.temporal.ChronoUnit;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -50,11 +51,13 @@ public class DataValidationIssueInfoFactory {
                         blockInfo.endTime = block.getEndTime();
                         blockInfo.amountOfSuspects = ChronoUnit.MILLIS.between(block.getStartTime(), block.getEndTime()) / channel.get().getInterval().getMilliSeconds();
                         return blockInfo;
-                    }).collect(Collectors.toList());
+                    }).sorted((block1, block2) -> block1.startTime.compareTo(block2.startTime)).collect(Collectors.toList());
                     issueInfo.notEstimatedData.add(info);
                 }
             }
         }
+        Collections.<NotEstimatedDataInfo>sort(issueInfo.notEstimatedData,
+                (info1, info2) -> info1.readingType.aliasName.compareTo(info2.readingType.aliasName));
         return issueInfo;
     }
 
@@ -73,10 +76,7 @@ public class DataValidationIssueInfoFactory {
                 return true;
             }
             Optional<ReadingType> calculatedReadingType = channelReadingType.getCalculatedReadingType();
-            if (calculatedReadingType.isPresent() && calculatedReadingType.get().equals(readingType)) {
-                return true;
-            }
-            return false;
+            return calculatedReadingType.isPresent() && calculatedReadingType.get().equals(readingType);
         }).findFirst();
     }
 }

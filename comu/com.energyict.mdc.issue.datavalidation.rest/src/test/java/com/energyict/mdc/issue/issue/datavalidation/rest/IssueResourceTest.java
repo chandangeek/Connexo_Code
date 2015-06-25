@@ -1,21 +1,37 @@
 package com.energyict.mdc.issue.issue.datavalidation.rest;
 
+import com.elster.jupiter.cbo.*;
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.issue.rest.request.AssignIssueRequest;
+import com.elster.jupiter.issue.rest.request.CloseIssueRequest;
+import com.elster.jupiter.issue.rest.request.EntityReference;
 import com.elster.jupiter.issue.rest.request.PerformActionRequest;
 import com.elster.jupiter.issue.share.entity.IssueActionType;
 import com.elster.jupiter.issue.share.entity.IssueAssignee;
 import com.elster.jupiter.issue.share.entity.IssueComment;
+import com.elster.jupiter.issue.share.entity.IssueStatus;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
+import com.energyict.mdc.device.data.Channel;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.issue.datavalidation.DataValidationIssueFilter;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidation;
+import com.energyict.mdc.issue.datavalidation.NotEstimatedBlock;
 import com.energyict.mdc.issue.datavalidation.OpenIssueDataValidation;
+import com.jayway.jsonpath.JsonModel;
 import org.junit.Test;
 import org.mockito.Matchers;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -23,42 +39,119 @@ import static org.mockito.Mockito.*;
 
 public class IssueResourceTest extends IssueDataValidationApplicationJerseyTest {
 
-//    @Test
-//    public void testGetAllIssuesNominalCase() {
-//        when(deviceService.findDeviceById(anyLong())).thenReturn(Optional.<Device>empty());
-//        Optional<IssueStatus> status = Optional.of(getDefaultStatus());
-//        when(issueService.findStatus("open")).thenReturn(status);
-//
-//        Query<OpenIssueDataCollection> issuesQuery = mock(Query.class);
-//        when(issueDataValidationService.query(OpenIssueDataCollection.class, OpenIssue.class, EndDevice.class, User.class, IssueReason.class, IssueStatus.class, IssueType.class))
-//                .thenReturn(issuesQuery);
-//
-//        Optional<IssueType> issueType = Optional.of(getDefaultIssueType());
-//        when(issueService.findIssueType("datacollection")).thenReturn(issueType);
-//
-//        List<OpenIssueDataCollection> issues = Arrays.asList(getDefaultIssue(), getDefaultIssue());
-//        when(issuesQuery.select(Matchers.<Condition>anyObject(), Matchers.eq(1), Matchers.eq(2), Matchers.<Order>anyVararg())).thenReturn(issues);
-//
-//        Map<?, ?> map = target("/issue").queryParam(STATUS, "open").queryParam(START, "0").queryParam(LIMIT, "1").request().get(Map.class);
-//        assertThat(map.get("total")).isEqualTo(2);
-//
-//        List<?> data = (List<?>) map.get("data");
-//        assertThat(data).hasSize(1);
-//
-//        Map<?, ?> issueMap = (Map<?, ?>) data.get(0);
-//        assertDefaultIssueMap(issueMap);
-//    }
+    @Test
+    public void testGetAllIssuesNominalCase() {
+        mockStatus("open", "Open", false);
+        mockStatus("inprogress", "In progress", false);
+        mockDevice(2L, "Meter");
+        mockAssignee(3L, "User", "USER");
+        mockReason("IssueReason", "Reason", getDefaultIssueType());
+        OpenIssueDataValidation issue = getDefaultIssue();
+        Finder<? extends IssueDataValidation> finder = mock(Finder.class);
+        doAnswer(new Answer() {
+            @Override
+            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+                DataValidationIssueFilter filter = (DataValidationIssueFilter) invocationOnMock.getArguments()[0];
+                assertThat(filter.getStatuses()).hasSize(2);
+                assertThat(filter.getStatuses().get(0).getKey()).isEqualTo("open");
+                assertThat(filter.getStatuses().get(1).getKey()).isEqualTo("inprogress");
+                assertThat(filter.getAssignee()).isPresent();
+                assertThat(filter.getAssignee().get().getId()).isEqualTo(3L);
+                assertThat(filter.getDevice()).isPresent();
+                assertThat(filter.getDevice().get().getId()).isEqualTo(2L);
+                assertThat(filter.getIssueReason()).isPresent();
+                assertThat(filter.getIssueReason().get().getKey()).isEqualTo("IssueReason");
+                return finder;
+            }
+        }).when(issueDataValidationService).findAllDataValidationIssues(Matchers.any());
+        doReturn(Collections.singletonList(issue)).when(finder).find();
 
-//    @Test
-//    public void testGetIssueById() {
-//        when(deviceService.findDeviceById(anyLong())).thenReturn(Optional.<Device>empty());
-//        Optional<IssueDataCollection> issue = Optional.of(getDefaultIssue());
-//        doReturn(issue).when(issueDataValidationService).findIssue(1);
-//
-//        Map<?, ?> map = target("/issue/1").request().get(Map.class);
-//        Map<?, ?> issueMap = (Map<?, ?>) map.get("data");
-//        assertDefaultIssueMap(issueMap);
-//    }
+        String response = target("/issues")
+                .queryParam("status", "open")
+                .queryParam("status", "inprogress")
+                .queryParam("meter", 2L)
+                .queryParam("assigneeType", "USER")
+                .queryParam("assigneeId", 3L)
+                .queryParam("reason", "IssueReason")
+                .request().get(String.class);
+
+        JsonModel jsonModel = JsonModel.model(response);
+        assertThat(jsonModel.<Number>get("$.total")).isEqualTo(1);
+        assertThat(jsonModel.<Number>get("$.dataValidationIssues[0].id")).isEqualTo(1);
+        assertThat(jsonModel.<Number>get("$.dataValidationIssues[0].version")).isEqualTo(1);
+        assertThat(jsonModel.<Number>get("$.dataValidationIssues[0].creationDate")).isEqualTo(0);
+        assertThat(jsonModel.<Number>get("$.dataValidationIssues[0].dueDate")).isEqualTo(0);
+        assertThat(jsonModel.<String>get("$.dataValidationIssues[0].reason.id")).isEqualTo("1");
+        assertThat(jsonModel.<String>get("$.dataValidationIssues[0].reason.name")).isEqualTo("Reason");
+        assertThat(jsonModel.<String>get("$.dataValidationIssues[0].status.id")).isEqualTo("1");
+        assertThat(jsonModel.<String>get("$.dataValidationIssues[0].status.name")).isEqualTo("open");
+        assertThat(jsonModel.<Boolean>get("$.dataValidationIssues[0].status.allowForClosing")).isEqualTo(false);
+        assertThat(jsonModel.<Number>get("$.dataValidationIssues[0].assignee.id")).isEqualTo(1);
+        assertThat(jsonModel.<String>get("$.dataValidationIssues[0].assignee.name")).isEqualTo("Admin");
+        assertThat(jsonModel.<String>get("$.dataValidationIssues[0].assignee.type")).isEqualTo(IssueAssignee.Types.USER);
+        assertThat(jsonModel.<Number>get("$.dataValidationIssues[0].device.id")).isEqualTo(1);
+        assertThat(jsonModel.<Number>get("$.dataValidationIssues[0].device.serialNumber")).isEqualTo("0.0.0.0.0.0.0.0");
+        assertThat(jsonModel.<String>get("$.dataValidationIssues[0].device.name")).isNull();
+        assertThat(jsonModel.<String>get("$.dataValidationIssues[0].device.usagePoint")).isNull();
+        assertThat(jsonModel.<String>get("$.dataValidationIssues[0].device.serviceLocation")).isNull();
+        assertThat(jsonModel.<String>get("$.dataValidationIssues[0].device.serviceCategory")).isNull();
+    }
+
+    @Test
+    public void testGetIssueById() {
+        IssueDataValidation issue = getDefaultIssue();
+        doReturn(Optional.of(issue)).when(issueDataValidationService).findIssue(1);
+
+        ReadingType readingType = mockReadingType("0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0");
+        ReadingType calculatedReadingType = mockReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0");
+        when(readingType.getCalculatedReadingType()).thenReturn(Optional.of(calculatedReadingType));
+        Device device = mock(Device.class);
+        when(deviceService.findDeviceById(1)).thenReturn(Optional.of(device));
+        Channel channel = mock(Channel.class);
+        when(device.getChannels()).thenReturn(Collections.singletonList(channel));
+        when(channel.getId()).thenReturn(5L);
+        when(channel.getReadingType()).thenReturn(readingType);
+        when(channel.getInterval()).thenReturn(TimeDuration.minutes(15));
+        Instant now = Instant.now();
+        NotEstimatedBlock block1 = mockNotEstimatedBlock(now, now.plus(30, ChronoUnit.MINUTES), readingType);
+        NotEstimatedBlock block2 = mockNotEstimatedBlock(now.plus(45, ChronoUnit.MINUTES), now.plus(60, ChronoUnit.MINUTES), calculatedReadingType);
+        when(issue.getNotEstimatedBlocks()).thenReturn(Arrays.asList(block1, block2));
+
+        String response = target("/issues/1").request().get(String.class);
+
+        JsonModel jsonModel = JsonModel.model(response);
+        assertThat(jsonModel.<Number>get("$.id")).isEqualTo(1);
+        assertThat(jsonModel.<Number>get("$.version")).isEqualTo(1);
+        assertThat(jsonModel.<Number>get("$.creationDate")).isEqualTo(0);
+        assertThat(jsonModel.<Number>get("$.dueDate")).isEqualTo(0);
+        assertThat(jsonModel.<String>get("$.reason.id")).isEqualTo("1");
+        assertThat(jsonModel.<String>get("$.reason.name")).isEqualTo("Reason");
+        assertThat(jsonModel.<String>get("$.status.id")).isEqualTo("1");
+        assertThat(jsonModel.<String>get("$.status.name")).isEqualTo("open");
+        assertThat(jsonModel.<Boolean>get("$.status.allowForClosing")).isEqualTo(false);
+        assertThat(jsonModel.<Number>get("$.assignee.id")).isEqualTo(1);
+        assertThat(jsonModel.<String>get("$.assignee.name")).isEqualTo("Admin");
+        assertThat(jsonModel.<String>get("$.assignee.type")).isEqualTo(IssueAssignee.Types.USER);
+        assertThat(jsonModel.<Number>get("$.device.id")).isEqualTo(1);
+        assertThat(jsonModel.<Number>get("$.device.serialNumber")).isEqualTo("0.0.0.0.0.0.0.0");
+        assertThat(jsonModel.<String>get("$.device.name")).isNull();
+        assertThat(jsonModel.<String>get("$.device.usagePoint")).isNull();
+        assertThat(jsonModel.<String>get("$.device.serviceLocation")).isNull();
+        assertThat(jsonModel.<String>get("$.device.serviceCategory")).isNull();
+
+        assertThat(jsonModel.<List<?>>get("$.notEstimatedData")).hasSize(2);
+        assertThat(jsonModel.<List<Number>>get("$.notEstimatedData[*].channelId")).containsExactly(5, 5);
+        assertThat(jsonModel.<List<String>>get("$.notEstimatedData[*].readingType.mRID")).containsExactly("0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0", "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0");
+        assertThat(jsonModel.<List<?>>get("$.notEstimatedData[0].notEstimatedBlocks")).hasSize(1);
+        assertThat(jsonModel.<Number>get("$.notEstimatedData[0].notEstimatedBlocks[0].startTime")).isEqualTo(now.toEpochMilli());
+        assertThat(jsonModel.<Number>get("$.notEstimatedData[0].notEstimatedBlocks[0].endTime")).isEqualTo(now.plus(30, ChronoUnit.MINUTES).toEpochMilli());
+        assertThat(jsonModel.<Number>get("$.notEstimatedData[0].notEstimatedBlocks[0].amountOfSuspects")).isEqualTo(2);
+
+        assertThat(jsonModel.<List<?>>get("$.notEstimatedData[1].notEstimatedBlocks")).hasSize(1);
+        assertThat(jsonModel.<Number>get("$.notEstimatedData[1].notEstimatedBlocks[0].startTime")).isEqualTo(now.plus(45, ChronoUnit.MINUTES).toEpochMilli());
+        assertThat(jsonModel.<Number>get("$.notEstimatedData[1].notEstimatedBlocks[0].endTime")).isEqualTo(now.plus(60, ChronoUnit.MINUTES).toEpochMilli());
+        assertThat(jsonModel.<Number>get("$.notEstimatedData[1].notEstimatedBlocks[0].amountOfSuspects")).isEqualTo(1);
+    }
 
     @Test
     public void testGetNonexistentIssueById() {
@@ -78,16 +171,17 @@ public class IssueResourceTest extends IssueDataValidationApplicationJerseyTest 
         when(commentsQuery.select(Matchers.<Condition>anyObject(), Matchers.<Order>anyVararg())).thenReturn(comments);
         when(issueService.query(IssueComment.class, User.class)).thenReturn(commentsQuery);
 
-        Map<?, ?> map = target("/issues/1/comments").request().get(Map.class);
-        assertThat(map.get("total")).isEqualTo(1);
-        Map<?, ?> commentMap = (Map<?, ?>) ((List<?>) map.get("comments")).get(0);
-        assertThat(commentMap.get("id")).isEqualTo(1);
-        assertThat(commentMap.get("comment")).isEqualTo("My comment");
-        assertThat(commentMap.get("creationDate")).isEqualTo(0);
-        assertThat(commentMap.get("version")).isEqualTo(1);
-        Map<?, ?> authorMap = (Map<?, ?>) commentMap.get("author");
-        assertThat(authorMap.get("id")).isEqualTo(1);
-        assertThat(authorMap.get("name")).isEqualTo("Admin");
+        String response = target("/issues/1/comments").request().get(String.class);
+
+        JsonModel jsonModel = JsonModel.model(response);
+        assertThat(jsonModel.<Number>get("$.total")).isEqualTo(1);
+        assertThat(jsonModel.<List<?>>get("$.comments")).hasSize(1);
+        assertThat(jsonModel.<Number>get("$.comments[0].id")).isEqualTo(1);
+        assertThat(jsonModel.<String>get("$.comments[0].comment")).isEqualTo("My comment");
+        assertThat(jsonModel.<Number>get("$.comments[0].creationDate")).isEqualTo(0);
+        assertThat(jsonModel.<Number>get("$.comments[0].version")).isEqualTo(1);
+        assertThat(jsonModel.<Number>get("$.comments[0].author.id")).isEqualTo(1);
+        assertThat(jsonModel.<String>get("$.comments[0].author.name")).isEqualTo("Admin");
     }
 
     @Test
@@ -112,7 +206,7 @@ public class IssueResourceTest extends IssueDataValidationApplicationJerseyTest 
     public void testPostEmptyComment() {
         OpenIssueDataValidation issue = mock(OpenIssueDataValidation.class);
         doReturn(Optional.of(issue)).when(issueDataValidationService).findIssue(1L);
-        IssueComment comment = mock(IssueComment.class);
+        mock(IssueComment.class);
         when(issue.addComment(Matchers.anyString(), Matchers.any())).thenReturn(Optional.empty());
         Map<String, String> params = new HashMap<>(0);
         Entity<Map<String, String>> json = Entity.json(params);
@@ -122,31 +216,31 @@ public class IssueResourceTest extends IssueDataValidationApplicationJerseyTest 
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
-//    @Test
-//    public void testCloseAction() {
-//        CloseIssueRequest request = new CloseIssueRequest();
-//        EntityReference issueRef = new EntityReference();
-//        issueRef.setId(1L);
-//        request.issues = Arrays.asList(issueRef);
-//        request.status = "resolved";
-//        IssueStatus status = mockStatus("resolved", "Resolved", true);
-//        when(issueService.findStatus("resolved")).thenReturn(Optional.of(status));
-//        OpenIssueDataCollection issueDataCollection = mock(OpenIssueDataCollection.class);
-//        when(issueDataValidationService.findOpenIssue(1L)).thenReturn(Optional.of(issueDataCollection));
-//        when(issueDataCollection.getStatus()).thenReturn(status);
-//
-//
-//        Entity<CloseIssueRequest> json = Entity.json(request);
-//        Response response = target("issue/close").request().put(json);
-//        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-//    }
+    @Test
+    public void testCloseAction() {
+        CloseIssueRequest request = new CloseIssueRequest();
+        EntityReference issueRef = new EntityReference();
+        issueRef.setId(1L);
+        request.issues = Collections.singletonList(issueRef);
+        request.status = "resolved";
+        IssueStatus status = mockStatus("resolved", "Resolved", true);
+        OpenIssueDataValidation openIssueDataValidation = getDefaultIssue();
+        doReturn(Optional.of(openIssueDataValidation)).when(issueDataValidationService).findIssue(1L);
+        doReturn(Optional.of(openIssueDataValidation)).when(issueDataValidationService).findOpenIssue(1L);
+        Entity<CloseIssueRequest> json = Entity.json(request);
 
-//    @Test
-//    public void testAssignAction() {
-//        Entity<AssignIssueRequest> json = Entity.json(new AssignIssueRequest());
-//        Response response = target("issues/assign").request().put(json);
-//        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-//    }
+        Response response = target("issues/close").request().put(json);
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        verify(openIssueDataValidation).close(status);
+    }
+
+    @Test
+    public void testAssignAction() {
+        Entity<AssignIssueRequest> json = Entity.json(new AssignIssueRequest());
+        Response response = target("issues/assign").request().put(json);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+    }
 
     @Test
     public void testPerformAction() {
@@ -172,7 +266,7 @@ public class IssueResourceTest extends IssueDataValidationApplicationJerseyTest 
     }
 
     @Test
-    public void testPerformUnexistingAction() {
+    public void testPerformNonexistingAction() {
         Optional<IssueDataValidation> issue = Optional.of(getDefaultIssue());
         doReturn(issue).when(issueDataValidationService).findIssue(1);
         when(issueActionService.findActionType(1)).thenReturn(Optional.empty());
@@ -184,33 +278,36 @@ public class IssueResourceTest extends IssueDataValidationApplicationJerseyTest 
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }
 
-    private void assertDefaultIssueMap(Map<?, ?> issueMap) {
-        assertThat(issueMap.get("id")).isEqualTo(1);
-        assertThat(issueMap.get("version")).isEqualTo(1);
-        assertThat(issueMap.get("creationDate")).isEqualTo(0);
-        assertThat(issueMap.get("dueDate")).isEqualTo(0);
+    private ReadingType mockReadingType(String mrid){
+        ReadingType readingType = mock(ReadingType.class);
+        when(readingType.getMRID()).thenReturn(mrid);
+        when(readingType.getAliasName()).thenReturn(mrid);
+        when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.DAILY);
+        when(readingType.getAggregate()).thenReturn(Aggregate.AVERAGE);
+        when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.FIXEDBLOCK1MIN);
+        when(readingType.getAccumulation()).thenReturn(Accumulation.BULKQUANTITY);
+        when(readingType.getFlowDirection()).thenReturn(FlowDirection.FORWARD);
+        when(readingType.getCommodity()).thenReturn(Commodity.AIR);
+        when(readingType.getMeasurementKind()).thenReturn(MeasurementKind.ACVOLTAGEPEAK);
+        when(readingType.getInterharmonic()).thenReturn(new RationalNumber(1,2));
+        when(readingType.getArgument()).thenReturn(new RationalNumber(1,2));
+        when(readingType.getTou()).thenReturn(3);
+        when(readingType.getCpp()).thenReturn(4);
+        when(readingType.getConsumptionTier()).thenReturn(5);
+        when(readingType.getPhases()).thenReturn(Phase.PHASEA);
+        when(readingType.getMultiplier()).thenReturn(MetricMultiplier.CENTI);
+        when(readingType.getUnit()).thenReturn(ReadingTypeUnit.AMPERE);
+        when(readingType.getCurrency()).thenReturn(Currency.getInstance("EUR"));
+        when(readingType.getCalculatedReadingType()).thenReturn(Optional.<ReadingType>empty());
+        when(readingType.isCumulative()).thenReturn(true);
+        return readingType;
+    }
 
-        Map<?, ?> reasonMap = (Map<?, ?>) issueMap.get("reason");
-        assertThat(reasonMap.get("id")).isEqualTo("1");
-        assertThat(reasonMap.get("name")).isEqualTo("Reason");
-
-        Map<?, ?> statusMap = (Map<?, ?>) issueMap.get("status");
-        assertThat(statusMap.get("id")).isEqualTo("1");
-        assertThat(statusMap.get("name")).isEqualTo("open");
-        assertThat(statusMap.get("allowForClosing")).isEqualTo(false);
-
-        Map<?, ?> assigneeMap = (Map<?, ?>) issueMap.get("assignee");
-        assertThat(assigneeMap.get("id")).isEqualTo(1);
-        assertThat(assigneeMap.get("name")).isEqualTo("Admin");
-        assertThat(assigneeMap.get("type")).isEqualTo(IssueAssignee.Types.USER);
-
-        Map<?, ?> deviceMap = (Map<?, ?>) issueMap.get("device");
-        assertThat(deviceMap.get("id")).isEqualTo(1);
-        assertThat(deviceMap.get("serialNumber")).isEqualTo("0.0.0.0.0.0.0.0");
-        assertThat(deviceMap.get("name")).isEqualTo(null);
-        assertThat(deviceMap.get("usagePoint")).isEqualTo(null);
-        assertThat(deviceMap.get("serviceLocation")).isEqualTo(null);
-        assertThat(deviceMap.get("serviceCategory")).isEqualTo(null);
-        assertThat(deviceMap.get("version")).isEqualTo(0);
+    private NotEstimatedBlock mockNotEstimatedBlock(Instant from, Instant to, ReadingType readingType) {
+        NotEstimatedBlock block = mock(NotEstimatedBlock.class);
+        when(block.getStartTime()).thenReturn(from);
+        when(block.getEndTime()).thenReturn(to);
+        when(block.getReadingType()).thenReturn(readingType);
+        return block;
     }
 }
