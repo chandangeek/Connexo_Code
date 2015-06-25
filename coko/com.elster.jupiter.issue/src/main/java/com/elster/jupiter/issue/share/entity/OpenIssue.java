@@ -6,5 +6,8 @@ import aQute.bnd.annotation.ConsumerType;
 public interface OpenIssue extends Issue {
     
     HistoricalIssue close(IssueStatus status);
-    
+
+    default HistoricalIssue closeInternal(IssueStatus status){
+        throw new UnsupportedOperationException();
+    }
 }

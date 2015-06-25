@@ -11,10 +11,7 @@ import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.issue.impl.module.IssueModule;
 import com.elster.jupiter.issue.impl.records.OpenIssueImpl;
-import com.elster.jupiter.issue.share.CreationRuleTemplate;
-import com.elster.jupiter.issue.share.IssueAction;
-import com.elster.jupiter.issue.share.IssueActionFactory;
-import com.elster.jupiter.issue.share.IssueEvent;
+import com.elster.jupiter.issue.share.*;
 import com.elster.jupiter.issue.share.entity.*;
 import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueAssignmentService;
@@ -63,14 +60,15 @@ import org.mockito.Matchers;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
+import javax.inject.Inject;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.logging.Level;
 
 import static com.elster.jupiter.util.conditions.Where.where;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @SuppressWarnings("deprecation")
 public class BaseTest {
@@ -153,8 +151,9 @@ public class BaseTest {
 
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             injector.getInstance(FiniteStateMachineService.class);
-            // In OSGI container issue types will be set by separate bundle
             issueService = injector.getInstance(IssueService.class);
+            injector.getInstance(DummyIssueProvider.class);
+            // In OSGI container issue types will be set by separate bundle
             IssueType type = issueService.createIssueType(ISSUE_DEFAULT_TYPE_UUID, MESSAGE_SEED_DEFAULT_TRANSLATION);
             issueService.createReason(ISSUE_DEFAULT_REASON, type, MESSAGE_SEED_DEFAULT_TRANSLATION);
             ctx.commit();
@@ -287,5 +286,28 @@ public class BaseTest {
     protected List<IssueComment> getIssueComments(Issue issue) {
         Query<IssueComment> query = getIssueService().query(IssueComment.class, User.class);
         return query.select(where("issueId").isEqualTo(issue.getId()), Order.ascending("createTime"));
+    }
+
+    private static class DummyIssueProvider implements IssueProvider {
+
+        @Inject
+        public DummyIssueProvider(IssueService issueService) {
+            ((IssueServiceImpl) issueService).addIssueProvider(this);
+        }
+
+        @Override
+        public Optional<? extends OpenIssue> getOpenIssue(OpenIssue issue) {
+            OpenIssue spyOpenIssue = spy(issue);
+            doAnswer(invocationOnMock -> {
+                IssueStatus status = (IssueStatus)invocationOnMock.getArguments()[0];
+                return issue.closeInternal(status);
+            }).when(spyOpenIssue).close(any());
+            return Optional.of(spyOpenIssue);
+        }
+
+        @Override
+        public Optional<? extends HistoricalIssue> getHistoricalIssue(HistoricalIssue issue) {
+            return Optional.of(issue);
+        }
     }
 }

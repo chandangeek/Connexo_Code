@@ -2,15 +2,7 @@ package com.elster.jupiter.issue.impl.records;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
-import com.elster.jupiter.issue.share.entity.AssigneeType;
-import com.elster.jupiter.issue.share.entity.CreationRule;
-import com.elster.jupiter.issue.share.entity.HistoricalIssue;
-import com.elster.jupiter.issue.share.entity.Issue;
-import com.elster.jupiter.issue.share.entity.IssueAssignee;
-import com.elster.jupiter.issue.share.entity.IssueComment;
-import com.elster.jupiter.issue.share.entity.IssueForAssign;
-import com.elster.jupiter.issue.share.entity.IssueReason;
-import com.elster.jupiter.issue.share.entity.IssueStatus;
+import com.elster.jupiter.issue.share.entity.*;
 import com.elster.jupiter.issue.share.service.IssueAssignmentService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.EndDevice;
@@ -22,10 +14,8 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.users.User;
-import com.elster.jupiter.users.UserService;
 
 import javax.inject.Inject;
-
 import java.time.Instant;
 import java.util.Collections;
 import java.util.Optional;
@@ -48,17 +38,14 @@ public class IssueImpl extends EntityImpl implements Issue {
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     private Reference<CreationRule> rule = ValueReference.absent();
 
-    @SuppressWarnings("unused")
-    private volatile UserService userService;
     private volatile IssueService issueService;
     private volatile IssueAssignmentService issueAssignmentService;
 
     @Inject
-    public IssueImpl(DataModel dataModel, UserService userService, IssueService issueService, IssueAssignmentService issueAssignmentService){
+    public IssueImpl(DataModel dataModel, IssueService issueService){
         super(dataModel);
-        this.userService = userService;
         this.issueService = issueService;
-        this.issueAssignmentService = issueAssignmentService;
+        this.issueAssignmentService = issueService.getIssueAssignmentService();
     }
 
     @Override
@@ -142,19 +129,6 @@ public class IssueImpl extends EntityImpl implements Issue {
         return assignee;
     }
 
-    IssueImpl copy(IssueImpl issue) {
-        this.setId(issue.getId());
-        if (issue.getDueDate() != null) {
-            this.setDueDate(issue.getDueDate());
-        }
-        this.setReason(issue.getReason());
-        this.setStatus(issue.getStatus());
-        this.setDevice(issue.getDevice());
-        this.setRule(issue.getRule());
-        this.assignTo(issue.getAssignee());
-        return this;
-    }
-
     public User getUser() {
         return user.orNull();
     }
@@ -170,18 +144,6 @@ public class IssueImpl extends EntityImpl implements Issue {
     protected void resetAssignee(){
         assigneeType = null;
         setUser(null);
-    }
-
-    public HistoricalIssue close(IssueStatus status){
-        if (status == null || !status.isHistorical()) {
-            throw  new IllegalArgumentException("Incorrect status for closing issue");
-        }
-        setStatus(status);
-        HistoricalIssueImpl historicalIssue = getDataModel().getInstance(HistoricalIssueImpl.class);
-        historicalIssue.copy(this);
-        historicalIssue.save();
-        this.delete();
-        return historicalIssue;
     }
 
     @Override
@@ -229,5 +191,9 @@ public class IssueImpl extends EntityImpl implements Issue {
             }
         }
         return Optional.empty();
+    }
+
+    protected IssueService getIssueService() {
+        return issueService;
     }
 }

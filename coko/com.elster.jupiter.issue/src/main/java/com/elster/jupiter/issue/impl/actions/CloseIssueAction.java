@@ -1,11 +1,5 @@
 package com.elster.jupiter.issue.impl.actions;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
-import javax.inject.Inject;
-
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
 import com.elster.jupiter.issue.share.AbstractIssueAction;
 import com.elster.jupiter.issue.share.IssueActionResult;
@@ -25,6 +19,11 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.conditions.Where;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
+
+import javax.inject.Inject;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 public class CloseIssueAction extends AbstractIssueAction {
     
@@ -107,12 +106,12 @@ public class CloseIssueAction extends AbstractIssueAction {
         
         @Override
         public Optional<Status> find(String key) {
-            return issueService.findStatus(key).map(status -> new Status(status));
+            return issueService.findStatus(key).map(Status::new);
         }
         
         public Status[] getStatuses() {
             List<IssueStatus> statuses = issueService.query(IssueStatus.class).select(Where.where("isHistorical").isEqualTo(Boolean.TRUE));
-            return statuses.stream().map(status -> new Status(status)).toArray(Status[]::new);
+            return statuses.stream().map(Status::new).toArray(Status[]::new);
         }
         
         @Override

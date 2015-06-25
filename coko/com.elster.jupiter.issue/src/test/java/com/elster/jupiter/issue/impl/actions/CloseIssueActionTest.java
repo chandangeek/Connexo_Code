@@ -1,15 +1,5 @@
 package com.elster.jupiter.issue.impl.actions;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import org.junit.Before;
-import org.junit.Test;
-
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.issue.impl.actions.CloseIssueAction.Status;
@@ -19,7 +9,16 @@ import com.elster.jupiter.issue.share.IssueAction;
 import com.elster.jupiter.issue.share.IssueActionResult;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
+import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.users.User;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
 
 public class CloseIssueActionTest extends BaseTest {
 
@@ -37,7 +36,11 @@ public class CloseIssueActionTest extends BaseTest {
         IssueStatus resolvedStatus = getIssueService().findStatus(IssueStatus.RESOLVED).get();
         properties.put(CloseIssueAction.CLOSE_STATUS, new Status(resolvedStatus));
         properties.put(CloseIssueAction.COMMENT, "Comment");
-        Issue issue = createIssueMinInfo();
+        OpenIssue issue = createIssueMinInfo();
+//        doAnswer(invocationOnMock -> {
+//                IssueStatus status = (IssueStatus)invocationOnMock.getArguments()[0];
+//                return issue.closeInternal(status);
+//            }).when(issue).close(any());
         
         User user = getUserService().findOrCreateUser("user", "local", "directoryType");
         getThreadPrincipalService().set(user);
