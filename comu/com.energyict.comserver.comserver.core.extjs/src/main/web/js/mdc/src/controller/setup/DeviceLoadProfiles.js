@@ -117,7 +117,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
                 me.showValidateNowMessage(menu.record);
                 break;
             case 'viewSuspects':
-                filterParams.onlySuspect = true;
+                filterParams.suspect = 'suspect';
                 route = 'devices/device/loadprofiles/loadprofiletableData';
                 break;
         }

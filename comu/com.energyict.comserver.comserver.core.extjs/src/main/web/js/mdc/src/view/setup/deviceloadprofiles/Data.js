@@ -5,7 +5,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.Data', {
     requires: [
         'Mdc.view.setup.deviceloadprofiles.TableView',
         'Mdc.view.setup.deviceloadprofiles.GraphView',
-        'Mdc.view.setup.deviceloadprofiles.SideFilter'
+        'Mdc.view.setup.deviceloadprofiles.LoadProfileTopFilter'
     ],
 
     router: null,
@@ -37,23 +37,18 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.Data', {
                     ui: 'link'
                 }
             ],
+            tbar: {
+                xtype: 'mdc-loadprofiles-topfilter',
+                itemId: 'deviceloadprofilesdatafilterpanel',
+                filterDefault: me.filter
+            },
             items: [
                 {
-                    xtype: 'filter-top-panel',
-                    itemId: 'deviceloadprofilesdatafilterpanel',
-                    emptyText: Uni.I18n.translate('general.none', 'MDC', 'None')
+                    xtype: 'deviceLoadProfilesTableView',
+                    channels: me.channels
                 },
                 {
-                    items: [
-
-                        {
-                            xtype: 'deviceLoadProfilesTableView',
-                            channels: me.channels
-                        },
-                        {
-                            xtype: 'deviceLoadProfilesGraphView'
-                        }
-                    ]
+                    xtype: 'deviceLoadProfilesGraphView'
                 }
             ]
         };

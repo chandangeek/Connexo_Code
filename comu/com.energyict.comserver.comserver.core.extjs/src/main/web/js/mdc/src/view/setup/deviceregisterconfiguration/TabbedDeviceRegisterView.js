@@ -62,11 +62,6 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.TabbedDeviceRegisterView'
                                 toggleId: 'registersLink'
                             }
                         ]
-                    },
-                    {
-                        xtype: 'deviceRegisterDataSideFilter',
-                        itemId: 'registerFilter',
-                        hidden: true
                     }
                 ]
             }

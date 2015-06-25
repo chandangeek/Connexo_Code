@@ -4,7 +4,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.MainSetup', {
     mRID: null,
     registerId: null,
     requires: [
-        'Mdc.view.setup.deviceregisterdata.SideFilter'
+        'Mdc.view.setup.deviceregisterdata.RegisterTopFilter'
     ],
     initComponent: function () {
         var me = this;

@@ -3,8 +3,7 @@ Ext.define('Mdc.store.ValidationBlocks', {
     model: 'Mdc.model.ValidationBlock',
     proxy: {
         type: 'rest',
- //       urlTpl: '/api/ddr/devices/{mRID}/channels/{id}/datavalidationissues/{id}/validationblocks',
-        url: '/apps/mdc/fakedata/ValidationBlocks.json',
+        urlTpl: '/api/ddr/devices/{mRID}/channels/{channelId}/datavalidationissues/{issueId}/validationblocks',
         timeout: 240000,
         pageParam: false,
         startParam: false,
@@ -15,6 +14,10 @@ Ext.define('Mdc.store.ValidationBlocks', {
             totalProperty: 'total',
             root: 'validationBlocks',
             idProperty: 'startTime'
+        },
+
+        setUrl: function (mRID, channelId, issueId) {
+            this.url = this.urlTpl.replace('{mRID}', encodeURIComponent(mRID)).replace('{channelId}', channelId).replace('{issueId}', issueId);
         }
     }
 });

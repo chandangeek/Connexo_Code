@@ -30,18 +30,6 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
         {
             ref: 'readingsCount',
             selector: 'deviceLoadProfilesData #readingsCount'
-        },
-        {
-            ref: 'sideFilter',
-            selector: '#deviceLoadProfileDataSideFilter'
-        },
-        {
-            ref: 'sideFilterForm',
-            selector: '#deviceLoadProfileDataFilterForm'
-        },
-        {
-            ref: 'filterPanel',
-            selector: 'deviceLoadProfilesData filter-top-panel'
         }
     ],
 
@@ -58,18 +46,8 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
             'deviceLoadProfilesData #deviceLoadProfilesDataGrid': {
                 select: this.showPreview
             },
-            'deviceLoadProfileDataSideFilter #deviceLoadProfileDataFilterApplyBtn': {
-                click: this.applyFilter
-            },
-            'deviceLoadProfileDataSideFilter #deviceLoadProfileDataFilterResetBtn': {
-                click: this.clearFilter
-            },
             'deviceLoadProfilesData #deviceLoadProfilesGraphView': {
                 resize: this.onGraphResize
-            },
-            '#deviceloadprofilesdatafilterpanel': {
-                removeFilter: this.removeFilterItem,
-                clearAllFilters: this.clearFilter
             }
         });
     },
@@ -106,6 +84,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
                     this.resolve(this.callback)
                 }
             };
+
         dataStore.removeAll(true);
         dataStore.getProxy().setUrl({
             mRID: mRID,
@@ -123,30 +102,38 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
         initView = function (device) {
             var record = me.getLoadProfile(),
                 dataIntervalAndZoomLevels = me.getStore('Mdc.store.DataIntervalAndZoomLevels').getIntervalRecord(record.get('interval')),
-                durationsStore = me.getStore('Mdc.store.LoadProfileDataDurations'),
-                viewOnlySuspects;
-            durationsStore.loadData(dataIntervalAndZoomLevels.get('duration'));
-            tabWidget = Ext.widget('tabbedDeviceLoadProfilesView',{
-                device: device,
-                loadProfileId: loadProfileId,
-                toggleId: 'loadProfileLink',
-                router: me.getController('Uni.controller.history.Router')
-            });
+                durationsStore = me.getStore('Mdc.store.LoadProfileDataDurations')
+                ;
 
-            widget = Ext.widget('deviceLoadProfilesData', {
-                router: me.getController('Uni.controller.history.Router'),
-                channels: record.get('channels'),
-                device: device
-            });
-            tabWidget.down('#loadProfileTabPanel').setTitle(record.get('name'));
-            tabWidget.down('#deviceLoadProfileDataSideFilter').setVisible(true);
+            durationsStore.loadData(dataIntervalAndZoomLevels.get('duration'));
+
             me.loadProfileModel = record;
             me.getApplication().fireEvent('loadProfileOfDeviceLoad', record);
             var func = function () {
-                me.getApplication().fireEvent('changecontentevent', tabWidget);
-                tabWidget.down('#loadProfile-data').add(widget);
-                tabController.showTab(1);
                 viewport.setLoading(false);
+                var all = dataIntervalAndZoomLevels.get('all'),
+                    intervalStart = dataIntervalAndZoomLevels.getIntervalStart((me.loadProfileModel.get('lastReading') || new Date().getTime()));
+
+                tabWidget = Ext.widget('tabbedDeviceLoadProfilesView',{
+                    device: device,
+                    loadProfileId: loadProfileId,
+                    toggleId: 'loadProfileLink',
+                    router: router
+                });
+                widget = Ext.widget('deviceLoadProfilesData', {
+                    router: router,
+                    channels: record.get('channels'),
+                    device: device,
+                    filter: {
+                        fromDate: intervalStart,
+                        toDate: moment(intervalStart).add(all.timeUnit, all.count).toDate()
+                    }
+                });
+
+                tabWidget.down('#loadProfileTabPanel').setTitle(record.get('name'));
+                tabWidget.down('#loadProfile-data').add(widget);
+                me.getApplication().fireEvent('changecontentevent', tabWidget);
+                tabController.showTab(1);
                 Ext.getBody().mask('Loading...');
                 widget.setLoading();
                 widget.down('#deviceLoadProfilesGraphViewBtn').setDisabled(!isTable);
@@ -163,14 +150,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
                         Ext.getBody().unmask();
                     }
                 }, me);
-                if (Ext.isEmpty(router.filter.data.intervalStart)) {
-                    viewOnlySuspects = (router.queryParams.onlySuspect === 'true');
-                    me.setDefaults(dataIntervalAndZoomLevels, viewOnlySuspects);
-                    delete router.queryParams.onlySuspect;
-                }
-                dataStore.setFilterModel(router.filter);
-                me.getSideFilterForm().loadRecord(router.filter);
-                me.setFilterView();
+
                 dataStore.load();
             };
             if (loadProfilesStore.getTotalCount() === 0) {
@@ -347,64 +327,5 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
         preview.down('#deviceLoadProfilesDataPreviewForm').loadRecord(record);
 
         preview.rendered && Ext.resumeLayouts(true);
-    },
-
-    applyFilter: function () {
-        var filterForm = this.getSideFilterForm();
-        filterForm.updateRecord();
-        filterForm.getRecord().save();
-    },
-
-    clearFilter: function () {
-        this.getSideFilterForm().getRecord().getProxy().destroy();
-    },
-
-    removeFilterItem: function (key) {
-        var router = this.getController('Uni.controller.history.Router'),
-            record = router.filter;
-
-        if (key === 'onlySuspect' || key === 'onlyNonSuspect') {
-            record.set(key, false);
-        }
-        record.save();
-    },
-
-    setDefaults: function (dataIntervalAndZoomLevels, viewOnlySuspects) {
-        var me = this,
-            router = me.getController('Uni.controller.history.Router'),
-            all = dataIntervalAndZoomLevels.get('all'),
-            intervalStart = dataIntervalAndZoomLevels.getIntervalStart((me.loadProfileModel.get('lastReading') || new Date().getTime()));
-        router.filter.beginEdit();
-        router.filter.set('intervalStart', intervalStart);
-        router.filter.set('duration', all.count + all.timeUnit);
-        router.filter.set('onlySuspect', viewOnlySuspects);
-        router.filter.set('onlyNonSuspect', false);
-        router.filter.endEdit();
-        me.getSideFilter().down('#suspect').setValue(viewOnlySuspects);
-    },
-
-
-    setFilterView: function () {
-        var filterForm = this.getSideFilterForm(),
-            filterView = this.getFilterPanel(),
-            intervalStartField = filterForm.down('[name=intervalStart]'),
-            intervalEndField = filterForm.down('[name=duration]'),
-            suspectField = filterForm.down('#suspect'),
-            nonSuspectField = filterForm.down('#nonSuspect'),
-            intervalStart = intervalStartField.getValue(),
-            intervalEnd = intervalEndField.getRawValue(),
-            suspect = suspectField.boxLabel,
-            nonSuspect = nonSuspectField.boxLabel,
-            eventDateText = '';
-        eventDateText += intervalEnd + ' ' + intervalStartField.getFieldLabel().toLowerCase() + ' '
-            + Uni.DateTime.formatDateShort(intervalStart);
-        filterView.setFilter('eventDateChanged', filterForm.down('#dateContainer').getFieldLabel(), eventDateText, true);
-        filterView.down('#Reset').setText('Reset');
-        if (suspectField.getValue()) {
-            filterView.setFilter('onlySuspect', filterForm.down('#suspectContainer').getFieldLabel(), suspect);
-        }
-        if (nonSuspectField.getValue()) {
-            filterView.setFilter('onlyNonSuspect', filterForm.down('#suspectContainer').getFieldLabel(), nonSuspect);
-        }
     }
 });
