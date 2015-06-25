@@ -113,7 +113,13 @@ public enum MicroAction {
     * recurrent communication tasks to execute now.
     */
     // storage = bits 8192
-    START_RECURRING_COMMUNICATION;
+    START_RECURRING_COMMUNICATION,
+
+    /**
+     * Close the <i>communication and validation</i> issues on the device with the status <i>Won't fix</i>.
+     */
+    // storage = bits 16384
+    CLOSE_ALL_ISSUES;
 
     /**
      * Gets the Set of {@link MicroCheck}s that are implied
