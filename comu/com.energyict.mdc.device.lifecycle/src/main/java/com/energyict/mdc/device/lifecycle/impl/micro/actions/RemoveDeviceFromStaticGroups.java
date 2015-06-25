@@ -10,10 +10,8 @@ import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.PropertySpecService;
 
-import java.util.Collections;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,8 +19,6 @@ import java.util.Optional;
  * Provides an implementation for the {@link ServerMicroAction} interface
  * that will remove the Device from all static device groups.
  * @see {@link com.energyict.mdc.device.lifecycle.config.MicroAction#REMOVE_DEVICE_FROM_STATIC_GROUPS}
- *
- * action bits: 256
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-05-07 (12:40)
@@ -39,7 +35,7 @@ public class RemoveDeviceFromStaticGroups implements ServerMicroAction {
     }
 
     @Override
-    public void execute(Device device, List<ExecutableActionProperty> properties) {
+    public void execute(Device device, Instant effectiveTimestamp, List<ExecutableActionProperty> properties) {
         this.toEndDevice(device).ifPresent(this::execute);
     }
 

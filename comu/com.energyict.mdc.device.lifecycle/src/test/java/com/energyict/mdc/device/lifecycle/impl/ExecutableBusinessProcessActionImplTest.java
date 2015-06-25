@@ -5,6 +5,7 @@ import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedBusinessProcessAction;
 
+import java.time.Instant;
 import java.util.Collections;
 
 import org.junit.*;
@@ -56,12 +57,13 @@ public class ExecutableBusinessProcessActionImplTest {
     @Test
     public void executeDelegatesToService() {
         ExecutableBusinessProcessActionImpl executableAction = new ExecutableBusinessProcessActionImpl(this.device, this.action, this.service);
+        Instant now = Instant.now();
 
         // Business method
-        executableAction.execute(Collections.emptyList());
+        executableAction.execute(now, Collections.emptyList());
 
         // Asserts
-        verify(this.service).execute(this.action, this.device);
+        verify(this.service).execute(this.action, this.device, now);
     }
 
 }

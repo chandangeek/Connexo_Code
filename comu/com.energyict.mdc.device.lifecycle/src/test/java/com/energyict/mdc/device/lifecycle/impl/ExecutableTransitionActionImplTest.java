@@ -6,6 +6,7 @@ import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 
@@ -62,10 +63,10 @@ public class ExecutableTransitionActionImplTest {
         List<ExecutableActionProperty> properties = Arrays.asList(mock(ExecutableActionProperty.class));
 
         // Business method
-        executableAction.execute(properties);
+        executableAction.execute(Instant.now(), properties);
 
         // Asserts
-        verify(this.service).execute(this.action, this.device, properties);
+        verify(this.service).execute(this.action, this.device, Instant.now(), properties);
     }
 
 }

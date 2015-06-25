@@ -7,6 +7,7 @@ import com.energyict.mdc.device.lifecycle.config.MicroAction;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 
+import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 
@@ -34,8 +35,9 @@ public interface ServerMicroAction {
      * with the specified List of {@link ExecutableActionProperty properties}.
      *
      * @param device The Device
+     * @param effectiveTimestamp The point in time when this transition will become effective, i.e. when the resulting state change will become effective
      * @param properties The List of
      */
-    public void execute(Device device, List<ExecutableActionProperty> properties);
+    public void execute(Device device, Instant effectiveTimestamp, List<ExecutableActionProperty> properties);
 
 }

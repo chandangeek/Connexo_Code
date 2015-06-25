@@ -1,29 +1,41 @@
 package com.energyict.mdc.device.lifecycle.impl.micro.actions;
 
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceEstimation;
+import com.energyict.mdc.device.data.DeviceValidation;
+import com.energyict.mdc.device.data.LoadProfile;
+
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.properties.*;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationService;
-import com.energyict.mdc.device.data.*;
-import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
-import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.time.Instant;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests the {@link EnableValidation} component.
@@ -76,7 +88,7 @@ public class ForceValidationAndEstimationTest {
         DeviceValidation deviceValidation = mock(DeviceValidation.class);
         when(deviceValidation.isValidationActive()).thenReturn(false);
         when(this.device.forValidation()).thenReturn(deviceValidation);
-        forceValidationAndEstimation.execute(this.device, Collections.emptyList());
+        forceValidationAndEstimation.execute(this.device, Instant.now(), Collections.emptyList());
     }
 
     @Test(expected = ForceValidationAndEstimation.ForceValidationAndEstimationException.class)
@@ -88,7 +100,7 @@ public class ForceValidationAndEstimationTest {
         DeviceEstimation deviceEstimation = mock(DeviceEstimation.class);
         when(deviceEstimation.isEstimationActive()).thenReturn(false);
         when(this.device.forEstimation()).thenReturn(deviceEstimation);
-        forceValidationAndEstimation.execute(this.device, Collections.emptyList());
+        forceValidationAndEstimation.execute(this.device, Instant.now(), Collections.emptyList());
     }
 
     @Test
@@ -121,14 +133,8 @@ public class ForceValidationAndEstimationTest {
         when(this.device.forEstimation()).thenReturn(deviceEstimation);
         doReturn(Optional.of(meterActivation)).when(this.device).getCurrentMeterActivation();
 
-        ExecutableActionProperty property = mock(ExecutableActionProperty.class);
-        PropertySpec propertySpec = mock(PropertySpec.class);
-        when(propertySpec.getName()).thenReturn(DeviceLifeCycleService.MicroActionPropertyName.EFFECTIVE_TIMESTAMP.key());
-        when(property.getPropertySpec()).thenReturn(propertySpec);
-        when(property.getValue()).thenReturn(now);
-
         // Business method
-        forceValidationAndEstimation.execute(this.device, Collections.singletonList(property));
+        forceValidationAndEstimation.execute(this.device, now, Collections.emptyList());
 
         // Asserts
         verify(validationService).validate(meterActivation);
@@ -165,19 +171,13 @@ public class ForceValidationAndEstimationTest {
         when(this.device.forEstimation()).thenReturn(deviceEstimation);
         doReturn(Optional.of(meterActivation)).when(this.device).getCurrentMeterActivation();
 
-        ExecutableActionProperty property = mock(ExecutableActionProperty.class);
-        PropertySpec propertySpec = mock(PropertySpec.class);
-        when(propertySpec.getName()).thenReturn(DeviceLifeCycleService.MicroActionPropertyName.EFFECTIVE_TIMESTAMP.key());
-        when(property.getPropertySpec()).thenReturn(propertySpec);
-        when(property.getValue()).thenReturn(now);
-
         // Business method
-        forceValidationAndEstimation.execute(this.device, Collections.singletonList(property));
+        forceValidationAndEstimation.execute(this.device, now, Collections.emptyList());
 
     }
 
     public ForceValidationAndEstimation getTestInstance() {
-        return new ForceValidationAndEstimation(this.threadPrincipalService, this.transactionService, this.validationService, this.estimationService);
+        return new ForceValidationAndEstimation(this.validationService, this.estimationService);
     }
 
 }

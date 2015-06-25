@@ -1,8 +1,6 @@
 package com.energyict.mdc.device.lifecycle.impl.micro.actions;
 
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
-import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
 import com.energyict.mdc.device.topology.TopologyService;
 
 import com.elster.jupiter.properties.PropertySpec;
@@ -10,7 +8,6 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.ValueFactory;
 
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -22,7 +19,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -72,14 +68,9 @@ public class DetachSlaveFromMasterTest {
     public void executeWithEffectiveTimestampClearsPhysicalGateway() {
         Instant now = Instant.ofEpochSecond(97L);
         DetachSlaveFromMaster microAction = this.getTestInstance();
-        ExecutableActionProperty property = mock(ExecutableActionProperty.class);
-        PropertySpec propertySpec = mock(PropertySpec.class);
-        when(propertySpec.getName()).thenReturn(DeviceLifeCycleService.MicroActionPropertyName.EFFECTIVE_TIMESTAMP.key());
-        when(property.getPropertySpec()).thenReturn(propertySpec);
-        when(property.getValue()).thenReturn(now);
 
         // Business method
-        microAction.execute(this.slaveDevice, Arrays.asList(property));
+        microAction.execute(this.slaveDevice, now, Collections.emptyList());
 
         // Asserts
         verify(this.topologyService).clearPhysicalGateway(this.slaveDevice, now);
@@ -88,26 +79,22 @@ public class DetachSlaveFromMasterTest {
     @Test
     public void executeWithoutEffectiveTimeClearsPhysicalGateway() {
         DetachSlaveFromMaster microAction = this.getTestInstance();
+        Instant now = Instant.now();
 
         // Business method
-        microAction.execute(this.slaveDevice, Collections.emptyList());
+        microAction.execute(this.slaveDevice, now, Collections.emptyList());
 
         // Asserts
-        verify(this.topologyService).clearPhysicalGateway(this.slaveDevice);
+        verify(this.topologyService).clearPhysicalGateway(this.slaveDevice, now);
     }
 
     @Test
     public void executeWithEffectiveTimestampDoesNotClearForGatewayDevice() {
         Instant now = Instant.ofEpochSecond(97L);
         DetachSlaveFromMaster microAction = this.getTestInstance();
-        ExecutableActionProperty property = mock(ExecutableActionProperty.class);
-        PropertySpec propertySpec = mock(PropertySpec.class);
-        when(propertySpec.getName()).thenReturn(DeviceLifeCycleService.MicroActionPropertyName.EFFECTIVE_TIMESTAMP.key());
-        when(property.getPropertySpec()).thenReturn(propertySpec);
-        when(property.getValue()).thenReturn(now);
 
         // Business method
-        microAction.execute(this.gateway, Arrays.asList(property));
+        microAction.execute(this.gateway, now, Collections.emptyList());
 
         // Asserts
         verify(this.topologyService, never()).clearPhysicalGateway(any(Device.class), any(Instant.class));
@@ -118,7 +105,7 @@ public class DetachSlaveFromMasterTest {
         DetachSlaveFromMaster microAction = this.getTestInstance();
 
         // Business method
-        microAction.execute(this.gateway, Collections.emptyList());
+        microAction.execute(this.gateway, Instant.now(), Collections.emptyList());
 
         // Asserts
         verify(this.topologyService, never()).clearPhysicalGateway(any(Device.class));

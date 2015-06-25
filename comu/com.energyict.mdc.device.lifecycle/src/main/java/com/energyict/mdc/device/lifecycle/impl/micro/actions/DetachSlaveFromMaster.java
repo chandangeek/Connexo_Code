@@ -9,20 +9,14 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 
 import java.time.Instant;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
-
-import static com.energyict.mdc.device.lifecycle.impl.DeviceLifeCyclePropertySupport.getOptionalEffectiveTimestamp;
-import static com.energyict.mdc.device.lifecycle.impl.DeviceLifeCyclePropertySupport.optionalEffectiveTimestamp;
 
 /**
  * Provides an implementation for the {@link ServerMicroAction} interface
  * that will detach a slave Device from it physical master on the effective
  * timestamp of the transition.
  * @see {@link com.energyict.mdc.device.lifecycle.config.MicroAction#DETACH_SLAVE_FROM_MASTER}
- *
- * action bits: 512
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-05-06 (15:11)
@@ -38,19 +32,14 @@ public class DetachSlaveFromMaster implements ServerMicroAction {
 
     @Override
     public List<PropertySpec> getPropertySpecs(PropertySpecService propertySpecService) {
-        return Arrays.asList(optionalEffectiveTimestamp(propertySpecService));
+        // Remember that effective timestamp is a required property enforced by the service's execute metho
+        return Collections.emptyList();
     }
 
     @Override
-    public void execute(Device device, List<ExecutableActionProperty> properties) {
+    public void execute(Device device, Instant effectiveTimestamp, List<ExecutableActionProperty> properties) {
         if (device.isLogicalSlave()) {
-            Optional<Instant> effectiveTimestamp = getOptionalEffectiveTimestamp(properties);
-            if (effectiveTimestamp.isPresent()) {
-                this.topologyService.clearPhysicalGateway(device, effectiveTimestamp.get());
-            }
-            else {
-                this.topologyService.clearPhysicalGateway(device);
-            }
+            this.topologyService.clearPhysicalGateway(device, effectiveTimestamp);
         }
     }
 

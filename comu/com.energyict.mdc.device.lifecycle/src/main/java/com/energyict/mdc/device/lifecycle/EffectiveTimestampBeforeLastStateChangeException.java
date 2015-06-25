@@ -10,7 +10,7 @@ import java.time.Instant;
 /**
  * Models the exceptional situation that occurs when
  * an {@link com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction}
- * is executed by the user and the {@link DeviceLifeCycleService.MicroActionPropertyName#EFFECTIVE_TIMESTAMP}
+ * is executed by the user and the effective timestamp
  * is before the last state change on that same {@link Device}.
  * Say the expected states of a device are A, B and C and the device
  * is in state B since e.g. May 2nd 2015. When the effective date would

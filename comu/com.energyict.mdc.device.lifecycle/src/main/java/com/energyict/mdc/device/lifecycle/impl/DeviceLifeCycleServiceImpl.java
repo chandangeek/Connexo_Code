@@ -200,13 +200,13 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
     }
 
     @Override
-    public void execute(AuthorizedTransitionAction action, Device device, List<ExecutableActionProperty> properties) throws SecurityException, DeviceLifeCycleActionViolationException {
-        this.validateTriggerExecution(action, device, properties);
-        this.triggerExecution(action, device, properties);
+    public void execute(AuthorizedTransitionAction action, Device device, Instant effectiveTimestamp, List<ExecutableActionProperty> properties) throws SecurityException, DeviceLifeCycleActionViolationException {
+        this.validateTriggerExecution(action, device, effectiveTimestamp, properties);
+        this.triggerExecution(action, device, effectiveTimestamp, properties);
     }
 
     @Override
-    public void execute(AuthorizedBusinessProcessAction action, Device device) throws SecurityException, DeviceLifeCycleActionViolationException {
+    public void execute(AuthorizedBusinessProcessAction action, Device device, Instant effectiveTimestamp) throws SecurityException, DeviceLifeCycleActionViolationException {
         this.validateTriggerExecution(action, device);
         this.triggerExecution(action, device);
     }
@@ -242,11 +242,11 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
         }
     }
 
-    private void validateTriggerExecution(AuthorizedTransitionAction action, Device device, List<ExecutableActionProperty> properties) {
+    private void validateTriggerExecution(AuthorizedTransitionAction action, Device device, Instant effectiveTimestamp, List<ExecutableActionProperty> properties) {
         this.validateTriggerExecution(action, device);
         this.valueAvailableForAllRequiredProperties(action, properties);
-        this.effectiveTimestampIsInRange(properties, action.getDeviceLifeCycle());
-        this.effectiveTimestampNotBeforeLastStateChange(properties, device);
+        this.effectiveTimestampIsInRange(effectiveTimestamp, action.getDeviceLifeCycle());
+        this.effectiveTimestampNotBeforeLastStateChange(effectiveTimestamp, device);
     }
 
     private void valueAvailableForAllRequiredProperties(AuthorizedTransitionAction action, List<ExecutableActionProperty> properties) {
@@ -269,24 +269,12 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
         }
     }
 
-    private void effectiveTimestampIsInRange(List<ExecutableActionProperty> properties, DeviceLifeCycle deviceLifeCycle) {
-        DeviceLifeCyclePropertySupport
-            .getOptionalEffectiveTimestamp(properties)
-            .ifPresent(effectiveTimestamp -> this.effectiveTimestampIsInRange(effectiveTimestamp, deviceLifeCycle));
-    }
-
     private void effectiveTimestampIsInRange(Instant effectiveTimestamp, DeviceLifeCycle deviceLifeCycle) {
         Instant now = this.clock.instant();
         Range<Instant> range = Range.closed(deviceLifeCycle.getMaximumPastEffectiveTimestamp(), deviceLifeCycle.getMaximumFutureEffectiveTimestamp());
         if (!range.contains(effectiveTimestamp)) {
             throw new EffectiveTimestampNotInRangeException(this.thesaurus, MessageSeeds.EFFECTIVE_TIMESTAMP_NOT_IN_RANGE, deviceLifeCycle);
         }
-    }
-
-    private void effectiveTimestampNotBeforeLastStateChange(List<ExecutableActionProperty> properties, Device device) {
-        DeviceLifeCyclePropertySupport
-                .getOptionalEffectiveTimestamp(properties)
-                .ifPresent(effectiveTimestamp -> this.effectiveTimestampNotBeforeLastStateChange(effectiveTimestamp, device));
     }
 
     private void effectiveTimestampNotBeforeLastStateChange(Instant effectiveTimestamp, Device device) {
@@ -346,22 +334,16 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
         return new SecurityException(this.thesaurus.getString(messageSeed.getKey(), messageSeed.getDefaultFormat()));
     }
 
-    private void triggerExecution(AuthorizedTransitionAction action, Device device, List<ExecutableActionProperty> properties) throws DeviceLifeCycleActionViolationException {
-        this.executeMicroChecks(action, device, this.getEffectiveTimestamp(properties));
-        this.executeMicroActions(action, device, properties);
-        this.triggerEvent((CustomStateTransitionEventType) action.getStateTransition().getEventType(), device);
+    private void triggerExecution(AuthorizedTransitionAction action, Device device, Instant effectiveTimestamp, List<ExecutableActionProperty> properties) throws DeviceLifeCycleActionViolationException {
+        this.executeMicroChecks(action, device, effectiveTimestamp);
+        this.executeMicroActions(action, device, effectiveTimestamp, properties);
+        this.triggerEvent((CustomStateTransitionEventType) action.getStateTransition().getEventType(), device, Instant.now());
     }
 
     private void triggerExecution(AuthorizedBusinessProcessAction action, Device device) {
         Map<String, Object> processParameters = new HashMap<>();
         processParameters.put(AuthorizedBusinessProcessAction.ProcessParameterKey.DEVICE.getName(), device.getId());
         this.bpmService.startProcess(action.getDeploymentId(), action.getProcessId(), processParameters);
-    }
-
-    private Instant getEffectiveTimestamp(List<ExecutableActionProperty> properties) {
-        return DeviceLifeCyclePropertySupport
-                    .getOptionalEffectiveTimestamp(properties)
-                    .orElseGet(this.clock::instant);
     }
 
     private void executeMicroChecks(AuthorizedTransitionAction check, Device device, Instant effectiveTimestamp) throws DeviceLifeCycleActionViolationException {
@@ -391,24 +373,25 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
         return check.evaluate(device, effectiveTimestamp);
     }
 
-    private void executeMicroActions(AuthorizedTransitionAction action, Device device, List<ExecutableActionProperty> properties) {
+    private void executeMicroActions(AuthorizedTransitionAction action, Device device, Instant effectiveTimestamp, List<ExecutableActionProperty> properties) {
         action.getActions()
             .stream()
             .map(this.microActionFactory::from)
-            .forEach(a -> this.execute(a, device, properties));
+            .forEach(a -> this.execute(a, device, effectiveTimestamp, properties));
     }
 
-    private void execute(ServerMicroAction action, Device device, List<ExecutableActionProperty> properties) {
-        action.execute(device, properties);
+    private void execute(ServerMicroAction action, Device device, Instant effectiveTimestamp, List<ExecutableActionProperty> properties) {
+        action.execute(device, effectiveTimestamp, properties);
     }
 
     @Override
-    public void triggerEvent(CustomStateTransitionEventType eventType, Device device) {
+    public void triggerEvent(CustomStateTransitionEventType eventType, Device device, Instant effectiveTimestamp) {
         eventType
             .newInstance(
                     device.getDeviceType().getDeviceLifeCycle().getFiniteStateMachine(),
                     device.getmRID(),
                     device.getState().getName(),
+                    effectiveTimestamp,
                     Collections.emptyMap())
             .publish();
     }

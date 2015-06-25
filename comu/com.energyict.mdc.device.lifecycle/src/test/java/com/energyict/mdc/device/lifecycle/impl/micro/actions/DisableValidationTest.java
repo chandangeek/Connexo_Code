@@ -6,6 +6,7 @@ import com.energyict.mdc.device.data.DeviceValidation;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 
+import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 
@@ -51,7 +52,7 @@ public class DisableValidationTest {
         when(this.device.forValidation()).thenReturn(deviceValidation);
 
         // Business method
-        disableValidation.execute(this.device, Collections.emptyList());
+        disableValidation.execute(this.device, Instant.now(), Collections.emptyList());
 
         // Asserts
         verify(deviceValidation).deactivateValidation();

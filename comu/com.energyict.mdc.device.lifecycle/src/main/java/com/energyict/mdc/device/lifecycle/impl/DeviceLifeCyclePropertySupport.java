@@ -3,8 +3,6 @@ package com.energyict.mdc.device.lifecycle.impl;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
-import com.energyict.mdc.device.lifecycle.impl.ServerMicroAction;
-import com.energyict.mdc.device.lifecycle.impl.ServerMicroCheck;
 
 import com.elster.jupiter.properties.InstantFactory;
 import com.elster.jupiter.properties.PropertySpec;
@@ -24,62 +22,6 @@ import java.util.function.Predicate;
  * @since 2015-04-24 (15:29)
  */
 public final class DeviceLifeCyclePropertySupport {
-
-    /**
-     * Creates a mandatory {@link PropertySpec} for the
-     * {@link DeviceLifeCycleService.MicroActionPropertyName#EFFECTIVE_TIMESTAMP effective timestamp}
-     * property used by {@link MicroAction}s.
-     *
-     * @param service The PropertySpecService that effectively creates the PropertySpec
-     * @return The PropertySpec
-     */
-    public static PropertySpec effectiveTimestamp(PropertySpecService service) {
-        return effectiveTimestamp(service, true);
-    }
-
-    /**
-     * Creates an optional {@link PropertySpec} for the
-     * {@link DeviceLifeCycleService.MicroActionPropertyName#EFFECTIVE_TIMESTAMP effective timestamp}
-     * property used by {@link MicroAction}s.
-     *
-     * @param service The PropertySpecService that effectively creates the PropertySpec
-     * @return The PropertySpec
-     */
-    public static PropertySpec optionalEffectiveTimestamp(PropertySpecService service) {
-        return effectiveTimestamp(service, false);
-    }
-
-    private static PropertySpec effectiveTimestamp(PropertySpecService service, boolean required) {
-        return service.basicPropertySpec(
-                DeviceLifeCycleService.MicroActionPropertyName.EFFECTIVE_TIMESTAMP.key(),
-                required,
-                new InstantFactory());
-    }
-
-    /**
-     * Gets the value for the
-     * {@link DeviceLifeCycleService.MicroActionPropertyName#EFFECTIVE_TIMESTAMP effective timestamp}
-     * property, assuming that it has already been validated that it is effectively in the list
-     * since it is a required property.
-     *
-     * @param properties The List of {@link ExecutableActionProperty properties}
-     * @return The effective timestamp
-     */
-    public static Instant getEffectiveTimestamp(List<ExecutableActionProperty> properties) {
-        return getTimestamp(properties, propertySpecMatchPredicate(DeviceLifeCycleService.MicroActionPropertyName.EFFECTIVE_TIMESTAMP));
-    }
-
-    /**
-     * Gets the value for the optional
-     * {@link DeviceLifeCycleService.MicroActionPropertyName#EFFECTIVE_TIMESTAMP effective timestamp}
-     * property.
-     *
-     * @param properties The List of {@link ExecutableActionProperty properties}
-     * @return The effective timestamp
-     */
-    public static Optional<Instant> getOptionalEffectiveTimestamp(List<ExecutableActionProperty> properties) {
-        return getOptionalTimestamp(properties, propertySpecMatchPredicate(DeviceLifeCycleService.MicroActionPropertyName.EFFECTIVE_TIMESTAMP));
-    }
 
     /**
      * Creates a {@link PropertySpec} for the

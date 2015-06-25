@@ -3,7 +3,6 @@ package com.energyict.mdc.device.lifecycle.impl.micro.actions;
 import com.energyict.mdc.device.data.Device;
 
 import com.elster.jupiter.metering.AmrSystem;
-import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
@@ -12,6 +11,7 @@ import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -78,7 +78,7 @@ public class RemoveDeviceFromStaticGroupsTest {
         when(this.meteringService.findAmrSystem(KnownAmrSystem.MDC.getId())).thenReturn(Optional.<AmrSystem>empty());
 
         // Business method
-        microAction.execute(this.device, Collections.emptyList());
+        microAction.execute(this.device, Instant.now(), Collections.emptyList());
 
         // Asserts
         verifyZeroInteractions(this.meteringGroupsService);
@@ -91,7 +91,7 @@ public class RemoveDeviceFromStaticGroupsTest {
         when(this.amrSystem.findMeter(String.valueOf(DEVICE_ID))).thenReturn(Optional.<Meter>empty());
 
         // Business method
-        microAction.execute(this.device, Collections.emptyList());
+        microAction.execute(this.device, Instant.now(), Collections.emptyList());
 
         // Asserts
         verifyZeroInteractions(this.meteringGroupsService);
@@ -105,7 +105,7 @@ public class RemoveDeviceFromStaticGroupsTest {
         when(this.meteringGroupsService.findEnumeratedEndDeviceGroupsContaining(this.endDevice)).thenReturn(Collections.emptyList());
 
         // Business method
-        microAction.execute(this.device, Collections.emptyList());
+        microAction.execute(this.device, Instant.now(), Collections.emptyList());
 
         // Asserts
         verify(this.meteringGroupsService).findEnumeratedEndDeviceGroupsContaining(this.endDevice);
@@ -127,7 +127,7 @@ public class RemoveDeviceFromStaticGroupsTest {
         when(this.meteringGroupsService.findEnumeratedEndDeviceGroupsContaining(this.endDevice)).thenReturn(Arrays.asList(group1, group2));
 
         // Business method
-        microAction.execute(this.device, Collections.emptyList());
+        microAction.execute(this.device, Instant.now(), Collections.emptyList());
 
         // Asserts
         verify(this.meteringGroupsService).findEnumeratedEndDeviceGroupsContaining(this.endDevice);

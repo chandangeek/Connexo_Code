@@ -8,6 +8,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 
@@ -46,7 +47,7 @@ public class DisableEstimationTest {
         when(this.device.forEstimation()).thenReturn(deviceEstimation);
 
         // Business method
-        disableEstimation.execute(this.device, Collections.emptyList());
+        disableEstimation.execute(this.device, Instant.now(), Collections.emptyList());
 
         // Asserts
         verify(deviceEstimation).deactivateEstimation();

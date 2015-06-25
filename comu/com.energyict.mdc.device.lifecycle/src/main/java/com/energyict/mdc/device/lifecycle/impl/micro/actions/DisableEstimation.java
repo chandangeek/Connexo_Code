@@ -1,12 +1,10 @@
 package com.energyict.mdc.device.lifecycle.impl.micro.actions;
 
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.PropertySpecService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
 import com.energyict.mdc.device.lifecycle.impl.ServerMicroAction;
 
-import java.util.Collections;
+import java.time.Instant;
 import java.util.List;
 
 /**
@@ -14,13 +12,11 @@ import java.util.List;
  * that will disable estimation on the Device.
  * @see {@link com.energyict.mdc.device.lifecycle.config.MicroAction#DISABLE_ESTIMATION}
  *
- * action bits: 2048
- *
  */
 public class DisableEstimation implements ServerMicroAction {
 
     @Override
-    public void execute(Device device, List<ExecutableActionProperty> properties) {
+    public void execute(Device device, Instant effectiveTimestamp, List<ExecutableActionProperty> properties) {
         device.forEstimation().deactivateEstimation();
     }
 

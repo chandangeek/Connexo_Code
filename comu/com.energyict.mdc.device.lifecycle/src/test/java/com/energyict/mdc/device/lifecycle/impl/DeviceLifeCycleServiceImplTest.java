@@ -4,7 +4,6 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.ActionDoesNotRelateToDeviceStateException;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolation;
-import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.EffectiveTimestampBeforeLastStateChangeException;
 import com.energyict.mdc.device.lifecycle.EffectiveTimestampNotInRangeException;
 import com.energyict.mdc.device.lifecycle.ExecutableAction;
@@ -88,6 +87,7 @@ public class DeviceLifeCycleServiceImplTest {
     public static final long STATE_ID = 97L;
     public static final long DEVICE_ID = 111L;
     public static final String DEVICE_MRID = "MasterResourceId";
+    public static final long STANDARD_SECONDS_IN_DAY = 86400L;
 
     @Mock
     private NlsService nlsService;
@@ -139,6 +139,8 @@ public class DeviceLifeCycleServiceImplTest {
         when(this.nlsService.getThesaurus(anyString(), any(Layer.class))).thenReturn(this.thesaurus);
         when(this.lifeCycle.getId()).thenReturn(DEVICE_LIFE_CYCLE_ID);
         when(this.lifeCycle.getFiniteStateMachine()).thenReturn(this.finiteStateMachine);
+        when(this.lifeCycle.getMaximumFutureEffectiveTimestamp()).thenReturn(Instant.now().plusSeconds(STANDARD_SECONDS_IN_DAY));
+        when(this.lifeCycle.getMaximumPastEffectiveTimestamp()).thenReturn(Instant.now().minusSeconds(STANDARD_SECONDS_IN_DAY));
         when(this.state.getId()).thenReturn(STATE_ID);
         when(this.deviceType.getDeviceLifeCycle()).thenReturn(this.lifeCycle);
         when(this.device.getId()).thenReturn(DEVICE_ID);
@@ -157,7 +159,7 @@ public class DeviceLifeCycleServiceImplTest {
         when(this.user.getName()).thenReturn(DeviceLifeCycleServiceImplTest.class.getSimpleName());
         when(this.threadPrincipleService.getPrincipal()).thenReturn(this.user);
         when(this.deviceLifeCycleConfigurationService.findInitiateActionPrivilege(anyString())).thenReturn(Optional.of(this.privilege));
-        when(this.eventType.newInstance(any(FiniteStateMachine.class), anyString(), anyString(), anyMap())).thenReturn(this.event);
+        when(this.eventType.newInstance(any(FiniteStateMachine.class), anyString(), anyString(), any(Instant.class), anyMap())).thenReturn(this.event);
         when(this.eventType.getId()).thenReturn(EVENT_TYPE_ID);
         for (MicroCheck microCheck : MicroCheck.values()) {
             ServerMicroCheck serverMicroCheck = mock(ServerMicroCheck.class);
@@ -218,7 +220,7 @@ public class DeviceLifeCycleServiceImplTest {
 
         try {
             // Business method
-            service.execute(action, this.device, Collections.emptyList());
+            service.execute(action, this.device, Instant.now(), Collections.emptyList());
         }
         catch (ActionDoesNotRelateToDeviceStateException e) {
             // Asserts: see also expected exception rule
@@ -241,7 +243,7 @@ public class DeviceLifeCycleServiceImplTest {
 
         try {
             // Business method
-            service.execute(action, this.device);
+            service.execute(action, this.device, Instant.now());
 
         }
         catch (ActionDoesNotRelateToDeviceStateException e) {
@@ -260,7 +262,7 @@ public class DeviceLifeCycleServiceImplTest {
 
         try {
             // Business method
-            service.execute(this.action, this.device, Collections.emptyList());
+            service.execute(this.action, this.device, Instant.now(), Collections.emptyList());
 
             // Asserts: see expected exception rule
         }
@@ -278,7 +280,7 @@ public class DeviceLifeCycleServiceImplTest {
 
         try {
             // Business method
-            service.execute(this.action, this.device, Collections.emptyList());
+            service.execute(this.action, this.device, Instant.now(), Collections.emptyList());
 
             // Asserts: see expected exception rule
         }
@@ -297,7 +299,7 @@ public class DeviceLifeCycleServiceImplTest {
 
         // Business method
         try {
-            service.execute(this.action, this.device, Collections.emptyList());
+            service.execute(this.action, this.device, Instant.now(), Collections.emptyList());
 
         }
         catch (SecurityException e) {
@@ -315,7 +317,7 @@ public class DeviceLifeCycleServiceImplTest {
         when(this.action.getChecks()).thenReturn(new HashSet<>(Arrays.asList(MicroCheck.values())));
 
         // Business method
-        service.execute(this.action, this.device, Collections.emptyList());
+        service.execute(this.action, this.device, Instant.now(), Collections.emptyList());
 
         // Asserts
         for (MicroCheck microCheck : MicroCheck.values()) {
@@ -339,7 +341,7 @@ public class DeviceLifeCycleServiceImplTest {
         when(this.action.getChecks()).thenReturn(new HashSet<>(Arrays.asList(microCheck1, microCheck2)));
 
         // Business method
-        service.execute(this.action, this.device, Collections.emptyList());
+        service.execute(this.action, this.device, Instant.now(), Collections.emptyList());
 
         // Asserts
         verify(serverMicroCheck1).evaluate(eq(this.device), any(Instant.class));
@@ -377,7 +379,7 @@ public class DeviceLifeCycleServiceImplTest {
 
         try {
             // Business method
-            service.execute(this.action, this.device, Collections.emptyList());
+            service.execute(this.action, this.device, Instant.now(), Collections.emptyList());
         }
         catch (MultipleMicroCheckViolationsException e) {
             // Asserts
@@ -395,7 +397,7 @@ public class DeviceLifeCycleServiceImplTest {
         when(this.action.getActions()).thenReturn(new HashSet<>(Arrays.asList(MicroAction.values())));
 
         // Business method
-        service.execute(this.action, this.device, Collections.emptyList());
+        service.execute(this.action, this.device, Instant.now(), Collections.emptyList());
 
         // Asserts
         for (MicroAction microAction : MicroAction.values()) {
@@ -411,14 +413,15 @@ public class DeviceLifeCycleServiceImplTest {
         when(this.action.getActions()).thenReturn(new HashSet<>(Arrays.asList(MicroAction.values())));
 
         // Business method
-        service.execute(this.action, this.device, Collections.emptyList());
+        service.execute(this.action, this.device, Instant.now(), Collections.emptyList());
 
         // Asserts
-        verify(this.eventType).newInstance(eq(this.finiteStateMachine), eq(DEVICE_MRID), anyString(), anyMap());
+        verify(this.eventType).newInstance(eq(this.finiteStateMachine), eq(DEVICE_MRID), anyString(), any(Instant.class), anyMap());
     }
 
     @Test
-    public void executeForwardsProperties() {
+    public void executeForwardsPropertiesToActions() {
+        Instant now = Instant.now();
         DeviceLifeCycleServiceImpl service = this.getTestInstance();
         when(this.action.getActions()).thenReturn(new HashSet<>(Arrays.asList(MicroAction.ENABLE_VALIDATION)));
         when(this.action.getLevels()).thenReturn(EnumSet.of(AuthorizedAction.Level.FOUR));
@@ -428,16 +431,16 @@ public class DeviceLifeCycleServiceImplTest {
         when(validationStartDatePropertySpec.isRequired()).thenReturn(true);
         ExecutableActionProperty validationStartDate = mock(ExecutableActionProperty.class);
         when(validationStartDate.getPropertySpec()).thenReturn(validationStartDatePropertySpec);
-        when(validationStartDate.getValue()).thenReturn(Instant.now());
+        when(validationStartDate.getValue()).thenReturn(now);
         ServerMicroAction enableValidation = mock(ServerMicroAction.class);
         when(this.microActionFactory.from(MicroAction.ENABLE_VALIDATION)).thenReturn(enableValidation);
         List<ExecutableActionProperty> expectedProperties = Arrays.asList(validationStartDate);
 
         // Business method
-        service.execute(this.action, this.device, expectedProperties);
+        service.execute(this.action, this.device, now, expectedProperties);
 
         // Asserts
-        verify(enableValidation).execute(this.device, expectedProperties);
+        verify(enableValidation).execute(this.device, now, expectedProperties);
     }
 
     @Test(expected = RequiredMicroActionPropertiesException.class)
@@ -457,7 +460,7 @@ public class DeviceLifeCycleServiceImplTest {
         when(this.microActionFactory.from(MicroAction.ENABLE_VALIDATION)).thenReturn(enableValidation);
 
         // Business method
-        service.execute(this.action, this.device, Collections.emptyList());
+        service.execute(this.action, this.device, Instant.now(), Collections.emptyList());
 
         // Asserts: see expected exception rule
     }
@@ -468,21 +471,14 @@ public class DeviceLifeCycleServiceImplTest {
         when(this.action.getActions()).thenReturn(new HashSet<>(Arrays.asList(MicroAction.SET_LAST_READING)));
         when(this.action.getLevels()).thenReturn(EnumSet.of(AuthorizedAction.Level.FOUR));
         when(this.user.hasPrivilege(this.privilege)).thenReturn(true);
-        PropertySpec effectiveTimestampPropertySpec = mock(PropertySpec.class);
-        when(effectiveTimestampPropertySpec.getName()).thenReturn(DeviceLifeCycleService.MicroActionPropertyName.EFFECTIVE_TIMESTAMP.key());
-        when(effectiveTimestampPropertySpec.isRequired()).thenReturn(true);
-        ExecutableActionProperty effectiveTimestamp = mock(ExecutableActionProperty.class);
-        when(effectiveTimestamp.getPropertySpec()).thenReturn(effectiveTimestampPropertySpec);
-        when(effectiveTimestamp.getValue()).thenReturn(Instant.EPOCH);
         ServerMicroAction setLastReading = mock(ServerMicroAction.class);
-        when(setLastReading.getPropertySpecs(any(PropertySpecService.class))).thenReturn(Arrays.asList(effectiveTimestampPropertySpec));
         when(this.microActionFactory.from(MicroAction.SET_LAST_READING)).thenReturn(setLastReading);
         when(this.lifeCycle.getMaximumFutureEffectiveTimestamp()).thenReturn(Instant.ofEpochSecond(10000));
         when(this.lifeCycle.getMaximumPastEffectiveTimestamp()).thenReturn(Instant.ofEpochSecond(1000));
         when(this.thesaurus.getFormat(any(MessageSeed.class))).thenReturn(mock(NlsMessageFormat.class));
 
         // Business method
-        service.execute(this.action, this.device, Arrays.asList(effectiveTimestamp));
+        service.execute(this.action, this.device, Instant.EPOCH, Collections.emptyList());
 
         // Asserts: see expected exception rule
     }
@@ -493,21 +489,14 @@ public class DeviceLifeCycleServiceImplTest {
         when(this.action.getActions()).thenReturn(new HashSet<>(Arrays.asList(MicroAction.SET_LAST_READING)));
         when(this.action.getLevels()).thenReturn(EnumSet.of(AuthorizedAction.Level.FOUR));
         when(this.user.hasPrivilege(this.privilege)).thenReturn(true);
-        PropertySpec effectiveTimestampPropertySpec = mock(PropertySpec.class);
-        when(effectiveTimestampPropertySpec.getName()).thenReturn(DeviceLifeCycleService.MicroActionPropertyName.EFFECTIVE_TIMESTAMP.key());
-        when(effectiveTimestampPropertySpec.isRequired()).thenReturn(true);
-        ExecutableActionProperty effectiveTimestamp = mock(ExecutableActionProperty.class);
-        when(effectiveTimestamp.getPropertySpec()).thenReturn(effectiveTimestampPropertySpec);
-        when(effectiveTimestamp.getValue()).thenReturn(Instant.ofEpochSecond(10100));
         ServerMicroAction setLastReading = mock(ServerMicroAction.class);
-        when(setLastReading.getPropertySpecs(any(PropertySpecService.class))).thenReturn(Arrays.asList(effectiveTimestampPropertySpec));
         when(this.microActionFactory.from(MicroAction.SET_LAST_READING)).thenReturn(setLastReading);
         when(this.lifeCycle.getMaximumFutureEffectiveTimestamp()).thenReturn(Instant.ofEpochSecond(10000));
         when(this.lifeCycle.getMaximumPastEffectiveTimestamp()).thenReturn(Instant.ofEpochSecond(1000));
         when(this.thesaurus.getFormat(any(MessageSeed.class))).thenReturn(mock(NlsMessageFormat.class));
 
         // Business method
-        service.execute(this.action, this.device, Arrays.asList(effectiveTimestamp));
+        service.execute(this.action, this.device, Instant.ofEpochSecond(10100), Collections.emptyList());
 
         // Asserts: see expected exception rule
     }
@@ -518,14 +507,7 @@ public class DeviceLifeCycleServiceImplTest {
         when(this.action.getActions()).thenReturn(new HashSet<>(Arrays.asList(MicroAction.SET_LAST_READING)));
         when(this.action.getLevels()).thenReturn(EnumSet.of(AuthorizedAction.Level.FOUR));
         when(this.user.hasPrivilege(this.privilege)).thenReturn(true);
-        PropertySpec effectiveTimestampPropertySpec = mock(PropertySpec.class);
-        when(effectiveTimestampPropertySpec.getName()).thenReturn(DeviceLifeCycleService.MicroActionPropertyName.EFFECTIVE_TIMESTAMP.key());
-        when(effectiveTimestampPropertySpec.isRequired()).thenReturn(true);
-        ExecutableActionProperty effectiveTimestamp = mock(ExecutableActionProperty.class);
-        when(effectiveTimestamp.getPropertySpec()).thenReturn(effectiveTimestampPropertySpec);
-        when(effectiveTimestamp.getValue()).thenReturn(Instant.ofEpochMilli(50000L));
         ServerMicroAction setLastReading = mock(ServerMicroAction.class);
-        when(setLastReading.getPropertySpecs(any(PropertySpecService.class))).thenReturn(Arrays.asList(effectiveTimestampPropertySpec));
         when(this.microActionFactory.from(MicroAction.SET_LAST_READING)).thenReturn(setLastReading);
         when(this.lifeCycle.getMaximumFutureEffectiveTimestamp()).thenReturn(Instant.ofEpochMilli(100000L));
         when(this.lifeCycle.getMaximumPastEffectiveTimestamp()).thenReturn(Instant.ofEpochMilli(10000L));
@@ -537,7 +519,7 @@ public class DeviceLifeCycleServiceImplTest {
         when(this.device.getStateTimeline()).thenReturn(stateTimeline);
 
         // Business method
-        service.execute(this.action, this.device, Arrays.asList(effectiveTimestamp));
+        service.execute(this.action, this.device, Instant.ofEpochMilli(50000L), Collections.emptyList());
 
         // Asserts: see expected exception rule
     }
@@ -556,7 +538,7 @@ public class DeviceLifeCycleServiceImplTest {
         when(this.user.hasPrivilege(this.privilege)).thenReturn(true);
 
         // Business method
-        service.execute(action, this.device);
+        service.execute(action, this.device, Instant.now());
 
         // Asserts
         ArgumentCaptor<Map> processParameterCaptor = ArgumentCaptor.forClass(Map.class);

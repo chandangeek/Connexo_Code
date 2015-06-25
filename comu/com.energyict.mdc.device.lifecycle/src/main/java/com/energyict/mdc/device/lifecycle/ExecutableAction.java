@@ -4,6 +4,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 
+import java.time.Instant;
 import java.util.List;
 
 /**
@@ -26,11 +27,12 @@ public interface ExecutableAction {
      * to execute it according to the security levels
      * that are configured on the action.
      *
+     * @param effectiveTimestamp The point in time when this transition will become effective, i.e. when the resulting state change will become effective
      * @param properties The properties
      * @see AuthorizedAction#getLevels()
      * @throws SecurityException Thrown when the current user is not allowed to execute this action
-     * @see DeviceLifeCycleService#execute(AuthorizedTransitionAction, Device, List)
+     * @see DeviceLifeCycleService#execute(AuthorizedTransitionAction, Device, Instant, List)
      */
-    public void execute(List<ExecutableActionProperty> properties) throws SecurityException, DeviceLifeCycleActionViolationException;
+    public void execute(Instant effectiveTimestamp, List<ExecutableActionProperty> properties) throws SecurityException, DeviceLifeCycleActionViolationException;
 
 }

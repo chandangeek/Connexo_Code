@@ -3,8 +3,6 @@ package com.energyict.mdc.device.lifecycle.impl.micro.actions;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LogBook;
-import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
-import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
@@ -72,14 +70,9 @@ public class SetLastReadingTest {
         when(this.device.getLogBookUpdaterFor(logBook2)).thenReturn(updater2);
         when(this.device.getLogBooks()).thenReturn(Arrays.asList(logBook1, logBook2));
         when(this.device.getLoadProfiles()).thenReturn(Collections.emptyList());
-        ExecutableActionProperty property = mock(ExecutableActionProperty.class);
-        PropertySpec propertySpec = mock(PropertySpec.class);
-        when(propertySpec.getName()).thenReturn(DeviceLifeCycleService.MicroActionPropertyName.EFFECTIVE_TIMESTAMP.key());
-        when(property.getPropertySpec()).thenReturn(propertySpec);
-        when(property.getValue()).thenReturn(now);
 
         // Business method
-        microAction.execute(this.device, Arrays.asList(property));
+        microAction.execute(this.device, now, Collections.emptyList());
 
         // Asserts
         verify(updater1).setLastLogBookIfLater(now);
@@ -102,14 +95,9 @@ public class SetLastReadingTest {
         when(this.device.getLoadProfileUpdaterFor(loadProfile2)).thenReturn(updater2);
         when(this.device.getLogBooks()).thenReturn(Collections.emptyList());
         when(this.device.getLoadProfiles()).thenReturn(Arrays.asList(loadProfile1, loadProfile2));
-        ExecutableActionProperty property = mock(ExecutableActionProperty.class);
-        PropertySpec propertySpec = mock(PropertySpec.class);
-        when(propertySpec.getName()).thenReturn(DeviceLifeCycleService.MicroActionPropertyName.EFFECTIVE_TIMESTAMP.key());
-        when(property.getPropertySpec()).thenReturn(propertySpec);
-        when(property.getValue()).thenReturn(now);
 
         // Business method
-        microAction.execute(this.device, Arrays.asList(property));
+        microAction.execute(this.device, now, Collections.emptyList());
 
         // Asserts
         verify(updater1).setLastReadingIfLater(now);

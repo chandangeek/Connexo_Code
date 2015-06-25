@@ -6,15 +6,12 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import java.time.Instant;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Models the exceptional situation that occurs when
  * an {@link com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction}
- * is executed by the user and the {@link DeviceLifeCycleService.MicroActionPropertyName#EFFECTIVE_TIMESTAMP}
- * is not within the range defined by the max future and past time shift configured on the {@link DeviceLifeCycle}.
+ * is executed by the user and the effective timestamp is not within the range
+ * defined by the max future and past time shift configured on the {@link DeviceLifeCycle}.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-20 (16:41)

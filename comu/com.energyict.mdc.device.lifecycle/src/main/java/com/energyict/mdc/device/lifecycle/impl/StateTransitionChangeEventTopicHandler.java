@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.lifecycle.impl;
 
-import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 
 import com.elster.jupiter.events.LocalEvent;
@@ -106,7 +105,7 @@ public class StateTransitionChangeEventTopicHandler implements TopicHandler {
     }
 
     private Instant effectiveTimestampFrom(StateTransitionChangeEvent event) {
-        Instant effectiveTimestamp = (Instant) event.getProperties().get(DeviceLifeCycleService.MicroActionPropertyName.EFFECTIVE_TIMESTAMP.key());
+        Instant effectiveTimestamp = event.getEffectiveTimestamp();
         if (effectiveTimestamp == null) {
             effectiveTimestamp = this.clock.instant();
         }

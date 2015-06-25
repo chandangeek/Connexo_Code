@@ -10,18 +10,13 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 
 import java.time.Instant;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
-
-import static com.energyict.mdc.device.lifecycle.impl.DeviceLifeCyclePropertySupport.effectiveTimestamp;
-import static com.energyict.mdc.device.lifecycle.impl.DeviceLifeCyclePropertySupport.getEffectiveTimestamp;
 
 /**
  * Provides an implementation for the {@link ServerMicroAction} interface
  * that will disable validation on the Device.
  * @see {@link com.energyict.mdc.device.lifecycle.config.MicroAction#SET_LAST_READING}
- *
- * action bits: 1
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-05-05 (09:09)
@@ -30,14 +25,14 @@ public class SetLastReading implements ServerMicroAction {
 
     @Override
     public List<PropertySpec> getPropertySpecs(PropertySpecService propertySpecService) {
-        return Arrays.asList(effectiveTimestamp(propertySpecService));
+        // Remember that effective timestamp is a required property enforced by the service's execute metho
+        return Collections.emptyList();
     }
 
     @Override
-    public void execute(Device device, List<ExecutableActionProperty> properties) {
-        Instant commissioningTimestamp = getEffectiveTimestamp(properties);
-        device.getLogBooks().forEach(logBook -> this.setLastReading(device, logBook, commissioningTimestamp));
-        device.getLoadProfiles().forEach(loadProfile -> this.setLastReading(device, loadProfile, commissioningTimestamp));
+    public void execute(Device device, Instant effectiveTimestamp, List<ExecutableActionProperty> properties) {
+        device.getLogBooks().forEach(logBook -> this.setLastReading(device, logBook, effectiveTimestamp));
+        device.getLoadProfiles().forEach(loadProfile -> this.setLastReading(device, loadProfile, effectiveTimestamp));
     }
 
     private void setLastReading(Device device, LogBook logBook, Instant commissioningTimestamp) {

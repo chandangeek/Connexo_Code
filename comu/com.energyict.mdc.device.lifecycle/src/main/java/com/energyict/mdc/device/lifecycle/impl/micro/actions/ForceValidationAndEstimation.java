@@ -1,74 +1,63 @@
 package com.energyict.mdc.device.lifecycle.impl.micro.actions;
 
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
+import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
+import com.energyict.mdc.device.lifecycle.impl.ServerMicroAction;
+
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
-import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.transaction.*;
 import com.elster.jupiter.util.exception.BaseException;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.validation.ValidationService;
-import com.energyict.mdc.device.data.*;
-import com.energyict.mdc.device.lifecycle.*;
-import com.energyict.mdc.device.lifecycle.impl.ServerMicroAction;
 
 import java.time.Instant;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
 import java.util.logging.Level;
-
-import static com.energyict.mdc.device.lifecycle.impl.DeviceLifeCyclePropertySupport.effectiveTimestamp;
-import static com.energyict.mdc.device.lifecycle.impl.DeviceLifeCyclePropertySupport.getEffectiveTimestamp;
 
 /**
  * Provides an implementation for the {@link ServerMicroAction} interface
  * that will force validation and estimation on channels and registers.
  * A runtime error is thrown when the device is not set for validation and/or estimation.
  * When after validation and estimation still invalid values are encountered, the action is undone.
+ *
  * @see {@link com.energyict.mdc.device.lifecycle.config.MicroAction#FORCE_VALIDATION_AND_ESTIMATION}
- *
- * action bits: 4096
- *
  */
 public class ForceValidationAndEstimation implements ServerMicroAction {
 
     //Required services
-    private ThreadPrincipalService threadPrincipalService;
-    private TransactionService transactionService;
-    private ValidationService validationService;
-    private EstimationService estimationService;
+    private final ValidationService validationService;
+    private final EstimationService estimationService;
 
     private Device device;
 
-    public ForceValidationAndEstimation(ThreadPrincipalService threadPrincipalService, TransactionService transactionService, ValidationService validationService, EstimationService estimationService){
-        this.threadPrincipalService = threadPrincipalService;
-        this.transactionService = transactionService;
+    public ForceValidationAndEstimation(ValidationService validationService, EstimationService estimationService){
         this.validationService = validationService;
         this.estimationService = estimationService;
     }
 
     @Override
     public List<PropertySpec> getPropertySpecs(PropertySpecService propertySpecService) {
-        return Collections.singletonList(effectiveTimestamp(propertySpecService));
+        // Remember that effective timestamp is a required property enforced by the service's execute metho
+        return Collections.emptyList();
     }
 
     @Override
-    public void execute(Device device, List<ExecutableActionProperty> properties) {
+    public void execute(Device device, Instant effectiveTimestamp, List<ExecutableActionProperty> properties) {
         this.device = device;
-        if (!this.device.forValidation().isValidationActive())
+        if (!this.device.forValidation().isValidationActive()) {
             throw new ForceValidationAndEstimationException(MessageSeeds.VALIDATION_NOT_SET_ON_DEVICE);
-        if (!this.device.forEstimation().isEstimationActive())
-            throw new ForceValidationAndEstimationException(MessageSeeds.ESTIMATION_NOT_SET_ON_DEVICE);
-
-        try {
-            transactionService.execute(VoidTransaction.of(() -> {
-                this.device.getLoadProfiles().forEach(loadProfile -> this.setLastReading(loadProfile,  getEffectiveTimestamp(properties)));
-                this.device.getCurrentMeterActivation().ifPresent(this::validateAndEstimate);
-            }));
-        } finally {
-            threadPrincipalService.clear();
         }
+        if (!this.device.forEstimation().isEstimationActive()) {
+            throw new ForceValidationAndEstimationException(MessageSeeds.ESTIMATION_NOT_SET_ON_DEVICE);
+        }
+        this.device.getLoadProfiles().forEach(loadProfile -> this.setLastReading(loadProfile,  effectiveTimestamp));
+        this.device.getCurrentMeterActivation().ifPresent(this::validateAndEstimate);
     }
 
     private void setLastReading(LoadProfile loadProfile, Instant newlastReading) {
@@ -78,8 +67,9 @@ public class ForceValidationAndEstimation implements ServerMicroAction {
     private void validateAndEstimate(MeterActivation meterActivation){
         validationService.validate(meterActivation);
         estimationService.estimate(meterActivation, meterActivation.getRange());
-        if (!validationService.getEvaluator().isAllDataValidated(meterActivation))
+        if (!validationService.getEvaluator().isAllDataValidated(meterActivation)) {
             throw new ForceValidationAndEstimationException(MessageSeeds.NOT_ALL_DATA_VALID_FOR_DEVICE);
+        }
     }
 
     public class ForceValidationAndEstimationException extends BaseException{

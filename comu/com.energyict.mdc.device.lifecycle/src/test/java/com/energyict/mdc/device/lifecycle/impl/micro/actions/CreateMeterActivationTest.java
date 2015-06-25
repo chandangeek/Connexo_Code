@@ -1,15 +1,13 @@
 package com.energyict.mdc.device.lifecycle.impl.micro.actions;
 
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
-import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.ValueFactory;
 
 import java.time.Instant;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.junit.*;
@@ -20,10 +18,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  * Tests the {@link CreateMeterActivation} component.
@@ -59,14 +55,9 @@ public class CreateMeterActivationTest {
     public void executeCreatesMeterActivation() {
         Instant now = Instant.ofEpochSecond(97L);
         CreateMeterActivation microAction = this.getTestInstance();
-        ExecutableActionProperty property = mock(ExecutableActionProperty.class);
-        PropertySpec propertySpec = mock(PropertySpec.class);
-        when(propertySpec.getName()).thenReturn(DeviceLifeCycleService.MicroActionPropertyName.EFFECTIVE_TIMESTAMP.key());
-        when(property.getPropertySpec()).thenReturn(propertySpec);
-        when(property.getValue()).thenReturn(now);
 
         // Business method
-        microAction.execute(this.device, Arrays.asList(property));
+        microAction.execute(this.device, now, Collections.emptyList());
 
         // Asserts
         verify(this.device).activate(now);

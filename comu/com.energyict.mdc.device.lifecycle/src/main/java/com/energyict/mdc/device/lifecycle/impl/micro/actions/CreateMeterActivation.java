@@ -7,19 +7,15 @@ import com.energyict.mdc.device.lifecycle.impl.ServerMicroAction;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 
-import java.util.Arrays;
+import java.time.Instant;
+import java.util.Collections;
 import java.util.List;
-
-import static com.energyict.mdc.device.lifecycle.impl.DeviceLifeCyclePropertySupport.effectiveTimestamp;
-import static com.energyict.mdc.device.lifecycle.impl.DeviceLifeCyclePropertySupport.getEffectiveTimestamp;
 
 /**
  * Provides an implementation for the {@link ServerMicroAction} interface
  * that will create a meter activation for the Device on the effective
  * timestamp of the transition.
  * @see {@link com.energyict.mdc.device.lifecycle.config.MicroAction#CREATE_METER_ACTIVATION}
- *
- * action bits: 64
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-05-2 5(14:19)
@@ -28,12 +24,13 @@ public class CreateMeterActivation implements ServerMicroAction {
 
     @Override
     public List<PropertySpec> getPropertySpecs(PropertySpecService propertySpecService) {
-        return Arrays.asList(effectiveTimestamp(propertySpecService));
+        // Remember that effective timestamp is a required property enforced by the service's execute metho
+        return Collections.emptyList();
     }
 
     @Override
-    public void execute(Device device, List<ExecutableActionProperty> properties) {
-        device.activate(getEffectiveTimestamp(properties));
+    public void execute(Device device, Instant effectiveTimestamp, List<ExecutableActionProperty> properties) {
+        device.activate(effectiveTimestamp);
     }
 
 }

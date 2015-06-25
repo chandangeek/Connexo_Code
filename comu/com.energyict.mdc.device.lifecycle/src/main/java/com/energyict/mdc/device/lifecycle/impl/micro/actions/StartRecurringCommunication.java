@@ -2,8 +2,11 @@ package com.energyict.mdc.device.lifecycle.impl.micro.actions;
 
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
 import com.energyict.mdc.device.lifecycle.impl.ServerMicroAction;
+
+import java.time.Instant;
 import java.util.List;
 
 /**
@@ -14,8 +17,8 @@ import java.util.List;
 public class StartRecurringCommunication implements ServerMicroAction {
 
     @Override
-    public void execute(Device device, List<ExecutableActionProperty> properties) {
-        device.getConnectionTasks().forEach(connectionTask -> connectionTask.activate());
+    public void execute(Device device, Instant effectiveTimestamp, List<ExecutableActionProperty> properties) {
+        device.getConnectionTasks().forEach(ConnectionTask::activate);
         device.getComTaskExecutions().forEach(ComTaskExecution::scheduleNow);
     }
 

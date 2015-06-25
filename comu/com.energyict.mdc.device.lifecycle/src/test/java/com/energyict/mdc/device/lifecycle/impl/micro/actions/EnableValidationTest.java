@@ -68,7 +68,7 @@ public class EnableValidationTest {
         when(property.getValue()).thenReturn(now);
 
         // Business method
-        enableValidation.execute(this.device, Collections.singletonList(property));
+        enableValidation.execute(this.device, Instant.now(), Collections.singletonList(property));
 
         // Asserts
         verify(deviceValidation).activateValidation(now);

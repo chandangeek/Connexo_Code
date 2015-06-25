@@ -7,6 +7,7 @@ import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -54,7 +55,7 @@ public class DisableCommunicationTest {
         DisableCommunication microAction = this.getTestInstance();
 
         // Business method
-        microAction.execute(this.device, Collections.emptyList());
+        microAction.execute(this.device, Instant.now(), Collections.emptyList());
 
         // Asserts
         verify(connectionTask1).deactivate();
@@ -69,7 +70,7 @@ public class DisableCommunicationTest {
         DisableCommunication microAction = this.getTestInstance();
 
         // Business method
-        microAction.execute(this.device, Collections.emptyList());
+        microAction.execute(this.device, Instant.now(), Collections.emptyList());
 
         // Asserts
         verify(comTaskExecution1).putOnHold();

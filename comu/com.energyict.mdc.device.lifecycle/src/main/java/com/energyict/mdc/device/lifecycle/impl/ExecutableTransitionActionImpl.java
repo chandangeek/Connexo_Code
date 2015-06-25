@@ -8,6 +8,7 @@ import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 
+import java.time.Instant;
 import java.util.List;
 
 /**
@@ -40,8 +41,8 @@ public class ExecutableTransitionActionImpl implements ExecutableAction {
     }
 
     @Override
-    public void execute(List<ExecutableActionProperty> properties) throws SecurityException, DeviceLifeCycleActionViolationException {
-        this.service.execute(this.action, this.device, properties);
+    public void execute(Instant effectiveTimestamp, List<ExecutableActionProperty> properties) throws SecurityException, DeviceLifeCycleActionViolationException {
+        this.service.execute(this.action, this.device, Instant.now(), properties);
     }
 
 }
