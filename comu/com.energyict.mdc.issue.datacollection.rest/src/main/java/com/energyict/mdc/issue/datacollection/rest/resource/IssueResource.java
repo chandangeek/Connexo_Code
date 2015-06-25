@@ -2,25 +2,19 @@ package com.energyict.mdc.issue.datacollection.rest.resource;
 
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.rest.request.*;
+import com.elster.jupiter.issue.rest.resource.IssueResourceHelper;
 import com.elster.jupiter.issue.rest.resource.StandardParametersBean;
 import com.elster.jupiter.issue.rest.response.ActionInfo;
-import com.elster.jupiter.issue.rest.response.IssueCommentInfo;
-import com.elster.jupiter.issue.rest.response.PropertyUtils;
-import com.elster.jupiter.issue.rest.response.cep.CreationRuleActionInfoFactory;
-import com.elster.jupiter.issue.rest.response.cep.CreationRuleActionTypeInfo;
 import com.elster.jupiter.issue.rest.response.device.DeviceInfo;
 import com.elster.jupiter.issue.rest.transactions.AssignIssueTransaction;
 import com.elster.jupiter.issue.security.Privileges;
-import com.elster.jupiter.issue.share.IssueActionResult;
 import com.elster.jupiter.issue.share.entity.*;
 import com.elster.jupiter.metering.EndDevice;
-import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Order;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.entity.HistoricalIssueDataCollection;
 import com.energyict.mdc.issue.datacollection.entity.IssueDataCollection;
@@ -35,9 +29,10 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import static com.elster.jupiter.issue.rest.request.RequestHelper.*;
 import static com.elster.jupiter.issue.rest.response.ResponseHelper.entity;
@@ -48,14 +43,12 @@ import static com.energyict.mdc.issue.datacollection.rest.i18n.MessageSeeds.getS
 public class IssueResource extends BaseResource {
     
     private final DataCollectionIssueInfoFactory issuesInfoFactory;
-    private final CreationRuleActionInfoFactory actionInfoFactory;
-    private final PropertyUtils propertyUtils;
+    private final IssueResourceHelper issueResourceHelper;
 
     @Inject
-    public IssueResource(DataCollectionIssueInfoFactory dataCollectionIssuesInfoFactory, CreationRuleActionInfoFactory actionInfoFactory, PropertyUtils propertyUtils) {
+    public IssueResource(DataCollectionIssueInfoFactory dataCollectionIssuesInfoFactory, IssueResourceHelper issueResourceHelper) {
         this.issuesInfoFactory = dataCollectionIssuesInfoFactory;
-        this.actionInfoFactory = actionInfoFactory;
-        this.propertyUtils = propertyUtils;
+        this.issueResourceHelper = issueResourceHelper;
     }
 
     @GET
@@ -90,70 +83,61 @@ public class IssueResource extends BaseResource {
 
     @GET
     @Path("/{" + ID + "}")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.VIEW_ISSUE,Privileges.ASSIGN_ISSUE,Privileges.CLOSE_ISSUE,Privileges.COMMENT_ISSUE,Privileges.ACTION_ISSUE})
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.VIEW_ISSUE, Privileges.ASSIGN_ISSUE, Privileges.CLOSE_ISSUE, Privileges.COMMENT_ISSUE, Privileges.ACTION_ISSUE})
     public Response getIssueById(@PathParam(ID) long id) {
         Optional<? extends IssueDataCollection> issue = getIssueDataCollectionService().findIssue(id);
-        return issue
-                .map(i -> entity(issuesInfoFactory.asInfo(i, DeviceInfo.class)).build())
-                .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        return issue.map(i -> entity(issuesInfoFactory.asInfo(i, DeviceInfo.class)).build())
+                    .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 
     @GET
     @Path("/{" + ID + "}/comments")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.VIEW_ISSUE,Privileges.ASSIGN_ISSUE,Privileges.CLOSE_ISSUE,Privileges.COMMENT_ISSUE,Privileges.ACTION_ISSUE})
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.VIEW_ISSUE, Privileges.ASSIGN_ISSUE, Privileges.CLOSE_ISSUE, Privileges.COMMENT_ISSUE, Privileges.ACTION_ISSUE})
     public PagedInfoList getComments(@PathParam(ID) long id, @BeanParam JsonQueryParameters queryParameters) {
-        Condition condition = where("issueId").isEqualTo(id);
-        Query<IssueComment> query = getIssueService().query(IssueComment.class, User.class);
-        List<IssueComment> commentsList = query.select(condition, Order.ascending("createTime"));
-        List<IssueCommentInfo> infos = commentsList.stream().map(IssueCommentInfo::new).collect(Collectors.toList());
-        return PagedInfoList.fromCompleteList("comments", infos, queryParameters);
+        IssueDataCollection issue = getIssueDataCollectionService().findIssue(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        return PagedInfoList.fromCompleteList("comments", issueResourceHelper.getIssueComments(issue), queryParameters);
     }
 
     @POST
     @Path("/{" + ID + "}/comments")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.COMMENT_ISSUE)
     public Response postComment(@PathParam("id") long id, CreateCommentRequest request, @Context SecurityContext securityContext) {
-        try (TransactionContext context = getTransactionService().getContext()) {
-            IssueDataCollection issue = getIssueDataCollectionService().findIssue(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-            User author = (User) securityContext.getUserPrincipal();
-            IssueComment comment = issue.addComment(request.getComment(), author).orElseThrow(() -> new WebApplicationException(Response.Status.BAD_REQUEST));
-            context.commit();
-            return Response.ok(new IssueCommentInfo(comment)).status(Response.Status.CREATED).build();
-        }
+        IssueDataCollection issue = getIssueDataCollectionService().findIssue(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        return Response.ok(issueResourceHelper.postComment(issue, request, securityContext)).status(Response.Status.CREATED).build();
     }
 
     @GET
     @Path("/{" + ID + "}/actions")
     @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.VIEW_ISSUE, Privileges.ASSIGN_ISSUE, Privileges.CLOSE_ISSUE, Privileges.COMMENT_ISSUE, Privileges.ACTION_ISSUE})
+    public PagedInfoList getActions(@PathParam("id") long id, @BeanParam JsonQueryParameters queryParameters) {
+        IssueDataCollection issue = getIssueDataCollectionService().findIssue(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        return PagedInfoList.fromCompleteList("issueActions", issueResourceHelper.getListOfAvailableIssueActions(issue), queryParameters);
+    }
+
+    @GET
+    @Path("/{" + ID + "}/actions/{" + KEY + "}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_ISSUE,Privileges.ASSIGN_ISSUE,Privileges.CLOSE_ISSUE,Privileges.COMMENT_ISSUE,Privileges.ACTION_ISSUE})
-    public PagedInfoList getActions(@PathParam("id") long id, @BeanParam JsonQueryParameters queryParameters) {
-        Optional<? extends IssueDataCollection> issueRef = getIssueDataCollectionService().findIssue(id);
-        if (!issueRef.isPresent()) {
-            throw new WebApplicationException(Response.Status.NOT_FOUND);
-        }
-        Query<IssueActionType> query = getIssueService().query(IssueActionType.class, IssueType.class);
-        
-        IssueReason reason = issueRef.get().getReason();
-        IssueType type = reason.getIssueType();
-        
-        Condition c0 = where("issueType").isNull();
-        Condition c1 = where("issueType").isEqualTo(type).and(where("issueReason").isNull());
-        Condition c2 = where("issueType").isEqualTo(type).and(where("issueReason").isEqualTo(reason));
-        Condition condition = (c0).or(c1).or(c2);
-        
-        List<CreationRuleActionTypeInfo> infos = query.select(condition)
-                               .stream()
-                               .filter(actionType -> actionType.createIssueAction()
-                                           .map(action -> action.isApplicable(issueRef.get()))
-                                           .orElse(false))
-                               .map(actionInfoFactory::asInfo)
-                               .collect(Collectors.toList());
-        return PagedInfoList.fromCompleteList("issueActions", infos, queryParameters);
+    public Response getActionTypeById(@PathParam(ID) long id, @PathParam(KEY) long actionId){
+        getIssueDataCollectionService().findIssue(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        return Response.ok(issueResourceHelper.getIssueActionById(id)).build();
+    }
+
+    @PUT
+    @Path("/{" + ID + "}/actions/{" + KEY + "}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed(Privileges.ACTION_ISSUE)
+    public Response performAction(@PathParam(ID) long id, @PathParam(KEY) long actionId, PerformActionRequest request) {
+        IssueDataCollection issue = getIssueDataCollectionService().findIssue(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        request.id = actionId;
+        return entity(issueResourceHelper.performIssueAction(issue, request)).build();
     }
 
     @PUT
@@ -165,7 +149,7 @@ public class IssueResource extends BaseResource {
     public Response assignIssues(AssignIssueRequest request, @Context SecurityContext securityContext, @BeanParam StandardParametersBean params) {
         /* TODO this method should be refactored when FE implements dynamic actions for bulk operations */
         User performer = (User) securityContext.getUserPrincipal();
-        Function<ActionInfo, List<? extends Issue>> issueProvider = null;
+        Function<ActionInfo, List<? extends Issue>> issueProvider;
         if (request.allIssues) {
             issueProvider = bulkResults -> getIssuesForBulk(params);
         } else {
@@ -200,7 +184,7 @@ public class IssueResource extends BaseResource {
     public Response closeIssues(CloseIssueRequest request, @Context SecurityContext securityContext, @BeanParam StandardParametersBean params) {
         /* TODO this method should be refactored when FE implements dynamic actions for bulk operations */
         User performer = (User) securityContext.getUserPrincipal();
-        Function<ActionInfo, List<? extends Issue>> issueProvider = null;
+        Function<ActionInfo, List<? extends Issue>> issueProvider;
         if (request.allIssues) {
             issueProvider = bulkResults -> getIssuesForBulk(params);
         } else {
@@ -236,39 +220,6 @@ public class IssueResource extends BaseResource {
             context.commit();
         }
         return response;
-    }
-
-    @GET
-    @Path("/{" + ID + "}/actions/{" + KEY + "}")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.VIEW_ISSUE,Privileges.ASSIGN_ISSUE,Privileges.CLOSE_ISSUE,Privileges.COMMENT_ISSUE,Privileges.ACTION_ISSUE})
-    public Response getActionTypeById(@PathParam(KEY) long id){
-        IssueActionType actionType = getIssueActionService().findActionType(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-        return Response.ok(actionInfoFactory.asInfo(actionType)).build();
-    }
-
-
-    @PUT
-    @Path("/{" + ID + "}/actions/{" + KEY + "}")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed(Privileges.ACTION_ISSUE)
-    public Response performAction(@PathParam(ID) long id, PerformActionRequest request) {
-        IssueDataCollection issue = getIssueDataCollectionService().findIssue(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-        IssueActionType action = getIssueActionService().findActionType(request.id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-        Map<String, Object> properties = new HashMap<>();
-        for (PropertySpec propertySpec : action.createIssueAction().get().getPropertySpecs()) {
-            Object value = propertyUtils.findPropertyValue(propertySpec, request.properties);
-            if (value != null) {
-                properties.put(propertySpec.getName(), value);
-            }
-        }
-        IssueActionResult actionResult;
-        try (TransactionContext context = getTransactionService().getContext()) {
-            actionResult = getIssueActionService().executeAction(action, issue, properties);
-            context.commit();
-        }
-        return entity(actionResult).build();
     }
 
     private Class<? extends IssueDataCollection> getQueryApiClass(StandardParametersBean params) {

@@ -93,6 +93,9 @@ public class IssueResourceTest extends IssueDataCollectionApplicationJerseyTest 
 
     @Test
     public void testGetAllComments() {
+        OpenIssueDataCollection issue = getDefaultIssue();
+        doReturn(Optional.of(issue)).when(issueDataCollectionService).findIssue(1);
+
         List<IssueComment> comments = Arrays.asList(mockComment(1L, "My comment", getDefaultUser()));
 
         Query<IssueComment> commentsQuery = mock(Query.class);
