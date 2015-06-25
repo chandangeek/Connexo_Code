@@ -61,6 +61,10 @@
       <artifactId>org.osgi.compendium</artifactId>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>com.energyict</groupId>
+      <artifactId>mdc.issue.datacollection</artifactId>
+    </dependency>
 
     <!-- Testing -->
     <dependency>

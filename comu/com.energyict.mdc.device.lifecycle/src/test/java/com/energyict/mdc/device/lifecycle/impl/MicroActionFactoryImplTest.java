@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.lifecycle.impl;
 
+import com.elster.jupiter.issue.share.service.IssueService;
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.topology.TopologyService;
 
@@ -29,6 +30,9 @@ public class MicroActionFactoryImplTest {
     private MeteringGroupsService meteringGroupsService;
     @Mock
     private TopologyService topologyService;
+    @Mock
+    private IssueService issueService;
+
 
     @Test
     public void allMicroActionsAreCovered() {
@@ -45,7 +49,7 @@ public class MicroActionFactoryImplTest {
     }
 
     private MicroActionFactoryImpl getTestInstance() {
-        return new MicroActionFactoryImpl(this.meteringService, this.meteringGroupsService, this.topologyService);
+        return new MicroActionFactoryImpl(this.meteringService, this.meteringGroupsService, this.topologyService, issueService);
     }
 
 }
