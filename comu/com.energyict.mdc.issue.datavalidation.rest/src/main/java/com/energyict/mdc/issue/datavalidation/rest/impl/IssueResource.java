@@ -1,5 +1,6 @@
 package com.energyict.mdc.issue.datavalidation.rest.impl;
 
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.issue.rest.MessageSeeds;
 import com.elster.jupiter.issue.rest.request.*;
 import com.elster.jupiter.issue.rest.resource.IssueResourceHelper;
@@ -21,6 +22,7 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.conditions.Order;
 import com.energyict.mdc.issue.datavalidation.DataValidationIssueFilter;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidation;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
@@ -71,7 +73,12 @@ public class IssueResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_ISSUE, Privileges.ASSIGN_ISSUE, Privileges.CLOSE_ISSUE, Privileges.COMMENT_ISSUE, Privileges.ACTION_ISSUE})
     public PagedInfoList getDataValidationIssues(@BeanParam StandardParametersBean queryFilter, @BeanParam JsonQueryParameters queryParams) {
-        List<? extends IssueDataValidation> issues = issueDataValidationService.findAllDataValidationIssues(buildFilterFromQueryParameters(queryFilter)).find();
+        Finder<? extends IssueDataValidation> finder = issueDataValidationService.findAllDataValidationIssues(buildFilterFromQueryParameters(queryFilter));
+        addSorting(finder, queryFilter);
+        if (queryParams.getStart().isPresent() && queryParams.getLimit().isPresent()) {
+            finder.paged(queryParams.getStart().get(), queryParams.getLimit().get());
+        }
+        List<? extends IssueDataValidation> issues = finder.find();
         return PagedInfoList.fromPagedList("dataValidationIssues", issueInfoFactory.asInfo(issues), queryParams);
     }
 
@@ -124,6 +131,14 @@ public class IssueResource {
         return filter;
     }
 
+     private Finder<? extends IssueDataValidation> addSorting(Finder<? extends IssueDataValidation> finder, StandardParametersBean parameters) {
+         Order[] orders = parameters.getOrder("baseIssue.");
+         for(Order order : orders) {
+             finder.sorted(order.getName(), order.ascending());
+         }
+         return finder;
+     }
+
     @GET
     @Path("/{id}/actions")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -140,7 +155,7 @@ public class IssueResource {
     @RolesAllowed({Privileges.VIEW_ISSUE, Privileges.ASSIGN_ISSUE, Privileges.CLOSE_ISSUE, Privileges.COMMENT_ISSUE, Privileges.ACTION_ISSUE})
     public Response getActionTypeById(@PathParam("id") long id, @PathParam("actionId") long actionId) {
         issueDataValidationService.findIssue(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-        return Response.ok(issueResourceHelper.getIssueActionById(id)).build();
+        return Response.ok(issueResourceHelper.getIssueActionById(actionId)).build();
     }
 
     @PUT
