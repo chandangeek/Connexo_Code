@@ -54,7 +54,6 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<UserDirectory> table = dataModel.addTable(name(), UserDirectory.class);
 			table.map(AbstractUserDirectoryImpl.IMPLEMENTERS);
-			Column idColumn = table.addAutoIdColumn();
             Column domain = table.column("DOMAIN").type("varchar(128)").notNull().map("domain").add();
             table.addDiscriminatorColumn("DIRECTORY_TYPE", "char(3)");
             table.column("IS_DEFAULT").bool().map("isDefault").add();
@@ -62,11 +61,12 @@ public enum TableSpecs {
             table.column("DIRECTORY_USER").type("varchar(4000)").map("directoryUser").add();
             table.column("PASSWORD").type("varchar(128)").map("password").add();
             table.column("URL").type("varchar(4000)").map("url").add();
+            table.column("BACKUPURL").type("varchar(4000)").map("backupurl").add();
             table.column("SECURITY").type("varchar(4)").map("security").add();
             table.column("BASE_USER").type("varchar(4000)").map("baseUser").add();
             table.column("BASE_GROUP").type("varchar(4000)").map("baseGroup").add();
             table.addAuditColumns();
-            table.primaryKey("USR_PK_USERDIRECTORY").on(idColumn).add();
+            table.primaryKey("USR_PK_USERDIRECTORY").on(domain).add();
         }
     },
 	USR_USER {

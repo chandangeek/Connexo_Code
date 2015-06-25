@@ -10,6 +10,8 @@ public interface LdapUserDirectory extends UserDirectory {
 
     String getSecurity();
 
+    String getBackupUrl();
+
     void setUrl(String url);
 
     String getPassword();

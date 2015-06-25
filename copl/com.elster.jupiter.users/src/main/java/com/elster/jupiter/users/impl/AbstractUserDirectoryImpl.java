@@ -10,7 +10,6 @@ import java.util.Map;
 
 public abstract class AbstractUserDirectoryImpl implements UserDirectory {
     protected final UserService userService;
-    private long id;
     private String domain;
     private boolean isDefault;
     protected final DataModel dataModel;

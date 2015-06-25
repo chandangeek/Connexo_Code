@@ -26,6 +26,7 @@ import java.util.Optional;
 
 public class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
     static String TYPE_IDENTIFIER = "APD";
+    private boolean isBackupUrl = false;
 
 
     @Inject
@@ -73,35 +74,40 @@ public class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
     @Override
     public Optional<User> authenticate(String name, String password) {
         if(getSecurity()==null||getSecurity().contains("NONE")){
-            return authenticateSimple(name,password);
+            return authenticateSimple(name,password,getUrl());
         }else if(getSecurity().contains("SSL")) {
-            return authenticateSSL(name, password);
+            return authenticateSSL(name, password,getUrl());
         }else if(getSecurity().contains("TLS")){
-            return authenticateTLS(name,password);
+            return authenticateTLS(name,password,getUrl());
         }else{
             return Optional.empty();
         }
     }
 
-    private Optional<User> authenticateSimple(String name, String password){
+    private Optional<User> authenticateSimple(String name, String password,String url){
 
         Hashtable<String, Object> env = new Hashtable<>();
         env.putAll(commonEnvLDAP);
-        env.put(Context.PROVIDER_URL, getUrl());
+        env.put(Context.PROVIDER_URL, url);
         env.put(Context.SECURITY_PRINCIPAL,"uid=" + name + "," + getBaseUser());
         env.put(Context.SECURITY_CREDENTIALS, password);
         try {
             new InitialDirContext(env);
             return Optional.of(userService.findOrCreateUser(name, this.getDomain(), TYPE_IDENTIFIER));
         } catch (NamingException e) {
-            return Optional.empty();
+            if((isBackupUrl == false)&&(e.toString().contains("CommunicationException")||e.toString().contains("ServiceUnavailableException"))){
+                isBackupUrl = true;
+                return authenticateSimple(name,password,getBackupUrl());
+            }else {
+                return Optional.empty();
+            }
         }
     }
 
-    private Optional<User> authenticateSSL(String name, String password){
+    private Optional<User> authenticateSSL(String name, String password,String url){
         Hashtable<String, Object> env = new Hashtable<>();
         env.putAll(commonEnvLDAP);
-        env.put(Context.PROVIDER_URL, getUrl());
+        env.put(Context.PROVIDER_URL, url);
         env.put(Context.SECURITY_PRINCIPAL,"uid=" + name + "," + getBaseUser());
         env.put(Context.SECURITY_CREDENTIALS, password);
         env.put(Context.SECURITY_PROTOCOL,"ssl");
@@ -109,14 +115,19 @@ public class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
             new InitialDirContext(env);
             return Optional.of(userService.findOrCreateUser(name, this.getDomain(), TYPE_IDENTIFIER));
         } catch (NamingException e) {
-            return Optional.empty();
+            if((isBackupUrl == false)&&(e.toString().contains("CommunicationException")||e.toString().contains("ServiceUnavailableException"))){
+                isBackupUrl = true;
+                return authenticateSSL(name, password, getBackupUrl());
+            }else {
+                return Optional.empty();
+            }
         }
     }
 
-    private Optional<User> authenticateTLS(String name, String password){
-        Hashtable env = new Hashtable(5, 0.75f);
+    private Optional<User> authenticateTLS(String name, String password,String url){
+        Hashtable<String, Object> env = new Hashtable<>();
         env.putAll(commonEnvLDAP);
-        env.put(Context.PROVIDER_URL, getUrl());
+        env.put(Context.PROVIDER_URL, url);
         try{
             LdapContext ctx = new InitialLdapContext(env, null);
             ExtendedRequest tlsRequest = new StartTlsRequest();
@@ -129,8 +140,12 @@ public class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
             tls.close();
             return user;
         }catch(Exception e){
-            e.printStackTrace();
-            return Optional.empty();
+            if((isBackupUrl == false)&&(e.toString().contains("CommunicationException")||e.toString().contains("ServiceUnavailableException"))){
+                isBackupUrl = true;
+                return authenticateTLS(name,password,getBackupUrl());
+            }else {
+                return Optional.empty();
+            }
         }
 
     }
