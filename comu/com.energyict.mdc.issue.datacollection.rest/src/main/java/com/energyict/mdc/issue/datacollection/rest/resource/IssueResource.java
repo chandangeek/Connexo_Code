@@ -126,7 +126,7 @@ public class IssueResource extends BaseResource {
     @RolesAllowed({Privileges.VIEW_ISSUE,Privileges.ASSIGN_ISSUE,Privileges.CLOSE_ISSUE,Privileges.COMMENT_ISSUE,Privileges.ACTION_ISSUE})
     public Response getActionTypeById(@PathParam(ID) long id, @PathParam(KEY) long actionId){
         getIssueDataCollectionService().findIssue(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-        return Response.ok(issueResourceHelper.getIssueActionById(id)).build();
+        return Response.ok(issueResourceHelper.getIssueActionById(actionId)).build();
     }
 
     @PUT
