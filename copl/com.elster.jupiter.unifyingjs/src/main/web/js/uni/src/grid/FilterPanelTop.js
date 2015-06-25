@@ -13,7 +13,9 @@ Ext.define('Uni.grid.FilterPanelTop', {
         'Uni.grid.filtertop.Date',
         'Uni.grid.filtertop.Interval',
         'Uni.grid.filtertop.Radio',
-        'Uni.grid.filtertop.Text'
+        'Uni.grid.filtertop.Text',
+        'Uni.grid.filtertop.DateTime',
+        'Uni.grid.filtertop.DateTimeSelect'
     ],
 
     /**
@@ -479,6 +481,10 @@ Ext.define('Uni.grid.FilterPanelTop', {
                 return 'Uni.grid.filtertop.Radio';
             case 'text':
                 return 'Uni.grid.filtertop.Text';
+            case 'datetime':
+                return 'Uni.grid.filtertop.DateTime';
+            case 'datetimeselect':
+                return 'Uni.grid.filtertop.DateTimeSelect';
             default:
                 return undefined;
         }
