@@ -30,6 +30,7 @@ public enum TableSpecs {
             Column id = table.addAutoIdColumn();
             table.addAuditColumns();
             Column name = table.column("NAME").varChar().notNull().map(FiniteStateMachineImpl.Fields.NAME.fieldName()).add();
+            table.column("OBSOLETE_TIMESTAMP").number().conversion(ColumnConversion.NUMBER2INSTANT).map(FiniteStateMachineImpl.Fields.OBSOLETE_TIMESTAMP.fieldName()).add();
             table.unique("UK_FSM_FINITESTATEMACHINE").on(name).add();
             table.primaryKey("PK_FSM_FINITESTATEMACHINE").on(id).add();
         }
@@ -64,6 +65,7 @@ public enum TableSpecs {
             Column id = table.addAutoIdColumn();
             table.addAuditColumns();
             Column name = table.column("NAME").varChar().notNull().map(StateImpl.Fields.NAME.fieldName()).add();
+            table.column("OBSOLETE_TIMESTAMP").number().conversion(ColumnConversion.NUMBER2INSTANT).map(StateImpl.Fields.OBSOLETE_TIMESTAMP.fieldName()).add();
             table.column("ISINITIAL").number().notNull().conversion(ColumnConversion.NUMBER2BOOLEAN).map(StateImpl.Fields.INITIAL.fieldName()).add();
             table.column("CUSTOM").number().notNull().conversion(ColumnConversion.NUMBER2BOOLEAN).map(StateImpl.Fields.CUSTOM.fieldName()).add();
             Column finiteStateMachine = table.column("FSM").number().notNull().add();

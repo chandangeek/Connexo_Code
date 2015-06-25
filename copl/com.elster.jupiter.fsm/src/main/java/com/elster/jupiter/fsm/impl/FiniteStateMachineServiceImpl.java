@@ -24,6 +24,7 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Where;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -355,9 +356,19 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
 
     @Override
     public Optional<FiniteStateMachine> findFiniteStateMachineByName(String name) {
-        return this.dataModel
-                .mapper(FiniteStateMachine.class)
-                .getUnique(FiniteStateMachineImpl.Fields.NAME.fieldName(), name);
+        Condition condition =     where(FiniteStateMachineImpl.Fields.NAME.fieldName()).isEqualTo(name)
+                             .and(where(FiniteStateMachineImpl.Fields.OBSOLETE_TIMESTAMP.fieldName()).isNull());
+        List<FiniteStateMachine> finiteStateMachines = this.dataModel.query(FiniteStateMachine.class).select(condition);
+        // Expecting at most one
+        if (finiteStateMachines.isEmpty()) {
+            return Optional.empty();
+        }
+        else if (finiteStateMachines.size() > 1) {
+            throw new NotUniqueException(name);
+        }
+        else {
+            return Optional.of(finiteStateMachines.get(0));
+        }
     }
 
     @Override

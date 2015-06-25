@@ -18,6 +18,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.Size;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +36,7 @@ public class StateImpl implements State {
 
     public enum Fields {
         NAME("name"),
+        OBSOLETE_TIMESTAMP("obsoleteTimestamp"),
         INITIAL("initial"),
         CUSTOM("custom"),
         FINITE_STATE_MACHINE("finiteStateMachine"),
@@ -53,12 +55,14 @@ public class StateImpl implements State {
 
     private final DataModel dataModel;
     private final Thesaurus thesaurus;
+    private final Clock clock;
 
     @SuppressWarnings("unused")
     private long id;
     @NotEmpty(groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.CAN_NOT_BE_EMPTY+"}")
     @Size(max= Table.NAME_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.FIELD_TOO_LONG+"}")
     private String name;
+    private Instant obsoleteTimestamp;
     private boolean custom;
     private boolean initial;
     @IsPresent
@@ -75,10 +79,11 @@ public class StateImpl implements State {
     private Instant modTime;
 
     @Inject
-    protected StateImpl(DataModel dataModel, Thesaurus thesaurus) {
+    protected StateImpl(DataModel dataModel, Thesaurus thesaurus, Clock clock) {
         super();
         this.dataModel = dataModel;
         this.thesaurus = thesaurus;
+        this.clock = clock;
     }
 
     public StateImpl initialize(FiniteStateMachine finiteStateMachine, boolean custom, String name) {
@@ -120,6 +125,10 @@ public class StateImpl implements State {
 
     void setInitial(boolean initial) {
         this.initial = initial;
+    }
+
+    boolean isObsolete() {
+        return this.obsoleteTimestamp != null;
     }
 
     @Override
@@ -198,6 +207,12 @@ public class StateImpl implements State {
 
     void prepareDelete() {
         this.processReferences.clear();
+    }
+
+    void makeObsolete() {
+        this.obsoleteTimestamp = this.clock.instant();
+        this.prepareDelete();
+        this.dataModel.update(this, Fields.OBSOLETE_TIMESTAMP.fieldName());
     }
 
     void save() {

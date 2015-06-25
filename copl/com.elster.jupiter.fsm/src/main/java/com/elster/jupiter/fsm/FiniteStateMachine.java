@@ -41,6 +41,21 @@ public interface FiniteStateMachine {
      */
     public Instant getModifiedTimestamp();
 
+    /**
+     * Tests if this FiniteStateMachine was previously marked as obsolete.
+     *
+     * @return A flag that indicates if this FiniteStateMachine has been marked as obsolete
+     */
+    public boolean isObsolete();
+
+    /**
+     * Gets the timestamp on which this FiniteStateMachine was
+     * marked as obsolete.
+     *
+     * @return The obsolete timestamp
+     */
+    public Instant getObsoleteTimestamp();
+
     public String getName();
 
     public List<State> getStates();
@@ -59,8 +74,26 @@ public interface FiniteStateMachine {
 
     public FiniteStateMachineUpdater startUpdate();
 
+    /**
+     * Saves this FiniteStateMachine after creating it
+     * or after having applied changes to it
+     * via a {@link FiniteStateMachineUpdater}.
+     */
     public void save();
 
+    /**
+     * Marks this FiniteStateMachine as obsolete
+     * so that it can no longer be used.
+     */
+    public void makeObsolete();
+
+    /**
+     * Deletes this FiniteStateMachine,
+     * along with its {@link State}s and {@link StateTransition transitions}.
+     * This is only intended for cleanup operations,
+     * it makes not attempt to cleanup references to this
+     * FiniteStateMachine outside of the finite state machine bundle.
+     */
     public void delete();
 
 }

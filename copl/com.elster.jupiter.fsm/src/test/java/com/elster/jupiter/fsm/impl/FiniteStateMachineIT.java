@@ -875,6 +875,28 @@ public class FiniteStateMachineIT {
     }
 
     @Transactional
+    @Test
+    public void removeStateByNameOnlyObsoletesTheState() {
+        String expectedName = "removeStateByNameOnlyObsoletesTheState";
+        StateTransitionEventType commissionedEventType = this.createNewStateTransitionEventType("#commissioned");
+        FiniteStateMachineBuilder builder = this.getTestService().newFiniteStateMachine(expectedName);
+        State commissioned = builder.newCustomState("Commissioned").complete();
+        String nameOfStateToBeRemoved = "InStock";
+        builder.newCustomState(nameOfStateToBeRemoved).on(commissionedEventType).transitionTo(commissioned).complete();
+        FiniteStateMachine stateMachine = builder.complete(commissioned);
+        stateMachine.save();
+        long idOfStateToBeRemoved = stateMachine.getState(nameOfStateToBeRemoved).get().getId();
+
+        // Business method
+        stateMachine.startUpdate().removeState(nameOfStateToBeRemoved).complete();
+
+        // Asserts
+        // The following line uses unsupported API to find an obsolete State by id
+        StateImpl obsolete = (StateImpl) stateMachine.startUpdate().state(idOfStateToBeRemoved).complete();
+        assertThat(obsolete.isObsolete()).isTrue();
+    }
+
+    @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.EXACTLY_ONE_INITIAL_STATE + "}")
     @Test
     public void removeInitialStateByName() {
@@ -1712,6 +1734,89 @@ public class FiniteStateMachineIT {
 
     @Transactional
     @Test
+    public void obsoleteStateMachine() {
+        String expectedName = "obsoleteStateMachine";
+        FiniteStateMachineBuilder builder = this.getTestService().newFiniteStateMachine(expectedName);
+        State initial = builder
+                .newCustomState("Initial")
+                .onEntry("onEntryDepId", "onEntry")
+                .onExit("onExitDepId", "onExit")
+                .complete();
+        FiniteStateMachine stateMachine = builder.complete(initial);
+        stateMachine.save();
+
+        // Business method
+        stateMachine.makeObsolete();
+
+        // Asserts
+        assertThat(stateMachine.isObsolete()).isTrue();
+        assertThat(stateMachine.getObsoleteTimestamp()).isNotNull();
+    }
+
+    @Transactional
+    @Test
+    public void obsoleteStateMachineWithReload() {
+        String expectedName = "obsoleteStateMachineWithReload";
+        FiniteStateMachineBuilder builder = this.getTestService().newFiniteStateMachine(expectedName);
+        State initial = builder
+                .newCustomState("Initial")
+                .onEntry("onEntryDepId", "onEntry")
+                .onExit("onExitDepId", "onExit")
+                .complete();
+        FiniteStateMachine stateMachine = builder.complete(initial);
+        stateMachine.save();
+
+        // Business method
+        stateMachine.makeObsolete();
+
+        // Asserts
+        FiniteStateMachine reloaded = this.getTestService().findFiniteStateMachineById(stateMachine.getId()).get();
+        assertThat(reloaded.isObsolete()).isTrue();
+        assertThat(reloaded.getObsoleteTimestamp()).isNotNull();
+    }
+
+    @Transactional
+    @Test
+    public void obsoleteStateMachineShowsUpInFindById() {
+        String expectedName = "obsoleteStateMachineShowsUpInFindById";
+        FiniteStateMachineBuilder builder = this.getTestService().newFiniteStateMachine(expectedName);
+        State initial = builder
+                .newCustomState("Initial")
+                .onEntry("onEntryDepId", "onEntry")
+                .onExit("onExitDepId", "onExit")
+                .complete();
+        FiniteStateMachine stateMachine = builder.complete(initial);
+        stateMachine.save();
+
+        // Business method
+        stateMachine.makeObsolete();
+
+        // Asserts
+        assertThat(this.getTestService().findFiniteStateMachineById(stateMachine.getId())).isPresent();
+    }
+
+    @Transactional
+    @Test
+    public void obsoleteStateMachineDoesNotShowUpInFindByName() {
+        String expectedName = "obsoleteStateMachineDoesNotShowUpInFindByName";
+        FiniteStateMachineBuilder builder = this.getTestService().newFiniteStateMachine(expectedName);
+        State initial = builder
+            .newCustomState("Initial")
+            .onEntry("onEntryDepId", "onEntry")
+            .onExit("onExitDepId", "onExit")
+            .complete();
+        FiniteStateMachine stateMachine = builder.complete(initial);
+        stateMachine.save();
+
+        // Business method
+        stateMachine.makeObsolete();
+
+        // Asserts
+        assertThat(this.getTestService().findFiniteStateMachineByName(expectedName)).isEmpty();
+    }
+
+    @Transactional
+    @Test
     public void deleteStateMachineWithOneStateAndBothEntryAndExitProcesses() {
         String expectedName = "deleteStateMachineWithOneStateAndBothEntryAndExitProcesses";
         FiniteStateMachineBuilder builder = this.getTestService().newFiniteStateMachine(expectedName);
@@ -1727,7 +1832,7 @@ public class FiniteStateMachineIT {
         stateMachine.delete();
 
         // Asserts
-        assertThat(this.getTestService().findFiniteStateMachineByName(expectedName).isPresent()).isFalse();
+        assertThat(this.getTestService().findFiniteStateMachineByName(expectedName)).isEmpty();
     }
 
     @Transactional

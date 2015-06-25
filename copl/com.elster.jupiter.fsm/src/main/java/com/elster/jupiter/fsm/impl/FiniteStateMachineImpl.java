@@ -14,11 +14,13 @@ import com.elster.jupiter.fsm.impl.constraints.Unique;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.util.streams.Predicates;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.Size;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -39,6 +41,7 @@ public class FiniteStateMachineImpl implements FiniteStateMachine {
 
     public enum Fields {
         NAME("name"),
+        OBSOLETE_TIMESTAMP("obsoleteTimestamp"),
         STATES("states"),
         TRANSITIONS("transitions");
 
@@ -55,6 +58,7 @@ public class FiniteStateMachineImpl implements FiniteStateMachine {
 
     private final DataModel dataModel;
     private final Thesaurus thesaurus;
+    private final Clock clock;
 
     @SuppressWarnings("unused")
     private long id;
@@ -65,6 +69,7 @@ public class FiniteStateMachineImpl implements FiniteStateMachine {
     private List<StateImpl> states = new ArrayList<>();
     @Valid
     private List<StateTransitionImpl> transitions = new ArrayList<>();
+    private Instant obsoleteTimestamp;
     @SuppressWarnings("unused")
     private String userName;
     @SuppressWarnings("unused")
@@ -75,9 +80,11 @@ public class FiniteStateMachineImpl implements FiniteStateMachine {
     private Instant modTime;
 
     @Inject
-    public FiniteStateMachineImpl(DataModel dataModel, Thesaurus thesaurus) {
+    public FiniteStateMachineImpl(DataModel dataModel, Thesaurus thesaurus, Clock clock) {
+        super();
         this.dataModel = dataModel;
         this.thesaurus = thesaurus;
+        this.clock = clock;
     }
 
     public FiniteStateMachineImpl initialize(String name) {
@@ -106,6 +113,16 @@ public class FiniteStateMachineImpl implements FiniteStateMachine {
     }
 
     @Override
+    public boolean isObsolete() {
+        return this.obsoleteTimestamp != null;
+    }
+
+    @Override
+    public Instant getObsoleteTimestamp() {
+        return this.obsoleteTimestamp;
+    }
+
+    @Override
     public String getName() {
         return this.name;
     }
@@ -116,7 +133,7 @@ public class FiniteStateMachineImpl implements FiniteStateMachine {
 
     @Override
     public List<State> getStates() {
-        return Collections.unmodifiableList(this.states);
+        return this.states.stream().filter(Predicates.not(StateImpl::isObsolete)).collect(Collectors.toList());
     }
 
     @Override
@@ -133,6 +150,7 @@ public class FiniteStateMachineImpl implements FiniteStateMachine {
     private Optional<StateImpl> findInitialState() {
         return this.states
                 .stream()
+                .filter(Predicates.not(StateImpl::isObsolete))
                 .filter(State::isInitial)
                 .findFirst();
     }
@@ -167,8 +185,7 @@ public class FiniteStateMachineImpl implements FiniteStateMachine {
 
     void removeState(StateImpl obsoleteState) {
         this.removeObsoleteTransitions(obsoleteState);
-        obsoleteState.prepareDelete();
-        this.states.remove(obsoleteState);
+        obsoleteState.makeObsolete();
     }
 
     private void removeObsoleteTransitions(StateImpl obsoleteState) {
@@ -218,6 +235,17 @@ public class FiniteStateMachineImpl implements FiniteStateMachine {
     @Override
     public void save() {
         Save.action(this.id).save(this.dataModel, this);
+    }
+
+    @Override
+    public void makeObsolete() {
+        this.obsoleteTimestamp = this.clock.instant();
+        this.obsoleteAllStates();
+        this.dataModel.update(this, Fields.OBSOLETE_TIMESTAMP.fieldName());
+    }
+
+    private void obsoleteAllStates() {
+        this.states.forEach(StateImpl::makeObsolete);
     }
 
     @Override
