@@ -45,6 +45,7 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
                     margin: 0,
                     padding: 10,
                     itemId: 'message-failed',
+                    htmlEncode: false,
                     hidden: true,
                     layout: {
                         type: 'hbox',
