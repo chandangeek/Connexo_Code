@@ -45,7 +45,7 @@ public class Installer {
     }
 
     private void createPrivileges() {
-        userService.createResourceWithPrivileges("FWC", "firmware.campaigns", "firmware.campaigns.description", new String[]
+        userService.createResourceWithPrivileges("MDC", "firmware.campaigns", "firmware.campaigns.description", new String[]
                 {Privileges.VIEW_FIRMWARE_CAMPAIGN, Privileges.ADMINISTRATE_FIRMWARE_CAMPAIGN});
     }
 
