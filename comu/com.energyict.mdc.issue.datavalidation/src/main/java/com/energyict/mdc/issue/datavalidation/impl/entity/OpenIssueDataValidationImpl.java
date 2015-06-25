@@ -29,9 +29,9 @@ public class OpenIssueDataValidationImpl extends IssueDataValidationImpl impleme
 
     @IsPresent
     private Reference<OpenIssue> baseIssue = ValueReference.absent();
-    
+
     @Valid
-    private List<OpenIssueNotEstimatedBlockImpl> notEstimatedBlocks = new ArrayList<>();  
+    private List<OpenIssueNotEstimatedBlockImpl> notEstimatedBlocks = new ArrayList<>();
 
     @Inject
     public OpenIssueDataValidationImpl(DataModel dataModel, IssueDataValidationService issueDataValidationService) {
@@ -42,26 +42,26 @@ public class OpenIssueDataValidationImpl extends IssueDataValidationImpl impleme
     OpenIssue getBaseIssue() {
         return baseIssue.orNull();
     }
-    
+
     public void setIssue(OpenIssue baseIssue) {
         this.baseIssue.set(baseIssue);
     }
 
     @Override
     public HistoricalIssueDataValidation close(IssueStatus status) {
-        this.delete(); // Remove reference to the baseIssue
-        HistoricalIssue historicalBaseIssue = getBaseIssue().close(status);
+        this.delete(); // Remove reference to baseIssue
+        HistoricalIssue historicalBaseIssue = getBaseIssue().closeInternal(status);
         HistoricalIssueDataValidationImpl historicalDataValidationIssue = getDataModel().getInstance(HistoricalIssueDataValidationImpl.class);
         historicalDataValidationIssue.setIssue(historicalBaseIssue);
         historicalDataValidationIssue.copy(this);
         historicalDataValidationIssue.save();
         return historicalDataValidationIssue;
     }
-    
+
     @Override
     public void addNotEstimatedBlock(Channel channel, ReadingType readingType, Instant startTime, Instant endTime) {
         Range<Instant> interval = Range.closedOpen(startTime, endTime.plus(channel.getIntervalLength().get()));
-        
+
         List<Pair<Range<Instant>, OpenIssueNotEstimatedBlockImpl>> connectedBlocks = notEstimatedBlocks.stream()
                 .filter(block -> block.getChannel().getId() == channel.getId())
                 .filter(block -> block.getReadingType().equals(readingType))
@@ -79,13 +79,13 @@ public class OpenIssueDataValidationImpl extends IssueDataValidationImpl impleme
         connectedBlocks.stream().forEach(block -> notEstimatedBlocks.remove(block.getLast()));
         createNewBlock(channel, readingType, newInterval.lowerEndpoint(), newInterval.upperEndpoint());
     }
-    
+
     @Override
     public void removeNotEstimatedBlock(Channel channel, ReadingType readingType, Instant timeStamp) {
         Instant startTime = timeStamp;
         Instant endTime = startTime.plus(channel.getIntervalLength().get());
         Range<Instant> interval = Range.closedOpen(startTime, endTime);
-        
+
         Optional<OpenIssueNotEstimatedBlockImpl> enclosingBlock = notEstimatedBlocks.stream()
                 .filter(block -> block.getChannel().getId() == channel.getId())
                 .filter(block -> block.getReadingType().equals(readingType))

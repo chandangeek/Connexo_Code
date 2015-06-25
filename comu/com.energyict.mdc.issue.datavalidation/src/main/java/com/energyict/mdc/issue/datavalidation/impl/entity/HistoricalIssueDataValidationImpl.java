@@ -1,12 +1,5 @@
 package com.energyict.mdc.issue.datavalidation.impl.entity;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import javax.inject.Inject;
-import javax.validation.Valid;
-
 import com.elster.jupiter.issue.share.entity.HistoricalIssue;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
@@ -15,6 +8,13 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.energyict.mdc.issue.datavalidation.HistoricalIssueDataValidation;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
 import com.energyict.mdc.issue.datavalidation.NotEstimatedBlock;
+import com.energyict.mdc.issue.datavalidation.OpenIssueDataValidation;
+
+import javax.inject.Inject;
+import javax.validation.Valid;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class HistoricalIssueDataValidationImpl extends IssueDataValidationImpl implements HistoricalIssueDataValidation {
 
@@ -35,10 +35,10 @@ public class HistoricalIssueDataValidationImpl extends IssueDataValidationImpl i
     }
 
     void setIssue(HistoricalIssue issue) {
-        this.baseIssue.set((HistoricalIssue) issue);
+        this.baseIssue.set(issue);
     }
 
-    public void copy(OpenIssueDataValidationImpl openIssueDataValidation) {
+    void copy(OpenIssueDataValidation openIssueDataValidation) {
         for(NotEstimatedBlock block : openIssueDataValidation.getNotEstimatedBlocks()) {
             HistoricalIssueNotEstimatedBlockImpl historicalBlock = getDataModel().getInstance(HistoricalIssueNotEstimatedBlockImpl.class);
             historicalBlock.init(this, block);

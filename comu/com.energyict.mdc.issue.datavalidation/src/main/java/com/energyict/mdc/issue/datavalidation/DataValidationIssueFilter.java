@@ -1,16 +1,15 @@
 package com.energyict.mdc.issue.datavalidation;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-
 import aQute.bnd.annotation.ProviderType;
-
 import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.users.User;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 @ProviderType
 public class DataValidationIssueFilter {

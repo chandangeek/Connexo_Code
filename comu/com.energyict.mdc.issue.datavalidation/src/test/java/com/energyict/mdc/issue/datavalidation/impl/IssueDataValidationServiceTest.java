@@ -1,6 +1,8 @@
 package com.energyict.mdc.issue.datavalidation.impl;
 
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.issue.impl.records.HistoricalIssueImpl;
+import com.elster.jupiter.issue.impl.records.OpenIssueImpl;
 import com.elster.jupiter.issue.impl.service.IssueServiceImpl;
 import com.elster.jupiter.issue.share.IssueEvent;
 import com.elster.jupiter.issue.share.IssueProvider;
@@ -435,5 +437,25 @@ public class IssueDataValidationServiceTest extends PersistenceIntegrationTest {
         assertThat(block2.getReadingType()).isEqualTo(readingType3Min);
         assertThat(block2.getStartTime()).isEqualTo(now.plus(300, ChronoUnit.MINUTES));
         assertThat(block2.getEndTime()).isEqualTo(now.plus(303, ChronoUnit.MINUTES));
+    }
+
+    @Test
+    @Transactional
+    public void testCloseBaseIssue() {
+        ((IssueServiceImpl)issueService).addIssueProvider((IssueProvider) issueDataValidationService);
+
+        IssueEvent event = mock(IssueEvent.class);
+        when(event.findExistingIssue()).thenReturn(Optional.empty());
+        issueCreationService.processIssueCreationEvent(issueCreationRule.getId(), event);
+
+        List<? extends IssueDataValidation> issues = issueDataValidationService.findAllDataValidationIssues(new DataValidationIssueFilter()).find();
+        assertThat(issues).hasSize(1);
+        Optional<? extends Issue> baseIssue = issueService.findIssue(issues.get(0).getId());
+        assertThat(baseIssue.get() instanceof OpenIssueImpl).isTrue();
+        ((OpenIssue)baseIssue.get()).close(issueService.findStatus(IssueStatus.WONT_FIX).get());
+        baseIssue = issueService.findIssue(issues.get(0).getId());
+        assertThat(baseIssue.get() instanceof HistoricalIssueImpl).isTrue();
+        assertThat(baseIssue.get().getStatus().getKey()).isEqualTo(IssueStatus.WONT_FIX);
+        assertThat(issueDataValidationService.findHistoricalIssue(baseIssue.get().getId())).isPresent();
     }
 }
