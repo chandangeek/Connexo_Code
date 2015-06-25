@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -100,8 +101,8 @@ public class DeviceLifeCycleActionResourceTest extends DeviceDataRestApplication
         AuthorizedTransitionAction action1 = mock(AuthorizedTransitionAction.class);
         when(action1.getId()).thenReturn(1L);
         when(action1.getName()).thenReturn("Transition name 1");
-        when(action1.getActions()).thenReturn(new HashSet<MicroAction>(Arrays.asList(MicroAction.values())));
-        when(action1.getChecks()).thenReturn(new HashSet<MicroCheck>(Arrays.asList(MicroCheck.values())));
+        when(action1.getActions()).thenReturn(new HashSet<>(Arrays.asList(MicroAction.values())));
+        when(action1.getChecks()).thenReturn(new HashSet<>(Arrays.asList(MicroCheck.values())));
         List<ExecutableAction> executableActions = Arrays.asList(mockExecutableAction(device, action1));
         when(deviceLifeCycleService.getExecutableActions(device)).thenReturn(executableActions);
         List<PropertySpec> propertySpecs = mockLastCheckedPropertySpec();
@@ -133,8 +134,8 @@ public class DeviceLifeCycleActionResourceTest extends DeviceDataRestApplication
         AuthorizedTransitionAction action = mock(AuthorizedTransitionAction.class);
         when(action.getId()).thenReturn(1L);
         when(action.getName()).thenReturn("Transition name 1");
-        when(action.getActions()).thenReturn(new HashSet<MicroAction>(Arrays.asList(MicroAction.values())));
-        when(action.getChecks()).thenReturn(new HashSet<MicroCheck>(Arrays.asList(MicroCheck.values())));
+        when(action.getActions()).thenReturn(new HashSet<>(Arrays.asList(MicroAction.values())));
+        when(action.getChecks()).thenReturn(new HashSet<>(Arrays.asList(MicroCheck.values())));
         StateTransition transition = mock(StateTransition.class);
         when(transition.getTo()).thenReturn(state);
         when(action.getStateTransition()).thenReturn(transition);
@@ -144,16 +145,18 @@ public class DeviceLifeCycleActionResourceTest extends DeviceDataRestApplication
         when(deviceLifeCycleService.getPropertySpecsFor(MicroAction.ENABLE_VALIDATION)).thenReturn(propertySpecs);
         ExecutableActionProperty actionProperty = mock(ExecutableActionProperty.class);
         doReturn(actionProperty).when(deviceLifeCycleService).toExecutableActionProperty(Matchers.any(Object.class), Matchers.eq(propertySpecs.get(0)));
-        doThrow(new SecurityException("Security exception")).when(executableActions.get(0)).execute(Matchers.anyList());
+        Instant now = Instant.now();
+        doThrow(new SecurityException("Security exception")).when(executableActions.get(0)).execute(eq(now), Matchers.anyList());
 
         DeviceLifeCycleActionInfo info = new DeviceLifeCycleActionInfo();
         info.id = 1L;
         info.deviceVersion = 1L;
         info.properties = new ArrayList<>();
         PropertyInfo property = new PropertyInfo();
+        info.effectiveTimestamp = now;
         info.properties.add(property);
         property.key = propertySpecs.get(0).getName();
-        property.propertyValueInfo = new PropertyValueInfo<Long>(Instant.now().toEpochMilli(), null);
+        property.propertyValueInfo = new PropertyValueInfo<>(now.toEpochMilli(), null);
 
         Response response = target("/devices/" + MAIN_DEVICE_MRID + "/transitions/1").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -170,8 +173,8 @@ public class DeviceLifeCycleActionResourceTest extends DeviceDataRestApplication
         AuthorizedTransitionAction action = mock(AuthorizedTransitionAction.class);
         when(action.getId()).thenReturn(1L);
         when(action.getName()).thenReturn("Transition name 1");
-        when(action.getActions()).thenReturn(new HashSet<MicroAction>(Arrays.asList(MicroAction.values())));
-        when(action.getChecks()).thenReturn(new HashSet<MicroCheck>(Arrays.asList(MicroCheck.values())));
+        when(action.getActions()).thenReturn(new HashSet<>(Arrays.asList(MicroAction.values())));
+        when(action.getChecks()).thenReturn(new HashSet<>(Arrays.asList(MicroCheck.values())));
         StateTransition transition = mock(StateTransition.class);
         when(transition.getTo()).thenReturn(state);
         when(action.getStateTransition()).thenReturn(transition);
@@ -184,16 +187,18 @@ public class DeviceLifeCycleActionResourceTest extends DeviceDataRestApplication
 
         com.energyict.mdc.device.lifecycle.impl.MessageSeeds errorMessageSeeds = MessageSeeds.TRANSITION_ACTION_SOURCE_IS_NOT_CURRENT_STATE;
         ActionDoesNotRelateToDeviceStateException exception = new ActionDoesNotRelateToDeviceStateException(action, device, thesaurus, errorMessageSeeds);
-        doThrow(exception).when(executableActions.get(0)).execute(Matchers.anyList());
+        Instant now = Instant.now();
+        doThrow(exception).when(executableActions.get(0)).execute(eq(now), Matchers.anyList());
 
         DeviceLifeCycleActionInfo info = new DeviceLifeCycleActionInfo();
         info.id = 1L;
         info.deviceVersion = 1L;
         info.properties = new ArrayList<>();
         PropertyInfo property = new PropertyInfo();
+        info.effectiveTimestamp = now;
         info.properties.add(property);
         property.key = propertySpecs.get(0).getName();
-        property.propertyValueInfo = new PropertyValueInfo<Long>(Instant.now().toEpochMilli(), null);
+        property.propertyValueInfo = new PropertyValueInfo<>(now.toEpochMilli(), null);
 
         Response response = target("/devices/" + MAIN_DEVICE_MRID + "/transitions/1").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -210,8 +215,8 @@ public class DeviceLifeCycleActionResourceTest extends DeviceDataRestApplication
         AuthorizedTransitionAction action = mock(AuthorizedTransitionAction.class);
         when(action.getId()).thenReturn(1L);
         when(action.getName()).thenReturn("Transition name 1");
-        when(action.getActions()).thenReturn(new HashSet<MicroAction>(Arrays.asList(MicroAction.values())));
-        when(action.getChecks()).thenReturn(new HashSet<MicroCheck>(Arrays.asList(MicroCheck.values())));
+        when(action.getActions()).thenReturn(new HashSet<>(Arrays.asList(MicroAction.values())));
+        when(action.getChecks()).thenReturn(new HashSet<>(Arrays.asList(MicroCheck.values())));
         StateTransition transition = mock(StateTransition.class);
         when(transition.getTo()).thenReturn(state);
         when(action.getStateTransition()).thenReturn(transition);
@@ -222,20 +227,22 @@ public class DeviceLifeCycleActionResourceTest extends DeviceDataRestApplication
         ExecutableActionProperty actionProperty = mock(ExecutableActionProperty.class);
         doReturn(actionProperty).when(deviceLifeCycleService).toExecutableActionProperty(Matchers.any(Object.class), Matchers.eq(propertySpecs.get(0)));
 
+        Instant now = Instant.now();
         DeviceLifeCycleActionViolation violation = new DeviceLifeCycleActionViolationImpl(thesaurus,
                 com.energyict.mdc.device.lifecycle.impl.MessageSeeds.ALL_DATA_VALID, MicroCheck.ALL_DATA_VALIDATED);
         MultipleMicroCheckViolationsException exception = new MultipleMicroCheckViolationsException(thesaurus,
                 com.energyict.mdc.device.lifecycle.impl.MessageSeeds.MULTIPLE_MICRO_CHECKS_FAILED, Collections.singletonList(violation));
-        doThrow(exception).when(executableActions.get(0)).execute(Matchers.anyList());
+        doThrow(exception).when(executableActions.get(0)).execute(eq(now), Matchers.anyList());
 
         DeviceLifeCycleActionInfo info = new DeviceLifeCycleActionInfo();
         info.id = 1L;
         info.deviceVersion = 1L;
+        info.effectiveTimestamp = now;
         info.properties = new ArrayList<>();
         PropertyInfo property = new PropertyInfo();
         info.properties.add(property);
         property.key = propertySpecs.get(0).getName();
-        property.propertyValueInfo = new PropertyValueInfo<Long>(Instant.now().toEpochMilli(), null);
+        property.propertyValueInfo = new PropertyValueInfo<>(now.toEpochMilli(), null);
 
         Response response = target("/devices/" + MAIN_DEVICE_MRID + "/transitions/1").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -252,8 +259,8 @@ public class DeviceLifeCycleActionResourceTest extends DeviceDataRestApplication
         AuthorizedTransitionAction action = mock(AuthorizedTransitionAction.class);
         when(action.getId()).thenReturn(1L);
         when(action.getName()).thenReturn("Transition name 1");
-        when(action.getActions()).thenReturn(new HashSet<MicroAction>(Arrays.asList(MicroAction.values())));
-        when(action.getChecks()).thenReturn(new HashSet<MicroCheck>(Arrays.asList(MicroCheck.values())));
+        when(action.getActions()).thenReturn(new HashSet<>(Arrays.asList(MicroAction.values())));
+        when(action.getChecks()).thenReturn(new HashSet<>(Arrays.asList(MicroCheck.values())));
         StateTransition transition = mock(StateTransition.class);
         when(transition.getTo()).thenReturn(state);
         when(action.getStateTransition()).thenReturn(transition);
@@ -271,7 +278,7 @@ public class DeviceLifeCycleActionResourceTest extends DeviceDataRestApplication
         PropertyInfo property = new PropertyInfo();
         info.properties.add(property);
         property.key = propertySpecs.get(0).getName();
-        property.propertyValueInfo = new PropertyValueInfo<Long>(Instant.now().toEpochMilli(), null);
+        property.propertyValueInfo = new PropertyValueInfo<>(Instant.now().toEpochMilli(), null);
 
         Response response = target("/devices/" + MAIN_DEVICE_MRID + "/transitions/1").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());

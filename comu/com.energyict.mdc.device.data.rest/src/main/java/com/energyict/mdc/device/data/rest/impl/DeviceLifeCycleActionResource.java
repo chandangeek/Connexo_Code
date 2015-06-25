@@ -106,16 +106,13 @@ public class DeviceLifeCycleActionResource {
                 Map<String, PropertySpec> allPropertySpecsForAction = authorizedAction.getActions()
                         .stream()
                         .flatMap(microAction -> deviceLifeCycleService.getPropertySpecsFor(microAction).stream())
-                        .collect(Collectors.toMap(propertySpec -> propertySpec.getName(), Function.<PropertySpec>identity(), (prop1, prop2) -> prop1));
+                        .collect(Collectors.toMap(PropertySpec::getName, Function.<PropertySpec>identity(), (prop1, prop2) -> prop1));
                 List<ExecutableActionProperty> executableProperties = getExecutableActionPropertiesFromInfo(info, allPropertySpecsForAction);
                 try {
-                    requestedAction.execute(executableProperties);
-                } catch (SecurityException ex){
+                    requestedAction.execute(info.effectiveTimestamp, executableProperties);
+                } catch (SecurityException | ActionDoesNotRelateToDeviceStateException ex){
                     wizardResult.result = false;
                     wizardResult.message = ex.getLocalizedMessage();
-                } catch (ActionDoesNotRelateToDeviceStateException violationEx){
-                    wizardResult.result = false;
-                    wizardResult.message = violationEx.getLocalizedMessage();
                 } catch (RequiredMicroActionPropertiesException violationEx){
                     wrapWithFormValidationErrorAndRethrow(violationEx);
                 } catch (MultipleMicroCheckViolationsException violationEx){
@@ -174,7 +171,7 @@ public class DeviceLifeCycleActionResource {
                 try {
                     Object value = null;
                     if (property.propertyValueInfo.value != null) {
-                        propertySpec.getValueFactory().fromStringValue(String.valueOf(property.propertyValueInfo.value));
+                        value = propertySpec.getValueFactory().fromStringValue(String.valueOf(property.propertyValueInfo.value));
                     }
                     executableProperties.add(deviceLifeCycleService.toExecutableActionProperty(value, propertySpec));
                 } catch (InvalidValueException e) {
