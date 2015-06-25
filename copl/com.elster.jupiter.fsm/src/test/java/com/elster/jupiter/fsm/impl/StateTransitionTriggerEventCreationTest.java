@@ -6,6 +6,7 @@ import com.elster.jupiter.fsm.StateTransitionTriggerEvent;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -53,7 +54,7 @@ public class StateTransitionTriggerEventCreationTest {
 
         // Business method
         String expectedSourceCurrentStateName = "Current";
-        StateTransitionTriggerEvent triggerEvent = eventType.newInstance(this.stateMachine, expectedSourceId, expectedSourceCurrentStateName, expectedProperties);
+        StateTransitionTriggerEvent triggerEvent = eventType.newInstance(this.stateMachine, expectedSourceId, expectedSourceCurrentStateName, Instant.now(), expectedProperties);
 
         // Asserts
         assertThat(triggerEvent).isNotNull();
@@ -74,7 +75,7 @@ public class StateTransitionTriggerEventCreationTest {
 
         // Business method
         String expectedSourceCurrentStateName = "Current";
-        StateTransitionTriggerEvent triggerEvent = eventType.newInstance(this.stateMachine, expectedSourceId, expectedSourceCurrentStateName, new HashMap<>());
+        StateTransitionTriggerEvent triggerEvent = eventType.newInstance(this.stateMachine, expectedSourceId, expectedSourceCurrentStateName, Instant.now(), new HashMap<>());
 
         // Asserts
         assertThat(triggerEvent).isNotNull();

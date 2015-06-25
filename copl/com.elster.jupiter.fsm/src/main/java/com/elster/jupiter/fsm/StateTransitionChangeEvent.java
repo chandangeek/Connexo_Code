@@ -1,5 +1,6 @@
 package com.elster.jupiter.fsm;
 
+import java.time.Instant;
 import java.util.Map;
 
 /**
@@ -23,6 +24,13 @@ public interface StateTransitionChangeEvent {
      * @see StateTransitionTriggerEvent#getSourceId()
      */
     public String getSourceId();
+
+    /**
+     * The point in time when the state change is effective.
+     *
+     * @return The point in time when the state change is effective
+     */
+    public Instant getEffectiveTimestamp();
 
     /**
      * Gets properties that were provided by the {@link StateTransitionTriggerEvent}

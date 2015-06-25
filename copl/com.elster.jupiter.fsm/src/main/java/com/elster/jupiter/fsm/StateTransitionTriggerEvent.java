@@ -1,10 +1,11 @@
 package com.elster.jupiter.fsm;
 
+import java.time.Instant;
 import java.util.Map;
 
 /**
- * A StateTransitionTriggerEvent triggers the current {@link State} of a
- * {@link FiniteStateMachine} to {@link StateTransition transition} to another State.
+ * A StateTransitionTriggerEvent triggers the {@link StateTransition transition}
+ * of the current {@link State} to another State.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-02 (14:49)
@@ -34,6 +35,13 @@ public interface StateTransitionTriggerEvent {
      * @see State#getName()
      */
     public String getSourceCurrentStateName();
+
+    /**
+     * The point in time when the resulting state change should be effective.
+     *
+     * @return The point in time when the resulting state change should be effective
+     */
+    public Instant getEffectiveTimestamp();
 
     public Map<String, Object> getProperties();
 

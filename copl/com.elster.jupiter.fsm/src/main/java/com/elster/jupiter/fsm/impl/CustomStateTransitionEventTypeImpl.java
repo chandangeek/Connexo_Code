@@ -13,6 +13,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
+import java.time.Instant;
 import java.util.Map;
 
 /**
@@ -39,8 +40,8 @@ public class CustomStateTransitionEventTypeImpl extends StateTransitionEventType
     }
 
     @Override
-    public StateTransitionTriggerEvent newInstance(FiniteStateMachine finiteStateMachine, String sourceId, String sourceCurrentStateName, Map<String, Object> properties) {
-        return this.getDataModel().getInstance(StateTransitionTriggerEventImpl.class).initialize(this, finiteStateMachine, sourceId, properties, sourceCurrentStateName);
+    public StateTransitionTriggerEvent newInstance(FiniteStateMachine finiteStateMachine, String sourceId, String sourceCurrentStateName, Instant effectiveTimestamp, Map<String, Object> properties) {
+        return this.getDataModel().getInstance(StateTransitionTriggerEventImpl.class).initialize(this, finiteStateMachine, sourceId, effectiveTimestamp, properties, sourceCurrentStateName);
     }
 
     @Override

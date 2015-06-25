@@ -16,6 +16,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.event.Event;
 
 import javax.inject.Inject;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -85,6 +86,7 @@ public class StandardEventHandler extends EventHandler<LocalEvent> {
                         eventType,
                         stateMachine,
                         cs.sourceId,
+                        Instant.now(),
                         propertiesOf(event),
                         cs.name);
     }
