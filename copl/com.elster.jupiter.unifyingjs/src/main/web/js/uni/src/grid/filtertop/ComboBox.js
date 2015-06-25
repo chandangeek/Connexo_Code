@@ -47,17 +47,19 @@ Ext.define('Uni.grid.filtertop.ComboBox', {
 
     setFilterValue: function (data) {
         var me = this;
-           if (Ext.isArray(data) && me.isArrayOfNumbers(data)) {
-               for (var i = 0; i < data.length; i++) {
-                   data[i] = parseInt(data[i]);
-               }
-           }
-        !isNaN(parseInt(data))? me.setValue(parseInt(data)): me.setValue(data);
-
-
+        if (Ext.isArray(data)) {
+            if (me.isArrayOfNumerics(data)) {
+                for (var i = 0; i < data.length; i++) {
+                    data[i] = parseInt(data[i]);
+                }
+            }
+            me.setValue(data);
+        } else {
+            !isNaN(parseInt(data)) ? me.setValue(parseInt(data)) : me.setValue(data);
+        }
     },
 
-    isArrayOfNumbers: function (array) {
+    isArrayOfNumerics: function (array) {
         for (var i = 0; i < array.length; i++) {
             if (!Ext.isNumeric(array[i])) {
                 return false;
