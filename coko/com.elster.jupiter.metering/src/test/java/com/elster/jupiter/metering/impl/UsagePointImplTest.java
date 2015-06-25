@@ -249,8 +249,8 @@ public class UsagePointImplTest {
     	when(activation1.isCurrent()).thenReturn(false);
         when(activation2.isCurrent()).thenReturn(true);
 
-        MeterActivation meterActivation1 = usagePoint.getCurrentMeterActivation();
-        MeterActivation meterActivation2 = usagePoint.getCurrentMeterActivation();
+        MeterActivation meterActivation1 = usagePoint.getCurrentMeterActivation().get();
+        MeterActivation meterActivation2 = usagePoint.getCurrentMeterActivation().get();
 
         assertThat(meterActivation1).isEqualTo(activation2);
         assertThat(meterActivation2).isEqualTo(activation2);

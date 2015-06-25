@@ -18,6 +18,9 @@ public interface Channel {
 
     List<? extends ReadingType> getReadingTypes();
     List<IntervalReadingRecord> getIntervalReadings(Range<Instant> interval);
+
+    List<BaseReadingRecord> getReadingsUpdatedSince(ReadingType readingType, Range<Instant> interval, Instant since);
+
     List<ReadingRecord> getRegisterReadings(Range<Instant> interval);
     List<BaseReadingRecord> getReadings(Range<Instant> interval);
 	ReadingType getMainReadingType();
