@@ -65,7 +65,7 @@ public class DeviceLifeCycleActionResource {
         DeviceLifeCycle deviceLifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(deviceLifeCycleId);
         List<AuthorizedActionInfo> transitions = deviceLifeCycle.getAuthorizedActions()
                 .stream()
-                .map(action -> authorizedActionInfoFactory.from(action))
+                .map(authorizedActionInfoFactory::from)
                 .sorted((t1, t2) -> t1.name.compareToIgnoreCase(t2.name)) // alphabetical sort
                 .collect(Collectors.toList());
         return PagedInfoList.fromPagedList("deviceLifeCycleActions", ListPager.of(transitions).from(queryParams).find(), queryParams);
