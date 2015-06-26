@@ -70,8 +70,7 @@ public class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
 
     @Override
     public Optional<User> authenticate(String name, String password) {
-        ArrayList<String> urls = new ArrayList<>();
-        urls = getUrls();
+        ArrayList<String> urls = getUrls();
         if(getSecurity()==null||getSecurity().contains("NONE")){
             return authenticateSimple(name,password,urls);
         }else if(getSecurity().contains("SSL")) {

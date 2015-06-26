@@ -64,12 +64,12 @@ public class UserServiceImpl implements UserService, InstallService, Translation
     }
 
     @Inject
-    public UserServiceImpl(OrmService ormService, TransactionService transactionService, QueryService queryService, NlsService nlsService,BundleContext context) {
+    public UserServiceImpl(OrmService ormService, TransactionService transactionService, QueryService queryService, NlsService nlsService) {
         setTransactionService(transactionService);
         setQueryService(queryService);
         setOrmService(ormService);
         setNlsService(nlsService);
-        activate(context);
+        activate(null);
         if (!dataModel.isInstalled()) {
             install();
         }
@@ -77,8 +77,7 @@ public class UserServiceImpl implements UserService, InstallService, Translation
 
     @Activate
     public void activate(BundleContext context) {
-        System.setProperty("javax.net.ssl.trustStore",context.getProperty(TRUSTSTORE_PATH).toString().replace("/","\\"));
-        System.setProperty("javax.net.ssl.trustStorePassword",context.getProperty(TRUSTSTORE_PASS));
+        setTrustStore(context);
         dataModel.register(new AbstractModule() {
             @Override
             protected void configure() {
@@ -94,6 +93,16 @@ public class UserServiceImpl implements UserService, InstallService, Translation
     public Optional<User> authenticate(String domain, String userName, String password) {
         UserDirectory userDirectory = is(domain).empty() ? findDefaultUserDirectory() : getUserDirectory(domain);
         return userDirectory.authenticate(userName, password);
+    }
+
+    private void setTrustStore(BundleContext bundleContext) {
+        String trustStorePath = bundleContext.getProperty(TRUSTSTORE_PATH);
+        String trustStorePass = bundleContext.getProperty(TRUSTSTORE_PASS);
+        if ((trustStorePath != null)&&(trustStorePass != null)) {
+            trustStorePath = trustStorePath.replace("/", "\\");
+            System.setProperty("javax.net.ssl.trustStore", trustStorePath);
+            System.setProperty("javax.net.ssl.trustStorePassword", trustStorePass);
+        }
     }
 
     private UserDirectory getUserDirectory(String domain) {
