@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.lifecycle.impl;
 
 import com.elster.jupiter.estimation.EstimationService;
+import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.validation.ValidationService;
@@ -10,6 +11,7 @@ import com.energyict.mdc.device.topology.TopologyService;
 
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -32,6 +34,8 @@ public class MicroActionFactoryImpl implements ServerMicroActionFactory {
     private volatile TransactionService transactionService;
     private volatile ValidationService validationService;
     private volatile EstimationService estimationService;
+    private volatile IssueService issueService;
+    private volatile IssueDataCollectionService issueDataCollectionService;
 
     // For OSGi purposes only
     public MicroActionFactoryImpl() {
@@ -40,7 +44,7 @@ public class MicroActionFactoryImpl implements ServerMicroActionFactory {
 
     // For unit testing purposes
     @Inject
-    public MicroActionFactoryImpl(MeteringService meteringService, MeteringGroupsService meteringGroupsService, TopologyService topologyService, TransactionService transactionService, ThreadPrincipalService threadPrincipalService, ValidationService validationService, EstimationService estimationService) {
+    public MicroActionFactoryImpl(MeteringService meteringService, MeteringGroupsService meteringGroupsService, TopologyService topologyService, TransactionService transactionService, ThreadPrincipalService threadPrincipalService, ValidationService validationService, EstimationService estimationService, IssueService issueService) {
         this();
         this.setMeteringService(meteringService);
         this.setMeteringGroupsService(meteringGroupsService);
@@ -49,6 +53,7 @@ public class MicroActionFactoryImpl implements ServerMicroActionFactory {
         this.setThreadPrincipalService(threadPrincipalService);
         this.setValidationService(validationService);
         this.setEstimationService(estimationService);
+        this.setIssueService(issueService);
     }
 
     @Reference
@@ -84,6 +89,16 @@ public class MicroActionFactoryImpl implements ServerMicroActionFactory {
     @Reference
     public void setEstimationService(EstimationService estimationService) {
         this.estimationService = estimationService;
+    }
+
+    @Reference
+    public void setIssueService(IssueService issueService){
+        this.issueService = issueService;
+    }
+
+    @Reference
+    public void setIssueDataCollectionService(IssueDataCollectionService issueDataCollectionService){
+        this.issueDataCollectionService = issueDataCollectionService;
     }
 
     @Override
@@ -130,6 +145,9 @@ public class MicroActionFactoryImpl implements ServerMicroActionFactory {
             }
             case START_RECURRING_COMMUNICATION: {
                 return new StartRecurringCommunication();
+            }
+            case CLOSE_ALL_ISSUES: {
+                return new CloseAllIssues(issueService);
             }
             default: {
                 throw new IllegalArgumentException("Unknown or unsupported MicroAction " + microAction.name());

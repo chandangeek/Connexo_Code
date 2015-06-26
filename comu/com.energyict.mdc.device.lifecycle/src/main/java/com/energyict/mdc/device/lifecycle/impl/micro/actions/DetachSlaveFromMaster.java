@@ -16,9 +16,11 @@ import java.util.List;
  * Provides an implementation for the {@link ServerMicroAction} interface
  * that will detach a slave Device from it physical master on the effective
  * timestamp of the transition.
- * @see {@link com.energyict.mdc.device.lifecycle.config.MicroAction#DETACH_SLAVE_FROM_MASTER}
  *
  * @author Rudi Vankeirsbilck (rudi)
+ * @see {@link com.energyict.mdc.device.lifecycle.config.MicroAction#DETACH_SLAVE_FROM_MASTER}
+ * <p>
+ * action bits: 512
  * @since 2015-05-06 (15:11)
  */
 public class DetachSlaveFromMaster implements ServerMicroAction {
@@ -37,10 +39,8 @@ public class DetachSlaveFromMaster implements ServerMicroAction {
     }
 
     @Override
-    public void execute(Device device, Instant effectiveTimestamp, List<ExecutableActionProperty> properties) {
-        if (device.isLogicalSlave()) {
-            this.topologyService.clearPhysicalGateway(device, effectiveTimestamp);
-        }
+    public void execute(Device device, List<ExecutableActionProperty> properties) {
+        this.topologyService.getPhysicalGateway(device).ifPresent(master -> this.topologyService.clearPhysicalGateway(device));
     }
 
 }

@@ -14,6 +14,9 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.util.exception.BaseException;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.validation.ValidationService;
+import com.energyict.mdc.device.data.*;
+import com.energyict.mdc.device.lifecycle.*;
+import com.energyict.mdc.device.lifecycle.impl.ServerMicroAction;
 
 import java.time.Instant;
 import java.util.Collections;
@@ -77,46 +80,4 @@ public class ForceValidationAndEstimation implements ServerMicroAction {
             super(messageSeed, device.getName());
         }
     }
-
-    private enum MessageSeeds implements MessageSeed, TranslationKey {
-
-            VALIDATION_NOT_SET_ON_DEVICE(1," microAction.exception.validationNotSetOnDeviceX", "Validation not set on device '{0}'"),
-            ESTIMATION_NOT_SET_ON_DEVICE(2," microAction.exception.estimationNotSetOnDeviceX", "Estimation not set on device '{0}'"),
-            NOT_ALL_DATA_VALID_FOR_DEVICE(3, "microAction.exception.notAllDataValidForDeviceX", "Device {0} has still suspect values: Action is undone.");
-
-            private final int number;
-            private final String key;
-            private final String defaultFormat;
-
-            MessageSeeds(int number, String key, String defaultFormat) {
-                this.number = number;
-                this.key = key;
-                this.defaultFormat = defaultFormat;
-            }
-
-            @Override
-            public int getNumber() {
-                return number;
-            }
-
-            @Override
-            public String getKey() {
-                return key;
-            }
-
-            @Override
-            public String getDefaultFormat() {
-                return defaultFormat;
-            }
-
-            @Override
-            public Level getLevel() {
-                return  Level.SEVERE;
-            }
-
-            @Override
-            public String getModule() {
-                return DeviceLifeCycleService.COMPONENT_NAME;
-            }
-        }
-    }
+}

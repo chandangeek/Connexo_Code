@@ -10,6 +10,7 @@ import com.elster.jupiter.properties.ValueFactory;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.*;
 import org.junit.runner.*;
@@ -45,8 +46,8 @@ public class DetachSlaveFromMasterTest {
 
     @Before
     public void initializeMocks() {
-        when(this.gateway.isLogicalSlave()).thenReturn(false);
-        when(this.slaveDevice.isLogicalSlave()).thenReturn(true);
+        when(topologyService.getPhysicalGateway(slaveDevice)).thenReturn(Optional.of(gateway));
+        when(topologyService.getPhysicalGateway(gateway)).thenReturn(Optional.empty());
     }
 
     @Test
@@ -71,7 +72,7 @@ public class DetachSlaveFromMasterTest {
         microAction.execute(this.slaveDevice, now, Collections.emptyList());
 
         // Asserts
-        verify(this.topologyService).clearPhysicalGateway(this.slaveDevice, now);
+        verify(this.topologyService).clearPhysicalGateway(this.slaveDevice);
     }
 
     @Test
@@ -95,7 +96,7 @@ public class DetachSlaveFromMasterTest {
         microAction.execute(this.gateway, now, Collections.emptyList());
 
         // Asserts
-        verify(this.topologyService, never()).clearPhysicalGateway(any(Device.class), any(Instant.class));
+        verify(this.topologyService, never()).clearPhysicalGateway(any(Device.class));
     }
 
     @Test
