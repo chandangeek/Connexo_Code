@@ -93,8 +93,8 @@ public class DataValidationIssueCreationRuleTemplateTest extends PersistenceInte
     public void testTemplateGetters() {
         Thesaurus thesaurus = inMemoryPersistence.getService(Thesaurus.class);
         
-        assertThat(template.getDisplayName()).isEqualTo(MessageSeeds.DATA_VALIDATION_ISSUE_RULE_TEMPLATE_NAME.getTranslated(thesaurus));
-        assertThat(template.getDescription()).isEqualTo(MessageSeeds.DATA_VALIDATION_ISSUE_RULE_TEMPLATE_DESCRIPTION.getTranslated(thesaurus));
+        assertThat(template.getDisplayName()).isEqualTo(TranslationKeys.DATA_VALIDATION_ISSUE_RULE_TEMPLATE_NAME.getTranslated(thesaurus));
+        assertThat(template.getDescription()).isEqualTo(TranslationKeys.DATA_VALIDATION_ISSUE_RULE_TEMPLATE_DESCRIPTION.getTranslated(thesaurus));
         assertThat(template.getIssueType().getId()).isEqualTo(issueService.findIssueType(IssueDataValidationService.ISSUE_TYPE_NAME).get().getId());        
     }
     
@@ -212,8 +212,7 @@ public class DataValidationIssueCreationRuleTemplateTest extends PersistenceInte
         reading.addIntervalBlock(block);
         meter.store(reading);
         
-        Message message = null;
-        
+        Message message;
         //create issue
         message = mockCanntEstimateDataMessage(fixedTime, fixedTime.plus(1, ChronoUnit.MINUTES), channel, readingType);
         messageHandler.process(message);

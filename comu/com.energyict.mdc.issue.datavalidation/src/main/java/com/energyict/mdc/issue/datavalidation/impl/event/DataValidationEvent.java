@@ -22,7 +22,7 @@ import java.util.Optional;
 
 public abstract class DataValidationEvent implements IssueEvent {
 
-    protected Integer channelId;
+    protected Long channelId;
     protected Long deviceConfigurationId;
 
     private final Thesaurus thesaurus;

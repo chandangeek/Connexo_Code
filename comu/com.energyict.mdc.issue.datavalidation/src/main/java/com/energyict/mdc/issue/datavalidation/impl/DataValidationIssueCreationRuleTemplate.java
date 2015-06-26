@@ -65,12 +65,12 @@ public class DataValidationIssueCreationRuleTemplate implements CreationRuleTemp
 
     @Override
     public String getDisplayName() {
-        return MessageSeeds.DATA_VALIDATION_ISSUE_RULE_TEMPLATE_NAME.getTranslated(thesaurus);
+        return TranslationKeys.DATA_VALIDATION_ISSUE_RULE_TEMPLATE_NAME.getTranslated(thesaurus);
     }
 
     @Override
     public String getDescription() {
-        return MessageSeeds.DATA_VALIDATION_ISSUE_RULE_TEMPLATE_DESCRIPTION.getTranslated(thesaurus);
+        return TranslationKeys.DATA_VALIDATION_ISSUE_RULE_TEMPLATE_DESCRIPTION.getTranslated(thesaurus);
     }
 
     @Override

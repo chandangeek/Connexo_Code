@@ -1,9 +1,5 @@
 package com.energyict.mdc.issue.datavalidation.impl.event;
 
-import java.time.Instant;
-import java.util.Map;
-import java.util.Optional;
-
 import com.elster.jupiter.issue.share.UnableToCreateEventException;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.service.IssueService;
@@ -16,6 +12,10 @@ import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
 import com.energyict.mdc.issue.datavalidation.OpenIssueDataValidation;
 import com.energyict.mdc.issue.datavalidation.impl.MessageSeeds;
 import com.google.inject.Inject;
+
+import java.time.Instant;
+import java.util.Map;
+import java.util.Optional;
 
 public class SuspectDeletedEvent extends DataValidationEvent {
     
@@ -42,7 +42,7 @@ public class SuspectDeletedEvent extends DataValidationEvent {
     void init(Map<?, ?> jsonPayload) {
         try {
             this.readingTimestamp = Instant.ofEpochMilli((Long) jsonPayload.get("readingTimestamp"));
-            this.channelId = (Integer) jsonPayload.get("channelId");
+            this.channelId = ((Number) jsonPayload.get("channelId")).longValue();
         } catch (Exception e) {
             throw new UnableToCreateEventException(getThesaurus(), MessageSeeds.UNABLE_TO_CREATE_EVENT, jsonPayload.toString());
         }

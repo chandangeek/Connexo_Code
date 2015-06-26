@@ -1,18 +1,5 @@
 package com.energyict.mdc.issue.datavalidation.impl;
 
-import static com.elster.jupiter.util.conditions.Where.where;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-
-import javax.inject.Inject;
-import javax.validation.MessageInterpolator;
-
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.events.EventService;
@@ -45,6 +32,18 @@ import com.energyict.mdc.issue.datavalidation.OpenIssueDataValidation;
 import com.energyict.mdc.issue.datavalidation.impl.entity.IssueDataValidationImpl;
 import com.energyict.mdc.issue.datavalidation.impl.entity.OpenIssueDataValidationImpl;
 import com.google.inject.AbstractModule;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+
+import javax.inject.Inject;
+import javax.validation.MessageInterpolator;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+
+import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(name = "com.energyict.mdc.issue.datavalidation",
            service = { InstallService.class, TranslationKeyProvider.class, IssueDataValidationService.class, IssueProvider.class },
@@ -140,7 +139,10 @@ public class IssueDataValidationServiceImpl implements IssueDataValidationServic
     
     @Override
     public List<TranslationKey> getKeys() {
-        return Arrays.asList(MessageSeeds.values());
+        List<TranslationKey> keys = new ArrayList<>();
+        keys.addAll(Arrays.asList(TranslationKeys.values()));
+        keys.addAll(Arrays.asList(MessageSeeds.values()));
+        return keys;
     }
     
     @Override
@@ -190,13 +192,13 @@ public class IssueDataValidationServiceImpl implements IssueDataValidationServic
     public Finder<? extends IssueDataValidation> findAllDataValidationIssues(DataValidationIssueFilter filter) {
         Condition condition = buildConditionFromFilter(filter);
 
-        Class<? extends IssueDataValidation> mainClass = null;
-        Class<? extends Issue> issueEager = null;
+        Class<? extends IssueDataValidation> mainClass;
+        Class<? extends Issue> issueEager;
         List<IssueStatus> statuses = filter.getStatuses();
         if (!statuses.isEmpty() && statuses.stream().allMatch(status -> !status.isHistorical())) {
             mainClass = OpenIssueDataValidation.class;
             issueEager = OpenIssue.class;
-        } else if (!statuses.isEmpty() && statuses.stream().allMatch(status -> status.isHistorical())) {
+        } else if (!statuses.isEmpty() && statuses.stream().allMatch(IssueStatus::isHistorical)) {
             mainClass = HistoricalIssueDataValidation.class;
             issueEager = HistoricalIssue.class;
         } else {

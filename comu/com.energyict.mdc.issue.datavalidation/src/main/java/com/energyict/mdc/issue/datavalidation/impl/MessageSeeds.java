@@ -4,23 +4,13 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
-import com.energyict.mdc.issue.datavalidation.impl.event.DataValidationEventHandlerFactory;
 
 import java.text.MessageFormat;
 import java.util.logging.Level;
 
 public enum MessageSeeds implements MessageSeed, TranslationKey {
 
-    DATA_VALIDATION_ISSUE_TYPE(1, "DataValidationIssueType", "Data Validation", Level.INFO),
-    DATA_VALIDATION_ISSUE_REASON(2, "DataValidationIssueReason", "Can't estimate data on", Level.INFO),
-    DATA_VALIDATION_ISSUE_RULE_TEMPLATE_NAME(3, "DataValidationIssueRuleTemplateName", "Create issue when suspects can''t be estimated", Level.INFO),
-    DATA_VALIDATION_ISSUE_RULE_TEMPLATE_DESCRIPTION(4, "DataValidationIssueRuleTemplateDescription", "Create issue when suspects can''t be estimated", Level.INFO),
-    DEVICECONFIG_PROPERTY(5, DataValidationIssueCreationRuleTemplate.DEVICE_CONFIGURATIONS, "Device configurations", Level.INFO),
-    
-    AQ_SUBSCRIBER(1001, DataValidationEventHandlerFactory.AQ_DATA_VALIDATION_EVENT_SUBSCRIBER, "Create data validation issues", Level.INFO),
-    
     UNABLE_TO_CREATE_EVENT(2001, "DataValidationIssueUnableToMapEvent", "Unable to create event from event payload: {0}", Level.INFO),
-    
     ;
 
     private final int number;
@@ -71,5 +61,4 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
         String translated = thesaurus.getString(this.getKey(), this.getDefaultFormat());
         return MessageFormat.format(translated, args);
     }
-
 }

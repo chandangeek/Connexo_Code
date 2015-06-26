@@ -169,7 +169,7 @@ public class IssueDataValidationServiceTest extends PersistenceIntegrationTest {
         assertThat(issue.getStatus().getKey()).isEqualTo(IssueStatus.OPEN);
         
         filter = new DataValidationIssueFilter();
-        IssueReason reason = issueService.createReason("somereason", issueService.findIssueType(IssueDataValidationService.ISSUE_TYPE_NAME).get(), MessageSeeds.DATA_VALIDATION_ISSUE_REASON);
+        IssueReason reason = issueService.createReason("somereason", issueService.findIssueType(IssueDataValidationService.ISSUE_TYPE_NAME).get(), TranslationKeys.DATA_VALIDATION_ISSUE_REASON);
         reason.save();
         filter.setIssueReason(reason);
         issues = issueDataValidationService.findAllDataValidationIssues(filter).find();
@@ -410,6 +410,8 @@ public class IssueDataValidationServiceTest extends PersistenceIntegrationTest {
         openIssue.addNotEstimatedBlock(channelRT1, readingType1Min, now, now);//(now-1min, now]
         openIssue.addNotEstimatedBlock(channelRT2, readingType3Min, now.plus(300, ChronoUnit.MINUTES), now.plus(300, ChronoUnit.MINUTES));//(now+297min, now+300min]
         openIssue.save();
+
+        openIssue = issueDataValidationService.findOpenIssue(openIssue.getId()).get();
         openIssue.close(issueService.findStatus(IssueStatus.WONT_FIX).get());
         
         filter = new DataValidationIssueFilter();

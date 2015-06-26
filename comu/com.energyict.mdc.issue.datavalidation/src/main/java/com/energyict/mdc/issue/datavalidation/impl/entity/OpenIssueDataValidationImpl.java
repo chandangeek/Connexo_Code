@@ -49,11 +49,11 @@ public class OpenIssueDataValidationImpl extends IssueDataValidationImpl impleme
 
     @Override
     public HistoricalIssueDataValidation close(IssueStatus status) {
+        HistoricalIssueDataValidationImpl historicalDataValidationIssue = getDataModel().getInstance(HistoricalIssueDataValidationImpl.class);
+        historicalDataValidationIssue.copy(this);
         this.delete(); // Remove reference to baseIssue
         HistoricalIssue historicalBaseIssue = getBaseIssue().closeInternal(status);
-        HistoricalIssueDataValidationImpl historicalDataValidationIssue = getDataModel().getInstance(HistoricalIssueDataValidationImpl.class);
         historicalDataValidationIssue.setIssue(historicalBaseIssue);
-        historicalDataValidationIssue.copy(this);
         historicalDataValidationIssue.save();
         return historicalDataValidationIssue;
     }
