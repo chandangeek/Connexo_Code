@@ -6,63 +6,125 @@ Ext.define('Uni.grid.filtertop.Duration', {
     xtype: 'uni-grid-filtertop-duration',
 
     requires: [
-        'Uni.grid.filtertop.DateTimeSelect'
+        'Uni.grid.filtertop.DateTimeSelect',
+        'Uni.grid.filtertop.ComboBox',
+        'Uni.store.Durations'
     ],
 
     mixins: [
         'Uni.grid.filtertop.Base'
     ],
+    layout: 'hbox',
 
-    dataIndex: null,
-    value: undefined,
+    dataIndexFrom: 'startDate',
+    dataIndexTo: 'duration',
+    defaultFromDate: undefined,
+    defaultDuration: undefined,
 
     initComponent: function () {
         var me = this;
-
+        me.store = Ext.create('Uni.store.Durations');
+        me.items = [
+            {
+                xtype: 'uni-grid-filtertop-datetime-select',
+                dataIndex: me.dataIndexFrom,
+                value: me.defaultFromDate,
+                text: me.text,
+                margin: '0 10 0 0'
+            },
+            {
+                xtype: 'uni-grid-filtertop-combobox',
+                dataIndex: me.dataIndexTo,
+                multiSelect: false,
+                displayField: 'localizeValue',
+                valueField: 'id',
+                emptyText: Uni.I18n.translate('deviceloadprofiles.filter.duration', 'MDC', 'Duration'),
+                store: me.store,
+                value: me.defaultDuration
+            }
+        ];
 
         me.callParent(arguments);
-
-        me.initActions();
     },
 
-    initActions: function () {
-        var me = this,
-            applyButton = me.down('button[action=apply]'),
-            clearButton = me.down('button[action=clear]');
-
-        applyButton.on('click', me.onApplyInterval, me);
-        clearButton.on('click', me.onClearInterval, me);
+    resetValue: function () {
+        var me = this;
+        me.getDateTimeSelect().reset();
+        me.getDurationCombo().reset();
     },
 
-    onApplyInterval: function () {
+    setFilterValue: function (data) {
         var me = this;
 
-        me.fireFilterUpdateEvent();
-        me.getChooseIntervalButton().hideMenu();
+        if (typeof data !== 'undefined') {
+            var tokens = data.split('-'),
+                fromDate = tokens[0],
+                duration = tokens[1];
+
+            if (fromDate && duration) {
+                me.setFromDateValue(new Date(parseInt(fromDate)));
+                me.setDurationValue(duration);
+            }
+        }
     },
 
-    setFilterValue: function (date) {
-        this.getDateTime().setValue(date);
+    setFromDateValue: function (date) {
+        this.getDateTimeSelect().setFilterValue(date);
     },
+
+    setDurationValue: function (duration) {
+        this.getDurationCombo().setFilterValue(duration);
+    },
+
     getParamValue: function () {
-        this.getDateTime().getParamValue();
-    },
-    applyParamValue: function () {
-        this.getDateTime().applyParamValue.apply(this.getDateTime(), arguments);
-    },
-    onClearInterval: function () {
-        var me = this;
+        var me = this,
+            fromValue = me.getFromDateValue(),
+            durationValue = me.getDurationValue();
 
-        me.getDateTime().resetValue();
-        me.fireFilterUpdateEvent();
-        me.getChooseIntervalButton().hideMenu();
+        if (Ext.isDefined(fromValue) && Ext.isDefined(durationValue)) {
+            return fromValue + '-' + durationValue;
+        }
+
+        return undefined;
     },
 
-    getChooseIntervalButton: function () {
-        return this.down('button[action=chooseDate]');
+    getFromDateValue: function () {
+        return this.getDateTimeSelect().getParamValue();
     },
 
-    getDateTime: function () {
-        return this.down('uni-grid-filtertop-datetime');
+    getDurationValue: function () {
+        return this.getDurationCombo().getParamValue();
+    },
+
+    applyParamValue: function (params, includeUndefined, flattenObjects) {
+        var me = this,
+            fromValue = me.getFromDateValue(),
+            toValue   = me.createToDate(fromValue, me.getDurationValue());
+
+        if (!includeUndefined && Ext.isDefined(fromValue) && Ext.isDefined(toValue)) {
+            params[me.dataIndexFrom] = fromValue;
+            params[me.dataIndexTo] = toValue;
+        } else if (!Ext.isDefined(fromValue) || !Ext.isDefined(toValue)) {
+            params[me.dataIndexFrom] = undefined;
+            params[me.dataIndexTo] = undefined;
+        }
+    },
+
+    createToDate: function (date, durationValue) {
+        var me = this, duration;
+        if (Ext.isDefined(date) && !Ext.isEmpty(date) && Ext.isDefined(durationValue)) {
+            duration = me.getDurationCombo().getStore().getById(durationValue);
+            return moment(date).add(duration.get('timeUnit'), duration.get('count')).valueOf();
+        }
+
+        return undefined;
+    },
+
+    getDateTimeSelect: function () {
+        return this.down('uni-grid-filtertop-datetime-select');
+    },
+
+    getDurationCombo: function () {
+        return this.down('uni-grid-filtertop-combobox');
     }
 });

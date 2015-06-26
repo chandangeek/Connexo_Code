@@ -52,9 +52,8 @@ Ext.define('Uni.grid.filtertop.ComboBox', {
                    data[i] = parseInt(data[i]);
                }
            }
-        !isNaN(parseInt(data))? me.setValue(parseInt(data)): me.setValue(data);
 
-
+        Ext.isNumeric(data) ? me.setValue(parseInt(data)) : me.setValue(data);
     },
 
     isArrayOfNumbers: function (array) {

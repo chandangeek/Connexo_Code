@@ -98,14 +98,17 @@ Ext.define('Uni.grid.filtertop.DateTimeSelect', {
     },
 
     setFilterValue: function (date) {
-        this.getDateTime().setValue(date);
+        this.getDateTime().setFilterValue(date);
     },
+
     getParamValue: function () {
-        this.getDateTime().getParamValue();
+        return this.getDateTime().getParamValue();
     },
+
     applyParamValue: function () {
         this.getDateTime().applyParamValue.apply(this.getDateTime(), arguments);
     },
+
     onClearInterval: function () {
         var me = this;
 

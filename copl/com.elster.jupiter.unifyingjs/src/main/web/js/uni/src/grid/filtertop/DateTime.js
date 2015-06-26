@@ -118,7 +118,9 @@ Ext.define('Uni.grid.filtertop.DateTime', {
     setFilterValue: function (data) {
         var me = this;
 
-        if (typeof data !== 'undefined') {
+        if (Ext.isDate(data)) {
+            me.setDateValue(data);
+        } else if (typeof data !== 'undefined') {
             me.setDateValue(new Date(parseInt(data)));
         }
     },
