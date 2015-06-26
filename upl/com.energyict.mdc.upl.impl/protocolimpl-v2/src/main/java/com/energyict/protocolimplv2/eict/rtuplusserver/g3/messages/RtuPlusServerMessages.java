@@ -150,7 +150,7 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
             supportedMessages.add(NetworkConnectivityMessage.SetModemWatchdogParameters);
             supportedMessages.add(ConfigurationChangeDeviceMessage.EnableSSL);
             supportedMessages.add(AlarmConfigurationMessage.CONFIGURE_PUSH_EVENT_NOTIFICATION);
-            supportedMessages.add(ConfigurationChangeDeviceMessage.ENABLE_EVENT_NOTIFICATIONS);
+            supportedMessages.add(AlarmConfigurationMessage.ENABLE_EVENT_NOTIFICATIONS);
 
             //G3 interface messages
             supportedMessages.add(PLCConfigurationDeviceMessage.SetAutomaticRouteManagement);
@@ -272,7 +272,7 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
                     setModemWatchdogParameters(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.EnableSSL)) {
                     enableSSL(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.ENABLE_EVENT_NOTIFICATIONS)) {
+                } else if (pendingMessage.getSpecification().equals(AlarmConfigurationMessage.ENABLE_EVENT_NOTIFICATIONS)) {
                     enableEventNotifications(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(AlarmConfigurationMessage.CONFIGURE_PUSH_EVENT_NOTIFICATION)) {
                     configurePushEventNotification(pendingMessage);

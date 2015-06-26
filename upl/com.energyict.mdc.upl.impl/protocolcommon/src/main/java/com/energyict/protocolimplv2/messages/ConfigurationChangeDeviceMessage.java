@@ -115,9 +115,6 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpec {
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.zeroCrossDelay, BigDecimal.valueOf(-1)),
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.synchronisationBit, BigDecimal.valueOf(-1))
     ),
-    ENABLE_EVENT_NOTIFICATIONS(46,
-            PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.EnableEventNotifications)
-    ),
     ;
 
     private final List<PropertySpec> deviceMessagePropertySpecs;
