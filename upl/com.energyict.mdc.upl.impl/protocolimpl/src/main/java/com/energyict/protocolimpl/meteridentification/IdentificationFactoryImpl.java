@@ -6,11 +6,14 @@
 
 package com.energyict.protocolimpl.meteridentification;
 
-import java.io.*;
-import java.util.*;
+import com.energyict.protocol.meteridentification.IdentificationFactory;
+import com.energyict.protocol.meteridentification.MeterId;
+import com.energyict.protocol.meteridentification.MeterType;
 
-import com.energyict.protocol.meteridentification.*;   
-import com.energyict.cbo.NestedIOException;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  *
@@ -29,23 +32,19 @@ public class IdentificationFactoryImpl implements IdentificationFactory {
          */
         map.put("EMS50,69A0", new TransdataMarkV()); // recorder
         map.put("EMS75,69A0", new TransdataMarkV());
-        
-        map.put("ABB ALPHA,01", new ElsterAlphaPlus());   
-        
-        map.put("EMON-IDR-08A", new EMONIDR08A());   
-        map.put("EMO", new EMO());
+        map.put("ABB ALPHA,01", new ElsterAlphaPlus());
+        map.put("EMON-IDR-08A", new EMONIDR08A());
         map.put("WebRTU", new DukePower());
-        map.put("ECT", new EictVDEW());
         map.put("SLB", new SLB());
         map.put("GEC", new GEC());
-        map.put("ISK", new ISK());
-        map.put("LGZ", new LGZ());
         map.put("AS230", new AS230());
-        
+
+//        map.put("EMO", new EMO());
+//        map.put("ECT", new EictVDEW());
+//        map.put("ISK", new ISK());
+//        map.put("LGZ", new LGZ());
     }    
-    
-    
-    
+
     /** Creates a new instance of IEC1107IdFactory */
     public IdentificationFactoryImpl() {
     }

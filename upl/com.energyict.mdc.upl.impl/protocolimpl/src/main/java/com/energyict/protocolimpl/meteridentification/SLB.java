@@ -5,8 +5,8 @@
  */
 
 package com.energyict.protocolimpl.meteridentification;
-import java.io.*;
-import java.util.*;
+
+import java.io.IOException;
 
 
 /**
@@ -26,10 +26,12 @@ public class SLB extends AbstractManufacturer {
     }    
     
     public String getMeterProtocolClass() throws IOException {
-        if ((getSignOnString()==null) || (getSignOnString().indexOf("MINICOR") >= 0))
+        if ((getSignOnString()==null) || (getSignOnString().indexOf("MINICOR") >= 0)) {
            return "com.energyict.protocolimpl.actarissevc.SEVC";
-        else
-           return "com.energyict.protocolimpl.dlms.DLMSLNSL7000";
+        } else {
+//            return "com.energyict.protocolimpl.dlms.DLMSLNSL7000";
+            throw new IOException("Unknown metertype");
+        }
     }    
     
     public String[] getMeterSerialNumberRegisters() throws IOException {
