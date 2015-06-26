@@ -84,7 +84,7 @@ public class DetachSlaveFromMasterTest {
         microAction.execute(this.slaveDevice, now, Collections.emptyList());
 
         // Asserts
-        verify(this.topologyService).clearPhysicalGateway(this.slaveDevice, now);
+        verify(this.topologyService).clearPhysicalGateway(this.slaveDevice);
     }
 
     @Test

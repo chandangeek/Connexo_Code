@@ -13,6 +13,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -54,7 +55,7 @@ public class CloseAllIssuesTest {
     public void noIssuesOnDeviceTest() {
         when(device.getOpenIssues()).thenReturn(Collections.emptyList());
 
-        getTestInstance().execute(device, Collections.emptyList());
+        getTestInstance().execute(device, Instant.now(), Collections.emptyList());
         verify(issueService, never()).findStatus(anyString());
         verify(issueService, never()).getIssueProviders();
     }
@@ -72,7 +73,7 @@ public class CloseAllIssuesTest {
         IssueStatus wontFix = mock(IssueStatus.class);
         when(issueService.findStatus(IssueStatus.WONT_FIX)).thenReturn(Optional.of(wontFix));
 
-        getTestInstance().execute(device, Collections.emptyList());
+        getTestInstance().execute(device, Instant.now(), Collections.emptyList());
 
         verify(openIssueDataCollection1, times(1)).close(wontFix);
         verify(openIssueDataCollection2, times(1)).close(wontFix);

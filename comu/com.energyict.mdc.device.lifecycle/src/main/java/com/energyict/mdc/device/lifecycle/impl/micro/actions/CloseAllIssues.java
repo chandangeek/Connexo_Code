@@ -7,11 +7,12 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
 import com.energyict.mdc.device.lifecycle.impl.ServerMicroAction;
 
+import java.time.Instant;
 import java.util.List;
 
 /**
  * Provides an implementation for the {@link ServerMicroAction} interface
- * that will close all communication and validation issues on a device with the status <i>Won't fix</i>
+ * that will close all communication and validation issues on a device with the status <i>Won't fix</i>.
  *
  * @see {@link com.energyict.mdc.device.lifecycle.config.MicroAction#CLOSE_ALL_ISSUES}
  * Copyrights EnergyICT
@@ -27,7 +28,7 @@ public class CloseAllIssues implements ServerMicroAction {
     }
 
     @Override
-    public void execute(Device device, List<ExecutableActionProperty> properties) {
+    public void execute(Device device, Instant effectiveTimestamp, List<ExecutableActionProperty> properties) {
         List<OpenIssue> openIssues = device.getOpenIssues();
         if (!openIssues.isEmpty()) {
             IssueStatus wontFix = this.issueService.findStatus(IssueStatus.WONT_FIX).get();
@@ -37,4 +38,5 @@ public class CloseAllIssues implements ServerMicroAction {
                                     .ifPresent(openIssue -> openIssue.close(wontFix))));
         }
     }
+
 }

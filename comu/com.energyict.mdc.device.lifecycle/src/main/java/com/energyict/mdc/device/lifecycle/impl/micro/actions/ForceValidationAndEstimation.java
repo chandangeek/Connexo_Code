@@ -2,26 +2,21 @@ package com.energyict.mdc.device.lifecycle.impl.micro.actions;
 
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
-import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
+import com.energyict.mdc.device.lifecycle.impl.MessageSeeds;
 import com.energyict.mdc.device.lifecycle.impl.ServerMicroAction;
 
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.util.exception.BaseException;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.validation.ValidationService;
-import com.energyict.mdc.device.data.*;
-import com.energyict.mdc.device.lifecycle.*;
-import com.energyict.mdc.device.lifecycle.impl.ServerMicroAction;
 
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
-import java.util.logging.Level;
 
 /**
  * Provides an implementation for the {@link ServerMicroAction} interface
@@ -46,7 +41,7 @@ public class ForceValidationAndEstimation implements ServerMicroAction {
 
     @Override
     public List<PropertySpec> getPropertySpecs(PropertySpecService propertySpecService) {
-        // Remember that effective timestamp is a required property enforced by the service's execute metho
+        // Remember that effective timestamp is a required property enforced by the service's execute method
         return Collections.emptyList();
     }
 

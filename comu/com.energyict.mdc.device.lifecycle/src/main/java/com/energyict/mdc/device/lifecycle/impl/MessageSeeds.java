@@ -40,7 +40,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     // MicroActions
     MISSING_REQUIRED_PROPERTY_VALUES(20001, Keys.MISSING_REQUIRED_PROPERTY_VALUES, "No value was specified for the following property spec of the configured actions: {0}"),
     EFFECTIVE_TIMESTAMP_NOT_IN_RANGE(20002, Keys.EFFECTIVE_TIMESTAMP_NOT_IN_RANGE, "The transition date should be between {0,date} and {1,date}"),
-    EFFECTIVE_TIMESTAMP_NOT_BEFORE_LAST_STATE_CHANGE(20003, Keys.EFFECTIVE_TIMESTAMP_NOT_BEFORE_LAST_STATE_CHANGE, "The transition {1,date} date should not be before the last state change {2,date} of device (mRID={0})")
+    EFFECTIVE_TIMESTAMP_NOT_BEFORE_LAST_STATE_CHANGE(20003, Keys.EFFECTIVE_TIMESTAMP_NOT_BEFORE_LAST_STATE_CHANGE, "The transition {1,date} date should not be before the last state change {2,date} of device (mRID={0})"),
     VALIDATION_NOT_SET_ON_DEVICE(20004," microAction.exception.validationNotSetOnDeviceX","Validation not set on device '{0}'"),
     ESTIMATION_NOT_SET_ON_DEVICE(20005," microAction.exception.estimationNotSetOnDeviceX","Estimation not set on device '{0}'"),
     NOT_ALL_DATA_VALID_FOR_DEVICE(20006,"microAction.exception.notAllDataValidForDeviceX","Device {0} has still suspect values: Action is undone.");

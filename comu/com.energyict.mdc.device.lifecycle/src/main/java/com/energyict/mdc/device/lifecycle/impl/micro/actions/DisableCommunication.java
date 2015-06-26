@@ -2,6 +2,7 @@ package com.energyict.mdc.device.lifecycle.impl.micro.actions;
 
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
 import com.energyict.mdc.device.lifecycle.impl.ServerMicroAction;
 
@@ -21,7 +22,7 @@ public class DisableCommunication implements ServerMicroAction {
 
     @Override
     public void execute(Device device, Instant effectiveTimestamp, List<ExecutableActionProperty> properties) {
-        device.getConnectionTasks().forEach(connectionTask -> connectionTask.deactivate());
+        device.getConnectionTasks().forEach(ConnectionTask::deactivate);
         device.getComTaskExecutions().forEach(ComTaskExecution::putOnHold);
     }
 

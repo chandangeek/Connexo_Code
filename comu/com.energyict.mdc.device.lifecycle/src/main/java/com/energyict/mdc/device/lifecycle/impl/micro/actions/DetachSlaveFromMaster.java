@@ -34,12 +34,12 @@ public class DetachSlaveFromMaster implements ServerMicroAction {
 
     @Override
     public List<PropertySpec> getPropertySpecs(PropertySpecService propertySpecService) {
-        // Remember that effective timestamp is a required property enforced by the service's execute metho
+        // Remember that effective timestamp is a required property enforced by the service's execute method
         return Collections.emptyList();
     }
 
     @Override
-    public void execute(Device device, List<ExecutableActionProperty> properties) {
+    public void execute(Device device, Instant effectiveTimestamp, List<ExecutableActionProperty> properties) {
         this.topologyService.getPhysicalGateway(device).ifPresent(master -> this.topologyService.clearPhysicalGateway(device));
     }
 

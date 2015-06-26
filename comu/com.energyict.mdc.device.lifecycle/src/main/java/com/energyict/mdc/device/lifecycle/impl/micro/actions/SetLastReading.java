@@ -25,7 +25,7 @@ public class SetLastReading implements ServerMicroAction {
 
     @Override
     public List<PropertySpec> getPropertySpecs(PropertySpecService propertySpecService) {
-        // Remember that effective timestamp is a required property enforced by the service's execute metho
+        // Remember that effective timestamp is a required property enforced by the service's execute method
         return Collections.emptyList();
     }
 
