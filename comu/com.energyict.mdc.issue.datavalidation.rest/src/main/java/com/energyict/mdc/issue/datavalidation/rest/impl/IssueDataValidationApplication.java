@@ -10,6 +10,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.device.data.DeviceService;
@@ -107,6 +108,7 @@ public class IssueDataValidationApplication extends Application {
             bind(thesaurus).to(Thesaurus.class);
             bind(nlsService).to(NlsService.class);
             bind(deviceService).to(DeviceService.class);
+            bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
             bind(DataValidationIssueInfoFactory.class).to(DataValidationIssueInfoFactory.class);
             bind(IssueResourceHelper.class).to(IssueResourceHelper.class);
             bind(IssueActionInfoFactory.class).to(IssueActionInfoFactory.class);
