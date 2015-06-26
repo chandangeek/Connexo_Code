@@ -4,13 +4,13 @@ Ext.define('Mdc.view.setup.deviceregisterdata.RegisterTopFilter', {
 
     filters: [
         {
-            type: 'interval',
+            type: 'duration',
             dataIndex: 'interval',
             dataIndexFrom: 'intervalStart',
             dataIndexTo: 'intervalEnd',
             defaultFromDate: moment().startOf('day').subtract(1,'years').toDate(),
-            defaultToDate: moment().startOf('day').toDate(),
-            text: Uni.I18n.translate('communications.widget.topfilter.startedBetween', 'DSH', 'Started between')
+            defaultDuration: '1years',
+            text: Uni.I18n.translate('communications.widget.topfilter.startedDate', 'DSH', 'Start date')
         },
         {
             type: 'checkbox',
