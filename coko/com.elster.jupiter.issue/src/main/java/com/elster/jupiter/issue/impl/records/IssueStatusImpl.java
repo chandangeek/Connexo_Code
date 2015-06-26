@@ -3,8 +3,8 @@ package com.elster.jupiter.issue.impl.records;
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.util.exception.MessageSeed;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
@@ -33,12 +33,12 @@ public class IssueStatusImpl extends EntityImpl implements IssueStatus{
         this.thesaurus = thesaurus;
     }
 
-    public IssueStatusImpl init(String key, boolean isHistorical, MessageSeed seed){
+    public IssueStatusImpl init(String key, boolean isHistorical, TranslationKey translationKey){
         this.key = key;
         this.isHistorical = isHistorical;
-        if (seed != null) {
-            this.translationKey = seed.getKey();
-            this.defaultName = seed.getDefaultFormat();
+        if (translationKey != null) {
+            this.translationKey = translationKey.getKey();
+            this.defaultName = translationKey.getDefaultFormat();
         }
         return this;
     }

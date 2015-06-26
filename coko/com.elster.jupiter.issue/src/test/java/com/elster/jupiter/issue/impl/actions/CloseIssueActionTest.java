@@ -37,10 +37,6 @@ public class CloseIssueActionTest extends BaseTest {
         properties.put(CloseIssueAction.CLOSE_STATUS, new Status(resolvedStatus));
         properties.put(CloseIssueAction.COMMENT, "Comment");
         OpenIssue issue = createIssueMinInfo();
-//        doAnswer(invocationOnMock -> {
-//                IssueStatus status = (IssueStatus)invocationOnMock.getArguments()[0];
-//                return issue.closeInternal(status);
-//            }).when(issue).close(any());
         
         User user = getUserService().findOrCreateUser("user", "local", "directoryType");
         getThreadPrincipalService().set(user);

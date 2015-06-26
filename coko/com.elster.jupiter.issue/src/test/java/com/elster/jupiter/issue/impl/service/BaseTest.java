@@ -11,8 +11,18 @@ import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.issue.impl.module.IssueModule;
 import com.elster.jupiter.issue.impl.records.OpenIssueImpl;
-import com.elster.jupiter.issue.share.*;
-import com.elster.jupiter.issue.share.entity.*;
+import com.elster.jupiter.issue.share.CreationRuleTemplate;
+import com.elster.jupiter.issue.share.IssueAction;
+import com.elster.jupiter.issue.share.IssueActionFactory;
+import com.elster.jupiter.issue.share.IssueEvent;
+import com.elster.jupiter.issue.share.IssueProvider;
+import com.elster.jupiter.issue.share.entity.CreationRule;
+import com.elster.jupiter.issue.share.entity.HistoricalIssue;
+import com.elster.jupiter.issue.share.entity.Issue;
+import com.elster.jupiter.issue.share.entity.IssueComment;
+import com.elster.jupiter.issue.share.entity.IssueStatus;
+import com.elster.jupiter.issue.share.entity.IssueType;
+import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueAssignmentService;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
@@ -20,6 +30,7 @@ import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleB
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.impl.OrmModule;
@@ -40,7 +51,6 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.conditions.Order;
-import com.elster.jupiter.util.exception.MessageSeed;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -65,7 +75,6 @@ import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.logging.Level;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 import static org.mockito.Mockito.*;
@@ -74,15 +83,7 @@ import static org.mockito.Mockito.*;
 public class BaseTest {
     public static final String ISSUE_DEFAULT_TYPE_UUID = "datacollection";
     public static final String ISSUE_DEFAULT_REASON = "reason.default";
-    public static final MessageSeed MESSAGE_SEED_DEFAULT_TRANSLATION = new MessageSeed() {
-        @Override
-        public String getModule() {
-            return IssueService.COMPONENT_NAME;
-        }
-        @Override
-        public int getNumber() {
-            return 0;
-        }
+    public static final TranslationKey MESSAGE_SEED_DEFAULT_TRANSLATION = new TranslationKey() {
         @Override
         public String getKey() {
             return "issue.entity.default.translation";
@@ -90,10 +91,6 @@ public class BaseTest {
         @Override
         public String getDefaultFormat() {
             return "Default entity";
-        }
-        @Override
-        public Level getLevel() {
-            return Level.INFO;
         }
     };
 

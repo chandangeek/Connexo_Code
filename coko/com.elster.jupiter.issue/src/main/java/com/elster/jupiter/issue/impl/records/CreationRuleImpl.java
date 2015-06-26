@@ -255,7 +255,11 @@ public class CreationRuleImpl extends EntityImpl implements CreationRule {
 
     @SuppressWarnings("unchecked")
     private void updateContent() {
-        String rawContent = getTemplate().getContent();
+        CreationRuleTemplate template = getTemplate();
+        if (template == null ){
+            return;
+        }
+        String rawContent = template.getContent();
         for (CreationRuleProperty property : properties) {
             PropertySpec propertySpec = getPropertySpec(property.getName());
             rawContent = replaceParameterInContent(rawContent, property.getName(), propertySpec.getValueFactory().toStringValue(property.getValue()));
