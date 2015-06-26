@@ -4,7 +4,6 @@ Ext.define('Mdc.model.DeviceFilter', {
     requires: [
         'Uni.data.proxy.QueryStringProxy',
         'Ext.data.proxy.Memory'
-
     ],
 
     proxy: {
@@ -17,10 +16,5 @@ Ext.define('Mdc.model.DeviceFilter', {
         {name: 'serialNumber', type: 'string'},
         {name: 'deviceTypes', type: 'auto'},
         {name: 'deviceConfigurations', type: 'auto'}
-        /*,
-         {name: 'deviceTypeId', type: 'number'},
-         {name: 'deviceTypeName', type: 'string'},
-         {name: 'deviceConfigurationId', type: 'number'},
-         {name: 'deviceConfigurationName', type: 'string'}*/
     ]
 });

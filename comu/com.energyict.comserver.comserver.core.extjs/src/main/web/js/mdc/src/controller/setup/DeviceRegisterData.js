@@ -84,46 +84,39 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
                         var type = register.get('type'),
                             dataStore = me.getStore(type.charAt(0).toUpperCase() + type.substring(1) + 'RegisterData');
 
-                        if ((type === 'billing' || type === 'numerical') && !router.queryParams.interval) {
-                            var intervalStart = (new Date()).setHours(0, 0, 0, 0);
-                            router.getRoute().forward(null, Ext.apply(router.queryParams, {
-                                interval: intervalStart + '-' + moment(intervalStart).add('years', 1).valueOf()
-                            }));
-                        } else {
-                            var widget = Ext.widget('tabbedDeviceRegisterView', {
-                                device: device,
-                                router: router
+                        var widget = Ext.widget('tabbedDeviceRegisterView', {
+                            device: device,
+                            router: router
+                        });
+                        widget.down('#registerTabPanel').setTitle(register.get('readingType').fullAliasName);
+                        me.getApplication().fireEvent('loadRegisterConfiguration', register);
+                        var func = function () {
+                            me.getApplication().fireEvent('changecontentevent', widget);
+                            tabController.showTab(1);
+                            var dataReport = Ext.widget('deviceregisterreportsetup-' + type, {
+                                mRID: encodeURIComponent(mRID),
+                                registerId: registerId
                             });
-                            widget.down('#registerTabPanel').setTitle(register.get('readingType').fullAliasName);
-                            me.getApplication().fireEvent('loadRegisterConfiguration', register);
-                            var func = function () {
-                                me.getApplication().fireEvent('changecontentevent', widget);
-                                tabController.showTab(1);
-                                var dataReport = Ext.widget('deviceregisterreportsetup-' + type, {
-                                    mRID: encodeURIComponent(mRID),
-                                    registerId: registerId
-                                });
-                                widget.down('#register-data').add(dataReport);
-                                var valueColumn = widget.down('grid').down('[dataIndex=value]');
-                                valueColumn.setText(Uni.I18n.translate('device.registerData.value', 'MDC', 'Value') + ' (' + register.get('lastReading')['unitOfMeasure'] + ')');
+                            widget.down('#register-data').add(dataReport);
+                            var valueColumn = widget.down('grid').down('[dataIndex=value]');
+                            valueColumn.setText(Uni.I18n.translate('device.registerData.value', 'MDC', 'Value') + ' (' + register.get('lastReading')['unitOfMeasure'] + ')');
 
-                                if (type === 'billing' || type === 'numerical') {
-                                    me.getFilterPanel().bindStore(dataStore);
-                                    var deltaValueColumn = widget.down('grid').down('[dataIndex=deltaValue]');
-                                    deltaValueColumn.setText(Uni.I18n.translate('device.registerData.deltaValue', 'MDC', 'Delta value') + ' (' + register.get('lastReading')['unitOfMeasure'] + ')');
-                                    deltaValueColumn.setVisible(register.get('isCumulative'));
-                                }
-
-                                dataStore.load();
-                            };
-                            if (registersOfDeviceStore.getTotalCount() === 0) {
-                                registersOfDeviceStore.getProxy().url = registersOfDeviceStore.getProxy().url.replace('{mRID}', encodeURIComponent(mRID));
-                                registersOfDeviceStore.load(function () {
-                                    func();
-                                });
-                            } else {
-                                func();
+                            if (type === 'billing' || type === 'numerical') {
+                                me.getFilterPanel().bindStore(dataStore);
+                                var deltaValueColumn = widget.down('grid').down('[dataIndex=deltaValue]');
+                                deltaValueColumn.setText(Uni.I18n.translate('device.registerData.deltaValue', 'MDC', 'Delta value') + ' (' + register.get('lastReading')['unitOfMeasure'] + ')');
+                                deltaValueColumn.setVisible(register.get('isCumulative'));
                             }
+
+                            dataStore.load();
+                        };
+                        if (registersOfDeviceStore.getTotalCount() === 0) {
+                            registersOfDeviceStore.getProxy().url = registersOfDeviceStore.getProxy().url.replace('{mRID}', encodeURIComponent(mRID));
+                            registersOfDeviceStore.load(function () {
+                                func();
+                            });
+                        } else {
+                            func();
                         }
                     },
                     callback: function () {
