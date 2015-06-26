@@ -53,6 +53,8 @@ Ext.define('Idv.view.NonEstimatedDataGrid', {
                 //privileges: !Isu.privileges.Issue.adminDevice,
                 menu: {
                     xtype: 'menu',
+                    defaultAlign: 'tr-br?',
+                    plain: true,
                     items: {
                         text: Uni.I18n.translate('issues.actionMenu.viewData', 'IDV', 'View data'),
                         action: 'viewData',
