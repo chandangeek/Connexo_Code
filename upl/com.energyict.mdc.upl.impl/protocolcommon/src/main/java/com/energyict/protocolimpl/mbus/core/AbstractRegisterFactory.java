@@ -1,4 +1,3 @@
-
 /*
  * AbstractRegisterFactory.java
  *
@@ -18,7 +17,10 @@ import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.RegisterValue;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  *
@@ -52,7 +54,7 @@ abstract public class AbstractRegisterFactory {
         this.dataRecords=cIField72h.getDataRecords();
         setRegisterValues(new ArrayList());
         Iterator it = dataRecords.iterator();
-        int code=0;
+        int code= getMBus().isUseZeroBased() ? 0 : 1;
         while(it.hasNext()) {
             DataRecord dataRecord = (DataRecord)it.next();
             StringBuffer strBuff = new StringBuffer();

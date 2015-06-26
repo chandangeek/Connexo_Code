@@ -54,6 +54,7 @@ abstract public class MBus extends AbstractProtocol implements Discover {
     private CIField72h cIField72h=null;
     
     int secondaryAddressing;
+    boolean useZeroBased;
     
     int headerManufacturerCode;
     int headerVersion;
@@ -94,6 +95,7 @@ abstract public class MBus extends AbstractProtocol implements Discover {
         setInfoTypeProtocolRetriesProperty(Integer.parseInt(properties.getProperty("Retries","2").trim()));
         setForcedDelay(Integer.parseInt(properties.getProperty("ForcedDelay","0").trim()));
         setSecondaryAddressing(Integer.parseInt(properties.getProperty("SecondaryAddressing","0")));
+        setUseZeroBased(Integer.parseInt(properties.getProperty("DataQuantitiesAreZeroBased", "0")) == 1);
         
         String manufCode = properties.getProperty("HeaderManufacturerCode");
         if (manufCode == null)
@@ -120,6 +122,7 @@ abstract public class MBus extends AbstractProtocol implements Discover {
     protected List doGetOptionalKeys() {
         List list = new ArrayList();
         list.add("SecondaryAddressing");
+        list.add("DataQuantitiesAreZeroBased");
         return list;
     }
     
@@ -215,6 +218,15 @@ abstract public class MBus extends AbstractProtocol implements Discover {
 	private void setSecondaryAddressing(int secondaryAddressing) {
 		this.secondaryAddressing = secondaryAddressing;
 	}
+
+    public boolean isUseZeroBased() {
+        return useZeroBased;
+    }
+
+    public void setUseZeroBased(boolean useZeroBased) {
+        this.useZeroBased = useZeroBased;
+    }
+
 	public int getInfoTypeHeaderManufacturerCode() {
 		return headerManufacturerCode;
 	}

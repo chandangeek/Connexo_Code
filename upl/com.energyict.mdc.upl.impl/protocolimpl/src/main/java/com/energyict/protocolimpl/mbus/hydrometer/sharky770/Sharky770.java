@@ -72,6 +72,9 @@ public class Sharky770 extends MBus {
         return "NOT YET IMPLEMENTED";
     }
 
+    /**
+     * The protocol version date
+     */
     public String getProtocolVersion() {
         return "$Date$";
     }    
