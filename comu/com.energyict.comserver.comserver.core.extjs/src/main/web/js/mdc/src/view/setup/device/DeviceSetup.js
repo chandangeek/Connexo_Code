@@ -6,6 +6,7 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
 
     requires: [
         'Isu.privileges.Issue',
+        'Mdc.view.setup.device.DeviceActionMenu',
         'Mdc.view.setup.device.DeviceMenu',
         'Mdc.view.setup.device.DeviceCommunicationTopologyPanel',
         'Mdc.view.setup.device.DeviceGeneralInformationPanel',
@@ -196,6 +197,18 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                         },
                         text: Uni.I18n.translate('overview.widget.headerSection.refreshBtnTxt', 'DSH', 'Refresh'),
                         icon: '/apps/sky/resources/images/form/restore.png'
+                    },
+                    {
+                        xtype: 'button',
+                        text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
+                        style: {
+                            'background-color': '#71adc7'
+                        },
+                        iconCls: 'x-uni-action-iconD',
+                        menu: {
+                            xtype: 'device-action-menu',
+                            itemId: 'deviceActionMenu'
+                        }
                     }
                 ]
             }
