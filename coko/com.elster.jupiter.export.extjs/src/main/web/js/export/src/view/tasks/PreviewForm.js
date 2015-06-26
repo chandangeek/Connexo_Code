@@ -21,6 +21,67 @@ Ext.define('Dxp.view.tasks.PreviewForm', {
                 name: 'name',
                 labelWidth: 250
             },
+
+            {
+                xtype: 'fieldcontainer',
+                fieldLabel: Uni.I18n.translate('general.schedule', 'DES', 'Schedule'),
+                labelAlign: 'top',
+                layout: 'vbox',
+                defaults: {
+                    xtype: 'displayfield',
+                    labelWidth: 250
+                },
+                items: [
+                    {
+                        fieldLabel: Uni.I18n.translate('general.trigger', 'DES', 'Trigger'),
+                        name: 'trigger'
+                    },
+                    {
+                        fieldLabel: Uni.I18n.translate('general.lastRun', 'DES', 'Last run'),
+                        name: 'lastRun',
+                        renderer: function (value) {
+                            return value ? Uni.DateTime.formatDateTimeLong(new Date(value)) : '-';
+                        }
+                    },
+                    {
+                        fieldLabel: Uni.I18n.translate('general.status', 'DES', 'Status'),
+                        name: 'status'
+                    },
+                    {
+                        fieldLabel: Uni.I18n.translate('general.reason', 'DES', 'Reason'),
+                        itemId: 'reason-field',
+                        name: 'reason',
+                        hidden: true
+                    },
+                    {
+                        fieldLabel: Uni.I18n.translate('general.startedOn', 'DES', 'Started on'),
+                        name: 'startedOn'
+                    },
+                    {
+                        fieldLabel: Uni.I18n.translate('general.finishedOn', 'DES', 'Finished on'),
+                        name: 'finishedOn'
+                    },
+                    {
+                        fieldLabel: Uni.I18n.translate('general.startedOn', 'DES', 'Started on'),
+                        name: 'startedOn_formatted',
+                        hidden: true
+                    },
+                    {
+                        fieldLabel: Uni.I18n.translate('general.finishedOn', 'DES', 'Finished on'),
+                        name: 'finishedOn_formatted',
+                        hidden: true
+                    },
+                    {
+                        xtype: 'uni-form-field-duration',
+                        name: 'duration'
+                    },
+                    {
+                        fieldLabel: Uni.I18n.translate('general.nextRun', 'DES', 'Next run'),
+                        name: 'nextRun_formatted'
+                    }
+                ]
+            },
+
             {
                 xtype: 'fieldcontainer',
                 fieldLabel: Uni.I18n.translate('general.dataSelection', 'DES', 'Data selection'),
@@ -104,65 +165,6 @@ Ext.define('Dxp.view.tasks.PreviewForm', {
                     labelWidth: 250
                 }
 
-            },
-            {
-                xtype: 'fieldcontainer',
-                fieldLabel: Uni.I18n.translate('general.schedule', 'DES', 'Schedule'),
-                labelAlign: 'top',
-                layout: 'vbox',
-                defaults: {
-                    xtype: 'displayfield',
-                    labelWidth: 250
-                },
-                items: [
-                    {
-                        fieldLabel: Uni.I18n.translate('general.trigger', 'DES', 'Trigger'),
-                        name: 'trigger'
-                    },
-                    {
-                        fieldLabel: Uni.I18n.translate('general.lastRun', 'DES', 'Last run'),
-                        name: 'lastRun',
-                        renderer: function (value) {
-                            return value ? Uni.DateTime.formatDateTimeLong(new Date(value)) : '-';
-                        }
-                    },
-                    {
-                        fieldLabel: Uni.I18n.translate('general.status', 'DES', 'Status'),
-                        name: 'status'
-                    },
-                    {
-                        fieldLabel: Uni.I18n.translate('general.reason', 'DES', 'Reason'),
-                        itemId: 'reason-field',
-                        name: 'reason',
-                        hidden: true
-                    },
-                    {
-                        fieldLabel: Uni.I18n.translate('general.startedOn', 'DES', 'Started on'),
-                        name: 'startedOn'
-                    },
-                    {
-                        fieldLabel: Uni.I18n.translate('general.finishedOn', 'DES', 'Finished on'),
-                        name: 'finishedOn'
-                    },
-                    {
-                        fieldLabel: Uni.I18n.translate('general.startedOn', 'DES', 'Started on'),
-                        name: 'startedOn_formatted',
-                        hidden: true
-                    },
-                    {
-                        fieldLabel: Uni.I18n.translate('general.finishedOn', 'DES', 'Finished on'),
-                        name: 'finishedOn_formatted',
-                        hidden: true
-                    },
-                    {
-                        xtype: 'uni-form-field-duration',
-                        name: 'duration'
-                    },
-                    {
-                        fieldLabel: Uni.I18n.translate('general.nextRun', 'DES', 'Next run'),
-                        name: 'nextRun_formatted'
-                    }
-                ]
             },
 
             {
