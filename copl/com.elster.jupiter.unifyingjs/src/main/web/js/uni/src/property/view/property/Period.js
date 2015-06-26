@@ -97,12 +97,13 @@ Ext.define('Uni.property.view.property.Period', {
 
     updateResetButton: function () {
         var me = this,
+            resetButtonHidden = this.resetButtonHidden,
             button = me.getResetButton(),
             countValue,
             timeUnitValue;
 
         if (me.isEdit) {
-            button.setVisible(true);
+            button.setVisible(!resetButtonHidden);
             if (me.getField()) { countValue = me.getField().getValue(); }
             if (me.getComboField()) { timeUnitValue = me.getComboField().getValue(); }
             if (!me.getProperty().get('isInheritedOrDefaultValue')
