@@ -222,6 +222,7 @@ Ext.define('Mdc.controller.setup.Devices', {
                 me.getDeviceOpenIssuesPanel().setDataCollectionIssues(device.get('nbrOfDataCollectionIssues'));
                 me.getDeviceDataValidationPanel().setValidationResult();
                 me.getDeviceGeneralInformationForm().loadRecord(device);
+                console.log(device);
 
                 me.getDeviceValidationResultFieldLink().getEl().set({href: '#/devices/' + mRID + '/validationresults/data'});
 

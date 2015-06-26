@@ -19,6 +19,11 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
                 href: '#/devices/' + encodeURIComponent(mRID)
             },
             {
+                text: Uni.I18n.translate('devicemenu.deviceAttributes', 'MDC', 'Device attributes'),
+                itemId: 'device-attributes-link',
+                href: '#/devices/' + encodeURIComponent(mRID) + '/attributes'
+            },
+            {
                 text: Uni.I18n.translate('general.history', 'MDC', 'History'),
                 itemId: 'device-history-link',
                 href: '#/devices/' + encodeURIComponent(mRID) + '/history'

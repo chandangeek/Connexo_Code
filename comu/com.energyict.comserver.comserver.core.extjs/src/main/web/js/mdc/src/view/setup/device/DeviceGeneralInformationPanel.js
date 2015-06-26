@@ -91,25 +91,102 @@ Ext.define('Mdc.view.setup.device.DeviceGeneralInformationPanel', {
                         }
                     ]
                 },
-                {
-                    name: 'yearOfCertification',
-                    itemId: 'fld-year-of-certification',
-                    fieldLabel: Uni.I18n.translate('deviceGeneralInformation.yearOfCertification', 'MDC', 'Year of certification')
-                },
+//                {
+//                    name: 'yearOfCertification',
+//                    itemId: 'fld-year-of-certification',
+//                    fieldLabel: Uni.I18n.translate('deviceGeneralInformation.yearOfCertification', 'MDC', 'Year of certification')
+//                },
                 {
                     name: 'usagePoint',
                     itemId: 'fld-usage-point',
                     fieldLabel: Uni.I18n.translate('deviceGeneralInformation.usagePoint', 'MDC', 'Usage point')
                 },
+//                {
+//                    name: 'serviceCategory',
+//                    itemId: 'fld-service-category',
+//                    fieldLabel: Uni.I18n.translate('deviceGeneralInformation.serviceCategory', 'MDC', 'Service category')
+//                },
+//                {
+//                    name: 'batch',
+//                    itemId: 'fld-device-batch',
+//                    fieldLabel: Uni.I18n.translate('deviceGeneralInformation.batch', 'MDC', 'Batch')
+//                },
                 {
-                    name: 'serviceCategory',
-                    itemId: 'fld-service-category',
-                    fieldLabel: Uni.I18n.translate('deviceGeneralInformation.serviceCategory', 'MDC', 'Service category')
+                    name: 'shipment_date',
+                    itemId: 'fld-device-shipment-date',
+                    fieldLabel: Uni.I18n.translate('deviceGeneralInformation.shipmentDate', 'MDC', 'Shipment date'),
+                    renderer: function (value) {
+                        console.log(value);
+                        if (value.matchCurrentState) {
+                            this.show();
+                            if (value.timestamp) {
+                                return Uni.DateTime.formatDateLong(new Date(value.timestamp));
+                            } else {
+                                return '-';
+                            }
+                        } else {
+                            this.hide();
+                            return null;
+                        }
+
+                    }
                 },
                 {
-                    name: 'batch',
-                    itemId: 'fld-device-batch',
-                    fieldLabel: Uni.I18n.translate('deviceGeneralInformation.batch', 'MDC', 'Batch')
+                    name: 'installation_date',
+                    itemId: 'fld-device-installation-date',
+                    fieldLabel: Uni.I18n.translate('deviceGeneralInformation.installationDate', 'MDC', 'Installation date'),
+                    renderer: function (value) {
+                        if (value.matchCurrentState) {
+                            this.show();
+                            if (value.timestamp) {
+                                return Uni.DateTime.formatDateLong(new Date(value.timestamp));
+                            } else {
+                                return '-';
+                            }
+                        } else {
+                            this.hide();
+                            return null;
+                        }
+
+                    }
+                },
+                {
+                    name: 'decommission_date',
+                    itemId: 'fld-device-decommission-date',
+                    fieldLabel: Uni.I18n.translate('deviceGeneralInformation.decommissionDate', 'MDC', 'Decommissioning date'),
+                    renderer: function (value) {
+                        if (value.matchCurrentState) {
+                            this.show();
+                            if (value.timestamp) {
+                                return Uni.DateTime.formatDateLong(new Date(value.timestamp));
+                            } else {
+                                return '-';
+                            }
+                        } else {
+                            this.hide();
+                            return null;
+                        }
+
+                    }
+                },
+                {
+                    name: 'deactivation_date',
+                    itemId: 'fld-device-deactivation-date',
+                    fieldLabel: Uni.I18n.translate('deviceGeneralInformation.deactivationDate', 'MDC', 'Deactivation date'),
+                    renderer: function (value) {
+                        if (value.matchCurrentState) {
+                            this.show();
+                            if (value.timestamp) {
+                                return Uni.DateTime.formatDateLong(new Date(value.timestamp));
+                            } else {
+                                return '-';
+                            }
+                        } else {
+                            this.hide();
+                            return null;
+                        }
+
+                    }
                 }
             ]
         }
