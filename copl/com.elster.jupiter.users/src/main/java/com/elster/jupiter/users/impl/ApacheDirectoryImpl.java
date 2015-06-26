@@ -19,10 +19,7 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManagerFactory;
 
 import java.security.KeyStore;
-import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
     static String TYPE_IDENTIFIER = "APD";
@@ -73,41 +70,42 @@ public class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
 
     @Override
     public Optional<User> authenticate(String name, String password) {
+        ArrayList<String> urls = new ArrayList<>();
+        urls = getUrls();
         if(getSecurity()==null||getSecurity().contains("NONE")){
-            return authenticateSimple(name,password,getUrl());
+            return authenticateSimple(name,password,urls);
         }else if(getSecurity().contains("SSL")) {
-            return authenticateSSL(name, password,getUrl());
+            return authenticateSSL(name, password,urls);
         }else if(getSecurity().contains("TLS")){
-            return authenticateTLS(name,password,getUrl());
+            return authenticateTLS(name,password,urls);
         }else{
             return Optional.empty();
         }
     }
 
-    private Optional<User> authenticateSimple(String name, String password,String url){
-
+    private Optional<User> authenticateSimple(String name, String password,ArrayList<String> urls){
         Hashtable<String, Object> env = new Hashtable<>();
         env.putAll(commonEnvLDAP);
-        env.put(Context.PROVIDER_URL, url);
+        env.put(Context.PROVIDER_URL, urls.get(0));
         env.put(Context.SECURITY_PRINCIPAL,"uid=" + name + "," + getBaseUser());
         env.put(Context.SECURITY_CREDENTIALS, password);
         try {
             new InitialDirContext(env);
             return Optional.of(userService.findOrCreateUser(name, this.getDomain(), TYPE_IDENTIFIER));
         } catch (NamingException e) {
-            if((isBackupUrl == false)&&(e.toString().contains("CommunicationException")||e.toString().contains("ServiceUnavailableException"))){
-                isBackupUrl = true;
-                return authenticateSimple(name,password,getBackupUrl());
+            if((urls.size()>1)&&(e.toString().contains("CommunicationException")||e.toString().contains("ServiceUnavailableException"))){
+                urls.remove(0);
+                return authenticateSimple(name,password,urls);
             }else {
                 return Optional.empty();
             }
         }
     }
 
-    private Optional<User> authenticateSSL(String name, String password,String url){
+    private Optional<User> authenticateSSL(String name, String password,ArrayList<String> urls){
         Hashtable<String, Object> env = new Hashtable<>();
         env.putAll(commonEnvLDAP);
-        env.put(Context.PROVIDER_URL, url);
+        env.put(Context.PROVIDER_URL, urls.get(0));
         env.put(Context.SECURITY_PRINCIPAL,"uid=" + name + "," + getBaseUser());
         env.put(Context.SECURITY_CREDENTIALS, password);
         env.put(Context.SECURITY_PROTOCOL,"ssl");
@@ -115,19 +113,19 @@ public class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
             new InitialDirContext(env);
             return Optional.of(userService.findOrCreateUser(name, this.getDomain(), TYPE_IDENTIFIER));
         } catch (NamingException e) {
-            if((isBackupUrl == false)&&(e.toString().contains("CommunicationException")||e.toString().contains("ServiceUnavailableException"))){
-                isBackupUrl = true;
-                return authenticateSSL(name, password, getBackupUrl());
+            if((urls.size()>1)&&(e.toString().contains("CommunicationException")||e.toString().contains("ServiceUnavailableException"))){
+                urls.remove(0);
+                return authenticateSimple(name, password, urls);
             }else {
                 return Optional.empty();
             }
         }
     }
 
-    private Optional<User> authenticateTLS(String name, String password,String url){
+    private Optional<User> authenticateTLS(String name, String password,ArrayList<String> urls){
         Hashtable<String, Object> env = new Hashtable<>();
         env.putAll(commonEnvLDAP);
-        env.put(Context.PROVIDER_URL, url);
+        env.put(Context.PROVIDER_URL, urls.get(0));
         try{
             LdapContext ctx = new InitialLdapContext(env, null);
             ExtendedRequest tlsRequest = new StartTlsRequest();
@@ -140,14 +138,24 @@ public class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
             tls.close();
             return user;
         }catch(Exception e){
-            if((isBackupUrl == false)&&(e.toString().contains("CommunicationException")||e.toString().contains("ServiceUnavailableException"))){
-                isBackupUrl = true;
-                return authenticateTLS(name,password,getBackupUrl());
+            if((urls.size()>1)&&(e.toString().contains("CommunicationException")||e.toString().contains("ServiceUnavailableException"))){
+                urls.remove(0);
+                return authenticateSimple(name, password, urls);
             }else {
                 return Optional.empty();
             }
         }
 
+    }
+
+    private ArrayList<String> getUrls(){
+        ArrayList<String> urls = new ArrayList<>();
+        urls.add(getUrl());
+        if(getBackupUrl() != null) {
+            String[] backupUrls = getBackupUrl().split(";");
+            Arrays.stream(backupUrls).forEach(s -> urls.add(s));
+        }
+        return urls;
     }
 
 

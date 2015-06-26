@@ -57,6 +57,16 @@ public abstract class AbstractLdapDirectoryImpl extends AbstractUserDirectoryImp
     }
 
     @Override
+    public void setSecurity(String security){
+        this.security = security;
+    }
+
+    @Override
+    public void setBackupUrl(String backupUrl){
+        this.backupurl = backupUrl;
+    }
+
+    @Override
     public void setUrl(String url) {
         this.url = url;
     }
