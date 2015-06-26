@@ -1204,6 +1204,8 @@ Ext.define('Dxp.controller.Tasks', {
         view.down('#device-group-combo').setValue(formModel.get('readingTypeDataSelector.value.endDeviceGroup'));
         view.down('#export-period-combo').setValue(formModel.get('readingTypeDataSelector.value.exportPeriod'));
 
+        view.down('#recurrence-trigger').setValue({recurrence: formModel.get('recurrence')});
+
 
         Ext.suspendLayouts();
         Ext.Array.each(view.down('grouped-property-form').query('[isFormField=true]'), function (formItem) {
