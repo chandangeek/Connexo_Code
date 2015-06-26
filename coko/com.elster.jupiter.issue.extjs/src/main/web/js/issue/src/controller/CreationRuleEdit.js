@@ -41,9 +41,6 @@ Ext.define('Isu.controller.CreationRuleEdit', {
             },
             'issues-creation-rules-edit button[action=addAction]': {
                 click: this.addAction
-            },
-            'issues-creation-rules-edit issues-creation-rules-actions-list uni-actioncolumn': {
-                menuclick: this.chooseActionOperation
             }
         });
     },
@@ -159,29 +156,5 @@ Ext.define('Isu.controller.CreationRuleEdit', {
         me.getStore('Isu.store.Clipboard').set('issuesCreationRuleState', form.getRecord());
 
         router.getRoute(router.currentRoute + '/addaction').forward();
-    },
-
-    chooseActionOperation: function (menu, item) {
-        var actionId = menu.record.getId();
-
-        switch (item.action) {
-            case 'delete':
-                this.deleteAction(actionId);
-                break;
-        }
-    },
-
-    deleteAction: function (id) {
-        var me = this,
-            actionsGrid = me.getActionsGrid(),
-            actionsStore = actionsGrid.getStore(),
-            noActionsText = me.getPage().down('[name=noactions]');
-
-        actionsStore.remove(actionsStore.getById(id));
-
-        if (!actionsStore.getCount()) {
-            actionsGrid.hide();
-            noActionsText.show();
-        }
     }
 });

@@ -99,6 +99,7 @@ Ext.define('Isu.view.creationrules.EditForm', {
             {
                 itemId: 'property-form',
                 xtype: 'property-form',
+                width: 1000,
                 defaults: {
                     labelWidth: me.defaults.labelWidth,
                     width: 320,
@@ -215,25 +216,29 @@ Ext.define('Isu.view.creationrules.EditForm', {
                 xtype: 'fieldcontainer',
                 fieldLabel: Uni.I18n.translate('general.actions', 'ISU', 'Actions'),
                 itemId: 'issues-creation-rules-edit-field-container-actions',
-                width: 900,
+                width: 1000,
+                layout: 'hbox',
                 items: [
+                    {
+                        xtype: 'issues-creation-rules-actions-list',
+                        itemId: 'issues-creation-rules-actions-grid',
+                        width: 500,
+                        padding: 0,
+                        maxHeight: 323,
+                        hidden: true
+                    },
+                    {
+                        xtype: 'displayfield',
+                        name: 'noactions',
+                        itemId: 'issues-creation-rule-no-actions',
+                        value: Uni.I18n.translate('issueCreationRules.noActionsAddedYet', 'ISU', 'There are no actions added yet to this rule')
+                    },
                     {
                         xtype: 'button',
                         itemId: 'addAction',
                         text: Uni.I18n.translate('issueCreationRules.addAction', 'ISU', 'Add action'),
                         action: 'addAction',
-                        margin: '0 0 10 0'
-                    },
-                    {
-                        xtype: 'issues-creation-rules-actions-list',
-                        itemId: 'issues-creation-rules-actions-grid',
-                        hidden: true
-                    },
-                    {
-                        name: 'noactions',
-                        itemId: 'issues-creation-rule-no-actions',
-                        html: Uni.I18n.translate('issueCreationRules.noActionsAddedYet', 'ISU', 'There are no actions added yet to this rule'),
-                        hidden: true
+                        margin: '0 0 0 10'
                     }
                 ]
             },

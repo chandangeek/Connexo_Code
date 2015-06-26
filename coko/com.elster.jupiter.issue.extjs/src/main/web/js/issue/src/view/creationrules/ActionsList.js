@@ -30,14 +30,26 @@ Ext.define('Isu.view.creationrules.ActionsList', {
                 }
             },
             {
-                itemId: 'action',
-                xtype: 'uni-actioncolumn',
-                items: [
-                    {
-                        text: Uni.I18n.translate('general.remove', 'ISU', 'Remove'),
-                        action: 'delete'
+                xtype: 'actioncolumn',
+                header: Uni.I18n.translate('general.action', 'ISU', 'Action'),
+                align: 'center',
+                items: [{
+                    iconCls: 'uni-icon-delete',
+                    tooltip: Uni.I18n.translate('general.remove', 'ISU', 'Remove'),
+                    handler: function (grid, rowIndex) {
+                        var store = grid.getStore(),
+                            gridPanel = grid.up(),
+                            emptyMsg = gridPanel.up().down('displayfield');
+
+                        store.removeAt(rowIndex);
+                        if (!store.getCount()) {
+                            Ext.suspendLayouts();
+                            gridPanel.hide();
+                            emptyMsg.show();
+                            Ext.resumeLayouts(true);
+                        }
                     }
-                ]
+                }]
             }
         ]
     }
