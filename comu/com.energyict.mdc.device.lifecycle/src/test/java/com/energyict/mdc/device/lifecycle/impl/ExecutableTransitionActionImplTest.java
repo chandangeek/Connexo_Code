@@ -61,12 +61,13 @@ public class ExecutableTransitionActionImplTest {
     public void executeDelegatesToService() {
         ExecutableTransitionActionImpl executableAction = new ExecutableTransitionActionImpl(this.device, this.action, this.service);
         List<ExecutableActionProperty> properties = Arrays.asList(mock(ExecutableActionProperty.class));
+        Instant now = Instant.now();
 
         // Business method
-        executableAction.execute(Instant.now(), properties);
+        executableAction.execute(now, properties);
 
         // Asserts
-        verify(this.service).execute(this.action, this.device, Instant.now(), properties);
+        verify(this.service).execute(this.action, this.device, now, properties);
     }
 
 }
