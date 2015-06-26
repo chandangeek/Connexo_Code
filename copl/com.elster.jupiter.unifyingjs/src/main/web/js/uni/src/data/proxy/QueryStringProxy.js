@@ -103,7 +103,7 @@ Ext.define('Uni.data.proxy.QueryStringProxy', {
         delete router.queryParams[this.root];
 
         //should redirect be performed via proxy? How it will work with another models, like sorting?
-        router.getRoute().forward();
+        router.getRoute().forward(router.arguments, router.queryParams);
     },
 
     /**

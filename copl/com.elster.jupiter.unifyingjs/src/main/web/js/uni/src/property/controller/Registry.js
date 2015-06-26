@@ -40,7 +40,8 @@ Ext.define('Uni.property.controller.Registry', {
         'Uni.property.view.property.Multiselect',
         'Uni.property.view.property.RelativePeriod',
         'Uni.property.view.property.AdvanceReadingsSettings',
-        'Uni.property.view.property.AdvanceReadingsSettingsWithoutNone'
+        'Uni.property.view.property.AdvanceReadingsSettingsWithoutNone',
+        'Uni.property.view.property.deviceconfigurations.DeviceConfigurations'
     ],
 
     /**
@@ -76,14 +77,16 @@ Ext.define('Uni.property.controller.Registry', {
         RELATIVEPERIOD: 'Uni.property.view.property.RelativePeriod',
         ADVANCEREADINGSSETTINGS: 'Uni.property.view.property.AdvanceReadingsSettings',
         ADVANCEREADINGSSETTINGSWITHOUTNONE: 'Uni.property.view.property.AdvanceReadingsSettingsWithoutNone',
-        IDWITHNAME: 'Uni.property.view.property.Reference'
+        IDWITHNAME: 'Uni.property.view.property.Reference',
+        DEVICECONFIGURATIONLIST: 'Uni.property.view.property.deviceconfigurations.DeviceConfigurations'
     },
 
 // store must be registered on some ctrl (not in the responsibility of this class: move later?)
     stores: [
         'Uni.property.store.TimeUnits',
         'Uni.property.store.RelativePeriods',
-        'Uni.property.store.PropertyReadingTypes'
+        'Uni.property.store.PropertyReadingTypes',
+        'Uni.property.store.PropertyDeviceConfigurations'
     ],
 
     /**
