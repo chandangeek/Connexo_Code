@@ -100,7 +100,12 @@ public enum MicroAction {
      * by activating all connection and schedule all
      * recurrent communication tasks to execute now.
      */
-    START_RECURRING_COMMUNICATION(MicroCategory.COMMUNICATION);
+    START_RECURRING_COMMUNICATION(MicroCategory.COMMUNICATION),
+
+    /**
+     * Close the <i>communication and validation</i> issues on the device with the status <i>Won't fix</i>.
+     */
+    CLOSE_ALL_ISSUES(MicroCategory.);
 
     private MicroCategory category;
     private String conflictGroupKey;
