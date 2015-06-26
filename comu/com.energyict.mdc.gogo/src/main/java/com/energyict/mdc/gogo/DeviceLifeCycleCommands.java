@@ -1,5 +1,14 @@
 package com.energyict.mdc.gogo;
 
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
+import com.energyict.mdc.device.lifecycle.ExecutableAction;
+import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
+import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
+import com.energyict.mdc.device.lifecycle.config.MicroAction;
+import com.energyict.mdc.device.lifecycle.config.MicroCheck;
+
 import com.elster.jupiter.fsm.CustomStateTransitionEventType;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.State;
@@ -12,14 +21,6 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.streams.DecoratedStream;
 import com.elster.jupiter.util.time.DefaultDateTimeFormatters;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
-import com.energyict.mdc.device.lifecycle.ExecutableAction;
-import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
-import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
-import com.energyict.mdc.device.lifecycle.config.MicroAction;
-import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -31,6 +32,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -49,8 +51,10 @@ import java.util.stream.Stream;
                 "osgi.command.function=triggerAction",
                 "osgi.command.function=currentState",
                 "osgi.command.function=historicalState",
-                "osgi.command.function=printMicroActionBitFor",
-                "osgi.command.function=printMicroCheckBitFor"},
+                "osgi.command.function=printMicroActionBitsFor",
+                "osgi.command.function=printMicroActionsFromBits",
+                "osgi.command.function=printMicroCheckBitsFor",
+                "osgi.command.function=printMicroChecksFromBits"},
         immediate = true)
 @SuppressWarnings("unused")
 public class DeviceLifeCycleCommands {
@@ -260,7 +264,7 @@ public class DeviceLifeCycleCommands {
         }
     }
 
-    public void printMicroActionBitFor(String... providedMicroActions) {
+    public void printMicroActionBitsFor(String... providedMicroActions) {
         boolean allIsOk = true;
         List<MicroAction> microActions = new ArrayList<>();
         for (String providedMicroAction : providedMicroActions) {
@@ -279,7 +283,20 @@ public class DeviceLifeCycleCommands {
         }
     }
 
-    public void printMicroCheckBitFor(String... providedMicroChecks) {
+    public void printMicroActionsFromBits(long bits) {
+        EnumSet<MicroAction> actions = EnumSet.noneOf(MicroAction.class);
+        int mask = 1;
+        for (MicroAction microAction : MicroAction.values()) {
+            if ((bits & mask) != 0) {
+                // The bit corresponding to the current microAction is set so add it to the set.
+                actions.add(microAction);
+            }
+            mask = mask * 2;
+        }
+        System.out.println(actions.stream().map(MicroAction::name).collect(Collectors.joining(", ")));
+    }
+
+    public void printMicroCheckBitsFor(String... providedMicroChecks) {
         boolean allIsOk = true;
         List<MicroCheck> microChecks = new ArrayList<>();
         for (String providedMicroCheck : providedMicroChecks) {
@@ -298,6 +315,19 @@ public class DeviceLifeCycleCommands {
         }
     }
 
+    public void printMicroChecksFromBits(long bits) {
+        EnumSet<MicroCheck> checks = EnumSet.noneOf(MicroCheck.class);
+        int mask = 1;
+        for (MicroCheck microCheck : MicroCheck.values()) {
+            if ((bits & mask) != 0) {
+                // The bit corresponding to the current microCheck is set so add it to the set.
+                checks.add(microCheck);
+            }
+            mask = mask * 2;
+        }
+        System.out.println(checks.stream().map(MicroCheck::name).collect(Collectors.joining(", ")));
+    }
+
     @SuppressWarnings("unused")
     public void help() {
         System.out.println("triggerEvent <event type> <device mRID>");
@@ -312,7 +342,10 @@ public class DeviceLifeCycleCommands {
         System.out.println("       #revoked");
         System.out.println("currentState <device mRID>");
         System.out.println("historicalState <device mRID> <yyyy-MM-dd HH:mm:ss>");
-        System.out.println("printMicroActionBitFor [<microAction1>, <microAction2>, ...]");
+        System.out.println("printMicroActionBitsFor [<microAction1>, <microAction2>, ...]");
+        System.out.println("printMicroActionsForBits <any number>");
+        System.out.println("printMicroCheckBitsFor [<microCheck1>, <microCheck2>, ...]");
+        System.out.println("printMicroChecksForBits <any number>");
     }
 
     private DateTimeFormatter dateTimeFormatter() {
