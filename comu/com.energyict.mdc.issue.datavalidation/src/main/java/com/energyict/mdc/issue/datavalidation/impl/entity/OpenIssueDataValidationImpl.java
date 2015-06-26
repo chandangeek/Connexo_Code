@@ -60,12 +60,12 @@ public class OpenIssueDataValidationImpl extends IssueDataValidationImpl impleme
 
     @Override
     public void addNotEstimatedBlock(Channel channel, ReadingType readingType, Instant startTime, Instant endTime) {
-        Range<Instant> interval = Range.closedOpen(startTime, endTime.plus(channel.getIntervalLength().get()));
+        Range<Instant> interval = Range.openClosed(startTime.minus(channel.getIntervalLength().get()), endTime);
 
         List<Pair<Range<Instant>, OpenIssueNotEstimatedBlockImpl>> connectedBlocks = notEstimatedBlocks.stream()
                 .filter(block -> block.getChannel().getId() == channel.getId())
                 .filter(block -> block.getReadingType().equals(readingType))
-                .map(block -> Pair.of(Range.closedOpen(block.getStartTime(), block.getEndTime()), block))
+                .map(block -> Pair.of(Range.openClosed(block.getStartTime(), block.getEndTime()), block))
                 .filter(block -> block.getFirst().isConnected(interval))
                 .sorted((block1, block2) -> block1.getFirst().lowerEndpoint().compareTo(block2.getFirst().lowerEndpoint()))
                 .collect(Collectors.toList());
@@ -82,23 +82,21 @@ public class OpenIssueDataValidationImpl extends IssueDataValidationImpl impleme
 
     @Override
     public void removeNotEstimatedBlock(Channel channel, ReadingType readingType, Instant timeStamp) {
-        Instant startTime = timeStamp;
-        Instant endTime = startTime.plus(channel.getIntervalLength().get());
-        Range<Instant> interval = Range.closedOpen(startTime, endTime);
+        Range<Instant> interval = Range.openClosed(timeStamp.minus(channel.getIntervalLength().get()), timeStamp);
 
         Optional<OpenIssueNotEstimatedBlockImpl> enclosingBlock = notEstimatedBlocks.stream()
                 .filter(block -> block.getChannel().getId() == channel.getId())
                 .filter(block -> block.getReadingType().equals(readingType))
-                .filter(block -> Range.closedOpen(block.getStartTime(), block.getEndTime()).encloses(interval))
+                .filter(block -> Range.openClosed(block.getStartTime(), block.getEndTime()).encloses(interval))
                 .findFirst();
         if (enclosingBlock.isPresent()) {
-            Range<Instant> enclosingRange = Range.closedOpen(enclosingBlock.get().getStartTime(), enclosingBlock.get().getEndTime());
+            Range<Instant> enclosingRange = Range.openClosed(enclosingBlock.get().getStartTime(), enclosingBlock.get().getEndTime());
             notEstimatedBlocks.remove(enclosingBlock.get());
-            Range<Instant> lowerRange = Range.closedOpen(enclosingRange.lowerEndpoint(), interval.lowerEndpoint());
+            Range<Instant> lowerRange = Range.openClosed(enclosingRange.lowerEndpoint(), interval.lowerEndpoint());
             if (!lowerRange.isEmpty()) {
                 createNewBlock(channel, readingType, lowerRange.lowerEndpoint(), lowerRange.upperEndpoint());
             }
-            Range<Instant> upperRange = Range.closedOpen(interval.upperEndpoint(), enclosingRange.upperEndpoint());
+            Range<Instant> upperRange = Range.openClosed(interval.upperEndpoint(), enclosingRange.upperEndpoint());
             if (!upperRange.isEmpty()) {
                 createNewBlock(channel, readingType, upperRange.lowerEndpoint(), upperRange.upperEndpoint());
             }

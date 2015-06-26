@@ -134,8 +134,8 @@ public class DataValidationIssueCreationRuleTemplateTest extends PersistenceInte
         assertThat(issueDataValidation.getNotEstimatedBlocks()).hasSize(1);
         assertThat(issueDataValidation.getNotEstimatedBlocks().get(0).getChannel()).isEqualTo(channel);
         assertThat(issueDataValidation.getNotEstimatedBlocks().get(0).getReadingType()).isEqualTo(readingType);
-        assertThat(issueDataValidation.getNotEstimatedBlocks().get(0).getStartTime()).isEqualTo(now);
-        assertThat(issueDataValidation.getNotEstimatedBlocks().get(0).getEndTime()).isEqualTo(now.plus(1, ChronoUnit.MINUTES));
+        assertThat(issueDataValidation.getNotEstimatedBlocks().get(0).getStartTime()).isEqualTo(now.minus(1, ChronoUnit.MINUTES));
+        assertThat(issueDataValidation.getNotEstimatedBlocks().get(0).getEndTime()).isEqualTo(now);
     }
     
     @Test
@@ -228,8 +228,8 @@ public class DataValidationIssueCreationRuleTemplateTest extends PersistenceInte
         assertThat(issues).hasSize(1);
         assertThat(issues.get(0).getStatus().getKey()).isEqualTo(IssueStatus.OPEN);
         assertThat(issues.get(0).getNotEstimatedBlocks()).hasSize(1);
-        assertThat(issues.get(0).getNotEstimatedBlocks().get(0).getStartTime()).isEqualTo(fixedTime.plus(1, ChronoUnit.MINUTES));
-        assertThat(issues.get(0).getNotEstimatedBlocks().get(0).getEndTime()).isEqualTo(fixedTime.plus(2, ChronoUnit.MINUTES));
+        assertThat(issues.get(0).getNotEstimatedBlocks().get(0).getStartTime()).isEqualTo(fixedTime);
+        assertThat(issues.get(0).getNotEstimatedBlocks().get(0).getEndTime()).isEqualTo(fixedTime.plus(1, ChronoUnit.MINUTES));
 
         //resolve issue completely
         message = mockSuspectDeletedMessage(fixedTime.plus(1, ChronoUnit.MINUTES), channel, "3.5.258");
