@@ -25,8 +25,6 @@ import com.energyict.mdc.issue.datavalidation.OpenIssueDataValidation;
 import com.jayway.jsonpath.JsonModel;
 import org.junit.Test;
 import org.mockito.Matchers;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
@@ -48,9 +46,7 @@ public class IssueResourceTest extends IssueDataValidationApplicationJerseyTest 
         mockReason("IssueReason", "Reason", getDefaultIssueType());
         OpenIssueDataValidation issue = getDefaultIssue();
         Finder<? extends IssueDataValidation> finder = mock(Finder.class);
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+        doAnswer(invocationOnMock -> {
                 DataValidationIssueFilter filter = (DataValidationIssueFilter) invocationOnMock.getArguments()[0];
                 assertThat(filter.getStatuses()).hasSize(2);
                 assertThat(filter.getStatuses().get(0).getKey()).isEqualTo("open");
@@ -62,7 +58,6 @@ public class IssueResourceTest extends IssueDataValidationApplicationJerseyTest 
                 assertThat(filter.getIssueReason()).isPresent();
                 assertThat(filter.getIssueReason().get().getKey()).isEqualTo("IssueReason");
                 return finder;
-            }
         }).when(issueDataValidationService).findAllDataValidationIssues(Matchers.any());
         doReturn(Collections.singletonList(issue)).when(finder).find();
 
@@ -73,6 +68,9 @@ public class IssueResourceTest extends IssueDataValidationApplicationJerseyTest 
                 .queryParam("assigneeType", "USER")
                 .queryParam("assigneeId", 3L)
                 .queryParam("reason", "IssueReason")
+                .queryParam("start", 0)
+                .queryParam("limit", 10)
+                .queryParam("sort", "-modTime")
                 .request().get(String.class);
 
         JsonModel jsonModel = JsonModel.model(response);

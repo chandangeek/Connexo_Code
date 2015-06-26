@@ -110,35 +110,6 @@ public class IssueResource {
         return Response.ok(issueResourceHelper.postComment(issue, request, securityContext)).status(Response.Status.CREATED).build();
     }
 
-    private DataValidationIssueFilter buildFilterFromQueryParameters(StandardParametersBean queryFilter) {
-        DataValidationIssueFilter filter = new DataValidationIssueFilter();
-        queryFilter.get("status").stream()
-                .flatMap(s -> issueService.findStatus(s).map(Stream::of).orElse(Stream.empty()))
-                .forEach(filter::addStatus);
-        queryFilter.get("reason").stream()
-                .findFirst()
-                .flatMap(issueService::findReason)
-                .ifPresent(filter::setIssueReason);
-        queryFilter.getLong("meter").stream()
-                .findFirst()
-                .flatMap(meteringService::findEndDevice)
-                .ifPresent(filter::setDevice);
-        String assigneeType = queryFilter.getFirst("assigneeType");
-        Long assigneeId = queryFilter.getFirstLong("assigneeId");
-        if (IssueAssignee.Types.USER.equals(assigneeType)) {
-            userService.getUser(assigneeId).ifPresent(filter::setAssignee);
-        }
-        return filter;
-    }
-
-     private Finder<? extends IssueDataValidation> addSorting(Finder<? extends IssueDataValidation> finder, StandardParametersBean parameters) {
-         Order[] orders = parameters.getOrder("baseIssue.");
-         for(Order order : orders) {
-             finder.sorted(order.getName(), order.ascending());
-         }
-         return finder;
-     }
-
     @GET
     @Path("/{id}/actions")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -188,23 +159,6 @@ public class IssueResource {
         return entity(info).build();
     }
 
-    private List<? extends IssueDataValidation> getIssuesForBulk(StandardParametersBean params) {
-        return issueDataValidationService.findAllDataValidationIssues(buildFilterFromQueryParameters(params)).find();
-    }
-
-    private List<? extends Issue> getUserSelectedIssues(BulkIssueRequest request, ActionInfo bulkResult) {
-        List<Issue> issuesForBulk = new ArrayList<>(request.issues.size());
-        for (EntityReference issueRef : request.issues) {
-            Optional<? extends Issue> issue = issueDataValidationService.findIssue(issueRef.getId());
-            if (issue.isPresent()) {
-                issuesForBulk.add(issue.get());
-            } else {
-                bulkResult.addFail(MessageSeeds.ISSUE_DOES_NOT_EXIST.getTranslated(thesaurus), issueRef.getId(), "Issue (id = " + issueRef.getId() + ")");
-            }
-        }
-        return issuesForBulk;
-    }
-
     @PUT
     @Path("/close")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -221,6 +175,23 @@ public class IssueResource {
             issueProvider = bulkResult -> getUserSelectedIssues(request, bulkResult);
         }
         return entity(doBulkClose(request, performer, issueProvider)).build();
+    }
+
+    private List<? extends IssueDataValidation> getIssuesForBulk(StandardParametersBean params) {
+        return issueDataValidationService.findAllDataValidationIssues(buildFilterFromQueryParameters(params)).find();
+    }
+
+    private List<? extends Issue> getUserSelectedIssues(BulkIssueRequest request, ActionInfo bulkResult) {
+        List<Issue> issuesForBulk = new ArrayList<>(request.issues.size());
+        for (EntityReference issueRef : request.issues) {
+            Optional<? extends Issue> issue = issueDataValidationService.findIssue(issueRef.getId());
+            if (issue.isPresent()) {
+                issuesForBulk.add(issue.get());
+            } else {
+                bulkResult.addFail(MessageSeeds.ISSUE_DOES_NOT_EXIST.getTranslated(thesaurus), issueRef.getId(), "Issue (id = " + issueRef.getId() + ")");
+            }
+        }
+        return issuesForBulk;
     }
 
     private ActionInfo doBulkClose(CloseIssueRequest request, User performer, Function<ActionInfo, List<? extends Issue>> issueProvider) {
@@ -248,5 +219,34 @@ public class IssueResource {
             context.commit();
         }
         return response;
+    }
+
+    private DataValidationIssueFilter buildFilterFromQueryParameters(StandardParametersBean queryFilter) {
+        DataValidationIssueFilter filter = new DataValidationIssueFilter();
+        queryFilter.get("status").stream()
+                .flatMap(s -> issueService.findStatus(s).map(Stream::of).orElse(Stream.empty()))
+                .forEach(filter::addStatus);
+        queryFilter.get("reason").stream()
+                .findFirst()
+                .flatMap(issueService::findReason)
+                .ifPresent(filter::setIssueReason);
+        queryFilter.getLong("meter").stream()
+                .findFirst()
+                .flatMap(meteringService::findEndDevice)
+                .ifPresent(filter::setDevice);
+        String assigneeType = queryFilter.getFirst("assigneeType");
+        Long assigneeId = queryFilter.getFirstLong("assigneeId");
+        if (IssueAssignee.Types.USER.equals(assigneeType)) {
+            userService.getUser(assigneeId).ifPresent(filter::setAssignee);
+        }
+        return filter;
+    }
+
+    private Finder<? extends IssueDataValidation> addSorting(Finder<? extends IssueDataValidation> finder, StandardParametersBean parameters) {
+        Order[] orders = parameters.getOrder("baseIssue.");
+        for(Order order : orders) {
+            finder.sorted(order.getName(), order.ascending());
+        }
+        return finder;
     }
 }
