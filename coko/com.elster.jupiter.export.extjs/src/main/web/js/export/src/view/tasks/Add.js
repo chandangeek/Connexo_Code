@@ -242,6 +242,7 @@ Ext.define('Dxp.view.tasks.Add', {
                             {
                                 xtype: 'displayfield',
                                 itemId: 'no-device',
+                                htmlEncode: false,
                                 hidden: true,
                                 value: '<div style="color: #FF0000">' + Uni.I18n.translate('general.noDeviceGroup', 'DES', 'No device group defined yet.') + '</div>',
                                 width: 235
