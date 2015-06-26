@@ -155,7 +155,7 @@ Ext.define('Uni.property.view.property.Period', {
         if (Ext.isObject(value)) {
             return value.count + ' ' + value.timeUnit;
         } else {
-            return callParent(arguments);
+            this.callParent(arguments);
         }
     }
 

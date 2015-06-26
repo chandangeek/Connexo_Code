@@ -137,7 +137,7 @@ Ext.define('Uni.property.view.property.RelativePeriod', {
                 return Uni.I18n.translate('general.all', 'UNI', 'All');
             }
         }
-        return callParent(arguments);
+        this.callParent(arguments);
     }
 
 });

@@ -62,7 +62,7 @@ Ext.define('Uni.property.view.property.NullableBoolean', {
                 return Uni.I18n.translate('general.none', this.translationKey, 'None');
             }
         } else {
-            return callParent(arguments);
+            this.callParent(arguments);
         }
     }
 
