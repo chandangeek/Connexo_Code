@@ -78,7 +78,7 @@ Ext.define('Dsh.controller.Connections', {
                 click: this.onGenerateReport
             },
             'connections-list #btn-connections-bulk-action': {
-                click: this.forwardToBulk
+                click: this.navigateToBulk
             },
             'connections-details uni-actioncolumn': {
                 run: this.connectionRun,
@@ -280,9 +280,7 @@ Ext.define('Dsh.controller.Connections', {
         );
     },
 
-    forwardToBulk: function () {
-        var router = this.getController('Uni.controller.history.Router');
-
-        router.getRoute('workspace/connections/details/bulk').forward(null, router.queryParams);
+    navigateToBulk: function () {
+        location.href = '#/workspace/connections/details/bulk?' + Uni.util.QueryString.getQueryString();
     }
 });

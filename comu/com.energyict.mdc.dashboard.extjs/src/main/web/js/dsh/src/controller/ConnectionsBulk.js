@@ -52,12 +52,17 @@ Ext.define('Dsh.controller.ConnectionsBulk', {
         this.getApplication().fireEvent('changecontentevent', Ext.widget('connections-bulk-browse', {
             router: me.getController('Uni.controller.history.Router')
         }));
+
         connectionTasksBufferedStore.data.clear();
         me.setLoading(true);
         connectionTasksBufferedStore.on({
             load: {fn: this.onStoreLoaded, scope: this, single: true}
         });
-        connectionTasksBufferedStore.loadPage(1);
+        connectionTasksBufferedStore.loadPage(1, {
+            params: {
+                filter : me.getFilterObjectStringFromQueryString()
+            }
+        });
     },
 
     onStoreLoaded: function(records, operation, success) {
@@ -78,10 +83,14 @@ Ext.define('Dsh.controller.ConnectionsBulk', {
             url;
 
         if (selectionGrid.isAllSelected()) {
+            var filterItems = me.getFilterObjectFromQueryString();
             data.filter = {};
-            me.getStore('Dsh.store.ConnectionTasksBuffered').filters.each(function (item) {
-                data.filter[item.property] = item.value;
-            });
+            for (var dataIndex in filterItems) {
+                var value = filterItems[dataIndex];
+                if (filterItems.hasOwnProperty(dataIndex) && Ext.isDefined(value) && !Ext.isEmpty(value)) {
+                    data.filter[dataIndex] = value;
+                }
+            }
         } else {
             data.connections = [];
             Ext.Array.each(selectionGrid.getSelectionModel().getSelection(), function (item) {
@@ -204,6 +213,9 @@ Ext.define('Dsh.controller.ConnectionsBulk', {
                     me.setLoading(true);
                     if (selectionGrid.isAllSelected()) {
                         connectionPropertiesStore.load({
+                            params: {
+                                filter : me.getFilterObjectStringFromQueryString()
+                            },
                             callback: function (records, operation, success) {
                                 me.setLoading(false);
                                 if (success) {
@@ -345,5 +357,48 @@ Ext.define('Dsh.controller.ConnectionsBulk', {
         } else {
             nextBtn.enable();
         }
+    },
+
+    getFilterObjectStringFromQueryString: function() {
+        var filterObject = this.getFilterObjectFromQueryString(),
+            result = [];
+
+        for (var dataIndex in filterObject) {
+            var value = filterObject[dataIndex];
+
+            if (filterObject.hasOwnProperty(dataIndex) && Ext.isDefined(value) && !Ext.isEmpty(value)) {
+                var filter = {
+                    property: dataIndex,
+                    value: value
+                };
+                result.push(filter);
+            }
+        }
+        return Ext.encode(result);
+    },
+
+    getFilterObjectFromQueryString: function() {
+        var filterObject = Uni.util.QueryString.getQueryStringValues(false);
+        this.adaptFilterObject(filterObject);
+        return filterObject;
+    },
+
+    adaptFilterObject: function(filterObject) {
+        // Assure that properties that are expected to be an int array, are indeed int arrays
+        var props = ['deviceTypes', 'deviceGroups', 'comPortPools', 'connectionTypes'];
+        Ext.Array.each(props, function(prop) {
+            if (filterObject.hasOwnProperty(prop)) {
+                if (Ext.isArray(filterObject[prop])) {
+                    for (i = 0; i < filterObject[prop].length; i++) {
+                        filterObject[prop][i] = parseInt(filterObject[prop][i]);
+                    }
+                } else {
+                    var theOneValue = filterObject[prop];
+                    filterObject[prop] = [];
+                    filterObject[prop][0] = !Ext.isNumber(theOneValue) ? parseInt(theOneValue) : theOneValue;
+                }
+            }
+        });
     }
+
 });
