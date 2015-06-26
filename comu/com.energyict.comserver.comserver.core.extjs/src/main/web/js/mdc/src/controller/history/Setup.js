@@ -935,8 +935,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             route: 'add',
                             controller: 'Mdc.controller.setup.AddDeviceGroupAction',
                             privileges: Mdc.privileges.DeviceGroup.view,
-                            action: 'showAddDeviceGroupAction',
-                            filter: 'Mdc.model.DeviceFilter'
+                            action: 'showAddDeviceGroupAction'
                         },
                         view: {
                             title: 'Overview',

@@ -12,7 +12,10 @@ Ext.define('Mdc.store.AuthenticationLevels', {
         reader: {
             type: 'json',
             root: 'data'
-        }
+        },
+        pageParam: false,
+        startParam: false,
+        limitParam: false
     },
     listeners: {
         load: {

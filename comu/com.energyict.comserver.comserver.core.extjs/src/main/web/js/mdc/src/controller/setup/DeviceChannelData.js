@@ -101,8 +101,11 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
     },
 
     showValidationBlocks: function (mRID, channelId, issueId) {
-        var me = this;
-        me.getStore('Mdc.store.ValidationBlocks').load({
+        var me = this,
+            validationBlocksStore = me.getStore('Mdc.store.ValidationBlocks');
+
+        validationBlocksStore.getProxy().setUrl(mRID, channelId, issueId);
+        validationBlocksStore.load({
             callback: function () {
                 me.showOverview({mRID: mRID, channelId: channelId, issueId: issueId}, 'block');
             }
@@ -122,6 +125,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             prevNextListLink = contentName == 'block' ? me.makeLinkToIssue(router, issueId) : me.makeLinkToChannels(router),
             indexLocation = contentName == 'block' ? 'queryParams' : 'arguments',
             routerIdArgument = contentName == 'block' ? 'validationBlock' : 'channelId',
+            isFullTotalCount = contentName === 'block',
             activeTab = contentName == 'spec' ? 0 : 1;
 
         viewport.setLoading(true);
@@ -153,7 +157,8 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                             prevNextListLink: prevNextListLink,
                             activeTab: activeTab,
                             prevNextstore: prevNextstore,
-                            routerIdArgument: routerIdArgument
+                            routerIdArgument: routerIdArgument,
+                            isFullTotalCount: isFullTotalCount
                         });
                         widget.down('#channelTabPanel').setTitle(channel.get('name'));
                         me.getApplication().fireEvent('changecontentevent', widget);
@@ -214,7 +219,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 
     makeLinkToIssue: function (router, issueId) {
         var link = '<a href="{0}">' + Uni.I18n.translate('devicechannels.validationblocks', 'MDC', 'Validation blocks').toLowerCase() + '</a>';
-        return Ext.String.format(link, router.getRoute('workspace/datacollectionissues/{issueId}').buildUrl({issueId: issueId}));
+        return Ext.String.format(link, router.getRoute('workspace/datavalidationissues/view').buildUrl({issueId: issueId}));
     },
 
     showGraphView: function (channelRecord, dataStore) {

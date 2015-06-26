@@ -54,7 +54,8 @@ Ext.define('Mdc.view.setup.comservercomports.forms.SERVLET', {
                 },
                 {
                     fieldLabel: Uni.I18n.translate('comports.preview.communicationPortPools', 'MDC', 'Communication port pools'),
-                    name: 'inboundComPortPools'
+                    name: 'inboundComPortPools',
+                    htmlEncode: false
                 },
                 {
                     fieldLabel: Uni.I18n.translate('comports.preview.contextPath', 'MDC', 'Context path'),

@@ -36,20 +36,9 @@ Ext.define('Mdc.controller.setup.DeviceGroups', {
         {ref: 'searchCriteriaContainer', selector: '#searchCriteriaContainer'},
         {ref: 'createDeviceGroupButton', selector: '#createDeviceGroupButton'},
         {ref: 'devicesOfDeviceGroupGrid', selector: '#allDevicesOfDeviceGroupGrid'},
-        {ref: 'devicesOfDeviceGroupGrid', selector: '#allDevicesOfDeviceGroupGrid'},
         {ref: 'deviceGroupDetailsActionMenu', selector: '#deviceGroupDetailsActionMenu'},
         {ref: 'removeDeviceGroupMenuItem', selector: '#remove-device-group'},
         {ref: 'editDeviceGroupMenuItem', selector: '#edit-device-group'}
-
-        /*{
-            ref: 'deviceGroupFormForDetails',
-            selector: 'deviceGroupDetailsForm fieldcontainer'
-        },
-        {
-            ref: 'deviceGroupFormForPreview',
-            selector: 'deviceGroupPreviewForm fieldcontainer'
-        }*/
-
     ],
 
     init: function () {
@@ -69,14 +58,6 @@ Ext.define('Mdc.controller.setup.DeviceGroups', {
             'group-details #generate-report': {
                 click: this.onGenerateReport
             }
-
-            /*,
-             '#deviceGroupsGrid actioncolumn': {
-             deleteDeviceGroup: this.deleteDeviceGroup
-             },
-             '#deviceGroupPreview menuitem[action=deleteDeviceGroup]': {
-             click: this.deleteDeviceGroupFromPreview
-             }    */
         });
     },
 
@@ -85,40 +66,6 @@ Ext.define('Mdc.controller.setup.DeviceGroups', {
             router = me.getController('Uni.controller.history.Router');
         router.getRoute('devices/devicegroups/add').forward();
     },
-
-    /*deleteDeviceGroup: function (deviceGroupToDelete) {
-     var me = this;
-     var msg = msg = Uni.I18n.translate('deviceGroup.deleteDeviceGroup', 'MDC', 'The device group will no longer be available.');
-
-     Ext.create('Uni.view.window.Confirmation').show({
-     msg: msg,
-     title: Uni.I18n.translate('general.remove', 'MDC', 'Remove') + ' ' + deviceGroupToDelete.get('name') + '?',
-     config: {
-     deviceGroupToDelete: deviceGroupToDelete,
-     me: me
-     },
-     fn: me.removeDeviceGroup
-     });
-     },
-
-     removeDeviceGroup: function (btn, text, opt) {
-     if (btn === 'confirm') {
-     var deviceGroupToDelete = opt.config.deviceGroupToDelete;
-     var me = opt.config.me;
-
-     deviceGroupToDelete.destroy({
-     success: function () {
-     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceGroup.acknowlegment.removed', 'MDC', 'Device group removed') );
-     location.href = '#/devices/devicegroups/';
-     }
-     });
-
-     }
-     },
-
-     deleteDeviceGroupFromPreview: function () {
-     this.deleteDeviceGroup(this.getDeviceGroupsGrid().getSelectionModel().getSelection()[0]);
-     },  */
 
     showDeviceGroups: function () {
         var widget = Ext.widget('deviceGroupSetup');

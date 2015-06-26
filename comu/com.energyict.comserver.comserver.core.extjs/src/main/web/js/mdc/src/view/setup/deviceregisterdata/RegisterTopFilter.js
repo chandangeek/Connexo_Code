@@ -8,6 +8,8 @@ Ext.define('Mdc.view.setup.deviceregisterdata.RegisterTopFilter', {
             dataIndex: 'interval',
             dataIndexFrom: 'intervalStart',
             dataIndexTo: 'intervalEnd',
+            defaultFromDate: moment().startOf('day').subtract(1,'years').toDate(),
+            defaultToDate: moment().startOf('day').toDate(),
             text: Uni.I18n.translate('communications.widget.topfilter.startedBetween', 'DSH', 'Started between')
         },
         {

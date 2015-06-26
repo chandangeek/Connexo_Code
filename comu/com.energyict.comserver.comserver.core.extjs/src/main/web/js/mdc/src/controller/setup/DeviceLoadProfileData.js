@@ -84,6 +84,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
                     this.resolve(this.callback)
                 }
             };
+
         dataStore.removeAll(true);
         dataStore.getProxy().setUrl({
             mRID: mRID,
@@ -109,52 +110,48 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
             me.loadProfileModel = record;
             me.getApplication().fireEvent('loadProfileOfDeviceLoad', record);
             var func = function () {
+                viewport.setLoading(false);
+                var all = dataIntervalAndZoomLevels.get('all'),
+                    intervalStart = dataIntervalAndZoomLevels.getIntervalStart((me.loadProfileModel.get('lastReading') || new Date().getTime()));
 
-                // init default filters
-                if (!router.queryParams.interval) {
-                    var all = dataIntervalAndZoomLevels.get('all'),
-                        intervalStart = dataIntervalAndZoomLevels.getIntervalStart((me.loadProfileModel.get('lastReading') || new Date().getTime()));
+                tabWidget = Ext.widget('tabbedDeviceLoadProfilesView',{
+                    device: device,
+                    loadProfileId: loadProfileId,
+                    toggleId: 'loadProfileLink',
+                    router: router
+                });
+                widget = Ext.widget('deviceLoadProfilesData', {
+                    router: router,
+                    channels: record.get('channels'),
+                    device: device,
+                    filter: {
+                        fromDate: intervalStart,
+                        toDate: moment(intervalStart).add(all.timeUnit, all.count).toDate()
+                    }
+                });
 
-                    router.getRoute().forward(null, Ext.apply(router.queryParams, {
-                        interval: intervalStart.getTime() + '-' + moment(intervalStart).add(all.timeUnit, all.count).valueOf()
-                    }));
-                } else {
-                    tabWidget = Ext.widget('tabbedDeviceLoadProfilesView',{
-                        device: device,
-                        loadProfileId: loadProfileId,
-                        toggleId: 'loadProfileLink',
-                        router: router
-                    });
-                    widget = Ext.widget('deviceLoadProfilesData', {
-                        router: router,
-                        channels: record.get('channels'),
-                        device: device
-                    });
-
-                    tabWidget.down('#loadProfileTabPanel').setTitle(record.get('name'));
-                    tabWidget.down('#loadProfile-data').add(widget);
-                    me.getApplication().fireEvent('changecontentevent', tabWidget);
-                    tabController.showTab(1);
-                    viewport.setLoading(false);
-                    Ext.getBody().mask('Loading...');
-                    widget.setLoading();
-                    widget.down('#deviceLoadProfilesGraphViewBtn').setDisabled(!isTable);
-                    widget.down('#deviceLoadProfilesTableViewBtn').setDisabled(isTable);
-                    widget.down('#deviceLoadProfilesTableView').setVisible(isTable);
-                    widget.down('#deviceLoadProfilesGraphView').setVisible(!isTable);
-                    dataStore.on('load', function () {
-                        if (!widget.isDestroyed) {
-                            if (!isTable) {
-                                me.showGraphView(record);
-                            }
-                            widget.down('#readingsCount') && widget.down('#readingsCount').setVisible(widget.down('#deviceLoadProfilesTableView').isVisible() && dataStore.count());
-                            widget.setLoading(false);
-                            Ext.getBody().unmask();
+                tabWidget.down('#loadProfileTabPanel').setTitle(record.get('name'));
+                tabWidget.down('#loadProfile-data').add(widget);
+                me.getApplication().fireEvent('changecontentevent', tabWidget);
+                tabController.showTab(1);
+                Ext.getBody().mask('Loading...');
+                widget.setLoading();
+                widget.down('#deviceLoadProfilesGraphViewBtn').setDisabled(!isTable);
+                widget.down('#deviceLoadProfilesTableViewBtn').setDisabled(isTable);
+                widget.down('#deviceLoadProfilesTableView').setVisible(isTable);
+                widget.down('#deviceLoadProfilesGraphView').setVisible(!isTable);
+                dataStore.on('load', function () {
+                    if (!widget.isDestroyed) {
+                        if (!isTable) {
+                            me.showGraphView(record);
                         }
-                    }, me);
+                        widget.down('#readingsCount') && widget.down('#readingsCount').setVisible(widget.down('#deviceLoadProfilesTableView').isVisible() && dataStore.count());
+                        widget.setLoading(false);
+                        Ext.getBody().unmask();
+                    }
+                }, me);
 
-                    dataStore.load();
-                }
+                dataStore.load();
             };
             if (loadProfilesStore.getTotalCount() === 0) {
                 loadProfilesStore.getProxy().setUrl(mRID);
