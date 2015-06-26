@@ -181,50 +181,53 @@ Ext.define('Dxp.view.tasks.Add', {
                     },
 
                     {
-                         xtype: 'fieldcontainer',
-                         fieldLabel: Uni.I18n.translate('general.dataSelector', 'DES', 'Data selector'),
-                         //required: true,
-                         layout: 'hbox',
-                         items: [
-                             {
-                                 xtype: 'combobox',
-                                 itemId: 'data-selector-combo',
-                                 name: 'readingTypeDataSelector.value.dataSelector',
-                                 width: 235,
-                                 queryMode: 'local',
-                                 store: 'Dxp.store.DataSelectors',
-                                 editable: false,
-                                 disabled: false,
-                                 allowBlank: false,
-                                 emptyText: Uni.I18n.translate('addDataExportTask.dataSelectorPrompt', 'DES', 'Select a data selector...'),
-                                 displayField: 'displayName',
-                                 valueField: 'name'
-                             }
+                        xtype: 'fieldcontainer',
+                        fieldLabel: Uni.I18n.translate('general.dataSelector', 'DES', 'Data selector'),
+                        required: true,
+                        layout: 'hbox',
+                        items: [
+                            {
+                                xtype: 'combobox',
+                                itemId: 'data-selector-combo',
+                                allowBlank: false,
+                                //required: true,
+                                name: 'readingTypeDataSelector.value.dataSelector',
+                                width: 235,
+                                queryMode: 'local',
+                                store: 'Dxp.store.DataSelectors',
+                                editable: false,
+                                disabled: false,
+                                allowBlank: false,
+                                emptyText: Uni.I18n.translate('addDataExportTask.dataSelectorPrompt', 'DES', 'Select a data selector...'),
+                                displayField: 'displayName',
+                                valueField: 'name'
+                            }
                         ]
-                     },
+                    },
 
-                     {
-                         xtype: 'property-form',
-                         itemId: 'data-selector-properties',
-                         isEdit: true,
-                         hidden: true,
-                         defaults: {
-                             labelWidth: 250
+                    {
+                        xtype: 'property-form',
+                        itemId: 'data-selector-properties',
+                        isEdit: true,
+                        hidden: true,
+                        defaults: {
+                            labelWidth: 250
                         }
 
-                     },
+                    },
 
                     {
                         xtype: 'fieldcontainer',
                         fieldLabel: Uni.I18n.translate('general.deviceGroup', 'DES', 'Device group'),
                         hidden: true,
                         itemId: 'device-group-container',
-                        //required: true,
+                        required: true,
                         layout: 'hbox',
                         items: [
                             {
                                 xtype: 'combobox',
                                 itemId: 'device-group-combo',
+                                allowBlank: false,
                                 name: 'readingTypeDataSelector.value.endDeviceGroup',
                                 width: 235,
                                 store: 'Dxp.store.DeviceGroups',
@@ -251,7 +254,7 @@ Ext.define('Dxp.view.tasks.Add', {
                         fieldLabel: Uni.I18n.translate('general.readingTypes', 'DES', 'Reading types'),
                         hidden: true,
                         itemId: 'readingTypesFieldContainer',
-                        //required: true,
+                        required: true,
                         msgTarget: 'under',
                         width: 1200,
                         items: [
@@ -304,17 +307,25 @@ Ext.define('Dxp.view.tasks.Add', {
                         ]
                     },
 
+                    /*{
+                     xtype: 'label',
+                     cls: 'x-form-invalid-under',
+                     itemId: 'readingTypesForTaskErrorLabel',
+                     margin: '0 0 00 266'
+                     },*/
+
                     {
                         xtype: 'fieldcontainer',
                         itemId: 'export-periods-container',
                         fieldLabel: Uni.I18n.translate('general.exportPeriod', 'DES', 'Export period'),
                         hidden: true,
-                        //required: true,
+                        required: true,
                         layout: 'hbox',
                         items: [
                             {
                                 xtype: 'combobox',
                                 itemId: 'export-period-combo',
+                                allowBlank: false,
                                 name: 'readingTypeDataSelector.value.exportPeriod',
                                 width: 235,
                                 queryMode: 'local',

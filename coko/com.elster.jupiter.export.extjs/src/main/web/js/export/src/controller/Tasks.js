@@ -313,7 +313,7 @@ Ext.define('Dxp.controller.Tasks', {
             deviceGroupCombo = view.down('#device-group-combo'),
             exportPeriodCombo = view.down('#export-period-combo'),
             recurrenceTypeCombo = view.down('#recurrence-type');
-            readingTypesStore = view.down('#readingTypesGridPanel').getStore();
+        readingTypesStore = view.down('#readingTypesGridPanel').getStore();
 
         me.getApplication().fireEvent('changecontentevent', view);
 
@@ -353,6 +353,7 @@ Ext.define('Dxp.controller.Tasks', {
     },
 
     showEditExportTask: function (taskId) {
+
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             view;
@@ -375,6 +376,7 @@ Ext.define('Dxp.controller.Tasks', {
             exportPeriodCombo = view.down('#export-period-combo'),
             dataSelectorCombo = view.down('#data-selector-combo'),
             recurrenceTypeCombo = view.down('#recurrence-type');
+
         dataSelectorCombo.disabled = true;
         me.fromEdit = true;
         me.taskId = taskId;
@@ -435,8 +437,8 @@ Ext.define('Dxp.controller.Tasks', {
 
 
                             } /*else {
-                                taskForm.down('#data-selector-properties').loadRecord(record.getDataSelector());
-                            }*/
+                             taskForm.down('#data-selector-properties').loadRecord(record.getDataSelector());
+                             }*/
                             fileFormatterCombo.setValue(fileFormatterCombo.store.getById(record.data.dataProcessor.name));
                             if (record.data.nextRun && (record.data.nextRun !== 0)) {
                                 view.down('#recurrence-trigger').setValue({recurrence: true});
@@ -462,27 +464,27 @@ Ext.define('Dxp.controller.Tasks', {
     },
 
     /*showDataSources: function (currentTaskId) {
-        var me = this,
-            router = me.getController('Uni.controller.history.Router'),
-            taskModel = me.getModel('Dxp.model.DataExportTask'),
-            store = me.getStore('Dxp.store.DataSources'),
-            view;
+     var me = this,
+     router = me.getController('Uni.controller.history.Router'),
+     taskModel = me.getModel('Dxp.model.DataExportTask'),
+     store = me.getStore('Dxp.store.DataSources'),
+     view;
 
-        store.getProxy().setUrl(router.arguments);
-        view = Ext.widget('data-sources-setup', {
-            router: router,
-            taskId: currentTaskId
-        });
+     store.getProxy().setUrl(router.arguments);
+     view = Ext.widget('data-sources-setup', {
+     router: router,
+     taskId: currentTaskId
+     });
 
-        me.getApplication().fireEvent('changecontentevent', view);
+     me.getApplication().fireEvent('changecontentevent', view);
 
-        taskModel.load(currentTaskId, {
-            success: function (record) {
-                me.getApplication().fireEvent('dataexporttaskload', record);
-                view.down('#tasks-view-menu  #tasks-view-link').setText(record.get('name'));
-            }
-        });
-    },*/
+     taskModel.load(currentTaskId, {
+     success: function (record) {
+     me.getApplication().fireEvent('dataexporttaskload', record);
+     view.down('#tasks-view-menu  #tasks-view-link').setText(record.get('name'));
+     }
+     });
+     },*/
 
     showPreview: function (selectionModel, record) {
         var me = this,
@@ -785,7 +787,30 @@ Ext.define('Dxp.controller.Tasks', {
             minutes;
 
         propertyForm.updateRecord();
-        if (form.isValid()) {
+
+
+        var dataSelectorCombo = form.down('#data-selector-combo');
+        var selectedDataSelector = dataSelectorCombo.findRecord(dataSelectorCombo.valueField , dataSelectorCombo.getValue());
+        if ((selectedDataSelector) && (!selectedDataSelector.get('isDefault'))) {
+            form.down('#export-period-combo').allowBlank = true;
+            form.down('#device-group-combo').allowBlank = true;
+        }
+
+        var emptyReadingTypes = (selectedDataSelector) && (selectedDataSelector.get('isDefault')) && (page.down('#readingTypesGridPanel').getStore().data.items.length == 0);
+        if (emptyReadingTypes) {
+            form.down('#readingTypesGridPanel').addCls('error-border');
+            form.down('#readingTypesFieldContainer').setActiveError('This field is required');
+
+            form.getForm().markInvalid(
+                Ext.create('Object', {
+                    id: 'readingTypeDataSelector.value.readingTypes',
+                    msg: 'This field is required'
+                }));
+
+            formErrorsPanel.show();
+        }
+
+        if ((form.isValid()) && (!emptyReadingTypes)) {
             var record = me.taskModel || Ext.create('Dxp.model.DataExportTask'),
                 readingTypesStore = page.down('#readingTypesGridPanel').getStore(),
                 arrReadingTypes = [];
@@ -872,7 +897,7 @@ Ext.define('Dxp.controller.Tasks', {
                 name: form.down('#file-formatter-combo').getValue()
             });
 
-            var dataSelectorCombo = form.down('#data-selector-combo');
+            //var dataSelectorCombo = form.down('#data-selector-combo');
 
             var selectorModel = Ext.create('Dxp.model.DataSelector', {
                 name: dataSelectorCombo.getValue(),
@@ -925,12 +950,6 @@ Ext.define('Dxp.controller.Tasks', {
                 failure: function (record, operation) {
                     var json = Ext.decode(operation.response.responseText, true);
                     if (json && json.errors) {
-                        Ext.Array.each(json.errors, function (item) {
-                            if (item.id.indexOf("readingTypes") !== -1) {
-                                form.down('#readingTypesGridPanel').addCls('error-border');
-                                form.down('#readingTypesFieldContainer').setActiveError(item.msg);
-                            }
-                        });
                         form.getForm().markInvalid(json.errors);
                         formErrorsPanel.show();
                     }
