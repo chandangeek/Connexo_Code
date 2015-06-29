@@ -45,6 +45,7 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
                     margin: 0,
                     padding: 10,
                     itemId: 'message-failed',
+                    htmlEncode: false,
                     hidden: true,
                     layout: {
                         type: 'hbox',
@@ -93,6 +94,7 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
                     defaultErrorIcon: 'icon-info',
                     hidden: true,
                     buttonAlign: 'left',
+                    htmlEncode: false,
                     layout: {
                         type: 'hbox',
                         defaultMargins: '5 10 5 5'
@@ -112,6 +114,7 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
                     cls: Uni.About.baseCssPrefix + 'panel-no-items-found',
                     defaultErrorIcon: 'icon-info',
                     hidden: true,
+                    htmlEncode: false,
                     layout: {
                         type: 'hbox',
                         defaultMargins: '5 10 5 5'
@@ -234,7 +237,7 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
                     record.get('firmwareVersion'),
                     Uni.DateTime.formatDateTimeShort(record.get('plannedDate')),
                     Uni.DateTime.formatDateTimeShort(record.get('plannedActivationDate'))
-                ]));
+                ],false));
         }
 
         if (status === 'failedVersion' || status === 'failedVerificationVersion' || status === 'wrongVerificationVersion' || status === 'failedActivatingVersion') {

@@ -72,19 +72,22 @@ Ext.define('Fwc.firmwarecampaigns.view.Grid', {
 
                         switch (devicesStatus.status.id) {
                             case 'failed':
-                                iconCls = 'icon-close';
+                                iconCls = 'icon-cancel-circle';
                                 break;
                             case 'success':
-                                iconCls = 'icon-checkmark';
+                                iconCls = 'icon-checkmark-circle';
                                 break;
                             case 'ongoing':
-                                iconCls = 'icon-stop2';
+                                iconCls = 'icon-spinner3';
                                 break;
                             case 'pending':
-                                iconCls = 'icon-stop2';
+                                iconCls = 'icon-forward2';
                                 break;
                             case 'configurationError':
                                 iconCls = 'icon-notification';
+                                break;
+                            case 'cancelled':
+                                iconCls = 'icon-blocked';
                                 break;
                         }
 
@@ -100,14 +103,17 @@ Ext.define('Fwc.firmwarecampaigns.view.Grid', {
                 renderer: function (value) {
                     return value ? Uni.DateTime.formatDateTimeShort(value) : '';
                 }
-            }/*,
+            },
             {
                 xtype: 'uni-actioncolumn',
+                isDisabled: function(view, rowIndex, colIndex, item, record) {
+                    return record.get('status').id !== 'ONGOING';
+                },
                 menu: {
                     xtype: 'firmware-campaigns-action-menu',
                     itemId: 'firmware-campaigns-action-menu'
                 }
-            }*/
+            }
         ];
 
         me.dockedItems = [

@@ -4,7 +4,7 @@ Ext.define('Fwc.firmwarecampaigns.view.DetailForm', {
         'Fwc.firmwarecampaigns.view.ActionMenu'
     ],
     alias: 'widget.firmware-campaigns-detail-form',
-    /*tools: [
+    tools: [
         {
             xtype: 'button',
             itemId: 'firmware-campaigns-detail-action-menu-button',
@@ -15,7 +15,7 @@ Ext.define('Fwc.firmwarecampaigns.view.DetailForm', {
                 itemId: 'firmware-campaigns-action-menu'
             }
         }
-    ],*/
+    ],
     layout: 'column',
     defaults: {
         xtype: 'container',
@@ -114,19 +114,22 @@ Ext.define('Fwc.firmwarecampaigns.view.DetailForm', {
 
                                 switch (devicesStatus.status.id) {
                                     case 'failed':
-                                        iconCls = 'icon-close';
+                                        iconCls = 'icon-cancel-circle';
                                         break;
                                     case 'success':
-                                        iconCls = 'icon-checkmark';
+                                        iconCls = 'icon-checkmark-circle';
                                         break;
                                     case 'ongoing':
-                                        iconCls = 'icon-stop2';
+                                        iconCls = 'icon-spinner3';
                                         break;
                                     case 'pending':
-                                        iconCls = 'icon-stop2';
+                                        iconCls = 'icon-forward2';
                                         break;
                                     case 'configurationError':
                                         iconCls = 'icon-notification';
+                                        break;
+                                    case 'cancelled':
+                                        iconCls = 'icon-blocked';
                                         break;
                                 }
 

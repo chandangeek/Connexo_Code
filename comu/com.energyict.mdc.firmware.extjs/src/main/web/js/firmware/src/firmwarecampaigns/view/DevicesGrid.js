@@ -30,19 +30,22 @@ Ext.define('Fwc.firmwarecampaigns.view.DevicesGrid', {
                     metaData.tdCls = 'firmware-campaign-status';
                     switch (value.id) {
                         case 'failed':
-                            iconCls = 'icon-close';
+                            iconCls = 'icon-cancel-circle';
                             break;
                         case 'success':
-                            iconCls = 'icon-checkmark';
+                            iconCls = 'icon-checkmark-circle';
                             break;
                         case 'ongoing':
-                            iconCls = 'icon-stop2';
+                            iconCls = 'icon-spinner3';
                             break;
                         case 'pending':
-                            iconCls = 'icon-stop2';
+                            iconCls = 'icon-forward2';
                             break;
                         case 'configurationError':
                             iconCls = 'icon-notification';
+                            break;
+                        case 'cancelled':
+                            iconCls = 'icon-blocked';
                             break;
                     }
                     return value ? '<span class="' + iconCls + '"></span>' + value.name : '';
