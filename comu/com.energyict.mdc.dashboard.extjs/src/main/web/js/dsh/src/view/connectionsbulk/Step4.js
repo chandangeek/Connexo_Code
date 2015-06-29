@@ -8,6 +8,7 @@ Ext.define('Dsh.view.connectionsbulk.Step4', {
             xtype: 'component',
             itemId: 'dsh-text-message4',
             width: '100%',
+            margin: '5 0 15 0',
             html: ''
         },
         {
@@ -15,7 +16,6 @@ Ext.define('Dsh.view.connectionsbulk.Step4', {
             itemId: 'dsh-connections-bulk-changed-attributes-form',
             isEdit: false,
             isMultiEdit: true,
-            margin: '15 0 0 0',
             width: '100%'
         }
     ],

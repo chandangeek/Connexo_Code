@@ -11,7 +11,7 @@ Ext.define('Dsh.view.connectionsbulk.Step3', {
             itemId: 'dsh-text-message3',
             width: '100%',
             height: '20px',
-            margin: '5 0 5 0',
+            margin: '5 0 15 0',
             html: ''
         },
         {
