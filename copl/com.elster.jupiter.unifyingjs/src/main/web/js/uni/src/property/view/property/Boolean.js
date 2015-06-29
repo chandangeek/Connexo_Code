@@ -28,15 +28,10 @@ Ext.define('Uni.property.view.property.Boolean', {
     },
 
     getDisplayCmp: function () {
-        var me = this;
-
-        return {
-            xtype: 'displayfield',
-            name: this.getName(),
-            itemId: me.key + 'displayfield',
-            width: me.width,
-            msgTarget: 'under'
-        }
+        var displayCmp = this.callParent();
+        displayCmp.width = this.width;
+        displayCmp.msgTarget = 'under';
+        return displayCmp;
     },
 
 

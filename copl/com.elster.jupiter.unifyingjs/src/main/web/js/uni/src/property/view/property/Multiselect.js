@@ -81,7 +81,8 @@ Ext.define('Uni.property.view.property.Multiselect', {
                 });
 
                 return result;
-            }
+            },
+            cls: 'uni-property-displayfield'
         }
     },
 

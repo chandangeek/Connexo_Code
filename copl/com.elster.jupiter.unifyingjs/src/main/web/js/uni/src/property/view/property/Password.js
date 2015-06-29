@@ -30,7 +30,8 @@ Ext.define('Uni.property.view.property.Password', {
         return {
             xtype: 'password-display-field',
             name: this.getName(),
-            itemId: this.key + 'passworddisplayfield'
+            itemId: this.key + 'passworddisplayfield',
+            cls: 'uni-property-displayfield'
         }
     },
 

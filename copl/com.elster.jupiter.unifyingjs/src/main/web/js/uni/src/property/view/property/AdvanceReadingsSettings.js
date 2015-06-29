@@ -141,7 +141,8 @@ Ext.define('Uni.property.view.property.AdvanceReadingsSettings', {
             name: this.getName(),
             itemId: me.key + 'displayfield',
             width: me.width,
-            msgTarget: 'under'
+            msgTarget: 'under',
+            cls: 'uni-property-displayfield'
         }
     },
 
