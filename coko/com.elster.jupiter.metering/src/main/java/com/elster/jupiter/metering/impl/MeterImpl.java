@@ -96,18 +96,24 @@ public class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter
     }
 
     void adopt(MeterActivationImpl meterActivation) {
-        if (!meterActivations.isEmpty()) {
-            MeterActivationImpl last = meterActivations.get(meterActivations.size() - 1);
-            if (last.getRange().lowerEndpoint().isAfter(meterActivation.getRange().lowerEndpoint())) {
-                throw new IllegalArgumentException("Invalid start instant");
-            } else {
-                if (!last.getRange().hasUpperBound() || last.getRange().upperEndpoint().isAfter(meterActivation.getRange().lowerEndpoint())) {
-                    last.endAt(meterActivation.getRange().lowerEndpoint());
-                }
-            }
+        meterActivations.stream()
+                .filter(activation -> activation.getId() != meterActivation.getId())
+                .reduce((m1, m2) -> m2)
+                .ifPresent(last -> {
+                    if (last.getRange().lowerEndpoint().isAfter(meterActivation.getRange().lowerEndpoint())) {
+                        throw new IllegalArgumentException("Invalid start date");
+                    } else {
+                        if (!last.getRange().hasUpperBound() || last.getRange().upperEndpoint().isAfter(meterActivation.getRange().lowerEndpoint())) {
+                            last.endAt(meterActivation.getRange().lowerEndpoint());
+                        }
+                    }
+                });
+        Optional<MeterActivationImpl> first = meterActivations.stream().filter(activation -> activation.getId() != meterActivation.getId()).findFirst();
+        if (!first.isPresent()) {
+            meterActivations.add(meterActivation);
         }
-        meterActivations.add(meterActivation);
     }
+
 
     @Override
     public Optional<MeterActivation> getCurrentMeterActivation() {

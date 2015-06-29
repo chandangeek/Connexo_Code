@@ -41,6 +41,7 @@ import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.conditions.Subquery;
+import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.streams.DecoratedStream;
 import com.google.inject.AbstractModule;
 
@@ -77,6 +78,7 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
     private volatile MessageService messageService;
+    private volatile JsonService jsonService;
     @SuppressWarnings("unused")
     private volatile FiniteStateMachineService finiteStateMachineService;
 
@@ -89,7 +91,7 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
 
     @Inject
     public MeteringServiceImpl(
-            Clock clock, OrmService ormService, IdsService idsService, EventService eventService, PartyService partyService, QueryService queryService, UserService userService, NlsService nlsService, MessageService messageService,
+            Clock clock, OrmService ormService, IdsService idsService, EventService eventService, PartyService partyService, QueryService queryService, UserService userService, NlsService nlsService, MessageService messageService, JsonService jsonService,
             @Named("createReadingTypes") boolean createAllReadingTypes, @Named("requiredReadingTypes") String requiredReadingTypes, FiniteStateMachineService finiteStateMachineService) {
         this.clock = clock;
         this.createAllReadingTypes = createAllReadingTypes;
@@ -102,6 +104,7 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
         setUserService(userService);
         setNlsService(nlsService);
         setMessageService(messageService);
+        setJsonService(jsonService);
         setFiniteStateMachineService(finiteStateMachineService);
         activate();
         if (!dataModel.isInstalled()) {
@@ -112,6 +115,11 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     @Reference
     public void setMessageService(MessageService messageService) {
         this.messageService = messageService;
+    }
+
+    @Reference
+    public void setJsonService(JsonService jsonService) {
+        this.jsonService = jsonService;
     }
 
     @Override
@@ -293,7 +301,7 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     public final void setUserService(UserService userService) {
         this.userService = userService;
     }
-    
+
     @Reference
     public void setFiniteStateMachineService(FiniteStateMachineService finiteStateMachineService) {
         this.finiteStateMachineService = finiteStateMachineService;
@@ -489,7 +497,7 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
             .forValidation(this.dataModel)
             .validate(effective, oldStateMachine, newStateMachine, deviceAmrIdSubquery);
         StateMachineSwitcher
-            .forPublishing(this.dataModel, this.eventService)
+            .forPublishing(this.dataModel, this.messageService, this.jsonService)
             .publishEvents(effective, oldStateMachine, newStateMachine, deviceAmrIdSubquery);
     }
 

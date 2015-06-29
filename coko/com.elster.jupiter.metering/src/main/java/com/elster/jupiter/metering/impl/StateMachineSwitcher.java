@@ -4,7 +4,9 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.Message;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.EventType;
@@ -51,6 +53,7 @@ public class StateMachineSwitcher implements MessageHandler {
     private final DataModel dataModel;
     private EventService eventService;
     private FiniteStateMachineService finiteStateMachineService;
+    private MessageService messageService;
     private JsonService jsonService;
     private Logger logger;
 
@@ -58,19 +61,21 @@ public class StateMachineSwitcher implements MessageHandler {
         return new StateMachineSwitcher(dataModel);
     }
 
-    public static StateMachineSwitcher forPublishing(DataModel dataModel, EventService eventService) {
+    public static StateMachineSwitcher forPublishing(DataModel dataModel, MessageService messageService, JsonService jsonService) {
         StateMachineSwitcher switcher = new StateMachineSwitcher(dataModel);
-        switcher.eventService = eventService;
+        switcher.messageService = messageService;
+        switcher.jsonService = jsonService;
         return switcher;
     }
 
-    public static StateMachineSwitcher forPublishing(int batchSize, DataModel dataModel, EventService eventService) {
+    public static StateMachineSwitcher forPublishing(int batchSize, DataModel dataModel, MessageService messageService, JsonService jsonService) {
         StateMachineSwitcher switcher = new StateMachineSwitcher(dataModel, batchSize);
-        switcher.eventService = eventService;
+        switcher.messageService = messageService;
+        switcher.jsonService = jsonService;
         return switcher;
     }
 
-    public static StateMachineSwitcher forHandling(DataModel dataModel, JsonService jsonService, FiniteStateMachineService finiteStateMachineService, EventService eventService) {
+    public static StateMachineSwitcher forHandling(DataModel dataModel, EventService eventService, JsonService jsonService, FiniteStateMachineService finiteStateMachineService) {
         StateMachineSwitcher switcher = new StateMachineSwitcher(dataModel);
         switcher.jsonService = jsonService;
         switcher.finiteStateMachineService = finiteStateMachineService;
@@ -228,6 +233,7 @@ public class StateMachineSwitcher implements MessageHandler {
      * @param deviceAmrIdSubquery The Subquery that returns the set of EndDevice that will be switched
      */
     public void publishEvents(Instant effective, FiniteStateMachine oldStateMachine, FiniteStateMachine newStateMachine, Subquery deviceAmrIdSubquery) {
+        DestinationSpec destinationSpec = this.messageService.getDestinationSpec(SwitchStateMachineEvent.DESTINATION).get();
         Condition condition =
                      where("status.interval").isEffective()
                 .and(where("status.state.finiteStateMachine").isEqualTo(oldStateMachine))
@@ -240,7 +246,7 @@ public class StateMachineSwitcher implements MessageHandler {
                     .map(EndDevice::getId))
                 .partitionPer(this.batchSize)
                 .map(deviceIds -> new SwitchStateMachineEvent(effective.toEpochMilli(), oldStateMachine.getId(), newStateMachine.getId(), deviceIds))
-                .forEach(event -> event.publish(this.eventService));
+                .forEach(event -> event.publish(destinationSpec, this.jsonService));
     }
 
     private static class IncompatibleStateNameSqlFragment implements SqlFragment {

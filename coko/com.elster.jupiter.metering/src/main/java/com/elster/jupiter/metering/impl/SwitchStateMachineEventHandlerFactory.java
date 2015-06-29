@@ -2,6 +2,7 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
 import com.elster.jupiter.util.json.JsonService;
@@ -25,6 +26,7 @@ import javax.inject.Inject;
 @SuppressWarnings("unused")
 public class SwitchStateMachineEventHandlerFactory implements MessageHandlerFactory {
 
+    private volatile MessageService messageService;
     private volatile JsonService jsonService;
     private volatile FiniteStateMachineService finiteStateMachineService;
     private volatile EventService eventService;
@@ -37,12 +39,18 @@ public class SwitchStateMachineEventHandlerFactory implements MessageHandlerFact
 
     // For testing purposes
     @Inject
-    public SwitchStateMachineEventHandlerFactory(JsonService jsonService, FiniteStateMachineService finiteStateMachineService, EventService eventService, ServerMeteringService meteringService) {
+    public SwitchStateMachineEventHandlerFactory(MessageService messageService, JsonService jsonService, FiniteStateMachineService finiteStateMachineService, EventService eventService, ServerMeteringService meteringService) {
         this();
+        this.setMessageService(messageService);
         this.setEventService(eventService);
         this.setJsonService(jsonService);
         this.setFiniteStateMachineService(finiteStateMachineService);
         this.setMeteringService(meteringService);
+    }
+
+    @Reference
+    public void setMessageService(MessageService messageService) {
+        this.messageService = messageService;
     }
 
     @Reference
@@ -67,7 +75,7 @@ public class SwitchStateMachineEventHandlerFactory implements MessageHandlerFact
 
     @Override
     public MessageHandler newMessageHandler() {
-        return StateMachineSwitcher.forHandling(this.meteringService.getDataModel(), this.jsonService, this.finiteStateMachineService, this.eventService);
+        return StateMachineSwitcher.forHandling(this.meteringService.getDataModel(), this.eventService, this.jsonService, this.finiteStateMachineService);
     }
 
 }

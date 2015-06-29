@@ -1,9 +1,8 @@
 package com.elster.jupiter.metering.impl;
 
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.events.ValueType;
 import com.elster.jupiter.fsm.FiniteStateMachine;
-import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.util.json.JsonService;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,7 +17,6 @@ import java.util.stream.Collectors;
  */
 public class SwitchStateMachineEvent {
 
-    static final String TOPIC = "com/elster/jupiter/metering/fsm/SWITCH";
     static final String SUBSCRIBER = "SwitchStateMachineEventSubsc";
     static final String SUBSCRIBER_TRANSLATION = "Change device state";
     static final String DESTINATION = "SwitchStateMachineDest";
@@ -26,19 +24,23 @@ public class SwitchStateMachineEvent {
     /**
      * The timestamp at which the change over to the new state should be recorded.
      */
-    private final long now;
+    private long now;
 
     /**
      * The unique identifier of the old {@link FiniteStateMachine}.
      */
-    private final long oldFiniteStateMachineId;
+    private long oldFiniteStateMachineId;
 
     /**
      * The unique identifier of the old {@link FiniteStateMachine}.
      */
-    private final long newFiniteStateMachineId;
+    private long newFiniteStateMachineId;
 
-    private final String deviceIds;
+    private String deviceIds;
+
+    public SwitchStateMachineEvent() {
+        super();
+    }
 
     public SwitchStateMachineEvent(long now, long oldFiniteStateMachineId, long newFiniteStateMachineId, List<Long> deviceIds) {
         super();
@@ -49,32 +51,12 @@ public class SwitchStateMachineEvent {
     }
 
     /**
-     * Installs this event with the {@link EventService}.
+     * Publishes this SwitchStateMachineEvent on the {@link DestinationSpec}.
      *
-     * @param eventService The EventService
+     * @param destinationSpec The DestinationSpec
      */
-    public static void install(EventService eventService) {
-        eventService.buildEventTypeWithTopic(TOPIC)
-                .name(SwitchStateMachineEvent.class.getSimpleName())
-                .component(MeteringService.COMPONENTNAME)
-                .category("Crud")
-                .scope("System")
-                .withProperty("now", ValueType.LONG, "now")
-                .withProperty("oldFiniteStateMachineId", ValueType.LONG, "oldFiniteStateMachineId")
-                .withProperty("newFiniteStateMachineId", ValueType.LONG, "newFiniteStateMachineId")
-                .withProperty("deviceIds", ValueType.STRING, "deviceIds")
-                .shouldPublish()
-                .create()
-                .save();
-    }
-
-    /**
-     * Publishes this SwitchStateMachineEvent with the {@link EventService}.
-     *
-     * @param eventService The EventService
-     */
-    public void publish(EventService eventService) {
-        eventService.postEvent(TOPIC, this);
+    public void publish(DestinationSpec destinationSpec, JsonService jsonService) {
+        destinationSpec.message(jsonService.serialize(this)).send();
     }
 
     public long getNow() {
