@@ -8,6 +8,8 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeterAlreadyLinkedToUsagePoint;
 import com.elster.jupiter.metering.ReadingContainer;
+import com.elster.jupiter.metering.ReadingQualityRecord;
+import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.nls.Thesaurus;
@@ -321,4 +323,17 @@ public class MeterActivationImpl implements MeterActivation {
 		this.save();
         eventService.postEvent(EventType.METER_ACTIVATION_ADVANCED.topic(), this);
 	}
+
+	@Override
+	public List<ReadingQualityRecord> getReadingQualities(ReadingQualityType readingQualityType, ReadingType readingType, Range<Instant> interval) {
+		return Optional.ofNullable(getChannel(readingType))
+				.flatMap(channel -> channel.getCimChannel(readingType))
+				.map(cimChannel -> cimChannel.findActualReadingQuality(readingQualityType, interval))
+				.orElse(Collections.emptyList());
+	}
+
+    @Override
+    public List<MeterActivation> getMeterActivations() {
+        return Collections.singletonList(this);
+    }
 }

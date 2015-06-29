@@ -7,6 +7,8 @@ import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingContainer;
+import com.elster.jupiter.metering.ReadingQualityRecord;
+import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceLocation;
@@ -34,6 +36,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class UsagePointImpl implements UsagePoint {
 	// persistent fields
@@ -445,5 +448,12 @@ public class UsagePointImpl implements UsagePoint {
 		return getCurrentMeterActivation()
 				.map(MeterActivation::getZoneId)
 				.orElse(ZoneId.systemDefault());
+	}
+
+	@Override
+	public List<ReadingQualityRecord> getReadingQualities(ReadingQualityType readingQualityType, ReadingType readingType, Range<Instant> interval) {
+		return meterActivations.stream()
+				.flatMap(meterActivation -> meterActivation.getReadingQualities(readingQualityType, readingType, interval).stream())
+				.collect(Collectors.toList());
 	}
 }
