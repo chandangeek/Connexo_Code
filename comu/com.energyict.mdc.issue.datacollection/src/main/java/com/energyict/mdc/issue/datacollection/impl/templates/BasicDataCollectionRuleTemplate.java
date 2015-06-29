@@ -94,19 +94,20 @@ public class BasicDataCollectionRuleTemplate extends AbstractDataCollectionTempl
     public String getContent() {
         return "package com.energyict.mdc.issue.datacollection\n" +
                "import com.energyict.mdc.issue.datacollection.event.DataCollectionEvent;\n" +
+               "global java.util.logging.Logger LOGGER;\n" + 
                "global com.elster.jupiter.issue.share.service.IssueCreationService issueCreationService;\n" +
                "rule \"Basic datacollection rule @{ruleId}\"\n"+
                "when\n"+
                "\tevent : DataCollectionEvent( eventType == \"@{" + EVENTTYPE + "}\", resolveEvent == false )\n"+
                "then\n"+
-               "\tSystem.out.println(\"Trying to create issue by basic datacollection rule=@{ruleId}\");\n"+
+               "\tLOGGER.info(\"Trying to create issue by basic datacollection rule=@{ruleId}\");\n"+
                "\tissueCreationService.processIssueCreationEvent(@{ruleId}, event);\n"+
                "end\n" +
                "rule \"Auto-resolution section @{ruleId}\"\n"+
                "when\n"+
                "\tevent : DataCollectionEvent( eventType == \"@{" + EVENTTYPE + "}\", resolveEvent == true, @{"+ AUTORESOLUTION + "} == 1 )\n"+
                "then\n"+
-               "\tSystem.out.println(\"Trying to resolve issue by basic datacollection rule=@{ruleId}\");\n"+
+               "\tLOGGER.info(\"Trying to resolve issue by basic datacollection rule=@{ruleId}\");\n"+
                "\tissueCreationService.processIssueResolutionEvent(@{ruleId}, event);\n"+
                "end";
     }

@@ -1,12 +1,12 @@
 package com.energyict.mdc.issue.datacollection.impl.event;
 
 import com.elster.jupiter.issue.share.IssueEvent;
+import com.elster.jupiter.issue.share.UnableToCreateEventException;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.issue.datacollection.event.DataCollectionEvent;
-import com.energyict.mdc.issue.datacollection.impl.UnableToCreateEventException;
 import com.google.inject.Injector;
 
 import java.util.ArrayList;

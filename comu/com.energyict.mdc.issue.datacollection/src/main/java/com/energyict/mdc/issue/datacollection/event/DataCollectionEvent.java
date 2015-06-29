@@ -2,6 +2,7 @@ package com.energyict.mdc.issue.datacollection.event;
 
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.share.IssueEvent;
+import com.elster.jupiter.issue.share.UnableToCreateEventException;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.EndDevice;
@@ -20,7 +21,6 @@ import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.entity.OpenIssueDataCollection;
 import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
-import com.energyict.mdc.issue.datacollection.impl.UnableToCreateEventException;
 import com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventDescription;
 import com.energyict.mdc.issue.datacollection.impl.event.EventDescription;
 import com.energyict.mdc.issue.datacollection.impl.i18n.MessageSeeds;
