@@ -15,12 +15,9 @@ import com.elster.jupiter.validation.impl.IValidationRule;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.rest.IntervalInfo;
 import com.energyict.mdc.device.config.ChannelSpec;
-import com.energyict.mdc.device.data.Channel;
-import com.energyict.mdc.device.data.ChannelDataUpdater;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceValidation;
-import com.energyict.mdc.device.data.LoadProfile;
-import com.energyict.mdc.device.data.LoadProfileReading;
+import com.energyict.mdc.device.data.*;
+import com.energyict.mdc.issue.datavalidation.IssueDataValidation;
+import com.energyict.mdc.issue.datavalidation.NotEstimatedBlock;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
@@ -32,20 +29,13 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.anyList;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
 
@@ -290,5 +280,54 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         // TODO add items
         assertThat(jsonModel.<Number>get("$.id").longValue()).isEqualTo(CHANNEL_ID1);
         assertThat(jsonModel.<Number>get("$.lastValueTimestamp")).isEqualTo(NOW.toEpochMilli());
+    }
+
+    @Test
+    public void testGetValidationBlocksOnIssueNoBlocks() {
+        IssueDataValidation issue = mock(IssueDataValidation.class);
+        doReturn(Optional.of(issue)).when(issueDataValidationService).findIssue(12L);
+        List<NotEstimatedBlock> blocks = new ArrayList<>();
+        when(issue.getNotEstimatedBlocks()).thenReturn(blocks);
+
+        String response = target("devices/1/channels/" + CHANNEL_ID1 + "/datavalidationissues/12/validationblocks").request().get(String.class);
+
+        JsonModel jsonModel = JsonModel.create(response);
+        assertThat(jsonModel.<Number>get("$.total")).isEqualTo(0);
+        assertThat(jsonModel.<List<?>>get("$.validationBlocks")).isEmpty();
+    }
+
+    @Test
+    public void testGetValidationBlocksOnIssue() {
+        IssueDataValidation issue = mock(IssueDataValidation.class);
+        doReturn(Optional.of(issue)).when(issueDataValidationService).findIssue(12L);
+        List<NotEstimatedBlock> blocks = new ArrayList<>();
+        when(issue.getNotEstimatedBlocks()).thenReturn(blocks);
+
+        Instant now = Instant.now();
+        ReadingType bulkReadingType = mockReadingType("0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0");
+        ReadingType deltaReadingType = mockReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0");
+        when(bulkReadingType.getCalculatedReadingType()).thenReturn(Optional.of(deltaReadingType));
+        when(channel.getReadingType()).thenReturn(bulkReadingType);
+
+        blocks.add(mockNotEstimatedBlock(now, now.plus(30, ChronoUnit.MINUTES), bulkReadingType));
+        blocks.add(mockNotEstimatedBlock(now.plus(60, ChronoUnit.MINUTES), now.plus(90, ChronoUnit.MINUTES), bulkReadingType));
+        blocks.add(mockNotEstimatedBlock(now, now.plus(15, ChronoUnit.MINUTES), deltaReadingType));
+        blocks.add(mockNotEstimatedBlock(now.plus(30, ChronoUnit.MINUTES), now.plus(75, ChronoUnit.MINUTES), deltaReadingType));
+
+        String response = target("devices/1/channels/" + CHANNEL_ID1 + "/datavalidationissues/12/validationblocks").request().get(String.class);
+
+        JsonModel jsonModel = JsonModel.create(response);
+        assertThat(jsonModel.<Number>get("$.total")).isEqualTo(1);
+        assertThat(jsonModel.<List<?>>get("$.validationBlocks")).hasSize(1);
+        assertThat(jsonModel.<Number>get("$.validationBlocks[0].startTime")).isEqualTo(now.toEpochMilli());
+        assertThat(jsonModel.<Number>get("$.validationBlocks[0].endTime")).isEqualTo(now.plus(90, ChronoUnit.MINUTES).toEpochMilli());
+    }
+
+    private NotEstimatedBlock mockNotEstimatedBlock(Instant from, Instant to, ReadingType readingType) {
+        NotEstimatedBlock block = mock(NotEstimatedBlock.class);
+        when(block.getStartTime()).thenReturn(from);
+        when(block.getEndTime()).thenReturn(to);
+        when(block.getReadingType()).thenReturn(readingType);
+        return block;
     }
 }

@@ -4,10 +4,15 @@ import com.elster.jupiter.cbo.EndDeviceDomain;
 import com.elster.jupiter.cbo.EndDeviceEventorAction;
 import com.elster.jupiter.cbo.EndDeviceSubDomain;
 import com.elster.jupiter.cbo.EndDeviceType;
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.issue.share.entity.IssueStatus;
+import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
 import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.LifecycleDates;
+import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
@@ -71,13 +76,7 @@ import java.util.Set;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Created by bvn on 6/19/14.
@@ -88,7 +87,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     public ReadingType readingType;
 
     @Before
-    public void setupStubs(){
+    public void setupStubs() {
         readingType = mockReadingType("0.1.2.3.5.6.7.8.9.1.2.3.4.5.6.7.8");
     }
 
@@ -1157,6 +1156,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(pluggableClass.getId()).thenReturn(10L);
         DeviceEstimation deviceEstimation = mock(DeviceEstimation.class);
         when(device.forEstimation()).thenReturn(deviceEstimation);
+        mockForCountDataValidationIssues();
         State state = mockDeviceState("In stock");
         when(device.getState()).thenReturn(state);
         Instant now = Instant.now();
@@ -1236,5 +1236,17 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         State state = mock(State.class);
         when(state.getName()).thenReturn(name);
         return state;
+    }
+
+    private void mockForCountDataValidationIssues() {
+        AmrSystem amrSystem = mock(AmrSystem.class);
+        when(meteringService.findAmrSystem(KnownAmrSystem.MDC.getId())).thenReturn(Optional.of(amrSystem));
+        Meter meter = mock(Meter.class);
+        when(amrSystem.findMeter(Matchers.anyString())).thenReturn(Optional.of(meter));
+        IssueStatus status = mock(IssueStatus.class);
+        when(issueService.findStatus(Matchers.anyString())).thenReturn(Optional.of(status));
+        Finder finder = mock(Finder.class);
+        when(issueDataValidationService.findAllDataValidationIssues(Matchers.any())).thenReturn(finder);
+        when(finder.find()).thenReturn(Collections.emptyList());
     }
 }

@@ -1,8 +1,13 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.KnownAmrSystem;
+import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.config.GatewayType;
 import com.energyict.mdc.device.configuration.rest.GatewayTypeAdapter;
@@ -12,14 +17,16 @@ import com.energyict.mdc.device.data.imp.Batch;
 import com.energyict.mdc.device.data.imp.DeviceImportService;
 import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleStateInfo;
 import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.issue.datavalidation.DataValidationIssueFilter;
+import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 @XmlRootElement
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -38,6 +45,7 @@ public class DeviceInfo {
     public Long masterDeviceId;
     public List<DeviceTopologyInfo> slaveDevices;
     public long nbrOfDataCollectionIssues;
+    public long nbrOfDataValidationIssues;
     @XmlJavaTypeAdapter(GatewayTypeAdapter.class)
     public GatewayType gatewayType;
     public Boolean hasRegisters;
@@ -55,7 +63,7 @@ public class DeviceInfo {
     public DeviceInfo() {
     }
 
-    public static DeviceInfo from(Device device, List<DeviceTopologyInfo> slaveDevices, DeviceImportService deviceImportService, TopologyService topologyService, IssueService issueService, Thesaurus thesaurus) {
+    public static DeviceInfo from(Device device, List<DeviceTopologyInfo> slaveDevices, DeviceImportService deviceImportService, TopologyService topologyService, IssueService issueService, IssueDataValidationService issueDataValidationService, MeteringService meteringService, Thesaurus thesaurus) {
         DeviceInfo deviceInfo = new DeviceInfo();
         deviceInfo.id = device.getId();
         deviceInfo.mRID = device.getmRID();
@@ -80,6 +88,7 @@ public class DeviceInfo {
         deviceInfo.gatewayType = device.getConfigurationGatewayType();
         deviceInfo.slaveDevices = slaveDevices;
         deviceInfo.nbrOfDataCollectionIssues = issueService.countOpenDataCollectionIssues(device.getmRID());
+        deviceInfo.nbrOfDataValidationIssues = countOpenDataValidationIssues(device, meteringService, issueService, issueDataValidationService);
         deviceInfo.hasLoadProfiles = !device.getLoadProfiles().isEmpty();
         deviceInfo.hasLogBooks = !device.getLogBooks().isEmpty();
         deviceInfo.hasRegisters = !device.getRegisters().isEmpty();
@@ -110,6 +119,16 @@ public class DeviceInfo {
                 .collect(Collectors.toList());
 
         return deviceInfo;
+    }
+
+    private static long countOpenDataValidationIssues(Device device, MeteringService meteringService, IssueService issueService, IssueDataValidationService issueDataValidationService) {
+        Optional<AmrSystem> amrSystem = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId());
+        Optional<Meter> meter = amrSystem.get().findMeter(String.valueOf(device.getId()));
+        DataValidationIssueFilter filter = new DataValidationIssueFilter();
+        filter.setDevice(meter.get());
+        filter.addStatus(issueService.findStatus(IssueStatus.OPEN).get());
+        filter.addStatus(issueService.findStatus(IssueStatus.IN_PROGRESS).get());
+        return issueDataValidationService.findAllDataValidationIssues(filter).find().size();
     }
 
     public static DeviceInfo from(Device device) {
