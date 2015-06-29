@@ -1048,20 +1048,6 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
         assertThat(device.getCurrentMeterActivation().get().getStart()).isEqualTo(expectedStart);
     }
 
-    @Test(expected = MeterAlreadyActive.class)
-    @Transactional
-    public void activateMeterSecondTime() {
-        Device device = this.createSimpleDevice();
-        Instant initialStart = Instant.ofEpochMilli(97L);
-        Instant restart = Instant.ofEpochMilli(970079L);
-        device.activate(initialStart);
-
-        // Business method
-        device.activate(restart);
-
-        // Asserts: see expected exception rule
-    }
-
     @Test
     @Transactional
     public void deactivateNowOnMeterThatWasNotActive() {
