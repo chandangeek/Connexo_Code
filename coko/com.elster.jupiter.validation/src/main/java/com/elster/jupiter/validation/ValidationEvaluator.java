@@ -31,6 +31,7 @@ public interface ValidationEvaluator {
 	}
 
     boolean isAllDataValidated(MeterActivation meterActivation);
+    boolean isAllDataValid(MeterActivation meterActivation);
 
     default List<DataValidationStatus> getValidationStatus(Channel channel, List<? extends BaseReading> readings) {
         List<DataValidationStatus> dataValidationStatuses;

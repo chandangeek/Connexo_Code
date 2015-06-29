@@ -11,12 +11,7 @@ public enum ValidationResult {
     VALID, SUSPECT, NOT_VALIDATED;
 
     public static ValidationResult getValidationResult(Collection<? extends ReadingQuality> qualities) {
-    	ValidationResult result = doGetValidationResult(qualities);    	
-    	return result;
-    }
-    
-    public static ValidationResult doGetValidationResult(Collection<? extends ReadingQuality> qualities) {
-    	EnumSet<ValidationResult> results = qualities.stream()    		
+    	EnumSet<ValidationResult> results = qualities.stream()
     		.map(ValidationResult::of)
     		.collect(() -> EnumSet.noneOf(ValidationResult.class), EnumSet::add , EnumSet::addAll);
     	if (results.contains(SUSPECT)) {
