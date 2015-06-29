@@ -4,13 +4,13 @@ Ext.define('Fwc.store.DeviceGroups', {
 
     proxy: {
         type: 'rest',
-        url: '/api/ddr/kpis/groups',
+        url: '/api/ddr/devicegroups',
         pageParam: undefined,
         startParam: undefined,
         limitParam: undefined,
         reader: {
             type: 'json',
-            root: 'deviceGroups'
+            root: 'devicegroups'
         }
     }
 });
