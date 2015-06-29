@@ -171,16 +171,11 @@ public abstract class AbstractCollectedDataIntegrationTest {
                 injector.getInstance(MeteringGroupsService.class);
                 injector.getInstance(EngineService.class);
                 EventService eventService = injector.getInstance(EventService.class);
-                makeSureJupiterEventsAreInstalled(eventService);
                 meteringService = injector.getInstance(MeteringService.class);
                 mdcReadingTypeUtilService = injector.getInstance(MdcReadingTypeUtilService.class);
                 masterDataService = injector.getInstance(MasterDataService.class);
             }
         });
-    }
-
-    private static void makeSureJupiterEventsAreInstalled(EventService eventService) {
-        ((InstallService) eventService).install();
     }
 
     @AfterClass
