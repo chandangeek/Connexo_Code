@@ -1,5 +1,7 @@
 package com.elster.jupiter.fsm;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.util.List;
 
 /**
@@ -16,6 +18,7 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-05-07 (08:31)
  */
+@ProviderType
 public interface StateTimeline {
 
     public List<StateTimeSlice> getSlices();

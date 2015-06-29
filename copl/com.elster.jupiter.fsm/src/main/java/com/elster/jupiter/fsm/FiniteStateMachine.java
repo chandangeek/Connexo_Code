@@ -1,5 +1,7 @@
 package com.elster.jupiter.fsm;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -21,6 +23,7 @@ import java.util.Optional;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-02 (11:45)
  */
+@ProviderType
 public interface FiniteStateMachine {
 
     public long getId();

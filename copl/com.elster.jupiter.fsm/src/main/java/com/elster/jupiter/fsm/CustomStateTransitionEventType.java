@@ -1,5 +1,7 @@
 package com.elster.jupiter.fsm;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.time.Instant;
 import java.util.Map;
 
@@ -9,6 +11,7 @@ import java.util.Map;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-05 (10:07)
  */
+@ProviderType
 public interface CustomStateTransitionEventType extends StateTransitionEventType {
 
     /**

@@ -1,5 +1,6 @@
 package com.elster.jupiter.fsm;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.nls.Thesaurus;
 
 import java.util.Optional;
@@ -16,6 +17,7 @@ import java.util.Optional;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-02 (11:55)
  */
+@ProviderType
 public interface StateTransition {
 
     public long getId();

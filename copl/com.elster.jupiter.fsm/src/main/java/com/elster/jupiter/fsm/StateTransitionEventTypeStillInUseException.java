@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-10 (15:54)
  */
-public class StateTransitionEventTypeStillInUseException extends LocalizedException {
+public final class StateTransitionEventTypeStillInUseException extends LocalizedException {
 
     public StateTransitionEventTypeStillInUseException(Thesaurus thesaurus, StateTransitionEventType eventType, Collection<FiniteStateMachine> finiteStateMachines) {
         super(thesaurus, MessageSeeds.EVENT_TYPE_STILL_IN_USE, eventType.getSymbol(), toCommaSeparatedList(finiteStateMachines));

@@ -1,5 +1,6 @@
 package com.elster.jupiter.fsm;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.events.EventType;
 
 import java.util.List;
@@ -11,6 +12,7 @@ import java.util.Optional;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-02 (16:25)
  */
+@ProviderType
 public interface FiniteStateMachineService {
 
     String COMPONENT_NAME = "FSM";

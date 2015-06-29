@@ -11,7 +11,7 @@ import com.elster.jupiter.nls.Thesaurus;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-10 (09:46)
  */
-public class UnknownProcessReferenceException extends LocalizedException {
+public final class UnknownProcessReferenceException extends LocalizedException {
 
     public UnknownProcessReferenceException(Thesaurus thesaurus, State state, String deploymentId, String processId) {
         super(thesaurus, MessageSeeds.NO_SUCH_PROCESS, deploymentId, processId, state.getName(), state.getFiniteStateMachine().getName());

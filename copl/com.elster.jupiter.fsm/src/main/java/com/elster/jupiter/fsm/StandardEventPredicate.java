@@ -1,5 +1,6 @@
 package com.elster.jupiter.fsm;
 
+import aQute.bnd.annotation.ConsumerType;
 import com.elster.jupiter.events.EventType;
 
 /**
@@ -10,6 +11,7 @@ import com.elster.jupiter.events.EventType;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-06 (10:59)
  */
+@ConsumerType
 public interface StandardEventPredicate {
 
     /**

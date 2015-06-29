@@ -1,5 +1,7 @@
 package com.elster.jupiter.fsm;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * Models the behavior of a component that allows to update an existing {@link FiniteStateMachine}.
  *
@@ -63,6 +65,7 @@ public interface FiniteStateMachineUpdater extends FiniteStateMachineBuilder {
      * Assists in updating {@link State}s that already exist
      * in the main builder's update target.
      */
+    @ProviderType
     public interface StateUpdater {
 
         public StateUpdater setName(String newName);

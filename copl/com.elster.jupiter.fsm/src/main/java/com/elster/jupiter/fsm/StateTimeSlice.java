@@ -1,5 +1,6 @@
 package com.elster.jupiter.fsm;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.users.User;
 import com.google.common.collect.Range;
 
@@ -17,6 +18,7 @@ import java.util.Optional;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-05-07 (08:36)
  */
+@ProviderType
 public interface StateTimeSlice {
 
     public Range<Instant> getPeriod();

@@ -1,5 +1,7 @@
 package com.elster.jupiter.fsm;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.time.Instant;
 
 /**
@@ -10,6 +12,7 @@ import java.time.Instant;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-02 (12:50)
  */
+@ProviderType
 public interface StateTransitionEventType {
 
     public long getId();

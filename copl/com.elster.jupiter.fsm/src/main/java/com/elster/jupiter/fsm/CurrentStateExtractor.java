@@ -1,5 +1,6 @@
 package com.elster.jupiter.fsm;
 
+import aQute.bnd.annotation.ConsumerType;
 import com.elster.jupiter.events.LocalEvent;
 
 import java.util.Optional;
@@ -10,6 +11,7 @@ import java.util.Optional;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-05 (14:30)
  */
+@ConsumerType
 public interface CurrentStateExtractor {
 
     public class CurrentState {

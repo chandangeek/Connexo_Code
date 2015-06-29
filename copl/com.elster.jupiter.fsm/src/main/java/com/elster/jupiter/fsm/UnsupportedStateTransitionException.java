@@ -11,7 +11,7 @@ import com.elster.jupiter.nls.Thesaurus;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-09 (10:39)
  */
-public class UnsupportedStateTransitionException extends LocalizedException {
+public final class UnsupportedStateTransitionException extends LocalizedException {
 
     public UnsupportedStateTransitionException(Thesaurus thesaurus, FiniteStateMachine finiteStateMachine, State from, StateTransitionEventType eventType) {
         super(thesaurus, MessageSeeds.UNKNOWN_STATE_TRANSITION, from.getName(), eventType.getSymbol(), finiteStateMachine.getName());

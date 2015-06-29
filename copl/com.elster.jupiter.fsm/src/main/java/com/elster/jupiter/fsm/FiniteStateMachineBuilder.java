@@ -1,5 +1,6 @@
 package com.elster.jupiter.fsm;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.nls.TranslationKey;
 
 /**
@@ -11,6 +12,7 @@ import com.elster.jupiter.nls.TranslationKey;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-03 (09:54)
  */
+@ProviderType
 public interface FiniteStateMachineBuilder {
 
     /**
