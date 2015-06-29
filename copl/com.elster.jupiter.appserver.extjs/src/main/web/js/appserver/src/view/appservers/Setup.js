@@ -7,10 +7,8 @@ Ext.define('Apr.view.appservers.Setup', {
         'Uni.view.notifications.NoItemsFoundPanel',
         'Apr.view.appservers.Grid',
         'Apr.view.appservers.Preview',
-        'Apr.view.appservers.ActionMenu',
-        'Apr.view.appservers.SortingToolbar'
+        'Apr.view.appservers.ActionMenu'
     ],
-
     initComponent: function () {
         var me = this;
 
@@ -19,18 +17,15 @@ Ext.define('Apr.view.appservers.Setup', {
             title: Uni.I18n.translate('general.applicationServers', 'APR', 'Application servers'),
             items: [
                 {
-                    itemId: 'appservers-sorting-toolbar',
-                    xtype: 'appservers-sorting-toolbar',
-                    hideEmpty: false
-                },
-                {
                     xtype: 'preview-container',
                     grid: {
                         xtype: 'appservers-grid',
+                        itemId: 'grd-application-servers',
                         router: me.router
                     },
                     emptyComponent: {
                         xtype: 'no-items-found-panel',
+                        itemId: 'ctr-no-app-server',
                         title: Uni.I18n.translate('appServers.empty.title', 'APR', 'No application servers found'),
                         reasons: [
                             Uni.I18n.translate('appServers.empty.list.item1', 'APR', 'There are no application servers in the system')
@@ -44,7 +39,8 @@ Ext.define('Apr.view.appservers.Setup', {
                         ]
                     },
                     previewComponent: {
-                        xtype: 'appservers-preview'
+                        xtype: 'appservers-preview',
+                        itemId: 'pnl-appserver-preview'
                     }
                 }
             ]
