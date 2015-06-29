@@ -6,5 +6,6 @@ public enum MicroCategory {
     DATA_COLLECTION,
     TOPOLOGY,
     ISSUES_AND_ALARMS,
-    INSTALLATION;
+    INSTALLATION,
+    RETENTION;
 }

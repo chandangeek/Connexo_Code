@@ -105,7 +105,12 @@ public enum MicroAction {
     /**
      * Close the <i>communication and validation</i> issues on the device with the status <i>Won't fix</i>.
      */
-    CLOSE_ALL_ISSUES(MicroCategory.ISSUES_AND_ALARMS);
+    CLOSE_ALL_ISSUES(MicroCategory.ISSUES_AND_ALARMS),
+
+    /**
+     * Removes the device and all it's references
+     */
+    REMOVE_DEVICE(MicroCategory.RETENTION);
 
     private MicroCategory category;
     private String conflictGroupKey;
