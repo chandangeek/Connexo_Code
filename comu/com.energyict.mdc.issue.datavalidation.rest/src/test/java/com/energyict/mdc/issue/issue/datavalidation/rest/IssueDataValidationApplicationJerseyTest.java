@@ -105,6 +105,7 @@ public class IssueDataValidationApplicationJerseyTest extends FelixRestApplicati
         when(meter.getAmrSystem()).thenReturn(amrSystem);
         when(amrSystem.is(KnownAmrSystem.MDC)).thenReturn(true);
         when(meteringService.findEndDevice(id)).thenReturn(Optional.of(meter));
+        when(meteringService.findEndDevice(mrid)).thenReturn(Optional.of(meter));
         return meter;
     }
 

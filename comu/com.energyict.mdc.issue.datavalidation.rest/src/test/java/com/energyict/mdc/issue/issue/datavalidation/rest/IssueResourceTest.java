@@ -64,7 +64,7 @@ public class IssueResourceTest extends IssueDataValidationApplicationJerseyTest 
         String response = target("/issues")
                 .queryParam("status", "open")
                 .queryParam("status", "inprogress")
-                .queryParam("meter", 2L)
+                .queryParam("meter", "Meter")
                 .queryParam("assigneeType", "USER")
                 .queryParam("assigneeId", 3L)
                 .queryParam("reason", "IssueReason")

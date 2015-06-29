@@ -230,7 +230,7 @@ public class IssueResource {
                 .findFirst()
                 .flatMap(issueService::findReason)
                 .ifPresent(filter::setIssueReason);
-        queryFilter.getLong("meter").stream()
+        queryFilter.get("meter").stream()
                 .findFirst()
                 .flatMap(meteringService::findEndDevice)
                 .ifPresent(filter::setDevice);
