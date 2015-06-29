@@ -42,7 +42,7 @@ public class ExecutableTransitionActionImpl implements ExecutableAction {
 
     @Override
     public void execute(Instant effectiveTimestamp, List<ExecutableActionProperty> properties) throws SecurityException, DeviceLifeCycleActionViolationException {
-        this.service.execute(this.action, this.device, Instant.now(), properties);
+        this.service.execute(this.action, this.device, effectiveTimestamp, properties);
     }
 
 }

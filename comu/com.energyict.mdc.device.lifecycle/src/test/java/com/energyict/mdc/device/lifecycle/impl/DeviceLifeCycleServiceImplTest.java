@@ -46,6 +46,7 @@ import java.math.BigDecimal;
 import java.security.Principal;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -473,12 +474,13 @@ public class DeviceLifeCycleServiceImplTest {
         when(this.user.hasPrivilege(this.privilege)).thenReturn(true);
         ServerMicroAction setLastReading = mock(ServerMicroAction.class);
         when(this.microActionFactory.from(MicroAction.SET_LAST_READING)).thenReturn(setLastReading);
-        when(this.lifeCycle.getMaximumFutureEffectiveTimestamp()).thenReturn(Instant.ofEpochSecond(10000));
-        when(this.lifeCycle.getMaximumPastEffectiveTimestamp()).thenReturn(Instant.ofEpochSecond(1000));
+        Instant effectiveTimeStamp = Instant.ofEpochMilli(123456789);
+        when(this.lifeCycle.getMaximumFutureEffectiveTimestamp()).thenReturn(effectiveTimeStamp);
+        when(this.lifeCycle.getMaximumPastEffectiveTimestamp()).thenReturn(effectiveTimeStamp);
         when(this.thesaurus.getFormat(any(MessageSeed.class))).thenReturn(mock(NlsMessageFormat.class));
 
         // Business method
-        service.execute(this.action, this.device, Instant.EPOCH, Collections.emptyList());
+        service.execute(this.action, this.device, effectiveTimeStamp.minus(7, ChronoUnit.DAYS), Collections.emptyList());
 
         // Asserts: see expected exception rule
     }
@@ -491,12 +493,13 @@ public class DeviceLifeCycleServiceImplTest {
         when(this.user.hasPrivilege(this.privilege)).thenReturn(true);
         ServerMicroAction setLastReading = mock(ServerMicroAction.class);
         when(this.microActionFactory.from(MicroAction.SET_LAST_READING)).thenReturn(setLastReading);
-        when(this.lifeCycle.getMaximumFutureEffectiveTimestamp()).thenReturn(Instant.ofEpochSecond(10000));
-        when(this.lifeCycle.getMaximumPastEffectiveTimestamp()).thenReturn(Instant.ofEpochSecond(1000));
+        Instant effectiveTimeStamp = Instant.ofEpochMilli(123456789);
+        when(this.lifeCycle.getMaximumFutureEffectiveTimestamp()).thenReturn(effectiveTimeStamp);
+        when(this.lifeCycle.getMaximumPastEffectiveTimestamp()).thenReturn(effectiveTimeStamp);
         when(this.thesaurus.getFormat(any(MessageSeed.class))).thenReturn(mock(NlsMessageFormat.class));
 
         // Business method
-        service.execute(this.action, this.device, Instant.ofEpochSecond(10100), Collections.emptyList());
+        service.execute(this.action, this.device, effectiveTimeStamp.plus(7, ChronoUnit.DAYS), Collections.emptyList());
 
         // Asserts: see expected exception rule
     }

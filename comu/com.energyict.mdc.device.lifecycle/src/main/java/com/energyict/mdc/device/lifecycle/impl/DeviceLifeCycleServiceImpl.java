@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.lifecycle.impl;
 
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.impl.tasks.Chopper;
 import com.energyict.mdc.device.lifecycle.ActionDoesNotRelateToDeviceStateException;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolation;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolationException;
@@ -43,6 +44,7 @@ import javax.inject.Inject;
 import java.security.Principal;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -270,8 +272,7 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
     }
 
     private void effectiveTimestampIsInRange(Instant effectiveTimestamp, DeviceLifeCycle deviceLifeCycle) {
-        Instant now = this.clock.instant();
-        Range<Instant> range = Range.closed(deviceLifeCycle.getMaximumPastEffectiveTimestamp(), deviceLifeCycle.getMaximumFutureEffectiveTimestamp());
+        Range<Instant> range = Range.closedOpen(deviceLifeCycle.getMaximumPastEffectiveTimestamp().truncatedTo(ChronoUnit.DAYS), deviceLifeCycle.getMaximumFutureEffectiveTimestamp().truncatedTo(ChronoUnit.DAYS).plus(1, ChronoUnit.DAYS));
         if (!range.contains(effectiveTimestamp)) {
             throw new EffectiveTimestampNotInRangeException(this.thesaurus, MessageSeeds.EFFECTIVE_TIMESTAMP_NOT_IN_RANGE, deviceLifeCycle);
         }
@@ -337,7 +338,7 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
     private void triggerExecution(AuthorizedTransitionAction action, Device device, Instant effectiveTimestamp, List<ExecutableActionProperty> properties) throws DeviceLifeCycleActionViolationException {
         this.executeMicroChecks(action, device, effectiveTimestamp);
         this.executeMicroActions(action, device, effectiveTimestamp, properties);
-        this.triggerEvent((CustomStateTransitionEventType) action.getStateTransition().getEventType(), device, Instant.now());
+        this.triggerEvent((CustomStateTransitionEventType) action.getStateTransition().getEventType(), device, effectiveTimestamp);
     }
 
     private void triggerExecution(AuthorizedBusinessProcessAction action, Device device) {

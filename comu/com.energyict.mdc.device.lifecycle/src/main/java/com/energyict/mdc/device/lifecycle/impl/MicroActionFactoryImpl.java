@@ -149,6 +149,9 @@ public class MicroActionFactoryImpl implements ServerMicroActionFactory {
             case CLOSE_ALL_ISSUES: {
                 return new CloseAllIssues(issueService);
             }
+            case REMOVE_DEVICE: {
+                return new RemoveDevice();
+            }
             default: {
                 throw new IllegalArgumentException("Unknown or unsupported MicroAction " + microAction.name());
             }

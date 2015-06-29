@@ -32,10 +32,7 @@ public class CloseAllIssues implements ServerMicroAction {
         List<OpenIssue> openIssues = device.getOpenIssues();
         if (!openIssues.isEmpty()) {
             IssueStatus wontFix = this.issueService.findStatus(IssueStatus.WONT_FIX).get();
-            openIssues.stream().forEach(baseIssue ->
-                    issueService.getIssueProviders().forEach(provider ->
-                            provider.getOpenIssue(baseIssue)
-                                    .ifPresent(openIssue -> openIssue.close(wontFix))));
+            openIssues.stream().forEach(baseIssue -> baseIssue.close(wontFix));
         }
     }
 
