@@ -35,6 +35,7 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.cron.impl.DefaultCronExpressionParser;
+import com.elster.jupiter.validation.impl.ValidationModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -143,7 +144,8 @@ public class DirectoryForAppServerlIT {
                     new MeteringGroupsModule(),
                     new AppServiceModule(),
                     new BasicPropertiesModule(),
-                    new MailModule()
+                    new MailModule(),
+                    new ValidationModule()
             );
         } catch (Exception e) {
             throw new RuntimeException(e);

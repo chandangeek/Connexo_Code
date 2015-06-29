@@ -33,6 +33,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
+import com.elster.jupiter.validation.impl.ValidationModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -129,7 +130,8 @@ public class ExportDestinationTest {
                     new MeteringGroupsModule(),
                     new AppServiceModule(),
                     new MailModule(),
-                    new BasicPropertiesModule()
+                    new BasicPropertiesModule(),
+                    new ValidationModule()
             );
         } catch (Exception e) {
             throw new RuntimeException(e);

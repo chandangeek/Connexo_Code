@@ -58,6 +58,7 @@ import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.time.Never;
+import com.elster.jupiter.validation.impl.ValidationModule;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
@@ -202,7 +203,8 @@ public class ExportTaskImplIT {
                     new MeteringGroupsModule(),
                     new AppServiceModule(),
                     new BasicPropertiesModule(),
-                    new MailModule()
+                    new MailModule(),
+                    new ValidationModule()
             );
         } catch (Exception e) {
             throw new RuntimeException(e);

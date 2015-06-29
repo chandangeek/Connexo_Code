@@ -22,6 +22,7 @@ import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.streams.Functions;
+import com.elster.jupiter.validation.ValidationService;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 
@@ -47,6 +48,7 @@ public class ReadingTypeDataSelectorImpl implements IReadingTypeDataSelector {
 
     private final TransactionService transactionService;
     private final MeteringService meteringService;
+    private final ValidationService validationService;
     private final DataModel dataModel;
     private final Clock clock;
 
@@ -74,10 +76,11 @@ public class ReadingTypeDataSelectorImpl implements IReadingTypeDataSelector {
     private String userName;
 
     @Inject
-    ReadingTypeDataSelectorImpl(DataModel dataModel, TransactionService transactionService, MeteringService meteringService, Clock clock) {
+    ReadingTypeDataSelectorImpl(DataModel dataModel, TransactionService transactionService, MeteringService meteringService, ValidationService validationService, Clock clock) {
         this.dataModel = dataModel;
         this.transactionService = transactionService;
         this.meteringService = meteringService;
+        this.validationService = validationService;
         this.clock = clock;
     }
 
@@ -118,7 +121,7 @@ public class ReadingTypeDataSelectorImpl implements IReadingTypeDataSelector {
             context.commit();
         }
 
-        DefaultItemDataSelector defaultItemDataSelector = new DefaultItemDataSelector(clock);
+        DefaultItemDataSelector defaultItemDataSelector = new DefaultItemDataSelector(clock, validationService);
         return activeItems.stream()
                 .flatMap(item -> Stream.of(
                         defaultItemDataSelector.selectData(occurrence, item),

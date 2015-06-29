@@ -6,6 +6,7 @@ import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.ExportData;
 import com.elster.jupiter.export.MeterReadingData;
+import com.elster.jupiter.export.ValidatedDataOption;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingRecord;
@@ -16,6 +17,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.RefAny;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.validation.ValidationService;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
 import org.junit.After;
@@ -93,12 +95,14 @@ public class ReadingTypeDataSelectorImplTest {
     private ValidatorFactory validatorFactory;
     @Mock
     private ReadingRecord readingRecord1, readingRecord2, readingRecord3, readingRecord4, extraReadingForUpdate;
+    @Mock
+    private ValidationService validationService;
 
     @Before
     public void setUp() {
         transactionService = new TransactionVerifier();
 
-        doAnswer(invocation -> new ReadingTypeDataSelectorImpl(dataModel, transactionService, meteringService, clock))
+        doAnswer(invocation -> new ReadingTypeDataSelectorImpl(dataModel, transactionService, meteringService, validationService, clock))
                 .when(dataModel).getInstance(ReadingTypeDataSelectorImpl.class);
         doAnswer(invocation -> new ReadingTypeInDataSelector(meteringService))
                 .when(dataModel).getInstance(ReadingTypeInDataSelector.class);
@@ -153,6 +157,7 @@ public class ReadingTypeDataSelectorImplTest {
         selector.addReadingType(readingType);
         selector.setExportUpdate(true);
         selector.setUpdatePeriod(updatePeriod);
+        selector.setValidatedDataOption(ValidatedDataOption.INCLUDE_ALL);
 
         doReturn(Optional.of(selector)).when(task).getReadingTypeDataSelector();
 
@@ -189,6 +194,7 @@ public class ReadingTypeDataSelectorImplTest {
         selector.setExportUpdate(true);
         selector.setUpdatePeriod(updatePeriod);
         selector.setUpdateWindow(updateWindow);
+        selector.setValidatedDataOption(ValidatedDataOption.INCLUDE_ALL);
 
         doReturn(Optional.of(selector)).when(task).getReadingTypeDataSelector();
 
@@ -229,6 +235,7 @@ public class ReadingTypeDataSelectorImplTest {
         selector.addReadingType(readingType);
         selector.setExportUpdate(false);
         selector.setExportOnlyIfComplete(true);
+        selector.setValidatedDataOption(ValidatedDataOption.INCLUDE_ALL);
 
         doReturn(Optional.of(selector)).when(task).getReadingTypeDataSelector();
 
@@ -252,6 +259,7 @@ public class ReadingTypeDataSelectorImplTest {
         selector.setUpdatePeriod(updatePeriod);
         selector.setUpdateWindow(updateWindow);
         selector.setExportOnlyIfComplete(true);
+        selector.setValidatedDataOption(ValidatedDataOption.INCLUDE_ALL);
 
         doReturn(Optional.of(selector)).when(task).getReadingTypeDataSelector();
 
