@@ -171,11 +171,6 @@ public final class ChannelImpl implements ChannelContract {
     }
 
     @Override
-    public Object[] toArray(BaseReading reading, ProcessStatus status) {
-        return getRecordSpecDefinition().toArray(reading, status);
-    }
-
-    @Override
     public Object[] toArray(BaseReading reading, ReadingType readingType, ProcessStatus status) {
         int index = getReadingTypes().indexOf(readingType);
         if (index < 0) {
