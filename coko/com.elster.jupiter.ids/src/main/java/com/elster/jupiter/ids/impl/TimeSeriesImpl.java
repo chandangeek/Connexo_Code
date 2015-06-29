@@ -14,7 +14,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
-
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -216,7 +215,9 @@ public final class TimeSeriesImpl implements TimeSeries {
 				updateAspects.add("lastTime");
 			}
 		}
-		dataModel.update(this,updateAspects.toArray(new String[updateAspects.size()]));
+		if (!updateAspects.isEmpty()) {
+			dataModel.update(this, updateAspects.toArray(new String[updateAspects.size()]));
+		}
 	}
 	
 	Calendar getStartCalendar(Instant instant) {
