@@ -25,6 +25,7 @@ Ext.define('Isu.controller.IssuesOverview', {
                         value: Uni.component.sort.model.Sort.ASC
                     }
                 ]);
+                delete router.queryParams.myopenissues;
                 filter.save();
             }});
         } else if (!router.queryParams.filter) {
