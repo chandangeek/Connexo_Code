@@ -1177,8 +1177,9 @@ public class DeviceImpl implements Device, CanLock {
         AmrSystem amrSystem = this.getMdcAmrSystem().orElseThrow(this.mdcAMRSystemDoesNotExist());
         Meter meter = this.findOrCreateKoreMeter(amrSystem);
         Optional<UsagePoint> usagePoint = meter.getUsagePoint(start);
+        meter.getCurrentMeterActivation().ifPresent(meterActivation -> meterActivation.endAt(start));
         if(usagePoint.isPresent()){
-            return usagePoint.get().activate(meter, start);
+            return meter.activate(usagePoint.get(), start);
         } else {
             return meter.activate(start);
         }
@@ -1697,19 +1698,19 @@ public class DeviceImpl implements Device, CanLock {
     }
 
     @Override
-    public LifecycleDates getLifecycleDates() {
+    public CIMLifecycleDates getLifecycleDates() {
         Optional<AmrSystem> amrSystem = this.getMdcAmrSystem();
         if (amrSystem.isPresent()) {
             Optional<Meter> meter = this.findKoreMeter(amrSystem.get());
             if (meter.isPresent()) {
-                return meter.get().getLifecycleDates();
+                return new CIMLifecycleDatesImpl(meter.get(), meter.get().getLifecycleDates());
             }
             else {
-                return new NoCimLifeCycleDates();
+                return new NoCimLifecycleDates();
             }
         }
         else {
-            return new NoCimLifeCycleDates();
+            return new NoCimLifecycleDates();
         }
     }
 
@@ -2069,15 +2070,97 @@ public class DeviceImpl implements Device, CanLock {
         abstract RegisterImpl newRegister(DeviceImpl device, RegisterSpec registerSpec);
     }
 
-    private class NoCimLifeCycleDates implements LifecycleDates {
+    private class CIMLifecycleDatesImpl implements CIMLifecycleDates {
+        private final EndDevice koreDevice;
+        private final LifecycleDates koreLifecycleDates;
+
+        private CIMLifecycleDatesImpl(EndDevice koreDevice, LifecycleDates koreLifecycleDates) {
+            super();
+            this.koreDevice = koreDevice;
+            this.koreLifecycleDates = koreLifecycleDates;
+        }
+
+        @Override
+        public Optional<Instant> getManufacturedDate() {
+            return koreLifecycleDates.getManufacturedDate();
+        }
+
+        @Override
+        public CIMLifecycleDates setManufacturedDate(Instant manufacturedDate) {
+            koreLifecycleDates.setManufacturedDate(manufacturedDate);
+            return this;
+        }
+
+        @Override
+        public Optional<Instant> getPurchasedDate() {
+            return koreLifecycleDates.getPurchasedDate();
+        }
+
+        @Override
+        public CIMLifecycleDates setPurchasedDate(Instant purchasedDate) {
+            koreLifecycleDates.setPurchasedDate(purchasedDate);
+            return this;
+        }
+
+        @Override
+        public Optional<Instant> getReceivedDate() {
+            return koreLifecycleDates.getReceivedDate();
+        }
+
+        @Override
+        public CIMLifecycleDates setReceivedDate(Instant receivedDate) {
+            koreLifecycleDates.setReceivedDate(receivedDate);
+            return this;
+        }
+
+        @Override
+        public Optional<Instant> getInstalledDate() {
+            return koreLifecycleDates.getInstalledDate();
+        }
+
+        @Override
+        public CIMLifecycleDates setInstalledDate(Instant installedDate) {
+            koreLifecycleDates.setInstalledDate(installedDate);
+            return this;
+        }
+
+        @Override
+        public Optional<Instant> getRemovedDate() {
+            return koreLifecycleDates.getRemovedDate();
+        }
+
+        @Override
+        public CIMLifecycleDates setRemovedDate(Instant removedDate) {
+            koreLifecycleDates.setRemovedDate(removedDate);
+            return this;
+        }
+
+        @Override
+        public Optional<Instant> getRetiredDate() {
+            return koreLifecycleDates.getRetiredDate();
+        }
+
+        @Override
+        public CIMLifecycleDates setRetiredDate(Instant retiredDate) {
+            koreLifecycleDates.setRetiredDate(retiredDate);
+            return this;
+        }
+
+        @Override
+        public void save() {
+            this.koreDevice.save();
+        }
+    }
+    private class NoCimLifecycleDates implements CIMLifecycleDates {
         @Override
         public Optional<Instant> getManufacturedDate() {
             return Optional.empty();
         }
 
         @Override
-        public void setManufacturedDate(Instant manufacturedDate) {
+        public CIMLifecycleDates setManufacturedDate(Instant manufacturedDate) {
             // Ignore blissfully
+            return this;
         }
 
         @Override
@@ -2086,8 +2169,9 @@ public class DeviceImpl implements Device, CanLock {
         }
 
         @Override
-        public void setPurchasedDate(Instant purchasedDate) {
+        public CIMLifecycleDates setPurchasedDate(Instant purchasedDate) {
             // Ignore blissfully
+            return this;
         }
 
         @Override
@@ -2096,8 +2180,9 @@ public class DeviceImpl implements Device, CanLock {
         }
 
         @Override
-        public void setReceivedDate(Instant receivedDate) {
+        public CIMLifecycleDates setReceivedDate(Instant receivedDate) {
             // Ignore blissfully
+            return this;
         }
 
         @Override
@@ -2106,8 +2191,9 @@ public class DeviceImpl implements Device, CanLock {
         }
 
         @Override
-        public void setInstalledDate(Instant installedDate) {
+        public CIMLifecycleDates setInstalledDate(Instant installedDate) {
             // Ignore blissfully
+            return this;
         }
 
         @Override
@@ -2116,8 +2202,9 @@ public class DeviceImpl implements Device, CanLock {
         }
 
         @Override
-        public void setRemovedDate(Instant removedDate) {
+        public CIMLifecycleDates setRemovedDate(Instant removedDate) {
             // Ignore blissfully
+            return this;
         }
 
         @Override
@@ -2126,8 +2213,15 @@ public class DeviceImpl implements Device, CanLock {
         }
 
         @Override
-        public void setRetiredDate(Instant retiredDate) {
+        public CIMLifecycleDates setRetiredDate(Instant retiredDate) {
             // Ignore blissfully
+            return this;
+        }
+
+        @Override
+        public void save() {
+            // Since there were no dates to start with, there is nothing to save
         }
     }
+
 }

@@ -5,7 +5,6 @@ import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTimeline;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
-import com.elster.jupiter.metering.LifecycleDates;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
@@ -367,7 +366,7 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
     public Optional<State> getState(Instant instant);
 
     public long getVersion();
-    
+
     public Instant getCreateTime();
 
     /**
@@ -391,10 +390,10 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
     /**
      * Gets the CIM dates that relate to thie life cycle of this Device.
      *
-     * @return The LifecycleDates
+     * @return The CIMLifecycleDates
      * @since 2.0
      */
-    public LifecycleDates getLifecycleDates();
+    public CIMLifecycleDates getLifecycleDates();
 
     /**
      * Builder that support basic value setters for a ScheduledConnectionTask.
