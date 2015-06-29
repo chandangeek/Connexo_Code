@@ -1,5 +1,7 @@
 package com.elster.jupiter.export.impl;
 
+import com.elster.jupiter.cbo.QualityCodeIndex;
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.devtools.persistence.test.TransactionVerifier;
 import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
 import com.elster.jupiter.devtools.tests.rules.Using;
@@ -9,6 +11,8 @@ import com.elster.jupiter.export.MeterReadingData;
 import com.elster.jupiter.export.ValidatedDataOption;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingQualityRecord;
+import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
@@ -17,6 +21,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.RefAny;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationService;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
@@ -35,6 +40,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -94,9 +100,13 @@ public class ReadingTypeDataSelectorImplTest {
     @Mock
     private ValidatorFactory validatorFactory;
     @Mock
-    private ReadingRecord readingRecord1, readingRecord2, readingRecord3, readingRecord4, extraReadingForUpdate;
+    private ReadingRecord readingRecord1, readingRecord2, readingRecord3, readingRecord4, extraReadingForUpdate, extraReading;
     @Mock
     private ValidationService validationService;
+    @Mock
+    private ValidationEvaluator validationEvaluator;
+    @Mock
+    private ReadingQualityRecord suspectReadingQuality;
 
     @Before
     public void setUp() {
@@ -143,6 +153,7 @@ public class ReadingTypeDataSelectorImplTest {
         doReturn(UPDATE_PERIOD).when(updatePeriod).getInterval(any());
         doReturn(READING_TYPE_MRID).when(readingType).getMRID();
         doReturn(UPDATE_WINDOW_PERIOD).when(updateWindow).getInterval(UPDATED_RECORD_TIME);
+        doReturn(validationEvaluator).when(validationService).getEvaluator();
 
     }
 
@@ -284,6 +295,159 @@ public class ReadingTypeDataSelectorImplTest {
         MeterReadingData meterReadingData3 = (MeterReadingData) collect.get(2);
         assertThat(meterReadingData3.getStructureMarker().getStructurePath()).isEqualTo(Arrays.asList("meter2", "", READING_TYPE_MRID, "export"));
 
+    }
+
+    @Test
+    public void testSelectWithUpdateAndWindowAndValidWithExcludeIntervalSuspectReading() {
+        doReturn(Arrays.asList(extraReading, readingRecord1)).when(meter1).getReadings(EXPORTED_INTERVAL, readingType);
+        when(extraReading.getTimeStamp()).thenReturn(END.minusMinutes(5).toInstant());
+
+        when(meter1.toList(readingType, EXPORTED_INTERVAL)).thenReturn(Arrays.asList(END.toInstant()));
+        when(meter2.toList(readingType, EXPORTED_INTERVAL)).thenReturn(Arrays.asList(END.toInstant()));
+        when(meter1.toList(readingType, UPDATE_WINDOW_INTERVAL)).thenReturn(Arrays.asList(UPDATED_RECORD_TIME.toInstant()));
+        when(meter2.toList(readingType, UPDATE_WINDOW_INTERVAL)).thenReturn(Arrays.asList(UPDATED_RECORD_TIME.toInstant(), UPDATED_RECORD_TIME.plusMinutes(5).toInstant()));
+        when(meter1.getReadingQualities(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT), readingType, EXPORTED_INTERVAL)).thenReturn(Arrays.asList(suspectReadingQuality));
+        when(suspectReadingQuality.getReadingTimestamp()).thenReturn(END.toInstant());
+
+        when(validationEvaluator.getLastChecked(any(), any())).thenReturn(Optional.of(END.plusMonths(1).toInstant()));
+
+        ReadingTypeDataSelectorImpl selector = ReadingTypeDataSelectorImpl.from(dataModel, task, exportPeriod, endDeviceGroup);
+        selector.addReadingType(readingType);
+        selector.setExportUpdate(true);
+        selector.setUpdatePeriod(updatePeriod);
+        selector.setUpdateWindow(updateWindow);
+        selector.setExportOnlyIfComplete(false);
+        selector.setValidatedDataOption(ValidatedDataOption.EXCLUDE_INTERVAL);
+
+        doReturn(Optional.of(selector)).when(task).getReadingTypeDataSelector();
+
+        List<ExportData> collect = selector.selectData(occurrence).collect(Collectors.toList());
+
+        assertThat(collect).hasSize(2);
+
+        collect = selector.selectData(occurrence).collect(Collectors.toList());
+
+        assertThat(collect).hasSize(4);
+
+        assertThat(collect.get(0)).isInstanceOf(MeterReadingData.class);
+        MeterReadingData meterReadingData1 = (MeterReadingData) collect.get(0);
+        assertThat(meterReadingData1.getStructureMarker().getStructurePath()).isEqualTo(Arrays.asList("meter1", "", READING_TYPE_MRID, "export"));
+        assertThat(meterReadingData1.getMeterReading().getReadings()).hasSize(1);
+
+        assertThat(collect.get(1)).isInstanceOf(MeterReadingData.class);
+        MeterReadingData meterReadingData2 = (MeterReadingData) collect.get(1);
+        assertThat(meterReadingData2.getStructureMarker().getStructurePath()).isEqualTo(Arrays.asList("meter1", "", READING_TYPE_MRID, "update"));
+        assertThat(meterReadingData2.getMeterReading().getReadings()).hasSize(2);
+
+        assertThat(collect.get(2)).isInstanceOf(MeterReadingData.class);
+        MeterReadingData meterReadingData3 = (MeterReadingData) collect.get(2);
+        assertThat(meterReadingData3.getStructureMarker().getStructurePath()).isEqualTo(Arrays.asList("meter2", "", READING_TYPE_MRID, "export"));
+        assertThat(meterReadingData3.getMeterReading().getReadings()).hasSize(1);
+
+        assertThat(collect.get(3)).isInstanceOf(MeterReadingData.class);
+        MeterReadingData meterReadingData4 = (MeterReadingData) collect.get(3);
+        assertThat(meterReadingData4.getStructureMarker().getStructurePath()).isEqualTo(Arrays.asList("meter2", "", READING_TYPE_MRID, "update"));
+        assertThat(meterReadingData4.getMeterReading().getReadings()).hasSize(2);
+    }
+
+    @Test
+    public void testSelectWithUpdateAndWindowAndValidWithExcludeIntervalReadingNotValidatedYet() {
+        doReturn(Arrays.asList(extraReading, readingRecord1)).when(meter1).getReadings(EXPORTED_INTERVAL, readingType);
+        when(extraReading.getTimeStamp()).thenReturn(END.minusMinutes(5).toInstant());
+
+        when(meter1.toList(readingType, EXPORTED_INTERVAL)).thenReturn(Arrays.asList(END.toInstant()));
+        when(meter2.toList(readingType, EXPORTED_INTERVAL)).thenReturn(Arrays.asList(END.toInstant()));
+        when(meter1.toList(readingType, UPDATE_WINDOW_INTERVAL)).thenReturn(Arrays.asList(UPDATED_RECORD_TIME.toInstant()));
+        when(meter2.toList(readingType, UPDATE_WINDOW_INTERVAL)).thenReturn(Arrays.asList(UPDATED_RECORD_TIME.toInstant(), UPDATED_RECORD_TIME.plusMinutes(5).toInstant()));
+        when(meter1.getReadingQualities(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT), readingType, EXPORTED_INTERVAL)).thenReturn(Collections.emptyList());
+
+        when(validationEvaluator.getLastChecked(any(), any())).thenReturn(Optional.of(END.plusMonths(1).toInstant()));
+        when(validationEvaluator.getLastChecked(meter1, readingType)).thenReturn(Optional.of(END.minusMinutes(5).toInstant()));
+
+        ReadingTypeDataSelectorImpl selector = ReadingTypeDataSelectorImpl.from(dataModel, task, exportPeriod, endDeviceGroup);
+        selector.addReadingType(readingType);
+        selector.setExportUpdate(true);
+        selector.setUpdatePeriod(updatePeriod);
+        selector.setUpdateWindow(updateWindow);
+        selector.setExportOnlyIfComplete(false);
+        selector.setValidatedDataOption(ValidatedDataOption.EXCLUDE_INTERVAL);
+
+        doReturn(Optional.of(selector)).when(task).getReadingTypeDataSelector();
+
+        List<ExportData> collect = selector.selectData(occurrence).collect(Collectors.toList());
+
+        assertThat(collect).hasSize(2);
+
+        collect = selector.selectData(occurrence).collect(Collectors.toList());
+
+        assertThat(collect).hasSize(4);
+
+        assertThat(collect.get(0)).isInstanceOf(MeterReadingData.class);
+        MeterReadingData meterReadingData1 = (MeterReadingData) collect.get(0);
+        assertThat(meterReadingData1.getStructureMarker().getStructurePath()).isEqualTo(Arrays.asList("meter1", "", READING_TYPE_MRID, "export"));
+        assertThat(meterReadingData1.getMeterReading().getReadings()).hasSize(1);
+
+        assertThat(collect.get(1)).isInstanceOf(MeterReadingData.class);
+        MeterReadingData meterReadingData2 = (MeterReadingData) collect.get(1);
+        assertThat(meterReadingData2.getStructureMarker().getStructurePath()).isEqualTo(Arrays.asList("meter1", "", READING_TYPE_MRID, "update"));
+        assertThat(meterReadingData2.getMeterReading().getReadings()).hasSize(2);
+
+        assertThat(collect.get(2)).isInstanceOf(MeterReadingData.class);
+        MeterReadingData meterReadingData3 = (MeterReadingData) collect.get(2);
+        assertThat(meterReadingData3.getStructureMarker().getStructurePath()).isEqualTo(Arrays.asList("meter2", "", READING_TYPE_MRID, "export"));
+        assertThat(meterReadingData3.getMeterReading().getReadings()).hasSize(1);
+
+        assertThat(collect.get(3)).isInstanceOf(MeterReadingData.class);
+        MeterReadingData meterReadingData4 = (MeterReadingData) collect.get(3);
+        assertThat(meterReadingData4.getStructureMarker().getStructurePath()).isEqualTo(Arrays.asList("meter2", "", READING_TYPE_MRID, "update"));
+        assertThat(meterReadingData4.getMeterReading().getReadings()).hasSize(2);
+    }
+
+    @Test
+    public void testSelectWithUpdateAndWindowAndValidWithExcludeItemSuspectReading() {
+        doReturn(Arrays.asList(extraReading, readingRecord1)).when(meter1).getReadings(EXPORTED_INTERVAL, readingType);
+        when(extraReading.getTimeStamp()).thenReturn(END.minusMinutes(5).toInstant());
+
+        when(meter1.toList(readingType, EXPORTED_INTERVAL)).thenReturn(Arrays.asList(END.toInstant()));
+        when(meter2.toList(readingType, EXPORTED_INTERVAL)).thenReturn(Arrays.asList(END.toInstant()));
+        when(meter1.toList(readingType, UPDATE_WINDOW_INTERVAL)).thenReturn(Arrays.asList(UPDATED_RECORD_TIME.toInstant()));
+        when(meter2.toList(readingType, UPDATE_WINDOW_INTERVAL)).thenReturn(Arrays.asList(UPDATED_RECORD_TIME.toInstant(), UPDATED_RECORD_TIME.plusMinutes(5).toInstant()));
+        when(meter1.getReadingQualities(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT), readingType, EXPORTED_INTERVAL)).thenReturn(Arrays.asList(suspectReadingQuality));
+        when(suspectReadingQuality.getReadingTimestamp()).thenReturn(END.toInstant());
+
+        when(validationEvaluator.getLastChecked(any(), any())).thenReturn(Optional.of(END.plusMonths(1).toInstant()));
+
+        ReadingTypeDataSelectorImpl selector = ReadingTypeDataSelectorImpl.from(dataModel, task, exportPeriod, endDeviceGroup);
+        selector.addReadingType(readingType);
+        selector.setExportUpdate(true);
+        selector.setUpdatePeriod(updatePeriod);
+        selector.setUpdateWindow(updateWindow);
+        selector.setExportOnlyIfComplete(false);
+        selector.setValidatedDataOption(ValidatedDataOption.EXCLUDE_ITEM);
+
+        doReturn(Optional.of(selector)).when(task).getReadingTypeDataSelector();
+
+        List<ExportData> collect = selector.selectData(occurrence).collect(Collectors.toList());
+
+        assertThat(collect).hasSize(1);
+
+        collect = selector.selectData(occurrence).collect(Collectors.toList());
+
+        assertThat(collect).hasSize(3);
+
+        assertThat(collect.get(0)).isInstanceOf(MeterReadingData.class);
+        MeterReadingData meterReadingData2 = (MeterReadingData) collect.get(0);
+        assertThat(meterReadingData2.getStructureMarker().getStructurePath()).isEqualTo(Arrays.asList("meter1", "", READING_TYPE_MRID, "update"));
+        assertThat(meterReadingData2.getMeterReading().getReadings()).hasSize(2);
+
+        assertThat(collect.get(1)).isInstanceOf(MeterReadingData.class);
+        MeterReadingData meterReadingData3 = (MeterReadingData) collect.get(1);
+        assertThat(meterReadingData3.getStructureMarker().getStructurePath()).isEqualTo(Arrays.asList("meter2", "", READING_TYPE_MRID, "export"));
+
+        assertThat(collect.get(2)).isInstanceOf(MeterReadingData.class);
+        MeterReadingData meterReadingData4 = (MeterReadingData) collect.get(2);
+        assertThat(meterReadingData4.getStructureMarker().getStructurePath()).isEqualTo(Arrays.asList("meter2", "", READING_TYPE_MRID, "update"));
+        assertThat(meterReadingData4.getMeterReading().getReadings()).hasSize(2);
     }
 
 

@@ -119,11 +119,11 @@ public class DataExportServiceImplTest {
 
     private static final Instant nextExecution = ZonedDateTime.of(2013, 9, 10, 14, 47, 24, 0, ZoneId.of("Europe/Paris")).toInstant();
     private static String NAME = "task";
-    private static String DATA_FOMRATTER = "factory";
+    private static String DATA_FORMATTER = "factory";
 
     @Before
     public void setUp() throws SQLException {
-        when(dataFormatterFactory.getName()).thenReturn(DATA_FOMRATTER);
+        when(dataFormatterFactory.getName()).thenReturn(DATA_FORMATTER);
         when(iExportTask.getReadingTypeDataSelector()).thenReturn(Optional.of(readingTypeDataSelector));
         when(ormService.newDataModel(anyString(), anyString())).thenReturn(dataModel);
         when(dataModel.addTable(anyString(), any())).thenReturn(table);
@@ -158,7 +158,7 @@ public class DataExportServiceImplTest {
         when(dataModel.getInstance(ReadingTypeDataSelectorImpl.class)).thenReturn(selectorImpl);
         DataExportTaskBuilderImpl dataExportTaskBuilder = new DataExportTaskBuilderImpl(dataModel)
                 .setName(NAME)
-                .setDataFormatterName(DATA_FOMRATTER)
+                .setDataFormatterName(DATA_FORMATTER)
                 .setNextExecution(nextExecution)
                 .selectingStandard()
                 .fromEndDeviceGroup(endDeviceGroup)
