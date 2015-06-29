@@ -77,7 +77,9 @@ public class UserServiceImpl implements UserService, InstallService, Translation
 
     @Activate
     public void activate(BundleContext context) {
-        setTrustStore(context);
+        if(context != null) {
+            setTrustStore(context);
+        }
         dataModel.register(new AbstractModule() {
             @Override
             protected void configure() {
@@ -98,10 +100,11 @@ public class UserServiceImpl implements UserService, InstallService, Translation
     private void setTrustStore(BundleContext bundleContext) {
         String trustStorePath = bundleContext.getProperty(TRUSTSTORE_PATH);
         String trustStorePass = bundleContext.getProperty(TRUSTSTORE_PASS);
-        if ((trustStorePath != null)&&(trustStorePass != null)) {
+        if ((trustStorePath != null) && (trustStorePass != null)) {
             trustStorePath = trustStorePath.replace("/", "\\");
             System.setProperty("javax.net.ssl.trustStore", trustStorePath);
             System.setProperty("javax.net.ssl.trustStorePassword", trustStorePass);
+
         }
     }
 
