@@ -2,11 +2,11 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.metering.LifecycleDates;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.config.GatewayType;
 import com.energyict.mdc.device.configuration.rest.GatewayTypeAdapter;
+import com.energyict.mdc.device.data.CIMLifecycleDates;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.imp.Batch;
 import com.energyict.mdc.device.data.imp.DeviceImportService;
@@ -98,7 +98,7 @@ public class DeviceInfo {
         State deviceState = device.getState();
         deviceInfo.state = new DeviceLifeCycleStateInfo(thesaurus, deviceState);
         deviceInfo.version = device.getVersion();
-        LifecycleDates lifecycleDates = device.getLifecycleDates();
+        CIMLifecycleDates lifecycleDates = device.getLifecycleDates();
         deviceInfo.dates = Arrays.stream(DeviceDateInfo.DateAttribute.values())
                 .map(date -> {
                     DeviceDateInfo dateInfo = new DeviceDateInfo();

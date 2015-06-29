@@ -1,7 +1,8 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.fsm.State;
-import com.elster.jupiter.metering.LifecycleDates;
+
+import com.energyict.mdc.device.data.CIMLifecycleDates;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 
 import java.time.Instant;
@@ -14,25 +15,25 @@ public class DeviceDateInfo {
     public enum DateAttribute {
         SHIPMENT("date.shipment", Collections.<DefaultState>emptyList()) {
             @Override
-            public Optional<Instant> getOptionalValue(LifecycleDates dates) {
+            public Optional<Instant> getOptionalValue(CIMLifecycleDates dates) {
                 return dates.getReceivedDate();
             }
         },
         INSTALLATION("date.installation", Arrays.asList(DefaultState.ACTIVE, DefaultState.INACTIVE, DefaultState.DECOMMISSIONED)) {
             @Override
-            public Optional<Instant> getOptionalValue(LifecycleDates dates) {
+            public Optional<Instant> getOptionalValue(CIMLifecycleDates dates) {
                 return dates.getInstalledDate();
             }
         },
         DEACTIVATION("date.deactivation", Arrays.asList(DefaultState.INACTIVE)) {
             @Override
-            public Optional<Instant> getOptionalValue(LifecycleDates dates) {
+            public Optional<Instant> getOptionalValue(CIMLifecycleDates dates) {
                 return dates.getRemovedDate();
             }
         },
         DECOMMISSIONING("date.decommissioning", Arrays.asList(DefaultState.DECOMMISSIONED)) {
             @Override
-            public Optional<Instant> getOptionalValue(LifecycleDates dates) {
+            public Optional<Instant> getOptionalValue(CIMLifecycleDates dates) {
                 return dates.getRetiredDate();
             }
         },
@@ -46,9 +47,9 @@ public class DeviceDateInfo {
             this.availableInStates = availableInStates;
         }
 
-        protected abstract Optional<Instant> getOptionalValue(LifecycleDates dates);
+        protected abstract Optional<Instant> getOptionalValue(CIMLifecycleDates dates);
 
-        public Instant getValue(LifecycleDates dates){
+        public Instant getValue(CIMLifecycleDates dates){
             return dates != null ? getOptionalValue(dates).orElse(null) : null;
         }
 
