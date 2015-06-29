@@ -194,7 +194,7 @@ public class StateTransitionImpl implements StateTransition {
         return new PersistentEventTypeChecker(first);
     }
 
-    private class ReferenceStateChecker {
+    private final class ReferenceStateChecker {
 
         private final Reference<State> target;
 
@@ -214,7 +214,7 @@ public class StateTransitionImpl implements StateTransition {
         public boolean equalTo(State other);
     }
 
-    private class MemoryStateChecker implements StateChecker {
+    private final class MemoryStateChecker implements StateChecker {
         private final State target;
 
         private MemoryStateChecker(State target) {
@@ -229,7 +229,7 @@ public class StateTransitionImpl implements StateTransition {
 
     }
 
-    private class PersistentStateChecker implements StateChecker {
+    private final class PersistentStateChecker implements StateChecker {
         private final State target;
 
         private PersistentStateChecker(State target) {
@@ -244,7 +244,7 @@ public class StateTransitionImpl implements StateTransition {
 
     }
 
-    private class ReferenceEventTypeChecker {
+    private final class ReferenceEventTypeChecker {
 
         private final Reference<StateTransitionEventType> target;
 
@@ -264,7 +264,7 @@ public class StateTransitionImpl implements StateTransition {
         public boolean equalTo(StateTransitionEventType other);
     }
 
-    private class PersistentEventTypeChecker implements EventTypeChecker {
+    private final class PersistentEventTypeChecker implements EventTypeChecker {
         private final StateTransitionEventType target;
 
         private PersistentEventTypeChecker(StateTransitionEventType target) {
