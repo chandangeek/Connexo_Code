@@ -38,7 +38,7 @@ Ext.define('Apr.view.appservers.Setup', {
                         stepItems: [
                             {
                                 text: Uni.I18n.translate('general.addApplicationServer', 'APR', 'Add application server'),
-                                ui: 'action',
+                                itemId: 'empty-grid-add-app-server',
                                 href: '#/administration/appservers/add'
                             }
                         ]

@@ -42,6 +42,7 @@ Ext.define('Apr.view.appservers.Grid', {
                     {
                         xtype: 'button',
                         text: Uni.I18n.translate('general.addApplicationServer', 'APR', 'Add application server'),
+                        itemId: 'add-app-server',
                         href: '#/administration/appservers/add'
                     }
                 ]
