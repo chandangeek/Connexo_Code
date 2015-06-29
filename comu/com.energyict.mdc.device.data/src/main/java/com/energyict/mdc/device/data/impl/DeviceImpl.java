@@ -1698,7 +1698,7 @@ public class DeviceImpl implements Device, CanLock {
     }
 
     @Override
-    public CIMLifecycleDatessss getLifecycleDates() {
+    public CIMLifecycleDates getLifecycleDates() {
         Optional<AmrSystem> amrSystem = this.getMdcAmrSystem();
         if (amrSystem.isPresent()) {
             Optional<Meter> meter = this.findKoreMeter(amrSystem.get());
@@ -2070,7 +2070,7 @@ public class DeviceImpl implements Device, CanLock {
         abstract RegisterImpl newRegister(DeviceImpl device, RegisterSpec registerSpec);
     }
 
-    private class CIMLifecycleDatesImpl implements CIMLifecycleDatessss {
+    private class CIMLifecycleDatesImpl implements CIMLifecycleDates {
         private final EndDevice koreDevice;
         private final LifecycleDates koreLifecycleDates;
 
@@ -2086,7 +2086,7 @@ public class DeviceImpl implements Device, CanLock {
         }
 
         @Override
-        public CIMLifecycleDatessss setManufacturedDate(Instant manufacturedDate) {
+        public CIMLifecycleDates setManufacturedDate(Instant manufacturedDate) {
             koreLifecycleDates.setManufacturedDate(manufacturedDate);
             return this;
         }
@@ -2097,7 +2097,7 @@ public class DeviceImpl implements Device, CanLock {
         }
 
         @Override
-        public CIMLifecycleDatessss setPurchasedDate(Instant purchasedDate) {
+        public CIMLifecycleDates setPurchasedDate(Instant purchasedDate) {
             koreLifecycleDates.setPurchasedDate(purchasedDate);
             return this;
         }
@@ -2108,7 +2108,7 @@ public class DeviceImpl implements Device, CanLock {
         }
 
         @Override
-        public CIMLifecycleDatessss setReceivedDate(Instant receivedDate) {
+        public CIMLifecycleDates setReceivedDate(Instant receivedDate) {
             koreLifecycleDates.setReceivedDate(receivedDate);
             return this;
         }
@@ -2119,7 +2119,7 @@ public class DeviceImpl implements Device, CanLock {
         }
 
         @Override
-        public CIMLifecycleDatessss setInstalledDate(Instant installedDate) {
+        public CIMLifecycleDates setInstalledDate(Instant installedDate) {
             koreLifecycleDates.setInstalledDate(installedDate);
             return this;
         }
@@ -2130,7 +2130,7 @@ public class DeviceImpl implements Device, CanLock {
         }
 
         @Override
-        public CIMLifecycleDatessss setRemovedDate(Instant removedDate) {
+        public CIMLifecycleDates setRemovedDate(Instant removedDate) {
             koreLifecycleDates.setRemovedDate(removedDate);
             return this;
         }
@@ -2141,7 +2141,7 @@ public class DeviceImpl implements Device, CanLock {
         }
 
         @Override
-        public CIMLifecycleDatessss setRetiredDate(Instant retiredDate) {
+        public CIMLifecycleDates setRetiredDate(Instant retiredDate) {
             koreLifecycleDates.setRetiredDate(retiredDate);
             return this;
         }
@@ -2151,14 +2151,14 @@ public class DeviceImpl implements Device, CanLock {
             this.koreDevice.save();
         }
     }
-    private class NoCimLifecycleDates implements CIMLifecycleDatessss {
+    private class NoCimLifecycleDates implements CIMLifecycleDates {
         @Override
         public Optional<Instant> getManufacturedDate() {
             return Optional.empty();
         }
 
         @Override
-        public CIMLifecycleDatessss setManufacturedDate(Instant manufacturedDate) {
+        public CIMLifecycleDates setManufacturedDate(Instant manufacturedDate) {
             // Ignore blissfully
             return this;
         }
@@ -2169,7 +2169,7 @@ public class DeviceImpl implements Device, CanLock {
         }
 
         @Override
-        public CIMLifecycleDatessss setPurchasedDate(Instant purchasedDate) {
+        public CIMLifecycleDates setPurchasedDate(Instant purchasedDate) {
             // Ignore blissfully
             return this;
         }
@@ -2180,7 +2180,7 @@ public class DeviceImpl implements Device, CanLock {
         }
 
         @Override
-        public CIMLifecycleDatessss setReceivedDate(Instant receivedDate) {
+        public CIMLifecycleDates setReceivedDate(Instant receivedDate) {
             // Ignore blissfully
             return this;
         }
@@ -2191,7 +2191,7 @@ public class DeviceImpl implements Device, CanLock {
         }
 
         @Override
-        public CIMLifecycleDatessss setInstalledDate(Instant installedDate) {
+        public CIMLifecycleDates setInstalledDate(Instant installedDate) {
             // Ignore blissfully
             return this;
         }
@@ -2202,7 +2202,7 @@ public class DeviceImpl implements Device, CanLock {
         }
 
         @Override
-        public CIMLifecycleDatessss setRemovedDate(Instant removedDate) {
+        public CIMLifecycleDates setRemovedDate(Instant removedDate) {
             // Ignore blissfully
             return this;
         }
@@ -2213,7 +2213,7 @@ public class DeviceImpl implements Device, CanLock {
         }
 
         @Override
-        public CIMLifecycleDatessss setRetiredDate(Instant retiredDate) {
+        public CIMLifecycleDates setRetiredDate(Instant retiredDate) {
             // Ignore blissfully
             return this;
         }

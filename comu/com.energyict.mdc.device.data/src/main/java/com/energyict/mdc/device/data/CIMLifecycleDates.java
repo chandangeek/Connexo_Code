@@ -12,7 +12,7 @@ import java.util.Optional;
  * @since 2015-06-26 (13:16)
  */
 @ProviderType
-public interface CIMLifecycleDatessss {
+public interface CIMLifecycleDates {
 
     /**
      * Gets the instant in time on which the asset was manufactured.
@@ -27,7 +27,7 @@ public interface CIMLifecycleDatessss {
      * @param manufacturedDate The instant in time on which the asset was manufactured
      * @return This CIMLifecycleDates to support method chaining
      */
-    public CIMLifecycleDatessss setManufacturedDate(Instant manufacturedDate);
+    public CIMLifecycleDates setManufacturedDate(Instant manufacturedDate);
 
     /**
      * Gets the instant in time when the asset was purchased.
@@ -44,7 +44,7 @@ public interface CIMLifecycleDatessss {
      * @param purchasedDate The date of purchase
      * @return This CIMLifecycleDates to support method chaining
      */
-    public CIMLifecycleDatessss setPurchasedDate(Instant purchasedDate);
+    public CIMLifecycleDates setPurchasedDate(Instant purchasedDate);
 
     /**
      * Gets the instant in time when the asset was received and first placed into inventory.
@@ -59,7 +59,7 @@ public interface CIMLifecycleDatessss {
      * @param receivedDate The instant in time
      * @return This CIMLifecycleDates to support method chaining
      */
-    public CIMLifecycleDatessss setReceivedDate(Instant receivedDate);
+    public CIMLifecycleDates setReceivedDate(Instant receivedDate);
 
     /**
      * Gets the date on which the current installation was completed
@@ -81,7 +81,7 @@ public interface CIMLifecycleDatessss {
      * @param installedDate The instant in time
      * @return This CIMLifecycleDates to support method chaining
      */
-    public CIMLifecycleDatessss setInstalledDate(Instant installedDate);
+    public CIMLifecycleDates setInstalledDate(Instant installedDate);
 
     /**
      * Gets the instant in time when the asset was last removed from service.
@@ -101,7 +101,7 @@ public interface CIMLifecycleDatessss {
      * @param removedDate The instant in time
      * @return This CIMLifecycleDates to support method chaining
      */
-    public CIMLifecycleDatessss setRemovedDate(Instant removedDate);
+    public CIMLifecycleDates setRemovedDate(Instant removedDate);
 
     /**
      * Gets the instant in time when the asset wass permanently retired from service
@@ -122,7 +122,7 @@ public interface CIMLifecycleDatessss {
      * @param retiredDate The instant in time
      * @return This CIMLifecycleDates to support method chaining
      */
-    public CIMLifecycleDatessss setRetiredDate(Instant retiredDate);
+    public CIMLifecycleDates setRetiredDate(Instant retiredDate);
 
     /**
      * Saves the changes that were applied.
