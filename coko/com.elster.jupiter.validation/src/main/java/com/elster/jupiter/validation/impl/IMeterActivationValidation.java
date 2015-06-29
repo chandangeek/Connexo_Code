@@ -30,6 +30,12 @@ public interface IMeterActivationValidation  {
     void validate();
     void validate(ReadingType readingType);
     void updateLastChecked(Instant lastChecked);
+
+    /**
+     * Only updates the lastChecked in memory !!! for performance optimisation COPL-882
+     *
+     * @param ranges: Map of channel-range to update the last checked to
+     */
     void moveLastCheckedBefore(Map<Channel,Range<Instant>> ranges);
     boolean isAllDataValidated();
     Instant getMinLastChecked();

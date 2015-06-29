@@ -1,24 +1,5 @@
 package com.elster.jupiter.validation.impl;
 
-import static java.util.Comparator.naturalOrder;
-import static java.util.Comparator.nullsLast;
-
-import java.time.Clock;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import java.util.Objects;
-
-import javax.inject.Inject;
-
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
@@ -29,6 +10,24 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.google.common.collect.Range;
+
+import javax.inject.Inject;
+import java.time.Clock;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static java.util.Comparator.naturalOrder;
+import static java.util.Comparator.nullsLast;
 
 class MeterActivationValidationImpl implements IMeterActivationValidation {
 
@@ -249,7 +248,10 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
     @Override
     public void activate() {
         setActive(true);
-        getMeterActivation().getChannels().forEach(c -> getChannelValidation(c).orElseGet(() -> addChannelValidation(c)));
+        getMeterActivation().getChannels().stream()
+                .filter(c -> !getRuleSet().getRules(c.getReadingTypes()).isEmpty())
+                .filter(c -> !getChannelValidation(c).isPresent())
+                .forEach(this::addChannelValidation);
     }
 
     @Override
@@ -260,18 +262,19 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
     private void setActive(boolean status) {
         this.active = status;
     }
-    
+
+    /**
+     * Only updates the lastChecked in memory !!! for performance optimisation COPL-882
+     *
+     * @param ranges
+     */
     @Override
-    public void moveLastCheckedBefore(Map<Channel,Range<Instant>> ranges) {
-    	long updateCount = channelValidations.stream()    		
-    		.filter(channelValidation -> ranges.containsKey(channelValidation.getChannel()))
-    		.filter(channelValidation -> channelValidation.moveLastCheckedBefore(ranges.get(channelValidation.getChannel()).lowerEndpoint()))
-    		.count();
-    	if (updateCount > 0) {
-    		save();
-    	}
+    public void moveLastCheckedBefore(Map<Channel, Range<Instant>> ranges) {
+        channelValidations.stream()
+                .filter(channelValidation -> ranges.containsKey(channelValidation.getChannel()))
+                .forEach(channelValidation -> channelValidation.moveLastCheckedBefore(ranges.get(channelValidation.getChannel()).lowerEndpoint()));
     }
-    		
+
     @Override
     public List<? extends Channel> getChannels() {
     	return meterActivation.get().getChannels();
