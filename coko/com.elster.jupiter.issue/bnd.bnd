@@ -1,4 +1,4 @@
--classpath: target/classes 
+-classpath: target/classes
 -dsannotations: *
 Private-Package: com.elster.jupiter.issue.impl.*
 Export-Package: com.elster.jupiter.issue, com.elster.jupiter.issue.share.*, com.elster.jupiter.issue.security

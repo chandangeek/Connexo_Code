@@ -136,7 +136,6 @@ public enum TableSpecs {
             table.addAuditColumns();
 
             table.primaryKey(CREATION_RULE_PK_NAME).on(idColumn).add();
-            table.unique(CREATION_RULE_UQ_NAME).on(nameColumn).add();
             table.foreignKey(CREATION_RULE_FK_TO_REASON).map("reason").on(reasonRefIdColumn).references(ISU_REASON.name()).add();
         }
     },

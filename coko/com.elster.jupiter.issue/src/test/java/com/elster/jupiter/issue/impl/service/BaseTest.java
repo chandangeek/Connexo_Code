@@ -1,30 +1,5 @@
 package com.elster.jupiter.issue.impl.service;
 
-import static com.elster.jupiter.util.conditions.Where.where;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import java.time.Instant;
-import java.util.Collections;
-import java.util.List;
-import java.util.logging.Level;
-
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.rules.TestRule;
-import org.kie.api.KieBaseConfiguration;
-import org.kie.api.io.KieResources;
-import org.kie.internal.KnowledgeBase;
-import org.kie.internal.KnowledgeBaseFactoryService;
-import org.kie.internal.builder.KnowledgeBuilder;
-import org.kie.internal.builder.KnowledgeBuilderConfiguration;
-import org.kie.internal.builder.KnowledgeBuilderFactoryService;
-import org.kie.internal.runtime.StatefulKnowledgeSession;
-import org.mockito.Matchers;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.event.EventAdmin;
-
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
@@ -40,7 +15,9 @@ import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.IssueAction;
 import com.elster.jupiter.issue.share.IssueActionFactory;
 import com.elster.jupiter.issue.share.IssueEvent;
+import com.elster.jupiter.issue.share.IssueProvider;
 import com.elster.jupiter.issue.share.entity.CreationRule;
+import com.elster.jupiter.issue.share.entity.HistoricalIssue;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueComment;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
@@ -53,6 +30,7 @@ import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleB
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.impl.OrmModule;
@@ -73,24 +51,39 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.conditions.Order;
-import com.elster.jupiter.util.exception.MessageSeed;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.rules.TestRule;
+import org.kie.api.KieBaseConfiguration;
+import org.kie.api.io.KieResources;
+import org.kie.internal.KnowledgeBase;
+import org.kie.internal.KnowledgeBaseFactoryService;
+import org.kie.internal.builder.KnowledgeBuilder;
+import org.kie.internal.builder.KnowledgeBuilderConfiguration;
+import org.kie.internal.builder.KnowledgeBuilderFactoryService;
+import org.kie.internal.runtime.StatefulKnowledgeSession;
+import org.mockito.Matchers;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.event.EventAdmin;
+
+import javax.inject.Inject;
+import java.time.Instant;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
+import static com.elster.jupiter.util.conditions.Where.where;
+import static org.mockito.Mockito.*;
 
 @SuppressWarnings("deprecation")
 public class BaseTest {
     public static final String ISSUE_DEFAULT_TYPE_UUID = "datacollection";
     public static final String ISSUE_DEFAULT_REASON = "reason.default";
-    public static final MessageSeed MESSAGE_SEED_DEFAULT_TRANSLATION = new MessageSeed() {
-        @Override
-        public String getModule() {
-            return IssueService.COMPONENT_NAME;
-        }
-        @Override
-        public int getNumber() {
-            return 0;
-        }
+    public static final TranslationKey MESSAGE_SEED_DEFAULT_TRANSLATION = new TranslationKey() {
         @Override
         public String getKey() {
             return "issue.entity.default.translation";
@@ -98,10 +91,6 @@ public class BaseTest {
         @Override
         public String getDefaultFormat() {
             return "Default entity";
-        }
-        @Override
-        public Level getLevel() {
-            return Level.INFO;
         }
     };
 
@@ -159,8 +148,9 @@ public class BaseTest {
 
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             injector.getInstance(FiniteStateMachineService.class);
-            // In OSGI container issue types will be set by separate bundle
             issueService = injector.getInstance(IssueService.class);
+            injector.getInstance(DummyIssueProvider.class);
+            // In OSGI container issue types will be set by separate bundle
             IssueType type = issueService.createIssueType(ISSUE_DEFAULT_TYPE_UUID, MESSAGE_SEED_DEFAULT_TRANSLATION);
             issueService.createReason(ISSUE_DEFAULT_REASON, type, MESSAGE_SEED_DEFAULT_TRANSLATION);
             ctx.commit();
@@ -226,6 +216,7 @@ public class BaseTest {
         CreationRuleBuilder builder = getIssueCreationService().newCreationRule();
         builder.setName(name);
         builder.setTemplate(mockCreationRuleTemplate().getName());
+        builder.setIssueType(getIssueService().findIssueType(ISSUE_DEFAULT_TYPE_UUID).orElse(null));
         builder.setReason(getIssueService().findReason(ISSUE_DEFAULT_REASON).orElse(null));
         CreationRule creationRule = builder.complete();
         creationRule.save();
@@ -292,5 +283,28 @@ public class BaseTest {
     protected List<IssueComment> getIssueComments(Issue issue) {
         Query<IssueComment> query = getIssueService().query(IssueComment.class, User.class);
         return query.select(where("issueId").isEqualTo(issue.getId()), Order.ascending("createTime"));
+    }
+
+    private static class DummyIssueProvider implements IssueProvider {
+
+        @Inject
+        public DummyIssueProvider(IssueService issueService) {
+            ((IssueServiceImpl) issueService).addIssueProvider(this);
+        }
+
+        @Override
+        public Optional<? extends OpenIssue> getOpenIssue(OpenIssue issue) {
+            OpenIssue spyOpenIssue = spy(issue);
+            doAnswer(invocationOnMock -> {
+                IssueStatus status = (IssueStatus)invocationOnMock.getArguments()[0];
+                return issue.closeInternal(status);
+            }).when(spyOpenIssue).close(any());
+            return Optional.of(spyOpenIssue);
+        }
+
+        @Override
+        public Optional<? extends HistoricalIssue> getHistoricalIssue(HistoricalIssue issue) {
+            return Optional.of(issue);
+        }
     }
 }

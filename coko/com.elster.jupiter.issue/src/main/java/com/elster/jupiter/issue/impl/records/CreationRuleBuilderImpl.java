@@ -1,16 +1,11 @@
 package com.elster.jupiter.issue.impl.records;
 
-import java.util.Map;
-
-import com.elster.jupiter.issue.share.entity.CreationRule;
-import com.elster.jupiter.issue.share.entity.CreationRuleAction;
-import com.elster.jupiter.issue.share.entity.CreationRuleActionPhase;
-import com.elster.jupiter.issue.share.entity.DueInType;
-import com.elster.jupiter.issue.share.entity.IssueActionType;
-import com.elster.jupiter.issue.share.entity.IssueReason;
+import com.elster.jupiter.issue.share.entity.*;
 import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleActionBuilder;
 import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleBuilder;
 import com.elster.jupiter.orm.DataModel;
+
+import java.util.Map;
 
 public class CreationRuleBuilderImpl implements CreationRuleBuilder {
 
@@ -33,7 +28,13 @@ public class CreationRuleBuilderImpl implements CreationRuleBuilder {
         this.underConstruction.setComment(comment);
         return this;
     }
-    
+
+    @Override
+    public CreationRuleBuilder setIssueType(IssueType issueType) {
+        this.underConstruction.setIssueType(issueType);
+        return this;
+    }
+
     @Override
     public CreationRuleBuilder setReason(IssueReason reason) {
         this.underConstruction.setReason(reason);

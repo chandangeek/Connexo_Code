@@ -48,7 +48,9 @@ import com.elster.jupiter.util.conditions.Condition;
 @SuppressWarnings("deprecation")
 public class IssueCreationServiceImpl implements IssueCreationService {
     public static final Logger LOG = Logger.getLogger(IssueCreationServiceImpl.class.getName());
+    
     public static final String ISSUE_CREATION_SERVICE = "issueCreationService";
+    public static final String LOGGER = "LOGGER";
 
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
@@ -139,6 +141,7 @@ public class IssueCreationServiceImpl implements IssueCreationService {
             
             try {
                 ksession.setGlobal(ISSUE_CREATION_SERVICE, this);
+                ksession.setGlobal(LOGGER, LOG);
             } catch (RuntimeException ex){
                 LOG.warning("Unable to set the issue creation service as a global for all rules. This means that no " +
                         "issues will be created! Check that at least one rule contais string 'global com.elster.jupiter." +

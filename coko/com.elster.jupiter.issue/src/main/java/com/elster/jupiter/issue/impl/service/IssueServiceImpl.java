@@ -357,48 +357,48 @@ public class IssueServiceImpl implements IssueService, InstallService, Translati
     }
 
     @Override
-    public IssueStatus createStatus(String key, boolean isHistorical, MessageSeed seed) {
+    public IssueStatus createStatus(String key, boolean isHistorical, TranslationKey translationKey) {
         if(findStatus(key).isPresent()){
             throw new NotUniqueKeyException(thesaurus, key);
         }
-        installEntityTranslation(seed);
+        installEntityTranslation(translationKey);
         IssueStatusImpl status = dataModel.getInstance(IssueStatusImpl.class);
-        status.init(key, isHistorical, seed).save();
+        status.init(key, isHistorical, translationKey).save();
         return status;
     }
 
     @Override
-    public IssueReason createReason(String key, IssueType type, MessageSeed seed) {
+    public IssueReason createReason(String key, IssueType type, TranslationKey translationKey) {
         if(findReason(key).isPresent()){
             throw new NotUniqueKeyException(thesaurus, key);
         }
-        installEntityTranslation(seed);
+        installEntityTranslation(translationKey);
         IssueReasonImpl reason = dataModel.getInstance(IssueReasonImpl.class);
-        reason.init(key, type, seed).save();
+        reason.init(key, type, translationKey).save();
         return reason;
     }
 
     @Override
-    public IssueType createIssueType(String key, MessageSeed seed) {
+    public IssueType createIssueType(String key, TranslationKey translationKey) {
         if(findIssueType(key).isPresent()){
             throw new NotUniqueKeyException(thesaurus, key);
         }
-        installEntityTranslation(seed);
+        installEntityTranslation(translationKey);
         IssueTypeImpl issueType = dataModel.getInstance(IssueTypeImpl.class);
-        issueType.init(key, seed).save();
+        issueType.init(key, translationKey).save();
         return issueType;
     }
 
-    private void installEntityTranslation(MessageSeed seed) {
-        if (seed == null){
+    private void installEntityTranslation(TranslationKey translationKey) {
+        if (translationKey == null){
             throw new IllegalArgumentException("Translation for the new entity can't be null");
         }
-        if (thesaurus.getTranslations().get(seed.getKey()) == null) {
+        if (thesaurus.getTranslations().get(translationKey.getKey()) == null) {
             try {
-                SimpleNlsKey nlsKey = SimpleNlsKey.key(IssueService.COMPONENT_NAME, Layer.DOMAIN, seed.getKey()).defaultMessage(seed.getDefaultFormat());
-                thesaurus.addTranslations(Collections.singletonList(SimpleTranslation.translation(nlsKey, Locale.ENGLISH, seed.getDefaultFormat())));
+                SimpleNlsKey nlsKey = SimpleNlsKey.key(IssueService.COMPONENT_NAME, Layer.DOMAIN, translationKey.getKey()).defaultMessage(translationKey.getDefaultFormat());
+                thesaurus.addTranslations(Collections.singletonList(SimpleTranslation.translation(nlsKey, Locale.ENGLISH, translationKey.getDefaultFormat())));
             } catch (Exception ex) {
-                LOG.warning("Unable to setup translation for: key = " + seed.getKey() + ", value = " + seed.getDefaultFormat());
+                LOG.warning("Unable to setup translation for: key = " + translationKey.getKey() + ", value = " + translationKey.getDefaultFormat());
             }
         }
     }

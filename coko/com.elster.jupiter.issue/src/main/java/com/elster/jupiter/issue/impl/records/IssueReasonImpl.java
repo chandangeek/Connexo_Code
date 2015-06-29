@@ -4,11 +4,11 @@ import com.elster.jupiter.issue.impl.module.MessageSeeds;
 import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.util.exception.MessageSeed;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
@@ -38,12 +38,12 @@ public class IssueReasonImpl extends EntityImpl implements IssueReason{
         this.thesaurus = thesaurus;
     }
 
-    public IssueReasonImpl init(String key, IssueType issueType, MessageSeed seed){
+    public IssueReasonImpl init(String key, IssueType issueType, TranslationKey translationKey){
         this.key = key;
         this.issueType.set(issueType);
-        if (seed != null) {
-            this.translationKey = seed.getKey();
-            this.defaultName = seed.getDefaultFormat();
+        if (translationKey != null) {
+            this.translationKey = translationKey.getKey();
+            this.defaultName = translationKey.getDefaultFormat();
         }
         return this;
     }
@@ -60,7 +60,7 @@ public class IssueReasonImpl extends EntityImpl implements IssueReason{
 
     @Override
     public String getName() {
-        return this.thesaurus.getString(this.key, this.defaultName);
+        return this.thesaurus.getStringBeyondComponent(this.translationKey, this.defaultName);
     }
 
     @Override
