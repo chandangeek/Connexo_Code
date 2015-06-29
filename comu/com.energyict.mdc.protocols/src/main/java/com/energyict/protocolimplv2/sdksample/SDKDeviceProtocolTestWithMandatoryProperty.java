@@ -300,11 +300,6 @@ public class SDKDeviceProtocolTestWithMandatoryProperty extends SDKDeviceProtoco
     }
 
     @Override
-    public List<PropertySpec> getSecurityPropertySpecs() {
-        return Collections.emptyList();
-    }
-
-    @Override
     public String getSecurityRelationTypeName() {
         return this.deviceProtocolSecurityCapabilities.getSecurityRelationTypeName();
     }
