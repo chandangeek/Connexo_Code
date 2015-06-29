@@ -34,7 +34,7 @@ public class MdcAppInstaller implements InstallService {
     public static final String PRIVILEGE_OPERATE_DEVICECOMMUNICATION = "privilege.operate.deviceCommunication";
     public static final String PRIVILEGE_ADMINISTRATE_DEVICEDATA = "privilege.administrate.deviceData";
     public static final String PRIVILEGE_VIEW_DEVICETYPE = "privilege.view.deviceType";
-    public static final String PRIVILEGE_ACCTION_ISSUE_ACTION = "privilege.action.issue";
+    public static final String PRIVILEGE_ACTION_ISSUE_ACTION = "privilege.action.issue";
     public static final String PRIVILEGE_ASSIGN_ISSUE = "privilege.assign.issue";
     public static final String PRIVILEGE_CLOSE_ISSUE = "privilege.close.issue";
     public static final String PRIVILEGE_COMMENT_ISSUE = "privilege.comment.issue";
@@ -101,7 +101,7 @@ public class MdcAppInstaller implements InstallService {
                 PRIVILEGE_RUN_EXPORT, PRIVILEGE_VIEW_EXPORT,
                 PRIVILEGE_VIEW_COMMUNICATION, PRIVILEGE_VIEW_DEVICE,
                 PRIVILEGE_OPERATE_DEVICECOMMUNICATION, PRIVILEGE_ADMINISTRATE_DEVICEDATA, PRIVILEGE_VIEW_DEVICETYPE,
-                PRIVILEGE_ACCTION_ISSUE_ACTION, PRIVILEGE_ASSIGN_ISSUE, PRIVILEGE_CLOSE_ISSUE, PRIVILEGE_COMMENT_ISSUE, PRIVILEGE_VIEW_ISSUE,
+                PRIVILEGE_ACTION_ISSUE_ACTION, PRIVILEGE_ASSIGN_ISSUE, PRIVILEGE_CLOSE_ISSUE, PRIVILEGE_COMMENT_ISSUE, PRIVILEGE_VIEW_ISSUE,
                 PRIVILEGE_VIEW_MASTER_DATA, PRIVILEGE_VIEW_VALIDATION, VIEW_MDC_IMPORT_SERVICES, VIEW_FWC_CAMPAIGNS
         };
     }
