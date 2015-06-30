@@ -3,9 +3,14 @@ Ext.define('Mdc.view.setup.devicegroup.Edit', {
     alias: 'widget.device-group-edit',
     itemId: 'device-group-edit',
     requires: [
-        'Mdc.view.setup.devicesearch.DevicesSideFilter',
+        'Mdc.view.setup.devicesearch.DevicesTopFilter',
+        'Mdc.view.setup.devicesearch.BufferedDevicesTopFilter',
+        'Mdc.store.filter.DeviceTypes',
+        'Mdc.store.DeviceConfigurations',
         'Mdc.view.setup.devicesearch.SearchResults',
-        'Uni.util.FormErrorMessage'
+        'Uni.util.FormErrorMessage',
+        'Mdc.store.Devices',
+        'Mdc.store.DevicesBuffered'
     ],
     returnLink: null,
     setEdit: function () {
@@ -64,10 +69,21 @@ Ext.define('Mdc.view.setup.devicegroup.Edit', {
                         title: Uni.I18n.translate('deviceregisterconfiguration.devices', 'MDC', 'Devices')
                     },
                     {
-                        xtype: 'filter-top-panel'
+                        xtype: 'mdc-search-results'
+                    }
+                ],
+                dockedItems: [
+                    {
+                        xtype: 'mdc-view-setup-devicesearch-devicestopfilter',
+                        dock: 'top',
+                        hidden: true,
+                        margin: '0 0 10 0'
                     },
                     {
-                        xtype: 'mdc-search-results'
+                        xtype: 'mdc-view-setup-devicesearch-buffereddevicestopfilter',
+                        dock: 'top',
+                        hidden: true,
+                        margin: '0 0 10 0'
                     }
                 ],
                 buttons: [
@@ -86,18 +102,50 @@ Ext.define('Mdc.view.setup.devicegroup.Edit', {
                 ]
             }
         ];
-        me.side = {
-            ui: 'medium',
-            items: [
-                {
-                    margin: '16 0 0 0',
-                    width: 250,
-                    xtype: 'mdc-search-results-side-filter'
-                }
-            ]
-        };
+
         me.callParent(arguments);
         me.setEdit();
+    },
+
+    showDynamicFilter: function() {
+        var me = this,
+            rendered = me.rendered,
+            dynamicFilter = me.down('mdc-view-setup-devicesearch-devicestopfilter'),
+            staticFilter = me.down('mdc-view-setup-devicesearch-buffereddevicestopfilter');
+
+        if (rendered) {
+            dynamicFilter.setVisible(true);
+            staticFilter.setVisible(false);
+        } else {
+            dynamicFilter.hidden = false;
+            staticFilter.hidden = true;
+        }
+    },
+
+    showStaticFilter: function() {
+        var me = this,
+            rendered = me.rendered,
+            dynamicFilter = me.down('mdc-view-setup-devicesearch-devicestopfilter'),
+            staticFilter = me.down('mdc-view-setup-devicesearch-buffereddevicestopfilter');
+
+        if (rendered) {
+            staticFilter.setVisible(true);
+            dynamicFilter.setVisible(false);
+        } else {
+            dynamicFilter.hidden = true;
+            staticFilter.hidden = false;
+        }
+    },
+
+    setDynamicFilter: function(queryObject) {
+        var filter = this.down('mdc-view-setup-devicesearch-devicestopfilter');
+        if (queryObject.hasOwnProperty('deviceTypes') && Ext.isArray(queryObject.deviceTypes) && queryObject.deviceTypes.length === 1) {
+            // in case of exactly one device type chosen, make sure the device configuration combo is also visible:
+            filter.applyQueryObject(queryObject, false);
+            filter.onDeviceTypeChanged();
+        }
+        filter.applyQueryObject(queryObject, true);
     }
+
 });
 

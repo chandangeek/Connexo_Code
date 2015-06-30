@@ -935,8 +935,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             route: 'add',
                             controller: 'Mdc.controller.setup.AddDeviceGroupAction',
                             privileges: Mdc.privileges.DeviceGroup.view,
-                            action: 'showAddDeviceGroupAction',
-                            filter: 'Mdc.model.DeviceFilter'
+                            action: 'showAddDeviceGroupAction'
                         },
                         view: {
                             title: 'Overview',
@@ -992,6 +991,20 @@ Ext.define('Mdc.controller.history.Setup', {
                             route: 'history',
                             controller: 'Mdc.controller.setup.DeviceHistory',
                             action: 'showDeviceHistory'
+                        },
+                        transitions: {
+                            title: Uni.I18n.translate('', 'MDC', 'Transition'),
+                            route: 'transitions/{transitionId}',
+                            controller: 'Mdc.controller.setup.DeviceTransitionExecute',
+                            action: 'showExecuteTransition',
+                            callback: function (route) {
+                                this.getApplication().on('loadDeviceTransition', function (record) {
+                                    route.setTitle(record.get('name'));
+                                    return true;
+                                }, {single: true});
+
+                                return this;
+                            }
                         },
                         commands: {
                             title: 'Commands',

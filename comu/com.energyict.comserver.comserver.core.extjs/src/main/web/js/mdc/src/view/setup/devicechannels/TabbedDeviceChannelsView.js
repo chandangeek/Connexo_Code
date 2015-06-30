@@ -11,6 +11,7 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
 
     prevNextstore: null,
     routerIdArgument: null,
+    isFullTotalCount: false,
 
     router: null,
     channel: null,
@@ -91,7 +92,8 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
                                 router: me.router,
                                 routerIdArgument: me.routerIdArgument,
                                 itemsName: me.prevNextListLink,
-                                indexLocation: me.indexLocation
+                                indexLocation: me.indexLocation,
+                                isFullTotalCount: me.isFullTotalCount
                             }
                         ]);
                     }

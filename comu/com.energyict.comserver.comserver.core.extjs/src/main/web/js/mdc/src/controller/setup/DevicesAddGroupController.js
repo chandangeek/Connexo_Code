@@ -1,5 +1,5 @@
 Ext.define('Mdc.controller.setup.DevicesAddGroupController', {
-    extend: 'Mdc.controller.setup.DevicesController',
+    extend: 'Ext.app.Controller',
 
     prefix: 'add-devicegroup-browse',
 
@@ -24,24 +24,16 @@ Ext.define('Mdc.controller.setup.DevicesAddGroupController', {
 
     refs: [
         {
-            ref: 'devicesSearchFilterPanel',
-            selector: 'devicegroup-wizard-step2 filter-top-panel'
-        },
-        {
-            ref: 'devicesSearchSideFilterForm',
-            selector: 'mdc-search-results-side-filter'
-        },
-        {
             ref: 'dynamicRadioButton',
             selector: 'devicegroup-wizard-step1 #dynamicDeviceGroup'
         },
         {
-            ref: 'dynamicGrid',
-            selector: 'mdc-search-results #dynamic-grid'
+            ref: 'dynamicGridFilter',
+            selector: 'devicegroup-wizard-step2 mdc-view-setup-devicesearch-devicestopfilter'
         },
         {
-            ref: 'staticGrid',
-            selector: 'mdc-search-results #static-grid'
+            ref: 'staticGridFilter',
+            selector: 'devicegroup-wizard-step2 mdc-view-setup-devicesearch-buffereddevicestopfilter'
         },
         {
             ref: 'editPage',
@@ -49,86 +41,13 @@ Ext.define('Mdc.controller.setup.DevicesAddGroupController', {
         }
     ],
 
-    getCriteriaPanel: function () {
-        if (this.getDevicesSearchFilterPanel()) {
-            return this.getDevicesSearchFilterPanel();
-        } else {
-            return this.getEditPage().down('filter-top-panel');
-        }
-    },
-
-    getSideFilterForm: function () {
-        return this.getDevicesSearchSideFilterForm();
-    },
-
-    initFilterModel: function () {
-        var router;
-
-        if (this.getEditPage()) {
-            router = this.getApplication().getController('Mdc.controller.setup.AddDeviceGroupAction').router;
-        } else {
-            router = this.getController('Uni.controller.history.Router');
-        }
-        this.getSideFilterForm().loadRecord(router.filter);
-        this.setFilterView();
-    },
-
-    applyFilter: function () {
+    applyFilters: function () {
         this.initAddDeviceGroupActionController();
-        var filterForm = this.getSideFilterForm();
-        filterForm.updateRecord();
-        filterForm.getRecord().save();
-
-
-        var store;
         if ((this.getDynamicRadioButton() && this.getDynamicRadioButton().checked) || (!this.getDynamicRadioButton() && this.isDynamic)) {
-            this.getDynamicGrid().down('pagingtoolbarbottom').resetPaging();
-            this.getDynamicGrid().down('pagingtoolbartop').resetPaging();
-            store = this.getDynamicGrid().getStore();
+            this.getDynamicGridFilter().applyFilters();
         } else {
-            store = this.getStaticGrid().getStore();
+            this.getStaticGridFilter().applyFilters();
         }
-
-
-        var router = this.getController('Uni.controller.history.Router');
-        router.filter = filterForm.getRecord();
-        store.setFilterModel(router.filter);
-        store.load();
-        this.setFilterView();
-    },
-
-    removeTheFilter: function (key) {
-        this.initAddDeviceGroupActionController();
-        var router = this.getController('Uni.controller.history.Router');
-        var record = router.filter;
-        switch (key) {
-            default:
-                record.set(key, null);
-        }
-        record.save();
-        var filterForm = this.getSideFilterForm();
-        filterForm.loadRecord(record);
-
-        this.applyFilter();
-    },
-
-    clearFilter: function () {
-        this.initAddDeviceGroupActionController();
-        this.getCriteriaPanel().getContainer().removeAll();
-
-        var router = this.getController('Uni.controller.history.Router'),
-            record = router.filter,
-            filterForm = this.getSideFilterForm();
-        record.beginEdit();
-        record.set('mRID', null);
-        record.set('serialNumber', null);
-        record.set('deviceTypes', null);
-        record.set('deviceConfigurations', null);
-        record.endEdit();
-        record.save();
-
-        filterForm.loadRecord(record);
-        this.applyFilter();
     },
 
     initAddDeviceGroupActionController: function () {
@@ -138,36 +57,5 @@ Ext.define('Mdc.controller.setup.DevicesAddGroupController', {
             this.getApplication().getController('Mdc.controller.setup.AddDeviceGroupAction').disableCreateWidget();
         }
     },
-
-    setFilterView: function () {
-        var filterForm = this.getSideFilterForm();
-        var filterView = this.getCriteriaPanel();
-
-        var serialNumberField = filterForm.down('[name=serialNumber]');
-        var serialNumberValue = serialNumberField.getValue().trim();
-        var mRIDField = filterForm.down('[name=mRID]');
-        var mRIDValue = mRIDField.getValue().trim();
-
-        if (serialNumberValue != "") {
-            filterView.setFilter('serialNumber', serialNumberField.getFieldLabel(), serialNumberValue);
-        }
-
-        if (mRIDValue != "") {
-            filterView.setFilter('mRID', mRIDField.getFieldLabel(), mRIDValue);
-        }
-
-        var deviceTypeCombo = filterForm.down('[name=deviceTypes]');
-        var deviceConfigsCombo = filterForm.down('[name=deviceConfigurations]');
-
-        if (!_.isEmpty(deviceTypeCombo.getRawValue())) {
-            var filterView = this.getCriteriaPanel();
-            filterView.setFilter(deviceTypeCombo.getName(), deviceTypeCombo.getFieldLabel(), deviceTypeCombo.getRawValue());
-        }
-
-        if (!_.isEmpty(deviceConfigsCombo.getRawValue())) {
-            var filterView = this.getCriteriaPanel();
-            filterView.setFilter(deviceConfigsCombo.getName(), deviceConfigsCombo.getFieldLabel(), deviceConfigsCombo.getRawValue());
-        }
-    }
 
 });

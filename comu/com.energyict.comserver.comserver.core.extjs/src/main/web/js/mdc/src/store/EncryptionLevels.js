@@ -12,7 +12,10 @@ Ext.define('Mdc.store.EncryptionLevels', {
         reader: {
             type: 'json',
             root: 'data'
-        }
+        },
+        pageParam: false,
+        startParam: false,
+        limitParam: false
     },
     listeners: {
         load: {

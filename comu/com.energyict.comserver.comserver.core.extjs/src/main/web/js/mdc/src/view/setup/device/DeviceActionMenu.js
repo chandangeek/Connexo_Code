@@ -3,18 +3,26 @@ Ext.define('Mdc.view.setup.device.DeviceActionMenu', {
     alias: 'widget.device-action-menu',
     plain: true,
     border: false,
-    itemId: 'deviceActionMenu',
     shadow: false,
-    items: [
-        {
-            itemId: 'activate',
-            text: Uni.I18n.translate('validation.activate', 'CFG', 'Activate')
-        },
-        {
-            itemId: 'deactivate',
-            text: Uni.I18n.translate('validation.deactivate', 'CFG', 'Deactivate')
-        }
-    ]
+    items: [],
+
+    setActions: function(actionsStore, router) {
+      var me = this;
+      actionsStore.each(function(item) {
+         me.add({
+              itemId: 'action-menu-item' + item.get('id'),
+              text: item.get('name'),
+              handler: function() {
+                  router.getRoute('devices/device/transitions').forward({transitionId: item.get('id')});
+              }
+         })
+      });
+    },
+
+
+    initComponent: function() {
+        this.callParent(arguments);
+    }
 });
 
 

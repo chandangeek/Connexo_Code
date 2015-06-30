@@ -17,7 +17,8 @@ Ext.define('Mdc.controller.setup.Devices', {
     stores: [
         'AvailableDeviceTypes',
         'AvailableDeviceConfigurations',
-        'MasterDeviceCandidates'
+        'MasterDeviceCandidates',
+        'Mdc.store.DeviceTransitions'
     ],
 
     mixins: [
@@ -35,7 +36,8 @@ Ext.define('Mdc.controller.setup.Devices', {
         {ref: 'deviceGeneralInformationDeviceConfigurationLink', selector: '#deviceGeneralInformationDeviceConfigurationLink'},
         {ref: 'dataCollectionIssuesLink', selector: '#dataCollectionIssuesLink'},
         {ref: 'deviceValidationResultFieldLink', selector: '#lnk-validation-result'},
-        {ref: 'validationFromDate', selector: '#validationFromDate'}
+        {ref: 'validationFromDate', selector: '#validationFromDate'},
+        {ref: 'deviceActionsMenu', selector: 'deviceSetup #deviceActionMenu'}
     ],
 
     init: function () {
@@ -188,9 +190,11 @@ Ext.define('Mdc.controller.setup.Devices', {
     showDeviceDetailsView: function (mRID) {
         var me = this,
             viewport = Ext.ComponentQuery.query('viewport')[0],
-            router = this.getController('Uni.controller.history.Router');
+            router = this.getController('Uni.controller.history.Router'),
+            transitionsStore = Ext.StoreManager.get('Mdc.store.DeviceTransitions');
 
         viewport.setLoading();
+        transitionsStore.getProxy().setUrl(mRID);
 
         Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
             success: function (device) {
@@ -205,7 +209,11 @@ Ext.define('Mdc.controller.setup.Devices', {
 
                 me.getApplication().fireEvent('changecontentevent', widget);
                 me.doRefresh();
-
+                transitionsStore.load({
+                    callback: function() {
+                       me.getDeviceActionsMenu().setActions(this, router);
+                    }
+                });
                 me.getDeviceGeneralInformationDeviceTypeLink().getEl().set({href: '#/administration/devicetypes/' + encodeURIComponent(device.get('deviceTypeId'))});
                 me.getDeviceGeneralInformationDeviceTypeLink().getEl().setHTML(Ext.String.htmlEncode(device.get('deviceTypeName')));
                 me.getDeviceGeneralInformationDeviceConfigurationLink().getEl().set({href: '#/administration/devicetypes/' + encodeURIComponent(device.get('deviceTypeId')) + '/deviceconfigurations/' + encodeURIComponent(device.get('deviceConfigurationId'))});
