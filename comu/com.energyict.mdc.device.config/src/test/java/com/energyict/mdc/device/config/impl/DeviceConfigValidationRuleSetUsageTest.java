@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.estimation.impl.EstimationModule;
@@ -98,6 +99,8 @@ public class DeviceConfigValidationRuleSetUsageTest {
     private EventAdmin eventAdmin;
     @Mock
     private Thesaurus thesaurus;
+    @Mock
+    private BpmService bpmService;
 
     static final String DEVICE_TYPE_NAME = DeviceConfigValidationRuleSetUsageTest.class.getSimpleName();
 
@@ -200,6 +203,7 @@ public class DeviceConfigValidationRuleSetUsageTest {
     private class MockModule extends AbstractModule {
         @Override
         protected void configure() {
+            bind(BpmService.class).toInstance(bpmService);
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(BundleContext.class).toInstance(bundleContext);
             bind(LicenseService.class).toInstance(licenseService);

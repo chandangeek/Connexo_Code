@@ -2,6 +2,8 @@ package com.energyict.mdc.device.config.impl;
 
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
+
+import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.time.impl.TimeModule;
@@ -22,7 +24,6 @@ import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
 import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
-import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableServiceImpl;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
@@ -79,6 +80,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import org.mockito.Mock;
+
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
@@ -96,6 +99,7 @@ import static org.mockito.Mockito.withSettings;
 public class InMemoryPersistence {
 
     private BundleContext bundleContext;
+    private BpmService bpmService;
     private Principal principal;
     private EventAdmin eventAdmin;
     private TransactionService transactionService;
@@ -121,7 +125,6 @@ public class InMemoryPersistence {
     private MeasurementTypeUpdateEventHandler measurementTypeUpdateEventHandler;
     private MeasurementTypeDeletionEventHandler measurementTypeDeletionEventHandler;
     private ChannelTypeDeleteFromLoadProfileTypeEventHandler channelTypeDeleteFromLoadProfileTypeEventHandler;
-    private OrmService ormService;
     private LicenseService licenseService;
     private LicensedProtocolService licensedProtocolService;
     private ConnectionTypeService connectionTypeService;
@@ -162,8 +165,8 @@ public class InMemoryPersistence {
             this.injector.getInstance(PluggableService.class);
             if (!mockedProtocolPluggableService) {
                 this.protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
-                ((ProtocolPluggableServiceImpl) this.protocolPluggableService).addLicensedProtocolService(this.licensedProtocolService);
-                ((ProtocolPluggableServiceImpl) this.protocolPluggableService).addConnectionTypeService(this.connectionTypeService);
+                this.protocolPluggableService.addLicensedProtocolService(this.licensedProtocolService);
+                this.protocolPluggableService.addConnectionTypeService(this.connectionTypeService);
             }
             this.dataModel = this.createNewDeviceConfigurationService();
             ctx.commit();
@@ -232,6 +235,7 @@ public class InMemoryPersistence {
     }
 
     private void initializeMocks(String testName, boolean mockedProtocolPluggableService) {
+        this.bpmService = mock(BpmService.class);
         this.mockProtocolPluggableService = mockedProtocolPluggableService;
         this.bundleContext = mock(BundleContext.class);
         this.eventAdmin = mock(EventAdmin.class);
@@ -264,7 +268,7 @@ public class InMemoryPersistence {
     public ValidationService getValidationService() {
         return validationService;
     }
-    
+
     public EstimationService getEstimationService() {
         return estimationService;
     }
@@ -349,18 +353,14 @@ public class InMemoryPersistence {
     private class MockModule extends AbstractModule {
         @Override
         protected void configure() {
+            bind(BpmService.class).toInstance(bpmService);
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(BundleContext.class).toInstance(bundleContext);
             bind(LicenseService.class).toInstance(licenseService);
             if (mockProtocolPluggableService) {
                 bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);
             }
-            bind(DataModel.class).toProvider(new Provider<DataModel>() {
-                @Override
-                public DataModel get() {
-                    return dataModel;
-                }
-            });
+            bind(DataModel.class).toProvider(() -> dataModel);
         }
 
     }
