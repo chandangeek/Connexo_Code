@@ -25,19 +25,41 @@ public class BpmServerImpl implements BpmServer {
     private String authString;
 
     BpmServerImpl(BundleContext context) {
-        url = context.getProperty(BPM_URL);
+        this.setUrlFromContext(context);
+        String user = this.getUserFromContext(context);
+        String password = this.getPasswordFromContext(context);
+        this.authString = "Basic " + new String(Base64.getEncoder().encode((user + ":" + password).getBytes()));
+    }
+
+    private void setUrlFromContext(BundleContext context) {
+        if (context != null) {
+            url = context.getProperty(BPM_URL);
+        }
         if (url == null) {
             url = DEFAULT_BPM_URL;
         }
-        String user = context.getProperty(BPM_USER);
-        String password = context.getProperty(BPM_PASSWORD);
+    }
+
+    private String getUserFromContext(BundleContext context) {
+        String user = null;
+        if (context != null) {
+            user = context.getProperty(BPM_USER);
+        }
         if (user == null) {
             user = DEFAULT_BPM_USER;
+        }
+        return user;
+    }
+
+    private String getPasswordFromContext(BundleContext context) {
+        String password = null;
+        if (context != null) {
+            password = context.getProperty(BPM_PASSWORD);
         }
         if (password == null) {
             password = DEFAULT_BPM_PASSWORD;
         }
-        this.authString = "Basic " + new String(Base64.getEncoder().encode((user + ":" + password).getBytes()));
+        return password;
     }
 
     public String getUrl() {
