@@ -6,6 +6,7 @@ import com.elster.jupiter.http.whiteboard.DefaultStartPage;
 import com.elster.jupiter.http.whiteboard.HttpResource;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.system.app.SysAppService;
+import com.elster.jupiter.users.ApplicationPrivilegesProvider;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
@@ -24,11 +25,11 @@ import java.util.stream.Collectors;
 
 @Component(
         name = "com.elster.jupiter.system.app",
-        service = {SysAppService.class, InstallService.class},
+        service = {SysAppService.class, InstallService.class, ApplicationPrivilegesProvider.class},
         property = "name=" + SysAppService.COMPONENTNAME,
         immediate = true
 )
-public class SysAppServiceImpl implements SysAppService, InstallService {
+public class SysAppServiceImpl implements SysAppService, InstallService, ApplicationPrivilegesProvider {
 
     public static final String HTTP_RESOURCE_ALIAS = "/admin";
     public static final String HTTP_RESOURCE_LOCAL_NAME = "/js/system";
@@ -78,18 +79,41 @@ public class SysAppServiceImpl implements SysAppService, InstallService {
     }
 
     private void assignPrivilegesToDefaultRoles() {
-        List<Privilege> availablePrivileges = getApplicationPrivileges();
+        List<Privilege> availablePrivileges = getDBApplicationPrivileges();
         userService.grantGroupWithPrivilege(UserService.DEFAULT_ADMIN_ROLE, availablePrivileges.stream().map(HasName::getName).toArray(String[]::new));
         userService.grantGroupWithPrivilege(UserService.BATCH_EXECUTOR_ROLE, availablePrivileges.stream().map(HasName::getName).toArray(String[]::new));
     }
 
     private boolean isAllowed(User user) {
-        List<Privilege> appPrivileges = getApplicationPrivileges();
+        List<Privilege> appPrivileges = getRegisteredApplicationsPrivileges();
         return user.getPrivileges().stream().anyMatch(appPrivileges::contains);
     }
 
-    private List<Privilege> getApplicationPrivileges() {
+    private List<Privilege> getDBApplicationPrivileges() {
         return userService.getResources(APPLICATION_KEY).stream().flatMap(resource -> resource.getPrivileges().stream()).collect(Collectors.toList());
+    }
+
+    //@Override
+    public List<Privilege> getRegisteredApplicationsPrivileges() {
+        return userService.getResources()
+                .stream()
+                .flatMap(x->x.getPrivileges().stream())
+                .filter(p-> SysAppPrivileges.getApplicationPrivileges().contains(p.getName()))
+                .collect(Collectors.toList());
+
+
+        //return userService.getResources(APPLICATION_KEY).stream().flatMap(resource -> resource.getPrivileges().stream()).collect(Collectors.toList());
+    }
+
+
+    @Override
+    public List<String> getApplicationPrivileges() {
+        return SysAppPrivileges.getApplicationPrivileges();
+    }
+
+    @Override
+    public String getApplicationName() {
+        return APP_KEY;
     }
 
 }
