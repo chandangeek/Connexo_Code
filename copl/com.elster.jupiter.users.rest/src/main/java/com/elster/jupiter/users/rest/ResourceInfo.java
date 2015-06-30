@@ -16,6 +16,7 @@ import java.util.List;
 public class ResourceInfo {
     public String componentName;
     public String name;
+    public String qualifiedName;
     public String description;
     public List<PrivilegeInfo> privileges = new ArrayList<>();
 
@@ -23,6 +24,7 @@ public class ResourceInfo {
         componentName = resource.getComponentName();
         name = resource.getName();
         description = resource.getDescription();
+        qualifiedName = resource.getComponentName()+"."+resource.getName();
         for (Privilege privilege : resource.getPrivileges()) {
             privileges.add(new PrivilegeInfo(privilege));
         }

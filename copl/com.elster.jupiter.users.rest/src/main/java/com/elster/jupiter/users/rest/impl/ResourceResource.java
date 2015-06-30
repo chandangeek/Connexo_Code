@@ -37,7 +37,7 @@ public class ResourceResource {
     @RolesAllowed({Privileges.ADMINISTRATE_USER_ROLE,Privileges.VIEW_USER_ROLE})
     public ResourceInfos getResources(@Context UriInfo uriInfo) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
-        List<Resource> list = getResourceRestQuery().select(queryParameters, Order.ascending("name"));
+        List<Resource> list = userService.getResources();//getResourceRestQuery().select(queryParameters, Order.ascending("name"));
         ResourceInfos infos = new ResourceInfos(queryParameters.clipToLimit(list));
         infos.total = queryParameters.determineTotal(list.size());
         return infos;
