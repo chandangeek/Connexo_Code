@@ -35,7 +35,7 @@ public interface FiniteStateMachineService {
 
     /**
      * Enables the external business process identified by the specified
-     * deploymentId and processId to executed when a {@link State}
+     * deploymentId and processId to be executed when a {@link State}
      * is entered or exited.
      *
      * @param deploymentId The deployment id of the external process
@@ -46,7 +46,7 @@ public interface FiniteStateMachineService {
 
     /**
      * Disables the external business process identified by the specified
-     * deploymentId and processId to executed when a {@link State}
+     * deploymentId and processId to be executed when a {@link State}
      * is entered or exited. This will fail when there is at least
      * one State on which this external process is configured
      * to be executed on entry or on exit.
