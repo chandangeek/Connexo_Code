@@ -20,10 +20,11 @@ Ext.define('Uni.grid.filtertop.Duration', {
     dataIndexTo: 'duration',
     defaultFromDate: undefined,
     defaultDuration: undefined,
+    durationStore: null,
 
     initComponent: function () {
         var me = this;
-        me.store = Ext.create('Uni.store.Durations');
+        me.store = Ext.create(me.durationStore ? me.durationStore : 'Uni.store.Durations');
         me.items = [
             {
                 xtype: 'uni-grid-filtertop-datetime-select',
