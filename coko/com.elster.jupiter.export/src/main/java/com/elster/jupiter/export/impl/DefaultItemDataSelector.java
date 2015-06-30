@@ -1,5 +1,7 @@
 package com.elster.jupiter.export.impl;
 
+import com.elster.jupiter.cbo.QualityCodeIndex;
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportStrategy;
 import com.elster.jupiter.export.MeterReadingData;
@@ -9,6 +11,8 @@ import com.elster.jupiter.export.StructureMarker;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.ReadingQualityRecord;
+import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
@@ -18,6 +22,7 @@ import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.util.Ranges;
+import com.elster.jupiter.validation.ValidationService;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 import com.google.common.collect.TreeRangeSet;
@@ -25,6 +30,7 @@ import com.google.common.collect.TreeRangeSet;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -39,17 +45,23 @@ import static com.elster.jupiter.util.streams.ExtraCollectors.toImmutableRangeSe
 class DefaultItemDataSelector implements ItemDataSelector {
 
     private final Clock clock;
+    private final ValidationService validationService;
 
-    public DefaultItemDataSelector(Clock clock) {
+    public DefaultItemDataSelector(Clock clock, ValidationService validationService) {
         this.clock = clock;
+        this.validationService = validationService;
     }
 
     @Override
     public Optional<MeterReadingData> selectData(DataExportOccurrence occurrence, IReadingTypeDataExportItem item) {
         Range<Instant> exportInterval = determineExportInterval(occurrence, item);
-        List<? extends BaseReadingRecord> readings = item.getReadingContainer().getReadings(exportInterval, item.getReadingType());
+        List<? extends BaseReadingRecord> readings = new ArrayList<>(item.getReadingContainer().getReadings(exportInterval, item.getReadingType()));
 
-        if (item.getSelector().getStrategy().isExportCompleteData() && !isComplete(item, exportInterval, readings)) {
+        DataExportStrategy strategy = item.getSelector().getStrategy();
+
+        handleValidatedDataOption(item, strategy, readings, exportInterval);
+
+        if (strategy.isExportCompleteData() && !isComplete(item, exportInterval, readings)) {
             return Optional.empty();
         }
 
@@ -58,6 +70,51 @@ class DefaultItemDataSelector implements ItemDataSelector {
             return Optional.of(new MeterReadingData(item, meterReading, structureMarker(item, readings.get(0).getTimeStamp())));
         }
         return Optional.empty();
+    }
+
+    private void handleValidatedDataOption(IReadingTypeDataExportItem item, DataExportStrategy strategy, List<? extends BaseReadingRecord> readings, Range<Instant> interval) {
+        switch (strategy.getValidatedDataOption()) {
+            case EXCLUDE_INTERVAL:
+                handleExcludeInterval(item, readings, interval);
+                return;
+            case EXCLUDE_ITEM:
+                handleExcludeItem(item, readings, interval);
+            default:
+        }
+    }
+
+    private void handleExcludeItem(IReadingTypeDataExportItem item, List<? extends BaseReadingRecord> readings, Range<Instant> interval) {
+        if (hasUnvalidatedReadings(item, readings) || hasSuspects(item, interval)) {
+            readings.clear();
+        }
+    }
+
+    private boolean hasSuspects(IReadingTypeDataExportItem item, Range<Instant> interval) {
+        return getSuspects(item, interval).findAny().isPresent();
+    }
+
+    private boolean hasUnvalidatedReadings(IReadingTypeDataExportItem item, List<? extends BaseReadingRecord> readings) {
+        Optional<Instant> lastChecked = validationService.getEvaluator().getLastChecked(item.getReadingContainer(), item.getReadingType());
+        return !lastChecked.isPresent() || readings.stream().anyMatch(baseReadingRecord -> baseReadingRecord.getTimeStamp().isAfter(lastChecked.get()));
+    }
+
+    private Stream<Instant> getSuspects(IReadingTypeDataExportItem item, Range<Instant> interval) {
+        return item.getReadingContainer().getReadingQualities(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT), item.getReadingType(), interval).stream()
+                .map(ReadingQualityRecord::getReadingTimestamp);
+    }
+
+    private void handleExcludeInterval(IReadingTypeDataExportItem item, List<? extends BaseReadingRecord> readings, Range<Instant> interval) {
+        Optional<Instant> lastChecked = validationService.getEvaluator().getLastChecked(item.getReadingContainer(), item.getReadingType());
+
+        if (!lastChecked.isPresent()) {
+            readings.clear();
+            return;
+        }
+        lastChecked.ifPresent(date -> readings.removeIf(baseReadingRecord -> baseReadingRecord.getTimeStamp().isAfter(date)));
+
+        Set<Instant> invalids = getSuspects(item, interval)
+                .collect(Collectors.toSet());
+        readings.removeIf(baseReadingRecord -> invalids.contains(baseReadingRecord.getTimeStamp()));
     }
 
     private boolean isComplete(IReadingTypeDataExportItem item, Range<Instant> exportInterval, List<? extends BaseReadingRecord> readings) {
@@ -74,29 +131,27 @@ class DefaultItemDataSelector implements ItemDataSelector {
             return Optional.empty();
         }
         Range<Instant> updateInterval = determineUpdateInterval(occurrence, item);
-        List<? extends BaseReadingRecord> readings = item.getReadingContainer().getReadingsUpdatedSince(updateInterval, item.getReadingType(), since);
+        List<? extends BaseReadingRecord> readings = new ArrayList<>(item.getReadingContainer().getReadingsUpdatedSince(updateInterval, item.getReadingType(), since));
 
-        List<? extends BaseReadingRecord> updatedReadings = readings;
-        Optional<RelativePeriod> updateWindow = occurrence.getTask().getReadingTypeDataSelector()
-                .map(ReadingTypeDataSelector::getStrategy)
-                .flatMap(DataExportStrategy::getUpdateWindow);
+        Optional<RelativePeriod> updateWindow = item.getSelector().getStrategy().getUpdateWindow();
         if (updateWindow.isPresent()) {
             RelativePeriod window = updateWindow.get();
-            RangeSet<Instant> rangeSet = updatedReadings.stream()
+            RangeSet<Instant> rangeSet = readings.stream()
                     .map(baseReadingRecord -> window.getInterval(ZonedDateTime.ofInstant(baseReadingRecord.getTimeStamp(), item.getReadingContainer().getZoneId())))
                     .map(period -> Ranges.map(period, ZonedDateTime::toInstant))
                     .collect(toImmutableRangeSet());
             readings = rangeSet.asRanges().stream()
                     .flatMap(range -> {
-                        List<? extends BaseReadingRecord> found = item.getReadingContainer().getReadings(range, item.getReadingType());
+                        List<? extends BaseReadingRecord> found = new ArrayList(item.getReadingContainer().getReadings(range, item.getReadingType()));
                         if (occurrence.getTask().getReadingTypeDataSelector().get().getStrategy().isExportCompleteData()) {
+                            handleValidatedDataOption(item, item.getSelector().getStrategy(), found, range);
                             if (!isComplete(item, range, found)) {
                                 return Stream.empty();
                             }
                         }
                         return found.stream();
                     })
-                    .collect(Collectors.toList());
+                    .collect(Collectors.toCollection(ArrayList::new));
         }
 
         if (!readings.isEmpty()) {

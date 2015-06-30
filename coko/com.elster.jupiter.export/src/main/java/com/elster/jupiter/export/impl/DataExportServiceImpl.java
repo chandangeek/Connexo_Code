@@ -31,6 +31,7 @@ import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.HasName;
+import com.elster.jupiter.validation.ValidationService;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import org.osgi.framework.BundleContext;
@@ -83,6 +84,7 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
     private volatile MailService mailService;
     private volatile FileSystem fileSystem;
     private volatile Path tempDirectory;
+    private volatile ValidationService validationService;
 
     private Map<DataFormatterFactory, List<String>> dataFormatterFactories = new ConcurrentHashMap<>();
     private Map<DataSelectorFactory, String> dataSelectorFactories = new ConcurrentHashMap<>();
@@ -93,7 +95,7 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
     }
 
     @Inject
-    public DataExportServiceImpl(OrmService ormService, TimeService timeService, TaskService taskService, MeteringGroupsService meteringGroupsService, MessageService messageService, NlsService nlsService, MeteringService meteringService, QueryService queryService, Clock clock, UserService userService, AppService appService, TransactionService transactionService, PropertySpecService propertySpecService, MailService mailService, BundleContext context, FileSystem fileSystem) {
+    public DataExportServiceImpl(OrmService ormService, TimeService timeService, TaskService taskService, MeteringGroupsService meteringGroupsService, MessageService messageService, NlsService nlsService, MeteringService meteringService, QueryService queryService, Clock clock, UserService userService, AppService appService, TransactionService transactionService, PropertySpecService propertySpecService, MailService mailService, BundleContext context, FileSystem fileSystem, ValidationService validationService) {
         setOrmService(ormService);
         setTimeService(timeService);
         setTaskService(taskService);
@@ -109,6 +111,7 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
         setMailService(mailService);
         setPropertySpecService(propertySpecService);
         setFileSystem(fileSystem);
+        setValidationService(validationService);
         activate(context);
         if (!dataModel.isInstalled()) {
             install();
@@ -272,6 +275,7 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
                     bind(FileSystem.class).toInstance(FileSystems.getDefault());
                     bind(MailService.class).toInstance(mailService);
                     bind(FileSystem.class).toInstance(fileSystem);
+                    bind(ValidationService.class).toInstance(validationService);
                 }
             });
             addSelector(new StandardDataSelectorFactory(transactionService, meteringService, thesaurus), ImmutableMap.of(DATA_TYPE_PROPERTY, STANDARD_DATA_TYPE));
@@ -347,6 +351,11 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
         this.fileSystem = fileSystem;
     }
 
+    @Reference
+    public void setValidationService(ValidationService validationService) {
+        this.validationService = validationService;
+    }
+
     @Override
     public IDataExportOccurrence createExportOccurrence(TaskOccurrence taskOccurrence) {
         IExportTask task = getReadingTypeDataExportTaskForRecurrentTask(taskOccurrence.getRecurrentTask()).orElseThrow(IllegalArgumentException::new);
@@ -376,7 +385,7 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
     @Override
     public void removeExportDirectory(AppServer appServer) {
         Optional<DirectoryForAppServer> appServerRef = dataModel.mapper(DirectoryForAppServer.class).getOptional(appServer.getName());
-        appServerRef.ifPresent(as -> dataModel.remove(as));
+        appServerRef.ifPresent(dataModel::remove);
     }
 
     @Override
