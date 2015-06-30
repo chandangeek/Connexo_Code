@@ -2,9 +2,10 @@ package com.energyict.mdc.device.lifecycle.config.impl;
 
 import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
+import com.energyict.mdc.device.lifecycle.config.TransitionBusinessProcess;
 
 import com.elster.jupiter.fsm.FiniteStateMachineService;
-import com.elster.jupiter.fsm.impl.FiniteStateMachineImpl;
+import com.elster.jupiter.fsm.impl.StateChangeBusinessProcessImpl;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
@@ -43,6 +44,18 @@ public enum TableSpecs {
                     .add();
         }
     },
+    DLD_TRANSITION_PROCESS {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<TransitionBusinessProcess> table = dataModel.addTable(this.name(), TransitionBusinessProcess.class);
+            table.map(TransitionBusinessProcessImpl.class);
+            Column id = table.addAutoIdColumn();
+            table.column("DEPLOYMENTID").varChar().notNull().map(StateChangeBusinessProcessImpl.Fields.DEPLOYMENT_ID.fieldName()).add();
+            table.column("PROCESSID").varChar().notNull().map(StateChangeBusinessProcessImpl.Fields.PROCESS_ID.fieldName()).add();
+            table.primaryKey("PK_TRANSITION_PROCESS").on(id).add();
+        }
+    },
+
     DLD_AUTHORIZED_ACTION {
         @Override
         void addTo(DataModel dataModel) {
@@ -62,8 +75,7 @@ public enum TableSpecs {
             // AuthorizedBusinessProcessAction
             Column state = table.column("STATE").number().add();
             table.column("NAME").varChar().map(AuthorizedActionImpl.Fields.NAME.fieldName()).add();
-            table.column("DEPLOYMENTID").varChar().map(AuthorizedActionImpl.Fields.DEPLOYMENT_ID.fieldName()).add();
-            table.column("PROCESSID").varChar().map(AuthorizedActionImpl.Fields.PROCESS_ID.fieldName()).add();
+            Column process = table.column("PROCESS").number().add();
             table.primaryKey("PK_DLD_AUTHORIZED_ACTION").on(id).add();
             table.foreignKey("FK_DLD_AUTH_ACTION_DLC")
                     .on(deviceLifeCycle)
@@ -81,6 +93,11 @@ public enum TableSpecs {
                     .on(stateTransition)
                     .references(FiniteStateMachineService.COMPONENT_NAME, "FSM_STATE_TRANSITION")
                     .map(AuthorizedActionImpl.Fields.STATE_TRANSITION.fieldName())
+                    .add();
+            table.foreignKey("FK_DLD_AUTH_ACTION_PROCESS")
+                    .on(process)
+                    .references(DLD_TRANSITION_PROCESS.name())
+                    .map(AuthorizedActionImpl.Fields.PROCESS.fieldName())
                     .add();
         }
     };

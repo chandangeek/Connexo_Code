@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.lifecycle.config.impl;
 
 import com.energyict.mdc.device.lifecycle.config.AuthorizedBusinessProcessAction;
+import com.energyict.mdc.device.lifecycle.config.TransitionBusinessProcess;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.fsm.State;
@@ -25,12 +26,8 @@ public class AuthorizedBusinessProcessActionImpl extends AuthorizedActionImpl im
     @NotEmpty(groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.CAN_NOT_BE_EMPTY+"}")
     @Size(max= Table.NAME_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.FIELD_TOO_LONG+"}")
     private String name;
-    @NotEmpty(groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.CAN_NOT_BE_EMPTY+"}")
-    @Size(max= 256, groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.FIELD_TOO_LONG+"}")
-    private String deploymentId;
-    @NotEmpty(groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.CAN_NOT_BE_EMPTY+"}")
-    @Size(max= 256, groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.FIELD_TOO_LONG+"}")
-    private String processId;
+    @IsPresent(groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.CAN_NOT_BE_EMPTY+"}")
+    private Reference<TransitionBusinessProcess> process = ValueReference.absent();
     @IsPresent(groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.CAN_NOT_BE_EMPTY+"}")
     private Reference<State> state = ValueReference.absent();
 
@@ -39,12 +36,11 @@ public class AuthorizedBusinessProcessActionImpl extends AuthorizedActionImpl im
         super(dataModel);
     }
 
-    AuthorizedBusinessProcessActionImpl initialize(DeviceLifeCycleImpl deviceLifeCycle, State state, String name, String deploymentId, String processId) {
+    AuthorizedBusinessProcessActionImpl initialize(DeviceLifeCycleImpl deviceLifeCycle, State state, String name, TransitionBusinessProcess process) {
         this.setDeviceLifeCycle(deviceLifeCycle);
-        this.state.set(state);
         this.name = name;
-        this.deploymentId = deploymentId;
-        this.processId = processId;
+        this.state.set(state);
+        this.process.set(process);
         return this;
     }
 
@@ -54,13 +50,8 @@ public class AuthorizedBusinessProcessActionImpl extends AuthorizedActionImpl im
     }
 
     @Override
-    public String getDeploymentId() {
-        return this.deploymentId;
-    }
-
-    @Override
-    public String getProcessId() {
-        return this.processId;
+    public TransitionBusinessProcess getTransitionBusinessProcess() {
+        return this.process.get();
     }
 
     @Override

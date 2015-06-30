@@ -3,9 +3,11 @@ package com.energyict.mdc.device.lifecycle.config;
 import com.elster.jupiter.domain.util.Finder;
 
 import com.elster.jupiter.fsm.FiniteStateMachine;
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.users.Privilege;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -129,5 +131,35 @@ public interface DeviceLifeCycleConfigurationService {
      * @return The default time shift
      */
     public TimeDuration getDefaultPastEffectiveTimeShift();
+
+    /**
+     * Finds all the {@link TransitionBusinessProcess}es.
+     *
+     * @return The list of TransitionBusinessProcess
+     */
+    public List<TransitionBusinessProcess> findTransitionBusinessProcesses();
+
+    /**
+     * Enables the external business process identified by the specified
+     * deploymentId and processId to be executed as part of a
+     * {@link DeviceLifeCycle} when a device is in a specific {@link State}.
+     *
+     * @param deploymentId The deployment id of the external process
+     * @param processId The process id of the external process
+     * @return The TransitionBusinessProcess
+     */
+    public TransitionBusinessProcess enableAsTransitionBusinessProcess(String deploymentId, String processId);
+
+    /**
+     * Disables the external business process identified by the specified
+     * deploymentId and processId to be executed as part of a
+     * {@link DeviceLifeCycle} when a device is in a specific {@link State}.
+     * This will fail when there is at least one {@link AuthorizedBusinessProcessAction}
+     * that is configured to execute the external business process.
+     *
+     * @param deploymentId The deployment id of the external process
+     * @param processId The process id of the external process
+     */
+    public void disableAsTransitionBusinessProcess(String deploymentId, String processId);
 
 }

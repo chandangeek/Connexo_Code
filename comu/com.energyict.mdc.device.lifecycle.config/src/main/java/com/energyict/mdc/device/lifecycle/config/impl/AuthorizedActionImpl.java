@@ -38,8 +38,7 @@ public abstract class AuthorizedActionImpl implements AuthorizedAction, Persiste
         // AuthorizedBusinessProcessAction
         STATE("state"),
         NAME("name"),
-        DEPLOYMENT_ID("deploymentId"),
-        PROCESS_ID("processId");
+        PROCESS("process");
 
         private final String javaFieldName;
 

@@ -7,6 +7,7 @@ import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleBuilder;
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.lifecycle.config.MicroCheck;
+import com.energyict.mdc.device.lifecycle.config.TransitionBusinessProcess;
 import com.energyict.mdc.device.lifecycle.config.TransitionType;
 
 import com.elster.jupiter.fsm.State;
@@ -54,10 +55,10 @@ public class DeviceLifeCycleBuilderImpl implements DeviceLifeCycleBuilder {
     }
 
     @Override
-    public AuthorizedActionBuilder<AuthorizedBusinessProcessAction> newCustomAction(State state, String name, String deploymentId, String processId) {
+    public AuthorizedActionBuilder<AuthorizedBusinessProcessAction> newCustomAction(State state, String name, TransitionBusinessProcess process) {
         AuthorizedBusinessProcessActionImpl businessProcessAction = this.dataModel
                 .getInstance(AuthorizedBusinessProcessActionImpl.class)
-                .initialize(this.underConstruction, state, name, deploymentId, processId);
+                .initialize(this.underConstruction, state, name, process);
         return new AuthorizedActionBuilderImpl<>(businessProcessAction);
     }
 

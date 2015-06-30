@@ -6,9 +6,14 @@ import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleBuilder;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
+import com.energyict.mdc.device.lifecycle.config.TransitionBusinessProcess;
+import com.energyict.mdc.device.lifecycle.config.TransitionBusinessProcessInUseException;
+import com.energyict.mdc.device.lifecycle.config.UnknownTransitionBusinessProcessException;
 
+import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.ProcessReference;
@@ -28,6 +33,7 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Where;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -64,6 +70,7 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
     private volatile NlsService nlsService;
     private volatile UserService userService;
     private volatile FiniteStateMachineService stateMachineService;
+    private volatile BpmService bpmService;
     private Thesaurus thesaurus;
     private final Set<Privilege> privileges = new HashSet<>();
 
@@ -74,12 +81,13 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
 
     // For testing purposes
     @Inject
-    public DeviceLifeCycleConfigurationServiceImpl(OrmService ormService, NlsService nlsService, UserService userService, FiniteStateMachineService stateMachineService) {
+    public DeviceLifeCycleConfigurationServiceImpl(OrmService ormService, NlsService nlsService, UserService userService, FiniteStateMachineService stateMachineService, BpmService bpmService) {
         this();
         this.setOrmService(ormService);
         this.setUserService(userService);
         this.setNlsService(nlsService);
         this.setStateMachineService(stateMachineService);
+        this.setBpmService(bpmService);
         this.activate();
         this.install();
         this.initializePrivileges();
@@ -138,6 +146,7 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
                 bind(NlsService.class).toInstance(nlsService);
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
+                bind(BpmService.class).toInstance(bpmService);
 
                 bind(DeviceLifeCycleConfigurationService.class).toInstance(DeviceLifeCycleConfigurationServiceImpl.this);
             }
@@ -182,6 +191,11 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
         this.stateMachineService = stateMachineService;
     }
 
+    @Reference
+    public void setBpmService(BpmService bpmService) {
+        this.bpmService = bpmService;
+    }
+
     @Override
     public DeviceLifeCycleBuilderImpl newDeviceLifeCycleUsing(String name, FiniteStateMachine finiteStateMachine) {
         return new DeviceLifeCycleBuilderImpl(this.dataModel, this.dataModel.getInstance(DeviceLifeCycleImpl.class).initialize(name, finiteStateMachine));
@@ -209,8 +223,7 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
                 .newCustomAction(
                     clonedFiniteStateMachine.getState(sourceBusinessProcessAction.getState().getName()).get(),
                     sourceBusinessProcessAction.getName(),
-                    sourceBusinessProcessAction.getDeploymentId(),
-                    sourceBusinessProcessAction.getProcessId())
+                    sourceBusinessProcessAction.getTransitionBusinessProcess())
                 .addAllLevels(sourceBusinessProcessAction.getLevels())
                 .complete();
         }
@@ -305,6 +318,41 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
     @Override
     public TimeDuration getDefaultPastEffectiveTimeShift() {
         return EffectiveTimeShift.PAST.defaultValue();
+    }
+
+    @Override
+    public List<TransitionBusinessProcess> findTransitionBusinessProcesses() {
+        return this.dataModel.mapper(TransitionBusinessProcess.class).find();
+    }
+
+    @Override
+    public TransitionBusinessProcess enableAsTransitionBusinessProcess(String deploymentId, String processId) {
+        TransitionBusinessProcessImpl businessProcess = this.dataModel.getInstance(TransitionBusinessProcessImpl.class).initialize(deploymentId, processId);
+        Save.CREATE.validate(this.dataModel, businessProcess);
+        this.dataModel.persist(businessProcess);
+        return businessProcess;
+    }
+
+    @Override
+    public void disableAsTransitionBusinessProcess(String deploymentId, String processId) {
+        List<TransitionBusinessProcess> businessProcesses = this.dataModel
+                .mapper(TransitionBusinessProcess.class)
+                .find(
+                    TransitionBusinessProcessImpl.Fields.DEPLOYMENT_ID.fieldName(), deploymentId,
+                    TransitionBusinessProcessImpl.Fields.PROCESS_ID.fieldName(), processId);
+        if (businessProcesses.isEmpty()) {
+            throw new UnknownTransitionBusinessProcessException(this.thesaurus, MessageSeeds.NO_SUCH_PROCESS, deploymentId, processId);
+        }
+        else {
+            Condition condition = Where.where(AuthorizedActionImpl.Fields.PROCESS.fieldName()).in(businessProcesses);
+            List<AuthorizedBusinessProcessAction> actions = this.dataModel.mapper(AuthorizedBusinessProcessAction.class).select(condition);
+            if (actions.isEmpty()) {
+                businessProcesses.stream().forEach(this.dataModel::remove);
+            }
+            else {
+                throw new TransitionBusinessProcessInUseException(this.thesaurus, MessageSeeds.TRANSITION_PROCESS_IN_USE, businessProcesses.get(0));
+            }
+        }
     }
 
 }

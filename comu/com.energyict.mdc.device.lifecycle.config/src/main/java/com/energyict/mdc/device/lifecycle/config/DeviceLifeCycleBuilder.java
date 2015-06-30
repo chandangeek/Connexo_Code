@@ -37,16 +37,15 @@ public interface DeviceLifeCycleBuilder {
     public DeviceLifeCycleBuilder maximumPastEffectiveTimeShift(TimeDuration timeDuration);
 
     /**
-     * Starts the building process to authorize the initiation of the external process definition
+     * Starts the building process to authorize the initiation of the {@link TransitionBusinessProcess}
      * when the related device is in the specified {@link State}.
      *
      * @param state The State
      * @param name The name for the new custom action
-     * @param deploymentId The deployment id of the external process
-     * @param processId The process id of the external process
+     * @param process The TransitionBusinessProcess
      * @return The AuthorizedActionBuilder
      */
-    public AuthorizedActionBuilder<AuthorizedBusinessProcessAction> newCustomAction(State state, String name, String deploymentId, String processId);
+    public AuthorizedActionBuilder<AuthorizedBusinessProcessAction> newCustomAction(State state, String name, TransitionBusinessProcess process);
 
     /**
      * Starts the building process to authorize the initiation of the specified {@link StateTransition}

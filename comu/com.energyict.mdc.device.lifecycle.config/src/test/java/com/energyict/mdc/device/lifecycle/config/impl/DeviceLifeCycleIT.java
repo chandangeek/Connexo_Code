@@ -11,6 +11,7 @@ import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationSer
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleUpdater;
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.lifecycle.config.MicroCheck;
+import com.energyict.mdc.device.lifecycle.config.TransitionBusinessProcess;
 import com.energyict.mdc.device.lifecycle.config.TransitionType;
 
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
@@ -326,14 +327,16 @@ public class DeviceLifeCycleIT {
     public void addBusinessProcessAction() {
         FiniteStateMachine stateMachine = this.findDefaultFiniteStateMachine();
         State state = stateMachine.getState(DefaultState.ACTIVE.getKey()).get();
-
-        // Business method
-        DeviceLifeCycleBuilder builder = this.getTestService().newDeviceLifeCycleUsing("Test", stateMachine);
+        DeviceLifeCycleConfigurationService testService = this.getTestService();
         String expectedDeploymentId = "deploymentId1";
         String expectedProcessId = "processId";
+        TransitionBusinessProcess process = testService.enableAsTransitionBusinessProcess(expectedDeploymentId, expectedProcessId);
+        DeviceLifeCycleBuilder builder = testService.newDeviceLifeCycleUsing("Test", stateMachine);
+
+        // Business method
         String expectedActionName = "addBusinessProcessAction";
         builder
-            .newCustomAction(state, expectedActionName, expectedDeploymentId, expectedProcessId)
+            .newCustomAction(state, expectedActionName, process)
             .addLevel(AuthorizedAction.Level.ONE, AuthorizedAction.Level.FOUR)
             .complete();
         DeviceLifeCycle deviceLifeCycle = builder.complete();
@@ -352,8 +355,7 @@ public class DeviceLifeCycleIT {
         assertThat(authorizedAction).isInstanceOf(AuthorizedBusinessProcessAction.class);
         AuthorizedBusinessProcessAction businessProcessAction = (AuthorizedBusinessProcessAction) authorizedAction;
         assertThat(businessProcessAction.getName()).isEqualTo(expectedActionName);
-        assertThat(businessProcessAction.getDeploymentId()).isEqualTo(expectedDeploymentId);
-        assertThat(businessProcessAction.getProcessId()).isEqualTo(expectedProcessId);
+        assertThat(businessProcessAction.getTransitionBusinessProcess().getId()).isEqualTo(process.getId());
     }
 
     @Transactional
@@ -362,11 +364,15 @@ public class DeviceLifeCycleIT {
     public void addBusinessProcessActionWithNullName() {
         FiniteStateMachine stateMachine = this.findDefaultFiniteStateMachine();
         State state = stateMachine.getState(DefaultState.ACTIVE.getKey()).get();
+        DeviceLifeCycleConfigurationService testService = this.getTestService();
+        String expectedDeploymentId = "deploymentId1";
+        String expectedProcessId = "processId";
+        TransitionBusinessProcess process = testService.enableAsTransitionBusinessProcess(expectedDeploymentId, expectedProcessId);
 
         // Business method
-        DeviceLifeCycleBuilder builder = this.getTestService().newDeviceLifeCycleUsing("Test", stateMachine);
+        DeviceLifeCycleBuilder builder = testService.newDeviceLifeCycleUsing("Test", stateMachine);
         builder
-            .newCustomAction(state, null, "deploymentId1", "processId")
+            .newCustomAction(state, null, process)
             .addLevel(AuthorizedAction.Level.ONE, AuthorizedAction.Level.FOUR)
             .complete();
         DeviceLifeCycle deviceLifeCycle = builder.complete();
@@ -381,11 +387,15 @@ public class DeviceLifeCycleIT {
     public void addBusinessProcessActionWithEmptyName() {
         FiniteStateMachine stateMachine = this.findDefaultFiniteStateMachine();
         State state = stateMachine.getState(DefaultState.ACTIVE.getKey()).get();
+        DeviceLifeCycleConfigurationService testService = this.getTestService();
+        String expectedDeploymentId = "deploymentId1";
+        String expectedProcessId = "processId";
+        TransitionBusinessProcess process = testService.enableAsTransitionBusinessProcess(expectedDeploymentId, expectedProcessId);
 
         // Business method
-        DeviceLifeCycleBuilder builder = this.getTestService().newDeviceLifeCycleUsing("Test", stateMachine);
+        DeviceLifeCycleBuilder builder = testService.newDeviceLifeCycleUsing("Test", stateMachine);
         builder
-            .newCustomAction(state, "", "deploymentId1", "processId")
+            .newCustomAction(state, "", process)
             .addLevel(AuthorizedAction.Level.ONE, AuthorizedAction.Level.FOUR)
             .complete();
         DeviceLifeCycle deviceLifeCycle = builder.complete();
@@ -400,11 +410,15 @@ public class DeviceLifeCycleIT {
     public void addBusinessProcessActionWithTooLongName() {
         FiniteStateMachine stateMachine = this.findDefaultFiniteStateMachine();
         State state = stateMachine.getState(DefaultState.ACTIVE.getKey()).get();
+        DeviceLifeCycleConfigurationService testService = this.getTestService();
+        String expectedDeploymentId = "deploymentId1";
+        String expectedProcessId = "processId";
+        TransitionBusinessProcess process = testService.enableAsTransitionBusinessProcess(expectedDeploymentId, expectedProcessId);
 
         // Business method
-        DeviceLifeCycleBuilder builder = this.getTestService().newDeviceLifeCycleUsing("Test", stateMachine);
+        DeviceLifeCycleBuilder builder = testService.newDeviceLifeCycleUsing("Test", stateMachine);
         builder
-            .newCustomAction(state, Strings.repeat("Too long", 100), "deploymentId1", "processId")
+            .newCustomAction(state, Strings.repeat("Too long", 100), process)
             .addLevel(AuthorizedAction.Level.ONE, AuthorizedAction.Level.FOUR)
             .complete();
         DeviceLifeCycle deviceLifeCycle = builder.complete();
@@ -418,11 +432,13 @@ public class DeviceLifeCycleIT {
     public void findAuthorizedActionsForState() {
         FiniteStateMachine stateMachine = this.findDefaultFiniteStateMachine();
         State state = stateMachine.getState(DefaultState.ACTIVE.getKey()).get();
-        DeviceLifeCycleBuilder builder = this.getTestService().newDeviceLifeCycleUsing("Test", stateMachine);
+        DeviceLifeCycleConfigurationService testService = this.getTestService();
         String expectedDeploymentId = "deploymentId1";
         String expectedProcessId = "processId";
+        TransitionBusinessProcess process = testService.enableAsTransitionBusinessProcess(expectedDeploymentId, expectedProcessId);
+        DeviceLifeCycleBuilder builder = testService.newDeviceLifeCycleUsing("Test", stateMachine);
         builder
-            .newCustomAction(state, "custom", expectedDeploymentId, expectedProcessId)
+            .newCustomAction(state, "custom", process)
             .addLevel(AuthorizedAction.Level.ONE, AuthorizedAction.Level.FOUR)
             .complete();
         DeviceLifeCycle deviceLifeCycle = builder.complete();
@@ -441,8 +457,7 @@ public class DeviceLifeCycleIT {
         assertThat(authorizedAction.getVersion()).isNotNull();
         assertThat(authorizedAction).isInstanceOf(AuthorizedBusinessProcessAction.class);
         AuthorizedBusinessProcessAction businessProcessAction = (AuthorizedBusinessProcessAction) authorizedAction;
-        assertThat(businessProcessAction.getDeploymentId()).isEqualTo(expectedDeploymentId);
-        assertThat(businessProcessAction.getProcessId()).isEqualTo(expectedProcessId);
+        assertThat(businessProcessAction.getTransitionBusinessProcess().getId()).isEqualTo(process.getId());
     }
 
     @Transactional
@@ -451,11 +466,13 @@ public class DeviceLifeCycleIT {
         FiniteStateMachine stateMachine = this.findDefaultFiniteStateMachine();
         State active = stateMachine.getState(DefaultState.ACTIVE.getKey()).get();
         State inactive = stateMachine.getState(DefaultState.INACTIVE.getKey()).get();
-        DeviceLifeCycleBuilder builder = this.getTestService().newDeviceLifeCycleUsing("Test", stateMachine);
+        DeviceLifeCycleConfigurationService testService = this.getTestService();
         String expectedDeploymentId = "deploymentId1";
         String expectedProcessId = "processId";
+        TransitionBusinessProcess process = testService.enableAsTransitionBusinessProcess(expectedDeploymentId, expectedProcessId);
+        DeviceLifeCycleBuilder builder = testService.newDeviceLifeCycleUsing("Test", stateMachine);
         builder
-            .newCustomAction(active, "custom", expectedDeploymentId, expectedProcessId)
+            .newCustomAction(active, "custom", process)
             .addLevel(AuthorizedAction.Level.ONE, AuthorizedAction.Level.FOUR)
             .complete();
         DeviceLifeCycle deviceLifeCycle = builder.complete();
@@ -469,111 +486,17 @@ public class DeviceLifeCycleIT {
     }
 
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}", property = "actions[0].deploymentId")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}", property = "actions[0].process")
     @Test
-    public void addBusinessProcessActionWithNullDeploymentId() {
+    public void addBusinessProcessActionWithNullProcess() {
         FiniteStateMachine stateMachine = this.findDefaultFiniteStateMachine();
         State state = stateMachine.getState(DefaultState.ACTIVE.getKey()).get();
+        DeviceLifeCycleConfigurationService testService = this.getTestService();
 
         // Business method
-        DeviceLifeCycleBuilder builder = this.getTestService().newDeviceLifeCycleUsing("Test", stateMachine);
+        DeviceLifeCycleBuilder builder = testService.newDeviceLifeCycleUsing("Test", stateMachine);
         builder
-            .newCustomAction(state, "custom", null, "processId")
-            .addLevel(AuthorizedAction.Level.ONE, AuthorizedAction.Level.FOUR)
-            .complete();
-        DeviceLifeCycle deviceLifeCycle = builder.complete();
-        deviceLifeCycle.save();
-
-        // Asserts: see expected constraint violation rule
-    }
-
-    @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}", property = "actions[0].deploymentId")
-    @Test
-    public void addBusinessProcessActionWithEmptyDeploymentId() {
-        FiniteStateMachine stateMachine = this.findDefaultFiniteStateMachine();
-        State state = stateMachine.getState(DefaultState.ACTIVE.getKey()).get();
-
-        // Business method
-        DeviceLifeCycleBuilder builder = this.getTestService().newDeviceLifeCycleUsing("Test", stateMachine);
-        builder
-            .newCustomAction(state, "custom", "", "processId")
-            .addLevel(AuthorizedAction.Level.ONE, AuthorizedAction.Level.FOUR)
-            .complete();
-        DeviceLifeCycle deviceLifeCycle = builder.complete();
-        deviceLifeCycle.save();
-
-        // Asserts: see expected constraint violation rule
-    }
-
-    @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}", property = "actions[0].deploymentId")
-    @Test
-    public void addBusinessProcessActionWithTooLongDeploymentId() {
-        FiniteStateMachine stateMachine = this.findDefaultFiniteStateMachine();
-        State state = stateMachine.getState(DefaultState.ACTIVE.getKey()).get();
-
-        // Business method
-        DeviceLifeCycleBuilder builder = this.getTestService().newDeviceLifeCycleUsing("Test", stateMachine);
-        builder
-            .newCustomAction(state, "custom", Strings.repeat("Too long", 100), "processId")
-            .addLevel(AuthorizedAction.Level.ONE, AuthorizedAction.Level.FOUR)
-            .complete();
-        DeviceLifeCycle deviceLifeCycle = builder.complete();
-        deviceLifeCycle.save();
-
-        // Asserts: see expected constraint violation rule
-    }
-
-    @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}", property = "actions[0].processId")
-    @Test
-    public void addBusinessProcessActionWithNullProcessId() {
-        FiniteStateMachine stateMachine = this.findDefaultFiniteStateMachine();
-        State state = stateMachine.getState(DefaultState.ACTIVE.getKey()).get();
-
-        // Business method
-        DeviceLifeCycleBuilder builder = this.getTestService().newDeviceLifeCycleUsing("Test", stateMachine);
-        builder
-            .newCustomAction(state, "custom", "deploymentId", null)
-            .addLevel(AuthorizedAction.Level.ONE, AuthorizedAction.Level.FOUR)
-            .complete();
-        DeviceLifeCycle deviceLifeCycle = builder.complete();
-        deviceLifeCycle.save();
-
-        // Asserts: see expected constraint violation rule
-    }
-
-    @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}", property = "actions[0].processId")
-    @Test
-    public void addBusinessProcessActionWithEmptyProcessId() {
-        FiniteStateMachine stateMachine = this.findDefaultFiniteStateMachine();
-        State state = stateMachine.getState(DefaultState.ACTIVE.getKey()).get();
-
-        // Business method
-        DeviceLifeCycleBuilder builder = this.getTestService().newDeviceLifeCycleUsing("Test", stateMachine);
-        builder
-            .newCustomAction(state, "custom", "deploymentId", "")
-            .addLevel(AuthorizedAction.Level.ONE, AuthorizedAction.Level.FOUR)
-            .complete();
-        DeviceLifeCycle deviceLifeCycle = builder.complete();
-        deviceLifeCycle.save();
-
-        // Asserts: see expected constraint violation rule
-    }
-
-    @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}", property = "actions[0].processId")
-    @Test
-    public void addBusinessProcessActionWithTooLongProcessId() {
-        FiniteStateMachine stateMachine = this.findDefaultFiniteStateMachine();
-        State state = stateMachine.getState(DefaultState.ACTIVE.getKey()).get();
-
-        // Business method
-        DeviceLifeCycleBuilder builder = this.getTestService().newDeviceLifeCycleUsing("Test", stateMachine);
-        builder
-            .newCustomAction(state, "custom", "deploymentId", Strings.repeat("Too long", 100))
+            .newCustomAction(state, "custom", null)
             .addLevel(AuthorizedAction.Level.ONE, AuthorizedAction.Level.FOUR)
             .complete();
         DeviceLifeCycle deviceLifeCycle = builder.complete();
@@ -738,21 +661,22 @@ public class DeviceLifeCycleIT {
     @Transactional
     @Test
     public void cloneWithBusinessProcessAction() {
-        DeviceLifeCycleConfigurationService service = this.getTestService();
-        FiniteStateMachine stateMachine = this.findDefaultFiniteStateMachine();
-        State state = stateMachine.getState(DefaultState.ACTIVE.getKey()).get();
-        DeviceLifeCycleBuilder builder = service.newDeviceLifeCycleUsing("Test", stateMachine);
+        DeviceLifeCycleConfigurationService testService = this.getTestService();
         String expectedDeploymentId = "deploymentId1";
         String expectedProcessId = "processId";
+        TransitionBusinessProcess process = testService.enableAsTransitionBusinessProcess(expectedDeploymentId, expectedProcessId);
+        FiniteStateMachine stateMachine = this.findDefaultFiniteStateMachine();
+        State state = stateMachine.getState(DefaultState.ACTIVE.getKey()).get();
+        DeviceLifeCycleBuilder builder = testService.newDeviceLifeCycleUsing("Test", stateMachine);
         builder
-            .newCustomAction(state, "custom", expectedDeploymentId, expectedProcessId)
+            .newCustomAction(state, "custom", process)
             .addLevel(AuthorizedAction.Level.ONE, AuthorizedAction.Level.FOUR)
             .complete();
         DeviceLifeCycle deviceLifeCycle = builder.complete();
         deviceLifeCycle.save();
 
         // Business method
-        DeviceLifeCycle cloned = service.cloneDeviceLifeCycle(deviceLifeCycle, "Cloned");
+        DeviceLifeCycle cloned = testService.cloneDeviceLifeCycle(deviceLifeCycle, "Cloned");
 
         // Asserts
         FiniteStateMachine clonedFiniteStateMachine = cloned.getFiniteStateMachine();
@@ -767,8 +691,7 @@ public class DeviceLifeCycleIT {
         assertThat(authorizedAction.getVersion()).isNotNull();
         assertThat(authorizedAction).isInstanceOf(AuthorizedBusinessProcessAction.class);
         AuthorizedBusinessProcessAction businessProcessAction = (AuthorizedBusinessProcessAction) authorizedAction;
-        assertThat(businessProcessAction.getDeploymentId()).isEqualTo(expectedDeploymentId);
-        assertThat(businessProcessAction.getProcessId()).isEqualTo(expectedProcessId);
+        assertThat(businessProcessAction.getTransitionBusinessProcess().getId()).isEqualTo(process.getId());
     }
 
     @Transactional
