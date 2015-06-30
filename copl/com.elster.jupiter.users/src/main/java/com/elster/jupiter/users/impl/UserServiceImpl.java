@@ -1,52 +1,35 @@
 package com.elster.jupiter.users.impl;
 
-import static com.elster.jupiter.util.Checks.is;
-
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.List;
-import java.util.Optional;
-
-import javax.inject.Inject;
-import javax.validation.MessageInterpolator;
-
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Reference;
-
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.nls.TranslationKeyProvider;
+import com.elster.jupiter.nls.*;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.users.Group;
-import com.elster.jupiter.users.MessageSeeds;
-import com.elster.jupiter.users.NoDefaultDomainException;
-import com.elster.jupiter.users.NoDomainFoundException;
-import com.elster.jupiter.users.Privilege;
-import com.elster.jupiter.users.Resource;
-import com.elster.jupiter.users.User;
-import com.elster.jupiter.users.UserDirectory;
-import com.elster.jupiter.users.UserPreferencesService;
-import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.users.*;
+import com.elster.jupiter.users.security.Privileges;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
 import com.google.inject.AbstractModule;
+import org.osgi.service.component.annotations.*;
+
+import javax.inject.Inject;
+import javax.validation.MessageInterpolator;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
+
+import static com.elster.jupiter.util.Checks.is;
 
 @Component(
         name = "com.elster.jupiter.users",
-        service = {UserService.class, InstallService.class, TranslationKeyProvider.class},
+        service = {UserService.class, InstallService.class, TranslationKeyProvider.class, PrivilegesProvider.class},
         immediate = true,
         property = "name=" + UserService.COMPONENTNAME)
-public class UserServiceImpl implements UserService, InstallService, TranslationKeyProvider {
+public class UserServiceImpl implements UserService, InstallService, TranslationKeyProvider, PrivilegesProvider {
 
     private volatile DataModel dataModel;
     private volatile TransactionService transactionService;
@@ -55,6 +38,11 @@ public class UserServiceImpl implements UserService, InstallService, Translation
     private volatile UserPreferencesService userPreferencesService;
     
     private static final String JUPITER_REALM = "Local";
+
+    List<Resource> moduleResources = new ArrayList<>();//CopyOnWriteArrayList<>();
+    Map<String, List<String> >applicationResources = new ConcurrentHashMap<>();
+
+    Map<String, String> privilegeResource = new ConcurrentHashMap<>();
 
     public UserServiceImpl() {
     }
@@ -291,7 +279,7 @@ public class UserServiceImpl implements UserService, InstallService, Translation
 
     @Override
     public List<Resource> getResources() {
-        return resourceFactory().find();
+        return getApplicationResources();
     }
 
     @Override
@@ -405,7 +393,85 @@ public class UserServiceImpl implements UserService, InstallService, Translation
         return userPreferencesService;
     }
 
+    @Reference(name = "ModulePrivilegesProvider", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addModulePrivileges(PrivilegesProvider privilegesProvider) {
+        
+        moduleResources.addAll(privilegesProvider.getModulePrivileges());
+
+    }
+
+    public void removeModulePrivileges(PrivilegesProvider privilegesProvider) {
+        moduleResources.removeAll(privilegesProvider.getModulePrivileges());
+
+    }
+
+
+    @Reference(name = "ApplicationPrivilegesProvider", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addApplicationPrivileges(ApplicationPrivilegesProvider applicationPrivilegesProvider) {
+
+        if (applicationResources.containsKey(applicationPrivilegesProvider.getApplicationName())){
+            List<String> resources = applicationResources.get(applicationPrivilegesProvider.getApplicationName());
+            resources.addAll(applicationPrivilegesProvider.getApplicationPrivileges());
+        }
+        else{
+            applicationResources.put(applicationPrivilegesProvider.getApplicationName(), applicationPrivilegesProvider.getApplicationPrivileges());
+        }
+    }
+
+    public void removeApplicationPrivileges(ApplicationPrivilegesProvider applicationPrivilegesProvider) {
+
+        applicationResources.remove(applicationPrivilegesProvider.getApplicationName());
+
+    }
+
+
+    public List<Resource> getApplicationResources(){
+
+        Map<String, List<Resource>> resource =
+        applicationResources
+                .entrySet()
+                .stream()
+                .collect(
+                        HashMap::new,
+                        (m, e) -> {
+                            m.computeIfAbsent(e.getKey(), x -> new ArrayList<>());
+                            m.computeIfPresent(e.getKey(), (appName, map1) ->
+                                    moduleResources.stream()
+                                        .filter(r -> r.getPrivileges().stream().anyMatch(px -> e.getValue().contains(px.getName())))
+                                        .map(r -> ModuleResourceImpl.from(e.getKey(),
+                                                        r.getName(),
+                                                        r.getDescription(),
+                                                        r.getPrivileges()
+                                                                .stream()
+                                                                .filter(p -> e.getValue().contains(p.getName()))
+                                                                .map(p -> p.getName())
+                                                                .collect(Collectors.toList()))
+                                        ).collect(Collectors.toList()));
+                        },
+                        (map1, map2) -> {
+                        });
+
+        return resource.entrySet().stream().flatMap(entry -> entry.getValue().stream()).collect(Collectors.toList());
+       
+    }
+
+    @Override
+    public Resource createModuleResourceWithPrivileges(String name, String description, List<String> privileges) {
+        return ModuleResourceImpl.from(name, description,privileges);
+    }
+
+
+
     private DataMapper<User> userFactory() {
         return dataModel.mapper(User.class);
+    }
+
+    @Override
+    public List<Resource> getModulePrivileges() {
+        List<Resource> resources = new ArrayList<>();
+        resources.add(createModuleResourceWithPrivileges("userAndRole.usersAndRoles", "userAndRole.usersAndRoles.description",
+                Arrays.asList(Privileges.ADMINISTRATE_USER_ROLE, Privileges.VIEW_USER_ROLE)));
+
+        return resources;
     }
 }

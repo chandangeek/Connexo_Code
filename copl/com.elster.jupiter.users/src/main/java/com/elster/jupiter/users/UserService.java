@@ -79,4 +79,7 @@ public interface UserService {
     List<UserDirectory> getUserDirectories();
 
     UserPreferencesService getUserPreferencesService();
+
+    Resource createModuleResourceWithPrivileges(String name, String description, List<String> privileges);
+
 }

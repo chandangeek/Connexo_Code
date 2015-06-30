@@ -22,6 +22,8 @@ class PrivilegeImpl implements Privilege {
         return new PrivilegeImpl(dataModel).init(name, resource);
     }
 
+
+
 	PrivilegeImpl init(String name, Resource resource) {
 		this.name = name;
         this.resource.set(resource);
