@@ -21,11 +21,13 @@ import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.nls.SimpleNlsKey;
+import com.elster.jupiter.nls.SimpleTranslation;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.Translation;
 import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Pair;
+import com.elster.jupiter.util.exception.ExceptionCatcher;
 import com.elster.jupiter.util.streams.BufferedReaderIterable;
 
 import java.io.BufferedReader;
@@ -235,38 +237,21 @@ public class InstallerImpl {
     }
 
     private void createPrivileges() {
-        //TODO: privilege structure has been modified; add all privileges here
-//        for (String each : getPrivileges()) {
-//            try {
-//                userService.createPrivilege(MeteringService.COMPONENTNAME, each, "");
-//            } catch (Exception e) {
-//                LOGGER.log(Level.SEVERE, "Error creating privilege \'" + each + "\': " + e.getMessage(), e);
-//            }
-//        }
-    }
-
-    private List<String> getPrivileges() {
-        Field[] fields = Privileges.class.getFields();
-        List<String> result = new ArrayList<>(fields.length);
-        for (Field each : fields) {
-            try {
-                result.add((String) each.get(null));
-            } catch (IllegalAccessException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        return result;
+        ExceptionCatcher.executing(
+                () -> {
+                    this.userService.createResourceWithPrivileges("MDC", DefaultTranslationKey.PRIVILEGE_USAGE_POINT_NAME.getKey(),
+                            DefaultTranslationKey.PRIVILEGE_USAGE_POINT_DESCRIPTION.getKey(),
+                            new String[] {Privileges.BROWSE_ANY, Privileges.BROWSE_OWN, Privileges.ADMIN_ANY, Privileges.ADMIN_OWN});
+                })
+            .andHandleExceptionsWith(Throwable::printStackTrace)
+            .execute();
     }
 
     private void createTranslations(List<ServiceCategoryImpl> serviceCategories) {
-        List<Translation> translations = new ArrayList<>(MessageSeeds.values().length);
-        for (MessageSeeds messageSeed : MessageSeeds.values()) {
-            SimpleNlsKey nlsKey = SimpleNlsKey.key(MeteringService.COMPONENTNAME, Layer.DOMAIN, messageSeed.getKey()).defaultMessage(messageSeed.getDefaultFormat());
-            translations.add(toTranslation(nlsKey, Locale.ENGLISH, messageSeed.getDefaultFormat()));
-        }
+        List<Translation> translations = new ArrayList<>(serviceCategories.size());
         for (ServiceCategoryImpl serviceCategory : serviceCategories) {
             SimpleNlsKey nlsKey = SimpleNlsKey.key(MeteringService.COMPONENTNAME, Layer.DOMAIN, serviceCategory.getTranslationKey()).defaultMessage(serviceCategory.getKind().getDisplayName());
-            translations.add(toTranslation(nlsKey, Locale.ENGLISH, serviceCategory.getKind().getDisplayName()));
+            translations.add(SimpleTranslation.translation(nlsKey, Locale.ENGLISH, serviceCategory.getKind().getDisplayName()));
         }
         thesaurus.addTranslations(translations);
     }
@@ -274,7 +259,7 @@ public class InstallerImpl {
     private void createQueueTranslations() {
         this.thesaurus.addTranslations(
                 Arrays.asList(
-                        this.toTranslation(
+                        SimpleTranslation.translation(
                                 SimpleNlsKey.key(
                                         MeteringService.COMPONENTNAME,
                                         Layer.DOMAIN,
@@ -282,24 +267,6 @@ public class InstallerImpl {
                                 Locale.ENGLISH, SwitchStateMachineEvent.SUBSCRIBER_TRANSLATION)));
     }
 
-    private Translation toTranslation(final SimpleNlsKey nlsKey, final Locale locale, final String translation) {
-        return new Translation() {
-            @Override
-            public NlsKey getNlsKey() {
-                return nlsKey;
-            }
-
-            @Override
-            public Locale getLocale() {
-                return locale;
-            }
-
-            @Override
-            public String getTranslation() {
-                return translation;
-            }
-        };
-    }
 
     private void createQueues() {
         this.createQueue(SwitchStateMachineEvent.DESTINATION, SwitchStateMachineEvent.SUBSCRIBER);
