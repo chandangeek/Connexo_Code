@@ -308,7 +308,7 @@ Ext.define('Dxp.controller.Tasks', {
     showAddExportTask: function () {
         var me = this,
             view = Ext.create('Dxp.view.tasks.Add'),
-            fileFormatterCombo = view.down('#file-formatter-combo'),
+            //fileFormatterCombo = view.down('#file-formatter-combo'),
             dataSelectorCombo = view.down('#data-selector-combo'),
             deviceGroupCombo = view.down('#device-group-combo'),
             exportPeriodCombo = view.down('#export-period-combo'),
@@ -337,18 +337,12 @@ Ext.define('Dxp.controller.Tasks', {
             }
         });
 
-        fileFormatterCombo.store.load(function () {
-            if (me.getStore('Dxp.store.Clipboard').get('addDataExportTaskValues')) {
-                me.setFormValues(view);
-            } else {
-                fileFormatterCombo.setValue(this.getAt(0));
-                recurrenceTypeCombo.setValue(recurrenceTypeCombo.store.getAt(2));
-            }
-        });
+
         dataSelectorCombo.store.load(function () {
             if (me.getStore('Dxp.store.Clipboard').get('addDataExportTaskValues')) {
                 me.setFormValues(view);
             }
+            recurrenceTypeCombo.setValue(recurrenceTypeCombo.store.getAt(2));
         });
     },
 
@@ -731,8 +725,25 @@ Ext.define('Dxp.controller.Tasks', {
         var me = this,
             page = me.getAddPage(),
             record = Ext.getStore('Dxp.store.DataSelectors').getById(newValue),
+            formatterCombo = page.down('#file-formatter-combo'),
+            formatterContainer = page.down('#formatter-container'),
+            formatterTitle = page.down('#file-formatter-title'),
             propertyForm = page.down('#data-selector-properties');
 
+        formatterCombo.store.load({
+            params: {
+                selector: newValue
+            }
+        }, function () {
+            if (me.getStore('Dxp.store.Clipboard').get('addDataExportTaskValues')) {
+                me.setFormValues(page);
+            } else {
+                fileFormatterCombo.setValue(this.getAt(0));
+            }
+        });
+        formatterContainer.show();
+        formatterTitle.show();
+        formatterCombo.show();
         if (record.get('isDefault')) {
             me.hideDefaultDataSelectorProperties(false);
         } else {
