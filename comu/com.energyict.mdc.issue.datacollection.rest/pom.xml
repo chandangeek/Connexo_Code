@@ -19,16 +19,6 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-bundle-plugin</artifactId>
-                <extensions>true</extensions>
-                <configuration>
-                    <instructions>
-                        <_include>bnd.bnd</_include>
-                    </instructions>
-                </configuration>
-            </plugin>
-            <plugin>
                 <groupId>com.qmino</groupId>
                 <artifactId>miredot-plugin</artifactId>
                 <executions>
@@ -41,10 +31,15 @@
             </plugin>
         </plugins>
     </build>
+
     <dependencies>
         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.compendium</artifactId>
         </dependency>
         <dependency>
             <groupId>javax.ws.rs</groupId>
@@ -66,7 +61,6 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>issue</artifactId>
         </dependency>
-
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.device.topology</artifactId>
@@ -75,7 +69,6 @@
             <groupId>com.energyict</groupId>
             <artifactId>mdc.issue.datacollection</artifactId>
         </dependency>
-
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>issue.rest</artifactId>
@@ -93,11 +86,7 @@
             <artifactId>metering</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>org.osgi</groupId>
-            <artifactId>org.osgi.compendium</artifactId>
-        </dependency>
-
+        <!-- Test -->
         <dependency>
             <groupId>org.glassfish.jersey.test-framework.providers</groupId>
             <artifactId>jersey-test-framework-provider-inmemory</artifactId>
@@ -114,14 +103,9 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>javax.annotation</groupId>
-            <artifactId>javax.annotation-api</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
             <scope>test</scope>
         </dependency>
-
     </dependencies>
 </project>
