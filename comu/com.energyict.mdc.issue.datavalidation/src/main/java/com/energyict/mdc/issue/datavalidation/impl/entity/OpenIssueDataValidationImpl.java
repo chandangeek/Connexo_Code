@@ -3,6 +3,7 @@ package com.energyict.mdc.issue.datavalidation.impl.entity;
 import com.elster.jupiter.issue.share.entity.HistoricalIssue;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
+import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.orm.DataModel;
@@ -60,7 +61,7 @@ public class OpenIssueDataValidationImpl extends IssueDataValidationImpl impleme
 
     @Override
     public void addNotEstimatedBlock(Channel channel, ReadingType readingType, Instant startTime, Instant endTime) {
-        Range<Instant> interval = Range.openClosed(startTime.minus(channel.getIntervalLength().get()), endTime);
+        Range<Instant> interval = computeNonEstimatedBlockInterval(channel, startTime, endTime);
 
         List<Pair<Range<Instant>, OpenIssueNotEstimatedBlockImpl>> connectedBlocks = notEstimatedBlocks.stream()
                 .filter(block -> block.getChannel().getId() == channel.getId())
@@ -82,13 +83,14 @@ public class OpenIssueDataValidationImpl extends IssueDataValidationImpl impleme
 
     @Override
     public void removeNotEstimatedBlock(Channel channel, ReadingType readingType, Instant timeStamp) {
-        Range<Instant> interval = Range.openClosed(timeStamp.minus(channel.getIntervalLength().get()), timeStamp);
+        Range<Instant> interval = computeNonEstimatedBlockInterval(channel, timeStamp, timeStamp);
 
         Optional<OpenIssueNotEstimatedBlockImpl> enclosingBlock = notEstimatedBlocks.stream()
                 .filter(block -> block.getChannel().getId() == channel.getId())
                 .filter(block -> block.getReadingType().equals(readingType))
                 .filter(block -> Range.openClosed(block.getStartTime(), block.getEndTime()).encloses(interval))
                 .findFirst();
+
         if (enclosingBlock.isPresent()) {
             Range<Instant> enclosingRange = Range.openClosed(enclosingBlock.get().getStartTime(), enclosingBlock.get().getEndTime());
             notEstimatedBlocks.remove(enclosingBlock.get());
@@ -106,6 +108,21 @@ public class OpenIssueDataValidationImpl extends IssueDataValidationImpl impleme
     @Override
     public List<NotEstimatedBlock> getNotEstimatedBlocks() {
         return Collections.unmodifiableList(notEstimatedBlocks);
+    }
+
+    private Range<Instant> computeNonEstimatedBlockInterval(Channel channel, Instant startTime, Instant endTime) {
+        Range<Instant> interval;
+        if (channel.isRegular()) {
+            interval = Range.openClosed(startTime.minus(channel.getIntervalLength().get()), endTime);
+        } else {
+            List<BaseReadingRecord> readingsBefore = channel.getReadingsBefore(startTime, 1);
+            if (readingsBefore.isEmpty()) {
+                interval = Range.openClosed(Instant.EPOCH, endTime);
+            } else {
+                interval = Range.openClosed(readingsBefore.get(0).getTimeStamp(), endTime);
+            }
+        }
+        return interval;
     }
 
     private void createNewBlock(Channel channel, ReadingType readingType, Instant startTime, Instant endTime) {

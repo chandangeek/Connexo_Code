@@ -6,26 +6,49 @@ import com.elster.jupiter.issue.impl.records.OpenIssueImpl;
 import com.elster.jupiter.issue.impl.service.IssueServiceImpl;
 import com.elster.jupiter.issue.share.IssueEvent;
 import com.elster.jupiter.issue.share.IssueProvider;
-import com.elster.jupiter.issue.share.entity.*;
+import com.elster.jupiter.issue.share.entity.CreationRule;
+import com.elster.jupiter.issue.share.entity.DueInType;
+import com.elster.jupiter.issue.share.entity.HistoricalIssue;
+import com.elster.jupiter.issue.share.entity.Issue;
+import com.elster.jupiter.issue.share.entity.IssueAssignee;
+import com.elster.jupiter.issue.share.entity.IssueReason;
+import com.elster.jupiter.issue.share.entity.IssueStatus;
+import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleBuilder;
 import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.KnownAmrSystem;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
+import com.elster.jupiter.metering.readings.beans.ReadingImpl;
 import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.ListValue;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
-import com.energyict.mdc.issue.datavalidation.*;
+import com.energyict.mdc.issue.datavalidation.DataValidationIssueFilter;
+import com.energyict.mdc.issue.datavalidation.HistoricalIssueDataValidation;
+import com.energyict.mdc.issue.datavalidation.IssueDataValidation;
+import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
+import com.energyict.mdc.issue.datavalidation.NotEstimatedBlock;
+import com.energyict.mdc.issue.datavalidation.OpenIssueDataValidation;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -253,14 +276,24 @@ public class IssueDataValidationServiceTest extends PersistenceIntegrationTest {
     @Test
     @Transactional
     public void testCreateIssueWithNonEstimatedBlocks() {
+        Instant now = Instant.now();
+
         MeteringService meteringService = inMemoryPersistence.getService(MeteringService.class);
         AmrSystem amrSystem  = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
         Meter newMeter = amrSystem.newMeter("Meter");
         ReadingType readingType1Min = meteringService.createReadingType("0.0.3.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Fake RT with timeperiod 1-minute");
         ReadingType readingType3Min = meteringService.createReadingType("0.0.14.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Fake RT with timeperiod 3-minute");
-        MeterActivation meterActivation = newMeter.activate(Instant.now());
+        ReadingType registerReadingType = meteringService.createReadingType("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Fake register RT");
+        MeterActivation meterActivation = newMeter.activate(now);
         Channel channelRT1 = meterActivation.createChannel(readingType1Min);
         Channel channelRT2 = meterActivation.createChannel(readingType3Min);
+        Channel registerChannel = meterActivation.createChannel(registerReadingType);
+
+        MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
+        meterReading.addReading(ReadingImpl.of(registerReadingType.getMRID(), BigDecimal.valueOf(1), now));
+        meterReading.addReading(ReadingImpl.of(registerReadingType.getMRID(), BigDecimal.valueOf(1), now.plus(10, ChronoUnit.MINUTES)));
+        meterReading.addReading(ReadingImpl.of(registerReadingType.getMRID(), BigDecimal.valueOf(1), now.plus(30, ChronoUnit.MINUTES)));
+        newMeter.store(meterReading);
         
         IssueEvent event = mock(IssueEvent.class);
         when(event.findExistingIssue()).thenReturn(Optional.empty());
@@ -269,37 +302,48 @@ public class IssueDataValidationServiceTest extends PersistenceIntegrationTest {
         List<? extends IssueDataValidation> issues = issueDataValidationService.findAllDataValidationIssues(new DataValidationIssueFilter()).find();
         assertThat(issues).hasSize(1);
         OpenIssueDataValidation dataValidationIssue = issueDataValidationService.findOpenIssue(issues.get(0).getId()).get();
-        
-        Instant now = Instant.now();
-        
-        dataValidationIssue.addNotEstimatedBlock(channelRT1, readingType1Min, now, now);
-        dataValidationIssue.addNotEstimatedBlock(channelRT2, readingType3Min, now, now);
-        dataValidationIssue.addNotEstimatedBlock(channelRT2, readingType3Min, now.plus(3, ChronoUnit.MINUTES), now.plus(3, ChronoUnit.MINUTES));
+
+        dataValidationIssue.addNotEstimatedBlock(channelRT1, readingType1Min, now, now);//(now-1min, now]
+        dataValidationIssue.addNotEstimatedBlock(channelRT2, readingType3Min, now, now);//(now-3min, now]
+        dataValidationIssue.addNotEstimatedBlock(channelRT2, readingType3Min, now.plus(3, ChronoUnit.MINUTES), now.plus(3, ChronoUnit.MINUTES));//(now, now+3min]
+        dataValidationIssue.addNotEstimatedBlock(registerChannel, registerReadingType, now, now);//(EPOCH, now]
+        dataValidationIssue.addNotEstimatedBlock(registerChannel, registerReadingType, now, now.plus(30, ChronoUnit.MINUTES));//(now, now+30min]
         dataValidationIssue.save();
         
         dataValidationIssue = issueDataValidationService.findOpenIssue(dataValidationIssue.getId()).get();
-        assertThat(dataValidationIssue.getNotEstimatedBlocks()).hasSize(2);
-        NotEstimatedBlock block1 = dataValidationIssue.getNotEstimatedBlocks().get(0);
-        assertThat(block1.getChannel()).isEqualTo(channelRT1);
-        assertThat(block1.getReadingType()).isEqualTo(readingType1Min);
-        assertThat(block1.getStartTime()).isEqualTo(now.minus(1, ChronoUnit.MINUTES));
-        assertThat(block1.getEndTime()).isEqualTo(now);
+        assertThat(dataValidationIssue.getNotEstimatedBlocks()).hasSize(3);
+        Map<Channel, List<NotEstimatedBlock>> blocks = dataValidationIssue.getNotEstimatedBlocks().stream()
+                .collect(Collectors.groupingBy(NotEstimatedBlock::getChannel));
+
+        NotEstimatedBlock block1 = blocks.get(registerChannel).get(0);
+        assertThat(block1.getChannel()).isEqualTo(registerChannel);
+        assertThat(block1.getReadingType()).isEqualTo(registerReadingType);
+        assertThat(block1.getStartTime()).isEqualTo(Instant.EPOCH);
+        assertThat(block1.getEndTime()).isEqualTo(now.plus(30, ChronoUnit.MINUTES));
+
+        NotEstimatedBlock block2 = blocks.get(channelRT1).get(0);
+        assertThat(block2.getChannel()).isEqualTo(channelRT1);
+        assertThat(block2.getReadingType()).isEqualTo(readingType1Min);
+        assertThat(block2.getStartTime()).isEqualTo(now.minus(1, ChronoUnit.MINUTES));
+        assertThat(block2.getEndTime()).isEqualTo(now);
         
-        NotEstimatedBlock block2 = dataValidationIssue.getNotEstimatedBlocks().get(1);
-        assertThat(block2.getChannel()).isEqualTo(channelRT2);
-        assertThat(block2.getReadingType()).isEqualTo(readingType3Min);
-        assertThat(block2.getStartTime()).isEqualTo(now.minus(3, ChronoUnit.MINUTES));
-        assertThat(block2.getEndTime()).isEqualTo(now.plus(3, ChronoUnit.MINUTES));
+        NotEstimatedBlock block3 = blocks.get(channelRT2).get(0);
+        assertThat(block3.getChannel()).isEqualTo(channelRT2);
+        assertThat(block3.getReadingType()).isEqualTo(readingType3Min);
+        assertThat(block3.getStartTime()).isEqualTo(now.minus(3, ChronoUnit.MINUTES));
+        assertThat(block3.getEndTime()).isEqualTo(now.plus(3, ChronoUnit.MINUTES));
     }
     
     @Test
     @Transactional
     public void testUpdateIssueWithNonEstimatedBlocks() {
+        Instant now = Instant.now();
+
         MeteringService meteringService = inMemoryPersistence.getService(MeteringService.class);
         AmrSystem amrSystem  = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
         Meter newMeter = amrSystem.newMeter("Meter");
         ReadingType readingType = meteringService.createReadingType("0.0.3.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Fake RT with timeperiod 1-minute");
-        Channel channel = newMeter.activate(Instant.now()).createChannel(readingType);
+        Channel channel = newMeter.activate(now).createChannel(readingType);
         
         IssueEvent event = mock(IssueEvent.class);
         when(event.findExistingIssue()).thenReturn(Optional.empty());
@@ -308,8 +352,6 @@ public class IssueDataValidationServiceTest extends PersistenceIntegrationTest {
         List<? extends IssueDataValidation> issues = issueDataValidationService.findAllDataValidationIssues(new DataValidationIssueFilter()).find();
         assertThat(issues).hasSize(1);
         OpenIssueDataValidation dataValidationIssue = issueDataValidationService.findOpenIssue(issues.get(0).getId()).get();
-        
-        Instant now = Instant.now();
         
         dataValidationIssue.addNotEstimatedBlock(channel, readingType, now.minus(1, ChronoUnit.MINUTES), now.minus(1, ChronoUnit.MINUTES));//(now-2min, now-1min]
         dataValidationIssue.addNotEstimatedBlock(channel, readingType, now.plus(1, ChronoUnit.MINUTES), now.plus(1, ChronoUnit.MINUTES));//(now, now+1min]
@@ -349,6 +391,77 @@ public class IssueDataValidationServiceTest extends PersistenceIntegrationTest {
         assertThat(dataValidationIssue.getNotEstimatedBlocks().get(0).getEndTime()).isEqualTo(now);
         assertThat(dataValidationIssue.getNotEstimatedBlocks().get(1).getStartTime()).isEqualTo(now.plus(1, ChronoUnit.MINUTES));
         assertThat(dataValidationIssue.getNotEstimatedBlocks().get(1).getEndTime()).isEqualTo(now.plus(4, ChronoUnit.MINUTES));
+    }
+
+    @Test
+    @Transactional
+    public void testUpdateIssueWithNonEstimatedBlocksOnRegister() {
+        Instant now = Instant.now();
+
+        MeteringService meteringService = inMemoryPersistence.getService(MeteringService.class);
+        AmrSystem amrSystem  = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
+        Meter newMeter = amrSystem.newMeter("Meter");
+        ReadingType registerReadingType = meteringService.createReadingType("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Fake register RT");
+        MeterActivation meterActivation = newMeter.activate(now);
+        Channel registerChannel = meterActivation.createChannel(registerReadingType);
+
+        MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
+        meterReading.addReading(ReadingImpl.of(registerReadingType.getMRID(), BigDecimal.valueOf(1), now));
+        meterReading.addReading(ReadingImpl.of(registerReadingType.getMRID(), BigDecimal.valueOf(1), now.plus(10, ChronoUnit.MINUTES)));
+        meterReading.addReading(ReadingImpl.of(registerReadingType.getMRID(), BigDecimal.valueOf(1), now.plus(30, ChronoUnit.MINUTES)));
+        meterReading.addReading(ReadingImpl.of(registerReadingType.getMRID(), BigDecimal.valueOf(1), now.plus(50, ChronoUnit.MINUTES)));
+        meterReading.addReading(ReadingImpl.of(registerReadingType.getMRID(), BigDecimal.valueOf(1), now.plus(55, ChronoUnit.MINUTES)));
+        newMeter.store(meterReading);//[now, now+10min, now+30min, now+50min, now+55min]
+
+        IssueEvent event = mock(IssueEvent.class);
+        when(event.findExistingIssue()).thenReturn(Optional.empty());
+        issueCreationService.processIssueCreationEvent(issueCreationRule.getId(), event);
+
+        List<? extends IssueDataValidation> issues = issueDataValidationService.findAllDataValidationIssues(new DataValidationIssueFilter()).find();
+        assertThat(issues).hasSize(1);
+
+        OpenIssueDataValidation dataValidationIssue = issueDataValidationService.findOpenIssue(issues.get(0).getId()).get();
+        assertThat(dataValidationIssue.getNotEstimatedBlocks()).hasSize(0);
+
+        dataValidationIssue.addNotEstimatedBlock(registerChannel, registerReadingType, now, now);//(EPOCH, now]
+        dataValidationIssue.addNotEstimatedBlock(registerChannel, registerReadingType, now, now.plus(10, ChronoUnit.MINUTES));//(EPOCH, now+10min]
+        dataValidationIssue.save();
+
+        assertThat(dataValidationIssue.getNotEstimatedBlocks()).hasSize(1);
+        assertThat(dataValidationIssue.getNotEstimatedBlocks().get(0).getStartTime()).isEqualTo(Instant.EPOCH);
+        assertThat(dataValidationIssue.getNotEstimatedBlocks().get(0).getEndTime()).isEqualTo(now.plus(10, ChronoUnit.MINUTES));
+
+        dataValidationIssue.addNotEstimatedBlock(registerChannel, registerReadingType, now.plus(50, ChronoUnit.MINUTES), now.plus(55, ChronoUnit.MINUTES));//(now+30min, now+55min]
+        dataValidationIssue.save();//(EPOCH, now] + (now+30min, now+55min]
+
+        assertThat(dataValidationIssue.getNotEstimatedBlocks()).hasSize(2);
+        assertThat(dataValidationIssue.getNotEstimatedBlocks().get(0).getStartTime()).isEqualTo(Instant.EPOCH);
+        assertThat(dataValidationIssue.getNotEstimatedBlocks().get(0).getEndTime()).isEqualTo(now.plus(10, ChronoUnit.MINUTES));
+        assertThat(dataValidationIssue.getNotEstimatedBlocks().get(1).getStartTime()).isEqualTo(now.plus(30, ChronoUnit.MINUTES));
+        assertThat(dataValidationIssue.getNotEstimatedBlocks().get(1).getEndTime()).isEqualTo(now.plus(55, ChronoUnit.MINUTES));
+
+        dataValidationIssue.addNotEstimatedBlock(registerChannel, registerReadingType, now.plus(30, ChronoUnit.MINUTES), now.plus(55, ChronoUnit.MINUTES));//(now+10min, now+55min]
+        dataValidationIssue.save();//(EPOCH, now+55min]
+
+        assertThat(dataValidationIssue.getNotEstimatedBlocks()).hasSize(1);
+        assertThat(dataValidationIssue.getNotEstimatedBlocks().get(0).getStartTime()).isEqualTo(Instant.EPOCH);
+        assertThat(dataValidationIssue.getNotEstimatedBlocks().get(0).getEndTime()).isEqualTo(now.plus(55, ChronoUnit.MINUTES));
+
+        dataValidationIssue.removeNotEstimatedBlock(registerChannel, registerReadingType, now.plus(10, ChronoUnit.MINUTES));//(now, now+10min]
+        dataValidationIssue.save();//(EPOCH, now] + (now+10min, now+55min]
+
+        assertThat(dataValidationIssue.getNotEstimatedBlocks()).hasSize(2);
+        assertThat(dataValidationIssue.getNotEstimatedBlocks().get(0).getStartTime()).isEqualTo(Instant.EPOCH);
+        assertThat(dataValidationIssue.getNotEstimatedBlocks().get(0).getEndTime()).isEqualTo(now);
+        assertThat(dataValidationIssue.getNotEstimatedBlocks().get(1).getStartTime()).isEqualTo(now.plus(10, ChronoUnit.MINUTES));
+        assertThat(dataValidationIssue.getNotEstimatedBlocks().get(1).getEndTime()).isEqualTo(now.plus(55, ChronoUnit.MINUTES));
+
+        dataValidationIssue.removeNotEstimatedBlock(registerChannel, registerReadingType, now);//(EPOCH, now]
+        dataValidationIssue.save();//(now+10min, now+55min]
+
+        assertThat(dataValidationIssue.getNotEstimatedBlocks()).hasSize(1);
+        assertThat(dataValidationIssue.getNotEstimatedBlocks().get(0).getStartTime()).isEqualTo(now.plus(10, ChronoUnit.MINUTES));
+        assertThat(dataValidationIssue.getNotEstimatedBlocks().get(0).getEndTime()).isEqualTo(now.plus(55, ChronoUnit.MINUTES));
     }
     
     @Test
