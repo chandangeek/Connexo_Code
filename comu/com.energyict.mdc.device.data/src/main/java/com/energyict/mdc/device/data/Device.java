@@ -393,7 +393,7 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      * @return The CIMLifecycleDates
      * @since 2.0
      */
-    public CIMLifecycleDates getLifecycleDates();
+    public CIMLifeCycleDates getLifecycleDates();
 
     /**
      * Builder that support basic value setters for a ScheduledConnectionTask.
