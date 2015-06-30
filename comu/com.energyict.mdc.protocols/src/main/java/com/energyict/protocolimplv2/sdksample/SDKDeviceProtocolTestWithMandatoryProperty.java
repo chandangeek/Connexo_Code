@@ -139,7 +139,7 @@ public class SDKDeviceProtocolTestWithMandatoryProperty extends SDKDeviceProtoco
                 this.propertySpecService.
                         obisCodePropertySpecWithValuesExhaustive(
                                 "SDKObisCodeProperty",
-                                true,
+                                false,
                                 ObisCode.fromString("1.0.1.8.0.255"),
                                 ObisCode.fromString("1.0.1.8.1.255"),
                                 ObisCode.fromString("1.0.1.8.2.255"),
