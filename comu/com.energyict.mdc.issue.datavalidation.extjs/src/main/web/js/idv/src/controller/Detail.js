@@ -51,16 +51,23 @@ Ext.define('Idv.controller.Detail', {
             'no-estimated-data-grid uni-actioncolumn': {
                 viewData: function(record) {
                     var me = this;
-                    this.getController('Uni.controller.history.Router').getRoute('devices/device/channels/channelvalidationblocks').forward(
-                        {
+                    if (record.get('registerId')) {
+                        this.getController('Uni.controller.history.Router').getRoute('devices/device/registers/registerdata').forward({
                             mRID: me.getDetailForm().getRecord().get('device').serialNumber,
-                            channelId: record.get('channelId'),
-                            issueId: record.getId()
-                        },
-                        {
-                            validationBlock: record.get('startTime')
-                        }
-                    );
+                            channelId: record.get('registerId')
+                        });
+                    } else if(record.get('channelId')) {
+                        this.getController('Uni.controller.history.Router').getRoute('devices/device/channels/channelvalidationblocks').forward(
+                            {
+                                mRID: me.getDetailForm().getRecord().get('device').serialNumber,
+                                channelId: record.get('channelId'),
+                                issueId: record.getId()
+                            },
+                            {
+                                validationBlock: record.get('startTime')
+                            }
+                        );
+                    }
                 }
             }
         });
@@ -78,6 +85,7 @@ Ext.define('Idv.controller.Detail', {
                     data.push(Ext.apply({}, {
                         mRID: item.readingType.mRID,
                         channelId: item.channelId,
+                        registerId: item.registerId,
                         readingType: item.readingType
                     }, block))
                 });
