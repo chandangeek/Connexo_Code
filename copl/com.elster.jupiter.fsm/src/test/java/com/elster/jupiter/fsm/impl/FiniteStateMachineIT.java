@@ -1,5 +1,6 @@
 package com.elster.jupiter.fsm.impl;
 
+import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
@@ -12,9 +13,11 @@ import com.elster.jupiter.fsm.FiniteStateMachineUpdater;
 import com.elster.jupiter.fsm.MessageSeeds;
 import com.elster.jupiter.fsm.ProcessReference;
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.fsm.StateChangeBusinessProcess;
 import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.fsm.StateTransitionEventType;
 import com.elster.jupiter.fsm.UnknownProcessReferenceException;
+import com.elster.jupiter.fsm.UnknownStateChangeBusinessProcessException;
 import com.elster.jupiter.fsm.UnknownStateException;
 import com.elster.jupiter.fsm.UnsupportedStateTransitionException;
 import com.elster.jupiter.nls.Layer;
@@ -22,6 +25,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.google.common.base.Strings;
@@ -29,6 +33,7 @@ import com.google.common.base.Strings;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.junit.*;
 import org.junit.rules.*;
@@ -48,6 +53,8 @@ import static org.mockito.Mockito.when;
 public class FiniteStateMachineIT {
 
     private static InMemoryPersistence inMemoryPersistence;
+    private static StateChangeBusinessProcess onEntry;
+    private static StateChangeBusinessProcess onExit;
 
     @Rule
     public TestRule transactionalRule = new TransactionalRule(getTransactionService());
@@ -58,6 +65,15 @@ public class FiniteStateMachineIT {
     public static void initialize() {
         inMemoryPersistence = InMemoryPersistence.defaultPersistence();
         inMemoryPersistence.initializeDatabase(FiniteStateMachineIT.class.getSimpleName());
+        try (TransactionContext context = getTransactionService().getContext()) {
+            onEntry = inMemoryPersistence.getFiniteStateMachineService().enableAsStateChangeBusinessProcess("onEntryDepId", "onEntry");
+            onExit = inMemoryPersistence.getFiniteStateMachineService().enableAsStateChangeBusinessProcess("onExitDepId", "onExit");
+            context.commit();
+        }
+    }
+
+    public static TransactionService getTransactionService() {
+        return inMemoryPersistence.getTransactionService();
     }
 
     @AfterClass
@@ -65,8 +81,123 @@ public class FiniteStateMachineIT {
         inMemoryPersistence.cleanUpDataBase();
     }
 
-    public static TransactionService getTransactionService() {
-        return inMemoryPersistence.getTransactionService();
+    @Transactional
+    @Test
+    public void findStateChangeBusinessProcesses() {
+        List<Long> businessProcessIds = this.getTestService()
+                .findStateChangeBusinessProcesses()// Business method
+                .stream()
+                .map(StateChangeBusinessProcess::getId)
+                .collect(Collectors.toList());
+
+        // Asserts
+        assertThat(businessProcessIds).containsOnly(onEntry.getId(), onExit.getId());
+    }
+
+    @Transactional
+    @Test
+    public void findStateChangeBusinessProcessAfterEnable() {
+        FiniteStateMachineServiceImpl testService = this.getTestService();
+        StateChangeBusinessProcess stateChangeBusinessProcess = testService.enableAsStateChangeBusinessProcess("111", "222");
+
+        // Business method
+        List<Long> businessProcessIds = testService
+                .findStateChangeBusinessProcesses()
+                .stream()
+                .map(StateChangeBusinessProcess::getId)
+                .collect(Collectors.toList());
+
+        // Asserts
+        assertThat(businessProcessIds).contains(stateChangeBusinessProcess.getId());
+    }
+
+    @Transactional
+    @Test(expected = UnknownStateChangeBusinessProcessException.class)
+    public void disableStateChangeBusinessProcessThatWasNotEnabled() {
+        FiniteStateMachineServiceImpl testService = this.getTestService();
+
+        // Business method
+        testService.disableAsStateChangeBusinessProcess("111", "222");
+
+        // Asserts: see expected exception rule
+    }
+
+    @Transactional
+    @Test
+    public void findStateChangeBusinessProcessAfterDisable() {
+        FiniteStateMachineServiceImpl testService = this.getTestService();
+        StateChangeBusinessProcess stateChangeBusinessProcess = testService.enableAsStateChangeBusinessProcess("333", "444");
+        testService.disableAsStateChangeBusinessProcess(stateChangeBusinessProcess.getDeploymentId(), stateChangeBusinessProcess.getProcessId());
+
+        // Business method
+        List<Long> businessProcessIds = testService
+                .findStateChangeBusinessProcesses()
+                .stream()
+                .map(StateChangeBusinessProcess::getId)
+                .collect(Collectors.toList());
+
+        // Asserts
+        assertThat(businessProcessIds).containsOnly(onEntry.getId(), onExit.getId());
+    }
+
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}")
+    @Test
+    public void enableStateChangeBusinessProcessWithNullBigDeploymentId() {
+        // Business method
+        this.getTestService().enableAsStateChangeBusinessProcess(null, "onEntry");
+
+        // Asserts: see expected constraint violation rule
+    }
+
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}")
+    @Test
+    public void enableStateChangeBusinessProcessWithEmptyBigDeploymentId() {
+        // Business method
+        this.getTestService().enableAsStateChangeBusinessProcess("", "onEntry");
+
+        // Asserts: see expected constraint violation rule
+    }
+
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    @Test
+    public void enableStateChangeBusinessProcessWithTooBigDeploymentId() {
+        // Business method
+        this.getTestService().enableAsStateChangeBusinessProcess(Strings.repeat("deploymentId", 100), "onEntry");
+
+        // Asserts: see expected constraint violation rule
+    }
+
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}")
+    @Test
+    public void enableStateChangeBusinessProcessWithNullProcessId() {
+        // Business method
+        this.getTestService().enableAsStateChangeBusinessProcess("deploymentId", null);
+
+        // Asserts: see expected constraint violation rule
+    }
+
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}")
+    @Test
+    public void enableStateChangeBusinessProcessWithEmptyProcessId() {
+        // Business method
+        this.getTestService().enableAsStateChangeBusinessProcess("deploymentId", "");
+
+        // Asserts: see expected constraint violation rule
+    }
+
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    @Test
+    public void enableStateChangeBusinessProcessWithTooBigProcessId() {
+        // Business method
+        this.getTestService().enableAsStateChangeBusinessProcess("deploymentId", Strings.repeat("onEntry", 100));
+
+        // Asserts: see expected constraint violation rule
     }
 
     @Transactional
@@ -330,8 +461,8 @@ public class FiniteStateMachineIT {
         String expectedStateName = "Initial";
         State initial = builder
             .newCustomState(expectedStateName)
-            .onEntry("onEntryDepId", "onEntry")
-            .onExit("onExitDepId", "onExit")
+            .onEntry(onEntry)
+            .onExit(onExit)
             .complete();
         FiniteStateMachine stateMachine = builder.complete(initial);
 
@@ -345,12 +476,10 @@ public class FiniteStateMachineIT {
         assertThat(state.getName()).isEqualTo(expectedStateName);
         List<ProcessReference> onEntryProcesses = state.getOnEntryProcesses();
         assertThat(onEntryProcesses).hasSize(1);
-        assertThat(onEntryProcesses.get(0).getDeploymentId()).isEqualTo("onEntryDepId");
-        assertThat(onEntryProcesses.get(0).getProcessId()).isEqualTo("onEntry");
+        assertThat(onEntryProcesses.get(0).getStateChangeBusinessProcess().getId()).isEqualTo(onEntry.getId());
         List<ProcessReference> onExitProcesses = state.getOnExitProcesses();
         assertThat(onExitProcesses).hasSize(1);
-        assertThat(onExitProcesses.get(0).getDeploymentId()).isEqualTo("onExitDepId");
-        assertThat(onExitProcesses.get(0).getProcessId()).isEqualTo("onExit");
+        assertThat(onExitProcesses.get(0).getStateChangeBusinessProcess().getId()).isEqualTo(onExit.getId());
     }
 
     @Transactional
@@ -361,8 +490,8 @@ public class FiniteStateMachineIT {
         String expectedStateName = "Initial";
         State initial = builder
             .newCustomState(expectedStateName)
-            .onEntry("onEntryDepId", "onEntry")
-            .onExit("onExitDepId", "onExit")
+            .onEntry(onEntry)
+            .onExit(onExit)
             .complete();
         FiniteStateMachine stateMachine = builder.complete(initial);
         stateMachine.save();
@@ -377,26 +506,27 @@ public class FiniteStateMachineIT {
         assertThat(state.getName()).isEqualTo(expectedStateName);
         List<ProcessReference> onEntryProcesses = state.getOnEntryProcesses();
         assertThat(onEntryProcesses).hasSize(1);
-        assertThat(onEntryProcesses.get(0).getDeploymentId()).isEqualTo("onEntryDepId");
-        assertThat(onEntryProcesses.get(0).getProcessId()).isEqualTo("onEntry");
+        assertThat(onEntryProcesses.get(0).getStateChangeBusinessProcess().getId()).isEqualTo(onEntry.getId());
         List<ProcessReference> onExitProcesses = state.getOnExitProcesses();
         assertThat(onExitProcesses).hasSize(1);
-        assertThat(onExitProcesses.get(0).getDeploymentId()).isEqualTo("onExitDepId");
-        assertThat(onExitProcesses.get(0).getProcessId()).isEqualTo("onExit");
+        assertThat(onExitProcesses.get(0).getStateChangeBusinessProcess().getId()).isEqualTo(onExit.getId());
     }
 
     @Transactional
     @Test
     public void createStateMachineWithOneStateAndMultipleEntryAndExitProcesses() {
         String expectedName = "createStateMachineWithOneStateAndMultipleEntryAndExitProcesses";
-        FiniteStateMachineBuilder builder = this.getTestService().newFiniteStateMachine(expectedName);
+        FiniteStateMachineServiceImpl testService = this.getTestService();
+        StateChangeBusinessProcess onEntry2 = testService.enableAsStateChangeBusinessProcess("OnEntryDepId", "onEntry2");
+        StateChangeBusinessProcess onExit2 = testService.enableAsStateChangeBusinessProcess("OnExitDepId", "onExit2");
+        FiniteStateMachineBuilder builder = testService.newFiniteStateMachine(expectedName);
         String expectedStateName = "Initial";
         State initial = builder
             .newCustomState(expectedStateName)
-            .onEntry("onEntryDepId", "onEntry1")
-            .onEntry("onEntryDepId", "onEntry2")
-            .onExit("onExitDepId", "onExit1")
-            .onExit("onExitDepId", "onExit2")
+            .onEntry(onEntry)
+            .onEntry(onEntry2)
+            .onExit(onExit)
+            .onExit(onExit2)
             .complete();
         FiniteStateMachine stateMachine = builder.complete(initial);
 
@@ -410,54 +540,12 @@ public class FiniteStateMachineIT {
         assertThat(state.getName()).isEqualTo(expectedStateName);
         List<ProcessReference> onEntryProcesses = state.getOnEntryProcesses();
         assertThat(onEntryProcesses).hasSize(2);
-        assertThat(onEntryProcesses.get(0).getDeploymentId()).isEqualTo("onEntryDepId");
-        assertThat(onEntryProcesses.get(0).getProcessId()).isEqualTo("onEntry1");
-        assertThat(onEntryProcesses.get(1).getDeploymentId()).isEqualTo("onEntryDepId");
-        assertThat(onEntryProcesses.get(1).getProcessId()).isEqualTo("onEntry2");
+        assertThat(onEntryProcesses.get(0).getStateChangeBusinessProcess().getId()).isEqualTo(onEntry.getId());
+        assertThat(onEntryProcesses.get(1).getStateChangeBusinessProcess().getId()).isEqualTo(onEntry2.getId());
         List<ProcessReference> onExitProcesses = state.getOnExitProcesses();
         assertThat(onExitProcesses).hasSize(2);
-        assertThat(onExitProcesses.get(0).getDeploymentId()).isEqualTo("onExitDepId");
-        assertThat(onExitProcesses.get(0).getProcessId()).isEqualTo("onExit1");
-        assertThat(onExitProcesses.get(1).getDeploymentId()).isEqualTo("onExitDepId");
-        assertThat(onExitProcesses.get(1).getProcessId()).isEqualTo("onExit2");
-    }
-
-    @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
-    @Test
-    public void createStateMachineWithOneStateAndTooBigDeploymentId() {
-        String expectedName = "createStateMachineWithOneStateAndTooBigDeploymentId";
-        FiniteStateMachineBuilder builder = this.getTestService().newFiniteStateMachine(expectedName);
-        String expectedStateName = "Initial";
-        State initial = builder
-            .newCustomState(expectedStateName)
-            .onEntry(Strings.repeat("deploymentId", 100), "onEntry")
-            .complete();
-        FiniteStateMachine stateMachine = builder.complete(initial);
-
-        // Business method
-        stateMachine.save();
-
-        // Asserts: see expected constraint violation rule
-    }
-
-    @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
-    @Test
-    public void createStateMachineWithOneStateAndTooBigProcessId() {
-        String expectedName = "createStateMachineWithOneStateAndTooBigProcessId";
-        FiniteStateMachineBuilder builder = this.getTestService().newFiniteStateMachine(expectedName);
-        String expectedStateName = "Initial";
-        State initial = builder
-            .newCustomState(expectedStateName)
-            .onEntry("deploymentId", Strings.repeat("onEntry", 100))
-            .complete();
-        FiniteStateMachine stateMachine = builder.complete(initial);
-
-        // Business method
-        stateMachine.save();
-
-        // Asserts: see expected constraint violation rule
+        assertThat(onExitProcesses.get(0).getStateChangeBusinessProcess().getId()).isEqualTo(onExit.getId());
+        assertThat(onExitProcesses.get(1).getStateChangeBusinessProcess().getId()).isEqualTo(onExit2.getId());
     }
 
     @Transactional
@@ -1363,7 +1451,7 @@ public class FiniteStateMachineIT {
 
         // Business method
         FiniteStateMachineUpdater stateMachineUpdater = stateMachine.startUpdate();
-        stateMachineUpdater.state("Initial").onEntry("onEntryDepId", "onEntry").onExit("onExitDepId", "onExit").complete();
+        stateMachineUpdater.state("Initial").onEntry(onEntry).onExit(onExit).complete();
         stateMachineUpdater.complete();
 
         // Asserts
@@ -1373,19 +1461,20 @@ public class FiniteStateMachineIT {
         assertThat(state.getName()).isEqualTo(expectedStateName);
         List<ProcessReference> onEntryProcesses = state.getOnEntryProcesses();
         assertThat(onEntryProcesses).hasSize(1);
-        assertThat(onEntryProcesses.get(0).getDeploymentId()).isEqualTo("onEntryDepId");
-        assertThat(onEntryProcesses.get(0).getProcessId()).isEqualTo("onEntry");
+        assertThat(onEntryProcesses.get(0).getStateChangeBusinessProcess().getId()).isEqualTo(onEntry.getId());
         List<ProcessReference> onExitProcesses = state.getOnExitProcesses();
         assertThat(onExitProcesses).hasSize(1);
-        assertThat(onExitProcesses.get(0).getDeploymentId()).isEqualTo("onExitDepId");
-        assertThat(onExitProcesses.get(0).getProcessId()).isEqualTo("onExit");
+        assertThat(onExitProcesses.get(0).getStateChangeBusinessProcess().getId()).isEqualTo(onExit.getId());
     }
 
     @Transactional
     @Test
     public void addMultipleEntryAndExitProcessesToExistingState() {
         String expectedName = "addBothEntryAndExitProcessesToExistingState";
-        FiniteStateMachineBuilder builder = this.getTestService().newFiniteStateMachine(expectedName);
+        FiniteStateMachineServiceImpl testService = this.getTestService();
+        FiniteStateMachineBuilder builder = testService.newFiniteStateMachine(expectedName);
+        StateChangeBusinessProcess onEntry2 = testService.enableAsStateChangeBusinessProcess("OnEntryDepId", "onEntry2");
+        StateChangeBusinessProcess onExit2 = testService.enableAsStateChangeBusinessProcess("OnExitDepId", "onExit2");
         String expectedStateName = "Initial";
         FiniteStateMachine stateMachine = builder.complete(builder.newCustomState(expectedStateName).complete());
         stateMachine.save();
@@ -1393,10 +1482,10 @@ public class FiniteStateMachineIT {
         // Business method
         FiniteStateMachineUpdater stateMachineUpdater = stateMachine.startUpdate();
         stateMachineUpdater.state("Initial")
-                .onEntry("onEntryDepId", "onEntry1")
-                .onEntry("onEntryDepId", "onEntry2")
-                .onExit("onExitDepId", "onExit1")
-                .onExit("onExitDepId", "onExit2")
+                .onEntry(onEntry)
+                .onEntry(onEntry2)
+                .onExit(onExit)
+                .onExit(onExit2)
                 .complete();
         stateMachineUpdater.complete();
 
@@ -1407,16 +1496,12 @@ public class FiniteStateMachineIT {
         assertThat(state.getName()).isEqualTo(expectedStateName);
         List<ProcessReference> onEntryProcesses = state.getOnEntryProcesses();
         assertThat(onEntryProcesses).hasSize(2);
-        assertThat(onEntryProcesses.get(0).getDeploymentId()).isEqualTo("onEntryDepId");
-        assertThat(onEntryProcesses.get(0).getProcessId()).isEqualTo("onEntry1");
-        assertThat(onEntryProcesses.get(1).getDeploymentId()).isEqualTo("onEntryDepId");
-        assertThat(onEntryProcesses.get(1).getProcessId()).isEqualTo("onEntry2");
+        assertThat(onEntryProcesses.get(0).getStateChangeBusinessProcess().getId()).isEqualTo(onEntry.getId());
+        assertThat(onEntryProcesses.get(1).getStateChangeBusinessProcess().getId()).isEqualTo(onEntry2.getId());
         List<ProcessReference> onExitProcesses = state.getOnExitProcesses();
         assertThat(onExitProcesses).hasSize(2);
-        assertThat(onExitProcesses.get(0).getDeploymentId()).isEqualTo("onExitDepId");
-        assertThat(onExitProcesses.get(0).getProcessId()).isEqualTo("onExit1");
-        assertThat(onExitProcesses.get(1).getDeploymentId()).isEqualTo("onExitDepId");
-        assertThat(onExitProcesses.get(1).getProcessId()).isEqualTo("onExit2");
+        assertThat(onExitProcesses.get(0).getStateChangeBusinessProcess().getId()).isEqualTo(onExit.getId());
+        assertThat(onExitProcesses.get(1).getStateChangeBusinessProcess().getId()).isEqualTo(onExit2.getId());
     }
 
     /**
@@ -1474,8 +1559,8 @@ public class FiniteStateMachineIT {
         State active = activeBuilder
             .on(decommissionedEventType).transitionTo(decommissioned)
             .on(deactivated).transitionTo(inactiveBuilder)
-            .onEntry("onEntryDepId", "onEntry")
-            .onExit("onExitDepId", "onExit")
+            .onEntry(onEntry)
+            .onExit(onExit)
             .complete();
         stateMachineUpdater
             .state("Commissioned")
@@ -1507,12 +1592,10 @@ public class FiniteStateMachineIT {
         assertThat(reloaded.getState(active.getName()).isPresent()).isTrue();
         List<ProcessReference> onEntryProcesses = reloaded.getState(active.getName()).get().getOnEntryProcesses();
         assertThat(onEntryProcesses).hasSize(1);
-        assertThat(onEntryProcesses.get(0).getDeploymentId()).isEqualTo("onEntryDepId");
-        assertThat(onEntryProcesses.get(0).getProcessId()).isEqualTo("onEntry");
+        assertThat(onEntryProcesses.get(0).getStateChangeBusinessProcess().getId()).isEqualTo(onEntry.getId());
         List<ProcessReference> onExitProcesses = reloaded.getState(active.getName()).get().getOnExitProcesses();
         assertThat(onExitProcesses).hasSize(1);
-        assertThat(onExitProcesses.get(0).getDeploymentId()).isEqualTo("onExitDepId");
-        assertThat(onExitProcesses.get(0).getProcessId()).isEqualTo("onExit");
+        assertThat(onExitProcesses.get(0).getStateChangeBusinessProcess().getId()).isEqualTo(onExit.getId());
     }
 
     @Transactional
@@ -1642,13 +1725,16 @@ public class FiniteStateMachineIT {
     @Test
     public void removeEntryAndExitProcesses() {
         String expectedName = "removeEntryAndExitProcesses";
-        FiniteStateMachineBuilder builder = this.getTestService().newFiniteStateMachine(expectedName);
+        FiniteStateMachineServiceImpl testService = this.getTestService();
+        StateChangeBusinessProcess onEntry2 = testService.enableAsStateChangeBusinessProcess("OnEntryDepId", "onEntry2");
+        StateChangeBusinessProcess onExit2 = testService.enableAsStateChangeBusinessProcess("OnExitDepId", "onExit2");
+        FiniteStateMachineBuilder builder = testService.newFiniteStateMachine(expectedName);
         String expectedStateName = "Initial";
         State initial = builder.newCustomState(expectedStateName)
-                .onEntry("onEntryDepId", "onEntry1")
-                .onEntry("onEntryDepId", "onEntry2")
-                .onExit("onExitDepId", "onExit1")
-                .onExit("onExitDepId", "onExit2")
+                .onEntry(onEntry)
+                .onEntry(onEntry2)
+                .onExit(onExit)
+                .onExit(onExit2)
                 .complete();
         FiniteStateMachine stateMachine = builder.complete(initial);
         stateMachine.save();
@@ -1656,8 +1742,8 @@ public class FiniteStateMachineIT {
         // Business method
         FiniteStateMachineUpdater stateMachineUpdater = stateMachine.startUpdate();
         stateMachineUpdater.state("Initial")
-                .removeOnEntry("onEntryDepId", "onEntry1")
-                .removeOnExit("onExitDepId", "onExit2")
+                .removeOnEntry(onEntry)
+                .removeOnExit(onExit2)
                 .complete();
         stateMachineUpdater.complete();
 
@@ -1668,25 +1754,26 @@ public class FiniteStateMachineIT {
         assertThat(state.getName()).isEqualTo(expectedStateName);
         List<ProcessReference> onEntryProcesses = state.getOnEntryProcesses();
         assertThat(onEntryProcesses).hasSize(1);
-        assertThat(onEntryProcesses.get(0).getDeploymentId()).isEqualTo("onEntryDepId");
-        assertThat(onEntryProcesses.get(0).getProcessId()).isEqualTo("onEntry2");
+        assertThat(onEntryProcesses.get(0).getStateChangeBusinessProcess().getId()).isEqualTo(onEntry2.getId());
         List<ProcessReference> onExitProcesses = state.getOnExitProcesses();
         assertThat(onExitProcesses).hasSize(1);
-        assertThat(onExitProcesses.get(0).getDeploymentId()).isEqualTo("onExitDepId");
-        assertThat(onExitProcesses.get(0).getProcessId()).isEqualTo("onExit1");
+        assertThat(onExitProcesses.get(0).getStateChangeBusinessProcess().getId()).isEqualTo(onExit.getId());
     }
 
     @Transactional
     @Test
     public void removeAllEntryAndExitProcesses() {
         String expectedName = "removeEntryAndExitProcesses";
-        FiniteStateMachineBuilder builder = this.getTestService().newFiniteStateMachine(expectedName);
+        FiniteStateMachineServiceImpl testService = this.getTestService();
+        StateChangeBusinessProcess onEntry2 = testService.enableAsStateChangeBusinessProcess("OnEntryDepId", "onEntry2");
+        StateChangeBusinessProcess onExit2 = testService.enableAsStateChangeBusinessProcess("OnExitDepId", "onExit2");
+        FiniteStateMachineBuilder builder = testService.newFiniteStateMachine(expectedName);
         String expectedStateName = "Initial";
         State initialState = builder.newCustomState(expectedStateName)
-                .onEntry("onEntryDepId", "onEntry1")
-                .onEntry("onEntryDepId", "onEntry2")
-                .onExit("onExitDepId", "onExit1")
-                .onExit("onExitDepId", "onExit2")
+                .onEntry(onEntry)
+                .onEntry(onEntry2)
+                .onExit(onExit)
+                .onExit(onExit2)
                 .complete();
         FiniteStateMachine stateMachine = builder.complete(initialState);
         stateMachine.save();
@@ -1694,10 +1781,10 @@ public class FiniteStateMachineIT {
         // Business method
         FiniteStateMachineUpdater stateMachineUpdater = stateMachine.startUpdate();
         stateMachineUpdater.state("Initial")
-                .removeOnEntry("onEntryDepId", "onEntry1")
-                .removeOnEntry("onEntryDepId", "onEntry2")
-                .removeOnExit("onExitDepId", "onExit1")
-                .removeOnExit("onExitDepId", "onExit2")
+                .removeOnEntry(onEntry)
+                .removeOnEntry(onEntry2)
+                .removeOnExit(onExit)
+                .removeOnExit(onExit2)
                 .complete();
         stateMachineUpdater.complete();
 
@@ -1717,16 +1804,19 @@ public class FiniteStateMachineIT {
         FiniteStateMachineBuilder builder = this.getTestService().newFiniteStateMachine(expectedName);
         String expectedStateName = "Initial";
         State initial = builder.newCustomState(expectedStateName)
-                .onEntry("onEntryDepId", "onEntry")
-                .onExit("onExitDepId", "onExit")
+                .onEntry(onEntry)
+                .onExit(onExit)
                 .complete();
         FiniteStateMachine stateMachine = builder.complete(initial);
         stateMachine.save();
 
+        StateChangeBusinessProcess mockedStateChageBusinessProcess = mock(StateChangeBusinessProcess.class);
+        when(mockedStateChageBusinessProcess.getId()).thenReturn(Long.MAX_VALUE);
+
         // Business method
         FiniteStateMachineUpdater stateMachineUpdater = stateMachine.startUpdate();
         stateMachineUpdater.state("Initial")
-                .removeOnEntry("onEntryDepId", "does not exist")
+                .removeOnEntry(mockedStateChageBusinessProcess)
                 .complete();    // Not expecting to get this far in fact
 
         // Asserts: see expected exception rule
@@ -1739,8 +1829,8 @@ public class FiniteStateMachineIT {
         FiniteStateMachineBuilder builder = this.getTestService().newFiniteStateMachine(expectedName);
         State initial = builder
                 .newCustomState("Initial")
-                .onEntry("onEntryDepId", "onEntry")
-                .onExit("onExitDepId", "onExit")
+                .onEntry(onEntry)
+                .onExit(onExit)
                 .complete();
         FiniteStateMachine stateMachine = builder.complete(initial);
         stateMachine.save();
@@ -1760,8 +1850,8 @@ public class FiniteStateMachineIT {
         FiniteStateMachineBuilder builder = this.getTestService().newFiniteStateMachine(expectedName);
         State initial = builder
                 .newCustomState("Initial")
-                .onEntry("onEntryDepId", "onEntry")
-                .onExit("onExitDepId", "onExit")
+                .onEntry(onEntry)
+                .onExit(onExit)
                 .complete();
         FiniteStateMachine stateMachine = builder.complete(initial);
         stateMachine.save();
@@ -1782,8 +1872,8 @@ public class FiniteStateMachineIT {
         FiniteStateMachineBuilder builder = this.getTestService().newFiniteStateMachine(expectedName);
         State initial = builder
                 .newCustomState("Initial")
-                .onEntry("onEntryDepId", "onEntry")
-                .onExit("onExitDepId", "onExit")
+                .onEntry(onEntry)
+                .onExit(onExit)
                 .complete();
         FiniteStateMachine stateMachine = builder.complete(initial);
         stateMachine.save();
@@ -1802,8 +1892,8 @@ public class FiniteStateMachineIT {
         FiniteStateMachineBuilder builder = this.getTestService().newFiniteStateMachine(expectedName);
         State initial = builder
             .newCustomState("Initial")
-            .onEntry("onEntryDepId", "onEntry")
-            .onExit("onExitDepId", "onExit")
+            .onEntry(onEntry)
+            .onExit(onExit)
             .complete();
         FiniteStateMachine stateMachine = builder.complete(initial);
         stateMachine.save();
@@ -1822,8 +1912,8 @@ public class FiniteStateMachineIT {
         FiniteStateMachineBuilder builder = this.getTestService().newFiniteStateMachine(expectedName);
         State initial = builder
             .newCustomState("Initial")
-            .onEntry("onEntryDepId", "onEntry")
-            .onExit("onExitDepId", "onExit")
+            .onEntry(onEntry)
+            .onExit(onExit)
             .complete();
         FiniteStateMachine stateMachine = builder.complete(initial);
         stateMachine.save();
@@ -1838,22 +1928,24 @@ public class FiniteStateMachineIT {
     @Transactional
     @Test
     public void cloneStateMachineWithOneStateAndMultipleEntryAndExitProcesses() {
-        FiniteStateMachineServiceImpl service = this.getTestService();
-        FiniteStateMachineBuilder builder = service.newFiniteStateMachine("cloneStateMachineWithOneStateAndMultipleEntryAndExitProcesses");
+        FiniteStateMachineServiceImpl testService = this.getTestService();
+        StateChangeBusinessProcess onEntry2 = testService.enableAsStateChangeBusinessProcess("OnEntryDepId", "onEntry2");
+        StateChangeBusinessProcess onExit2 = testService.enableAsStateChangeBusinessProcess("OnExitDepId", "onExit2");
+        FiniteStateMachineBuilder builder = testService.newFiniteStateMachine("cloneStateMachineWithOneStateAndMultipleEntryAndExitProcesses");
         String expectedStateName = "Initial";
         State initial = builder
                 .newCustomState(expectedStateName)
-                .onEntry("onEntryDepId", "onEntry1")
-                .onEntry("onEntryDepId", "onEntry2")
-                .onExit("onExitDepId", "onExit1")
-                .onExit("onExitDepId", "onExit2")
+                .onEntry(onEntry)
+                .onEntry(onEntry2)
+                .onExit(onExit)
+                .onExit(onExit2)
                 .complete();
         FiniteStateMachine stateMachine = builder.complete(initial);
         stateMachine.save();
 
         // Business method
         String expectedName = "Cloned";
-        FiniteStateMachine cloned = service.cloneFiniteStateMachine(stateMachine, expectedName);
+        FiniteStateMachine cloned = testService.cloneFiniteStateMachine(stateMachine, expectedName);
 
         // Asserts
         assertThat(cloned.getName()).isEqualTo(expectedName);
@@ -1862,16 +1954,12 @@ public class FiniteStateMachineIT {
         assertThat(state.getName()).isEqualTo(expectedStateName);
         List<ProcessReference> onEntryProcesses = state.getOnEntryProcesses();
         assertThat(onEntryProcesses).hasSize(2);
-        assertThat(onEntryProcesses.get(0).getDeploymentId()).isEqualTo("onEntryDepId");
-        assertThat(onEntryProcesses.get(0).getProcessId()).isEqualTo("onEntry1");
-        assertThat(onEntryProcesses.get(1).getDeploymentId()).isEqualTo("onEntryDepId");
-        assertThat(onEntryProcesses.get(1).getProcessId()).isEqualTo("onEntry2");
+        assertThat(onEntryProcesses.get(0).getStateChangeBusinessProcess().getId()).isEqualTo(onEntry.getId());
+        assertThat(onEntryProcesses.get(1).getStateChangeBusinessProcess().getId()).isEqualTo(onEntry2.getId());
         List<ProcessReference> onExitProcesses = state.getOnExitProcesses();
         assertThat(onExitProcesses).hasSize(2);
-        assertThat(onExitProcesses.get(0).getDeploymentId()).isEqualTo("onExitDepId");
-        assertThat(onExitProcesses.get(0).getProcessId()).isEqualTo("onExit1");
-        assertThat(onExitProcesses.get(1).getDeploymentId()).isEqualTo("onExitDepId");
-        assertThat(onExitProcesses.get(1).getProcessId()).isEqualTo("onExit2");
+        assertThat(onExitProcesses.get(0).getStateChangeBusinessProcess().getId()).isEqualTo(onExit.getId());
+        assertThat(onExitProcesses.get(1).getStateChangeBusinessProcess().getId()).isEqualTo(onExit2.getId());
     }
 
     @Transactional
@@ -2034,8 +2122,8 @@ public class FiniteStateMachineIT {
         State active = activeBuilder
                 .on(decommissionedEventType).transitionTo(decommissioned)
                 .on(deactivated).transitionTo(inactiveBuilder)
-                .onEntry("onEntryDepId", "onEntry")
-                .onExit("onExitDepId", "onExit")
+                .onEntry(onEntry)
+                .onExit(onExit)
                 .complete();
         inactiveBuilder
                 .on(activated).transitionTo(active)
@@ -2061,12 +2149,10 @@ public class FiniteStateMachineIT {
         assertThat(cloned.getState(active.getName()).isPresent()).isTrue();
         List<ProcessReference> onEntryProcesses = cloned.getState(active.getName()).get().getOnEntryProcesses();
         assertThat(onEntryProcesses).hasSize(1);
-        assertThat(onEntryProcesses.get(0).getDeploymentId()).isEqualTo("onEntryDepId");
-        assertThat(onEntryProcesses.get(0).getProcessId()).isEqualTo("onEntry");
+        assertThat(onEntryProcesses.get(0).getStateChangeBusinessProcess().getId()).isEqualTo(onEntry.getId());
         List<ProcessReference> onExitProcesses = cloned.getState(active.getName()).get().getOnExitProcesses();
         assertThat(onExitProcesses).hasSize(1);
-        assertThat(onExitProcesses.get(0).getDeploymentId()).isEqualTo("onExitDepId");
-        assertThat(onExitProcesses.get(0).getProcessId()).isEqualTo("onExit");
+        assertThat(onExitProcesses.get(0).getStateChangeBusinessProcess().getId()).isEqualTo(onExit.getId());
     }
 
     @Transactional
@@ -2144,7 +2230,8 @@ public class FiniteStateMachineIT {
                 nlsService,
                 inMemoryPersistence.getService(UserService.class),
                 inMemoryPersistence.getService(EventService.class),
-                inMemoryPersistence.getService(TransactionService.class));
+                inMemoryPersistence.getService(TransactionService.class),
+                inMemoryPersistence.getService(BpmService.class));
     }
 
 }

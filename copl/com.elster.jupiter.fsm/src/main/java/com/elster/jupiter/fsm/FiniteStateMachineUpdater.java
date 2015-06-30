@@ -71,48 +71,44 @@ public interface FiniteStateMachineUpdater extends FiniteStateMachineBuilder {
         public StateUpdater setName(String newName);
 
         /**
-         * Adds the external process definition to the list of
+         * Adds the {@link StateChangeBusinessProcess} to the list of
          * processes that need to execute when the {@link State}
          * that is currently being built is entered.
          *
-         * @param deploymentId The deployment id of the external process
-         * @param processId The process id of the external process
+         * @param process The StateChangeBusinessProcess
          * @return The StateBuilder
          */
-        public StateUpdater onEntry(String deploymentId, String processId);
+        public StateUpdater onEntry(StateChangeBusinessProcess process);
 
         /**
-         * Removes the external process definition from the list of
+         * Removes the {@link StateChangeBusinessProcess} from the list of
          * processes that need to execute when the {@link State}
          * that is currently being built is entered.
          *
-         * @param deploymentId The deployment id of the external process
-         * @param processId The process id of the external process
+         * @param process The StateChangeBusinessProcess
          * @return The StateBuilder
          */
-        public StateUpdater removeOnEntry(String deploymentId, String processId);
+        public StateUpdater removeOnEntry(StateChangeBusinessProcess process);
 
         /**
-         * Adds the external process definition to the list of
+         * Adds the {@link StateChangeBusinessProcess} to the list of
          * processes that need to execute when the {@link State}
          * that is currently being built is exited.
          *
-         * @param deploymentId The deployment id of the external process
-         * @param processId The process id of the external process
+         * @param process The StateChangeBusinessProcess
          * @return The StateBuilder
          */
-        public StateUpdater onExit(String deploymentId, String processId);
+        public StateUpdater onExit(StateChangeBusinessProcess process);
 
         /**
-         * Removes the external process definition from the list of
+         * Removes the {@link StateChangeBusinessProcess} from the list of
          * processes that need to execute when the {@link State}
          * that is currently being built is exited.
          *
-         * @param deploymentId The deployment id of the external process
-         * @param processId The process id of the external process
+         * @param process The StateChangeBusinessProcess
          * @return The StateBuilder
          */
-        public StateUpdater removeOnExit(String deploymentId, String processId);
+        public StateUpdater removeOnExit(StateChangeBusinessProcess process);
 
         /**
          * Assists in building a {@link StateTransition} from the {@link State}

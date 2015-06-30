@@ -4,6 +4,7 @@ import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.FiniteStateMachineBuilder;
 import com.elster.jupiter.fsm.FiniteStateMachineUpdater;
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.fsm.StateChangeBusinessProcess;
 import com.elster.jupiter.fsm.StateTransitionEventType;
 import com.elster.jupiter.fsm.UnknownStateException;
 import com.elster.jupiter.nls.Thesaurus;
@@ -158,26 +159,26 @@ public class FiniteStateMachineUpdaterImpl extends FiniteStateMachineBuilderImpl
         }
 
         @Override
-        public StateUpdater onEntry(String deploymentId, String processId) {
-            this.underConstruction.addOnEntry(deploymentId, processId);
+        public StateUpdater onEntry(StateChangeBusinessProcess process) {
+            this.underConstruction.addOnEntry(process);
             return this;
         }
 
         @Override
-        public StateUpdater removeOnEntry(String deploymentId, String processId) {
-            this.underConstruction.removeOnEntry(deploymentId, processId);
+        public StateUpdater removeOnEntry(StateChangeBusinessProcess process) {
+            this.underConstruction.removeOnEntry(process);
             return this;
         }
 
         @Override
-        public StateUpdater onExit(String deploymentId, String processId) {
-            this.underConstruction.addOnExit(deploymentId, processId);
+        public StateUpdater onExit(StateChangeBusinessProcess process) {
+            this.underConstruction.addOnExit(process);
             return this;
         }
 
         @Override
-        public StateUpdater removeOnExit(String deploymentId, String processId) {
-            this.underConstruction.removeOnExit(deploymentId, processId);
+        public StateUpdater removeOnExit(StateChangeBusinessProcess process) {
+            this.underConstruction.removeOnExit(process);
             return this;
         }
 
@@ -224,14 +225,14 @@ public class FiniteStateMachineUpdaterImpl extends FiniteStateMachineBuilderImpl
         }
 
         @Override
-        public StateBuilder onEntry(String deploymentId, String processId) {
-            this.underConstruction.addOnEntry(deploymentId, processId);
+        public StateBuilder onEntry(StateChangeBusinessProcess process) {
+            this.underConstruction.addOnEntry(process);
             return this;
         }
 
         @Override
-        public StateBuilder onExit(String deploymentId, String processId) {
-            this.underConstruction.addOnExit(deploymentId, processId);
+        public StateBuilder onExit(StateChangeBusinessProcess process) {
+            this.underConstruction.addOnExit(process);
             return this;
         }
 

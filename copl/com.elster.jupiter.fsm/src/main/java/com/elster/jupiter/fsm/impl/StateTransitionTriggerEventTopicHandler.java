@@ -138,7 +138,7 @@ public class StateTransitionTriggerEventTopicHandler implements TopicHandler {
         }
 
         private void start(ProcessReference processReference) {
-            logger.fine("Should start process with deploymentId: " + processReference.getDeploymentId() + " and processId: " + processReference.getProcessId());
+            logger.fine("Should start process with deploymentId: " + processReference.getStateChangeBusinessProcess().getDeploymentId() + " and processId: " + processReference.getStateChangeBusinessProcess().getProcessId());
         }
     }
 

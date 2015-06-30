@@ -1,5 +1,6 @@
 package com.elster.jupiter.fsm.impl;
 
+import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.nls.NlsService;
@@ -19,6 +20,7 @@ public class FiniteStateMachineModule extends AbstractModule {
 
     @Override
     protected void configure() {
+        requireBinding(BpmService.class);
         requireBinding(OrmService.class);
         requireBinding(NlsService.class);
         requireBinding(UserService.class);

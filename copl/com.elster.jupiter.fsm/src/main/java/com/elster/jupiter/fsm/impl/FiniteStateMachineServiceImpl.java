@@ -1,5 +1,7 @@
 package com.elster.jupiter.fsm.impl;
 
+import com.elster.jupiter.bpm.BpmService;
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.CustomStateTransitionEventType;
 import com.elster.jupiter.fsm.FiniteStateMachine;
@@ -9,8 +11,10 @@ import com.elster.jupiter.fsm.ProcessReference;
 import com.elster.jupiter.fsm.StandardEventPredicate;
 import com.elster.jupiter.fsm.StandardStateTransitionEventType;
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.fsm.StateChangeBusinessProcess;
 import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.fsm.StateTransitionEventType;
+import com.elster.jupiter.fsm.UnknownStateChangeBusinessProcessException;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -20,11 +24,9 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.NotUniqueException;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Where;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -61,6 +63,7 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
     private volatile UserService userService;
     private volatile EventService eventService;
     private volatile TransactionService transactionService;
+    private volatile BpmService bpmService;
     private volatile List<StandardEventPredicate> standardEventPredicates = new CopyOnWriteArrayList<>();
     private Thesaurus thesaurus;
 
@@ -71,13 +74,14 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
 
     // For unit testing purposes
     @Inject
-    public FiniteStateMachineServiceImpl(OrmService ormService, NlsService nlsService, UserService userService, EventService eventService, TransactionService transactionService) {
+    public FiniteStateMachineServiceImpl(OrmService ormService, NlsService nlsService, UserService userService, EventService eventService, TransactionService transactionService, BpmService bpmService) {
         this();
         this.setOrmService(ormService);
         this.setNlsService(nlsService);
         this.setUserService(userService);
         this.setEventService(eventService);
         this.setTransactionService(transactionService);
+        this.setBpmService(bpmService);
         this.activate();
         if (!this.dataModel.isInstalled()) {
             install();
@@ -127,6 +131,7 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
                 bind(NlsService.class).toInstance(nlsService);
                 bind(UserService.class).toInstance(userService);
                 bind(EventService.class).toInstance(eventService);
+                bind(BpmService.class).toInstance(bpmService);
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
 
@@ -165,6 +170,39 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
         this.transactionService = transactionService;
     }
 
+    @Reference
+    public void setBpmService(BpmService bpmService) {
+        this.bpmService = bpmService;
+    }
+
+    @Override
+    public List<StateChangeBusinessProcess> findStateChangeBusinessProcesses() {
+        return this.dataModel.mapper(StateChangeBusinessProcess.class).find();
+    }
+
+    @Override
+    public StateChangeBusinessProcess enableAsStateChangeBusinessProcess(String deploymentId, String processId) {
+        StateChangeBusinessProcessImpl businessProcess = this.dataModel.getInstance(StateChangeBusinessProcessImpl.class).initialize(deploymentId, processId);
+        Save.CREATE.validate(this.dataModel, businessProcess);
+        this.dataModel.persist(businessProcess);
+        return businessProcess;
+    }
+
+    @Override
+    public void disableAsStateChangeBusinessProcess(String deploymentId, String processId) {
+        List<StateChangeBusinessProcess> businessProcesses = this.dataModel
+                .mapper(StateChangeBusinessProcess.class)
+                .find(
+                    StateChangeBusinessProcessImpl.Fields.DEPLOYMENT_ID.fieldName(), deploymentId,
+                    StateChangeBusinessProcessImpl.Fields.PROCESS_ID.fieldName(), processId);
+        if (businessProcesses.isEmpty()) {
+            throw new UnknownStateChangeBusinessProcessException(this.thesaurus, deploymentId, processId);
+        }
+        else {
+            this.dataModel.remove(businessProcesses.get(0));
+        }
+    }
+
     @Override
     @Reference(name = "zStandardEventPredicates", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addStandardEventPredicate(StandardEventPredicate predicate) {
@@ -182,9 +220,10 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
     }
 
     private void createStandardEventType(StandardEventPredicate predicate) {
-        transactionService.builder().principal(() -> "Fsm Install").run(() -> {
-            this.createStandardEventType(predicate, this.eventService.getEventTypes());
-        });
+        transactionService
+                .builder()
+                .principal(() -> "Fsm Install")
+                .run(() -> this.createStandardEventType(predicate, this.eventService.getEventTypes()));
     }
 
     private void createStandardEventType(StandardEventPredicate predicate, List<com.elster.jupiter.events.EventType> allEventTypes) {
@@ -308,11 +347,11 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
     }
 
     private void cloneOnEntryProcess(ProcessReference processReference, FiniteStateMachineBuilder.StateBuilder builder) {
-        builder.onEntry(processReference.getDeploymentId(), processReference.getProcessId());
+        builder.onEntry(processReference.getStateChangeBusinessProcess());
     }
 
     private void cloneOnExitProcess(ProcessReference processReference, FiniteStateMachineBuilder.StateBuilder builder) {
-        builder.onExit(processReference.getDeploymentId(), processReference.getProcessId());
+        builder.onExit(processReference.getStateChangeBusinessProcess());
     }
 
     private void cloneTransitions(FiniteStateMachine source, long sourceStateId, FiniteStateMachineBuilder.StateBuilder builder, Map<Long, FiniteStateMachineBuilder.StateBuilder> otherBuilders) {

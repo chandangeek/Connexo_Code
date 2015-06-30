@@ -17,6 +17,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     // Generic
     FIELD_TOO_LONG(100, Keys.FIELD_TOO_LONG, "Field must not exceed {max} characters"),
     CAN_NOT_BE_EMPTY(101, Keys.CAN_NOT_BE_EMPTY, "This field is required"),
+    NO_SUCH_PROCESS(102, Keys.NO_SUCH_PROCESS, "No external business process with deployment id {0} and process id {1}"),
 
     // StateTransitionEventType
     UNIQUE_EVENT_TYPE_SYMBOL(200, Keys.UNIQUE_EVENT_TYPE_SYMBOL, "The symbolic representation of a state transition event type must be unique"),
@@ -25,7 +26,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
 
     // State
     UNIQUE_STATE_NAME(300, Keys.UNIQUE_STATE_NAME, "The name of a state must be unique in the finite state machine's context"),
-    NO_SUCH_PROCESS(301, Keys.NO_SUCH_PROCESS, "No external business process with deployment id {0} and process id {1} is linked to state {2} of finite state machine {3}"),
+    NO_SUCH_PROCESS_ON_STATE(301, Keys.NO_SUCH_PROCESS_ON_STATE, "No external business process with deployment id {0} and process id {1} is linked to state {2} of finite state machine {3}"),
 
     // FiniteStateMachine
     UNIQUE_FINITE_STATE_MACHINE_NAME(400, Keys.UNIQUE_FINITE_STATE_MACHINE_NAME, "The name of a finite state machine must be unique"),
@@ -79,6 +80,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     public static final class Keys {
         public static final String FIELD_TOO_LONG = "FieldTooLong";
         public static final String CAN_NOT_BE_EMPTY = "CanNotBeEmpty";
+        public static final String NO_SUCH_PROCESS = "finite.state.machine.unknown.process";
         public static final String UNIQUE_EVENT_TYPE_SYMBOL = "state.transition.event.type.unique.symbol";
         public static final String UNIQUE_STANDARD_EVENT_TYPE = "state.transition.event.type.unique.standard";
         public static final String EVENT_TYPE_STILL_IN_USE = "state.transition.event.type.inUse";
@@ -88,7 +90,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
         public static final String EXACTLY_ONE_INITIAL_STATE = "finite.state.machine.1initialState";
         public static final String UNKNOWN_STATE = "finite.state.machine.unknown.state";
         public static final String UNKNOWN_STATE_TRANSITION = "finite.state.machine.unknown.state.transition";
-        public static final String NO_SUCH_PROCESS = "finite.state.machine.unknown.state.process";
+        public static final String NO_SUCH_PROCESS_ON_STATE = "finite.state.machine.unknown.state.process";
         public static final String DUPLICATE_STATE_TRANSITION = "finite.state.machine.duplicate.state.transition";
     }
 

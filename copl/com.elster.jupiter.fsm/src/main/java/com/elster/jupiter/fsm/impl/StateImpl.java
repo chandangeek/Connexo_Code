@@ -5,6 +5,7 @@ import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.MessageSeeds;
 import com.elster.jupiter.fsm.ProcessReference;
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.fsm.StateChangeBusinessProcess;
 import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.fsm.UnknownProcessReferenceException;
 import com.elster.jupiter.fsm.impl.constraints.Unique;
@@ -175,30 +176,30 @@ public class StateImpl implements State {
                 .collect(Collectors.toList());
     }
 
-    void addOnEntry(String deploymentId, String processId) {
-        this.processReferences.add(this.dataModel.getInstance(ProcessReferenceImpl.class).onEntry(this, deploymentId, processId));
+    void addOnEntry(StateChangeBusinessProcess process) {
+        this.processReferences.add(this.dataModel.getInstance(ProcessReferenceImpl.class).onEntry(this, process));
     }
 
-    void addOnExit(String deploymentId, String processId) {
-        this.processReferences.add(this.dataModel.getInstance(ProcessReferenceImpl.class).onExit(this, deploymentId, processId));
+    void addOnExit(StateChangeBusinessProcess process) {
+        this.processReferences.add(this.dataModel.getInstance(ProcessReferenceImpl.class).onExit(this, process));
     }
 
-    void removeOnEntry(String deploymentId, String processId) {
-        this.removeProcessReferences(deploymentId, processId, ProcessReferenceImpl::isOnEntry);
+    void removeOnEntry(StateChangeBusinessProcess process) {
+        this.removeProcessReferences(process, ProcessReferenceImpl::isOnEntry);
     }
 
-    void removeOnExit(String deploymentId, String processId) {
-        this.removeProcessReferences(deploymentId, processId, ProcessReferenceImpl::isOnExit);
+    void removeOnExit(StateChangeBusinessProcess process) {
+        this.removeProcessReferences(process, ProcessReferenceImpl::isOnExit);
     }
 
-    private void removeProcessReferences(String deploymentId, String processId, Predicate<ProcessReferenceImpl> isEntryOrExit) {
+    private void removeProcessReferences(StateChangeBusinessProcess process, Predicate<ProcessReferenceImpl> isEntryOrExit) {
         List<ProcessReferenceImpl> obsoleteReferences = this.processReferences
                 .stream()
                 .filter(isEntryOrExit)
-                .filter(p -> p.matches(deploymentId, processId))
+                .filter(p -> p.matches(process))
                 .collect(Collectors.toList());
         if (obsoleteReferences.isEmpty()) {
-            throw new UnknownProcessReferenceException(this.thesaurus, this, deploymentId, processId);
+            throw new UnknownProcessReferenceException(this.thesaurus, this, process);
         }
         else {
             this.processReferences.removeAll(obsoleteReferences);

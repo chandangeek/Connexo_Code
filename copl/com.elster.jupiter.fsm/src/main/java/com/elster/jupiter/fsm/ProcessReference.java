@@ -11,8 +11,6 @@ import aQute.bnd.annotation.ProviderType;
 @ProviderType
 public interface ProcessReference {
 
-    public String getDeploymentId();
-
-    public String getProcessId();
+    public StateChangeBusinessProcess getStateChangeBusinessProcess();
 
 }

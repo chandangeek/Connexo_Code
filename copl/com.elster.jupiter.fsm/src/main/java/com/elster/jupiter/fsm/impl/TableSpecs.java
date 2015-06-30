@@ -4,6 +4,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.ProcessReference;
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.fsm.StateChangeBusinessProcess;
 import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.fsm.StateTransitionEventType;
 import com.elster.jupiter.orm.Column;
@@ -81,24 +82,38 @@ public enum TableSpecs {
         }
     },
 
+    FSM_STATE_CHANGE_PROCESS {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<StateChangeBusinessProcess> table = dataModel.addTable(this.name(), StateChangeBusinessProcess.class);
+            table.map(StateChangeBusinessProcessImpl.class);
+            Column id = table.addAutoIdColumn();
+            table.column("DEPLOYMENTID").varChar().notNull().map(StateChangeBusinessProcessImpl.Fields.DEPLOYMENT_ID.fieldName()).add();
+            table.column("PROCESSID").varChar().notNull().map(StateChangeBusinessProcessImpl.Fields.PROCESS_ID.fieldName()).add();
+            table.primaryKey("PK_STATE_CHANGE_PROCESS").on(id).add();
+        }
+    },
+
     FSM_PROCESS {
         @Override
         void addTo(DataModel dataModel) {
             Table<ProcessReference> table = dataModel.addTable(this.name(), ProcessReference.class);
             table.map(ProcessReferenceImpl.class);
             Column id = table.addAutoIdColumn();
-            table.addPositionColumn();
             table.column("PURPOSE").number().notNull().conversion(ColumnConversion.NUMBER2ENUM).map(ProcessReferenceImpl.Fields.PURPOSE.fieldName()).add();
-            table.column("DEPLOYMENTID").varChar().notNull().map(ProcessReferenceImpl.Fields.DEPLOYMENT_ID.fieldName()).add();
-            table.column("PROCESSID").varChar().notNull().map(ProcessReferenceImpl.Fields.PROCESS_ID.fieldName()).add();
+            Column process = table.column("PROCESS").number().notNull().add();
             Column state = table.column("STATE").number().notNull().add();
             table.primaryKey("PK_FSM_PROCESS").on(id).add();
+            table.foreignKey("FK_FSM_PROCESS")
+                    .on(process)
+                    .references(FSM_STATE_CHANGE_PROCESS.name())
+                    .map(ProcessReferenceImpl.Fields.PROCESS.fieldName())
+                    .add();
             table.foreignKey("FK_FSM_PROCESS_STATE")
                     .on(state)
                     .references(FSM_STATE.name())
                     .map(ProcessReferenceImpl.Fields.STATE.fieldName())
                     .reverseMap(StateImpl.Fields.PROCESS_REFERENCES.fieldName())
-                    .reverseMapOrder(ProcessReferenceImpl.Fields.POSITION.fieldName())
                     .composition()
                     .add();
         }

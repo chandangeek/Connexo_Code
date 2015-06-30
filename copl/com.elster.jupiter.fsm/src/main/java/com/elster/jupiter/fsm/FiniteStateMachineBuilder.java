@@ -58,26 +58,24 @@ public interface FiniteStateMachineBuilder {
     public interface StateBuilder {
 
         /**
-         * Adds the external process definition to the list of
+         * Adds the {@link StateChangeBusinessProcess} to the list of
          * processes that need to execute when the {@link State}
          * that is currently being built is entered.
          *
-         * @param deploymentId The deployment id of the external process
-         * @param processId The process id of the external process
+         * @param process The StateChangeBusinessProcess
          * @return The StateBuilder
          */
-        public StateBuilder onEntry(String deploymentId, String processId);
+        public StateBuilder onEntry(StateChangeBusinessProcess process);
 
         /**
-         * Adds the external process definition to the list of
+         * Adds the {@link StateChangeBusinessProcess} to the list of
          * processes that need to execute when the {@link State}
          * that is currently being built is exited.
          *
-         * @param deploymentId The deployment id of the external process
-         * @param processId The process id of the external process
+         * @param process The StateChangeBusinessProcess
          * @return The StateBuilder
          */
-        public StateBuilder onExit(String deploymentId, String processId);
+        public StateBuilder onExit(StateChangeBusinessProcess process);
 
         /**
          * Assists in building a {@link StateTransition} from the {@link State}

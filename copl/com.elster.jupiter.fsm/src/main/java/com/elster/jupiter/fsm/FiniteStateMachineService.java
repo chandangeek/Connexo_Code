@@ -27,6 +27,36 @@ public interface FiniteStateMachineService {
     public void addStandardEventPredicate(StandardEventPredicate predicate);
 
     /**
+     * Gets the List of {@link StateChangeBusinessProcess}es.
+     *
+     * @return The List of StateChangeBusinessProcess
+     */
+    public List<StateChangeBusinessProcess> findStateChangeBusinessProcesses();
+
+    /**
+     * Enables the external business process identified by the specified
+     * deploymentId and processId to executed when a {@link State}
+     * is entered or exited.
+     *
+     * @param deploymentId The deployment id of the external process
+     * @param processId The process id of the external process
+     * @return The StateChangeBusinessProcess
+     */
+    public StateChangeBusinessProcess enableAsStateChangeBusinessProcess(String deploymentId, String processId);
+
+    /**
+     * Disables the external business process identified by the specified
+     * deploymentId and processId to executed when a {@link State}
+     * is entered or exited. This will fail when there is at least
+     * one State on which this external process is configured
+     * to be executed on entry or on exit.
+     *
+     * @param deploymentId The deployment id of the external process
+     * @param processId The process id of the external process
+     */
+    public void disableAsStateChangeBusinessProcess(String deploymentId, String processId);
+
+    /**
      * Creates a new {@link CustomStateTransitionEventType} with the specified symbol.
      * Note that you are responsible for saving the CustomStateTransitionEventType.
      *

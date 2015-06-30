@@ -1,16 +1,13 @@
 package com.elster.jupiter.fsm.impl;
 
-import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.fsm.MessageSeeds;
 import com.elster.jupiter.fsm.ProcessReference;
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.fsm.StateChangeBusinessProcess;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.util.Checks;
-import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 
 /**
  * Provides an implementation for the {@link ProcessReference} interface.
@@ -22,10 +19,8 @@ public class ProcessReferenceImpl implements ProcessReference {
 
     public enum Fields {
         STATE("state"),
-        DEPLOYMENT_ID("deploymentId"),
-        PROCESS_ID("processId"),
-        PURPOSE("purpose"),
-        POSITION("position");
+        PROCESS("process"),
+        PURPOSE("purpose");
 
         private final String javaFieldName;
 
@@ -40,14 +35,8 @@ public class ProcessReferenceImpl implements ProcessReference {
 
     @SuppressWarnings("unused")
     private long id;
-    @SuppressWarnings("unused")
-    private int position;
-    @NotEmpty(groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.CAN_NOT_BE_EMPTY+"}")
-    @Size(max= 256, groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.FIELD_TOO_LONG+"}")
-    private String deploymentId;
-    @NotEmpty(groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.CAN_NOT_BE_EMPTY+"}")
-    @Size(max= 256, groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.FIELD_TOO_LONG+"}")
-    private String processId;
+    @IsPresent
+    private Reference<StateChangeBusinessProcess> process = Reference.empty();
     @IsPresent
     private Reference<State> state = Reference.empty();
     @NotNull
@@ -57,20 +46,24 @@ public class ProcessReferenceImpl implements ProcessReference {
         OnEntry, OnExit;
     }
 
-    ProcessReferenceImpl onEntry(State state, String deploymentId, String processId) {
-        return this.initialize(state, Purpose.OnEntry, deploymentId, processId);
+    ProcessReferenceImpl onEntry(State state, StateChangeBusinessProcess process) {
+        return this.initialize(state, Purpose.OnEntry, process);
     }
 
-    ProcessReferenceImpl onExit(State state, String deploymentId, String processId) {
-        return this.initialize(state, Purpose.OnExit, deploymentId, processId);
+    ProcessReferenceImpl onExit(State state, StateChangeBusinessProcess process) {
+        return this.initialize(state, Purpose.OnExit, process);
     }
 
-    private ProcessReferenceImpl initialize(State state, Purpose purpose, String deploymentId, String processId) {
+    private ProcessReferenceImpl initialize(State state, Purpose purpose, StateChangeBusinessProcess process) {
         this.state.set(state);
         this.purpose = purpose;
-        this.deploymentId = deploymentId;
-        this.processId = processId;
+        this.process.set(process);
         return this;
+    }
+
+    @Override
+    public StateChangeBusinessProcess getStateChangeBusinessProcess() {
+        return process.get();
     }
 
     public boolean isOnEntry() {
@@ -81,18 +74,8 @@ public class ProcessReferenceImpl implements ProcessReference {
         return Purpose.OnExit.equals(this.purpose);
     }
 
-    public boolean matches(String deploymentId, String processId) {
-        return Checks.is(this.deploymentId).equalTo(deploymentId)
-            && Checks.is(this.processId).equalTo(processId);
-    }
-    @Override
-    public String getDeploymentId() {
-        return this.deploymentId;
-    }
-
-    @Override
-    public String getProcessId() {
-        return this.processId;
+    public boolean matches(StateChangeBusinessProcess process) {
+        return Checks.is(this.process.get().getId()).equalTo(process.getId());
     }
 
 }
