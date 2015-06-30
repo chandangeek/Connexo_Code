@@ -88,6 +88,7 @@ import com.energyict.mdc.engine.config.impl.EngineModelModule;
 import com.energyict.mdc.engine.impl.EngineModule;
 import com.energyict.mdc.favorites.impl.FavoritesModule;
 import com.energyict.mdc.firmware.impl.FirmwareModule;
+import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.io.impl.MdcIOModule;
 import com.energyict.mdc.io.impl.SerialIONoModemComponentServiceImpl;
@@ -631,6 +632,7 @@ public class DemoTest {
     }
 
     private void createDefaultStuff() {
+        injector.getInstance(FirmwareService.class);
         MdcAppInstaller mdcAppInstaller = new MdcAppInstaller();
         mdcAppInstaller.setUserService(injector.getInstance(UserService.class));
         mdcAppInstaller.install();
