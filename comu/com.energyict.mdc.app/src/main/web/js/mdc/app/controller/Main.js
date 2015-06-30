@@ -51,6 +51,7 @@ Ext.define('MdcApp.controller.Main', {
         'Mdc.controller.Main',
         'Isu.controller.Main',
         'Idc.controller.Main',
+        'Idv.controller.Main',
         'Dvi.controller.Main',
         'Dsh.controller.Main',
         'Yfn.controller.Main',
