@@ -18,7 +18,9 @@ import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.google.common.collect.ImmutableList;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
+import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
@@ -30,18 +32,26 @@ import java.util.stream.Stream;
         immediate = true)
 public class SingleDeviceDataSelectorFactory implements DataSelectorFactory {
 
-    private final TransactionService transactionService;
-    private final Thesaurus thesaurus;
-    private final MeteringService meteringService;
+    private volatile TransactionService transactionService;
+    private volatile Thesaurus thesaurus;
+    private volatile MeteringService meteringService;
 
-    private final TimeService timeService;
-    private final PropertySpecService propertySpecService;
+    private volatile TimeService timeService;
+    private volatile PropertySpecService propertySpecService;
 
+    public SingleDeviceDataSelectorFactory() {}
+
+    @Inject
     public SingleDeviceDataSelectorFactory(TransactionService transactionService, MeteringService meteringService, Thesaurus thesaurus, PropertySpecService propertySpecService, TimeService timeService) {
         this.transactionService = transactionService;
         this.meteringService = meteringService;
         this.thesaurus = thesaurus;
         this.timeService = timeService;
+        this.propertySpecService = propertySpecService;
+    }
+
+    @Reference
+    public void setPropertySpecService(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
     }
 
@@ -71,7 +81,7 @@ public class SingleDeviceDataSelectorFactory implements DataSelectorFactory {
 
     @Override
     public String getDisplayName() {
-        return thesaurus.getString(getNlsKey().getKey(), getName());
+        return "Single Device Data Selector";
     }
 
     @Override
