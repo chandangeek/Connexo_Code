@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
@@ -370,6 +371,7 @@ public class DeviceImplDoSomethingWithEventsTest {
 
             @Override
             protected void configure() {
+                bind(BpmService.class).toInstance(mock(BpmService.class));
                 bind(com.elster.jupiter.issue.share.service.IssueService.class).toInstance(mock(com.elster.jupiter.issue.share.service.IssueService.class));
                 bind(EventAdmin.class).toInstance(eventAdmin);
                 bind(BundleContext.class).toInstance(bundleContext);

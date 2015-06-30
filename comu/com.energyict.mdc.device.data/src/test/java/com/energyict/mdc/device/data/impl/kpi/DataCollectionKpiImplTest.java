@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.impl.kpi;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
@@ -143,6 +144,7 @@ public class DataCollectionKpiImplTest {
     private static class MockModule extends AbstractModule {
         @Override
         protected void configure() {
+            bind(BpmService.class).toInstance(mock(BpmService.class));
             bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
             bind(BundleContext.class).toInstance(mock(BundleContext.class));
             bind(LicenseService.class).toInstance(licenseService);
