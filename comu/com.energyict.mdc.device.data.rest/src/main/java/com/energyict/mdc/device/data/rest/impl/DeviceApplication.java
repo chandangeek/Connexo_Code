@@ -39,7 +39,6 @@ import com.energyict.mdc.device.data.rest.DeviceConnectionTaskInfoFactory;
 import com.energyict.mdc.device.data.rest.DeviceInfoFactory;
 import com.energyict.mdc.device.data.rest.SecurityPropertySetInfoFactory;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleStateFactory;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
@@ -52,6 +51,11 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 import com.google.common.collect.ImmutableSet;
+import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+
+import javax.ws.rs.core.Application;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -60,10 +64,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
-import javax.ws.rs.core.Application;
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
 
 @Component(name = "com.energyict.ddr.rest", service = {Application.class, TranslationKeyProvider.class}, immediate = true, property = {"alias=/ddr", "app=MDC", "name=" + DeviceApplication.COMPONENT_NAME})
 public class DeviceApplication extends Application implements TranslationKeyProvider {
@@ -394,6 +394,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(PropertyUtils.class).to(PropertyUtils.class);
             bind(deviceLifeCycleService).to(DeviceLifeCycleService.class);
             bind(DeviceLifeCycleActionInfoFactory.class).to(DeviceLifeCycleActionInfoFactory.class);
+            bind(DeviceAttributesInfoFactory.class).to(DeviceAttributesInfoFactory.class);
         }
     }
 

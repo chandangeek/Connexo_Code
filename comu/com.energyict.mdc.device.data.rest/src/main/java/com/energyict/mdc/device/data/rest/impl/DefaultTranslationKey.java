@@ -8,6 +8,10 @@ import java.util.Objects;
 
 public enum DefaultTranslationKey implements TranslationKey {
     PRE_TRANSITION_CHECKS_FAILED("PreTransitionChecksFailed" , "Pretransition checks failed"),
+    CIM_DATE_RECEIVE("DeviceCimReceivedDate" , "Shipment date"),
+    CIM_DATE_INSTALLED("DeviceCimInstalledDate" , "Installation date"),
+    CIM_DATE_REMOVE("DeviceCimRemovedDate" , "Deactivation date"),
+    CIM_DATE_RETRIED("DeviceCimRetriedDate" , "Decommissioning date"),
     ;
 
     private String key;
