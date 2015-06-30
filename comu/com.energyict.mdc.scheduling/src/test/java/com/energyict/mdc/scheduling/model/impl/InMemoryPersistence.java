@@ -11,6 +11,7 @@ import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.EventService;
@@ -174,14 +175,10 @@ public class InMemoryPersistence {
     private class MockModule extends AbstractModule {
         @Override
         protected void configure() {
+            bind(BpmService.class).toInstance(mock(BpmService.class));
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(BundleContext.class).toInstance(bundleContext);
-            bind(DataModel.class).toProvider(new Provider<DataModel>() {
-                @Override
-                public DataModel get() {
-                    return dataModel;
-                }
-            });
+            bind(DataModel.class).toProvider(() -> dataModel);
         }
 
     }
