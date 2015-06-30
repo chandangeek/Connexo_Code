@@ -9,7 +9,6 @@ import com.elster.jupiter.time.RelativePeriod;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 public interface ReadingTypeDataSelector extends DataSelector, HasAuditInfo {
@@ -17,8 +16,6 @@ public interface ReadingTypeDataSelector extends DataSelector, HasAuditInfo {
     long getId();
 
     RelativePeriod getExportPeriod();
-
-    Optional<RelativePeriod> getUpdatePeriod(); // checks for updates in this period
 
     EndDeviceGroup getEndDeviceGroup();
 
@@ -40,6 +37,8 @@ public interface ReadingTypeDataSelector extends DataSelector, HasAuditInfo {
 
     void setUpdatePeriod(RelativePeriod relativePeriod);
 
+    void setUpdateWindow(RelativePeriod updateWindow);
+
     Set<ReadingType> getReadingTypes(Instant at);
 
     void setValidatedDataOption(ValidatedDataOption validatedDataOption);
@@ -47,6 +46,8 @@ public interface ReadingTypeDataSelector extends DataSelector, HasAuditInfo {
     void setExportUpdate(boolean exportUpdate);
 
     void setExportContinuousData(boolean exportContinuousData);
+
+    void setExportOnlyIfComplete(boolean exportOnlyIfComplete);
 
     void save();
 

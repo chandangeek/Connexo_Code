@@ -49,8 +49,10 @@ enum TableSpecs {
             Column taskColumn = table.column("EXPORTTASK").number().notNull().add();
             Column exportPeriod = table.column("EXPORT_PERIOD").number().notNull().add();
             Column updatePeriod = table.column("UPDATE_PERIOD").number().add();
+            Column updateWindow = table.column("UPDATE_WINDOW").number().add();
             Column endDeviceGroupId = table.column("ENDDEVICEGROUP").number().notNull().conversion(ColumnConversion.NUMBER2LONG).add();
             table.column("EXPORT_UPDATE").bool().map("exportUpdate").add();
+            table.column("EXPORT_COMPLETE").bool().map("exportOnlyIfComplete").add();
             table.column("EXPORT_CONTINUOUS_DATA").bool().map("exportContinuousData").add();
             table.column("VALIDATED_DATA_OPTION").number().conversion(ColumnConversion.NUMBER2ENUM).map("validatedDataOption").add();
 
@@ -72,6 +74,11 @@ enum TableSpecs {
                     .on(updatePeriod)
                     .references(TimeService.COMPONENT_NAME, "TME_RELATIVEPERIOD")
                     .map("updatePeriod")
+                    .add();
+            table.foreignKey("DES_FK_RTDS_UPDATEWINDOW")
+                    .on(updateWindow)
+                    .references(TimeService.COMPONENT_NAME, "TME_RELATIVEPERIOD")
+                    .map("updateWindow")
                     .add();
             table.foreignKey("DES_FK_RTDS_ENDDEVICEFROUP")
                     .on(endDeviceGroupId)

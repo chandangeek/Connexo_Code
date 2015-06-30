@@ -4,25 +4,28 @@ import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportStrategy;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.export.ValidatedDataOption;
+import com.elster.jupiter.time.RelativePeriod;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
+import java.util.Optional;
 
 import static com.elster.jupiter.util.Ranges.copy;
 
-/**
-* Copyrights EnergyICT
-* Date: 17/11/2014
-* Time: 17:07
-*/
 class DataExportStrategyImpl implements DataExportStrategy {
 
     private final boolean exportUpdate;
+    private final boolean exportOnlyIfComplete;
     private final PeriodBehaviour periodBehaviour;
     private final ValidatedDataOption validatedDataOption;
+    private final RelativePeriod updatePeriod;
+    private final RelativePeriod updateWindow;
 
-    DataExportStrategyImpl(boolean exportUpdate, boolean exportContinuousData, ValidatedDataOption validatedDataOption) {
+    DataExportStrategyImpl(boolean exportUpdate, boolean exportContinuousData, boolean exportOnlyIfComplete, ValidatedDataOption validatedDataOption, RelativePeriod updatePeriod, RelativePeriod updateWindow) {
         this.exportUpdate = exportUpdate;
+        this.exportOnlyIfComplete = exportOnlyIfComplete;
+        this.updatePeriod = updatePeriod;
+        this.updateWindow = updateWindow;
         this.periodBehaviour = exportContinuousData ? PeriodBehaviour.CONTINUOUS : PeriodBehaviour.REQUESTED;
         this.validatedDataOption = validatedDataOption;
     }
@@ -45,6 +48,21 @@ class DataExportStrategyImpl implements DataExportStrategy {
     @Override
     public Range<Instant> adjustedExportPeriod(DataExportOccurrence occurrence, ReadingTypeDataExportItem item) {
         return periodBehaviour.adjustedExportPeriod(occurrence, item);
+    }
+
+    @Override
+    public Optional<RelativePeriod> getUpdatePeriod() {
+        return Optional.ofNullable(updatePeriod);
+    }
+
+    @Override
+    public Optional<RelativePeriod> getUpdateWindow() {
+        return Optional.ofNullable(updateWindow);
+    }
+
+    @Override
+    public boolean isExportCompleteData() {
+        return exportOnlyIfComplete;
     }
 
     private enum PeriodBehaviour {

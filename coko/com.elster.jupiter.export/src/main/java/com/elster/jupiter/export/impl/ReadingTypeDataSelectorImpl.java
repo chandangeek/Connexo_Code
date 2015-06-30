@@ -34,10 +34,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static com.elster.jupiter.util.streams.DecoratedStream.decorate;
 
 public class ReadingTypeDataSelectorImpl implements IReadingTypeDataSelector {
 
@@ -52,10 +56,12 @@ public class ReadingTypeDataSelectorImpl implements IReadingTypeDataSelector {
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     private Reference<EndDeviceGroup> endDeviceGroup = ValueReference.absent();
     private Reference<RelativePeriod> updatePeriod = ValueReference.absent();
+    private Reference<RelativePeriod> updateWindow = ValueReference.absent();
     private Reference<IExportTask> exportTask = ValueReference.absent();
 
     private boolean exportUpdate;
     private boolean exportContinuousData;
+    private boolean exportOnlyIfComplete;
     private ValidatedDataOption validatedDataOption;
     @Valid
     @Size(min=1, message = "{" + MessageSeeds.Keys.MUST_SELECT_AT_LEAST_ONE_READING_TYPE + "}")
@@ -93,8 +99,9 @@ public class ReadingTypeDataSelectorImpl implements IReadingTypeDataSelector {
 
     @Override
     public Stream<ExportData> selectData(DataExportOccurrence occurrence) {
-        IExportTask task = (IExportTask) occurrence.getTask();
+        IExportTask task = exportTask.get();
         Set<IReadingTypeDataExportItem> activeItems;
+        Map<IReadingTypeDataExportItem, Optional<Instant>> lastRuns;
         try (TransactionContext context = transactionService.getContext()) {
             activeItems = getActiveItems(task, occurrence);
 
@@ -102,23 +109,27 @@ public class ReadingTypeDataSelectorImpl implements IReadingTypeDataSelector {
                     .filter(item -> !activeItems.contains(item))
                     .peek(IReadingTypeDataExportItem::deactivate)
                     .forEach(IReadingTypeDataExportItem::update);
+            lastRuns = activeItems.stream()
+                    .collect(Collectors.toMap(Function.identity(), ReadingTypeDataExportItem::getLastRun));
             activeItems.stream()
                     .peek(IReadingTypeDataExportItem::activate)
+                    .peek(item -> item.setLastRun(occurrence.getTriggerTime()))
                     .forEach(IReadingTypeDataExportItem::update);
             context.commit();
         }
 
         DefaultItemDataSelector defaultItemDataSelector = new DefaultItemDataSelector(clock);
         return activeItems.stream()
-                .map(item -> defaultItemDataSelector.selectData(occurrence, item))
+                .flatMap(item -> Stream.of(
+                        defaultItemDataSelector.selectData(occurrence, item),
+                        lastRuns.get(item).flatMap(since -> defaultItemDataSelector.selectDataForUpdate(occurrence, item, since))))
                 .flatMap(Functions.asStream());
     }
 
     private Set<IReadingTypeDataExportItem> getActiveItems(IExportTask task, DataExportOccurrence occurrence) {
-        return getEndDeviceGroup().getMembers(occurrence.getExportedDataInterval()).stream()
+        return decorate(getEndDeviceGroup().getMembers(occurrence.getExportedDataInterval()).stream())
                 .map(EndDeviceMembership::getEndDevice)
-                .filter(device -> device instanceof Meter)
-                .map(Meter.class::cast)
+                .filterSubType(Meter.class)
                 .flatMap(this::readingTypeDataExportItems)
                 .collect(Collectors.toCollection(LinkedHashSet::new));
     }
@@ -161,7 +172,7 @@ public class ReadingTypeDataSelectorImpl implements IReadingTypeDataSelector {
 
     @Override
     public DataExportStrategy getStrategy() {
-        return new DataExportStrategyImpl(exportUpdate, exportContinuousData, validatedDataOption);
+        return new DataExportStrategyImpl(exportUpdate, exportContinuousData, exportOnlyIfComplete, validatedDataOption, updatePeriod.orNull(), updateWindow.orNull());
     }
 
     @Override
@@ -211,6 +222,11 @@ public class ReadingTypeDataSelectorImpl implements IReadingTypeDataSelector {
     }
 
     @Override
+    public void setUpdateWindow(RelativePeriod updateWindow) {
+        this.updateWindow.set(updateWindow);
+    }
+
+    @Override
     public Set<ReadingType> getReadingTypes(Instant at) {
         List<JournalEntry<ReadingTypeInDataSelector>> readingTypes = dataModel.mapper(ReadingTypeInDataSelector.class).at(at).find(ImmutableMap.of("readingTypeDataSelector", this));
         return readingTypes.stream()
@@ -222,11 +238,6 @@ public class ReadingTypeDataSelectorImpl implements IReadingTypeDataSelector {
     @Override
     public RelativePeriod getExportPeriod() {
         return exportPeriod.get();
-    }
-
-    @Override
-    public Optional<RelativePeriod> getUpdatePeriod() {
-        return updatePeriod.getOptional();
     }
 
     @Override
@@ -261,6 +272,11 @@ public class ReadingTypeDataSelectorImpl implements IReadingTypeDataSelector {
     @Override
     public void setExportContinuousData(boolean exportContinuousData) {
         this.exportContinuousData = exportContinuousData;
+    }
+
+    @Override
+    public void setExportOnlyIfComplete(boolean exportOnlyIfComplete) {
+        this.exportOnlyIfComplete = exportOnlyIfComplete;
     }
 
     @Override
