@@ -191,10 +191,12 @@ Ext.define('Mdc.controller.setup.Devices', {
         var me = this,
             viewport = Ext.ComponentQuery.query('viewport')[0],
             router = this.getController('Uni.controller.history.Router'),
+            attributesModel = Ext.ModelManager.getModel('Mdc.model.DeviceAttribute'),
             transitionsStore = Ext.StoreManager.get('Mdc.store.DeviceTransitions');
 
         viewport.setLoading();
         transitionsStore.getProxy().setUrl(mRID);
+        attributesModel.getProxy().setUrl(mRID);
 
         Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
             success: function (device) {
@@ -214,15 +216,16 @@ Ext.define('Mdc.controller.setup.Devices', {
                        me.getDeviceActionsMenu().setActions(this, router);
                     }
                 });
-                me.getDeviceGeneralInformationDeviceTypeLink().getEl().set({href: '#/administration/devicetypes/' + encodeURIComponent(device.get('deviceTypeId'))});
-                me.getDeviceGeneralInformationDeviceTypeLink().getEl().setHTML(Ext.String.htmlEncode(device.get('deviceTypeName')));
-                me.getDeviceGeneralInformationDeviceConfigurationLink().getEl().set({href: '#/administration/devicetypes/' + encodeURIComponent(device.get('deviceTypeId')) + '/deviceconfigurations/' + encodeURIComponent(device.get('deviceConfigurationId'))});
-                me.getDeviceGeneralInformationDeviceConfigurationLink().getEl().setHTML(Ext.String.htmlEncode(device.get('deviceConfigurationName')));
+
+                attributesModel.load('attributes', {
+                    success: function (attributes) {
+                        me.getDeviceGeneralInformationForm().loadRecord(attributes);
+                    }
+                });
+
                 me.getDeviceCommunicationTopologyPanel().setRecord(device);
                 me.getDeviceOpenIssuesPanel().setDataCollectionIssues(device.get('nbrOfDataCollectionIssues'));
                 me.getDeviceDataValidationPanel().setValidationResult();
-                me.getDeviceGeneralInformationForm().loadRecord(device);
-                console.log(device);
 
                 me.getDeviceValidationResultFieldLink().getEl().set({href: '#/devices/' + mRID + '/validationresults/data'});
 
@@ -232,9 +235,6 @@ Ext.define('Mdc.controller.setup.Devices', {
                 } else {
                     widget.down('device-data-validation-panel').hide();
                 }
-
-
-
                 viewport.setLoading(false);
 
             }

@@ -29,60 +29,7 @@ Ext.define('Mdc.model.Device', {
         {name: 'usagePoint', type: 'string', useNull: true},
         {name: 'serviceCategory', type: 'string', useNull: true},
         {name: 'version', type: 'number', useNull: true},
-        {name: 'estimationStatus', defaultValue: null},
-        {name: 'dates', type: 'auto'},
-        {
-            name: 'installation_date',
-            persist: false,
-            mapping: function (data) {
-                var res = null;
-                Ext.each(data.dates, function(date) {
-                   if (date.name === 'date.installation') {
-                       res = date;
-                   }
-                });
-                return res
-            }
-        },
-        {
-            name: 'shipment_date',
-            persist: false,
-            mapping: function (data) {
-                var res = null;
-                Ext.each(data.dates, function(date) {
-                    if (date.name === 'date.shipment') {
-                        res = date;
-                    }
-                });
-                return res
-            }
-        },
-        {
-            name: 'deactivation_date',
-            persist: false,
-            mapping: function (data) {
-                var res = null;
-                Ext.each(data.dates, function(date) {
-                    if (date.name === 'date.deactivation') {
-                        res = date;
-                    }
-                });
-                return res
-            }
-        },
-        {
-            name: 'decommission_date',
-            persist: false,
-            mapping: function (data) {
-                var res = null;
-                Ext.each(data.dates, function(date) {
-                    if (date.name === 'date.decommissioning') {
-                        res = date;
-                    }
-                });
-                return res
-            }
-        }
+        {name: 'estimationStatus', defaultValue: null}
     ],
 
     associations: [

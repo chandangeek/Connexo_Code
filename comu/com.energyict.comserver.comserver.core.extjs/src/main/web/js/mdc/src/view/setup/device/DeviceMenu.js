@@ -14,19 +14,25 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
 
         me.menuItems = [
             {
-                text: mRID,
-                itemId: 'deviceOverviewLink',
-                href: '#/devices/' + encodeURIComponent(mRID)
-            },
-            {
-                text: Uni.I18n.translate('devicemenu.deviceAttributes', 'MDC', 'Device attributes'),
-                itemId: 'device-attributes-link',
-                href: '#/devices/' + encodeURIComponent(mRID) + '/attributes'
-            },
-            {
-                text: Uni.I18n.translate('general.history', 'MDC', 'History'),
-                itemId: 'device-history-link',
-                href: '#/devices/' + encodeURIComponent(mRID) + '/history'
+                xtype: 'menu',
+                items: [
+                    {
+                        text: mRID,
+                        itemId: 'deviceOverviewLink',
+                        href: '#/devices/' + encodeURIComponent(mRID)
+                    },
+                    {
+                        text: Uni.I18n.translate('devicemenu.deviceAttributes', 'MDC', 'Device attributes'),
+                        privileges: Mdc.privileges.Device.viewOrAdministrateDeviceData,
+                        itemId: 'device-attributes-link',
+                        href: '#/devices/' + encodeURIComponent(mRID) + '/attributes'
+                    },
+                    {
+                        text: Uni.I18n.translate('general.history', 'MDC', 'History'),
+                        itemId: 'device-history-link',
+                        href: '#/devices/' + encodeURIComponent(mRID) + '/history'
+                    }
+                ]
             },
             {
                 title: 'Data sources',
@@ -40,7 +46,7 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
                     },
                     {
                         text: Uni.I18n.translate('devicemenu.channels', 'MDC', 'Channels'),
-                        privileges:Mdc.privileges.Device.viewDevice,
+                        privileges: Mdc.privileges.Device.viewDevice,
                         itemId: 'channelsLink',
                         href: '#/devices/' + encodeURIComponent(mRID) + '/channels',
                         showCondition: me.device.get('hasLoadProfiles')
@@ -121,8 +127,8 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
                         privileges: Cfg.privileges.Validation.fineTuneValidation,
                         href: '#/devices/' + encodeURIComponent(mRID) + '/datavalidation',
                         showCondition: me.device.get('hasLogBooks')
-                        || me.device.get('hasLoadProfiles')
-                        || me.device.get('hasRegisters')
+                            || me.device.get('hasLoadProfiles')
+                            || me.device.get('hasRegisters')
                     },
                     {
                         text: Uni.I18n.translate('devicemenu.validationResults', 'MDC', 'Validation results'),
@@ -130,16 +136,16 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
                         hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.validationConfiguration', 'privilege.view.validationConfiguration', 'privilege.view.fineTuneValidationConfiguration']),
                         href: '#/devices/' + encodeURIComponent(mRID) + '/validationresults/data',
                         showCondition: me.device.get('hasLogBooks')
-                        || me.device.get('hasLoadProfiles')
-                        || me.device.get('hasRegisters')
+                            || me.device.get('hasLoadProfiles')
+                            || me.device.get('hasRegisters')
                     },
                     {
                         text: Uni.I18n.translate('general.dataEstimation', 'MDC', 'Data estimation'),
                         itemId: 'dataEstimationLink',
                         href: '#/devices/' + encodeURIComponent(mRID) + '/dataestimation',
                         showCondition: me.device.get('hasLogBooks')
-                        || me.device.get('hasLoadProfiles')
-                        || me.device.get('hasRegisters'),
+                            || me.device.get('hasLoadProfiles')
+                            || me.device.get('hasRegisters'),
                         privileges: Mdc.privileges.DeviceConfigurationEstimations.view
                     }
                 ]

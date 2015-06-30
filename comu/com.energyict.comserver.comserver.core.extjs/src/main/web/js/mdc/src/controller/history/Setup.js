@@ -992,12 +992,6 @@ Ext.define('Mdc.controller.history.Setup', {
                             controller: 'Mdc.controller.setup.DeviceHistory',
                             action: 'showDeviceHistory'
                         },
-                        attributes: {
-                            title: Uni.I18n.translate('devicemenu.deviceAttributes', 'MDC', 'Device attributes'),
-                            route: 'attributes',
-                            controller: 'Mdc.controller.setup.DeviceAttributes',
-                            action: 'showDeviceAttributes'
-                        },
                         transitions: {
                             title: Uni.I18n.translate('', 'MDC', 'Transition'),
                             route: 'transitions/{transitionId}',
@@ -1062,7 +1056,6 @@ Ext.define('Mdc.controller.history.Setup', {
                             filter: 'Mdc.model.TopologyFilter',
                             action: 'showTopologyView'
                         },
-
                         generalattributes: {
                             title: Uni.I18n.translate('deviceconfigurationmenu.generalAttributes', 'MDC', 'General attributes'),
                             route: 'generalattributes',
@@ -1079,7 +1072,22 @@ Ext.define('Mdc.controller.history.Setup', {
                                 }
                             }
                         },
-
+                        attributes: {
+                            title: Uni.I18n.translate('devicemenu.deviceAttributes', 'MDC', 'Device attributes'),
+                            route: 'attributes',
+                            controller: 'Mdc.controller.setup.DeviceAttributes',
+                            privileges: Mdc.privileges.Device.viewOrAdministrateDeviceData,
+                            action: 'showDeviceAttributesView',
+                            items: {
+                                edit: {
+                                    title: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
+                                    route: 'edit',
+                                    privileges: Mdc.privileges.Device.editDeviceAttributes,
+                                    controller: 'Mdc.controller.setup.DeviceAttributes',
+                                    action: 'showEditDeviceAttributesView'
+                                }
+                            }
+                        },
                         connectionmethods: {
                             title: 'Connection methods',
                             route: 'connectionmethods',
