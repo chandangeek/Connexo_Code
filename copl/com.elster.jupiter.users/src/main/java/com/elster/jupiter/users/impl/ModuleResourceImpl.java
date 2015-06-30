@@ -13,6 +13,7 @@ public class ModuleResourceImpl implements Resource {
 
     String name;
     String description;
+    String module;
     String application;
 
     List<Privilege> privileges;
@@ -20,9 +21,10 @@ public class ModuleResourceImpl implements Resource {
     public ModuleResourceImpl() {
     }
 
-    private ModuleResourceImpl init(String applicationName, String resourceName, String resourceDescription, List<String> privileges) {
+    private ModuleResourceImpl init(String applicationName, String moduleName, String resourceName, String resourceDescription, List<String> privileges) {
         this.name = resourceName;
         this.description = resourceDescription;
+        this.module = moduleName;
         this.application = applicationName;
         this.privileges = privileges
                 .stream()
@@ -33,19 +35,19 @@ public class ModuleResourceImpl implements Resource {
 
     }
 
-    public static ModuleResourceImpl from(String resourceName, String resourceDescription, List<String> privileges){
-        ModuleResourceImpl resource = new ModuleResourceImpl().init(null, resourceName, resourceDescription,privileges);
+    public static ModuleResourceImpl from(String moduleName, String resourceName, String resourceDescription, List<String> privileges){
+        ModuleResourceImpl resource = new ModuleResourceImpl().init(null, moduleName, resourceName, resourceDescription,privileges);
         return resource;
     }
 
-    public static ModuleResourceImpl from(String applicationName, String resourceName, String resourceDescription, List<String> privileges){
-        ModuleResourceImpl resource = new ModuleResourceImpl().init(applicationName, resourceName, resourceDescription, privileges);
+    public static ModuleResourceImpl from(String applicationName, String moduleName, String resourceName, String resourceDescription, List<String> privileges){
+        ModuleResourceImpl resource = new ModuleResourceImpl().init(applicationName, moduleName, resourceName, resourceDescription, privileges);
         return resource;
     }
 
     @Override
     public String getComponentName() {
-        return application;
+        return module;
     }
 
     @Override

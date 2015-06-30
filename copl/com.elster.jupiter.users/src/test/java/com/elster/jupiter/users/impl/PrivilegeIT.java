@@ -91,7 +91,7 @@ public class PrivilegeIT {
 
                 userService.createResourceWithPrivileges("USR", "User", "Test user resource", new String[] {"Test privilege"});
 
-                Optional<Resource> found = userService.findResource("User");
+                Optional<Resource> found = userService.findResource("USR", "User");
 
                 assertThat(found.isPresent());
                 assertThat(found.get()).isInstanceOf(Resource.class);

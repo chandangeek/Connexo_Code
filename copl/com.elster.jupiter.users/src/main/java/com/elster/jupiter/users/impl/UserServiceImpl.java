@@ -7,6 +7,7 @@ import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.*;
 import com.elster.jupiter.users.security.Privileges;
@@ -17,6 +18,7 @@ import org.osgi.service.component.annotations.*;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
+import java.security.Principal;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -36,13 +38,19 @@ public class UserServiceImpl implements UserService, InstallService, Translation
     private volatile QueryService queryService;
     private volatile Thesaurus thesaurus;
     private volatile UserPreferencesService userPreferencesService;
-    
+    private volatile ThreadPrincipalService threadPrincipalService;
+
+
     private static final String JUPITER_REALM = "Local";
 
-    List<Resource> moduleResources = new ArrayList<>();//CopyOnWriteArrayList<>();
-    Map<String, List<String> >applicationResources = new ConcurrentHashMap<>();
+    //List<Resource> moduleResources = new ArrayList<>();//CopyOnWriteArrayList<>();
+    //Map<String, List<String> >applicationResources = new ConcurrentHashMap<>();
 
     Map<String, String> privilegeResource = new ConcurrentHashMap<>();
+
+    private volatile List<PrivilegesProvider> privilegesProviders = new CopyOnWriteArrayList<>();
+
+    private volatile List<ApplicationPrivilegesProvider> applicationPrivilegesProviders = new CopyOnWriteArrayList<>();
 
     public UserServiceImpl() {
     }
@@ -53,6 +61,7 @@ public class UserServiceImpl implements UserService, InstallService, Translation
         setQueryService(queryService);
         setOrmService(ormService);
         setNlsService(nlsService);
+        setThreadPrincipalService(threadPrincipalService);
         activate();
         if (!dataModel.isInstalled()) {
             install();
@@ -67,6 +76,7 @@ public class UserServiceImpl implements UserService, InstallService, Translation
                 bind(TransactionService.class).toInstance(transactionService);
                 bind(UserService.class).toInstance(UserServiceImpl.this);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
+                bind(ThreadPrincipalService.class).toInstance(threadPrincipalService);
                 bind(Thesaurus.class).toInstance(thesaurus);
             }
         });
@@ -159,9 +169,9 @@ public class UserServiceImpl implements UserService, InstallService, Translation
     }
 
     @Override
-    public void createResourceWithPrivileges(String application, String name, String description, String[] privileges) {
-        Optional<Resource> found = findResource(name);
-        Resource resource = found.isPresent() ? found.get() : createResource(application, name, description);
+    public void createResourceWithPrivileges(String component, String name, String description, String[] privileges) {
+        Optional<Resource> found = findResource(component, name);
+        Resource resource = found.isPresent() ? found.get() : createResource(component, name, description);
 
         for (String privilege : privileges) {
             resource.createPrivilege(privilege);
@@ -200,9 +210,10 @@ public class UserServiceImpl implements UserService, InstallService, Translation
     }
 
     @Override
-    public Optional<Resource> findResource(String name) {
+    public Optional<Resource> findResource(String component,String name) {
         Condition condition = Operator.EQUALIGNORECASE.compare("name", name);
-        List<Resource> resources = dataModel.query(Resource.class).select(condition);
+        Condition conditionWithComponent = condition.and(Operator.EQUALIGNORECASE.compare("componentName", component));
+        List<Resource> resources = dataModel.query(Resource.class).select(conditionWithComponent);
         return resources.isEmpty() ? Optional.empty() : Optional.of(resources.get(0));
     }
 
@@ -393,15 +404,56 @@ public class UserServiceImpl implements UserService, InstallService, Translation
         return userPreferencesService;
     }
 
+    @Reference
+    public final void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
+        this.threadPrincipalService = threadPrincipalService;
+    }
+
+    private void clearPrincipal() {
+        threadPrincipalService.clear();
+    }
+
+    private void setPrincipal() {
+        threadPrincipalService.set(getPrincipal());
+    }
+
+    private Principal getPrincipal() {
+        return new Principal() {
+
+            @Override
+            public String getName() {
+                return "Jupiter Installer";
+            }
+        };
+    }
+
     @Reference(name = "ModulePrivilegesProvider", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addModulePrivileges(PrivilegesProvider privilegesProvider) {
-        
-        moduleResources.addAll(privilegesProvider.getModulePrivileges());
+
+        if (dataModel.isInstalled()) {
+            try {
+                setPrincipal();
+                threadPrincipalService.set("INSTALL-privilege", privilegesProvider.getModuleName());
+                transactionService.execute(()->{
+                    doInstallPrivileges(privilegesProvider);
+                    return null;
+                });
+            }
+            catch (Exception e){
+                System.out.println(e.getMessage());
+            } finally {
+                clearPrincipal();
+            }
+        }
+
+        privilegesProviders.add(privilegesProvider);
+        //moduleResources.addAll(privilegesProvider.getModulePrivileges());
 
     }
 
     public void removeModulePrivileges(PrivilegesProvider privilegesProvider) {
-        moduleResources.removeAll(privilegesProvider.getModulePrivileges());
+        privilegesProviders.remove(privilegesProvider);
+        //moduleResources.removeAll(privilegesProvider.getModulePrivileges());
 
     }
 
@@ -409,44 +461,60 @@ public class UserServiceImpl implements UserService, InstallService, Translation
     @Reference(name = "ApplicationPrivilegesProvider", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addApplicationPrivileges(ApplicationPrivilegesProvider applicationPrivilegesProvider) {
 
-        if (applicationResources.containsKey(applicationPrivilegesProvider.getApplicationName())){
+        applicationPrivilegesProviders.add(applicationPrivilegesProvider);
+        /*if (applicationResources.containsKey(applicationPrivilegesProvider.getApplicationName())){
             List<String> resources = applicationResources.get(applicationPrivilegesProvider.getApplicationName());
             resources.addAll(applicationPrivilegesProvider.getApplicationPrivileges());
         }
         else{
             applicationResources.put(applicationPrivilegesProvider.getApplicationName(), applicationPrivilegesProvider.getApplicationPrivileges());
-        }
+        }*/
     }
 
     public void removeApplicationPrivileges(ApplicationPrivilegesProvider applicationPrivilegesProvider) {
 
-        applicationResources.remove(applicationPrivilegesProvider.getApplicationName());
+        applicationPrivilegesProviders.remove(applicationPrivilegesProvider);
+        //applicationResources.remove(applicationPrivilegesProvider.getApplicationName());
 
+    }
+
+    private void installPrivileges() {
+        for (PrivilegesProvider privilegesProvider : privilegesProviders) {
+            doInstallPrivileges(privilegesProvider);
+        }
+    }
+
+    private void doInstallPrivileges(PrivilegesProvider privilegesProvider) {
+        for(Resource resource:privilegesProvider.getModulePrivileges()){
+            createResourceWithPrivileges(resource.getComponentName(),
+                    resource.getName(),
+                    resource.getDescription(),
+                    resource.getPrivileges().stream().map(p->p.getName()).toArray(String[]::new));
+        }
     }
 
 
     public List<Resource> getApplicationResources(){
 
         Map<String, List<Resource>> resource =
-        applicationResources
-                .entrySet()
-                .stream()
+        applicationPrivilegesProviders.stream()
                 .collect(
                         HashMap::new,
                         (m, e) -> {
-                            m.computeIfAbsent(e.getKey(), x -> new ArrayList<>());
-                            m.computeIfPresent(e.getKey(), (appName, map1) ->
-                                    moduleResources.stream()
-                                        .filter(r -> r.getPrivileges().stream().anyMatch(px -> e.getValue().contains(px.getName())))
-                                        .map(r -> ModuleResourceImpl.from(e.getKey(),
-                                                        r.getName(),
-                                                        r.getDescription(),
-                                                        r.getPrivileges()
-                                                                .stream()
-                                                                .filter(p -> e.getValue().contains(p.getName()))
-                                                                .map(p -> p.getName())
-                                                                .collect(Collectors.toList()))
-                                        ).collect(Collectors.toList()));
+                            m.computeIfAbsent(e.getApplicationName(), x -> new ArrayList<>());
+                            m.computeIfPresent(e.getApplicationName(), (appName, map1) ->
+                                    privilegesProviders.stream().flatMap(p->p.getModulePrivileges().stream())
+                                            .filter(r -> r.getPrivileges().stream().anyMatch(px -> e.getApplicationPrivileges().contains(px.getName())))
+                                            .map(r -> ModuleResourceImpl.from(e.getApplicationName(),
+                                                            r.getComponentName(),
+                                                            r.getName(),
+                                                            r.getDescription(),
+                                                            r.getPrivileges()
+                                                                    .stream()
+                                                                    .filter(p -> e.getApplicationPrivileges().contains(p.getName()))
+                                                                    .map(p -> p.getName())
+                                                                    .collect(Collectors.toList()))
+                                            ).collect(Collectors.toList()));
                         },
                         (map1, map2) -> {
                         });
@@ -456,8 +524,8 @@ public class UserServiceImpl implements UserService, InstallService, Translation
     }
 
     @Override
-    public Resource createModuleResourceWithPrivileges(String name, String description, List<String> privileges) {
-        return ModuleResourceImpl.from(name, description,privileges);
+    public Resource createModuleResourceWithPrivileges(String moduleName, String resourceName, String resourceDescription, List<String> privileges) {
+        return ModuleResourceImpl.from(moduleName, resourceName, resourceDescription, privileges);
     }
 
 
@@ -467,9 +535,16 @@ public class UserServiceImpl implements UserService, InstallService, Translation
     }
 
     @Override
+    public String getModuleName() {
+        return UserService.COMPONENTNAME;
+    }
+
+    @Override
     public List<Resource> getModulePrivileges() {
         List<Resource> resources = new ArrayList<>();
-        resources.add(createModuleResourceWithPrivileges("userAndRole.usersAndRoles", "userAndRole.usersAndRoles.description",
+        resources.add(createModuleResourceWithPrivileges(
+                UserService.COMPONENTNAME,
+                "userAndRole.usersAndRoles", "userAndRole.usersAndRoles.description",
                 Arrays.asList(Privileges.ADMINISTRATE_USER_ROLE, Privileges.VIEW_USER_ROLE)));
 
         return resources;
