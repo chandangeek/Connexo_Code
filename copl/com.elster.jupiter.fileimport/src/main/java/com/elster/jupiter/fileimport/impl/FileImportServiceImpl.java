@@ -5,6 +5,7 @@ import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.fileimport.*;
+import com.elster.jupiter.fileimport.security.Privileges;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.nls.Layer;
@@ -18,6 +19,8 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.PeriodicalScheduleExpressionParser;
 import com.elster.jupiter.time.TemporalExpressionParser;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.users.PrivilegesProvider;
+import com.elster.jupiter.users.Resource;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
@@ -35,18 +38,15 @@ import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Clock;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
-@Component(name = "com.elster.jupiter.fileimport", service = {InstallService.class, FileImportService.class}, property = {"name=" + FileImportService.COMPONENT_NAME}, immediate = true)
-public class FileImportServiceImpl implements InstallService, FileImportService {
+@Component(name = "com.elster.jupiter.fileimport", service = {InstallService.class, FileImportService.class, PrivilegesProvider.class}, property = {"name=" + FileImportService.COMPONENT_NAME}, immediate = true)
+public class FileImportServiceImpl implements InstallService, FileImportService, PrivilegesProvider {
 
     private static final Logger LOGGER = Logger.getLogger(FileImportServiceImpl.class.getName());
     private static final String COMPONENTNAME = "FIS";
@@ -335,5 +335,11 @@ public class FileImportServiceImpl implements InstallService, FileImportService 
     }
 
 
-
+    @Override
+    public List<Resource> getModulePrivileges() {
+        List<Resource> resources = new ArrayList<>();
+        resources.add(userService.createModuleResourceWithPrivileges("fileImport.importServices", "fileImport.importServices.description",
+                Arrays.asList(Privileges.ADMINISTRATE_IMPORT_SERVICES, Privileges.VIEW_IMPORT_SERVICES)));
+        return resources;
+    }
 }
