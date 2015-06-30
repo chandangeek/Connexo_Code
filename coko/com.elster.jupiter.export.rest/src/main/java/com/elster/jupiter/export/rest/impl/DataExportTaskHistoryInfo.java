@@ -73,7 +73,7 @@ public class DataExportTaskHistoryInfo {
                 .orElseGet(() -> history.getVersionAt(dataExportOccurrence.getTask().getCreateTime())
                         .orElseGet(dataExportOccurrence::getTask));
         task = new DataExportTaskInfo();
-        task.populate(version, thesaurus, timeService);
+        task.populate(version, thesaurus, timeService, propertyUtils);
         if (version != null) {
             populateForReadingTypeDataExportTask(version, dataExportOccurrence, thesaurus);
         }

@@ -4,6 +4,7 @@ import com.elster.jupiter.export.DataExportDestination;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.elster.jupiter.time.PeriodicalScheduleExpression;
 import com.elster.jupiter.time.TemporalExpression;
@@ -18,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -39,7 +41,7 @@ public class DataExportTaskInfo {
 
 
     public DataExportTaskInfo(ExportTask dataExportTask, Thesaurus thesaurus, TimeService timeService, PropertyUtils propertyUtils) {
-        doPopulate(dataExportTask, thesaurus, timeService);
+        doPopulate(dataExportTask, thesaurus, timeService, propertyUtils);
         if (Never.NEVER.equals(dataExportTask.getScheduleExpression())) {
             schedule = null;
         } else {
@@ -50,7 +52,7 @@ public class DataExportTaskInfo {
                 schedule = PeriodicalExpressionInfo.from((PeriodicalScheduleExpression) scheduleExpression);
             }
         }
-        properties = propertyUtils.convertPropertySpecsToPropertyInfos(dataExportTask.getPropertySpecs(), dataExportTask.getProperties());
+        properties = propertyUtils.convertPropertySpecsToPropertyInfos(dataExportTask.getDataProcessorPropertySpecs(), dataExportTask.getProperties());
         lastExportOccurrence = dataExportTask.getLastOccurrence().map(oc -> new DataExportTaskHistoryInfo(oc, thesaurus, timeService, propertyUtils)).orElse(null);
         dataExportTask.getDestinations().stream()
                 .forEach(destination -> destinations.add(typeOf(destination).toInfo(destination)));
@@ -63,11 +65,11 @@ public class DataExportTaskInfo {
                 .orElseThrow(IllegalArgumentException::new);
     }
 
-    public void populate(ExportTask dataExportTask, Thesaurus thesaurus, TimeService timeService) {
-        doPopulate(dataExportTask, thesaurus, timeService);
+    public void populate(ExportTask dataExportTask, Thesaurus thesaurus, TimeService timeService, PropertyUtils propertyUtils) {
+        doPopulate(dataExportTask, thesaurus, timeService, propertyUtils);
     }
 
-    private void doPopulate(ExportTask dataExportTask, Thesaurus thesaurus, TimeService timeService) {
+    private void doPopulate(ExportTask dataExportTask, Thesaurus thesaurus, TimeService timeService, PropertyUtils propertyUtils) {
         id = dataExportTask.getId();
         name = dataExportTask.getName();
 
@@ -79,8 +81,12 @@ public class DataExportTaskInfo {
 
         String selector = dataExportTask.getDataSelector();
 
-        dataSelector = new SelectorInfo(selector, thesaurus.getStringBeyondComponent(selector, selector),
-                selector.equals(DataExportService.STANDARD_DATA_SELECTOR));
+        dataSelector =
+                new SelectorInfo(
+                        selector,
+                        thesaurus.getStringBeyondComponent(selector, selector),
+                        propertyUtils.convertPropertySpecsToPropertyInfos(dataExportTask.getDataSelectorPropertySpecs(), dataExportTask.getProperties()),
+                        selector.equals(DataExportService.STANDARD_DATA_SELECTOR));
 //TODO above : pass correct property info
         Instant nextExecution = dataExportTask.getNextExecution();
         if (nextExecution != null) {

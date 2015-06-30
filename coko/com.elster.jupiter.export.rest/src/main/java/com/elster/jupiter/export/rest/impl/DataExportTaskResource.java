@@ -219,6 +219,7 @@ public class DataExportTaskResource {
             updateProperties(info, task);
             updateDestinations(info, task);
 
+
             task.save();
             context.commit();
         }
@@ -322,12 +323,20 @@ public class DataExportTaskResource {
     }
 
     private void updateProperties(DataExportTaskInfo info, ExportTask task) {
-        List<PropertySpec> propertiesSpecs = dataExportService.getPropertiesSpecsForFormatter(info.dataProcessor.name);
-        propertiesSpecs.stream()
+        List<PropertySpec> propertiesSpecsForDataProcessor = dataExportService.getPropertiesSpecsForFormatter(info.dataProcessor.name);
+        propertiesSpecsForDataProcessor.stream()
                 .forEach(spec -> {
                     Object value = propertyUtils.findPropertyValue(spec, info.properties);
                     task.setProperty(spec.getName(), value);
                 });
+        if (!info.dataSelector.isDefault) {
+            List<PropertySpec> propertiesSpecsForDataSelector = dataExportService.getPropertiesSpecsForDataSelector(info.dataSelector.name);
+            propertiesSpecsForDataSelector.stream()
+                    .forEach(spec -> {
+                        Object value = propertyUtils.findPropertyValue(spec, info.properties);
+                        task.setProperty(spec.getName(), value);
+                    });
+        }
     }
 
     private void updateDestinations(DataExportTaskInfo info, ExportTask task) {
@@ -361,11 +370,11 @@ public class DataExportTaskResource {
 
 
     private EndDeviceGroup endDeviceGroup(long endDeviceGroupId) {
-        return meteringGroupsService.findEndDeviceGroup(endDeviceGroupId).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        return meteringGroupsService.findEndDeviceGroup(endDeviceGroupId).orElse(null);
     }
 
     private RelativePeriod getRelativePeriod(RelativePeriodInfo relativePeriodInfo) {
-        if (relativePeriodInfo == null) {
+        if ((relativePeriodInfo == null) || (relativePeriodInfo.id == null)){
             return null;
         }
         return timeService.findRelativePeriod(relativePeriodInfo.id).orElse(null);
