@@ -15,6 +15,7 @@ import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.ExecutableAction;
 import com.energyict.mdc.device.topology.TopologyService;
 import java.net.URI;
+import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -146,7 +147,7 @@ public class DeviceResource {
     private void triggerStateTransition(Device device, String lifecycleState) {
         CustomStateTransitionEventType eventType = this.finiteStateMachineService.findCustomStateTransitionEventType(lifecycleState).orElseThrow(() -> new IllegalArgumentException("Custom state transition event type " + lifecycleState + " does not exist"));
         ExecutableAction executableAction = this.deviceLifeCycleService.getExecutableActions(device, eventType).orElseThrow(()->new IllegalArgumentException("Current state of device with mRID " + device.getmRID() + " does not support the event type"));
-        executableAction.execute(Collections.emptyList());
+        executableAction.execute(Instant.now(), Collections.emptyList());
     }
 
     @DELETE

@@ -3,41 +3,23 @@ package com.energyict.mdc.multisense.api.impl;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.license.License;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
-import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.util.json.JsonService;
-import com.elster.jupiter.validation.ValidationService;
-import com.elster.jupiter.yellowfin.groups.YellowfinGroupsService;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.ExceptionLogger;
 import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.data.CommunicationTaskService;
-import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.imp.DeviceImportService;
-import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.topology.TopologyService;
-import com.energyict.mdc.engine.config.EngineConfigurationService;
-import com.energyict.mdc.favorites.FavoritesService;
-import com.energyict.mdc.firmware.FirmwareService;
-import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
-import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.mdc.scheduling.SchedulingService;
-import com.energyict.mdc.tasks.TaskService;
 import com.google.common.collect.ImmutableSet;
-import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -61,6 +43,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     public static final String COMPONENT_NAME = "DDA";
 
     private volatile DeviceService deviceService;
+    private volatile DeviceImportService deviceImportService;
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile TopologyService topologyService;
     private volatile IssueService issueService;
@@ -91,6 +74,11 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     @Reference
     public void setDeviceService(DeviceService deviceService) {
         this.deviceService = deviceService;
+    }
+
+    @Reference
+    public void setDeviceImportService(DeviceImportService deviceImportService) {
+        this.deviceImportService = deviceImportService;
     }
 
     @Reference
@@ -152,6 +140,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
         @Override
         protected void configure() {
             bind(deviceService).to(DeviceService.class);
+            bind(deviceImportService).to(DeviceImportService.class);
             bind(deviceConfigurationService).to(DeviceConfigurationService.class);
             bind(issueService).to(IssueService.class);
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
