@@ -6,6 +6,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import java.time.Instant;
+import java.util.Date;
 
 /**
  * Models the exceptional situation that occurs when
@@ -39,7 +40,7 @@ public class EffectiveTimestampBeforeLastStateChangeException extends DeviceLife
 
     @Override
     public String getLocalizedMessage() {
-        return this.thesaurus.getFormat(this.messageSeed).format(this.mRID, this.effectiveTimestamp, this.lastStateChange);
+        return this.thesaurus.getFormat(this.messageSeed).format(this.mRID, Date.from(this.effectiveTimestamp)  , Date.from(this.lastStateChange));
     }
 
 }
