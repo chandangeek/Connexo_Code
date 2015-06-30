@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
@@ -244,6 +245,7 @@ public abstract class AbstractCollectedDataIntegrationTest {
 
         @Override
         protected void configure() {
+            bind(BpmService.class).toInstance(mock(BpmService.class));
             SerialComponentService serialComponentService = mock(SerialComponentService.class);
             bind(SerialComponentService.class).toInstance(serialComponentService);
             bind(EventAdmin.class).toInstance(eventAdmin);
