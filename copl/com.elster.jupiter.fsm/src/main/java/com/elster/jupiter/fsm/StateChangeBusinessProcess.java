@@ -18,7 +18,7 @@ public interface StateChangeBusinessProcess {
      * that is used to pass the unique identifier of the object
      * for which a state change has occurred.
      * Note that the parameter is passed as a String
-     * so make sure that your externa business process
+     * so make sure that your external business process
      * parameter is of type String.
      */
     public static final String SOURCE_ID_BPM_PARAMETER_NAME = "sourceId";
@@ -28,7 +28,7 @@ public interface StateChangeBusinessProcess {
      * that is used to pass the unique identifier of the {@link State}
      * to which or from which the state change has occurred.
      * Note that the parameter is passed as a Long
-     * so make sure that your externa business process
+     * so make sure that your external business process
      * parameter is of type Long.
      */
     public static final String STATE_ID_BPM_PARAMETER_NAME = "stateId";
@@ -37,7 +37,7 @@ public interface StateChangeBusinessProcess {
      * The name of the parameter of the external business process
      * that is used to pass the type of {@link State} change that has occurred.
      * Note that the parameter is passed as a String
-     * so make sure that your externa business process
+     * so make sure that your external business process
      * parameter is of type String.
      * The following values can be expected:
      * <ul>
