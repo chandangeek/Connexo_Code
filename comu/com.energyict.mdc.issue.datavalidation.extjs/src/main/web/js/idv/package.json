@@ -1,0 +1,16 @@
+{
+    "name": "com.energyict.mdc.issue.datavalidation.extjs",
+    "type": "code",
+    "creator": "Elster Jupiter Project",
+    "summary": "Short summary",
+    "detailedDescription": "Long description of package",
+    "version": "1.1.0",
+    "compatVersion": "1.1.0",
+      "format": "1",
+      "local": true,
+      "requires": [
+          "com.elster.jupiter.unifyingjs",
+          "com.elster.jupiter.issue.extjs",
+          "com.energyict.comserver.comserver.core.extjs"
+      ]
+}
