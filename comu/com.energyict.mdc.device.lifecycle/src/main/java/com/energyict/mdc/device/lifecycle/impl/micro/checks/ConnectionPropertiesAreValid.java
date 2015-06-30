@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolation;
 import com.energyict.mdc.device.lifecycle.config.MicroCheck;
@@ -41,9 +42,7 @@ public class ConnectionPropertiesAreValid implements ServerMicroCheck {
     }
 
     private Optional<ConnectionTask<?, ?>> anyInCompleteConnectionTask(Device device) {
-        return device
-                .getConnectionTasks()
-                .stream()
+        return device.getComTaskExecutions().stream().map(ComTaskExecution::getConnectionTask)
                 .filter(each -> each.getStatus().equals(ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE))
                 .findAny();
     }
