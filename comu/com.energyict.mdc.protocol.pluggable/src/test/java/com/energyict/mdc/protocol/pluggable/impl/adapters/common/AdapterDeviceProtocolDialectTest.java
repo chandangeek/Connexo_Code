@@ -12,6 +12,7 @@ import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableServiceImpl;
 import com.energyict.mdc.protocol.pluggable.mocks.MockMeterProtocol;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
@@ -76,6 +77,8 @@ public class AdapterDeviceProtocolDialectTest {
 
     @Mock
     private BundleContext bundleContext;
+    @Mock
+    private BpmService bpmService;
     @Mock
     private Principal principal;
     @Mock
@@ -246,13 +249,10 @@ public class AdapterDeviceProtocolDialectTest {
         protected void configure() {
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(BundleContext.class).toInstance(bundleContext);
+            bind(BpmService.class).toInstance(bpmService);
             bind(LicenseService.class).toInstance(licenseService);
-            bind(DataModel.class).toProvider(new Provider<DataModel>() {
-                @Override
-                public DataModel get() {
-                    return dataModel;
-                }
-            });
+            bind(DataModel.class).toProvider(() -> dataModel);
         }
     }
+
 }
