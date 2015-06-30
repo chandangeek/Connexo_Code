@@ -7,6 +7,7 @@ import java.sql.SQLException;
 
 import javax.validation.MessageInterpolator;
 
+import com.elster.jupiter.bpm.BpmService;
 import org.drools.compiler.builder.impl.KnowledgeBuilderFactoryServiceImpl;
 import org.drools.core.impl.KnowledgeBaseFactoryServiceImpl;
 import org.drools.core.io.impl.ResourceFactoryServiceImpl;
@@ -68,7 +69,7 @@ public class InMemoryIntegrationPersistence {
     private TransactionService transactionService;
     private InMemoryBootstrapModule bootstrapModule;
     private Injector injector;
-    
+
     public InMemoryIntegrationPersistence() {
         super();
     }
@@ -125,7 +126,7 @@ public class InMemoryIntegrationPersistence {
     }
 
     private void initializeMocks(String testName) {
-        
+
     }
 
     public void cleanUpDataBase() throws SQLException {
@@ -143,6 +144,7 @@ public class InMemoryIntegrationPersistence {
     private class MockModule extends AbstractModule {
         @Override
         protected void configure() {
+            bind(BpmService.class).toInstance(mock(BpmService.class));
             bind(BundleContext.class).toInstance(mock(BundleContext.class));
             bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
 
