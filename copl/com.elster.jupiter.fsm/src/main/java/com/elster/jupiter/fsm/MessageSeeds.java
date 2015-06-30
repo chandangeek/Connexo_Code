@@ -17,7 +17,6 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     // Generic
     FIELD_TOO_LONG(100, Keys.FIELD_TOO_LONG, "Field must not exceed {max} characters"),
     CAN_NOT_BE_EMPTY(101, Keys.CAN_NOT_BE_EMPTY, "This field is required"),
-    NO_SUCH_PROCESS(102, Keys.NO_SUCH_PROCESS, "No external business process with deployment id {0} and process id {1}"),
 
     // StateTransitionEventType
     UNIQUE_EVENT_TYPE_SYMBOL(200, Keys.UNIQUE_EVENT_TYPE_SYMBOL, "The symbolic representation of a state transition event type must be unique"),
@@ -34,7 +33,10 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     EXACTLY_ONE_INITIAL_STATE(402, Keys.EXACTLY_ONE_INITIAL_STATE, "A finite state machine must have exactly one initial state"),
     UNKNOWN_STATE(403, Keys.UNKNOWN_STATE, "Unable to remove state {0} because it does not exist in the finite state machine {1}"),
     UNKNOWN_STATE_TRANSITION(404, Keys.UNKNOWN_STATE_TRANSITION, "Unable to remove state transition from {0} and event type {1} because it does not exist in the finite state machine {2}"),
-    DUPLICATE_STATE_TRANSITION(405, Keys.DUPLICATE_STATE_TRANSITION, "The combination of From state and Triggered by-event must be unique in a device life cycle");
+    DUPLICATE_STATE_TRANSITION(405, Keys.DUPLICATE_STATE_TRANSITION, "The combination of From state and Triggered by-event must be unique in a device life cycle"),
+
+    NO_SUCH_PROCESS(500, Keys.NO_SUCH_PROCESS, "No external business process with deployment id {0} and process id {1}"),
+    STATE_CHANGE_PROCESS_IN_USE(501, Keys.STATE_CHANGE_PROCESS_IN_USE, "The external business process with deployment id {0} and process id {1} is still in use by at least one state");
 
     private final int number;
     private final String key;
@@ -81,6 +83,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
         public static final String FIELD_TOO_LONG = "FieldTooLong";
         public static final String CAN_NOT_BE_EMPTY = "CanNotBeEmpty";
         public static final String NO_SUCH_PROCESS = "finite.state.machine.unknown.process";
+        public static final String STATE_CHANGE_PROCESS_IN_USE = "finite.state.machine.process.inUse";
         public static final String UNIQUE_EVENT_TYPE_SYMBOL = "state.transition.event.type.unique.symbol";
         public static final String UNIQUE_STANDARD_EVENT_TYPE = "state.transition.event.type.unique.standard";
         public static final String EVENT_TYPE_STILL_IN_USE = "state.transition.event.type.inUse";

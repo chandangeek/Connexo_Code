@@ -12,6 +12,7 @@ import com.elster.jupiter.fsm.StandardEventPredicate;
 import com.elster.jupiter.fsm.StandardStateTransitionEventType;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateChangeBusinessProcess;
+import com.elster.jupiter.fsm.StateChangeBusinessProcessInUseException;
 import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.fsm.StateTransitionEventType;
 import com.elster.jupiter.fsm.UnknownStateChangeBusinessProcessException;
@@ -199,7 +200,14 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
             throw new UnknownStateChangeBusinessProcessException(this.thesaurus, deploymentId, processId);
         }
         else {
-            this.dataModel.remove(businessProcesses.get(0));
+            Condition condition = where(ProcessReferenceImpl.Fields.PROCESS.fieldName()).in(businessProcesses);
+            List<ProcessReference> processReferences = this.dataModel.mapper(ProcessReference.class).select(condition);
+            if (processReferences.isEmpty()) {
+                businessProcesses.stream().forEach(this.dataModel::remove);
+            }
+            else {
+                throw new StateChangeBusinessProcessInUseException(this.thesaurus, businessProcesses.get(0));
+            }
         }
     }
 

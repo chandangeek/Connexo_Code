@@ -14,6 +14,7 @@ import com.elster.jupiter.fsm.MessageSeeds;
 import com.elster.jupiter.fsm.ProcessReference;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateChangeBusinessProcess;
+import com.elster.jupiter.fsm.StateChangeBusinessProcessInUseException;
 import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.fsm.StateTransitionEventType;
 import com.elster.jupiter.fsm.UnknownProcessReferenceException;
@@ -118,6 +119,23 @@ public class FiniteStateMachineIT {
 
         // Business method
         testService.disableAsStateChangeBusinessProcess("111", "222");
+
+        // Asserts: see expected exception rule
+    }
+
+    @Transactional
+    @Test(expected = StateChangeBusinessProcessInUseException.class)
+    public void disableStateChangeBusinessProcessThatIsInUse() {
+        FiniteStateMachineServiceImpl testService = this.getTestService();
+        String deploymentId = "111";
+        String processId = "222";
+        StateChangeBusinessProcess stateChangeBusinessProcess = testService.enableAsStateChangeBusinessProcess(deploymentId, processId);
+        FiniteStateMachineBuilder builder1 = testService.newFiniteStateMachine("disableStateChangeBusinessProcessThatIsInUse");
+        FiniteStateMachine stateMachine = builder1.complete(builder1.newCustomState("Initial").onEntry(stateChangeBusinessProcess).complete());
+        stateMachine.save();
+
+        // Business method
+        testService.disableAsStateChangeBusinessProcess(deploymentId, processId);
 
         // Asserts: see expected exception rule
     }
