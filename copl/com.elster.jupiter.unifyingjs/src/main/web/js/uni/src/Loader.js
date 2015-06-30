@@ -64,11 +64,11 @@ Ext.define('Uni.Loader', {
         'Uni.override.ux.window.Notification',
         'Uni.override.view.Table',
         'Uni.override.window.MessageBox',
-        'Uni.override.form.field.Picker',
         'Uni.form.field.ReadingTypeCombo',
         'Uni.view.grid.BulkSelection',
         'Uni.override.ColumnOverride',
-        'Uni.override.DisplayFieldOverride'
+        'Uni.override.DisplayFieldOverride',
+        'Uni.override.Date'
     ],
 
     /**

@@ -114,7 +114,8 @@ Ext.define('Uni.property.view.property.RelativePeriod', {
             name: this.getName(),
             itemId: me.key + 'displayfield',
             width: me.width,
-            msgTarget: 'under'
+            msgTarget: 'under',
+            cls: 'uni-property-displayfield'
         }
     },
 
@@ -137,7 +138,7 @@ Ext.define('Uni.property.view.property.RelativePeriod', {
                 return Uni.I18n.translate('general.all', 'UNI', 'All');
             }
         }
-        return callParent(arguments);
+        this.callParent(arguments);
     }
 
 });

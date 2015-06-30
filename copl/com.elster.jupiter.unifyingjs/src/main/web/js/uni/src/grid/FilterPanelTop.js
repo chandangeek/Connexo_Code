@@ -79,12 +79,14 @@ Ext.define('Uni.grid.FilterPanelTop', {
                     xtype: 'button',
                     ui: 'action',
                     text: Uni.I18n.translate('general.apply', 'UNI', 'Apply'),
-                    action: 'applyAll'
+                    action: 'applyAll',
+                    itemId: 'filter-apply-all'
                 },
                 {
                     xtype: 'button',
                     text: Uni.I18n.translate('general.clearAll', 'UNI', 'Clear all'),
-                    action: 'clearAll'
+                    action: 'clearAll',
+                    itemId: 'filter-clear-all'
                 }
             ]
         }
@@ -113,10 +115,13 @@ Ext.define('Uni.grid.FilterPanelTop', {
     },
 
     onQueryStringChanged: function(queryString) {
+        this.applyQueryObject(Uni.util.QueryString.getQueryStringValues(false), true);
+    },
+
+    applyQueryObject: function(queryObject, doApply) {
         var me = this;
         // Adapt the filters visually
         if (Ext.isArray(me.filters.items)) {
-            var queryObject = Uni.util.QueryString.getQueryStringValues(false);
             Ext.Array.each(me.filters.items, function (filter) {
                 if (filter && filter.dataIndex && queryObject[filter.dataIndex]) {
                     filter.setFilterValue(queryObject[filter.dataIndex]);
@@ -125,7 +130,9 @@ Ext.define('Uni.grid.FilterPanelTop', {
                 }
             }, me);
 
-            me.applyFilters();
+            if (doApply) {
+                me.applyFilters();
+            }
         }
     },
 
@@ -460,7 +467,9 @@ Ext.define('Uni.grid.FilterPanelTop', {
             store = widget.store;
 
             if (Ext.isDefined(store) && store.isStore && !store.isLoading()) {
-                store.load();
+                if ( !filter.hasOwnProperty('loadStore') || Boolean(filter.loadStore)) {
+                    store.load();
+                }
             }
 
             return widget;
