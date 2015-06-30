@@ -25,10 +25,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import java.security.Principal;
-import java.time.Clock;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneId;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
@@ -167,10 +164,7 @@ public class DeviceLifeCycleCommands {
             if (effectiveTimestamp == null) {
                 return this.clock.instant();
             } else {
-                return LocalDate
-                        .from(DateTimeFormatter.ISO_LOCAL_DATE.parse(effectiveTimestamp))
-                        .atStartOfDay(ZoneId.systemDefault())
-                        .toInstant();
+                return LocalDate.from(DateTimeFormatter.ISO_LOCAL_DATE.parse(effectiveTimestamp)).atStartOfDay().toInstant(ZoneOffset.ofHours(0));
             }
         } catch (DateTimeParseException e) {
             System.out.println("Please respect the following format for the effective timestamp: " + DateTimeFormatter.ISO_LOCAL_DATE.toFormat().toString());
