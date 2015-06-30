@@ -19,17 +19,17 @@ import java.util.List;
 import java.util.logging.Logger;
 
 @Component(name = "com.elster.jupiter.issue.extjs", service = TranslationKeyProvider.class,
-        property = "name=" + IdvUiInstraller.COMPONENT_NAME + "-UI", immediate = true)
-public class IdvUiInstraller implements TranslationKeyProvider {
+        property = "name=" + IdvUiInstaller.COMPONENT_NAME + "-UI", immediate = true)
+public class IdvUiInstaller implements TranslationKeyProvider {
     public static final String APP_KEY = "MDC";
     public static final String COMPONENT_NAME = "IDV";
     public static final String HTTP_RESOURCE_ALIAS = "/idv";
     public static final String HTTP_RESOURCE_LOCAL_NAME = "/js/idv";
-    private static final Logger LOGGER = Logger.getLogger(IdvUiInstraller.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(IdvUiInstaller.class.getName());
     private volatile ServiceRegistration<HttpResource> registration;
     private volatile License license;
 
-    public IdvUiInstraller() {
+    public IdvUiInstaller() {
 
     }
 
