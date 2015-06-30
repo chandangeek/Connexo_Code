@@ -61,7 +61,6 @@ Ext.define('Apr.view.appservers.PreviewForm', {
                                     },
 
 
-
                                 ]
 
                             },
@@ -117,9 +116,10 @@ Ext.define('Apr.view.appservers.PreviewForm', {
                 {
                     xtype: 'displayfield',
                     fieldLabel: undefined,
-                    value: importService.name + ' (' + ((importService.active===true) ?
-                        Uni.I18n.translate('general.active', 'APR', 'Active')
-                        : Uni.I18n.translate('general.inactive', 'APR', 'Inactive')) + ')'
+                    value: importService.name + ' (' + (importService.deleted ? Uni.I18n.translate('general.removed', 'APR', 'Removed') :
+                        !importService.importerAvailable ? Uni.I18n.translate('general.notAvailable', 'APR', 'Not available') :
+                            importService.active ? Uni.I18n.translate('general.active', 'APR', 'Active') :
+                                Uni.I18n.translate('general.inactive', 'APR', 'Inactive')) + ')'
                 }
             );
         }

@@ -21,11 +21,9 @@ Ext.define('Apr.model.AppServer', {
             name: 'status',
             persist: false,
             mapping: function (data) {
-                if (data.active) {
-                    return Uni.I18n.translate('general.active', 'APR', 'Active');
-                } else {
-                    return Uni.I18n.translate('general.inactive', 'APR', 'Inactive');
-                }
+                return data.deleted ? Uni.I18n.translate('general.removed', 'APR', 'Removed') :
+                    !data.importerAvailable ? Uni.I18n.translate('general.notAvailable', 'APR', 'Not available') :
+                        data.active ? Uni.I18n.translate('general.active', 'APR', 'Active') : Uni.I18n.translate('general.inactive', 'APR', 'Inactive');
             }
         }
     ],
