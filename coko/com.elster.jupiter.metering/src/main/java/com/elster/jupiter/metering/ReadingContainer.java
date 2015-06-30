@@ -20,4 +20,9 @@ public interface ReadingContainer {
     Optional<UsagePoint> getUsagePoint(Instant instant);
 
     ZoneId getZoneId();
+
+    List<Instant> toList(ReadingType readingType, Range<Instant> exportInterval);
+    List<ReadingQualityRecord> getReadingQualities(ReadingQualityType readingQualityType, ReadingType readingType, Range<Instant> interval);
+
+    List<? extends MeterActivation> getMeterActivations();
 }
