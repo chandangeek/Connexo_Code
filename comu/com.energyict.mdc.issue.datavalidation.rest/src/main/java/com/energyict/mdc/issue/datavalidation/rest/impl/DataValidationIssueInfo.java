@@ -19,7 +19,7 @@ public class DataValidationIssueInfo<T extends DeviceInfo> extends IssueInfo<T, 
 
     public static class NotEstimatedDataInfo {
 
-        public long channelId;
+        public Long channelId, registerId;//info will contain only one of them
 
         public ReadingTypeInfo readingType;
 

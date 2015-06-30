@@ -1,6 +1,16 @@
 package com.energyict.mdc.issue.issue.datavalidation.rest;
 
-import com.elster.jupiter.cbo.*;
+import com.elster.jupiter.cbo.Accumulation;
+import com.elster.jupiter.cbo.Aggregate;
+import com.elster.jupiter.cbo.Commodity;
+import com.elster.jupiter.cbo.FlowDirection;
+import com.elster.jupiter.cbo.MacroPeriod;
+import com.elster.jupiter.cbo.MeasurementKind;
+import com.elster.jupiter.cbo.MetricMultiplier;
+import com.elster.jupiter.cbo.Phase;
+import com.elster.jupiter.cbo.RationalNumber;
+import com.elster.jupiter.cbo.ReadingTypeUnit;
+import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.rest.request.AssignIssueRequest;
@@ -11,6 +21,7 @@ import com.elster.jupiter.issue.share.entity.IssueActionType;
 import com.elster.jupiter.issue.share.entity.IssueAssignee;
 import com.elster.jupiter.issue.share.entity.IssueComment;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
+import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.users.User;
@@ -18,10 +29,12 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.issue.datavalidation.DataValidationIssueFilter;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidation;
 import com.energyict.mdc.issue.datavalidation.NotEstimatedBlock;
 import com.energyict.mdc.issue.datavalidation.OpenIssueDataValidation;
+import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
 import org.junit.Test;
 import org.mockito.Matchers;
@@ -30,7 +43,13 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Currency;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -149,6 +168,52 @@ public class IssueResourceTest extends IssueDataValidationApplicationJerseyTest 
         assertThat(jsonModel.<Number>get("$.notEstimatedData[1].notEstimatedBlocks[0].startTime")).isEqualTo(now.plus(45, ChronoUnit.MINUTES).toEpochMilli());
         assertThat(jsonModel.<Number>get("$.notEstimatedData[1].notEstimatedBlocks[0].endTime")).isEqualTo(now.plus(60, ChronoUnit.MINUTES).toEpochMilli());
         assertThat(jsonModel.<Number>get("$.notEstimatedData[1].notEstimatedBlocks[0].amountOfSuspects")).isEqualTo(1);
+    }
+
+    @Test
+    public void testGetIssueByIdWithRegisterNotEstimatedBlocks() {
+        Instant now = Instant.now();
+
+        IssueDataValidation issue = getDefaultIssue();
+        doReturn(Optional.of(issue)).when(issueDataValidationService).findIssue(1);
+
+        ReadingType readingType = mockReadingType("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0");
+        Device device = mock(Device.class);
+        when(deviceService.findDeviceById(1)).thenReturn(Optional.of(device));
+        Register register = mock(Register.class);
+        when(device.getChannels()).thenReturn(Collections.emptyList());
+        when(device.getRegisters()).thenReturn(Collections.singletonList(register));
+        when(register.getRegisterSpecId()).thenReturn(5L);
+        when(register.getReadingType()).thenReturn(readingType);
+        com.elster.jupiter.metering.Channel channel = mock(com.elster.jupiter.metering.Channel.class);
+        BaseReadingRecord reading1 = mock(BaseReadingRecord.class);
+        when(reading1.getTimeStamp()).thenReturn(now.plus(30, ChronoUnit.MINUTES));
+        BaseReadingRecord reading2 = mock(BaseReadingRecord.class);
+        when(reading2.getTimeStamp()).thenReturn(now.plus(90, ChronoUnit.MINUTES));
+        when(channel.getReadings(Range.openClosed(Instant.EPOCH, now.plus(30, ChronoUnit.MINUTES)))).thenReturn(Collections.singletonList(reading1));
+        when(channel.getReadings(Range.openClosed(now.plus(45, ChronoUnit.MINUTES), now.plus(90, ChronoUnit.MINUTES)))).thenReturn(Collections.singletonList(reading2));
+
+        NotEstimatedBlock block1 = mockNotEstimatedBlock(Instant.EPOCH, now.plus(30, ChronoUnit.MINUTES), readingType);
+        when(block1.getChannel()).thenReturn(channel);
+        NotEstimatedBlock block2 = mockNotEstimatedBlock(now.plus(45, ChronoUnit.MINUTES), now.plus(90, ChronoUnit.MINUTES), readingType);
+        when(block2.getChannel()).thenReturn(channel);
+        when(issue.getNotEstimatedBlocks()).thenReturn(Arrays.asList(block1, block2));
+
+        String response = target("/issues/1").request().get(String.class);
+
+        JsonModel jsonModel = JsonModel.model(response);
+        assertThat(jsonModel.<Number>get("$.id")).isEqualTo(1);
+
+        assertThat(jsonModel.<List<?>>get("$.notEstimatedData")).hasSize(1);
+        assertThat(jsonModel.<Number>get("$.notEstimatedData[0].registerId")).isEqualTo(5);
+        assertThat(jsonModel.<String>get("$.notEstimatedData[0].readingType.mRID")).isEqualTo("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0");
+        assertThat(jsonModel.<List<?>>get("$.notEstimatedData[0].notEstimatedBlocks")).hasSize(2);
+        assertThat(jsonModel.<Number>get("$.notEstimatedData[0].notEstimatedBlocks[0].startTime")).isEqualTo(now.plus(30, ChronoUnit.MINUTES).toEpochMilli());
+        assertThat(jsonModel.<Number>get("$.notEstimatedData[0].notEstimatedBlocks[0].endTime")).isEqualTo(now.plus(30, ChronoUnit.MINUTES).toEpochMilli());
+        assertThat(jsonModel.<Number>get("$.notEstimatedData[0].notEstimatedBlocks[0].amountOfSuspects")).isEqualTo(1);
+        assertThat(jsonModel.<Number>get("$.notEstimatedData[0].notEstimatedBlocks[1].startTime")).isEqualTo(now.plus(90, ChronoUnit.MINUTES).toEpochMilli());
+        assertThat(jsonModel.<Number>get("$.notEstimatedData[0].notEstimatedBlocks[1].endTime")).isEqualTo(now.plus(90, ChronoUnit.MINUTES).toEpochMilli());
+        assertThat(jsonModel.<Number>get("$.notEstimatedData[0].notEstimatedBlocks[1].amountOfSuspects")).isEqualTo(1);
     }
 
     @Test
