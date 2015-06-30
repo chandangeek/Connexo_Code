@@ -5,6 +5,7 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.CimChannel;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.ReadingContainer;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.ReadingQuality;
@@ -68,5 +69,5 @@ public interface ValidationEvaluator {
 
     boolean isValidationEnabled(Channel channel);
 
-    Optional<Instant> getLastChecked(Meter meter, ReadingType readingType);
+    Optional<Instant> getLastChecked(ReadingContainer meter, ReadingType readingType);
 }
