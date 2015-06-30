@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.topology.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.estimation.impl.EstimationModule;
@@ -388,6 +389,7 @@ public class InMemoryIntegrationPersistence {
     private class MockModule extends AbstractModule {
         @Override
         protected void configure() {
+            bind(BpmService.class).toInstance(mock(BpmService.class));
             bind(DataVaultService.class).toInstance(dataVaultService);
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(LicenseService.class).toInstance(licenseService);
