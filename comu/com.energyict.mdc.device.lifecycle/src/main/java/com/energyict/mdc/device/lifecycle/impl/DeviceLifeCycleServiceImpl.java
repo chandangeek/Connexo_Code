@@ -20,7 +20,6 @@ import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
 
-import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.fsm.CustomStateTransitionEventType;
 import com.elster.jupiter.fsm.StateTimeSlice;
 import com.elster.jupiter.fsm.StateTransitionEventType;
@@ -47,9 +46,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -66,7 +63,6 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
 
     private volatile Clock clock;
     private volatile ThreadPrincipalService threadPrincipalService;
-    private volatile BpmService bpmService;
     private volatile PropertySpecService propertySpecService;
     private volatile ServerMicroCheckFactory microCheckFactory;
     private volatile ServerMicroActionFactory microActionFactory;
@@ -80,12 +76,11 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
 
     // For testing purposes
     @Inject
-    public DeviceLifeCycleServiceImpl(NlsService nlsService, Clock clock, ThreadPrincipalService threadPrincipalService, BpmService bpmService, PropertySpecService propertySpecService, ServerMicroCheckFactory microCheckFactory, ServerMicroActionFactory microActionFactory, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+    public DeviceLifeCycleServiceImpl(NlsService nlsService, Clock clock, ThreadPrincipalService threadPrincipalService, PropertySpecService propertySpecService, ServerMicroCheckFactory microCheckFactory, ServerMicroActionFactory microActionFactory, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
         this();
         this.setNlsService(nlsService);
         this.setClock(clock);
         this.setThreadPrincipalService(threadPrincipalService);
-        this.setBpmService(bpmService);
         this.setPropertySpecService(propertySpecService);
         this.setMicroCheckFactory(microCheckFactory);
         this.setMicroActionFactory(microActionFactory);
@@ -95,11 +90,6 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
     @Reference
     public void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(DeviceLifeCycleService.COMPONENT_NAME, Layer.DOMAIN);
-    }
-
-    @Reference
-    public void setBpmService(BpmService bpmService) {
-        this.bpmService = bpmService;
     }
 
     @Reference
@@ -342,9 +332,7 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
     }
 
     private void triggerExecution(AuthorizedBusinessProcessAction action, Device device) {
-        Map<String, Object> processParameters = new HashMap<>();
-        processParameters.put(AuthorizedBusinessProcessAction.ProcessParameterKey.DEVICE.getName(), device.getId());
-        this.bpmService.startProcess(action.getDeploymentId(), action.getProcessId(), processParameters);
+        action.getTransitionBusinessProcess().executeOn(device.getId(), action.getState());
     }
 
     private void executeMicroChecks(AuthorizedTransitionAction check, Device device, Instant effectiveTimestamp) throws DeviceLifeCycleActionViolationException {

@@ -18,8 +18,8 @@ import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.lifecycle.config.MicroCheck;
+import com.energyict.mdc.device.lifecycle.config.TransitionBusinessProcess;
 
-import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.fsm.CustomStateTransitionEventType;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.State;
@@ -112,8 +112,6 @@ public class DeviceLifeCycleServiceImplTest {
     private User user;
     @Mock
     private ThreadPrincipalService threadPrincipleService;
-    @Mock
-    private BpmService bpmService;
     @Mock
     private PropertySpecService propertySpecService;
     @Mock
@@ -233,13 +231,15 @@ public class DeviceLifeCycleServiceImplTest {
     @Test(expected = ActionDoesNotRelateToDeviceStateException.class)
     public void executeBpmActionThatDoesNotRelateToDeviceState() {
         DeviceLifeCycleServiceImpl service = this.getTestInstance();
+        TransitionBusinessProcess businessProcess = mock(TransitionBusinessProcess.class);
+        when(businessProcess.getDeploymentId()).thenReturn("deploymentId");
+        when(businessProcess.getProcessId()).thenReturn("processId");
         AuthorizedBusinessProcessAction action = mock(AuthorizedBusinessProcessAction.class);
         when(action.getDeviceLifeCycle()).thenReturn(this.lifeCycle);
         State state = mock(State.class);
         when(state.getId()).thenReturn(STATE_ID + 1);
         when(action.getState()).thenReturn(state);
-        when(action.getDeploymentId()).thenReturn("deploymentId");
-        when(action.getProcessId()).thenReturn("processId");
+        when(action.getTransitionBusinessProcess()).thenReturn(businessProcess);
 
 
         try {
@@ -530,12 +530,14 @@ public class DeviceLifeCycleServiceImplTest {
     @Test
     public void executeDelegatesToBpmService() {
         DeviceLifeCycleServiceImpl service = this.getTestInstance();
+        TransitionBusinessProcess businessProcess = mock(TransitionBusinessProcess.class);
+        String deploymentId = "deploymentId";
+        String processId = "processId";
+        when(businessProcess.getDeploymentId()).thenReturn(deploymentId);
+        when(businessProcess.getProcessId()).thenReturn(processId);
         AuthorizedBusinessProcessAction action = mock(AuthorizedBusinessProcessAction.class);
         when(action.getDeviceLifeCycle()).thenReturn(this.lifeCycle);
-        String deploymentId = "deploymentId";
-        when(action.getDeploymentId()).thenReturn(deploymentId);
-        String processId = "processId";
-        when(action.getProcessId()).thenReturn(processId);
+        when(action.getTransitionBusinessProcess()).thenReturn(businessProcess);
         when(action.getLevels()).thenReturn(EnumSet.of(AuthorizedAction.Level.FOUR));
         when(action.getState()).thenReturn(this.state);
         when(this.user.hasPrivilege(this.privilege)).thenReturn(true);
@@ -544,10 +546,7 @@ public class DeviceLifeCycleServiceImplTest {
         service.execute(action, this.device, Instant.now());
 
         // Asserts
-        ArgumentCaptor<Map> processParameterCaptor = ArgumentCaptor.forClass(Map.class);
-        verify(this.bpmService).startProcess(eq(deploymentId), eq(processId), processParameterCaptor.capture());
-        Map processParameters = processParameterCaptor.getValue();
-        assertThat(processParameters.get(AuthorizedBusinessProcessAction.ProcessParameterKey.DEVICE.getName())).isEqualTo(this.device.getId());
+        verify(businessProcess).executeOn(eq(this.device.getId()), eq(this.state));
     }
 
     @Test
@@ -766,7 +765,7 @@ public class DeviceLifeCycleServiceImplTest {
     }
 
     private DeviceLifeCycleServiceImpl getTestInstance() {
-        return new DeviceLifeCycleServiceImpl(this.nlsService, Clock.systemDefaultZone(), this.threadPrincipleService, this.bpmService, this.propertySpecService, this.microCheckFactory, this.microActionFactory, this.deviceLifeCycleConfigurationService);
+        return new DeviceLifeCycleServiceImpl(this.nlsService, Clock.systemDefaultZone(), this.threadPrincipleService, this.propertySpecService, this.microCheckFactory, this.microActionFactory, this.deviceLifeCycleConfigurationService);
     }
 
 }
