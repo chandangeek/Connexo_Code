@@ -29,8 +29,10 @@ public class AppServiceModule extends AbstractModule {
         requireBinding(UserService.class);
         requireBinding(BundleContext.class);
 
-        bind(AppService.class).to(AppServiceImpl.class).in(Scopes.SINGLETON);
-        bind(IAppService.class).to(AppServiceImpl.class).in(Scopes.SINGLETON);
+        bind(AppServiceImpl.class).in(Scopes.SINGLETON);
+        bind(AppService.class).to(AppServiceImpl.class);
+        bind(IAppService.class).to(AppServiceImpl.class);
+        bind(MessageHandlerLauncherService.class).in(Scopes.SINGLETON);
 
     }
 }
