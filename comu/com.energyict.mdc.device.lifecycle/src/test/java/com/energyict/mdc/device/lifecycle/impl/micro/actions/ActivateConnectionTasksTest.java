@@ -1,5 +1,8 @@
 package com.energyict.mdc.device.lifecycle.impl.micro.actions;
 
+import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 
@@ -10,6 +13,7 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.*;
 import org.junit.runner.*;
@@ -36,6 +40,26 @@ public class ActivateConnectionTasksTest {
     private PropertySpecService propertySpecService;
     @Mock
     private Device device;
+    @Mock
+    private DeviceConfiguration deviceConfiguration;
+    @Mock
+    private ComTaskEnablement comTaskEnablement1;
+    @Mock
+    private ComTaskEnablement comTaskEnablement2;
+    @Mock
+    private ComTaskEnablement comTaskEnablement3;
+    @Mock
+    private ComTaskEnablement comTaskEnablement4;
+    @Mock
+    private PartialConnectionTask partialConnectionTask1;
+    @Mock
+    private PartialConnectionTask partialConnectionTask2;
+
+    @Before
+    public void setup() {
+        when(partialConnectionTask1.getId()).thenReturn(112321L);
+        when(partialConnectionTask2.getId()).thenReturn(325145L);
+    }
 
     @Test
     public void testGetPropertySpecs() {
@@ -51,7 +75,15 @@ public class ActivateConnectionTasksTest {
     @Test
     public void executesActivatesAllConnectionTasks() {
         ConnectionTask connectionTask1 = mock(ConnectionTask.class);
+        when(connectionTask1.getPartialConnectionTask()).thenReturn(partialConnectionTask1);
         ConnectionTask connectionTask2 = mock(ConnectionTask.class);
+        when(connectionTask2.getPartialConnectionTask()).thenReturn(partialConnectionTask2);
+        when(this.device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        when(this.deviceConfiguration.getComTaskEnablements()).thenReturn(Arrays.asList(comTaskEnablement1, comTaskEnablement2, comTaskEnablement3, comTaskEnablement4));
+        when(comTaskEnablement1.getPartialConnectionTask()).thenReturn(Optional.of(partialConnectionTask1));
+        when(comTaskEnablement2.getPartialConnectionTask()).thenReturn(Optional.<PartialConnectionTask>empty());
+        when(comTaskEnablement3.getPartialConnectionTask()).thenReturn(Optional.of(partialConnectionTask2));
+        when(comTaskEnablement4.getPartialConnectionTask()).thenReturn(Optional.of(partialConnectionTask1));
         when(this.device.getConnectionTasks()).thenReturn(Arrays.asList(connectionTask1, connectionTask2));
 
         ActivateConnectionTasks microAction = this.getTestInstance();
