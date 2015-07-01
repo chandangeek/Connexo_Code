@@ -8,6 +8,7 @@ import java.security.Principal;
 import java.sql.SQLException;
 import java.time.Instant;
 
+import com.elster.jupiter.bpm.impl.BpmModule;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -108,6 +109,7 @@ public class UsagePointQueryTest {
         			new PubSubModule(),
         			new UserModule(),
         			new TransactionModule(false),
+                    new BpmModule(),
                     new FiniteStateMachineModule(),
                     new NlsModule()
                 );

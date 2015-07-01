@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.cbo.EndDeviceDomain;
 import com.elster.jupiter.cbo.EndDeviceEventTypeCodeBuilder;
 import com.elster.jupiter.cbo.EndDeviceEventorAction;
@@ -121,6 +122,7 @@ public class EndDeviceEventRecordImplTest extends EqualsContractTest {
                 new ThreadSecurityModule(principal),
                 new PubSubModule(),
                 new TransactionModule(),
+                new BpmModule(),
                 new FiniteStateMachineModule(),
                 new NlsModule());
         when(principal.getName()).thenReturn("Test");
