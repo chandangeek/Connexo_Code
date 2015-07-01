@@ -447,7 +447,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 
                     menu.record.set('plotBand', true);
                     point = chart.get(menu.record.get('interval').start);
-                    point.update(Ext.apply(point, { y: null }));
+                    point.update({ y: null });
                 }
 
                 me.showButtons();
@@ -557,7 +557,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                     });
                 }
                 event.record.set('plotBand', true);
-                point.update(Ext.apply(point, { y: null }));
+                point.update({ y: null });
             } else {
                 if (event.record.get('plotBand')) {
                     chart.xAxis[0].removePlotBand(event.record.get('interval').start);
