@@ -1,5 +1,7 @@
 package com.energyict.mdc.engine.events;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.time.Instant;
 
 /**
@@ -9,6 +11,7 @@ import java.time.Instant;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-10-31 (14:39)
  */
+@ProviderType
 public interface ComTaskExecutionEvent extends ComServerEvent, ComTaskExecutionRelatedEvent, DeviceRelatedEvent, ConnectionTaskRelatedEvent, ComPortRelatedEvent, ComPortPoolRelatedEvent {
 
     /**

@@ -2,6 +2,8 @@ package com.energyict.mdc.engine.events;
 
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * Models an event that relates to a log message
  * being emitted by a ComServer component.
@@ -9,6 +11,7 @@ import com.energyict.mdc.engine.impl.logging.LogLevel;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-11-07 (16:41)
  */
+@ProviderType
 public interface LoggingEvent extends ComServerEvent {
 
     /**

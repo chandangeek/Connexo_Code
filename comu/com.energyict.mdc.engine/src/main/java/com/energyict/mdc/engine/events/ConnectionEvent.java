@@ -1,5 +1,7 @@
 package com.energyict.mdc.engine.events;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * Models an event that relates to physical connections with a device.
  * There is no difference between inbound or outbound connections.
@@ -13,6 +15,7 @@ package com.energyict.mdc.engine.events;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-10-30 (17:50)
  */
+@ProviderType
 public interface ConnectionEvent extends ComServerEvent, DeviceRelatedEvent, ConnectionTaskRelatedEvent, ComPortRelatedEvent {
 
     /**
