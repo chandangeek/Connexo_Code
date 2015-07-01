@@ -42,6 +42,13 @@ public enum DeviceSecurityProperty {
             .name(SecurityPropertySpecName.AUTHENTICATION_KEY.toString())
             .finish()),
     /**
+     * A key used for to encrypt other keys (aka the key encryption key, KEK)
+     */
+    MASTER_KEY(PropertySpecBuilder
+            .forClass(String.class, new EncryptedStringFactory())
+            .name(SecurityPropertySpecName.MASTER_KEY.toString())
+            .finish()),
+    /**
      * A DLMS clientMacAddress
      */
     CLIENT_MAC_ADDRESS(PropertySpecFactory.boundedDecimalPropertySpecWithDefaultValue(

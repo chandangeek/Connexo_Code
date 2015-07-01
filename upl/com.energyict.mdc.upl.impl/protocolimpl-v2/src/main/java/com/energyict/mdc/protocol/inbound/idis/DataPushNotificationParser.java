@@ -180,6 +180,10 @@ public class DataPushNotificationParser extends EventPushNotificationParser {
 
     private TimeZone getDeviceTimeZone() {
         TypedProperties deviceProtocolProperties = getInboundDAO().getDeviceProtocolProperties(getDeviceIdentifier());
+        if (deviceProtocolProperties == null) {
+            return TimeZone.getTimeZone(DEFAULT_TIMEZONE);
+        }
+
         TimeZoneInUse timeZoneInUse = deviceProtocolProperties.getTypedProperty(TIMEZONE);
         if (timeZoneInUse == null || timeZoneInUse.getTimeZone() == null) {
             return TimeZone.getTimeZone(DEFAULT_TIMEZONE);

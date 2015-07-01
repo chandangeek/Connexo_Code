@@ -81,12 +81,18 @@ public enum DeviceActionMessage implements DeviceMessageSpec {
     RebootApplication(40),
     DemandResetWithForceClock(41),
     HardResetDevice(42),
+    SyncMasterdataForDC(43, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.dcDeviceIDAttributeName)),
+    PauseDCScheduler(44),
+    ResumeDCScheduler(45),
     ;
 
+    private static final DeviceMessageCategory category = DeviceMessageCategories.DEVICE_ACTIONS;
     private final int id;
+    private final List<PropertySpec> deviceMessagePropertySpecs;
 
-    public int getMessageId() {
-        return id;
+    private DeviceActionMessage(int id, PropertySpec... deviceMessagePropertySpecs) {
+        this.id = id;
+        this.deviceMessagePropertySpecs = Arrays.asList(deviceMessagePropertySpecs);
     }
 
     private static BigDecimal[] getPossibleValues() {
@@ -97,17 +103,12 @@ public enum DeviceActionMessage implements DeviceMessageSpec {
         return result;
     }
 
-    private static final DeviceMessageCategory category = DeviceMessageCategories.DEVICE_ACTIONS;
-
-    private final List<PropertySpec> deviceMessagePropertySpecs;
-
-    private DeviceActionMessage(int id, PropertySpec... deviceMessagePropertySpecs) {
-        this.id = id;
-        this.deviceMessagePropertySpecs = Arrays.asList(deviceMessagePropertySpecs);
-    }
-
     private static String translate(final String key) {
         return UserEnvironment.getDefault().getTranslation(key);
+    }
+
+    public int getMessageId() {
+        return id;
     }
 
     @Override

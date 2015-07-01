@@ -120,13 +120,13 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpec {
     private final List<PropertySpec> deviceMessagePropertySpecs;
     private final int id;
 
-    public int getMessageId() {
-        return id;
-    }
-
     private ConfigurationChangeDeviceMessage(int id, PropertySpec... deviceMessagePropertySpecs) {
         this.id = id;
         this.deviceMessagePropertySpecs = Arrays.asList(deviceMessagePropertySpecs);
+    }
+
+    public int getMessageId() {
+        return id;
     }
 
     @Override

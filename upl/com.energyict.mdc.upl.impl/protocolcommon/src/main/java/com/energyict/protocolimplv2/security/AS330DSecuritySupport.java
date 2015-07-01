@@ -13,6 +13,8 @@ import java.math.BigDecimal;
  */
 public class AS330DSecuritySupport extends DsmrSecuritySupport {
 
+    public static final BigDecimal DEFAULT_CLIENT_MAC_ADDRESS = BigDecimal.valueOf(2);
+
     /**
      * Same as the normal property spec, but with default value 2
      */
@@ -21,7 +23,7 @@ public class AS330DSecuritySupport extends DsmrSecuritySupport {
     protected PropertySpec getClientMacAddressPropertySpec() {
         PropertySpec propertySpec = super.getClientMacAddressPropertySpec();
         PropertySpecPossibleValuesImpl possibleValues = (PropertySpecPossibleValuesImpl) propertySpec.getPossibleValues();
-        possibleValues.setDefault(BigDecimal.valueOf(2));
+        possibleValues.setDefault(DEFAULT_CLIENT_MAC_ADDRESS);
         return propertySpec;
     }
 }

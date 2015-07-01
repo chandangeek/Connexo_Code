@@ -19,6 +19,7 @@ public enum SecurityRelationTypeName {
     PASSWORD_AND_LEVEL("LevelAndPassword"),
     PASSWORD_AND_USER("UserAndPassword"),
     DLMS_SECURITY("DlmsSecurity"),
+    RTU3_DLMS_SECURITY("RTU3DlmsSecurity"),
     CRYPTO_DLMS_SECURITY("CryptoDlmsSecurity"),
     DLMS_SECURITY_PER_CLIENT("DlmsSecurityPerClient"),
     WAVENIS_SECURITY("WavenisSecurity"),

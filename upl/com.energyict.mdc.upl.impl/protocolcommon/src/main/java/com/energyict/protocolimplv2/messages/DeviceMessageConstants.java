@@ -72,6 +72,8 @@ public class DeviceMessageConstants {
     public static final String randomBytesAttributeName = "SecurityMessage.random32bytes";
     public static final String deviceGroupAttributeName = "SecurityMessage.devicegroup";
 
+    public static final String dcDeviceIDAttributeName = "DeviceActionMessage.dcDeviceID";
+
     public static final String usernameAttributeName = "username";   // commonly used translation key
     public static final String passwordAttributeName = "password";   // commonly used translation key
     public static final String apnAttributeName = "NetworkConnectivityMessage.apn";
@@ -90,7 +92,7 @@ public class DeviceMessageConstants {
     public static final String maxCredit = "ConfigurationChangeDeviceMessage.maxCredit";
     public static final String zeroCrossDelay = "ConfigurationChangeDeviceMessage.zeroCrossDelay";
     public static final String synchronisationBit = "ConfigurationChangeDeviceMessage.synchronisationBit";
-    public static final String EnableEventNotifications ="EnableEventNotifications";
+    public static final String EnableEventNotifications = "EnableEventNotifications";
 
     public static final String managedWhiteListPhoneNumbersAttributeName = "NetworkConnectivityMessage.managed.whitelist.phonenumbers";
     public static final String smsCenterPhoneNumberAttributeName = "NetworkConnectivityMessage.smscenter.phonenumber";

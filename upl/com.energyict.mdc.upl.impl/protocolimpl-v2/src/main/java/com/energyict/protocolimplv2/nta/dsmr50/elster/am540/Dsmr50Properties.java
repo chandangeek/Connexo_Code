@@ -1,8 +1,6 @@
 package com.energyict.protocolimplv2.nta.dsmr50.elster.am540;
 
-import com.energyict.cbo.HexString;
 import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocolimpl.dlms.g3.G3Properties;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsProperties;
 import com.energyict.protocolimplv2.nta.dsmr50.Dsmr50ConfigurationSupport;
 
@@ -34,10 +32,6 @@ public class Dsmr50Properties extends DlmsProperties {
 
     public boolean isCumulativeCaptureTimeChannel() {
         return getProperties().getTypedProperty(CumulativeCaptureTimeChannel, false);
-    }
-
-    public HexString getPSK() {
-        return getProperties().getTypedProperty(G3Properties.PSK);
     }
 
     public long getAARQTimeout() {

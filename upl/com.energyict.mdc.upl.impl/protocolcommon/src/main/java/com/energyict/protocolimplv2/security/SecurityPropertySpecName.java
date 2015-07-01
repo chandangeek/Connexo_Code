@@ -16,6 +16,7 @@ public enum SecurityPropertySpecName {
     ENCRYPTION_KEY_2("EncryptionKey2"),
     ENCRYPTION_KEY_3("EncryptionKey3"),
     AUTHENTICATION_KEY("AuthenticationKey"),
+    MASTER_KEY("MasterKey"),
     CLIENT_MAC_ADDRESS("ClientMacAddress"),
     CRYPTOSERVER_PHASE("CryptoServerPhase"),
     SECURITY_LEVEL("SecurityLevel"),

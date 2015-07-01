@@ -76,6 +76,18 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
         return new Clock(protocolLink, getObjectReference(CLOCK_OBJECT_LN, protocolLink.getMeterConfig().getClockSN()));
     }
 
+    public DeviceTypeManager getDeviceTypeManager() throws NotInObjectListException {
+        return new DeviceTypeManager(protocolLink, getObjectReference(DeviceTypeManager.getDefaultObisCode(), DLMSClassId.DEVICE_TYPE_MANAGER.getClassId()));
+    }
+
+    public ScheduleManager getScheduleManager() throws NotInObjectListException {
+        return new ScheduleManager(protocolLink, getObjectReference(ScheduleManager.getDefaultObisCode(), DLMSClassId.SCHEDULE_MANAGER.getClassId()));
+    }
+
+    public ClientTypeManager getClientTypeManager() throws NotInObjectListException {
+        return new ClientTypeManager(protocolLink, getObjectReference(ClientTypeManager.getDefaultObisCode(), DLMSClassId.CLIENT_TYPE_MANAGER.getClassId()));
+    }
+
     public Clock getClock(ObisCode obisCode) throws NotInObjectListException {
         return new Clock(protocolLink, getObjectReference(obisCode));
     }
@@ -541,7 +553,7 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
             return new ObjectReference(sn);
         }
         ProtocolException protocolException = new ProtocolException("CosemObjectFactory, getObjectReference, invalid reference type " + protocolLink.getReference());
-        throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(protocolException);  
+        throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(protocolException);
     }
 
     public boolean isUseGetWithList() {
@@ -611,8 +623,8 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
     /**
      * Returns the firewall setup object.
      *
-     * @throws java.io.IOException If an IO error occurs while returning a reference;
      * @return The firewall setup object.
+     * @throws java.io.IOException If an IO error occurs while returning a reference;
      */
     public final FirewallSetup getFirewallSetup() throws NotInObjectListException {
         return new FirewallSetup(this.protocolLink, this.getObjectReference(FirewallSetup.getDefaultObisCode()));
