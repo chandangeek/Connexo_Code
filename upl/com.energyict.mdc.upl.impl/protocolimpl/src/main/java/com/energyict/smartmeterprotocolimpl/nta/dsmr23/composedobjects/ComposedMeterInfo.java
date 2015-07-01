@@ -36,7 +36,7 @@ public class ComposedMeterInfo extends ComposedCosemObject {
     public String getFirmwareVersion() throws IOException {
         AbstractDataType attribute = getAttribute(FIRMWARE_VERSION);
         if (attribute instanceof OctetString) {
-            return attribute.getOctetString().stringValue();
+            return getStringValueFrom((OctetString) attribute);
         } else {
             throw new IOException("Expected OctetString but was " + attribute.getClass().getSimpleName());
         }
@@ -45,7 +45,7 @@ public class ComposedMeterInfo extends ComposedCosemObject {
     public String getSerialNr() throws IOException {
         AbstractDataType attribute = getAttribute(SERIALNR);
         if (attribute instanceof OctetString) {
-            return attribute.getOctetString().stringValue();
+            return getStringValueFrom((OctetString) attribute);
         } else {
             throw new IOException("Expected OctetString but was " + attribute.getClass().getSimpleName());
         }
@@ -58,9 +58,13 @@ public class ComposedMeterInfo extends ComposedCosemObject {
     public String getEquipmentIdentifier() throws IOException {
         AbstractDataType attribute = getAttribute(EQUIPMENT_IDENTIFIER);
         if (attribute instanceof OctetString) {
-            return attribute.getOctetString().stringValue();
+            return getStringValueFrom((OctetString) attribute);
         } else {
             throw new IOException("Expected OctetString but was " + attribute.getClass().getSimpleName());
         }
+    }
+
+    protected String getStringValueFrom(OctetString octetString) {
+        return octetString.getOctetString().stringValue();
     }
 }

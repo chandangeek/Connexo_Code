@@ -294,6 +294,7 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     TRANSPARENT_GATEWAY(258, "com.energyict.protocolimplv2.eict.gateway.TransparentGateway"),
     G3_AS330D_V2(259, "com.energyict.protocolimplv2.dlms.g3.AS330D", FamilyRule.G3_LINKY_DLMS),
     G3_RTU3(260, "com.energyict.protocolimplv2.eict.rtuplusserver.rtu3.RTU3", FamilyRule.G3_LINKY_DLMS),
+    E35C(261, "com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.E35C"),
 
     // Deprecated
     FERRANTI(10001, "com.energyict.protocolimpl.iec1107.ferranti.Ferranti"),
