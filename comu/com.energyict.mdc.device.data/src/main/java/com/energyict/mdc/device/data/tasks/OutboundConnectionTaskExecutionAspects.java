@@ -4,6 +4,8 @@ import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionException;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.util.List;
 
 /**
@@ -12,6 +14,7 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-03-13 (14:38)
  */
+@ProviderType
 public interface OutboundConnectionTaskExecutionAspects extends ConnectionTaskExecutionAspects {
 
     /**

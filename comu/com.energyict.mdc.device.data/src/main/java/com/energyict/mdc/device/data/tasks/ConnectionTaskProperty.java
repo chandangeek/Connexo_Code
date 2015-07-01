@@ -4,6 +4,8 @@ import com.energyict.mdc.pluggable.PluggableClassUsageProperty;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * Holds the value of a property of a {@link ConnectionType}.
  * The values of properties are versioned over time
@@ -20,5 +22,6 @@ import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-04-11 (15:09)
  */
+@ProviderType
 public interface ConnectionTaskProperty extends ConnectionProperty, PluggableClassUsageProperty<ConnectionType> {
 }

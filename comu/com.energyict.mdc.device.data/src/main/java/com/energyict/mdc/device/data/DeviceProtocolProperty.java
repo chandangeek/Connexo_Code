@@ -1,10 +1,13 @@
 package com.energyict.mdc.device.data;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * Copyrights EnergyICT
  * Date: 3/13/14
  * Time: 11:41 AM
  */
+@ProviderType
 public interface DeviceProtocolProperty {
 
     /**
