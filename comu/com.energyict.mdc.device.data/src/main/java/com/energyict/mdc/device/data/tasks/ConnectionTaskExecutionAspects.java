@@ -1,6 +1,9 @@
 package com.energyict.mdc.device.data.tasks;
 
 import com.energyict.mdc.engine.config.ComServer;
+
+import aQute.bnd.annotation.ProviderType;
+
 import java.sql.SQLException;
 
 /**
@@ -16,6 +19,7 @@ import java.sql.SQLException;
  * @author sva
  * @since 2012-09-27 (13:01)
  */
+@ProviderType
 public interface ConnectionTaskExecutionAspects {
 
     /**

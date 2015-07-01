@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.data.tasks.history;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * Models the statistical information that is gathered while communicating
  * with the {@link com.energyict.mdc.device.data.Device}.
@@ -8,6 +10,7 @@ package com.energyict.mdc.device.data.tasks.history;
  * Date: 23/04/12
  * Time: 14:24
  */
+@ProviderType
 public interface ComStatistics {
 
     /**

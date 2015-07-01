@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.data;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.util.Optional;
 
 import java.util.List;
@@ -10,6 +12,7 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-10-01 (13:15)
  */
+@ProviderType
 public interface LogBookService {
 
     /**

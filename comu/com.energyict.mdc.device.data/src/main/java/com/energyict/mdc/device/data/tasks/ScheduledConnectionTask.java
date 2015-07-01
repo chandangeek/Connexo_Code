@@ -5,6 +5,8 @@ import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
+
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.time.TemporalExpression;
 
 import java.time.Instant;
@@ -34,6 +36,7 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-04-11 (16:40)
  */
+@ProviderType
 public interface ScheduledConnectionTask extends OutboundConnectionTask<PartialScheduledConnectionTask> {
 
     public void setMaxNumberOfTries(int maxNumberOfTries);

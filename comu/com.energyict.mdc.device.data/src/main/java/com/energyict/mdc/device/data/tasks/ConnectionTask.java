@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.tasks;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.util.HasName;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.device.config.PartialConnectionTask;
@@ -46,6 +47,7 @@ import java.util.Optional;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-04-11 (09:59)
  */
+@ProviderType
 public interface ConnectionTask<CPPT extends ComPortPool, PCTT extends PartialConnectionTask>
     extends
         ConnectionTaskPropertyProvider,

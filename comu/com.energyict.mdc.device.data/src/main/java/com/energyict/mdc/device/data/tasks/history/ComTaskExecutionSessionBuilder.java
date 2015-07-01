@@ -2,6 +2,8 @@ package com.energyict.mdc.device.data.tasks.history;
 
 import com.energyict.mdc.engine.config.ComServer;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.time.Instant;
 
 /**
@@ -9,6 +11,7 @@ import java.time.Instant;
  * Date: 30/04/2014
  * Time: 10:51
  */
+@ProviderType
 public interface ComTaskExecutionSessionBuilder extends BuildsStatistics<ComTaskExecutionSessionBuilder> {
 
     ComSessionBuilder add(Instant stopDate, ComTaskExecutionSession.SuccessIndicator successIndicator);
