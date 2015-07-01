@@ -92,7 +92,7 @@ public abstract class RegisterImpl<R extends Reading> implements Register<R> {
     }
 
     private Optional<DataValidationStatus> getValidationStatus(ReadingRecord reading) {
-        List<DataValidationStatus> validationStatuses = this.getValidationStatus(Arrays.asList(reading), Range.closedOpen(reading.getTimeStamp(), reading.getTimeStamp()));
+        List<DataValidationStatus> validationStatuses = this.getValidationStatus(Arrays.asList(reading), Range.closed(reading.getTimeStamp(), reading.getTimeStamp()));
         if (validationStatuses.isEmpty()) {
             return Optional.empty();
         }
