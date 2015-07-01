@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.lifecycle.config;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.util.HasName;
 import com.energyict.mdc.common.HasId;
@@ -28,7 +29,7 @@ import java.util.Set;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-11 (14:17)
  */
-
+@ProviderType
 public interface AuthorizedAction extends HasId, HasName {
     enum Level {
         ONE(Privileges.INITIATE_ACTION_1),

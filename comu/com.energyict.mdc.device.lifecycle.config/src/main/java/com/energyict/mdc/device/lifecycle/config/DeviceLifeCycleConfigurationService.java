@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.lifecycle.config;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.domain.util.Finder;
 
 import com.elster.jupiter.fsm.FiniteStateMachine;
@@ -16,6 +17,7 @@ import java.util.Optional;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-11 (10:22)
  */
+@ProviderType
 public interface DeviceLifeCycleConfigurationService {
 
     String COMPONENT_NAME = "DLD";
