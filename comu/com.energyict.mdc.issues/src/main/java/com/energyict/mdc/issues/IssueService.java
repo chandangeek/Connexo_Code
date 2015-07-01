@@ -1,11 +1,14 @@
 package com.energyict.mdc.issues;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * Provides services to collect {@link Issue}s.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-11-28 (11:29)
  */
+@ProviderType
 public interface IssueService {
 
     /**

@@ -1,5 +1,7 @@
 package com.energyict.mdc.issues;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.time.Instant;
 
 /**
@@ -13,7 +15,7 @@ import java.time.Instant;
  * @author Rudi Vankeirsbilck (rudi)
  * @since March 27, 2012 (11:35:36)
  */
-
+@ProviderType
 public interface Issue {
 
     /**
