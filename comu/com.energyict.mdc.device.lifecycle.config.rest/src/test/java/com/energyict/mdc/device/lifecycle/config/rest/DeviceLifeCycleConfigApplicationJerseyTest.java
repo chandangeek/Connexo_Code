@@ -113,7 +113,7 @@ public class DeviceLifeCycleConfigApplicationJerseyTest extends FelixRestApplica
         when(eventType.getSymbol()).thenReturn(DefaultCustomStateTransitionEventType.COMMISSIONING.getSymbol());
         when(transition.getEventType()).thenReturn(eventType);
         when(action.getStateTransition()).thenReturn(transition);
-        when(action.getActions()).thenReturn(EnumSet.of(MicroAction.ACTIVATE_CONNECTION_TASKS, MicroAction.CREATE_METER_ACTIVATION, MicroAction.ENABLE_VALIDATION));
+        when(action.getActions()).thenReturn(EnumSet.of(MicroAction.ACTIVATE_CONNECTION_TASKS_IN_USE, MicroAction.CREATE_METER_ACTIVATION, MicroAction.ENABLE_VALIDATION));
         when(action.getChecks()).thenReturn(EnumSet.of(
                 MicroCheck.ALL_DATA_VALID,
                 MicroCheck.CONNECTION_PROPERTIES_ARE_ALL_VALID,
