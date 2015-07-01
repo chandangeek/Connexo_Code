@@ -106,7 +106,6 @@ public class DeviceInfo {
         State deviceState = device.getState();
         deviceInfo.state = new DeviceLifeCycleStateInfo(thesaurus, deviceState);
         deviceInfo.version = device.getVersion();
-        CIMLifecycleDates lifecycleDates = device.getLifecycleDates();
         return deviceInfo;
     }
 
