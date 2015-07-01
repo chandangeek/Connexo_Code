@@ -1,8 +1,11 @@
 package com.energyict.mdc.tasks;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.util.List;
 import java.util.Optional;
 
+@ProviderType
 public interface TaskService {
 
     String COMPONENT_NAME = "CTS";
