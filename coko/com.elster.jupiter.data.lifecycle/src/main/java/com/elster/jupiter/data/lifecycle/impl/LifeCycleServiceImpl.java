@@ -20,6 +20,7 @@ import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
+import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.Resource;
@@ -221,8 +222,8 @@ public class LifeCycleServiceImpl implements LifeCycleService, InstallService, T
 	}
 
 	@Override
-	public List<Resource> getModulePrivileges() {
-		List<Resource> resources = new ArrayList<>();
+	public List<ResourceDefinition> getModuleResources() {
+		List<ResourceDefinition> resources = new ArrayList<>();
 		resources.add(userService.createModuleResourceWithPrivileges(LifeCycleService.COMPONENTNAME, "dataPurge.dataPurge", "dataPurge.dataPurge.description",
 				Arrays.asList(Privileges.ADMINISTRATE_DATA_PURGE, Privileges.VIEW_DATA_PURGE)));
 		return resources;
