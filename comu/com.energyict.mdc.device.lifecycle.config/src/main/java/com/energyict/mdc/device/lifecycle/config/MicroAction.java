@@ -35,14 +35,14 @@ public enum MicroAction {
     /**
      * Activates all connection tasks on the device.
      */
-    ACTIVATE_CONNECTION_TASKS(MicroCategory.COMMUNICATION),
+    ACTIVATE_CONNECTION_TASKS_IN_USE(MicroCategory.COMMUNICATION),
 
     /**
      * Starts the communication on the device
      * by activating all connection and schedule all
      * communication tasks to execute now.
      *
-     * @see #ACTIVATE_CONNECTION_TASKS
+     * @see #ACTIVATE_CONNECTION_TASKS_IN_USE
      */
     START_COMMUNICATION(MicroCategory.COMMUNICATION),
 

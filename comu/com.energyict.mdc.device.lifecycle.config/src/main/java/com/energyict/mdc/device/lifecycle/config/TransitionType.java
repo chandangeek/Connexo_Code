@@ -39,7 +39,7 @@ public enum TransitionType {
         @Override
         public Set<MicroAction> optionalActions() {
             return EnumSet.of(
-                    MicroAction.ACTIVATE_CONNECTION_TASKS,
+                    MicroAction.ACTIVATE_CONNECTION_TASKS_IN_USE,
                     MicroAction.CREATE_METER_ACTIVATION);
         }
     },
@@ -71,7 +71,7 @@ public enum TransitionType {
         @Override
         public Set<MicroAction> requiredActions() {
             return EnumSet.of(
-                    MicroAction.ACTIVATE_CONNECTION_TASKS,
+                    MicroAction.ACTIVATE_CONNECTION_TASKS_IN_USE,
                     MicroAction.SET_LAST_READING);
         }
     },
@@ -102,7 +102,7 @@ public enum TransitionType {
             return EnumSet.of(
                     MicroAction.CREATE_METER_ACTIVATION,
                     MicroAction.SET_LAST_READING,
-                    MicroAction.ACTIVATE_CONNECTION_TASKS);
+                    MicroAction.ACTIVATE_CONNECTION_TASKS_IN_USE);
         }
     },
     INSTALL_AND_ACTIVATE(DefaultState.COMMISSIONING, DefaultState.ACTIVE) {
@@ -130,7 +130,7 @@ public enum TransitionType {
             return EnumSet.of(
                     MicroAction.CREATE_METER_ACTIVATION,
                     MicroAction.SET_LAST_READING,
-                    MicroAction.ACTIVATE_CONNECTION_TASKS);
+                    MicroAction.ACTIVATE_CONNECTION_TASKS_IN_USE);
         }
     },
     INSTALL_INACTIVE(DefaultState.COMMISSIONING, DefaultState.INACTIVE) {
@@ -161,7 +161,7 @@ public enum TransitionType {
             return EnumSet.of(
                     MicroAction.CREATE_METER_ACTIVATION,
                     MicroAction.SET_LAST_READING,
-                    MicroAction.ACTIVATE_CONNECTION_TASKS);
+                    MicroAction.ACTIVATE_CONNECTION_TASKS_IN_USE);
         }
     },
     ACTIVATE(DefaultState.INACTIVE, DefaultState.ACTIVE) {
@@ -187,7 +187,7 @@ public enum TransitionType {
         @Override
         public Set<MicroAction> optionalActions() {
             return EnumSet.of(
-                    MicroAction.ACTIVATE_CONNECTION_TASKS,
+                    MicroAction.ACTIVATE_CONNECTION_TASKS_IN_USE,
                     MicroAction.ENABLE_VALIDATION);
         }
 
