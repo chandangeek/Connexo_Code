@@ -5,6 +5,7 @@ Ext.define('Mdc.model.ChannelReadingValidationResult', {
     ],
     fields: [
         {name: 'validationResult', type: 'string'},
-        'validationRules'
+        'validationRules',
+        'valueModificationFlag'
     ]
 });

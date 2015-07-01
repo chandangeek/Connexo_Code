@@ -112,12 +112,16 @@ Ext.define('Mdc.view.setup.devicechannels.GraphView', {
 //                     confirmed: 'icon-checkmark'
 
                     if (point.delta.suspect) {
-                        deltaIcon = 'icon-validation-red'
-                    }
-                    if (point.bulk.suspect)  {
-                        bulkIcon = 'icon-validation-red'
+                        deltaIcon = 'icon-validation-red';
+                    } else if (point.delta.notValidated) {
+                        deltaIcon = 'icon-validation-black';
                     }
 
+                    if (point.bulk.suspect)  {
+                        bulkIcon = 'icon-validation-red';
+                    } else if (point.bulk.notValidated) {
+                        bulkIcon = 'icon-validation-black';
+                    }
 
                     html += '<br/>Interval ' + Highcharts.dateFormat('%H:%M', point.x);
                     html += ' - ' + Highcharts.dateFormat('%H:%M', point.intervalEnd) + '<br>';
