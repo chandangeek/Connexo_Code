@@ -42,5 +42,10 @@ public class UsagePointInfos {
 			each.addServiceLocationInfo();
 		}		
 	}
-	
+
+	void addMeterActivationInfo() {
+		for (UsagePointInfo each : usagePoints) {
+			each.addServiceLocationInfo();
+		}
+	}
 }

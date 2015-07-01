@@ -92,21 +92,20 @@ public class UsagePointResource {
 
     @PUT
     @RolesAllowed({Privileges.ADMIN_OWN, Privileges.ADMIN_ANY})
-    @Path("/{id}")
+    @Path("/{mrid}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    public UsagePointInfos updateUsagePoint(@PathParam("id") long id, UsagePointInfo info, @Context SecurityContext securityContext) {
-        info.id = id;
+    public UsagePointInfos updateUsagePoint(@PathParam("mrid") String mRid, UsagePointInfo info, @Context SecurityContext securityContext) {
+        info.mRID = mRid;
         transactionService.execute(new UpdateUsagePointTransaction(info, securityContext.getUserPrincipal(), meteringService, clock));
-        return getUsagePoint(info.id, securityContext);
+        return getUsagePoint(info.mRID, securityContext);
     }
 
     @GET
     @RolesAllowed({Privileges.BROWSE_ANY, Privileges.BROWSE_OWN})
-    @Path("/{id}/")
+    @Path("/{mrid}/")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    public UsagePointInfos getUsagePoint(@PathParam("id") long id, @Context SecurityContext securityContext) {
-        UsagePoint usagePoint = fetchUsagePoint(id, securityContext);
-
+    public UsagePointInfos getUsagePoint(@PathParam("mrid") String mRid, @Context SecurityContext securityContext) {
+        UsagePoint usagePoint = fetchUsagePoint(mRid, securityContext);
         UsagePointInfos result = new UsagePointInfos(usagePoint, clock);
         result.addServiceLocationInfo();
         return result;
@@ -124,10 +123,10 @@ public class UsagePointResource {
 
     @GET
     @RolesAllowed({Privileges.BROWSE_ANY, Privileges.BROWSE_OWN})
-    @Path("/{id}/meteractivations")
+    @Path("/{mrid}/meteractivations")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    public MeterActivationInfos getMeterActivations(@PathParam("id") long id, @Context SecurityContext securityContext) {
-        UsagePoint usagePoint = fetchUsagePoint(id, securityContext);
+    public MeterActivationInfos getMeterActivations(@PathParam("mrid") String mRid, @Context SecurityContext securityContext) {
+        UsagePoint usagePoint = fetchUsagePoint(mRid, securityContext);
         return new MeterActivationInfos(usagePoint.getMeterActivations());
     }
 
@@ -242,8 +241,19 @@ public class UsagePointResource {
         return usagePoint;
     }
 
-    private static class HasReadingType implements Predicate<MeterActivation> {
+    private UsagePoint fetchUsagePoint(String mRid, SecurityContext securityContext) {
+        Optional<UsagePoint> found = meteringService.findUsagePoint(mRid);
+        if (!found.isPresent()) {
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        }
+        UsagePoint usagePoint = found.get();
+        if (!usagePoint.hasAccountability((User) securityContext.getUserPrincipal()) && !((User) securityContext.getUserPrincipal()).hasPrivilege(Privileges.BROWSE_ANY)) {
+            throw new WebApplicationException(Response.Status.FORBIDDEN);
+        }
+        return usagePoint;
+    }
 
+    private static class HasReadingType implements Predicate<MeterActivation> {
         private final MRIDMatcher mridMatcher;
 
         public HasReadingType(String mRID) {
@@ -257,7 +267,6 @@ public class UsagePointResource {
     }
 
     private static class MRIDMatcher implements Predicate<ReadingType> {
-
         private final String mRID;
 
         private MRIDMatcher(String mRID) {

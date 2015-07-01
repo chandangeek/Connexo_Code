@@ -34,5 +34,4 @@ public class MeterActivationInfos {
             add(each);
         }
     }
-
 }
