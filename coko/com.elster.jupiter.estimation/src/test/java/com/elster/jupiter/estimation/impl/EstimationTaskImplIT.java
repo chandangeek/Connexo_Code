@@ -2,6 +2,7 @@ package com.elster.jupiter.estimation.impl;
 
 import com.elster.jupiter.appserver.impl.AppServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.devtools.tests.ProgrammableClock;
 import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
 import com.elster.jupiter.devtools.tests.rules.Using;
@@ -10,7 +11,6 @@ import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.estimation.EstimationTask;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fileimport.FileImportService;
-import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
@@ -68,11 +68,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 
 import static com.elster.jupiter.devtools.tests.assertions.JupiterAssertions.assertThat;
-import static com.elster.jupiter.time.RelativeField.DAY;
-import static com.elster.jupiter.time.RelativeField.HOUR;
-import static com.elster.jupiter.time.RelativeField.MINUTES;
-import static com.elster.jupiter.time.RelativeField.MONTH;
-import static com.elster.jupiter.time.RelativeField.YEAR;
+import static com.elster.jupiter.time.RelativeField.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EstimationTaskImplIT {
@@ -158,6 +154,7 @@ public class EstimationTaskImplIT {
                     inMemoryBootstrapModule,
                     new InMemoryMessagingModule(),
                     new IdsModule(),
+                    new BpmModule(),
                     new FiniteStateMachineModule(),
                     new MeteringModule(),
                     new PartyModule(),
