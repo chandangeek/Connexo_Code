@@ -39,7 +39,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Tests the peristence aspects of the {@link RegisterTypeImpl} component
+ * Tests the persistence aspects of the {@link RegisterTypeImpl} component
  * as provided by the {@link MasterDataServiceImpl}.
  *
  * @author Rudi Vankeirsbilck (rudi)
@@ -70,7 +70,7 @@ public class RegisterTypeImplTest {
     @BeforeClass
     public static void initialize() {
         inMemoryPersistence = new InMemoryPersistence();
-        inMemoryPersistence.initializeDatabase("PersistenceTest.mdc.masterdata", false, false);
+        inMemoryPersistence.initializeDatabase("mdc.masterdata.registertype", false, false);
     }
 
     @AfterClass

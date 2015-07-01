@@ -138,8 +138,6 @@ public interface MasterDataService {
 
     public List<LoadProfileType> findLoadProfileTypesByName(String name);
 
-    void validateRegisterGroup(RegisterGroup group);
-
     public Optional<ChannelType> findChannelTypeByTemplateRegisterAndInterval(RegisterType templateRegisterType, TimeDuration interval);
 
     public List<ChannelType> findChannelTypeByTemplateRegister(RegisterType templateRegisterType);

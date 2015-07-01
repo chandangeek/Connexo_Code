@@ -26,7 +26,6 @@ import com.energyict.mdc.masterdata.MeasurementType;
 import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.exceptions.MessageSeeds;
-import com.energyict.mdc.masterdata.exceptions.RegisterTypesRequiredException;
 import com.energyict.mdc.masterdata.impl.finders.LoadProfileTypeFinder;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.google.inject.AbstractModule;
@@ -193,13 +192,6 @@ public class MasterDataServiceImpl implements MasterDataService, ReferenceProper
         return this.getDataModel().mapper(LoadProfileType.class).find("name", name);
     }
 
-    @Override
-    public void validateRegisterGroup(RegisterGroup group) {
-        if (group.getRegisterTypes().isEmpty()) {
-            throw new RegisterTypesRequiredException();
-        }
-    }
-
     @Reference
     public void setOrmService(OrmService ormService) {
         try {
@@ -285,8 +277,8 @@ public class MasterDataServiceImpl implements MasterDataService, ReferenceProper
         this.install(true, true);
     }
 
-    private void install(boolean exeuteDdl, boolean createDefaults) {
-        new Installer(this.dataModel, eventService, this.meteringService, this).install(exeuteDdl, createDefaults);
+    private void install(boolean executeDdl, boolean createDefaults) {
+        new Installer(this.dataModel, eventService, this.meteringService, this).install(executeDdl, createDefaults);
     }
 
     @Override
@@ -307,4 +299,5 @@ public class MasterDataServiceImpl implements MasterDataService, ReferenceProper
     public List<ChannelType> findChannelTypeByTemplateRegister(RegisterType templateRegisterType) {
         return getDataModel().mapper(ChannelType.class).find("templateRegisterId", templateRegisterType.getId());
     }
+
 }

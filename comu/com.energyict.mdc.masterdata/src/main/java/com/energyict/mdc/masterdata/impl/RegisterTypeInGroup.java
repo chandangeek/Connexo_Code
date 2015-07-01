@@ -9,24 +9,19 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.masterdata.RegisterType;
 
-import javax.inject.Inject;
-
 class RegisterTypeInGroup {
-    private final DataModel dataModel;
-
     @IsPresent
     private Reference<RegisterType> registerType = ValueReference.absent();
     @IsPresent
     private Reference<RegisterGroup> registerGroup = ValueReference.absent();
+    @SuppressWarnings("unused")
     private String userName;
+    @SuppressWarnings("unused")
     private long version;
+    @SuppressWarnings("unused")
     private Instant createTime;
+    @SuppressWarnings("unused")
     private Instant modTime;
-
-    @Inject
-    RegisterTypeInGroup(DataModel dataModel) {
-        this.dataModel = dataModel;
-    }
 
     RegisterTypeInGroup init(RegisterGroup group , RegisterType registerType) {
         this.registerGroup.set(group);
@@ -44,14 +39,6 @@ class RegisterTypeInGroup {
 
     RegisterGroup getRegisterGroup() {
         return registerGroup.get();
-    }
-
-    void persist() {
-        dataModel.mapper(RegisterTypeInGroup.class).persist(this);
-    }
-
-    void delete() {
-        dataModel.mapper(RegisterTypeInGroup.class).remove(this);
     }
 
 }

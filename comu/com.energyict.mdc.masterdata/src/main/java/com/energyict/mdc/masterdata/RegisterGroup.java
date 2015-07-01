@@ -4,7 +4,6 @@ import com.energyict.mdc.common.HasId;
 
 import aQute.bnd.annotation.ProviderType;
 
-import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -41,7 +40,6 @@ public interface RegisterGroup extends HasId {
 
     public void removeRegisterType(RegisterType registerType);
 
-    public void removeRegisterTypes();
+    public void updateRegisterTypes(List<RegisterType> registerTypes);
 
-    public boolean updateRegisterTypes(HashMap<Long, RegisterType> registerTypes);
 }
