@@ -169,7 +169,7 @@ public class TimeServiceImpl implements TimeService, InstallService, PrivilegesP
     @Override
     public List<Resource> getModulePrivileges() {
         List<Resource> resources = new ArrayList<>();
-        resources.add(userService.createModuleResourceWithPrivileges(TimeService.COMPONENT_NAME, "estimation.estimations", "estimation.estimations.description",
+        resources.add(userService.createModuleResourceWithPrivileges(TimeService.COMPONENT_NAME, "period.periods", "period.periods.description",
                 Arrays.asList(Privileges.VIEW_RELATIVE_PERIOD, Privileges.ADMINISTRATE_RELATIVE_PERIOD)));
         return resources;
     }
