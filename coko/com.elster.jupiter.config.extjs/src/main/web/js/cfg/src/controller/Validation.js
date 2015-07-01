@@ -154,10 +154,6 @@ Ext.define('Cfg.controller.Validation', {
             '#addReadingTypesToRuleSetup cfg-side-filter button[action=applyfilter]': {
                 click: this.loadReadingTypes
             },
-            '#addReadingTypesToRuleSetup #filterReadingTypes': {
-                removeFilter: this.removeFilter,
-                clearAllFilters: this.clearAllFilters
-            },
             '#addReadingTypesToRuleSetup cfg-side-filter button[action=clearfilter]': {
                 click: this.clearAllCombos
             },
@@ -399,15 +395,10 @@ Ext.define('Cfg.controller.Validation', {
             this.forwardToPreviousPage();
         } else {
             var me = this,
-                widget = Ext.widget('AddReadingTypesToRuleSetup'),
-                unitsOfMeasureStore = Ext.create('Cfg.store.UnitsOfMeasure'),
-                timeOfUseStore = Ext.create('Cfg.store.TimeOfUse'),
-                intervalsStore = Ext.create('Cfg.store.Intervals');
+                widget = Ext.widget('AddReadingTypesToRuleSetup');
+                unitsOfMeasureStore = me.getStore('UnitsOfMeasure'),
 
             me.getApplication().fireEvent('changecontentevent', widget);
-            widget.down('#unitsOfMeasureCombo').bindStore(unitsOfMeasureStore);
-            widget.down('#intervalsCombo').bindStore(intervalsStore);
-            widget.down('#timeOfUseCombo').bindStore(timeOfUseStore);
             me.loadReadingTypes();
         }
 
@@ -425,25 +416,6 @@ Ext.define('Cfg.controller.Validation', {
         intervalsCombo.setValue(null);
         timeOfUseCombo.setValue(null);
         readingTypeNameText.setValue(null);
-    },
-
-    clearAllFilters: function () {
-        this.clearAllCombos();
-        this.loadReadingTypes();
-    },
-
-    removeFilter: function (key) {
-        var widget = this.getAddReadingTypesSetup(),
-            field;
-
-        if (key === 'name') {
-            field = widget.down('textfield[name=' + key + ']');
-        } else {
-            field = widget.down('combobox[name=' + key + ']');
-        }
-
-        field.setValue(null);
-        this.loadReadingTypes();
     },
 
     addReadingTypesToGrid: function () {
@@ -477,71 +449,14 @@ Ext.define('Cfg.controller.Validation', {
         var me = this,
             viewport = Ext.ComponentQuery.query('viewport')[0],
             widget = me.getAddReadingTypesSetup(),
-            readingTypeStore = Ext.create('Cfg.store.ReadingTypesToAddForRule'),
-            unitOfMeasureCombo = widget.down('#unitsOfMeasureCombo'),
             intervalsCombo = widget.down('#intervalsCombo'),
             timeOfUseCombo = widget.down('#timeOfUseCombo'),
-            readingTypeNameText = widget.down('#readingTypeNameTextField'),
-            unitOfMeasureComboValue = unitOfMeasureCombo.getValue(),
-            filter = widget.down('#filterReadingTypes'),
-            filterBtns = Ext.ComponentQuery.query('#filterReadingTypes tag-button'),
-            bulkGridContainer = widget.down('#bulkReadingTypesContainer'),
-            properties = [],
-            unitOfMeasureRecord,
-            intervalsRecord,
-            previewContainer;
-
-        bulkGridContainer.removeAll();
+            filterBtns = Ext.ComponentQuery.query('#filterReadingTypes tag-button');
 
         Ext.each(filterBtns, function (btn) {
             btn.destroy();
         });
 
-        if (unitOfMeasureComboValue) {
-            unitOfMeasureRecord = unitOfMeasureCombo.findRecord(unitOfMeasureCombo.valueField, unitOfMeasureComboValue);
-            properties.push({
-                property: 'unitOfMeasure',
-                value: unitOfMeasureRecord.get('unit')
-            });
-            properties.push({
-                property: 'multiplier',
-                value: unitOfMeasureRecord.get('multiplier')
-            });
-            filter.setFilter('unitOfMeasure', 'Unit of measure', unitOfMeasureRecord.get('name'), false);
-        }
-
-        if (!Ext.isEmpty(intervalsCombo.getRawValue())) {
-            intervalsRecord = intervalsCombo.findRecordByDisplay(intervalsCombo.getRawValue());
-            if (intervalsRecord.get('time') !== null) {
-                properties.push({
-                    property: 'time',
-                    value: intervalsCombo.getValue()
-                });
-            }
-            if (intervalsRecord.get('macro') !== null) {
-                properties.push({
-                    property: 'macro',
-                    value: intervalsRecord.get('macro')
-                });
-            }
-            filter.setFilter('time', 'Interval', intervalsRecord.get('name'), false);
-        }
-
-        if (readingTypeNameText.getValue()) {
-            properties.push({
-                property: 'name',
-                value: readingTypeNameText.getValue()
-            });
-            filter.setFilter('name', 'Name', readingTypeNameText.getValue(), false);
-        }
-
-        if (!Ext.isEmpty(timeOfUseCombo.getValue())) {
-            properties.push({
-                property: 'tou',
-                value: timeOfUseCombo.getValue()
-            });
-            filter.setFilter('tou', 'Time of use', timeOfUseCombo.getValue(), false);
-        }
 
         if (me.validationRuleRecord) {
             var readingTypes = me.validationRuleRecord.get('readingTypes');
@@ -551,47 +466,11 @@ Ext.define('Cfg.controller.Validation', {
                     mRIDs.push(readingType.mRID.toLowerCase());
 
                 });
-                properties.push({
-                    property: 'selectedReadings',
-                    value: mRIDs
-                });
+                viewport.down('readingTypesToAddForRule').setSelectedReadings(mRIDs);
             }
         }
 
-        readingTypeStore.getProxy().setExtraParam('filter', Ext.encode(properties));
-        readingTypeStore.loadData([], false);
-
-        previewContainer = {
-            xtype: 'preview-container',
-            selectByDefault: false,
-            grid: {
-                itemId: 'addReadingTypesGrid',
-                xtype: 'addReadingTypesBulk',
-                store: readingTypeStore,
-                height: 600,
-                plugins: {
-                    ptype: 'bufferedrenderer'
-                }
-            },
-            emptyComponent: {
-                xtype: 'no-items-found-panel',
-                margin: '0 0 20 0',
-                title: Uni.I18n.translate('validation.readingType.empty.title', 'CFG', 'No reading types found.'),
-                reasons: [
-                    Uni.I18n.translate('validation.readingType.empty.list.item1', 'CFG', 'No reading types have been added yet.'),
-                    Uni.I18n.translate('validation.readingType.empty.list.item2', 'CFG', 'No reading types comply to the filter.'),
-                    Uni.I18n.translate('validation.readingType.empty.list.item3', 'CFG', 'All reading types have been already added to rule.')
-                ]
-            }
-        };
-
-        bulkGridContainer.add(previewContainer);
-
-        readingTypeStore.on('beforeload', function () {
-            widget.down('#buttonsContainer button[name=add]').setDisabled(true);
-        });
-
-        Ext.override(Ext.data.proxy.Ajax, {timeout: 120000});
+        var readingTypeStore = Ext.ComponentQuery.query('#addReadingTypesGrid')[0].store;
         readingTypeStore.load();
     },
 
