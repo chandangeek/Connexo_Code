@@ -100,7 +100,7 @@ Ext.define('Mdc.view.setup.devicechannels.ValidationPreview', {
                             str += '<span style="word-wrap: break-word; display: inline-block; width: 800px">' + rule.name + ' ' + Uni.I18n.translate('device.registerData.removedRule', 'MDC', '(removed rule)') + prop + '</span>' + '<br>';
                         } else {
                             str = '<span style="word-wrap: break-word; display: inline-block; width: 800px">';
-                            if (Cfg.privileges.Validation.canViewOrAdminstrate()) {
+                            if (Cfg.privileges.Validation.canViewOrAdministrate()) {
                                 str += '<a href="#/administration/validation/rulesets/' + rule.ruleSetVersion.id + '/rules/' + rule.id + '">' + rule.name + '</a>';
                             } else {
                                 str += rule.name;
