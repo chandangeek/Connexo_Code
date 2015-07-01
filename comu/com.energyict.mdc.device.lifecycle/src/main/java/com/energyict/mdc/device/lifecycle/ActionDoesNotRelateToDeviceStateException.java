@@ -37,8 +37,8 @@ public class ActionDoesNotRelateToDeviceStateException extends DeviceLifeCycleAc
         this.messageSeed = messageSeed;
         this.thesaurus = thesaurus;
         this.messageParameters = new Object[3];
-        this.messageParameters[0] = action.getDeploymentId();
-        this.messageParameters[1] = action.getProcessId();
+        this.messageParameters[0] = action.getTransitionBusinessProcess().getDeploymentId();
+        this.messageParameters[1] = action.getTransitionBusinessProcess().getProcessId();
         this.messageParameters[2] = device.getId();
     }
 

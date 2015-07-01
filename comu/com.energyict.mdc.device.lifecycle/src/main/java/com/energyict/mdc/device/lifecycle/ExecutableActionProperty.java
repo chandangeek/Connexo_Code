@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.lifecycle;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.properties.PropertySpec;
 
 /**
@@ -8,6 +9,7 @@ import com.elster.jupiter.properties.PropertySpec;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-04-23 (16:25)
  */
+@ProviderType
 public interface ExecutableActionProperty {
 
     /**

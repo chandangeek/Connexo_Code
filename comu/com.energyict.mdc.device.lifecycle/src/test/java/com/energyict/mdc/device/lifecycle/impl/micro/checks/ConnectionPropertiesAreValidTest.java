@@ -1,8 +1,7 @@
 package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.energyict.mdc.device.data.tasks.*;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolation;
 import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 
@@ -82,13 +81,19 @@ public class ConnectionPropertiesAreValidTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void deviceWithOnlyIncompleteConnectionTasks() {
         ConnectionPropertiesAreValid microCheck = this.getTestInstance();
-        ScheduledConnectionTask ct1 = mock(ScheduledConnectionTask.class);
+        ConnectionTask ct1 = mock(ScheduledConnectionTask.class);
         when(ct1.getStatus()).thenReturn(ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE);
-        ScheduledConnectionTask ct2 = mock(ScheduledConnectionTask.class);
+        ComTaskExecution cte1 = mock(ComTaskExecution.class);
+        when(cte1.getConnectionTask()).thenReturn(ct1);
+
+        ConnectionTask ct2 = mock(ScheduledConnectionTask.class);
         when(ct2.getStatus()).thenReturn(ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE);
-        when(this.device.getConnectionTasks()).thenReturn(Arrays.asList(ct1, ct2));
+        ComTaskExecution cte2 = mock(ComTaskExecution.class);
+        when(cte1.getConnectionTask()).thenReturn(ct2);
+        when(this.device.getComTaskExecutions()).thenReturn(Arrays.asList(cte1, cte2));
 
         // Business method
         Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now());
@@ -99,15 +104,22 @@ public class ConnectionPropertiesAreValidTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void deviceWithMixOfConnectionTasks() {
         ConnectionPropertiesAreValid microCheck = this.getTestInstance();
-        ScheduledConnectionTask ct1 = mock(ScheduledConnectionTask.class);
+        ConnectionTask ct1 = mock(ScheduledConnectionTask.class);
         when(ct1.getStatus()).thenReturn(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE);
-        ScheduledConnectionTask ct2 = mock(ScheduledConnectionTask.class);
+        ComTaskExecution cte1 = mock(ComTaskExecution.class);
+        when(cte1.getConnectionTask()).thenReturn(ct1);
+        ConnectionTask ct2 = mock(ScheduledConnectionTask.class);
         when(ct2.getStatus()).thenReturn(ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE);
-        ScheduledConnectionTask ct3 = mock(ScheduledConnectionTask.class);
+        ComTaskExecution cte2 = mock(ComTaskExecution.class);
+        when(cte2.getConnectionTask()).thenReturn(ct2);
+        ConnectionTask ct3 = mock(ScheduledConnectionTask.class);
         when(ct3.getStatus()).thenReturn(ConnectionTask.ConnectionTaskLifecycleStatus.INACTIVE);
-        when(this.device.getConnectionTasks()).thenReturn(Arrays.asList(ct1, ct2, ct3));
+        ComTaskExecution cte3 = mock(ComTaskExecution.class);
+        when(cte3.getConnectionTask()).thenReturn(ct2);
+        when(this.device.getComTaskExecutions()).thenReturn(Arrays.asList(cte1, cte2, cte3));
 
         // Business method
         Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now());

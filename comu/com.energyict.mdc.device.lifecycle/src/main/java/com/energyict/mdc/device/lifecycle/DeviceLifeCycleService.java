@@ -8,6 +8,7 @@ import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.fsm.CustomStateTransitionEventType;
 import com.elster.jupiter.fsm.StateTransitionEventType;
 import com.elster.jupiter.fsm.StateTransitionTriggerEvent;
@@ -25,6 +26,7 @@ import java.util.Optional;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-20 (15:54)
  */
+@ProviderType
 public interface DeviceLifeCycleService {
 
     String COMPONENT_NAME = "DLC";
