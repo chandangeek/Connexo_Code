@@ -88,7 +88,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                 str += '<span style="word-wrap: break-word; display: inline-block; width: 800px">' + rule.name + ' ' + Uni.I18n.translate('device.registerData.removedRule', 'MDC', '(removed rule)') + prop + '</span>' + '<br>';
             } else {
                 str = '<span style="word-wrap: break-word; display: inline-block; width: 800px">';
-                if (Cfg.privileges.Validation.canViewOrAdminstrate()) {
+                if (Cfg.privileges.Validation.canViewOrAdministrate()) {
                     str += '<a href="#/administration/validation/rulesets/' + rule.ruleSetVersion.id + '/rules/' + rule.id + '">' + rule.name + '</a>';
                 } else {
                     str += rule.name;
@@ -109,7 +109,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                 if (rule.key.deleted) {
                     result += Ext.String.htmlEncode(rule.key.name) + ' ' + Uni.I18n.translate('device.registerData.removedRule', 'MDC', '(removed rule)') + ' - ' + rule.value + ' ' + Uni.I18n.translate('general.suspects', 'MDC', 'suspects') + '<br>';
                 } else {
-                    if (Cfg.privileges.Validation.canViewOrAdminstrate()) {
+                    if (Cfg.privileges.Validation.canViewOrAdministrate()) {
                         url = me.up('tabbedDeviceChannelsView').router.getRoute('administration/rulesets/overview/versions/overview/rules').buildUrl({ruleSetId: rule.key.ruleSetVersion.ruleSet.id, versionId: rule.key.ruleSetVersion.id, ruleId: rule.key.id});
                         result += '<a href="' + url + '"> ' + Ext.String.htmlEncode(rule.key.name) + '</a>';
                     } else {
