@@ -116,7 +116,7 @@ public class AS330D extends AbstractDlmsProtocol {
 
     @Override
     public List<DeviceProtocolCapabilities> getDeviceProtocolCapabilities() {   //Physical slave
-        return Arrays.asList(DeviceProtocolCapabilities.PROTOCOL_SLAVE, DeviceProtocolCapabilities.PROTOCOL_SESSION);
+        return Arrays.asList(DeviceProtocolCapabilities.PROTOCOL_SESSION);
     }
 
     @Override

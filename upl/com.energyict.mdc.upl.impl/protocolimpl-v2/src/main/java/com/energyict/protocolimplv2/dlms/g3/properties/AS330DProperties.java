@@ -1,11 +1,9 @@
 package com.energyict.protocolimplv2.dlms.g3.properties;
 
-import com.energyict.cbo.HexString;
 import com.energyict.dlms.IncrementalInvokeIdAndPriorityHandler;
 import com.energyict.dlms.InvokeIdAndPriorityHandler;
 import com.energyict.dlms.NonIncrementalInvokeIdAndPriorityHandler;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsProperties;
-import com.energyict.protocolimplv2.nta.elster.AM100ConfigurationSupport;
 
 import java.math.BigDecimal;
 
@@ -22,7 +20,6 @@ public class AS330DProperties extends DlmsProperties {
     public static final String AARQ_TIMEOUT_PROPERTY = "AARQTimeout";
     public static final String AARQ_RETRIES_PROPERTY = "AARQRetries";
     public static final BigDecimal DEFAULT_MAX_REC_PDU_SIZE = new BigDecimal(512);
-    public static final String PSK = "PSK";
     public static final boolean DEFAULT_VALIDATE_INVOKE_ID = true;
 
     public long getAARQTimeout() {
@@ -38,11 +35,7 @@ public class AS330DProperties extends DlmsProperties {
      * Property indicating to read the cache out (useful because there's no config change state)
      */
     public boolean isReadCache() {
-        return getProperties().<Boolean>getTypedProperty(AM100ConfigurationSupport.READCACHE_PROPERTY, false);
-    }
-
-    public HexString getPSK() {
-        return getProperties().getTypedProperty(PSK);
+        return getProperties().<Boolean>getTypedProperty(AS330DConfigurationSupport.READCACHE_PROPERTY, false);
     }
 
     public int getAARQRetries() {

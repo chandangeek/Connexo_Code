@@ -2,7 +2,6 @@ package com.energyict.protocolimplv2.dlms.g3.properties;
 
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.protocolimpl.dlms.g3.G3Properties;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsConfigurationSupport;
@@ -23,6 +22,8 @@ import static com.energyict.dlms.common.DlmsProtocolProperties.MAX_REC_PDU_SIZE;
 public class AS330DConfigurationSupport extends DlmsConfigurationSupport {
 
     public static final String READCACHE_PROPERTY = "ReadCache";
+    public static final String MIRROR_LOGICAL_DEVICE_ID = "MirrorLogicalDeviceId";
+    public static final String GATEWAY_LOGICAL_DEVICE_ID = "GatewayLogicalDeviceId";
 
     @Override
     public List<PropertySpec> getOptionalProperties() {
@@ -32,20 +33,27 @@ public class AS330DConfigurationSupport extends DlmsConfigurationSupport {
         optionalProperties.add(aarqRetriesPropertySpec());
         optionalProperties.add(readCachePropertySpec());
         optionalProperties.add(callHomeIdPropertySpec());
-        optionalProperties.add(serverUpperMacAddressPropertySpec());
+        optionalProperties.add(mirrorLogicalDeviceIdPropertySpec());
+        optionalProperties.add(actualLogicalDeviceIdPropertySpec());
         optionalProperties.remove(ntaSimulationToolPropertySpec());
+        optionalProperties.remove(serverUpperMacAddressPropertySpec());
+        optionalProperties.remove(serverLowerMacAddressPropertySpec());
         optionalProperties.remove(manufacturerPropertySpec());
         optionalProperties.remove(fixMbusHexShortIdPropertySpec());
         optionalProperties.remove(deviceId());
         return optionalProperties;
     }
 
-    protected PropertySpec callHomeIdPropertySpec() {
-        return PropertySpecFactory.hexStringPropertySpec(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME);
+    private PropertySpec callHomeIdPropertySpec() {
+        return PropertySpecFactory.stringPropertySpec(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME);
     }
 
-    protected PropertySpec serverUpperMacAddressPropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(DlmsProtocolProperties.SERVER_UPPER_MAC_ADDRESS, BigDecimal.ONE);
+    private PropertySpec mirrorLogicalDeviceIdPropertySpec() {
+        return PropertySpecFactory.bigDecimalPropertySpec(MIRROR_LOGICAL_DEVICE_ID);
+    }
+
+    private PropertySpec actualLogicalDeviceIdPropertySpec() {
+        return PropertySpecFactory.bigDecimalPropertySpec(GATEWAY_LOGICAL_DEVICE_ID);
     }
 
     private PropertySpec pskPropertySpec() {
