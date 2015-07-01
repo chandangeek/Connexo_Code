@@ -17,10 +17,10 @@ Ext.define('Idc.model.Group', {
 
     proxy: {
         type: 'rest',
-        url: '/api/idc/issue/groupedlist',
+        url: '/api/isu/issues/groupedlist',
         reader: {
             type: 'json',
-            root: 'data',
+            root: 'issueGroups',
             totalProperty: 'totalCount'
         }
     }
