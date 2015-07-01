@@ -5,6 +5,7 @@ import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
+import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.estimation.impl.EstimationModule;
@@ -15,6 +16,8 @@ import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
+import com.elster.jupiter.issue.share.entity.Entity;
+import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.kpi.impl.KpiModule;
@@ -45,6 +48,7 @@ import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
+import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
@@ -107,6 +111,7 @@ import org.osgi.service.log.LogService;
 import java.security.Principal;
 import java.sql.SQLException;
 import java.time.Clock;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -166,6 +171,11 @@ public class DeviceImplDoSomethingWithEventsTest {
         deviceConfiguration = deviceConfigurationBuilder.add();
         deviceType.save();
         deviceConfiguration.activate();
+        IssueStatus wontFix = mock(IssueStatus.class);
+        when(inMemoryPersistence.getIssueService().findStatus(IssueStatus.WONT_FIX)).thenReturn(Optional.of(wontFix));
+        Query<Entity> mockedQuery = mock(Query.class);
+        when(inMemoryPersistence.getIssueService().query(any())).thenReturn(mockedQuery);
+        when(mockedQuery.select(any(Condition.class))).thenReturn(Collections.emptyList());
     }
 
     @After
@@ -246,6 +256,7 @@ public class DeviceImplDoSomethingWithEventsTest {
         private EngineConfigurationService engineConfigurationService;
         private SchedulingService schedulingService;
         private LicenseService licenseService;
+        private IssueService issueService;
 
         public void initializeDatabase(String testName, boolean showSqlLogging) {
             this.initializeMocks(testName);
@@ -306,6 +317,7 @@ public class DeviceImplDoSomethingWithEventsTest {
                 this.relationService = injector.getInstance(RelationService.class);
                 this.protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
                 this.schedulingService = injector.getInstance(SchedulingService.class);
+                this.issueService = injector.getInstance(IssueService.class);
                 this.deviceDataModelService =
                         new DeviceDataModelServiceImpl(
                                 this.bundleContext,
@@ -313,13 +325,14 @@ public class DeviceImplDoSomethingWithEventsTest {
                                 this.nlsService, this.clock,
                                 injector.getInstance(KpiService.class),
                                 injector.getInstance(TaskService.class),
-                                mock(IssueService.class),
+                                this.issueService,
                                 this.relationService, this.protocolPluggableService, this.engineConfigurationService,
                                 this.deviceConfigurationService, this.meteringService, this.validationService, this.estimationService, this.schedulingService,
                                 injector.getInstance(MessageService.class),
                                 injector.getInstance(SecurityPropertyService.class),
                                 injector.getInstance(UserService.class),
-                                injector.getInstance(DeviceMessageSpecificationService.class));
+                                injector.getInstance(DeviceMessageSpecificationService.class),
+                                injector.getInstance(MeteringGroupsService.class));
                 this.dataModel = this.deviceDataModelService.dataModel();
                 ctx.commit();
             }
@@ -365,6 +378,10 @@ public class DeviceImplDoSomethingWithEventsTest {
 
         public EventService getEventService() {
             return eventService;
+        }
+
+        public IssueService getIssueService() {
+            return issueService;
         }
 
         private class MockModule extends AbstractModule {

@@ -120,6 +120,7 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
     private SchedulingService schedulingService;
     private ValidationService validationService;
     private InMemoryBootstrapModule bootstrapModule;
+    private IssueService issueService;
 
     public InMemoryPersistenceWithMockedDeviceProtocol() {
         this(Clock.systemDefaultZone());
@@ -188,6 +189,7 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
             this.validationService = injector.getInstance(ValidationService.class);
             this.deviceConfigurationService = injector.getInstance(DeviceConfigurationService.class);
             this.schedulingService = injector.getInstance(SchedulingService.class);
+            this.issueService = injector.getInstance(IssueService.class);
             this.dataModel = this.createNewDeviceDataService(injector);
             ctx.commit();
         }
@@ -248,6 +250,10 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
 
     public DataModel getDataModel() {
         return this.deviceDataModelService.dataModel();
+    }
+
+    public IssueService getIssueService() {
+        return this.issueService;
     }
 
     private class MockModule extends AbstractModule {
