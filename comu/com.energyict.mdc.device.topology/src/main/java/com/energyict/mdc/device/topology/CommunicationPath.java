@@ -2,6 +2,8 @@ package com.energyict.mdc.device.topology;
 
 import com.energyict.mdc.device.data.Device;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * Models the path that was used while one {@link Device}
  * was communicating with another Device.
@@ -14,6 +16,7 @@ import com.energyict.mdc.device.data.Device;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-12-08 (13:54)
  */
+@ProviderType
 public interface CommunicationPath {
 
     /**

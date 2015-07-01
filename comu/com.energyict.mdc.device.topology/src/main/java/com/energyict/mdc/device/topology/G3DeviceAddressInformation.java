@@ -2,6 +2,7 @@ package com.energyict.mdc.device.topology;
 
 import com.energyict.mdc.device.data.Device;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.orm.associations.Effectivity;
 
 import java.net.InetAddress;
@@ -13,6 +14,7 @@ import java.net.InetAddress;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-12-17 (09:03)
  */
+@ProviderType
 public interface G3DeviceAddressInformation extends Effectivity {
 
     /**

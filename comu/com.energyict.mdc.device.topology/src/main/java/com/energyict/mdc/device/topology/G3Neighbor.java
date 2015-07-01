@@ -2,6 +2,8 @@ package com.energyict.mdc.device.topology;
 
 import com.energyict.mdc.device.data.Device;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.time.Duration;
 
 /**
@@ -11,6 +13,7 @@ import java.time.Duration;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-12-15 (14:17)
  */
+@ProviderType
 public interface G3Neighbor extends PLCNeighbor {
 
     public int getTxGain();

@@ -2,6 +2,7 @@ package com.energyict.mdc.device.topology;
 
 import com.energyict.mdc.device.data.Device;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.util.time.Interval;
 import com.google.common.collect.Range;
 
@@ -20,6 +21,7 @@ import java.util.Set;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-06-03 (10:27)
  */
+@ProviderType
 public interface DeviceTopology {
 
     /**

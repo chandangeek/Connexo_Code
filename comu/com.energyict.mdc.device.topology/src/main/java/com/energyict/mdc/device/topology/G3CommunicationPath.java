@@ -2,6 +2,8 @@ package com.energyict.mdc.device.topology;
 
 import com.energyict.mdc.device.data.Device;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.util.List;
 
 /**
@@ -10,6 +12,7 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-12-08 (14:06)
  */
+@ProviderType
 public interface G3CommunicationPath extends CommunicationPath {
 
     /**
