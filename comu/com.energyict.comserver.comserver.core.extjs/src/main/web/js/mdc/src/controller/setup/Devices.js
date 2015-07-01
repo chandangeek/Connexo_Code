@@ -34,6 +34,7 @@ Ext.define('Mdc.controller.setup.Devices', {
         {ref: 'deviceSetupPanel', selector: '#deviceSetupPanel'},
         {ref: 'deviceGeneralInformationDeviceTypeLink', selector: '#deviceGeneralInformationDeviceTypeLink'},
         {ref: 'deviceGeneralInformationDeviceConfigurationLink', selector: '#deviceGeneralInformationDeviceConfigurationLink'},
+        {ref: 'deviceGeneralInformationUsagePointLink', selector: '#deviceGeneralInformationUsagePointLink'},
         {ref: 'dataCollectionIssuesLink', selector: '#dataCollectionIssuesLink'},
         {ref: 'deviceValidationResultFieldLink', selector: '#lnk-validation-result'},
         {ref: 'validationFromDate', selector: '#validationFromDate'},
@@ -222,7 +223,6 @@ Ext.define('Mdc.controller.setup.Devices', {
                         me.getDeviceGeneralInformationForm().loadRecord(attributes);
                     }
                 });
-
                 me.getDeviceCommunicationTopologyPanel().setRecord(device);
                 me.getDeviceOpenIssuesPanel().setDataCollectionIssues(device);
                 me.getDeviceDataValidationPanel().setValidationResult();

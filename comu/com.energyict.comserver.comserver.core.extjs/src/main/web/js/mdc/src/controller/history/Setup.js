@@ -6,6 +6,26 @@ Ext.define('Mdc.controller.history.Setup', {
     currentPath: null,
 
     routeConfig: {
+        usagepoints: {
+            title: Uni.I18n.translate('general.usagePoint', 'MDC', 'Usage points'),
+            route: 'usagepoints',
+            items: {
+                usagepoint: {
+                    title: Uni.I18n.translate('general.usagePoint', 'MDC', 'Usage point'),
+                    route: '{mRID}',
+                    controller: 'Mdc.usagepointmanagement.controller.UsagePoint',
+                    action: 'showUsagePoint',
+                    callback: function (route) {
+                        this.getApplication().on('usagePointLoaded', function (record) {
+                            route.setTitle(record.get('mRID'));
+                            return true;
+                        }, {single: true});
+
+                        return this;
+                    }
+                }
+            }
+        },
         administration: {
             title: 'Administration',
             route: 'administration',
@@ -986,6 +1006,7 @@ Ext.define('Mdc.controller.history.Setup', {
                         return this;
                     },
                     items: {
+
                         history: {
                             title: Uni.I18n.translate('general.history', 'MDC', 'History'),
                             route: 'history',

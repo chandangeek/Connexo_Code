@@ -134,7 +134,7 @@ Ext.define('Mdc.view.setup.device.DeviceAttributesForm', {
                         if (Ext.isEmpty(value.displayValue)) {
                             return '-'
                         } else {
-                            return value.displayValue
+                            return '<a href="' + me.router.getRoute('usagepoints/usagepoint').buildUrl({usagepoint: value.usagepoint}) + '">' + Ext.String.htmlEncode(value.displayValue) + '</a>'
                         }
                     } else {
                         this.hide();
