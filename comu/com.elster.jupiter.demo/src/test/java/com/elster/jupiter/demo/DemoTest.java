@@ -2,6 +2,7 @@ package com.elster.jupiter.demo;
 
 import com.elster.jupiter.appserver.impl.AppServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.datavault.impl.DataVaultServiceImpl;
 import com.elster.jupiter.demo.impl.DemoServiceImpl;
@@ -211,6 +212,7 @@ public class DemoTest {
                 inMemoryBootstrapModule,
                 new InMemoryMessagingModule(),
                 new IdsModule(),
+                new BpmModule(),
                 new FiniteStateMachineModule(),
                 new MeteringModule(),
                 new DataVaultModule(),
