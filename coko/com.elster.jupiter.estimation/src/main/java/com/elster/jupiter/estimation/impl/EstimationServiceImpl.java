@@ -488,11 +488,15 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
     public Layer getLayer() {
         return Layer.DOMAIN;
     }
+    @Override
+    public String getModuleName() {
+        return EstimationService.COMPONENTNAME;
+    }
 
     @Override
     public List<Resource> getModulePrivileges() {
         List<Resource> resources = new ArrayList<>();
-        resources.add(userService.createModuleResourceWithPrivileges("estimation.estimations", "estimation.estimations.description",
+        resources.add(userService.createModuleResourceWithPrivileges(EstimationService.COMPONENTNAME, "estimation.estimations", "estimation.estimations.description",
                 Arrays.asList(
                         Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION,
                         Privileges.Constants.UPDATE_ESTIMATION_CONFIGURATION,Privileges.Constants.UPDATE_SCHEDULE_ESTIMATION_TASK,
