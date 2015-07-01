@@ -3,6 +3,7 @@ package com.elster.jupiter.bpm.impl;
 import com.elster.jupiter.bpm.BpmProcess;
 import com.elster.jupiter.bpm.BpmServer;
 import com.elster.jupiter.bpm.BpmService;
+import com.elster.jupiter.bpm.security.Privileges;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Layer;
@@ -12,6 +13,8 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.users.PrivilegesProvider;
+import com.elster.jupiter.users.Resource;
 import com.elster.jupiter.util.json.JsonService;
 import com.google.inject.AbstractModule;
 import org.osgi.framework.BundleContext;
@@ -22,17 +25,14 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Component(
         name = "com.elster.jupiter.bpm",
         service = {BpmService.class, InstallService.class},
         immediate = true,
         property = "name=" + BpmService.COMPONENTNAME)
-public class BpmServiceImpl implements BpmService, InstallService {
+public class BpmServiceImpl implements BpmService, InstallService, PrivilegesProvider {
 
     private volatile DataModel dataModel;
     private volatile MessageService messageService;
@@ -140,5 +140,19 @@ public class BpmServiceImpl implements BpmService, InstallService {
             result = true;
         }
         return result;
+    }
+
+    @Override
+    public String getModuleName() {
+        return BpmService.COMPONENTNAME;
+    }
+
+    @Override
+    public List<Resource> getModulePrivileges() {
+        List<Resource> resources = new ArrayList<>();
+        resources.add(userService.createModuleResourceWithPrivileges(BpmService.COMPONENTNAME, "bpm.businessProcesses", "bpm.businessProcesses.description",
+                Arrays.asList(
+                        Privileges.VIEW_BPM, Privileges.DESIGN_BPM)));
+        return resources;
     }
 }
