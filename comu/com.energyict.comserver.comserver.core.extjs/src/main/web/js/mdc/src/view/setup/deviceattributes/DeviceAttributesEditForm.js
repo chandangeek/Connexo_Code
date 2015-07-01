@@ -63,7 +63,7 @@ Ext.define('Mdc.view.setup.deviceattributes.DeviceAttributesEditForm', {
             {
                 itemId: 'usagePointEmptyStoreField',
                 fieldLabel: Uni.I18n.translate('deviceGeneralInformation.usagePoint', 'MDC', 'Usage point'),
-                renderer: function() {
+                renderer: function () {
                     return '<span style="font-style:italic;color: grey;">' + Uni.I18n.translate('deviceGeneralInformation.usagePoint.notAvailable', 'MDC', 'No usage points available') + '</span>';
                 }
             },
@@ -86,7 +86,7 @@ Ext.define('Mdc.view.setup.deviceattributes.DeviceAttributesEditForm', {
                 name: 'shipmentDate',
                 itemId: 'shipmentDateView',
                 fieldLabel: Uni.I18n.translate('deviceGeneralInformation.shipmentDate', 'MDC', 'Shipment date'),
-                renderer: function(value)  {
+                renderer: function (value) {
                     if (Ext.isEmpty(value.displayValue)) {
                         return '-'
                     } else {
@@ -104,7 +104,7 @@ Ext.define('Mdc.view.setup.deviceattributes.DeviceAttributesEditForm', {
                 name: 'installationDate',
                 itemId: 'installationDateView',
                 fieldLabel: Uni.I18n.translate('deviceGeneralInformation.installationDate', 'MDC', 'Installation date'),
-                renderer: function(value)  {
+                renderer: function (value) {
                     if (Ext.isEmpty(value.displayValue)) {
                         return '-'
                     } else {
@@ -122,7 +122,7 @@ Ext.define('Mdc.view.setup.deviceattributes.DeviceAttributesEditForm', {
                 name: 'deactivationDate',
                 itemId: 'deactivationDateView',
                 fieldLabel: Uni.I18n.translate('deviceGeneralInformation.deactivationDate', 'MDC', 'Deactivation date'),
-                renderer: function(value)  {
+                renderer: function (value) {
                     if (Ext.isEmpty(value.displayValue)) {
                         return '-'
                     } else {
@@ -141,7 +141,7 @@ Ext.define('Mdc.view.setup.deviceattributes.DeviceAttributesEditForm', {
                 name: 'decommissioningDate',
                 itemId: 'decommissioningDateView',
                 fieldLabel: Uni.I18n.translate('deviceGeneralInformation.decommissionDate', 'MDC', 'Decommissioning date'),
-                renderer: function(value)  {
+                renderer: function (value) {
                     if (Ext.isEmpty(value.displayValue)) {
                         return '-'
                     } else {
@@ -161,40 +161,35 @@ Ext.define('Mdc.view.setup.deviceattributes.DeviceAttributesEditForm', {
                 fieldLabel: Uni.I18n.translate('deviceGeneralInformation.yearOfCertification', 'MDC', 'Year of certification')
             },
             {
+                xtype: 'combobox',
                 name: 'yearOfCertificationEdit',
                 itemId: 'yearOfCertificationEdit',
-                xtype: 'combobox',
-                fieldLabel: Uni.I18n.translate('deviceGeneralInformation.yearOfCertification', 'MDC', 'Year of certification'),
-                editable: false,
-                queryMode: 'local',
+                fieldLabel: Uni.I18n.translate('deviceAdd.yearOfCertification', 'MDC', 'Year of certification'),
                 displayField: 'year',
                 valueField: 'year',
-                store: Ext.create('Ext.data.Store', {
-                    fields: ['year'],
-                    data : [
-                        {"year":"2010"},
-                        {"year":"2011"},
-                        {"year":"2012"},
-                        {"year":"2013"},
-                        {"year":"2014"},
-                        {"year":"2015"},
-                        {"year":"2016"},
-                        {"year":"2017"},
-                        {"year":"2018"},
-                        {"year":"2019"},
-                        {"year":"2020"},
-                        {"year":"2021"},
-                        {"year":"2022"},
-                        {"year":"2023"},
-                        {"year":"2024"},
-                        {"year":"2025"},
-                        {"year":"2026"},
-                        {"year":"2027"},
-                        {"year":"2028"},
-                        {"year":"2029"},
-                        {"year":"2030"}
-                    ]
-                })
+                store: undefined,
+                editable: false,
+                listConfig: { maxHeight: 100 },
+                listeners: {
+                    beforerender: function (combo) {
+                        var currentTime = new Date();
+                        var year = currentTime.getFullYear();
+                        var years = [];
+
+                        for (y = 0; y <= 20; y++) {
+                            years.push([year - y]);
+                        }
+
+                        var yearStore = new Ext.data.SimpleStore
+                        ({
+                            fields: ['year'],
+                            data: years
+                        });
+
+                        combo.bindStore(yearStore);
+                        combo.setValue(year);
+                    }
+                }
             },
             {
                 name: 'batch',
