@@ -1,5 +1,7 @@
 package com.energyict.mdc.scheduling;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.util.Calendar;
 import java.util.Date;
 
@@ -10,6 +12,7 @@ import java.util.Date;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-04-11 (17:47)
  */
+@ProviderType
 public interface NextExecutionCalculator {
 
     /**

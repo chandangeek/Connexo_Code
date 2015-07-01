@@ -1,5 +1,6 @@
 package com.energyict.mdc.scheduling.model;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.util.HasName;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
@@ -13,6 +14,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+@ProviderType
 public interface ComSchedule extends HasId, HasName, DataCollectionConfiguration {
 
     public void setName(String name);
