@@ -1,11 +1,14 @@
 package com.energyict.mdc.dashboard;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * Counts occurrences of things.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-07-29 (17:30)
  */
+@ProviderType
 public interface Counter<T> {
 
     /**

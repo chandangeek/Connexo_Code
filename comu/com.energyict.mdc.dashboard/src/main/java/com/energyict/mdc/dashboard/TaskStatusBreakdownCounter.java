@@ -2,6 +2,8 @@ package com.energyict.mdc.dashboard;
 
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * Counts things that relate to {@link TaskStatus}.
  * The counting is broken down to the different TaskStatusses.
@@ -15,6 +17,7 @@ import com.energyict.mdc.device.data.tasks.TaskStatus;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-07-30 (09:05)
  */
+@ProviderType
 public interface TaskStatusBreakdownCounter<T> extends Counter<T> {
 
     /**

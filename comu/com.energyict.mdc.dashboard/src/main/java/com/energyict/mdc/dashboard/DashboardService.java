@@ -1,5 +1,6 @@
 package com.energyict.mdc.dashboard;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 
 /**
@@ -11,6 +12,7 @@ import com.elster.jupiter.metering.groups.EndDeviceGroup;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-07-29 (17:28)
  */
+@ProviderType
 public interface DashboardService {
 
     public TaskStatusOverview getConnectionTaskStatusOverview();

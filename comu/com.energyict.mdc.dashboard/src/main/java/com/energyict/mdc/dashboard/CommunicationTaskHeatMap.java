@@ -1,5 +1,7 @@
 package com.energyict.mdc.dashboard;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * Models a heat map that contains {@link ComCommandCompletionCodeOverview}
  * information per instance of T, allowing to compare and focus on the
@@ -9,5 +11,6 @@ package com.energyict.mdc.dashboard;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-08-25 (15:04)
  */
+@ProviderType
 public interface CommunicationTaskHeatMap extends Iterable<CommunicationTaskHeatMapRow> {
 }
