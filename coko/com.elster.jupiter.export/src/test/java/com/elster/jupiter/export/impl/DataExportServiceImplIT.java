@@ -6,13 +6,8 @@ import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
 import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
-import com.elster.jupiter.export.DataExportService;
-import com.elster.jupiter.export.DataProcessor;
-import com.elster.jupiter.export.DataProcessorFactory;
-import com.elster.jupiter.export.ExportTask;
-import com.elster.jupiter.export.ValidatedDataOption;
+import com.elster.jupiter.export.*;
 import com.elster.jupiter.fileimport.FileImportService;
-import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.MeteringService;
@@ -36,12 +31,7 @@ import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.tasks.impl.TaskModule;
-import com.elster.jupiter.time.RelativeDate;
-import com.elster.jupiter.time.RelativePeriod;
-import com.elster.jupiter.time.RelativePeriodCategory;
-import com.elster.jupiter.time.TemporalExpression;
-import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.time.*;
 import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -176,7 +166,7 @@ public class DataExportServiceImplIT {
                     inMemoryBootstrapModule,
                     new InMemoryMessagingModule(),
                     new IdsModule(),
-                    new FiniteStateMachineModule(),
+                    //new FiniteStateMachineModule(),
                     new MeteringModule(),
                     new PartyModule(),
                     new EventsModule(),

@@ -4,11 +4,8 @@ import com.elster.jupiter.appserver.AppServer;
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
-import com.elster.jupiter.export.DataExportService;
-import com.elster.jupiter.export.DataExportTaskBuilder;
-import com.elster.jupiter.export.DataProcessorFactory;
-import com.elster.jupiter.export.DataSelectorFactory;
-import com.elster.jupiter.export.ExportTask;
+import com.elster.jupiter.export.*;
+import com.elster.jupiter.export.security.Privileges;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
@@ -27,32 +24,25 @@ import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.users.PrivilegesProvider;
+import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import com.google.inject.AbstractModule;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.component.annotations.*;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.nio.file.Path;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Operator.EQUAL;
 
-@Component(name = "com.elster.jupiter.export", service = {DataExportService.class, IDataExportService.class, InstallService.class}, property = "name=" + DataExportService.COMPONENTNAME, immediate = true)
-public class DataExportServiceImpl implements IDataExportService, InstallService {
+@Component(name = "com.elster.jupiter.export", service = {DataExportService.class, IDataExportService.class, InstallService.class,PrivilegesProvider.class}, property = "name=" + DataExportService.COMPONENTNAME, immediate = true)
+public class DataExportServiceImpl implements IDataExportService, InstallService,PrivilegesProvider {
 
     public static final String DESTINATION_NAME = "DataExport";
     public static final String SUBSCRIBER_NAME = "DataExport";
@@ -356,5 +346,23 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
 
     private Optional<IExportTask> getReadingTypeDataExportTaskForRecurrentTask(RecurrentTask recurrentTask) {
         return dataModel.mapper(IExportTask.class).getUnique("recurrentTask", recurrentTask);
+    }
+
+    @Override
+    public String getModuleName() {
+        return DataExportService.COMPONENTNAME;
+    }
+
+    @Override
+    public List<ResourceDefinition> getModuleResources() {
+        List<ResourceDefinition> resources = new ArrayList<>();
+        resources.add(userService.createModuleResourceWithPrivileges(getModuleName(),
+                "dataExportTask.dataExportTasks", "dataExportTask.dataExportTasks.description",
+                Arrays.asList(Privileges.ADMINISTRATE_DATA_EXPORT_TASK,
+                        Privileges.VIEW_DATA_EXPORT_TASK,
+                        Privileges.UPDATE_DATA_EXPORT_TASK,
+                        Privileges.UPDATE_SCHEDULE_DATA_EXPORT_TASK,
+                        Privileges.RUN_DATA_EXPORT_TASK)));
+        return resources;
     }
 }
