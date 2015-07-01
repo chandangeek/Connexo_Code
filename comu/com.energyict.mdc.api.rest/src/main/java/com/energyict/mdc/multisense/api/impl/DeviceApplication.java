@@ -20,7 +20,6 @@ import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.google.common.collect.ImmutableSet;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -50,6 +49,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     private volatile DeviceLifeCycleService deviceLifeCycleService;
     private volatile FiniteStateMachineService finiteStateMachineService;
     private volatile Thesaurus thesaurus;
+    private volatile NlsService nlsService;
     private volatile TransactionService transactionService;
 
     @Override
@@ -98,6 +98,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
 
     @Reference
     public void setNlsService(NlsService nlsService) {
+        this.nlsService = nlsService;
         this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST);
     }
 
@@ -123,7 +124,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
 
     @Override
     public List<TranslationKey> getKeys() {
-        return new ArrayList<>();
+        return Collections.emptyList();
     }
 
     @Reference(target = "(com.elster.jupiter.license.rest.key=" + APP_KEY + ")")
@@ -146,6 +147,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
             bind(MdcPropertyUtils.class).to(MdcPropertyUtils.class);
             bind(thesaurus).to(Thesaurus.class);
+            bind(nlsService).to(NlsService.class);
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(topologyService).to(TopologyService.class);
             bind(DeviceInfoFactory.class).to(DeviceInfoFactory.class);

@@ -2,6 +2,7 @@ package com.energyict.mdc.multisense.api.impl;
 
 import com.elster.jupiter.fsm.CustomStateTransitionEventType;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.common.rest.ExceptionFactory;
@@ -13,6 +14,7 @@ import com.energyict.mdc.device.data.imp.DeviceImportService;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.ExecutableAction;
+import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.device.topology.TopologyService;
 import java.net.URI;
 import java.time.Instant;
@@ -146,7 +148,13 @@ public class DeviceResource {
 
     private void triggerStateTransition(Device device, String lifecycleState) {
         CustomStateTransitionEventType eventType = this.finiteStateMachineService.findCustomStateTransitionEventType(lifecycleState).orElseThrow(() -> new IllegalArgumentException("Custom state transition event type " + lifecycleState + " does not exist"));
-        ExecutableAction executableAction = this.deviceLifeCycleService.getExecutableActions(device, eventType).orElseThrow(()->new IllegalArgumentException("Current state of device with mRID " + device.getmRID() + " does not support the event type"));
+        ExecutableAction executableAction = this.deviceLifeCycleService.getExecutableActions(device, eventType).orElseThrow(() -> new IllegalArgumentException("Current state of device with mRID " + device.getmRID() + " does not support the event type"));
+        ((AuthorizedTransitionAction) executableAction).
+                getActions().stream().
+                flatMap(ma -> deviceLifeCycleService.getPropertySpecsFor(ma).stream()).
+                        map(PropertySpec::getName).
+                        collect(toList());
+
         executableAction.execute(Instant.now(), Collections.emptyList());
     }
 

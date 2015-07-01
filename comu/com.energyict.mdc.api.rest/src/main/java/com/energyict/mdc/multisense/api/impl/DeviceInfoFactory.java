@@ -1,6 +1,8 @@
 package com.energyict.mdc.multisense.api.impl;
 
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.rest.util.properties.PropertyInfo;
+import com.elster.jupiter.util.HasName;
 import com.energyict.mdc.device.config.GatewayType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
@@ -11,6 +13,7 @@ import com.energyict.mdc.device.lifecycle.ExecutableAction;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.TopologyTimeline;
+import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -20,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.ws.rs.core.Link;
@@ -27,6 +31,7 @@ import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
 
 /**
  * Created by bvn on 4/30/15.
@@ -39,13 +44,15 @@ public class DeviceInfoFactory {
     private final TopologyService topologyService;
     private final IssueService issueService;
     private final DeviceLifeCycleService deviceLifeCycleService;
+    private final MdcPropertyUtils mdcPropertyUtils;
 
     @Inject
-    public DeviceInfoFactory(DeviceImportService deviceImportService, TopologyService topologyService, IssueService issueService, DeviceLifeCycleService deviceLifeCycleService) {
+    public DeviceInfoFactory(DeviceImportService deviceImportService, TopologyService topologyService, IssueService issueService, DeviceLifeCycleService deviceLifeCycleService, MdcPropertyUtils mdcPropertyUtils) {
         this.deviceImportService = deviceImportService;
         this.topologyService = topologyService;
         this.issueService = issueService;
         this.deviceLifeCycleService = deviceLifeCycleService;
+        this.mdcPropertyUtils = mdcPropertyUtils;
     }
 
     public DeviceInfo asHypermedia(Device device, UriInfo uriInfo, List<String> fields) {
@@ -85,12 +92,22 @@ public class DeviceInfoFactory {
         map.put("isDirectlyAddressable", (deviceInfo, device, uriInfo) -> deviceInfo.isDirectlyAddressable = device.getDeviceConfiguration().isDirectlyAddressable());
         map.put("isGateway", (deviceInfo, device, uriInfo) -> deviceInfo.isGateway = device.getDeviceConfiguration().canActAsGateway());
         map.put("version", (deviceInfo, device, uriInfo) -> deviceInfo.version = device.getVersion());
-        map.put("actions", (deviceInfo, device, uriInfo) -> deviceInfo.actions = deviceLifeCycleService.getExecutableActions(device).stream().
-                        map(ExecutableAction::getAction).
-                        filter(aa -> aa instanceof AuthorizedTransitionAction).
-                        flatMap(aa -> ((AuthorizedTransitionAction)aa).getActions().stream()).
-                        map(ma->ma.getClass().getName()).
-                        collect(toList()));
+        map.put("actions", (deviceInfo, device, uriInfo) -> {
+            deviceInfo.actions = deviceLifeCycleService.getExecutableActions(device).stream().
+                    map(ExecutableAction::getAction).
+                    filter(aa -> aa instanceof AuthorizedTransitionAction).
+                    map(AuthorizedTransitionAction.class::cast).
+                    collect(toMap(HasName::getName,
+                            new Function<AuthorizedTransitionAction, List<PropertyInfo>>() {
+                                @Override
+                                public List<PropertyInfo> apply(AuthorizedTransitionAction t) {
+                                    return t.getActions().stream().
+                                            flatMap(ma -> deviceLifeCycleService.getPropertySpecsFor(ma).stream()).
+                                            map(mdcPropertyUtils::convertPropertySpecToPropertyInfo).
+                                            collect(toList());
+                                }
+                            }));
+        });
 
         map.put("physicalGateway", (deviceInfo, device, uriInfo) -> {
             Optional<Device> physicalGateway = topologyService.getPhysicalGateway(device);
