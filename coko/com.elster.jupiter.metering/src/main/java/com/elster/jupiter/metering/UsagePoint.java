@@ -23,7 +23,7 @@ public interface UsagePoint extends IdentifiedObject , ReadingContainer {
 	Optional<MeterActivation> getCurrentMeterActivation();
 
 	long getServiceLocationId();
-	ServiceLocation getServiceLocation();
+	Optional<ServiceLocation> getServiceLocation();
 	ServiceCategory getServiceCategory();
 
 	void setServiceLocation(ServiceLocation serviceLocation);
