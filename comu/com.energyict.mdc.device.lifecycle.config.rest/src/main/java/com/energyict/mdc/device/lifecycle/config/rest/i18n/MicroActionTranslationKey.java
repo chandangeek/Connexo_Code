@@ -22,6 +22,8 @@ public enum MicroActionTranslationKey implements TranslationKey {
     MICRO_ACTION_NAME_CLOSE_METER_ACTIVATION(Keys.MICRO_ACTION_NAME_TRANSLATE_KEY + MicroAction.CLOSE_METER_ACTIVATION, "Stop meter activation"),
     MICRO_ACTION_NAME_REMOVE_DEVICE_FROM_STATIC_GROUPS(Keys.MICRO_ACTION_NAME_TRANSLATE_KEY + MicroAction.REMOVE_DEVICE_FROM_STATIC_GROUPS, "Remove device from static groups"),
     MICRO_ACTION_NAME_DETACH_SLAVE_FROM_MASTER(Keys.MICRO_ACTION_NAME_TRANSLATE_KEY + MicroAction.DETACH_SLAVE_FROM_MASTER, "Disconnect slave from master"),
+    MICRO_ACTION_NAME_REMOVE_DEVICE(Keys.MICRO_ACTION_NAME_TRANSLATE_KEY + MicroAction.REMOVE_DEVICE, "Delete device"),
+    MICRO_ACTION_NAME_CLOSE_ALL_ISSUES(Keys.MICRO_ACTION_NAME_TRANSLATE_KEY + MicroAction.CLOSE_ALL_ISSUES, "Close all issues"),
 
     MICRO_ACTION_DESCRIPTION_SET_LAST_READING(Keys.MICRO_ACTION_DESCRIPTION_TRANSLATE_KEY + MicroAction.SET_LAST_READING, "Provide the last meter reading manually based on one or more register group."),
     MICRO_ACTION_DESCRIPTION_ENABLE_VALIDATION(Keys.MICRO_ACTION_DESCRIPTION_TRANSLATE_KEY + MicroAction.ENABLE_VALIDATION, "Activate the data validation on this device. This auto action is effective immediately."),
@@ -32,7 +34,10 @@ public enum MicroActionTranslationKey implements TranslationKey {
     MICRO_ACTION_DESCRIPTION_CREATE_METER_ACTIVATION(Keys.MICRO_ACTION_DESCRIPTION_TRANSLATE_KEY + MicroAction.CREATE_METER_ACTIVATION, "Create a new meter activation on the transition date."),
     MICRO_ACTION_DESCRIPTION_CLOSE_METER_ACTIVATION(Keys.MICRO_ACTION_DESCRIPTION_TRANSLATE_KEY + MicroAction.CLOSE_METER_ACTIVATION, "Stop the meter activation of this device and unlink the device from its usage point."),
     MICRO_ACTION_DESCRIPTION_REMOVE_DEVICE_FROM_STATIC_GROUPS(Keys.MICRO_ACTION_DESCRIPTION_TRANSLATE_KEY + MicroAction.REMOVE_DEVICE_FROM_STATIC_GROUPS, "Remove this device from the static device groups."),
-    MICRO_ACTION_DESCRIPTION_DETACH_SLAVE_FROM_MASTER(Keys.MICRO_ACTION_DESCRIPTION_TRANSLATE_KEY + MicroAction.DETACH_SLAVE_FROM_MASTER, "If this device is a slave, disconnect it from his master.");
+    MICRO_ACTION_DESCRIPTION_DETACH_SLAVE_FROM_MASTER(Keys.MICRO_ACTION_DESCRIPTION_TRANSLATE_KEY + MicroAction.DETACH_SLAVE_FROM_MASTER, "If this device is a slave, disconnect it from his master."),
+    MICRO_ACTION_DESCRIPTION_REMOVE_DEVICE(Keys.MICRO_ACTION_DESCRIPTION_TRANSLATE_KEY + MicroAction.REMOVE_DEVICE, "Deletes this device and all it's relevant data, and closes the current meter activation"),
+    MICRO_ACTION_DESCRIPTION_CLOSE_ALL_ISSUES(Keys.MICRO_ACTION_DESCRIPTION_TRANSLATE_KEY + MicroAction.CLOSE_ALL_ISSUES, "Closes all open issues with the status \"won't fix\""),
+    ;
 
     private final String key;
     private final String defaultFormat;
