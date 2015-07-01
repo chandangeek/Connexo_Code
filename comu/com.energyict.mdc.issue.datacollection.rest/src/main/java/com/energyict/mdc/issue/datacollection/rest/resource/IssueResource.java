@@ -137,7 +137,7 @@ public class IssueResource extends BaseResource {
     public Response performAction(@PathParam(ID) long id, @PathParam(KEY) long actionId, PerformActionRequest request) {
         IssueDataCollection issue = getIssueDataCollectionService().findIssue(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
         request.id = actionId;
-        return entity(issueResourceHelper.performIssueAction(issue, request)).build();
+        return Response.ok(issueResourceHelper.performIssueAction(issue, request)).build();
     }
 
     @PUT
