@@ -101,7 +101,6 @@ public class UserServiceImpl implements UserService, InstallService, Translation
         String trustStorePath = bundleContext.getProperty(TRUSTSTORE_PATH);
         String trustStorePass = bundleContext.getProperty(TRUSTSTORE_PASS);
         if ((trustStorePath != null) && (trustStorePass != null)) {
-            trustStorePath = trustStorePath.replace("/", "\\");
             System.setProperty("javax.net.ssl.trustStore", trustStorePath);
             System.setProperty("javax.net.ssl.trustStorePassword", trustStorePass);
 
