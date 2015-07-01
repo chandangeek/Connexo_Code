@@ -14,6 +14,7 @@ Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
         {name: 'intervalFlags', type: 'auto'},
         {name: 'validationStatus', type: 'auto'},
         {name: 'modificationFlag', type: 'auto'},
+        'validationInfo',
         {
             name: 'interval_start',
             persist: false,
@@ -55,7 +56,7 @@ Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
             }
         },
         {
-            name: 'modificationState',
+            name: 'mainModificationState',
             persist: false,
             mapping: function (data) {
                 var result = null;

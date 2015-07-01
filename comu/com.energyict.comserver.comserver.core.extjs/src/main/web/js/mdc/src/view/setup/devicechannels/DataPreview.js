@@ -196,7 +196,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                             },
                             {
                                 xtype: 'edited-displayfield',
-                                name: 'modificationState',
+                                name: 'mainModificationState',
                                 margin: '0 0 0 10'
                             }
                         ]
@@ -256,6 +256,11 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                                     }
                                     return '';
                                 }
+                            },
+                            {
+                                xtype: 'edited-displayfield',
+                                name: 'bulkModificationState',
+                                margin: '0 0 0 10'
                             }
                         ]
                     },
