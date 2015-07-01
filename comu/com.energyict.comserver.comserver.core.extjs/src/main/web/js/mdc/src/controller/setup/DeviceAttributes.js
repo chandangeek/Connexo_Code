@@ -53,7 +53,6 @@ Ext.define('Mdc.controller.setup.DeviceAttributes', {
                 } else {
                     me.formMarkInvalid(Ext.decode(operation.response.responseText));
                 }
-
                 editPage.setLoading(false);
             }
         });
@@ -137,21 +136,18 @@ Ext.define('Mdc.controller.setup.DeviceAttributes', {
     showHiddenFields: function (attributes) {
         var me = this;
         Ext.iterate(attributes.getData(), function (key, value) {
-            if (!Ext.isEmpty(value.available) && !Ext.isEmpty(value.editable)) {
-                if (value.available) {
-                    if (value.editable) {
-                        var editField = me.getEditField(key);
-                        if (editField) {
-                            editField.show();
-                            me.fillEditField(key, value, editField);
-                        }
-                    } else {
-                        var viewField = me.getViewField(key);
-                        if (viewField) {
-                            viewField.show();
-                        }
+            if (!Ext.isEmpty(value.available) && !Ext.isEmpty(value.editable) && value.available) {
+                if (value.editable) {
+                    var editField = me.getEditField(key);
+                    if (editField) {
+                        editField.show();
+                        me.fillEditField(key, value, editField);
                     }
-
+                } else {
+                    var viewField = me.getViewField(key);
+                    if (viewField) {
+                        viewField.show();
+                    }
                 }
             }
         });
@@ -166,17 +162,14 @@ Ext.define('Mdc.controller.setup.DeviceAttributes', {
                 if (editField) {
                     if (key === 'usagePoint') {
                         record.set(key, {attributeId: editField.getValue(), available: true, editable: true});
+                    } else if (key === 'installationDate' || key === 'deactivationDate' || key === 'decommissioningDate' || key === 'shipmentDate') {
+                        record.set(key, {displayValue: editField.getTimeStampValue(), available: true, editable: true});
                     } else {
-                        if (key === 'installationDate' || key === 'deactivationDate' || key === 'decommissioningDate' || key === 'shipmentDate') {
-                            record.set(key, {displayValue: editField.getTimeStampValue(), available: true, editable: true});
-                        } else {
-                            record.set(key, {displayValue: editField.getValue(), available: true, editable: true});
-                        }
+                        record.set(key, {displayValue: editField.getValue(), available: true, editable: true});
                     }
                 }
             }
         });
-
         return record;
     },
 
@@ -188,23 +181,21 @@ Ext.define('Mdc.controller.setup.DeviceAttributes', {
                 var dt = new Date(value.displayValue);
                 field.setValue(dt);
             }
-        } else {
-            if (key === 'usagePoint') {
-                field.getStore().load({
-                    callback: function () {
-                        if (field.getStore().getCount() === 0) {
-                            field.hide();
-                            me.getUsagePointEmptyStoreField().show();
-                        }
-
-                        if (value.attributeId) {
-                            field.setValue(value.attributeId);
-                        }
+        } else if (key === 'usagePoint') {
+            field.getStore().load({
+                callback: function () {
+                    if (field.getStore().getCount() === 0) {
+                        field.hide();
+                        me.getUsagePointEmptyStoreField().show();
                     }
-                });
-            } else {
-                field.setValue(value.displayValue);
-            }
+
+                    if (value.attributeId) {
+                        field.setValue(value.attributeId);
+                    }
+                }
+            });
+        } else {
+            field.setValue(value.displayValue);
         }
     }
 

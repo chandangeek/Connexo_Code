@@ -84,7 +84,6 @@ Ext.define('Mdc.view.setup.deviceattributes.DeviceAttributesEditForm', {
             {
 
                 name: 'shipmentDate',
-                required: true,
                 itemId: 'shipmentDateView',
                 fieldLabel: Uni.I18n.translate('deviceGeneralInformation.shipmentDate', 'MDC', 'Shipment date'),
                 renderer: function(value)  {
@@ -104,7 +103,6 @@ Ext.define('Mdc.view.setup.deviceattributes.DeviceAttributesEditForm', {
             {
                 name: 'installationDate',
                 itemId: 'installationDateView',
-                required: true,
                 fieldLabel: Uni.I18n.translate('deviceGeneralInformation.installationDate', 'MDC', 'Installation date'),
                 renderer: function(value)  {
                     if (Ext.isEmpty(value.displayValue)) {
@@ -122,7 +120,6 @@ Ext.define('Mdc.view.setup.deviceattributes.DeviceAttributesEditForm', {
             },
             {
                 name: 'deactivationDate',
-                required: true,
                 itemId: 'deactivationDateView',
                 fieldLabel: Uni.I18n.translate('deviceGeneralInformation.deactivationDate', 'MDC', 'Deactivation date'),
                 renderer: function(value)  {
@@ -142,7 +139,6 @@ Ext.define('Mdc.view.setup.deviceattributes.DeviceAttributesEditForm', {
             {
 
                 name: 'decommissioningDate',
-                required: true,
                 itemId: 'decommissioningDateView',
                 fieldLabel: Uni.I18n.translate('deviceGeneralInformation.decommissionDate', 'MDC', 'Decommissioning date'),
                 renderer: function(value)  {
