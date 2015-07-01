@@ -1,6 +1,8 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.metering.readings.ReadingQuality;
@@ -77,6 +79,8 @@ public class LoadProfileTypeResourceTest extends DeviceDataRestApplicationJersey
     @Mock
     private ValidationEvaluator evaluator;
 
+    private ReadingQualityType readingQualityType = new ReadingQualityType("3.0.1");
+
     public LoadProfileTypeResourceTest() {
     }
 
@@ -120,6 +124,7 @@ public class LoadProfileTypeResourceTest extends DeviceDataRestApplicationJersey
         when(rule1.getDisplayName()).thenReturn("Primes only");
         when(channelSpec.getNbrOfFractionDigits()).thenReturn(3);
         when(deviceValidation.getValidationResult(any())).thenReturn(ValidationResult.SUSPECT);
+        when(quality1.getType()).thenReturn(readingQualityType);
     }
 
     @Test

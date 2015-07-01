@@ -356,6 +356,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(issueDataValidationService).to(IssueDataValidationService.class);
             bind(ResourceHelper.class).to(ResourceHelper.class);
             bind(ChannelResourceHelper.class).to(ChannelResourceHelper.class);
+            bind(EstimationHelper.class).to(EstimationHelper.class);
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
             bind(ConnectionMethodInfoFactory.class).to(ConnectionMethodInfoFactory.class);
             bind(MdcPropertyUtils.class).to(MdcPropertyUtils.class);

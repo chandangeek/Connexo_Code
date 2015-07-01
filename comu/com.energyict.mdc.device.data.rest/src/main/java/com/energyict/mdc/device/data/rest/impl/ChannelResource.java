@@ -1,12 +1,14 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.estimation.*;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
-import com.elster.jupiter.rest.util.JsonQueryParameters;
-import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.util.Ranges;
+import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.energyict.mdc.common.rest.IntervalInfo;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
@@ -40,15 +42,17 @@ public class ChannelResource {
     private final Clock clock;
     private final DeviceDataInfoFactory deviceDataInfoFactory;
     private final IssueDataValidationService issueDataValidationService;
+    private final EstimationHelper estimationHelper;
 
     @Inject
-    public ChannelResource(Provider<ChannelResourceHelper> channelHelper, ResourceHelper resourceHelper, Thesaurus thesaurus, Clock clock, DeviceDataInfoFactory deviceDataInfoFactory, IssueDataValidationService issueDataValidationService) {
+    public ChannelResource(Provider<ChannelResourceHelper> channelHelper, ResourceHelper resourceHelper, Thesaurus thesaurus, Clock clock, DeviceDataInfoFactory deviceDataInfoFactory, IssueDataValidationService issueDataValidationService, EstimationHelper estimationHelper) {
         this.channelHelper = channelHelper;
         this.resourceHelper = resourceHelper;
         this.thesaurus = thesaurus;
         this.clock = clock;
         this.deviceDataInfoFactory = deviceDataInfoFactory;
         this.issueDataValidationService = issueDataValidationService;
+        this.estimationHelper = estimationHelper;
     }
 
     @GET
@@ -174,6 +178,36 @@ public class ChannelResource {
         channel.startEditingData().removeChannelData(removeCandidates).editChannelData(editedReadings).complete();
 
         return Response.status(Response.Status.OK).build();
+    }
+
+    @POST
+    @Path("/{channelid}/data/estimate")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_DATA)
+    public List<ChannelDataInfo> previewEstimateChannelData(@PathParam("mRID") String mRID, @PathParam("channelid") long channelId, EstimateChannelDataInfo estimateChannelDataInfo) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+        Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(device, channelId);
+        return previewEstimate(device, channel, estimateChannelDataInfo);
+    }
+
+    private List<ChannelDataInfo> previewEstimate(Device device, Channel channel, EstimateChannelDataInfo estimateChannelDataInfo) {
+        Estimator estimator = estimationHelper.getEstimator(estimateChannelDataInfo);
+        ReadingType readingType = channel.getReadingType();
+        List<EstimationResult> results = new ArrayList<>();
+        List<Range<Instant>> ranges = new ArrayList<>();
+        for (IntervalInfo info : estimateChannelDataInfo.intervals) {
+            ranges.add(Range.openClosed(Instant.ofEpochMilli(info.start), Instant.ofEpochMilli(info.end)));
+        }
+
+        if (channel.getReadingType().isCumulative() && channel.getReadingType().getCalculatedReadingType().isPresent()) {
+            readingType = channel.getReadingType().getCalculatedReadingType().get();
+        }
+
+        for (Range<Instant> range : ranges) {
+            results.add(estimationHelper.previewEstimate(device, readingType, range, estimator));
+        }
+        return estimationHelper.getChannelDataInfoFromEstimationReports(channel, ranges, results);
     }
 
     @GET

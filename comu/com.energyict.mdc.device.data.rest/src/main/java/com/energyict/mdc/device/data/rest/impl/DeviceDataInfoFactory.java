@@ -63,7 +63,7 @@ public class DeviceDataInfoFactory {
 
         Set<Map.Entry<Channel, DataValidationStatus>> states = loadProfileReading.getChannelValidationStates().entrySet();    //  only one channel
         for (Map.Entry<Channel, DataValidationStatus> entry : states) {
-            channelIntervalInfo.validationInfo = validationInfoFactory.createValidationInfoFor(entry, deviceValidation);;
+            channelIntervalInfo.validationInfo = validationInfoFactory.createValidationInfoFor(entry, deviceValidation);
         }
         if (loadProfileReading.getChannelValues().isEmpty() && loadProfileReading.getChannelValidationStates().isEmpty()) {
             // we have a reading with no data and no validation result => it's a placeholder (missing value) which hasn't validated ( = detected ) yet

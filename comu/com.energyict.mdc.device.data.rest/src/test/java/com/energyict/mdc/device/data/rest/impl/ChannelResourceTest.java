@@ -2,6 +2,7 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.metering.readings.ReadingQuality;
@@ -63,6 +64,9 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
     private IValidationRule rule1;
     @Mock
     private ReadingQuality quality1;
+
+    private ReadingQualityType readingQualityType = new ReadingQualityType("3.0.1");
+
     @Mock
     private ValidationRuleSet ruleSet;
     @Mock
@@ -137,6 +141,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(channel.getLastDateTime()).thenReturn(Optional.of(NOW));
         when(channel.getUnit()).thenReturn(unit);
         when(deviceValidation.getLastChecked(channel)).thenReturn(Optional.of(NOW));
+        when(quality1.getType()).thenReturn(readingQualityType);
     }
 
     @Test
