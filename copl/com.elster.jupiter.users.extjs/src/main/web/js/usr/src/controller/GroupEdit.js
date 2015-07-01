@@ -218,6 +218,7 @@ Ext.define('Usr.controller.GroupEdit', {
             var privileges = features.data.items[i].privileges();
             for (var j = 0; j < privileges.data.items.length; j++) {
                 if (privileges.data.items[j].get('selected')) {
+                    privileges.data.items[j].set('applicationName',features.data.items[i].get('componentName'));
                     record.privilegesStore.add(privileges.data.items[j]);
                 }
             }

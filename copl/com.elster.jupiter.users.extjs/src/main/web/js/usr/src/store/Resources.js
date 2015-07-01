@@ -8,7 +8,7 @@ Ext.define('Usr.store.Resources', {
     groupField: 'componentName',
     remoteSort: true,
     sorters: {
-        property: 'name',
+        property: 'qualifiedName',
         direction: 'ASC'
     }
 });

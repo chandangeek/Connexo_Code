@@ -4,8 +4,10 @@ Ext.define('Usr.model.Resource', {
         'Usr.model.Privilege'
     ],
     fields: [
+        'applicationName',
         'componentName',
         'name',
+        'qualifiedName',
         'description',
         {
             name: 'permissions',
@@ -26,7 +28,7 @@ Ext.define('Usr.model.Resource', {
             name: 'privileges'
         }
     ],
-    idProperty: 'name',
+    idProperty: 'qualifiedName',
     proxy: {
         type: 'rest',
         url: '/api/usr/resources',
