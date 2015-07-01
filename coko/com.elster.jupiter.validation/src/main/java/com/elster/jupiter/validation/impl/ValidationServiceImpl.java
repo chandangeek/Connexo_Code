@@ -19,6 +19,7 @@ import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.Resource;
+import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Condition;
@@ -463,7 +464,7 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
     }
 
     @Override
-    public List<Resource> getModulePrivileges() {
+    public List<ResourceDefinition> getModulePrivileges() {
         List<Resource> resources = new ArrayList<>();
         resources.add(userService.createModuleResourceWithPrivileges("validation.validations", "validation.validations.description",
                 Arrays.asList(
