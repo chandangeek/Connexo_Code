@@ -104,7 +104,7 @@ Ext.define('Uni.grid.FilterPanelTop', {
         Uni.util.QueryString.on('querystringchanged', me.onQueryStringChanged, me);
     },
 
-    onDestroy: function() {
+    onDestroy: function () {
         var me = this;
 
         Uni.util.QueryString.un('querystringchanged', me.onQueryStringChanged, me);
@@ -114,11 +114,11 @@ Ext.define('Uni.grid.FilterPanelTop', {
         me.callParent(arguments);
     },
 
-    onQueryStringChanged: function(queryString) {
+    onQueryStringChanged: function (queryString) {
         this.applyQueryObject(Uni.util.QueryString.getQueryStringValues(false), true);
     },
 
-    applyQueryObject: function(queryObject, doApply) {
+    applyQueryObject: function (queryObject, doApply) {
         var me = this;
         // Adapt the filters visually
         if (Ext.isArray(me.filters.items)) {
@@ -185,10 +185,10 @@ Ext.define('Uni.grid.FilterPanelTop', {
         var me = this;
         var pagingToolbarTop = this.up('contentcontainer').down('pagingtoolbartop');
         var pagingToolbarBottom = this.up('contentcontainer').down('pagingtoolbarbottom');
-        if(Ext.isDefined(pagingToolbarTop) && pagingToolbarTop !== null){
+        if (Ext.isDefined(pagingToolbarTop) && pagingToolbarTop !== null) {
             pagingToolbarTop.totalCount = 0;
         }
-        if(Ext.isDefined(pagingToolbarBottom) && pagingToolbarBottom !== null){
+        if (Ext.isDefined(pagingToolbarBottom) && pagingToolbarBottom !== null) {
             pagingToolbarBottom.resetPaging();
         }
         if (Ext.isDefined(me.store)) {
@@ -404,7 +404,6 @@ Ext.define('Uni.grid.FilterPanelTop', {
             } else {
                 var dataIndex = filter.dataIndex,
                     paramValue = filter.getParamValue();
-
                 if (!includeUndefined && Ext.isDefined(paramValue) && !Ext.isEmpty(paramValue)) {
                     params[dataIndex] = paramValue;
                 } else {
@@ -416,7 +415,6 @@ Ext.define('Uni.grid.FilterPanelTop', {
                 }
             }
         }, me);
-
         return params;
     },
 
@@ -449,8 +447,10 @@ Ext.define('Uni.grid.FilterPanelTop', {
 
         if (Ext.isDefined(component)) {
             me.filters.add(component);
-            me.add(component);
-
+            if (filter.type !== 'noui') {
+                me.add(component);
+            }
+            debugger;
             component.on('filterupdate', me.applyFilters, me);
         }
     },
@@ -467,7 +467,7 @@ Ext.define('Uni.grid.FilterPanelTop', {
             store = widget.store;
 
             if (Ext.isDefined(store) && store.isStore && !store.isLoading()) {
-                if ( !filter.hasOwnProperty('loadStore') || Boolean(filter.loadStore)) {
+                if (!filter.hasOwnProperty('loadStore') || Boolean(filter.loadStore)) {
                     store.load();
                 }
             }
@@ -475,6 +475,18 @@ Ext.define('Uni.grid.FilterPanelTop', {
             return widget;
         }
         return undefined;
+    },
+
+    getFilterByItemId: function (itemId) {
+        var me = this,
+            resultFilter;
+        Ext.each(me.filters.items, function (filter) {
+            if (filter.itemId === itemId) {
+                resultFilter = filter;
+                return false;
+            }
+        });
+        return resultFilter;
     },
 
     getFilterType: function (type) {
@@ -497,6 +509,8 @@ Ext.define('Uni.grid.FilterPanelTop', {
                 return 'Uni.grid.filtertop.DateTimeSelect';
             case 'duration':
                 return 'Uni.grid.filtertop.Duration';
+            case 'noui':
+                return 'Uni.grid.filtertop.NoUi';
             default:
                 return undefined;
         }
