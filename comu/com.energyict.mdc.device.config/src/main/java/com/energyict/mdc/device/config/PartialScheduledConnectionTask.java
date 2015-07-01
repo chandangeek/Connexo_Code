@@ -4,12 +4,15 @@ import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.device.config.impl.PartialConnectionInitiationTaskImpl;
 import com.energyict.mdc.protocol.api.ConnectionType;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * Partial version of a OutboundConnectionTask.
  *
  * @author sva
  * @since 21/01/13 - 15:49
  */
+@ProviderType
 public interface PartialScheduledConnectionTask extends PartialOutboundConnectionTask {
 
     /**

@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.config;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.validation.ValidationRule;
@@ -17,6 +18,7 @@ import java.util.List;
  * Date: 7/11/12
  * Time: 13:16
  */
+@ProviderType
 public interface ChannelSpec extends HasId {
 
     /**

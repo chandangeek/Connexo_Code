@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.config;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.util.HasName;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.TypedProperties;
@@ -22,6 +23,7 @@ import java.util.List;
  * @author sva
  * @since 21/01/13 - 15:04
  */
+@ProviderType
 public interface PartialConnectionTask extends HasName, HasId {
 
     /**

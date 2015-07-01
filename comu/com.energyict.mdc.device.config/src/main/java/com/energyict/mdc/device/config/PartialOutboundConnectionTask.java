@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.config;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
@@ -11,6 +12,7 @@ import com.elster.jupiter.time.TemporalExpression;
  * @author sva
  * @since 21/01/13 - 15:40
  */
+@ProviderType
 public interface PartialOutboundConnectionTask extends PartialConnectionTask {
 
     /**

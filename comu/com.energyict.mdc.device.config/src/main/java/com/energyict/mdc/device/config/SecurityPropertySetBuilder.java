@@ -1,5 +1,8 @@
 package com.energyict.mdc.device.config;
 
+import aQute.bnd.annotation.ProviderType;
+
+@ProviderType
 public interface SecurityPropertySetBuilder {
 
     SecurityPropertySetBuilder authenticationLevel(int level);

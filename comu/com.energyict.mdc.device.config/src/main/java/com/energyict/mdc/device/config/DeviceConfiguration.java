@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.config;
 
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.util.HasName;
@@ -20,22 +21,8 @@ import java.util.Set;
  * User: gde
  * Date: 5/11/12
  */
+@ProviderType
 public interface DeviceConfiguration extends HasId, HasName, DeviceCommunicationConfiguration {
-
-
-    /**
-     * Returns the object's unique id
-     *
-     * @return the id
-     */
-    public long getId();
-
-    /**
-     * Returns the object's name
-     *
-     * @return the name
-     */
-    public String getName();
 
     void setName(String name);
 
@@ -128,15 +115,15 @@ public interface DeviceConfiguration extends HasId, HasName, DeviceCommunication
     public List<ValidationRuleSet> getValidationRuleSets();
 
     public List<DeviceConfValidationRuleSetUsage> getDeviceConfValidationRuleSetUsages();
-    
+
     DeviceConfigurationEstimationRuleSetUsage addEstimationRuleSet(EstimationRuleSet estimationRuleSet);
-    
+
     void removeEstimationRuleSet(EstimationRuleSet estimationRuleSet);
-    
+
     void reorderEstimationRuleSets(KPermutation kpermutation);
-    
+
     List<EstimationRuleSet> getEstimationRuleSets();
-    
+
     List<DeviceConfigurationEstimationRuleSetUsage> getDeviceConfigEstimationRuleSetUsages();
 
     public List<ValidationRule> getValidationRules(Iterable<? extends ReadingType> readingTypes);

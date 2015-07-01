@@ -2,6 +2,9 @@ package com.energyict.mdc.device.config;
 
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.tasks.ComTask;
+
+import aQute.bnd.annotation.ProviderType;
+
 import java.util.Optional;
 
 /**
@@ -15,6 +18,7 @@ import java.util.Optional;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-12-21 (11:30)
  */
+@ProviderType
 public interface ComTaskEnablement extends HasId {
 
     public static final int HIGHEST_PRIORITY = TaskPriorityConstants.HIGHEST_PRIORITY;

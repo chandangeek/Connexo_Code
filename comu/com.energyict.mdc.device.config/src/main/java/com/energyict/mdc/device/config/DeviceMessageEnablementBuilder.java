@@ -1,10 +1,13 @@
 package com.energyict.mdc.device.config;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * Copyrights EnergyICT
  * Date: 10/7/14
  * Time: 2:29 PM
  */
+@ProviderType
 public interface DeviceMessageEnablementBuilder {
 
     /**

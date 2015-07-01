@@ -1,11 +1,14 @@
 package com.energyict.mdc.device.config;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * Partial version of a ConnectionTaskProperty
  *
  * @author sva
  * @since 21/01/13 - 16:15
  */
+@ProviderType
 public interface PartialConnectionTaskProperty {
 
     /**

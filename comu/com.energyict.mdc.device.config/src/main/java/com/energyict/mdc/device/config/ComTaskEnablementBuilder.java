@@ -2,6 +2,8 @@ package com.energyict.mdc.device.config;
 
 import com.energyict.mdc.tasks.ComTask;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * Provides building services to enable {@link com.energyict.mdc.tasks.ComTask}
  * in a {@link com.energyict.mdc.device.config.DeviceConfiguration}.
@@ -11,6 +13,7 @@ import com.energyict.mdc.tasks.ComTask;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-04-22 (09:48)
  */
+@ProviderType
 public interface ComTaskEnablementBuilder {
 
     public ComTaskEnablementBuilder setIgnoreNextExecutionSpecsForInbound (boolean flag);

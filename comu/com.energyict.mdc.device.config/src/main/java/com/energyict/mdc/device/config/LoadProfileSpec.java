@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.config;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.validation.ValidationRule;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.ObisCode;
@@ -15,6 +16,7 @@ import java.util.List;
  * Date: 9/11/12
  * Time: 10:06
  */
+@ProviderType
 public interface LoadProfileSpec extends HasId {
 
     public long getId();

@@ -3,6 +3,8 @@ package com.energyict.mdc.device.config;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.masterdata.RegisterType;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.math.BigDecimal;
 
 /**
@@ -10,6 +12,7 @@ import java.math.BigDecimal;
  *
  * @author Geert
  */
+@ProviderType
 public interface NumericalRegisterSpec extends RegisterSpec {
 
     /**

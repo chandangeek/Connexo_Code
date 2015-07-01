@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.config;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.ObisCode;
@@ -16,6 +17,7 @@ import java.util.List;
  *
  * @author Geert
  */
+@ProviderType
 public interface RegisterSpec extends HasId {
 
     public long getId();

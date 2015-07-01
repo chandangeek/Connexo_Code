@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.config;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.validation.ValidationRuleSet;
 
 /**
@@ -9,7 +10,9 @@ import com.elster.jupiter.validation.ValidationRuleSet;
  * Time: 8:58
  * To change this template use File | Settings | File Templates.
  */
+@ProviderType
 public interface DeviceConfValidationRuleSetUsage {
+
     DeviceConfiguration getDeviceConfiguration();
 
     ValidationRuleSet getValidationRuleSet();
@@ -17,4 +20,5 @@ public interface DeviceConfValidationRuleSetUsage {
     void delete();
 
     void save();
+
 }

@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.config;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.properties.HasDynamicProperties;
 import com.elster.jupiter.util.HasName;
 import com.energyict.mdc.common.HasId;
@@ -10,6 +11,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
  * @author sva
  * @since 5/03/13 - 14:15
  */
+@ProviderType
 public interface ProtocolDialectConfigurationProperties extends HasName, HasId, HasDynamicProperties {
 
     public DeviceConfiguration getDeviceConfiguration();
