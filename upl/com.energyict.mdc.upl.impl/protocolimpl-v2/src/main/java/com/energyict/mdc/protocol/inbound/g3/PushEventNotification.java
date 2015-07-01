@@ -87,7 +87,7 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
         collectedLogBook = parser.getCollectedLogBook();
 
         if (isJoinAttempt() || isSuccessfulJoin() || isMeterLeft()) {
-            DeviceProtocol gatewayProtocol = new RtuPlusServer();
+            DeviceProtocol gatewayProtocol = newGatewayProtocol();
             try {
                 gatewayProtocol = initializeGatewayProtocol(parser.getSecurityPropertySet(), gatewayProtocol);
                 if (isJoinAttempt()) {
@@ -105,6 +105,10 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
         }
 
         return DiscoverResultType.DATA;
+    }
+
+    protected DeviceProtocol newGatewayProtocol() {
+        return new RtuPlusServer();
     }
 
 
