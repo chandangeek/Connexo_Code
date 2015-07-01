@@ -113,7 +113,7 @@ public class MicroActionFactoryImpl implements ServerMicroActionFactory {
             case DISABLE_VALIDATION: {
                 return new DisableValidation();
             }
-            case ACTIVATE_CONNECTION_TASKS: {
+            case ACTIVATE_CONNECTION_TASKS_IN_USE: {
                 return new ActivateConnectionTasks();
             }
             case CREATE_METER_ACTIVATION: {
