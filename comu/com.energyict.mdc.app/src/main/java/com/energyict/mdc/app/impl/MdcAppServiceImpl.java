@@ -5,6 +5,7 @@ import com.elster.jupiter.http.whiteboard.BundleResolver;
 import com.elster.jupiter.http.whiteboard.DefaultStartPage;
 import com.elster.jupiter.http.whiteboard.HttpResource;
 import com.elster.jupiter.license.License;
+import com.elster.jupiter.users.ApplicationPrivilegesProvider;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
@@ -23,10 +24,10 @@ import java.util.stream.Collectors;
 
 @Component(
         name = "com.energyict.mdc.app",
-        service = {MdcAppService.class},
+        service = {MdcAppService.class, ApplicationPrivilegesProvider.class},
         immediate = true)
 @SuppressWarnings("unused")
-public class MdcAppServiceImpl implements MdcAppService {
+public class MdcAppServiceImpl implements MdcAppService , ApplicationPrivilegesProvider{
 
     private final Logger logger = Logger.getLogger(MdcAppServiceImpl.class.getName());
 
@@ -74,12 +75,22 @@ public class MdcAppServiceImpl implements MdcAppService {
     }
 
     private boolean isAllowed(User user) {
-        List<? super Privilege> appPrivileges = getApplicationPrivileges();
-        return user.getPrivileges().stream().anyMatch(appPrivileges::contains);
+        List<? super Privilege> appPrivileges = getDBApplicationPrivileges();
+        return user.getPrivileges(APP_KEY).stream().anyMatch(appPrivileges::contains);
     }
 
-    private List<? super Privilege> getApplicationPrivileges() {
-        return userService.getResources(APPLICATION_KEY).stream().flatMap(resource -> resource.getPrivileges().stream()).collect(Collectors.toList());
+    private List<? super Privilege> getDBApplicationPrivileges() {
+        return userService.getPrivileges(APPLICATION_KEY);
+    }
+
+    @Override
+    public List<String> getApplicationPrivileges() {
+        return MdcAppPrivileges.getApplicationPrivileges();
+    }
+
+    @Override
+    public String getApplicationName() {
+        return APP_KEY;
     }
 
 }

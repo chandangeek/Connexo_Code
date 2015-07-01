@@ -79,13 +79,13 @@ public class MdcAppInstaller implements InstallService {
         String[] privilegesWithoutReports = availablePrivileges.stream().map(HasName::getName).filter(p -> !p.equals(PRIVILEGE_VIEW_REPORTS)).toArray(String[]::new);
         String[] privilegesMeterOperator = getPrivilegesMeterOperator();
 
-        userService.grantGroupWithPrivilege(MdcAppService.Roles.METER_OPERATOR.value(), privilegesMeterOperator);
-        userService.grantGroupWithPrivilege(MdcAppService.Roles.METER_EXPERT.value(), privilegesWithoutReports);
-        userService.grantGroupWithPrivilege(MdcAppService.Roles.METER_EXPERT.value(), this.deviceLifeCycleAdministrationPrivileges());
-        userService.grantGroupWithPrivilege(MdcAppService.Roles.METER_EXPERT.value(), this.allDeviceLifeCycleActionPrivileges());
-        userService.grantGroupWithPrivilege(MdcAppService.Roles.METER_OPERATOR.value(), this.meterOperatorDeviceLifeCycleActionPrivileges());
-        userService.grantGroupWithPrivilege(UserService.BATCH_EXECUTOR_ROLE, privilegesWithoutReports);
-        userService.grantGroupWithPrivilege(MdcAppService.Roles.REPORT_VIEWER.value(), availablePrivileges.stream().map(HasName::getName).filter(p -> p.equals(PRIVILEGE_VIEW_REPORTS)).toArray(String[]::new));
+        userService.grantGroupWithPrivilege(MdcAppService.Roles.METER_OPERATOR.value(), MdcAppService.APPLICATION_KEY, privilegesMeterOperator);
+        userService.grantGroupWithPrivilege(MdcAppService.Roles.METER_EXPERT.value(), MdcAppService.APPLICATION_KEY, privilegesWithoutReports);
+        userService.grantGroupWithPrivilege(MdcAppService.Roles.METER_EXPERT.value(), MdcAppService.APPLICATION_KEY, this.deviceLifeCycleAdministrationPrivileges());
+        userService.grantGroupWithPrivilege(MdcAppService.Roles.METER_EXPERT.value(), MdcAppService.APPLICATION_KEY, this.allDeviceLifeCycleActionPrivileges());
+        userService.grantGroupWithPrivilege(MdcAppService.Roles.METER_OPERATOR.value(), MdcAppService.APPLICATION_KEY, this.meterOperatorDeviceLifeCycleActionPrivileges());
+        userService.grantGroupWithPrivilege(UserService.BATCH_EXECUTOR_ROLE, MdcAppService.APPLICATION_KEY, privilegesWithoutReports);
+        userService.grantGroupWithPrivilege(MdcAppService.Roles.REPORT_VIEWER.value(), MdcAppService.APPLICATION_KEY, availablePrivileges.stream().map(HasName::getName).filter(p -> p.equals(PRIVILEGE_VIEW_REPORTS)).toArray(String[]::new));
         //TODO: workaround: attached Meter expert to user admin !!! to remove this line when the user can be created/added to system
         userService.getUser(1).ifPresent(u -> u.join(userService.getGroups().stream().filter(e -> e.getName().equals(MdcAppService.Roles.METER_EXPERT.value())).findFirst().get()));
         //TODO: workaround: attached Report viewer to user admin !!! to remove this line when the user can be created/added to system

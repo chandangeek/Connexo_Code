@@ -69,6 +69,11 @@ Ext.onReady(function () {
     // </debug>
 
     loader.onReady(function () {
+
+        Ext.Ajax.defaultHeaders = {
+            'X-CONNEXO-APPLICATION-NAME': 'MDC' // a function that return the main application
+        };
+
         Ext.Loader.setConfig({
             // <debug>
             enabled: true,
