@@ -5,7 +5,8 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.RestValidationBuilder;
-import com.energyict.mdc.device.data.CIMLifeCycleDates;
+import com.elster.jupiter.util.Checks;
+import com.energyict.mdc.device.data.CIMLifecycleDates;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.imp.DeviceImportService;
 import com.energyict.mdc.device.data.rest.impl.DeviceAttributesInfo.DeviceAttribute;
@@ -72,7 +73,7 @@ public class DeviceAttributesInfoFactory {
         });
         fillAvailableAndEditable(info.usagePoint, DeviceAttribute.USAGE_POINT, state);
 
-        CIMLifeCycleDates lifecycleDates = device.getLifecycleDates();
+        CIMLifecycleDates lifecycleDates = device.getLifecycleDates();
         info.shipmentDate = new DeviceAttributeInfo();
         info.shipmentDate.displayValue = lifecycleDates.getReceivedDate().orElse(null);
         fillAvailableAndEditable(info.shipmentDate, DeviceAttribute.SHIPMENT_DATE, state);
@@ -127,33 +128,37 @@ public class DeviceAttributesInfoFactory {
     }
 
     public void writeTo(Device device, DeviceAttributesInfo info){
-        if (info.serialNumber != null) {
+        State state = device.getState();
+        if (DeviceAttribute.SERIAL_NUMBER.isEditableForState(state) && info.serialNumber != null) {
             device.setSerialNumber(info.serialNumber.displayValue);
         }
-        if (info.yearOfCertification != null){
+        if (DeviceAttribute.YEAR_OF_CERTIFICATION.isEditableForState(state) && info.yearOfCertification != null){
             device.setYearOfCertification(info.yearOfCertification.displayValue);
         }
-        if(info.batch != null){
+        if(DeviceAttribute.BATCH.isEditableForState(state) && info.batch != null){
+            if (Checks.is(info.batch.displayValue).emptyOrOnlyWhiteSpace()) {
+                deviceImportService.findBatch(device.getId()).ifPresent(batch -> {
+                    batch.removeDevice(device);
+                });
+            }
             this.deviceImportService.addDeviceToBatch(device, info.batch.displayValue);
         }
-
-        if(info.usagePoint != null){
+        if(DeviceAttribute.USAGE_POINT.isEditableForState(state) && info.usagePoint != null){
             meteringService.findUsagePoint(info.usagePoint.attributeId).ifPresent(usagePoint -> {
 
             });
         }
-
-        CIMLifeCycleDates lifecycleDates = device.getLifecycleDates();
-        if(info.shipmentDate != null){
+        CIMLifecycleDates lifecycleDates = device.getLifecycleDates();
+        if(DeviceAttribute.SHIPMENT_DATE.isEditableForState(state) && info.shipmentDate != null){
             lifecycleDates.setReceivedDate(info.shipmentDate.displayValue);
         }
-        if(info.installationDate != null){
+        if(DeviceAttribute.INSTALLATION_DATE.isEditableForState(state) && info.installationDate != null){
             lifecycleDates.setInstalledDate(info.installationDate.displayValue);
         }
-        if(info.deactivationDate != null){
+        if(DeviceAttribute.DEACTIVATION_DATE.isEditableForState(state) && info.deactivationDate != null){
             lifecycleDates.setRemovedDate(info.deactivationDate.displayValue);
         }
-        if(info.decommissioningDate != null){
+        if(DeviceAttribute.DECOMMISSIONING_DATE.isEditableForState(state) && info.decommissioningDate != null){
             lifecycleDates.setRetiredDate(info.decommissioningDate.displayValue);
         }
         lifecycleDates.save();

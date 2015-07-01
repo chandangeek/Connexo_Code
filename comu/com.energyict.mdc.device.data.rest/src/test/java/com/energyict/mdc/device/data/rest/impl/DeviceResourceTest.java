@@ -24,7 +24,7 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
-import com.energyict.mdc.device.data.CIMLifeCycleDates;
+import com.energyict.mdc.device.data.CIMLifecycleDates;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceEstimation;
@@ -1161,7 +1161,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         State state = mockDeviceState("In stock");
         when(device.getState()).thenReturn(state);
         Instant now = Instant.now();
-        CIMLifeCycleDates dates = mock(CIMLifeCycleDates.class);
+        CIMLifecycleDates dates = mock(CIMLifecycleDates.class);
         when(dates.getReceivedDate()).thenReturn(Optional.of(now.minus(5, ChronoUnit.DAYS)));
         when(dates.getInstalledDate()).thenReturn(Optional.of(now.minus(4, ChronoUnit.DAYS)));
         when(dates.getRemovedDate()).thenReturn(Optional.of(now.minus(3, ChronoUnit.DAYS)));
