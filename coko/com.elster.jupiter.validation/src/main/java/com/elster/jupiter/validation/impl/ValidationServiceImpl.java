@@ -18,7 +18,6 @@ import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.users.PrivilegesProvider;
-import com.elster.jupiter.users.Resource;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Pair;
