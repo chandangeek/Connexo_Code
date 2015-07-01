@@ -64,4 +64,11 @@ public interface SecurityPropertyService {
      */
     public boolean securityPropertiesAreValid(Device device);
 
+    /**
+     * Removes all securityProperties for the given Device
+     *
+     * @param device the device which properties need to be deleted
+     */
+    void deleteSecurityPropertiesFor(Device device);
+
 }

@@ -1,51 +1,41 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.issue.share.entity.IssueStatus;
+import com.elster.jupiter.properties.StringFactory;
+import com.elster.jupiter.time.TemporalExpression;
+import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.transaction.TransactionContext;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.interval.PartialTime;
-import com.energyict.mdc.device.config.ConnectionStrategy;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
-import com.energyict.mdc.device.config.PartialConnectionInitiationTaskBuilder;
-import com.energyict.mdc.device.config.PartialInboundConnectionTask;
-import com.energyict.mdc.device.config.PartialInboundConnectionTaskBuilder;
-import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
-import com.energyict.mdc.device.config.PartialScheduledConnectionTaskBuilder;
+import com.energyict.mdc.device.config.*;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.exceptions.CannotDeleteConnectionTaskWhichIsNotFromThisDevice;
-import com.energyict.mdc.device.data.impl.tasks.InboundNoParamsConnectionTypeImpl;
-import com.energyict.mdc.device.data.impl.tasks.IpConnectionType;
-import com.energyict.mdc.device.data.impl.tasks.OutboundIpConnectionTypeImpl;
-import com.energyict.mdc.device.data.impl.tasks.OutboundNoParamsConnectionTypeImpl;
-import com.energyict.mdc.device.data.impl.tasks.SimpleDiscoveryProtocol;
-import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.ConnectionTaskProperty;
-import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
-import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.energyict.mdc.device.data.impl.tasks.*;
+import com.energyict.mdc.device.data.tasks.*;
 import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
-
-import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.elster.jupiter.properties.StringFactory;
-import com.elster.jupiter.time.TemporalExpression;
-import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.transaction.TransactionContext;
 import com.google.common.base.Strings;
+import org.assertj.core.api.Condition;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.validation.ConstraintViolationException;
 import java.math.BigDecimal;
+import java.sql.SQLException;
 import java.util.List;
-
-import org.assertj.core.api.Condition;
-import org.junit.*;
-import org.junit.runner.*;
-import org.mockito.runners.MockitoJUnitRunner;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Copyrights EnergyICT
@@ -79,18 +69,21 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
             inboundNoParamsPluggableClass.save();
             ipConnectionTypePluggableClass = inMemoryPersistence.getProtocolPluggableService().newConnectionTypePluggableClass("IPConnectionType", OutboundIpConnectionTypeImpl.class.getName());
             ipConnectionTypePluggableClass.save();
+            deviceProtocolPluggableClass = inMemoryPersistence.getProtocolPluggableService().newDeviceProtocolPluggableClass("MyTestProtocol", TestProtocol.class.getName());
+            deviceProtocolPluggableClass.save();
             context.commit();
         }
     }
 
     @AfterClass
-    public static void deletePluggableClasses() {
+    public static void deletePluggableClasses() throws SQLException {
         try (TransactionContext context = getTransactionService().getContext()) {
             outboundNoParamsPluggableClass.delete();
             inboundNoParamsPluggableClass.delete();
             ipConnectionTypePluggableClass.delete();
             context.commit();
         }
+        inMemoryPersistence.cleanUpDataBase();
     }
 
     @Before
@@ -113,6 +106,8 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
         otherInboundComPortPool = inMemoryPersistence.getEngineConfigurationService().newInboundComPortPool("OtherInboundPool", ComPortType.TCP, inboundDeviceProtocolPluggableClass);
         otherInboundComPortPool.setActive(true);
         otherInboundComPortPool.save();
+        IssueStatus wontFix = mock(IssueStatus.class);
+        when(inMemoryPersistence.getIssueService().findStatus(IssueStatus.WONT_FIX)).thenReturn(Optional.of(wontFix));
     }
 
     private DeviceConfiguration createDeviceConfigWithPartialOutboundConnectionTask() {

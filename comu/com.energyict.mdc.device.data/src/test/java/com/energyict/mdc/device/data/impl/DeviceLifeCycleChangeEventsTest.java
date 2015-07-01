@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.DeviceLifeCycleChangeEvent;
@@ -95,6 +96,8 @@ public class DeviceLifeCycleChangeEventsTest {
     private Provider<ManuallyScheduledComTaskExecutionImpl> manuallyScheduledComTaskExecutionProvider;
     @Mock
     private Provider<FirmwareComTaskExecutionImpl> firmwareComTaskExecutionProvider;
+    @Mock
+    private MeteringGroupsService meteringGroupsService;
     @Mock
     private User user;
     @Mock
@@ -282,7 +285,8 @@ public class DeviceLifeCycleChangeEventsTest {
                 this.scheduledComTaskExecutionProvider,
                 this.protocolPluggableService,
                 this.manuallyScheduledComTaskExecutionProvider,
-                this.firmwareComTaskExecutionProvider)
+                this.firmwareComTaskExecutionProvider,
+                this.meteringGroupsService)
             .initialize(this.deviceConfiguration, "Hello world", "mRID");
     }
 

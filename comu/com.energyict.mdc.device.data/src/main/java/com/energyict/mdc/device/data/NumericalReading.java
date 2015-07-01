@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.util.units.Quantity;
 
 import java.math.BigDecimal;
@@ -10,6 +11,7 @@ import java.math.BigDecimal;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-07-14 (12:05)
  */
+@ProviderType
 public interface NumericalReading extends Reading {
 
     public Quantity getQuantity ();

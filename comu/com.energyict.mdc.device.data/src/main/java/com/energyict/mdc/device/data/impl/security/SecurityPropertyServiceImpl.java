@@ -1,6 +1,8 @@
 package com.energyict.mdc.device.data.impl.security;
 
 import com.elster.jupiter.util.streams.Functions;
+import com.energyict.mdc.common.ApplicationException;
+import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.dynamic.relation.CompositeFilterCriterium;
@@ -21,6 +23,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import java.sql.SQLException;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.*;
@@ -56,8 +59,7 @@ public class SecurityPropertyServiceImpl implements SecurityPropertyService {
     public List<SecurityProperty> getSecurityProperties(Device device, Instant when, SecurityPropertySet securityPropertySet) {
         if (securityPropertySet.currentUserIsAllowedToViewDeviceProperties()) {
             return this.getSecurityPropertiesIgnoringPrivileges(device, when, securityPropertySet);
-        }
-        else {
+        } else {
             return Collections.emptyList();
         }
     }
@@ -65,8 +67,8 @@ public class SecurityPropertyServiceImpl implements SecurityPropertyService {
     @Override
     public List<SecurityProperty> getSecurityPropertiesIgnoringPrivileges(Device device, Instant when, SecurityPropertySet securityPropertySet) {
         return this.findActiveProperties(device, securityPropertySet, when)
-                    .map(r -> this.toSecurityProperties(r, device, securityPropertySet))
-                    .orElse(Collections.emptyList());
+                .map(r -> this.toSecurityProperties(r, device, securityPropertySet))
+                .orElse(Collections.emptyList());
     }
 
     public Optional<Relation> findActiveProperties(Device device, SecurityPropertySet securityPropertySet, Instant activeDate) {
@@ -104,11 +106,11 @@ public class SecurityPropertyServiceImpl implements SecurityPropertyService {
 
     private List<SecurityProperty> toSecurityProperties(Relation relation, Device device, SecurityPropertySet securityPropertySet) {
         return securityPropertySet
-                    .getPropertySpecs()
-                    .stream()
-                    .map(each -> this.toSecurityProperty(each, relation, device, securityPropertySet))
-                    .flatMap(Functions.asStream())
-                    .collect(Collectors.toList());
+                .getPropertySpecs()
+                .stream()
+                .map(each -> this.toSecurityProperty(each, relation, device, securityPropertySet))
+                .flatMap(Functions.asStream())
+                .collect(Collectors.toList());
     }
 
     private Optional<SecurityProperty> toSecurityProperty(PropertySpec propertySpec, Relation relation, Device device, SecurityPropertySet securityPropertySet) {
@@ -116,8 +118,7 @@ public class SecurityPropertyServiceImpl implements SecurityPropertyService {
         Object propertyValue = relation.get(propertySpec.getName());
         if (propertyValue != null) {
             return Optional.of(new SecurityPropertyImpl(device, securityPropertySet, propertySpec, propertyValue, relation.getPeriod(), status));
-        }
-        else {
+        } else {
             return Optional.empty();
         }
     }
@@ -129,15 +130,15 @@ public class SecurityPropertyServiceImpl implements SecurityPropertyService {
 
     @Override
     public boolean securityPropertiesAreValid(Device device) {
-        return device.getDeviceConfiguration().getComTaskEnablements().stream().noneMatch(enablement -> isMissingOrIncomplete(device, enablement.getSecurityPropertySet()));
+        return device.getDeviceConfiguration().getComTaskEnablements().stream().noneMatch(comTaskEnablement -> isMissingOrIncomplete(device, comTaskEnablement.getSecurityPropertySet()));
     }
 
     private boolean isMissingOrIncomplete(Device device, SecurityPropertySet securityPropertySet) {
         List<SecurityProperty> securityProperties = this.getSecurityPropertiesIgnoringPrivileges(device, this.clock.instant(), securityPropertySet);
         return securityProperties.isEmpty()
-            || securityProperties
-                    .stream()
-                    .anyMatch(Predicates.not(SecurityProperty::isComplete));
+                || securityProperties
+                .stream()
+                .anyMatch(Predicates.not(SecurityProperty::isComplete));
     }
 
     @Reference
@@ -150,4 +151,30 @@ public class SecurityPropertyServiceImpl implements SecurityPropertyService {
         this.protocolPluggableService = protocolPluggableService;
     }
 
+    @Override
+    public void deleteSecurityPropertiesFor(Device device) {
+        RelationType relationType = this.findSecurityPropertyRelationType(device);
+        device.getDeviceConfiguration().getSecurityPropertySets().stream().forEach(securityPropertySet -> {
+            if (relationType != null) {
+                FilterAspect deviceAspect = new RelationDynamicAspect(relationType.getAttributeType(SecurityPropertySetRelationAttributeTypeNames.DEVICE_ATTRIBUTE_NAME));
+                FilterAspect securityPropertySetAspect = new RelationDynamicAspect(relationType.getAttributeType(SecurityPropertySetRelationAttributeTypeNames.SECURITY_PROPERTY_SET_ATTRIBUTE_NAME));
+
+                RelationSearchFilter searchFilter =
+                        new RelationSearchFilter(
+                                CompositeFilterCriterium.matchAll(
+                                        new SimpleFilterCriterium(deviceAspect, SimpleFilterCriterium.Operator.EQUALS, device),
+                                        new SimpleFilterCriterium(securityPropertySetAspect, SimpleFilterCriterium.Operator.EQUALS, securityPropertySet)));
+                List<Relation> relations = relationType.findByFilter(searchFilter);
+                relations.stream().forEach(relation -> {
+                    try {
+                        relation.delete();
+                    } catch (BusinessException | SQLException e) {
+                        /* Todo: Should be able to remove this once all objects are use the new ORM service
+                        * and delete as defined on BusinessObject no longer throws BusinessException and SQLException. */
+                        throw new ApplicationException(e);
+                    }
+                });
+            }
+        });
+    }
 }
