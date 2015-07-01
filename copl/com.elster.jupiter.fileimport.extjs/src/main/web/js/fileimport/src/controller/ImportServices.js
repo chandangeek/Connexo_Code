@@ -217,9 +217,10 @@ Ext.define('Fim.controller.ImportServices', {
 
                 // the non-persisted attribute values are reset to their default values and their are not re-evaluated
                 var statusDisplay = record.get('deleted') ? Uni.I18n.translate('general.removed', 'FIM', 'Removed') :
-                    !record.get('scheduled') ? Uni.I18n.translate('general.notScheduled', 'FIM', 'Not scheduled') :
-                        !record.get('importerAvailable') ? Uni.I18n.translate('general.notAvailable', 'FIM', 'Not available') :
-                            record.get('active') ? Uni.I18n.translate('general.active', 'FIM', 'Active') : Uni.I18n.translate('general.inactive', 'FIM', 'Inactive');
+                    !record.get('importerAvailable') ? Uni.I18n.translate('general.notAvailable', 'FIM', 'Not available') :
+                        !record.get('active') ? Uni.I18n.translate('general.inactive', 'FIM', 'Inactive') :
+                            !record.get('scheduled') ? Uni.I18n.translate('general.notScheduled', 'FIM', 'Not scheduled') :
+                                Uni.I18n.translate('general.active', 'FIM', 'Active');
                 rec.set('statusDisplay', statusDisplay);
 
                 if (importServicePreviewContainerPanel) {
