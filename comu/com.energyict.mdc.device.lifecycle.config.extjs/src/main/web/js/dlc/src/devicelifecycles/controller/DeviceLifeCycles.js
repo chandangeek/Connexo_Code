@@ -309,7 +309,11 @@ Ext.define('Dlc.devicelifecycles.controller.DeviceLifeCycles', {
                     value: deviceTypesList,
                     htmlEncode: false
                 });
-                view.down('device-life-cycles-action-menu').record = deviceLifeCycleRecord;
+
+                if (view.down('device-life-cycles-action-menu')) {
+                    view.down('device-life-cycles-action-menu').record = deviceLifeCycleRecord;
+                }
+
                 me.getApplication().fireEvent('devicelifecycleload', deviceLifeCycleRecord);
                 me.getApplication().fireEvent('changecontentevent', view);
             }
