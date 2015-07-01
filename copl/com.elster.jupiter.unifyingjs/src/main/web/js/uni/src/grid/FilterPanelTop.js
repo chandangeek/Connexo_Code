@@ -451,7 +451,6 @@ Ext.define('Uni.grid.FilterPanelTop', {
             if (filter.type !== 'noui') {
                 me.add(component);
             }
-            debugger;
             component.on('filterupdate', me.applyFilters, me);
         }
     },
