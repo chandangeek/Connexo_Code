@@ -25,7 +25,7 @@ public class InstallerImpl {
     private static final Logger LOGGER = Logger.getLogger(InstallerImpl.class.getName());
 
     public void install(MessageService messageService, UserService userService, Thesaurus thesaurus) {
-        createPrivileges(userService);
+        //createPrivileges(userService);
         createBPMQueue(messageService, thesaurus);
     }
 
@@ -49,8 +49,10 @@ public class InstallerImpl {
         }
     }
 
+    /*
     private void createPrivileges(UserService userService) {
         userService.createResourceWithPrivileges("BPM", "bpm.businessProcesses", "bpm.businessProcesses.description", new String[] {Privileges.DESIGN_BPM});
     }
+    */
 
 }
