@@ -1,5 +1,8 @@
 Ext.define('Mdc.store.Estimators', {
     extend: 'Ext.data.Store',
+    requires: [
+        'Est.estimationrules.model.Estimator'
+    ],
     model: 'Est.estimationrules.model.Estimator',
     proxy: {
         type: 'rest',
