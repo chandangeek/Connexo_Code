@@ -2,6 +2,8 @@ package com.energyict.mdc.masterdata;
 
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.ObisCode;
+
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.time.TimeDuration;
 
 import java.util.List;
@@ -12,6 +14,7 @@ import java.util.Optional;
  * Date: 11-jan-2011
  * Time: 15:55:54
  */
+@ProviderType
 public interface LoadProfileType extends HasId {
 
     /**

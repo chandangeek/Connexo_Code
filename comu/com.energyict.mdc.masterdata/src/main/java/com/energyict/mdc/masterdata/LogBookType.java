@@ -3,11 +3,14 @@ package com.energyict.mdc.masterdata;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.ObisCode;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * Copyrights EnergyICT
  * Date: 24/10/12
  * Time: 9:38
  */
+@ProviderType
 public interface LogBookType extends HasId {
 
     /**

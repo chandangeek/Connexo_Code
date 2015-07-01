@@ -2,6 +2,8 @@ package com.energyict.mdc.masterdata;
 
 import com.energyict.mdc.common.HasId;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.util.HashMap;
 import java.util.List;
 
@@ -10,6 +12,7 @@ import java.util.List;
  *
  * @author Geert
  */
+@ProviderType
 public interface RegisterGroup extends HasId {
 
     /**
