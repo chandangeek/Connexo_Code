@@ -1,5 +1,6 @@
 package com.energyict.mdc.dynamic.relation;
 
+import aQute.bnd.annotation.ConsumerType;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
@@ -9,6 +10,7 @@ import java.util.List;
  * An object participates to a <code>Relation</code> when one of the values for the relation's attribute
  * is the concerned object.
  */
+@ConsumerType
 public interface RelationParticipant {
 
     /**

@@ -1,5 +1,6 @@
 package com.energyict.mdc.dynamic.relation;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.orm.associations.Effectivity;
 import com.google.common.collect.Range;
 
@@ -15,6 +16,7 @@ import java.util.Map;
  * The values for a number of attributes defined by a <code>RelationType</code> within a
  * defined period
  */
+@ProviderType
 public interface Relation extends IdBusinessObject, ReadOnlyDynamicAttributeOwner, Effectivity {
 
     /**

@@ -2,12 +2,15 @@ package com.energyict.mdc.dynamic.relation;
 
 import com.energyict.mdc.common.BusinessException;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.sql.SQLException;
 import java.util.List;
 
 /**
  * Provides factory services for {@link RelationType}s.
  */
+@ProviderType
 public interface RelationTypeFactory {
 
     /**

@@ -1,7 +1,10 @@
 package com.energyict.mdc.dynamic;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.time.Instant;
 
+@ProviderType
 public interface VersionedDynamicAttributeOwner extends DynamicAttributeOwner {
 
     public Instant getFrom();

@@ -2,6 +2,8 @@ package com.energyict.mdc.dynamic.relation;
 
 import com.energyict.mdc.dynamic.PropertySpecService;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -13,6 +15,7 @@ import java.util.Optional;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-12-17 (10:27)
  */
+@ProviderType
 public interface RelationService {
 
     public static final String COMPONENT_NAME = "CDR";

@@ -1,5 +1,6 @@
 package com.energyict.mdc.dynamic.relation;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.properties.ValueFactory;
 import com.google.common.collect.Range;
 
@@ -13,6 +14,7 @@ import java.util.List;
 /**
  * RelationAttributeType describes a dynamic attribute of a <code>Relation</code>
  */
+@ProviderType
 public interface RelationAttributeType extends NamedBusinessObject {
 
     public ValueFactory getValueFactory();
