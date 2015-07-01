@@ -76,9 +76,9 @@ public class UserImpl implements User {
     }
 
     @Override
-    public boolean hasPrivilege(String privilegeName) {
+    public boolean hasPrivilege(String applicationName, String privilegeName) {
         for (Group each : getGroups()) {
-            if (each.hasPrivilege(privilegeName)) {
+            if (each.hasPrivilege(applicationName, privilegeName)) {
                 return true;
             }
         }
@@ -86,9 +86,9 @@ public class UserImpl implements User {
     }
 
     @Override
-    public boolean hasPrivilege(Privilege privilege) {
+    public boolean hasPrivilege(String applicationName, Privilege privilege) {
         for (Group each : getGroups()) {
-            if (each.hasPrivilege(privilege)) {
+            if (each.hasPrivilege(applicationName, privilege)) {
                 return true;
             }
         }
@@ -261,11 +261,11 @@ public class UserImpl implements User {
     }
 
     @Override
-    public Set<Privilege> getPrivileges() {
+    public Set<Privilege> getPrivileges(String applicationName) {
         Set<Privilege> privileges = new HashSet<>();
         List<Group> groups = getGroups();
         for(Group group : groups){
-            privileges.addAll(group.getPrivileges());
+            privileges.addAll(group.getPrivileges(applicationName));
         }
 
         return privileges;

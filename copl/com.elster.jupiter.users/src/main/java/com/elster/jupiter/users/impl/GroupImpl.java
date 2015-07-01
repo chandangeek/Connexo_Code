@@ -3,9 +3,8 @@ package com.elster.jupiter.users.impl;
 import static com.elster.jupiter.util.Checks.is;
 
 import java.time.Instant;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
@@ -14,6 +13,8 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.Privilege;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Operator;
 import com.google.common.collect.ImmutableList;
 
 
@@ -63,46 +64,66 @@ final class GroupImpl implements Group , PersistenceAware {
 	}
 
 	@Override
-	public boolean hasPrivilege(String privilegeCode) {
-        return getPrivileges().stream().anyMatch(privilege -> privilege.getName().equals(privilegeCode));
+	public boolean hasPrivilege(String applicationName, String privilegeCode) {
+        return getPrivileges(applicationName).stream().anyMatch(privilege -> privilege.getName().equals(privilegeCode));
 	}
 
     @Override
-	public List<Privilege> getPrivileges() {    	
-    	List<PrivilegeInGroup> privilegeInGroups = getPrivilegeInGroups();
+	public List<Privilege> getPrivileges(String applicationName) {
+    	List<PrivilegeInGroup> privilegeInGroups = getPrivilegeInGroups(applicationName);
     	ImmutableList.Builder<Privilege> builder = new ImmutableList.Builder<>();
     	for (PrivilegeInGroup each : privilegeInGroups) {
     		builder.add(each.getPrivilege());
     	}    	    	
     	return builder.build();
     }
-    
+
+    @Override
+    public Map<String, List<Privilege>> getPrivileges() {
+        Map<String, List<Privilege>> privilegeInGroups =
+                getPrivilegeInGroups()
+                .stream()
+                .collect(Collectors.groupingBy(
+                        PrivilegeInGroup::getApplicationName,
+                        Collectors.mapping(PrivilegeInGroup::getPrivilege, Collectors.toList())));
+        return privilegeInGroups;
+    }
+
+
     private List<PrivilegeInGroup> getPrivilegeInGroups() {
-    	if (privilegeInGroups == null) {
-    		privilegeInGroups = dataModel.mapper(PrivilegeInGroup.class).find("groupId", getId());
-    	}
-    	return privilegeInGroups;
+        if (privilegeInGroups == null) {
+            Condition condition = Operator.EQUAL.compare("groupId", getId());
+            privilegeInGroups = dataModel.mapper(PrivilegeInGroup.class).select(condition);
+        }
+        return privilegeInGroups;
+    }
+
+    private List<PrivilegeInGroup> getPrivilegeInGroups(String applicationName) {
+        return getPrivilegeInGroups()
+                .stream()
+                .filter(p->p.getApplicationName().equalsIgnoreCase(applicationName))
+                .collect(Collectors.toList());
     }
     
     @Override
-    public boolean hasPrivilege(Privilege privilege) {
-        return getPrivileges().contains(privilege);
+    public boolean hasPrivilege(String applicationName, Privilege privilege) {
+        return getPrivileges(applicationName).contains(privilege);
     }
 	
 	@Override
-    public boolean grant(Privilege privilege) {
-        if (hasPrivilege(privilege)) {
+    public boolean grant(String applicationName, Privilege privilege) {
+        if (hasPrivilege(applicationName, privilege)) {
             return false;
         }
-		PrivilegeInGroup privilegeInGroup = PrivilegeInGroup.from(dataModel, this, privilege);
+		PrivilegeInGroup privilegeInGroup = PrivilegeInGroup.from(dataModel, this, applicationName, privilege);
 		privilegeInGroup.persist();
-		getPrivilegeInGroups().add(privilegeInGroup);
+		getPrivilegeInGroups(applicationName).add(privilegeInGroup);
         return false;
 	}
 
     @Override
-    public boolean revoke(Privilege privilege) {
-    	Iterator<PrivilegeInGroup> it = getPrivilegeInGroups().iterator();
+    public boolean revoke(String applicationName, Privilege privilege) {
+    	Iterator<PrivilegeInGroup> it = getPrivilegeInGroups(applicationName).iterator();
     	while (it.hasNext()) {
     		PrivilegeInGroup each = it.next();
     		if (each.getPrivilege().equals(privilege)) {
@@ -135,6 +156,7 @@ final class GroupImpl implements Group , PersistenceAware {
 
     }
 
+
     void persist() {
 		groupFactory().persist(this);
 	}
@@ -154,9 +176,9 @@ final class GroupImpl implements Group , PersistenceAware {
 	}
 	
 	@Override
-	public void grant(String privilegeCode) {
+	public void grant(String applicationName, String privilegeCode) {
         Privilege privilege = dataModel.mapper(Privilege.class).getExisting(privilegeCode);
-		grant(privilege);
+		grant(applicationName, privilege);
 	}
 	
 	public void save() {

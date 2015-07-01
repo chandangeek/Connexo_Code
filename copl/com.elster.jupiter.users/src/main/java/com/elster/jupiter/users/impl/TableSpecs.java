@@ -9,6 +9,7 @@ import com.elster.jupiter.users.*;
 import static com.elster.jupiter.orm.ColumnConversion.CHAR2BOOLEAN;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
+import static com.elster.jupiter.orm.DeleteRule.RESTRICT;
 import static com.elster.jupiter.orm.Table.*;
 
 public enum TableSpecs {
@@ -90,9 +91,11 @@ public enum TableSpecs {
 			Table<PrivilegeInGroup> table = dataModel.addTable(name(), PrivilegeInGroup.class);
 			table.map(PrivilegeInGroup.class);
 			Column groupIdColumn = table.column("GROUPID").number().notNull().conversion(NUMBER2LONG).map("groupId").add();
+			Column applicationColumn = table.column("APPLICATION").type("varchar2(10)").notNull().map("applicationName").add();
+
 			Column privilegeIdColumn = table.column("PRIVILEGENAME").varChar(NAME_LENGTH).notNull().map("privilegeName").add();
 			table.addCreateTimeColumn("CREATETIME", "createTime");
-			table.primaryKey("USR_PK_PRIVILEGEINGROUP").on(groupIdColumn , privilegeIdColumn).add();
+			table.primaryKey("USR_PK_PRIVILEGEINGROUP").on(groupIdColumn ,applicationColumn, privilegeIdColumn).add();
 			table.foreignKey("FK_PRIVINGROUP2GROUP").references(USR_GROUP.name()).onDelete(CASCADE).map("group").reverseMap("privilegeInGroups").on(groupIdColumn).add();
 			table.foreignKey("FK_PRIVINGROUP2PRIV").references(USR_PRIVILEGE.name()).onDelete(CASCADE).map("privilege").on(privilegeIdColumn).add();
 		}
@@ -121,7 +124,18 @@ public enum TableSpecs {
 	        table.column("ISDEFAULT").type("char(1)").notNull().conversion(CHAR2BOOLEAN).map("isDefault").add();
 	        table.primaryKey("USR_PK_PREFERENCES").on(locale, key, formatBE, formatFE).add();
 	    }
-	}
+	}/*,
+	USR_APPLICATIONPRIVILEGES {
+		void addTo(DataModel dataModel) {
+			Table<ApplicationPrivilege> table = dataModel.addTable(name(), ApplicationPrivilege.class);
+			table.map(ApplicationPrivilege.class);
+			Column applicationColumn = table.column("APPLICATION").type("varchar2(10)").notNull().map("applicationName").add();
+			Column privilegeIdColumn = table.column("PRIVILEGENAME").varChar(NAME_LENGTH).notNull().map("privilegeName").add();
+			table.addCreateTimeColumn("CREATETIME", "createTime");
+			table.primaryKey("USR_PK_APPLICATIONPRIVILEGES").on(applicationColumn, privilegeIdColumn).add();
+			table.foreignKey("FK_APPPRIV2PRIV").references(USR_PRIVILEGE.name()).onDelete(CASCADE).map("privilege").on(privilegeIdColumn).add();
+		}
+	}*/
 	;
 
 	abstract void addTo(DataModel dataModel);

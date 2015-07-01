@@ -24,11 +24,11 @@ public interface UserService {
 
     void createResourceWithPrivileges(String component, String name, String description, String[] privileges);
 
-    void grantGroupWithPrivilege(String roleName, String[] privileges);
+    void grantGroupWithPrivilege(String roleName, String applicationName, String[] privileges);
 
     Optional<User> findUser(String authenticationName);
 
-    Optional<Resource> findResource(String component, String name);
+    Optional<Resource> findResource(String name);
 
     Optional<Group> findGroup(String name);
 
@@ -58,6 +58,9 @@ public interface UserService {
 
     List<Privilege> getPrivileges();
 
+    List<Privilege> getPrivileges(String applicationName);
+
+
     List<Resource> getResources();
 
     List<Resource> getResources(String component);
@@ -80,6 +83,6 @@ public interface UserService {
 
     UserPreferencesService getUserPreferencesService();
 
-    Resource createModuleResourceWithPrivileges(String moduleName, String resourceName, String resourceDescription, List<String> privileges);
+    ResourceDefinition createModuleResourceWithPrivileges(String moduleName, String resourceName, String resourceDescription, List<String> privileges);
 
 }

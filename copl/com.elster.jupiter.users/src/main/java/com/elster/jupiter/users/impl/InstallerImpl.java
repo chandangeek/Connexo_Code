@@ -81,7 +81,7 @@ public class InstallerImpl {
         Field[] fields = Privileges.class.getFields();
         for (Field each : fields) {
             try {
-                group.grant((String) each.get(null));
+                group.grant("SYS", (String) each.get(null));
             } catch (IllegalArgumentException | IllegalAccessException e) {
                 throw new RuntimeException(e);
             }

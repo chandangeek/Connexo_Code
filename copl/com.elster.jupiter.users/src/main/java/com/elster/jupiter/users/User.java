@@ -13,9 +13,9 @@ public interface User extends Principal, HasName {
 
     long getId();
 
-    boolean hasPrivilege(String privilege);
+    boolean hasPrivilege(String applicationName, String privilege);
 
-    boolean hasPrivilege(Privilege privilege);
+    boolean hasPrivilege(String applicationName, Privilege privilege);
 
     boolean isMemberOf(String groupName);
 
@@ -60,7 +60,7 @@ public interface User extends Principal, HasName {
 
     void setLocale(Locale locale);
 
-    Set<Privilege> getPrivileges();
+    Set<Privilege> getPrivileges(String applicationName);
 
     String getDomain();
 

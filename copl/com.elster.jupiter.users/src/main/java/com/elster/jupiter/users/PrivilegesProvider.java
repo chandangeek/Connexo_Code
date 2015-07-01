@@ -4,5 +4,5 @@ import java.util.List;
 
 public interface PrivilegesProvider{
     String getModuleName();
-    List<Resource> getModulePrivileges();
+    List<ResourceDefinition> getModuleResources();
 }

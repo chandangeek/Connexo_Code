@@ -1,17 +1,19 @@
 package com.elster.jupiter.users;
 
+import com.elster.jupiter.users.impl.ApplicationPrivilege;
 import com.elster.jupiter.util.HasName;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 
 public interface Group extends HasName {
 
     long getId();
 
-    boolean hasPrivilege(String privilegeCode);
+    boolean hasPrivilege(String applicationName, String privilegeCode);
 
-    void grant(String privilegeCode);
+    void grant(String applicationName, String privilegeCode);
 
     long getVersion();
 
@@ -19,13 +21,14 @@ public interface Group extends HasName {
 
     void delete();
 
-    List<Privilege> getPrivileges();
+    Map<String, List<Privilege>> getPrivileges();
+    List<Privilege> getPrivileges(String applicationName);
 
-    boolean hasPrivilege(Privilege privilege);
+    boolean hasPrivilege(String applicationName, Privilege privilege);
 
-    boolean grant(Privilege privilege);
+    boolean grant(String applicationName, Privilege privilege);
 
-    boolean revoke(Privilege privilege);
+    boolean revoke(String applicationName, Privilege privilege);
 
     Instant getCreationDate();
 
@@ -34,4 +37,5 @@ public interface Group extends HasName {
     String getDescription();
 
     void setDescription(String description);
+
 }

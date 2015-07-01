@@ -12,6 +12,8 @@ class PrivilegeInGroup {
 	// persistent fields
 	private long groupId;
 	private String privilegeName;
+	private String applicationName;
+
 	@SuppressWarnings("unused")
 	private Instant createTime;
 	
@@ -25,16 +27,17 @@ class PrivilegeInGroup {
         this.dataModel = dataModel;
 	}
 	
-	PrivilegeInGroup init(Group group , Privilege privilege) {
+	PrivilegeInGroup init(Group group , String applicationName, Privilege privilege) {
 		this.groupId = group.getId();
 		this.group = group;
 		this.privilegeName = privilege.getName();
+		this.applicationName = applicationName;
 		this.privilege = privilege;
         return this;
 	}
 
-    static PrivilegeInGroup from(DataModel dataModel, Group group, Privilege privilege) {
-        return dataModel.getInstance(PrivilegeInGroup.class).init(group, privilege);
+    static PrivilegeInGroup from(DataModel dataModel, Group group, String applicationName, Privilege privilege) {
+        return dataModel.getInstance(PrivilegeInGroup.class).init(group, applicationName, privilege);
     }
 
 	Privilege getPrivilege() {
@@ -42,6 +45,10 @@ class PrivilegeInGroup {
 			privilege = dataModel.mapper(Privilege.class).getExisting(privilegeName);
 		}
 		return privilege;
+	}
+
+	public String getApplicationName() {
+		return applicationName;
 	}
 	
 	Group getGroup() {

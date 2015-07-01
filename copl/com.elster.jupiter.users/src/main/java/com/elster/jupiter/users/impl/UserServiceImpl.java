@@ -13,6 +13,7 @@ import com.elster.jupiter.users.*;
 import com.elster.jupiter.users.security.Privileges;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
+import com.elster.jupiter.util.streams.Functions;
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.*;
 
@@ -20,7 +21,6 @@ import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.security.Principal;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
@@ -46,7 +46,7 @@ public class UserServiceImpl implements UserService, InstallService, Translation
     //List<Resource> moduleResources = new ArrayList<>();//CopyOnWriteArrayList<>();
     //Map<String, List<String> >applicationResources = new ConcurrentHashMap<>();
 
-    Map<String, String> privilegeResource = new ConcurrentHashMap<>();
+    //Map<String, String> privilegeResource = new ConcurrentHashMap<>();
 
     private volatile List<PrivilegesProvider> privilegesProviders = new CopyOnWriteArrayList<>();
 
@@ -170,26 +170,34 @@ public class UserServiceImpl implements UserService, InstallService, Translation
 
     @Override
     public void createResourceWithPrivileges(String component, String name, String description, String[] privileges) {
-        Optional<Resource> found = findResource(component, name);
-        Resource resource = found.isPresent() ? found.get() : createResource(component, name, description);
 
-        for (String privilege : privileges) {
-            resource.createPrivilege(privilege);
-        }
     }
 
     @Override
-    public void grantGroupWithPrivilege(String groupName, String[] privileges) {
+    public void grantGroupWithPrivilege(String groupName, String applicationName, String[] privileges) {
         Optional<Group> group = findGroup(groupName);
         if (group.isPresent()) {
             for (String privilege : privileges) {
-                group.get().grant(privilege);
+                group.get().grant(applicationName, privilege);
             }
         }
     }
 
-    private Resource createResource(String application, String name, String description) {
-        ResourceImpl result = ResourceImpl.from(dataModel, application, name, description);
+    public void createApplicationPrivileges(String applicationName, String[] privileges) {
+        Condition condition = Operator.EQUALIGNORECASE.compare("applicationName", applicationName);
+        List<ApplicationPrivilege> applicationPrivileges = dataModel.query(ApplicationPrivilege.class).select(condition);
+
+        /*Optional<Resource> found = findResource(component, name);
+        Resource resource = found.isPresent() ? found.get() : createResource(component, name, description);
+
+        for (String privilege : privileges) {
+            resource.createPrivilege(privilege);
+        }*/
+    }
+
+
+    private Resource createResource(String component, String name, String description) {
+        ResourceImpl result = ResourceImpl.from(dataModel, component, name, description);
         result.persist();
 
         return result;
@@ -210,10 +218,9 @@ public class UserServiceImpl implements UserService, InstallService, Translation
     }
 
     @Override
-    public Optional<Resource> findResource(String component,String name) {
+    public Optional<Resource> findResource(String name) {
         Condition condition = Operator.EQUALIGNORECASE.compare("name", name);
-        Condition conditionWithComponent = condition.and(Operator.EQUALIGNORECASE.compare("componentName", component));
-        List<Resource> resources = dataModel.query(Resource.class).select(conditionWithComponent);
+        List<Resource> resources = dataModel.query(Resource.class).select(condition);
         return resources.isEmpty() ? Optional.empty() : Optional.of(resources.get(0));
     }
 
@@ -280,7 +287,22 @@ public class UserServiceImpl implements UserService, InstallService, Translation
     }
 
     @Override
-    public List<Privilege> getPrivileges() {
+    public List<Privilege> getPrivileges(String applicationName) {
+        List<String> applicationPrivileges = applicationPrivilegesProviders
+                .stream()
+                .filter(ap->ap.getApplicationName().equalsIgnoreCase(applicationName))
+                .flatMap(ap -> ap.getApplicationPrivileges().stream())
+                .collect(Collectors.toList());
+        return privilegeFactory()
+                .find()
+                .stream()
+                .filter(p->applicationPrivileges.contains(p.getName()))
+                .collect(Collectors.toList());
+    }
+
+
+    @Override
+      public List<Privilege> getPrivileges() {
         return privilegeFactory().find();
     }
 
@@ -447,13 +469,11 @@ public class UserServiceImpl implements UserService, InstallService, Translation
         }
 
         privilegesProviders.add(privilegesProvider);
-        //moduleResources.addAll(privilegesProvider.getModulePrivileges());
 
     }
 
     public void removeModulePrivileges(PrivilegesProvider privilegesProvider) {
         privilegesProviders.remove(privilegesProvider);
-        //moduleResources.removeAll(privilegesProvider.getModulePrivileges());
 
     }
 
@@ -462,20 +482,26 @@ public class UserServiceImpl implements UserService, InstallService, Translation
     public void addApplicationPrivileges(ApplicationPrivilegesProvider applicationPrivilegesProvider) {
 
         applicationPrivilegesProviders.add(applicationPrivilegesProvider);
-        /*if (applicationResources.containsKey(applicationPrivilegesProvider.getApplicationName())){
-            List<String> resources = applicationResources.get(applicationPrivilegesProvider.getApplicationName());
-            resources.addAll(applicationPrivilegesProvider.getApplicationPrivileges());
-        }
-        else{
-            applicationResources.put(applicationPrivilegesProvider.getApplicationName(), applicationPrivilegesProvider.getApplicationPrivileges());
-        }*/
     }
 
     public void removeApplicationPrivileges(ApplicationPrivilegesProvider applicationPrivilegesProvider) {
 
         applicationPrivilegesProviders.remove(applicationPrivilegesProvider);
-        //applicationResources.remove(applicationPrivilegesProvider.getApplicationName());
+    }
 
+    private void installResource() {
+        for (ApplicationPrivilegesProvider privilegesProvider : applicationPrivilegesProviders) {
+            doInstallApplicationPrivileges(privilegesProvider);
+        }
+    }
+
+    private void doInstallApplicationPrivileges(ApplicationPrivilegesProvider applicationPrivilegesProvider) {
+        /*for(String resource:applicationPrivilegesProvider.getApplicationPrivileges()){
+            createPr(resource.getComponentName(),
+                    resource.getName(),
+                    resource.getDescription(),
+                    resource.getPrivileges().stream().toArray(String[]::new));
+        }*/
     }
 
     private void installPrivileges() {
@@ -484,48 +510,60 @@ public class UserServiceImpl implements UserService, InstallService, Translation
         }
     }
 
+    private void createOrUpdateResourceWithPrivileges(String component, String name, String description, String[] privileges) {
+        Optional<Resource> found = findResource(name);
+        Resource resource = found.isPresent() ? found.get() : createResource(component, name, description);
+        if(!resource.getComponentName().equalsIgnoreCase(component)){
+            resource.delete();
+            resource = createResource(component, name, description);
+        }
+        for (String privilege : privileges) {
+            resource.createPrivilege(privilege);
+        }
+    }
+
     private void doInstallPrivileges(PrivilegesProvider privilegesProvider) {
-        for(Resource resource:privilegesProvider.getModulePrivileges()){
-            createResourceWithPrivileges(resource.getComponentName(),
+        for(ResourceDefinition resource:privilegesProvider.getModuleResources()){
+            createOrUpdateResourceWithPrivileges(resource.getComponentName(),
                     resource.getName(),
                     resource.getDescription(),
-                    resource.getPrivileges().stream().map(p->p.getName()).toArray(String[]::new));
+                    resource.getPrivileges().stream().toArray(String[]::new));
         }
     }
 
 
+    public List<Resource> getApplicationResources(String applicationName){
+
+        List<String> applicationPrivileges = applicationPrivilegesProviders
+            .stream()
+            .filter(app -> app.getApplicationName().equals(applicationName))
+            .flatMap(app -> app.getApplicationPrivileges().stream())
+            .collect(Collectors.toList());
+
+        return resourceFactory().find().stream()
+            .filter(r -> r.getPrivileges()
+                    .stream()
+                    .anyMatch(p -> applicationPrivileges.contains(p.getName())))
+            .map(r -> ResourceDefinitionImpl.createApplicationResource(applicationName,
+                            applicationName,
+                            r.getName(),
+                            r.getDescription(),
+                            r.getPrivileges()
+                                    .stream()
+                                    .filter(p -> applicationPrivileges.contains(p.getName()))
+                                    .collect(Collectors.toList()))
+            ).collect(Collectors.toList());
+    }
+
     public List<Resource> getApplicationResources(){
 
-        Map<String, List<Resource>> resource =
-        applicationPrivilegesProviders.stream()
-                .collect(
-                        HashMap::new,
-                        (m, e) -> {
-                            m.computeIfAbsent(e.getApplicationName(), x -> new ArrayList<>());
-                            m.computeIfPresent(e.getApplicationName(), (appName, map1) ->
-                                    privilegesProviders.stream().flatMap(p->p.getModulePrivileges().stream())
-                                            .filter(r -> r.getPrivileges().stream().anyMatch(px -> e.getApplicationPrivileges().contains(px.getName())))
-                                            .map(r -> ModuleResourceImpl.from(e.getApplicationName(),
-                                                            r.getComponentName(),
-                                                            r.getName(),
-                                                            r.getDescription(),
-                                                            r.getPrivileges()
-                                                                    .stream()
-                                                                    .filter(p -> e.getApplicationPrivileges().contains(p.getName()))
-                                                                    .map(p -> p.getName())
-                                                                    .collect(Collectors.toList()))
-                                            ).collect(Collectors.toList()));
-                        },
-                        (map1, map2) -> {
-                        });
-
-        return resource.entrySet().stream().flatMap(entry -> entry.getValue().stream()).collect(Collectors.toList());
-       
+        return applicationPrivilegesProviders.stream()
+                .flatMap(a -> getApplicationResources(a.getApplicationName()).stream()).collect(Collectors.toList());
     }
 
     @Override
-    public Resource createModuleResourceWithPrivileges(String moduleName, String resourceName, String resourceDescription, List<String> privileges) {
-        return ModuleResourceImpl.from(moduleName, resourceName, resourceDescription, privileges);
+    public ResourceDefinition createModuleResourceWithPrivileges(String moduleName, String resourceName, String resourceDescription, List<String> privileges) {
+        return ResourceDefinitionImpl.createResourceDefinition(moduleName, resourceName, resourceDescription, privileges);
     }
 
 
@@ -540,8 +578,8 @@ public class UserServiceImpl implements UserService, InstallService, Translation
     }
 
     @Override
-    public List<Resource> getModulePrivileges() {
-        List<Resource> resources = new ArrayList<>();
+    public List<ResourceDefinition> getModuleResources() {
+        List<ResourceDefinition> resources = new ArrayList<>();
         resources.add(createModuleResourceWithPrivileges(
                 UserService.COMPONENTNAME,
                 "userAndRole.usersAndRoles", "userAndRole.usersAndRoles.description",
