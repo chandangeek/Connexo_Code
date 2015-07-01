@@ -22,7 +22,6 @@ import com.energyict.mdc.protocol.security.SecurityProperty;
 import com.energyict.mdc.protocol.security.SecurityPropertySet;
 import com.energyict.mdc.protocol.tasks.*;
 import com.energyict.mdc.protocol.tasks.support.DeviceMessageSupport;
-import com.energyict.mdc.shadow.tasks.NextExecutionSpecsShadow;
 import com.energyict.mdc.tasks.*;
 import com.energyict.mdw.amr.Register;
 import com.energyict.mdw.amr.RegisterGroup;
@@ -530,6 +529,12 @@ public class RTU3Messaging extends AbstractMessageExecutor implements DeviceMess
 
         final int deviceTypeId = device.getDeviceType().getId();
 
+        String deviceTimeZone = DlmsProtocolProperties.DEFAULT_TIMEZONE;
+        final TimeZoneInUse timeZoneInUse = device.getProtocolProperties().<TimeZoneInUse>getTypedProperty(DlmsProtocolProperties.TIMEZONE);
+        if (timeZoneInUse != null && timeZoneInUse.getTimeZone() != null) {
+            deviceTimeZone = timeZoneInUse.getTimeZone().getID();
+        }
+
         final byte[] masterKey = getSecurityKey(masterDevice, SecurityPropertySpecName.MASTER_KEY.toString());    //TODO master key on RTU3 or AS330D?
         final byte[] password = getSecurityKey(device, SecurityPropertySpecName.PASSWORD.toString());
         final byte[] ak = getSecurityKey(device, SecurityPropertySpecName.AUTHENTICATION_KEY.toString());
@@ -539,7 +544,7 @@ public class RTU3Messaging extends AbstractMessageExecutor implements DeviceMess
         final String wrappedAK = ProtocolTools.getHexStringFromBytes(wrap(ak, masterKey), "");
         final String wrappedEK = ProtocolTools.getHexStringFromBytes(wrap(ek, masterKey), "");
 
-        return new RTU3MeterDetails(callHomeId, deviceTypeId, wrappedPassword, wrappedAK, wrappedEK);
+        return new RTU3MeterDetails(callHomeId, deviceTypeId, deviceTimeZone, wrappedPassword, wrappedAK, wrappedEK);
     }
 
     private byte[] wrap(byte[] key, byte[] masterKey) {

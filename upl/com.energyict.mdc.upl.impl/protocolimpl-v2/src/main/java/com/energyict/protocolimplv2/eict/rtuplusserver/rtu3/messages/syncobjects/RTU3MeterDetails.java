@@ -3,6 +3,7 @@ package com.energyict.protocolimplv2.eict.rtuplusserver.rtu3.messages.syncobject
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.dlms.axrdencoding.VisibleString;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import javax.xml.bind.annotation.XmlAttribute;
@@ -19,13 +20,15 @@ public class RTU3MeterDetails {
 
     private String macAddress;
     private long deviceTypeId;
+    private String deviceTimeZone;
     private String llsSecret;
     private String authenticationKey;
     private String encryptionKey;
 
-    public RTU3MeterDetails(String macAddress, long deviceTypeId, String llsSecret, String authenticationKey, String encryptionKey) {
+    public RTU3MeterDetails(String macAddress, long deviceTypeId, String deviceTimeZone, String llsSecret, String authenticationKey, String encryptionKey) {
         this.macAddress = macAddress;
         this.deviceTypeId = deviceTypeId;
+        this.deviceTimeZone = deviceTimeZone;
         this.llsSecret = llsSecret;
         this.authenticationKey = authenticationKey;
         this.encryptionKey = encryptionKey;
@@ -38,6 +41,11 @@ public class RTU3MeterDetails {
     @XmlAttribute
     public String getMacAddress() {
         return macAddress;
+    }
+
+    @XmlAttribute
+    public String getDeviceTimeZone() {
+        return deviceTimeZone;
     }
 
     @XmlAttribute
@@ -64,6 +72,7 @@ public class RTU3MeterDetails {
         final Structure structure = new Structure();
         structure.addDataType(OctetString.fromByteArray(ProtocolTools.getBytesFromHexString(getMacAddress(), "")));
         structure.addDataType(new Unsigned32(getDeviceTypeId()));
+        structure.addDataType(new VisibleString(getDeviceTimeZone()));
         structure.addDataType(OctetString.fromByteArray(ProtocolTools.getBytesFromHexString(getLlsSecret(), "")));
         structure.addDataType(OctetString.fromByteArray(ProtocolTools.getBytesFromHexString(getAuthenticationKey(), "")));
         structure.addDataType(OctetString.fromByteArray(ProtocolTools.getBytesFromHexString(getEncryptionKey(), "")));
