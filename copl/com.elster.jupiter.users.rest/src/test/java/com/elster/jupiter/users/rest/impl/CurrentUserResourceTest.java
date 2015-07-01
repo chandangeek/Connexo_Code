@@ -1,6 +1,7 @@
 package com.elster.jupiter.users.rest.impl;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -34,7 +35,7 @@ public class CurrentUserResourceTest extends UsersRestApplicationJerseyTest {
         when(user.getCreationDate()).thenReturn(Instant.now());
         when(user.getModifiedDate()).thenReturn(Instant.now());
         when(user.getGroups()).thenReturn(Arrays.asList());
-        when(user.getPrivileges()).thenReturn(Collections.emptySet());
+        when(user.getPrivileges(anyString())).thenReturn(Collections.emptySet());
         when(user.getVersion()).thenReturn(1L);
         
         UserInfo response = target("/currentuser").request().get(UserInfo.class);

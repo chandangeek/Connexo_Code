@@ -5,6 +5,8 @@ import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.rest.GroupInfo;
 
+import java.util.stream.Collectors;
+
 public class CreateGroupTransaction extends UpdateMembership implements Transaction<Group> {
 
     public CreateGroupTransaction(GroupInfo info, UserService userService) {
@@ -14,6 +16,10 @@ public class CreateGroupTransaction extends UpdateMembership implements Transact
     @Override
     public Group perform() {
         Group group = userService.createGroup(info.name, info.description);
-        return doUpdate(group);
+        info.privileges.stream().collect(Collectors.groupingBy(pi -> pi.applicationName))
+                .entrySet()
+                .stream()
+                .forEach(p->doUpdate(p.getKey(), group));
+        return group;
     }
 }

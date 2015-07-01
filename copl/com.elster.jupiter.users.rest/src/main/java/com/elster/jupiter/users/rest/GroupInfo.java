@@ -6,10 +6,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -33,17 +31,18 @@ public class GroupInfo {
         name = group.getName();
         version = group.getVersion();
         description = group.getDescription();
-        createdOn= DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(group.getCreationDate().atZone(ZoneId.systemDefault()));
-        modifiedOn=DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(group.getModifiedDate().atZone(ZoneId.systemDefault()));
-        for (Privilege privilege : group.getPrivileges()) {
-            privileges.add(new PrivilegeInfo(privilege));
-        }
+        createdOn = DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(group.getCreationDate().atZone(ZoneId.systemDefault()));
+        modifiedOn = DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(group.getModifiedDate().atZone(ZoneId.systemDefault()));
+        privileges.addAll(group.getPrivileges()
+                .entrySet()
+                .stream()
+                .flatMap(x->x.getValue().stream().map(p->PrivilegeInfo.asApllicationPrivilege(x.getKey(), p)))
+                .collect(Collectors.toList()));
 
-        Collections.sort(privileges, new Comparator<PrivilegeInfo>() {
-            public int compare(PrivilegeInfo p1, PrivilegeInfo p2) {
-                return p1.name.compareTo(p2.name);
-                }
-        });
+        Collections.sort(privileges, (p1, p2) -> {
+            int result = p1.applicationName.compareTo(p2.applicationName);
+            return result != 0 ? result : p1.name.compareTo(p2.name);
+            });
     }
 
     public boolean update(Group group) {

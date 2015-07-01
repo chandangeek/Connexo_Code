@@ -21,8 +21,8 @@ public class UpdateMembership {
         this.userService = userService;
     }
 
-    Group doUpdate(Group group) {
-        boolean updated = updateMemberships(group);
+    Group doUpdate(String applicationName, Group group) {
+        boolean updated = updateMemberships(applicationName, group);
         updated |= info.update(group);
         if (updated) {
             group.save();
@@ -30,41 +30,43 @@ public class UpdateMembership {
         return group;
     }
 
-    private boolean updateMemberships(Group group) {
-        Set<Privilege> current = new LinkedHashSet<>(group.getPrivileges());
-        Set<Privilege> target = targetGrants();
+    private boolean updateMemberships(String applicationName, Group group) {
+        Set<Privilege> current = new LinkedHashSet<>(group.getPrivileges(applicationName));
+        Set<Privilege> target = targetGrants(applicationName);
         if (target.equals(current)) {
             return false;
         }
-        revoke(group, current, target);
-        grant(group, current, target);
+        revoke(applicationName, group, current, target);
+        grant(applicationName, group, current, target);
         return true;
     }
 
-    private void grant(Group group, Set<Privilege> current, Set<Privilege> target) {
+    private void grant(String applicationName, Group group, Set<Privilege> current, Set<Privilege> target) {
         Set<Privilege> toAdd = new LinkedHashSet<>(target);
         toAdd.removeAll(current);
         for (Privilege privilege : toAdd) {
-            group.grant(privilege);
+            group.grant(applicationName, privilege);
         }
     }
 
-    private void revoke(Group group, Set<Privilege> current, Set<Privilege> targetMemberships) {
+    private void revoke(String applicationName, Group group, Set<Privilege> current, Set<Privilege> targetMemberships) {
         Set<Privilege> toRemove = new LinkedHashSet<>(current);
         toRemove.removeAll(targetMemberships);
         for (Privilege privilege : toRemove) {
-            group.revoke(privilege);
+            group.revoke(applicationName, privilege);
         }
     }
 
-    private Set<Privilege> targetGrants() {
+    private Set<Privilege> targetGrants(String applicationName) {
         Set<Privilege> target = new LinkedHashSet<>();
         for (PrivilegeInfo privilegeInfo : info.privileges) {
-            Optional<Privilege> privilege = userService.getPrivilege(privilegeInfo.name);
-            if (privilege.isPresent()) {
-                target.add(privilege.get());
-            } else {
-                throw new WebApplicationException(Response.Status.NOT_FOUND);
+            if(applicationName.equalsIgnoreCase(privilegeInfo.applicationName)) {
+                Optional<Privilege> privilege = userService.getPrivilege(privilegeInfo.name);
+                if (privilege.isPresent()) {
+                    target.add(privilege.get());
+                } else {
+                    throw new WebApplicationException(Response.Status.NOT_FOUND);
+                }
             }
         }
         return target;

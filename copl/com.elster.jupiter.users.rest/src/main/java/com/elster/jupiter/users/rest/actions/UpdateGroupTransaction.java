@@ -1,6 +1,8 @@
 package com.elster.jupiter.users.rest.actions;
 
 import java.util.Optional;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
@@ -20,7 +22,11 @@ public class UpdateGroupTransaction extends UpdateMembership implements Transact
     public Group perform() {
         Group group = fetchGroup();
         validateUpdate(group);
-        return doUpdate(group);
+        info.privileges.stream().collect(Collectors.groupingBy(pi->pi.applicationName))
+                .entrySet()
+                .stream()
+                .forEach(p->doUpdate(p.getKey(), group));
+        return group;
     }
 
     private void validateUpdate(Group group) {
