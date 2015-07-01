@@ -9,6 +9,8 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.users.PrivilegesProvider;
+import com.elster.jupiter.users.Resource;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.framework.BundleContext;
@@ -42,9 +44,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * Date: 28/03/2014
  * Time: 16:28
  */
-@Component(name = "com.elster.jupiter.license", service = {InstallService.class, LicenseService.class},
+@Component(name = "com.elster.jupiter.license", service = {InstallService.class, LicenseService.class, PrivilegesProvider.class},
         property = {"name=" + LicenseService.COMPONENTNAME}, immediate = true)
-public class LicenseServiceImpl implements LicenseService, InstallService {
+public class LicenseServiceImpl implements LicenseService, InstallService, PrivilegesProvider {
 
     private volatile DataModel dataModel;
     private volatile OrmService ormService;
@@ -71,7 +73,7 @@ public class LicenseServiceImpl implements LicenseService, InstallService {
 
     public void install() {
         dataModel.install(true, true);
-        createPrivileges();
+        //createPrivileges();
         createEventTypes();
     }
 
@@ -89,10 +91,24 @@ public class LicenseServiceImpl implements LicenseService, InstallService {
         return Arrays.asList("ORM", "USR", "EVT");
     }
 
+    @Override
+    public String getModuleName() {
+        return LicenseService.COMPONENTNAME;
+    }
+
+    @Override
+    public List<Resource> getModulePrivileges() {
+        List<Resource> resources = new ArrayList<>();
+        resources.add(userService.createModuleResourceWithPrivileges(LicenseService.COMPONENTNAME, "license.license", "license.license.description",
+                Arrays.asList(
+                        Privileges.VIEW_LICENSE, Privileges.UPLOAD_LICENSE)));
+        return resources;
+    }
+    /*
     private void createPrivileges() {
         this.userService.createResourceWithPrivileges("SYS", "license.license", "license.license.description", new String[]{Privileges.VIEW_LICENSE, Privileges.UPLOAD_LICENSE});
     }
-
+    */
     @Reference
     public void setOrmService(OrmService ormService) {
         this.ormService = ormService;
