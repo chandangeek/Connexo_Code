@@ -1,15 +1,13 @@
 package com.energyict.mdc.device.lifecycle.config.impl;
 
-import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
-import com.energyict.mdc.device.lifecycle.config.TransitionBusinessProcess;
-
 import com.elster.jupiter.fsm.FiniteStateMachineService;
-import com.elster.jupiter.fsm.impl.StateChangeBusinessProcessImpl;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
+import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
+import com.energyict.mdc.device.lifecycle.config.TransitionBusinessProcess;
 
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
 
@@ -50,8 +48,8 @@ public enum TableSpecs {
             Table<TransitionBusinessProcess> table = dataModel.addTable(this.name(), TransitionBusinessProcess.class);
             table.map(TransitionBusinessProcessImpl.class);
             Column id = table.addAutoIdColumn();
-            table.column("DEPLOYMENTID").varChar().notNull().map(StateChangeBusinessProcessImpl.Fields.DEPLOYMENT_ID.fieldName()).add();
-            table.column("PROCESSID").varChar().notNull().map(StateChangeBusinessProcessImpl.Fields.PROCESS_ID.fieldName()).add();
+            table.column("DEPLOYMENTID").varChar().notNull().map(TransitionBusinessProcessImpl.Fields.DEPLOYMENT_ID.fieldName()).add();
+            table.column("PROCESSID").varChar().notNull().map(TransitionBusinessProcessImpl.Fields.PROCESS_ID.fieldName()).add();
             table.primaryKey("PK_TRANSITION_PROCESS").on(id).add();
         }
     },
