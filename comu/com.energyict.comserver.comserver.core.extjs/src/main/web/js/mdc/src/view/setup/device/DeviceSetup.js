@@ -200,6 +200,8 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                     },
                     {
                         xtype: 'button',
+                        itemId: 'device-landing-actions-btn',
+                        hidden: true,
                         text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
                         style: {
                             'background-color': '#71adc7'
@@ -207,7 +209,8 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                         iconCls: 'x-uni-action-iconD',
                         menu: {
                             xtype: 'device-action-menu',
-                            itemId: 'deviceActionMenu'
+                            itemId: 'deviceActionMenu',
+                            router: me.router
                         }
                     }
                 ]

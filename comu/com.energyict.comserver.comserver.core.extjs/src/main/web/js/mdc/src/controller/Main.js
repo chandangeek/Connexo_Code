@@ -96,7 +96,8 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.controller.setup.DeviceValidationResults',
         'Mdc.controller.setup.DeviceHistory',
         'Mdc.controller.setup.ChangeDeviceLifeCycle',
-        'Mdc.controller.setup.DeviceTransitionExecute'
+        'Mdc.controller.setup.DeviceTransitionExecute',
+        'Mdc.controller.setup.DeviceAttributes'
     ],
 
     refs: [
