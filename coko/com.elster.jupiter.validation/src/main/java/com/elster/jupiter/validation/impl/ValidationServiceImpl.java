@@ -233,7 +233,7 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
                 .ifPresent(meterValidation -> {
                     meterValidation.setValidateOnStorage(true);
                     meterValidation.save();
-            });
+                });
     }
 
 
@@ -464,9 +464,14 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
     }
 
     @Override
-    public List<ResourceDefinition> getModulePrivileges() {
-        List<Resource> resources = new ArrayList<>();
-        resources.add(userService.createModuleResourceWithPrivileges("validation.validations", "validation.validations.description",
+    public String getModuleName() {
+        return ValidationService.COMPONENTNAME;
+    }
+
+    @Override
+    public List<ResourceDefinition> getModuleResources() {
+        List<ResourceDefinition> resources = new ArrayList<>();
+        resources.add(userService.createModuleResourceWithPrivileges(ValidationService.COMPONENTNAME, "validation.validations", "validation.validations.description",
                 Arrays.asList(
                         Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.VIEW_VALIDATION_CONFIGURATION,
                         Privileges.VALIDATE_MANUAL,Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE,
