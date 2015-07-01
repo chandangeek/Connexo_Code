@@ -1,5 +1,6 @@
 package com.energyict.mdc.metering;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.ObisCode;
@@ -14,6 +15,7 @@ import java.util.Optional;
  * Date: 17/02/14
  * Time: 14:30
  */
+@ProviderType
 public interface MdcReadingTypeUtilService {
 
     /**
