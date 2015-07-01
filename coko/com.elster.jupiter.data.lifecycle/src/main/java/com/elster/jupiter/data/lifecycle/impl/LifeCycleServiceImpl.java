@@ -3,6 +3,7 @@ package com.elster.jupiter.data.lifecycle.impl;
 import com.elster.jupiter.data.lifecycle.LifeCycleCategory;
 import com.elster.jupiter.data.lifecycle.LifeCycleCategoryKind;
 import com.elster.jupiter.data.lifecycle.LifeCycleService;
+import com.elster.jupiter.data.lifecycle.security.Privileges;
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
@@ -20,6 +21,8 @@ import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.users.PrivilegesProvider;
+import com.elster.jupiter.users.Resource;
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -30,6 +33,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.Period;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -38,8 +42,8 @@ import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.streams.Functions.asStream;
 
-@Component(name="com.elster.jupiter.data.lifecycle", property = "name=" + LifeCycleService.COMPONENTNAME, service = {LifeCycleService.class, TranslationKeyProvider.class, InstallService.class})
-public class LifeCycleServiceImpl implements LifeCycleService, InstallService, TranslationKeyProvider {
+@Component(name="com.elster.jupiter.data.lifecycle", property = "name=" + LifeCycleService.COMPONENTNAME, service = {LifeCycleService.class, TranslationKeyProvider.class, InstallService.class, PrivilegesProvider.class})
+public class LifeCycleServiceImpl implements LifeCycleService, InstallService, TranslationKeyProvider, PrivilegesProvider{
 	
 	private volatile OrmService ormService;
 	private volatile DataModel dataModel;
@@ -210,4 +214,13 @@ public class LifeCycleServiceImpl implements LifeCycleService, InstallService, T
 	public List<TranslationKey> getKeys() {
 		return Arrays.asList(MessageSeeds.values());
 	}
+
+	@Override
+	public List<Resource> getModulePrivileges() {
+		List<Resource> resources = new ArrayList<>();
+		resources.add(userService.createModuleResourceWithPrivileges("dataPurge.dataPurge", "dataPurge.dataPurge.description",
+				Arrays.asList(Privileges.ADMINISTRATE_DATA_PURGE, Privileges.VIEW_DATA_PURGE)));
+		return resources;
+	}
+
 }
