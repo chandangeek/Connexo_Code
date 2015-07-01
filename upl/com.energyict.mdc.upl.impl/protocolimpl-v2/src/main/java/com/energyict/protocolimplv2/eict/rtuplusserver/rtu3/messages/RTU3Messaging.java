@@ -69,6 +69,8 @@ public class RTU3Messaging extends AbstractMessageExecutor implements DeviceMess
     static {
         supportedMessages = new ArrayList<>();
         supportedMessages.add(DeviceActionMessage.SyncMasterdataForDC);
+        supportedMessages.add(DeviceActionMessage.PauseDCScheduler);
+        supportedMessages.add(DeviceActionMessage.ResumeDCScheduler);
     }
 
     public RTU3Messaging(RTU3 protocol) {
