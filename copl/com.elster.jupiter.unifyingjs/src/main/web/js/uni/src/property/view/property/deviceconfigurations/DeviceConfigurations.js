@@ -171,16 +171,12 @@ Ext.define('Uni.property.view.property.deviceconfigurations.DeviceConfigurations
             lastBreadcrumbLink.update(lastBreadcrumbLink.renderTpl.apply(lastBreadcrumbLink.renderData));
             breadcrumbTrail.addBreadcrumbItem({data:{text: Uni.I18n.translate('deviceconfigurations.addDeviceConfigurations', 'UNI', 'Add device configurations')}});
             lastBreadcrumbLink.getEl().on('click', me.hideAddView, me, {single: true});
-            Uni.util.History.suspendEventsForNextCall();
-            window.location.href = window.location.href + '/adddeviceconfigurations';
         } else {
             lastBreadcrumbLink.destroy();
             breadcrumbTrail.query('breadcrumbSeparator:last')[0].destroy();
             lastBreadcrumbLink = breadcrumbTrail.query('breadcrumbLink:last')[0];
             lastBreadcrumbLink.renderData.href = '';
             lastBreadcrumbLink.update(lastBreadcrumbLink.renderTpl.apply(lastBreadcrumbLink.renderData));
-            Uni.util.History.suspendEventsForNextCall();
-            window.location.href = window.location.href.replace('/adddeviceconfigurations', '');
         }
     },
 

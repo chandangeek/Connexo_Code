@@ -7,13 +7,14 @@ Ext.define('Uni.controller.history.EventBus', {
     requires: [
         'Ext.util.History',
         'Uni.store.MenuItems',
-        'Uni.store.PortalItems'
+        'Uni.store.PortalItems',
+        'Uni.util.History'
     ],
 
     config: {
         defaultToken: '',
         previousPath: null,
-        previousQueryString: null,
+        previousQueryString: null
     },
 
     onLaunch: function () {
