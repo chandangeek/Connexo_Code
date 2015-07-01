@@ -19,14 +19,9 @@ import com.energyict.mdc.common.Password;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.rest.FieldValidationException;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.firmware.FirmwareService;
-import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.pluggable.rest.impl.MdcPluggableRestApplication;
 import com.energyict.mdc.pluggable.rest.impl.properties.MdcPropertyReferenceInfoFactory;
 import com.energyict.mdc.pluggable.rest.impl.properties.SimplePropertyType;
-
-import javax.inject.Inject;
-import javax.ws.rs.core.UriInfo;
 import java.math.BigDecimal;
 import java.net.URI;
 import java.util.ArrayList;
@@ -35,6 +30,8 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
+import javax.inject.Inject;
+import javax.ws.rs.core.UriInfo;
 
 import static com.energyict.mdc.pluggable.rest.MdcPropertyUtils.PrivilegePresence.WITHOUT_PRIVILEGES;
 import static com.energyict.mdc.pluggable.rest.MdcPropertyUtils.ValueVisibility.HIDE_VALUES;
@@ -46,15 +43,11 @@ import static com.energyict.mdc.pluggable.rest.MdcPropertyUtils.ValueVisibility.
  */
 public class MdcPropertyUtils {
 
-    private FirmwareService firmwareService;
-    private final NlsService nlsService;
     private final Thesaurus thesaurus;
 
     @Inject
-    public MdcPropertyUtils(FirmwareService firmwareService, NlsService nlsService) {
-        this.firmwareService = firmwareService;
-        this.nlsService = nlsService;
-        this.thesaurus = this.nlsService.getThesaurus(MdcPluggableRestApplication.COMPONENT_NAME, Layer.REST);
+    public MdcPropertyUtils(NlsService nlsService) {
+        this.thesaurus = nlsService.getThesaurus(MdcPluggableRestApplication.COMPONENT_NAME, Layer.REST);
     }
 
     public void convertPropertySpecsToPropertyInfos(final UriInfo uriInfo, Collection<PropertySpec> propertySpecs, TypedProperties properties, List<PropertyInfo> propertyInfoList) {
@@ -81,6 +74,13 @@ public class MdcPropertyUtils {
             propertyInfoList.add(propertyInfo);
         }
         return propertyInfoList;
+    }
+
+    public PropertyInfo convertPropertySpecToPropertyInfo(PropertySpec propertySpec) {
+        SimplePropertyType simplePropertyType = getSimplePropertyType(propertySpec);
+        PropertyTypeInfo propertyTypeInfo = getPropertyTypeInfo(null, propertySpec, simplePropertyType, null);
+        PropertyInfo propertyInfo = new PropertyInfo(getTranslatedPropertyName(propertySpec), propertySpec.getName(), null, propertyTypeInfo, propertySpec.isRequired());
+        return propertyInfo;
     }
 
     public List<PropertyInfo> convertPropertySpecsToPropertyInfos(Collection<PropertySpec> propertySpecs, TypedProperties properties, Device device) {
