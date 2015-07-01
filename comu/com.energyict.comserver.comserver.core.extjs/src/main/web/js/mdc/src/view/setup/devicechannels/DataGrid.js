@@ -55,7 +55,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                 align: 'right',
                 renderer: function (v, metaData, record) {
                     var cls = 'icon-validation-cell',
-                        status = record.data.validationInfo.mainValidationInfo.validationResult.split('.')[1];
+                        status = record.data.validationInfo.mainValidationInfo.validationResult ? record.data.validationInfo.mainValidationInfo.validationResult.split('.')[1] : '';
 
                     if (!record.data.validationInfo.dataValidated || status == 'notValidated') {
                         cls += ' icon-validation-black';
@@ -91,7 +91,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                 hidden: Ext.isEmpty(calculatedReadingType),
                 renderer: function (v, metaData, record) {
                     var cls = 'icon-validation-cell',
-                        status = record.data.validationInfo.bulkValidationInfo.validationResult.split('.')[1];
+                        status = record.data.validationInfo.bulkValidationInfo.validationResult ? record.data.validationInfo.bulkValidationInfo.validationResult.split('.')[1] : '';
 
                     if (!record.data.validationInfo.dataValidated || status == 'notValidated') {
                         cls += ' icon-validation-black';
