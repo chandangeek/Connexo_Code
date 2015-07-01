@@ -81,6 +81,7 @@ Ext.define('Mdc.view.setup.devicetransitionexecute.ResultPanel', {
             {
                 xtype: 'button',
                 text: Uni.I18n.translate('general.finish', 'MDC', 'Finish'),
+                itemId: 'finishButton',
                 style: {
                     'background-color': '#71adc7'
                 },

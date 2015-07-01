@@ -566,28 +566,20 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
     },
 
     adaptFilterObject: function(filterObject) {
-        if (filterObject.hasOwnProperty('deviceTypes')) {
-            if (Ext.isArray(filterObject.deviceTypes)) {
-                for (i = 0; i < filterObject.deviceTypes.length; i++) {
-                    filterObject.deviceTypes[i] = parseInt(filterObject.deviceTypes[i]);
+        // Assure that properties that are expected to be an int array, are indeed int arrays
+        var props = ['deviceTypes', 'deviceConfigurations'];
+        Ext.Array.each(props, function(prop) {
+            if (filterObject.hasOwnProperty(prop)) {
+                if (Ext.isArray(filterObject[prop])) {
+                    for (i = 0; i < filterObject[prop].length; i++) {
+                        filterObject[prop][i] = parseInt(filterObject[prop][i]);
+                    }
+                } else {
+                    var theOneValue = filterObject[prop];
+                    filterObject[prop] = [];
+                    filterObject[prop][0] = !Ext.isNumber(theOneValue) ? parseInt(theOneValue) : theOneValue;
                 }
-            } else {
-                var theOneDeviceType = filterObject.deviceTypes;
-                filterObject.deviceTypes = [];
-                filterObject.deviceTypes[0] = !Ext.isNumber(theOneDeviceType) ? parseInt(theOneDeviceType) : theOneDeviceType;
             }
-        }
-        if (filterObject.hasOwnProperty('deviceConfigurations')) {
-            if (Ext.isArray(filterObject.deviceConfigurations)) {
-                for (i = 0; i < filterObject.deviceConfigurations.length; i++) {
-                    filterObject.deviceConfigurations[i] = parseInt(filterObject.deviceConfigurations[i]);
-                }
-            } else {
-                var theOneDeviceCfg = filterObject.deviceConfigurations;
-                filterObject.deviceConfigurations = [];
-                filterObject.deviceConfigurations[0] = !Ext.isNumber(theOneDeviceCfg) ? parseInt(theOneDeviceCfg) : theOneDeviceCfg;
-            }
-        }
+        });
     }
-
 });
