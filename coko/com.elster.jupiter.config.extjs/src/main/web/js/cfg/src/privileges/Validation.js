@@ -37,7 +37,7 @@ Ext.define('Cfg.privileges.Validation', {
     canAdministrate:function(){
         return Uni.Auth.checkPrivileges(Cfg.privileges.Validation.admin);
     },
-    canViewOrAdminstrate:function(){
+    canViewOrAdministrate:function(){
         return Uni.Auth.checkPrivileges(Cfg.privileges.Validation.viewOrAdmin);
     },
     canUpdateDeviceValidation : function (){
