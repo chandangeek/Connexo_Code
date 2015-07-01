@@ -6,6 +6,7 @@ import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.nls.NlsService;
 
 import java.util.Optional;
@@ -19,6 +20,7 @@ import java.io.Serializable;
  * Date: 08/05/14
  * Time: 12:01
  */
+@ProviderType
 public interface EngineService {
 
     public static String COMPONENTNAME = "CES";

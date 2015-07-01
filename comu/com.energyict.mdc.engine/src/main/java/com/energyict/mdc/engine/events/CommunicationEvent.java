@@ -1,5 +1,7 @@
 package com.energyict.mdc.engine.events;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * Models an event that relates to communication that occurs
  * on an established connection with a {@link com.energyict.mdc.protocol.api.device.BaseDevice device}.
@@ -7,6 +9,7 @@ package com.energyict.mdc.engine.events;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-10-31 (14:34)
  */
+@ProviderType
 public interface CommunicationEvent extends ConnectionEvent {
 
     /**
