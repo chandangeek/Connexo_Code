@@ -1,5 +1,6 @@
 package com.energyict.mdc.dynamic;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TimeDuration;
 import java.math.BigDecimal;
@@ -12,6 +13,7 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-12-01 (11:35)
  */
+@ProviderType
 public interface PropertySpecFactory {
 
     /**

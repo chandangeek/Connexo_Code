@@ -5,6 +5,8 @@ import com.energyict.mdc.common.BusinessObjectFactory;
 import com.energyict.mdc.common.NamedBusinessObject;
 import com.energyict.mdc.dynamic.PropertySpecService;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
@@ -14,6 +16,7 @@ import java.util.Map;
  * represents a specification for any other user defined object. It defines
  * customer defined attributes.
  */
+@ProviderType
 public interface RelationType extends NamedBusinessObject, BusinessObjectFactory<Relation> {
 
     @Override

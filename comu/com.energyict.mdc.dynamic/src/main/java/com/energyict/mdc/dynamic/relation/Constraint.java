@@ -3,12 +3,15 @@ package com.energyict.mdc.dynamic.relation;
 import com.energyict.mdc.common.NamedBusinessObject;
 import com.energyict.mdc.common.SqlBuilder;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.util.List;
 
 /**
  * Represents a uniqueness constraint for a <code>List</code> of Attributes within a
  * <code>RelationType</code>
  */
+@ProviderType
 public interface Constraint extends NamedBusinessObject {
 
     /**
