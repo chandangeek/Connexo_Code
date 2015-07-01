@@ -21,7 +21,6 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Component(
         name = "com.elster.jupiter.system.app",
@@ -80,29 +79,17 @@ public class SysAppServiceImpl implements SysAppService, InstallService, Applica
 
     private void assignPrivilegesToDefaultRoles() {
         List<Privilege> availablePrivileges = getDBApplicationPrivileges();
-        userService.grantGroupWithPrivilege(UserService.DEFAULT_ADMIN_ROLE, availablePrivileges.stream().map(HasName::getName).toArray(String[]::new));
-        userService.grantGroupWithPrivilege(UserService.BATCH_EXECUTOR_ROLE, availablePrivileges.stream().map(HasName::getName).toArray(String[]::new));
+        userService.grantGroupWithPrivilege(UserService.DEFAULT_ADMIN_ROLE, APPLICATION_KEY,availablePrivileges.stream().map(HasName::getName).toArray(String[]::new));
+        userService.grantGroupWithPrivilege(UserService.BATCH_EXECUTOR_ROLE, APPLICATION_KEY, availablePrivileges.stream().map(HasName::getName).toArray(String[]::new));
     }
 
     private boolean isAllowed(User user) {
-        List<Privilege> appPrivileges = getRegisteredApplicationsPrivileges();
-        return user.getPrivileges().stream().anyMatch(appPrivileges::contains);
+        List<Privilege> appPrivileges = getDBApplicationPrivileges();
+        return user.getPrivileges(APPLICATION_KEY).stream().anyMatch(appPrivileges::contains);
     }
 
     private List<Privilege> getDBApplicationPrivileges() {
-        return userService.getResources(APPLICATION_KEY).stream().flatMap(resource -> resource.getPrivileges().stream()).collect(Collectors.toList());
-    }
-
-    //@Override
-    public List<Privilege> getRegisteredApplicationsPrivileges() {
-        return userService.getResources()
-                .stream()
-                .flatMap(x->x.getPrivileges().stream())
-                .filter(p-> SysAppPrivileges.getApplicationPrivileges().contains(p.getName()))
-                .collect(Collectors.toList());
-
-
-        //return userService.getResources(APPLICATION_KEY).stream().flatMap(resource -> resource.getPrivileges().stream()).collect(Collectors.toList());
+        return userService.getPrivileges(APPLICATION_KEY);
     }
 
 

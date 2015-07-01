@@ -30,10 +30,16 @@ Ext.onReady(function () {
         }
     ];
 
+
+
+
     loader.initPackages(packages);
     // </debug>
 
     loader.onReady(function () {
+        Ext.Ajax.defaultHeaders = {
+            'X-CONNEXO-APPLICATION-NAME': 'SYS' // a function that return the main application
+        };
         // <debug>
         Ext.Loader.setConfig({
             enabled: true
