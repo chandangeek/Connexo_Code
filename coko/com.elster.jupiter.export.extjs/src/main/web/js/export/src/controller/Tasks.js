@@ -54,7 +54,8 @@ Ext.define('Dxp.controller.Tasks', {
         'Dxp.model.TimeOfUse',
         'Dxp.model.Interval',
         'Dxp.model.DataSelector',
-        'Dxp.model.StandardDataSelector'
+        'Dxp.model.StandardDataSelector',
+        'Dxp.model.Destination'
 
     ],
 
@@ -942,6 +943,13 @@ Ext.define('Dxp.controller.Tasks', {
 
                 record.propertiesStore.add(selectorPropertyForm.getRecord().properties().data.items)
             }
+            record.destinations();
+            record.destinationsStore.add([Ext.create('Dxp.model.Destination', {
+                fileName: 'test',
+                fileExtension: 'csv',
+                fileLocation: '.',
+                type: 'FILE',
+            })]);
 
 
             record.endEdit();
