@@ -15,7 +15,10 @@ import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.RelativePeriodCategory;
 import com.elster.jupiter.time.RelativePeriodCategoryUsage;
 import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.time.security.Privileges;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.users.PrivilegesProvider;
+import com.elster.jupiter.users.Resource;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -24,12 +27,13 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-@Component(name = "com.elster.jupiter.time", service = {TimeService.class, InstallService.class}, property = "name=" + TimeService.COMPONENT_NAME, immediate = true)
-public class TimeServiceImpl implements TimeService, InstallService {
+@Component(name = "com.elster.jupiter.time", service = {TimeService.class, InstallService.class, PrivilegesProvider.class}, property = "name=" + TimeService.COMPONENT_NAME, immediate = true)
+public class TimeServiceImpl implements TimeService, InstallService, PrivilegesProvider {
     private volatile DataModel dataModel;
     private volatile QueryService queryService;
     private volatile OrmService ormService;
@@ -155,6 +159,19 @@ public class TimeServiceImpl implements TimeService, InstallService {
     @Override
     public RelativePeriod getAllRelativePeriod() {
         return AllRelativePeriod.INSTANCE;
+    }
+
+    @Override
+    public String getModuleName() {
+        return TimeService.COMPONENT_NAME;
+    }
+
+    @Override
+    public List<Resource> getModulePrivileges() {
+        List<Resource> resources = new ArrayList<>();
+        resources.add(userService.createModuleResourceWithPrivileges(TimeService.COMPONENT_NAME, "estimation.estimations", "estimation.estimations.description",
+                Arrays.asList(Privileges.VIEW_RELATIVE_PERIOD, Privileges.ADMINISTRATE_RELATIVE_PERIOD)));
+        return resources;
     }
 
     @Reference
