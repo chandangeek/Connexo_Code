@@ -120,6 +120,10 @@
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.issue.datavalidation</artifactId>
+        </dependency>
 
         <!--INTEGRATION TESTS-->
         <dependency>

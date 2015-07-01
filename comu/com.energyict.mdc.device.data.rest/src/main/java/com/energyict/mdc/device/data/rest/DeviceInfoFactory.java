@@ -8,6 +8,7 @@ import com.energyict.mdc.device.data.imp.DeviceImportService;
 import com.energyict.mdc.device.data.rest.impl.DeviceInfo;
 import com.energyict.mdc.device.data.rest.impl.DeviceTopologyInfo;
 import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -16,17 +17,19 @@ import java.util.stream.Collectors;
 public class DeviceInfoFactory {
 
     private final Thesaurus thesaurus;
-    private final  DeviceImportService deviceImportService;
+    private final DeviceImportService deviceImportService;
     private final TopologyService topologyService;
     private final IssueService issueService;
+    private final IssueDataValidationService issueDataValidationService;
     private final MeteringService meteringService;
 
     @Inject
-    public DeviceInfoFactory(Thesaurus thesaurus, DeviceImportService deviceImportService, TopologyService topologyService, IssueService issueService, MeteringService meteringService) {
+    public DeviceInfoFactory(Thesaurus thesaurus, DeviceImportService deviceImportService, TopologyService topologyService, IssueService issueService, IssueDataValidationService issueDataValidationService, MeteringService meteringService) {
         this.thesaurus = thesaurus;
         this.deviceImportService = deviceImportService;
         this.topologyService = topologyService;
         this.issueService = issueService;
+        this.issueDataValidationService = issueDataValidationService;
         this.meteringService = meteringService;
     }
 
@@ -39,7 +42,7 @@ public class DeviceInfoFactory {
     }
 
     public DeviceInfo from(Device device, List<DeviceTopologyInfo> slaveDevices){
-        return DeviceInfo.from(device, slaveDevices, deviceImportService, topologyService, issueService, thesaurus);
+        return DeviceInfo.from(device, slaveDevices, deviceImportService, topologyService, issueService, issueDataValidationService, meteringService, thesaurus);
     }
 
 }
