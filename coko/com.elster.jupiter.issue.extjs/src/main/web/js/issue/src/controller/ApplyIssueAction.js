@@ -57,11 +57,11 @@ Ext.define('Isu.controller.ApplyIssueAction', {
                 var responseText = Ext.decode(operation.response.responseText, true);
                 if (responseText) {
                     if (success) {
-                        if (responseText.data.actions[0].success) {
-                            me.getApplication().fireEvent('acknowledge', responseText.data.actions[0].message);
+                        if (responseText.actions[0].success) {
+                            me.getApplication().fireEvent('acknowledge', responseText.actions[0].message);
                             router.getRoute(router.currentRoute.replace(fromOverview ? '/action' : '/view/action', '')).forward();
                         } else {
-                            me.getApplication().getController('Uni.controller.Error').showError(form.getRecord().get('name'), responseText.data.actions[0].message);
+                            me.getApplication().getController('Uni.controller.Error').showError(form.getRecord().get('name'), responseText.actions[0].message);
                         }
                     } else if (operation.response.status === 400) {
                         if (responseText.errors) {
