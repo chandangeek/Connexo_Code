@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.lifecycle.config;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransition;
@@ -25,6 +26,7 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-11 (10:18)
  */
+@ProviderType
 public interface DeviceLifeCycle extends HasId, HasName {
 
     /**

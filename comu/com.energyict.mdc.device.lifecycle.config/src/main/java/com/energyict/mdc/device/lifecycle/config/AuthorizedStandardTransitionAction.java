@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.lifecycle.config;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.fsm.StateTransition;
 
 /**
@@ -11,6 +12,7 @@ import com.elster.jupiter.fsm.StateTransition;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-12 (10:15)
  */
+@ProviderType
 public interface AuthorizedStandardTransitionAction extends AuthorizedTransitionAction {
 
     public TransitionType getType();

@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.lifecycle.config;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.fsm.StateTransition;
 
 /**
@@ -9,6 +10,7 @@ import com.elster.jupiter.fsm.StateTransition;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-27 (13:25)
  */
+@ProviderType
 public interface DeviceLifeCycleUpdater extends DeviceLifeCycleBuilder {
 
     /**

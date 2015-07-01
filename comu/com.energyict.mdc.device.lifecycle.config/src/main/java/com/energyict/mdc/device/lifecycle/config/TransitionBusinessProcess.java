@@ -2,6 +2,7 @@ package com.energyict.mdc.device.lifecycle.config;
 
 import com.energyict.mdc.common.HasId;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.fsm.State;
 
 /**
@@ -16,6 +17,7 @@ import com.elster.jupiter.fsm.State;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-06-30 (09:39)
  */
+@ProviderType
 public interface TransitionBusinessProcess extends HasId {
 
     /**
