@@ -18,6 +18,7 @@ import org.junit.rules.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests the {@link CannotDeletePhysicalGatewayEventHandler} compnent.
@@ -61,12 +62,11 @@ public class CannotDeletePhysicalGatewayEventHandlerIT extends PersistenceIntegr
         device.save();
         this.getTopologyService().setPhysicalGateway(device, physicalMaster);
 
-        Device reloadedSlave = getReloadedDevice(device);
-        reloadedSlave.delete();
+        device.delete();
 
         Device reloadedMaster = getReloadedDevice(physicalMaster);
         long masterId = reloadedMaster.getId();
-        reloadedMaster.delete();
+        physicalMaster.delete();
 
         assertThat(getDeviceService().findDeviceById(masterId).isPresent()).isFalse();
     }

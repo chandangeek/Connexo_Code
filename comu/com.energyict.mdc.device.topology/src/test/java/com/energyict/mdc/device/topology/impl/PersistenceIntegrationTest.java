@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.topology.impl;
 
+import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceSecurityUserAction;
@@ -25,6 +26,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.Optional;
 import java.util.TimeZone;
 
 import org.junit.*;
@@ -135,7 +137,8 @@ public abstract class PersistenceIntegrationTest {
         securityPropertySetBuilder.encryptionLevel(anySecurityLevel);
         this.securityPropertySet = securityPropertySetBuilder.build();
         this.resetClock();
-    }
+        IssueStatus wontFix = mock(IssueStatus.class);
+        when(inMemoryPersistence.getIssueService().findStatus(IssueStatus.WONT_FIX)).thenReturn(Optional.of(wontFix));   }
 
     @After
     public void resetClock () {

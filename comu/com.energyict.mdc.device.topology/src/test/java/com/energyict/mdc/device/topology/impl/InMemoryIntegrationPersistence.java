@@ -142,6 +142,7 @@ public class InMemoryIntegrationPersistence {
     private ThreadPrincipalService threadPrincipalService;
     private ConnectionTypeService connectionTypeService;
     private DataVaultService dataVaultService;
+    private IssueService issueService;
 
     public InMemoryIntegrationPersistence(Clock clock) {
         super();
@@ -228,6 +229,7 @@ public class InMemoryIntegrationPersistence {
             this.propertySpecService = injector.getInstance(PropertySpecService.class);
             this.userService = injector.getInstance(UserService.class);
             this.threadPrincipalService = injector.getInstance(ThreadPrincipalService.class);
+            this.issueService = injector.getInstance(IssueService.class);
             this.dataModel = this.deviceDataModelService.dataModel();
             initializeFactoryProviders();
             createOracleAliases(dataModel.getConnection(true));
@@ -384,6 +386,10 @@ public class InMemoryIntegrationPersistence {
         } catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
         }
+    }
+
+    public IssueService getIssueService() {
+        return this.issueService;
     }
 
     private class MockModule extends AbstractModule {
