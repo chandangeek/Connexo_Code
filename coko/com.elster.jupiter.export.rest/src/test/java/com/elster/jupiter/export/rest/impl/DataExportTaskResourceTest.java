@@ -1,7 +1,9 @@
 package com.elster.jupiter.export.rest.impl;
 
 import com.elster.jupiter.export.EmailDestination;
+import com.elster.jupiter.export.FileDestination;
 import org.junit.Test;
+import org.mockito.Mock;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
@@ -16,6 +18,8 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
 
     public static final ZonedDateTime NEXT_EXECUTION = ZonedDateTime.of(2015, 1, 13, 0, 0, 0, 0, ZoneId.systemDefault());
     public static final int TASK_ID = 750;
+    @Mock
+    private FileDestination newDestination;
 
     @Test
     public void getTasksTest() {
@@ -102,6 +106,7 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
         when(exportTask.getDestinations()).thenReturn(Arrays.asList(obsolete, toUpdate));
         when(obsolete.getId()).thenReturn(7772L);
         when(toUpdate.getId()).thenReturn(7773L);
+        when(exportTask.addFileDestination("", "file", "txt")).thenReturn(newDestination);
 
         DataExportTaskInfo info = new DataExportTaskInfo();
         info.id = TASK_ID;
@@ -133,6 +138,7 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
 
         verify(exportTask).removeDestination(obsolete);
+        verify(exportTask, never()).removeDestination(newDestination);
         verify(toUpdate).setRecipients("user1@elster.com,user2@elster.com");
         verify(toUpdate).setSubject("daily report");
         verify(toUpdate).setAttachmentName("attachment");

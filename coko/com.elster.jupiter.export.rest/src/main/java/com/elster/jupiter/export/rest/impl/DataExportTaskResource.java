@@ -338,6 +338,11 @@ public class DataExportTaskResource {
     }
 
     private void updateDestinations(DataExportTaskInfo info, ExportTask task) {
+        // remove the ones no longer in the info
+        task.getDestinations().stream()
+                .filter(destination -> info.destinations.stream().noneMatch(destinationInfo -> destinationInfo.id == destination.getId()))
+                .collect(Collectors.toList())
+                .forEach(task::removeDestination);
         // create the new ones
         info.destinations.stream()
                 .filter(isNewDestination())
@@ -351,11 +356,6 @@ public class DataExportTaskResource {
                             .findAny()
                             .ifPresent(destination -> destinationInfo.type.update(destination, destinationInfo));
                 });
-        // remove the ones no longer in the info
-        task.getDestinations().stream()
-                .filter(destination -> info.destinations.stream().noneMatch(destinationInfo -> destinationInfo.id == destination.getId()))
-                .collect(Collectors.toList())
-                .forEach(task::removeDestination);
     }
 
     private Predicate<DestinationInfo> isNewDestination() {
