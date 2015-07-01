@@ -1,5 +1,6 @@
 package com.elster.jupiter.issue.impl.records;
 
+import com.elster.jupiter.issue.share.entity.Entity;
 import com.elster.jupiter.issue.share.entity.HistoricalIssue;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
@@ -24,5 +25,11 @@ public class HistoricalIssueImpl extends IssueImpl implements HistoricalIssue{
         this.setDevice(issue.getDevice());
         this.setRule(issue.getRule());
         this.assignTo(issue.getAssignee());
+    }
+
+    @Override
+    public void delete() {
+        this.getIssueService().getIssueProviders().stream().forEach(provider -> provider.getHistoricalIssue(this).ifPresent(Entity::delete));
+        this.getDataModel().remove(this);
     }
 }
