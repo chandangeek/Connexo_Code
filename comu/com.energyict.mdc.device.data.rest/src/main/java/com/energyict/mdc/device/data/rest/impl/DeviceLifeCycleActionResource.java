@@ -151,11 +151,11 @@ public class DeviceLifeCycleActionResource {
                     IdWithNameInfo microCheckInfo = new IdWithNameInfo();
                     microCheckInfo.id = violation.getCheck().name();
                     MicroCheckTranslationKey.getNameTranslation(violation.getCheck()).ifPresent(microCheckName ->
-                                    microCheckInfo.id = thesaurus.getString(microCheckName.getKey(), microCheckName.getDefaultFormat())
+                                    microCheckInfo.id = thesaurus.getStringBeyondComponent(microCheckName.getKey(), microCheckName.getDefaultFormat())
                     );
                     microCheckInfo.name = violation.getCheck().name();
                     MicroCheckTranslationKey.getDescriptionTranslation(violation.getCheck()).ifPresent(microCheckDescription ->
-                                    microCheckInfo.name = thesaurus.getString(microCheckDescription.getKey(), microCheckDescription.getDefaultFormat())
+                                    microCheckInfo.name = thesaurus.getStringBeyondComponent(microCheckDescription.getKey(), microCheckDescription.getDefaultFormat())
                     );
                     return microCheckInfo;
                 })
