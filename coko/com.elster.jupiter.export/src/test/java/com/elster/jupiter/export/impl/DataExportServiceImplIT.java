@@ -2,6 +2,7 @@ package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.appserver.impl.AppServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
 import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
@@ -196,7 +197,8 @@ public class DataExportServiceImplIT {
                     new MeteringGroupsModule(),
                     new AppServiceModule(),
                     new BasicPropertiesModule(),
-                    new MailModule()
+                    new MailModule(),
+                    new BpmModule()
             );
         } catch (Exception e) {
             throw new RuntimeException(e);

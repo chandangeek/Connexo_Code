@@ -2,7 +2,7 @@ package com.elster.jupiter.export;
 
 public interface FileDestination extends DataExportDestination {
 
-    String TYPE_IDENTIFIER = "FILE ";
+    String TYPE_IDENTIFIER = "LFILE";
 
     String getFileName();
 
