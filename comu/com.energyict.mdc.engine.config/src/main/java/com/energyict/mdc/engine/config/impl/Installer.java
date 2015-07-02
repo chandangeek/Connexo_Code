@@ -1,7 +1,5 @@
 package com.energyict.mdc.engine.config.impl;
 
-import com.energyict.mdc.engine.config.security.Privileges;
-
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.users.UserService;
@@ -37,12 +35,7 @@ public class Installer {
         catch (Exception e) {
             this.logger.log(Level.SEVERE, e.getMessage(), e);
         }
-        this.createPrivileges();
         this.createEventTypes();
-    }
-
-    private void createPrivileges() {
-        this.userService.createResourceWithPrivileges("MDC", "communicationAdministration.communicationAdministrations", "communicationAdministration.communicationAdministrations.description", new String[]{Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.VIEW_COMMUNICATION_ADMINISTRATION, Privileges.VIEW_COMMUNICATION_ADMINISTRATION_INTERNAL});
     }
 
     private void createEventTypes() {

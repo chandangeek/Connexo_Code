@@ -1,5 +1,7 @@
 package com.energyict.mdc.engine.config.impl;
 
+import com.elster.jupiter.bpm.BpmService;
+import com.elster.jupiter.users.ResourceDefinition;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
@@ -20,6 +22,7 @@ import com.energyict.mdc.engine.config.RemoteComServer;
 import com.energyict.mdc.engine.config.ServletBasedInboundComPort;
 import com.energyict.mdc.engine.config.TCPBasedInboundComPort;
 import com.energyict.mdc.engine.config.UDPBasedInboundComPort;
+import com.energyict.mdc.engine.config.security.Privileges;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
@@ -37,6 +40,8 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.users.PrivilegesProvider;
+import com.elster.jupiter.users.Resource;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.proxy.LazyLoader;
 import com.google.inject.AbstractModule;
@@ -61,8 +66,8 @@ import static com.energyict.mdc.engine.config.impl.ComServerImpl.OFFLINE_COMSERV
 import static com.energyict.mdc.engine.config.impl.ComServerImpl.ONLINE_COMSERVER_DISCRIMINATOR;
 import static com.energyict.mdc.engine.config.impl.ComServerImpl.REMOTE_COMSERVER_DISCRIMINATOR;
 
-@Component(name = "com.energyict.mdc.engine.config", service = {EngineConfigurationService.class, InstallService.class, TranslationKeyProvider.class}, property = "name=" + EngineConfigurationService.COMPONENT_NAME)
-public class EngineConfigurationServiceImpl implements EngineConfigurationService, InstallService, TranslationKeyProvider, OrmClient {
+@Component(name = "com.energyict.mdc.engine.config", service = {EngineConfigurationService.class, InstallService.class, TranslationKeyProvider.class, PrivilegesProvider.class}, property = "name=" + EngineConfigurationService.COMPONENT_NAME)
+public class EngineConfigurationServiceImpl implements EngineConfigurationService, InstallService, TranslationKeyProvider, OrmClient, PrivilegesProvider {
 
     private volatile DataModel dataModel;
     private volatile EventService eventService;
@@ -493,6 +498,21 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
         return new TranslatableApplicationException(thesaurus, MessageSeeds.NOT_UNIQUE);
     }
 
+    @Override
+    public String getModuleName() {
+        return EngineConfigurationService.COMPONENT_NAME;
+    }
+
+    @Override
+    public List<ResourceDefinition> getModuleResources() {
+        List<ResourceDefinition> resources = new ArrayList<>();
+        resources.add(userService.createModuleResourceWithPrivileges(EngineConfigurationService.COMPONENT_NAME, "communicationAdministration.communicationAdministrations", "communicationAdministration.communicationAdministrations.description",
+                Arrays.asList(
+                        Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.VIEW_COMMUNICATION_ADMINISTRATION,
+                        Privileges.VIEW_COMMUNICATION_ADMINISTRATION_INTERNAL)));
+        return resources;
+    }
+
     private class ComServerLazyLoader implements LazyLoader<ComServer> {
 
         private final String comServerName;
@@ -516,6 +536,8 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
         public Class<ComServer> getImplementedInterface() {
             return ComServer.class;
         }
+
+
     }
 
     private class ComPortLazyLoader implements LazyLoader<ComPort> {
