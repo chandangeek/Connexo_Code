@@ -10,6 +10,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.time.TemporalExpression;
+import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.Resource;
@@ -201,8 +202,8 @@ public class SchedulingServiceImpl implements ServerSchedulingService, InstallSe
     }
 
     @Override
-    public List<Resource> getModulePrivileges() {
-        List<Resource> resources = new ArrayList<>();
+    public List<ResourceDefinition> getModuleResources() {
+        List<ResourceDefinition> resources = new ArrayList<>();
         resources.add(userService.createModuleResourceWithPrivileges(SchedulingService.COMPONENT_NAME, "sharedCommunicationSchedule.sharedCommunicationSchedules", "sharedCommunicationSchedule.sharedCommunicationSchedules.description",
                 Arrays.asList(Privileges.ADMINISTRATE_SHARED_COMMUNICATION_SCHEDULE, Privileges.VIEW_SHARED_COMMUNICATION_SCHEDULE)));
         return resources;
