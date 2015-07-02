@@ -11,6 +11,11 @@ Ext.onReady(function () {
         loader.initPackages(packages);
 
         loader.onReady(function () {
+
+            Ext.Ajax.defaultHeaders = {
+                'X-CONNEXO-APPLICATION-NAME': 'YFN' // a function that return the main application
+            };
+
             Ext.Loader.setConfig({
                 // <debug>
                 enabled: true,

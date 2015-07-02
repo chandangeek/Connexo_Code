@@ -5,6 +5,7 @@ import com.elster.jupiter.http.whiteboard.BundleResolver;
 import com.elster.jupiter.http.whiteboard.DefaultStartPage;
 import com.elster.jupiter.http.whiteboard.HttpResource;
 import com.elster.jupiter.license.License;
+import com.elster.jupiter.users.ApplicationPrivilegesProvider;
 import com.elster.jupiter.yellowfin.app.YfnAppService;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
@@ -14,6 +15,8 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Copyrights EnergyICT
@@ -22,10 +25,10 @@ import javax.inject.Inject;
  */
 @Component(
         name = "com.elster.jupiter.yellowfin.app",
-        service = {YfnAppService.class},
+        service = {YfnAppService.class,ApplicationPrivilegesProvider.class},
         immediate = true
 )
-public class YfnAppServiceImpl {
+public class YfnAppServiceImpl implements YfnAppService, ApplicationPrivilegesProvider{
 
     public static final String APP_NAME = "Facts";
     public static final String APP_ICON = "connexo";
@@ -54,7 +57,7 @@ public class YfnAppServiceImpl {
             url = DEFAULT_YELLOWFIN_URL;
         }
         HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, HTTP_RESOURCE_LOCAL_NAME, new BundleResolver(context), new DefaultStartPage(APP_NAME));
-        App app = new App(YfnAppService.APPLICATION_KEY, APP_NAME, APP_ICON, HTTP_RESOURCE_ALIAS, resource, url, user -> user.getPrivileges().stream().anyMatch(p -> "privilege.design.reports".equals(p.getName())));
+        App app = new App(YfnAppService.APPLICATION_KEY, APP_NAME, APP_ICON, HTTP_RESOURCE_ALIAS, resource, url, user -> user.getPrivileges("YFN").stream().anyMatch(p -> "privilege.design.reports".equals(p.getName())));
 
         registration = context.registerService(App.class, app, null);
     }
@@ -68,6 +71,17 @@ public class YfnAppServiceImpl {
     @Reference(target = "(com.elster.jupiter.license.application.key=" + YfnAppService.APPLICATION_KEY + ")")
     public void setLicense(License license) {
         this.license = license;
+    }
+
+
+    @Override
+    public List<String> getApplicationPrivileges() {
+        return Arrays.asList("privilege.design.reports");
+    }
+
+    @Override
+    public String getApplicationName() {
+        return YfnAppService.APPLICATION_KEY;
     }
 }
 

@@ -45,7 +45,7 @@ public class YfnAppInstaller implements InstallService {
     private void createDefaultRoles() {
         try {
             Group group = userService.createGroup(REPORT_DESIGNER_ROLE, REPORT_DESIGNER_ROLE_DESCRIPTION);
-            userService.getPrivilege("privilege.design.reports").ifPresent(p -> group.grant(p.getName()));
+            userService.getPrivilege("privilege.design.reports").ifPresent(p -> group.grant("YFN", p.getName()));
             //TODO: workaround: attached Report designer to user admin !!! to remove this line when the user can be created/added to system
             userService.getUser(1).ifPresent(u -> u.join(group));
         } catch (Exception e) {
