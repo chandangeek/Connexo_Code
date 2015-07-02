@@ -587,6 +587,7 @@
                 <module>../com.elster.jupiter.install</module>
                 <module>../com.elster.jupiter.loaderjs</module>
                 <module>../com.elster.jupiter.login.app</module>
+                <module>../com.elster.jupiter.mail</module>
                 <module>../com.elster.jupiter.messaging</module>
                 <module>../com.elster.jupiter.messaging.oracle</module>
                 <module>../com.elster.jupiter.nls.rest</module>
