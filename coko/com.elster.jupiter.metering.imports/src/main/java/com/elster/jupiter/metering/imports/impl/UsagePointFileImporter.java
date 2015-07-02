@@ -51,6 +51,32 @@ public class UsagePointFileImporter implements FileImporter {
     private volatile Thesaurus thesaurus;
     private volatile MeteringService meteringService;
 
+    private String mRID;
+    private String serviceKind;
+    private long serviceLocationID;
+    private String name;
+    private String aliasName;
+    private String description;
+    private String outageregion;
+    private String readcycle;
+    private String readroute;
+    private String servicePriority;
+    private String allowUpdate;
+    private String grounded;
+    private String phaseCode;
+    private String ratedPowerValue;
+    private int ratedPowerMultiplier;
+    private String ratedPowerUnit;
+    private String ratedCurrentValue;
+    private int ratedCurrentMultiplier;
+    private String ratedCurrentUnit;
+    private String estimatedLoadValue;
+    private int estimatedLoadMultiplier;
+    private String estimatedLoadUnit;
+    private String nominalVoltageValue;
+    private int nominalVoltageMultiplier;
+    private String nominalVoltageUnit;
+
     public UsagePointFileImporter(Thesaurus thesaurus, MeteringService meteringService, Clock clock) {
         this.clock = clock;
         this.thesaurus = thesaurus;
@@ -67,7 +93,8 @@ public class UsagePointFileImporter implements FileImporter {
         try (CSVParser csvParser = new CSVParser(new InputStreamReader(fileImportOccurrence.getContents()), CSVFormat.DEFAULT.withHeader().withIgnoreSurroundingSpaces(true).withDelimiter(delimiter).withCommentMarker(MARKER))) {
             for (CSVRecord csvRecord : csvParser) {
                 try {
-                    String value = processEnum(processComment(csvRecord.get(SERVICEKIND)).toUpperCase(), ServiceKind.class);
+                    setAttributes(csvRecord);
+                    String value = processEnum(processComment(serviceKind).toUpperCase(), ServiceKind.class);
                     if (value.isEmpty()) {
                         failures++;
                         MessageSeeds.IMPORT_USAGEPOINT_SERVICEKIND_INVALID.log(logger, thesaurus, csvRecord.getRecordNumber());
@@ -75,7 +102,7 @@ public class UsagePointFileImporter implements FileImporter {
                     }
                     Optional<ServiceCategory> serviceCategory = meteringService.getServiceCategory(ServiceKind.valueOf(value));
 
-                    value = processComment(csvRecord.get(MRID));
+                    value = processComment(mRID);
                     if (value.isEmpty()) {
                         failures++;
                         MessageSeeds.IMPORT_USAGEPOINT_MRID_INVALID.log(logger, thesaurus, csvRecord.getRecordNumber());
@@ -95,7 +122,7 @@ public class UsagePointFileImporter implements FileImporter {
                         }
                     }
 
-                    Optional<ServiceLocation> serviceLocation = meteringService.findServiceLocation(processInt(csvRecord.get(SERVICELOCATIONID)));
+                    Optional<ServiceLocation> serviceLocation = meteringService.findServiceLocation(serviceLocationID);
                     if (serviceLocation.isPresent()) {
                         usagePoint.setVirtual(false);
                         usagePoint.setServiceLocation(serviceLocation.get());
@@ -105,60 +132,48 @@ public class UsagePointFileImporter implements FileImporter {
                         MessageSeeds.IMPORT_USAGEPOINT_SERVICELOCATION_INVALID.log(logger, thesaurus, csvRecord.getRecordNumber());
                     }
 
-                    if (!usagePointOptional.isPresent() || csvRecord.get(ALLOWUPDATE).equalsIgnoreCase("true")) {
+                    if (!usagePointOptional.isPresent() || allowUpdate.equalsIgnoreCase("true")) {
                         usagePoint.setSdp(false);
-                        value = processComment(csvRecord.get(NAME));
-                        if (!value.isEmpty()) {
-                            usagePoint.setName(value);
+                        if (!name.isEmpty()) {
+                            usagePoint.setName(name);
                         }
-                        value = processComment(csvRecord.get(ALIASNAME));
-                        if (!value.isEmpty()) {
-                            usagePoint.setAliasName(value);
+                        if (!aliasName.isEmpty()) {
+                            usagePoint.setAliasName(aliasName);
                         }
-                        value = processComment(csvRecord.get(DESCRIPTION));
-                        if (!value.isEmpty()) {
-                            usagePoint.setDescription(value);
+                        if (!description.isEmpty()) {
+                            usagePoint.setDescription(description);
                         }
-                        value = processComment(csvRecord.get(OUTAGEREGION));
-                        if (!value.isEmpty()) {
-                            usagePoint.setOutageRegion(value);
+                        if (!outageregion.isEmpty()) {
+                            usagePoint.setOutageRegion(outageregion);
                         }
-                        value = processComment(csvRecord.get(READCYCLE));
-                        if (!value.isEmpty()) {
-                            usagePoint.setReadCycle(value);
+                        if (!readcycle.isEmpty()) {
+                            usagePoint.setReadCycle(readcycle);
                         }
-                        value = processComment(csvRecord.get(READROUTE));
-                        if (!value.isEmpty()) {
-                            usagePoint.setReadRoute(value);
+                        if (!readroute.isEmpty()) {
+                            usagePoint.setReadRoute(readroute);
                         }
-                        value = processComment(csvRecord.get(SERVICEPRIORITY));
-                        if (!value.isEmpty()) {
-                            usagePoint.setServicePriority(value);
+                        if (!servicePriority.isEmpty()) {
+                            usagePoint.setServicePriority(servicePriority);
                         }
 
                         UsagePointDetail usagePointDetail = usagePoint.getServiceCategory().newUsagePointDetail(usagePoint, clock.instant());
                         if (usagePointDetail instanceof ElectricityDetail) {
                             ElectricityDetail eDetail = (ElectricityDetail) usagePointDetail;
-                            eDetail.setGrounded(csvRecord.get(GROUNDED).equalsIgnoreCase("true"));
-                            value = processEnum(processComment(csvRecord.get(PHASECODE)).toUpperCase(), PhaseCode.class);
-                            if (!value.isEmpty()) {
-                                eDetail.setPhaseCode(PhaseCode.valueOf(value));
+                            eDetail.setGrounded(grounded.equalsIgnoreCase("true"));
+                            if (!phaseCode.isEmpty()) {
+                                eDetail.setPhaseCode(PhaseCode.valueOf(phaseCode));
                             }
-                            value = processComment(csvRecord.get(RATEDPOWERVALUE));
-                            if (!value.isEmpty()) {
-                                eDetail.setRatedPower(Quantity.create(new BigDecimal(value), processInt(csvRecord.get(RATEDPOWERMULTIPLIER)), processComment(csvRecord.get(RATEDPOWERUNIT))));
+                            if (!ratedPowerValue.isEmpty()) {
+                                eDetail.setRatedPower(Quantity.create(new BigDecimal(ratedPowerValue), ratedPowerMultiplier, processComment(ratedPowerUnit)));
                             }
-                            value = processComment(csvRecord.get(RATEDCURRENTVALUE));
-                            if (!value.isEmpty()) {
-                                eDetail.setRatedCurrent(Quantity.create(new BigDecimal(value), processInt(csvRecord.get(RATEDCURRENTMULTIPLIER)), processComment(csvRecord.get(RATEDCURRENTUNIT))));
+                            if (!ratedCurrentValue.isEmpty()) {
+                                eDetail.setRatedCurrent(Quantity.create(new BigDecimal(ratedCurrentValue), ratedCurrentMultiplier, processComment(ratedCurrentUnit)));
                             }
-                            value = processComment(csvRecord.get(ESTIMATEDLOADVALUE));
-                            if (!value.isEmpty()) {
-                                eDetail.setEstimatedLoad(Quantity.create(new BigDecimal(value), processInt(csvRecord.get(ESTIMATEDLOADMULTIPLIER)), processComment(csvRecord.get(ESTIMATEDLOADUNIT))));
+                            if (!estimatedLoadValue.isEmpty()) {
+                                eDetail.setEstimatedLoad(Quantity.create(new BigDecimal(estimatedLoadValue), estimatedLoadMultiplier, processComment(estimatedLoadUnit)));
                             }
-                            value = processComment(csvRecord.get(NOMINALVOLTAGEVALUE));
-                            if (!value.isEmpty()) {
-                                eDetail.setNominalServiceVoltage(Quantity.create(new BigDecimal(value), processInt(csvRecord.get(NOMINALVOLTAGEMULTIPLIER)), processComment(csvRecord.get(NOMINALVOLTAGEUNIT))));
+                            if (!nominalVoltageValue.isEmpty()) {
+                                eDetail.setNominalServiceVoltage(Quantity.create(new BigDecimal(nominalVoltageValue), nominalVoltageMultiplier, processComment(nominalVoltageUnit)));
                             }
                             usagePoint.addDetail(usagePointDetail);
                         }
@@ -191,7 +206,7 @@ public class UsagePointFileImporter implements FileImporter {
     }
 
     private int processInt(String record) {
-        return processComment(record).isEmpty() ? ZERO : Integer.parseInt(record);
+        return processComment(record).isEmpty() ? 0 : Integer.parseInt(record);
     }
 
     private <E extends Enum<E>> String processEnum(String value, Class<E> enumClass) {
@@ -201,5 +216,33 @@ public class UsagePointFileImporter implements FileImporter {
             }
         }
         return EMPTY;
+    }
+
+    private void setAttributes(CSVRecord csvRecord) {
+        this.mRID = csvRecord.isMapped(MRID) ? csvRecord.get(MRID) : EMPTY;
+        this.serviceKind = csvRecord.isMapped(SERVICEKIND) ? csvRecord.get(SERVICEKIND) : EMPTY;
+        this.serviceLocationID = csvRecord.isMapped(SERVICELOCATIONID) ? processInt(csvRecord.get(SERVICELOCATIONID)) : 0;
+        this.name = csvRecord.isMapped(NAME) ? processComment(csvRecord.get(NAME)) : EMPTY;
+        this.aliasName = csvRecord.isMapped(ALIASNAME) ? processComment(csvRecord.get(ALIASNAME)) : EMPTY;
+        this.description = csvRecord.isMapped(DESCRIPTION) ? processComment(csvRecord.get(DESCRIPTION)) : EMPTY;
+        this.outageregion = csvRecord.isMapped(OUTAGEREGION) ? processComment(csvRecord.get(OUTAGEREGION)) : EMPTY;
+        this.readcycle = csvRecord.isMapped(READCYCLE) ? processComment(csvRecord.get(READCYCLE)) : EMPTY;
+        this.readroute = csvRecord.isMapped(READROUTE) ? processComment(csvRecord.get(READROUTE)) : EMPTY;
+        this.servicePriority = csvRecord.isMapped(SERVICEPRIORITY) ? processComment(csvRecord.get(SERVICEPRIORITY)) : EMPTY;
+        this.allowUpdate = csvRecord.isMapped(ALLOWUPDATE) ? processComment(csvRecord.get(ALLOWUPDATE)) : EMPTY;
+        this.grounded = csvRecord.isMapped(GROUNDED) ? csvRecord.get(GROUNDED) : EMPTY;
+        this.phaseCode = csvRecord.isMapped(PHASECODE) ? processEnum(processComment(csvRecord.get(PHASECODE)).toUpperCase(), PhaseCode.class) : EMPTY;
+        this.ratedPowerValue = csvRecord.isMapped(RATEDPOWERVALUE) ? processComment(csvRecord.get(RATEDPOWERVALUE)) : EMPTY;
+        this.ratedPowerMultiplier = csvRecord.isMapped(RATEDPOWERMULTIPLIER) ? processInt(csvRecord.get(RATEDPOWERMULTIPLIER)) : 0;
+        this.ratedPowerUnit = csvRecord.isMapped(RATEDPOWERUNIT) ? processComment(csvRecord.get(RATEDPOWERUNIT)) : EMPTY;
+        this.ratedCurrentValue = csvRecord.isMapped(RATEDCURRENTVALUE) ? processComment(csvRecord.get(RATEDCURRENTVALUE)) : EMPTY;
+        this.ratedCurrentMultiplier = csvRecord.isMapped(RATEDCURRENTMULTIPLIER) ? processInt(csvRecord.get(RATEDCURRENTMULTIPLIER)) : 0;
+        this.ratedCurrentUnit = csvRecord.isMapped(RATEDCURRENTUNIT) ? processComment(csvRecord.get(RATEDCURRENTUNIT)) : EMPTY;
+        this.estimatedLoadValue = csvRecord.isMapped(ESTIMATEDLOADVALUE) ? processComment(csvRecord.get(ESTIMATEDLOADVALUE)) : EMPTY;
+        this.estimatedLoadMultiplier = csvRecord.isMapped(ESTIMATEDLOADMULTIPLIER) ? processInt(csvRecord.get(ESTIMATEDLOADMULTIPLIER)) : 0;
+        this.estimatedLoadUnit = csvRecord.isMapped(ESTIMATEDLOADUNIT) ? processComment(csvRecord.get(ESTIMATEDLOADUNIT)) : EMPTY;
+        this.nominalVoltageValue = csvRecord.isMapped(NOMINALVOLTAGEVALUE) ? processComment(csvRecord.get(NOMINALVOLTAGEVALUE)) : EMPTY;
+        this.nominalVoltageMultiplier = csvRecord.isMapped(NOMINALVOLTAGEMULTIPLIER) ? processInt(csvRecord.get(NOMINALVOLTAGEMULTIPLIER)) : 0;
+        this.nominalVoltageUnit = csvRecord.isMapped(NOMINALVOLTAGEUNIT) ? processComment(csvRecord.get(NOMINALVOLTAGEUNIT)) : EMPTY;
     }
 }
