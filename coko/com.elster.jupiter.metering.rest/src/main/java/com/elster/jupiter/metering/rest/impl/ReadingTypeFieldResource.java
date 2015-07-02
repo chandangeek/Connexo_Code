@@ -57,15 +57,17 @@ public class ReadingTypeFieldResource {
     @Path("/intervals")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public IntervalFieldInfos getIntervals() {
-        IntervalFieldInfos intervalFieldInfos = new IntervalFieldInfos();
-        Set<TimeAttribute> timeAttributes = meteringService.getAvailableReadingTypes().stream()
-                .map(ReadingType::getMeasuringPeriod)
-                .collect(Collectors.<TimeAttribute>toSet());
-        Set<MacroPeriod> macroPeriods = meteringService.getAvailableReadingTypes().stream()
-                .map(ReadingType::getMacroPeriod)
-                .collect(Collectors.<MacroPeriod>toSet());
-        intervalFieldInfos.from(timeAttributes, macroPeriods, thesaurus);
+        List<ReadingType> readingTypes = meteringService.getAvailableReadingTypes();
 
+        Set<TimeAttribute> timeAttributes = readingTypes.stream()
+            .map(ReadingType::getMeasuringPeriod)
+            .collect(Collectors.<TimeAttribute>toSet());
+        Set<MacroPeriod> macroPeriods = readingTypes.stream()
+            .map(ReadingType::getMacroPeriod)
+            .collect(Collectors.<MacroPeriod>toSet());
+
+        IntervalFieldInfos intervalFieldInfos = new IntervalFieldInfos();
+        intervalFieldInfos.from(timeAttributes, macroPeriods, thesaurus);
         return intervalFieldInfos;
     }
 
