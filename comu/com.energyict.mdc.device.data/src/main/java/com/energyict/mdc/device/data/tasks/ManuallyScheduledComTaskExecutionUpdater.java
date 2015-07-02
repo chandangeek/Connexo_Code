@@ -1,6 +1,8 @@
 package com.energyict.mdc.device.data.tasks;
 
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
+
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.time.TemporalExpression;
 
 /**
@@ -9,6 +11,7 @@ import com.elster.jupiter.time.TemporalExpression;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-06-30 (11:41)
  */
+@ProviderType
 public interface ManuallyScheduledComTaskExecutionUpdater extends ComTaskExecutionUpdater<ManuallyScheduledComTaskExecutionUpdater, ManuallyScheduledComTaskExecution> {
 
     public ManuallyScheduledComTaskExecutionUpdater protocolDialectConfigurationProperties(ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties);

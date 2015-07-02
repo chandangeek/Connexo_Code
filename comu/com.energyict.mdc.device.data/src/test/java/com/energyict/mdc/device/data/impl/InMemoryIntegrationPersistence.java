@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.estimation.EstimationService;
@@ -156,6 +157,7 @@ public class InMemoryIntegrationPersistence {
     private UserService userService;
     private ThreadPrincipalService threadPrincipalService;
     private MeteringGroupsService meteringGroupsService;
+    private IssueService issueService;
 
     public InMemoryIntegrationPersistence() {
         super();
@@ -177,7 +179,7 @@ public class InMemoryIntegrationPersistence {
         when(inboundDeviceProtocolService.createInboundDeviceProtocolFor(any(PluggableClass.class))).thenReturn(new SimpleDiscoveryProtocol());
         deviceProtocolService = mock(DeviceProtocolService.class);
         when(deviceProtocolService.createProtocol(DeviceMessageImplTest.MessageTestDeviceProtocol.class.getName())).thenReturn(new DeviceMessageImplTest.MessageTestDeviceProtocol());
-        when(deviceProtocolService.createProtocol(ProtocolDialectPropertiesImplIT.TestProtocol.class.getName())).thenReturn(new ProtocolDialectPropertiesImplIT.TestProtocol());
+        when(deviceProtocolService.createProtocol(TestProtocol.class.getName())).thenReturn(new TestProtocol());
         TestProtocolWithRequiredStringAndOptionalNumericDialectProperties testProtocolThatUseMocking = new TestProtocolWithRequiredStringAndOptionalNumericDialectProperties();
         when(deviceProtocolService.createProtocol(TestProtocolWithRequiredStringAndOptionalNumericDialectProperties.class.getName())).thenReturn(testProtocolThatUseMocking);
         Properties properties = new Properties();
@@ -254,6 +256,7 @@ public class InMemoryIntegrationPersistence {
             when(connectionTypeService.createConnectionType(ModemConnectionType.class.getName())).thenReturn(new ModemConnectionType(propertySpecService));
             this.userService = injector.getInstance(UserService.class);
             this.threadPrincipalService = injector.getInstance(ThreadPrincipalService.class);
+            this.issueService = injector.getInstance(IssueService.class);
             this.dataModel = this.deviceDataModelService.dataModel();
             initializeFactoryProviders();
             createOracleAliases(dataModel.getConnection(true));
@@ -414,6 +417,7 @@ public class InMemoryIntegrationPersistence {
     private class MockModule extends AbstractModule {
         @Override
         protected void configure() {
+            bind(BpmService.class).toInstance(mock(BpmService.class));
             bind(JsonService.class).toInstance(new JsonServiceImpl());
             bind(BeanService.class).toInstance(new BeanServiceImpl());
             bind(Clock.class).toInstance(clock);
@@ -447,5 +451,9 @@ public class InMemoryIntegrationPersistence {
 
     public DeviceMessageSpecificationService getDeviceMessageSpecificationService() {
         return deviceMessageSpecificationService;
+    }
+
+    public IssueService getIssueService() {
+        return issueService;
     }
 }

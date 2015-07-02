@@ -1,10 +1,13 @@
 package com.energyict.mdc.device.data.tasks;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.time.Instant;
 
 /**
  * Updater that supports basic value setters for a {@link ComTaskExecution}.
  */
+@ProviderType
 public interface ComTaskExecutionUpdater<U extends ComTaskExecutionUpdater<U, C>, C extends ComTaskExecution> {
 
     U useDefaultConnectionTask(boolean useDefaultConnectionTask);

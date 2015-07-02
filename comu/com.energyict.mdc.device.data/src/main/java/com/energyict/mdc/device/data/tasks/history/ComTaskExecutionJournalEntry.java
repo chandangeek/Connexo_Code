@@ -3,6 +3,8 @@ package com.energyict.mdc.device.data.tasks.history;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.engine.config.ComServer;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.time.Instant;
 
 /**
@@ -15,6 +17,7 @@ import java.time.Instant;
  * @author sva
  * @since 23/04/12 (14:27)
  */
+@ProviderType
 public interface ComTaskExecutionJournalEntry extends HasId {
 
     public ComTaskExecutionSession getComTaskExecutionSession ();

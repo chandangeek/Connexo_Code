@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.tasks;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
@@ -14,6 +15,7 @@ import com.energyict.mdc.engine.config.OutboundComPortPool;
  * Date: 13/09/12
  * Time: 13:25
  */
+@ProviderType
 public interface OutboundConnectionTask<PCTT extends PartialConnectionTask> extends ConnectionTask<OutboundComPortPool, PCTT>, OutboundConnectionTaskExecutionAspects {
 
     /**

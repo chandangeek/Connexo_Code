@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.data;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.util.Optional;
 
 /**
@@ -8,6 +10,7 @@ import java.util.Optional;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-10-01 (13:04)
  */
+@ProviderType
 public interface LoadProfileService {
 
     /**

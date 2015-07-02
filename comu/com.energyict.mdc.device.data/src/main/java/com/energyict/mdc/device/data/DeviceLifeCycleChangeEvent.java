@@ -2,6 +2,7 @@ package com.energyict.mdc.device.data;
 
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.users.User;
 
@@ -14,6 +15,7 @@ import java.util.Optional;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-05-15 (13:02)
  */
+@ProviderType
 public interface DeviceLifeCycleChangeEvent {
 
     public enum Type {

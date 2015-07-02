@@ -1,8 +1,11 @@
 package com.energyict.mdc.device.data.tasks;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * Builder that supports basic value setters for a {@link ComTaskExecution}.
  */
+@ProviderType
 public interface ComTaskExecutionBuilder<C extends ComTaskExecution> {
 
     public ComTaskExecutionBuilder useDefaultConnectionTask(boolean useDefaultConnectionTask);

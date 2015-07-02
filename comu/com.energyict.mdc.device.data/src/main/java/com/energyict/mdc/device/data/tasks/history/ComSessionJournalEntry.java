@@ -2,6 +2,8 @@ package com.energyict.mdc.device.data.tasks.history;
 
 import com.energyict.mdc.engine.config.ComServer;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.time.Instant;
 
 /**
@@ -12,6 +14,7 @@ import java.time.Instant;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-07-27 (16:47)
  */
+@ProviderType
 public interface ComSessionJournalEntry {
 
     /**

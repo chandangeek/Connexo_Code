@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.issue.share.entity.IssueStatus;
+import com.elster.jupiter.transaction.TransactionContext;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -67,6 +69,7 @@ import org.junit.*;
 import org.junit.rules.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
@@ -97,9 +100,20 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
     @Rule
     public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
 
+    @BeforeClass
+    public static void setup() {
+        try (TransactionContext context = getTransactionService().getContext()) {
+            deviceProtocolPluggableClass = inMemoryPersistence.getProtocolPluggableService().newDeviceProtocolPluggableClass("MyTestProtocol", TestProtocol.class.getName());
+            deviceProtocolPluggableClass.save();
+            context.commit();
+        }
+    }
+
     @Before
     public void setupMasterData() {
         this.setupReadingTypes();
+        IssueStatus wontFix = mock(IssueStatus.class);
+        when(inMemoryPersistence.getIssueService().findStatus(IssueStatus.WONT_FIX)).thenReturn(Optional.of(wontFix));
     }
 
     private Device createSimpleDevice() {
@@ -280,21 +294,6 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
 
         Device reloadedDevice = getReloadedDevice(device);
         assertThat(reloadedDevice.getmRID()).isEqualTo(mRID);
-    }
-
-    @Test
-    @Transactional
-    public void canReuseMridAfterDeviceDeletionTest() {
-        String mRID = "Strawberries";
-        Device device = createSimpleDeviceWithName("MyName", mRID);
-        device.save();
-
-        Device reloadedDevice = getReloadedDevice(device);
-        reloadedDevice.delete();
-
-        Device newDevice = createSimpleDeviceWithName("NewDevice", mRID);
-        Device lastDevice = getReloadedDevice(newDevice);
-        assertThat(lastDevice.getmRID()).isEqualTo(mRID);
     }
 
     /**
