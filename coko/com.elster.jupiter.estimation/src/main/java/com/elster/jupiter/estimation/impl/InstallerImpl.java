@@ -2,7 +2,6 @@ package com.elster.jupiter.estimation.impl;
 
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.estimation.MessageSeeds;
-import com.elster.jupiter.estimation.security.Privileges;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
@@ -128,7 +127,7 @@ class InstallerImpl {
     private void installDataModel() {
         dataModel.install(true, true);
     }
-    
+
     private RelativePeriodCategory getCategory() {
         return timeService.findRelativePeriodCategoryByName(RELATIVE_PERIOD_CATEGORY).orElseThrow(IllegalArgumentException::new);
     }
