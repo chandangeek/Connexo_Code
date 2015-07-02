@@ -10,7 +10,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.time.DefaultRelativePeriodDefinition;
 import com.elster.jupiter.time.EventType;
 import com.elster.jupiter.time.TimeService;
-//import com.elster.jupiter.time.security.Privileges;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.ExceptionCatcher;
 
@@ -45,18 +44,11 @@ public class Installer {
                 () -> this.dataModel.install(executeDdl, true),
                 this::createMessageSeedTranslations,
                 this::createLabelTranslations,
-                //this::createPrivileges,
                 this::createEventTypes,
                 this::createDefaultRelativePeriods
         ).andHandleExceptionsWith(e -> logger.log(Level.SEVERE, e.getMessage(), e))
                 .execute();
     }
-    /*
-    private void createPrivileges() {
-        userService.createResourceWithPrivileges("SYS", "period.periods", "period.periods.description", new String[]
-                {Privileges.VIEW_RELATIVE_PERIOD, Privileges.ADMINISTRATE_RELATIVE_PERIOD});
-    }
-    */
     private void createMessageSeedTranslations() {
         List<Translation> translations = new ArrayList<>(MessageSeeds.values().length);
         for (MessageSeeds messageSeed : MessageSeeds.values()) {
