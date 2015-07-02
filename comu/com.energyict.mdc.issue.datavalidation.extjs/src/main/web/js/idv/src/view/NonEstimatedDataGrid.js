@@ -13,6 +13,7 @@ Ext.define('Idv.view.NonEstimatedDataGrid', {
         ftype: 'groupingsummary',
         hideGroupedHeader: true,
         enableGroupingMenu: false,
+        startCollapsed: true,
         groupHeaderTpl: '<span style="display: inline; margin: 0px 10px 0px 0px">{[values.children[0].data.readingType.fullAliasName]}</span>' + //
         '<span class="uni-icon-info-small" style="cursor: pointer; display: inline-block; width: 16px; height: 16px; float: none" data-qtip="' + Uni.I18n.translate('readingType.tooltip', 'UNI', 'Reading type info') + '"></span>', //{rows.length}
     }],
