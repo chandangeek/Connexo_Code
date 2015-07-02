@@ -69,6 +69,11 @@ public enum MicroCheckTranslationKey implements TranslationKey {
 
     private static Optional<MicroCheckTranslationKey> getTranslation(MicroCheck microCheck, String prefix) {
         if (microCheck != null){
+            if (MicroActionAndCheckInfoFactory.CONSOLIDATED_MICRO_CHECKS.contains(microCheck)){
+                return Arrays.stream(MicroCheckTranslationKey.values())
+                        .filter(candidate -> candidate.key.equals(prefix + MicroActionAndCheckInfoFactory.CONSOLIDATED_MICRO_CHECKS_KEY))
+                        .findFirst();
+            }
             return Arrays.stream(MicroCheckTranslationKey.values())
                     .filter(candidate -> candidate.key.equals(prefix + microCheck.name()))
                     .findFirst();
