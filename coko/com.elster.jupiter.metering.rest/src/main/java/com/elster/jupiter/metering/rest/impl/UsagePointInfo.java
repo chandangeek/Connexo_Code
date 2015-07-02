@@ -43,7 +43,6 @@ public class UsagePointInfo {
     public long createTime;
     public long modTime;
     public ServiceLocationInfo serviceLocation;
-    public MeterActivationInfos meterActivationInfos;
 
     public UsagePointInfo() {
     }
@@ -84,7 +83,6 @@ public class UsagePointInfo {
                 ratedPower = eDetail.getRatedPower();
             }
         }
-        meterActivationInfos = new MeterActivationInfos(usagePoint.getMeterActivations());
     }
 
     void addServiceLocationInfo() {
