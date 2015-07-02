@@ -10,7 +10,7 @@ import com.elster.jupiter.issue.impl.actions.CloseIssueAction;
 import com.elster.jupiter.issue.impl.database.CreateIssueViewOperation;
 import com.elster.jupiter.issue.impl.service.IssueDefaultActionsFactory;
 import com.elster.jupiter.issue.impl.tasks.IssueOverdueHandlerFactory;
-import com.elster.jupiter.issue.security.Privileges;
+//import com.elster.jupiter.issue.security.Privileges;
 import com.elster.jupiter.issue.share.entity.CreationRuleActionPhase;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.IssueType;
@@ -59,7 +59,7 @@ public class Installer {
         run(() -> dataModel.install(executeDDL, true), "database schema. Execute command 'ddl " + IssueService.COMPONENT_NAME + "' and apply the sql script manually");
         run(this::createViews, "view for all issues");
         run(this::createStatuses, "default statuses");
-        run(this::createPrivileges, "privileges");
+        //run(this::createPrivileges, "privileges");
         run(this::createIssueOverdueTask, "overdue task");
         run(this::createActionTypes, "action types");
     }
@@ -74,11 +74,12 @@ public class Installer {
         issueService.createStatus(IssueStatus.RESOLVED, true, MessageSeeds.ISSUE_STATUS_RESOLVED);
         issueService.createStatus(IssueStatus.WONT_FIX, true, MessageSeeds.ISSUE_STATUS_WONT_FIX);
     }
-
+    /*
     private void createPrivileges() {
         userService.createResourceWithPrivileges("MDC", "issue.issues", "issue.issues.description", new String[]{Privileges.VIEW_ISSUE, Privileges.COMMENT_ISSUE, Privileges.CLOSE_ISSUE, Privileges.ASSIGN_ISSUE, Privileges.ACTION_ISSUE});
         userService.createResourceWithPrivileges("MDC", "issueConfiguration.issueConfigurations", "issueConfiguration.issueConfigurations.description", new String[]{Privileges.VIEW_CREATION_RULE, Privileges.ADMINISTRATE_CREATION_RULE, Privileges.VIEW_ASSIGNMENT_RULE});
     }
+    */
 
     private void addTranslation(String componentName, String subscriberName, String subscriberDisplayName) {
         NlsKey statusKey = SimpleNlsKey.key(componentName, Layer.DOMAIN, subscriberName);

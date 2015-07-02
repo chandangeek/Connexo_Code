@@ -29,6 +29,7 @@ import com.elster.jupiter.issue.share.service.IssueAssignmentService;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueGroupFilter;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.issue.security.Privileges;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.MeteringService;
@@ -46,7 +47,9 @@ import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -84,7 +87,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
                 "osgi.command.function=rebuildAssignmentRules",
                 "osgi.command.function=loadAssignmentRuleFromFile"},
     immediate = true)
-public class IssueServiceImpl implements IssueService, InstallService, TranslationKeyProvider {
+public class IssueServiceImpl implements IssueService, InstallService, TranslationKeyProvider, PrivilegesProvider {
     private static final Logger LOG = Logger.getLogger(IssueServiceImpl.class.getName());
 
     private volatile DataModel dataModel;
@@ -448,7 +451,29 @@ public class IssueServiceImpl implements IssueService, InstallService, Translati
     public IssueCreationService getIssueCreationService() {
         return issueCreationService;
     }
-    
+
+    @Override
+    public String getModuleName() {
+        return IssueService.COMPONENT_NAME;
+    }
+
+    @Override
+    public List<ResourceDefinition> getModuleResources() {
+        List<ResourceDefinition> resources = new ArrayList<>();
+        resources.add(userService.createModuleResourceWithPrivileges(IssueService.COMPONENT_NAME, "issue.issues", "issue.issues.description",
+                Arrays.asList(
+                        Privileges.VIEW_ISSUE, Privileges.COMMENT_ISSUE,
+                        Privileges.CLOSE_ISSUE, Privileges.ASSIGN_ISSUE,
+                        Privileges.ACTION_ISSUE
+                        )));
+        resources.add(userService.createModuleResourceWithPrivileges(IssueService.COMPONENT_NAME, "issueConfiguration.issueConfigurations", "issueConfiguration.issueConfigurations.description",
+                Arrays.asList(
+                        Privileges.VIEW_CREATION_RULE,
+                        Privileges.ADMINISTRATE_CREATION_RULE, Privileges.VIEW_ASSIGNMENT_RULE
+                )));
+        return resources;
+    }
+
     public void rebuildAssignmentRules() {
         issueAssignmentService.rebuildAssignmentRules();
     }
