@@ -1,6 +1,5 @@
 package com.elster.jupiter.fsm.impl;
 
-import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
@@ -2248,8 +2247,7 @@ public class FiniteStateMachineIT {
                 nlsService,
                 inMemoryPersistence.getService(UserService.class),
                 inMemoryPersistence.getService(EventService.class),
-                inMemoryPersistence.getService(TransactionService.class),
-                inMemoryPersistence.getService(BpmService.class));
+                inMemoryPersistence.getService(TransactionService.class));
     }
 
 }
