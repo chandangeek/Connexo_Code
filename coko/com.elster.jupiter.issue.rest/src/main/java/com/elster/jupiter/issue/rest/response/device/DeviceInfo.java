@@ -87,7 +87,7 @@ public class DeviceInfo {
     public void setUsagePoint(UsagePoint usagePoint) {
         if (usagePoint != null) {
             this.usagePoint = new UsagePointInfo(usagePoint);
-            this.setServiceLocation(usagePoint.getServiceLocation());
+            this.setServiceLocation(usagePoint.getServiceLocation().get());
             this.setServiceCategory(usagePoint.getServiceCategory());
         }
     }
