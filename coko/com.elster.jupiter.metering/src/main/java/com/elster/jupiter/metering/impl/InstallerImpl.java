@@ -81,7 +81,6 @@ public class InstallerImpl {
         List<ServiceCategoryImpl> serviceCategories = createServiceCategories();
         createReadingTypes();
         createPartyRoles();
-        //createPrivileges();
         createAmrSystems();
         createEndDeviceEventTypes();
         createEventTypes();
