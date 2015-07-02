@@ -122,6 +122,11 @@
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
+                <artifactId>fsm.handler</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.elster.jupiter</groupId>
                 <artifactId>fsm.rest</artifactId>
                 <version>1.0.0-SNAPSHOT</version>
             </dependency>
@@ -347,6 +352,10 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>fsm</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>fsm.handler</artifactId>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
