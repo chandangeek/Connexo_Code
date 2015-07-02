@@ -3,7 +3,6 @@ package com.elster.jupiter.data.lifecycle.impl;
 import com.elster.jupiter.data.lifecycle.LifeCycleCategory;
 import com.elster.jupiter.data.lifecycle.LifeCycleCategoryKind;
 import com.elster.jupiter.data.lifecycle.LifeCycleService;
-import com.elster.jupiter.data.lifecycle.security.Privileges;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.SubscriberSpec;
@@ -57,7 +56,6 @@ class Installer {
             categories.add(newCategory);
         }
         createTask();
-        createPrivileges();
     }
 
     private DestinationSpec getDestination() {
@@ -92,8 +90,5 @@ class Installer {
         getSubscriberSpec();
     }
 
-    private void createPrivileges() {
-        this.userService.createResourceWithPrivileges("SYS", "dataPurge.dataPurge", "dataPurge.dataPurge.description", new String[]{Privileges.VIEW_DATA_PURGE, Privileges.ADMINISTRATE_DATA_PURGE});
-    }
 }
 
