@@ -1,6 +1,9 @@
 package com.elster.jupiter.yellowfin.impl;
 
 import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.users.PrivilegesProvider;
+import com.elster.jupiter.users.Resource;
+import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.yellowfin.YellowfinFilterInfo;
 import com.elster.jupiter.yellowfin.YellowfinFilterListItemInfo;
@@ -29,8 +32,8 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-@Component(name = "com.elster.jupiter.yellowfin", service = {YellowfinService.class, InstallService.class}, immediate = true, property = "name=" + YellowfinService.COMPONENTNAME)
-public class YellowfinServiceImpl implements YellowfinService, InstallService {
+@Component(name = "com.elster.jupiter.yellowfin", service = {YellowfinService.class, InstallService.class, PrivilegesProvider.class}, immediate = true, property = "name=" + YellowfinService.COMPONENTNAME)
+public class YellowfinServiceImpl implements YellowfinService, InstallService, PrivilegesProvider {
     private static final String YELLOWFIN_URL = "com.elster.jupiter.yellowfin.url";
     private static final String YELLOWFIN_EXTERNAL_URL = "com.elster.jupiter.yellowfin.externalurl";
     private static final String YELLOWFIN_WEBSERVICES_USER = "com.elster.jupiter.yellowfin.user";
@@ -477,7 +480,6 @@ public class YellowfinServiceImpl implements YellowfinService, InstallService {
     @Override
     public void install() {
         try {
-            createPrivileges(userService);
         } catch (Exception e) {
             Logger logger = Logger.getLogger(YellowfinServiceImpl.class.getName());
             logger.log(Level.SEVERE, e.getMessage(), e);
@@ -489,9 +491,19 @@ public class YellowfinServiceImpl implements YellowfinService, InstallService {
         return Arrays.asList("ORM", "EVT", "USR");
     }
 
-    private void createPrivileges(UserService userService) {
-        userService.createResourceWithPrivileges("MDC", "reportMdc.reports", "reportMdc.reports.description", new String[] { Privileges.VIEW_REPORTS });
-        userService.createResourceWithPrivileges("YFN", "reportYfn.reports", "reportYfn.reports.description", new String[] { Privileges.DESIGN_REPORTS });
+
+    @Override
+    public List<ResourceDefinition> getModuleResources() {
+        return Arrays.asList(
+            userService.createModuleResourceWithPrivileges(getModuleName(),
+                    "reportYfn.reports", "reportYfn.reports.description",
+                    Arrays.asList(Privileges.VIEW_REPORTS, Privileges.DESIGN_REPORTS)));
     }
+
+    @Override
+    public String getModuleName() {
+        return YellowfinService.COMPONENTNAME;
+    }
+
 
 }
