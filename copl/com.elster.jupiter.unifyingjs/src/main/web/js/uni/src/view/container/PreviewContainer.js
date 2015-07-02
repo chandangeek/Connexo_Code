@@ -207,9 +207,9 @@ Ext.define('Uni.view.container.PreviewContainer', {
     getStoreListeners: function () {
         return {
             beforeload: this.onBeforeLoad,
-            bulkremove: this.onLoad,
-            remove: this.onLoad,
-            clear: this.onLoad,
+            bulkremove: this.onChange,
+            remove: this.onChange,
+            clear: this.onChange,
             load: this.onLoad
         };
     },
@@ -238,10 +238,16 @@ Ext.define('Uni.view.container.PreviewContainer', {
         }
     },
 
-    onLoad: function () {
+    onLoad: function (store, records) {
+        this.updateOnChange(records.length === 0);
+    },
+
+    onChange: function(store) {
+        this.updateOnChange(store.getCount() === 0);
+    },
+
+    updateOnChange: function(isEmpty) {
         var me = this,
-            count = me.grid.store.getCount(),
-            isEmpty = count === 0,
             activeIndex = me.items.indexOf(me.getLayout().getActiveItem());
 
         if (isEmpty && activeIndex !== 0) {
