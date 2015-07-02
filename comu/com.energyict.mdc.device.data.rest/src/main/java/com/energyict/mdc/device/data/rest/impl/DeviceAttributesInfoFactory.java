@@ -100,6 +100,10 @@ public class DeviceAttributesInfoFactory {
     }
 
     private String getStateName(State state) {
+        return getStateName(thesaurus, state);
+    }
+
+    public static String getStateName(Thesaurus thesaurus, State state){
         Optional<DefaultState> defaultState = DefaultState.from(state);
         if (defaultState.isPresent()) {
             return thesaurus.getStringBeyondComponent(defaultState.get().getKey(), defaultState.get().getKey());
@@ -107,6 +111,7 @@ public class DeviceAttributesInfoFactory {
             return state.getName();
         }
     }
+
 
     public void validateOn(Device device, DeviceAttributesInfo info){
         State currentState = device.getState();

@@ -139,12 +139,7 @@ public class DeviceLifeCycleActionResource {
 
     private String getTargetStateName(AuthorizedTransitionAction requestedAction) {
         State targetState  = requestedAction.getStateTransition().getTo();
-        String targetStateName = targetState.getName();
-        Optional<DefaultState> defaultState = DefaultState.from(targetState);
-        if (defaultState.isPresent()){
-            targetStateName = thesaurus.getString(defaultState.get().getKey(), defaultState.get().getKey()) ;
-        }
-        return targetStateName;
+        return DeviceAttributesInfoFactory.getStateName(thesaurus, targetState);
     }
 
     private void getFailedExecutionMessage(MultipleMicroCheckViolationsException microChecksViolationEx, DeviceLifeCycleActionResultInfo wizardResult) {
