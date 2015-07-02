@@ -96,7 +96,7 @@ public class UsagePointResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public UsagePointInfos updateUsagePoint(@PathParam("id") long id, UsagePointInfo info, @Context SecurityContext securityContext) {
         info.id = id;
-        transactionService.execute(new UpdateUsagePointTransaction(info, securityContext.getUserPrincipal(), meteringService, clock));
+        transactionService.execute(new UpdateUsagePointTransaction(info, securityContext , meteringService, clock));
         return getUsagePoint(info.id, securityContext);
     }
 
@@ -236,7 +236,8 @@ public class UsagePointResource {
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
         UsagePoint usagePoint = found.get();
-        if (!usagePoint.hasAccountability((User) securityContext.getUserPrincipal()) && !((User) securityContext.getUserPrincipal()).hasPrivilege(Privileges.BROWSE_ANY)) {
+        if (!usagePoint.hasAccountability((User) securityContext.getUserPrincipal())
+                && !securityContext.isUserInRole(Privileges.BROWSE_ANY)) {
             throw new WebApplicationException(Response.Status.FORBIDDEN);
         }
         return usagePoint;
