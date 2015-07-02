@@ -12,6 +12,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.Resource;
@@ -148,8 +149,8 @@ public class BpmServiceImpl implements BpmService, InstallService, PrivilegesPro
     }
 
     @Override
-    public List<Resource> getModulePrivileges() {
-        List<Resource> resources = new ArrayList<>();
+    public List<ResourceDefinition> getModuleResources() {
+        List<ResourceDefinition> resources = new ArrayList<>();
         resources.add(userService.createModuleResourceWithPrivileges(BpmService.COMPONENTNAME, "bpm.businessProcesses", "bpm.businessProcesses.description",
                 Arrays.asList(
                         Privileges.VIEW_BPM, Privileges.DESIGN_BPM)));

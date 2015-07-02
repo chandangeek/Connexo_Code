@@ -1,7 +1,7 @@
 package com.elster.jupiter.bpm.impl;
 
 import com.elster.jupiter.bpm.BpmService;
-import com.elster.jupiter.bpm.security.Privileges;
+//import com.elster.jupiter.bpm.security.Privileges;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
@@ -25,7 +25,6 @@ public class InstallerImpl {
     private static final Logger LOGGER = Logger.getLogger(InstallerImpl.class.getName());
 
     public void install(MessageService messageService, UserService userService, Thesaurus thesaurus) {
-        //createPrivileges(userService);
         createBPMQueue(messageService, thesaurus);
     }
 
@@ -48,11 +47,5 @@ public class InstallerImpl {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
     }
-
-    /*
-    private void createPrivileges(UserService userService) {
-        userService.createResourceWithPrivileges("BPM", "bpm.businessProcesses", "bpm.businessProcesses.description", new String[] {Privileges.DESIGN_BPM});
-    }
-    */
 
 }

@@ -1,6 +1,7 @@
 package com.elster.jupiter.bpm.impl;
 
 import com.elster.jupiter.bpm.BpmAppService;
+import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.UserService;
@@ -46,7 +47,7 @@ public class BpmAppInstaller implements InstallService{
     private void createDefaultRoles() {
         try {
             Group group = userService.createGroup(BPM_DESIGNER_ROLE, BPM_DESIGNER_ROLE_DESCRIPTION);
-            userService.getPrivilege("privilege.design.bpm").ifPresent(p -> group.grant(p.getName()));
+            userService.getPrivilege("privilege.design.bpm").ifPresent(p -> group.grant(BpmService.COMPONENTNAME, p.getName()));
             //TODO: workaround: attached Bpm designer to user admin !!! to remove this line when the user can be created/added to system
             userService.getUser(1).ifPresent(u -> u.join(group));
         } catch (Exception e) {
