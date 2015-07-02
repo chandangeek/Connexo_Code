@@ -25,6 +25,7 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointAccountability;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
+import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -36,7 +37,10 @@ import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRepresentation;
 import com.elster.jupiter.parties.PartyService;
+import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.users.PrivilegesProvider;
+import com.elster.jupiter.users.Resource;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
@@ -57,17 +61,14 @@ import javax.validation.MessageInterpolator;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.Period;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
-@Component(name = "com.elster.jupiter.metering", service = {MeteringService.class, ServerMeteringService.class, InstallService.class}, property = "name=" + MeteringService.COMPONENTNAME)
-public class MeteringServiceImpl implements ServerMeteringService, InstallService {
+@Component(name = "com.elster.jupiter.metering", service = {MeteringService.class, ServerMeteringService.class, InstallService.class, PrivilegesProvider.class}, property = "name=" + MeteringService.COMPONENTNAME)
+public class MeteringServiceImpl implements ServerMeteringService, InstallService, PrivilegesProvider {
 
     private volatile IdsService idsService;
     private volatile QueryService queryService;
@@ -499,6 +500,21 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
         StateMachineSwitcher
             .forPublishing(this.dataModel, this.messageService, this.jsonService)
             .publishEvents(effective, oldStateMachine, newStateMachine, deviceAmrIdSubquery);
+    }
+
+    @Override
+    public String getModuleName() {
+        return MeteringService.COMPONENTNAME;
+    }
+
+    @Override
+    public List<ResourceDefinition> getModuleResources() {
+        List<ResourceDefinition> resources = new ArrayList<>();
+        resources.add(userService.createModuleResourceWithPrivileges(MeteringService.COMPONENTNAME, "metering.metering", "metering.metering.description",
+                Arrays.asList(
+                        Privileges.BROWSE_ANY, Privileges.ADMIN_ANY,
+                        Privileges.BROWSE_OWN, Privileges.ADMIN_OWN)));
+        return resources;
     }
 
 }

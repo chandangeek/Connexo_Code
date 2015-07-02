@@ -81,7 +81,7 @@ public class InstallerImpl {
         List<ServiceCategoryImpl> serviceCategories = createServiceCategories();
         createReadingTypes();
         createPartyRoles();
-        createPrivileges();
+        //createPrivileges();
         createAmrSystems();
         createEndDeviceEventTypes();
         createEventTypes();
@@ -232,17 +232,6 @@ public class InstallerImpl {
                 LOGGER.log(Level.SEVERE, "Error creating PartyRole : \'" + role.name() + "\': " + e.getMessage(), e);
             }
         }
-    }
-
-    private void createPrivileges() {
-        //TODO: privilege structure has been modified; add all privileges here
-//        for (String each : getPrivileges()) {
-//            try {
-//                userService.createPrivilege(MeteringService.COMPONENTNAME, each, "");
-//            } catch (Exception e) {
-//                LOGGER.log(Level.SEVERE, "Error creating privilege \'" + each + "\': " + e.getMessage(), e);
-//            }
-//        }
     }
 
     private List<String> getPrivileges() {
