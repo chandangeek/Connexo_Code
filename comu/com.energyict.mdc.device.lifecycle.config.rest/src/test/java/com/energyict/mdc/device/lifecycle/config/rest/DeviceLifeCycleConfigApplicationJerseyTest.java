@@ -20,6 +20,7 @@ import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.lifecycle.config.MicroCheck;
+import com.energyict.mdc.device.lifecycle.config.impl.DefaultLifeCycleTranslationKey;
 import com.energyict.mdc.device.lifecycle.config.rest.impl.DeviceLifeCycleConfigApplication;
 import com.energyict.mdc.device.lifecycle.config.rest.impl.i18n.MessageSeeds;
 import java.util.ArrayList;
@@ -128,8 +129,8 @@ public class DeviceLifeCycleConfigApplicationJerseyTest extends FelixRestApplica
     public List<AuthorizedAction> mockDefaultActions(){
         List<State> states = mockDefaultStates();
         List<AuthorizedAction> actions = new ArrayList<>(2);
-        actions.add(mockSimpleAction(1, DefaultState.COMMISSIONING.getKey(), states.get(2), states.get(1)));
-        actions.add(mockSimpleAction(2, DefaultState.DECOMMISSIONED.getKey(), states.get(1), states.get(0)));
+        actions.add(mockSimpleAction(1, DefaultLifeCycleTranslationKey.TRANSITION_FROM_IN_STOCK_TO_COMMISSIONING.getDefaultFormat(), states.get(2), states.get(1)));
+        actions.add(mockSimpleAction(2, DefaultLifeCycleTranslationKey.TRANSITION_FROM_INACTIVE_TO_DECOMMISSIONED.getDefaultFormat(), states.get(1), states.get(0)));
         return actions;
     }
 }
