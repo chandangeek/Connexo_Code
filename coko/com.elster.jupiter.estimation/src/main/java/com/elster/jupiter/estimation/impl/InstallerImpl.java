@@ -66,7 +66,6 @@ class InstallerImpl {
         ExceptionCatcher.executing(
                 this::installDataModel,
                 this::createDestinationAndSubscriber,
-                this::createPrivileges,
                 this::createRelativePeriodCategory,
                 this::createTranslations,
                 this::createRelativePeriods,
@@ -129,11 +128,7 @@ class InstallerImpl {
     private void installDataModel() {
         dataModel.install(true, true);
     }
-
-    private void createPrivileges() {
-        this.userService.createResourceWithPrivileges("MDC", ESTIMATIONS_PRIVILEGE_CATEGORY_NAME, ESTIMATIONS_PRIVILEGE_CATEGORY_DESCRIPTION, Privileges.keys());
-    }
-
+    
     private RelativePeriodCategory getCategory() {
         return timeService.findRelativePeriodCategoryByName(RELATIVE_PERIOD_CATEGORY).orElseThrow(IllegalArgumentException::new);
     }
