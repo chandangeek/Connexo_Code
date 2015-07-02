@@ -68,7 +68,7 @@ public class DeviceAttributesInfoFactory {
 
         info.usagePoint = new DeviceAttributeInfo();
         device.getUsagePoint().ifPresent(usagePoint -> {
-            info.usagePoint.displayValue = usagePoint.getName();
+            info.usagePoint.displayValue = usagePoint.getMRID();
             info.usagePoint.attributeId = usagePoint.getId();
         });
         fillAvailableAndEditable(info.usagePoint, DeviceAttribute.USAGE_POINT, state);
