@@ -51,18 +51,11 @@ public class InstallerImpl {
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, "Could not install datamodel : " + ex.getMessage(), ex);
         }
-        createPrivileges();
         setTranslations();
         createEventTypes();
         createDestinationAndSubscriber();
     }
 
-    private void createPrivileges() {
-        this.userService.createResourceWithPrivileges("MDC", "validation.validations", "validation.validations.description", new String[]
-                {Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.VIEW_VALIDATION_CONFIGURATION,
-                Privileges.VALIDATE_MANUAL,
-                Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE, Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION});
-    }
 
     private void createEventTypes() {
         for (EventType eventType : EventType.values()) {
