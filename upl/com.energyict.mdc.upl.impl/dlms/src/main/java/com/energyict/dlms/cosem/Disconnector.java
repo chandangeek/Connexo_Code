@@ -123,7 +123,7 @@ public class Disconnector extends AbstractCosemObject implements RegisterReadabl
 		try {
 			this.outputState = new BooleanObject(getResponseData(DisconnectControlAttribute.OUTPUT_STATE),0);
 		} catch (IOException e) {
-            throw new InvalidBooleanStateException("Could not get a correct state value.");
+            throw new InvalidBooleanStateException("Could not get a correct state value: " + e.getMessage());
         }
 		return this.outputState;
 	}
