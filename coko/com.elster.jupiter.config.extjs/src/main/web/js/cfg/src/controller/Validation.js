@@ -151,12 +151,6 @@ Ext.define('Cfg.controller.Validation', {
             '#addReadingTypesToRuleSetup #buttonsContainer button[name=cancel]': {
                 click: this.forwardToPreviousPage
             },
-            '#addReadingTypesToRuleSetup cfg-side-filter button[action=applyfilter]': {
-                click: this.loadReadingTypes
-            },
-            '#addReadingTypesToRuleSetup cfg-side-filter button[action=clearfilter]': {
-                click: this.clearAllCombos
-            },
             '#addReadingTypesToRuleSetup #buttonsContainer button[name=add]': {
                 click: this.addReadingTypesToGrid
             },
@@ -404,20 +398,6 @@ Ext.define('Cfg.controller.Validation', {
 
     },
 
-
-    clearAllCombos: function () {
-        var widget = this.getAddReadingTypesSetup(),
-            unitOfMeasureCombo = widget.down('#unitsOfMeasureCombo'),
-            intervalsCombo = widget.down('#intervalsCombo'),
-            timeOfUseCombo = widget.down('#timeOfUseCombo'),
-            readingTypeNameText = widget.down('#readingTypeNameTextField');
-
-        unitOfMeasureCombo.setValue(null);
-        intervalsCombo.setValue(null);
-        timeOfUseCombo.setValue(null);
-        readingTypeNameText.setValue(null);
-    },
-
     addReadingTypesToGrid: function () {
         var me = this,
             widget = this.getAddReadingTypesSetup(),
@@ -448,15 +428,7 @@ Ext.define('Cfg.controller.Validation', {
     loadReadingTypes: function () {
         var me = this,
             viewport = Ext.ComponentQuery.query('viewport')[0],
-            widget = me.getAddReadingTypesSetup(),
-            intervalsCombo = widget.down('#intervalsCombo'),
-            timeOfUseCombo = widget.down('#timeOfUseCombo'),
-            filterBtns = Ext.ComponentQuery.query('#filterReadingTypes tag-button');
-
-        Ext.each(filterBtns, function (btn) {
-            btn.destroy();
-        });
-
+            widget = me.getAddReadingTypesSetup();
 
         if (me.validationRuleRecord) {
             var readingTypes = me.validationRuleRecord.get('readingTypes');
@@ -475,16 +447,6 @@ Ext.define('Cfg.controller.Validation', {
             me.getAddReadingTypesSetup().down('#buttonsContainer button[name=add]').setDisabled(true);
         });
         readingTypeStore.load();
-    },
-
-    checkMridAlreadyAdded: function (array, record) {
-        var isExist = false;
-        Ext.each(array, function (addedRecord) {
-            if (record.get('mRID') === addedRecord.mRID) {
-                isExist = true;
-            }
-        });
-        return isExist;
     },
 
     addRule: function (ruleSetId, versionId) {
