@@ -1,4 +1,4 @@
-package com.energyict.mdc.issue.datacollection.extjs;
+package com.energyict.mdc.issue.datavalidation.extjs;
 
 import com.elster.jupiter.http.whiteboard.BundleResolver;
 import com.elster.jupiter.http.whiteboard.HttpResource;
