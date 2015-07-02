@@ -4,7 +4,9 @@ Ext.define('Mdc.usagepointmanagement.controller.UsagePoint', {
         'Mdc.usagepointmanagement.model.UsagePointComplete',
         'Ext.container.Container'
     ],
-    stores: [],
+    stores: [
+        'Mdc.usagepointmanagement.model.MeterActivations'
+    ],
     views: [
         'Mdc.usagepointmanagement.view.Setup'
     ],
@@ -55,7 +57,7 @@ Ext.define('Mdc.usagepointmanagement.controller.UsagePoint', {
 
                 var store = me.getStore('Mdc.usagepointmanagement.store.MeterActivations'),
                     metrologyConfiguration = me.getMetrologyConfiguration();
-                store.getProxy().setExtraParam('mRID', mRID);
+                store.getProxy().setExtraParam('usagePointMRID', mRID);
                 store.load({
                     callback: function () {
                         var meterActivations = store.data.items;
