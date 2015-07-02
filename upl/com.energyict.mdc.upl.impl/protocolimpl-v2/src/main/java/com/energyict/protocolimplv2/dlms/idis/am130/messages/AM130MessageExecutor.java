@@ -1,15 +1,7 @@
 package com.energyict.protocolimplv2.dlms.idis.am130.messages;
 
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.axrdencoding.TypeEnum;
-import com.energyict.dlms.axrdencoding.Unsigned32;
-import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.dlms.cosem.EventPushNotificationConfig;
-import com.energyict.dlms.cosem.IPv4Setup;
-import com.energyict.dlms.cosem.PPPSetup;
-import com.energyict.dlms.cosem.SecuritySetup;
+import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.cosem.*;
 import com.energyict.mdc.messages.DeviceMessageStatus;
 import com.energyict.mdc.meterdata.CollectedMessage;
 import com.energyict.mdc.meterdata.ResultType;
@@ -48,9 +40,14 @@ public class AM130MessageExecutor extends IDISMessageExecutor {
     private static final ObisCode ALARM_BITS_OBISCODE_2 = ObisCode.fromString("0.0.97.98.1.255");
     private static final ObisCode ALARM_FILTER_OBISCODE_2 = ObisCode.fromString("0.0.97.98.11.255");
     private static final ObisCode ALARM_DESCRIPTOR_OBISCODE_2 = ObisCode.fromString("0.0.97.98.21.255");
+    private static final int MAX_MBUS_SLAVES = 6;
 
     public AM130MessageExecutor(AbstractDlmsProtocol protocol) {
         super(protocol);
+    }
+
+    protected int getMaxMBusSlaves() {
+        return MAX_MBUS_SLAVES;
     }
 
     @Override

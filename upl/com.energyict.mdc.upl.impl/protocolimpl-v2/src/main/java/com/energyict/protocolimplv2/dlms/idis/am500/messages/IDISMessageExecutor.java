@@ -1,25 +1,8 @@
 package com.energyict.protocolimplv2.dlms.idis.am500.messages;
 
-import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.Integer8;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.axrdencoding.TypeEnum;
-import com.energyict.dlms.axrdencoding.Unsigned16;
-import com.energyict.dlms.axrdencoding.Unsigned32;
-import com.energyict.dlms.axrdencoding.Unsigned8;
+import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.dlms.cosem.Data;
-import com.energyict.dlms.cosem.DataAccessResultException;
-import com.energyict.dlms.cosem.GenericInvoke;
-import com.energyict.dlms.cosem.GenericWrite;
-import com.energyict.dlms.cosem.ImageTransfer;
-import com.energyict.dlms.cosem.Limiter;
-import com.energyict.dlms.cosem.MBusClient;
-import com.energyict.dlms.cosem.RegisterMonitor;
-import com.energyict.dlms.cosem.SingleActionSchedule;
+import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.mdc.messages.DeviceMessageStatus;
 import com.energyict.mdc.meterdata.CollectedMessage;
@@ -37,15 +20,7 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.idis.am500.messages.mbus.IDISMBusMessageExecutor;
-import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
-import com.energyict.protocolimplv2.messages.AlarmConfigurationMessage;
-import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
-import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
-import com.energyict.protocolimplv2.messages.GeneralDeviceMessage;
-import com.energyict.protocolimplv2.messages.LoadBalanceDeviceMessage;
-import com.energyict.protocolimplv2.messages.LoadProfileMessage;
-import com.energyict.protocolimplv2.messages.MBusSetupDeviceMessage;
-import com.energyict.protocolimplv2.messages.PLCConfigurationDeviceMessage;
+import com.energyict.protocolimplv2.messages.*;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.SimpleTagWriter;
 import com.energyict.protocolimplv2.messages.enums.LoadControlActions;
@@ -55,11 +30,7 @@ import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExec
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Level;
 
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
@@ -72,13 +43,14 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
  */
 public class IDISMessageExecutor extends AbstractMessageExecutor {
 
+    protected static final ObisCode MBUS_CLIENT_OBISCODE = ObisCode.fromString("0.1.24.1.0.255");
     private static final ObisCode RELAY_CONTROL_OBISCODE = ObisCode.fromString("0.0.96.3.10.255");
     private static final ObisCode TIMED_CONNECTOR_ACTION_OBISCODE = ObisCode.fromString("0.0.15.0.1.255");
     private static final ObisCode DISCONNECTOR_SCRIPT_OBISCODE = ObisCode.fromString("0.0.10.0.106.255");
     private static final ObisCode ERROR_BITS_OBISCODE = ObisCode.fromString("0.0.97.97.0.255");
     private static final ObisCode ALARM_BITS_OBISCODE = ObisCode.fromString("0.0.97.98.0.255");
     private static final ObisCode ALARM_FILTER_OBISCODE = ObisCode.fromString("0.0.97.98.10.255");
-    protected static final ObisCode MBUS_CLIENT_OBISCODE = ObisCode.fromString("0.1.24.1.0.255");
+    private static final int MAX_MBUS_SLAVES = 4;
 
     private IDISMBusMessageExecutor idisMBusMessageExecutor = null;
 
@@ -204,12 +176,20 @@ public class IDISMessageExecutor extends AbstractMessageExecutor {
     }
 
     private CollectedMessage commission(OfflineDeviceMessage offlineDeviceMessage, CollectedMessage collectedMessage) throws IOException {
-        for (int channel = 1; channel < 5; channel++) {                     //Check the available 4 channels, install the slave meter on a free channel client.
+        for (int channel = 1; channel <= getMaxMBusSlaves(); channel++) {                     //Check the available 4 (or 6 in case of am130) channels, install the slave meter on a free channel client.
             ObisCode obisCode = ProtocolTools.setObisCodeField(MBUS_CLIENT_OBISCODE, 1, (byte) channel);   //Find the right MBus client object
-            MBusClient mbusClient = getCosemObjectFactory().getMbusClient(obisCode, MbusClientAttributes.VERSION10);
-            if (mbusClient.getIdentificationNumber().getValue() == 0) {     //Find a free channel client
-                mbusClient.invoke(1, new Unsigned8(0).getBEREncodedByteArray());
-                return collectedMessage;
+            try {
+                MBusClient mbusClient = getCosemObjectFactory().getMbusClient(obisCode, MbusClientAttributes.VERSION10);
+                if (mbusClient.getIdentificationNumber().getValue() == 0) {     //Find a free channel client
+                    mbusClient.invoke(1, new Unsigned8(0).getBEREncodedByteArray());
+                    return collectedMessage;
+                }
+            } catch (IOException e) {
+                if (IOExceptionHandler.isNotSupportedDataAccessResultException(e)) {
+                    continue;
+                } else {
+                    throw e;
+                }
             }
         }
 
@@ -218,6 +198,10 @@ public class IDISMessageExecutor extends AbstractMessageExecutor {
         collectedMessage.setFailureInformation(ResultType.ConfigurationError, createMessageFailedIssue(offlineDeviceMessage, msg));
         collectedMessage.setDeviceProtocolInformation(msg);
         return collectedMessage;
+    }
+
+    protected int getMaxMBusSlaves() {
+        return MAX_MBUS_SLAVES;
     }
 
     protected void writeCapturePeriod(OfflineDeviceMessage offlineDeviceMessage, int dField) throws IOException {

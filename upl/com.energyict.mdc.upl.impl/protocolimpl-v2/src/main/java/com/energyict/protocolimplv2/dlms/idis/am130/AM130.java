@@ -17,11 +17,13 @@ import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProtocolException;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
+import com.energyict.protocolimplv2.dlms.AbstractMeterTopology;
 import com.energyict.protocolimplv2.dlms.idis.am130.events.AM130LogBookFactory;
 import com.energyict.protocolimplv2.dlms.idis.am130.messages.AM130Messaging;
 import com.energyict.protocolimplv2.dlms.idis.am130.properties.AM130ConfigurationSupport;
 import com.energyict.protocolimplv2.dlms.idis.am130.properties.AM130Properties;
 import com.energyict.protocolimplv2.dlms.idis.am130.registers.AM130RegisterFactory;
+import com.energyict.protocolimplv2.dlms.idis.am130.topology.AM130MeterTopology;
 import com.energyict.protocolimplv2.dlms.idis.am500.AM500;
 import com.energyict.protocolimplv2.dlms.idis.am500.events.IDISLogBookFactory;
 import com.energyict.protocolimplv2.dlms.idis.am500.messages.IDISMessaging;
@@ -156,6 +158,14 @@ public class AM130 extends AM500 {
             idisMessaging = new AM130Messaging(this);
         }
         return idisMessaging;
+    }
+
+    @Override
+    public AbstractMeterTopology getMeterTopology() {
+        if (meterTopology == null) {
+            meterTopology = new AM130MeterTopology(this);
+        }
+        return meterTopology;
     }
 
     @Override

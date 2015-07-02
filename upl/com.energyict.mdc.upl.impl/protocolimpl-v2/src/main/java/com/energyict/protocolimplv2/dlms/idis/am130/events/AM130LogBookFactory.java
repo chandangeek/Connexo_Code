@@ -73,6 +73,12 @@ public class AM130LogBookFactory extends IDISLogBookFactory {
             case 4:
                 mBusControlLog = new AM130MBusControlLog4(protocol.getTimeZone(), mBusControlLogDC);
                 break;
+            case 5:
+                mBusControlLog = new AM130MBusControlLog5(protocol.getTimeZone(), mBusControlLogDC);
+                break;
+            case 6:
+                mBusControlLog = new AM130MBusControlLog6(protocol.getTimeZone(), mBusControlLogDC);
+                break;
             default:
                 return new ArrayList<>();
         }

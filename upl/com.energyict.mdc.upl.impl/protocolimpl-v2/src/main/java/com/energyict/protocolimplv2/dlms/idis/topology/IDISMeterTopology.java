@@ -36,11 +36,15 @@ public class IDISMeterTopology extends AbstractMeterTopology {
         this.protocol = protocol;
     }
 
+    protected int getMaxMBusChannels() {
+        return MAX_MBUS_CHANNELS;
+    }
+
     @Override
     public void searchForSlaveDevices() {
         deviceMapping = new ArrayList<>();
         ObisCode obisCode = MBUS_CLIENT_OBISCODE;
-        for (int i = 1; i <= MAX_MBUS_CHANNELS; i++) {
+        for (int i = 1; i <= getMaxMBusChannels(); i++) {
             try {
                 obisCode = ProtocolTools.setObisCodeField(obisCode, 1, (byte) i);
                 long serialNumberValue = protocol.getDlmsSession().getCosemObjectFactory().getMbusClient(obisCode, MbusClientAttributes.VERSION10).getIdentificationNumber().getValue();
