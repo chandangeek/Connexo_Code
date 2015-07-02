@@ -355,12 +355,16 @@ Ext.define('Dxp.view.tasks.Add', {
                     },
                     {
                         title: Uni.I18n.translate('general.formatter', 'DES', 'Formatter'),
+                        itemId: 'file-formatter-title',
+                        hidden: true,
                         ui: 'medium'
                     },
                     {
                         xtype: 'fieldcontainer',
                         fieldLabel: Uni.I18n.translate('general.formatter', 'DES', 'Formatter'),
                         layout: 'hbox',
+                        itemId: 'formatter-container',
+                        hidden: true,
                         required: true,
                         items: [
                             {
@@ -369,6 +373,7 @@ Ext.define('Dxp.view.tasks.Add', {
                                 name: 'dataProcessor',
                                 width: 235,
                                 queryMode: 'local',
+                                hidden: true,
                                 store: 'Dxp.store.FileFormatters',
                                 editable: false,
                                 allowBlank: false,

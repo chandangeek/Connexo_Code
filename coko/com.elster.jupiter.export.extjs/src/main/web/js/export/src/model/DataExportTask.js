@@ -3,10 +3,11 @@ Ext.define('Dxp.model.DataExportTask', {
     requires: [
         'Uni.property.model.Property',
         'Dxp.model.DataSelector',
-        'Dxp.model.StandardDataSelector'
+        'Dxp.model.StandardDataSelector',
+        'Dxp.model.Destination'
     ],
     fields: [
-        'id', 'name', 'dataProcessor', 'dataSelector', 'standardDataSelector', 'schedule', 'properties', 'nextRun', 'lastRun',
+        'id', 'name', 'dataProcessor', 'dataSelector', 'standardDataSelector', 'schedule', 'properties', 'destinations', 'nextRun', 'lastRun',
         {
             name: 'lastExportOccurence',
             persist: false
@@ -153,6 +154,16 @@ Ext.define('Dxp.model.DataExportTask', {
     ],
 
     associations: [
+        {
+            name: 'destinations',
+            type: 'hasMany',
+            model: 'Dxp.model.Destination',
+            associationKey: 'destinations',
+            foreignKey: 'destinations',
+            getTypeDiscriminator: function (node) {
+                return 'Dxp.model.Destination';
+            }
+        },
         {
             name: 'properties',
             type: 'hasMany',
