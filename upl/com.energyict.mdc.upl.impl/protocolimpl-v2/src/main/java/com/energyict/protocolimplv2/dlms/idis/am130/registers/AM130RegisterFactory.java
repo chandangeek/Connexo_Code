@@ -1,11 +1,13 @@
 package com.energyict.protocolimplv2.dlms.idis.am130.registers;
 
+import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.BooleanObject;
 import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.TypeEnum;
 import com.energyict.dlms.cosem.*;
 import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.meterdata.ResultType;
@@ -100,8 +102,9 @@ public class AM130RegisterFactory implements DeviceRegisterSupport {
                     registerValue = new RegisterValue(obisCode, quantity, register.getCaptureTime());
                 }
             } else if (uo.getClassID() == DLMSClassId.DISCONNECT_CONTROL.getClassId()) {
-                final Disconnector register = am130.getDlmsSession().getCosemObjectFactory().getDisconnector(obisCode);
-                registerValue = new RegisterValue(obisCode, "" + register.getState());
+                final TypeEnum controlState = am130.getDlmsSession().getCosemObjectFactory().getDisconnector(obisCode).getControlState();
+                registerValue = new RegisterValue(obisCode, DisconnectControlState.fromState(controlState.intValue()).name());
+                registerValue.setQuantity(new Quantity(controlState.intValue(), Unit.get(BaseUnit.UNITLESS)));
             } else if (uo.getClassID() == DLMSClassId.DATA.getClassId()) {
                 final Data register = am130.getDlmsSession().getCosemObjectFactory().getData(obisCode);
                 OctetString octetString = register.getValueAttr().getOctetString();
@@ -161,5 +164,27 @@ public class AM130RegisterFactory implements DeviceRegisterSupport {
         deviceRegister.setCollectedData(registerValue.getQuantity(), registerValue.getText());
         deviceRegister.setCollectedTimeStamps(registerValue.getReadTime(), registerValue.getFromTime(), registerValue.getToTime(), registerValue.getEventTime());
         return deviceRegister;
+    }
+
+    private enum DisconnectControlState {
+        Unknown(-1),
+        Disconnected(0),
+        Connected(1),
+        Ready_for_reconnection(2);
+
+        private final int state;
+
+        DisconnectControlState(int state) {
+            this.state = state;
+        }
+
+        public static DisconnectControlState fromState(int state) {
+            for (DisconnectControlState disconnectControlState : values()) {
+                if (state == disconnectControlState.state) {
+                    return disconnectControlState;
+                }
+            }
+            return Unknown;
+        }
     }
 }
