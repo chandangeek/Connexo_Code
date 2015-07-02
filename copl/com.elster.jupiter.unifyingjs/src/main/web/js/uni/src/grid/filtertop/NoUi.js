@@ -12,12 +12,16 @@ Ext.define('Uni.grid.filtertop.NoUi', {
         }
     },
 
+    setInitialValue: function(value) {
+        this.initialValue = value;
+    },
+
     setFilterValue: function (data) {
         this.value = data;
     },
 
     resetValue: function () {
-       this.value = null;
+        this.value = this.hasOwnProperty('initialValue') ? this.initialValue : null;
     },
 
     /**
