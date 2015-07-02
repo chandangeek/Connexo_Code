@@ -471,6 +471,9 @@ Ext.define('Cfg.controller.Validation', {
         }
 
         var readingTypeStore = Ext.ComponentQuery.query('#addReadingTypesGrid')[0].store;
+        readingTypeStore.on('beforeLoad',function(){
+            me.getAddReadingTypesSetup().down('#buttonsContainer button[name=add]').setDisabled(true);
+        });
         readingTypeStore.load();
     },
 
