@@ -2,9 +2,11 @@ package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.users.*;
 import com.energyict.mdc.device.config.*;
 import com.energyict.mdc.device.config.DeviceConfigurationEstimationRuleSetUsage;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
+import com.energyict.mdc.device.config.security.Privileges;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.engine.config.ComPortPool;
@@ -40,10 +42,6 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.users.Privilege;
-import com.elster.jupiter.users.Resource;
-import com.elster.jupiter.users.User;
-import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.validation.ValidationRuleSet;
@@ -75,9 +73,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
+import static java.util.stream.Collectors.toList;
 
 /**
  * Provides an implementation for the {@link DeviceConfigurationService} interface.
@@ -85,8 +85,8 @@ import static com.elster.jupiter.util.conditions.Where.where;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-01-30 (15:38)
  */
-@Component(name = "com.energyict.mdc.device.config", service = {DeviceConfigurationService.class, ServerDeviceConfigurationService.class, InstallService.class, TranslationKeyProvider.class}, property = "name=" + DeviceConfigurationService.COMPONENTNAME, immediate = true)
-public class DeviceConfigurationServiceImpl implements ServerDeviceConfigurationService, InstallService, TranslationKeyProvider {
+@Component(name = "com.energyict.mdc.device.config", service = {DeviceConfigurationService.class, ServerDeviceConfigurationService.class, InstallService.class, TranslationKeyProvider.class, PrivilegesProvider.class}, property = "name=" + DeviceConfigurationService.COMPONENTNAME, immediate = true)
+public class DeviceConfigurationServiceImpl implements ServerDeviceConfigurationService, InstallService, TranslationKeyProvider, PrivilegesProvider {
 
     private volatile ProtocolPluggableService protocolPluggableService;
 
@@ -698,4 +698,18 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
                     .isEmpty();
     }
 
+    @Override
+    public String getModuleName() {
+        return DeviceConfigurationService.COMPONENTNAME;
+    }
+
+    @Override
+    public List<ResourceDefinition> getModuleResources() {
+        return Arrays.asList(
+            this.userService.createModuleResourceWithPrivileges(DeviceConfigurationService.COMPONENTNAME, "masterData.masterData", "masterData.masterData.description", Arrays.asList(Privileges.ADMINISTRATE_MASTER_DATA, Privileges.VIEW_MASTER_DATA)),
+            this.userService.createModuleResourceWithPrivileges(DeviceConfigurationService.COMPONENTNAME, "deviceType.deviceTypes", "deviceType.deviceTypes.description", Arrays.asList(Privileges.ADMINISTRATE_DEVICE_TYPE, Privileges.VIEW_DEVICE_TYPE)),
+            this.userService.createModuleResourceWithPrivileges(DeviceConfigurationService.COMPONENTNAME, "deviceSecurity.deviceSecurities", "deviceSecurity.deviceSecurities.description", Arrays.asList(DeviceSecurityUserAction.values()).stream().map(DeviceSecurityUserAction::getPrivilege).collect(toList())),
+            this.userService.createModuleResourceWithPrivileges(DeviceConfigurationService.COMPONENTNAME, "deviceCommand.deviceCommands", "deviceCommand.deviceCommands.description", Arrays.asList(DeviceMessageUserAction.values()).stream().map(DeviceMessageUserAction::getPrivilege).collect(toList()))
+        );
+    }
 }
