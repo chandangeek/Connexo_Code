@@ -6,7 +6,9 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -23,6 +25,7 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.validation.*;
 import com.elster.jupiter.validation.security.Privileges;
 import com.google.common.collect.Range;
@@ -31,7 +34,10 @@ import org.osgi.service.component.annotations.*;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.time.Clock;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -597,6 +603,65 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
         return dataModel.query(DataValidationOccurrence.class, DataValidationTask.class).select(EQUAL.compare("taskOccurrence", occurrence)).stream().findFirst();
     }
 
+    @Override
+    public List<ValidationSummary> getValidationResultsOfDeviceGroup(Long groupId, Optional<Integer> start, Optional<Integer> limit) {
+
+        List<ValidationSummary> list = new ArrayList<>();
+
+        try {
+            Query<EndDevice> query = meteringService.getEndDeviceQuery();
+
+            meteringGroupsService.findEndDeviceGroup(groupId).ifPresent(deviceGroup -> {
+                try {
+                    SqlBuilder sqlBuilder = new SqlBuilder();
+                    sqlBuilder.append("SELECT med.id, ed2.mrid FROM (" );
+                    if (deviceGroup instanceof QueryEndDeviceGroup) {
+                        Condition condition = null;
+                        condition = meteringGroupsService.pollEndDeviceQueryProvider(deviceGroup.getQueryProviderName(), Duration.ofMinutes(1)).get().getQueryCondition(((QueryEndDeviceGroup) deviceGroup).getCondition());
+                        sqlBuilder.add(query.asSubquery(condition, "id").toFragment());
+                    } else {
+                        sqlBuilder.add(((EnumeratedEndDeviceGroup) deviceGroup).getAmrIdSubQuery().toFragment());
+                    }
+                    sqlBuilder.append(") MED  " +
+                            "LEFT JOIN MTR_ENDDEVICE ed2 on med.id = ed2.id " +
+                            "WHERE EXISTS " +
+                            "      (SELECT * " +
+                            "      FROM MTR_READINGQUALITY mrq " +
+                            "        LEFT JOIN MTR_CHANNEL mc ON (mrq.CHANNELID=mc.id) " +
+                            "       LEFT JOIN MTR_METERACTIVATION MA ON (mc.meteractivationid=ma.id) " +
+                            "    " +
+                            "      WHERE (mrq.type  = '3.5.258' " +
+                            "      OR mrq.type      = '3.5.259') " +
+                            "      AND mrq.actual   ='Y' " +
+                            "      AND MA.meterid=med.id " +
+                            "      )");
+                    if(start.isPresent() && limit.isPresent()) {
+                        sqlBuilder = sqlBuilder.asPageBuilder(start.get()+1, start.get() + limit.get()+1);
+                    }
+                    try (PreparedStatement statement = sqlBuilder.prepare(dataModel.getConnection(false))) {
+                        try (ResultSet resultSet = statement.executeQuery()) {
+                            while (resultSet.next()) {
+                                Long id = resultSet.getLong(1);
+                                String mrId = resultSet.getString(2);
+                                ValidationSummary summary = new ValidationSummary();
+                                summary.setId(id);
+                                summary.setMrID(mrId);
+                                summary.setSuspects(0);
+                                list.add(summary);
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+            });
+        }
+        catch (Exception e) {
+        }
+
+        return list;
+    }
 
     private Optional<DataValidationTask> getDataValidationTaskForRecurrentTask(RecurrentTask recurrentTask) {
         return dataModel.mapper(DataValidationTask.class).getUnique("recurrentTask", recurrentTask);

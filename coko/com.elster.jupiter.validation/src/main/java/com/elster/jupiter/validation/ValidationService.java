@@ -109,5 +109,6 @@ public interface ValidationService {
     Optional<DataValidationOccurrence> findDataValidationOccurrence(TaskOccurrence occurrence);
 
 
+    List<ValidationSummary> getValidationResultsOfDeviceGroup(Long groupId, Optional<Integer> start, Optional<Integer> limit);
 
 }
