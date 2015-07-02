@@ -37,6 +37,8 @@ public interface EndDeviceGroup {
     void setAliasName(String aliasName);
 
     void setQueryProviderName(String queryProviderName);
+    
+    String getQueryProviderName();
 
     boolean isDynamic();
 

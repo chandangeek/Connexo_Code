@@ -45,4 +45,10 @@ public class SimpleEndDeviceQueryProvider implements EndDeviceQueryProvider {
         int to = from + limit;
         return meteringService.getEndDeviceQuery().select(conditions, from, to);
     }
+
+    @Override
+    public Condition getQueryCondition(Condition conditions) {
+        return conditions;
+    }
+
 }

@@ -19,5 +19,6 @@ public interface EndDeviceQueryProvider {
     List<EndDevice> findEndDevices(Condition conditions);
     List<EndDevice> findEndDevices(Instant instant, Condition conditions);
     List<EndDevice> findEndDevices(Instant instant, Condition conditions, int start, int limit);
+    Condition getQueryCondition(Condition conditions);
 
 }
