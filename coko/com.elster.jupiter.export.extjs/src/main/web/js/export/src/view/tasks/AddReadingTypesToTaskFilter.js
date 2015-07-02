@@ -2,7 +2,6 @@ Ext.define('Dxp.view.tasks.AddReadingTypesToTaskFilter', {
     extend: 'Uni.grid.FilterPanelTop',
     xtype: 'dxp-view-tasks-addreadingtypestotaskfilter',
 
-    // TODO Use the filter.
     store: 'Dxp.store.LoadedReadingTypes',
 
     filters: [
@@ -19,7 +18,16 @@ Ext.define('Dxp.view.tasks.AddReadingTypesToTaskFilter', {
             emptyText: Uni.I18n.translate('dataExportTasks.unitOfMeasure', 'DES', 'Unit of measure'),
             displayField: 'name',
             valueField: 'name',
-            store: 'Dxp.store.UnitsOfMeasure'
+            store: 'Dxp.store.UnitsOfMeasure',
+            applyParamValue: function (params, includeUndefined, flattenObjects) {
+                var me = this,
+                    record = me.findRecord(me.valueField || me.displayField, me.getValue());
+
+                if (record) {
+                    params['multiplier'] = record.get('multiplier');
+                    params['unitOfMeasure'] = record.get('unit');
+                }
+            }
         },
         {
             type: 'combobox',
@@ -34,8 +42,28 @@ Ext.define('Dxp.view.tasks.AddReadingTypesToTaskFilter', {
             dataIndex: 'time',
             emptyText: Uni.I18n.translate('dataExportTasks.interval', 'DES', 'Interval'),
             displayField: 'name',
-            valueField: 'time',
-            store: 'Dxp.store.Intervals'
+            valueField: 'name',
+            store: 'Dxp.store.Intervals',
+            applyParamValue: function (params, includeUndefined, flattenObjects) {
+                var me = this,
+                    record = me.findRecord(me.valueField || me.displayField, me.getValue());
+
+                if (record) {
+                    params['time'] = record.get('time');
+                    params['macro'] = record.get('macro');
+                }
+            }
+        },
+        {
+            type: 'noui',
+            dataIndex: 'selectedReadings',
+            itemId: 'selectedReadingsFilterComponent'
         }
-    ]
+    ],
+
+    setSelectedReadings: function(selectedReadings) {
+        var noUiComponent = this.getFilterByItemId('selectedReadingsFilterComponent');
+        noUiComponent.setInitialValue(selectedReadings);
+        noUiComponent.setFilterValue(selectedReadings);
+    }
 });

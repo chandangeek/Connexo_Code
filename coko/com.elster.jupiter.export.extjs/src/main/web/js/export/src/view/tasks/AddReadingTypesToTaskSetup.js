@@ -5,15 +5,12 @@ Ext.define('Dxp.view.tasks.AddReadingTypesToTaskSetup', {
     overflowY: true,
 
     requires: [
-        'Uni.component.filter.view.FilterTopPanel',
+        'Dxp.view.tasks.AddReadingTypesToTaskFilter',
         'Dxp.view.tasks.AddReadingTypesToTaskBulk',
-        'Dxp.view.tasks.SideFilter'
-    ],
-
-    side: [
-        {
-            xtype: 'rt-side-filter'
-        }
+        'Dxp.store.LoadedReadingTypes',
+        'Dxp.store.UnitsOfMeasure',
+        'Dxp.store.TimeOfUse',
+        'Dxp.store.Intervals'
     ],
 
     content: [
@@ -27,15 +24,27 @@ Ext.define('Dxp.view.tasks.AddReadingTypesToTaskSetup', {
             },
             items: [
                 {
-                    title: Uni.I18n.translate('general.filter', 'CFG', 'Filter'),
-                    xtype: 'filter-top-panel',
-                    itemId: 'filterReadingTypes',
-                    margin: '0 0 20 0',
-                    name: 'filter'
-                },
-                {
-                    xtype: 'container',
-                    itemId: 'AddReadingTypesToTaskBulk'
+                    xtype: 'preview-container',
+                    selectByDefault: false,
+                    grid: {
+                        itemId: 'addReadingTypesGrid',
+                        xtype: 'AddReadingTypesToTaskBulk',
+                        store: 'Dxp.store.LoadedReadingTypes',
+                        height: 600,
+                        plugins: {
+                            ptype: 'bufferedrenderer'
+                        }
+                    },
+                    emptyComponent: {
+                        xtype: 'no-items-found-panel',
+                        margin: '15 0 20 0',
+                        title: Uni.I18n.translate('validation.readingType.empty.title', 'CFG', 'No reading types found.'),
+                        reasons: [
+                            Uni.I18n.translate('validation.readingType.empty.list.item1', 'CFG', 'No reading types have been added yet.'),
+                            Uni.I18n.translate('validation.readingType.empty.list.item2', 'CFG', 'No reading types comply to the filter.'),
+                            Uni.I18n.translate('dataExportTasks.readingType.empty.list.item3', 'DES', 'All reading types have already been added to the data export task.')
+                        ]
+                    }
                 },
                 {
                     xtype: 'container',
@@ -45,7 +54,6 @@ Ext.define('Dxp.view.tasks.AddReadingTypesToTaskSetup', {
                     },
                     items: [
                         {
-
                             text: Uni.I18n.translate('general.add', 'CFG', 'Add'),
                             name: 'add',
                             itemId: 'btn-add-reading-types',
@@ -59,11 +67,13 @@ Ext.define('Dxp.view.tasks.AddReadingTypesToTaskSetup', {
                         }
                     ]
                 }
+            ],
+            dockedItems: [
+                {
+                    xtype: 'dxp-view-tasks-addreadingtypestotaskfilter',
+                    itemId: 'dxp-view-tasks-addreadingtypes-filter-panel-top'
+                }
             ]
         }
-    ],
-
-    initComponent: function () {
-        this.callParent(arguments);
-    }
+    ]
 });

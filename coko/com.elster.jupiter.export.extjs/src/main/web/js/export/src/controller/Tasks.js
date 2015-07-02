@@ -80,16 +80,8 @@ Ext.define('Dxp.controller.Tasks', {
             selector: 'data-sources-setup'
         },
         {
-            ref: 'sideFilterForm',
-            selector: '#side-filter #filter-form'
-        },
-        {
             ref: 'addReadingTypesSetup',
             selector: '#AddReadingTypesToTaskSetup'
-        },
-        {
-            ref: 'actionMenu',
-            selector: 'dxp-tasks-action-menu'
         }
     ],
 
@@ -97,9 +89,8 @@ Ext.define('Dxp.controller.Tasks', {
     fromEdit: false,
     taskModel: null,
     taskId: null,
-    readingTypeIndex: 2,
 
-    readingTypesArray: [],
+    readingTypesArray: null,
 
     init: function () {
         this.control({
@@ -148,15 +139,8 @@ Ext.define('Dxp.controller.Tasks', {
             'tasks-history-action-menu': {
                 click: this.chooseAction
             },
-            '#AddReadingTypesToTaskSetup rt-side-filter button[action=applyfilter]': {
-                click: this.loadReadingTypes
-            },
-            '#AddReadingTypesToTaskSetup #filterReadingTypes': {
-                removeFilter: this.removeFilter,
-                clearAllFilters: this.clearAllFilters
-            },
-            '#AddReadingTypesToTaskSetup rt-side-filter button[action=clearfilter]': {
-                click: this.clearAllCombos
+            'AddReadingTypesToTaskBulk': {
+                selectionchange: this.onSelectionChange
             }
         });
     },
@@ -230,25 +214,6 @@ Ext.define('Dxp.controller.Tasks', {
                 }
             }
         });
-    },
-
-    clearAllFilters: function () {
-        this.clearAllCombos();
-        this.loadReadingTypes();
-    },
-
-    removeFilter: function (key) {
-        var widget = this.getAddReadingTypesSetup(),
-            field;
-
-        if (key === 'name') {
-            field = widget.down('textfield[name=' + key + ']');
-        } else {
-            field = widget.down('combobox[name=' + key + ']');
-        }
-
-        field.setValue(null);
-        this.loadReadingTypes();
     },
 
     showDataExportTaskHistory: function (currentTaskId) {
@@ -462,29 +427,6 @@ Ext.define('Dxp.controller.Tasks', {
         me.getApplication().fireEvent('changecontentevent', view);
         view.setLoading();
     },
-
-    /*showDataSources: function (currentTaskId) {
-     var me = this,
-     router = me.getController('Uni.controller.history.Router'),
-     taskModel = me.getModel('Dxp.model.DataExportTask'),
-     store = me.getStore('Dxp.store.DataSources'),
-     view;
-
-     store.getProxy().setUrl(router.arguments);
-     view = Ext.widget('data-sources-setup', {
-     router: router,
-     taskId: currentTaskId
-     });
-
-     me.getApplication().fireEvent('changecontentevent', view);
-
-     taskModel.load(currentTaskId, {
-     success: function (record) {
-     me.getApplication().fireEvent('dataexporttaskload', record);
-     view.down('#tasks-view-menu  #tasks-view-link').setText(record.get('name'));
-     }
-     });
-     },*/
 
     showPreview: function (selectionModel, record) {
         var me = this,
@@ -967,8 +909,8 @@ Ext.define('Dxp.controller.Tasks', {
             readingTypesStore = page.down('#readingTypesGridPanel').getStore(),
             addReadingTypesRoute = router.currentRoute + '/readingtypes';
 
+        // Prepare the already assigned reading types (for method addReadingTypes())
         me.readingTypesArray = [];
-
         readingTypesStore.each(function (record) {
             me.readingTypesArray.push(record.getData());
         });
@@ -989,22 +931,11 @@ Ext.define('Dxp.controller.Tasks', {
     addReadingTypes: function () {
         if (!this.readingTypesArray) {
             this.forwardToPreviousPage();
-        } else {
-            var me = this;
-            var widget = Ext.widget('AddReadingTypesToTaskSetup');
-
-            var unitsOfMeasureStore = Ext.create('Dxp.store.UnitsOfMeasure');
-            var timeOfUseStore = Ext.create('Dxp.store.TimeOfUse');
-            var intervalsStore = Ext.create('Dxp.store.Intervals');
-
-            me.getApplication().fireEvent('changecontentevent', widget);
-            widget.down('#unitsOfMeasureCombo').bindStore(unitsOfMeasureStore);
-            widget.down('#intervalsCombo').bindStore(intervalsStore);
-            widget.down('#timeOfUseCombo').bindStore(timeOfUseStore);
-
-            me.loadReadingTypes();
+            return;
         }
 
+        this.getApplication().fireEvent('changecontentevent', Ext.widget('AddReadingTypesToTaskSetup'));
+        this.loadReadingTypes();
     },
 
     addSelectedReadingTypes: function () {
@@ -1024,137 +955,29 @@ Ext.define('Dxp.controller.Tasks', {
 
     loadReadingTypes: function () {
         var me = this,
-            widget = this.getAddReadingTypesSetup(),
-            readingTypeStore = me.getStore('Dxp.store.LoadedReadingTypes'),
-            unitOfMeasureCombo = widget.down('#unitsOfMeasureCombo'),
-            intervalsCombo = widget.down('#intervalsCombo'),
-            timeOfUseCombo = widget.down('#timeOfUseCombo'),
-            readingTypeNameText = widget.down('#readingTypeNameTextField'),
-            unitOfMeasureComboValue = unitOfMeasureCombo.getValue(),
-            filter = widget.down('#filterReadingTypes'),
-            filterBtns = Ext.ComponentQuery.query('#filterReadingTypes tag-button'),
-            bulkGridContainer = widget.down('#AddReadingTypesToTaskBulk'),
-            properties = [],
-            unitOfMeasureRecord,
-            intervalsRecord,
-            previewContainer;
+            readingTypeStore = me.getStore('Dxp.store.LoadedReadingTypes');
 
-        bulkGridContainer.removeAll();
-
-        Ext.each(filterBtns, function (btn) {
-            btn.destroy();
-        });
-
-        if (unitOfMeasureComboValue) {
-            unitOfMeasureRecord = unitOfMeasureCombo.findRecord(unitOfMeasureCombo.valueField, unitOfMeasureComboValue);
-            properties.push({
-                property: 'unitOfMeasure',
-                value: unitOfMeasureRecord.get('unit')
-            });
-            properties.push({
-                property: 'multiplier',
-                value: unitOfMeasureRecord.get('multiplier')
-            });
-            filter.setFilter('unitOfMeasure', 'Unit of measure', unitOfMeasureRecord.get('name'), false);
-        }
-
-        if (!Ext.isEmpty(intervalsCombo.getRawValue())) {
-            intervalsRecord = intervalsCombo.findRecordByDisplay(intervalsCombo.getRawValue());
-            if (intervalsRecord.get('time') !== null) {
-                properties.push({
-                    property: 'time',
-                    value: intervalsCombo.getValue()
-                });
-            }
-            if (intervalsRecord.get('macro') !== null) {
-                properties.push({
-                    property: 'macro',
-                    value: intervalsRecord.get('macro')
-                });
-            }
-            filter.setFilter('time', 'Interval', intervalsRecord.get('name'), false);
-        }
-
-        if (readingTypeNameText.getValue()) {
-            properties.push({
-                property: 'name',
-                value: readingTypeNameText.getValue()
-            });
-            filter.setFilter('name', 'Name', readingTypeNameText.getValue(), false);
-        }
-
-        if (!Ext.isEmpty(timeOfUseCombo.getValue())) {
-            properties.push({
-                property: 'tou',
-                value: timeOfUseCombo.getValue()
-            });
-            filter.setFilter('tou', 'Time of use', timeOfUseCombo.getValue(), false);
-        }
-
+        // Tell the REST side what readingTypes to exclude (because they're already assigned)
         if (Ext.isArray(me.readingTypesArray) && !Ext.isEmpty(me.readingTypesArray)) {
             var mRIDs = [];
             me.readingTypesArray.forEach(function (readingType) {
                 mRIDs.push(readingType.readingType.mRID.toLowerCase());
-
             });
-            properties.push({
-                property: 'selectedReadings',
-                value: mRIDs
-            });
+            Ext.ComponentQuery.query('viewport')[0].down('dxp-view-tasks-addreadingtypestotaskfilter').setSelectedReadings(mRIDs);
         }
 
-        readingTypeStore.getProxy().setExtraParam('filter', Ext.encode(properties));
-        readingTypeStore.loadData([], false);
-
-        previewContainer = {
-            xtype: 'preview-container',
-            selectByDefault: false,
-            grid: {
-                itemId: 'addReadingTypesGrid',
-                xtype: 'AddReadingTypesToTaskBulk',
-                store: readingTypeStore,
-                height: 600,
-                plugins: {
-                    ptype: 'bufferedrenderer'
-                }
-            },
-            emptyComponent: {
-                xtype: 'no-items-found-panel',
-                margin: '0 0 20 0',
-                title: Uni.I18n.translate('validation.readingType.empty.title', 'CFG', 'No reading types found.'),
-                reasons: [
-                    Uni.I18n.translate('validation.readingType.empty.list.item1', 'CFG', 'No reading types have been added yet.'),
-                    Uni.I18n.translate('validation.readingType.empty.list.item2', 'CFG', 'No reading types comply to the filter.'),
-                    Uni.I18n.translate('validation.readingType.empty.list.item3', 'CFG', 'All reading types have been already added to rule.')
-                ]
-            }
-        };
-
-        bulkGridContainer.add(previewContainer);
-
-        //<debug>
-        Ext.override(Ext.data.proxy.Ajax, {timeout: 120000});
-        //</debug>
-
-        readingTypeStore.on('load', function (store, records) {
-            if (!records || !records.length) {
-                widget.down('#buttonsContainer button[name=add]').setDisabled(true);
-            }
-        }, me, {
-            single: true
-        });
-
+        readingTypeStore.on('beforeload', function () {
+            me.setAddBtnDisabled(true);
+        }, { single: true });
         readingTypeStore.load();
     },
 
-    checkMridAlreadyAdded: function (array, record) {
-        var isExist = false;
-        Ext.each(array, function (addedRecord) {
-            if (record.get('mRID') === addedRecord.readingType.mRID) {
-                isExist = true;
-            }
-        });
-        return isExist;
+    onSelectionChange: function (component, selection) {
+        this.setAddBtnDisabled(Ext.isEmpty(selection));
+    },
+
+    setAddBtnDisabled: function(disabled) {
+        this.getAddReadingTypesSetup().down('#buttonsContainer button[name=add]').setDisabled(disabled);
     },
 
     saveFormValues: function () {
@@ -1310,18 +1133,5 @@ Ext.define('Dxp.controller.Tasks', {
                 }
             }
         });
-    },
-
-    clearAllCombos: function () {
-        var widget = this.getAddReadingTypesSetup(),
-            unitOfMeasureCombo = widget.down('#unitsOfMeasureCombo'),
-            intervalsCombo = widget.down('#intervalsCombo'),
-            timeOfUseCombo = widget.down('#timeOfUseCombo'),
-            readingTypeNameText = widget.down('#readingTypeNameTextField');
-
-        unitOfMeasureCombo.setValue(null);
-        intervalsCombo.setValue(null);
-        timeOfUseCombo.setValue(null);
-        readingTypeNameText.setValue(null);
     }
 });
