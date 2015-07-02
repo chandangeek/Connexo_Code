@@ -8,6 +8,7 @@ import com.elster.jupiter.license.security.Privileges;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.Resource;
@@ -97,18 +98,14 @@ public class LicenseServiceImpl implements LicenseService, InstallService, Privi
     }
 
     @Override
-    public List<Resource> getModulePrivileges() {
-        List<Resource> resources = new ArrayList<>();
+    public List<ResourceDefinition> getModuleResources() {
+        List<ResourceDefinition> resources = new ArrayList<>();
         resources.add(userService.createModuleResourceWithPrivileges(LicenseService.COMPONENTNAME, "license.license", "license.license.description",
                 Arrays.asList(
                         Privileges.VIEW_LICENSE, Privileges.UPLOAD_LICENSE)));
         return resources;
     }
-    /*
-    private void createPrivileges() {
-        this.userService.createResourceWithPrivileges("SYS", "license.license", "license.license.description", new String[]{Privileges.VIEW_LICENSE, Privileges.UPLOAD_LICENSE});
-    }
-    */
+
     @Reference
     public void setOrmService(OrmService ormService) {
         this.ormService = ormService;
