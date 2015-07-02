@@ -16,6 +16,7 @@ import com.elster.jupiter.fsm.StateChangeBusinessProcessInUseException;
 import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.fsm.StateTransitionEventType;
 import com.elster.jupiter.fsm.UnknownStateChangeBusinessProcessException;
+import com.elster.jupiter.fsm.Privileges;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -26,7 +27,10 @@ import com.elster.jupiter.orm.NotUniqueException;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.users.PrivilegesProvider;
+import com.elster.jupiter.users.Resource;
 import com.elster.jupiter.util.conditions.Condition;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -38,10 +42,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
@@ -55,9 +56,9 @@ import static java.util.stream.Collectors.toMap;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-02 (16:50)
  */
-@Component(name = "com.elster.jupiter.fsm", service = {FiniteStateMachineService.class, ServerFiniteStateMachineService.class, InstallService.class, TranslationKeyProvider.class}, property = "name=" + FiniteStateMachineService.COMPONENT_NAME)
+@Component(name = "com.elster.jupiter.fsm", service = {FiniteStateMachineService.class, ServerFiniteStateMachineService.class, InstallService.class, TranslationKeyProvider.class, PrivilegesProvider.class}, property = "name=" + FiniteStateMachineService.COMPONENT_NAME)
 @SuppressWarnings("unused")
-public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineService, InstallService, TranslationKeyProvider {
+public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineService, InstallService, TranslationKeyProvider, PrivilegesProvider {
 
     private volatile DataModel dataModel;
     private volatile NlsService nlsService;
@@ -423,6 +424,20 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
         return this.dataModel
                 .query(FiniteStateMachine.class, StateTransition.class)
                 .select(eventTypeMatches);
+    }
+
+    @Override
+    public String getModuleName() {
+        return FiniteStateMachineService.COMPONENT_NAME;
+    }
+
+    @Override
+    public List<ResourceDefinition> getModuleResources() {
+        List<ResourceDefinition> resources = new ArrayList<>();
+        resources.add(userService.createModuleResourceWithPrivileges(FiniteStateMachineService.COMPONENT_NAME, "finiteStateMachineAdministration.finiteStateMachineAdministrations", "finiteStateMachineAdministration.finiteStateMachineAdministrations.description",
+                Arrays.asList(
+                        Privileges.CONFIGURE_FINITE_STATE_MACHINES, Privileges.VIEW_FINITE_STATE_MACHINES)));
+        return resources;
     }
 
     private class TranslationKeyFromString implements TranslationKey {

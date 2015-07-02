@@ -1,7 +1,6 @@
 package com.elster.jupiter.fsm.impl;
 
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.fsm.Privileges;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.users.UserService;
 
@@ -36,18 +35,7 @@ public class Installer {
         catch (Exception e) {
             this.logger.log(Level.SEVERE, e.getMessage(), e);
         }
-        this.createPrivileges();
         this.createEventTypes();
-    }
-
-    private void createPrivileges() {
-        this.userService.createResourceWithPrivileges(
-                "FSM",
-                "finiteStateMachineAdministration.finiteStateMachineAdministrations",
-                "finiteStateMachineAdministration.finiteStateMachineAdministrations.description",
-                new String[]{
-                        Privileges.CONFIGURE_FINITE_STATE_MACHINES,
-                        Privileges.VIEW_FINITE_STATE_MACHINES});
     }
 
     private void createEventTypes() {
