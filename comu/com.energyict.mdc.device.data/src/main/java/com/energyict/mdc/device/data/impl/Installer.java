@@ -4,12 +4,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsKey;
-import com.elster.jupiter.nls.SimpleNlsKey;
-import com.elster.jupiter.nls.SimpleTranslation;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.Translation;
+import com.elster.jupiter.nls.*;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.device.data.CommunicationTaskService;
@@ -19,12 +14,8 @@ import com.energyict.mdc.device.data.impl.events.ComTaskEnablementConnectionMess
 import com.energyict.mdc.device.data.impl.events.ComTaskEnablementPriorityMessageHandlerFactory;
 import com.energyict.mdc.device.data.impl.events.ComTaskEnablementStatusMessageHandlerFactory;
 import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiCalculatorHandlerFactory;
-import com.energyict.mdc.device.data.security.Privileges;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
+
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -65,11 +56,6 @@ public class Installer {
             this.dataModel.install(executeDdl, true);
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
-        }
-        try {
-            this.createPrivileges();
-        } catch (Exception e) {
-            LOGGER.severe(e.getMessage());
         }
         this.createEventTypes();
         this.createMessageHandlers();
@@ -120,13 +106,6 @@ public class Installer {
         thesaurus.addTranslations(translations);
     }
 
-    private void createPrivileges() {
-        this.userService.createResourceWithPrivileges("MDC", "device.devices", "device.devices.description", new String[]{Privileges.ADD_DEVICE, Privileges.VIEW_DEVICE, Privileges.REMOVE_DEVICE});
-        this.userService.createResourceWithPrivileges("MDC", "deviceData.deviceData", "deviceData.deviceData.description", new String[]{Privileges.ADMINISTRATE_DEVICE_DATA, Privileges.ADMINISTRATE_DEVICE_ATTRIBUTE});
-        this.userService.createResourceWithPrivileges("MDC", "deviceCommunication.deviceCommunications", "deviceCommunication.deviceCommunications.description", new String[]{Privileges.ADMINISTRATE_DEVICE_COMMUNICATION,Privileges.OPERATE_DEVICE_COMMUNICATION});
-        this.userService.createResourceWithPrivileges("MDC", "deviceGroup.deviceGroups", "deviceGroup.deviceGroups.description", new String[]{Privileges.ADMINISTRATE_DEVICE_GROUP, Privileges.ADMINISTRATE_DEVICE_ENUMERATED_GROUP, Privileges.VIEW_DEVICE_GROUP_DETAIL});
-        this.userService.createResourceWithPrivileges("MDC", "inventoryManagement.inventoryManagements", "inventoryManagement.inventoryManagements.description", new String[]{Privileges.IMPORT_INVENTORY_MANAGEMENT, Privileges.REVOKE_INVENTORY_MANAGEMENT});
-    }
 
     private void createMessageHandlers() {
         try {
