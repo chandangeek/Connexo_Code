@@ -38,9 +38,13 @@ Ext.define('Idv.view.NonEstimatedDataGrid', {
             {
                 text: Uni.I18n.translate('issues.NonEstimatedDataGrid.dataSource', 'IDV', 'Data source'),
                 renderer: function (value, meta, record) {
-                    return  Uni.DateTime.formatDateTimeShort(new Date(record.get('startTime')))
-                        + ' - '
-                        + Uni.DateTime.formatDateTimeShort(new Date(record.get('endTime')))
+                    if (record.get('startTime') == record.get('endTime')) {
+                        return Uni.DateTime.formatDateTimeShort(new Date(record.get('startTime')));
+                    } else {
+                        return  Uni.DateTime.formatDateTimeShort(new Date(record.get('startTime')))
+                            + ' - '
+                            + Uni.DateTime.formatDateTimeShort(new Date(record.get('endTime')))
+                    }
                 },
                 summaryType: 'count',
                 summaryRenderer: function(value, summaryData, dataIndex) {
