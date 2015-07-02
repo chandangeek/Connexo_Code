@@ -22,8 +22,6 @@ public interface UserService {
 
     Group createGroup(String name, String description);
 
-    void createResourceWithPrivileges(String component, String name, String description, String[] privileges);
-
     void grantGroupWithPrivilege(String roleName, String applicationName, String[] privileges);
 
     Optional<User> findUser(String authenticationName);

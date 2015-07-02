@@ -13,7 +13,6 @@ import com.elster.jupiter.users.*;
 import com.elster.jupiter.users.security.Privileges;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
-import com.elster.jupiter.util.streams.Functions;
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.*;
 
@@ -169,11 +168,6 @@ public class UserServiceImpl implements UserService, InstallService, Translation
     }
 
     @Override
-    public void createResourceWithPrivileges(String component, String name, String description, String[] privileges) {
-
-    }
-
-    @Override
     public void grantGroupWithPrivilege(String groupName, String applicationName, String[] privileges) {
         Optional<Group> group = findGroup(groupName);
         if (group.isPresent()) {
@@ -181,18 +175,6 @@ public class UserServiceImpl implements UserService, InstallService, Translation
                 group.get().grant(applicationName, privilege);
             }
         }
-    }
-
-    public void createApplicationPrivileges(String applicationName, String[] privileges) {
-        Condition condition = Operator.EQUALIGNORECASE.compare("applicationName", applicationName);
-        List<ApplicationPrivilege> applicationPrivileges = dataModel.query(ApplicationPrivilege.class).select(condition);
-
-        /*Optional<Resource> found = findResource(component, name);
-        Resource resource = found.isPresent() ? found.get() : createResource(component, name, description);
-
-        for (String privilege : privileges) {
-            resource.createPrivilege(privilege);
-        }*/
     }
 
 
@@ -296,7 +278,7 @@ public class UserServiceImpl implements UserService, InstallService, Translation
         return privilegeFactory()
                 .find()
                 .stream()
-                .filter(p->applicationPrivileges.contains(p.getName()))
+                .filter(p -> applicationPrivileges.contains(p.getName()))
                 .collect(Collectors.toList());
     }
 
@@ -351,6 +333,7 @@ public class UserServiceImpl implements UserService, InstallService, Translation
 
     public void install() {
         new InstallerImpl(dataModel).install(this, getRealm());
+        installPrivileges();
     }
     
     @Override
@@ -469,8 +452,9 @@ public class UserServiceImpl implements UserService, InstallService, Translation
         }
 
         privilegesProviders.add(privilegesProvider);
-
     }
+
+
 
     public void removeModulePrivileges(PrivilegesProvider privilegesProvider) {
         privilegesProviders.remove(privilegesProvider);
@@ -489,7 +473,7 @@ public class UserServiceImpl implements UserService, InstallService, Translation
         applicationPrivilegesProviders.remove(applicationPrivilegesProvider);
     }
 
-    private void installResource() {
+    void installResources() {
         for (ApplicationPrivilegesProvider privilegesProvider : applicationPrivilegesProviders) {
             doInstallApplicationPrivileges(privilegesProvider);
         }

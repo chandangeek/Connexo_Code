@@ -3,6 +3,7 @@ package com.elster.jupiter.users.impl;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.Optional;
 
 import org.junit.After;
@@ -89,7 +90,7 @@ public class PrivilegeIT {
             protected void doPerform() {
                 UserService userService = injector.getInstance(UserService.class);
 
-                userService.createResourceWithPrivileges("USR", "User", "Test user resource", new String[] {"Test privilege"});
+                userService.createModuleResourceWithPrivileges("USR", "User", "Test user resource", Arrays.asList("Test privilege"));
 
                 Optional<Resource> found = userService.findResource("User");
 

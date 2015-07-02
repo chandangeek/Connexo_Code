@@ -30,7 +30,6 @@ public class InstallerImpl {
         }
 
         this.defaultDomain = defaultDomain;
-        createPrivileges(userService);
         createMasterData();
         createUserPreferences(userService.getUserPreferencesService());
 	}
@@ -72,10 +71,6 @@ public class InstallerImpl {
 		    user.join(role);
         }
 	}
-
-    private void createPrivileges(UserService userService) {
-        userService.createResourceWithPrivileges("SYS", "userAndRole.usersAndRoles", "userAndRole.usersAndRoles.description", new String[] {Privileges.ADMINISTRATE_USER_ROLE, Privileges.VIEW_USER_ROLE});
-    }
 
 	private void grantSystemAdministratorPrivileges(GroupImpl group){
         Field[] fields = Privileges.class.getFields();
