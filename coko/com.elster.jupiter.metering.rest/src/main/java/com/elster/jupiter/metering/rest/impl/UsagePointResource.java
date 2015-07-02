@@ -96,7 +96,7 @@ public class UsagePointResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public UsagePointInfos updateUsagePoint(@PathParam("mrid") String mRid, UsagePointInfo info, @Context SecurityContext securityContext) {
         info.mRID = mRid;
-        transactionService.execute(new UpdateUsagePointTransaction(info, securityContext.getUserPrincipal(), meteringService, clock));
+        transactionService.execute(new UpdateUsagePointTransaction(info, securityContext, meteringService, clock));
         return getUsagePoint(info.mRID, securityContext);
     }
 
@@ -235,7 +235,8 @@ public class UsagePointResource {
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
         UsagePoint usagePoint = found.get();
-        if (!usagePoint.hasAccountability((User) securityContext.getUserPrincipal()) && !((User) securityContext.getUserPrincipal()).hasPrivilege(Privileges.BROWSE_ANY)) {
+        if (!usagePoint.hasAccountability((User) securityContext.getUserPrincipal())
+                && !securityContext.isUserInRole(Privileges.BROWSE_ANY)) {
             throw new WebApplicationException(Response.Status.FORBIDDEN);
         }
         return usagePoint;
@@ -247,7 +248,8 @@ public class UsagePointResource {
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
         UsagePoint usagePoint = found.get();
-        if (!usagePoint.hasAccountability((User) securityContext.getUserPrincipal()) && !((User) securityContext.getUserPrincipal()).hasPrivilege(Privileges.BROWSE_ANY)) {
+        if (!usagePoint.hasAccountability((User) securityContext.getUserPrincipal()) &&
+                !securityContext.isUserInRole(Privileges.BROWSE_ANY)) {
             throw new WebApplicationException(Response.Status.FORBIDDEN);
         }
         return usagePoint;

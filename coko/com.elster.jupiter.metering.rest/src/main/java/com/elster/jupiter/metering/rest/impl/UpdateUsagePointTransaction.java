@@ -15,6 +15,7 @@ import java.util.Optional;
 import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.SecurityContext;
 import java.security.Principal;
 
 
@@ -23,13 +24,15 @@ final class UpdateUsagePointTransaction implements Transaction<UsagePoint> {
     private final UsagePointInfo info;
     private final Principal principal;
     private final MeteringService meteringService;
+    private final SecurityContext securityContext;
     private final Clock clock;
 
     @Inject
-    UpdateUsagePointTransaction(UsagePointInfo info, Principal principal, MeteringService meteringService, Clock clock) {
+    UpdateUsagePointTransaction(UsagePointInfo info, SecurityContext securityContext, MeteringService meteringService, Clock clock) {
         this.info = info;
-        this.principal = principal;
+        this.principal = securityContext.getUserPrincipal();
         this.meteringService = meteringService;
+        this.securityContext = securityContext;
         this.clock = clock;
     }
 
@@ -88,7 +91,7 @@ final class UpdateUsagePointTransaction implements Transaction<UsagePoint> {
     }
 
     private boolean hasEditAllPrivilege() {
-        return principal instanceof User && ((User) principal).hasPrivilege(Privileges.ADMIN_ANY);
+        return securityContext.isUserInRole(Privileges.ADMIN_ANY);
     }
 
     private boolean isOwn(UsagePoint usagePoint) {
