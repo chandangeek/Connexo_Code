@@ -4,15 +4,17 @@ Ext.define('Idv.view.NonEstimatedDataGrid', {
     title: Uni.I18n.translate('issues.NonEstimatedDataGrid.title', 'IDV', 'Non estimated data'),
     ui: 'medium',
     requires: [
-        'Ext.grid.feature.Grouping',
+        'Ext.grid.feature.GroupingSummary',
         'Uni.form.field.ReadingTypeDisplay'
     ],
 
     features: [{
-        ftype: 'grouping',
+        id: 'group',
+        ftype: 'groupingsummary',
+        hideGroupedHeader: true,
+        enableGroupingMenu: false,
         groupHeaderTpl: '<span style="display: inline; margin: 0px 10px 0px 0px">{[values.children[0].data.readingType.fullAliasName]}</span>' + //
         '<span class="uni-icon-info-small" style="cursor: pointer; display: inline-block; width: 16px; height: 16px; float: none" data-qtip="' + Uni.I18n.translate('readingType.tooltip', 'UNI', 'Reading type info') + '"></span>', //{rows.length}
-
     }],
 
     listeners: {
@@ -40,11 +42,16 @@ Ext.define('Idv.view.NonEstimatedDataGrid', {
                         + ' - '
                         + Uni.DateTime.formatDateTimeShort(new Date(record.get('endTime')))
                 },
+                summaryType: 'count',
+                summaryRenderer: function(value, summaryData, dataIndex) {
+                    return Uni.I18n.translatePlural('issues.NonEstimatedDataGrid.total', value, 'IDV', 'Total of {0} blocks');
+                },
                 flex: 1
             },
             {
                 text: Uni.I18n.translate('issues.NonEstimatedDataGrid.amountOfSuspects', 'IDV', 'Amount of suspects'),
                 dataIndex: 'amountOfSuspects',
+                summaryType: 'sum',
                 width: 200
             },
             {
