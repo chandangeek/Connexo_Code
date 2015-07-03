@@ -1,5 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.E35C;
 
+import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.composedobjects.ComposedMeterInfo;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.EventProfile;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.LoadProfileBuilder;
@@ -7,6 +8,10 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr23.topology.MeterTopology;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.E350;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.E35C.events.E35CEventProfile;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.E35C.profiles.E35CLoadProfileBuilder;
+
+import java.io.IOException;
+import java.util.Date;
+import java.util.logging.Level;
 
 /**
  * The E35C is an Ethernet communication module for the E350 electricity meter<br/>
@@ -58,6 +63,18 @@ public class E35C extends E350 {
             this.eventProfile = new E35CEventProfile(this);
         }
         return this.eventProfile;
+    }
+
+    @Override
+    public void setTime(Date newMeterTime) throws IOException {
+        try {
+            AXDRDateTime dateTime = new AXDRDateTime(newMeterTime, getTimeZone());
+            dateTime.useUnspecifiedAsDeviation(true);
+            this.dlmsSession.getCosemObjectFactory().getClock().setAXDRDateTimeAttr(dateTime);
+        } catch (IOException e) {
+            getLogger().log(Level.FINEST, e.getMessage());
+            throw new IOException("Could not set the Clock object." + e);
+        }
     }
 
     @Override
