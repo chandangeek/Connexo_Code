@@ -27,6 +27,7 @@ Ext.define('Mdc.view.setup.devicetransitionexecute.Step1', {
                 },
                 {
                     xtype: 'property-form',
+                    itemId: 'transition-property-form',
 
                     defaults: {
                         labelWidth: 150,

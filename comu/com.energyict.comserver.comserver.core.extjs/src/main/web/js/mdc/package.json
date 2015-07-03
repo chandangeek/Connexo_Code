@@ -12,6 +12,7 @@
 		"com.elster.jupiter.unifyingjs",
         "com.elster.jupiter.issue.extjs",
         "com.elster.jupiter.yellowfin.extjs",
-		"com.elster.jupiter.config.extjs"
+		"com.elster.jupiter.config.extjs",
+        "com.elster.jupiter.estimation.extjs"
     ]
 }

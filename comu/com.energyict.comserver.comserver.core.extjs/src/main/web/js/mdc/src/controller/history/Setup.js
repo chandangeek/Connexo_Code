@@ -6,6 +6,26 @@ Ext.define('Mdc.controller.history.Setup', {
     currentPath: null,
 
     routeConfig: {
+        usagepoints: {
+            title: Uni.I18n.translate('general.usagePoint', 'MDC', 'Usage points'),
+            route: 'usagepoints',
+            items: {
+                usagepoint: {
+                    title: Uni.I18n.translate('general.usagePoint', 'MDC', 'Usage point'),
+                    route: '{usagePointMRID}',
+                    controller: 'Mdc.usagepointmanagement.controller.UsagePoint',
+                    action: 'showUsagePoint',
+                    callback: function (route) {
+                        this.getApplication().on('usagePointLoaded', function (record) {
+                            route.setTitle(record.get('mRID'));
+                            return true;
+                        }, {single: true});
+
+                        return this;
+                    }
+                }
+            }
+        },
         administration: {
             title: 'Administration',
             route: 'administration',
@@ -986,6 +1006,7 @@ Ext.define('Mdc.controller.history.Setup', {
                         return this;
                     },
                     items: {
+
                         history: {
                             title: Uni.I18n.translate('general.history', 'MDC', 'History'),
                             route: 'history',
@@ -1056,7 +1077,6 @@ Ext.define('Mdc.controller.history.Setup', {
                             filter: 'Mdc.model.TopologyFilter',
                             action: 'showTopologyView'
                         },
-
                         generalattributes: {
                             title: Uni.I18n.translate('deviceconfigurationmenu.generalAttributes', 'MDC', 'General attributes'),
                             route: 'generalattributes',
@@ -1073,7 +1093,22 @@ Ext.define('Mdc.controller.history.Setup', {
                                 }
                             }
                         },
-
+                        attributes: {
+                            title: Uni.I18n.translate('devicemenu.deviceAttributes', 'MDC', 'Device attributes'),
+                            route: 'attributes',
+                            controller: 'Mdc.controller.setup.DeviceAttributes',
+                            privileges: Mdc.privileges.Device.viewOrAdministrateDeviceData,
+                            action: 'showDeviceAttributesView',
+                            items: {
+                                edit: {
+                                    title: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
+                                    route: 'edit',
+                                    privileges: Mdc.privileges.Device.editDeviceAttributes,
+                                    controller: 'Mdc.controller.setup.DeviceAttributes',
+                                    action: 'showEditDeviceAttributesView'
+                                }
+                            }
+                        },
                         connectionmethods: {
                             title: 'Connection methods',
                             route: 'connectionmethods',

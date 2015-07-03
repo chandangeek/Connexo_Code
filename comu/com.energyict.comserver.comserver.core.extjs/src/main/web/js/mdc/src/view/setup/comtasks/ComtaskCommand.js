@@ -10,7 +10,8 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskCommand', {
     border: false,
     items: [
         {
-            xtype: 'comtaskCommandCategoryCombo'
+            xtype: 'comtaskCommandCategoryCombo',
+            itemId: 'command-category-combo'
         }
     ],
     margin: '5 0 10 100',

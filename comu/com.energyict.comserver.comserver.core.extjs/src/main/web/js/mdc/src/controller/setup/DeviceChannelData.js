@@ -3,14 +3,16 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 
     views: [
         'Mdc.view.setup.devicechannels.TabbedDeviceChannelsView',
-        'Mdc.view.setup.devicechannels.Overview'
+        'Mdc.view.setup.devicechannels.Overview',
+        'Mdc.view.setup.devicechannels.ReadingEstimationWindow'
     ],
 
     models: [
         'Mdc.model.Device',
         'Mdc.model.LoadProfileOfDevice',
         'Mdc.model.ChannelOfLoadProfilesOfDevice',
-        'Mdc.model.ChannelOfLoadProfilesOfDeviceDataFilter'
+        'Mdc.model.ChannelOfLoadProfilesOfDeviceDataFilter',
+        'Mdc.model.DeviceChannelDataEstimate'
     ],
 
     stores: [
@@ -18,6 +20,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         'Mdc.store.DataIntervalAndZoomLevels',
         'Mdc.store.LoadProfileDataDurations',
         'Mdc.store.Clipboard',
+        'Mdc.store.Estimators',
         'Mdc.store.ValidationBlocks'
     ],
 
@@ -49,6 +52,10 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         {
             ref: 'filterPanel',
             selector: '#deviceLoadProfileChannelData #deviceloadprofileschanneldatafilterpanel'
+        },
+        {
+            ref: 'readingEstimationWindow',
+            selector: 'reading-estimation-window'
         }
     ],
 
@@ -79,6 +86,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 clearAllFilters: this.clearFilter
             },
             'deviceLoadProfileChannelDataActionMenu': {
+                beforeshow: this.checkSuspect,
                 click: this.chooseAction
             },
             '#deviceLoadProfileChannelData #save-changes-button': {
@@ -86,6 +94,12 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             },
             '#deviceLoadProfileChannelData #undo-button': {
                 click: this.undoChannelDataChanges
+            },
+            '#estimate-reading-button': {
+                click: this.estimateReading
+            },
+            'channel-data-bulk-action-menu': {
+                click: this.chooseBulkAction
             }
         });
     },
@@ -283,31 +297,22 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
     },
 
     formatData: function (dataStore, channelRecord) {
-        var data = [];
-        var missedValues = [];
-        var mesurementType = channelRecord.get('unitOfMeasure');
-
-        var missedColor = 'rgba(235, 86, 66, 0.3)';
-        var okColor = "#70BB51";
-        var estimatedColor = "#568343";
-        var suspectColor = 'rgba(235, 86, 66, 1)';
-        var informativeColor = "#dedc49";
-        var editedColor = "rgba(0,0,0,0)";
-        var notValidatedColor = "#71adc7";
-        var tooltipOkColor = 'rgba(255, 255, 255, 0.85)';
-        var tooltipEstimatedColor = 'rgba(86, 131, 67, 0.3)';
-        var tooltipSuspectColor = 'rgba(235, 86, 66, 0.3)';
-        var tooltipInformativeColor = 'rgba(222, 220, 73, 0.3)';
-        var tooltipEditedColor = 'rgba(255, 255, 255, 0.85)';
-        var tooltipNotValidatedColor = 'rgba(0, 131, 200, 0.3)';
+        var data = [],
+            missedValues = [],
+            mesurementType = channelRecord.get('unitOfMeasure'),
+            missedColor = 'rgba(235, 86, 66, 0.3)',
+            okColor = "#70BB51",
+            suspectColor = 'rgba(235, 86, 66, 1)',
+            informativeColor = "#dedc49",
+            notValidatedColor = "#71adc7",
+            tooltipOkColor = 'rgba(255, 255, 255, 0.85)',
+            tooltipSuspectColor = 'rgba(235, 86, 66, 0.3)',
+            tooltipInformativeColor = 'rgba(222, 220, 73, 0.3)',
+            tooltipNotValidatedColor = 'rgba(0, 131, 200, 0.3)';
 
         dataStore.each(function (record) {
-            var point = {};
-            var deltaValidationInfo = record.getValidationInfo().getMainValidationInfo();
-            var bulkValidationInfo = record.getValidationInfo().getBulkValidationInfo();
-            var deltaModificationFlag = deltaValidationInfo ? deltaValidationInfo.get('modificationFlag') : null;
-            var bulkModificationFlag = bulkValidationInfo ? bulkValidationInfo.get('modificationFlag') : null;
-            var properties = record.get('readingProperties');
+            var point = {},
+                properties = record.get('readingProperties');
 
             point.x = record.get('interval').start;
             point.id = point.x;
@@ -315,33 +320,24 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             point.intervalEnd = record.get('interval').end;
             point.collectedValue = record.get('collectedValue');
             point.mesurementType = mesurementType;
-            point.color = okColor;
-            point.tooltipColor = tooltipOkColor;
 
-            if (properties.delta.informative || properties.bulk.informative) {
-                point.color = informativeColor;
-                point.tooltipColor = tooltipInformativeColor
-            }
-            if (properties.delta.suspect || properties.bulk.suspect) {
-                point.color = suspectColor;
-                point.tooltipColor = tooltipSuspectColor
-            }
-            if (properties.delta.notValidated || properties.bulk.notValidated) {
+            if (record.get('modificationFlag') == 'EDITED') {
+                point.color = okColor;
+                point.tooltipColor = tooltipOkColor;
+                point.edited = true;
+            } else if (properties.delta.notValidated || properties.bulk.notValidated) {
                 point.color = notValidatedColor;
                 point.tooltipColor = tooltipNotValidatedColor
-            }
-            if (record.get('modificationFlag')) {
-                point.edited = true;
-            }
-
-           /* if (estimated) {
-                point.color = estimatedColor;
-                point.tooltipColor = tooltipNotValidatedColor
-            }
-            if (confirmed) {
+            } else if (properties.delta.suspect || properties.bulk.suspect) {
+                point.color = suspectColor;
+                point.tooltipColor = tooltipSuspectColor
+            } else if (properties.delta.informative || properties.bulk.informative) {
+                point.color = informativeColor;
+                point.tooltipColor = tooltipInformativeColor;
+            } else {
                 point.color = okColor;
-                point.tooltipColor = tooltipOkColor
-            }*/
+                point.tooltipColor = tooltipOkColor;
+            }
 
             Ext.merge(point, properties);
             data.unshift(point);
@@ -396,9 +392,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 
     showPreview: function (selectionModel, record) {
         var me = this,
-            previewPanel = me.getDeviceLoadProfileChannelDataPreview(),
-            mainStatus = record.getValidationInfo().getMainValidationInfo().get('validationResult').split('.')[1],
-            bulkStatus = record.getValidationInfo().getBulkValidationInfo().get('validationResult').split('.')[1];
+            previewPanel = me.getDeviceLoadProfileChannelDataPreview();
 
         previewPanel.updateForm(record);
     },
@@ -453,10 +447,13 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 
                     menu.record.set('plotBand', true);
                     point = chart.get(menu.record.get('interval').start);
-                    point.update(Ext.apply(point, { y: null }));
+                    point.update({ y: null });
                 }
 
                 me.showButtons();
+                break;
+            case 'estimateValue':
+                me.estimateValue(menu.record);
                 break;
         }
     },
@@ -470,25 +467,22 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 
     saveChannelDataChanges: function () {
         var me = this,
-            page = me.getPage(),
             router = me.getController('Uni.controller.history.Router'),
             changedData = me.getChangedData(me.getStore('Mdc.store.ChannelOfLoadProfileOfDeviceData'));
 
-        if (changedData.length) {
-            page.setLoading(Uni.I18n.translate('general.saving', 'MDC', 'Saving...'));
+        me.getPage().setLoading();
+        if (!Ext.isEmpty(changedData)) {
             Ext.Ajax.request({
                 url: Ext.String.format('/api/ddr/devices/{0}/channels/{1}/data', encodeURIComponent(router.arguments.mRID), router.arguments.channelId),
                 method: 'PUT',
                 jsonData: Ext.encode(changedData),
                 timeout: 300000,
-                callback: function () {
-                    page.setLoading(false);
-                },
                 success: function () {
                     router.getRoute().forward(router.arguments, router.queryParams);
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('devicechannels.successSavingMessage', 'MDC', 'Channel data have been saved'));
                 },
                 failure: function (response) {
+                    me.getPage().setLoading(false);
                     var failureResponseText;
 
                     if (response.status == 400) {
@@ -504,7 +498,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                                 },
                                 cancellation: function () {
                                     this.close();
-                                    router.getRoute('devices/device/channels/channeldata').forward(router.arguments, router.queryParams);
+                                    router.getRoute().forward(router.arguments, router.queryParams);
                                 }
                             }).show({
                                 msg: failureResponseText.message ? failureResponseText.message :
@@ -521,7 +515,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 
     undoChannelDataChanges: function () {
         var router = this.getController('Uni.controller.history.Router');
-        router.getRoute('devices/device/channels/channeldata').forward(router.arguments, router.queryParams);
+        router.getRoute().forward(router.arguments, router.queryParams);
     },
 
     getChangedData: function (store) {
@@ -544,9 +538,11 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         var me = this,
             chart = me.getPage().down('#deviceLoadProfileChannelGraphView').chart,
             point,
-            updatedObj;
+            updatedObj = {};
 
-        event.column.getEditor().allowBlank = true;
+        if (event.column) {
+            event.column.getEditor().allowBlank = true;
+        }
 
         if (event.record.isModified('value')) {
             me.getPage().down('#save-changes-button').isHidden() && me.showButtons();
@@ -561,19 +557,144 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                     });
                 }
                 event.record.set('plotBand', true);
-                point.update(Ext.apply(point, { y: null }));
+                point.update({ y: null });
             } else {
                 if (event.record.get('plotBand')) {
                     chart.xAxis[0].removePlotBand(event.record.get('interval').start);
                     event.record.set('plotBand', false);
                 }
-                updatedObj = {
-                    y: parseFloat(event.record.get('value')),
-                    color: 'rgba(112,187,81,0.3)',
-                    edited: true
-                };
-                point.update(Ext.apply(point, updatedObj));
+                updatedObj.y = parseFloat(event.record.get('value'));
+                updatedObj.edited = true;
+
+                if (event.estimated) {
+                    updatedObj.delta = {};
+                    updatedObj.bulk = {};
+                    updatedObj.collectedValue = event.record.get('collectedValue');
+                    updatedObj.color = '#568343';
+                    updatedObj.tooltipColor = 'rgba(86, 131, 67, 0.3)';
+                    updatedObj.delta.suspect = event.record.data.validationInfo.mainValidationInfo.validationResult.split('.')[1] == 'suspect';
+                    updatedObj.delta.notValidated = event.record.data.validationInfo.mainValidationInfo.validationResult.split('.')[1] == 'notValidated';
+                    updatedObj.bulk.suspect = event.record.data.validationInfo.bulkValidationInfo.validationResult.split('.')[1] == 'suspect';
+                    updatedObj.bulk.notValidated = event.record.data.validationInfo.bulkValidationInfo.validationResult.split('.')[1] == 'notValidated';
+                } else {
+                    updatedObj.color = 'rgba(112,187,81,0.3)';
+                }
+                point.update(updatedObj);
             }
+        }
+    },
+
+    estimateValue: function (record) {
+        var me = this;
+        me.getPage().setLoading();
+        me.getStore('Mdc.store.Estimators').load(function () {
+            me.getPage().setLoading(false);
+            Ext.widget('reading-estimation-window', {
+                record: record
+            }).show();
+        });
+    },
+
+    estimateReading: function () {
+        var me = this,
+            propertyForm = me.getReadingEstimationWindow().down('#property-form'),
+            model = Ext.create('Mdc.model.DeviceChannelDataEstimate'),
+            record = me.getReadingEstimationWindow().record,
+            intervalsArray = [];
+
+        !me.getReadingEstimationWindow().down('#error-label').isHidden() && me.getReadingEstimationWindow().down('#error-label').hide();
+
+        if (propertyForm.getRecord()) {
+            propertyForm.updateRecord();
+            model.set('estimatorImpl', me.getReadingEstimationWindow().down('#estimator-field').getValue());
+            model.propertiesStore = propertyForm.getRecord().properties();
+        }
+        if (!Ext.isArray(record)) {
+            intervalsArray.push({
+                start: record.get('interval').start,
+                end: record.get('interval').end
+            });
+        } else {
+            Ext.Array.each(record, function (item) {
+                intervalsArray.push({
+                    start: item.get('interval').start,
+                    end: item.get('interval').end
+                });
+            });
+        }
+        model.set('intervals', intervalsArray);
+        me.saveChannelDataEstimateModel(model, record);
+    },
+
+    saveChannelDataEstimateModel: function (record, readings) {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            grid = me.getPage().down('deviceLoadProfileChannelDataGrid');
+
+        record.getProxy().setUrl(router.arguments);
+        me.getReadingEstimationWindow().setLoading();
+        Ext.Ajax.suspendEvent('requestexception');
+        record.save({
+            callback: function (rec, operation, success) {
+                Ext.Ajax.resumeEvent('requestexception');
+                var responseText = Ext.decode(operation.response.responseText, true);
+                if (success) {
+                    if (!Ext.isArray(readings)) {
+                        readings.set(responseText[0]);
+                        readings.set('mainModificationState', {
+                            flag: 'ESTIMATED',
+                            date: responseText[0].reportedDateTime
+                        });
+                        grid.getView().refreshNode(grid.getStore().indexOf(readings));
+                        me.resumeEditorFieldValidation(grid.editingPlugin, {
+                            record: readings,
+                            estimated: true
+                        });
+                    } else {
+                        Ext.Array.each(responseText, function (estimatedReading) {
+                            Ext.Array.findBy(readings, function (reading) {
+                                if (estimatedReading.interval.start == reading.get('interval').start) {
+                                    reading.set(estimatedReading);
+                                    reading.set('mainModificationState', {
+                                        flag: 'ESTIMATED',
+                                        date: estimatedReading.reportedDateTime
+                                    });
+                                    grid.getView().refreshNode(grid.getStore().indexOf(reading));
+                                    me.resumeEditorFieldValidation(grid.editingPlugin, {
+                                        record: reading,
+                                        estimated: true
+                                    });
+                                    return true;
+                                }
+                            });
+                        });
+                    }
+                    me.getReadingEstimationWindow().destroy();
+                    me.showButtons();
+                } else {
+                    me.getReadingEstimationWindow().setLoading(false);
+                    me.getReadingEstimationWindow().down('#error-label').show();
+                    me.getReadingEstimationWindow().down('#error-label').setText('<div style="color: #FF0000">' + (responseText.message ? responseText.message : '') + '</div>', false);
+                }
+            }
+        });
+    },
+
+    checkSuspect: function (menu) {
+        var mainStatus = menu.record.getValidationInfo().getMainValidationInfo().get('validationResult').split('.')[1],
+            bulkStatus = menu.record.getValidationInfo().getBulkValidationInfo().get('validationResult').split('.')[1];
+
+        menu.down('#estimate-value').setVisible(mainStatus == 'suspect' || bulkStatus == 'suspect');
+    },
+
+    chooseBulkAction: function (menu, item) {
+        var me = this,
+            records = me.getPage().down('deviceLoadProfileChannelDataGrid').getSelectionModel().getSelection();
+
+        switch (item.action) {
+            case 'bulkEstimateValue':
+                me.estimateValue(records, true);
+                break;
         }
     }
 });

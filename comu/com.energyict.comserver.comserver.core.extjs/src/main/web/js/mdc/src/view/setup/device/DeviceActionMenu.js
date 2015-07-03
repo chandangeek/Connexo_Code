@@ -8,6 +8,7 @@ Ext.define('Mdc.view.setup.device.DeviceActionMenu', {
 
     setActions: function(actionsStore, router) {
       var me = this;
+
       actionsStore.each(function(item) {
          me.add({
               itemId: 'action-menu-item' + item.get('id'),
@@ -17,11 +18,28 @@ Ext.define('Mdc.view.setup.device.DeviceActionMenu', {
               }
          })
       });
+
+      if (actionsStore.getCount() > 0 || Mdc.privileges.Device.canEditDeviceAttributes()) {
+          me.up('#device-landing-actions-btn').show();
+      }
     },
 
 
     initComponent: function() {
-        this.callParent(arguments);
+        var me = this;
+
+        me.items = [
+            {
+                itemId: 'deviceDeviceAttributesShowEdit',
+                privileges: Mdc.privileges.Device.editDeviceAttributes,
+                handler: function() {
+                    me.router.getRoute('devices/device/attributes/edit').forward();
+                },
+                text: Uni.I18n.translate('deviceconfiguration.deviceAttributes.editAttributes', 'MDC', 'Edit attributes')
+            }
+        ];
+
+        me.callParent(arguments);
     }
 });
 

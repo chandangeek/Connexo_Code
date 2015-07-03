@@ -37,6 +37,7 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskGrid', {
             items: [
                 {
                     xtype: 'button',
+                    itemId: 'add-communication-task',
                     text: Uni.I18n.translate('comtask.create', 'MDC', 'Add communication task'),
                     privileges: Mdc.privileges.Communication.admin,
                     action: 'createcommunicationtasks',
