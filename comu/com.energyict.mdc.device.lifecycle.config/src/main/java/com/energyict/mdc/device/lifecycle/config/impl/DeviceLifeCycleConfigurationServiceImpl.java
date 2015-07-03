@@ -10,10 +10,10 @@ import com.energyict.mdc.device.lifecycle.config.TransitionBusinessProcess;
 import com.energyict.mdc.device.lifecycle.config.TransitionBusinessProcessInUseException;
 import com.energyict.mdc.device.lifecycle.config.UnknownTransitionBusinessProcessException;
 
-import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.ProcessReference;
@@ -70,7 +70,7 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
     private volatile NlsService nlsService;
     private volatile UserService userService;
     private volatile FiniteStateMachineService stateMachineService;
-    private volatile BpmService bpmService;
+    private volatile EventService eventService;
     private Thesaurus thesaurus;
     private final Set<Privilege> privileges = new HashSet<>();
 
@@ -81,13 +81,13 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
 
     // For testing purposes
     @Inject
-    public DeviceLifeCycleConfigurationServiceImpl(OrmService ormService, NlsService nlsService, UserService userService, FiniteStateMachineService stateMachineService, BpmService bpmService) {
+    public DeviceLifeCycleConfigurationServiceImpl(OrmService ormService, NlsService nlsService, UserService userService, FiniteStateMachineService stateMachineService, EventService eventService) {
         this();
         this.setOrmService(ormService);
         this.setUserService(userService);
         this.setNlsService(nlsService);
         this.setStateMachineService(stateMachineService);
-        this.setBpmService(bpmService);
+        this.setEventService(eventService);
         this.activate();
         this.install();
         this.initializePrivileges();
@@ -99,7 +99,7 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
     }
 
     private Installer getInstaller() {
-        return new Installer(this.dataModel, this.userService, this.stateMachineService, this);
+        return new Installer(this.dataModel, eventService, this.userService, this.stateMachineService, this);
     }
 
     @Override
@@ -146,7 +146,7 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
                 bind(NlsService.class).toInstance(nlsService);
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
-                bind(BpmService.class).toInstance(bpmService);
+                bind(EventService.class).toInstance(eventService);
 
                 bind(DeviceLifeCycleConfigurationService.class).toInstance(DeviceLifeCycleConfigurationServiceImpl.this);
             }
@@ -192,8 +192,8 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
     }
 
     @Reference
-    public void setBpmService(BpmService bpmService) {
-        this.bpmService = bpmService;
+    public void setEventService(EventService eventService) {
+        this.eventService = eventService;
     }
 
     @Override
