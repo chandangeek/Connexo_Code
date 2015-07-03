@@ -1,7 +1,6 @@
 package com.energyict.mdc.firmware.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
-import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
@@ -181,7 +180,6 @@ public class InMemoryPersistence {
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(BundleContext.class).toInstance(bundleContext);
             bind(LicenseService.class).toInstance(licenseService);
-            bind(BpmService.class).toInstance(mock(BpmService.class));
             bind(IssueService.class).toInstance(mock(IssueService.class, RETURNS_DEEP_STUBS));
             bind(DataModel.class).toProvider(() -> dataModel);
         }
