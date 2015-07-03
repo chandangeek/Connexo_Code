@@ -18,6 +18,7 @@ public enum MicroCategoryTranslationKey implements TranslationKey {
     TRANSITION_ACTION_CHECK_CATEGORY_TOPOLOGY(Keys.TRANSITION_ACTION_CHECK_CATEGORY_KEY + MicroCategory.TOPOLOGY, "Topology"),
     TRANSITION_ACTION_CHECK_CATEGORY_ISSUES_AND_ALARMS(Keys.TRANSITION_ACTION_CHECK_CATEGORY_KEY + MicroCategory.ISSUES_AND_ALARMS, "Issues and alarms"),
     TRANSITION_ACTION_CHECK_CATEGORY_VALIDATION(Keys.TRANSITION_ACTION_CHECK_CATEGORY_KEY + MicroCategory.INSTALLATION, "Installation"),
+    TRANSITION_ACTION_CHECK_CATEGORY_RETENTION(Keys.TRANSITION_ACTION_CHECK_CATEGORY_KEY + MicroCategory.RETENTION, "Retention"),
     TRANSITION_ACTION_SUB_CATEGORY_ESTIMATION("conflict_estimation", "Toggle data estimation"),
     TRANSITION_ACTION_SUB_CATEGORY_VALIDATION("conflict_validation", "Toggle data validation"),
     TRANSITION_ACTION_SUB_CATEGORY_ESTIMATION_DESCRIPTION(Keys.TRANSITION_ACTION_SUB_CATEGORY_DESCRIPTION_KEY + "conflict_estimation", "Activate or deactivate the data estimation on this device. This auto action is effective immediately."),

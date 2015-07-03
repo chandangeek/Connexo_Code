@@ -24,6 +24,10 @@ public enum MicroActionTranslationKey implements TranslationKey {
     MICRO_ACTION_NAME_DETACH_SLAVE_FROM_MASTER(Keys.MICRO_ACTION_NAME_TRANSLATE_KEY + MicroAction.DETACH_SLAVE_FROM_MASTER, "Disconnect slave from master"),
     MICRO_ACTION_NAME_REMOVE_DEVICE(Keys.MICRO_ACTION_NAME_TRANSLATE_KEY + MicroAction.REMOVE_DEVICE, "Delete device"),
     MICRO_ACTION_NAME_CLOSE_ALL_ISSUES(Keys.MICRO_ACTION_NAME_TRANSLATE_KEY + MicroAction.CLOSE_ALL_ISSUES, "Close all issues"),
+    MICRO_ACTION_NAME_START_RECURRING_COMMUNICATION(Keys.MICRO_ACTION_NAME_TRANSLATE_KEY + MicroAction.START_RECURRING_COMMUNICATION, "Trigger recurring communication"),
+    MICRO_ACTION_NAME_FORCE_VALIDATION_AND_ESTIMATION(Keys.MICRO_ACTION_NAME_TRANSLATE_KEY + MicroAction.FORCE_VALIDATION_AND_ESTIMATION, "Force validation and estimation"),
+    MICRO_ACTION_NAME_FORCE_ENABLE_ESTIMATION(Keys.MICRO_ACTION_NAME_TRANSLATE_KEY + MicroAction.ENABLE_ESTIMATION, "Activate estimation"),
+    MICRO_ACTION_NAME_FORCE_DISABLE_ESTIMATION(Keys.MICRO_ACTION_NAME_TRANSLATE_KEY + MicroAction.DISABLE_ESTIMATION, "Deactivate estimation"),
 
     MICRO_ACTION_DESCRIPTION_SET_LAST_READING(Keys.MICRO_ACTION_DESCRIPTION_TRANSLATE_KEY + MicroAction.SET_LAST_READING, "Provide the last meter reading manually based on one or more register group."),
     MICRO_ACTION_DESCRIPTION_ENABLE_VALIDATION(Keys.MICRO_ACTION_DESCRIPTION_TRANSLATE_KEY + MicroAction.ENABLE_VALIDATION, "Activate the data validation on this device. This auto action is effective immediately."),
@@ -37,6 +41,10 @@ public enum MicroActionTranslationKey implements TranslationKey {
     MICRO_ACTION_DESCRIPTION_DETACH_SLAVE_FROM_MASTER(Keys.MICRO_ACTION_DESCRIPTION_TRANSLATE_KEY + MicroAction.DETACH_SLAVE_FROM_MASTER, "If this device is a slave, disconnect it from his master."),
     MICRO_ACTION_DESCRIPTION_REMOVE_DEVICE(Keys.MICRO_ACTION_DESCRIPTION_TRANSLATE_KEY + MicroAction.REMOVE_DEVICE, "Deletes this device and all it's relevant data, and closes the current meter activation"),
     MICRO_ACTION_DESCRIPTION_CLOSE_ALL_ISSUES(Keys.MICRO_ACTION_DESCRIPTION_TRANSLATE_KEY + MicroAction.CLOSE_ALL_ISSUES, "Closes all open issues with the status \"won't fix\""),
+    MICRO_ACTION_DESCRIPTION_START_RECURRING_COMMUNICATION(Keys.MICRO_ACTION_DESCRIPTION_TRANSLATE_KEY + MicroAction.START_RECURRING_COMMUNICATION, "Trigger all the recurring communication tasks and their connections on the date of the transition."),
+    MICRO_ACTION_DESCRIPTION_FORCE_VALIDATION_AND_ESTIMATION(Keys.MICRO_ACTION_DESCRIPTION_TRANSLATE_KEY + MicroAction.FORCE_VALIDATION_AND_ESTIMATION, "Force the validation and the estimation to resolve all reading quality issues."),
+    MICRO_ACTION_DESCRIPTION_ENABLE_ESTIMATION(Keys.MICRO_ACTION_DESCRIPTION_TRANSLATE_KEY + MicroAction.ENABLE_ESTIMATION, "Activate the data estimation on this device. This auto change is effective immediately."),
+    MICRO_ACTION_DESCRIPTION_DISABLE_ESTIMATION(Keys.MICRO_ACTION_DESCRIPTION_TRANSLATE_KEY + MicroAction.DISABLE_ESTIMATION, "Stop the data estimation on this device."),
     ;
 
     private final String key;
