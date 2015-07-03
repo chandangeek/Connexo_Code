@@ -122,14 +122,16 @@ public class UsagePointFileImporter implements FileImporter {
                         }
                     }
 
-                    Optional<ServiceLocation> serviceLocation = meteringService.findServiceLocation(serviceLocationID);
-                    if (serviceLocation.isPresent()) {
-                        usagePoint.setVirtual(false);
-                        usagePoint.setServiceLocation(serviceLocation.get());
-                    } else {
-                        usagePoint.setVirtual(true);
-                        usagePoint.setServiceLocation(null);
-                        MessageSeeds.IMPORT_USAGEPOINT_SERVICELOCATION_INVALID.log(logger, thesaurus, csvRecord.getRecordNumber());
+                    if (serviceLocationID > 0) {
+                        Optional<ServiceLocation> serviceLocation = meteringService.findServiceLocation(serviceLocationID);
+                        if (serviceLocation.isPresent()) {
+                            usagePoint.setVirtual(false);
+                            usagePoint.setServiceLocation(serviceLocation.get());
+                        } else {
+                            usagePoint.setVirtual(true);
+                            usagePoint.setServiceLocation(null);
+                            MessageSeeds.IMPORT_USAGEPOINT_SERVICELOCATION_INVALID.log(logger, thesaurus, csvRecord.getRecordNumber());
+                        }
                     }
 
                     if (!usagePointOptional.isPresent() || allowUpdate.equalsIgnoreCase("true")) {
@@ -202,7 +204,7 @@ public class UsagePointFileImporter implements FileImporter {
     }
 
     private String processComment(String record) {
-        return record.charAt(0) == MARKER ? EMPTY : record;
+        return record.isEmpty() || record.charAt(0) == MARKER ? EMPTY : record;
     }
 
     private int processInt(String record) {
