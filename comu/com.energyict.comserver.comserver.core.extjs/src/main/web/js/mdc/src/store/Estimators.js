@@ -1,9 +1,9 @@
 Ext.define('Mdc.store.Estimators', {
     extend: 'Ext.data.Store',
     requires: [
-        'Est.estimationrules.model.Estimator'
+        'Mdc.model.Estimator'
     ],
-    model: 'Est.estimationrules.model.Estimator',
+    model: 'Mdc.model.Estimator',
     proxy: {
         type: 'rest',
         url: '/api/est/estimation/estimators',

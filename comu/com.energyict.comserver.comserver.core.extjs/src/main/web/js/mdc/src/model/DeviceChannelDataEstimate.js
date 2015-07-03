@@ -6,6 +6,7 @@ Ext.define('Mdc.model.DeviceChannelDataEstimate', {
 
     fields: [
         'estimatorImpl',
+        'estimateBulk',
         'intervals'
     ],
 
