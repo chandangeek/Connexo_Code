@@ -10,6 +10,7 @@ import com.energyict.mdc.device.data.CIMLifecycleDates;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.imp.DeviceImportService;
 import com.energyict.mdc.device.data.rest.impl.DeviceAttributesInfo.DeviceAttribute;
+import com.energyict.mdc.device.lifecycle.config.DefaultState;
 
 import javax.inject.Inject;
 import java.time.Instant;
@@ -55,7 +56,7 @@ public class DeviceAttributesInfoFactory {
         fillAvailableAndEditable(info.yearOfCertification, DeviceAttribute.YEAR_OF_CERTIFICATION, state);
 
         info.lifeCycleState = new DeviceAttributeInfo();
-        info.lifeCycleState.displayValue = state.getName();
+        info.lifeCycleState.displayValue = getStateName(state);
         info.lifeCycleState.attributeId = state.getId();
         fillAvailableAndEditable(info.lifeCycleState, DeviceAttribute.LIFE_CYCLE_STATE, state);
 
@@ -97,6 +98,20 @@ public class DeviceAttributesInfoFactory {
         attribute.available = mapping.isAvailableForState(state);
         attribute.editable = mapping.isEditableForState(state);
     }
+
+    private String getStateName(State state) {
+        return getStateName(thesaurus, state);
+    }
+
+    public static String getStateName(Thesaurus thesaurus, State state){
+        Optional<DefaultState> defaultState = DefaultState.from(state);
+        if (defaultState.isPresent()) {
+            return thesaurus.getStringBeyondComponent(defaultState.get().getKey(), defaultState.get().getKey());
+        } else {
+            return state.getName();
+        }
+    }
+
 
     public void validateOn(Device device, DeviceAttributesInfo info){
         State currentState = device.getState();

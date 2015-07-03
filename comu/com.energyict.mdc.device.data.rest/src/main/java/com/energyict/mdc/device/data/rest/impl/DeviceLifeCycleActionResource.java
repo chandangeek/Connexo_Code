@@ -9,6 +9,7 @@ import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.RestValidationBuilder;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
+import com.elster.jupiter.util.streams.DecoratedStream;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.device.data.Device;
@@ -139,31 +140,26 @@ public class DeviceLifeCycleActionResource {
 
     private String getTargetStateName(AuthorizedTransitionAction requestedAction) {
         State targetState  = requestedAction.getStateTransition().getTo();
-        String targetStateName = targetState.getName();
-        Optional<DefaultState> defaultState = DefaultState.from(targetState);
-        if (defaultState.isPresent()){
-            targetStateName = thesaurus.getString(defaultState.get().getKey(), defaultState.get().getKey()) ;
-        }
-        return targetStateName;
+        return DeviceAttributesInfoFactory.getStateName(thesaurus, targetState);
     }
 
     private void getFailedExecutionMessage(MultipleMicroCheckViolationsException microChecksViolationEx, DeviceLifeCycleActionResultInfo wizardResult) {
         wizardResult.result = false;
         wizardResult.message = DefaultTranslationKey.PRE_TRANSITION_CHECKS_FAILED.translateWith(thesaurus);
-        wizardResult.microChecks = microChecksViolationEx.getViolations()
-                .stream()
+        wizardResult.microChecks = DecoratedStream.decorate(microChecksViolationEx.getViolations().stream())
                 .map(violation -> {
                     IdWithNameInfo microCheckInfo = new IdWithNameInfo();
                     microCheckInfo.id = violation.getCheck().name();
                     MicroCheckTranslationKey.getNameTranslation(violation.getCheck()).ifPresent(microCheckName ->
-                                    microCheckInfo.id = thesaurus.getString(microCheckName.getKey(), microCheckName.getDefaultFormat())
+                        microCheckInfo.id = thesaurus.getStringBeyondComponent(microCheckName.getKey(), microCheckName.getDefaultFormat())
                     );
                     microCheckInfo.name = violation.getCheck().name();
                     MicroCheckTranslationKey.getDescriptionTranslation(violation.getCheck()).ifPresent(microCheckDescription ->
-                                    microCheckInfo.name = thesaurus.getString(microCheckDescription.getKey(), microCheckDescription.getDefaultFormat())
+                        microCheckInfo.name = thesaurus.getStringBeyondComponent(microCheckDescription.getKey(), microCheckDescription.getDefaultFormat())
                     );
                     return microCheckInfo;
                 })
+                .distinct(check -> check.id)
                 .collect(Collectors.toList());
     }
 
