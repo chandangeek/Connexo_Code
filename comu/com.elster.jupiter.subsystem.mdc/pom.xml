@@ -173,6 +173,11 @@
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
+                <artifactId>mdc.device.lifecycle.config.bpmhandler</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.energyict</groupId>
                 <artifactId>mdc.device.lifecycle.config.extjs</artifactId>
                 <version>1.0.0-SNAPSHOT</version>
             </dependency>
@@ -404,6 +409,10 @@
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.device.lifecycle.config</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.device.lifecycle.config.bpmhandler</artifactId>
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
