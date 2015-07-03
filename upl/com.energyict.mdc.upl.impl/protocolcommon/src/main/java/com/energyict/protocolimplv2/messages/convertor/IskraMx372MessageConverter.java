@@ -1,21 +1,11 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
+import com.energyict.cbo.Password;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdw.core.LoadProfile;
-import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
-import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
-import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
-import com.energyict.protocolimplv2.messages.LoadBalanceDeviceMessage;
-import com.energyict.protocolimplv2.messages.LoadProfileMessage;
-import com.energyict.protocolimplv2.messages.MBusSetupDeviceMessage;
-import com.energyict.protocolimplv2.messages.NetworkConnectivityMessage;
-import com.energyict.protocolimplv2.messages.SecurityMessage;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.ConnectLoadMessageEntry;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.DisconnectLoadMessageEntry;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.IskraMx372ActivityCalendarConfigMessageEntry;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.IskraMx372AddManagedPhoneNumbersToWhiteListMessageEntry;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.IskraMx372AddPhoneNumbersToWhiteListMessageEntry;
+import com.energyict.protocolimplv2.messages.*;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.*;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.MultipleAttributeMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.MultipleInnerTagsMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.OneTagMessageEntry;
@@ -33,8 +23,8 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
 /**
  * Represents a MessageConverter for the legacy IskraMx372  PreNTA protocol.
  *
- *  @author sva
-  * @since 25/10/13 - 10:10
+ * @author sva
+ * @since 25/10/13 - 10:10
  */
 public class IskraMx372MessageConverter extends AbstractMessageConverter {
 
@@ -73,7 +63,7 @@ public class IskraMx372MessageConverter extends AbstractMessageConverter {
         registry.put(NetworkConnectivityMessage.ADD_PHONENUMBERS_TO_WHITE_LIST, new IskraMx372AddPhoneNumbersToWhiteListMessageEntry(whiteListPhoneNumbersAttributeName));
         registry.put(NetworkConnectivityMessage.CHANGE_INACTIVITY_TIMEOUT, new SimpleValueMessageEntry("Inactivity_timeout"));
 
-         // LoadProfiles
+        // LoadProfiles
         registry.put(LoadProfileMessage.PARTIAL_LOAD_PROFILE_REQUEST, new PartialLoadProfileMessageEntry(loadProfileAttributeName, fromDateAttributeName, toDateAttributeName));
         registry.put(LoadProfileMessage.LOAD_PROFILE_REGISTER_REQUEST, new LoadProfileRegisterRequestMessageEntry(loadProfileAttributeName, fromDateAttributeName));
     }
@@ -94,10 +84,12 @@ public class IskraMx372MessageConverter extends AbstractMessageConverter {
             case DeviceMessageConstants.loadLimitStartDateAttributeName:
                 return europeanDateTimeFormat.format((Date) messageAttribute);
             case DeviceMessageConstants.loadProfileAttributeName:
-            	return LoadProfileMessageUtils.formatLoadProfile((LoadProfile) messageAttribute);
+                return LoadProfileMessageUtils.formatLoadProfile((LoadProfile) messageAttribute);
             case DeviceMessageConstants.fromDateAttributeName:
             case DeviceMessageConstants.toDateAttributeName:
-            	return dateTimeFormatWithTimeZone.format((Date) messageAttribute);
+                return dateTimeFormatWithTimeZone.format((Date) messageAttribute);
+            case DeviceMessageConstants.newHexPasswordAttributeName:
+                return ((Password) messageAttribute).getValue();
             default:
                 return messageAttribute.toString();
         }

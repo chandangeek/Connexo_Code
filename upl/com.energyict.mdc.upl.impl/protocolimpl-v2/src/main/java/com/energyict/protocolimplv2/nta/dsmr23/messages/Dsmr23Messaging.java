@@ -193,6 +193,7 @@ public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMess
             case newWrappedEncryptionKeyAttributeName:
             case newPasswordAttributeName:
             case newAuthenticationKeyAttributeName:
+            case passwordAttributeName:
             case newWrappedAuthenticationKeyAttributeName:
                 return ((Password) messageAttribute).getValue();
             case meterTimeAttributeName:

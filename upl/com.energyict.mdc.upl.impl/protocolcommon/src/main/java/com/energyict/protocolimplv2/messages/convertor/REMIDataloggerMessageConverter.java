@@ -1,14 +1,10 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
+import com.energyict.cbo.Password;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdw.core.LoadProfile;
-import com.energyict.protocolimplv2.messages.ClockDeviceMessage;
-import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
-import com.energyict.protocolimplv2.messages.DeviceActionMessage;
-import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
-import com.energyict.protocolimplv2.messages.LoadProfileMessage;
-import com.energyict.protocolimplv2.messages.NetworkConnectivityMessage;
+import com.energyict.protocolimplv2.messages.*;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.ApnCredentialsMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.EnableOrDisableDSTMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.GprsUserCredentialsMessageEntry;
@@ -27,8 +23,8 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
 /**
  * Represents a MessageConverter for the legacy Xemex ReMI datalogger protocol.
  *
- *  @author sva
-  * @since 30/10/13 - 12:21
+ * @author sva
+ * @since 30/10/13 - 12:21
  */
 public class REMIDataloggerMessageConverter extends AbstractMessageConverter {
 
@@ -67,12 +63,14 @@ public class REMIDataloggerMessageConverter extends AbstractMessageConverter {
     public String format(PropertySpec propertySpec, Object messageAttribute) {
         switch (propertySpec.getName()) {
             case DeviceMessageConstants.enableDSTAttributeName:
-                return ((Boolean) messageAttribute).booleanValue() == true ? "1" : "0";
+                return ((Boolean) messageAttribute) ? "1" : "0";
             case DeviceMessageConstants.loadProfileAttributeName:
-            	return LoadProfileMessageUtils.formatLoadProfile((LoadProfile) messageAttribute);
+                return LoadProfileMessageUtils.formatLoadProfile((LoadProfile) messageAttribute);
             case DeviceMessageConstants.fromDateAttributeName:
             case DeviceMessageConstants.toDateAttributeName:
-            	return dateTimeFormatWithTimeZone.format((Date) messageAttribute);
+                return dateTimeFormatWithTimeZone.format((Date) messageAttribute);
+            case DeviceMessageConstants.passwordAttributeName:
+                return ((Password) messageAttribute).getValue();
             default:
                 return messageAttribute.toString();
         }

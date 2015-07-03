@@ -120,6 +120,8 @@ public class Messaging implements DeviceMessageSupport {
             case DeviceMessageConstants.toDateAttributeName:
             case DeviceMessageConstants.firmwareUpdateActivationDateAttributeName:
                 return Long.toString(((Date) messageAttribute).getTime());
+            case DeviceMessageConstants.executionKeyAttributeName:
+            case DeviceMessageConstants.temporaryKeyAttributeName:
             case DeviceMessageConstants.passwordAttributeName:
                 return ((Password) messageAttribute).getValue();
             case DeviceMessageConstants.activityCalendarCodeTableAttributeName:

@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
+import com.energyict.cbo.Password;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.messages.LegacyMessageConverter;
 import com.energyict.mdw.core.UserFile;
@@ -153,7 +154,7 @@ public class UkHubMessageConverterTest extends AbstractMessageConverterTest {
                 case DeviceMessageConstants.ZigBeeConfigurationZigBeeAddressAttributeName:
                     return "ABC";
                 case DeviceMessageConstants.ZigBeeConfigurationZigBeeLinkKeyAttributeName:
-                    return "123";
+                    return new Password("123");
                 case DeviceMessageConstants.ZigBeeConfigurationMirrorAddressAttributeName:
                     return "1";
                 case DeviceMessageConstants.ZigBeeConfigurationForceRemovalAttributeName:

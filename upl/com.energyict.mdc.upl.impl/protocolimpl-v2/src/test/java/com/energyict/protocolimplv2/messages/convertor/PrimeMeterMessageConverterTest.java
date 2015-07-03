@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.cbo.HexString;
+import com.energyict.cbo.Password;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.messages.LegacyMessageConverter;
 import com.energyict.mdw.core.UserFile;
@@ -88,7 +89,7 @@ public class PrimeMeterMessageConverterTest extends AbstractMessageConverterTest
         } else if (propertySpec.getName().equals(newManagementClientPasswordAttributeName)
                 || propertySpec.getName().equals(newFirmwareClientPasswordAttributeName)
                 || propertySpec.getName().equals(newReadingClientPasswordAttributeName)) {
-            return "abcdefgh";
+            return new Password("abcdefgh");
         } else if (propertySpec.getName().equals(MulticastAddress1AttributeName)
                 || propertySpec.getName().equals(MulticastAddress2AttributeName)
                 || propertySpec.getName().equals(MulticastAddress3AttributeName)) {

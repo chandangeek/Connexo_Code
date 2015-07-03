@@ -1,14 +1,20 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.cbo.HexString;
+import com.energyict.cbo.Password;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdw.core.UserFile;
 import com.energyict.protocolimplv2.messages.*;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.*;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.AdvancedTagMessageEntry;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.MultipleAttributeMessageEntry;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.SimpleTagMessageEntry;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.SimpleValueMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.special.FirmwareUdateWithUserFileMessageEntry;
 
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
 
@@ -73,6 +79,10 @@ public class PrimeMeterMessageConverter extends AbstractMessageConverter {
             return ((HexString) messageAttribute).getContent();
         } else if (propertySpec.getName().equals(firmwareUpdateUserFileAttributeName)) {
             return new String(((UserFile) messageAttribute).loadFileInByteArray());
+        } else if (propertySpec.getName().equals(DeviceMessageConstants.newReadingClientPasswordAttributeName)
+                || propertySpec.getName().equals(DeviceMessageConstants.newManagementClientPasswordAttributeName)
+                || propertySpec.getName().equals(DeviceMessageConstants.newFirmwareClientPasswordAttributeName)) {
+            return ((Password) messageAttribute).getValue();
         }
         return messageAttribute.toString();
     }

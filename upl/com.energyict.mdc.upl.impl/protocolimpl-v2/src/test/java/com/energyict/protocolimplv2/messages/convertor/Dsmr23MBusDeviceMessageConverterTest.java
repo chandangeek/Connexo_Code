@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
+import com.energyict.cbo.Password;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.messages.LegacyMessageConverter;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
@@ -88,9 +89,9 @@ public class Dsmr23MBusDeviceMessageConverterTest extends AbstractMessageConvert
                 case DeviceMessageConstants.contactorModeAttributeName:
                     return 1;
                 case DeviceMessageConstants.openKeyAttributeName:
-                    return "open";
+                    return new Password("open");
                 case DeviceMessageConstants.transferKeyAttributeName:
-                    return "transfer";
+                    return new Password("transfer");
                 default:
                     return "";
             }

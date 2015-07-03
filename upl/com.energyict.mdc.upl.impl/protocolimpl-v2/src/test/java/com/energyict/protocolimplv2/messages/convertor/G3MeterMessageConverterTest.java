@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
+import com.energyict.cbo.Password;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.messages.LegacyMessageConverter;
 import com.energyict.mdw.core.Code;
@@ -12,6 +13,7 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
 import com.energyict.protocolimplv2.messages.PLCConfigurationDeviceMessage;
+import com.energyict.protocolimplv2.messages.SecurityMessage;
 import com.energyict.protocolimplv2.messages.enums.ActivityCalendarType;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -61,6 +63,10 @@ public class G3MeterMessageConverterTest extends AbstractMessageConverterTest {
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<WritePlcG3Timeout Timeout_in_minutes=\"2\"> \n\n</WritePlcG3Timeout>", messageEntry.getContent());
 
+        offlineDeviceMessage = createMessage(SecurityMessage.WRITE_PSK);
+        messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
+        assertEquals("<WritePlcPsk PSK=\"PSK\"> \n\n</WritePlcPsk>", messageEntry.getContent());
+
         offlineDeviceMessage = createMessage(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_RESUME_OPTION_AND_TYPE);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<FirmwareUpdate><IncludedFile>userFileBytes</IncludedFile></FirmwareUpdate>", messageEntry.getContent());
@@ -75,23 +81,6 @@ public class G3MeterMessageConverterTest extends AbstractMessageConverterTest {
 
     protected LegacyMessageConverter doGetMessageConverter() {
         return new TestG3MeterMessageConverter();
-    }
-
-    /**
-     * Used to test to actual G3MeterMessageConverter.
-     * This class overrides the convertCodeTableToXML method, this way we don't have to mock an entire codetable in order to get a decent XML description.
-     */
-    public class TestG3MeterMessageConverter extends G3MeterMessageConverter {
-
-        @Override
-        protected String convertCodeTableToXML(Code messageAttribute) {
-            return xmlEncodedCodeTableWithEmptyName;
-        }
-
-        @Override
-        protected String convertSpecialDaysCodeTableToXML(Code messageAttribute) {
-            return xmlSpecialDays;
-        }
     }
 
     /**
@@ -112,6 +101,8 @@ public class G3MeterMessageConverterTest extends AbstractMessageConverterTest {
             return Boolean.FALSE;
         } else if (propertySpec.getName().equals(plcTypeFirmwareUpdateAttributeName)) {
             return Boolean.TRUE;
+        } else if (propertySpec.getName().equals(pskAttributeName)) {
+            return new Password("PSK");
         } else if (propertySpec.getName().equals(activityCalendarTypeAttributeName)) {
             return ActivityCalendarType.PublicNetwork.getDescription();
         } else if (propertySpec.getName().equals(plcG3TimeoutAttributeName)) {
@@ -127,5 +118,22 @@ public class G3MeterMessageConverterTest extends AbstractMessageConverterTest {
             date = cal.getTime();
         }
         return date;
+    }
+
+    /**
+     * Used to test to actual G3MeterMessageConverter.
+     * This class overrides the convertCodeTableToXML method, this way we don't have to mock an entire codetable in order to get a decent XML description.
+     */
+    public class TestG3MeterMessageConverter extends G3MeterMessageConverter {
+
+        @Override
+        protected String convertCodeTableToXML(Code messageAttribute) {
+            return xmlEncodedCodeTableWithEmptyName;
+        }
+
+        @Override
+        protected String convertSpecialDaysCodeTableToXML(Code messageAttribute) {
+            return xmlSpecialDays;
+        }
     }
 }

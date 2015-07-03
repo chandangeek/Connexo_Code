@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
+import com.energyict.cbo.Password;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.messages.LegacyMessageConverter;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
@@ -138,7 +139,7 @@ public class IskraMx372MessageConverterTest extends AbstractMessageConverterTest
                 case DeviceMessageConstants.whiteListPhoneNumbersAttributeName:
                     return "number1; number2";
                 case DeviceMessageConstants.newHexPasswordAttributeName:
-                    return "FF00AA";
+                    return new Password("FF00AA");
                 default:
                     return "";
             }

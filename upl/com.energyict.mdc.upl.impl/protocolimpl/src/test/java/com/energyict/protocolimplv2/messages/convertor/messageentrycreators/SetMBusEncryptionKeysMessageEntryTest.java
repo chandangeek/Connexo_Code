@@ -6,6 +6,10 @@ import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.messages.DeviceMessageAttributeImpl;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.DeviceProtocol;
+import com.energyict.mdw.core.DataVaultProvider;
+import com.energyict.mdw.core.RandomProvider;
+import com.energyict.mdw.crypto.KeyStoreDataVaultProvider;
+import com.energyict.mdw.crypto.SecureRandomProvider;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.mdw.offline.OfflineDeviceMessageAttribute;
 import com.energyict.mdw.offlineimpl.OfflineDeviceMessageAttributeImpl;
@@ -53,6 +57,9 @@ public class SetMBusEncryptionKeysMessageEntryTest {
 
     @Before
     public void doBefore() {
+        DataVaultProvider.instance.set(new KeyStoreDataVaultProvider());
+        RandomProvider.instance.set(new SecureRandomProvider());
+
         when(deviceProtocol.format(Matchers.any(PropertySpec.class), Matchers.anyObject())).thenReturn(ATTRIBUTE_VALUE);
         keyMessage = createMessage(MBusSetupDeviceMessage.SetEncryptionKeys);
         decommissionMessage = createMessage(MBusSetupDeviceMessage.Decommission);

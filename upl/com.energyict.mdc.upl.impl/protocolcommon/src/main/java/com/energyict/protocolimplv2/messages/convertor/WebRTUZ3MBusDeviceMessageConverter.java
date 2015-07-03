@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
-import com.energyict.cbo.HexString;
+import com.energyict.cbo.Password;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
@@ -54,8 +54,7 @@ public class WebRTUZ3MBusDeviceMessageConverter extends AbstractMessageConverter
         if (propertySpec.getName().equals(contactorModeAttributeName)) {
             return messageAttribute.toString();
         } else if (propertySpec.getName().equals(openKeyAttributeName) || propertySpec.getName().equals(transferKeyAttributeName)) {
-            HexString hex = (HexString) messageAttribute;
-            return hex.getContent();
+            return ((Password) messageAttribute).getValue();
         } else if (propertySpec.getName().equals(contactorActivationDateAttributeName)) {
             return dateTimeFormat.format((Date) messageAttribute);
         }

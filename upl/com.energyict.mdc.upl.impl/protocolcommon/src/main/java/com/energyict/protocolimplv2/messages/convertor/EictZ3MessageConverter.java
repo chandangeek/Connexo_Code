@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.cbo.HexString;
+import com.energyict.cbo.Password;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdw.core.UserFile;
@@ -62,8 +63,7 @@ public class EictZ3MessageConverter extends AbstractMessageConverter {
         } else if (propertySpec.getName().equals(contactorModeAttributeName)) {
             return messageAttribute.toString();
         } else if (propertySpec.getName().equals(openKeyAttributeName) || propertySpec.getName().equals(transferKeyAttributeName)) {
-            HexString hex = (HexString) messageAttribute;
-            return hex.getContent();
+            return ((Password) messageAttribute).getValue();
         } else if (propertySpec.getName().equals(firmwareUpdateUserFileAttributeName)) {
             return new String(((UserFile) messageAttribute).loadFileInByteArray());
         }

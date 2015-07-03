@@ -21,7 +21,7 @@ public enum ZigBeeConfigurationDeviceMessage implements DeviceMessageSpec {
     RemoveHANNetwork(1),
     JoinZigBeeSlaveDevice(2,
             PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.ZigBeeConfigurationZigBeeAddressAttributeName),
-            PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.ZigBeeConfigurationZigBeeLinkKeyAttributeName)
+            PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.ZigBeeConfigurationZigBeeLinkKeyAttributeName)
     ),
     RemoveMirror(3,
             PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.ZigBeeConfigurationMirrorAddressAttributeName),

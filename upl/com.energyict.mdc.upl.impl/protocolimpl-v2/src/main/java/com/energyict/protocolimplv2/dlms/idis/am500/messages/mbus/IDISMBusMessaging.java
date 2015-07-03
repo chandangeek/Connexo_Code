@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.dlms.idis.am500.messages.mbus;
 
+import com.energyict.cbo.Password;
 import com.energyict.cbo.TimeDuration;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.messages.DeviceMessageSpec;
@@ -16,8 +17,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.capturePeriodAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.contactorActivationDateAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
 
 /**
  * Copyrights EnergyICT
@@ -74,6 +74,8 @@ public class IDISMBusMessaging extends AbstractDlmsMessaging implements DeviceMe
             return String.valueOf(((Date) messageAttribute).getTime());     //Epoch
         } else if (propertySpec.getName().equals(capturePeriodAttributeName)) {
             return String.valueOf(((TimeDuration) messageAttribute).getSeconds());
+        } else if (propertySpec.getName().equals(openKeyAttributeName) || propertySpec.getName().equals(transferKeyAttributeName)) {
+            return ((Password) messageAttribute).getValue();
         }
         return messageAttribute.toString();
     }

@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.nta.dsmr23.messages;
 
+import com.energyict.cbo.Password;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.meterdata.CollectedMessageList;
@@ -68,6 +69,9 @@ public class Dsmr23MbusMessaging extends AbstractDlmsMessaging implements Device
         switch (propertySpec.getName()) {
             case DeviceMessageConstants.loadProfileAttributeName:
                 return LoadProfileMessageUtils.formatLoadProfile((LoadProfile) messageAttribute);
+            case DeviceMessageConstants.openKeyAttributeName:
+            case DeviceMessageConstants.transferKeyAttributeName:
+                return ((Password) messageAttribute).getValue();
             case DeviceMessageConstants.fromDateAttributeName:
             case DeviceMessageConstants.toDateAttributeName:
                 return String.valueOf(((Date) messageAttribute).getTime());

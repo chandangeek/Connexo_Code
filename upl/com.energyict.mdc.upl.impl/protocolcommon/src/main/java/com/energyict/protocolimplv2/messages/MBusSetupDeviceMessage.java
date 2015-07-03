@@ -24,8 +24,8 @@ public enum MBusSetupDeviceMessage implements DeviceMessageSpec {
     Commission(2),
     DecommissionAll(3),
     SetEncryptionKeys(4,
-            PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.openKeyAttributeName),
-            PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.transferKeyAttributeName)
+            PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.openKeyAttributeName),
+            PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.transferKeyAttributeName)
     ),
     SetEncryptionKeysUsingCryptoserver(5,
             PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.defaultKeyAttributeName)

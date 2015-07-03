@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.eict.webrtuz3.messages.mbus;
 
-import com.energyict.cbo.HexString;
+import com.energyict.cbo.Password;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.meterdata.CollectedMessageList;
@@ -72,8 +72,7 @@ public class WebRTUZ3MBusMessaging extends AbstractDlmsMessaging implements Devi
         if (propertySpec.getName().equals(contactorActivationDateAttributeName)) {
             return String.valueOf(((Date) messageAttribute).getTime());
         } else if (propertySpec.getName().equals(openKeyAttributeName) || propertySpec.getName().equals(transferKeyAttributeName)) {
-            HexString hex = (HexString) messageAttribute;
-            return hex.getContent();
+            return ((Password) messageAttribute).getValue();
         }
 
         return messageAttribute.toString();

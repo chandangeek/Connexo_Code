@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
+import com.energyict.cbo.Password;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
@@ -46,6 +47,10 @@ public class GasDeviceDLMSMessageConverter extends AbstractMessageConverter {
 
     @Override
     public String format(PropertySpec propertySpec, Object messageAttribute) {
+        if (propertySpec.getName().equals(openKeyAttributeName) || propertySpec.getName().equals(transferKeyAttributeName)) {
+            return ((Password) messageAttribute).getValue();
+        }
+
         return messageAttribute.toString();//Works for hex, string and bigdecimal
     }
 
