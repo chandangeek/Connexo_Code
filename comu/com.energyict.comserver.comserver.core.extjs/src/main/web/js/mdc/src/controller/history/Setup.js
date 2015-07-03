@@ -12,7 +12,7 @@ Ext.define('Mdc.controller.history.Setup', {
             items: {
                 usagepoint: {
                     title: Uni.I18n.translate('general.usagePoint', 'MDC', 'Usage point'),
-                    route: '{mRID}',
+                    route: '{usagePointMRID}',
                     controller: 'Mdc.usagepointmanagement.controller.UsagePoint',
                     action: 'showUsagePoint',
                     callback: function (route) {

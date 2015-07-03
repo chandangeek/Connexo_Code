@@ -19,7 +19,8 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskSetup', {
                 {
                     xtype: 'preview-container',
                     grid: {
-                        xtype: 'comtaskGrid'
+                        xtype: 'comtaskGrid',
+                        itemId: 'communication-task-grid'
                     },
                     emptyComponent: {
                         xtype: 'no-items-found-panel',
@@ -38,7 +39,8 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskSetup', {
                         ]
                     },
                     previewComponent: {
-                        xtype: 'comtaskPreview'
+                        xtype: 'comtaskPreview',
+                        itemId: 'communication-task-preview'
                     }
                 }
             ]

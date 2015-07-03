@@ -4,7 +4,9 @@ Ext.define('Mdc.usagepointmanagement.controller.UsagePoint', {
         'Mdc.usagepointmanagement.model.UsagePointComplete',
         'Ext.container.Container'
     ],
-    stores: [],
+    stores: [
+        'Mdc.usagepointmanagement.store.MeterActivations'
+    ],
     views: [
         'Mdc.usagepointmanagement.view.Setup'
     ],
@@ -55,67 +57,48 @@ Ext.define('Mdc.usagepointmanagement.controller.UsagePoint', {
 
                 var store = me.getStore('Mdc.usagepointmanagement.store.MeterActivations'),
                     metrologyConfiguration = me.getMetrologyConfiguration();
-                store.getProxy().setExtraParam('mRID', mRID);
+                store.getProxy().setExtraParam('usagePointMRID', mRID);
                 store.load({
                     callback: function () {
-                        var meterActivations = store.data.items;
-                        for (var i = meterActivations.length - 1; i >= 0; i--) {
-                            var meterActivation = meterActivations[i].data,
-                                fromToDate,
-                                activationLabel;
-                            if (i === meterActivations.length - 1) {
-                                if (meterActivation.version === 1) {
-                                    activationLabel = Uni.I18n.translate('usagePointManagement.linkedDevices', 'MDC', 'Linked device');
-                                    metrologyConfiguration.down('#activationsArea').removeAll();
-                                }
-                                else {
-                                    metrologyConfiguration.down('#activationsArea').add({
-                                        xtype: 'menuseparator',
-                                        margin: '0 0 20 0'
-                                    });
-                                    activationLabel = Uni.I18n.translate('usagePointManagement.history', 'MDC', 'History');
-                                }
-                            }
-                            else if (i === meterActivations.length - 2)
-                                if (activationLabel != Uni.I18n.translate('usagePointManagement.history', 'MDC', 'History'))
-                                    activationLabel = Uni.I18n.translate('usagePointManagement.history', 'MDC', 'History');
-                                else activationLabel = ' ';
-                            else activationLabel = ' ';
-                            if (meterActivation.start) fromToDate = 'from ' + Uni.DateTime.formatDateTimeShort(new Date(meterActivation.start));
-                            if (meterActivation.end) fromToDate += ' to ' + Uni.DateTime.formatDateTimeShort(new Date(meterActivation.end));
-                            metrologyConfiguration.down('#activationsArea').add(
-                                {
-                                    labelAlign: 'right',
-                                    xtype: 'fieldcontainer',
-                                    labelWidth: 100,
-                                    fieldLabel: activationLabel,
-                                    layout: {
-                                        type: 'vbox'
-                                    },
-                                    items: [
-                                        {
-                                            xtype: 'component',
-                                            cls: 'x-form-display-field',
-                                            width: 100,
-                                            autoEl: {
-                                                tag: 'a',
-                                                href: '#/devices/' + meterActivation.meter.mRID,
-                                                html: meterActivation.meter.mRID
-                                            }
-                                        },
-                                        {
-                                            xtype: 'displayfield',
-                                            value: fromToDate
+                        store.each(function (item) {
+                            if (!item.get('end')) {
+                                metrologyConfiguration.down('#metrologyLinkedDevice').removeAll();
+                                metrologyConfiguration.down('#metrologyLinkedDevice').add(
+                                    {
+                                        xtype: 'component',
+                                        cls: 'x-form-display-field',
+                                        autoEl: {
+                                            tag: 'a',
+                                            href: '#/devices/' + item.get('meter').mRID,
+                                            html: item.get('meter').mRID
                                         }
-                                    ]
-                                }
-                            );
-                            if (i === meterActivations.length - 1 && meterActivation.version === 1 && i > 0)
-                                metrologyConfiguration.down('#activationsArea').add({
-                                    xtype: 'menuseparator',
-                                    margin: '0 0 20 0'
-                                });
-                        }
+                                    },
+                                    {
+                                        xtype: 'displayfield',
+                                        value: 'from ' + Uni.DateTime.formatDateTimeShort(new Date(item.get('start')))
+                                    }
+                                );
+                            } else {
+                                metrologyConfiguration.down('#metrologyHistory').show();
+                                metrologyConfiguration.down('#metrologySeparator').show();
+                                metrologyConfiguration.down('#metrologyHistory').add(0,
+
+                                    {
+                                        xtype: 'component',
+                                        cls: 'x-form-display-field',
+                                        autoEl: {
+                                            tag: 'a',
+                                            href: '#/devices/' + item.get('meter').mRID,
+                                            html: item.get('meter').mRID
+                                        }
+                                    },
+                                    {
+                                        xtype: 'displayfield',
+                                        value: 'from ' + Uni.DateTime.formatDateTimeShort(new Date(item.get('start'))) + ' to ' + Uni.DateTime.formatDateTimeShort(new Date(item.get('end')))
+                                    }
+                                );
+                            }
+                        });
                         pageMainContent.setLoading(false);
                     }
                 });

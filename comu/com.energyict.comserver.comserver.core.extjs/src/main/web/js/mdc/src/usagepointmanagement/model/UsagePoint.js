@@ -30,13 +30,6 @@ Ext.define('Mdc.usagepointmanagement.model.UsagePoint', {
             mapping: function (data) {
                 return Uni.DateTime.formatDateTimeLong(new Date(data.modTime));
             }
-        },
-        {
-            name: 'mainAddress',
-            persist: false,
-            mapping: function (data) {
-                return data.serviceLocation.mainAddress;
-            }
         }
     ],
     proxy: {
