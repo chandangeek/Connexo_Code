@@ -97,7 +97,7 @@ public class IssueDataValidationServiceImpl implements IssueDataValidationServic
     
     @Override
     public List<String> getPrerequisiteModules() {
-        return Arrays.asList("ORM", "NLS", "MSG", "EVT", "MTR", "ISU");
+        return Arrays.asList("ORM", "NLS", "MSG", "EVT", "MTR", "ISU", "EST");
     }
     
     @Override
