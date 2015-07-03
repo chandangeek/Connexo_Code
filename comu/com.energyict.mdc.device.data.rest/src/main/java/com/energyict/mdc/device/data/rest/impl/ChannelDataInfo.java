@@ -43,4 +43,8 @@ public class ChannelDataInfo {
     public BaseReading createNew() {
         return IntervalReadingImpl.of(Instant.ofEpochMilli(this.interval.end), this.value);
     }
+
+    public BaseReading createNewBulk() {
+        return IntervalReadingImpl.of(Instant.ofEpochMilli(this.interval.end), this.collectedValue);
+    }
 }

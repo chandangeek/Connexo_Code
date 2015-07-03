@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationRule;
@@ -7,6 +8,7 @@ import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationRuleSetVersion;
 import com.elster.jupiter.validation.rest.*;
 import com.energyict.mdc.device.data.*;
+import com.energyict.mdc.device.data.rest.ValueModificationFlag;
 import com.google.common.collect.ImmutableList;
 
 import javax.inject.Inject;
@@ -168,18 +170,23 @@ public class ValidationInfoFactory {
         return result;
     }
 
-    ValidationInfo createValidationInfoFor(Map.Entry<Channel, DataValidationStatus> entry, DeviceValidation deviceValidation) {
+    ValidationInfo createValidationInfoFor(Map.Entry<Channel, DataValidationStatus> entry, DeviceValidation deviceValidation, ReadingModificationFlag readingModificationFlag) {
         ValidationInfo validationInfo = new ValidationInfo();
         DataValidationStatus dataValidationStatus = entry.getValue();
         validationInfo.dataValidated = dataValidationStatus.completelyValidated();
         validationInfo.mainValidationInfo.validationRules = validationRuleInfoFactory.createInfosForDataValidationStatus(dataValidationStatus);
         validationInfo.mainValidationInfo.validationResult = ValidationStatus.forResult(deviceValidation.getValidationResult(dataValidationStatus.getReadingQualities()));
+        validationInfo.mainValidationInfo.valueModificationFlag = ValueModificationFlag.getModificationFlag(dataValidationStatus.getReadingQualities(), readingModificationFlag);
         if (entry.getKey().getReadingType().isCumulative() && entry.getKey().getReadingType().getCalculatedReadingType().isPresent()) {
             validationInfo.bulkValidationInfo.validationRules = validationRuleInfoFactory.createInfosForBulkDataValidationStatus(dataValidationStatus);
             validationInfo.bulkValidationInfo.validationResult = ValidationStatus.forResult(deviceValidation.getValidationResult(dataValidationStatus.getBulkReadingQualities()));
+            validationInfo.bulkValidationInfo.valueModificationFlag = ValueModificationFlag.getModificationFlag(dataValidationStatus.getBulkReadingQualities(), readingModificationFlag);
         }
         return validationInfo;
     }
+
+
+
 
     DetailedValidationInfo createDetailedValidationInfo(Boolean active, List<DataValidationStatus> dataValidationStatuses, Optional<Instant> lastChecked) {
         DetailedValidationInfo detailedValidationInfo = new DetailedValidationInfo();

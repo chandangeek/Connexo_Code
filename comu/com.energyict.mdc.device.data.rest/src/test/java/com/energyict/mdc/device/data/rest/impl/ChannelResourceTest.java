@@ -193,6 +193,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(channel.getReadingType()).thenReturn(readingType);
         ChannelDataUpdater channelDataUpdater = mock(ChannelDataUpdater.class);
         when(channelDataUpdater.editChannelData(anyList())).thenReturn(channelDataUpdater);
+        when(channelDataUpdater.editBulkChannelData(anyList())).thenReturn(channelDataUpdater);
         when(channelDataUpdater.removeChannelData(anyList())).thenReturn(channelDataUpdater);
         when(channel.startEditingData()).thenReturn(channelDataUpdater);
         when(device.getId()).thenReturn(1L);

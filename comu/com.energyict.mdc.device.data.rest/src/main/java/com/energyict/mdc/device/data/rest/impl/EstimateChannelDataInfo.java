@@ -16,6 +16,9 @@ public class EstimateChannelDataInfo {
     @JsonProperty("intervals")
     public List<IntervalInfo> intervals;
 
+    @JsonProperty("estimateBulk")
+    public boolean estimateBulk;
+
     public EstimateChannelDataInfo() {
 
     }

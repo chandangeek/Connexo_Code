@@ -163,19 +163,25 @@ public class ChannelResource {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(device, channelId);
         List<BaseReading> editedReadings = new ArrayList<>();
+        List<BaseReading> editedBulkReadings = new ArrayList<>();
         List<Range<Instant>> removeCandidates = new ArrayList<>();
         channelDataInfos.forEach((channelDataInfo) -> {
-            if (channelDataInfo.value == null) {
+            if (channelDataInfo.value == null && channelDataInfo.collectedValue == null) {
                 removeCandidates.add(
                         Range.openClosed(
                                 Instant.ofEpochMilli(channelDataInfo.interval.start),
                                 Instant.ofEpochMilli(channelDataInfo.interval.end)));
             }
             else {
-                editedReadings.add(channelDataInfo.createNew());
+                if (channelDataInfo.value != null) {
+                    editedReadings.add(channelDataInfo.createNew());
+                }
+                if (channelDataInfo.collectedValue != null) {
+                    editedBulkReadings.add(channelDataInfo.createNewBulk());
+                }
             }
         });
-        channel.startEditingData().removeChannelData(removeCandidates).editChannelData(editedReadings).complete();
+        channel.startEditingData().removeChannelData(removeCandidates).editChannelData(editedReadings).editBulkChannelData(editedBulkReadings).complete();
 
         return Response.status(Response.Status.OK).build();
     }
@@ -200,7 +206,7 @@ public class ChannelResource {
             ranges.add(Range.openClosed(Instant.ofEpochMilli(info.start), Instant.ofEpochMilli(info.end)));
         }
 
-        if (channel.getReadingType().isCumulative() && channel.getReadingType().getCalculatedReadingType().isPresent()) {
+        if (!estimateChannelDataInfo.estimateBulk && channel.getReadingType().isCumulative() && channel.getReadingType().getCalculatedReadingType().isPresent()) {
             readingType = channel.getReadingType().getCalculatedReadingType().get();
         }
 

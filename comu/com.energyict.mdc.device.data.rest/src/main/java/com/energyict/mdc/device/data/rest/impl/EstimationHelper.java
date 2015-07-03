@@ -8,6 +8,7 @@ import com.elster.jupiter.validation.rest.PropertyUtils;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.device.data.*;
 import com.energyict.mdc.device.data.Channel;
+import com.energyict.mdc.device.data.rest.ValueModificationFlag;
 import com.google.common.collect.Range;
 
 
@@ -59,7 +60,7 @@ public class EstimationHelper {
         return estimationService.previewEstimate(meterActivation, range, readingType, estimator);
     }
 
-    public List<ChannelDataInfo> getChannelDataInfoFromEstimationReports(com.energyict.mdc.device.data.Channel channel, List<Range<Instant>> ranges, List<EstimationResult> results) {
+    public List<ChannelDataInfo> getChannelDataInfoFromEstimationReports(Channel channel, List<Range<Instant>> ranges, List<EstimationResult> results) {
         List<ChannelDataInfo> channelDataInfos = new ArrayList<>();
         DeviceValidation deviceValidation = channel.getDevice().forValidation();
         boolean isValidationActive = deviceValidation.isValidationActive(channel, clock.instant());
@@ -81,18 +82,34 @@ public class EstimationHelper {
         List<ChannelDataInfo> channelDataInfos = new ArrayList<>();
         for (LoadProfileReading reading : channelData) {
             if (reading.getRange().upperEndpoint().equals(estimatable.getTimestamp())) {
-                channelDataInfos.add(getChannelDataInfo(reading, isValidationActive, deviceValidation, estimatable));
+                channelDataInfos.add(getChannelDataInfo(channel, block, reading, isValidationActive, deviceValidation, estimatable));
                 break;
             }
         }
         return channelDataInfos;
     }
 
-    private ChannelDataInfo getChannelDataInfo(LoadProfileReading reading, boolean isValidationActive, DeviceValidation deviceValidation, Estimatable estimatable) {
+    private ChannelDataInfo getChannelDataInfo(Channel channel, EstimationBlock block, LoadProfileReading reading, boolean isValidationActive, DeviceValidation deviceValidation, Estimatable estimatable) {
         ChannelDataInfo channelDataInfo = deviceDataInfoFactory.createChannelDataInfo(reading, isValidationActive, deviceValidation);
-            channelDataInfo.value = estimatable.getEstimation();
-            channelDataInfo.validationInfo.mainValidationInfo.validationRules = Collections.EMPTY_SET;
-            channelDataInfo.validationInfo.mainValidationInfo.validationResult = ValidationStatus.NOT_VALIDATED;
+        if (!channel.getReadingType().isCumulative()) {
+        channelDataInfo.value = estimatable.getEstimation();
+        channelDataInfo.validationInfo.mainValidationInfo.valueModificationFlag = ValueModificationFlag.ESTIMATED;
+        channelDataInfo.validationInfo.mainValidationInfo.validationRules = Collections.EMPTY_SET;
+        channelDataInfo.validationInfo.mainValidationInfo.validationResult = ValidationStatus.NOT_VALIDATED;
+        } else {
+            if (block.getReadingType().equals(channel.getReadingType())) {
+                channelDataInfo.collectedValue = estimatable.getEstimation();
+                channelDataInfo.validationInfo.bulkValidationInfo.valueModificationFlag = ValueModificationFlag.ESTIMATED;
+                channelDataInfo.validationInfo.bulkValidationInfo.validationRules = Collections.EMPTY_SET;
+                channelDataInfo.validationInfo.bulkValidationInfo.validationResult = ValidationStatus.NOT_VALIDATED;
+            }
+            if (channel.getReadingType().getCalculatedReadingType().isPresent() && channel.getReadingType().getCalculatedReadingType().get().equals(block.getReadingType())) {
+                channelDataInfo.value = estimatable.getEstimation();
+                channelDataInfo.validationInfo.mainValidationInfo.valueModificationFlag = ValueModificationFlag.ESTIMATED;
+                channelDataInfo.validationInfo.mainValidationInfo.validationRules = Collections.EMPTY_SET;
+                channelDataInfo.validationInfo.mainValidationInfo.validationResult = ValidationStatus.NOT_VALIDATED;
+            }
+        }
         return channelDataInfo;
     }
 }

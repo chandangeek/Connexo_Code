@@ -1,6 +1,8 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.validation.rest.ValidationRuleInfo;
+import com.energyict.mdc.device.data.rest.ValueModificationFlag;
+import com.energyict.mdc.device.data.rest.ValueModificationFlagAdapter;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
@@ -30,6 +32,10 @@ class ValidationReadingInfo {
 
     @JsonProperty("validationRules")
     public Set<ValidationRuleInfo> validationRules;
+
+    @JsonProperty("valueModificationFlag")
+    @XmlJavaTypeAdapter(ValueModificationFlagAdapter.class)
+    public ValueModificationFlag valueModificationFlag;
 
     public ValidationReadingInfo() {
 
