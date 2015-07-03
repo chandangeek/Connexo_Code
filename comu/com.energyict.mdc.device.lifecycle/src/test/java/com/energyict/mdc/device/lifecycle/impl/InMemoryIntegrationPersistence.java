@@ -22,7 +22,6 @@ import org.osgi.service.log.LogService;
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.appserver.impl.AppServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
-import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.estimation.impl.EstimationModule;
@@ -104,7 +103,6 @@ public class InMemoryIntegrationPersistence {
 
     private final Clock clock = mock(Clock.class);
     private BundleContext bundleContext;
-    private BpmService bpmService;
     private User principal;
     private EventAdmin eventAdmin;
     private TransactionService transactionService;
@@ -211,7 +209,6 @@ public class InMemoryIntegrationPersistence {
         when(this.principal.hasPrivilege(any(Privilege.class))).thenReturn(true);
         this.licenseService = mock(LicenseService.class);
         when(this.licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.<License>empty());
-        this.bpmService = mock(BpmService.class);
     }
 
     public BundleContext getBundleContext() {
@@ -273,7 +270,6 @@ public class InMemoryIntegrationPersistence {
             bind(JsonService.class).toInstance(new JsonServiceImpl());
             bind(BeanService.class).toInstance(new BeanServiceImpl());
             bind(Clock.class).toInstance(clock);
-            bind(BpmService.class).toInstance(bpmService);
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(LicenseService.class).toInstance(licenseService);
             bind(LogService.class).toInstance(mock(LogService.class));

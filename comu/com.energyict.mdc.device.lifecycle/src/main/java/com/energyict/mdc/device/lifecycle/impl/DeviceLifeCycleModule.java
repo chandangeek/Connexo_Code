@@ -4,9 +4,7 @@ import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.topology.TopologyService;
 
-import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionService;
@@ -26,7 +24,6 @@ public class DeviceLifeCycleModule extends AbstractModule {
     protected void configure() {
         requireBinding(NlsService.class);
         requireBinding(ThreadPrincipalService.class);
-        requireBinding(BpmService.class);
         requireBinding(PropertySpecService.class);
         requireBinding(TopologyService.class);
         requireBinding(UserService.class);
