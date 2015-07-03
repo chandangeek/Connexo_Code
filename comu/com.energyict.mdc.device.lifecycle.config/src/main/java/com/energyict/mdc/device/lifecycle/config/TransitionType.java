@@ -21,39 +21,12 @@ public enum TransitionType {
         @Override
         public Set<MicroCheck> optionalChecks() {
             return EnumSet.of(
-                    MicroCheck.DEFAULT_CONNECTION_AVAILABLE,
                     MicroCheck.AT_LEAST_ONE_SCHEDULED_COMMUNICATION_TASK_AVAILABLE,
-                    MicroCheck.ALL_LOAD_PROFILE_DATA_COLLECTED,
-                    MicroCheck.PROTOCOL_DIALECT_PROPERTIES_ARE_ALL_VALID,
-                    MicroCheck.SECURITY_PROPERTIES_ARE_ALL_VALID,
-                    MicroCheck.CONNECTION_PROPERTIES_ARE_ALL_VALID,
-                    MicroCheck.GENERAL_PROTOCOL_PROPERTIES_ARE_ALL_VALID,
-                    MicroCheck.SLAVE_DEVICE_HAS_GATEWAY);
-        }
-
-        @Override
-        public Set<MicroAction> requiredActions() {
-            return EnumSet.of(MicroAction.SET_LAST_READING);
-        }
-
-        @Override
-        public Set<MicroAction> optionalActions() {
-            return EnumSet.of(
-                    MicroAction.ACTIVATE_CONNECTION_TASKS_IN_USE,
-                    MicroAction.CREATE_METER_ACTIVATION);
-        }
-    },
-    INSTALL_AND_ACTIVATE_WITHOUT_COMMISSIONING(DefaultState.IN_STOCK, DefaultState.ACTIVE) {
-        @Override
-        public Set<MicroCheck> optionalChecks() {
-            return EnumSet.of(
-                    MicroCheck.DEFAULT_CONNECTION_AVAILABLE,
-                    MicroCheck.AT_LEAST_ONE_SCHEDULED_COMMUNICATION_TASK_AVAILABLE,
-                    MicroCheck.ALL_LOAD_PROFILE_DATA_COLLECTED,
+                    MicroCheck.AT_LEAST_ONE_SHARED_COMMUNICATION_SCHEDULE_AVAILABLE,
                     MicroCheck.SLAVE_DEVICE_HAS_GATEWAY,
-                    MicroCheck.LINKED_WITH_USAGE_POINT);
+                    MicroCheck.AT_LEAST_ONE_ACTIVE_CONNECTION_AVAILABLE,
+                    MicroCheck.DEFAULT_CONNECTION_AVAILABLE);
         }
-
         @Override
         public Set<MicroCheck> requiredChecks() {
             return EnumSet.of(
@@ -62,41 +35,85 @@ public enum TransitionType {
                     MicroCheck.CONNECTION_PROPERTIES_ARE_ALL_VALID,
                     MicroCheck.GENERAL_PROTOCOL_PROPERTIES_ARE_ALL_VALID);
         }
-
-        @Override
-        public Set<MicroAction> optionalActions() {
-            return EnumSet.of(MicroAction.ENABLE_VALIDATION);
-        }
-
         @Override
         public Set<MicroAction> requiredActions() {
             return EnumSet.of(
-                    MicroAction.ACTIVATE_CONNECTION_TASKS_IN_USE,
-                    MicroAction.SET_LAST_READING);
+                    MicroAction.CREATE_METER_ACTIVATION,
+                    MicroAction.SET_LAST_READING,
+                    MicroAction.ACTIVATE_CONNECTION_TASKS_IN_USE);
+        }
+        @Override
+        public Set<MicroAction> optionalActions() {
+            return EnumSet.of(
+                    MicroAction.START_COMMUNICATION,
+                    MicroAction.START_RECURRING_COMMUNICATION,
+                    MicroAction.ACTIVATE_CONNECTION_TASKS_IN_USE);
+        }
+    },
+    INSTALL_AND_ACTIVATE_WITHOUT_COMMISSIONING(DefaultState.IN_STOCK, DefaultState.ACTIVE) {
+        @Override
+        public Set<MicroCheck> optionalChecks() {
+            return EnumSet.of(
+                    MicroCheck.AT_LEAST_ONE_SCHEDULED_COMMUNICATION_TASK_AVAILABLE,
+                    MicroCheck.AT_LEAST_ONE_SHARED_COMMUNICATION_SCHEDULE_AVAILABLE,
+                    MicroCheck.SLAVE_DEVICE_HAS_GATEWAY,
+                    MicroCheck.AT_LEAST_ONE_ACTIVE_CONNECTION_AVAILABLE,
+                    MicroCheck.DEFAULT_CONNECTION_AVAILABLE,
+                    MicroCheck.LINKED_WITH_USAGE_POINT);
+        }
+        @Override
+        public Set<MicroCheck> requiredChecks() {
+            return EnumSet.of(
+                    MicroCheck.PROTOCOL_DIALECT_PROPERTIES_ARE_ALL_VALID,
+                    MicroCheck.SECURITY_PROPERTIES_ARE_ALL_VALID,
+                    MicroCheck.CONNECTION_PROPERTIES_ARE_ALL_VALID,
+                    MicroCheck.GENERAL_PROTOCOL_PROPERTIES_ARE_ALL_VALID);
+        }
+        @Override
+        public Set<MicroAction> optionalActions() {
+            return EnumSet.of(MicroAction.START_COMMUNICATION,
+                    MicroAction.START_RECURRING_COMMUNICATION,
+                    MicroAction.ENABLE_ESTIMATION,
+                    MicroAction.ENABLE_VALIDATION);
+        }
+        @Override
+        public Set<MicroAction> requiredActions() {
+            return EnumSet.of(
+                    MicroAction.CREATE_METER_ACTIVATION,
+                    MicroAction.SET_LAST_READING,
+                    MicroAction.ACTIVATE_CONNECTION_TASKS_IN_USE);
         }
     },
     INSTALL_INACTIVE_WITHOUT_COMMISSIONING(DefaultState.IN_STOCK, DefaultState.INACTIVE) {
         @Override
         public Set<MicroCheck> optionalChecks() {
             return EnumSet.of(
-                    MicroCheck.DEFAULT_CONNECTION_AVAILABLE,
                     MicroCheck.AT_LEAST_ONE_SCHEDULED_COMMUNICATION_TASK_AVAILABLE,
-                    MicroCheck.ALL_LOAD_PROFILE_DATA_COLLECTED,
+                    MicroCheck.AT_LEAST_ONE_SHARED_COMMUNICATION_SCHEDULE_AVAILABLE,
+                    MicroCheck.SLAVE_DEVICE_HAS_GATEWAY,
+                    MicroCheck.AT_LEAST_ONE_ACTIVE_CONNECTION_AVAILABLE,
+                    MicroCheck.DEFAULT_CONNECTION_AVAILABLE,
+                    MicroCheck.LINKED_WITH_USAGE_POINT);
+        }
+        @Override
+        public Set<MicroCheck> requiredChecks() {
+            return EnumSet.of(
                     MicroCheck.PROTOCOL_DIALECT_PROPERTIES_ARE_ALL_VALID,
                     MicroCheck.SECURITY_PROPERTIES_ARE_ALL_VALID,
                     MicroCheck.CONNECTION_PROPERTIES_ARE_ALL_VALID,
-                    MicroCheck.GENERAL_PROTOCOL_PROPERTIES_ARE_ALL_VALID,
-                    MicroCheck.SLAVE_DEVICE_HAS_GATEWAY,
-                    MicroCheck.LINKED_WITH_USAGE_POINT);
+                    MicroCheck.GENERAL_PROTOCOL_PROPERTIES_ARE_ALL_VALID);
         }
-
         @Override
         public Set<MicroAction> optionalActions() {
             return EnumSet.of(
-                    MicroAction.ENABLE_VALIDATION,
-                    MicroAction.DISABLE_VALIDATION);
+                    MicroAction.START_COMMUNICATION,
+                    MicroAction.DISABLE_VALIDATION,
+                    MicroAction.DISABLE_ESTIMATION,
+                    MicroAction.START_RECURRING_COMMUNICATION,
+                    MicroAction.ENABLE_ESTIMATION,
+                    MicroAction.DISABLE_COMMUNICATION,
+                    MicroAction.ENABLE_VALIDATION);
         }
-
         @Override
         public Set<MicroAction> requiredActions() {
             return EnumSet.of(
@@ -109,20 +126,29 @@ public enum TransitionType {
         @Override
         public Set<MicroCheck> optionalChecks() {
             return EnumSet.of(
-                    MicroCheck.DEFAULT_CONNECTION_AVAILABLE,
                     MicroCheck.AT_LEAST_ONE_SCHEDULED_COMMUNICATION_TASK_AVAILABLE,
-                    MicroCheck.ALL_LOAD_PROFILE_DATA_COLLECTED,
+                    MicroCheck.AT_LEAST_ONE_SHARED_COMMUNICATION_SCHEDULE_AVAILABLE,
+                    MicroCheck.SLAVE_DEVICE_HAS_GATEWAY,
+                    MicroCheck.AT_LEAST_ONE_ACTIVE_CONNECTION_AVAILABLE,
+                    MicroCheck.DEFAULT_CONNECTION_AVAILABLE,
+                    MicroCheck.LINKED_WITH_USAGE_POINT);
+        }
+        @Override
+        public Set<MicroCheck> requiredChecks() {
+            return EnumSet.of(
                     MicroCheck.PROTOCOL_DIALECT_PROPERTIES_ARE_ALL_VALID,
                     MicroCheck.SECURITY_PROPERTIES_ARE_ALL_VALID,
                     MicroCheck.CONNECTION_PROPERTIES_ARE_ALL_VALID,
-                    MicroCheck.GENERAL_PROTOCOL_PROPERTIES_ARE_ALL_VALID,
-                    MicroCheck.SLAVE_DEVICE_HAS_GATEWAY,
-                    MicroCheck.LINKED_WITH_USAGE_POINT);
+                    MicroCheck.GENERAL_PROTOCOL_PROPERTIES_ARE_ALL_VALID);
         }
 
         @Override
         public Set<MicroAction> optionalActions() {
-            return EnumSet.of(MicroAction.ENABLE_VALIDATION);
+            return EnumSet.of(
+                    MicroAction.START_COMMUNICATION,
+                    MicroAction.START_RECURRING_COMMUNICATION,
+                    MicroAction.ENABLE_ESTIMATION,
+                    MicroAction.ENABLE_VALIDATION);
         }
 
         @Override
@@ -137,30 +163,37 @@ public enum TransitionType {
         @Override
         public Set<MicroCheck> optionalChecks() {
             return EnumSet.of(
-                    MicroCheck.DEFAULT_CONNECTION_AVAILABLE,
                     MicroCheck.AT_LEAST_ONE_SCHEDULED_COMMUNICATION_TASK_AVAILABLE,
-                    MicroCheck.ALL_LOAD_PROFILE_DATA_COLLECTED,
+                    MicroCheck.AT_LEAST_ONE_SHARED_COMMUNICATION_SCHEDULE_AVAILABLE,
+                    MicroCheck.SLAVE_DEVICE_HAS_GATEWAY,
+                    MicroCheck.AT_LEAST_ONE_ACTIVE_CONNECTION_AVAILABLE,
+                    MicroCheck.DEFAULT_CONNECTION_AVAILABLE,
+                    MicroCheck.LINKED_WITH_USAGE_POINT);
+        }
+        @Override
+        public Set<MicroCheck> requiredChecks() {
+            return EnumSet.of(
                     MicroCheck.PROTOCOL_DIALECT_PROPERTIES_ARE_ALL_VALID,
                     MicroCheck.SECURITY_PROPERTIES_ARE_ALL_VALID,
                     MicroCheck.CONNECTION_PROPERTIES_ARE_ALL_VALID,
-                    MicroCheck.GENERAL_PROTOCOL_PROPERTIES_ARE_ALL_VALID,
-                    MicroCheck.SLAVE_DEVICE_HAS_GATEWAY,
-                    MicroCheck.LINKED_WITH_USAGE_POINT);
+                    MicroCheck.GENERAL_PROTOCOL_PROPERTIES_ARE_ALL_VALID);
         }
-
         @Override
         public Set<MicroAction> optionalActions() {
             return EnumSet.of(
+                    MicroAction.START_COMMUNICATION,
+                    MicroAction.DISABLE_VALIDATION,
+                    MicroAction.DISABLE_ESTIMATION,
+                    MicroAction.START_RECURRING_COMMUNICATION,
+                    MicroAction.ENABLE_ESTIMATION,
                     MicroAction.DISABLE_COMMUNICATION,
-                    MicroAction.ENABLE_VALIDATION,
-                    MicroAction.DISABLE_VALIDATION);
+                    MicroAction.ENABLE_VALIDATION);
         }
-
         @Override
         public Set<MicroAction> requiredActions() {
             return EnumSet.of(
-                    MicroAction.CREATE_METER_ACTIVATION,
                     MicroAction.SET_LAST_READING,
+                    MicroAction.CREATE_METER_ACTIVATION,
                     MicroAction.ACTIVATE_CONNECTION_TASKS_IN_USE);
         }
     },
@@ -168,10 +201,11 @@ public enum TransitionType {
         @Override
         public Set<MicroCheck> optionalChecks() {
             return EnumSet.of(
-                    MicroCheck.DEFAULT_CONNECTION_AVAILABLE,
                     MicroCheck.AT_LEAST_ONE_SCHEDULED_COMMUNICATION_TASK_AVAILABLE,
-                    MicroCheck.ALL_LOAD_PROFILE_DATA_COLLECTED,
+                    MicroCheck.AT_LEAST_ONE_SHARED_COMMUNICATION_SCHEDULE_AVAILABLE,
                     MicroCheck.SLAVE_DEVICE_HAS_GATEWAY,
+                    MicroCheck.AT_LEAST_ONE_ACTIVE_CONNECTION_AVAILABLE,
+                    MicroCheck.DEFAULT_CONNECTION_AVAILABLE,
                     MicroCheck.LINKED_WITH_USAGE_POINT);
         }
 
@@ -187,45 +221,111 @@ public enum TransitionType {
         @Override
         public Set<MicroAction> optionalActions() {
             return EnumSet.of(
-                    MicroAction.ACTIVATE_CONNECTION_TASKS_IN_USE,
+                    MicroAction.START_COMMUNICATION,
+                    MicroAction.START_RECURRING_COMMUNICATION,
+                    MicroAction.ENABLE_ESTIMATION,
                     MicroAction.ENABLE_VALIDATION);
         }
 
         @Override
         public Set<MicroAction> requiredActions() {
-            return EnumSet.of(MicroAction.SET_LAST_READING);
+            return EnumSet.of(MicroAction.SET_LAST_READING,
+                    MicroAction.CREATE_METER_ACTIVATION,
+                    MicroAction.ACTIVATE_CONNECTION_TASKS_IN_USE);
         }
     },
     DEACTIVATE(DefaultState.ACTIVE, DefaultState.INACTIVE) {
         @Override
+        public Set<MicroCheck> optionalChecks() {
+            return EnumSet.of(
+                    MicroCheck.ALL_LOAD_PROFILE_DATA_COLLECTED,
+                    MicroCheck.ALL_DATA_VALIDATED,
+                    MicroCheck.ALL_DATA_VALID);
+        }
+        @Override
+        public Set<MicroCheck> requiredChecks() {
+            return EnumSet.of(
+                    MicroCheck.PROTOCOL_DIALECT_PROPERTIES_ARE_ALL_VALID,
+                    MicroCheck.SECURITY_PROPERTIES_ARE_ALL_VALID,
+                    MicroCheck.CONNECTION_PROPERTIES_ARE_ALL_VALID,
+                    MicroCheck.GENERAL_PROTOCOL_PROPERTIES_ARE_ALL_VALID);
+        }
+        @Override
         public Set<MicroAction> optionalActions() {
             return EnumSet.of(
-                    MicroAction.DISABLE_COMMUNICATION,
-                    MicroAction.DISABLE_VALIDATION);
+                    MicroAction.FORCE_VALIDATION_AND_ESTIMATION,
+                    MicroAction.START_COMMUNICATION,
+                    MicroAction.DISABLE_VALIDATION,
+                    MicroAction.DISABLE_ESTIMATION,
+                    MicroAction.START_RECURRING_COMMUNICATION,
+                    MicroAction.DISABLE_COMMUNICATION
+            );
         }
     },
     DEACTIVATE_AND_DECOMMISSION(DefaultState.ACTIVE, DefaultState.DECOMMISSIONED) {
         @Override
-        public Set<MicroAction> optionalActions() {
-            return EnumSet.of(MicroAction.REMOVE_DEVICE_FROM_STATIC_GROUPS);
+        public Set<MicroCheck> optionalChecks() {
+            return EnumSet.of(
+                    MicroCheck.ALL_ISSUES_AND_ALARMS_ARE_CLOSED,
+                    MicroCheck.ALL_LOAD_PROFILE_DATA_COLLECTED,
+                    MicroCheck.ALL_DATA_VALIDATED,
+                    MicroCheck.ALL_DATA_VALID);
         }
-
+        @Override
+        public Set<MicroAction> optionalActions() {
+            return EnumSet.of(MicroAction.REMOVE_DEVICE_FROM_STATIC_GROUPS,
+                    MicroAction.FORCE_VALIDATION_AND_ESTIMATION);
+        }
         @Override
         public Set<MicroAction> requiredActions() {
             return EnumSet.of(
                     MicroAction.DETACH_SLAVE_FROM_MASTER,
-                    MicroAction.CLOSE_METER_ACTIVATION);
+                    MicroAction.CLOSE_ALL_ISSUES,
+                    MicroAction.CLOSE_METER_ACTIVATION,
+                    MicroAction.DISABLE_VALIDATION,
+                    MicroAction.DISABLE_ESTIMATION,
+                    MicroAction.DISABLE_COMMUNICATION);
         }
     },
     DECOMMISSION(DefaultState.INACTIVE, DefaultState.DECOMMISSIONED) {
         @Override
         public Set<MicroCheck> optionalChecks() {
-            return EnumSet.of(MicroCheck.ALL_ISSUES_AND_ALARMS_ARE_CLOSED);
+            return EnumSet.of(MicroCheck.ALL_ISSUES_AND_ALARMS_ARE_CLOSED,
+                    MicroCheck.ALL_LOAD_PROFILE_DATA_COLLECTED,
+                    MicroCheck.ALL_DATA_VALIDATED,
+                    MicroCheck.ALL_DATA_VALID);
+        }
+        @Override
+        public Set<MicroAction> optionalActions() {
+            return EnumSet.of(MicroAction.REMOVE_DEVICE_FROM_STATIC_GROUPS,
+                    MicroAction.FORCE_VALIDATION_AND_ESTIMATION);
+        }
+        @Override
+        public Set<MicroAction> requiredActions() {
+            return EnumSet.of(
+                    MicroAction.DETACH_SLAVE_FROM_MASTER,
+                    MicroAction.CLOSE_ALL_ISSUES,
+                    MicroAction.CLOSE_METER_ACTIVATION,
+                    MicroAction.DISABLE_VALIDATION,
+                    MicroAction.DISABLE_ESTIMATION,
+                    MicroAction.DISABLE_COMMUNICATION);
         }
     },
-    DELETE_FROM_DECOMMISSIONED(DefaultState.DECOMMISSIONED, DefaultState.REMOVED),
+    DELETE_FROM_DECOMMISSIONED(DefaultState.DECOMMISSIONED, DefaultState.REMOVED){
+        @Override
+        public Set<MicroAction> requiredActions() {
+            return EnumSet.of(
+                    MicroAction.REMOVE_DEVICE);
+        }
+    },
    // RECYCLE(DefaultState.DECOMMISSIONED, DefaultState.IN_STOCK),
-    DELETE_FROM_IN_STOCK(DefaultState.IN_STOCK, DefaultState.REMOVED);
+    DELETE_FROM_IN_STOCK(DefaultState.IN_STOCK, DefaultState.REMOVED){
+       @Override
+       public Set<MicroAction> requiredActions() {
+           return EnumSet.of(
+                   MicroAction.REMOVE_DEVICE);
+       }
+   };
 
     private DefaultState from;
     private DefaultState to;
