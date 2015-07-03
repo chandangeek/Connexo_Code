@@ -8,6 +8,7 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.rest.util.RestValidationExceptionMapper;
 import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.TransactionWrapper;
@@ -64,7 +65,8 @@ public class FirmwareApplication extends Application implements TranslationKeyPr
                 FirmwareTypesResource.class,
                 TransactionWrapper.class,
                 MultiPartFeature.class,
-                FirmwareComTaskResource.class
+                FirmwareComTaskResource.class,
+                RestValidationExceptionMapper.class
         );
     }
 

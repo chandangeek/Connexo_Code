@@ -5,6 +5,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.rest.util.RestValidationBuilder;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
@@ -110,11 +111,26 @@ public class DeviceFirmwareMessagesResource {
         for (Map.Entry<String, Object> property : convertedProperties.entrySet()) {
             deviceMessageBuilder.addProperty(property.getKey(), property.getValue());
         }
-        deviceMessageBuilder.add();
+        DeviceMessage<Device> newFirmwareMessage = deviceMessageBuilder.add();
+        // Default message validation was successfully passed, trigger activation date validation
+        validateActivationDate(newFirmwareMessage, convertedProperties);
         rescheduleFirmwareUpgradeTask(device);
         return Response.status(Response.Status.CREATED).build();
     }
 
+    private void validateActivationDate(DeviceMessage<Device> firmwareMessage, Map<String, Object> properties) {
+        if (DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_AND_ACTIVATE_DATE.equals(firmwareMessage.getDeviceMessageId())){
+            Object activationDateAsObj = properties.get(DeviceMessageConstants.firmwareUpdateActivationDateAttributeName);
+            if (activationDateAsObj != null) {
+                if (((Date) activationDateAsObj).toInstant().isBefore(firmwareMessage.getReleaseDate())) {
+                    new RestValidationBuilder().addValidationError(
+                            new LocalizedFieldValidationException(MessageSeeds.FIRMWARE_ACTIVATION_DATE_IS_BEFORE_UPLOAD,
+                                    "deviceMessageAttributes." + DeviceMessageConstants.firmwareUpdateActivationDateAttributeName))
+                            .validate();
+                }
+            }
+        }
+    }
 
     @PUT
     @Path("/firmwaremessages/{messageId}/activate")
