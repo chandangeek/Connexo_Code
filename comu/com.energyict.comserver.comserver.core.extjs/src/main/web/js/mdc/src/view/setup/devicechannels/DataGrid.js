@@ -107,6 +107,12 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                 }
             },
             {
+                xtype: 'edited-column',
+                header: '',
+                dataIndex: 'bulkModificationState',
+                width: 30
+            },
+            {
                 xtype: 'interval-flags-column',
                 dataIndex: 'intervalFlags',
                 align: 'right',

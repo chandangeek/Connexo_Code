@@ -3,6 +3,7 @@ Ext.define('Mdc.view.setup.devicechannels.ReadingEstimationWindow', {
     alias: 'widget.reading-estimation-window',
     modal: true,
     title: Uni.I18n.translate('general.selectEstimationRule', 'MDC', 'Select estimation rule'),
+    bothSuspected: false,
     record: null,
 
     initComponent: function () {
@@ -22,6 +23,31 @@ Ext.define('Mdc.view.setup.devicechannels.ReadingEstimationWindow', {
                     itemId: 'error-label',
                     hidden: true,
                     margin: '10 0 10 20'
+                },
+                {
+                    xtype: 'radiogroup',
+                    fieldLabel: Uni.I18n.translate('general.valueToEstimate', 'MDC', 'Value to estimate'),
+                    itemId: 'value-to-estimate-radio-group',
+                    required: true,
+                    columns: 1,
+                    vertical: true,
+                    hidden: !me.bothSuspected,
+                    defaults: {
+                        name: 'isBulk'
+                    },
+                    items: [
+                        {
+                            itemId: 'rbtn-is-bulk-no',
+                            boxLabel: Uni.I18n.translate('general.valuekWh', 'MDC', 'Value (kWh)'),
+                            inputValue: false,
+                            checked: true
+                        },
+                        {
+                            itemId: 'rbtn-is-bulk-yes',
+                            boxLabel: Uni.I18n.translate('general.bulkValuekWh', 'FWC', 'Bulk value (kWh)'),
+                            inputValue: true
+                        }
+                    ]
                 },
                 {
                     xtype: 'combobox',
