@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
+import com.energyict.cbo.Password;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.messages.LegacyMessageConverter;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
@@ -73,7 +74,7 @@ public class REMIDataloggerMessageConverterTest extends AbstractMessageConverter
             case DeviceMessageConstants.usernameAttributeName:
                 return "user";
             case DeviceMessageConstants.passwordAttributeName:
-                return "pass";
+                return new Password("pass");
             case DeviceMessageConstants.apnAttributeName:
                 return "apn";
             case DeviceMessageConstants.enableDSTAttributeName:
