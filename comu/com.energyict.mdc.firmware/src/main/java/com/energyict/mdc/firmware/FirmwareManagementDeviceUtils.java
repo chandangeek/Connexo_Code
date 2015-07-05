@@ -4,6 +4,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.FirmwareComTaskExecution;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
@@ -63,6 +64,12 @@ public class FirmwareManagementDeviceUtils {
 
         public FirmwareManagementDeviceUtils onDevice(Device device){
             return new FirmwareManagementDeviceUtils(thesaurus, deviceMessageSpecificationService, firmwareService, taskService, device);
+        }
+
+        public FirmwareManagementDeviceUtils onDevice(Device device, FirmwareComTaskExecution comTaskExecution){
+            FirmwareManagementDeviceUtils utils = this.onDevice(device);
+            utils.firmwareExecution = Optional.ofNullable(comTaskExecution);
+            return utils;
         }
     }
 

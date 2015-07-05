@@ -142,11 +142,10 @@ public class DeviceInFirmwareCampaignImpl implements DeviceInFirmwareCampaign {
         save();
     }
 
-    @Override
-    public FirmwareManagementDeviceStatus updateStatus() {
+    public FirmwareManagementDeviceStatus updateStatus(FirmwareComTaskExecution comTaskExecution) {
         FirmwareManagementDeviceStatus currentStatus = getStatus();
         if (currentStatus == null || NON_FINAL_STATUSES.contains(currentStatus.key())) {
-            FirmwareManagementDeviceUtils helper = helperProvider.get().onDevice(getDevice());
+            FirmwareManagementDeviceUtils helper = helperProvider.get().onDevice(getDevice(), comTaskExecution);
             Optional<DeviceMessage<Device>> firmwareMessage = helper.getFirmwareMessages()
                     .stream()
                     .filter(candidate -> candidate.getId() == firmwareMessageId)

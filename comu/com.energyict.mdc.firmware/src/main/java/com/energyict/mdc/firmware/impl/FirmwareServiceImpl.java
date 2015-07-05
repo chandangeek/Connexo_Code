@@ -280,8 +280,8 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Tra
         return DefaultFinder.of(DeviceInFirmwareCampaign.class, condition, dataModel);
     }
 
-    public List<DeviceInFirmwareCampaign> getDeviceInFirmwareCampaignsFor(Device device) {
-        return dataModel.query(DeviceInFirmwareCampaign.class, FirmwareCampaign.class, Device.class)
+    public List<DeviceInFirmwareCampaignImpl> getDeviceInFirmwareCampaignsFor(Device device) {
+        return dataModel.query(DeviceInFirmwareCampaignImpl.class, FirmwareCampaign.class, Device.class)
                 .select(where(DeviceInFirmwareCampaignImpl.Fields.DEVICE.fieldName()).isEqualTo(device).and(
                                 where(DeviceInFirmwareCampaignImpl.Fields.CAMPAIGN.fieldName() + "." + FirmwareCampaignImpl.Fields.STATUS.fieldName()).isNotEqual(FirmwareCampaignStatus.COMPLETE)));
     }

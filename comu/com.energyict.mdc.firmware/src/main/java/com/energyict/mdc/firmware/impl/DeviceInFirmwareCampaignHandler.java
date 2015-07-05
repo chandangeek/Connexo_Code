@@ -38,7 +38,7 @@ public class DeviceInFirmwareCampaignHandler extends EventHandler<LocalEvent> {
             FirmwareComTaskExecution comTaskExecution = (FirmwareComTaskExecution) event.getSource();
             this.firmwareService.getDeviceInFirmwareCampaignsFor(comTaskExecution.getDevice())
                 .stream()
-                .forEach(DeviceInFirmwareCampaign::updateStatus);
+                .forEach(deviceInCampaign -> deviceInCampaign.updateStatus(comTaskExecution));
         }
     }
 
