@@ -1,16 +1,21 @@
 package com.energyict.mdc.device.lifecycle.config.impl;
 
 import com.energyict.mdc.device.lifecycle.config.TransitionBusinessProcess;
+import com.energyict.mdc.device.lifecycle.config.TransitionBusinessProcessStartEvent;
 
 import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.orm.DataModel;
 import com.google.common.collect.ImmutableMap;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
 import java.util.Map;
+
+import static com.energyict.mdc.device.lifecycle.config.TransitionBusinessProcess.DEVICE_ID_BPM_PARAMETER_NAME;
 
 /**
  * Provides an implementation for the {@link TransitionBusinessProcessImpl} component.
@@ -35,7 +40,7 @@ public class TransitionBusinessProcessImpl implements TransitionBusinessProcess 
         }
     }
 
-    private final BpmService bpmService;
+    private final DataModel dataModel;
 
     @SuppressWarnings("unused")
     private long id;
@@ -47,9 +52,9 @@ public class TransitionBusinessProcessImpl implements TransitionBusinessProcess 
     private String processId;
 
     @Inject
-    public TransitionBusinessProcessImpl(BpmService bpmService) {
+    public TransitionBusinessProcessImpl(DataModel dataModel) {
         super();
-        this.bpmService = bpmService;
+        this.dataModel = dataModel;
     }
 
     TransitionBusinessProcessImpl initialize(String deploymentId, String processId) {
@@ -78,7 +83,10 @@ public class TransitionBusinessProcessImpl implements TransitionBusinessProcess 
         Map<String, Object> parameters = ImmutableMap.of(
                 TransitionBusinessProcess.DEVICE_ID_BPM_PARAMETER_NAME, deviceId,
                 TransitionBusinessProcess.STATE_ID_BPM_PARAMETER_NAME, currentState.getId());
-        this.bpmService.startProcess(this.deploymentId, this.processId, parameters);
+        this.dataModel
+                .getInstance(TransitionBusinessProcessStartEventImpl.class)
+                .initialize(this, deviceId, currentState)
+                .publish();
     }
 
 }

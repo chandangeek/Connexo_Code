@@ -11,6 +11,7 @@ import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 import com.energyict.mdc.device.lifecycle.config.Privileges;
 import com.energyict.mdc.device.lifecycle.config.TransitionType;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.CustomStateTransitionEventType;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.FiniteStateMachineBuilder;
@@ -45,13 +46,15 @@ public class Installer {
     private final Logger logger = Logger.getLogger(Installer.class.getName());
 
     private final DataModel dataModel;
+    private final EventService eventService;
     private final UserService userService;
     private final FiniteStateMachineService stateMachineService;
     private final DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
 
-    public Installer(DataModel dataModel, UserService userService, FiniteStateMachineService stateMachineService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+    public Installer(DataModel dataModel, EventService eventService, UserService userService, FiniteStateMachineService stateMachineService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
         super();
         this.dataModel = dataModel;
+        this.eventService = eventService;
         this.userService = userService;
         this.stateMachineService = stateMachineService;
         this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
@@ -65,6 +68,7 @@ public class Installer {
             this.logger.log(Level.SEVERE, e.getMessage(), e);
         }
         this.createPrivileges();
+        this.createEventTypes();
         this.installDefaultLifeCycle();
     }
 
@@ -92,6 +96,16 @@ public class Installer {
                 Privileges.INITIATE_ACTION_2,
                 Privileges.INITIATE_ACTION_3,
                 Privileges.INITIATE_ACTION_4};
+    }
+
+    private void createEventTypes() {
+        for (EventType eventType : EventType.values()) {
+            try {
+                eventType.install(this.eventService);
+            } catch (Exception e) {
+                this.logger.log(Level.SEVERE, e.getMessage(), e);
+            }
+        }
     }
 
     private DeviceLifeCycle installDefaultLifeCycle() {
