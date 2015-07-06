@@ -9,13 +9,12 @@ Ext.define('Fwc.devicefirmware.view.ConfirmActivateVersionWindow', {
     activateHandler: undefined,
     initComponent: function () {
         var me = this;
-
+        me.title = Uni.I18n.translate('deviceFirmware.activateVersion', 'FWC', 'Activate version \'{0}\'', [me.versionName]);
         me.items = {
             xtype: 'form',
                 itemId: 'confirm-activate-version-form',
                 ui: 'medium',
                 padding: 0,
-                title: Uni.I18n.translate('deviceFirmware.activateVersion', 'FWC', 'Activate version \'{0}\'', [me.versionName]),
                 items: [
                 {
                     xtype: 'upload-field-container',
