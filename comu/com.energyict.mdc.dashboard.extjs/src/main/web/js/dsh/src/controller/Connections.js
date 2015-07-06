@@ -1,5 +1,5 @@
 Ext.define('Dsh.controller.Connections', {
-    extend: 'Dsh.controller.BaseController',
+    extend: 'Ext.app.Controller',
 
     models: [
         'Dsh.model.ConnectionTask',
