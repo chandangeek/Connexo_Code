@@ -76,13 +76,6 @@ public class MdcPropertyUtils {
         return propertyInfoList;
     }
 
-    public PropertyInfo convertPropertySpecToPropertyInfo(PropertySpec propertySpec) {
-        SimplePropertyType simplePropertyType = getSimplePropertyType(propertySpec);
-        PropertyTypeInfo propertyTypeInfo = getPropertyTypeInfo(null, propertySpec, simplePropertyType, null);
-        PropertyInfo propertyInfo = new PropertyInfo(getTranslatedPropertyName(propertySpec), propertySpec.getName(), null, propertyTypeInfo, propertySpec.isRequired());
-        return propertyInfo;
-    }
-
     public List<PropertyInfo> convertPropertySpecsToPropertyInfos(Collection<PropertySpec> propertySpecs, TypedProperties properties, Device device) {
         PropertyDefaultValuesProvider provider = (propertySpec, propertyType) -> {
             List<?> possibleValues = null;
