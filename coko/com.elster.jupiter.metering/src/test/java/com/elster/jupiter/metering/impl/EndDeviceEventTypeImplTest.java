@@ -6,6 +6,7 @@ import static org.mockito.Mockito.when;
 import java.security.Principal;
 import java.sql.SQLException;
 
+import com.elster.jupiter.bpm.impl.BpmModule;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -98,6 +99,7 @@ public class EndDeviceEventTypeImplTest extends EqualsContractTest {
                 new ThreadSecurityModule(principal),
                 new PubSubModule(),
                 new TransactionModule(),
+                new BpmModule(),
                 new FiniteStateMachineModule(),
                 new NlsModule());
         when(principal.getName()).thenReturn("Test");

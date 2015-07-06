@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.security.Principal;
 import java.sql.SQLException;
 
+import com.elster.jupiter.bpm.impl.BpmModule;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -87,6 +88,7 @@ public class UsagePointCrudTest {
                 new ThreadSecurityModule(),
                 new PubSubModule(),
                 new TransactionModule(),
+                new BpmModule(),
                 new FiniteStateMachineModule(),
                 new NlsModule());
         injector.getInstance(TransactionService.class).execute(() -> {

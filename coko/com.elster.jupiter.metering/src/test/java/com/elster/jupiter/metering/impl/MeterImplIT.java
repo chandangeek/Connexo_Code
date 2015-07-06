@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fsm.FiniteStateMachine;
@@ -87,6 +88,7 @@ public class MeterImplIT {
                     new ThreadSecurityModule(),
                     new PubSubModule(),
                     new TransactionModule(),
+                    new BpmModule(),
                     new FiniteStateMachineModule(),
                     new NlsModule()
             );
