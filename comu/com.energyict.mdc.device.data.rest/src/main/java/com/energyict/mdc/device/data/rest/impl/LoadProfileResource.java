@@ -78,7 +78,7 @@ public class LoadProfileResource {
         List<LoadProfile> allLoadProfiles = device.getLoadProfiles();
         List<LoadProfile> loadProfilesOnPage = ListPager.of(allLoadProfiles, LOAD_PROFILE_COMPARATOR_BY_NAME).from(queryParameters).find();
         List<LoadProfileInfo> loadProfileInfos = LoadProfileInfo.from(loadProfilesOnPage);
-        return Response.ok(PagedInfoList.fromPagedList("loadProfiles", loadProfileInfos, queryParameters)).build();
+        return Response.ok(PagedInfoList.fromPagedList("loadProfiles", loadProfileInfos.stream().sorted((o1, o2) -> o1.name.compareToIgnoreCase(o2.name)).collect(Collectors.toList()), queryParameters)).build();
     }
 
     @GET

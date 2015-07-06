@@ -25,6 +25,7 @@ import com.energyict.mdc.device.data.TextReading;
 import com.energyict.mdc.device.data.TextRegister;
 
 import javax.inject.Inject;
+import javax.ws.rs.HEAD;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.util.ArrayList;
@@ -79,9 +80,9 @@ public class DeviceDataInfoFactory {
         }
 
         Optional<DataValidationStatus> dataValidationStatus = loadProfileReading.getChannelValidationStates()
-                .entrySet().stream().map(Map.Entry::getValue).findFirst();//  only one channel
+                .entrySet().stream().map(Map.Entry::getValue).findFirst();
         dataValidationStatus.ifPresent(status -> {
-            channelIntervalInfo.validationInfo = validationInfoFactory.createValidationInfoFor(channel, status, deviceValidation);
+            channelIntervalInfo.validationInfo = validationInfoFactory.createValidationInfoFor(channel, status, deviceValidation, channelIntervalInfo.modificationFlag);
         });
         if (!channelReading.isPresent() && !dataValidationStatus.isPresent()) {
             // we have a reading with no data and no validation result => it's a placeholder (missing value) which hasn't validated ( = detected ) yet
@@ -127,7 +128,7 @@ public class DeviceDataInfoFactory {
         }
 
         for (Map.Entry<Channel, DataValidationStatus> entry : loadProfileReading.getChannelValidationStates().entrySet()) {
-            channelIntervalInfo.channelValidationData.put(entry.getKey().getId(), validationInfoFactory.createValidationInfoFor(entry.getKey(), entry.getValue(), deviceValidation));
+            channelIntervalInfo.channelValidationData.put(entry.getKey().getId(), validationInfoFactory.createValidationInfoFor(entry.getKey(), entry.getValue(), deviceValidation, null));
         }
 
         for (Channel channel : channels) {

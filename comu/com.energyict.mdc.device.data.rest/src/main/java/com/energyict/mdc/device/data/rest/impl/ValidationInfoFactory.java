@@ -14,6 +14,7 @@ import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.DeviceValidation;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.NumericalRegister;
+import com.energyict.mdc.device.data.rest.ValueModificationFlag;
 import com.google.common.collect.ImmutableList;
 
 import javax.inject.Inject;
@@ -182,14 +183,16 @@ public class ValidationInfoFactory {
         return result;
     }
 
-    ValidationInfo createValidationInfoFor(Channel channel, DataValidationStatus dataValidationStatus, DeviceValidation deviceValidation) {
+    ValidationInfo createValidationInfoFor(Channel channel, DataValidationStatus dataValidationStatus, DeviceValidation deviceValidation, ReadingModificationFlag readingModificationFlag) {
         ValidationInfo validationInfo = new ValidationInfo();
         validationInfo.dataValidated = dataValidationStatus.completelyValidated();
         validationInfo.mainValidationInfo.validationResult = ValidationStatus.forResult(deviceValidation.getValidationResult(dataValidationStatus.getReadingQualities()));
+        validationInfo.mainValidationInfo.valueModificationFlag = ValueModificationFlag.getModificationFlag(dataValidationStatus.getReadingQualities(), readingModificationFlag);
         validationInfo.mainValidationInfo.validationRules = validationRuleInfoFactory.createInfosForDataValidationStatus(dataValidationStatus);
         validationInfo.mainValidationInfo.estimationRules = estimationRuleInfoFactory.createEstimationRulesInfo(dataValidationStatus.getReadingQualities());
         if (channel.getReadingType().getCalculatedReadingType().isPresent()) {
             validationInfo.bulkValidationInfo.validationResult = ValidationStatus.forResult(deviceValidation.getValidationResult(dataValidationStatus.getBulkReadingQualities()));
+            validationInfo.bulkValidationInfo.valueModificationFlag = ValueModificationFlag.getModificationFlag(dataValidationStatus.getBulkReadingQualities(), readingModificationFlag);
             validationInfo.bulkValidationInfo.validationRules = validationRuleInfoFactory.createInfosForBulkDataValidationStatus(dataValidationStatus);
             validationInfo.bulkValidationInfo.estimationRules = estimationRuleInfoFactory.createEstimationRulesInfo(dataValidationStatus.getBulkReadingQualities());
         }

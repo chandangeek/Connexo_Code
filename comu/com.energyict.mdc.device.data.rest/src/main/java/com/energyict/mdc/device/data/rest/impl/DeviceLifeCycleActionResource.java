@@ -9,12 +9,15 @@ import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.RestValidationBuilder;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
+import com.elster.jupiter.util.streams.DecoratedStream;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.lifecycle.ActionDoesNotRelateToDeviceStateException;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
+import com.energyict.mdc.device.lifecycle.EffectiveTimestampBeforeLastStateChangeException;
+import com.energyict.mdc.device.lifecycle.EffectiveTimestampNotInRangeException;
 import com.energyict.mdc.device.lifecycle.ExecutableAction;
 import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
 import com.energyict.mdc.device.lifecycle.MultipleMicroCheckViolationsException;
@@ -112,7 +115,7 @@ public class DeviceLifeCycleActionResource {
                 List<ExecutableActionProperty> executableProperties = getExecutableActionPropertiesFromInfo(info, allPropertySpecsForAction);
                 try {
                     requestedAction.execute(info.effectiveTimestamp, executableProperties);
-                } catch (SecurityException | ActionDoesNotRelateToDeviceStateException ex){
+                } catch (SecurityException | ActionDoesNotRelateToDeviceStateException | EffectiveTimestampNotInRangeException | EffectiveTimestampBeforeLastStateChangeException ex){
                     wizardResult.result = false;
                     wizardResult.message = ex.getLocalizedMessage();
                 } catch (RequiredMicroActionPropertiesException violationEx){
@@ -137,31 +140,26 @@ public class DeviceLifeCycleActionResource {
 
     private String getTargetStateName(AuthorizedTransitionAction requestedAction) {
         State targetState  = requestedAction.getStateTransition().getTo();
-        String targetStateName = targetState.getName();
-        Optional<DefaultState> defaultState = DefaultState.from(targetState);
-        if (defaultState.isPresent()){
-            targetStateName = thesaurus.getString(defaultState.get().getKey(), defaultState.get().getKey()) ;
-        }
-        return targetStateName;
+        return DeviceAttributesInfoFactory.getStateName(thesaurus, targetState);
     }
 
     private void getFailedExecutionMessage(MultipleMicroCheckViolationsException microChecksViolationEx, DeviceLifeCycleActionResultInfo wizardResult) {
         wizardResult.result = false;
         wizardResult.message = DefaultTranslationKey.PRE_TRANSITION_CHECKS_FAILED.translateWith(thesaurus);
-        wizardResult.microChecks = microChecksViolationEx.getViolations()
-                .stream()
+        wizardResult.microChecks = DecoratedStream.decorate(microChecksViolationEx.getViolations().stream())
                 .map(violation -> {
                     IdWithNameInfo microCheckInfo = new IdWithNameInfo();
                     microCheckInfo.id = violation.getCheck().name();
                     MicroCheckTranslationKey.getNameTranslation(violation.getCheck()).ifPresent(microCheckName ->
-                                    microCheckInfo.id = thesaurus.getString(microCheckName.getKey(), microCheckName.getDefaultFormat())
+                        microCheckInfo.id = thesaurus.getStringBeyondComponent(microCheckName.getKey(), microCheckName.getDefaultFormat())
                     );
                     microCheckInfo.name = violation.getCheck().name();
                     MicroCheckTranslationKey.getDescriptionTranslation(violation.getCheck()).ifPresent(microCheckDescription ->
-                                    microCheckInfo.name = thesaurus.getString(microCheckDescription.getKey(), microCheckDescription.getDefaultFormat())
+                        microCheckInfo.name = thesaurus.getStringBeyondComponent(microCheckDescription.getKey(), microCheckDescription.getDefaultFormat())
                     );
                     return microCheckInfo;
                 })
+                .distinct(check -> check.id)
                 .collect(Collectors.toList());
     }
 

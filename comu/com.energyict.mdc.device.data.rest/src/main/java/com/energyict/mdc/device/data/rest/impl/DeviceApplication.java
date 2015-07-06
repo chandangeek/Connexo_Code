@@ -354,6 +354,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(issueDataValidationService).to(IssueDataValidationService.class);
             bind(ResourceHelper.class).to(ResourceHelper.class);
             bind(ChannelResourceHelper.class).to(ChannelResourceHelper.class);
+            bind(EstimationHelper.class).to(EstimationHelper.class);
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
             bind(ConnectionMethodInfoFactory.class).to(ConnectionMethodInfoFactory.class);
             bind(MdcPropertyUtils.class).to(MdcPropertyUtils.class);
@@ -403,6 +404,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(DeviceLifeCycleActionInfoFactory.class).to(DeviceLifeCycleActionInfoFactory.class);
             bind(EstimationRuleInfoFactory.class).to(EstimationRuleInfoFactory.class);
             bind(com.elster.jupiter.estimation.rest.PropertyUtils.class).to(com.elster.jupiter.estimation.rest.PropertyUtils.class);
+            bind(DeviceAttributesInfoFactory.class).to(DeviceAttributesInfoFactory.class);
         }
     }
 

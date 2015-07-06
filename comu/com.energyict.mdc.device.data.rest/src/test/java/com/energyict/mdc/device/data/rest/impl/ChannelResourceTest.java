@@ -6,7 +6,10 @@ import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeterActivation;
+<<<<<<< HEAD
 import com.elster.jupiter.metering.ReadingQualityRecord;
+=======
+>>>>>>> master
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.ProfileStatus;
@@ -77,7 +80,14 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
     @Mock
     private IValidationRule validationRule;
     @Mock
+<<<<<<< HEAD
     private EstimationRule estimationRule;
+=======
+    private ReadingQuality quality1;
+
+    private ReadingQualityType readingQualityType = new ReadingQualityType("3.0.1");
+
+>>>>>>> master
     @Mock
     private ReadingQualityRecord quality1;
     @Mock
@@ -174,6 +184,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(channel.getLastDateTime()).thenReturn(Optional.of(NOW));
         when(channel.getUnit()).thenReturn(unit);
         when(deviceValidation.getLastChecked(channel)).thenReturn(Optional.of(NOW));
+        when(quality1.getType()).thenReturn(readingQualityType);
     }
 
     @Test
@@ -235,6 +246,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(channel.getReadingType()).thenReturn(readingType);
         ChannelDataUpdater channelDataUpdater = mock(ChannelDataUpdater.class);
         when(channelDataUpdater.editChannelData(anyList())).thenReturn(channelDataUpdater);
+        when(channelDataUpdater.editBulkChannelData(anyList())).thenReturn(channelDataUpdater);
         when(channelDataUpdater.removeChannelData(anyList())).thenReturn(channelDataUpdater);
         when(channel.startEditingData()).thenReturn(channelDataUpdater);
         when(device.getId()).thenReturn(1L);

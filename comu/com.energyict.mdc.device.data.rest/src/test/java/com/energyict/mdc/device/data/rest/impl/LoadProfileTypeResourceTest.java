@@ -1,11 +1,16 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+<<<<<<< HEAD
 import com.elster.jupiter.cbo.QualityCodeCategory;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.ReadingQualityRecord;
+=======
+import com.elster.jupiter.cbo.QualityCodeIndex;
+import com.elster.jupiter.metering.IntervalReadingRecord;
+>>>>>>> master
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.ProfileStatus;
@@ -86,6 +91,8 @@ public class LoadProfileTypeResourceTest extends DeviceDataRestApplicationJersey
     @Mock
     private ValidationEvaluator evaluator;
 
+    private ReadingQualityType readingQualityType = new ReadingQualityType("3.0.1");
+
     public LoadProfileTypeResourceTest() {
     }
 
@@ -130,6 +137,7 @@ public class LoadProfileTypeResourceTest extends DeviceDataRestApplicationJersey
         when(rule1.getDisplayName()).thenReturn("Primes only");
         when(channelSpec.getNbrOfFractionDigits()).thenReturn(3);
         when(deviceValidation.getValidationResult(any())).thenReturn(ValidationResult.SUSPECT);
+<<<<<<< HEAD
         state1.addBulkReadingQuality(quality2, Collections.emptyList());
         when(quality2.hasEstimatedCategory()).thenReturn(true);
         when(estimationRule.getId()).thenReturn(13L);
@@ -139,6 +147,9 @@ public class LoadProfileTypeResourceTest extends DeviceDataRestApplicationJersey
         ReadingQualityType readingQualityType = ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.ESTIMATED, (int)estimationRule.getId());
         when(quality2.getType()).thenReturn(readingQualityType);
         doReturn(Optional.of(estimationRule)).when(estimationService).findEstimationRuleByQualityType(readingQualityType);
+=======
+        when(quality1.getType()).thenReturn(readingQualityType);
+>>>>>>> master
     }
 
     @Test

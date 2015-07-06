@@ -57,7 +57,6 @@ public class DeviceInfo {
     public String usagePoint;
     public DeviceEstimationStatusInfo estimationStatus;
     public DeviceLifeCycleStateInfo state;
-    public List<DeviceDateInfo> dates;
     public long version;
 
     public DeviceInfo() {
@@ -107,17 +106,6 @@ public class DeviceInfo {
         State deviceState = device.getState();
         deviceInfo.state = new DeviceLifeCycleStateInfo(thesaurus, deviceState);
         deviceInfo.version = device.getVersion();
-        CIMLifecycleDates lifecycleDates = device.getLifecycleDates();
-        deviceInfo.dates = Arrays.stream(DeviceDateInfo.DateAttribute.values())
-                .map(date -> {
-                    DeviceDateInfo dateInfo = new DeviceDateInfo();
-                    dateInfo.matchCurrentState = date.isMatchedCurrentState(deviceState);
-                    dateInfo.name = date.getDateName();
-                    dateInfo.timestamp = date.getValue(lifecycleDates);
-                    return dateInfo;
-                })
-                .collect(Collectors.toList());
-
         return deviceInfo;
     }
 
