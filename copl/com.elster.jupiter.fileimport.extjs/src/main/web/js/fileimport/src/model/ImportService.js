@@ -43,9 +43,9 @@ Ext.define('Fim.model.ImportService', {
             convert: function (value, record) {
                 return record.get('deleted') ? Uni.I18n.translate('importService.status.removed', 'FIM', 'This import service has been removed.') :
                     !record.get('importerAvailable') ? Uni.I18n.translate('importService.status.notAvailable', 'FIM', "This import service's configured file importer is not available and it will not be executed.") :
-                        !record.get('active') ? Uni.I18n.translate('importService.status.inactive', 'FIM', 'This import service is inactive and it will not be executed. Default/initial status, or following a deactivate action on the import service - and if the file importer is available in the system.') :
-                            !record.get('scheduled') ? Uni.I18n.translate('importService.status.notScheduled', 'FIM', 'This import service has not been configured on any application server and it will not be executed. After activating an import service, if the file importer is available in the system but the import service was not yet configured on any appserver.') :
-                                Uni.I18n.translate('importService.status.active', 'FIM', 'This import service is active and it will be executed by an application server. After activating an import service, if it was previously configured on at least one appserver, and the file importer is available in the system.');
+                        !record.get('active') ? Uni.I18n.translate('importService.status.inactive', 'FIM', 'This import service is inactive and it will not be executed.') :
+                            !record.get('scheduled') ? Uni.I18n.translate('importService.status.notScheduled', 'FIM', 'This import service has not been configured on any application server and it will not be executed.') :
+                                Uni.I18n.translate('importService.status.active', 'FIM', 'This import service is active and it will be executed by an application server.');
             }
         },
         {

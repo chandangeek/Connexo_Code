@@ -223,6 +223,13 @@ Ext.define('Fim.controller.ImportServices', {
                                 Uni.I18n.translate('general.active', 'FIM', 'Active');
                 rec.set('statusDisplay', statusDisplay);
 
+                var statusTooltip = record.get('deleted') ? Uni.I18n.translate('importService.status.removed', 'FIM', 'This import service has been removed.') :
+                        !record.get('importerAvailable') ? Uni.I18n.translate('importService.status.notAvailable', 'FIM', "This import service's configured file importer is not available and it will not be executed.") :
+                            !record.get('active') ? Uni.I18n.translate('importService.status.inactive', 'FIM', 'This import service is inactive and it will not be executed.') :
+                                !record.get('scheduled') ? Uni.I18n.translate('importService.status.notScheduled', 'FIM', 'This import service has not been configured on any application server and it will not be executed.') :
+                                    Uni.I18n.translate('importService.status.active', 'FIM', 'This import service is active and it will be executed by an application server.');
+
+                rec.set('statusTooltip', statusTooltip);
                 if (importServicePreviewContainerPanel) {
                     importServicePreviewContainerPanel.down('#pnl-import-service-preview-form').loadRecord(rec);
                 }
@@ -341,6 +348,29 @@ Ext.define('Fim.controller.ImportServices', {
                     addImportServiceView.down('#no-file-importer').show();
                 }
 
+                var importService = me.getModel('Fim.model.ImportService');
+                importService.load(importServiceId, {
+                    success: function (importServiceRecord) {
+                        addImportServiceView.importServiceRecord = importServiceRecord;
+                        me.getApplication().fireEvent('importserviceload', importServiceRecord);
+
+                        addImportServiceForm = addImportServiceView.down('#frm-add-import-service');
+                        addImportServiceForm.setTitle(Ext.String.format(Uni.I18n.translate('importService.edit', 'FIM', 'Edit \'{0}\''), importServiceRecord.get('name')));
+
+                        //fileImporterCombo.setValue(fileImporterCombo.store.getById(importServiceRecord.get('importerName')));
+                        //fileImporterCombo.setValue(importServiceRecord.get('importerName'));
+                        addImportServiceForm.loadRecord(importServiceRecord);
+
+                        if (importServiceRecord.properties() && importServiceRecord.properties().count()) {
+                            addImportServiceForm.down('grouped-property-form').addEditPage = true;
+                            addImportServiceForm.down('grouped-property-form').loadRecord(importServiceRecord);
+                        }
+
+                        me.getApplication().fireEvent('changecontentevent', addImportServiceView);
+
+                    }
+                });
+/*
                 var importServicesStore = Ext.create('Fim.store.ImportServices');
                 importServicesStore.getProxy().setExtraParam('application', me.applicationName);
                 importServicesStore.load({
@@ -364,6 +394,7 @@ Ext.define('Fim.controller.ImportServices', {
                         me.getApplication().fireEvent('changecontentevent', addImportServiceView);
                     }
                 });
+                */
             }
         });
     },

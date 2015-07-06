@@ -42,7 +42,7 @@ Ext.define('Fim.view.importservices.Grid', {
             },
 
             {
-                header: Uni.I18n.translate('general.importFolder', 'FIM', 'Imported folder'),
+                header: Uni.I18n.translate('general.importFolder', 'FIM', 'Import folder'),
                 dataIndex: 'importDirectory',
                 flex: 3
             },
