@@ -23,6 +23,7 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationSchedulesSetup', {
                     },
                     emptyComponent: {
                         xtype: 'no-items-found-panel',
+                        itemId: 'no-shared-communication-schedule',
                         title: Uni.I18n.translate('communicationschedule.empty.title', 'MDC', 'No shared communication schedules found'),
                         reasons: [
                             Uni.I18n.translate('communicationschedule.empty.list.item1', 'MDC', 'No shared communication schedules have been created yet.')

@@ -9,7 +9,8 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
         'Uni.grid.column.IntervalFlags',
         'Uni.grid.column.Edited',
         'Uni.view.toolbar.PagingTop',
-        'Uni.grid.column.Action'
+        'Uni.grid.column.Action',
+        'Mdc.view.setup.devicechannels.DataBulkActionMenu'
     ],
     plugins: [
         'bufferedrenderer',
@@ -23,6 +24,9 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
     viewConfig: {
         loadMask: false,
         enableTextSelection: true
+    },
+    selModel: {
+        mode: 'MULTI'
     },
     channelRecord: null,
     router: null,
@@ -43,22 +47,20 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                         + Uni.DateTime.formatTimeShort(value)
                         : '';
                 },
-                width: 200
+                flex: 1
             },
             {
                 header: Uni.I18n.translate('deviceloadprofiles.channels.value', 'MDC', 'Value') + ' (' + measurementType + ')',
                 dataIndex: 'value',
-                flex: 1,
                 align: 'right',
                 renderer: function (v, metaData, record) {
-                    var validationInfo = record.get('readingProperties'),
-                        cls = 'icon-validation-cell';
-                    if (!record.getValidationInfo().get('dataValidated')) {
+                    var cls = 'icon-validation-cell',
+                        status = record.data.validationInfo.mainValidationInfo.validationResult ? record.data.validationInfo.mainValidationInfo.validationResult.split('.')[1] : '';
+
+                    if (!record.data.validationInfo.dataValidated || status == 'notValidated') {
                         cls += ' icon-validation-black';
-                    } else if (validationInfo.delta) {
-                        if (validationInfo.delta.suspect) {
-                            cls += ' icon-validation-red'
-                        }
+                    } else if (status == 'suspect') {
+                        cls += ' icon-validation-red';
                     }
                     metaData.tdCls = cls;
                     if (!Ext.isEmpty(v)) {
@@ -72,12 +74,13 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                     selectOnFocus: true,
                     validateOnChange: true,
                     fieldStyle: 'text-align: right'
-                }
+                },
+                width: 200
             },
             {
                 xtype: 'edited-column',
                 header: '',
-                dataIndex: 'modificationState',
+                dataIndex: 'mainModificationState',
                 width: 30
             },
             {
@@ -87,15 +90,13 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                 align: 'right',
                 hidden: Ext.isEmpty(calculatedReadingType),
                 renderer: function (v, metaData, record) {
-                    var validationInfo = record.get('readingProperties'),
-                        cls = 'icon-validation-cell';
+                    var cls = 'icon-validation-cell',
+                        status = record.data.validationInfo.bulkValidationInfo.validationResult ? record.data.validationInfo.bulkValidationInfo.validationResult.split('.')[1] : '';
 
-                    if (!record.getValidationInfo().get('dataValidated')) {
+                    if (!record.data.validationInfo.dataValidated || status == 'notValidated') {
                         cls += ' icon-validation-black';
-                    } else if (validationInfo.bulk) {
-                        if (validationInfo.bulk.suspect) {
-                            cls += ' icon-validation-red'
-                        }
+                    } else if (status == 'suspect') {
+                        cls += ' icon-validation-red';
                     }
 
                     metaData.tdCls = cls;
@@ -104,6 +105,12 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                         return !Ext.isEmpty(value) ? value : '';
                     }
                 }
+            },
+            {
+                xtype: 'edited-column',
+                header: '',
+                dataIndex: 'bulkModificationState',
+                width: 30
             },
             {
                 xtype: 'interval-flags-column',
@@ -142,6 +149,16 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                         itemId: 'undo-button',
                         text: Uni.I18n.translate('general.undo', 'MDC', 'Undo'),
                         hidden: true
+                    },
+                    {
+                        xtype: 'button',
+                        itemId: 'device-channel-data-bulk-action-button',
+                        text: Uni.I18n.translate('general.bulkAction', 'MDC', 'Bulk Action'),
+                        privileges: Mdc.privileges.Device.administrateDeviceData,
+                        menu: {
+                            xtype: 'channel-data-bulk-action-menu',
+                            itemId: 'channel-data-bulk-action-menu'
+                        }
                     }
                 ]
             }

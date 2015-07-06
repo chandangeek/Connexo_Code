@@ -96,14 +96,6 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
         {
             ref: 'editPage',
             selector: 'device-group-edit'
-        },
-        {
-            ref: 'editDynamicGridFilter',
-            selector: 'device-group-edit mdc-view-setup-devicesearch-devicestopfilter'
-        },
-        {
-            ref: 'editStaticGridFilter',
-            selector: 'device-group-edit mdc-view-setup-devicesearch-buffereddevicestopfilter'
         }
     ],
 

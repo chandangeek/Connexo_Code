@@ -38,11 +38,13 @@ Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskSetup', {
                         xtype: 'preview-container',
                         grid: {
                             xtype: 'communicationTaskGrid',
+                            itemId: 'communication-task-grid',
                             deviceTypeId: me.deviceTypeId,
                             deviceConfigurationId: me.deviceConfigurationId
                         },
                         emptyComponent: {
                             xtype: 'no-items-found-panel',
+                            itemId: 'no-communication-task',
                             title: Uni.I18n.translate('communicationtasks.empty.title', 'MDC', 'No communication task configurations found'),
                             reasons: [
                                 Uni.I18n.translate('communicationtasks.empty.list.item1', 'MDC', 'No communication task configurations have been defined yet.'),
@@ -57,7 +59,8 @@ Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskSetup', {
                             ]
                         },
                         previewComponent: {
-                            xtype: 'communicationTaskPreview'
+                            xtype: 'communicationTaskPreview',
+                            itemId: 'communication-task-preview'
                         }
                     }
                 ]

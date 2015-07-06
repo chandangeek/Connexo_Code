@@ -14,6 +14,7 @@ Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
         {name: 'intervalFlags', type: 'auto'},
         {name: 'validationStatus', type: 'auto'},
         {name: 'modificationFlag', type: 'auto'},
+        'validationInfo',
         {
             name: 'interval_start',
             persist: false,
@@ -55,14 +56,37 @@ Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
             }
         },
         {
-            name: 'modificationState',
+            name: 'mainModificationState',
             persist: false,
             mapping: function (data) {
-                var result = null;
+                var result = null,
+                    mainValidationInfo = data.validationInfo.mainValidationInfo;
 
-                if (data.modificationFlag && data.reportedDateTime) {
+                if (mainValidationInfo.valueModificationFlag && data.reportedDateTime) {
+                    result = {
+                        flag: mainValidationInfo.valueModificationFlag,
+                        date: data.reportedDateTime
+                    }
+                } else if (data.modificationFlag && data.reportedDateTime) {
                     result = {
                         flag: data.modificationFlag,
+                        date: data.reportedDateTime
+                    }
+                }
+
+                return result;
+            }
+        },
+        {
+            name: 'bulkModificationState',
+            persist: false,
+            mapping: function (data) {
+                var result = null,
+                    bulkValidationInfo = data.validationInfo.bulkValidationInfo;
+
+                if (bulkValidationInfo.valueModificationFlag && data.reportedDateTime) {
+                    result = {
+                        flag: bulkValidationInfo.valueModificationFlag,
                         date: data.reportedDateTime
                     }
                 }

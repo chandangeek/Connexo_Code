@@ -48,7 +48,6 @@ Ext.define('Mdc.view.setup.devicetransitionexecute.ResultPanel', {
             me.items = [
                 {
                     xtype: 'panel',
-                    ui: 'large',
                     title: me.response.transitionNow ? Uni.I18n.translatePlural('devicetransitionexecute.wizard.step2successNow', me.response.targetState, 'MDC', "Successfully changed device state to '{0}'") : Uni.I18n.translatePlural('devicetransitionexecute.wizard.step2success', Uni.DateTime.formatDateTimeLong(new Date(me.response.effectiveTimestamp)), 'MDC', "Device state will be changed at {0}")
                 }
             ];
@@ -63,7 +62,6 @@ Ext.define('Mdc.view.setup.devicetransitionexecute.ResultPanel', {
                 },
                 {
                     xtype: 'panel',
-                    ui: 'large',
                     title: Uni.I18n.translatePlural('devicetransitionexecute.wizard.step2fail',  me.response.targetState, 'MDC', "Unable to change device state to '{0}'"),
                     items: [
                         {
@@ -82,7 +80,8 @@ Ext.define('Mdc.view.setup.devicetransitionexecute.ResultPanel', {
         me.bbar = [
             {
                 xtype: 'button',
-                text: "Finish",
+                text: Uni.I18n.translate('general.finish', 'MDC', 'Finish'),
+                itemId: 'finishButton',
                 style: {
                     'background-color': '#71adc7'
                 },

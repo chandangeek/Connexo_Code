@@ -41,7 +41,7 @@ Ext.define('Mdc.view.setup.devicechannels.ValidationOverview', {
                             if (rule.key.deleted) {
                                 result += Ext.String.htmlEncode(rule.key.name) + ' ' + Uni.I18n.translate('device.registerData.removedRule', 'MDC', '(removed rule)') + ' - ' + rule.value + ' ' + Uni.I18n.translate('general.suspects', 'MDC', 'suspects') + '<br>';
                             } else {
-                                if (Cfg.privileges.Validation.canViewOrAdminstrate()) {
+                                if (Cfg.privileges.Validation.canViewOrAdministrate()) {
                                     url = me.router.getRoute('administration/rulesets/overview/versions/overview/rules').buildUrl({ruleSetId: rule.key.ruleSetVersion.ruleSet.id, versionId: rule.key.ruleSetVersion.id, ruleId: rule.key.id});
                                     result += '<a href="' + url + '"> ' + Ext.String.htmlEncode(rule.key.name) + '</a>';
                                 } else {

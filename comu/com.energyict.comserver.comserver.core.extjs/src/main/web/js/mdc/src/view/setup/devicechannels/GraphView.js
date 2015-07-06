@@ -112,12 +112,16 @@ Ext.define('Mdc.view.setup.devicechannels.GraphView', {
 //                     confirmed: 'icon-checkmark'
 
                     if (point.delta.suspect) {
-                        deltaIcon = 'icon-validation-red'
-                    }
-                    if (point.bulk.suspect)  {
-                        bulkIcon = 'icon-validation-red'
+                        deltaIcon = 'icon-validation-red';
+                    } else if (point.delta.notValidated) {
+                        deltaIcon = 'icon-validation-black';
                     }
 
+                    if (point.bulk.suspect)  {
+                        bulkIcon = 'icon-validation-red';
+                    } else if (point.bulk.notValidated) {
+                        bulkIcon = 'icon-validation-black';
+                    }
 
                     html += '<br/>Interval ' + Highcharts.dateFormat('%H:%M', point.x);
                     html += ' - ' + Highcharts.dateFormat('%H:%M', point.intervalEnd) + '<br>';
@@ -126,7 +130,7 @@ Ext.define('Mdc.view.setup.devicechannels.GraphView', {
                     html += '<tr><td><b>' + point.series.name + ':</b></td><td>' + point.y + ' ' +
                         point.mesurementType + (point.edited ? editedIconSpan : '') + iconSpan.replace('{icon}', deltaIcon) + '</td></tr>';
                     html += '<tr><td><b>' + 'Bulk value:' + '</b></td><td>' + point.collectedValue + ' ' +
-                        point.mesurementType + iconSpan.replace('{icon}', bulkIcon) + '</td></tr>';
+                        point.mesurementType + (point.bulkEstimated ? editedIconSpan : '') + iconSpan.replace('{icon}', bulkIcon) + '</td></tr>';
 
                     html += '</tbody></table>';
                     html = '<div style="background-color: ' + bgColor + '; padding: 8px">' + html + '</div>';
