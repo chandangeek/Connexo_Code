@@ -1,6 +1,7 @@
 package com.elster.jupiter.estimation.rest.impl;
 
 import com.elster.jupiter.estimation.EstimationRule;
+import com.elster.jupiter.estimation.rest.PropertyUtils;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;

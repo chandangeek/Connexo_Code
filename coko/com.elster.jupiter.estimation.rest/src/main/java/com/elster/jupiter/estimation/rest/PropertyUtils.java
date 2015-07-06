@@ -1,14 +1,11 @@
-package com.elster.jupiter.estimation.rest.impl;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+package com.elster.jupiter.estimation.rest;
 
 import com.elster.jupiter.estimation.AdvanceReadingsSettings;
 import com.elster.jupiter.estimation.BulkAdvanceReadingsSettings;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.estimation.NoneAdvanceReadingsSettings;
+import com.elster.jupiter.estimation.rest.impl.PropertyInfoFactory;
+import com.elster.jupiter.estimation.rest.impl.PropertyType;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -24,6 +21,10 @@ import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
 import com.elster.jupiter.time.RelativePeriod;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 public class PropertyUtils {
 

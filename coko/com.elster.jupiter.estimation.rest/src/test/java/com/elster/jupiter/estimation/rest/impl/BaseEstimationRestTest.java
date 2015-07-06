@@ -1,6 +1,7 @@
 package com.elster.jupiter.estimation.rest.impl;
 
 import com.elster.jupiter.estimation.EstimationService;
+import com.elster.jupiter.estimation.rest.PropertyUtils;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.NlsService;

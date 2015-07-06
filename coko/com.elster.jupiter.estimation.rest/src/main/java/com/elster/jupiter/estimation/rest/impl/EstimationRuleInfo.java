@@ -1,7 +1,7 @@
 package com.elster.jupiter.estimation.rest.impl;
 
 import com.elster.jupiter.estimation.EstimationRule;
-import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.estimation.rest.PropertyUtils;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
 

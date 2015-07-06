@@ -1,6 +1,7 @@
 package com.elster.jupiter.estimation.rest.impl;
 
 import com.elster.jupiter.estimation.EstimationService;
+import com.elster.jupiter.estimation.rest.PropertyUtils;
 import com.elster.jupiter.estimation.security.Privileges;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
@@ -19,8 +20,6 @@ import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.google.common.collect.ImmutableSet;
-import java.util.Set;
-import javax.ws.rs.core.Application;
 import org.glassfish.hk2.utilities.Binder;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
