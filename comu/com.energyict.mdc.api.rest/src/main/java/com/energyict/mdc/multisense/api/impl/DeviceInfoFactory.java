@@ -156,10 +156,14 @@ public class DeviceInfoFactory {
         return map;
     }
 
-    public DeviceLifeCycleActionInfo createDeviceLifecycleActionInfo(Device device, AuthorizedTransitionAction action) {
+    public DeviceLifeCycleActionInfo createDeviceLifecycleActionInfo(Device device, AuthorizedTransitionAction action, UriInfo uriInfo) {
         DeviceLifeCycleActionInfo info = new DeviceLifeCycleActionInfo();
         info.id = action.getId();
         info.name = action.getName();
+        UriBuilder uriBuilder = uriInfo.getBaseUriBuilder().
+                path(DeviceResource.class).
+                path(DeviceResource.class, "executeAction");
+        info.link = Link.fromUriBuilder(uriBuilder).rel("self").build(device.getmRID(), action.getId());
         List<PropertySpec> uniquePropertySpecsForMicroActions =
                 DecoratedStream.decorate(action.getActions().stream())
                         .flatMap(microAction -> deviceLifeCycleService.getPropertySpecsFor(microAction).stream())

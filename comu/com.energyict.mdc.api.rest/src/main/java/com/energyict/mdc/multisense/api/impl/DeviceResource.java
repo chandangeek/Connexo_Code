@@ -101,13 +101,25 @@ public class DeviceResource {
                 map(ExecutableAction::getAction).
                 filter(aa -> aa instanceof AuthorizedTransitionAction).
                 map(AuthorizedTransitionAction.class::cast).
-                map(action -> deviceInfoFactory.createDeviceLifecycleActionInfo(device, action)).
+                map(action -> deviceInfoFactory.createDeviceLifecycleActionInfo(device, action, uriInfo)).
                 collect(toList());
         UriBuilder uriBuilder = uriInfo.getBaseUriBuilder().
                 path(DeviceResource.class).
                 path(DeviceResource.class, "getDeviceExecutableActions").
                 resolveTemplate("mrid", device.getmRID());
         return Response.ok(PagedInfoList.from(infos, queryParameters, uriBuilder, uriInfo)).build();
+    }
+
+    @PUT
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
+    @Path("/{mrid}/actions/{actionId}")
+    public Response executeAction(@PathParam("mrid") String mRID,
+                                  @PathParam("actionId") long actionId,
+                                  @Context UriInfo uriInfo) {
+        Device device = deviceService.findByUniqueMrid(mRID).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND.getStatusCode()));
+        return null;
     }
 
     @POST

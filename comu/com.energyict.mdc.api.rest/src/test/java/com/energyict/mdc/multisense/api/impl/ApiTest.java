@@ -167,6 +167,8 @@ public class ApiTest extends DeviceDataPublicApiJerseyTest {
         assertThat(model.<Integer>get("data[0].id")).isEqualTo(1);
         assertThat(model.<String>get("data[0].name")).isEqualTo("action.name.1");
         assertThat(model.<Boolean>get("data[0].transitionNow")).isEqualTo(true);
+        assertThat(model.<String>get("data[0].link.params.rel")).isEqualTo("self");
+        assertThat(model.<String>get("data[0].link.href")).isEqualTo("http://localhost:9998/devices/XAS/actions/1");
         assertThat(model.<List>get("data[0].properties")).hasSize(1);
         assertThat(model.<String>get("data[0].properties[0].key")).isEqualTo("string.property");
         assertThat(model.<String>get("data[0].properties[0].propertyValueInfo.defaultValue")).isEqualTo("default");
@@ -175,6 +177,8 @@ public class ApiTest extends DeviceDataPublicApiJerseyTest {
         assertThat(model.<Integer>get("data[1].id")).isEqualTo(2);
         assertThat(model.<String>get("data[1].name")).isEqualTo("action.name.2");
         assertThat(model.<Boolean>get("data[1].transitionNow")).isEqualTo(true);
+        assertThat(model.<String>get("data[1].link.params.rel")).isEqualTo("self");
+        assertThat(model.<String>get("data[1].link.href")).isEqualTo("http://localhost:9998/devices/XAS/actions/2");
         assertThat(model.<List>get("data[1].properties")).hasSize(1);
         assertThat(model.<String>get("data[1].properties[0].key")).isEqualTo("string.property");
         assertThat(model.<String>get("data[1].properties[0].propertyValueInfo.defaultValue")).isEqualTo("default");
