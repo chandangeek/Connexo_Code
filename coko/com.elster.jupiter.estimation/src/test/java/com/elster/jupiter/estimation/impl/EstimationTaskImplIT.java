@@ -2,7 +2,6 @@ package com.elster.jupiter.estimation.impl;
 
 import com.elster.jupiter.appserver.impl.AppServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
-import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.devtools.tests.ProgrammableClock;
 import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
 import com.elster.jupiter.devtools.tests.rules.Using;
@@ -154,7 +153,6 @@ public class EstimationTaskImplIT {
                     inMemoryBootstrapModule,
                     new InMemoryMessagingModule(),
                     new IdsModule(),
-                    new BpmModule(),
                     new FiniteStateMachineModule(),
                     new MeteringModule(),
                     new PartyModule(),
