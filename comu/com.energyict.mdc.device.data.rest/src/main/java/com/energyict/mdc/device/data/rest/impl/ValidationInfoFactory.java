@@ -5,7 +5,11 @@ import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationRuleSetVersion;
-import com.elster.jupiter.validation.rest.*;
+import com.elster.jupiter.validation.rest.PropertyUtils;
+import com.elster.jupiter.validation.rest.ValidationRuleInfo;
+import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
+import com.elster.jupiter.validation.rest.ValidationRuleSetInfo;
+import com.elster.jupiter.validation.rest.ValidationRuleSetVersionInfo;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.DeviceValidation;
 import com.energyict.mdc.device.data.LoadProfile;
@@ -14,7 +18,12 @@ import com.google.common.collect.ImmutableList;
 
 import javax.inject.Inject;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -25,11 +34,13 @@ import java.util.stream.Collectors;
 public class ValidationInfoFactory {
 
     private final ValidationRuleInfoFactory validationRuleInfoFactory;
+    private final EstimationRuleInfoFactory estimationRuleInfoFactory;
     private final PropertyUtils propertyUtils;
 
     @Inject
-    public ValidationInfoFactory(ValidationRuleInfoFactory validationRuleInfoFactory, PropertyUtils propertyUtils) {
+    public ValidationInfoFactory(ValidationRuleInfoFactory validationRuleInfoFactory, EstimationRuleInfoFactory estimationRuleInfoFactory, PropertyUtils propertyUtils) {
         this.validationRuleInfoFactory = validationRuleInfoFactory;
+        this.estimationRuleInfoFactory = estimationRuleInfoFactory;
         this.propertyUtils = propertyUtils;
     }
 
@@ -171,15 +182,16 @@ public class ValidationInfoFactory {
         return result;
     }
 
-    ValidationInfo createValidationInfoFor(Map.Entry<Channel, DataValidationStatus> entry, DeviceValidation deviceValidation) {
+    ValidationInfo createValidationInfoFor(Channel channel, DataValidationStatus dataValidationStatus, DeviceValidation deviceValidation) {
         ValidationInfo validationInfo = new ValidationInfo();
-        DataValidationStatus dataValidationStatus = entry.getValue();
         validationInfo.dataValidated = dataValidationStatus.completelyValidated();
-        validationInfo.mainValidationInfo.validationRules = validationRuleInfoFactory.createInfosForDataValidationStatus(dataValidationStatus);
         validationInfo.mainValidationInfo.validationResult = ValidationStatus.forResult(deviceValidation.getValidationResult(dataValidationStatus.getReadingQualities()));
-        if (entry.getKey().getReadingType().isCumulative() && entry.getKey().getReadingType().getCalculatedReadingType().isPresent()) {
-            validationInfo.bulkValidationInfo.validationRules = validationRuleInfoFactory.createInfosForBulkDataValidationStatus(dataValidationStatus);
+        validationInfo.mainValidationInfo.validationRules = validationRuleInfoFactory.createInfosForDataValidationStatus(dataValidationStatus);
+        validationInfo.mainValidationInfo.estimationRules = estimationRuleInfoFactory.createEstimationRulesInfo(dataValidationStatus.getReadingQualities());
+        if (channel.getReadingType().getCalculatedReadingType().isPresent()) {
             validationInfo.bulkValidationInfo.validationResult = ValidationStatus.forResult(deviceValidation.getValidationResult(dataValidationStatus.getBulkReadingQualities()));
+            validationInfo.bulkValidationInfo.validationRules = validationRuleInfoFactory.createInfosForBulkDataValidationStatus(dataValidationStatus);
+            validationInfo.bulkValidationInfo.estimationRules = estimationRuleInfoFactory.createEstimationRulesInfo(dataValidationStatus.getBulkReadingQualities());
         }
         return validationInfo;
     }

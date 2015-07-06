@@ -1,9 +1,14 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.cbo.QualityCodeCategory;
+import com.elster.jupiter.cbo.QualityCodeSystem;
+import com.elster.jupiter.estimation.EstimationRule;
+import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.ReadingQualityRecord;
+import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.ProfileStatus;
-import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationResult;
@@ -29,6 +34,7 @@ import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -38,10 +44,7 @@ import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class LoadProfileTypeResourceTest extends DeviceDataRestApplicationJerseyTest {
 
@@ -71,9 +74,15 @@ public class LoadProfileTypeResourceTest extends DeviceDataRestApplicationJersey
     @Mock
     private IValidationRule rule1;
     @Mock
-    private ReadingQuality quality1;
+    private EstimationRule estimationRule;
+    @Mock
+    private ReadingQualityRecord quality1;
+    @Mock
+    private ReadingQualityRecord quality2;
     @Mock
     private ValidationRuleSet ruleSet;
+    @Mock
+    private EstimationRuleSet estimationRuleSet;
     @Mock
     private ValidationEvaluator evaluator;
 
@@ -94,14 +103,15 @@ public class LoadProfileTypeResourceTest extends DeviceDataRestApplicationJersey
         when(clock.instant()).thenReturn(NOW);
         when(readingRecord1.getValue()).thenReturn(BigDecimal.valueOf(200, 0));
         when(readingRecord2.getValue()).thenReturn(BigDecimal.valueOf(250, 0));
-        ReadingType rt = mock(ReadingType.class);
-        when(rt.isCumulative()).thenReturn(false);
+        ReadingType readingType = mockReadingType("1.2.3.4.5.6.7.8.9.10.11.12.13.14.15.16.17.18");
+        ReadingType calculatedReadingType = mockReadingType("1.2.3.4.5.6.7.8.9.10.11.12.13.14.15.16.17.18");
+        when(readingType.getCalculatedReadingType()).thenReturn(Optional.of(calculatedReadingType));
         when(channel1.getDevice()).thenReturn(device);
-        when(channel1.getReadingType()).thenReturn(rt);
+        when(channel1.getReadingType()).thenReturn(readingType);
         when(channel1.getId()).thenReturn(CHANNEL_ID1);
         when(channel1.getChannelSpec()).thenReturn(channelSpec);
         when(channel2.getDevice()).thenReturn(device);
-        when(channel2.getReadingType()).thenReturn(rt);
+        when(channel2.getReadingType()).thenReturn(readingType);
         when(channel2.getId()).thenReturn(CHANNEL_ID2);
         when(channel2.getChannelSpec()).thenReturn(channelSpec);
         when(device.forValidation()).thenReturn(deviceValidation);
@@ -120,6 +130,15 @@ public class LoadProfileTypeResourceTest extends DeviceDataRestApplicationJersey
         when(rule1.getDisplayName()).thenReturn("Primes only");
         when(channelSpec.getNbrOfFractionDigits()).thenReturn(3);
         when(deviceValidation.getValidationResult(any())).thenReturn(ValidationResult.SUSPECT);
+        state1.addBulkReadingQuality(quality2, Collections.emptyList());
+        when(quality2.hasEstimatedCategory()).thenReturn(true);
+        when(estimationRule.getId()).thenReturn(13L);
+        when(estimationRule.getRuleSet()).thenReturn(estimationRuleSet);
+        when(estimationRuleSet.getId()).thenReturn(15L);
+        when(estimationRule.getName()).thenReturn("EstimationRule");
+        ReadingQualityType readingQualityType = ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.ESTIMATED, (int)estimationRule.getId());
+        when(quality2.getType()).thenReturn(readingQualityType);
+        doReturn(Optional.of(estimationRule)).when(estimationService).findEstimationRuleByQualityType(readingQualityType);
     }
 
     @Test
@@ -149,6 +168,10 @@ public class LoadProfileTypeResourceTest extends DeviceDataRestApplicationJersey
         assertThat(jsonModel.<Boolean>get("$.data[0].channelValidationData." + CHANNEL_ID1 + ".mainValidationInfo.validationRules[0].active")).isTrue();
         assertThat(jsonModel.<String>get("$.data[0].channelValidationData." + CHANNEL_ID1 + ".mainValidationInfo.validationRules[0].implementation")).isEqualTo("isPrime");
         assertThat(jsonModel.<String>get("$.data[0].channelValidationData." + CHANNEL_ID1 + ".mainValidationInfo.validationRules[0].displayName")).isEqualTo("Primes only");
+        assertThat(jsonModel.<List<?>>get("$.data[0].channelValidationData." + CHANNEL_ID1 + ".bulkValidationInfo.estimationRules")).hasSize(1);
+        assertThat(jsonModel.<Number>get("$.data[0].channelValidationData." + CHANNEL_ID1 + ".bulkValidationInfo.estimationRules[0].id")).isEqualTo(13);
+        assertThat(jsonModel.<Number>get("$.data[0].channelValidationData." + CHANNEL_ID1 + ".bulkValidationInfo.estimationRules[0].ruleSetId")).isEqualTo(15);
+        assertThat(jsonModel.<String>get("$.data[0].channelValidationData." + CHANNEL_ID1 + ".bulkValidationInfo.estimationRules[0].name")).isEqualTo("EstimationRule");
     }
 
     @Test

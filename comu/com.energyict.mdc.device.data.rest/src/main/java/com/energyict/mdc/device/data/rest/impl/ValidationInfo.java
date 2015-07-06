@@ -4,6 +4,7 @@ import com.elster.jupiter.validation.rest.ValidationRuleInfo;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import java.util.Collections;
 import java.util.Set;
 
 /**
@@ -29,9 +30,11 @@ class ValidationReadingInfo {
     public ValidationStatus validationResult;
 
     @JsonProperty("validationRules")
-    public Set<ValidationRuleInfo> validationRules;
+    public Set<ValidationRuleInfo> validationRules = Collections.emptySet();
+
+    @JsonProperty("estimationRules")
+    public Set<EstimationRuleInfo> estimationRules = Collections.emptySet();
 
     public ValidationReadingInfo() {
-
     }
 }
