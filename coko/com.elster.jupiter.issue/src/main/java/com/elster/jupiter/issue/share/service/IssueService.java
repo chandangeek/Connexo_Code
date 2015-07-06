@@ -4,6 +4,7 @@ import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.IssueActionFactory;
+import com.elster.jupiter.issue.share.IssueCreationValidator;
 import com.elster.jupiter.issue.share.IssueProvider;
 import com.elster.jupiter.issue.share.entity.AssigneeType;
 import com.elster.jupiter.issue.share.entity.Entity;
@@ -78,6 +79,8 @@ public interface IssueService {
     int countOpenDataCollectionIssues(String mRID);
 
     List<IssueProvider> getIssueProviders();
+
+    List<IssueCreationValidator> getIssueCreationValidators();
     
     IssueActionService getIssueActionService();
     

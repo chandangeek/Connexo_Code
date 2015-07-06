@@ -10,6 +10,7 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
+import com.elster.jupiter.issue.share.IssueCreationValidator;
 import org.drools.core.common.ProjectClassLoader;
 import org.kie.api.KieBaseConfiguration;
 import org.kie.api.io.KieResources;
@@ -156,6 +157,10 @@ public class IssueCreationServiceImpl implements IssueCreationService {
 
     @Override
     public void processIssueCreationEvent(long ruleId, IssueEvent event) {
+        // Sometimes we need to restrict issue creation due to global reasons (common for all type of issues)
+        if (restrictIssueCreation(event)){
+            return;
+        }
         findCreationRuleById(ruleId).ifPresent(firedRule -> {
             CreationRuleTemplate template = firedRule.getTemplate();
             Issue baseIssue = dataModel.getInstance(OpenIssueImpl.class);
@@ -172,6 +177,15 @@ public class IssueCreationServiceImpl implements IssueCreationService {
                 executeCreationActions(newIssue.get());
             }
         });
+    }
+
+    private boolean restrictIssueCreation(IssueEvent event){
+        for (IssueCreationValidator creationValidator : issueService.getIssueCreationValidators()) {
+            if (!creationValidator.isValidCreationEvent(event)){
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override

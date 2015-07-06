@@ -11,6 +11,7 @@ import com.elster.jupiter.issue.impl.records.IssueStatusImpl;
 import com.elster.jupiter.issue.impl.records.IssueTypeImpl;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.IssueActionFactory;
+import com.elster.jupiter.issue.share.IssueCreationValidator;
 import com.elster.jupiter.issue.share.IssueProvider;
 import com.elster.jupiter.issue.share.entity.AssigneeType;
 import com.elster.jupiter.issue.share.entity.Entity;
@@ -73,6 +74,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Logger;
 
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -108,6 +110,8 @@ public class IssueServiceImpl implements IssueService, InstallService, Translati
     private volatile Map<String, IssueActionFactory> issueActionFactories = new ConcurrentHashMap<>();
     private volatile Map<String, CreationRuleTemplate> creationRuleTemplates = new ConcurrentHashMap<>();
     private volatile List<IssueProvider> issueProviders = new ArrayList<>();
+    private volatile List<IssueCreationValidator> issueCreationValidators = new CopyOnWriteArrayList<>();
+
 
     public IssueServiceImpl() {
     }
@@ -459,5 +463,19 @@ public class IssueServiceImpl implements IssueService, InstallService, Translati
     
     public DataModel getDataModel() {
         return dataModel;
+    }
+
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addIssueCreationValidator(IssueCreationValidator issueCreationValidator) {
+        issueCreationValidators.add(issueCreationValidator);
+    }
+
+    public void removeIssueCreationValidator(IssueCreationValidator issueCreationValidator) {
+        issueCreationValidators.remove(issueCreationValidator);
+    }
+
+    @Override
+    public List<IssueCreationValidator> getIssueCreationValidators() {
+        return issueCreationValidators;
     }
 }
