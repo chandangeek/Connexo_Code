@@ -2,6 +2,8 @@ package com.elster.jupiter.estimation.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
+import com.elster.jupiter.cbo.QualityCodeCategory;
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationRuleSet;
@@ -14,6 +16,7 @@ import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
@@ -248,5 +251,25 @@ public class EstimationRuleSetImplTest {
         assertThat(found.get().getRules()).hasSize(2);
         assertThat(found.get().getRules().get(0).getImplementation()).isEqualTo(MIN_MAX);
         assertThat(found.get().getRules().get(1).getImplementation()).isEqualTo(ZERO_FILL);
+    }
+
+    @Test
+    public void testFindEstimationRuleByQualityType() {
+        UpdatableHolder<Long> ruleId = new UpdatableHolder<>(null);
+        transactionService.execute(VoidTransaction.of(() -> {
+                    EstimationRuleSet estimationRuleSet = estimationService.createEstimationRuleSet("myRuleSet");
+                    EstimationRule zeroesRule = estimationRuleSet.addRule(ZERO_FILL, "consecutiveZeroes");
+                    zeroesRule.addReadingType(readingType);
+                    zeroesRule.addProperty(MAX_NUMBER_IN_SEQUENCE, BigDecimal.valueOf(20));
+                    zeroesRule.activate();
+                    estimationRuleSet.save();
+                    ruleId.update(zeroesRule.getId());
+                }
+        ));
+
+        Optional<? extends EstimationRule> foundEstimationRule = estimationService.findEstimationRuleByQualityType(
+                ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.ESTIMATED, ruleId.get().intValue()));
+        assertThat(foundEstimationRule.isPresent()).isTrue();
+        assertThat(foundEstimationRule.get().getId()).isEqualTo(ruleId.get());
     }
 }
