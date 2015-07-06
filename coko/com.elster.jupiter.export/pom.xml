@@ -110,6 +110,11 @@
             <groupId>com.google.jimfs</groupId>
             <artifactId>jimfs</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>bpm</artifactId>
+            <scope>test</scope>
+        </dependency>
         <!--<dependency>-->
             <!--<groupId>com.google.inject</groupId>-->
             <!--<artifactId>guice</artifactId>-->
