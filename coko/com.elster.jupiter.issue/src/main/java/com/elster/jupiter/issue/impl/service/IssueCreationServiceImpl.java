@@ -159,6 +159,7 @@ public class IssueCreationServiceImpl implements IssueCreationService {
     public void processIssueCreationEvent(long ruleId, IssueEvent event) {
         // Sometimes we need to restrict issue creation due to global reasons (common for all type of issues)
         if (restrictIssueCreation(event)){
+            LOG.info("Issue creation for device " + event.getEndDevice().getMRID() + " was restricted");
             return;
         }
         findCreationRuleById(ruleId).ifPresent(firedRule -> {
