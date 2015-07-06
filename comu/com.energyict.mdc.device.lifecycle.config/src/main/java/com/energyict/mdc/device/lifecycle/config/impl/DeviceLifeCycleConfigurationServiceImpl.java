@@ -1,8 +1,11 @@
 package com.energyict.mdc.device.lifecycle.config.impl;
 
+import com.elster.jupiter.issue.share.IssueCreationValidator;
+import com.elster.jupiter.issue.share.IssueEvent;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedBusinessProcessAction;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
+import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleBuilder;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
@@ -44,6 +47,7 @@ import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -62,9 +66,9 @@ import static com.elster.jupiter.util.conditions.Where.where;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-11 (10:44)
  */
-@Component(name = "com.energyict.device.lifecycle.config", service = {DeviceLifeCycleConfigurationService.class, InstallService.class, TranslationKeyProvider.class}, property = "name=" + DeviceLifeCycleConfigurationService.COMPONENT_NAME)
+@Component(name = "com.energyict.device.lifecycle.config", service = {DeviceLifeCycleConfigurationService.class, InstallService.class, TranslationKeyProvider.class, IssueCreationValidator.class}, property = "name=" + DeviceLifeCycleConfigurationService.COMPONENT_NAME)
 @SuppressWarnings("unused")
-public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleConfigurationService, InstallService, TranslationKeyProvider {
+public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleConfigurationService, InstallService, TranslationKeyProvider, IssueCreationValidator {
 
     private volatile DataModel dataModel;
     private volatile NlsService nlsService;
@@ -338,8 +342,8 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
         List<TransitionBusinessProcess> businessProcesses = this.dataModel
                 .mapper(TransitionBusinessProcess.class)
                 .find(
-                    TransitionBusinessProcessImpl.Fields.DEPLOYMENT_ID.fieldName(), deploymentId,
-                    TransitionBusinessProcessImpl.Fields.PROCESS_ID.fieldName(), processId);
+                        TransitionBusinessProcessImpl.Fields.DEPLOYMENT_ID.fieldName(), deploymentId,
+                        TransitionBusinessProcessImpl.Fields.PROCESS_ID.fieldName(), processId);
         if (businessProcesses.isEmpty()) {
             throw new UnknownTransitionBusinessProcessException(this.thesaurus, MessageSeeds.NO_SUCH_PROCESS, deploymentId, processId);
         }
@@ -355,4 +359,11 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
         }
     }
 
+    public boolean isValidCreationEvent(IssueEvent issueEvent){
+        EnumSet<DefaultState> restrictedStates = EnumSet.of(DefaultState.IN_STOCK, DefaultState.DECOMMISSIONED);
+        return !issueEvent.getEndDevice().getState()
+                .map(DefaultState::from)
+                .filter(restrictedStates::contains)
+                .isPresent();
+    }
 }
