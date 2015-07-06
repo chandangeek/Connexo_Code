@@ -363,7 +363,7 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
         EnumSet<DefaultState> restrictedStates = EnumSet.of(DefaultState.IN_STOCK, DefaultState.DECOMMISSIONED);
         return !issueEvent.getEndDevice().getState()
                 .map(DefaultState::from)
-                .filter(restrictedStates::contains)
+                .filter(defaultState -> defaultState.isPresent() && restrictedStates.contains(defaultState.get()))
                 .isPresent();
     }
 }
