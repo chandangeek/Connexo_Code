@@ -7,6 +7,7 @@ Ext.define('Fwc.firmwarecampaigns.view.DevicesGrid', {
     alias: 'widget.firmware-campaign-devices-grid',
     store: 'Fwc.firmwarecampaigns.store.Devices',
     router: null,
+    overflowY: 'auto',
 
     initComponent: function () {
         var me = this;
