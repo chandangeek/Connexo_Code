@@ -75,7 +75,8 @@ Ext.define('Mdc.usagepointmanagement.controller.UsagePoint', {
                                     },
                                     {
                                         xtype: 'displayfield',
-                                        value: 'from ' + Uni.DateTime.formatDateTimeShort(new Date(item.get('start')))
+                                        value: Ext.String.format(Uni.I18n.translate('usagePointManagement.fromDate', 'CFG', "from '{0}'")
+                                            , Uni.DateTime.formatDateTimeShort(new Date(item.get('start'))) )
                                     }
                                 );
                             } else {
@@ -94,7 +95,9 @@ Ext.define('Mdc.usagepointmanagement.controller.UsagePoint', {
                                     },
                                     {
                                         xtype: 'displayfield',
-                                        value: 'from ' + Uni.DateTime.formatDateTimeShort(new Date(item.get('start'))) + ' to ' + Uni.DateTime.formatDateTimeShort(new Date(item.get('end')))
+                                        value: Ext.String.format(Uni.I18n.translate('usagePointManagement.fromDate', 'CFG', "from {0} to {1}")
+                                            , Uni.DateTime.formatDateTimeShort(new Date(item.get('start')))
+                                            , Uni.DateTime.formatDateTimeShort(new Date(item.get('end'))) )
                                     }
                                 );
                             }
