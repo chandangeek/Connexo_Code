@@ -27,14 +27,14 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RulesSetGrid', {
             {
                 header: Uni.I18n.translate('validation.activeVersion', 'CFG', 'Active version'),
                 dataIndex: 'activeVersion',
-                flex: 9,
+                flex: 8,
                 align: 'left',
                 sortable: false,
                 fixed: true
             },	        
             {
                 xtype: 'uni-actioncolumn',
-                flex: 1,
+                flex: 2,
                 privileges:Cfg.privileges.Validation.device,
                 items: 'Mdc.view.setup.devicedatavalidation.RulesSetActionMenu'
             }
