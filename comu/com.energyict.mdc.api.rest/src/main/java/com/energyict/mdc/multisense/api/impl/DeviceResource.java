@@ -88,6 +88,28 @@ public class DeviceResource {
         return Response.ok(PagedInfoList.from(infos, queryParameters, uriBuilder, uriInfo)).build();
     }
 
+    @GET
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
+    @Path("/{mrid}/actions")
+    public Response getDeviceExecutableActions(@PathParam("mrid") String mRID,
+                                               @BeanParam SelectedFields fields,
+                                               @Context UriInfo uriInfo,
+                                               @BeanParam JsonQueryParameters queryParameters) {
+        Device device = deviceService.findByUniqueMrid(mRID).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND.getStatusCode()));
+        List<DeviceLifeCycleActionInfo> infos = deviceLifeCycleService.getExecutableActions(device).stream().
+                map(ExecutableAction::getAction).
+                filter(aa -> aa instanceof AuthorizedTransitionAction).
+                map(AuthorizedTransitionAction.class::cast).
+                map(action -> deviceInfoFactory.createDeviceLifecycleActionInfo(device, action)).
+                collect(toList());
+        UriBuilder uriBuilder = uriInfo.getBaseUriBuilder().
+                path(DeviceResource.class).
+                path(DeviceResource.class, "getDeviceExecutableActions").
+                resolveTemplate("mrid", device.getmRID());
+        return Response.ok(PagedInfoList.from(infos, queryParameters, uriBuilder, uriInfo)).build();
+    }
+
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
