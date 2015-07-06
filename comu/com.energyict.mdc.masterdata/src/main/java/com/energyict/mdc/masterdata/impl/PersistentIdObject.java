@@ -10,7 +10,7 @@ import java.time.Instant;
 
 /**
  * Provides code reuse opportunities for entities in this bundle
- * that are persistable and have a unique ID
+ * that are persistable and have a unique ID.
  * <p/>
  * Copyrights EnergyICT
  * Date: 31/01/14
@@ -49,7 +49,7 @@ public abstract class PersistentIdObject<T> {
     }
 
     public void save () {
-        if (this.id > 0) {
+        if (this.getId() > 0) {
             this.post();
             this.notifyUpdated();
         }

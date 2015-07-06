@@ -11,6 +11,7 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.HasId;
@@ -55,6 +56,7 @@ public class MasterDataServiceImpl implements MasterDataService, ReferenceProper
     private volatile Thesaurus thesaurus;
     private volatile EventService eventService;
     private volatile MeteringService meteringService;
+    private volatile Publisher publisher;
     private volatile MdcReadingTypeUtilService mdcReadingTypeUtilService;
 
     public MasterDataServiceImpl() {
@@ -62,16 +64,17 @@ public class MasterDataServiceImpl implements MasterDataService, ReferenceProper
     }
 
     @Inject
-    public MasterDataServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, MeteringService meteringService, MdcReadingTypeUtilService mdcReadingTypeUtilService) {
-        this(ormService, eventService, nlsService, meteringService, mdcReadingTypeUtilService, true);
+    public MasterDataServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, MeteringService meteringService, Publisher publisher, MdcReadingTypeUtilService mdcReadingTypeUtilService) {
+        this(ormService, eventService, nlsService, meteringService, publisher, mdcReadingTypeUtilService, true);
     }
 
-    public MasterDataServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, MeteringService meteringService, MdcReadingTypeUtilService mdcReadingTypeUtilService, boolean createDefaults) {
+    public MasterDataServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, MeteringService meteringService, Publisher publisher, MdcReadingTypeUtilService mdcReadingTypeUtilService, boolean createDefaults) {
         this();
         this.setOrmService(ormService);
         this.setEventService(eventService);
         this.setNlsService(nlsService);
         this.setMeteringService(meteringService);
+        this.setPublisher(publisher);
         this.setMdcReadingTypeUtilService(mdcReadingTypeUtilService);
         this.activate();
         this.install(true, createDefaults);
@@ -244,6 +247,11 @@ public class MasterDataServiceImpl implements MasterDataService, ReferenceProper
     }
 
     @Reference
+    public void setPublisher(Publisher publisher) {
+        this.publisher = publisher;
+    }
+
+    @Reference
     public void setMdcReadingTypeUtilService(MdcReadingTypeUtilService mdcReadingTypeUtilService) {
         this.mdcReadingTypeUtilService = mdcReadingTypeUtilService;
     }
@@ -257,6 +265,7 @@ public class MasterDataServiceImpl implements MasterDataService, ReferenceProper
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(MeteringService.class).toInstance(meteringService);
+                bind(Publisher.class).toInstance(publisher);
                 bind(MdcReadingTypeUtilService.class).toInstance(mdcReadingTypeUtilService);
                 bind(MasterDataService.class).toInstance(MasterDataServiceImpl.this);
             }

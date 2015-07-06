@@ -1,274 +1,295 @@
 package com.energyict.mdc.masterdata.impl;
 
-import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.masterdata.RegisterType;
-import com.energyict.mdc.masterdata.exceptions.RegisterTypesRequiredException;
 
-import com.elster.jupiter.cbo.Accumulation;
-import com.elster.jupiter.cbo.Commodity;
-import com.elster.jupiter.cbo.FlowDirection;
-import com.elster.jupiter.cbo.MeasurementKind;
-import com.elster.jupiter.cbo.MetricMultiplier;
-import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
-import com.elster.jupiter.cbo.ReadingTypeUnit;
-import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
-import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
-import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.InvalidateCacheRequest;
+import com.elster.jupiter.pubsub.Publisher;
 
-import java.sql.SQLException;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.Set;
 
 import org.junit.*;
-import org.junit.rules.*;
 import org.junit.runner.*;
+import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyVararg;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
- * Tests the persistence aspects of the {@link RegisterGroupImpl} component
- * as provided by the {@link MasterDataServiceImpl}.
+ * Tests the {@link RegisterGroupImpl} component.
  *
  * @author Rudi Vankeirsbilck (rudi)
- * @since 2014-02-17 (16:35)
+ * @since 2015-07-06 (11:27)
  */
 @RunWith(MockitoJUnitRunner.class)
 public class RegisterGroupImplTest {
 
-    @Rule
-    public TestRule transactionalRule = new TransactionalRule(getTransactionService());
-    @Rule
-    public TestRule expectedErrorRule = new ExpectedExceptionRule();
-    @Rule
-    public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
+    private static final long REGISTER_GROUP_ID  = 9779L;
+    private static final long REGISTER_TYPE1_ID = 97L;
+    private static final long REGISTER_TYPE2_ID = 101L;
+    private static final long REGISTER_TYPE3_ID = 103L;
 
-    static InMemoryPersistence inMemoryPersistence = new InMemoryPersistence();
+    @Mock
+    private Validator validator;
+    @Mock
+    private ValidatorFactory validatorFactory;
+    @Mock
+    private DataModel dataModel;
+    @Mock
+    private DataMapper<RegisterGroup> dataMapper;
+    @Mock
+    private EventService eventService;
+    @Mock
+    private Thesaurus thesaurus;
+    @Mock
+    private Publisher publisher;
+    @Mock
+    private RegisterType registerType1;
+    @Mock
+    private RegisterType registerType2;
+    @Mock
+    private RegisterType registerType3;
 
-    private ReadingType readingType1;
-    private ReadingType readingType2;
-
-    @BeforeClass
-    public static void initialize() {
-        inMemoryPersistence = new InMemoryPersistence();
-        inMemoryPersistence.initializeDatabase("mdc.masterdata.registergroup", false, false);
+    @Before
+    public void initializeMocks() {
+        when(this.registerType1.getId()).thenReturn(REGISTER_TYPE1_ID);
+        when(this.registerType2.getId()).thenReturn(REGISTER_TYPE2_ID);
+        when(this.registerType3.getId()).thenReturn(REGISTER_TYPE3_ID);
+        Set noConstraintViolations = mock(Set.class);
+        when(noConstraintViolations.isEmpty()).thenReturn(true);
+        when(noConstraintViolations.size()).thenReturn(0);
+        when(this.validator.validate(any(), anyVararg())).thenReturn(noConstraintViolations);
+        when(this.validatorFactory.getValidator()).thenReturn(this.validator);
+        this.initializeMockedDataModel();
     }
 
-    @AfterClass
-    public static void cleanUpDataBase() throws SQLException {
-        inMemoryPersistence.cleanUpDataBase();
+    private void initializeMockedDataModel() {
+        when(this.dataModel.getInstance(RegisterTypeInGroup.class)).thenReturn(new RegisterTypeInGroup());
+        when(this.dataModel.getValidatorFactory()).thenReturn(this.validatorFactory);
+        when(this.dataModel.mapper(RegisterGroup.class)).thenReturn(this.dataMapper);
     }
 
-    public static TransactionService getTransactionService() {
-        return inMemoryPersistence.getTransactionService();
-    }
-
-    @Test
-    @Transactional
-    public void testCreateEmptyWithoutViolations() {
-        // Business method
-        String expectedName = "No violations";
-        RegisterGroup registerGroup = inMemoryPersistence.getMasterDataService().newRegisterGroup(expectedName);
-        registerGroup.save();
-
-        // Asserts
-        assertThat(registerGroup.getId()).isGreaterThan(0);
-        assertThat(registerGroup.getName()).isEqualTo(expectedName);
-        assertThat(registerGroup.getRegisterTypes()).isEmpty();
-    }
-
-    @Test
-    @Transactional
-    public void testFindAfterCreation() {
-        String expectedName = "No violations";
-        RegisterGroup registerGroup = inMemoryPersistence.getMasterDataService().newRegisterGroup(expectedName);
-        registerGroup.save();
-
-        // Business method
-        Optional<RegisterGroup> found = inMemoryPersistence.getMasterDataService().findRegisterGroup(registerGroup.getId());
-
-        // Asserts
-        assertThat(found).isPresent();
-        assertThat(found.get().getId()).isEqualTo(registerGroup.getId());
+    private void resetMockedDataModel() {
+        reset(this.dataModel);
+        this.initializeMockedDataModel();
     }
 
     @Test
-    @Transactional
-    public void testCreateWithRegisterTypesWithoutViolations() {
-        this.setupProductSpecsInExistingTransaction();
-        MasterDataServiceImpl masterDataService = inMemoryPersistence.getMasterDataService();
-        RegisterType registerType1 = masterDataService.newRegisterType(this.readingType1, ObisCode.fromString("1.1.1.1.1.1"));
-        registerType1.save();
-        RegisterType registerType2 = masterDataService.newRegisterType(this.readingType2, ObisCode.fromString("2.2.2.2.2.2"));
-        registerType2.save();
+    public void addRegisterTypePublishesClearCacheEvent() {
+        RegisterGroupImpl testInstance = this.getTestInstance();
 
         // Business method
-        String expectedName = "With types and no violations";
-        RegisterGroup registerGroup = masterDataService.newRegisterGroup(expectedName);
-        registerGroup.addRegisterType(registerType1);
-        registerGroup.addRegisterType(registerType2);
-        registerGroup.save();
+        testInstance.addRegisterType(this.registerType1);
 
         // Asserts
-        assertThat(registerGroup.getId()).isGreaterThan(0);
-        assertThat(registerGroup.getName()).isEqualTo(expectedName);
-        List<Long> registerTypeIds = registerGroup.getRegisterTypes().stream().map(RegisterType::getId).collect(Collectors.toList());
-        assertThat(registerTypeIds).containsOnly(registerType1.getId(), registerType2.getId());
+        verify(this.publisher).publish(any(InvalidateCacheRequest.class));
+        verify(this.dataModel, never()).touch(testInstance);
     }
 
     @Test
-    @Transactional
-    public void testAddRegisterType() {
-        this.setupProductSpecsInExistingTransaction();
-        MasterDataServiceImpl masterDataService = inMemoryPersistence.getMasterDataService();
-        RegisterType registerType1 = masterDataService.newRegisterType(this.readingType1, ObisCode.fromString("1.1.1.1.1.1"));
-        registerType1.save();
-        RegisterType registerType2 = masterDataService.newRegisterType(this.readingType2, ObisCode.fromString("2.2.2.2.2.2"));
-        registerType2.save();
-        RegisterGroup registerGroup = masterDataService.newRegisterGroup("testAddRegisterType");
-        registerGroup.save();
+    public void addRegisterTypeToPersistentGroupPublishesClearCacheEventAndTouch() {
+        RegisterGroupImpl testInstance = this.getPersistentTestInstance();
 
         // Business method
-        registerGroup.addRegisterType(registerType1);
-        registerGroup.addRegisterType(registerType2);
-        registerGroup.save();
+        testInstance.addRegisterType(this.registerType1);
 
         // Asserts
-        List<Long> registerTypeIds = registerGroup.getRegisterTypes().stream().map(RegisterType::getId).collect(Collectors.toList());
-        assertThat(registerTypeIds).containsOnly(registerType1.getId(), registerType2.getId());
+        verify(this.publisher).publish(any(InvalidateCacheRequest.class));
+        verify(this.dataModel).touch(testInstance);
     }
 
     @Test
-    @Transactional
-    public void testRemoveRegisterType() {
-        this.setupProductSpecsInExistingTransaction();
-        MasterDataServiceImpl masterDataService = inMemoryPersistence.getMasterDataService();
-        RegisterType registerType1 = masterDataService.newRegisterType(this.readingType1, ObisCode.fromString("1.1.1.1.1.1"));
-        registerType1.save();
-        RegisterType registerType2 = masterDataService.newRegisterType(this.readingType2, ObisCode.fromString("2.2.2.2.2.2"));
-        registerType2.save();
-        RegisterGroup registerGroup = masterDataService.newRegisterGroup("testRemoveRegisterType");
-        registerGroup.addRegisterType(registerType1);
-        registerGroup.addRegisterType(registerType2);
-        registerGroup.save();
+    public void addMultipleRegisterTypesPublishesOnlyOneClearCacheEvent() {
+        RegisterGroupImpl testInstance = this.getTestInstance();
 
         // Business method
-        registerGroup.removeRegisterType(registerType1);
+        testInstance.addRegisterType(this.registerType1);
+        testInstance.addRegisterType(this.registerType2);
 
         // Asserts
-        List<Long> registerTypeIds = registerGroup.getRegisterTypes().stream().map(RegisterType::getId).collect(Collectors.toList());
-        assertThat(registerTypeIds).containsOnly(registerType2.getId());
-    }
-
-    @Test(expected = RegisterTypesRequiredException.class)
-    @Transactional
-    public void testRemoveAllOneByOneRegisterType() {
-        this.setupProductSpecsInExistingTransaction();
-        MasterDataServiceImpl masterDataService = inMemoryPersistence.getMasterDataService();
-        RegisterType registerType1 = masterDataService.newRegisterType(this.readingType1, ObisCode.fromString("1.1.1.1.1.1"));
-        registerType1.save();
-        RegisterType registerType2 = masterDataService.newRegisterType(this.readingType2, ObisCode.fromString("2.2.2.2.2.2"));
-        registerType2.save();
-        RegisterGroup registerGroup = masterDataService.newRegisterGroup("testRemoveAllOneByOneRegisterType");
-        registerGroup.addRegisterType(registerType1);
-        registerGroup.addRegisterType(registerType2);
-        registerGroup.save();
-
-        // Business method
-        registerGroup.removeRegisterType(registerType1);
-        registerGroup.removeRegisterType(registerType2);
-
-        // Asserts: see expected exception rule
-    }
-
-    @Test(expected = RegisterTypesRequiredException.class)
-    @Transactional
-    public void testRemoveAllRegisterType() {
-        this.setupProductSpecsInExistingTransaction();
-        MasterDataServiceImpl masterDataService = inMemoryPersistence.getMasterDataService();
-        RegisterType registerType1 = masterDataService.newRegisterType(this.readingType1, ObisCode.fromString("1.1.1.1.1.1"));
-        registerType1.save();
-        RegisterType registerType2 = masterDataService.newRegisterType(this.readingType2, ObisCode.fromString("2.2.2.2.2.2"));
-        registerType2.save();
-        RegisterGroup registerGroup = masterDataService.newRegisterGroup("testRemoveAllRegisterType");
-        registerGroup.addRegisterType(registerType1);
-        registerGroup.addRegisterType(registerType2);
-        registerGroup.save();
-
-        // Business method
-        registerGroup.updateRegisterTypes(Collections.emptyList());
-
-        // Asserts: see expected exception rule
+        verify(this.publisher).publish(any(InvalidateCacheRequest.class));
+        verify(this.dataModel, never()).touch(testInstance);
     }
 
     @Test
-    @Transactional
-    public void testUpdateRegisterTypes() {
-        this.setupProductSpecsInExistingTransaction();
-        MasterDataServiceImpl masterDataService = inMemoryPersistence.getMasterDataService();
-        RegisterType registerType1 = masterDataService.newRegisterType(this.readingType1, ObisCode.fromString("1.1.1.1.1.1"));
-        registerType1.save();
-        RegisterType registerType2 = masterDataService.newRegisterType(this.readingType2, ObisCode.fromString("2.2.2.2.2.2"));
-        registerType2.save();
-        RegisterGroup registerGroup = inMemoryPersistence.getMasterDataService().newRegisterGroup("testUpdateRegisterTypes");
-        registerGroup.save();
+    public void addMultipleRegisterTypesToPersistentGroupPublishesOnlyOneClearCacheEventAndTouch() {
+        RegisterGroupImpl testInstance = this.getPersistentTestInstance();
 
         // Business method
-        registerGroup.updateRegisterTypes(Arrays.asList(registerType1, registerType2));
+        testInstance.addRegisterType(this.registerType1);
+        testInstance.addRegisterType(this.registerType2);
 
         // Asserts
-        List<Long> registerTypeIds = registerGroup.getRegisterTypes().stream().map(RegisterType::getId).collect(Collectors.toList());
-        assertThat(registerTypeIds).containsOnly(registerType1.getId(), registerType2.getId());
+        verify(this.publisher).publish(any(InvalidateCacheRequest.class));
+        verify(this.dataModel).touch(testInstance);
     }
 
     @Test
-    @Transactional
-    public void testDelete() {
-        this.setupProductSpecsInExistingTransaction();
-        MasterDataServiceImpl masterDataService = inMemoryPersistence.getMasterDataService();
-        RegisterType registerType1 = masterDataService.newRegisterType(this.readingType1, ObisCode.fromString("1.1.1.1.1.1"));
-        registerType1.save();
-        RegisterType registerType2 = masterDataService.newRegisterType(this.readingType2, ObisCode.fromString("2.2.2.2.2.2"));
-        registerType2.save();
-        RegisterGroup registerGroup = inMemoryPersistence.getMasterDataService().newRegisterGroup("testUpdateRegisterTypes");
-        registerGroup.addRegisterType(registerType1);
-        registerGroup.addRegisterType(registerType2);
-        registerGroup.save();
+    public void removeRegisterTypePublishesClearCacheEvent() {
+        RegisterGroupImpl testInstance = this.getTestInstance();
+        testInstance.addRegisterType(this.registerType1);
+        testInstance.addRegisterType(this.registerType2);
+        testInstance.save();
+        reset(this.publisher);
 
         // Business method
-        registerGroup.delete();
+        testInstance.removeRegisterType(this.registerType1);
 
         // Asserts
-        Optional<RegisterGroup> shouldBeEmpty = masterDataService.findRegisterGroup(registerGroup.getId());
-        assertThat(shouldBeEmpty).isEmpty();
+        verify(this.publisher).publish(any(InvalidateCacheRequest.class));
+        verify(this.dataModel, never()).touch(testInstance);
     }
 
-    private void setupProductSpecsInExistingTransaction() {
-        this.setupReadingTypesInExistingTransaction();
+    @Test
+    public void removeRegisterTypeFromPersistentGroupPublishesClearCacheEventAndTouch() {
+        RegisterGroupImpl testInstance = this.getPersistentTestInstance();
+        testInstance.addRegisterType(this.registerType1);
+        testInstance.addRegisterType(this.registerType2);
+        testInstance.save();
+        reset(this.publisher);
+        reset(this.dataModel);
+
+        // Business method
+        testInstance.removeRegisterType(this.registerType1);
+
+        // Asserts
+        verify(this.publisher).publish(any(InvalidateCacheRequest.class));
+        verify(this.dataModel).touch(testInstance);
     }
 
-    private void setupReadingTypesInExistingTransaction() {
-        String code = ReadingTypeCodeBuilder
-                .of(Commodity.ELECTRICITY_SECONDARY_METERED)
-                .accumulate(Accumulation.BULKQUANTITY)
-                .flow(FlowDirection.FORWARD)
-                .measure(MeasurementKind.ENERGY)
-                .in(MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR).code();
-        this.readingType1 = inMemoryPersistence.getMeteringService().getReadingType(code).get();
-        String code2 = ReadingTypeCodeBuilder
-                .of(Commodity.ELECTRICITY_SECONDARY_METERED)
-                .accumulate(Accumulation.BULKQUANTITY)
-                .flow(FlowDirection.REVERSE)
-                .measure(MeasurementKind.ENERGY)
-                .in(MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR).code();
-        this.readingType2 = inMemoryPersistence.getMeteringService().getReadingType(code2).get();
+    @Test
+    public void removeMultipleRegisterTypesPublishesOnlyOneClearCacheEvent() {
+        RegisterGroupImpl testInstance = this.getTestInstance();
+        testInstance.addRegisterType(this.registerType1);
+        testInstance.addRegisterType(this.registerType2);
+        testInstance.addRegisterType(this.registerType3);
+        testInstance.save();
+        reset(this.publisher);
+
+        // Business method
+        testInstance.removeRegisterType(this.registerType1);
+        testInstance.removeRegisterType(this.registerType2);
+
+        // Asserts
+        verify(this.publisher).publish(any(InvalidateCacheRequest.class));
+        verify(this.dataModel, never()).touch(testInstance);
     }
 
+    @Test
+    public void removeMultipleRegisterTypesFromPersistentGroupPublishesOnlyOneClearCacheEventAndTouch() {
+        RegisterGroupImpl testInstance = this.getPersistentTestInstance();
+        testInstance.addRegisterType(this.registerType1);
+        testInstance.addRegisterType(this.registerType2);
+        testInstance.addRegisterType(this.registerType3);
+        testInstance.save();
+        reset(this.publisher);
+        reset(this.dataModel);
+
+        // Business method
+        testInstance.removeRegisterType(this.registerType1);
+        testInstance.removeRegisterType(this.registerType2);
+
+        // Asserts
+        verify(this.publisher).publish(any(InvalidateCacheRequest.class));
+        verify(this.dataModel).touch(testInstance);
+    }
+
+    @Test
+    public void updateRegisterTypesPublishesClearCacheEvent() {
+        RegisterGroupImpl testInstance = this.getTestInstance();
+        testInstance.addRegisterType(this.registerType1);
+        testInstance.addRegisterType(this.registerType2);
+        testInstance.save();
+        reset(this.publisher);
+
+        // Business method
+        testInstance.updateRegisterTypes(Arrays.asList(this.registerType2, this.registerType3));
+        testInstance.save();
+
+        // Asserts
+        verify(this.publisher).publish(any(InvalidateCacheRequest.class));
+        verify(this.dataModel, never()).touch(testInstance);
+    }
+
+    @Test
+    public void updateRegisterTypesForPersistentGroupPublishesOnlyOneClearCacheEventAndTouch() {
+        RegisterGroupImpl testInstance = this.getPersistentTestInstance();
+        testInstance.addRegisterType(this.registerType1);
+        testInstance.addRegisterType(this.registerType2);
+        testInstance.save();
+        reset(this.publisher);
+        this.resetMockedDataModel();
+
+        // Business method
+        testInstance.updateRegisterTypes(Arrays.asList(this.registerType2));
+        testInstance.save();
+
+        // Asserts
+        verify(this.publisher).publish(any(InvalidateCacheRequest.class));
+        verify(this.dataModel).touch(testInstance);
+    }
+
+    @Test
+    public void deletePublishesClearCacheEvent() {
+        RegisterGroupImpl testInstance = this.getTestInstance();
+        testInstance.addRegisterType(this.registerType1);
+        testInstance.addRegisterType(this.registerType2);
+        testInstance.save();
+        reset(this.publisher);
+
+        // Business method
+        testInstance.delete();
+
+        // Asserts
+        verify(this.publisher, never()).publish(any(InvalidateCacheRequest.class));
+        verify(this.dataModel, never()).touch(testInstance);
+    }
+
+    @Test
+    public void deletePersistentGroupPublishesClearCacheEvent() {
+        RegisterGroupImpl testInstance = this.getPersistentTestInstance();
+        testInstance.addRegisterType(this.registerType1);
+        testInstance.addRegisterType(this.registerType2);
+        testInstance.save();
+        reset(this.publisher);
+        this.resetMockedDataModel();
+
+        // Business method
+        testInstance.delete();
+
+        // Asserts
+        verify(this.publisher).publish(any(InvalidateCacheRequest.class));
+        verify(this.dataModel, never()).touch(testInstance);
+    }
+
+    private RegisterGroupImpl getTestInstance() {
+        return new RegisterGroupImpl(this.dataModel, this.eventService, this.thesaurus, this.publisher);
+    }
+
+    private RegisterGroupImpl getPersistentTestInstance() {
+        return new PersistentRegisterGroupImpl(this.dataModel, this.eventService, this.thesaurus, this.publisher);
+    }
+
+    private class PersistentRegisterGroupImpl extends RegisterGroupImpl {
+        public PersistentRegisterGroupImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Publisher publisher) {
+            super(dataModel, eventService, thesaurus, publisher);
+        }
+
+        public long getId() {
+            return REGISTER_GROUP_ID;
+        }
+    }
 }
