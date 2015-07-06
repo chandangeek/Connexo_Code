@@ -698,4 +698,8 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
                     .isEmpty();
     }
 
+    @Override
+    public DeviceConfiguration cloneDeviceConfiguration(DeviceConfiguration templateDeviceConfiguration, String name) {
+        return templateDeviceConfiguration;
+    }
 }
