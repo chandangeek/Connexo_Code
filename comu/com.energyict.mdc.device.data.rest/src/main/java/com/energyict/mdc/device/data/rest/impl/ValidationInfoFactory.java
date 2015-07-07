@@ -183,23 +183,25 @@ public class ValidationInfoFactory {
         return result;
     }
 
-    VeeReadingInfo createVeeReadingInfo(DataValidationStatus dataValidationStatus, DeviceValidation deviceValidation) {
+    VeeReadingInfo createVeeReadingInfo(Channel channel, DataValidationStatus dataValidationStatus, DeviceValidation deviceValidation) {
         VeeReadingInfo veeReadingInfo = new VeeReadingInfo();
         veeReadingInfo.dataValidated = dataValidationStatus.completelyValidated();
         veeReadingInfo.mainValidationInfo.validationResult = ValidationStatus.forResult(deviceValidation.getValidationResult(dataValidationStatus.getReadingQualities()));
         veeReadingInfo.mainValidationInfo.validationRules = validationRuleInfoFactory.createInfosForDataValidationStatus(dataValidationStatus);
         veeReadingInfo.mainValidationInfo.estimatedByRule = estimationRuleInfoFactory.createEstimationRuleInfo(dataValidationStatus.getReadingQualities());
+        if (channel.getReadingType().getCalculatedReadingType().isPresent()) {
+            veeReadingInfo.bulkValidationInfo.validationResult = ValidationStatus.forResult(deviceValidation.getValidationResult(dataValidationStatus.getBulkReadingQualities()));
+            veeReadingInfo.bulkValidationInfo.validationRules = validationRuleInfoFactory.createInfosForBulkDataValidationStatus(dataValidationStatus);
+            veeReadingInfo.bulkValidationInfo.estimatedByRule = estimationRuleInfoFactory.createEstimationRuleInfo(dataValidationStatus.getBulkReadingQualities());
+        }
         return veeReadingInfo;
     }
 
-    VeeReadingInfo createVeeReadingInfo(Channel channel, Optional<IntervalReadingRecord> reading, DataValidationStatus dataValidationStatus, DeviceValidation deviceValidation) {
-        VeeReadingInfo veeReadingInfo = createVeeReadingInfo(dataValidationStatus, deviceValidation);
+    VeeReadingInfo createVeeReadingInfoWithModificationFlags(Channel channel, DataValidationStatus dataValidationStatus, DeviceValidation deviceValidation, Optional<IntervalReadingRecord> reading) {
+        VeeReadingInfo veeReadingInfo = createVeeReadingInfo(channel, dataValidationStatus, deviceValidation);
         veeReadingInfo.mainValidationInfo.valueModificationFlag = ReadingModificationFlag.getModificationFlag(reading, dataValidationStatus.getReadingQualities());
         if (channel.getReadingType().getCalculatedReadingType().isPresent()) {
-            veeReadingInfo.bulkValidationInfo.validationResult = ValidationStatus.forResult(deviceValidation.getValidationResult(dataValidationStatus.getBulkReadingQualities()));
             veeReadingInfo.bulkValidationInfo.valueModificationFlag = ReadingModificationFlag.getModificationFlag(reading, dataValidationStatus.getBulkReadingQualities());
-            veeReadingInfo.bulkValidationInfo.validationRules = validationRuleInfoFactory.createInfosForBulkDataValidationStatus(dataValidationStatus);
-            veeReadingInfo.bulkValidationInfo.estimatedByRule = estimationRuleInfoFactory.createEstimationRuleInfo(dataValidationStatus.getBulkReadingQualities());
         }
         return veeReadingInfo;
     }

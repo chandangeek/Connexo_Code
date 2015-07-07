@@ -10,6 +10,7 @@ import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.util.Ranges;
+import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validation.ValidationRuleSet;
@@ -101,13 +102,22 @@ public class LoadProfileTypeResourceTest extends DeviceDataRestApplicationJersey
         when(loadProfileReading.getRange()).thenReturn(interval);
         when(loadProfileReading.getFlags()).thenReturn(Arrays.asList(ProfileStatus.Flag.BATTERY_LOW));
         doReturn(BATTERY_LOW).when(thesaurus).getString(BATTERY_LOW, BATTERY_LOW);
-        when(loadProfileReading.getChannelValues()).thenReturn(ImmutableMap.of(channel1, readingRecord1, channel2, readingRecord2));
-        when(clock.instant()).thenReturn(NOW);
-        when(readingRecord1.getValue()).thenReturn(BigDecimal.valueOf(200, 0));
-        when(readingRecord2.getValue()).thenReturn(BigDecimal.valueOf(250, 0));
+
         ReadingType readingType = mockReadingType("1.2.3.4.5.6.7.8.9.10.11.12.13.14.15.16.17.18");
         ReadingType calculatedReadingType = mockReadingType("1.2.3.4.5.6.7.8.9.10.11.12.13.14.15.16.17.18");
         when(readingType.getCalculatedReadingType()).thenReturn(Optional.of(calculatedReadingType));
+
+        when(loadProfileReading.getChannelValues()).thenReturn(ImmutableMap.of(channel1, readingRecord1, channel2, readingRecord2));
+        when(clock.instant()).thenReturn(NOW);
+
+        when(readingRecord1.getValue()).thenReturn(BigDecimal.valueOf(200001, 0));
+        Quantity quantity = Quantity.create(BigDecimal.valueOf(200, 0), "Wh");
+        when(readingRecord1.getQuantity(calculatedReadingType)).thenReturn(quantity);
+
+        when(readingRecord2.getValue()).thenReturn(BigDecimal.valueOf(250001, 0));
+        quantity = Quantity.create(BigDecimal.valueOf(250, 0), "Wh");
+        when(readingRecord2.getQuantity(calculatedReadingType)).thenReturn(quantity);
+
         when(channel1.getDevice()).thenReturn(device);
         when(channel1.getReadingType()).thenReturn(readingType);
         when(channel1.getId()).thenReturn(CHANNEL_ID1);
@@ -164,9 +174,12 @@ public class LoadProfileTypeResourceTest extends DeviceDataRestApplicationJersey
         assertThat(jsonModel.<Long>get("$.data[0].interval.end")).isEqualTo(1410828630000L);
         assertThat(jsonModel.<List<?>>get("$.data[0].intervalFlags")).hasSize(1);
         assertThat(jsonModel.<String>get("$.data[0].intervalFlags[0]")).isEqualTo(BATTERY_LOW);
-        Map values = jsonModel.<Map>get("$.data[0].channelData");
-        assertThat(values).contains(entry(String.valueOf(CHANNEL_ID1), "200.000"));
-        assertThat(values).contains(entry(String.valueOf(CHANNEL_ID2), "250.000"));
+        Map collectedValues = jsonModel.<Map>get("$.data[0].channelData");
+        assertThat(collectedValues).contains(entry(String.valueOf(CHANNEL_ID1), "200.000"));
+        assertThat(collectedValues).contains(entry(String.valueOf(CHANNEL_ID2), "250.000"));
+        Map deltaValues = jsonModel.<Map>get("$.data[0].channelCollectedData");
+        assertThat(deltaValues).contains(entry(String.valueOf(CHANNEL_ID1), "200001.000"));
+        assertThat(deltaValues).contains(entry(String.valueOf(CHANNEL_ID2), "250001.000"));
         Map validations = jsonModel.<Map>get("$.data[0].channelValidationData");
         assertThat(validations).hasSize(2).containsKeys(String.valueOf(CHANNEL_ID1), String.valueOf(CHANNEL_ID2));
         assertThat(jsonModel.<Boolean>get("$.data[0].channelValidationData." + CHANNEL_ID1 + ".dataValidated")).isTrue();
@@ -208,8 +221,6 @@ public class LoadProfileTypeResourceTest extends DeviceDataRestApplicationJersey
                 .queryParam("filter", filter)
                 .queryParam("onlySuspect", "true")
                 .request().get(String.class);
-
-        System.out.println(json);
 
         JsonModel jsonModel = JsonModel.create(json);
 

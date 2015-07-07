@@ -89,6 +89,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     @Before
     public void setupStubs() {
         readingType = mockReadingType("0.1.2.3.5.6.7.8.9.1.2.3.4.5.6.7.8");
+        when(readingType.getCalculatedReadingType()).thenReturn(Optional.of(readingType));
     }
 
     @Test
@@ -1195,6 +1196,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         ReadingType readingType = mock(ReadingType.class);
         when(readingType.getMRID()).thenReturn(mrid);
         when(mock.getReadingType()).thenReturn(readingType);
+        when(mock.getReadingType().getCalculatedReadingType()).thenReturn(Optional.of(readingType));
         when(mock.getInterval()).thenReturn(new TimeDuration("15 minutes"));
         Unit unit = Unit.get("kWh");
         when(mock.getLastReading()).thenReturn(Optional.empty());

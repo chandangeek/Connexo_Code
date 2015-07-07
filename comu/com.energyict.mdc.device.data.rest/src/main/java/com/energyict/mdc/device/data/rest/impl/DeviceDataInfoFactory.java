@@ -78,7 +78,7 @@ public class DeviceDataInfoFactory {
 
         Optional<DataValidationStatus> dataValidationStatus = loadProfileReading.getChannelValidationStates().entrySet().stream().map(Map.Entry::getValue).findFirst();
         dataValidationStatus.ifPresent(status -> {
-            channelIntervalInfo.validationInfo = validationInfoFactory.createVeeReadingInfo(channel, channelReading, status, deviceValidation);
+            channelIntervalInfo.validationInfo = validationInfoFactory.createVeeReadingInfoWithModificationFlags(channel, status, deviceValidation, channelReading);
         });
         if (!channelReading.isPresent() && !dataValidationStatus.isPresent()) {
             // we have a reading with no data and no validation result => it's a placeholder (missing value) which hasn't validated ( = detected ) yet
@@ -114,17 +114,20 @@ public class DeviceDataInfoFactory {
             for (Map.Entry<Channel, IntervalReadingRecord> entry : loadProfileReading.getChannelValues().entrySet()) {
                 Channel channel = entry.getKey();
                 BigDecimal value = getRoundedBigDecimal(entry.getValue().getValue(), channel);
-                channelIntervalInfo.channelData.put(channel.getId(), value != null ? value.toString() : "");
-                if (channel.getReadingType().isCumulative()) {
-                    Quantity quantity = entry.getValue().getQuantity(channel.getReadingType());
-                    value = getRoundedBigDecimal(quantity != null ? quantity.getValue() : null, channel);
-                    channelIntervalInfo.channelCollectedData.put(channel.getId(), value != null ? value.toString() : "");
+                String collectedValue = value != null ? value.toString() : "";
+                if (channel.getReadingType().getCalculatedReadingType().isPresent()) {
+                    channelIntervalInfo.channelCollectedData.put(channel.getId(), collectedValue);
+                    Quantity quantity = entry.getValue().getQuantity(channel.getReadingType().getCalculatedReadingType().get());
+                    String calculatedValue = quantity != null ? getRoundedBigDecimal(quantity.getValue(), channel).toString() : "";
+                    channelIntervalInfo.channelData.put(channel.getId(), calculatedValue);
+                } else {
+                    channelIntervalInfo.channelData.put(channel.getId(), collectedValue);
                 }
             }
         }
 
         for (Map.Entry<Channel, DataValidationStatus> entry : loadProfileReading.getChannelValidationStates().entrySet()) {
-            channelIntervalInfo.channelValidationData.put(entry.getKey().getId(), validationInfoFactory.createVeeReadingInfo(entry.getValue(), deviceValidation));
+            channelIntervalInfo.channelValidationData.put(entry.getKey().getId(), validationInfoFactory.createVeeReadingInfo(entry.getKey(), entry.getValue(), deviceValidation));
         }
 
         for (Channel channel : channels) {
