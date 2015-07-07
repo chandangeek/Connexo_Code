@@ -46,20 +46,20 @@ Ext.define('Cfg.view.validationtask.HistoryGrid', {
                 }
             }
         ];
-
+        debugger;
         me.dockedItems = [
             {
                 xtype: 'pagingtoolbartop',
                 store: me.store,
                 dock: 'top',
-                displayMsg: Uni.I18n.translate('validationTasks.pagingtoolbartop.displayMsg', 'CFG', '{0} - {1} of {2} validation tasks'),
-                displayMoreMsg: Uni.I18n.translate('validationTasks.pagingtoolbartop.displayMoreMsg', 'CFG', '{0} - {1} of more than {2} validation tasks'),
-                emptyMsg: Uni.I18n.translate('validationTasks.pagingtoolbartop.emptyMsg', 'CFG', 'There are no validation tasks to display')
+                displayMsg: Uni.I18n.translate('validationTasks.history.pagingtoolbartop.displayMsg', 'CFG', '{0} - {1} of {2} history items'),
+                displayMoreMsg: Uni.I18n.translate('validationTasks.history.pagingtoolbartop.displayMoreMsg', 'CFG', '{0} - {1} of more than {2} history items'),
+                emptyMsg: Uni.I18n.translate('validationTasks.history.pagingtoolbartop.emptyMsg', 'CFG', 'There are no history items to display')
             },
             {
                 xtype: 'pagingtoolbarbottom',
                 store: me.store,
-                itemsPerPageMsg: Uni.I18n.translate('validationTasks.pagingtoolbarbottom.itemsPerPage', 'CFG', 'Validation tasks per page'),
+                itemsPerPageMsg: Uni.I18n.translate('validationTasks.history.pagingtoolbarbottom.itemsPerPage', 'CFG', 'History items per page'),
                 dock: 'bottom',
                 deferLoading: true
             }
