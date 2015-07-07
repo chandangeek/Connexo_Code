@@ -2,16 +2,20 @@ package com.elster.jupiter.metering.imports.impl;
 
 import com.elster.jupiter.fileimport.*;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.imports.UsagePointParser;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 import java.time.Clock;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -25,6 +29,7 @@ public class UsagePointFileImporterFactory extends FileImporterAbstractFactory {
     private volatile Clock clock;
     private volatile MeteringService meteringService;
     private volatile FileImportService fileImportService;
+    private volatile Map<String, UsagePointParser> parsers = new HashMap<>();
 
     public UsagePointFileImporterFactory() {
     }
@@ -41,9 +46,18 @@ public class UsagePointFileImporterFactory extends FileImporterAbstractFactory {
         this.clock = clock;
     }
 
+    @Reference(cardinality = ReferenceCardinality.AT_LEAST_ONE, unbind = "unbind", policy = ReferencePolicy.DYNAMIC)
+    protected void bind(UsagePointParser usagePointParser) {
+        parsers.put(usagePointParser.getParserFormatExtensionName(), usagePointParser);
+    }
+
+    protected void unbind(UsagePointParser usagePointParser) {
+        parsers.remove(usagePointParser.getParserFormatExtensionName());
+    }
+
     @Override
     public FileImporter createImporter(Map<String, Object> properties) {
-        FileImporter fileImporter = new UsagePointFileImporter(getThesaurus(), getMeteringService(), getClock());
+        FileImporter fileImporter = new UsagePointFileImporter(getThesaurus(), getMeteringService(), getClock(), getParsers());
         return fileImporter;
     }
 
@@ -115,5 +129,9 @@ public class UsagePointFileImporterFactory extends FileImporterAbstractFactory {
     @Reference
     public void setThesaurus(NlsService nlsService) {
         super.setThesaurus(nlsService);
+    }
+
+    public Map<String, UsagePointParser> getParsers() {
+        return parsers;
     }
 }
