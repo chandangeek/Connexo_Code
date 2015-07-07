@@ -46,7 +46,7 @@ Ext.define('Cfg.view.validationtask.HistoryGrid', {
                 }
             }
         ];
-        debugger;
+
         me.dockedItems = [
             {
                 xtype: 'pagingtoolbartop',
