@@ -34,8 +34,8 @@ public class BillingReadingInfo extends ReadingInfo {
     public ValidationStatus validationResult;
     @JsonProperty("suspectReason")
     public Set<ValidationRuleInfo> suspectReason;
-    @JsonProperty("estimationRules")
-    public Set<EstimationRuleInfo> estimationRules;
+    @JsonProperty("estimatedByRule")
+    public EstimationRuleInfo estimatedByRule;
 
     public BillingReadingInfo() {
     }

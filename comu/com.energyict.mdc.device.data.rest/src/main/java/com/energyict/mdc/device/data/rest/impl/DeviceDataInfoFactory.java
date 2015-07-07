@@ -25,7 +25,6 @@ import com.energyict.mdc.device.data.TextReading;
 import com.energyict.mdc.device.data.TextRegister;
 
 import javax.inject.Inject;
-import javax.ws.rs.HEAD;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.util.ArrayList;
@@ -71,22 +70,19 @@ public class DeviceDataInfoFactory {
                 Quantity quantity = reading.getQuantity(calculatedReadingType);
                 channelIntervalInfo.value = getRoundedBigDecimal(quantity != null ? quantity.getValue() : null, channel);
             });
-            channelIntervalInfo.modificationFlag = ReadingModificationFlag.getFlag(reading);
             channelIntervalInfo.reportedDateTime = reading.getReportedDateTime();
         });
         if (!channelReading.isPresent() && loadProfileReading.getReadingTime() != null) {
-            channelIntervalInfo.modificationFlag = ReadingModificationFlag.REMOVED;
             channelIntervalInfo.reportedDateTime = loadProfileReading.getReadingTime();
         }
 
-        Optional<DataValidationStatus> dataValidationStatus = loadProfileReading.getChannelValidationStates()
-                .entrySet().stream().map(Map.Entry::getValue).findFirst();
+        Optional<DataValidationStatus> dataValidationStatus = loadProfileReading.getChannelValidationStates().entrySet().stream().map(Map.Entry::getValue).findFirst();
         dataValidationStatus.ifPresent(status -> {
-            channelIntervalInfo.validationInfo = validationInfoFactory.createValidationInfoFor(channel, status, deviceValidation, channelIntervalInfo.modificationFlag);
+            channelIntervalInfo.validationInfo = validationInfoFactory.createVeeReadingInfo(channel, channelReading, status, deviceValidation);
         });
         if (!channelReading.isPresent() && !dataValidationStatus.isPresent()) {
             // we have a reading with no data and no validation result => it's a placeholder (missing value) which hasn't validated ( = detected ) yet
-            channelIntervalInfo.validationInfo = new ValidationInfo();
+            channelIntervalInfo.validationInfo = new VeeReadingInfo();
             channelIntervalInfo.validationInfo.mainValidationInfo.validationResult = ValidationStatus.NOT_VALIDATED;
             if(channelIntervalInfo.isBulk) {
                 channelIntervalInfo.validationInfo.bulkValidationInfo.validationResult = ValidationStatus.NOT_VALIDATED;
@@ -128,14 +124,14 @@ public class DeviceDataInfoFactory {
         }
 
         for (Map.Entry<Channel, DataValidationStatus> entry : loadProfileReading.getChannelValidationStates().entrySet()) {
-            channelIntervalInfo.channelValidationData.put(entry.getKey().getId(), validationInfoFactory.createValidationInfoFor(entry.getKey(), entry.getValue(), deviceValidation, null));
+            channelIntervalInfo.channelValidationData.put(entry.getKey().getId(), validationInfoFactory.createVeeReadingInfo(entry.getValue(), deviceValidation));
         }
 
         for (Channel channel : channels) {
             if (channelIntervalInfo.channelData.containsKey(channel.getId()) && channelIntervalInfo.channelData.get(channel.getId()) == null
                     && !channelIntervalInfo.channelValidationData.containsKey(channel.getId())) {
                 // This means it is a missing value what hasn't been validated( = detected ) yet
-                ValidationInfo notValidatedMissing = new ValidationInfo();
+                VeeReadingInfo notValidatedMissing = new VeeReadingInfo();
                 notValidatedMissing.dataValidated = false;
                 notValidatedMissing.mainValidationInfo.validationResult = ValidationStatus.NOT_VALIDATED;
                 if(channel.getReadingType().isCumulative()) {
@@ -177,7 +173,7 @@ public class DeviceDataInfoFactory {
         readingInfo.id = reading.getTimeStamp();
         readingInfo.timeStamp = reading.getTimeStamp();
         readingInfo.reportedDateTime = reading.getReportedDateTime();
-        readingInfo.modificationFlag = ReadingModificationFlag.getFlag(reading.getActualReading());
+        readingInfo.modificationFlag = ReadingModificationFlag.getModificationFlag(reading.getActualReading());
     }
 
     public BillingReadingInfo createBillingReadingInfo(BillingReading reading, NumericalRegisterSpec registerSpec, boolean isValidationStatusActive) {
@@ -195,7 +191,7 @@ public class DeviceDataInfoFactory {
             billingReadingInfo.dataValidated = status.completelyValidated();
             billingReadingInfo.validationResult = ValidationStatus.forResult(ValidationResult.getValidationResult(status.getReadingQualities()));
             billingReadingInfo.suspectReason = validationRuleInfoFactory.createInfosForDataValidationStatus(status);
-            billingReadingInfo.estimationRules = estimationRuleInfoFactory.createEstimationRulesInfo(status.getReadingQualities());
+            billingReadingInfo.estimatedByRule = estimationRuleInfoFactory.createEstimationRuleInfo(status.getReadingQualities());
         });
         return billingReadingInfo;
     }
@@ -219,7 +215,7 @@ public class DeviceDataInfoFactory {
             numericalReadingInfo.dataValidated = status.completelyValidated();
             numericalReadingInfo.validationResult = ValidationStatus.forResult(ValidationResult.getValidationResult(status.getReadingQualities()));
             numericalReadingInfo.suspectReason = validationRuleInfoFactory.createInfosForDataValidationStatus(status);
-            numericalReadingInfo.estimationRules = estimationRuleInfoFactory.createEstimationRulesInfo(status.getReadingQualities());
+            numericalReadingInfo.estimatedByRule = estimationRuleInfoFactory.createEstimationRuleInfo(status.getReadingQualities());
         });
         return numericalReadingInfo;
     }

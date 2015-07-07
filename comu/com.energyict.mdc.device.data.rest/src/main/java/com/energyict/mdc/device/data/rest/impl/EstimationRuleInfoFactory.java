@@ -8,10 +8,6 @@ import com.elster.jupiter.metering.readings.ReadingQuality;
 
 import javax.inject.Inject;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class EstimationRuleInfoFactory {
 
@@ -24,25 +20,25 @@ public class EstimationRuleInfoFactory {
         this.propertyUtils = propertyUtils;
     }
 
-    public EstimationRuleInfo createEstimationRuleInfo(EstimationRule estimationRule) {
+    public EstimationRuleInfo createEstimationRuleInfo(Collection<? extends ReadingQuality> readingQualities) {
+        if (readingQualities.stream().map(ReadingQualityRecord.class::cast).noneMatch(ReadingQualityRecord::isSuspect)) {
+            return readingQualities.stream()
+                    .map(ReadingQualityRecord.class::cast)
+                    .filter(ReadingQualityRecord::hasEstimatedCategory)
+                    .findFirst()//because reading could be estimated by only one estimation rule
+                    .flatMap(readingQuality -> estimationService.findEstimationRuleByQualityType(readingQuality.getType()))
+                    .map(this::asInfo)
+                    .orElse(null);
+        }
+        return null;
+    }
+
+    private EstimationRuleInfo asInfo(EstimationRule estimationRule) {
         EstimationRuleInfo info = new EstimationRuleInfo();
         info.id = estimationRule.getId();
         info.ruleSetId = estimationRule.getRuleSet().getId();
         info.name = estimationRule.getName();
         info.properties = propertyUtils.convertPropertySpecsToPropertyInfos(estimationRule.getPropertySpecs(), estimationRule.getProps());
         return info;
-    }
-
-    public Set<EstimationRuleInfo> createEstimationRulesInfo(Collection<? extends ReadingQuality> readingQualities) {
-        if (readingQualities.stream().map(ReadingQualityRecord.class::cast).noneMatch(ReadingQualityRecord::isSuspect)) {
-            return readingQualities.stream()
-                    .map(ReadingQualityRecord.class::cast)
-                    .filter(ReadingQualityRecord::hasEstimatedCategory)
-                    .map(readingQuality -> estimationService.findEstimationRuleByQualityType(readingQuality.getType()))
-                    .flatMap(optional -> optional.isPresent() ? Stream.of(optional.get()) : Stream.empty())
-                    .map(this::createEstimationRuleInfo)
-                    .collect(Collectors.toSet());
-        }
-        return Collections.emptySet();
     }
 }

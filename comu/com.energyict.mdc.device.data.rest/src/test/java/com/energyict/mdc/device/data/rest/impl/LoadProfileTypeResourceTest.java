@@ -1,16 +1,11 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-<<<<<<< HEAD
 import com.elster.jupiter.cbo.QualityCodeCategory;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.ReadingQualityRecord;
-=======
-import com.elster.jupiter.cbo.QualityCodeIndex;
-import com.elster.jupiter.metering.IntervalReadingRecord;
->>>>>>> master
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.ProfileStatus;
@@ -124,21 +119,23 @@ public class LoadProfileTypeResourceTest extends DeviceDataRestApplicationJersey
         when(device.forValidation()).thenReturn(deviceValidation);
         when(deviceValidation.isValidationActive(channel1, NOW)).thenReturn(true);
         when(deviceValidation.isValidationActive(channel2, NOW)).thenReturn(true);
+
         DataValidationStatusImpl state1 = new DataValidationStatusImpl(Instant.ofEpochMilli(intervalEnd), true);
         state1.addReadingQuality(quality1, asList(rule1));
+        when(quality1.getType()).thenReturn(readingQualityType);
         when(rule1.getRuleSet()).thenReturn(ruleSet);
         when(ruleSet.getName()).thenReturn("ruleSetName");
         doReturn(Arrays.asList(rule1)).when(ruleSet).getRules();
         when(rule1.isActive()).thenReturn(true);
-        when(loadProfileReading.getChannelValidationStates()).thenReturn(ImmutableMap.of(channel1, state1));
         when(validationService.getEvaluator()).thenReturn(evaluator);
         when(evaluator.getValidationResult(any())).thenReturn(ValidationResult.SUSPECT);
         when(rule1.getImplementation()).thenReturn("isPrime");
         when(rule1.getDisplayName()).thenReturn("Primes only");
         when(channelSpec.getNbrOfFractionDigits()).thenReturn(3);
         when(deviceValidation.getValidationResult(any())).thenReturn(ValidationResult.SUSPECT);
-<<<<<<< HEAD
-        state1.addBulkReadingQuality(quality2, Collections.emptyList());
+
+        DataValidationStatusImpl state2 = new DataValidationStatusImpl(Instant.ofEpochMilli(intervalEnd), true);
+        state2.addReadingQuality(quality2, Collections.emptyList());
         when(quality2.hasEstimatedCategory()).thenReturn(true);
         when(estimationRule.getId()).thenReturn(13L);
         when(estimationRule.getRuleSet()).thenReturn(estimationRuleSet);
@@ -147,9 +144,8 @@ public class LoadProfileTypeResourceTest extends DeviceDataRestApplicationJersey
         ReadingQualityType readingQualityType = ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.ESTIMATED, (int)estimationRule.getId());
         when(quality2.getType()).thenReturn(readingQualityType);
         doReturn(Optional.of(estimationRule)).when(estimationService).findEstimationRuleByQualityType(readingQualityType);
-=======
-        when(quality1.getType()).thenReturn(readingQualityType);
->>>>>>> master
+
+        when(loadProfileReading.getChannelValidationStates()).thenReturn(ImmutableMap.of(channel1, state1, channel2, state2));
     }
 
     @Test
@@ -172,17 +168,20 @@ public class LoadProfileTypeResourceTest extends DeviceDataRestApplicationJersey
         assertThat(values).contains(entry(String.valueOf(CHANNEL_ID1), "200.000"));
         assertThat(values).contains(entry(String.valueOf(CHANNEL_ID2), "250.000"));
         Map validations = jsonModel.<Map>get("$.data[0].channelValidationData");
-        assertThat(validations).hasSize(1).containsKey(String.valueOf(CHANNEL_ID1));
+        assertThat(validations).hasSize(2).containsKeys(String.valueOf(CHANNEL_ID1), String.valueOf(CHANNEL_ID2));
         assertThat(jsonModel.<Boolean>get("$.data[0].channelValidationData." + CHANNEL_ID1 + ".dataValidated")).isTrue();
         assertThat(jsonModel.<String>get("$.data[0].channelValidationData." + CHANNEL_ID1 + ".mainValidationInfo.validationResult")).isEqualTo("validationStatus.suspect");
         assertThat(jsonModel.<List<?>>get("$.data[0].channelValidationData." + CHANNEL_ID1 + ".mainValidationInfo.validationRules")).hasSize(1);
         assertThat(jsonModel.<Boolean>get("$.data[0].channelValidationData." + CHANNEL_ID1 + ".mainValidationInfo.validationRules[0].active")).isTrue();
         assertThat(jsonModel.<String>get("$.data[0].channelValidationData." + CHANNEL_ID1 + ".mainValidationInfo.validationRules[0].implementation")).isEqualTo("isPrime");
         assertThat(jsonModel.<String>get("$.data[0].channelValidationData." + CHANNEL_ID1 + ".mainValidationInfo.validationRules[0].displayName")).isEqualTo("Primes only");
-        assertThat(jsonModel.<List<?>>get("$.data[0].channelValidationData." + CHANNEL_ID1 + ".bulkValidationInfo.estimationRules")).hasSize(1);
-        assertThat(jsonModel.<Number>get("$.data[0].channelValidationData." + CHANNEL_ID1 + ".bulkValidationInfo.estimationRules[0].id")).isEqualTo(13);
-        assertThat(jsonModel.<Number>get("$.data[0].channelValidationData." + CHANNEL_ID1 + ".bulkValidationInfo.estimationRules[0].ruleSetId")).isEqualTo(15);
-        assertThat(jsonModel.<String>get("$.data[0].channelValidationData." + CHANNEL_ID1 + ".bulkValidationInfo.estimationRules[0].name")).isEqualTo("EstimationRule");
+
+        assertThat(jsonModel.<Boolean>get("$.data[0].channelValidationData." + CHANNEL_ID2 + ".dataValidated")).isTrue();
+        assertThat(jsonModel.<String>get("$.data[0].channelValidationData." + CHANNEL_ID2 + ".mainValidationInfo.validationResult")).isEqualTo("validationStatus.suspect");
+        assertThat(jsonModel.<List<?>>get("$.data[0].channelValidationData." + CHANNEL_ID2 + ".mainValidationInfo.validationRules")).isEmpty();
+        assertThat(jsonModel.<Number>get("$.data[0].channelValidationData." + CHANNEL_ID2 + ".mainValidationInfo.estimatedByRule.id")).isEqualTo(13);
+        assertThat(jsonModel.<Number>get("$.data[0].channelValidationData." + CHANNEL_ID2 + ".mainValidationInfo.estimatedByRule.ruleSetId")).isEqualTo(15);
+        assertThat(jsonModel.<String>get("$.data[0].channelValidationData." + CHANNEL_ID2 + ".mainValidationInfo.estimatedByRule.name")).isEqualTo("EstimationRule");
     }
 
     @Test

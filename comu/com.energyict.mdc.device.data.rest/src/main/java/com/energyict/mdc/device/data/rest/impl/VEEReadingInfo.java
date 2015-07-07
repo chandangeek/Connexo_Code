@@ -1,8 +1,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.validation.rest.ValidationRuleInfo;
-import com.energyict.mdc.device.data.rest.ValueModificationFlag;
-import com.energyict.mdc.device.data.rest.ValueModificationFlagAdapter;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
@@ -12,21 +10,21 @@ import java.util.Set;
 /**
  * Created by tgr on 5/09/2014.
  */
-public class ValidationInfo {
+public class VeeReadingInfo {
     @JsonProperty("dataValidated")
     public Boolean dataValidated;
 
     @JsonProperty("mainValidationInfo")
-    public ValidationReadingInfo mainValidationInfo = new ValidationReadingInfo();
+    public VEEReadingValueInfo mainValidationInfo = new VEEReadingValueInfo();
 
     @JsonProperty("bulkValidationInfo")
-    public ValidationReadingInfo bulkValidationInfo = new ValidationReadingInfo();
+    public VEEReadingValueInfo bulkValidationInfo = new VEEReadingValueInfo();
 
-    public ValidationInfo() {
-
+    public VeeReadingInfo() {
     }
 }
-class ValidationReadingInfo {
+
+class VEEReadingValueInfo {
     @JsonProperty("validationResult")
     @XmlJavaTypeAdapter(ValidationStatusAdapter.class)
     public ValidationStatus validationResult;
@@ -34,13 +32,13 @@ class ValidationReadingInfo {
     @JsonProperty("validationRules")
     public Set<ValidationRuleInfo> validationRules = Collections.emptySet();
 
-    @JsonProperty("estimationRules")
-    public Set<EstimationRuleInfo> estimationRules = Collections.emptySet();
+    @JsonProperty("estimatedByRule")
+    public EstimationRuleInfo estimatedByRule;
 
     @JsonProperty("valueModificationFlag")
-    @XmlJavaTypeAdapter(ValueModificationFlagAdapter.class)
-    public ValueModificationFlag valueModificationFlag;
+    @XmlJavaTypeAdapter(ReadingModificationFlagAdapter.class)
+    public ReadingModificationFlag valueModificationFlag;
 
-    public ValidationReadingInfo() {
+    public VEEReadingValueInfo() {
     }
 }

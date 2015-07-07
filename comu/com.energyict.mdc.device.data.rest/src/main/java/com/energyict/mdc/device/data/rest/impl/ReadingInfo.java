@@ -38,7 +38,7 @@ public abstract class ReadingInfo {
         this.id = reading.getTimeStamp();
         this.timeStamp = reading.getTimeStamp();
         this.reportedDateTime = reading.getReportedDateTime();
-        this.modificationFlag = ReadingModificationFlag.getFlag(reading.getActualReading());
+        this.modificationFlag = ReadingModificationFlag.getModificationFlag(reading.getActualReading());
     }
 
     protected abstract BaseReading createNew(Register register);

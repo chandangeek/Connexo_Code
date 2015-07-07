@@ -6,15 +6,13 @@ import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeterActivation;
-<<<<<<< HEAD
 import com.elster.jupiter.metering.ReadingQualityRecord;
-=======
->>>>>>> master
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.Ranges;
+import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validation.ValidationRuleSet;
@@ -80,14 +78,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
     @Mock
     private IValidationRule validationRule;
     @Mock
-<<<<<<< HEAD
     private EstimationRule estimationRule;
-=======
-    private ReadingQuality quality1;
-
-    private ReadingQualityType readingQualityType = new ReadingQualityType("3.0.1");
-
->>>>>>> master
     @Mock
     private ReadingQualityRecord quality1;
     @Mock
@@ -100,6 +91,10 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
     private ValidationEvaluator evaluator;
     @Mock
     private IntervalReadingRecord readingRecord, addedReadingRecord, editedReadingRecord;
+
+    private ReadingQualityType readingQualityTypeValidated = new ReadingQualityType("3.0.1"),
+                                readingQualityTypeEdited = new ReadingQualityType("3.7.0"),
+                                 readingQualityTypeRejected = new ReadingQualityType("3.7.3");
 
     public ChannelResourceTest() {
     }
@@ -141,19 +136,19 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(channel.getId()).thenReturn(CHANNEL_ID1);
         when(channel.getChannelSpec()).thenReturn(channelSpec);
         when(channelSpec.getId()).thenReturn(CHANNEL_ID1);
-
         when(device.forValidation()).thenReturn(deviceValidation);
         when(deviceValidation.isValidationActive(channel, NOW)).thenReturn(true);
 
-        DataValidationStatusImpl state = new DataValidationStatusImpl(Instant.ofEpochMilli(intervalEnd), true);
+        DataValidationStatusImpl dataValidationStatus = new DataValidationStatusImpl(Instant.ofEpochMilli(intervalEnd), true);
         //add validation quality
-        state.addReadingQuality(quality1, asList(validationRule));
+        dataValidationStatus.addReadingQuality(quality1, asList(validationRule));
+        when(quality1.getType()).thenReturn(readingQualityTypeValidated);
         when(validationRule.getRuleSet()).thenReturn(validationRuleSet);
         when(validationRuleSet.getName()).thenReturn("ruleSetName");
         doReturn(Arrays.asList(validationRule)).when(validationRuleSet).getRules();
         when(validationRule.isActive()).thenReturn(true);
         //add estimation quality
-        state.addBulkReadingQuality(quality2, Collections.emptyList());
+        dataValidationStatus.addBulkReadingQuality(quality2, Collections.emptyList());
         when(quality2.hasEstimatedCategory()).thenReturn(true);
         when(estimationRule.getId()).thenReturn(13L);
         when(estimationRule.getRuleSet()).thenReturn(estimationRuleSet);
@@ -163,9 +158,13 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(quality2.getType()).thenReturn(readingQualityType);
         doReturn(Optional.of(estimationRule)).when(estimationService).findEstimationRuleByQualityType(readingQualityType);
 
-        when(loadProfileReading.getChannelValidationStates()).thenReturn(ImmutableMap.of(channel, state));
-        when(addedloadProfileReading.getChannelValidationStates()).thenReturn(ImmutableMap.of(channel, state));
-        when(editedProfileReading.getChannelValidationStates()).thenReturn(ImmutableMap.of(channel, state));
+        when(loadProfileReading.getChannelValidationStates()).thenReturn(ImmutableMap.of(channel, dataValidationStatus));
+        when(addedloadProfileReading.getChannelValidationStates()).thenReturn(ImmutableMap.of(channel, dataValidationStatus));
+        DataValidationStatus statusForBulkEdited = mockDataValidationStatus(readingQualityTypeEdited, true);
+        when(editedProfileReading.getChannelValidationStates()).thenReturn(ImmutableMap.of(channel, statusForBulkEdited));
+        DataValidationStatus statusForValueRemoved = mockDataValidationStatus(readingQualityTypeRejected, false);
+        when(removedProfileReading.getChannelValidationStates()).thenReturn(ImmutableMap.of(channel, statusForValueRemoved));
+
         when(validationService.getEvaluator()).thenReturn(evaluator);
         when(evaluator.getValidationResult(any())).thenReturn(ValidationResult.SUSPECT);
         when(validationRule.getImplementation()).thenReturn("isPrime");
@@ -184,7 +183,19 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(channel.getLastDateTime()).thenReturn(Optional.of(NOW));
         when(channel.getUnit()).thenReturn(unit);
         when(deviceValidation.getLastChecked(channel)).thenReturn(Optional.of(NOW));
-        when(quality1.getType()).thenReturn(readingQualityType);
+    }
+
+    private DataValidationStatus mockDataValidationStatus(ReadingQualityType readingQualityType, boolean isBulk) {
+        DataValidationStatus status = mock(DataValidationStatus.class);
+        ReadingQualityRecord readingQualityRecord = mock(ReadingQualityRecord.class);
+        when(readingQualityRecord.getType()).thenReturn(readingQualityType);
+        List<? extends ReadingQualityRecord> readingQualities = Arrays.asList(readingQualityRecord);
+        if (isBulk) {
+            doReturn(readingQualities).when(status).getBulkReadingQualities();
+        } else {
+            doReturn(readingQualities).when(status).getReadingQualities();
+        }
+        return status;
     }
 
     @Test
@@ -203,37 +214,37 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         assertThat(jsonModel.<Long>get("$.data[0].interval.end")).isEqualTo(1410828630000L);
         assertThat(jsonModel.<List<?>>get("$.data[0].intervalFlags")).hasSize(1);
         assertThat(jsonModel.<String>get("$.data[0].intervalFlags[0]")).isEqualTo(BATTERY_LOW);
-        String value = jsonModel.<String>get("$.data[0].value");
-        assertThat(value).isEqualTo("200.000");
+        assertThat(jsonModel.<String>get("$.data[0].collectedValue")).isEqualTo("200.000");
         assertThat(jsonModel.<Boolean>get("$.data[0].validationInfo.dataValidated")).isTrue();
         assertThat(jsonModel.<String>get("$.data[0].validationInfo.mainValidationInfo.validationResult")).isEqualTo("validationStatus.suspect");
         assertThat(jsonModel.<List<?>>get("$.data[0].validationInfo.mainValidationInfo.validationRules")).hasSize(1);
         assertThat(jsonModel.<Boolean>get("$.data[0].validationInfo.mainValidationInfo.validationRules[0].active")).isTrue();
         assertThat(jsonModel.<String>get("$.data[0].validationInfo.mainValidationInfo.validationRules[0].implementation")).isEqualTo("isPrime");
         assertThat(jsonModel.<String>get("$.data[0].validationInfo.mainValidationInfo.validationRules[0].displayName")).isEqualTo("Primes only");
-        assertThat(jsonModel.<List<?>>get("$.data[0].validationInfo.mainValidationInfo.estimationRules")).isEmpty();
 
         assertThat(jsonModel.<String>get("$.data[0].validationInfo.bulkValidationInfo.validationResult")).isEqualTo("validationStatus.suspect");
         assertThat(jsonModel.<List<?>>get("$.data[0].validationInfo.bulkValidationInfo.validationRules")).isEmpty();
-        assertThat(jsonModel.<List<?>>get("$.data[0].validationInfo.bulkValidationInfo.estimationRules")).hasSize(1);
-        assertThat(jsonModel.<Number>get("$.data[0].validationInfo.bulkValidationInfo.estimationRules[0].id")).isEqualTo(13);
-        assertThat(jsonModel.<Number>get("$.data[0].validationInfo.bulkValidationInfo.estimationRules[0].ruleSetId")).isEqualTo(15);
-        assertThat(jsonModel.<String>get("$.data[0].validationInfo.bulkValidationInfo.estimationRules[0].name")).isEqualTo("EstimationRule");
-        assertThat(jsonModel.<List<?>>get("$.data[0].validationInfo.bulkValidationInfo.estimationRules[0].properties")).isEmpty();
+        assertThat(jsonModel.<Number>get("$.data[0].validationInfo.bulkValidationInfo.estimatedByRule.id")).isEqualTo(13);
+        assertThat(jsonModel.<Number>get("$.data[0].validationInfo.bulkValidationInfo.estimatedByRule.ruleSetId")).isEqualTo(15);
+        assertThat(jsonModel.<String>get("$.data[0].validationInfo.bulkValidationInfo.estimatedByRule.name")).isEqualTo("EstimationRule");
+        assertThat(jsonModel.<List<?>>get("$.data[0].validationInfo.bulkValidationInfo.estimatedByRule.properties")).isEmpty();
 
         assertThat(jsonModel.<String>get("$.data[0].modificationFlag")).isNull();
         assertThat(jsonModel.<Long>get("$.data[0].reportedDateTime")).isEqualTo(LAST_READING.toEpochMilli());
 
-        assertThat(jsonModel.<String>get("$.data[1].value")).isEqualTo("201.000");
-        assertThat(jsonModel.<String>get("$.data[1].modificationFlag")).isEqualTo("ADDED");
+        assertThat(jsonModel.<String>get("$.data[1].collectedValue")).isEqualTo("201.000");
+        assertThat(jsonModel.<String>get("$.data[1].validationInfo.mainValidationInfo.valueModificationFlag")).isEqualTo("ADDED");
+        assertThat(jsonModel.<String>get("$.data[1].validationInfo.bulkValidationInfo.valueModificationFlag")).isEqualTo("ADDED");
         assertThat(jsonModel.<Long>get("$.data[1].reportedDateTime")).isEqualTo(LAST_READING.toEpochMilli());
 
-        assertThat(jsonModel.<String>get("$.data[2].value")).isEqualTo("202.000");
-        assertThat(jsonModel.<String>get("$.data[2].modificationFlag")).isEqualTo("EDITED");
+        assertThat(jsonModel.<String>get("$.data[2].collectedValue")).isEqualTo("202.000");
+        assertThat(jsonModel.<String>get("$.data[2].validationInfo.mainValidationInfo.valueModificationFlag")).isNull();
+        assertThat(jsonModel.<String>get("$.data[2].validationInfo.bulkValidationInfo.valueModificationFlag")).isEqualTo("EDITED");
         assertThat(jsonModel.<Long>get("$.data[2].reportedDateTime")).isEqualTo(LAST_READING.toEpochMilli());
 
         assertThat(jsonModel.<String>get("$.data[3].value")).isNull();
-        assertThat(jsonModel.<String>get("$.data[3].modificationFlag")).isEqualTo("REMOVED");
+        assertThat(jsonModel.<String>get("$.data[3].validationInfo.mainValidationInfo.valueModificationFlag")).isEqualTo("REMOVED");
+        assertThat(jsonModel.<String>get("$.data[3].validationInfo.bulkValidationInfo.valueModificationFlag")).isNull();
         assertThat(jsonModel.<Long>get("$.data[3].reportedDateTime")).isEqualTo(LAST_READING.toEpochMilli());
     }
 
@@ -298,7 +309,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
 
         JsonModel jsonModel = JsonModel.create(json);
 
-        assertThat(jsonModel.<List<?>>get("$.data")).hasSize(3);
+        assertThat(jsonModel.<List<?>>get("$.data")).hasSize(4);
     }
 
     @Test

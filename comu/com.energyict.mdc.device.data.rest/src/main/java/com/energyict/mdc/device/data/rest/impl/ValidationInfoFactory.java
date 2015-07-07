@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationRule;
@@ -14,7 +15,6 @@ import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.DeviceValidation;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.NumericalRegister;
-import com.energyict.mdc.device.data.rest.ValueModificationFlag;
 import com.google.common.collect.ImmutableList;
 
 import javax.inject.Inject;
@@ -183,20 +183,25 @@ public class ValidationInfoFactory {
         return result;
     }
 
-    ValidationInfo createValidationInfoFor(Channel channel, DataValidationStatus dataValidationStatus, DeviceValidation deviceValidation, ReadingModificationFlag readingModificationFlag) {
-        ValidationInfo validationInfo = new ValidationInfo();
-        validationInfo.dataValidated = dataValidationStatus.completelyValidated();
-        validationInfo.mainValidationInfo.validationResult = ValidationStatus.forResult(deviceValidation.getValidationResult(dataValidationStatus.getReadingQualities()));
-        validationInfo.mainValidationInfo.valueModificationFlag = ValueModificationFlag.getModificationFlag(dataValidationStatus.getReadingQualities(), readingModificationFlag);
-        validationInfo.mainValidationInfo.validationRules = validationRuleInfoFactory.createInfosForDataValidationStatus(dataValidationStatus);
-        validationInfo.mainValidationInfo.estimationRules = estimationRuleInfoFactory.createEstimationRulesInfo(dataValidationStatus.getReadingQualities());
+    VeeReadingInfo createVeeReadingInfo(DataValidationStatus dataValidationStatus, DeviceValidation deviceValidation) {
+        VeeReadingInfo veeReadingInfo = new VeeReadingInfo();
+        veeReadingInfo.dataValidated = dataValidationStatus.completelyValidated();
+        veeReadingInfo.mainValidationInfo.validationResult = ValidationStatus.forResult(deviceValidation.getValidationResult(dataValidationStatus.getReadingQualities()));
+        veeReadingInfo.mainValidationInfo.validationRules = validationRuleInfoFactory.createInfosForDataValidationStatus(dataValidationStatus);
+        veeReadingInfo.mainValidationInfo.estimatedByRule = estimationRuleInfoFactory.createEstimationRuleInfo(dataValidationStatus.getReadingQualities());
+        return veeReadingInfo;
+    }
+
+    VeeReadingInfo createVeeReadingInfo(Channel channel, Optional<IntervalReadingRecord> reading, DataValidationStatus dataValidationStatus, DeviceValidation deviceValidation) {
+        VeeReadingInfo veeReadingInfo = createVeeReadingInfo(dataValidationStatus, deviceValidation);
+        veeReadingInfo.mainValidationInfo.valueModificationFlag = ReadingModificationFlag.getModificationFlag(reading, dataValidationStatus.getReadingQualities());
         if (channel.getReadingType().getCalculatedReadingType().isPresent()) {
-            validationInfo.bulkValidationInfo.validationResult = ValidationStatus.forResult(deviceValidation.getValidationResult(dataValidationStatus.getBulkReadingQualities()));
-            validationInfo.bulkValidationInfo.valueModificationFlag = ValueModificationFlag.getModificationFlag(dataValidationStatus.getBulkReadingQualities(), readingModificationFlag);
-            validationInfo.bulkValidationInfo.validationRules = validationRuleInfoFactory.createInfosForBulkDataValidationStatus(dataValidationStatus);
-            validationInfo.bulkValidationInfo.estimationRules = estimationRuleInfoFactory.createEstimationRulesInfo(dataValidationStatus.getBulkReadingQualities());
+            veeReadingInfo.bulkValidationInfo.validationResult = ValidationStatus.forResult(deviceValidation.getValidationResult(dataValidationStatus.getBulkReadingQualities()));
+            veeReadingInfo.bulkValidationInfo.valueModificationFlag = ReadingModificationFlag.getModificationFlag(reading, dataValidationStatus.getBulkReadingQualities());
+            veeReadingInfo.bulkValidationInfo.validationRules = validationRuleInfoFactory.createInfosForBulkDataValidationStatus(dataValidationStatus);
+            veeReadingInfo.bulkValidationInfo.estimatedByRule = estimationRuleInfoFactory.createEstimationRuleInfo(dataValidationStatus.getBulkReadingQualities());
         }
-        return validationInfo;
+        return veeReadingInfo;
     }
 
     DetailedValidationInfo createDetailedValidationInfo(Boolean active, List<DataValidationStatus> dataValidationStatuses, Optional<Instant> lastChecked) {
