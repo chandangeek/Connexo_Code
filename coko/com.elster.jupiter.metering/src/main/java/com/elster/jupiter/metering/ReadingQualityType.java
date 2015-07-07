@@ -41,17 +41,29 @@ public final class ReadingQualityType {
     		return Optional.empty();
     	}
     }
+
+    public int getSystemCode() {
+        return getCode(1).get();
+    }
     
     public Optional<QualityCodeSystem> system() {
-    	return getCode(1).flatMap(QualityCodeSystem::get);
+    	return QualityCodeSystem.get(getSystemCode());
+    }
+
+    public int getCategoryCode() {
+        return getCode(2).get();
     }
     
     public Optional<QualityCodeCategory> category() {
-    	return getCode(2).flatMap(QualityCodeCategory::get);
+    	return QualityCodeCategory.get(getCategoryCode());
+    }
+
+    public int getIndexCode() {
+        return getCode(3).get();
     }
     
-    public Optional<QualityCodeIndex> qualityIndex()  {
-    	return category().flatMap(category -> getCode(3).flatMap(category::qualityCodeIndex));
+    public Optional<QualityCodeIndex> qualityIndex() {
+    	return category().flatMap(category -> category.qualityCodeIndex(getIndexCode()));
     }
 
     public static ReadingQualityType defaultCodeForRuleId(long id) {
