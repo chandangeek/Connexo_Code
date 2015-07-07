@@ -46,7 +46,7 @@ class Installer {
 
     private void generateKeyStore() {
         try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
-            DataVault dataVault = dataModel.getInstance(DataVault.class);
+            DataVault dataVault = dataModel.getInstance(DataVaultProvider.class).get();
             dataVault.createVault(byteArrayOutputStream);
             OrmKeyStoreImpl instance = dataModel.getInstance(OrmKeyStoreImpl.class);
             instance.setKeyStore(byteArrayOutputStream);
