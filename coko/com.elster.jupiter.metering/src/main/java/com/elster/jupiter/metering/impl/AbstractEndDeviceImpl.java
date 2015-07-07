@@ -167,11 +167,10 @@ public abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> 
     }
 
     @Override
-    public void changeState(State newState) {
+    public void changeState(State newState, Instant effective) {
         this.validateState(newState);
-        Instant now = this.clock.instant();
-        this.closeCurrentState(now);
-        this.createNewState(now, newState);
+        this.closeCurrentState(effective);
+        this.createNewState(effective, newState);
         this.touch();
     }
 
