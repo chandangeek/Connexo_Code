@@ -5,6 +5,7 @@ import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.appserver.impl.AppServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
+import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
 import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
@@ -147,7 +148,8 @@ public class DirectoryForAppServerlIT {
                     new BasicPropertiesModule(),
                     new MailModule(),
                     new BpmModule(),
-                    new ValidationModule()
+                    new ValidationModule(),
+                    new DataVaultModule()
             );
         } catch (Exception e) {
             throw new RuntimeException(e);

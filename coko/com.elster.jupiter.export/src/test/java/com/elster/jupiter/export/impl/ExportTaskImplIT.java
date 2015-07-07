@@ -3,6 +3,7 @@ package com.elster.jupiter.export.impl;
 import com.elster.jupiter.appserver.impl.AppServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
+import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.devtools.tests.ProgrammableClock;
 import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
 import com.elster.jupiter.devtools.tests.rules.Using;
@@ -16,6 +17,7 @@ import com.elster.jupiter.export.DataFormatterFactory;
 import com.elster.jupiter.export.EmailDestination;
 import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.export.FileDestination;
+import com.elster.jupiter.export.FtpDestination;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.export.ReadingTypeDataSelector;
 import com.elster.jupiter.export.ValidatedDataOption;
@@ -206,7 +208,8 @@ public class ExportTaskImplIT {
                     new BasicPropertiesModule(),
                     new MailModule(),
                     new BpmModule(),
-                    new ValidationModule()
+                    new ValidationModule(),
+                    new DataVaultModule()
             );
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -219,6 +222,7 @@ public class ExportTaskImplIT {
             meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
             return null;
         });
+
         readingType = meteringService.getReadingType("0.0.5.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
         anotherReadingType = meteringService.getReadingType("0.0.2.1.19.1.12.0.0.0.0.0.0.0.0.0.72.0").get();
         dataExportService.addFormatter(dataFormatterFactory, ImmutableMap.of(DataExportService.DATA_TYPE_PROPERTY, DataExportService.STANDARD_DATA_TYPE));
@@ -306,6 +310,35 @@ public class ExportTaskImplIT {
 
         assertThat(taskFromDB.getDestinations()).hasSize(1);
 
+    }
+
+    @Test
+    public void testAddFtpDestination() {
+        ExportTask exportTask = createAndSaveTask();
+
+        try (TransactionContext context = transactionService.getContext()) {
+            exportTask.addFtpDestination("elster.com", "user", "password", "testreport", "file", "csv");
+
+            context.commit();
+        }
+
+        Optional<? extends ExportTask> found = dataExportService.findExportTask(exportTask.getId());
+
+        assertThat(found).isPresent();
+
+        ExportTask taskFromDB = found.get();
+
+        assertThat(taskFromDB.getDestinations()).hasSize(1);
+
+        assertThat(taskFromDB.getDestinations().get(0)).isInstanceOf(FtpDestination.class);
+        FtpDestination ftpDestination = (FtpDestination) taskFromDB.getDestinations().get(0);
+
+        assertThat(ftpDestination.getServer()).isEqualTo("elster.com");
+        assertThat(ftpDestination.getUser()).isEqualTo("user");
+        assertThat(ftpDestination.getPassword()).isEqualTo("password");
+        assertThat(ftpDestination.getFileLocation()).isEqualTo("testreport");
+        assertThat(ftpDestination.getFileName()).isEqualTo("file");
+        assertThat(ftpDestination.getFileExtension()).isEqualTo("csv");
     }
 
     @Test
