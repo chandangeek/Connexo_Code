@@ -495,22 +495,7 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
 
     @Override
     public Optional<? extends EstimationRule> findEstimationRuleByQualityType(ReadingQualityType readingQualityType) {
-        return getCode(readingQualityType)
-                .map(index -> getEstimationRule(index))
-                .orElse(Optional.empty());
-    }
-
-    private Optional<Integer> getCode(ReadingQualityType readingQualityType) {
-        int index = 3;
-        String[] parts = readingQualityType.getCode().split("\\.");
-        if (parts.length < index) {
-            return Optional.empty();
-        }
-        try {
-            return Optional.of(Integer.parseInt(parts[index-1]));
-        } catch (NumberFormatException ex) {
-            return Optional.empty();
-        }
+        return getEstimationRule(readingQualityType.getIndexCode());
     }
 
     class DefaultEstimatorCreator implements EstimatorCreator {
