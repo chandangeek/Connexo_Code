@@ -115,10 +115,11 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                 xtype: 'property-form',
                 itemId: 'property-form',
                 defaults: {
+                    width: 325,
                     labelWidth: 260,
                     resetButtonHidden: true
                 },
-                width: 900
+                width: 1000
             },
             {
                 xtype: 'fieldcontainer',
