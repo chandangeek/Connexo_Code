@@ -13,6 +13,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -45,7 +46,6 @@ public class DeviceStateAccessFilter implements ContainerRequestFilter {
             return;
         }
         if (!isRestrictedHttpMethod(requestContext)){
-            // User performs allowed request, for example GET request while only PUT and POST are forbidden
             return;
         }
         Optional<Device> device = deviceService.findByUniqueMrid(pathSegments.get(MRID_SEGMENT_POSITION).getPath());
@@ -57,24 +57,30 @@ public class DeviceStateAccessFilter implements ContainerRequestFilter {
     }
 
     private Set<String> getRestrictedDeviceStates(){
-        Set<DefaultState> restrictedStates = new HashSet<>();
-        DeviceStatesRestricted classAnnotation = resourceInfo.getResourceClass().getAnnotation(DeviceStatesRestricted.class);
-        if (classAnnotation != null){
-            restrictedStates.addAll(Arrays.asList(classAnnotation.value()));
-        }
+        Set<String> restrictedStates = Collections.emptySet();
         DeviceStatesRestricted methodAnnotation = resourceInfo.getResourceMethod().getAnnotation(DeviceStatesRestricted.class);
         if (methodAnnotation != null){
-            restrictedStates.addAll(Arrays.asList(methodAnnotation.value()));
+            restrictedStates = Arrays.stream(methodAnnotation.value()).map(DefaultState::getKey).collect(Collectors.toSet());
+        } else {
+            DeviceStatesRestricted classAnnotation = resourceInfo.getResourceClass().getAnnotation(DeviceStatesRestricted.class);
+            if (classAnnotation != null) {
+                restrictedStates = Arrays.stream(classAnnotation.value()).map(DefaultState::getKey).collect(Collectors.toSet());
+            }
         }
-        if (restrictedStates.isEmpty()){
+        if (restrictedStates.isEmpty()) {
             LOGGER.warning("The RestrictedDeviceState annotation doesn't have any restricted state. " +
                     "Class = " + resourceInfo.getResourceClass().getName() + ", method = " + resourceInfo.getResourceMethod().getName());
         }
-        return restrictedStates.stream().map(DefaultState::getKey).collect(Collectors.toSet());
+        return restrictedStates;
     }
 
     private boolean isRestrictedHttpMethod(ContainerRequestContext requestContext){
-        DeviceStatesRestricted classAnnotation = resourceInfo.getResourceClass().getAnnotation(DeviceStatesRestricted.class);
+        if (this.resourceInfo.getResourceMethod().getAnnotation(DeviceStatesRestricted.class) != null){
+            // Allow method annotation override a class annotation
+            // For example we restrict all PUT and POST requests for a specific class and just one GET request via annotated method
+            return true;
+        }
+        DeviceStatesRestricted classAnnotation = this.resourceInfo.getResourceClass().getAnnotation(DeviceStatesRestricted.class);
         if (classAnnotation != null && classAnnotation.methods() != null){
             return Arrays.asList(classAnnotation.methods()).contains(requestContext.getMethod());
         }
