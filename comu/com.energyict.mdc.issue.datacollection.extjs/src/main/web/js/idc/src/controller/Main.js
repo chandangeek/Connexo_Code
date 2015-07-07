@@ -19,7 +19,7 @@ Ext.define('Idc.controller.Main', {
         'Idc.controller.Detail',
         'Idc.controller.ApplyAction',
         'Idc.controller.BulkChangeIssues',
-        'Idc.controller.MessageWindow'
+        'Isu.controller.MessageWindow'
     ],
 
     stores: [
