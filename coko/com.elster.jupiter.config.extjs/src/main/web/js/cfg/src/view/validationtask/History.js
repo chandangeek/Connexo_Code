@@ -47,7 +47,8 @@ Ext.define('Cfg.view.validationtask.History', {
                         xtype: 'no-items-found-panel',
                         title: Uni.I18n.translate('validationTasks.validationTasksHistory.empty.title', 'CFG', 'No validation history found'),
                         reasons: [
-                            Uni.I18n.translate('validationTasks.validationTasksHistory.empty.list.item1', 'CFG', 'There is no history available for this validation task.')
+                            Uni.I18n.translate('validationTasks.validationTasksHistory.empty.list.item1', 'CFG', 'There is no history available for this validation task.'),
+                            Uni.I18n.translate('validationTasks.validationTasksHistory.empty.list.item2', 'CFG', 'No history items comply to the filter.')
                         ],
                         margin: '16 0 0 0'
                     },

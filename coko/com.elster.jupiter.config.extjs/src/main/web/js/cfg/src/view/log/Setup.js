@@ -46,7 +46,7 @@ Ext.define('Cfg.view.log.Setup', {
                         xtype: 'no-items-found-panel',
                         title: Uni.I18n.translate('validationTasks.log.empty.title', 'CFG', 'No logs found'),
                         reasons: [
-                            me.task.get('name') + ' ' + Uni.I18n.translate('validationTasks.general.startedon', 'CFG', 'started on') + ' ' + me.runStartedOn + ' ' + Uni.I18n.translate('validationTasks.log.empty.list.item1', 'CFG', 'did not create any logs.')
+                            Ext.String.format(Uni.I18n.translate('validationTasks.log.empty.list', 'CFG', "Validation task '{0}' started on {1} did not create any logs."), me.task.get('name'), me.runStartedOn)
                         ]
                     }
                 }
