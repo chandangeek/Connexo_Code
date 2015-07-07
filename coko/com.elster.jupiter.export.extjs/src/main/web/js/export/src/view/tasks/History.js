@@ -47,7 +47,8 @@ Ext.define('Dxp.view.tasks.History', {
                         xtype: 'no-items-found-panel',
                         title: Uni.I18n.translate('dataExportTasksHistory.empty.title', 'DES', 'No data export history found'),
                         reasons: [
-                            Uni.I18n.translate('dataExportTasksHistory.empty.list.item1', 'DES', 'There is no history available for this data export task.')
+                            Uni.I18n.translate('dataExportTasksHistory.empty.list.item1', 'DES', 'There is no history available for this data export task.'),
+                            Uni.I18n.translate('dataExportTasksHistory.empty.list.item2', 'DES', 'No history items comply to the filter.')
                         ],
                         margin: '16 0 0 0'
                     },
