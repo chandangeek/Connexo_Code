@@ -3,6 +3,7 @@ package com.energyict.mdc.device.data.rest.impl;
 import com.elster.jupiter.cbo.*;
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.estimation.EstimationService;
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
@@ -15,6 +16,7 @@ import com.elster.jupiter.yellowfin.groups.YellowfinGroupsService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.imp.DeviceImportService;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
@@ -38,7 +40,9 @@ import org.mockito.Mock;
 import javax.ws.rs.core.Application;
 import java.time.Clock;
 import java.util.Currency;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
@@ -109,7 +113,6 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
     @Mock
     DeviceLifeCycleService deviceLifeCycleService;
 
-
     @Before
     public void setup() {
         when(thesaurus.getStringBeyondComponent(any(String.class), any(String.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArguments()[1]);
@@ -124,9 +127,22 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         return MessageSeeds.values();
     }
 
+    protected boolean disableDeviceConstraintsBasedOnDeviceState(){
+        return true;
+    }
+
     @Override
     protected Application getApplication() {
-        DeviceApplication application = new DeviceApplication();
+        DeviceApplication application = new DeviceApplication(){
+            @Override
+            public Set<Class<?>> getClasses() {
+                Set<Class<?>> classes = new HashSet<>(super.getClasses());
+                if (disableDeviceConstraintsBasedOnDeviceState()){
+                    classes.remove(DeviceApplicationDeviceStateAccessFeature.class);
+                }
+                return classes;
+            }
+        };
         application.setNlsService(nlsService);
         application.setTransactionService(transactionService);
         application.setMasterDataService(masterDataService);
