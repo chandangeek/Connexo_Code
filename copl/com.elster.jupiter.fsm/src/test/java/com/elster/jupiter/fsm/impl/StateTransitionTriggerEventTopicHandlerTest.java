@@ -3,7 +3,9 @@ package com.elster.jupiter.fsm.impl;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.fsm.FiniteStateMachine;
+import com.elster.jupiter.fsm.ProcessReference;
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.fsm.StateChangeBusinessProcess;
 import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.fsm.StateTransitionChangeEvent;
 import com.elster.jupiter.fsm.StateTransitionEventType;
@@ -209,6 +211,50 @@ public class StateTransitionTriggerEventTopicHandlerTest {
 
         // Asserts
         verify(this.eventService, never()).postEvent(anyString(), any(StateTransitionChangeEvent.class));
+    }
+
+    @Test
+    public void onEntryIsTriggered() {
+        ProcessReference processReference = mock(ProcessReference.class);
+        StateChangeBusinessProcess process = mock(StateChangeBusinessProcess.class);
+        when(processReference.getStateChangeBusinessProcess()).thenReturn(process);
+        when(this.inactive.getOnEntryProcesses()).thenReturn(Arrays.asList(processReference));
+        StateTransitionTriggerEventTopicHandler handler = new StateTransitionTriggerEventTopicHandler(this.eventService);
+        this.eventProperties.put("Prop1", BigDecimal.TEN);
+        this.eventProperties.put("Prop2", "some value");
+        String currentStateName = this.active.getName();
+        when(this.triggerEvent.getSourceCurrentStateName()).thenReturn(currentStateName);
+        when(this.triggerEvent.getType()).thenReturn(this.deactivated);
+        String sourceId = "onEntryIsTriggered";
+        when(this.triggerEvent.getSourceId()).thenReturn(sourceId);
+
+        // Business method
+        handler.handle(this.localEvent);
+
+        // Asserts
+        verify(process).executeOnEntry(sourceId, this.inactive);
+    }
+
+    @Test
+    public void onExitIsTriggered() {
+        ProcessReference processReference = mock(ProcessReference.class);
+        StateChangeBusinessProcess process = mock(StateChangeBusinessProcess.class);
+        when(processReference.getStateChangeBusinessProcess()).thenReturn(process);
+        when(this.active.getOnExitProcesses()).thenReturn(Arrays.asList(processReference));
+        StateTransitionTriggerEventTopicHandler handler = new StateTransitionTriggerEventTopicHandler(this.eventService);
+        this.eventProperties.put("Prop1", BigDecimal.TEN);
+        this.eventProperties.put("Prop2", "some value");
+        String currentStateName = this.active.getName();
+        when(this.triggerEvent.getSourceCurrentStateName()).thenReturn(currentStateName);
+        when(this.triggerEvent.getType()).thenReturn(this.deactivated);
+        String sourceId = "onExitIsTriggered";
+        when(this.triggerEvent.getSourceId()).thenReturn(sourceId);
+
+        // Business method
+        handler.handle(this.localEvent);
+
+        // Asserts
+        verify(process).executeOnExit(sourceId, this.active);
     }
 
 }
