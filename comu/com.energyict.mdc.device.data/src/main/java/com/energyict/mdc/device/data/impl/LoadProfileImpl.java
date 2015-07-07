@@ -271,6 +271,7 @@ public class LoadProfileImpl implements LoadProfile {
         private final com.elster.jupiter.metering.Channel koreChannel;
         private final List<BaseReadingRecord> removed = new ArrayList<>();
         private final List<BaseReading> edited = new ArrayList<>();
+        private final List<BaseReading> editedBulk = new ArrayList<>();
 
         private ChannelDataUpdaterImpl(ChannelImpl channel) {
             super();
@@ -280,6 +281,12 @@ public class LoadProfileImpl implements LoadProfile {
         @Override
         public ChannelDataUpdater editChannelData(List<BaseReading> modifiedChannelData) {
             this.edited.addAll(modifiedChannelData);
+            return this;
+        }
+
+        @Override
+        public ChannelDataUpdater editBulkChannelData(List<BaseReading> modifiedChannelData) {
+            this.editedBulk.addAll(modifiedChannelData);
             return this;
         }
 
@@ -298,6 +305,10 @@ public class LoadProfileImpl implements LoadProfile {
         @Override
         public void complete() {
             this.koreChannel.editReadings(this.edited);
+            Optional<? extends ReadingType> readingTypeRef = this.koreChannel.getBulkQuantityReadingType();
+            if (readingTypeRef.isPresent() && this.koreChannel.getCimChannel(readingTypeRef.get()).isPresent()) {
+                this.koreChannel.getCimChannel(readingTypeRef.get()).get().editReadings(this.editedBulk);
+            }
             this.koreChannel.removeReadings(this.removed);
         }
 
