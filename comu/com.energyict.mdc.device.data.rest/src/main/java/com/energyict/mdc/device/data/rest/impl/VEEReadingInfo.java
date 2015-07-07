@@ -15,16 +15,16 @@ public class VeeReadingInfo {
     public Boolean dataValidated;
 
     @JsonProperty("mainValidationInfo")
-    public VEEReadingValueInfo mainValidationInfo = new VEEReadingValueInfo();
+    public VeeReadingValueInfo mainValidationInfo = new VeeReadingValueInfo();
 
     @JsonProperty("bulkValidationInfo")
-    public VEEReadingValueInfo bulkValidationInfo = new VEEReadingValueInfo();
+    public VeeReadingValueInfo bulkValidationInfo = new VeeReadingValueInfo();
 
     public VeeReadingInfo() {
     }
 }
 
-class VEEReadingValueInfo {
+class VeeReadingValueInfo {
     @JsonProperty("validationResult")
     @XmlJavaTypeAdapter(ValidationStatusAdapter.class)
     public ValidationStatus validationResult;
@@ -39,6 +39,6 @@ class VEEReadingValueInfo {
     @XmlJavaTypeAdapter(ReadingModificationFlagAdapter.class)
     public ReadingModificationFlag valueModificationFlag;
 
-    public VEEReadingValueInfo() {
+    public VeeReadingValueInfo() {
     }
 }
