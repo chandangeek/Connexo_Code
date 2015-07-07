@@ -2,6 +2,7 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
+import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 
 import java.text.MessageFormat;
 import java.util.Objects;
@@ -12,6 +13,7 @@ public enum DefaultTranslationKey implements TranslationKey {
     CIM_DATE_INSTALLED("DeviceCimInstalledDate" , "Installation date"),
     CIM_DATE_REMOVE("DeviceCimRemovedDate" , "Deactivation date"),
     CIM_DATE_RETRIED("DeviceCimRetriedDate" , "Decommissioning date"),
+    LAST_CHECKED_PROPERTY_NAME(DeviceLifeCycleService.MicroActionPropertyName.LAST_CHECKED.key() , "Action effective timestamp"),
     ;
 
     private String key;
