@@ -17,7 +17,7 @@ class FileDestinationInfoFactory implements DestinationInfoFactory {
         }
         FileDestination fileDestination = (FileDestination) destination;
         DestinationInfo destinationInfo = new DestinationInfo();
-        destinationInfo.type = DestinationType.EMAIL;
+        destinationInfo.type = DestinationType.FILE;
         destinationInfo.id = destination.getId();
         destinationInfo.fileLocation = fileDestination.getFileLocation();
         destinationInfo.fileName = fileDestination.getFileName();
