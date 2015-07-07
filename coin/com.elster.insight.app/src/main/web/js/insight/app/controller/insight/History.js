@@ -9,9 +9,9 @@ Ext.define('InsightApp.controller.insight.History', {
             route: 'insight',
             disabled: true,
             items: {
-                properties: {
-                    route: 'properties',
-                    controller: 'InsightApp.controller.insight.Properties',
+                usagepoints: {
+                    route: 'usagepoints',
+                    controller: 'InsightApp.controller.insight.UsagePoint',
                     action: 'test'
                 }
             }

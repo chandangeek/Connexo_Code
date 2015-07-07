@@ -3,7 +3,7 @@ Ext.define('InsightApp.controller.insight.Main', {
 
     controllers: [
         'InsightApp.controller.insight.History',
-        'InsightApp.controller.insight.Properties'
+        'InsightApp.controller.insight.UsagePoint'
     ],
 
     refs: [
@@ -37,13 +37,13 @@ Ext.define('InsightApp.controller.insight.Main', {
         Uni.store.MenuItems.add(menuItem);
 
         var portalItem1 = Ext.create('Uni.model.PortalItem', {
-            title: Uni.I18n.translate('general.Properties', 'CFG', 'Properties'),
+            title: Uni.I18n.translate('general.UsagePoints', 'INS', 'Usage Points'),
             portal: 'insight',
             items: [
                 {
-                    text: Uni.I18n.translate('general.propertiesTestCode', 'CFG', 'Properties test code'),
-                    href: '#/insight/properties',
-                    itemId: 'properties'
+                    text: Uni.I18n.translate('general.usagePointAdd', 'INS', 'Add Usage Point'),
+                    href: '#/insight/usagepoints',
+                    itemId: 'usagepoints'
                 }
             ]
         });

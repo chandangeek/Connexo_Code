@@ -18,6 +18,7 @@ import com.elster.jupiter.http.whiteboard.BundleResolver;
 import com.elster.jupiter.http.whiteboard.DefaultStartPage;
 import com.elster.jupiter.http.whiteboard.HttpResource;
 import com.elster.jupiter.insight.app.InsightAppService;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
@@ -72,7 +73,7 @@ public class InsightAppServiceImpl implements InsightAppService, InstallService 
 
     @Override
     public List<String> getPrerequisiteModules() {
-        return Arrays.asList(UserService.COMPONENTNAME);
+        return Arrays.asList(UserService.COMPONENTNAME, MeteringService.COMPONENTNAME);
     }
 
     @Reference
@@ -93,7 +94,7 @@ public class InsightAppServiceImpl implements InsightAppService, InstallService 
     }
 
     private List<Privilege> getApplicationPrivileges() {
-        return userService.getResources(APPLICATION_KEY).stream().flatMap(resource -> resource.getPrivileges().stream()).collect(Collectors.toList());
+        return userService.getResources("MDC").stream().flatMap(resource -> resource.getPrivileges().stream()).collect(Collectors.toList());
     }
 
 }
