@@ -8,6 +8,7 @@ Ext.define('Fwc.firmwarecampaigns.view.DevicesGrid', {
     store: 'Fwc.firmwarecampaigns.store.Devices',
     router: null,
     overflowY: 'auto',
+    maxHeight: 430,
 
     initComponent: function () {
         var me = this;
