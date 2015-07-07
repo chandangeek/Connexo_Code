@@ -9,7 +9,12 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import com.elster.jupiter.nls.*;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.SimpleTranslationKey;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.rest.util.RestValidationExceptionMapper;
@@ -59,12 +64,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Logger;
-
-
-import javax.ws.rs.core.Application;
-import java.time.Clock;
-import java.util.*;
 import java.util.logging.Logger;
 
 @Component(name = "com.energyict.ddr.rest", service = {Application.class, TranslationKeyProvider.class}, immediate = true, property = {"alias=/ddr", "app=MDC", "name=" + DeviceApplication.COMPONENT_NAME})
@@ -138,7 +137,8 @@ public class DeviceApplication extends Application implements TranslationKeyProv
                 AdhocGroupResource.class,
                 DeviceEstimationResource.class,
                 DeviceHistoryResource.class,
-                DeviceLifeCycleActionResource.class
+                DeviceLifeCycleActionResource.class,
+                DeviceApplicationDeviceStateAccessFeature.class
         );
     }
 

@@ -19,6 +19,7 @@ import com.energyict.mdc.device.data.DeviceValidation;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.NumericalRegister;
 import com.energyict.mdc.device.data.exceptions.InvalidLastCheckedException;
+import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.google.common.collect.Range;
 
 import javax.annotation.security.RolesAllowed;
@@ -73,6 +74,7 @@ public class DeviceValidationResource {
     @PUT
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION,com.elster.jupiter.validation.security.Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
+    @DeviceStatesRestricted({DefaultState.DECOMMISSIONED})
     public Response setValidationRuleSetStatusOnDevice(@PathParam("mRID") String mRID, @PathParam("validationRuleSetId") long validationRuleSetId, boolean status) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         ValidationRuleSet ruleSet = getValidationRuleSet(validationRuleSetId);
@@ -294,6 +296,7 @@ public class DeviceValidationResource {
     @PUT
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION,com.elster.jupiter.validation.security.Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
+    @DeviceStatesRestricted({DefaultState.IN_STOCK, DefaultState.DECOMMISSIONED})
     public Response setValidationFeatureStatus(@PathParam("mRID") String mRID, DeviceValidationStatusInfo deviceValidationStatusInfo) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         try {
@@ -336,6 +339,7 @@ public class DeviceValidationResource {
     @PUT
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(com.elster.jupiter.validation.security.Privileges.VALIDATE_MANUAL)
+    @DeviceStatesRestricted({DefaultState.IN_STOCK, DefaultState.DECOMMISSIONED})
     public Response validateDeviceData(@PathParam("mRID") String mRID) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         device.forValidation().validateData();
