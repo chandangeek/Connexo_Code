@@ -73,10 +73,7 @@ public class DataExportTaskBuilder extends NamedBuilder<ExportTask, DataExportTa
                 .fromReadingType("0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0")
                 .fromReadingType("0.0.0.1.19.1.12.0.0.0.0.0.0.0.0.0.72.0")
                 .endSelection();
-        builder.addProperty("fileFormat.filenamePrefix").withValue("ConsumptionDataExporter_" + getName().replace(" ", ""));
-        builder.addProperty("fileFormat.fileExtension").withValue("csv");
         builder.addProperty("formatterProperties.separator").withValue("comma");
-        builder.addProperty("fileFormat.path").withValue("");
         ExportTask dataExportTask = builder.build();
         dataExportTask.save();
         return dataExportTask;

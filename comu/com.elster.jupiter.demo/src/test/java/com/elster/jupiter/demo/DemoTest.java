@@ -30,6 +30,7 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.kpi.impl.KpiModule;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
+import com.elster.jupiter.mail.impl.MailModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
@@ -257,6 +258,7 @@ public class DemoTest {
                 new FavoritesModule(),
                 new FirmwareModule(),
                 new FileImportModule(),
+                new MailModule(),
                 new DemoModule()
         );
         doPreparations();

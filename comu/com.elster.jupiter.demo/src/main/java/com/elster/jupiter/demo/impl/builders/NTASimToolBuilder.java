@@ -6,6 +6,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 
+import java.util.ArrayList;
 import javax.inject.Inject;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -49,8 +50,17 @@ public class NTASimToolBuilder implements Builder<Void> {
     @Override
     public Void create() {
         System.out.println(" ==> Executing the NTA Sim config");
-        List<String> serialNumbers = deviceService.findAllDevices(where("mRID").like(Constants.Device.STANDARD_PREFIX + "*"))
-                .stream().map(Device::getSerialNumber).collect(Collectors.toList());
+
+        List<String> serialNumbers = new ArrayList<>();
+        int start=0;
+        List<String> newSerialNumbers = new ArrayList<>();
+        newSerialNumbers.add("sentinal");
+        while(!newSerialNumbers.isEmpty()) {
+            newSerialNumbers = deviceService.findAllDevices(where("mRID").like(Constants.Device.STANDARD_PREFIX + "*")).paged(start, 1000)
+                    .stream().map(Device::getSerialNumber).collect(Collectors.toList());
+            start+=1000;
+            serialNumbers.addAll(newSerialNumbers);
+        }
         try (Connection connection = dataModel.getConnection(false)){
             connection.prepareStatement(DISABLE_COMTASK_RETRY).execute();
             createNtaSimTable(connection);
