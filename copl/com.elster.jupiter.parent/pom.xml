@@ -578,6 +578,9 @@
                 <module>../com.elster.jupiter.events</module>
                 <module>../com.elster.jupiter.events.rest</module>
                 <module>../com.elster.jupiter.extjs</module>
+                <module>../com.elster.jupiter.fileimport</module>
+                <module>../com.elster.jupiter.fileimport.extjs</module>
+                <module>../com.elster.jupiter.fileimport.rest</module>
                 <module>../com.elster.jupiter.fsm</module>
                 <module>../com.elster.jupiter.fsm.rest</module>
                 <module>../com.elster.jupiter.http.whiteboard</module>
