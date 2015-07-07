@@ -10,11 +10,15 @@ import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTimeSlice;
 import com.elster.jupiter.fsm.StateTimeline;
+import com.elster.jupiter.issue.share.entity.HistoricalIssue;
+import com.elster.jupiter.issue.share.entity.Issue;
+import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.*;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.metering.readings.ReadingQuality;
@@ -100,6 +104,7 @@ public class DeviceImpl implements Device, CanLock {
     private final ServerCommunicationTaskService communicationTaskService;
     private final SecurityPropertyService securityPropertyService;
     private final ProtocolPluggableService protocolPluggableService;
+    private final MeteringGroupsService meteringGroupsService;
 
     private final List<LoadProfile> loadProfiles = new ArrayList<>();
     private final List<LogBook> logBooks = new ArrayList<>();
@@ -171,7 +176,9 @@ public class DeviceImpl implements Device, CanLock {
             Provider<ConnectionInitiationTaskImpl> connectionInitiationTaskProvider,
             Provider<ScheduledComTaskExecutionImpl> scheduledComTaskExecutionProvider,
             ProtocolPluggableService protocolPluggableService,
-            Provider<ManuallyScheduledComTaskExecutionImpl> manuallyScheduledComTaskExecutionProvider, Provider<FirmwareComTaskExecutionImpl> firmwareComTaskExecutionProvider) {
+            Provider<ManuallyScheduledComTaskExecutionImpl> manuallyScheduledComTaskExecutionProvider,
+            Provider<FirmwareComTaskExecutionImpl> firmwareComTaskExecutionProvider,
+            MeteringGroupsService meteringGroupsService) {
         this.dataModel = dataModel;
         this.eventService = eventService;
         this.issueService = issueService;
@@ -189,6 +196,7 @@ public class DeviceImpl implements Device, CanLock {
         this.manuallyScheduledComTaskExecutionProvider = manuallyScheduledComTaskExecutionProvider;
         this.firmwareComTaskExecutionProvider = firmwareComTaskExecutionProvider;
         this.protocolPluggableService = protocolPluggableService;
+        this.meteringGroupsService = meteringGroupsService;
     }
 
     DeviceImpl initialize(DeviceConfiguration deviceConfiguration, String name, String mRID) {
@@ -323,15 +331,46 @@ public class DeviceImpl implements Device, CanLock {
     }
 
     private void doDelete() {
+        deleteAllIssues();
         deleteProperties();
         deleteLoadProfiles();
         deleteLogBooks();
         deleteComTaskExecutions();
         deleteConnectionTasks();
-        // TODO delete messages
-        // TODO delete security properties
-        this.deleteKoreMeterIfExists();
+        deleteDeviceMessages();
+        deleteSecuritySettings();
+        removeDeviceFromStaticGroups();
+        closeCurrentMeterActivation();
         this.getDataMapper().remove(this);
+    }
+
+    private void removeDeviceFromStaticGroups() {
+        getMdcAmrSystem().ifPresent(amrSystem ->
+                findKoreMeter(amrSystem).ifPresent(meter ->
+                        this.meteringGroupsService.findEnumeratedEndDeviceGroupsContaining(meter).stream()
+                            .forEach(enumeratedEndDeviceGroup -> removeDeviceFromGroup(enumeratedEndDeviceGroup, meter))));
+    }
+
+    private void removeDeviceFromGroup(EnumeratedEndDeviceGroup group, EndDevice endDevice) {
+        group
+                .getEntries()
+                .stream()
+                .filter(each -> each.getEndDevice().getId() == endDevice.getId())
+                .findFirst()
+                .ifPresent(group::remove);
+    }
+
+    private void deleteAllIssues() {
+        this.issueService.findStatus(IssueStatus.WONT_FIX).ifPresent(issueStatus -> getOpenIssues().stream().forEach(openIssue -> openIssue.close(issueStatus)));
+        getListMeterAspect(this::getAllHistoricalIssuesForMeter).stream().forEach(Issue::delete);
+    }
+
+    private void deleteSecuritySettings() {
+        this.securityPropertyService.deleteSecurityPropertiesFor(this);
+    }
+
+    private void closeCurrentMeterActivation() {
+        getCurrentMeterActivation().ifPresent(meterActivation -> meterActivation.endAt(clock.instant()));
     }
 
     private void deleteComTaskExecutions() {
@@ -341,9 +380,11 @@ public class DeviceImpl implements Device, CanLock {
     }
 
     private void deleteConnectionTasks() {
-        for (ConnectionTaskImpl<?, ?> connectionTask : this.getConnectionTaskImpls()) {
-            connectionTask.delete();
-        }
+        this.getConnectionTaskImpls().forEach(PersistentIdObject::delete);
+    }
+
+    private void deleteDeviceMessages(){
+        getMessages().stream().forEach(DeviceMessage::delete);
     }
 
     private void deleteLogBooks() {
@@ -785,16 +826,6 @@ public class DeviceImpl implements Device, CanLock {
         meter.getLifecycleDates().setReceivedDate(this.clock.instant());
         meter.save();
         return meter;
-    }
-
-    private void deleteKoreMeterIfExists() {
-        Optional<AmrSystem> amrSystem = this.getMdcAmrSystem();
-        if (amrSystem.isPresent()) {
-            Optional<Meter> holder = this.findKoreMeter(amrSystem.get());
-            if (holder.isPresent()) {
-                holder.get().delete();
-            }
-        }
     }
 
     private Optional<AmrSystem> getMdcAmrSystem() {
@@ -1662,6 +1693,10 @@ public class DeviceImpl implements Device, CanLock {
 
     private List<OpenIssue> getOpenIssuesForMeter(Meter meter) {
         return this.issueService.query(OpenIssue.class).select(where("device").isEqualTo(meter));
+    }
+
+    private List<HistoricalIssue> getAllHistoricalIssuesForMeter(Meter meter) {
+        return this.issueService.query(HistoricalIssue.class).select(where("device").isEqualTo(meter));
     }
 
     @Override

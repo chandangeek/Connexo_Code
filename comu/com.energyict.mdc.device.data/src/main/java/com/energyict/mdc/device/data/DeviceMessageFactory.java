@@ -3,6 +3,8 @@ package com.energyict.mdc.device.data;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.util.List;
 
 /**
@@ -13,6 +15,7 @@ import java.util.List;
  * Date: 20/03/14
  * Time: 11:09
  */
+@ProviderType
 public interface DeviceMessageFactory {
 
     List<DeviceMessage> findByDeviceAndState(Device device, DeviceMessageStatus pending);

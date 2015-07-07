@@ -19,4 +19,6 @@ public interface Privileges {
     String IMPORT_INVENTORY_MANAGEMENT = "privilege.import.inventoryManagement";
     String REVOKE_INVENTORY_MANAGEMENT = "privilege.revoke.inventoryManagement";
 
+    String ADMINISTRATE_DEVICE_ATTRIBUTE = "privilege.administrate.attribute.device";
+
 }

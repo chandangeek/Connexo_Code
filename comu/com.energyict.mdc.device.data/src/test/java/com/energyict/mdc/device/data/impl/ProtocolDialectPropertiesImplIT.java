@@ -8,7 +8,6 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
 import com.elster.jupiter.transaction.VoidTransaction;
-import com.energyict.mdc.protocol.api.device.data.*;
 import com.google.common.base.Strings;
 import com.google.common.collect.Range;
 
@@ -25,24 +24,9 @@ import com.energyict.mdc.dynamic.RequiredPropertySpecFactory;
 import com.energyict.mdc.dynamic.relation.Relation;
 import com.energyict.mdc.dynamic.relation.RelationAttributeType;
 import com.energyict.mdc.dynamic.relation.RelationType;
-import com.energyict.mdc.io.ComChannel;
-import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.DeviceProtocolCache;
-import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.api.LoadProfileReader;
-import com.energyict.mdc.protocol.api.LogBookReader;
-import com.energyict.mdc.protocol.api.ManufacturerInformation;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
-import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
-import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
-import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
-import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.pluggable.DeviceProtocolDialectProperty;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
@@ -61,9 +45,6 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -534,200 +515,6 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
             actualPropertyNames.add(property.getName());
         }
         assertThat(actualPropertyNames).containsOnly(propertyNames);
-    }
-
-    public static class TestProtocol implements DeviceProtocol {
-        @Override
-        public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
-
-        }
-
-        @Override
-        public void terminate() {
-
-        }
-
-        @Override
-        public List<DeviceProtocolCapabilities> getDeviceProtocolCapabilities() {
-            return null;
-        }
-
-        @Override
-        public String getProtocolDescription() {
-            return null;
-        }
-
-        @Override
-        public DeviceFunction getDeviceFunction() {
-            return null;
-        }
-
-        @Override
-        public ManufacturerInformation getManufacturerInformation() {
-            return null;
-        }
-
-        @Override
-        public List<ConnectionType> getSupportedConnectionTypes() {
-            return null;
-        }
-
-        @Override
-        public void logOn() {
-
-        }
-
-        @Override
-        public void daisyChainedLogOn() {
-
-        }
-
-        @Override
-        public void logOff() {
-
-        }
-
-        @Override
-        public void daisyChainedLogOff() {
-
-        }
-
-        @Override
-        public String getSerialNumber() {
-            return null;
-        }
-
-        @Override
-        public void setDeviceCache(DeviceProtocolCache deviceProtocolCache) {
-
-        }
-
-        @Override
-        public DeviceProtocolCache getDeviceCache() {
-            return null;
-        }
-
-        @Override
-        public void setTime(Date timeToSet) {
-
-        }
-
-        @Override
-        public List<CollectedLoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfilesToRead) {
-            return null;
-        }
-
-        @Override
-        public List<CollectedLoadProfile> getLoadProfileData(List<LoadProfileReader> loadProfiles) {
-            return null;
-        }
-
-        @Override
-        public Date getTime() {
-            return null;
-        }
-
-        @Override
-        public List<CollectedLogBook> getLogBookData(List<LogBookReader> logBooks) {
-            return null;
-        }
-
-        @Override
-        public Set<DeviceMessageId> getSupportedMessages() {
-            return EnumSet.noneOf(DeviceMessageId.class);
-        }
-
-        @Override
-        public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
-            return null;
-        }
-
-        @Override
-        public CollectedMessageList updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
-            return null;
-        }
-
-        @Override
-        public String format(PropertySpec propertySpec, Object messageAttribute) {
-            return null;
-        }
-
-        @Override
-        public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-            DeviceProtocolDialect protocolDialect1 = new TestProtocolDialect1();
-            DeviceProtocolDialect protocolDialect2 = new TestProtocolDialect2();
-            return Arrays.asList(protocolDialect1, protocolDialect2);
-        }
-
-        @Override
-        public void addDeviceProtocolDialectProperties(TypedProperties dialectProperties) {
-
-        }
-
-        @Override
-        public List<PropertySpec> getSecurityPropertySpecs() {
-            return Collections.emptyList();
-        }
-
-        @Override
-        public String getSecurityRelationTypeName() {
-            return null;
-        }
-
-        @Override
-        public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
-            return Collections.emptyList();
-        }
-
-        @Override
-        public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
-            return Collections.emptyList();
-        }
-
-        @Override
-        public PropertySpec getSecurityPropertySpec(String name) {
-            return null;
-        }
-
-        @Override
-        public List<CollectedRegister> readRegisters(List<OfflineRegister> registers) {
-            return null;
-        }
-
-        @Override
-        public void setSecurityPropertySet(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
-
-        }
-
-        @Override
-        public CollectedTopology getDeviceTopology() {
-            return null;
-        }
-
-        @Override
-        public String getVersion() {
-            return "For Testing Purposes only";
-        }
-
-        @Override
-        public void copyProperties(TypedProperties properties) {
-
-        }
-
-        @Override
-        public List<PropertySpec> getPropertySpecs() {
-            return Collections.emptyList();
-        }
-
-        @Override
-        public PropertySpec getPropertySpec(String name) {
-            return null;
-        }
-
-        @Override
-        public CollectedFirmwareVersion getFirmwareVersions() {
-            return null;
-        }
     }
 
     public static class TestProtocolDialect1 implements DeviceProtocolDialect {

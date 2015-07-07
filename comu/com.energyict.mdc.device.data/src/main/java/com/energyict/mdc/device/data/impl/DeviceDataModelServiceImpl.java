@@ -103,7 +103,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     private volatile SchedulingService schedulingService;
     private volatile SecurityPropertyService securityPropertyService;
     private volatile QueryService queryService;
-//    private volatile IdentificationService identificationService;
+    private volatile MeteringGroupsService meteringGroupsService;
 
     private ServerConnectionTaskService connectionTaskService;
     private ServerCommunicationTaskService communicationTaskService;
@@ -126,7 +126,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
                                       EngineConfigurationService engineConfigurationService, DeviceConfigurationService deviceConfigurationService,
                                       MeteringService meteringService, ValidationService validationService, EstimationService estimationService,
                                       SchedulingService schedulingService, MessageService messageService,
-                                      SecurityPropertyService securityPropertyService, UserService userService, DeviceMessageSpecificationService deviceMessageSpecificationService) {
+                                      SecurityPropertyService securityPropertyService, UserService userService, DeviceMessageSpecificationService deviceMessageSpecificationService, MeteringGroupsService meteringGroupsService) {
         this();
         this.setOrmService(ormService);
         this.setEventService(eventService);
@@ -147,6 +147,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
         this.setSecurityPropertyService(securityPropertyService);
         this.setUserService(userService);
         this.setDeviceMessageSpecificationService(deviceMessageSpecificationService);
+        this.setMeteringGroupsService(meteringGroupsService);
         this.activate(bundleContext);
         if (!this.dataModel.isInstalled()) {
             this.install(true);
@@ -338,6 +339,11 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
         this.kpiService = kpiService;
     }
 
+    @Reference
+    public void setMeteringGroupsService(MeteringGroupsService meteringGroupsService){
+        this.meteringGroupsService = meteringGroupsService;
+    }
+
     @Override
     public com.elster.jupiter.tasks.TaskService taskService() {
         return taskService;
@@ -383,6 +389,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
                 bind(LogBookService.class).toInstance(logBookService);
                 bind(DeviceMessageSpecificationService.class).toInstance(deviceMessageSpecificationService);
                 bind(DataCollectionKpiService.class).toInstance(dataCollectionKpiService);
+                bind(MeteringGroupsService.class).toInstance(meteringGroupsService);
             }
         };
     }

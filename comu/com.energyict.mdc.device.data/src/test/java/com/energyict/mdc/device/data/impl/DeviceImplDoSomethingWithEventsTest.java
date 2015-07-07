@@ -1,51 +1,5 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
-import com.elster.jupiter.datavault.impl.DataVaultModule;
-import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
-import com.elster.jupiter.domain.util.impl.DomainUtilModule;
-import com.elster.jupiter.estimation.EstimationService;
-import com.elster.jupiter.estimation.impl.EstimationModule;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.events.EventType;
-import com.elster.jupiter.events.EventTypeBuilder;
-import com.elster.jupiter.events.impl.EventsModule;
-import com.elster.jupiter.fsm.FiniteStateMachineService;
-import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
-import com.elster.jupiter.ids.impl.IdsModule;
-import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.kpi.KpiService;
-import com.elster.jupiter.kpi.impl.KpiModule;
-import com.elster.jupiter.license.License;
-import com.elster.jupiter.license.LicenseService;
-import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
-import com.elster.jupiter.metering.impl.MeteringModule;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.impl.NlsModule;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.TransactionRequired;
-import com.elster.jupiter.orm.impl.OrmModule;
-import com.elster.jupiter.parties.impl.PartyModule;
-import com.elster.jupiter.properties.impl.BasicPropertiesModule;
-import com.elster.jupiter.pubsub.impl.PubSubModule;
-import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
-import com.elster.jupiter.tasks.TaskService;
-import com.elster.jupiter.tasks.impl.TaskModule;
-import com.elster.jupiter.time.impl.TimeModule;
-import com.elster.jupiter.transaction.TransactionContext;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.transaction.impl.TransactionModule;
-import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.users.impl.UserModule;
-import com.elster.jupiter.util.UtilModule;
-import com.elster.jupiter.validation.ValidationService;
-import com.elster.jupiter.validation.impl.ValidationModule;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -84,21 +38,62 @@ import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.impl.TasksModule;
+
+import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.datavault.impl.DataVaultModule;
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
+import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.domain.util.impl.DomainUtilModule;
+import com.elster.jupiter.estimation.EstimationService;
+import com.elster.jupiter.estimation.impl.EstimationModule;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.events.EventType;
+import com.elster.jupiter.events.EventTypeBuilder;
+import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
+import com.elster.jupiter.ids.impl.IdsModule;
+import com.elster.jupiter.issue.share.entity.Entity;
+import com.elster.jupiter.issue.share.entity.IssueStatus;
+import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.kpi.KpiService;
+import com.elster.jupiter.kpi.impl.KpiModule;
+import com.elster.jupiter.license.License;
+import com.elster.jupiter.license.LicenseService;
+import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
+import com.elster.jupiter.metering.impl.MeteringModule;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.impl.NlsModule;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.TransactionRequired;
+import com.elster.jupiter.orm.impl.OrmModule;
+import com.elster.jupiter.parties.impl.PartyModule;
+import com.elster.jupiter.properties.impl.BasicPropertiesModule;
+import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.tasks.TaskService;
+import com.elster.jupiter.tasks.impl.TaskModule;
+import com.elster.jupiter.time.impl.TimeModule;
+import com.elster.jupiter.transaction.TransactionContext;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.users.impl.UserModule;
+import com.elster.jupiter.util.UtilModule;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.validation.ValidationService;
+import com.elster.jupiter.validation.impl.ValidationModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Provider;
 import com.google.inject.Scopes;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.log.LogService;
@@ -106,11 +101,25 @@ import org.osgi.service.log.LogService;
 import java.security.Principal;
 import java.sql.SQLException;
 import java.time.Clock;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import org.junit.*;
+import org.junit.rules.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Copyrights EnergyICT
@@ -165,6 +174,11 @@ public class DeviceImplDoSomethingWithEventsTest {
         deviceConfiguration = deviceConfigurationBuilder.add();
         deviceType.save();
         deviceConfiguration.activate();
+        IssueStatus wontFix = mock(IssueStatus.class);
+        when(inMemoryPersistence.getIssueService().findStatus(IssueStatus.WONT_FIX)).thenReturn(Optional.of(wontFix));
+        Query<Entity> mockedQuery = mock(Query.class);
+        when(inMemoryPersistence.getIssueService().query(any())).thenReturn(mockedQuery);
+        when(mockedQuery.select(any(Condition.class))).thenReturn(Collections.emptyList());
     }
 
     @After
@@ -245,6 +259,7 @@ public class DeviceImplDoSomethingWithEventsTest {
         private EngineConfigurationService engineConfigurationService;
         private SchedulingService schedulingService;
         private LicenseService licenseService;
+        private IssueService issueService;
 
         public void initializeDatabase(String testName, boolean showSqlLogging) {
             this.initializeMocks(testName);
@@ -305,6 +320,7 @@ public class DeviceImplDoSomethingWithEventsTest {
                 this.relationService = injector.getInstance(RelationService.class);
                 this.protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
                 this.schedulingService = injector.getInstance(SchedulingService.class);
+                this.issueService = injector.getInstance(IssueService.class);
                 this.deviceDataModelService =
                         new DeviceDataModelServiceImpl(
                                 this.bundleContext,
@@ -312,13 +328,14 @@ public class DeviceImplDoSomethingWithEventsTest {
                                 this.nlsService, this.clock,
                                 injector.getInstance(KpiService.class),
                                 injector.getInstance(TaskService.class),
-                                mock(IssueService.class),
+                                this.issueService,
                                 this.relationService, this.protocolPluggableService, this.engineConfigurationService,
                                 this.deviceConfigurationService, this.meteringService, this.validationService, this.estimationService, this.schedulingService,
                                 injector.getInstance(MessageService.class),
                                 injector.getInstance(SecurityPropertyService.class),
                                 injector.getInstance(UserService.class),
-                                injector.getInstance(DeviceMessageSpecificationService.class));
+                                injector.getInstance(DeviceMessageSpecificationService.class),
+                                injector.getInstance(MeteringGroupsService.class));
                 this.dataModel = this.deviceDataModelService.dataModel();
                 ctx.commit();
             }
@@ -364,6 +381,10 @@ public class DeviceImplDoSomethingWithEventsTest {
 
         public EventService getEventService() {
             return eventService;
+        }
+
+        public IssueService getIssueService() {
+            return issueService;
         }
 
         private class MockModule extends AbstractModule {

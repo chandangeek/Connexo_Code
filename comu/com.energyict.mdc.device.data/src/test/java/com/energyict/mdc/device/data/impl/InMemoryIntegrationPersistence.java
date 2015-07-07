@@ -1,5 +1,49 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.energyict.mdc.common.CanFindByLongPrimaryKey;
+import com.energyict.mdc.common.HasId;
+import com.energyict.mdc.common.SqlBuilder;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
+import com.energyict.mdc.device.data.impl.events.TestProtocolWithRequiredStringAndOptionalNumericDialectProperties;
+import com.energyict.mdc.device.data.impl.finders.ConnectionTaskFinder;
+import com.energyict.mdc.device.data.impl.finders.ProtocolDialectPropertiesFinder;
+import com.energyict.mdc.device.data.impl.tasks.InboundIpConnectionTypeImpl;
+import com.energyict.mdc.device.data.impl.tasks.InboundNoParamsConnectionTypeImpl;
+import com.energyict.mdc.device.data.impl.tasks.ModemConnectionType;
+import com.energyict.mdc.device.data.impl.tasks.ModemNoParamsConnectionTypeImpl;
+import com.energyict.mdc.device.data.impl.tasks.OutboundIpConnectionTypeImpl;
+import com.energyict.mdc.device.data.impl.tasks.OutboundNoParamsConnectionTypeImpl;
+import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
+import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
+import com.energyict.mdc.device.data.impl.tasks.SimpleDiscoveryProtocol;
+import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
+import com.energyict.mdc.dynamic.relation.RelationService;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.engine.config.impl.EngineModelModule;
+import com.energyict.mdc.io.impl.MdcIOModule;
+import com.energyict.mdc.issues.impl.IssuesModule;
+import com.energyict.mdc.masterdata.MasterDataService;
+import com.energyict.mdc.masterdata.impl.MasterDataModule;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
+import com.energyict.mdc.pluggable.PluggableClass;
+import com.energyict.mdc.pluggable.impl.PluggableModule;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
+import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
+import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
+import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
+import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
+import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
+import com.energyict.mdc.scheduling.SchedulingModule;
+import com.energyict.mdc.scheduling.SchedulingService;
+import com.energyict.mdc.tasks.TaskService;
+import com.energyict.mdc.tasks.impl.TasksModule;
+
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
@@ -46,49 +90,6 @@ import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.json.impl.JsonServiceImpl;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
-import com.energyict.mdc.common.CanFindByLongPrimaryKey;
-import com.energyict.mdc.common.HasId;
-import com.energyict.mdc.common.SqlBuilder;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
-import com.energyict.mdc.device.data.impl.events.TestProtocolWithRequiredStringAndOptionalNumericDialectProperties;
-import com.energyict.mdc.device.data.impl.finders.ConnectionTaskFinder;
-import com.energyict.mdc.device.data.impl.finders.ProtocolDialectPropertiesFinder;
-import com.energyict.mdc.device.data.impl.tasks.InboundIpConnectionTypeImpl;
-import com.energyict.mdc.device.data.impl.tasks.InboundNoParamsConnectionTypeImpl;
-import com.energyict.mdc.device.data.impl.tasks.ModemConnectionType;
-import com.energyict.mdc.device.data.impl.tasks.ModemNoParamsConnectionTypeImpl;
-import com.energyict.mdc.device.data.impl.tasks.OutboundIpConnectionTypeImpl;
-import com.energyict.mdc.device.data.impl.tasks.OutboundNoParamsConnectionTypeImpl;
-import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
-import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
-import com.energyict.mdc.device.data.impl.tasks.SimpleDiscoveryProtocol;
-import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
-import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
-import com.energyict.mdc.dynamic.relation.RelationService;
-import com.energyict.mdc.engine.config.EngineConfigurationService;
-import com.energyict.mdc.engine.config.impl.EngineModelModule;
-import com.energyict.mdc.io.impl.MdcIOModule;
-import com.energyict.mdc.issues.impl.IssuesModule;
-import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.masterdata.impl.MasterDataModule;
-import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
-import com.energyict.mdc.pluggable.PluggableClass;
-import com.energyict.mdc.pluggable.impl.PluggableModule;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
-import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
-import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
-import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
-import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
-import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
-import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
-import com.energyict.mdc.scheduling.SchedulingModule;
-import com.energyict.mdc.scheduling.SchedulingService;
-import com.energyict.mdc.tasks.TaskService;
-import com.energyict.mdc.tasks.impl.TasksModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -114,7 +115,10 @@ import java.util.Properties;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.withSettings;
 
 /**
  * Copyrights EnergyICT
@@ -156,6 +160,7 @@ public class InMemoryIntegrationPersistence {
     private UserService userService;
     private ThreadPrincipalService threadPrincipalService;
     private MeteringGroupsService meteringGroupsService;
+    private IssueService issueService;
 
     public InMemoryIntegrationPersistence() {
         super();
@@ -177,7 +182,7 @@ public class InMemoryIntegrationPersistence {
         when(inboundDeviceProtocolService.createInboundDeviceProtocolFor(any(PluggableClass.class))).thenReturn(new SimpleDiscoveryProtocol());
         deviceProtocolService = mock(DeviceProtocolService.class);
         when(deviceProtocolService.createProtocol(DeviceMessageImplTest.MessageTestDeviceProtocol.class.getName())).thenReturn(new DeviceMessageImplTest.MessageTestDeviceProtocol());
-        when(deviceProtocolService.createProtocol(ProtocolDialectPropertiesImplIT.TestProtocol.class.getName())).thenReturn(new ProtocolDialectPropertiesImplIT.TestProtocol());
+        when(deviceProtocolService.createProtocol(TestProtocol.class.getName())).thenReturn(new TestProtocol());
         TestProtocolWithRequiredStringAndOptionalNumericDialectProperties testProtocolThatUseMocking = new TestProtocolWithRequiredStringAndOptionalNumericDialectProperties();
         when(deviceProtocolService.createProtocol(TestProtocolWithRequiredStringAndOptionalNumericDialectProperties.class.getName())).thenReturn(testProtocolThatUseMocking);
         Properties properties = new Properties();
@@ -254,6 +259,7 @@ public class InMemoryIntegrationPersistence {
             when(connectionTypeService.createConnectionType(ModemConnectionType.class.getName())).thenReturn(new ModemConnectionType(propertySpecService));
             this.userService = injector.getInstance(UserService.class);
             this.threadPrincipalService = injector.getInstance(ThreadPrincipalService.class);
+            this.issueService = injector.getInstance(IssueService.class);
             this.dataModel = this.deviceDataModelService.dataModel();
             initializeFactoryProviders();
             createOracleAliases(dataModel.getConnection(true));
@@ -447,5 +453,9 @@ public class InMemoryIntegrationPersistence {
 
     public DeviceMessageSpecificationService getDeviceMessageSpecificationService() {
         return deviceMessageSpecificationService;
+    }
+
+    public IssueService getIssueService() {
+        return issueService;
     }
 }
