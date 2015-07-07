@@ -1,13 +1,13 @@
 package com.energyict.mdc.device.data.impl.identifiers;
 
 import com.energyict.mdc.device.data.LoadProfile;
-import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifierType;
 
 import javax.xml.bind.annotation.XmlElement;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -35,7 +35,7 @@ public class LoadProfileIdentifierForAlreadyKnownLoadProfile implements LoadProf
 
     @Override
     public List<Object> getIdentifier() {
-        return Arrays.asList(loadProfile);
+        return Collections.singletonList(loadProfile);
     }
 
     @Override
@@ -51,6 +51,6 @@ public class LoadProfileIdentifierForAlreadyKnownLoadProfile implements LoadProf
 
     @Override
     public DeviceIdentifier<?> getDeviceIdentifier() {
-        return new DeviceIdentifierForAlreadyKnownDevice(this.loadProfile.getDevice());
+        return new DeviceIdentifierForAlreadyKnownDeviceBySerialNumber(this.loadProfile.getDevice());
     }
 }

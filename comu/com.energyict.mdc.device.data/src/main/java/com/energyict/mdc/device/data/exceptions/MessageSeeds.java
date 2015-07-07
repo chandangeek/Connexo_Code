@@ -81,7 +81,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     COMTASK_CONFIGURATION_INCONSISTENT(2048, Keys.COMTASK_CONFIGURATION_INCONSISTENT, "The communication tasks in the communication schedule doesn't have the same connection method, security set, protocol dialect and/or urgency", SEVERE),
     COMTASKS_MUST_BE_ENABLED_BY_CONFIGURATION(2049, Keys.COMTASKS_MUST_BE_ENABLED_BY_CONFIGURATION, "A mismatch between device configuration and the communication schedule (one or more communication tasks defined in the communication schedule is not available on the device configuration of the device)", SEVERE),
     COM_SCHEDULE_CANNOT_DELETE_IF_NOT_FROM_DEVICE(2050, Keys.COM_SCHEDULE_CANNOT_DELETE_IF_NOT_FROM_DEVICE, "You can not remove communication schedule {0} because it is not owned by device", Level.SEVERE),
-    DEVICE_GROUP_IS_REQUIRED(2051, Keys.DEVICE_GROUP_IS_REQUIRED, "You must specify the devices that are part of the data collection device group", Level.SEVERE),
+    DEVICE_GROUP_IS_REQUIRED(2051, Keys.DEVICE_GROUP_IS_REQUIRED, "You must specify the devices that are part of the data collection KPI", Level.SEVERE),
     EMPTY_DATA_COLLECTION_KPI(2052, Keys.EMPTY_DATA_COLLECTION_KPI, "At least one KPI has to be selected", Level.SEVERE),
     UNKNOWN_DEVICE_MESSAGE_ID_FOR_DEVICE(2053, Keys.UNKNOWN_DEVICE_MESSAGE_ID_FOR_DEVICE, "The deviceMessageId {1} is not known for a device like {0}", Level.SEVERE),
     DEVICE_MESSAGE_ID_NOT_SUPPORTED(2054, Keys.DEVICE_MESSAGE_ID_NOT_SUPPORTED, "The command is not supported for the device", Level.SEVERE),

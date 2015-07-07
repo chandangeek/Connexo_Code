@@ -46,7 +46,7 @@ import javax.inject.Inject;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-10-06 (10:25)
  */
-@MustHaveEitherConnectionSetupOrComTaskExecution(groups = {Save.Create.class, Save.Update.class})
+@MustHaveEitherConnectionSetupOrComTaskExecution(groups = {Save.Update.class})
 public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAware {
 
     public enum Fields {
@@ -106,7 +106,7 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
     public void save() {
         if (this.getId() == 0) {
             // Save myself first (without validation) so that the payload of the recurrent task can contain my ID
-            this.dataModel.persist(this);
+            Save.CREATE.save(this.dataModel, this);
         }
         // Now save the KPIs and the recurrent task
         this.kpiSaveStrategy.save();
@@ -129,6 +129,10 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
     @Override
     public EndDeviceGroup getDeviceGroup() {
         return this.endDeviceGroup.get();
+    }
+
+    public boolean hasDeviceGroup() {
+        return this.endDeviceGroup.isPresent();
     }
 
     @Override
@@ -272,7 +276,7 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
             map(RecurrentTask::getLastOccurrence).
             flatMap(Functions.asStream()).
             map(TaskOccurrence::getTriggerTime).
-            max(Comparator.nullsLast(Comparator.<Instant>naturalOrder()));
+                max(Comparator.nullsLast(Comparator.<Instant>naturalOrder()));
     }
 
     private void deleteKPIs () {

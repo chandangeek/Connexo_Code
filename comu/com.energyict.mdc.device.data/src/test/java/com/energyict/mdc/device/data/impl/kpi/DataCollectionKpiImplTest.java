@@ -85,6 +85,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.validation.ConstraintViolationException;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -266,6 +267,18 @@ public class DataCollectionKpiImplTest {
 
         // Asserts
         assertThat(found.isPresent()).isTrue();
+    }
+
+    @Test(expected = ConstraintViolationException.class)
+    @Transactional
+    public void testCreateKpiWithoutEndDeviceGroup() {
+        DataCollectionKpiService.DataCollectionKpiBuilder builder = deviceDataModelService.dataCollectionKpiService().newDataCollectionKpi(null);
+        builder.calculateConnectionSetupKpi(Duration.ofHours(1)).expectingAsMaximum(BigDecimal.ONE);
+        DataCollectionKpi kpi = builder.save();
+
+        // Business method
+        java.util.Optional<DataCollectionKpi> found = deviceDataModelService.dataCollectionKpiService().findDataCollectionKpi(kpi.getId());
+
     }
 
     @Test
