@@ -46,15 +46,6 @@ Ext.define('Idv.view.Preview', {
                     labelWidth: 200
                 },
                 items: [
-                    //{
-                    //    xtype: 'filter-display',
-                    //    itemId: 'data-validation-issue-preview-reason',
-                    //    fieldLabel: Uni.I18n.translate('general.title.reason', 'ISU', 'Reason'),
-                    //    name: 'reason',
-                    //    renderer: function (value) {
-                    //        return value.name ? value.name : '';
-                    //    }
-                    //},
                     {
                         itemId: 'data-validation-issue-preview-usage-point',
                         fieldLabel: Uni.I18n.translate('general.title.usagePoint', 'ISU', 'Usage point'),

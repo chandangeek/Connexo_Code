@@ -19,7 +19,7 @@ Ext.define('Idv.controller.Main', {
         'Idv.controller.Detail',
         'Idv.controller.ApplyAction',
         'Idv.controller.BulkChangeIssues',
-        'Idv.controller.MessageWindow'
+        'Isu.controller.MessageWindow'
     ],
 
     stores: [
