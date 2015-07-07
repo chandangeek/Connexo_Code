@@ -70,7 +70,7 @@
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.dynamic</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
+                <version>2.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
@@ -105,6 +105,11 @@
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.device.lifecycle.config</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.energyict</groupId>
+                <artifactId>mdc.device.lifecycle.config.bpmhandler</artifactId>
                 <version>1.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
@@ -416,6 +421,7 @@
                 <module>../com.energyict.mdc.device.data</module>
                 <module>../com.energyict.mdc.device.lifecycle</module>
                 <module>../com.energyict.mdc.device.lifecycle.config</module>
+                <module>../com.energyict.mdc.device.lifecycle.config.bpmhandler</module>
                 <module>../com.energyict.mdc.device.lifecycle.config.rest</module>
                 <module>../com.energyict.mdc.device.lifecycle.config.extjs</module>
                 <module>../com.energyict.mdc.device.topology</module>
@@ -437,6 +443,7 @@
                 <module>../com.energyict.mdc.issue.datacollection.rest</module>
                 <module>../com.energyict.mdc.issue.datacollection.extjs</module>
                 <module>../com.energyict.mdc.issue.datavalidation</module>
+                <module>../com.energyict.mdc.issue.datavalidation.extjs</module>
                 <module>../com.energyict.mdc.issue.datavalidation.rest</module>
                 <module>../com.energyict.mdc.issues</module>
                 <module>../com.energyict.mdc.masterdata</module>
