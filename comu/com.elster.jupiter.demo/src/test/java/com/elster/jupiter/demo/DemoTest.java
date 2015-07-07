@@ -2,6 +2,7 @@ package com.elster.jupiter.demo;
 
 import com.elster.jupiter.appserver.impl.AppServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.datavault.impl.DataVaultServiceImpl;
 import com.elster.jupiter.demo.impl.DemoServiceImpl;
@@ -88,6 +89,7 @@ import com.energyict.mdc.engine.config.impl.EngineModelModule;
 import com.energyict.mdc.engine.impl.EngineModule;
 import com.energyict.mdc.favorites.impl.FavoritesModule;
 import com.energyict.mdc.firmware.impl.FirmwareModule;
+import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.io.impl.MdcIOModule;
 import com.energyict.mdc.io.impl.SerialIONoModemComponentServiceImpl;
@@ -209,6 +211,7 @@ public class DemoTest {
                 inMemoryBootstrapModule,
                 new InMemoryMessagingModule(),
                 new IdsModule(),
+                new BpmModule(),
                 new FiniteStateMachineModule(),
                 new MeteringModule(),
                 new DataVaultModule(),
@@ -630,6 +633,7 @@ public class DemoTest {
     }
 
     private void createDefaultStuff() {
+        injector.getInstance(FirmwareService.class);
         MdcAppInstaller mdcAppInstaller = new MdcAppInstaller();
         mdcAppInstaller.setUserService(injector.getInstance(UserService.class));
         mdcAppInstaller.install();
