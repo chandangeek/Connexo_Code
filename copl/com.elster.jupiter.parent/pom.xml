@@ -582,11 +582,13 @@
                 <module>../com.elster.jupiter.fileimport.extjs</module>
                 <module>../com.elster.jupiter.fileimport.rest</module>
                 <module>../com.elster.jupiter.fsm</module>
+                <module>../com.elster.jupiter.fsm.handler</module>
                 <module>../com.elster.jupiter.fsm.rest</module>
                 <module>../com.elster.jupiter.http.whiteboard</module>
                 <module>../com.elster.jupiter.install</module>
                 <module>../com.elster.jupiter.loaderjs</module>
                 <module>../com.elster.jupiter.login.app</module>
+                <module>../com.elster.jupiter.mail</module>
                 <module>../com.elster.jupiter.messaging</module>
                 <module>../com.elster.jupiter.messaging.oracle</module>
                 <module>../com.elster.jupiter.nls.rest</module>
