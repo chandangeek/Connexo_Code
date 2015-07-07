@@ -11,7 +11,7 @@ import java.util.List;
 
 /**
  * Provides code reuse opportunities for entities in this bundle
- * that are persistable and have a unique ID
+ * that are persistable and have a unique ID.
  * <p/>
  * Copyrights EnergyICT
  * Date: 31/01/14
@@ -19,6 +19,7 @@ import java.util.List;
  */
 public abstract class PersistentIdObject<D> {
 
+    @SuppressWarnings("unused")
     private long id;
 
     private Class<D> domainClass;
@@ -119,7 +120,7 @@ public abstract class PersistentIdObject<D> {
      * @param fieldNames The name of the fields that have changed and need updating
      */
     protected void update(String... fieldNames) {
-        this.getDataModel().update(this);
+        this.getDataModel().update(this, fieldNames);
     }
 
     /**
