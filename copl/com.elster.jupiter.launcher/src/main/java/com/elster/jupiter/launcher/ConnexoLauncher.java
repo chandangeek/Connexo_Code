@@ -71,6 +71,9 @@ public class ConnexoLauncher {
         if (install) {
             try {
                 initAll();
+            } catch (Exception ex) {
+                logger.severe("Caught exception while installing " + ex.getLocalizedMessage());
+                System.exit(4);
             } finally {
                 stopFramework();
             }
@@ -127,17 +130,13 @@ public class ConnexoLauncher {
         }
     }
 
-    private static void initAll() {
+    private static void initAll() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         ServiceReference serviceReference = framework.getBundleContext().getServiceReference("com.elster.jupiter.install.InstallerService");
         if (serviceReference != null) {
             Object installService = framework.getBundleContext().getService(serviceReference);
-            try {
-                System.out.println("Installing database schema !");
-                installService.getClass().getMethod("initAll").invoke(installService);
-                System.out.println("Database installation finished.");
-            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-                logger.severe("Caught exception while installing " + e.getLocalizedMessage());
-            }
+            System.out.println("Installing database schema !");
+            installService.getClass().getMethod("initAll").invoke(installService);
+            System.out.println("Database installation finished.");
         }
     }
 
