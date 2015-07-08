@@ -3,6 +3,7 @@ package com.elster.jupiter.mail.impl;
 import com.elster.jupiter.mail.MailAddress;
 import com.elster.jupiter.mail.MailMessageBuilder;
 import com.elster.jupiter.mail.MailService;
+import com.elster.jupiter.util.Checks;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -58,15 +59,17 @@ public class MailServiceImpl implements IMailService {
 
     @Activate
     public final void activate(BundleContext bundleContext) {
+        smtpHost = bundleContext.getProperty(MAIL_SMTP_HOST_PROPERTY);
+        smtpPort = bundleContext.getProperty(MAIL_SMTP_PORT_PROPERTY);
+
+        String fromAddress = bundleContext.getProperty("mail.from");
         try {
-            smtpHost = bundleContext.getProperty(MAIL_SMTP_HOST_PROPERTY);
-            smtpPort = bundleContext.getProperty(MAIL_SMTP_PORT_PROPERTY);
-            from = new InternetAddress(bundleContext.getProperty("mail.from"));
-            user = bundleContext.getProperty("mail.user");
-            password = bundleContext.getProperty("mail.password");
+            from = Checks.is(fromAddress).emptyOrOnlyWhiteSpace() ? null : new InternetAddress(fromAddress);
         } catch (AddressException e) {
             LOGGER.log(Level.SEVERE, e.getMessage() == null ? e.toString() : e.getMessage(), e);
         }
+        user = bundleContext.getProperty("mail.user");
+        password = bundleContext.getProperty("mail.password");
     }
 
     @Deactivate
