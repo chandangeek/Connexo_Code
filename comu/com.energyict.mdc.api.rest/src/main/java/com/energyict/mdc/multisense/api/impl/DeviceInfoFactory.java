@@ -91,6 +91,7 @@ public class DeviceInfoFactory {
         map.put("isDirectlyAddressable", (deviceInfo, device, uriInfo) -> deviceInfo.isDirectlyAddressable = device.getDeviceConfiguration().isDirectlyAddressable());
         map.put("isGateway", (deviceInfo, device, uriInfo) -> deviceInfo.isGateway = device.getDeviceConfiguration().canActAsGateway());
         map.put("version", (deviceInfo, device, uriInfo) -> deviceInfo.version = device.getVersion());
+        map.put("lifecycle", (deviceInfo, device, uriInfo) -> deviceInfo.lifecycle = device.getState().getName());
         map.put("physicalGateway", (deviceInfo, device, uriInfo) -> {
             Optional<Device> physicalGateway = topologyService.getPhysicalGateway(device);
             if (physicalGateway.isPresent()) {
@@ -172,6 +173,7 @@ public class DeviceInfoFactory {
         Collection<PropertyInfo> propertyInfos = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(uniquePropertySpecsForMicroActions, TypedProperties.empty(), device);
 
         info.properties = new ArrayList<>(propertyInfos);
+        info.deviceVersion = device.getVersion();
         return info;
     }
 

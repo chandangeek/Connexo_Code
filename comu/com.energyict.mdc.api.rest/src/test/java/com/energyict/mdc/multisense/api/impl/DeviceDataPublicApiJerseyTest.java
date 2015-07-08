@@ -21,6 +21,7 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.imp.DeviceImportService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.topology.TopologyService;
+import java.time.Clock;
 import java.util.Currency;
 import java.util.Optional;
 import javax.ws.rs.core.Application;
@@ -47,6 +48,8 @@ public class DeviceDataPublicApiJerseyTest extends FelixRestApplicationJerseyTes
     DeviceLifeCycleService deviceLifeCycleService;
     @Mock
     FiniteStateMachineService finiteStateMachineService;
+    @Mock
+    Clock clock;
 
     @Override
     protected MessageSeed[] getMessageSeeds() {
@@ -65,6 +68,7 @@ public class DeviceDataPublicApiJerseyTest extends FelixRestApplicationJerseyTes
         application.setIssueService(issueService);
         application.setDeviceLifeCycleService(deviceLifeCycleService);
         application.setFiniteStateMachineService(finiteStateMachineService);
+        application.setClock(clock);
         return application;
     }
 

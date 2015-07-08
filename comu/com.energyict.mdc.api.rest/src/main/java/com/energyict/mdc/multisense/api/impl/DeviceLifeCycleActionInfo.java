@@ -7,6 +7,6 @@ import java.util.List;
 public class DeviceLifeCycleActionInfo extends LinkInfo {
     public String name;
     public Instant effectiveTimestamp;
-    public boolean transitionNow = true;
     public List<PropertyInfo> properties;
+    public long deviceVersion;
 }

@@ -28,6 +28,7 @@ public class DeviceInfo extends LinkInfo {
     public List<LinkInfo> loadProfiles;
     public List<LinkInfo> slaveDevices;
     public List<DeviceLifeCycleActionInfo> actions;
+    public String lifecycle;
 
 
     public DeviceInfo() {

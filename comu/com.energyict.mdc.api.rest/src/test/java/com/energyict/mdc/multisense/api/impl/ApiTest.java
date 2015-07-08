@@ -2,19 +2,27 @@ package com.energyict.mdc.multisense.api.impl;
 
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.QueryParameters;
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecPossibleValues;
 import com.elster.jupiter.properties.StringFactory;
+import com.elster.jupiter.rest.util.properties.PropertyInfo;
+import com.elster.jupiter.rest.util.properties.PropertyTypeInfo;
+import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.validation.rest.PropertyType;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.imp.Batch;
 import com.energyict.mdc.device.lifecycle.ExecutableAction;
+import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
+import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
+import com.energyict.mdc.device.lifecycle.impl.ExecutableActionPropertyImpl;
 import com.energyict.mdc.dynamic.DateAndTimeFactory;
 import com.energyict.mdc.dynamic.DateFactory;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
@@ -22,20 +30,25 @@ import com.jayway.jsonpath.JsonModel;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -63,8 +76,6 @@ public class ApiTest extends DeviceDataPublicApiJerseyTest {
         Device device = mockDevice("DAV", "65749846514");
         deviceXas = mockDevice("XAS", "5544657642");
         Device device3 = mockDevice("PIO", "54687651356");
-        when(this.deviceService.findByUniqueMrid("DAV")).thenReturn(Optional.of(device));
-        when(this.deviceService.findByUniqueMrid("XAS")).thenReturn(Optional.of(deviceXas));
         Finder<Device> deviceFinder = mockFinder(Arrays.asList(device, deviceXas, device3));
         when(this.deviceService.findAllDevices(any(Condition.class))).thenReturn(deviceFinder);
     }
@@ -76,6 +87,10 @@ public class ApiTest extends DeviceDataPublicApiJerseyTest {
         long deviceId = (long) mrid.hashCode();
         when(mock.getId()).thenReturn(deviceId);
         when(mock.getSerialNumber()).thenReturn(serial);
+        when(mock.getVersion()).thenReturn(333L);
+        State state = mock(State.class);
+        when(state.getName()).thenReturn(DefaultState.IN_STOCK.getKey());
+        when(mock.getState()).thenReturn(state);
         DeviceType deviceType = mockDeviceType(31L, "X1");
         when(mock.getDeviceType()).thenReturn(deviceType);
         DeviceConfiguration deviceConfig = mock(DeviceConfiguration.class);
@@ -89,6 +104,8 @@ public class ApiTest extends DeviceDataPublicApiJerseyTest {
         when(batch.getName()).thenReturn("BATCH A");
         when(deviceImportService.findBatch(deviceId)).thenReturn(Optional.of(batch));
         when(topologyService.getPhysicalGateway(mock)).thenReturn(Optional.empty());
+        when(this.deviceService.findByUniqueMrid(mrid)).thenReturn(Optional.of(mock));
+        when(this.deviceService.findAndLockDeviceByIdAndVersion(deviceId, 333L)).thenReturn(Optional.of(mock));
         return mock;
     }
 
@@ -166,7 +183,6 @@ public class ApiTest extends DeviceDataPublicApiJerseyTest {
         assertThat(model.<List>get("data")).hasSize(2);
         assertThat(model.<Integer>get("data[0].id")).isEqualTo(1);
         assertThat(model.<String>get("data[0].name")).isEqualTo("action.name.1");
-        assertThat(model.<Boolean>get("data[0].transitionNow")).isEqualTo(true);
         assertThat(model.<String>get("data[0].link.params.rel")).isEqualTo("self");
         assertThat(model.<String>get("data[0].link.href")).isEqualTo("http://localhost:9998/devices/XAS/actions/1");
         assertThat(model.<List>get("data[0].properties")).hasSize(1);
@@ -176,7 +192,6 @@ public class ApiTest extends DeviceDataPublicApiJerseyTest {
         assertThat(model.<Boolean>get("data[0].properties[0].required")).isEqualTo(true);
         assertThat(model.<Integer>get("data[1].id")).isEqualTo(2);
         assertThat(model.<String>get("data[1].name")).isEqualTo("action.name.2");
-        assertThat(model.<Boolean>get("data[1].transitionNow")).isEqualTo(true);
         assertThat(model.<String>get("data[1].link.params.rel")).isEqualTo("self");
         assertThat(model.<String>get("data[1].link.href")).isEqualTo("http://localhost:9998/devices/XAS/actions/2");
         assertThat(model.<List>get("data[1].properties")).hasSize(1);
@@ -184,6 +199,73 @@ public class ApiTest extends DeviceDataPublicApiJerseyTest {
         assertThat(model.<String>get("data[1].properties[0].propertyValueInfo.defaultValue")).isEqualTo("default");
         assertThat(model.<String>get("data[1].properties[0].propertyTypeInfo.simplePropertyType")).isEqualTo("TEXT");
         assertThat(model.<Boolean>get("data[1].properties[0].required")).isEqualTo(true);
+    }
+
+    @Test
+    public void testTriggerDeviceExecutableActionsWithStringProperties() throws Exception {
+        Instant now = Instant.now();
+        when(clock.instant()).thenReturn(now);
+        PropertySpec stringPropertySpec = mockStringPropertySpec();
+        ExecutableAction executableAction1 = mockExecutableAction(1L, "action.name.1", MicroAction.ENABLE_ESTIMATION, stringPropertySpec);
+        ExecutableAction executableAction2 = mockExecutableAction(2L, "action.name.2", MicroAction.ENABLE_VALIDATION, stringPropertySpec);
+        when(deviceLifeCycleService.getExecutableActions(deviceXas)).thenReturn(Arrays.asList(executableAction1, executableAction2));
+        DeviceLifeCycleActionInfo info = new DeviceLifeCycleActionInfo();
+        info.deviceVersion = 333;
+        info.name = "action.name.1";
+        info.properties = new ArrayList<>();
+        PropertyInfo propertyInfo = new PropertyInfo();
+        info.properties.add(propertyInfo);
+        propertyInfo.key = "string.property";
+        propertyInfo.propertyTypeInfo = new PropertyTypeInfo();
+        propertyInfo.propertyTypeInfo.simplePropertyType = PropertyType.TEXT;
+        propertyInfo.propertyValueInfo = new PropertyValueInfo<>("abcdefg", null);
+        when(deviceLifeCycleService.toExecutableActionProperty("abcdefg", stringPropertySpec)).
+                thenAnswer(invocationOnMock -> new ExecutableActionPropertyImpl((PropertySpec) invocationOnMock.getArguments()[1], invocationOnMock.getArguments()[0]));
+
+        Response response = target("/devices/XAS/actions/1").request("application/json").put(Entity.json(info));
+        ArgumentCaptor<Instant> instantArgumentCaptor = ArgumentCaptor.forClass(Instant.class);
+        ArgumentCaptor<List> listArgumentCaptor = ArgumentCaptor.forClass(List.class);
+        verify(executableAction1).execute(instantArgumentCaptor.capture(), listArgumentCaptor.capture());
+        List<ExecutableActionProperty> value = listArgumentCaptor.getValue();
+        assertThat(value).hasSize(1);
+        assertThat(value.get(0).getValue()).isEqualTo("abcdefg");
+        assertThat(value.get(0).getPropertySpec().getName()).isEqualTo("string.property");
+        assertThat(value.get(0).getPropertySpec().getValueFactory().getClass()).isEqualTo(StringFactory.class);
+        assertThat(instantArgumentCaptor.getValue()).isEqualTo(now);
+    }
+
+    @Test
+    public void testTriggerDeviceExecutableActionsWithEffectiveTime() throws Exception {
+        Instant now = Instant.now();
+        when(clock.instant()).thenReturn(now.minusSeconds(60));
+        PropertySpec stringPropertySpec = mockStringPropertySpec();
+        ExecutableAction executableAction1 = mockExecutableAction(1L, "action.name.1", MicroAction.ENABLE_ESTIMATION, stringPropertySpec);
+        ExecutableAction executableAction2 = mockExecutableAction(2L, "action.name.2", MicroAction.ENABLE_VALIDATION, stringPropertySpec);
+        when(deviceLifeCycleService.getExecutableActions(deviceXas)).thenReturn(Arrays.asList(executableAction1, executableAction2));
+        DeviceLifeCycleActionInfo info = new DeviceLifeCycleActionInfo();
+        info.deviceVersion = 333;
+        info.name = "action.name.1";
+        info.properties = new ArrayList<>();
+        info.effectiveTimestamp = now;
+        PropertyInfo propertyInfo = new PropertyInfo();
+        info.properties.add(propertyInfo);
+        propertyInfo.key = "string.property";
+        propertyInfo.propertyTypeInfo = new PropertyTypeInfo();
+        propertyInfo.propertyTypeInfo.simplePropertyType = PropertyType.TEXT;
+        propertyInfo.propertyValueInfo = new PropertyValueInfo<>("abcdefg", null);
+        when(deviceLifeCycleService.toExecutableActionProperty("abcdefg", stringPropertySpec)).
+                thenAnswer(invocationOnMock -> new ExecutableActionPropertyImpl((PropertySpec) invocationOnMock.getArguments()[1], invocationOnMock.getArguments()[0]));
+
+        Response response = target("/devices/XAS/actions/1").request("application/json").put(Entity.json(info));
+        ArgumentCaptor<Instant> instantArgumentCaptor = ArgumentCaptor.forClass(Instant.class);
+        ArgumentCaptor<List> listArgumentCaptor = ArgumentCaptor.forClass(List.class);
+        verify(executableAction1).execute(instantArgumentCaptor.capture(), listArgumentCaptor.capture());
+        List<ExecutableActionProperty> value = listArgumentCaptor.getValue();
+        assertThat(value).hasSize(1);
+        assertThat(value.get(0).getValue()).isEqualTo("abcdefg");
+        assertThat(value.get(0).getPropertySpec().getName()).isEqualTo("string.property");
+        assertThat(value.get(0).getPropertySpec().getValueFactory().getClass()).isEqualTo(StringFactory.class);
+        assertThat(instantArgumentCaptor.getValue()).isEqualTo(now);
     }
 
     private PropertySpec mockStringPropertySpec() {
@@ -265,13 +347,43 @@ public class ApiTest extends DeviceDataPublicApiJerseyTest {
         assertThat(model.<Boolean>get("data[0].properties[0].required")).isEqualTo(true);
     }
 
-    private PropertySpec mockDatePropertySpec(Date date) {
+    @Test
+    public void testTriggerDeviceExecutableActionsWithDateProperty() throws Exception {
+        Date now = new Date(1436306400000L);
+        PropertySpec datePropertySpec = mockDatePropertySpec(now);
+        ExecutableAction executableAction1 = mockExecutableAction(1L, "action.name.1", MicroAction.ENABLE_ESTIMATION, datePropertySpec);
+        when(deviceLifeCycleService.getExecutableActions(deviceXas)).thenReturn(Collections.singletonList(executableAction1));
+        DeviceLifeCycleActionInfo info = new DeviceLifeCycleActionInfo();
+        info.deviceVersion = 333;
+        info.name = "action.name.1";
+        info.properties = new ArrayList<>();
+        PropertyInfo propertyInfo = new PropertyInfo();
+        info.properties.add(propertyInfo);
+        propertyInfo.key = "date.property";
+        propertyInfo.propertyTypeInfo = new PropertyTypeInfo();
+        propertyInfo.propertyValueInfo = new PropertyValueInfo<>("2015-07-08", null);
+        when(deviceLifeCycleService.toExecutableActionProperty(now, datePropertySpec)).
+                thenAnswer(invocationOnMock -> new ExecutableActionPropertyImpl((PropertySpec) invocationOnMock.getArguments()[1], invocationOnMock.getArguments()[0]));
+
+        Response response = target("/devices/XAS/actions/1").request("application/json").put(Entity.json(info));
+        ArgumentCaptor<Instant> instantArgumentCaptor = ArgumentCaptor.forClass(Instant.class);
+        ArgumentCaptor<List> listArgumentCaptor = ArgumentCaptor.forClass(List.class);
+        verify(executableAction1).execute(instantArgumentCaptor.capture(), listArgumentCaptor.capture());
+        List<ExecutableActionProperty> value = listArgumentCaptor.getValue();
+        assertThat(value).hasSize(1);
+        assertThat(value.get(0).getValue()).isEqualTo(now);
+        assertThat(value.get(0).getPropertySpec().getName()).isEqualTo("date.property");
+        assertThat(value.get(0).getPropertySpec().getValueFactory().getClass()).isEqualTo(DateFactory.class);
+    }
+
+
+    private PropertySpec mockDatePropertySpec(Date defaultValue) {
         PropertySpec propertySpec = mock(PropertySpec.class);
         when(propertySpec.isRequired()).thenReturn(true);
         when(propertySpec.getName()).thenReturn("date.property");
         when(propertySpec.getValueFactory()).thenReturn(new DateFactory());
         PropertySpecPossibleValues possibleValues = mock(PropertySpecPossibleValues.class);
-        when(possibleValues.getDefault()).thenReturn(date);
+        when(possibleValues.getDefault()).thenReturn(defaultValue);
         when(propertySpec.getPossibleValues()).thenReturn(possibleValues);
         return propertySpec;
     }

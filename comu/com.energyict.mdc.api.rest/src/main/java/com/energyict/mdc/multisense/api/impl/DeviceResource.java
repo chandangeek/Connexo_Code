@@ -2,8 +2,11 @@ package com.energyict.mdc.multisense.api.impl;
 
 import com.elster.jupiter.fsm.CustomStateTransitionEventType;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
+import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -14,13 +17,19 @@ import com.energyict.mdc.device.data.imp.DeviceImportService;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.ExecutableAction;
+import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.device.topology.TopologyService;
 import java.net.URI;
+import java.time.Clock;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
@@ -56,10 +65,11 @@ public class DeviceResource {
     private final TopologyService topologyService;
     private final FiniteStateMachineService finiteStateMachineService;
     private final DeviceLifeCycleService deviceLifeCycleService;
+    private final Clock clock;
 
 
     @Inject
-    public DeviceResource(DeviceService deviceService, DeviceInfoFactory deviceInfoFactory, DeviceConfigurationService deviceConfigurationService, DeviceImportService deviceImportService, ExceptionFactory exceptionFactory, TopologyService topologyService, FiniteStateMachineService finiteStateMachineService, DeviceLifeCycleService deviceLifeCycleService) {
+    public DeviceResource(DeviceService deviceService, DeviceInfoFactory deviceInfoFactory, DeviceConfigurationService deviceConfigurationService, DeviceImportService deviceImportService, ExceptionFactory exceptionFactory, TopologyService topologyService, FiniteStateMachineService finiteStateMachineService, DeviceLifeCycleService deviceLifeCycleService, Clock clock) {
         this.deviceService = deviceService;
         this.deviceInfoFactory = deviceInfoFactory;
         this.deviceConfigurationService = deviceConfigurationService;
@@ -68,6 +78,7 @@ public class DeviceResource {
         this.topologyService = topologyService;
         this.finiteStateMachineService = finiteStateMachineService;
         this.deviceLifeCycleService = deviceLifeCycleService;
+        this.clock = clock;
     }
 
     @GET
@@ -115,15 +126,28 @@ public class DeviceResource {
     @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
     @Path("/{mrid}/actions/{actionId}")
-    public Response executeAction(@PathParam("mrid") String mRID,
-                                  @PathParam("actionId") long actionId,
-                                  @Context UriInfo uriInfo) {
-        Device device = deviceService.findByUniqueMrid(mRID).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND.getStatusCode()));
-        return null;
+    public Response executeAction(
+                @PathParam("mrid") String mrid,
+                @PathParam("actionId") long actionId,
+                @BeanParam JsonQueryParameters queryParameters,
+                DeviceLifeCycleActionInfo info){
+        Device device = deviceService.findByUniqueMrid(mrid).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND.getStatusCode()));
+        if (info==null) {
+            throw new WebApplicationException(Response.Status.BAD_REQUEST);
+        }
+        device = deviceService.findAndLockDeviceByIdAndVersion(device.getId(), info.deviceVersion).orElseThrow(() -> new WebApplicationException(Response.Status.CONFLICT));
+        ExecutableAction requestedAction = getExecutableActionByIdOrThrowException(actionId, device);
+        if (requestedAction.getAction() instanceof AuthorizedTransitionAction){
+            requestedAction.execute(info.effectiveTimestamp==null?clock.instant():info.effectiveTimestamp, getExecutableActionPropertiesFromInfo(info, (AuthorizedTransitionAction) requestedAction.getAction()));
+        } else {
+            throw exceptionFactory.newException(MessageSeeds.CAN_NOT_HANDLE_ACTION);
+        }
+
+        return Response.ok().build();
     }
 
     @POST
-    @Consumes(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.ADD_DEVICE)
     public Response createDevice(DeviceInfo info, @Context UriInfo uriInfo, @BeanParam SelectedFields fields) {
@@ -150,11 +174,11 @@ public class DeviceResource {
 
     @PUT
     @Path("/{mrid}")
-    @Consumes(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_COMMUNICATION)
     public Response updateDevice(@PathParam("mrid") String mrid, DeviceInfo info, @Context SecurityContext securityContext, @Context UriInfo uriInfo) {
-        Device device = deviceService.findAndLockDeviceBymRIDAndVersion(mrid, info.version==null?0:info.version).orElseThrow(() -> new WebApplicationException(Response.Status.CONFLICT));
+        Device device = deviceService.findAndLockDeviceBymRIDAndVersion(mrid, info.version == null ? 0 : info.version).orElseThrow(() -> new WebApplicationException(Response.Status.CONFLICT));
         if (info.masterDevice!=null && info.masterDevice.mRID != null) {
             if (device.getDeviceConfiguration().isDirectlyAddressable()) {
                 throw exceptionFactory.newException(MessageSeeds.IMPOSSIBLE_TO_SET_MASTER_DEVICE, device.getmRID());
@@ -208,6 +232,44 @@ public class DeviceResource {
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     public Response getFields() {
         return Response.ok(deviceInfoFactory.getAvailableFields().stream().sorted().collect(toList())).build();
+    }
+
+    private List<ExecutableActionProperty> getExecutableActionPropertiesFromInfo(DeviceLifeCycleActionInfo info, AuthorizedTransitionAction authorizedAction) {
+        if (info.properties==null) {
+            return Collections.emptyList();
+        }
+
+        Map<String, PropertySpec> allPropertySpecsForAction = authorizedAction.getActions()
+                .stream()
+                .flatMap(microAction -> deviceLifeCycleService.getPropertySpecsFor(microAction).stream())
+                .collect(Collectors.toMap(PropertySpec::getName, Function.<PropertySpec>identity()));
+
+        List<ExecutableActionProperty> executableProperties = new ArrayList<>(allPropertySpecsForAction.size());
+
+        for (PropertyInfo property : info.properties) {
+            PropertySpec propertySpec = allPropertySpecsForAction.get(property.key);
+            if (propertySpec != null && property.propertyValueInfo != null){
+                try {
+                    Object value = null;
+                    if (property.propertyValueInfo.value != null) {
+                        value = propertySpec.getValueFactory().fromStringValue(String.valueOf(property.propertyValueInfo.value));
+                    }
+                    executableProperties.add(deviceLifeCycleService.toExecutableActionProperty(value, propertySpec));
+                } catch (InvalidValueException e) {
+                    // Enable form validation
+                    throw new LocalizedFieldValidationException(MessageSeeds.THIS_FIELD_IS_REQUIRED, propertySpec.getName());
+                }
+            }
+        }
+        return executableProperties;
+    }
+
+    private ExecutableAction getExecutableActionByIdOrThrowException(@PathParam("actionId") long actionId, Device device) {
+        return deviceLifeCycleService.getExecutableActions(device)
+                    .stream()
+                    .filter(candidate -> candidate.getAction().getId() == actionId)
+                    .findFirst()
+                    .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_DEVICE_LIFE_CYCLE_ACTION, actionId));
     }
 
 }

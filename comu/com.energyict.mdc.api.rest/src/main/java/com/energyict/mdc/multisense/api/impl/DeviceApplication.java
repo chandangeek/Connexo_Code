@@ -20,6 +20,7 @@ import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.google.common.collect.ImmutableSet;
+import java.time.Clock;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -51,6 +52,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     private volatile Thesaurus thesaurus;
     private volatile NlsService nlsService;
     private volatile TransactionService transactionService;
+    private volatile Clock clock;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -59,7 +61,8 @@ public class DeviceApplication extends Application implements TranslationKeyProv
                 ExceptionLogger.class,
                 DeviceResource.class,
                 DeviceConfigurationResource.class,
-                DeviceTypeResource.class
+                DeviceTypeResource.class,
+                DeviceLifeCycleActionViolationExceptionMapper.class
         );
     }
 
@@ -136,6 +139,11 @@ public class DeviceApplication extends Application implements TranslationKeyProv
         this.deviceLifeCycleService = deviceLifeCycleService;
     }
 
+    @Reference
+    public void setClock(Clock clock) {
+        this.clock = clock;
+    }
+
     class HK2Binder extends AbstractBinder {
 
         @Override
@@ -156,6 +164,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(finiteStateMachineService).to(FiniteStateMachineService.class);
             bind(deviceLifeCycleService).to(DeviceLifeCycleService.class);
             bind(transactionService).to(TransactionService.class);
+            bind(clock).to(Clock.class);
         }
     }
 
