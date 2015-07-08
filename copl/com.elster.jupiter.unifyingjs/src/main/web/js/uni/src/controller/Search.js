@@ -623,6 +623,11 @@ Ext.define('Uni.controller.Search', {
                         emptyText: displayValue
                     });
                     break;
+                case 'Boolean':
+                    widget = Ext.create('Uni.view.search.field.YesNo', {
+                        emptyText: displayValue
+                    });
+                    break;
                 default:
                     // <debug>
                     console.log('Unknown search property type: ' + type);

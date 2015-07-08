@@ -11,7 +11,8 @@ Ext.define('Uni.view.search.Overview', {
         'Uni.view.notifications.NoItemsFoundPanel',
         'Uni.view.search.Results',
         'Uni.store.search.Domains',
-        'Uni.store.search.Removables'
+        'Uni.store.search.Removables',
+        'Uni.view.search.field.YesNo'
     ],
 
     padding: '16 16 16 16',
@@ -74,6 +75,11 @@ Ext.define('Uni.view.search.Overview', {
                                 type: 'column'
                             }
                         },
+                        // temporary to test this type of field
+/*                        {
+                            xtype: 'uni-view-search-field-yesno',
+                            emptyText: Uni.I18n.translate('view.search.field.yesno.label.issues', 'UNI', 'Has datacollection issues')
+                        },*/
                         {
                             cellCls: 'search-cell search-last',
                             xtype: 'combo',
