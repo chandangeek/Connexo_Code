@@ -29,6 +29,7 @@ Ext.define('Uni.grid.filtertop.Interval', {
                 menu: [
                     {
                         xtype: 'fieldcontainer',
+                        itemId: 'uni-interval-form',
                         padding: '0 0 -8 0',
                         style: 'background-color: white;',
                         layout: {
@@ -47,7 +48,7 @@ Ext.define('Uni.grid.filtertop.Interval', {
                                 items: [
                                     {
                                         xtype: 'label',
-                                        html: 'From',
+                                        html: Uni.I18n.translate('general.from', 'UNI', 'From'),
                                         width: 48,
                                         style: 'font-weight: normal;'
                                     },
@@ -131,7 +132,7 @@ Ext.define('Uni.grid.filtertop.Interval', {
                                 items: [
                                     {
                                         xtype: 'label',
-                                        html: 'To',
+                                        html: Uni.I18n.translate('general.to', 'UNI', 'To'),
                                         width: 48,
                                         style: 'font-weight: normal;'
                                     },
@@ -206,6 +207,14 @@ Ext.define('Uni.grid.filtertop.Interval', {
                             },
                             {
                                 xtype: 'fieldcontainer',
+                                margins: '0 8 0 60',
+                                itemId: 'interval-error-msg',
+                                cls: 'x-form-invalid-under',
+                                hidden: true,
+                                height: 25
+                            },
+                            {
+                                xtype: 'fieldcontainer',
                                 margins: '0 8 0 8',
                                 layout: {
                                     type: 'column',
@@ -222,16 +231,24 @@ Ext.define('Uni.grid.filtertop.Interval', {
                                         xtype: 'button',
                                         ui: 'action',
                                         action: 'apply',
-                                        text: 'Apply'
+                                        text: Uni.I18n.translate('general.apply', 'UNI', 'Apply')
                                     },
                                     {
                                         xtype: 'button',
                                         action: 'clear',
-                                        text: 'Clear'
+                                        text: Uni.I18n.translate('general.clear', 'UNI', 'Clear')
                                     }
                                 ]
                             }
-                        ]
+                        ],
+                        markInvalid: function (msg) {
+                            var errorMsg = this.down('#interval-error-msg');
+                            errorMsg.update(msg);
+                            errorMsg.show();
+                        },
+                        clearInvalid: function () {
+                            this.down('#interval-error-msg').hide();
+                        }
                     }
                 ]
             }
@@ -249,18 +266,50 @@ Ext.define('Uni.grid.filtertop.Interval', {
 
         applyButton.on('click', me.onApplyInterval, me);
         clearButton.on('click', me.onClearInterval, me);
+        me.getFromDateField().on('change', me.onFromChanged, me);
+        me.getToDateField().on('change', me.onToChanged, me);
     },
 
     onApplyInterval: function () {
         var me = this;
 
-        me.fireFilterUpdateEvent();
-        me.getChooseIntervalButton().hideMenu();
+        if (me.isIntervalValid()) {
+            me.fireFilterUpdateEvent();
+            me.getChooseIntervalButton().hideMenu();
+        }
+    },
+
+    isIntervalValid: function() {
+        var me = this;
+        if ( me.getToDateValue() < me.getFromDateValue() ) {
+            me.getIntervalForm().markInvalid(
+                Uni.I18n.translate('interval.invalid', 'UNI', "The 'From' date must be smaller than the 'To' date"));
+            return false;
+        }
+        me.getIntervalForm().clearInvalid();
+        return true;
+    },
+
+    onFromChanged: function() {
+        var me = this,
+            date = me.getFromDateField() ? me.getFromDateField().getValue() : undefined;
+        if (date !== undefined) {
+            me.getToDateField().setMinValue(date);
+        }
+    },
+
+    onToChanged: function() {
+        var me = this,
+            date = me.getToDateField() ? me.getToDateField().getValue() : undefined;
+        if (date !== undefined) {
+            me.getFromDateField().setMaxValue(date);
+        }
     },
 
     onClearInterval: function () {
         var me = this;
 
+        me.getIntervalForm().clearInvalid();
         me.resetValue();
         me.fireFilterUpdateEvent();
         me.getChooseIntervalButton().hideMenu();
@@ -268,6 +317,9 @@ Ext.define('Uni.grid.filtertop.Interval', {
 
     resetValue: function () {
         var me = this;
+
+        me.getIntervalForm().clearInvalid();
+
         me.getFromDateField().reset();
         me.getFromHourField().reset();
         me.getFromMinuteField().reset();
@@ -398,5 +450,9 @@ Ext.define('Uni.grid.filtertop.Interval', {
 
     getToMinuteField: function () {
         return this.down('numberfield#toMinute');
+    },
+
+    getIntervalForm: function() {
+        return this.down('#uni-interval-form');
     }
 });
