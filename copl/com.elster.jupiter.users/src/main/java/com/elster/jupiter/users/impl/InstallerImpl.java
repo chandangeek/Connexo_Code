@@ -2,13 +2,12 @@ package com.elster.jupiter.users.impl;
 
 import java.lang.reflect.Field;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.users.FormatKey;
-import com.elster.jupiter.users.UserPreferencesService;
-import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.users.*;
 import com.elster.jupiter.users.security.Privileges;
 
 public class InstallerImpl {
@@ -16,9 +15,11 @@ public class InstallerImpl {
 
     private DataModel dataModel;
     private String defaultDomain;
+    private UserService userService;
 
-    public InstallerImpl(DataModel dataModel) {
+    public InstallerImpl(DataModel dataModel, UserService userService) {
         this.dataModel = dataModel;
+        this.userService = userService;
     }
 
     public void install(UserServiceImpl userService, String defaultDomain) {
@@ -36,12 +37,14 @@ public class InstallerImpl {
 	
 	private void createMasterData() {
         try{
-            InternalDirectoryImpl directory = createDirectory();
-
-            GroupImpl administrators = createRole(UserService.DEFAULT_ADMIN_ROLE, UserService.DEFAULT_ADMIN_ROLE_DESCRIPTION);
+            InternalDirectoryImpl directory = (InternalDirectoryImpl) userService.findUserDirectory(this.defaultDomain).orElse(createDirectory());
+            GroupImpl administrators = (GroupImpl) userService.findGroup(UserService.DEFAULT_ADMIN_ROLE).orElse(userService.createGroup(UserService.DEFAULT_ADMIN_ROLE, UserService.DEFAULT_ADMIN_ROLE_DESCRIPTION));
 
             grantSystemAdministratorPrivileges(administrators);
-            createAdministratorUser(directory, new GroupImpl[]{administrators});
+
+            if(!userService.findUser("admin").isPresent()) {
+                createAdministratorUser(directory, new GroupImpl[]{administrators});
+            }
         }
         catch (Exception e) {
             this.logger.log(Level.SEVERE, e.getMessage(), e);
@@ -55,13 +58,7 @@ public class InstallerImpl {
         return directory;
     }
 
-    private GroupImpl createRole(String name, String description){
-        GroupImpl group = GroupImpl.from(dataModel, name, description);
-        group.save();
-        return group;
-    }
-	
-	private void createAdministratorUser(InternalDirectoryImpl directory, GroupImpl[] roles) {
+   private void createAdministratorUser(InternalDirectoryImpl directory, GroupImpl[] roles) {
         UserImpl user = directory.newUser("admin", "System administrator", true);
 
 		user.setPassword("admin");

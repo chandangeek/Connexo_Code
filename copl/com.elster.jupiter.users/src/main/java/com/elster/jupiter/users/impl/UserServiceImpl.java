@@ -332,7 +332,7 @@ public class UserServiceImpl implements UserService, InstallService, Translation
     }
 
     public void install() {
-        new InstallerImpl(dataModel).install(this, getRealm());
+        new InstallerImpl(dataModel, this).install(this, getRealm());
         installPrivileges();
     }
     
@@ -511,7 +511,7 @@ public class UserServiceImpl implements UserService, InstallService, Translation
             createOrUpdateResourceWithPrivileges(resource.getComponentName(),
                     resource.getName(),
                     resource.getDescription(),
-                    resource.getPrivileges().stream().toArray(String[]::new));
+                    resource.getPrivilegeNames().stream().toArray(String[]::new));
         }
     }
 
