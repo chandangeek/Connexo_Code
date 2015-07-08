@@ -20,6 +20,7 @@ import com.energyict.mdc.device.data.imp.DeviceImportService;
 import com.energyict.mdc.device.data.rest.DeviceInfoFactory;
 import com.energyict.mdc.device.data.rest.DevicePrivileges;
 import com.energyict.mdc.device.data.security.Privileges;
+import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.TopologyTimeline;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
@@ -204,9 +205,6 @@ public class DeviceResource {
     public DeviceInfo updateDevice(@PathParam("id") long id, DeviceInfo info, @Context SecurityContext securityContext) {
         Device device = deviceService.findAndLockDeviceByIdAndVersion(id, info.version).orElseThrow(() -> new WebApplicationException(Status.CONFLICT));
         updateGateway(info, device);
-        if (info.estimationStatus != null) {
-            updateEstimationStatus(info.estimationStatus, device);
-        }
         return deviceInfoFactory.from(device, getSlaveDevicesForDevice(device));
     }
 
@@ -217,14 +215,6 @@ public class DeviceResource {
             removeGateway(device);
         }
         return deviceInfoFactory.from(device, getSlaveDevicesForDevice(device));
-    }
-
-    private void updateEstimationStatus(DeviceEstimationStatusInfo info, Device device) {
-        if (info.active) {
-            device.forEstimation().activateEstimation();
-        } else {
-            device.forEstimation().deactivateEstimation();
-        }
     }
 
     private void updateGateway(Device device, String gatewayMRID) {

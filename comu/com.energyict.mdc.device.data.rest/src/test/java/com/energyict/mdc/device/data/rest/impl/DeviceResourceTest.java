@@ -36,10 +36,12 @@ import com.energyict.mdc.device.data.DeviceValidation;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LoadProfileReading;
 import com.energyict.mdc.device.data.LogBook;
+import com.energyict.mdc.device.data.rest.DevicePrivileges;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
+import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.topology.TopologyTimeline;
 import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.masterdata.LoadProfileType;
@@ -1248,5 +1250,81 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         Finder finder = mock(Finder.class);
         when(issueDataValidationService.findAllDataValidationIssues(Matchers.any())).thenReturn(finder);
         when(finder.find()).thenReturn(Collections.emptyList());
+    }
+
+    @Test
+    public void testPrivilegesForInStockState(){
+        State state = mock(State.class);
+        when(state.getName()).thenReturn(DefaultState.IN_STOCK.getKey());
+        Device device = mock(Device.class);
+        when(device.getState()).thenReturn(state);
+        when(deviceService.findByUniqueMrid(anyString())).thenReturn(Optional.of(device));
+
+        String response = target("/devices/1/privileges").request().get(String.class);
+        JsonModel model = JsonModel.create(response);
+        assertThat(model.<Number>get("$.total")).isEqualTo(11);
+        List<String> privileges = model.<List<String>>get("$.privileges[*].name");
+        assertThat(privileges).contains(
+                DevicePrivileges.DEVICES_ACTIONS_VALIDATION_RULE_SETS,
+                DevicePrivileges.DEVICES_ACTIONS_ESTIMATION_RULE_SETS,
+                DevicePrivileges.DEVICES_ACTIONS_COMMUNICATION_PLANNING,
+                DevicePrivileges.DEVICES_ACTIONS_COMMUNICATION_TOPOLOGY,
+                DevicePrivileges.DEVICES_ACTIONS_DEVICE_COMMANDS,
+                DevicePrivileges.DEVICES_ACTIONS_SECURITY_SETTINGS,
+                DevicePrivileges.DEVICES_ACTIONS_PROTOCOL_DIALECTS,
+                DevicePrivileges.DEVICES_ACTIONS_GENERAL_ATTRIBUTES,
+                DevicePrivileges.DEVICES_ACTIONS_COMMUNICATION_TASKS,
+                DevicePrivileges.DEVICES_ACTIONS_CONNECTION_METHODS,
+                DevicePrivileges.DEVICES_PAGES_COMMUNICATION_PLANNING
+        );
+    }
+
+    @Test
+    public void testPrivilegesForInDecommissionedState(){
+        State state = mock(State.class);
+        when(state.getName()).thenReturn(DefaultState.DECOMMISSIONED.getKey());
+        Device device = mock(Device.class);
+        when(device.getState()).thenReturn(state);
+        when(deviceService.findByUniqueMrid(anyString())).thenReturn(Optional.of(device));
+
+        String response = target("/devices/1/privileges").request().get(String.class);
+        JsonModel model = JsonModel.create(response);
+        assertThat(model.<Number>get("$.total")).isEqualTo(0);
+        List<String> privileges = model.<List<String>>get("$.privileges[*].name");
+        assertThat(privileges).isEmpty();
+    }
+
+    @Test
+    public void testPrivilegesForCustomState(){
+        State state = mock(State.class);
+        when(state.getName()).thenReturn("Custom state");
+        Device device = mock(Device.class);
+        when(device.getState()).thenReturn(state);
+        when(deviceService.findByUniqueMrid(anyString())).thenReturn(Optional.of(device));
+
+        String response = target("/devices/1/privileges").request().get(String.class);
+        JsonModel model = JsonModel.create(response);
+        assertThat(model.<Number>get("$.total")).isEqualTo(18);
+        List<String> privileges = model.<List<String>>get("$.privileges[*].name");
+        assertThat(privileges).contains(
+                DevicePrivileges.DEVICES_WIDGET_ISSUES,
+                DevicePrivileges.DEVICES_WIDGET_VALIDATION,
+                DevicePrivileges.DEVICES_WIDGET_COMMUNICATION_TOPOLOGY,
+                DevicePrivileges.DEVICES_WIDGET_CONNECTION,
+                DevicePrivileges.DEVICES_WIDGET_COMMUNICATION_TASKS,
+                DevicePrivileges.DEVICES_ACTIONS_VALIDATION,
+                DevicePrivileges.DEVICES_ACTIONS_ESTIMATION,
+                DevicePrivileges.DEVICES_ACTIONS_VALIDATION_RULE_SETS,
+                DevicePrivileges.DEVICES_ACTIONS_ESTIMATION_RULE_SETS,
+                DevicePrivileges.DEVICES_ACTIONS_COMMUNICATION_PLANNING,
+                DevicePrivileges.DEVICES_ACTIONS_COMMUNICATION_TOPOLOGY,
+                DevicePrivileges.DEVICES_ACTIONS_DEVICE_COMMANDS,
+                DevicePrivileges.DEVICES_ACTIONS_SECURITY_SETTINGS,
+                DevicePrivileges.DEVICES_ACTIONS_PROTOCOL_DIALECTS,
+                DevicePrivileges.DEVICES_ACTIONS_GENERAL_ATTRIBUTES,
+                DevicePrivileges.DEVICES_ACTIONS_COMMUNICATION_TASKS,
+                DevicePrivileges.DEVICES_ACTIONS_CONNECTION_METHODS,
+                DevicePrivileges.DEVICES_PAGES_COMMUNICATION_PLANNING
+        );
     }
 }

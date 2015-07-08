@@ -22,9 +22,11 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.SecurityContext;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -66,5 +68,28 @@ public class DeviceEstimationResource {
             device.forEstimation().deactivateEstimationRuleSet(estimationRuleSet);
         }
         return Response.ok().build();
+    }
+
+    @PUT
+    @Path("/esimationstatus")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed(com.energyict.mdc.device.data.security.Privileges.ADMINISTRATE_DEVICE_COMMUNICATION)
+    @DeviceStatesRestricted({DefaultState.IN_STOCK, DefaultState.DECOMMISSIONED})
+    public Response toggleEstimationActivationForDevice(@PathParam("mRID") String mrid, DeviceInfo info) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
+        resourceHelper.findDeviceAndLock(device.getId(), info.version);
+        if (info.estimationStatus != null) {
+            updateEstimationStatus(info.estimationStatus, device);
+        }
+        return Response.ok().build();
+    }
+
+    private void updateEstimationStatus(DeviceEstimationStatusInfo info, Device device) {
+        if (info.active) {
+            device.forEstimation().activateEstimation();
+        } else {
+            device.forEstimation().deactivateEstimation();
+        }
     }
 }
