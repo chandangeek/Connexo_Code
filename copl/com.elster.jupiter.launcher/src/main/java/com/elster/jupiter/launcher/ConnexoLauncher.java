@@ -69,11 +69,12 @@ public class ConnexoLauncher {
         System.out.println("Starting Connexo" + (interactive ? " with interactive shell..." : "..."));
         startFramework(configMap, installDir);
         if (install) {
-            initAll();
-            stopFramework();
+            try {
+                initAll();
+            } finally {
+                stopFramework();
+            }
         }
-
-
     }
 
     private static void stopFramework() {
