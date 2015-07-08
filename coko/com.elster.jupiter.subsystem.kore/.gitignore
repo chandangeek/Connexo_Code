@@ -73,4 +73,4 @@ release.properties
 dependency-reduced-pom.xml
 
 
-THIRD-PARTY.properties
+src/license/THIRD-PARTY.properties
