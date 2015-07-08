@@ -8,11 +8,13 @@ Ext.define('Dxp.view.tasks.Add', {
         'Uni.property.form.Property',
         'Uni.property.form.GroupedPropertyForm',
         'Uni.util.FormErrorMessage',
-        'Uni.grid.column.ReadingType'
+        'Uni.grid.column.ReadingType',
+        'Dxp.view.tasks.DestinationsGrid'
     ],
 
     edit: false,
     returnLink: null,
+    router: null,
     setEdit: function (edit) {
         if (edit) {
             this.edit = edit;
@@ -395,6 +397,41 @@ Ext.define('Dxp.view.tasks.Add', {
                     {
                         xtype: 'grouped-property-form'
                     },
+
+                    {
+                        title: Uni.I18n.translate('general.destinations', 'DES', 'Destinations'),
+                        ui: 'medium'
+                    },
+
+                    {
+                        xtype: 'fieldcontainer',
+                        required: true,
+                        fieldLabel: Uni.I18n.translate('dataExportdestinations.destinations', 'DES', 'Destinations'),
+                        layout: 'hbox',
+                        items: [
+
+                            {
+                                xtype: 'label',
+                                text: 'There are no destinations added yet',
+                                itemId: 'noDestinationsLabel'
+
+                            },
+                            {
+                                xtype: 'dxp-tasks-destinations-grid',
+                                itemId: 'task-destinations-grid',
+                                hidden: true,
+                                width: 500
+                            },
+                            {
+                                xtype: 'button',
+                                itemId: 'addDestinationButton',
+                                text: Uni.I18n.translate('dataExportdestinations.addDestination', 'CFG', 'Add destination'),
+                                margin: '0 0 0 10'
+                            }
+
+                        ]
+                    },
+
                     {
                         xtype: 'fieldcontainer',
                         ui: 'actions',

@@ -278,6 +278,7 @@ Ext.define('Dxp.controller.Tasks', {
             dataSelectorCombo = view.down('#data-selector-combo'),
             deviceGroupCombo = view.down('#device-group-combo'),
             exportPeriodCombo = view.down('#export-period-combo'),
+            destinationsGrid = view.down('#task-destinations-grid'),
             recurrenceTypeCombo = view.down('#recurrence-type');
         readingTypesStore = view.down('#readingTypesGridPanel').getStore();
 
@@ -310,6 +311,7 @@ Ext.define('Dxp.controller.Tasks', {
             }
             recurrenceTypeCombo.setValue(recurrenceTypeCombo.store.getAt(2));
         });
+
     },
 
     showEditExportTask: function (taskId) {
@@ -335,6 +337,8 @@ Ext.define('Dxp.controller.Tasks', {
             deviceGroupCombo = view.down('#device-group-combo'),
             exportPeriodCombo = view.down('#export-period-combo'),
             dataSelectorCombo = view.down('#data-selector-combo'),
+            emptyDestinationsLabel = view.down('#noDestinationsLabel'),
+            destinationsGrid = view.down('#task-destinations-grid'),
             recurrenceTypeCombo = view.down('#recurrence-type');
 
         dataSelectorCombo.disabled = true;
@@ -342,10 +346,21 @@ Ext.define('Dxp.controller.Tasks', {
         me.taskId = taskId;
         Ext.util.History.on('change', this.checkRoute, this);
 
+
+
         fileFormatterCombo.store.load({
             callback: function () {
                 taskModel.load(taskId, {
                     success: function (record) {
+
+                        var destinations = record.get('destinations');
+                        if (record.destinationsStore.count() > 0) {
+                            emptyDestinationsLabel.hide();
+                            destinationsGrid.store.add(record.destinations().data.items);
+                            destinationsGrid.show();
+                        }
+
+
                         var dataSelector = record.get('dataSelector');
 
                         dataSelectorCombo.store.load({
@@ -392,7 +407,7 @@ Ext.define('Dxp.controller.Tasks', {
                                             view.down('#no-device').show();
                                         }
                                         deviceGroupCombo.setValue(deviceGroupCombo.store.getById(record.getStandardDataSelector().data.deviceGroup.id));
-                                    }
+                                    },
                                 });
 
 
@@ -411,6 +426,9 @@ Ext.define('Dxp.controller.Tasks', {
                             if (record.properties() && record.properties().count()) {
                                 taskForm.down('grouped-property-form').loadRecord(record);
                             }
+
+
+
                         }
                         view.setLoading(false);
                     }
