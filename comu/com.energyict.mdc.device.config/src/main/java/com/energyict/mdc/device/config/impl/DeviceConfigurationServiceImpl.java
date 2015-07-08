@@ -700,6 +700,6 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
 
     @Override
     public DeviceConfiguration cloneDeviceConfiguration(DeviceConfiguration templateDeviceConfiguration, String name) {
-        return templateDeviceConfiguration;
+        return ((ServerDeviceConfiguration) templateDeviceConfiguration).clone(name);
     }
 }

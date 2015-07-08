@@ -8,11 +8,7 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.callback.PersistenceAware;
-import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
-import com.energyict.mdc.device.config.SecurityPropertySet;
+import com.energyict.mdc.device.config.*;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.tasks.ComTask;
 import org.hibernate.validator.constraints.Range;
@@ -34,7 +30,7 @@ import static com.elster.jupiter.util.Checks.is;
 @NoPartialConnectionTaskWhenDefaultIsUsed(groups = {Save.Create.class, Save.Update.class})
 @ProtocolDialectConfigurationPropertiesMustBeFromSameConfiguration(groups = {Save.Create.class, Save.Update.class})
 @SecurityPropertySetMustBeFromSameConfiguration(groups = {Save.Create.class, Save.Update.class})
-public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement> implements ComTaskEnablement, PersistenceAware {
+public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement> implements ServerComTaskEnablement, PersistenceAware {
 
     enum Fields {
         COM_TASK("comTask"),
@@ -104,7 +100,7 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
     /**
      * Notifies this ComTaskEnablement that it is about to be added to the owning DeviceCommunicationConfiguration.
      */
-    void adding () {
+    void adding() {
         this.saveStrategy.prepare();
     }
 
@@ -162,31 +158,31 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
     }
 
     @Override
-    public void setProtocolDialectConfigurationProperties (ProtocolDialectConfigurationProperties properties) {
+    public void setProtocolDialectConfigurationProperties(ProtocolDialectConfigurationProperties properties) {
         this.protocolDialectConfigurationProperties.set(properties);
     }
 
     @Override
-    public boolean isSuspended () {
+    public boolean isSuspended() {
         return this.suspended;
     }
 
     @Override
-    public void suspend () {
+    public void suspend() {
         this.suspended = true;
         this.getEventService().postEvent(EventType.COMTASKENABLEMENT_SUSPEND.topic(), this);
         this.post();
     }
 
     @Override
-    public void resume () {
+    public void resume() {
         this.suspended = false;
         this.getEventService().postEvent(EventType.COMTASKENABLEMENT_RESUME.topic(), this);
         this.post();
     }
 
     @Override
-    public ComTask getComTask () {
+    public ComTask getComTask() {
         return this.comTask.isPresent() ? this.comTask.get() : null;
     }
 
@@ -196,7 +192,7 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
     }
 
     @Override
-    public SecurityPropertySet getSecurityPropertySet () {
+    public SecurityPropertySet getSecurityPropertySet() {
         return this.securityPropertySet.isPresent() ? this.securityPropertySet.get() : null;
     }
 
@@ -206,7 +202,7 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
     }
 
     @Override
-    public boolean isIgnoreNextExecutionSpecsForInbound () {
+    public boolean isIgnoreNextExecutionSpecsForInbound() {
         return ignoreNextExecutionSpecsForInbound;
     }
 
@@ -221,7 +217,7 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
     }
 
     @Override
-    public void setPriority (int priority) {
+    public void setPriority(int priority) {
         this.saveStrategy = this.saveStrategy.setPriority(priority);
     }
 
@@ -239,7 +235,7 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
         this.saveStrategy = this.saveStrategy.useDefaultConnectionTask(flagValue);
     }
 
-    private void setUsesDefaultConnectionTask (boolean flagValue) {
+    private void setUsesDefaultConnectionTask(boolean flagValue) {
         this.usesDefaultConnectionTask = flagValue;
     }
 
@@ -250,7 +246,7 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
 
     @Override
     public Optional<PartialConnectionTask> getPartialConnectionTask() {
-        if(this.usesDefaultConnectionTask){
+        if (this.usesDefaultConnectionTask) {
             return getDeviceConfiguration().getPartialConnectionTasks().stream().filter(PartialConnectionTask::isDefault).findFirst();
         }
         return this.partialConnectionTask.getOptional();
@@ -261,7 +257,7 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
         this.saveStrategy = this.saveStrategy.setPartialConnectionTask(partialConnectionTask);
     }
 
-    private void doSetPartialConnectionTask (PartialConnectionTask partialConnectionTask) {
+    private void doSetPartialConnectionTask(PartialConnectionTask partialConnectionTask) {
         this.partialConnectionTask.set(partialConnectionTask);
     }
 
@@ -376,8 +372,7 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
         private void postEvent() {
             if (this.newPriority != this.oldPriority) {
                 new PriorityChangeEventData(ComTaskEnablementImpl.this, this.oldPriority, this.newPriority).publish(getEventService());
-            }
-            else {
+            } else {
                 // Same priority, no event to post
             }
         }
@@ -443,8 +438,7 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
         private void postEvent() {
             if (this.usedDefaultPreviously) {
                 this.postEventWhenUsingDefaultBefore();
-            }
-            else {
+            } else {
                 this.postEventWhenNotUsingDefaultBefore();
             }
         }
@@ -455,13 +449,11 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
                 if (this.newPartialConnectionTask.isPresent()) {
                     // Using default before but using a specific task now
                     this.postEvent(new SwitchFromDefaultConnectionToPartialConnectionTaskEventData(ComTaskEnablementImpl.this, this.newPartialConnectionTask.get()));
-                }
-                else {
+                } else {
                     // Simply switching off using the default
                     this.postEvent(new SwitchOffUsingDefaultConnectionEventData(ComTaskEnablementImpl.this));
                 }
-            }
-            else {
+            } else {
                 // Still using the default, no changes, no event to post
             }
         }
@@ -470,8 +462,7 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
             if (this.useDefaultNow) {
                 // Not using default before but we are now
                 this.postEventWhenNotUsingDefaultBeforeButWeAreNow();
-            }
-            else {
+            } else {
                 // Not using default before and we are not using default now
                 this.postEventWhenStillNotUsingDefault();
             }
@@ -482,8 +473,7 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
             if (this.previousPartialConnectionTask.isPresent()) {
                 // Switching off usage of preferred connection task and using default
                 this.postEvent(new SwitchFromPartialConnectionTaskToDefaultConnectionEventData(ComTaskEnablementImpl.this, this.previousPartialConnectionTask.get()));
-            }
-            else {
+            } else {
                 // Simply switching on usage of default connection task
                 this.postEvent(new SwitchOnUsingDefaultConnectionEventData(ComTaskEnablementImpl.this));
             }
@@ -500,37 +490,75 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
                                         ComTaskEnablementImpl.this,
                                         this.previousPartialConnectionTask.get(),
                                         this.newPartialConnectionTask.get()));
-                    }
-                    else {
+                    } else {
                         // Still using the same partial connection task, no changes, no event to post
                         return;
                     }
-                }
-                else {
+                } else {
                     // Switching off usage of preferred connection task and using default
                     this.postEvent(new RemovePartialConnectionTaskEventData(ComTaskEnablementImpl.this, this.previousPartialConnectionTask.get()));
                 }
-            }
-            else {
+            } else {
                 if (this.newPartialConnectionTask.isPresent()) {
                     // Starting to use preferred connection task without changes to the default flag
                     this.postEvent(new StartUsingPartialConnectionTaskEventData(ComTaskEnablementImpl.this, this.newPartialConnectionTask.get()));
-                }
-                else {
+                } else {
                     // Still not using the default, no changes, no event to post
                     return;
                 }
             }
         }
 
-        private boolean differentPartialConnectionTasks (PartialConnectionTask previousPartialConnectionTask, PartialConnectionTask newPartialConnectionTask) {
+        private boolean differentPartialConnectionTasks(PartialConnectionTask previousPartialConnectionTask, PartialConnectionTask newPartialConnectionTask) {
             return !is(previousPartialConnectionTask.getId()).equalTo(newPartialConnectionTask.getId());
         }
 
-        private void postEvent (ConnectionStrategyChangeEventData eventData) {
+        private void postEvent(ConnectionStrategyChangeEventData eventData) {
             eventData.publish(getEventService());
         }
 
     }
 
+    @Override
+    public ComTaskEnablement cloneForDeviceConfig(DeviceConfiguration deviceConfiguration) {
+        ComTaskEnablementBuilder builder = deviceConfiguration.enableComTask(getComTask(), getCorrespondingSecuritySetFromOtherDeviceConfig(deviceConfiguration), getCorrespondingProtocolDialectConfigPropertiesFromOtherDeviceConfig(deviceConfiguration));
+        builder.setIgnoreNextExecutionSpecsForInbound(isIgnoreNextExecutionSpecsForInbound());
+        builder.setPriority(getPriority());
+        if(usesDefaultConnectionTask()){
+            builder.useDefaultConnectionTask(usesDefaultConnectionTask());
+        } else {
+            builder.setPartialConnectionTask(getCorrespondingPartialConnectionTaskFromOtherDeviceConfig(deviceConfiguration));
+        }
+        return builder.add();
+    }
+
+    private PartialConnectionTask getCorrespondingPartialConnectionTaskFromOtherDeviceConfig(DeviceConfiguration deviceConfiguration) {
+        PartialConnectionTask correspondingPartialConnectionTask = null;
+        if(getPartialConnectionTask().isPresent()){
+            correspondingPartialConnectionTask = deviceConfiguration.getPartialConnectionTasks().stream().filter(pct ->
+            pct.getName().equals(getPartialConnectionTask().get().getName())).findFirst().orElse(null);
+        }
+        return correspondingPartialConnectionTask;
+    }
+
+    private ProtocolDialectConfigurationProperties getCorrespondingProtocolDialectConfigPropertiesFromOtherDeviceConfig(DeviceConfiguration deviceConfiguration) {
+        ProtocolDialectConfigurationProperties correspondingDialectConfigProperties = null;
+        if (getProtocolDialectConfigurationProperties() != null) {
+            correspondingDialectConfigProperties = deviceConfiguration.getProtocolDialectConfigurationPropertiesList().stream().filter(pdcp ->
+            pdcp.getDeviceProtocolDialectName().equals(getProtocolDialectConfigurationProperties().getDeviceProtocolDialectName())).findFirst().orElse(null);
+        }
+        return correspondingDialectConfigProperties;
+    }
+
+    private SecurityPropertySet getCorrespondingSecuritySetFromOtherDeviceConfig(DeviceConfiguration deviceConfiguration) {
+        SecurityPropertySet correspondingSecurityPropertySet = null;
+        if (getSecurityPropertySet() != null) {
+            correspondingSecurityPropertySet = deviceConfiguration.getSecurityPropertySets().stream().filter(sps ->
+                            sps.getName().equals(getSecurityPropertySet().getName())
+                                    && sps.getEncryptionDeviceAccessLevel().getId() == getSecurityPropertySet().getEncryptionDeviceAccessLevel().getId()
+                                    && sps.getAuthenticationDeviceAccessLevel().getId() == getSecurityPropertySet().getAuthenticationDeviceAccessLevel().getId()
+            ).findFirst().orElse(null);
+        }
+        return correspondingSecurityPropertySet;
+    }
 }

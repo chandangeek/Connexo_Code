@@ -113,10 +113,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PartialOutboundConnectionTaskCrudIT {
@@ -966,5 +963,42 @@ public class PartialOutboundConnectionTaskCrudIT {
         }
     }
 
+    @Test
+    @Transactional
+    public void cloneTest() {
+        PartialScheduledConnectionTaskImpl outboundConnectionTask;
+        DeviceConfiguration deviceConfiguration;
+        DeviceConfiguration clonedDeviceConfig;
+        DeviceType deviceType = deviceConfigurationService.newDeviceType("CloneCreate", deviceProtocolPluggableClass);
+        deviceType.save();
 
+        deviceConfiguration = deviceType.newConfiguration("Original").add();
+        deviceConfiguration.setDirectlyAddressable(true);
+        deviceConfiguration.save();
+        clonedDeviceConfig = deviceType.newConfiguration("Clone").add();
+        clonedDeviceConfig.setDirectlyAddressable(true);
+        clonedDeviceConfig.save();
+
+        outboundConnectionTask = deviceConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.MINIMIZE_CONNECTIONS)
+                .comPortPool(outboundComPortPool)
+                .comWindow(COM_WINDOW)
+                .nextExecutionSpec().temporalExpression(TimeDuration.days(1), NINETY_MINUTES).set()
+                .asDefault(true).build();
+        deviceConfiguration.save();
+
+        PartialConnectionTask clonedPartialConnectionTask = outboundConnectionTask.cloneForDeviceConfig(clonedDeviceConfig);
+
+        PartialScheduledConnectionTaskImpl partialOutboundConnectionTask = (PartialScheduledConnectionTaskImpl) clonedPartialConnectionTask;
+
+        assertThat(partialOutboundConnectionTask.getComPortPool().getId()).isEqualTo(outboundComPortPool.getId());
+        assertThat(partialOutboundConnectionTask.isDefault()).isTrue();
+        assertThat(partialOutboundConnectionTask.getConfiguration().getId()).isEqualTo(clonedDeviceConfig.getId());
+        assertThat(partialOutboundConnectionTask.getConnectionType()).isEqualTo(connectionTypePluggableClass.getConnectionType());
+        assertThat(partialOutboundConnectionTask.getCommunicationWindow()).isEqualTo(COM_WINDOW);
+        assertThat(partialOutboundConnectionTask.getNextExecutionSpecs()).isNotNull();
+        assertThat(partialOutboundConnectionTask.getNextExecutionSpecs().getTemporalExpression()).isEqualTo(new TemporalExpression(TimeDuration.days(1), NINETY_MINUTES));
+        assertThat(partialOutboundConnectionTask.getName()).isEqualTo("MyOutbound");
+        assertThat(partialOutboundConnectionTask.getRescheduleDelay()).isEqualTo(SIXTY_SECONDS);
+        assertThat(partialOutboundConnectionTask.getConnectionStrategy()).isEqualTo(ConnectionStrategy.MINIMIZE_CONNECTIONS);
+    }
 }
