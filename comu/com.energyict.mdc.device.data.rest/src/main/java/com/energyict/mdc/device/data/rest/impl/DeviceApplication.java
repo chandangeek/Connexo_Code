@@ -37,6 +37,7 @@ import com.energyict.mdc.device.data.kpi.rest.DataCollectionKpiInfoFactory;
 import com.energyict.mdc.device.data.kpi.rest.KpiResource;
 import com.energyict.mdc.device.data.rest.DeviceConnectionTaskInfoFactory;
 import com.energyict.mdc.device.data.rest.DeviceInfoFactory;
+import com.energyict.mdc.device.data.rest.DeviceStateAccessFeature;
 import com.energyict.mdc.device.data.rest.SecurityPropertySetInfoFactory;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleStateFactory;
@@ -138,7 +139,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
                 DeviceEstimationResource.class,
                 DeviceHistoryResource.class,
                 DeviceLifeCycleActionResource.class,
-                DeviceApplicationDeviceStateAccessFeature.class
+                DeviceStateAccessFeature.class
         );
     }
 

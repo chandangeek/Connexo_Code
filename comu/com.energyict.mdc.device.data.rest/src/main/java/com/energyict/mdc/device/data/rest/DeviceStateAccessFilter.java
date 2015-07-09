@@ -1,4 +1,4 @@
-package com.energyict.mdc.device.data.rest.impl;
+package com.energyict.mdc.device.data.rest;
 
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
@@ -14,7 +14,6 @@ import javax.ws.rs.core.UriInfo;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;

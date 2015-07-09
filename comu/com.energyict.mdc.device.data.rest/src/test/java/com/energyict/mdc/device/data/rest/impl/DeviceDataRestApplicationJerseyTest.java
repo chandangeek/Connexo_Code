@@ -3,7 +3,6 @@ package com.energyict.mdc.device.data.rest.impl;
 import com.elster.jupiter.cbo.*;
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.estimation.EstimationService;
-import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
@@ -16,10 +15,10 @@ import com.elster.jupiter.yellowfin.groups.YellowfinGroupsService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.imp.DeviceImportService;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
+import com.energyict.mdc.device.data.rest.DeviceStateAccessFeature;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
@@ -39,7 +38,6 @@ import org.mockito.Mock;
 
 import javax.ws.rs.core.Application;
 import java.time.Clock;
-import java.util.Collections;
 import java.util.Currency;
 import java.util.HashSet;
 import java.util.Optional;
@@ -139,7 +137,7 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
             public Set<Class<?>> getClasses() {
                 Set<Class<?>> classes = new HashSet<>(super.getClasses());
                 if (disableDeviceConstraintsBasedOnDeviceState()){
-                    classes.remove(DeviceApplicationDeviceStateAccessFeature.class);
+                    classes.remove(DeviceStateAccessFeature.class);
                 }
                 return classes;
             }

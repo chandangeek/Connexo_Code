@@ -1,4 +1,4 @@
-package com.energyict.mdc.device.data.rest.impl;
+package com.energyict.mdc.device.data.rest;
 
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 

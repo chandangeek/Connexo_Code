@@ -19,6 +19,7 @@ import com.energyict.mdc.device.data.DeviceValidation;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.NumericalRegister;
 import com.energyict.mdc.device.data.exceptions.InvalidLastCheckedException;
+import com.energyict.mdc.device.data.rest.DeviceStatesRestricted;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.google.common.collect.Range;
 

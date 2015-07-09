@@ -5,11 +5,11 @@ import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.estimation.security.Privileges;
 import com.elster.jupiter.rest.util.KorePagedInfoList;
 import com.elster.jupiter.rest.util.ListPager;
-import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceEstimationRuleSetActivation;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.rest.DeviceStatesRestricted;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 
 import javax.annotation.security.RolesAllowed;
@@ -22,11 +22,9 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.core.SecurityContext;
 import java.util.List;
 import java.util.stream.Collectors;
 

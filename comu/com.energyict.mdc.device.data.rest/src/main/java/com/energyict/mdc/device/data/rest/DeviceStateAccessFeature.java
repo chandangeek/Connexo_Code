@@ -1,10 +1,10 @@
-package com.energyict.mdc.device.data.rest.impl;
+package com.energyict.mdc.device.data.rest;
 
 import javax.ws.rs.container.DynamicFeature;
 import javax.ws.rs.container.ResourceInfo;
 import javax.ws.rs.core.FeatureContext;
 
-public class DeviceApplicationDeviceStateAccessFeature implements DynamicFeature {
+public class DeviceStateAccessFeature implements DynamicFeature {
     @Override
     public void configure(ResourceInfo resourceInfo, FeatureContext context) {
         if(resourceInfo.getResourceClass().isAnnotationPresent(DeviceStatesRestricted.class)

@@ -5,9 +5,10 @@ import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.configuration.rest.ProtocolInfo;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.rest.DeviceStatesRestricted;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
-import java.util.Collections;
+
 import java.util.List;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
