@@ -3,7 +3,6 @@ package com.elster.jupiter.metering.imports.impl;
 import com.elster.jupiter.cbo.PhaseCode;
 import com.elster.jupiter.fileimport.FileImportOccurrence;
 import com.elster.jupiter.metering.ServiceKind;
-import com.elster.jupiter.metering.imports.UsagePointParser;
 import com.elster.jupiter.nls.Thesaurus;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
@@ -12,16 +11,43 @@ import org.osgi.service.component.annotations.Component;
 
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
 
 @Component(immediate = true, service = UsagePointParser.class)
 public class UsagePointParserCSVImpl implements UsagePointParser {
-    private static final String CSV_EXTENSION = ".CSV";
 
     private static final char MARKER = '#';
-    private static final char DELIMITER = ',';
     private static final String EMPTY = "";
+    private static final char DELIMITER = ',';
+    private static final String CSV_EXTENSION = ".CSV";
+
+    public static final String MRID = "mRID";
+    public static final String SERVICEKIND = "serviceKind";
+    public static final String SERVICELOCATIONID = "serviceLocationID";
+    public static final String NAME = "name";
+    public static final String ALIASNAME = "aliasName";
+    public static final String DESCRIPTION = "description";
+    public static final String OUTAGEREGION = "outageregion";
+    public static final String READCYCLE = "readcycle";
+    public static final String READROUTE = "readroute";
+    public static final String SERVICEPRIORITY = "servicePriority";
+    public static final String ALLOWUPDATE = "allowUpdate";
+    public static final String GROUNDED = "grounded";
+    public static final String PHASECODE = "phaseCode";
+    public static final String RATEDPOWERVALUE = "ratedPowerValue";
+    public static final String RATEDPOWERMULTIPLIER = "ratedPowerMultiplier";
+    public static final String RATEDPOWERUNIT = "ratedPowerUnit";
+    public static final String RATEDCURRENTVALUE = "ratedCurrentValue";
+    public static final String RATEDCURRENTMULTIPLIER = "ratedCurrentMultiplier";
+    public static final String RATEDCURRENTUNIT = "ratedCurrentUnit";
+    public static final String ESTIMATEDLOADVALUE = "estimatedLoadValue";
+    public static final String ESTIMATEDLOADMULTIPLIER = "estimatedLoadMultiplier";
+    public static final String ESTIMATEDLOADUNIT = "estimatedLoadUnit";
+    public static final String NOMINALVOLTAGEVALUE = "nominalVoltageValue";
+    public static final String NOMINALVOLTAGEMULTIPLIER = "nominalVoltageMultiplier";
+    public static final String NOMINALVOLTAGEUNIT = "nominalVoltageUnit";
 
     public UsagePointParserCSVImpl() {
     }
@@ -43,8 +69,8 @@ public class UsagePointParserCSVImpl implements UsagePointParser {
     }
 
     @Override
-    public String getParserFormatExtensionName() {
-        return CSV_EXTENSION;
+    public List<String> getParserFormatExtensionName() {
+        return Arrays.asList(CSV_EXTENSION);
     }
 
     private String processComment(String record) {
@@ -80,16 +106,16 @@ public class UsagePointParserCSVImpl implements UsagePointParser {
         usagePointFileInfo.setGrounded(csvRecord.isMapped(GROUNDED) ? csvRecord.get(GROUNDED) : EMPTY);
         usagePointFileInfo.setPhaseCode(csvRecord.isMapped(PHASECODE) ? processEnum(processComment(csvRecord.get(PHASECODE)).toUpperCase(), PhaseCode.class) : EMPTY);
         usagePointFileInfo.setRatedPowerValue(csvRecord.isMapped(RATEDPOWERVALUE) ? processComment(csvRecord.get(RATEDPOWERVALUE)) : EMPTY);
-        usagePointFileInfo.setRatedPowerMultiplier(csvRecord.isMapped(RATEDPOWERMULTIPLIER) ? processInt(csvRecord.get(RATEDPOWERMULTIPLIER)) : 0);
+        usagePointFileInfo.setRatedPowerMultiplier(csvRecord.isMapped(RATEDPOWERMULTIPLIER) ? processInt(processComment(csvRecord.get(RATEDPOWERMULTIPLIER))) : 0);
         usagePointFileInfo.setRatedPowerUnit(csvRecord.isMapped(RATEDPOWERUNIT) ? processComment(csvRecord.get(RATEDPOWERUNIT)) : EMPTY);
         usagePointFileInfo.setRatedCurrentValue(csvRecord.isMapped(RATEDCURRENTVALUE) ? processComment(csvRecord.get(RATEDCURRENTVALUE)) : EMPTY);
-        usagePointFileInfo.setRatedCurrentMultiplier(csvRecord.isMapped(RATEDCURRENTMULTIPLIER) ? processInt(csvRecord.get(RATEDCURRENTMULTIPLIER)) : 0);
+        usagePointFileInfo.setRatedCurrentMultiplier(csvRecord.isMapped(RATEDCURRENTMULTIPLIER) ? processInt(processComment(csvRecord.get(RATEDCURRENTMULTIPLIER))) : 0);
         usagePointFileInfo.setRatedCurrentUnit(csvRecord.isMapped(RATEDCURRENTUNIT) ? processComment(csvRecord.get(RATEDCURRENTUNIT)) : EMPTY);
         usagePointFileInfo.setEstimatedLoadValue(csvRecord.isMapped(ESTIMATEDLOADVALUE) ? processComment(csvRecord.get(ESTIMATEDLOADVALUE)) : EMPTY);
-        usagePointFileInfo.setEstimatedLoadMultiplier(csvRecord.isMapped(ESTIMATEDLOADMULTIPLIER) ? processInt(csvRecord.get(ESTIMATEDLOADMULTIPLIER)) : 0);
+        usagePointFileInfo.setEstimatedLoadMultiplier(csvRecord.isMapped(ESTIMATEDLOADMULTIPLIER) ? processInt(processComment(csvRecord.get(ESTIMATEDLOADMULTIPLIER))) : 0);
         usagePointFileInfo.setEstimatedLoadUnit(csvRecord.isMapped(ESTIMATEDLOADUNIT) ? processComment(csvRecord.get(ESTIMATEDLOADUNIT)) : EMPTY);
         usagePointFileInfo.setNominalVoltageValue(csvRecord.isMapped(NOMINALVOLTAGEVALUE) ? processComment(csvRecord.get(NOMINALVOLTAGEVALUE)) : EMPTY);
-        usagePointFileInfo.setNominalVoltageMultiplier(csvRecord.isMapped(NOMINALVOLTAGEMULTIPLIER) ? processInt(csvRecord.get(NOMINALVOLTAGEMULTIPLIER)) : 0);
+        usagePointFileInfo.setNominalVoltageMultiplier(csvRecord.isMapped(NOMINALVOLTAGEMULTIPLIER) ? processInt(processComment(csvRecord.get(NOMINALVOLTAGEMULTIPLIER))) : 0);
         usagePointFileInfo.setNominalVoltageUnit(csvRecord.isMapped(NOMINALVOLTAGEUNIT) ? processComment(csvRecord.get(NOMINALVOLTAGEUNIT)) : EMPTY);
         return usagePointFileInfo;
     }

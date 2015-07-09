@@ -1,0 +1,2 @@
+mRID,serviceKind,serviceLocationID,name,aliasName,description,outageregion,readcycle,readroute,servicePriority,grounded,phaseCode,nominalVoltageValue,nominalVoltageMultiplier,nominalVoltageUnit,estimatedLoadValue,estimatedLoadMultiplier,estimatedLoadUnit,ratedCurrentValue,ratedCurrentMultiplier,ratedCurrentUnit,ratedPowerValue,ratedPowerMultiplier,ratedPowerUnit,allowUpdate
+less_demo5,electricity,1,name,aliasName,description,outageregion,readcycle,readroute,servicePriority,true,ABCN,26.34,3,V,4.6,3,W,2.36,6,A,1.24,9,W,#

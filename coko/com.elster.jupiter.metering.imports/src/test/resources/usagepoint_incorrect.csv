@@ -1,0 +1,2 @@
+mRID,serviceKind,serviceLocationID,name,aliasName,description,outageregion,readcycle,readroute,servicePriority,grounded,phaseCode,nominalVoltageValue,nominalVoltageMultiplier,nominalVoltageUnit,estimatedLoadValue,estimatedLoadMultiplier,estimatedLoadUnit,ratedCurrentValue,ratedCurrentMultiplier,ratedCurrentUnit,ratedPowerValue,ratedPowerMultiplier,ratedPowerUnit,allowUpdate
+,,,,,,,,,,,,,,,,,,,#asd,,,,,,

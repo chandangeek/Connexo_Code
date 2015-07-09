@@ -2,7 +2,6 @@ package com.elster.jupiter.metering.imports.impl;
 
 import com.elster.jupiter.fileimport.*;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.imports.UsagePointParser;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
@@ -48,16 +47,18 @@ public class UsagePointFileImporterFactory extends FileImporterAbstractFactory {
 
     @Reference(cardinality = ReferenceCardinality.AT_LEAST_ONE, unbind = "unbind", policy = ReferencePolicy.DYNAMIC)
     protected void bind(UsagePointParser usagePointParser) {
-        parsers.put(usagePointParser.getParserFormatExtensionName(), usagePointParser);
+        for (String extensionName : usagePointParser.getParserFormatExtensionName()) {
+            parsers.put(extensionName, usagePointParser);
+        }
     }
 
     protected void unbind(UsagePointParser usagePointParser) {
-        parsers.remove(usagePointParser.getParserFormatExtensionName());
+        usagePointParser.getParserFormatExtensionName().stream().filter(extensionName -> parsers.get(extensionName).equals(usagePointParser)).forEach(parsers::remove);
     }
 
     @Override
     public FileImporter createImporter(Map<String, Object> properties) {
-        FileImporter fileImporter = new UsagePointFileImporter(getThesaurus(), getMeteringService(), getClock(), getParsers());
+        FileImporter fileImporter = new UsagePointFileImporter(getThesaurus(), getMeteringService(), getParsers(), getDataProcessor());
         return fileImporter;
     }
 
@@ -133,5 +134,9 @@ public class UsagePointFileImporterFactory extends FileImporterAbstractFactory {
 
     public Map<String, UsagePointParser> getParsers() {
         return parsers;
+    }
+
+    public UsagePointProcessor getDataProcessor() {
+        return new UsagePointProcessor(getClock(), getThesaurus(), getMeteringService());
     }
 }
