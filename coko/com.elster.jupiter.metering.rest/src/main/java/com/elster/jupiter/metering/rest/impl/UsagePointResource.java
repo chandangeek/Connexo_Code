@@ -95,7 +95,7 @@ public class UsagePointResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public UsagePointInfos updateUsagePoint(@PathParam("mrid") String mRid, UsagePointInfo info, @Context SecurityContext securityContext) {
         info.mRID = mRid;
-        transactionService.execute(new UpdateUsagePointTransaction(info, securityContext.getUserPrincipal(), meteringService, clock));
+        transactionService.execute(new UpdateUsagePointTransaction(info, securityContext, meteringService, clock));
         return getUsagePoint(info.mRID, securityContext);
     }
 
@@ -231,7 +231,7 @@ public class UsagePointResource {
     private UsagePoint fetchUsagePoint(long id, SecurityContext securityContext) {
         Optional<UsagePoint> found = meteringService.findUsagePoint(id);
         UsagePoint usagePoint = found.orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-        if (!usagePoint.hasAccountability((User) securityContext.getUserPrincipal()) && !((User) securityContext.getUserPrincipal()).hasPrivilege(Privileges.BROWSE_ANY)) {
+        if (!usagePoint.hasAccountability((User) securityContext.getUserPrincipal()) && !((User) securityContext.getUserPrincipal()).hasPrivilege("MDC",Privileges.BROWSE_ANY)) {
             throw new WebApplicationException(Response.Status.FORBIDDEN);
         }
         return usagePoint;
@@ -240,7 +240,7 @@ public class UsagePointResource {
     private UsagePoint fetchUsagePoint(String mRid, SecurityContext securityContext) {
         Optional<UsagePoint> found = meteringService.findUsagePoint(mRid);
         UsagePoint usagePoint = found.orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-        if (!usagePoint.hasAccountability((User) securityContext.getUserPrincipal()) && !((User) securityContext.getUserPrincipal()).hasPrivilege(Privileges.BROWSE_ANY)) {
+        if (!usagePoint.hasAccountability((User) securityContext.getUserPrincipal()) && !((User) securityContext.getUserPrincipal()).hasPrivilege("MDC",Privileges.BROWSE_ANY)) {
             throw new WebApplicationException(Response.Status.FORBIDDEN);
         }
         return usagePoint;
