@@ -18,10 +18,10 @@ import java.util.List;
 @Component(name = "com.elster.jupiter.metering.imports.impl.UsagePointFileImporterMessageHandler",
         property = {"subscriber=" + UsagePointFileImporterMessageHandler.SUBSCRIBER_NAME,
                 "destination=" + UsagePointFileImporterMessageHandler.DESTINATION_NAME,
-                "name=" + UsagePointFileImporterMessageHandler.NAME},
+                "name=" + UsagePointFileImporterMessageHandler.APP_NAME},
         service = {MessageHandlerFactory.class, InstallService.class}, immediate = true)
 public class UsagePointFileImporterMessageHandler implements MessageHandlerFactory, InstallService {
-    public static final String NAME = "MTI";
+    public static final String APP_NAME = "MTI";
     public static final String DESTINATION_NAME = "UsagePointFileImport";
     public static final String SUBSCRIBER_NAME = "UsagePointFileImport";
     private volatile FileImportService fileImportService;
@@ -51,17 +51,15 @@ public class UsagePointFileImporterMessageHandler implements MessageHandlerFacto
     @Override
     public void install() {
         if (!messageService.getDestinationSpec(DESTINATION_NAME).isPresent()) {
-            transactionService.builder()
-                    .principal(() -> "Jupiter Installer")
-                    .run(() -> ExceptionCatcher.executing(
-                            () -> {
-                                QueueTableSpec queueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
-                                DestinationSpec destinationSpec = queueTableSpec.createDestinationSpec(DESTINATION_NAME, 60);
-                                destinationSpec.save();
-                                destinationSpec.activate();
-                                destinationSpec.subscribe(SUBSCRIBER_NAME);
-                            }
-                    ).andHandleExceptionsWith(Throwable::printStackTrace).execute());
+            ExceptionCatcher.executing(
+                    () -> {
+                        QueueTableSpec queueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
+                        DestinationSpec destinationSpec = queueTableSpec.createDestinationSpec(DESTINATION_NAME, 60);
+                        destinationSpec.save();
+                        destinationSpec.activate();
+                        destinationSpec.subscribe(SUBSCRIBER_NAME);
+                    }
+            ).andHandleExceptionsWith(Throwable::printStackTrace).execute();
         }
     }
 
