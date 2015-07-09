@@ -115,6 +115,7 @@ public class InsightAppServiceImpl implements InsightAppService, InstallService,
 
 	@Override
 	public String getComponentName() {
+		//TODO: Change to COMPONENT_NAME after pulling the extjs stuff into a new bundle, etc.
 		return "INS";
 	}
 

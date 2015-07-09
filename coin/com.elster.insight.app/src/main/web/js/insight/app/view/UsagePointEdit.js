@@ -60,6 +60,7 @@ Ext.define('InsightApp.view.UsagePointEdit', {
                     name: 'mRID',
                     fieldLabel: Uni.I18n.translate('usagePoint.formFieldLabel.mRID', 'INS', 'mRID'),
                     required: true,
+                    allowBlank: false,
                     maxLength: 75,
                     width: 600
                 },
