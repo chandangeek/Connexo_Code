@@ -81,7 +81,7 @@ import java.util.logging.Logger;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(name = "com.elster.jupiter.issue",
-    service = {IssueService.class, InstallService.class, TranslationKeyProvider.class},
+    service = {IssueService.class, InstallService.class, TranslationKeyProvider.class, PrivilegesProvider.class},
     property = {"name=" + IssueService.COMPONENT_NAME,
                 "osgi.command.scope=issue",
                 "osgi.command.function=rebuildAssignmentRules",
