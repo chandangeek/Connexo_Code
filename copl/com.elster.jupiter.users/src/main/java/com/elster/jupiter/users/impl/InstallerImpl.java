@@ -22,7 +22,7 @@ public class InstallerImpl {
         this.userService = userService;
     }
 
-    public void install(UserServiceImpl userService, String defaultDomain) {
+    public void install(String defaultDomain) {
         try{
 		    dataModel.install(true, true);
         }
@@ -31,9 +31,12 @@ public class InstallerImpl {
         }
 
         this.defaultDomain = defaultDomain;
+	}
+
+    public void addDefaults(){
         createMasterData();
         createUserPreferences(userService.getUserPreferencesService());
-	}
+    }
 	
 	private void createMasterData() {
         try{

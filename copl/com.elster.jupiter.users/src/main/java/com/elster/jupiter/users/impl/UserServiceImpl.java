@@ -332,8 +332,10 @@ public class UserServiceImpl implements UserService, InstallService, Translation
     }
 
     public void install() {
-        new InstallerImpl(dataModel, this).install(this, getRealm());
+        InstallerImpl installer = new InstallerImpl(dataModel, this);
+        installer.install(getRealm());
         installPrivileges();
+        installer.addDefaults();
     }
     
     @Override
