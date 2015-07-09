@@ -37,8 +37,8 @@ class InstallerImpl {
 
         ExceptionCatcher.executing(
                 this::installDataModel,
-                this::createTranslations,
-                this::createPrivileges
+                this::createTranslations
+                //this::createPrivileges
         ).andHandleExceptionsWith(Throwable::printStackTrace)
                 .execute();
 
@@ -49,13 +49,15 @@ class InstallerImpl {
         dataModel.install(true, true);
     }
 
+    /*
     private void createPrivileges() {
         userService.createResourceWithPrivileges("SYS", "fileImport.importServices", "fileImport.importServices.description", new String[]
              {Privileges.ADMINISTRATE_IMPORT_SERVICES, Privileges.VIEW_IMPORT_SERVICES});
-        userService.createResourceWithPrivileges("MDC", "fileImport.importServicesMdc", "fileImport.importServices.description", new String[]
+        userService.
+                createResourceWithPrivileges("MDC", "fileImport.importServicesMdc", "fileImport.importServices.description", new String[]
                 {Privileges.VIEW_MDC_IMPORT_SERVICES});
     }
-
+    */
 
     private void createTranslations() {
         List<Translation> translations = new ArrayList<>(MessageSeeds.values().length);
