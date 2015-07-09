@@ -21,6 +21,7 @@ Ext.define('InsightApp.view.UsagePointEdit', {
             itemId: 'usagePointEditForm',
             ui: 'large',
             width: '100%',
+            title: Uni.I18n.translate('usagePoint.add.title', 'INS', 'Add usage point'),
             defaults: {
                 labelWidth: 250,
                 validateOnChange: false,
