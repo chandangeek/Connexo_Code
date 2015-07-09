@@ -2,11 +2,6 @@ package com.energyict.mdc.device.config.impl;
 
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
-
-import com.elster.jupiter.bpm.BpmService;
-import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
-import com.elster.jupiter.tasks.impl.TaskModule;
-import com.elster.jupiter.time.impl.TimeModule;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
@@ -28,6 +23,7 @@ import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
+
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
@@ -44,6 +40,7 @@ import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.impl.NlsModule;
@@ -55,6 +52,8 @@ import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.tasks.impl.TaskModule;
+import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
@@ -68,8 +67,6 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
-import com.google.inject.Provider;
-
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
@@ -79,8 +76,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-
-import org.mockito.Mock;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
@@ -99,7 +94,6 @@ import static org.mockito.Mockito.withSettings;
 public class InMemoryPersistence {
 
     private BundleContext bundleContext;
-    private BpmService bpmService;
     private Principal principal;
     private EventAdmin eventAdmin;
     private TransactionService transactionService;
@@ -113,6 +107,7 @@ public class InMemoryPersistence {
     private Injector injector;
     private ValidationService validationService;
     private EstimationService estimationService;
+    private PluggableService pluggableService;
 
     private boolean mockProtocolPluggableService;
     private ProtocolPluggableService protocolPluggableService;
@@ -162,7 +157,7 @@ public class InMemoryPersistence {
             this.validationService = injector.getInstance(ValidationService.class);
             this.estimationService = injector.getInstance(EstimationService.class);
             this.propertySpecService = injector.getInstance(PropertySpecService.class);
-            this.injector.getInstance(PluggableService.class);
+            this.pluggableService = this.injector.getInstance(PluggableService.class);
             if (!mockedProtocolPluggableService) {
                 this.protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
                 this.protocolPluggableService.addLicensedProtocolService(this.licensedProtocolService);
@@ -235,7 +230,6 @@ public class InMemoryPersistence {
     }
 
     private void initializeMocks(String testName, boolean mockedProtocolPluggableService) {
-        this.bpmService = mock(BpmService.class);
         this.mockProtocolPluggableService = mockedProtocolPluggableService;
         this.bundleContext = mock(BundleContext.class);
         this.eventAdmin = mock(EventAdmin.class);
@@ -291,6 +285,14 @@ public class InMemoryPersistence {
 
     public PropertySpecService getPropertySpecService() {
         return propertySpecService;
+    }
+
+    public PluggableService getPluggableService(){
+        return pluggableService;
+    }
+
+    public LicensedProtocolService getLicensedProtocolService(){
+        return licensedProtocolService;
     }
 
     public ProtocolPluggableService getProtocolPluggableService() {
@@ -353,7 +355,6 @@ public class InMemoryPersistence {
     private class MockModule extends AbstractModule {
         @Override
         protected void configure() {
-            bind(BpmService.class).toInstance(bpmService);
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(BundleContext.class).toInstance(bundleContext);
             bind(LicenseService.class).toInstance(licenseService);
