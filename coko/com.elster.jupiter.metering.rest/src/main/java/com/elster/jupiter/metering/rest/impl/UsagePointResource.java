@@ -41,7 +41,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-
 @Path("/usagepoints")
 public class UsagePointResource {
 
@@ -60,7 +59,7 @@ public class UsagePointResource {
 
     @GET
     @RolesAllowed({Privileges.BROWSE_ANY, Privileges.BROWSE_OWN})
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public UsagePointInfos getUsagePoints(@Context UriInfo uriInfo, @Context SecurityContext securityContext) {
         QueryParameters params = QueryParameters.wrap(uriInfo.getQueryParameters());
         List<UsagePoint> list = queryUsagePoints(maySeeAny(securityContext), params);
@@ -93,17 +92,17 @@ public class UsagePointResource {
     @PUT
     @RolesAllowed({Privileges.ADMIN_OWN, Privileges.ADMIN_ANY})
     @Path("/{mrid}")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public UsagePointInfos updateUsagePoint(@PathParam("mrid") String mRid, UsagePointInfo info, @Context SecurityContext securityContext) {
         info.mRID = mRid;
-        transactionService.execute(new UpdateUsagePointTransaction(info, securityContext, meteringService, clock));
+        transactionService.execute(new UpdateUsagePointTransaction(info, securityContext.getUserPrincipal(), meteringService, clock));
         return getUsagePoint(info.mRID, securityContext);
     }
 
     @GET
     @RolesAllowed({Privileges.BROWSE_ANY, Privileges.BROWSE_OWN})
     @Path("/{mrid}/")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public UsagePointInfos getUsagePoint(@PathParam("mrid") String mRid, @Context SecurityContext securityContext) {
         UsagePoint usagePoint = fetchUsagePoint(mRid, securityContext);
         UsagePointInfos result = new UsagePointInfos(usagePoint, clock);
@@ -114,7 +113,7 @@ public class UsagePointResource {
     @POST
     @RolesAllowed({Privileges.ADMIN_ANY})
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public UsagePointInfos createUsagePoint(UsagePointInfo info) {
         UsagePointInfos result = new UsagePointInfos();
         result.add(transactionService.execute(new CreateUsagePointTransaction(info, meteringService)), clock);
@@ -124,7 +123,7 @@ public class UsagePointResource {
     @GET
     @RolesAllowed({Privileges.BROWSE_ANY, Privileges.BROWSE_OWN})
     @Path("/{mrid}/meteractivations")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public MeterActivationInfos getMeterActivations(@PathParam("mrid") String mRid, @Context SecurityContext securityContext) {
         UsagePoint usagePoint = fetchUsagePoint(mRid, securityContext);
         return new MeterActivationInfos(usagePoint.getMeterActivations());
@@ -133,7 +132,7 @@ public class UsagePointResource {
     @GET
     @RolesAllowed({Privileges.BROWSE_ANY, Privileges.BROWSE_OWN})
     @Path("/{id}/meteractivations/{activationId}/channels")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public ChannelInfos getChannels(@PathParam("id") long id, @PathParam("activationId") long activationId, @Context SecurityContext securityContext) {
         UsagePoint usagePoint = fetchUsagePoint(id, securityContext);
         MeterActivation meterActivation = fetchMeterActivation(usagePoint, activationId);
@@ -152,7 +151,7 @@ public class UsagePointResource {
     @GET
     @RolesAllowed({Privileges.BROWSE_ANY, Privileges.BROWSE_OWN})
     @Path("/{id}/meteractivations/{activationId}/channels/{channelId}/intervalreadings")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public ReadingInfos getIntervalReadings(@PathParam("id") long id, @PathParam("activationId") long activationId, @PathParam("channelId") long channelId, @QueryParam("from") long from, @QueryParam("to") long to, @Context SecurityContext securityContext) {
         if (from == 0 || to == 0) {
             throw new WebApplicationException(Response.Status.BAD_REQUEST);
@@ -176,7 +175,7 @@ public class UsagePointResource {
     @GET
     @RolesAllowed({Privileges.BROWSE_ANY, Privileges.BROWSE_OWN})
     @Path("/{id}/readingtypes")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public ReadingTypeInfos getReadingTypes(@PathParam("id") long id, @Context SecurityContext securityContext) {
         UsagePoint usagePoint = fetchUsagePoint(id, securityContext);
         return new ReadingTypeInfos(collectReadingTypes(usagePoint));
@@ -184,7 +183,7 @@ public class UsagePointResource {
 
     @GET
     @Path("/readingtypes")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public ReadingTypeInfos getReadingTypes(@Context UriInfo uriInfo) {
         return new ReadingTypeInfos(meteringService.getAvailableReadingTypes());
     }
@@ -192,7 +191,7 @@ public class UsagePointResource {
     @GET
     @RolesAllowed({Privileges.BROWSE_ANY, Privileges.BROWSE_OWN})
     @Path("/{id}/readingtypes/{mrid}/readings")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public ReadingInfos getReadingTypeReadings(@PathParam("id") long id, @PathParam("mrid") String mRID, @QueryParam("from") long from, @QueryParam("to") long to, @Context SecurityContext securityContext) {
         if (from == 0 || to == 0) {
             throw new WebApplicationException(Response.Status.BAD_REQUEST);
@@ -231,12 +230,8 @@ public class UsagePointResource {
 
     private UsagePoint fetchUsagePoint(long id, SecurityContext securityContext) {
         Optional<UsagePoint> found = meteringService.findUsagePoint(id);
-        if (!found.isPresent()) {
-            throw new WebApplicationException(Response.Status.NOT_FOUND);
-        }
-        UsagePoint usagePoint = found.get();
-        if (!usagePoint.hasAccountability((User) securityContext.getUserPrincipal())
-                && !securityContext.isUserInRole(Privileges.BROWSE_ANY)) {
+        UsagePoint usagePoint = found.orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        if (!usagePoint.hasAccountability((User) securityContext.getUserPrincipal()) && !((User) securityContext.getUserPrincipal()).hasPrivilege(Privileges.BROWSE_ANY)) {
             throw new WebApplicationException(Response.Status.FORBIDDEN);
         }
         return usagePoint;
@@ -244,12 +239,8 @@ public class UsagePointResource {
 
     private UsagePoint fetchUsagePoint(String mRid, SecurityContext securityContext) {
         Optional<UsagePoint> found = meteringService.findUsagePoint(mRid);
-        if (!found.isPresent()) {
-            throw new WebApplicationException(Response.Status.NOT_FOUND);
-        }
-        UsagePoint usagePoint = found.get();
-        if (!usagePoint.hasAccountability((User) securityContext.getUserPrincipal()) &&
-                !securityContext.isUserInRole(Privileges.BROWSE_ANY)) {
+        UsagePoint usagePoint = found.orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        if (!usagePoint.hasAccountability((User) securityContext.getUserPrincipal()) && !((User) securityContext.getUserPrincipal()).hasPrivilege(Privileges.BROWSE_ANY)) {
             throw new WebApplicationException(Response.Status.FORBIDDEN);
         }
         return usagePoint;
