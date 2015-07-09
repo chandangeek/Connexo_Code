@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.lifecycle.impl.micro.actions;
 
+import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceEstimation;
 import com.energyict.mdc.device.data.DeviceValidation;
@@ -22,6 +24,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import com.google.common.collect.Range;
 import org.junit.*;
 import org.junit.runner.*;
 import org.mockito.Answers;
@@ -29,12 +32,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests the {@link EnableValidation} component.
@@ -78,16 +76,19 @@ public class ForceValidationAndEstimationTest {
                 .newPropertySpecBuilder(any(ValueFactory.class));
     }
 
-    @Test(expected = ForceValidationAndEstimation.ForceValidationAndEstimationException.class)
+    @Test
     public void executeForceValidationAndEstimationForDeviceForWhichValidationIsNotSet(){
         ForceValidationAndEstimation forceValidationAndEstimation = this.getTestInstance();
         DeviceValidation deviceValidation = mock(DeviceValidation.class);
         when(deviceValidation.isValidationActive()).thenReturn(false);
         when(this.device.forValidation()).thenReturn(deviceValidation);
         forceValidationAndEstimation.execute(this.device, Instant.now(), Collections.emptyList());
+
+        verify(validationService, never()).validate(any(MeterActivation.class));
+        verify(estimationService, never()).estimate(any(MeterActivation.class), any(Range.class));
     }
 
-    @Test(expected = ForceValidationAndEstimation.ForceValidationAndEstimationException.class)
+    @Test
     public void executeForceValidationAndEstimationForDeviceForWhichEstimationIsNotSet(){
         ForceValidationAndEstimation forceValidationAndEstimation = this.getTestInstance();
         DeviceValidation deviceValidation = mock(DeviceValidation.class);
@@ -97,6 +98,9 @@ public class ForceValidationAndEstimationTest {
         when(deviceEstimation.isEstimationActive()).thenReturn(false);
         when(this.device.forEstimation()).thenReturn(deviceEstimation);
         forceValidationAndEstimation.execute(this.device, Instant.now(), Collections.emptyList());
+
+        verify(validationService, never()).validate(any(MeterActivation.class));
+        verify(estimationService, never()).estimate(any(MeterActivation.class), any(Range.class));
     }
 
     @Test
@@ -142,7 +146,6 @@ public class ForceValidationAndEstimationTest {
         Instant now = Instant.ofEpochSecond(97L);
 
         when(validationService.getEvaluator()).thenReturn(validationEvaluator);
-        when(validationEvaluator.isAllDataValidated(any(MeterActivation.class))).thenReturn(false);
 
         LoadProfile loadProfile1 = mock(LoadProfile.class);
         LoadProfile.LoadProfileUpdater updater1 = mock(LoadProfile.LoadProfileUpdater.class);
@@ -162,6 +165,10 @@ public class ForceValidationAndEstimationTest {
         DeviceEstimation deviceEstimation = mock(DeviceEstimation.class);
         when(deviceEstimation.isEstimationActive()).thenReturn(true);
         MeterActivation meterActivation = mock(MeterActivation.class);
+        Channel channel = mock(Channel.class);
+        when(meterActivation.getChannels()).thenReturn(Collections.singletonList(channel));
+        ReadingQualityRecord suspect = mock(ReadingQualityRecord.class);
+        when(channel.findActualReadingQuality(any(), any())).thenReturn(Collections.singletonList(suspect));
         when(this.device.getLoadProfiles()).thenReturn(Arrays.asList(loadProfile1, loadProfile2));
         when(this.device.forValidation()).thenReturn(deviceValidation);
         when(this.device.forEstimation()).thenReturn(deviceEstimation);

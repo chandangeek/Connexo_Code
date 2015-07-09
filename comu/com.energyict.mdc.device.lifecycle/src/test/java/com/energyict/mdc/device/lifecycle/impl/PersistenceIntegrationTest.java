@@ -1,5 +1,8 @@
 package com.energyict.mdc.device.lifecycle.impl;
 
+import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.issue.share.entity.Entity;
+import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
@@ -14,12 +17,15 @@ import com.elster.jupiter.transaction.TransactionService;
 
 import java.sql.SQLException;
 import java.time.Instant;
+import java.util.Optional;
 
 import org.junit.*;
 import org.junit.rules.*;
 import org.junit.runner.*;
+import org.mockito.Matchers;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
@@ -77,6 +83,10 @@ public abstract class PersistenceIntegrationTest {
         DeviceConfigurationService service = inMemoryPersistence.getDeviceConfigurationService();
         deviceType = service.findDeviceType(deviceType.getId()).get();
         deviceConfiguration = service.findDeviceConfiguration(deviceConfiguration.getId()).get();
+        IssueStatus wontFix = mock(IssueStatus.class);
+        when(inMemoryPersistence.getIssueService().findStatus(IssueStatus.WONT_FIX)).thenReturn(Optional.of(wontFix));
+        Query<Entity> query = mock(Query.class);
+        when(inMemoryPersistence.getIssueService().query(Matchers.<Class<Entity>>any())).thenReturn(query);
     }
 
     protected Device createSimpleDeviceWithName(String name, String mRID){

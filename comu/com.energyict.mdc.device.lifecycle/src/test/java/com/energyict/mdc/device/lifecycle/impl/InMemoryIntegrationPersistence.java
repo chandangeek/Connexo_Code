@@ -110,6 +110,7 @@ public class InMemoryIntegrationPersistence {
     private PropertySpecService propertySpecService;
     private LicenseService licenseService;
     private Injector injector;
+    private IssueService issueService;
 
     public InMemoryIntegrationPersistence() {
         super();
@@ -209,6 +210,7 @@ public class InMemoryIntegrationPersistence {
         when(this.principal.hasPrivilege(any(Privilege.class))).thenReturn(true);
         this.licenseService = mock(LicenseService.class);
         when(this.licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.<License>empty());
+        this.issueService = mock(IssueService.class);
     }
 
     public BundleContext getBundleContext() {
@@ -263,6 +265,10 @@ public class InMemoryIntegrationPersistence {
         return this.injector.getInstance(serviceClass);
     }
 
+    public IssueService getIssueService() {
+        return issueService;
+    }
+
     private class MockModule extends AbstractModule {
         @Override
         protected void configure() {
@@ -274,7 +280,7 @@ public class InMemoryIntegrationPersistence {
             bind(LicenseService.class).toInstance(licenseService);
             bind(LogService.class).toInstance(mock(LogService.class));
             bind(CronExpressionParser.class).toInstance(mock(CronExpressionParser.class, RETURNS_DEEP_STUBS));
-            bind(IssueService.class).toInstance(mock(IssueService.class, RETURNS_DEEP_STUBS));
+            bind(IssueService.class).toInstance(issueService);
             bind(FileSystem.class).toInstance(FileSystems.getDefault());
         }
     }
