@@ -20,33 +20,39 @@ Ext.define('Dxp.view.tasks.AddScheduleGrid', {
         mode: 'SINGLE'
     },
     columns: {
+        defaults: {
+            flex: 1,
+            renderer: function (value) {
+                return Uni.DateTime.formatDateTimeShort(new Date(value));
+            }
+        },
         items: [
             {
                 itemId: 'schedule',
                 header: Uni.I18n.translate('general.schedule', 'DES', 'Schedule'),
-                dataIndex: 'schedule',
-                flex: 1,
-                renderer: function (value) {
-                    return Uni.DateTime.formatDateTimeShort(new Date(value));
-                }
+                dataIndex: 'schedule'
             },
             {
                 itemId: 'startPeriod',
                 header: Uni.I18n.translate('general.startExportPeriod', 'DES', 'Start export period'),
-                dataIndex: 'start',
-                flex: 1,
-                renderer: function (value) {
-                    return Uni.DateTime.formatDateTimeShort(new Date(value));
-                }
+                dataIndex: 'start'
             },
             {
                 itemId: 'endPeriod',
                 header: Uni.I18n.translate('general.endExportPeriod', 'DES', 'End export period'),
-                dataIndex: 'end',
-                flex: 1,
-                renderer: function (value) {
-                    return Uni.DateTime.formatDateTimeShort(new Date(value));
-                }
+                dataIndex: 'end'
+            },
+            {
+                itemId: 'startUpdatePeriod',
+                header: Uni.I18n.translate('general.startUpdatePeriod', 'DES', 'Start update period'),
+                dataIndex: 'updateStart',
+                hidden: true
+            },
+            {
+                itemId: 'endUpdatePeriod',
+                header: Uni.I18n.translate('general.endUpdatePeriod', 'DES', 'End update period'),
+                dataIndex: 'updateEnd',
+                hidden: true
             }
         ]
     }

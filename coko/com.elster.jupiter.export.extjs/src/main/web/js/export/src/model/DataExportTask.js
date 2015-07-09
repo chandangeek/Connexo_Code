@@ -7,7 +7,7 @@ Ext.define('Dxp.model.DataExportTask', {
         'Dxp.model.Destination'
     ],
     fields: [
-        'id', 'name', 'dataProcessor', 'dataSelector', 'standardDataSelector', 'schedule', 'properties', 'destinations', 'nextRun', 'lastRun',
+        'id', 'name', 'dataProcessor', 'dataSelector', 'standardDataSelector', 'schedule', 'properties', 'destinations', 'nextRun', 'lastRun','exportComplete','validatedDataOption',
         {
             name: 'lastExportOccurence',
             persist: false
@@ -34,6 +34,67 @@ Ext.define('Dxp.model.DataExportTask', {
                 }
             }
         },
+        {
+            name: 'exportComplete',
+            persist: false,
+            mapping: function (data) {
+                if ((data.standardDataSelector)) {
+                    return data.standardDataSelector.exportComplete?'true':'false';
+                }
+            }
+        },
+        {
+            name: 'validatedDataOption',
+            persist: false,
+            mapping: function (data) {
+                if ((data.standardDataSelector)) {
+                    return data.standardDataSelector.validatedDataOption;
+                } else {
+                    return null;
+                }
+            }
+        },
+        {
+            name: 'exportUpdate',
+            persist: false,
+            mapping: function (data) {
+                if ((data.standardDataSelector)) {
+                    return data.standardDataSelector.exportUpdate?'true':'false';
+                }
+            }
+        },
+        {
+            name: 'updatePeriod',
+            persist: false,
+            mapping: function (data) {
+                if ((data.standardDataSelector)) {
+                    return data.standardDataSelector.updatePeriod;
+                } else {
+                    return null;
+                }
+            }
+        },
+        {
+            name: 'updateWindow',
+            persist: false,
+            mapping: function (data) {
+                if ((data.standardDataSelector)) {
+                    return data.standardDataSelector.updateWindow;
+                } else {
+                    return null;
+                }
+            }
+        },
+        {
+            name: 'exportContinuousData',
+            persist: false,
+            mapping: function (data) {
+                if ((data.standardDataSelector)) {
+                    return data.standardDataSelector.exportContinuousData?'true':'false';
+                }
+            }
+        },
+
         {
             name: 'readingTypes',
             persist: false,
