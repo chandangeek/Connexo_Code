@@ -37,7 +37,6 @@ public class SecurityContextImpl implements SecurityContext {
 	@Override
 	public boolean isUserInRole(String role) {		
 		User user = (User) getUserPrincipal();
-		System.out.println("X-CONNEXO-APPLICATION-NAME : " + applicationName);
 		return user == null ? false : user.hasPrivilege(applicationName, role);
 	}
 
