@@ -77,8 +77,8 @@ import java.util.stream.Collectors;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 
-@Component(name = "com.elster.jupiter.metering", service = {MeteringService.class, ServerMeteringService.class, InstallService.class, PrivilegesProvider.class}, property = "name=" + MeteringService.COMPONENTNAME)
-public class MeteringServiceImpl implements ServerMeteringService, InstallService, PrivilegesProvider {
+@Component(name = "com.elster.jupiter.metering", service = {MeteringService.class, ServerMeteringService.class, InstallService.class, PrivilegesProvider.class, TranslationKeyProvider.class}, property = "name=" + MeteringService.COMPONENTNAME)
+public class MeteringServiceImpl implements ServerMeteringService, InstallService, PrivilegesProvider, TranslationKeyProvider {
 
     private volatile IdsService idsService;
     private volatile QueryService queryService;
@@ -527,6 +527,11 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
         return resources;
     }
 
+
+    @Override
+    public String getComponentName() {
+        return MeteringService.COMPONENTNAME;
+    }
 
     public Layer getLayer() {
         return Layer.DOMAIN;
