@@ -10,11 +10,7 @@ Ext.define('Fim.privileges.DataImport', {
     ],
     singleton: true,
     view: ['privilege.administrate.importServices',
-        'privilege.view.importServices',
-        'privilege.view.mdc.importServices'],
-    viewAdmin: ['privilege.administrate.importServices',
         'privilege.view.importServices'],
-    viewMdc: ['privilege.view.mdc.importServices'],
 
     admin: ['privilege.administrate.importServices'],
 
@@ -22,7 +18,7 @@ Ext.define('Fim.privileges.DataImport', {
         return Ext.Array.merge(Fim.privileges.DataImport.view);
     },
     canView: function () {
-        return Uni.Auth.checkPrivileges(typeof(MdcApp) != 'undefined' ? Fim.privileges.DataImport.viewMdc : typeof(SystemApp) != 'undefined' ? Fim.privileges.DataImport.viewAdmin : []);
+        return Uni.Auth.checkPrivileges(Fim.privileges.DataImport.view);
     },
     getAdmin: function () {
         return typeof(MdcApp) != 'undefined' ? false : typeof(SystemApp) != 'undefined' ? Uni.Auth.checkPrivileges(Fim.privileges.DataImport.admin) : false;

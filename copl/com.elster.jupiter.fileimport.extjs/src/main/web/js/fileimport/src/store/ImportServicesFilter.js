@@ -19,12 +19,6 @@ Ext.define('Fim.store.ImportServicesFilter', {
     fields: [
         {name: 'id',       type: 'int'},
         {name: 'name',  type: 'string'}
-    ],
-    listeners: {
-        beforeload: function (store, operation, eOpts) {
-            store.getProxy().setExtraParam('application', typeof(MdcApp) != 'undefined' ? 'MDC' : typeof(SystemApp) != 'undefined' ? 'SYS' : null);
-
-        }
-    }
+    ]
 
 });

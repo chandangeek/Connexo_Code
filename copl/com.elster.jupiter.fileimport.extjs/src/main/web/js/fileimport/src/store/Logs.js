@@ -14,11 +14,6 @@ Ext.define('Fim.store.Logs', {
         setUrl: function (params) {
             this.url = this.urlTpl.replace('{occurrenceId}', params.occurrenceId);
         }
-    },
-    listeners: {
-        beforeload: function (store, operation, eOpts) {
-            store.getProxy().setExtraParam('application', typeof(MdcApp) != 'undefined' ? 'MDC' : typeof(SystemApp) != 'undefined' ? 'SYS' : null);
-        }
     }
 
 });

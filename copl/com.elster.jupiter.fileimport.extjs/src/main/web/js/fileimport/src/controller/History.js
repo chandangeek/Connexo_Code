@@ -29,7 +29,6 @@ Ext.define('Fim.controller.History', {
             selector: '#fim-history-sort-toolbar'
         }
     ],
-    applicationName: null,
 
     init: function () {
         this.control({
@@ -52,8 +51,6 @@ Ext.define('Fim.controller.History', {
                 click: this.chooseAction
             }
         });
-
-        applicationName = typeof(MdcApp) != 'undefined' ? 'MDC' : typeof(SystemApp) != 'undefined' ? 'SYS' : '';
     },
 
     showImportServicesHistory: function (importServiceId) {

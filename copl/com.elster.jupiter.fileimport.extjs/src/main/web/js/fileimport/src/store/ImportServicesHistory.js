@@ -18,11 +18,6 @@ Ext.define('Fim.store.ImportServicesHistory', {
                 this.url = this.urlTpl.replace('{importServiceId}', params.importServiceId);
             }
         }
-    },
-    listeners: {
-        beforeload: function (store, operation, eOpts) {
-            store.getProxy().setExtraParam('application', typeof(MdcApp) != 'undefined' ? 'MDC' : typeof(SystemApp) != 'undefined' ? 'SYS' : null);
-        }
     }
 
 });

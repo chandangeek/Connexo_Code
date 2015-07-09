@@ -44,7 +44,6 @@ Ext.define('Fim.controller.ImportServices', {
             selector: '#frm-import-service-details'
         }
     ],
-    applicationName: null,
 
     init: function () {
         this.control({
@@ -68,8 +67,6 @@ Ext.define('Fim.controller.ImportServices', {
                 displayinfo: this.displayInfo
             }
         });
-
-        applicationName = typeof(MdcApp) != 'undefined' ? 'MDC' : typeof(SystemApp) != 'undefined' ? 'SYS' : '';
     },
 
     showImportServices: function () {
@@ -278,7 +275,6 @@ Ext.define('Fim.controller.ImportServices', {
                 if (me.getPage()) {
                     importServicesGrid.down('pagingtoolbartop').totalCount = 0;
                     importServicesGrid.down('pagingtoolbarbottom').resetPaging();
-                    importServicesGrid.getStore().getProxy().setExtraParam('application', me.applicationName);
                     importServicesGrid.getStore().load();
                 } else {
                     me.getController('Uni.controller.history.Router').getRoute('administration/importservices').forward();
@@ -339,7 +335,6 @@ Ext.define('Fim.controller.ImportServices', {
         });
 
         var fileImporterCombo = addImportServiceView.down('#cbo-file-importer');
-        fileImporterCombo.store.getProxy().setExtraParam('application', me.applicationName);
         fileImporterCombo.store.load({
             callback: function (records, operation, success) {
                 if (fileImporterCombo.store.getCount() == 0) {
@@ -370,31 +365,6 @@ Ext.define('Fim.controller.ImportServices', {
 
                     }
                 });
-/*
-                var importServicesStore = Ext.create('Fim.store.ImportServices');
-                importServicesStore.getProxy().setExtraParam('application', me.applicationName);
-                importServicesStore.load({
-                    callback: function (records, operation, success) {
-                        var importServiceRecord = importServicesStore.getById(parseInt(importServiceId));
-                        addImportServiceView.importServiceRecord = importServiceRecord;
-                        me.getApplication().fireEvent('importserviceload', importServiceRecord);
-
-                        addImportServiceForm = addImportServiceView.down('#frm-add-import-service');
-                        addImportServiceForm.setTitle(Ext.String.format(Uni.I18n.translate('importService.edit', 'FIM', 'Edit \'{0}\''), importServiceRecord.get('name')));
-
-                        //fileImporterCombo.setValue(fileImporterCombo.store.getById(importServiceRecord.get('importerName')));
-                        //fileImporterCombo.setValue(importServiceRecord.get('importerName'));
-                        addImportServiceForm.loadRecord(importServiceRecord);
-
-                        if (importServiceRecord.properties() && importServiceRecord.properties().count()) {
-                            addImportServiceForm.down('grouped-property-form').addEditPage = true;
-                            addImportServiceForm.down('grouped-property-form').loadRecord(importServiceRecord);
-                        }
-
-                        me.getApplication().fireEvent('changecontentevent', addImportServiceView);
-                    }
-                });
-                */
             }
         });
     },
@@ -471,7 +441,6 @@ Ext.define('Fim.controller.ImportServices', {
         });
 
         var fileImporterCombo = addImportServiceView.down('#cbo-file-importer');
-        fileImporterCombo.store.getProxy().setExtraParam('application', me.applicationName);
         fileImporterCombo.store.load({
             callback: function (records, operation, success) {
                 if (fileImporterCombo.store.getCount() == 0) {

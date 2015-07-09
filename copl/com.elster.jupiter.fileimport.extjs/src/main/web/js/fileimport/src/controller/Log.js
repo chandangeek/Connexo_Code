@@ -25,7 +25,6 @@ Ext.define('Fim.controller.Log', {
             selector: '#pnl-histoty-log-menu'
         }
     ],
-    applicationName: null,
 
     init: function () {
         this.control({
@@ -42,8 +41,6 @@ Ext.define('Fim.controller.Log', {
                 click: this.switchSort
             }
         });
-
-        applicationName = typeof(MdcApp) != 'undefined' ? 'MDC' : typeof(SystemApp) != 'undefined' ? 'SYS' : '';
     },
 
     showImportServicesHistoryLog: function (importServiceId, occurrenceId) {
