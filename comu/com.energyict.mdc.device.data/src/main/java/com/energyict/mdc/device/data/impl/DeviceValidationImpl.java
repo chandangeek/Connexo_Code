@@ -93,13 +93,13 @@ public class DeviceValidationImpl implements DeviceValidation {
                 .filter(each -> this.isEffectiveOrStartsAfterLastChecked(lastChecked, each))
                 .forEach(each -> this.applyLastChecked(lastChecked, each));
         }
+        this.validationService.activateValidation(koreMeter);
         if(onStorage){
             this.validationService.enableValidationOnStorage(koreMeter);
         }
         else {
             this.validationService.disableValidationOnStorage(koreMeter);
         }
-        this.validationService.activateValidation(koreMeter);
     }
 
     private boolean isEffectiveOrStartsAfterLastChecked(Instant lastChecked, MeterActivation meterActivation) {
