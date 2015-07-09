@@ -20,6 +20,7 @@ import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.export.ReadingTypeDataSelector;
 import com.elster.jupiter.export.ValidatedDataOption;
 import com.elster.jupiter.fileimport.FileImportService;
+import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.mail.impl.MailModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
@@ -176,7 +177,7 @@ public class ExportTaskImplIT {
                     inMemoryBootstrapModule,
                     new InMemoryMessagingModule(),
                     new IdsModule(),
-                   // new FiniteStateMachineModule(),
+                    new FiniteStateMachineModule(),
                     new MeteringModule(),
                     new PartyModule(),
                     new EventsModule(),

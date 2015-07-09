@@ -13,6 +13,7 @@ import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataFormatter;
 import com.elster.jupiter.export.DataFormatterFactory;
 import com.elster.jupiter.fileimport.FileImportService;
+import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.mail.impl.MailModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
@@ -126,7 +127,7 @@ public class DirectoryForAppServerlIT {
                     inMemoryBootstrapModule,
                     new InMemoryMessagingModule(),
                     new IdsModule(),
-                    //new FiniteStateMachineModule(),
+                    new FiniteStateMachineModule(),
                     new MeteringModule(false),
                     new PartyModule(),
                     new EventsModule(),
