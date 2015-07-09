@@ -1,4 +1,4 @@
 -classpath: target/classes
 -dsannotations: *
-Private-Package: com.elster.jupiter.export.impl, com.elster.jupiter.export.security
-Export-Package: com.elster.jupiter.export
+Private-Package: com.elster.jupiter.export.impl
+Export-Package: com.elster.jupiter.export, com.elster.jupiter.export.security
