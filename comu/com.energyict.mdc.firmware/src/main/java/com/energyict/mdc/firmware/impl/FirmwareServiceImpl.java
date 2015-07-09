@@ -13,7 +13,10 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.users.PrivilegesProvider;
+import com.elster.jupiter.users.Resource;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
@@ -31,6 +34,7 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
 import com.energyict.mdc.firmware.*;
+import com.energyict.mdc.firmware.security.Privileges;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
@@ -59,8 +63,8 @@ import static com.elster.jupiter.util.conditions.Where.where;
  * Date: 3/5/15
  * Time: 10:33 AM
  */
-@Component(name = "com.energyict.mdc.firmware", service = {FirmwareService.class, InstallService.class, ReferencePropertySpecFinderProvider.class, TranslationKeyProvider.class}, property = "name=" + FirmwareService.COMPONENTNAME, immediate = true)
-public class FirmwareServiceImpl implements FirmwareService, InstallService, TranslationKeyProvider {
+@Component(name = "com.energyict.mdc.firmware", service = {FirmwareService.class, InstallService.class, ReferencePropertySpecFinderProvider.class, TranslationKeyProvider.class, PrivilegesProvider.class}, property = "name=" + FirmwareService.COMPONENTNAME, immediate = true)
+public class FirmwareServiceImpl implements FirmwareService, InstallService, TranslationKeyProvider, PrivilegesProvider {
 
     private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
     private volatile DataModel dataModel;
@@ -283,7 +287,7 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Tra
     public List<DeviceInFirmwareCampaignImpl> getDeviceInFirmwareCampaignsFor(Device device) {
         return dataModel.query(DeviceInFirmwareCampaignImpl.class, FirmwareCampaign.class, Device.class)
                 .select(where(DeviceInFirmwareCampaignImpl.Fields.DEVICE.fieldName()).isEqualTo(device).and(
-                                where(DeviceInFirmwareCampaignImpl.Fields.CAMPAIGN.fieldName() + "." + FirmwareCampaignImpl.Fields.STATUS.fieldName()).isNotEqual(FirmwareCampaignStatus.COMPLETE)));
+                        where(DeviceInFirmwareCampaignImpl.Fields.CAMPAIGN.fieldName() + "." + FirmwareCampaignImpl.Fields.STATUS.fieldName()).isNotEqual(FirmwareCampaignStatus.COMPLETE)));
     }
 
     @Override
@@ -476,6 +480,20 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Tra
 
     public DataModel getDataModel() {
         return this.dataModel;
+    }
+
+    @Override
+    public String getModuleName() {
+        return FirmwareService.COMPONENTNAME;
+    }
+
+    @Override
+    public List<ResourceDefinition> getModuleResources() {
+        List<ResourceDefinition> resources = new ArrayList<>();
+        resources.add(userService.createModuleResourceWithPrivileges(FirmwareService.COMPONENTNAME, "firmware.campaigns", "firmware.campaigns.description",
+                Arrays.asList(
+                        Privileges.VIEW_FIRMWARE_CAMPAIGN, Privileges.ADMINISTRATE_FIRMWARE_CAMPAIGN)));
+        return resources;
     }
 
     private class FirmwareVersionFinder implements CanFindByLongPrimaryKey<FirmwareVersion> {

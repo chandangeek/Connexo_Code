@@ -33,7 +33,7 @@ public class Installer {
     void install() {
         ExceptionCatcher.executing(
                 this::installDataModel,
-                this::createPrivileges,
+
                 this::createJupiterEventsSubscriber
         ).andHandleExceptionsWith(Throwable::printStackTrace)
                 .execute();
@@ -43,12 +43,12 @@ public class Installer {
     private void installDataModel() {
         dataModel.install(true, true);
     }
-
+/*
     private void createPrivileges() {
         userService.createResourceWithPrivileges("MDC", "firmware.campaigns", "firmware.campaigns.description", new String[]
                 {Privileges.VIEW_FIRMWARE_CAMPAIGN, Privileges.ADMINISTRATE_FIRMWARE_CAMPAIGN});
     }
-
+*/
     private void createJupiterEventsSubscriber() {
         Optional<DestinationSpec> destinationSpec = this.messageService.getDestinationSpec(EventService.JUPITER_EVENTS);
         if(destinationSpec.isPresent()){
