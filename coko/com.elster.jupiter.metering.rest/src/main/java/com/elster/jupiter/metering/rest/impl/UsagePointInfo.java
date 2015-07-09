@@ -52,7 +52,7 @@ public class UsagePointInfo {
         id = usagePoint.getId();
         mRID = usagePoint.getMRID();
         serviceCategory = usagePoint.getServiceCategory().getKind();
-        serviceLocationId = usagePoint.getServiceLocation().isPresent() ? usagePoint.getServiceLocation().get().getId() : 0L;
+        serviceLocationId = usagePoint.getServiceLocationId();
         aliasName = usagePoint.getAliasName();
         description = usagePoint.getDescription();
         name = usagePoint.getName();
