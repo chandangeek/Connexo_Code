@@ -62,6 +62,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
                 DeviceResource.class,
                 DeviceConfigurationResource.class,
                 DeviceTypeResource.class,
+                DeviceLifecycleActionResource.class,
                 DeviceLifeCycleActionViolationExceptionMapper.class
         );
     }
@@ -159,6 +160,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(topologyService).to(TopologyService.class);
             bind(DeviceInfoFactory.class).to(DeviceInfoFactory.class);
+            bind(DeviceLifecycleActionInfoFactory.class).to(DeviceLifecycleActionInfoFactory.class);
             bind(DeviceTypeInfoFactory.class).to(DeviceTypeInfoFactory.class);
             bind(DeviceConfigurationInfoFactory.class).to(DeviceConfigurationInfoFactory.class);
             bind(finiteStateMachineService).to(FiniteStateMachineService.class);

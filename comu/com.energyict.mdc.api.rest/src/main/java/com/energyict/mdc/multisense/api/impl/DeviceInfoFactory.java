@@ -1,26 +1,18 @@
 package com.energyict.mdc.multisense.api.impl;
 
 import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.rest.util.properties.PropertyInfo;
-import com.elster.jupiter.util.streams.DecoratedStream;
-import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.GatewayType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.imp.DeviceImportService;
-import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
-import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.TopologyTimeline;
-import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -30,33 +22,27 @@ import javax.ws.rs.core.Link;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
-import static java.util.stream.Collectors.toList;
-
 /**
  * Created by bvn on 4/30/15.
  */
-public class DeviceInfoFactory {
+public class DeviceInfoFactory implements SelectableFieldFactory<DeviceInfo,Device> {
 
     private static final int RECENTLY_ADDED_COUNT = 5;
 
     private final DeviceImportService deviceImportService;
     private final TopologyService topologyService;
     private final IssueService issueService;
-    private final DeviceLifeCycleService deviceLifeCycleService;
-    private final MdcPropertyUtils mdcPropertyUtils;
 
     @Inject
-    public DeviceInfoFactory(DeviceImportService deviceImportService, TopologyService topologyService, IssueService issueService, DeviceLifeCycleService deviceLifeCycleService, MdcPropertyUtils mdcPropertyUtils) {
+    public DeviceInfoFactory(DeviceImportService deviceImportService, TopologyService topologyService, IssueService issueService) {
         this.deviceImportService = deviceImportService;
         this.topologyService = topologyService;
         this.issueService = issueService;
-        this.deviceLifeCycleService = deviceLifeCycleService;
-        this.mdcPropertyUtils = mdcPropertyUtils;
     }
 
-    public DeviceInfo asHypermedia(Device device, UriInfo uriInfo, List<String> fields) {
+    public DeviceInfo asHypermedia(Device device, UriInfo uriInfo, Collection<String> fields) {
         DeviceInfo deviceInfo = new DeviceInfo();
-        getSelectedFields(fields).stream().forEach(copier -> copier.copy(deviceInfo, device, uriInfo));
+        copySelectedFields(deviceInfo, device, uriInfo, fields);
         return deviceInfo;
     }
 
@@ -64,19 +50,11 @@ public class DeviceInfoFactory {
         return buildFieldMap().keySet();
     }
 
-    private List<PropertyCopier<DeviceInfo, Device>> getSelectedFields(Collection<String> fields) {
-        Map<String, PropertyCopier<DeviceInfo, Device>> fieldSelectionMap = buildFieldMap();
-        if (fields==null || fields.isEmpty()) {
-            fields = fieldSelectionMap.keySet();
-        }
-        return fields.stream().filter(fieldSelectionMap::containsKey).map(fieldSelectionMap::get).collect(toList());
-    }
-
     private UriBuilder getUriTemplate(UriInfo uriInfo) {
         return uriInfo.getBaseUriBuilder().path(DeviceResource.class).path("{mrid}");
     }
 
-    private Map<String, PropertyCopier<DeviceInfo,Device>> buildFieldMap() {
+    public Map<String, PropertyCopier<DeviceInfo,Device>> buildFieldMap() {
         Map<String, PropertyCopier<DeviceInfo, Device>> map = new HashMap<>();
         map.put("id", (deviceInfo, device, uriInfo) -> deviceInfo.id = device.getId());
         map.put("link", (deviceInfo, device, uriInfo) -> deviceInfo.link = Link.fromUriBuilder(getUriTemplate(uriInfo)).rel("self").title("self reference").build(device.getmRID()));
@@ -155,26 +133,6 @@ public class DeviceInfoFactory {
             deviceInfo.deviceConfiguration.deviceType.link = Link.fromUriBuilder(uriInfo.getBaseUriBuilder().path(DeviceTypeResource.class).path("{id}")).rel("up").title("Device type").build(device.getDeviceType().getId());
         });
         return map;
-    }
-
-    public DeviceLifeCycleActionInfo createDeviceLifecycleActionInfo(Device device, AuthorizedTransitionAction action, UriInfo uriInfo) {
-        DeviceLifeCycleActionInfo info = new DeviceLifeCycleActionInfo();
-        info.id = action.getId();
-        info.name = action.getName();
-        UriBuilder uriBuilder = uriInfo.getBaseUriBuilder().
-                path(DeviceResource.class).
-                path(DeviceResource.class, "executeAction");
-        info.link = Link.fromUriBuilder(uriBuilder).rel("self").build(device.getmRID(), action.getId());
-        List<PropertySpec> uniquePropertySpecsForMicroActions =
-                DecoratedStream.decorate(action.getActions().stream())
-                        .flatMap(microAction -> deviceLifeCycleService.getPropertySpecsFor(microAction).stream())
-                        .distinct(PropertySpec::getName)
-                        .collect(Collectors.toList());
-        Collection<PropertyInfo> propertyInfos = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(uniquePropertySpecsForMicroActions, TypedProperties.empty(), device);
-
-        info.properties = new ArrayList<>(propertyInfos);
-        info.deviceVersion = device.getVersion();
-        return info;
     }
 
     private LinkInfo newSlaveDeviceLinkInfo(Device device, UriInfo uriInfo) {
