@@ -1,14 +1,7 @@
 package com.energyict.mdc.device.lifecycle.config.impl;
 
-import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
-import com.energyict.mdc.device.lifecycle.config.AuthorizedBusinessProcessAction;
-import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleBuilder;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
-import com.energyict.mdc.device.lifecycle.config.TransitionBusinessProcess;
-import com.energyict.mdc.device.lifecycle.config.TransitionBusinessProcessInUseException;
-import com.energyict.mdc.device.lifecycle.config.UnknownTransitionBusinessProcessException;
+import com.elster.jupiter.users.Privilege;
+import com.energyict.mdc.device.lifecycle.config.*;
 
 import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.domain.util.DefaultFinder;
@@ -30,8 +23,10 @@ import com.elster.jupiter.orm.NotUniqueException;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.users.Privilege;
+import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.users.PrivilegesProvider;
+
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 import com.google.inject.AbstractModule;
@@ -62,9 +57,9 @@ import static com.elster.jupiter.util.conditions.Where.where;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-11 (10:44)
  */
-@Component(name = "com.energyict.device.lifecycle.config", service = {DeviceLifeCycleConfigurationService.class, InstallService.class, TranslationKeyProvider.class}, property = "name=" + DeviceLifeCycleConfigurationService.COMPONENT_NAME)
+@Component(name = "com.energyict.device.lifecycle.config", service = {DeviceLifeCycleConfigurationService.class, InstallService.class, TranslationKeyProvider.class, PrivilegesProvider.class}, property = "name=" + DeviceLifeCycleConfigurationService.COMPONENT_NAME)
 @SuppressWarnings("unused")
-public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleConfigurationService, InstallService, TranslationKeyProvider {
+public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleConfigurationService, InstallService, TranslationKeyProvider, PrivilegesProvider {
 
     private volatile DataModel dataModel;
     private volatile NlsService nlsService;
@@ -353,6 +348,27 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
                 throw new TransitionBusinessProcessInUseException(this.thesaurus, MessageSeeds.TRANSITION_PROCESS_IN_USE, businessProcesses.get(0));
             }
         }
+    }
+
+    @Override
+    public String getModuleName() {
+        return DeviceLifeCycleConfigurationService.COMPONENT_NAME;
+    }
+
+    @Override
+    public List<ResourceDefinition> getModuleResources() {
+
+        return Arrays.asList(
+                this.userService.createModuleResourceWithPrivileges(DeviceLifeCycleConfigurationService.COMPONENT_NAME, "deviceLifeCycleAdministration.deviceLifeCycleAdministrations", "deviceLifeCycleAdministration.deviceLifeCycleAdministrations.description",
+                        Arrays.asList(Privileges.VIEW_DEVICE_LIFE_CYCLE, Privileges.CONFIGURE_DEVICE_LIFE_CYCLE)),
+                this.userService.createModuleResourceWithPrivileges(DeviceLifeCycleConfigurationService.COMPONENT_NAME, "deviceLifeCycle.deviceLifeCycle", "deviceLifeCycle.deviceLifeCycle.description",
+                        Arrays.asList(
+                                Privileges.INITIATE_ACTION_1,
+                                Privileges.INITIATE_ACTION_2,
+                                Privileges.INITIATE_ACTION_3,
+                                Privileges.INITIATE_ACTION_4))
+        );
+
     }
 
 }
