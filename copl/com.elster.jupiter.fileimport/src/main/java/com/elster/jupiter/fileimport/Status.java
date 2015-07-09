@@ -8,7 +8,7 @@ public enum Status {
     NEW("New"),
     PROCESSING("Busy"),
     SUCCESS("Success"),
-    SUCCESS_WITH_FAILURES("Success with failures"),
+    SUCCESS_WITH_FAILURES("Success with errors"),
     FAILURE("Failure");
 
     private String name;
