@@ -15,6 +15,7 @@ import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.rest.DeviceStateAccessFeature;
 import com.energyict.mdc.firmware.FirmwareManagementDeviceUtils;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.rest.impl.*;
@@ -66,7 +67,8 @@ public class FirmwareApplication extends Application implements TranslationKeyPr
                 TransactionWrapper.class,
                 MultiPartFeature.class,
                 FirmwareComTaskResource.class,
-                RestValidationExceptionMapper.class
+                RestValidationExceptionMapper.class,
+                DeviceStateAccessFeature.class
         );
     }
 

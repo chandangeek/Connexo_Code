@@ -8,6 +8,7 @@ import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.rest.DeviceStateAccessFeature;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.rest.FirmwareApplication;
@@ -17,7 +18,9 @@ import org.mockito.Mock;
 
 import javax.ws.rs.core.Application;
 import java.time.Clock;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
@@ -53,7 +56,14 @@ public class BaseFirmwareTest extends FelixRestApplicationJerseyTest {
 
     @Override
     protected Application getApplication() {
-        FirmwareApplication application = new FirmwareApplication();
+        FirmwareApplication application = new FirmwareApplication(){
+            @Override
+            public Set<Class<?>> getClasses() {
+                Set<Class<?>> classes = new HashSet<>(super.getClasses());
+                classes.remove(DeviceStateAccessFeature.class);
+                return classes;
+            }
+        };
         application.setNlsService(nlsService);
         application.setTransactionService(transactionService);
         application.setDeviceConfigurationService(deviceConfigurationService);
