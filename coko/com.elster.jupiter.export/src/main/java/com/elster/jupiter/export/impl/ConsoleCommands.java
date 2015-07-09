@@ -4,7 +4,7 @@ import com.elster.jupiter.appserver.AppServer;
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataExportTaskBuilder;
-import com.elster.jupiter.export.DataProcessorFactory;
+import com.elster.jupiter.export.DataFormatterFactory;
 import com.elster.jupiter.export.DataSelectorFactory;
 import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.metering.MeteringService;
@@ -36,7 +36,7 @@ import java.util.Optional;
         property = {
                 "osgi.command.scope=export",
                 "osgi.command.function=createDataExportTask",
-                "osgi.command.function=dataProcessors",
+                "osgi.command.function=dataFormatters",
                 "osgi.command.function=dataSelectors",
                 "osgi.command.function=dataExportTasks",
                 "osgi.command.function=setDefaultExportDir",
@@ -53,12 +53,12 @@ public class ConsoleCommands {
     private volatile MeteringGroupsService meteringGroupsService;
     private volatile AppService appService;
 
-    public void createDataExportTask(String name, String dataProcessor, String exportPeriodName, long nextExecution, String scheduleExpression, long groupId, String... readingTypes) {
+    public void createDataExportTask(String name, String dataFormatter, String exportPeriodName, long nextExecution, String scheduleExpression, long groupId, String... readingTypes) {
         threadPrincipalService.set(() -> "console");
         try (TransactionContext context = transactionService.getContext()) {
             DataExportTaskBuilder.StandardSelectorBuilder builder = dataExportService.newBuilder()
                     .setName(name)
-                    .setDataProcessorName(dataProcessor)
+                    .setDataFormatterName(dataFormatter)
                     .setNextExecution(Instant.ofEpochMilli(nextExecution))
                     .setScheduleExpression(parse(scheduleExpression))
                     .selectingStandard()
@@ -77,9 +77,9 @@ public class ConsoleCommands {
         }
     }
 
-    public void dataProcessors() {
-        dataExportService.getAvailableProcessors().stream()
-                .map(DataProcessorFactory::getName)
+    public void dataFormatters() {
+        dataExportService.getAvailableFormatters().stream()
+                .map(DataFormatterFactory::getName)
                 .forEach(System.out::println);
     }
 

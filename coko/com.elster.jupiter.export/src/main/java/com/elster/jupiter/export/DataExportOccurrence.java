@@ -31,4 +31,6 @@ public interface DataExportOccurrence {
     List<? extends LogEntry> getLogs();
 
     LogEntryFinder getLogsFinder();
+
+    int nthSince(Instant since);
 }

@@ -2,13 +2,19 @@ package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.appserver.impl.AppServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
 import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
-import com.elster.jupiter.export.*;
+import com.elster.jupiter.export.DataExportService;
+import com.elster.jupiter.export.DataFormatter;
+import com.elster.jupiter.export.DataFormatterFactory;
+import com.elster.jupiter.export.ExportTask;
+import com.elster.jupiter.export.ValidatedDataOption;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.ids.impl.IdsModule;
+import com.elster.jupiter.mail.impl.MailModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
@@ -39,6 +45,7 @@ import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -95,6 +102,7 @@ public class DataExportServiceImplIT {
     public static final String FORMATTER = "formatter";
 
     private static final ZonedDateTime NOW = ZonedDateTime.of(2012, 10, 12, 9, 46, 12, 241615214, TimeZoneNeutral.getMcMurdo());
+    public static final Clock CLOCK = Clock.fixed(NOW.toInstant(), ZoneId.systemDefault());
 
     @Rule
     public TestRule veryColdHere = Using.timeZoneOfMcMurdo();
@@ -114,9 +122,9 @@ public class DataExportServiceImplIT {
     @Mock
     private LogService logService;
     @Mock
-    private DataProcessorFactory dataProcessorFactory;
+    private DataFormatterFactory dataFormatterFactory;
     @Mock
-    private DataProcessor dataProcessor;
+    private DataFormatter dataFormatter;
     @Mock
     private PropertySpec propertySpec;
     @Mock
@@ -172,7 +180,7 @@ public class DataExportServiceImplIT {
                     new EventsModule(),
                     new DomainUtilModule(),
                     new OrmModule(),
-                    new UtilModule(Clock.fixed(NOW.toInstant(), ZoneId.systemDefault())),
+                    new UtilModule(CLOCK),
                     new ThreadSecurityModule(),
                     new PubSubModule(),
                     new TransactionModule(),
@@ -182,7 +190,9 @@ public class DataExportServiceImplIT {
                     new TaskModule(),
                     new MeteringGroupsModule(),
                     new AppServiceModule(),
-                    new BasicPropertiesModule()
+                    new BasicPropertiesModule(),
+                    new MailModule(),
+                    new BpmModule()
             );
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -197,9 +207,9 @@ public class DataExportServiceImplIT {
         });
         readingType = meteringService.getReadingType("0.0.5.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
         anotherReadingType = meteringService.getReadingType("0.0.2.1.19.1.12.0.0.0.0.0.0.0.0.0.72.0").get();
-        dataExportService.addProcessor(dataProcessorFactory);
-        when(dataProcessorFactory.getName()).thenReturn(FORMATTER);
-        when(dataProcessorFactory.getPropertySpecs()).thenReturn(Arrays.asList(propertySpec));
+        dataExportService.addFormatter(dataFormatterFactory, ImmutableMap.of(DataExportService.DATA_TYPE_PROPERTY, DataExportService.STANDARD_DATA_TYPE));
+        when(dataFormatterFactory.getName()).thenReturn(FORMATTER);
+        when(dataFormatterFactory.getPropertySpecs()).thenReturn(Arrays.asList(propertySpec));
         when(propertySpec.getName()).thenReturn("propy");
         when(propertySpec.getValueFactory()).thenReturn(new BigDecimalFactory());
         try (TransactionContext context = transactionService.getContext()) {
@@ -224,7 +234,7 @@ public class DataExportServiceImplIT {
         try (TransactionContext context = transactionService.getContext()) {
             exportTask1 = dataExportService.newBuilder()
                     .scheduleImmediately()
-                    .setDataProcessorName(FORMATTER)
+                    .setDataFormatterName(FORMATTER)
                     .setName(NAME)
                     .setScheduleExpression(new TemporalExpression(TimeDuration.TimeUnit.DAYS.during(1), TimeDuration.TimeUnit.HOURS.during(0)))
                     .addProperty("propy").withValue(BigDecimal.valueOf(100, 0))
@@ -257,7 +267,7 @@ public class DataExportServiceImplIT {
             exportTask.triggerNow();
             RecurrentTask recurrentTask = extractOccurrence(exportTask);
             occurrence = injector.getInstance(TaskService.class).getOccurrences(recurrentTask, Range.<Instant>all()).stream().findFirst().get();
-            new DataExportTaskExecutor(dataExportService, transactionService, thesaurus).execute(occurrence);
+            new DataExportTaskExecutor(dataExportService, transactionService, new LocalFileWriter(dataExportService), thesaurus, CLOCK).execute(occurrence);
 
             context.commit();
         }
@@ -282,7 +292,7 @@ public class DataExportServiceImplIT {
     private ExportTask createExportTask(RelativePeriod lastYear, RelativePeriod oneYearBeforeLastYear, EndDeviceGroup endDeviceGroup, String name) {
         return dataExportService.newBuilder()
                 .scheduleImmediately()
-                .setDataProcessorName(FORMATTER)
+                .setDataFormatterName(FORMATTER)
                 .setScheduleExpression(new TemporalExpression(TimeDuration.TimeUnit.DAYS.during(1), TimeDuration.TimeUnit.HOURS.during(0)))
                 .setName(name)
                 .addProperty("propy").withValue(BigDecimal.valueOf(100, 0))

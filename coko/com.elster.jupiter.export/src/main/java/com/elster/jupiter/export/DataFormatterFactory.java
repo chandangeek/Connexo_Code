@@ -6,9 +6,9 @@ import com.elster.jupiter.util.HasName;
 import java.util.List;
 import java.util.Map;
 
-public interface DataProcessorFactory extends HasDynamicProperties, HasName {
+public interface DataFormatterFactory extends HasDynamicProperties, HasName {
 
-    DataProcessor createDataFormatter(Map<String, Object> properties);
+    DataFormatter createDataFormatter(Map<String, Object> properties);
 
     void validateProperties(List<DataExportProperty> properties);
 

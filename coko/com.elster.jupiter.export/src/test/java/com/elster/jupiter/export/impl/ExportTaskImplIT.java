@@ -2,14 +2,26 @@ package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.appserver.impl.AppServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.devtools.tests.ProgrammableClock;
 import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
 import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
-import com.elster.jupiter.export.*;
+import com.elster.jupiter.export.DataExportDestination;
+import com.elster.jupiter.export.DataExportOccurrence;
+import com.elster.jupiter.export.DataExportService;
+import com.elster.jupiter.export.DataFormatter;
+import com.elster.jupiter.export.DataFormatterFactory;
+import com.elster.jupiter.export.EmailDestination;
+import com.elster.jupiter.export.ExportTask;
+import com.elster.jupiter.export.FileDestination;
+import com.elster.jupiter.export.ReadingTypeDataExportItem;
+import com.elster.jupiter.export.ReadingTypeDataSelector;
+import com.elster.jupiter.export.ValidatedDataOption;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.ids.impl.IdsModule;
+import com.elster.jupiter.mail.impl.MailModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.Meter;
@@ -41,6 +53,7 @@ import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.time.Never;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -68,6 +81,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 
 import static com.elster.jupiter.devtools.tests.assertions.JupiterAssertions.assertThat;
 import static com.elster.jupiter.time.RelativeField.*;
@@ -75,7 +89,7 @@ import static org.assertj.core.data.MapEntry.entry;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ReadingTypeDataExportTaskImplIT {
+public class ExportTaskImplIT {
 
     public static final String NAME = "NAME";
     private EnumeratedEndDeviceGroup anotherEndDeviceGroup;
@@ -89,14 +103,14 @@ public class ReadingTypeDataExportTaskImplIT {
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(LogService.class).toInstance(logService);
 
-            bind (FileImportService.class).toInstance(fileImportService);
+            bind(FileImportService.class).toInstance(fileImportService);
         }
     }
 
     public static final String FORMATTER = "formatter";
 
     private static final ZonedDateTime NOW = ZonedDateTime.of(2012, 10, 12, 9, 46, 12, 241615214, TimeZoneNeutral.getMcMurdo());
-    private final ProgrammableClock clock = new ProgrammableClock(ZoneId.systemDefault(), NOW.toInstant());
+    private ProgrammableClock clock = new ProgrammableClock(ZoneId.systemDefault(), NOW.toInstant());
 
     @Rule
     public TestRule veryColdHere = Using.timeZoneOfMcMurdo();
@@ -115,9 +129,9 @@ public class ReadingTypeDataExportTaskImplIT {
     @Mock
     private LogService logService;
     @Mock
-    private DataProcessorFactory dataProcessorFactory;
+    private DataFormatterFactory dataFormatterFactory;
     @Mock
-    private DataProcessor dataProcessor;
+    private DataFormatter dataFormatter;
     @Mock
     private PropertySpec propertySpec;
     @Mock
@@ -178,7 +192,9 @@ public class ReadingTypeDataExportTaskImplIT {
                     new TaskModule(),
                     new MeteringGroupsModule(),
                     new AppServiceModule(),
-                    new BasicPropertiesModule()
+                    new BasicPropertiesModule(),
+                    new MailModule(),
+                    new BpmModule()
             );
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -193,9 +209,9 @@ public class ReadingTypeDataExportTaskImplIT {
         });
         readingType = meteringService.getReadingType("0.0.5.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
         anotherReadingType = meteringService.getReadingType("0.0.2.1.19.1.12.0.0.0.0.0.0.0.0.0.72.0").get();
-        dataExportService.addProcessor(dataProcessorFactory);
-        when(dataProcessorFactory.getName()).thenReturn(FORMATTER);
-        when(dataProcessorFactory.getPropertySpecs()).thenReturn(Arrays.asList(propertySpec));
+        dataExportService.addFormatter(dataFormatterFactory, ImmutableMap.of(DataExportService.DATA_TYPE_PROPERTY, DataExportService.STANDARD_DATA_TYPE));
+        when(dataFormatterFactory.getName()).thenReturn(FORMATTER);
+        when(dataFormatterFactory.getPropertySpecs()).thenReturn(Arrays.asList(propertySpec));
         when(propertySpec.getName()).thenReturn("propy");
         when(propertySpec.getValueFactory()).thenReturn(new BigDecimalFactory());
         try (TransactionContext context = transactionService.getContext()) {
@@ -214,6 +230,71 @@ public class ReadingTypeDataExportTaskImplIT {
         inMemoryBootstrapModule.deactivate();
     }
 
+    @Test
+    public void testAddingDestinations() {
+        ExportTask exportTask = createAndSaveTask();
+
+        try (TransactionContext context = transactionService.getContext()) {
+            exportTask.addFileDestination("tmp", "file", "csv");
+            exportTask.addEmailDestination("info@elster.com", "test report", "file", "csv");
+
+            context.commit();
+        }
+
+        Optional<? extends ExportTask> found = dataExportService.findExportTask(exportTask.getId());
+
+        assertThat(found).isPresent();
+
+        ExportTask taskFromDB = found.get();
+
+        assertThat(taskFromDB.getDestinations()).hasSize(2);
+
+        assertThat(taskFromDB.getDestinations().get(0)).isInstanceOf(FileDestination.class);
+        FileDestination fileDestination = (FileDestination) taskFromDB.getDestinations().get(0);
+        assertThat(fileDestination.getFileLocation()).isEqualTo("tmp");
+        assertThat(fileDestination.getFileName()).isEqualTo("file");
+        assertThat(fileDestination.getFileExtension()).isEqualTo("csv");
+
+        assertThat(taskFromDB.getDestinations().get(1)).isInstanceOf(EmailDestination.class);
+        EmailDestination emailDestination = (EmailDestination) taskFromDB.getDestinations().get(1);
+        assertThat(emailDestination.getRecipients()).isEqualTo("info@elster.com");
+        assertThat(emailDestination.getFileName()).isEqualTo("file");
+        assertThat(emailDestination.getFileExtension()).isEqualTo("csv");
+        assertThat(emailDestination.getSubject()).isEqualTo("test report");
+
+    }
+
+    @Test
+    public void testRemoveDestinations() {
+        ExportTask exportTask = createAndSaveTask();
+
+        try (TransactionContext context = transactionService.getContext()) {
+            exportTask.addFileDestination("tmp", "file", "csv");
+            exportTask.addEmailDestination("info@elster.com", "test report", "file", "csv");
+
+            context.commit();
+        }
+
+        Optional<? extends ExportTask> found = dataExportService.findExportTask(exportTask.getId());
+
+        assertThat(found).isPresent();
+
+        ExportTask taskFromDB = found.get();
+
+        try (TransactionContext context = transactionService.getContext()) {
+            taskFromDB.removeDestination(taskFromDB.getDestinations().get(0));
+            context.commit();
+        }
+
+        found = dataExportService.findExportTask(exportTask.getId());
+
+        assertThat(found).isPresent();
+
+        taskFromDB = found.get();
+
+        assertThat(taskFromDB.getDestinations()).hasSize(1);
+
+    }
 
     @Test
     public void testCreation() {
@@ -245,32 +326,45 @@ public class ReadingTypeDataExportTaskImplIT {
     @Test
     public void testHistory() throws InterruptedException {
 
-        clock.setSubsequent(
-                NOW.plusSeconds(1).toInstant(),
-                NOW.plusSeconds(2).toInstant(),
-                NOW.plusSeconds(3).toInstant(),
-                NOW.plusSeconds(4).toInstant(),
-                NOW.plusSeconds(5).toInstant(),
-                NOW.plusSeconds(6).toInstant(),
-                NOW.plusSeconds(7).toInstant(),
-                NOW.plusSeconds(8).toInstant()
-        );
+        clock.setTicker(new Supplier<Instant>() {
+            private ZonedDateTime last = NOW.plusSeconds(1);
 
-        ExportTask exportTask = createAndSaveTask();
+            @Override
+            public Instant get() {
+                try {
+                    return last.toInstant();
+                } finally {
+                    last = last.plusSeconds(1);
+                }
+            }
+        });
+
+        ExportTask exportTask = createAndSaveTask(); // version 1
+        try (TransactionContext context = transactionService.getContext()) {
+            exportTask.addFileDestination("tmp", "file", "csv"); // version 2
+            exportTask.addEmailDestination("info@elster.com", "test report", "file", "csv"); // version 3
+
+            context.commit();
+        }
 
         exportTask.setName("NEWNAME");
         BigDecimal value1 = new BigDecimal("101");
         exportTask.setProperty("propy", value1);
 
         try (TransactionContext context = transactionService.getContext()) {
-            exportTask.save();
+            exportTask.save(); // version 4
             context.commit();
         }
 
         BigDecimal value2 = new BigDecimal("102");
         exportTask.setProperty("propy", value2);
         try (TransactionContext context = transactionService.getContext()) {
-            exportTask.save();
+            exportTask.save(); // version 5
+            context.commit();
+        }
+        try (TransactionContext context = transactionService.getContext()) {
+            DataExportDestination dataExportDestination = exportTask.getDestinations().get(0);
+            exportTask.removeDestination(dataExportDestination);
             context.commit();
         }
 
@@ -281,12 +375,21 @@ public class ReadingTypeDataExportTaskImplIT {
         assertThat(version1.get().getName()).isEqualTo(NAME);
         Optional<? extends ExportTask> version2 = history.getVersion(2);
         assertThat(version2).isPresent();
-        assertThat(version2.get().getName()).isEqualTo("NEWNAME");
-        assertThat(version2.get().getProperties(NOW.toInstant().plusSeconds(7))).containsEntry("propy", value1);
+        assertThat(version2.get().getDestinations(version2.get().getModTime().minusSeconds(1))).hasSize(1);
         Optional<? extends ExportTask> version3 = history.getVersion(3);
         assertThat(version3).isPresent();
-        assertThat(version3.get().getName()).isEqualTo("NEWNAME");
-        assertThat(version3.get().getProperties(NOW.toInstant().plusSeconds(8))).containsEntry("propy", value2);
+        assertThat(version3.get().getDestinations(version3.get().getModTime().minusSeconds(1))).hasSize(2);
+        Optional<? extends ExportTask> version4 = history.getVersion(4);
+        assertThat(version4).isPresent();
+        assertThat(version4.get().getName()).isEqualTo("NEWNAME");
+        assertThat(version4.get().getProperties(version4.get().getModTime())).containsEntry("propy", value1);
+        Optional<? extends ExportTask> version5 = history.getVersion(5);
+        assertThat(version5).isPresent();
+        assertThat(version5.get().getName()).isEqualTo("NEWNAME");
+        assertThat(version5.get().getProperties(version5.get().getModTime())).containsEntry("propy", value2);
+        Optional<? extends ExportTask> version6 = history.getVersion(6);
+        assertThat(version6).isPresent();
+        assertThat(version6.get().getDestinations(version6.get().getModTime().minusSeconds(1))).hasSize(1);
     }
 
     @Test
@@ -375,7 +478,7 @@ public class ReadingTypeDataExportTaskImplIT {
     private ExportTask createExportTask(RelativePeriod lastYear, RelativePeriod oneYearBeforeLastYear, EndDeviceGroup endDeviceGroup, String name) {
         return dataExportService.newBuilder()
                 .scheduleImmediately()
-                .setDataProcessorName(FORMATTER)
+                .setDataFormatterName(FORMATTER)
                 .setName(name)
                 .setScheduleExpression(new TemporalExpression(TimeDuration.TimeUnit.DAYS.during(1), TimeDuration.TimeUnit.HOURS.during(0)))
                 .selectingStandard()

@@ -25,7 +25,7 @@ enum TableSpecs {
             table.setJournalTableName("DES_DATAEXPORTTASKJRNL");
             Column idColumn = table.addAutoIdColumn();
             table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
-            table.column("DATAPROCESSOR").varChar(NAME_LENGTH).notNull().map("dataProcessor").add();
+            table.column("DATAFORMATTER").varChar(NAME_LENGTH).notNull().map("dataFormatter").add();
             table.column("DATASELECTOR").varChar(NAME_LENGTH).notNull().map("dataSelector").add();
             Column recurrentTaskId = table.column("RECURRENTTASK").number().notNull().conversion(ColumnConversion.NUMBER2LONG).add();
 
@@ -39,7 +39,6 @@ enum TableSpecs {
                     .add();
             table.primaryKey("DES_PK_DATAEXPORTTASK").on(idColumn).add();
         }
-
     },
     DES_RTDATASELECTOR(IReadingTypeDataSelector.class) {
         @Override
@@ -81,7 +80,6 @@ enum TableSpecs {
                     .add();
             table.primaryKey("DES_PK_RTDATASELECTOR").on(idColumn).add();
         }
-
     },
     DES_READINGTYPE_IN_SELECTOR(ReadingTypeInDataSelector.class) {
         @Override
@@ -161,8 +159,36 @@ enum TableSpecs {
             table.primaryKey("DES_PK_DIR4APPSERVER").on(idColumn).add();
             table.foreignKey("DES_FK_DIR4APPSERVER_APS").on(idColumn).references("APS", "APS_APPSERVER").map("appServer").add();
         }
-    };
+    },
+    DES_DESTINATION(IDataExportDestination.class) {
+        @Override
+        void describeTable(Table table) {
+            table.map(AbstractDataExportDestination.IMPLEMENTERS);
+            table.setJournalTableName("DES_DESTINATIONJRNL");
+            Column idColumn = table.addAutoIdColumn();
+            table.addDiscriminatorColumn("DISCRIMINATOR", "char(5)");
 
+            Column taskColumn = table.column("TASK").number().notNull().add();
+            table.column("FILENAME").varChar(Table.NAME_LENGTH).map("fileName").add();
+            table.column("FILEEXTENSION").varChar(Table.NAME_LENGTH).map("fileExtension").add();
+            table.column("FILELOCATION").varChar(Table.DESCRIPTION_LENGTH).map("fileLocation").add();
+
+            table.column("RECIPIENTS").varChar(Table.DESCRIPTION_LENGTH).map("recipients").add();
+            table.column("SUBJECT").varChar(Table.NAME_LENGTH).map("subject").add();
+            table.column("ATTACHMENTNAME").varChar(Table.NAME_LENGTH).map("attachmentName").add();
+            table.column("ATTACHMENTEXTENSION").varChar(Table.NAME_LENGTH).map("attachmentExtension").add();
+            table.addAuditColumns();
+
+            table.primaryKey("DES_PK_DESTINATION").on(idColumn).add();
+            table.foreignKey("DES_DEST_TASK")
+                    .on(taskColumn)
+                    .references(DES_DATAEXPORTTASK.toString())
+                    .map("task")
+                    .reverseMap("destinations")
+                    .composition()
+                    .add();
+        }
+    };
 
     private final Class<?> api;
 

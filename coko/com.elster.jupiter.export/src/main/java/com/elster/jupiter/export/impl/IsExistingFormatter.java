@@ -12,10 +12,10 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Target({ElementType.FIELD})
 @Retention(RUNTIME)
 @Documented
-@Constraint(validatedBy = {ExistingProcessorValidator.class})
-public @interface IsExistingProcessor {
+@Constraint(validatedBy = {ExistingFormatterValidator.class})
+public @interface IsExistingFormatter {
 
-    String message() default "{" + MessageSeeds.Keys.NO_SUCH_PROCESSOR + "}";
+    String message() default "{" + MessageSeeds.Keys.NO_SUCH_FORMATTER + "}";
 
     Class<?>[] groups() default {};
 

@@ -5,7 +5,9 @@ import com.elster.jupiter.devtools.tests.fakes.LogRecorder;
 import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.export.DataExportException;
 import com.elster.jupiter.export.DataExportOccurrence;
+import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.export.FatalDataExportException;
+import com.elster.jupiter.export.FormattedData;
 import com.elster.jupiter.export.MeterReadingData;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.ReadingType;
@@ -25,6 +27,7 @@ import java.text.MessageFormat;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Collections;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
@@ -70,6 +73,12 @@ public class LoggingItemExporterTest {
     private NlsMessageFormat successFormat, failedFormat, fatallyFailedFormat;
     @Mock
     private MeterReadingData meterReadingData;
+    @Mock
+    private FormattedData formattedData;
+    @Mock
+    private ExportTask task;
+    @Mock
+    private IReadingTypeDataSelector dataSelector;
 
     public LoggingItemExporterTest() {
     }
@@ -85,8 +94,9 @@ public class LoggingItemExporterTest {
         to = ZonedDateTime.of(2013, 4, 18, 18, 2, 19, 0, ZoneId.systemDefault());
         range =  Range.closed(from.toInstant(), to.toInstant());
 
+        when(task.getReadingTypeDataSelector()).thenReturn(Optional.of(dataSelector));
         when(meterReadingData.getItem()).thenReturn(item);
-        when(decorated.exportItem(occurrence, meterReadingData)).thenReturn(range);
+        when(decorated.exportItem(occurrence, meterReadingData)).thenReturn(Collections.emptyList());
         when(item.getReadingType()).thenReturn(readingType);
         when(readingType.getAliasName()).thenReturn("The Speed Of Pain");
         when(item.getReadingContainer()).thenReturn(meter);
@@ -104,6 +114,8 @@ public class LoggingItemExporterTest {
         when(fatallyFailedFormat.format(anyVararg())).thenAnswer(invocation -> {
             return MessageFormat.format(MessageSeeds.ITEM_FATALLY_FAILED.getDefaultFormat(), invocation.getArguments()[0], invocation.getArguments()[1]);
         });
+        when(occurrence.getTask()).thenReturn(task);
+        when(dataSelector.adjustedExportPeriod(occurrence, item)).thenReturn(range);
 
         loggingItemExporter = new LoggingItemExporter(thesaurus, transactionService, logger, decorated);
 

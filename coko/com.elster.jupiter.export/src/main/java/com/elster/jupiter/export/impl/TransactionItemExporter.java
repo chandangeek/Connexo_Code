@@ -1,12 +1,12 @@
 package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.export.DataExportOccurrence;
+import com.elster.jupiter.export.FormattedExportData;
 import com.elster.jupiter.export.MeterReadingData;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
-import com.google.common.collect.Range;
 
-import java.time.Instant;
+import java.util.List;
 
 class TransactionItemExporter implements ItemExporter {
 
@@ -19,9 +19,9 @@ class TransactionItemExporter implements ItemExporter {
     }
 
     @Override
-    public Range<Instant> exportItem(DataExportOccurrence occurrence, MeterReadingData meterReadingData) {
+    public List<FormattedExportData> exportItem(DataExportOccurrence occurrence, MeterReadingData meterReadingData) {
         try (TransactionContext context = transactionService.getContext()) {
-            Range<Instant> range = decorated.exportItem(occurrence, meterReadingData);
+            List<FormattedExportData> range = decorated.exportItem(occurrence, meterReadingData);
             context.commit();
             return range;
         }

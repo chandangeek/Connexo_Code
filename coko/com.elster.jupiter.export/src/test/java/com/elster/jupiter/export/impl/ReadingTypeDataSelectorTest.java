@@ -6,8 +6,9 @@ import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.export.DataExportProperty;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataExportStrategy;
-import com.elster.jupiter.export.DataProcessor;
-import com.elster.jupiter.export.DataProcessorFactory;
+import com.elster.jupiter.export.DataFormatter;
+import com.elster.jupiter.export.DataFormatterFactory;
+import com.elster.jupiter.export.FormattedData;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
@@ -39,6 +40,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
+import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -66,6 +68,7 @@ public class ReadingTypeDataSelectorTest {
     private Range<Instant> exportPeriod;
     private LogRecorder logRecorder;
     private TransactionVerifier transactionService;
+    private Clock clock = Clock.system(ZoneId.systemDefault());
 
     @Mock
     private TaskService taskService;
@@ -88,11 +91,11 @@ public class ReadingTypeDataSelectorTest {
     @Mock
     private ReadingType readingType1, readingType2;
     @Mock
-    private DataProcessorFactory dataProcessorFactory;
+    private DataFormatterFactory dataFormatterFactory;
     @Mock
     private DataExportProperty dataExportProperty;
     @Mock
-    private DataProcessor dataProcessor;
+    private DataFormatter dataFormatter;
     @Mock
     private TaskLogHandler taskLogHandler;
     @Mock
@@ -115,6 +118,8 @@ public class ReadingTypeDataSelectorTest {
     private ValidatorFactory validatorFactory;
     @Mock
     private Validator validator;
+    @Mock
+    private FormattedData formattedData;
 
     @Before
     public void setUp() {
@@ -125,9 +130,9 @@ public class ReadingTypeDataSelectorTest {
         exportPeriod = Range.openClosed(exportPeriodStart.toInstant(), exportPeriodEnd.toInstant());
         logRecorder = new LogRecorder(Level.ALL);
 
-        transactionService = new TransactionVerifier(dataProcessor, newItem, existingItem);
+        transactionService = new TransactionVerifier(dataFormatter, newItem, existingItem);
 
-        when(dataModel.getInstance(ReadingTypeDataSelectorImpl.class)).thenAnswer(invocation -> spy(new ReadingTypeDataSelectorImpl(dataModel, transactionService, meteringService)));
+        when(dataModel.getInstance(ReadingTypeDataSelectorImpl.class)).thenAnswer(invocation -> spy(new ReadingTypeDataSelectorImpl(dataModel, transactionService, meteringService, clock)));
         when(dataModel.getInstance(ReadingTypeInDataSelector.class)).thenAnswer(invocation -> spy(new ReadingTypeInDataSelector(meteringService)));
         when(dataModel.getInstance(ReadingTypeDataExportItemImpl.class)).thenAnswer(invocation -> spy(new ReadingTypeDataExportItemImpl(meteringService, dataExportService, dataModel)));
         when(dataModel.asRefAny(any())).thenAnswer(invocation -> new MyRefAny(invocation.getArguments()[0]));
@@ -138,7 +143,7 @@ public class ReadingTypeDataSelectorTest {
         when(taskLogHandler.asHandler()).thenReturn(logRecorder);
         when(dataExportService.createExportOccurrence(occurrence)).thenReturn(dataExportOccurrence);
         when(dataExportService.findDataExportOccurrence(occurrence)).thenReturn(Optional.of(dataExportOccurrence));
-        when(dataExportService.getDataProcessorFactory("CSV")).thenReturn(Optional.of(dataProcessorFactory));
+        when(dataExportService.getDataFormatterFactory("CSV")).thenReturn(Optional.of(dataFormatterFactory));
         when(dataExportService.getDataSelectorFactory(DataExportService.STANDARD_DATA_SELECTOR)).thenReturn(Optional.of(new StandardDataSelectorFactory(transactionService, meteringService, thesaurus)));
         when(dataExportOccurrence.getTask()).thenReturn(task);
         when(dataExportOccurrence.getExportedDataInterval()).thenReturn(exportPeriod);
@@ -173,12 +178,12 @@ public class ReadingTypeDataSelectorTest {
         when(endDeviceMembership2.getEndDevice()).thenReturn(meter2);
         Map<String, Object> propertyMap = new HashMap<>();
         propertyMap.put(dataExportProperty.getName(), dataExportProperty.getValue());
-        when(dataProcessorFactory.createDataFormatter(propertyMap)).thenReturn(dataProcessor);
-        when(dataProcessorFactory.getPropertySpec("name")).thenReturn(propertySpec);
+        when(dataFormatterFactory.createDataFormatter(propertyMap)).thenReturn(dataFormatter);
+        when(dataFormatterFactory.getPropertySpec("name")).thenReturn(propertySpec);
         when(strategy.isExportContinuousData()).thenReturn(false);
         doReturn(Arrays.asList(reading1)).when(meter1).getReadings(exportPeriod, readingType1);
         doReturn(Arrays.asList(reading2)).when(meter2).getReadings(exportPeriod, readingType1);
-        when(dataProcessor.processData(any())).thenReturn(Optional.of(exportPeriodEnd.toInstant()));
+        when(dataFormatter.processData(any())).thenReturn(formattedData);
         when(reading1.getSource()).thenReturn("reading1");
         when(reading2.getSource()).thenReturn("reading2");
     }

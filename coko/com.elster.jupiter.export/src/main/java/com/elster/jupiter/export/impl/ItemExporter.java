@@ -1,14 +1,14 @@
 package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.export.DataExportOccurrence;
+import com.elster.jupiter.export.FormattedExportData;
 import com.elster.jupiter.export.MeterReadingData;
-import com.google.common.collect.Range;
 
-import java.time.Instant;
+import java.util.List;
 
-public interface ItemExporter {
+interface ItemExporter {
 
-    Range<Instant> exportItem(DataExportOccurrence occurrence, MeterReadingData item);
+    List<FormattedExportData> exportItem(DataExportOccurrence occurrence, MeterReadingData item);
 
     void done();
 

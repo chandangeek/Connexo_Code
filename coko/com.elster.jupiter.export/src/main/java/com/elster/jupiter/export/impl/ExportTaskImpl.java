@@ -2,11 +2,14 @@ package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.export.CannotDeleteWhileBusyException;
+import com.elster.jupiter.export.DataExportDestination;
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportOccurrenceFinder;
 import com.elster.jupiter.export.DataExportProperty;
 import com.elster.jupiter.export.DataExportStatus;
+import com.elster.jupiter.export.EmailDestination;
 import com.elster.jupiter.export.ExportTask;
+import com.elster.jupiter.export.FileDestination;
 import com.elster.jupiter.export.ReadingTypeDataSelector;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
@@ -41,7 +44,7 @@ import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
-public class ExportTaskImpl implements IExportTask {
+class ExportTaskImpl implements IExportTask {
     private final TaskService taskService;
     private final DataModel dataModel;
     private final IDataExportService dataExportService;
@@ -51,8 +54,8 @@ public class ExportTaskImpl implements IExportTask {
     @Size(min = 1, max = Table.NAME_LENGTH, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_NAME_LENGTH + "}")
     protected String name;
     @NotNull
-    @IsExistingProcessor
-    private String dataProcessor;
+    @IsExistingFormatter
+    private String dataFormatter;
     private String dataSelector;
     private transient ScheduleExpression scheduleExpression;
     private transient Instant nextExecution;
@@ -69,6 +72,7 @@ public class ExportTaskImpl implements IExportTask {
     private String userName;
     @Valid
     private Reference<IReadingTypeDataSelector> readingTypeDataSelector = Reference.empty();
+    private List<IDataExportDestination> destinations = new ArrayList<>();
 
     @Inject
     ExportTaskImpl(DataModel dataModel, IDataExportService dataExportService, TaskService taskService, Thesaurus thesaurus) {
@@ -78,33 +82,39 @@ public class ExportTaskImpl implements IExportTask {
         this.thesaurus = thesaurus;
     }
 
-    static ExportTaskImpl from(DataModel dataModel, String name, String dataProcessor, String dataSelector, ScheduleExpression scheduleExpression, Instant nextExecution) {
-        return dataModel.getInstance(ExportTaskImpl.class).init(name, dataProcessor, dataSelector, scheduleExpression, nextExecution);
+    static ExportTaskImpl from(DataModel dataModel, String name, String dataFormatter, String dataSelector, ScheduleExpression scheduleExpression, Instant nextExecution) {
+        return dataModel.getInstance(ExportTaskImpl.class).init(name, dataFormatter, dataSelector, scheduleExpression, nextExecution);
     }
 
+    @Override
     public long getId() {
         return id;
     }
 
+    @Override
     public void activate() {
         //TODO automatically generated method body, provide implementation.
 
     }
 
+    @Override
     public void deactivate() {
         //TODO automatically generated method body, provide implementation.
 
     }
 
+    @Override
     public Map<String, Object> getProperties() {
         return properties.stream()
                 .collect(Collectors.toMap(DataExportProperty::getName, DataExportProperty::getValue));
     }
 
+    @Override
     public List<DataExportProperty> getDataExportProperties() {
         return Collections.unmodifiableList(properties);
     }
 
+    @Override
     public Instant getNextExecution() {
         return recurrentTask.get().getNextExecution();
     }
@@ -113,25 +123,29 @@ public class ExportTaskImpl implements IExportTask {
         return dataModel.mapper(DataExportOccurrenceImpl.class).find("readingTask", this);
     }
 
+    @Override
     public DataExportOccurrenceFinder getOccurrencesFinder() {
         Condition condition = where("readingTask").isEqualTo(this);
         Order order = Order.descending("taskocc");
         return new DataExportOccurrenceFinderImpl(dataModel, condition, order);
     }
 
+    @Override
     public Optional<IDataExportOccurrence> getLastOccurrence() {
         return dataModel.query(IDataExportOccurrence.class, TaskOccurrence.class).select(Operator.EQUAL.compare("readingTask", this), new Order[]{Order.descending("taskocc")},
                 false, new String[]{}, 1, 1).stream().findAny();
     }
 
+    @Override
     public Optional<? extends DataExportOccurrence> getOccurrence(Long id) {
         return dataModel.mapper(DataExportOccurrenceImpl.class).getOptional(id).filter(occ -> this.getId() == occ.getTask().getId());
     }
 
+    @Override
     public void save() {
         // TODO  : separate properties per Factory
 
-        List<PropertySpec> propertiesSpecsForProcessor = dataExportService.getPropertiesSpecsForProcessor(dataProcessor);
+        List<PropertySpec> propertiesSpecsForProcessor = dataExportService.getPropertiesSpecsForFormatter(dataFormatter);
         List<PropertySpec> propertiesSpecsForDataSelector = dataExportService.getPropertiesSpecsForDataSelector(dataSelector);
         List<DataExportProperty> processorProperties = new ArrayList<DataExportProperty>();
         List<DataExportProperty> selectorProperties = new ArrayList<DataExportProperty>();
@@ -150,7 +164,7 @@ public class ExportTaskImpl implements IExportTask {
             }
         }
 
-        dataExportService.getDataProcessorFactory(dataProcessor)
+        dataExportService.getDataFormatterFactory(dataFormatter)
                 .ifPresent(dataProcessorFactory -> dataProcessorFactory.validateProperties(processorProperties));
         dataExportService.getDataSelectorFactory(dataSelector)
                 .ifPresent(dataSelectorFactory -> dataSelectorFactory.validateProperties(selectorProperties));
@@ -164,6 +178,7 @@ public class ExportTaskImpl implements IExportTask {
         propertiesDirty = false;
     }
 
+    @Override
     public void delete() {
         if (id == 0) {
             return;
@@ -172,7 +187,8 @@ public class ExportTaskImpl implements IExportTask {
             throw new CannotDeleteWhileBusy();
         }
         properties.clear();
-        clearChildrenForDelete();
+        destinations.clear();
+        readingTypeDataSelector.getOptional().ifPresent(IReadingTypeDataSelector::delete);
         dataModel.mapper(DataExportOccurrence.class).remove(getOccurrences());
         dataModel.remove(this);
         if (recurrentTask.isPresent()) {
@@ -180,10 +196,7 @@ public class ExportTaskImpl implements IExportTask {
         }
     }
 
-    void clearChildrenForDelete() {
-        readingTypeDataSelector.getOptional().ifPresent(dataSelector -> dataSelector.delete());
-    }
-
+    @Override
     public boolean canBeDeleted() {
         return !hasUnfinishedOccurrences();
     }
@@ -209,12 +222,14 @@ public class ExportTaskImpl implements IExportTask {
                         .orElse(true);
     }
 
+    @Override
     public boolean isActive() {
         return recurrentTask.get().getNextExecution() != null;
     }
 
+    @Override
     public String getDataFormatter() {
-        return dataProcessor;
+        return dataFormatter;
     }
 
     @Override
@@ -222,45 +237,52 @@ public class ExportTaskImpl implements IExportTask {
         return dataSelector;
     }
 
+    @Override
     public List<PropertySpec> getPropertySpecs() {
-        List<PropertySpec> allSpecs = new ArrayList<PropertySpec>();
+        List<PropertySpec> allSpecs = new ArrayList<>();
         allSpecs.addAll(getDataProcessorPropertySpecs());
         allSpecs.addAll(getDataSelectorPropertySpecs());
         return allSpecs;
     }
 
     @Override
-    public List getDataSelectorPropertySpecs() {
-        return dataExportService.getDataSelectorFactory(dataSelector).orElseThrow(()->new IllegalArgumentException("No such data selector: "+dataSelector)).getPropertySpecs();
+    public List<PropertySpec> getDataSelectorPropertySpecs() {
+        return dataExportService.getDataSelectorFactory(dataSelector).orElseThrow(()->new IllegalArgumentException("No such data selector: " + dataSelector)).getPropertySpecs();
     }
 
     @Override
-    public List getDataProcessorPropertySpecs() {
-        return dataExportService.getDataProcessorFactory(dataProcessor).orElseThrow(()->new IllegalArgumentException("No such data processor: "+dataProcessor)).getPropertySpecs();
+    public List<PropertySpec> getDataProcessorPropertySpecs() {
+        return dataExportService.getDataFormatterFactory(dataFormatter).orElseThrow(()->new IllegalArgumentException("No such data processor: " + dataFormatter)).getPropertySpecs();
     }
 
+    @Override
     public ScheduleExpression getScheduleExpression() {
         return recurrentTask.get().getScheduleExpression();
     }
 
+    @Override
     public Optional<ScheduleExpression> getScheduleExpression(Instant at) {
         return recurrentTask.get().getHistory().getVersionAt(at).map(RecurrentTask::getScheduleExpression);
     }
 
+    @Override
     public void setNextExecution(Instant instant) {
         this.recurrentTask.get().setNextExecution(instant);
         recurrentTaskDirty = true;
     }
 
+    @Override
     public void setScheduleExpression(ScheduleExpression scheduleExpression) {
         this.recurrentTask.get().setScheduleExpression(scheduleExpression);
         recurrentTaskDirty = true;
     }
 
+    @Override
     public void setName(String name) {
         this.name = (name != null ? name.trim() : "");
     }
 
+    @Override
     public void setProperty(String name, Object value) {
         DataExportProperty dataExportProperty = properties.stream()
                 .filter(p -> p.getName().equals(name))
@@ -274,6 +296,7 @@ public class ExportTaskImpl implements IExportTask {
         propertiesDirty = true;
     }
 
+    @Override
     public PropertySpec getPropertySpec(String name) {
         return getPropertySpecs().stream()
                 .filter(p -> name.equals(p.getName()))
@@ -281,6 +304,7 @@ public class ExportTaskImpl implements IExportTask {
                 .orElse(null);
     }
 
+    @Override
     public String getDisplayName(String name) {
         return properties.stream()
                 .filter(p -> p.getName().equals(name))
@@ -289,18 +313,22 @@ public class ExportTaskImpl implements IExportTask {
                 .orElseThrow(IllegalArgumentException::new);
     }
 
+    @Override
     public void setScheduleImmediately(boolean scheduleImmediately) {
         this.scheduleImmediately = scheduleImmediately;
     }
 
+    @Override
     public void triggerNow() {
         recurrentTask.get().triggerNow();
     }
 
+    @Override
     public String getName() {
         return name;
     }
 
+    @Override
     public Map<String, Object> getProperties(Instant at) {
         List<JournalEntry<DataExportProperty>> props = dataModel.mapper(DataExportProperty.class).at(at).find(ImmutableMap.of("task", this));
         return props.stream()
@@ -340,31 +368,38 @@ public class ExportTaskImpl implements IExportTask {
         return recurrentTask.get();
     }
 
+    @Override
     public Optional<Instant> getLastRun() {
         return Optional.ofNullable(lastRun);
     }
 
+    @Override
     public void updateLastRun(Instant triggerTime) {
         lastRun = triggerTime;
         save();
     }
 
+    @Override
     public long getVersion() {
         return version;
     }
 
+    @Override
     public Instant getCreateTime() {
         return createTime;
     }
 
+    @Override
     public Instant getModTime() {
         return modTime;
     }
 
+    @Override
     public String getUserName() {
         return userName;
     }
 
+    @Override
     public History<ExportTask> getHistory() {
         List<JournalEntry<IExportTask>> journal = dataModel.mapper(IExportTask.class).getJournal(getId());
         return new History<>(journal, this);
@@ -384,9 +419,9 @@ public class ExportTaskImpl implements IExportTask {
         return dataModel;
     }
 
-    private ExportTaskImpl init(String name, String dataProcessor, String dataSelector, ScheduleExpression scheduleExpression, Instant nextExecution) {
+    private ExportTaskImpl init(String name, String dataFormatter, String dataSelector, ScheduleExpression scheduleExpression, Instant nextExecution) {
         setName(name);
-        this.dataProcessor = dataProcessor;
+        this.dataFormatter = dataFormatter;
         this.dataSelector = dataSelector;
         this.scheduleExpression = scheduleExpression;
         this.nextExecution = nextExecution;
@@ -397,6 +432,51 @@ public class ExportTaskImpl implements IExportTask {
     public void setReadingTypeDataSelector(ReadingTypeDataSelectorImpl readingTypeDataSelector) {
         this.readingTypeDataSelector.set(readingTypeDataSelector);
 
+    }
+
+    @Override
+    public FileDestination addFileDestination(String fileLocation, String fileName, String fileExtension) {
+        FileDestinationImpl fileDestination = dataModel.getInstance(FileDestinationImpl.class).init(this, fileLocation, fileName, fileExtension);
+        destinations.add(fileDestination);
+        save();
+        return fileDestination;
+    }
+
+    @Override
+    public EmailDestination addEmailDestination(String recipients, String subject, String attachmentName, String attachmentExtension) {
+        EmailDestinationImpl emailDestination = EmailDestinationImpl.from(this, dataModel, recipients, subject, attachmentName, attachmentExtension);
+        destinations.add(emailDestination);
+        save();
+        return emailDestination;
+    }
+
+    @Override
+    public void removeDestination(DataExportDestination destination) {
+        destinations.remove(destination);
+        save();
+    }
+
+    @Override
+    public List<DataExportDestination> getDestinations() {
+        return Collections.unmodifiableList(destinations);
+    }
+
+    @Override
+    public List<DataExportDestination> getDestinations(Instant at) {
+        List<JournalEntry<IDataExportDestination>> props = dataModel.mapper(IDataExportDestination.class).at(at).find(ImmutableMap.of("task", this));
+        return props.stream()
+                .map(JournalEntry::get)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public boolean hasDefaultSelector() {
+        return readingTypeDataSelector.isPresent();
+    }
+
+    @Override
+    public Destination getCompositeDestination() {
+        return new CompositeDataExportDestination(destinations);
     }
 
     private class CannotDeleteWhileBusy extends CannotDeleteWhileBusyException {
