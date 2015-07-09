@@ -9,11 +9,26 @@ Ext.define('InsightApp.controller.insight.History', {
             route: 'insight',
             disabled: true,
             items: {
-                properties: {
-                    route: 'properties',
-                    controller: 'InsightApp.controller.insight.Properties',
+                usagepoints: {
+                	title: Uni.I18n.translate('general.usagepoints', 'INS', 'Usage Points'),
+                    route: 'usagepoints',
+                    controller: 'InsightApp.controller.insight.UsagePoint',
                     action: 'test'
-                }
+                },
+                viewusagepoints: {
+                	title: Uni.I18n.translate('general.usagepoints', 'INS', 'View Usage Points'),
+                    route: 'viewusagepoints',
+                   	controller: 'InsightApp.usagepointmanagement.controller.UsagePoint',
+                   	action: 'showUsagePoints',
+                   	items: {
+                   		usagepoint: {
+                   			route: '{mRID}',
+                   			controller: 'InsightApp.usagepointmanagement.controller.UsagePoint',
+                   			action: 'showUsagePoint'
+                   		}
+                   	}
+                },
+
             }
         }
     }
