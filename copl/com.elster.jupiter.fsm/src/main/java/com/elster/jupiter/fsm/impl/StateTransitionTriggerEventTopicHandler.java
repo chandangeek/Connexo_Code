@@ -65,17 +65,10 @@ public class StateTransitionTriggerEventTopicHandler implements TopicHandler {
 
     @Override
     public void handle(LocalEvent localEvent) {
-        StateTransitionTriggerEvent triggerEvent = (StateTransitionTriggerEvent) localEvent.getSource();
-        Optional<State> currentState = triggerEvent.getFiniteStateMachine().getState(triggerEvent.getSourceCurrentStateName());
-        if (currentState.isPresent()) {
-            this.handle(triggerEvent, currentState.get());
-        }
-        else {
-            this.logger.fine(ignoreEventMessageSupplier(triggerEvent));
-        }
+        this.handle((StateTransitionTriggerEvent) localEvent.getSource());
     }
 
-    void handle(StateTransitionTriggerEvent triggerEvent) {
+    private void handle(StateTransitionTriggerEvent triggerEvent) {
         Optional<State> currentState = triggerEvent.getFiniteStateMachine().getState(triggerEvent.getSourceCurrentStateName());
         if (currentState.isPresent()) {
             this.handle(triggerEvent, currentState.get());
@@ -95,7 +88,7 @@ public class StateTransitionTriggerEventTopicHandler implements TopicHandler {
 
     private void handle(StateTransitionTriggerEvent triggerEvent, ActualState currentState) {
         FiniteStateMachine finiteStateMachine = triggerEvent.getFiniteStateMachine();
-        ActualStatesAndTriggers actualStatesAndTriggers = new ActualStatesAndTriggers(finiteStateMachine);
+        ActualStatesAndTriggers actualStatesAndTriggers = new ActualStatesAndTriggers(finiteStateMachine, triggerEvent.getSourceId());
         StateMachineConfig<ActualState, Trigger> stateMachineConfiguration = this.configureStateMachine(actualStatesAndTriggers);
         StateMachine<ActualState, Trigger> stateMachine = new StateMachine<>(currentState, stateMachineConfiguration);
         try {
@@ -124,21 +117,61 @@ public class StateTransitionTriggerEventTopicHandler implements TopicHandler {
         return configuration;
     }
 
-    private static class StartExternalProcesses {
+    private abstract static class StartExternalProcesses {
         private Logger logger = Logger.getLogger(StateTransitionTriggerEventTopicHandler.class.getName());
         private final List<ProcessReference> processReferences;
+        private final String sourceId;
+        private final State state;
 
-        private StartExternalProcesses(List<ProcessReference> processReferences) {
+        StartExternalProcesses(List<ProcessReference> processReferences, String sourceId, State state) {
             super();
+            this.sourceId = sourceId;
+            this.state = state;
             this.processReferences = new ArrayList<>(processReferences);
         }
 
-        private void startAll() {
+        void startAll() {
             this.processReferences.forEach(this::start);
         }
 
-        private void start(ProcessReference processReference) {
-            logger.fine("Should start process with deploymentId: " + processReference.getStateChangeBusinessProcess().getDeploymentId() + " and processId: " + processReference.getStateChangeBusinessProcess().getProcessId());
+        protected abstract void start(ProcessReference processReference);
+
+        private void logStart(ProcessReference processReference) {
+            this.logger.fine(() -> "Starting process with deploymentId: " + processReference.getStateChangeBusinessProcess()
+                    .getDeploymentId() + " and processId: " + processReference.getStateChangeBusinessProcess().getProcessId());
+        }
+
+        protected void startOnEntry(ProcessReference processReference) {
+            this.logStart(processReference);
+            processReference.getStateChangeBusinessProcess().executeOnEntry(this.sourceId, this.state);
+        }
+
+        protected void startOnExit(ProcessReference processReference) {
+            this.logStart(processReference);
+            processReference.getStateChangeBusinessProcess().executeOnExit(this.sourceId, this.state);
+        }
+
+    }
+
+    private static class StartExternalProcessesOnEntry extends StartExternalProcesses {
+        StartExternalProcessesOnEntry(List<ProcessReference> processReferences, String sourceId, State state) {
+            super(processReferences, sourceId, state);
+        }
+
+        @Override
+        protected void start(ProcessReference processReference) {
+            this.startOnEntry(processReference);
+        }
+    }
+
+    private static class StartExternalProcessesOnExit extends StartExternalProcesses {
+        StartExternalProcessesOnExit(List<ProcessReference> processReferences, String sourceId, State state) {
+            super(processReferences, sourceId, state);
+        }
+
+        @Override
+        protected void start(ProcessReference processReference) {
+            this.startOnExit(processReference);
         }
     }
 
@@ -242,12 +275,14 @@ public class StateTransitionTriggerEventTopicHandler implements TopicHandler {
      */
     private static class ActualStatesAndTriggers {
         private final FiniteStateMachine stateMachine;
+        private final String sourceId;
         private final Map<Long, ActualState> states;
         private final Map<Long, Trigger> triggers;
 
-        private ActualStatesAndTriggers(FiniteStateMachine stateMachine) {
+        private ActualStatesAndTriggers(FiniteStateMachine stateMachine, String sourceId) {
             super();
             this.stateMachine = stateMachine;
+            this.sourceId = sourceId;
             this.states = stateMachine.getStates().stream()
                     .map(ActualState::new)
                     .collect(Collectors.toMap(
@@ -281,8 +316,8 @@ public class StateTransitionTriggerEventTopicHandler implements TopicHandler {
         }
 
         private void addToConfiguration(ActualState state, StateConfiguration<ActualState, Trigger> configuration) {
-            configuration.onEntry(() -> new StartExternalProcesses(state.getOnEntryProcesses()).startAll());
-            configuration.onExit(() -> new StartExternalProcesses(state.getOnExitProcesses()).startAll());
+            configuration.onEntry(() -> new StartExternalProcessesOnEntry(state.getOnEntryProcesses(), this.sourceId, state.state).startAll());
+            configuration.onExit(() -> new StartExternalProcessesOnExit(state.getOnExitProcesses(), this.sourceId, state.state).startAll());
             state.getOutgoingStateTransitions().forEach(t -> this.addToConfiguration(t, configuration));
         }
 

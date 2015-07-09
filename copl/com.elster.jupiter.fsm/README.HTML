@@ -6,7 +6,7 @@ As events are produced, the finite state machine will respond to the event and c
 When state actually changes, a new event is produced that can be picked up by other components
 that could e.g. change the actual persisted state of a device.
 Events are globally defined and can therefore be reused across different state machines.
-Currently, the external processes are defined in jBPM but are not started yet.
+The triggering of external processes that are defined in jBPM is done by publishing an event.
 </p>
 <h2>Release History</h2>
 <h3>Version 1.0.0</h3>
@@ -17,7 +17,7 @@ Currently, the external processes are defined in jBPM but are not started yet.
 <h2>Exported Packages</h2>
 <table>
 <tr><th>package</th><th>version</th><th>description</th></tr>
-<tr><td>com.elster.jupiter.fsm</td><td>1.1.0</td><td>Public Api</td></tr>
+<tr><td>com.elster.jupiter.fsm</td><td>1.0.0</td><td>Public Api</td></tr>
 </table>
 <h2>Provided Services</h2>
 <ul><li>com.elster.jupiter.fsm.FiniteStateMachineService</li></ul>

@@ -1,6 +1,5 @@
 package com.elster.jupiter.fsm.impl;
 
-import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.CustomStateTransitionEventType;
@@ -65,7 +64,6 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
     private volatile UserService userService;
     private volatile EventService eventService;
     private volatile TransactionService transactionService;
-    private volatile BpmService bpmService;
     private volatile List<StandardEventPredicate> standardEventPredicates = new CopyOnWriteArrayList<>();
     private Thesaurus thesaurus;
 
@@ -76,14 +74,13 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
 
     // For unit testing purposes
     @Inject
-    public FiniteStateMachineServiceImpl(OrmService ormService, NlsService nlsService, UserService userService, EventService eventService, TransactionService transactionService, BpmService bpmService) {
+    public FiniteStateMachineServiceImpl(OrmService ormService, NlsService nlsService, UserService userService, EventService eventService, TransactionService transactionService) {
         this();
         this.setOrmService(ormService);
         this.setNlsService(nlsService);
         this.setUserService(userService);
         this.setEventService(eventService);
         this.setTransactionService(transactionService);
-        this.setBpmService(bpmService);
         this.activate();
         if (!this.dataModel.isInstalled()) {
             install();
@@ -133,7 +130,6 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
                 bind(NlsService.class).toInstance(nlsService);
                 bind(UserService.class).toInstance(userService);
                 bind(EventService.class).toInstance(eventService);
-                bind(BpmService.class).toInstance(bpmService);
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
 
@@ -170,11 +166,6 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
     @Reference(name = "theTransactionService")
     public void setTransactionService(TransactionService transactionService) {
         this.transactionService = transactionService;
-    }
-
-    @Reference
-    public void setBpmService(BpmService bpmService) {
-        this.bpmService = bpmService;
     }
 
     @Override

@@ -14,7 +14,8 @@ import com.elster.jupiter.orm.TransactionRequired;
 public enum EventType {
 
     TRIGGER_EVENT("event/TRIGGER"),
-    CHANGE_EVENT("event/CHANGE");
+    CHANGE_EVENT("event/CHANGE"),
+    START_BPM("bpm/START");
 
     private static final String NAMESPACE = "com/elster/jupiter/fsm/";
     private final String topic;

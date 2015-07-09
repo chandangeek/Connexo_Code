@@ -44,6 +44,8 @@ public interface StateChangeBusinessProcess {
      * <li>entry: denotes that the State is entered, i.e. the object's state is changing to the specified state</li>
      * <li>exit: denotes that the State is exited, i.e. the object's state is changing from the specified state to another</li>
      * </ul>
+     * @see StateChangeBusinessProcessStartEvent.Type#ENTRY
+     * @see StateChangeBusinessProcessStartEvent.Type#EXIT
      */
     public static final String CHANGE_TYPE_BPM_PARAMETER_NAME = "changeType";
 

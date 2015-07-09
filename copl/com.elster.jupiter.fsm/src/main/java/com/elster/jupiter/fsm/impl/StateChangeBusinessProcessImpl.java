@@ -1,16 +1,15 @@
 package com.elster.jupiter.fsm.impl;
 
-import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.fsm.MessageSeeds;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateChangeBusinessProcess;
-import com.google.common.collect.ImmutableMap;
+import com.elster.jupiter.fsm.StateChangeBusinessProcessStartEvent;
+import com.elster.jupiter.orm.DataModel;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
-import java.util.Map;
 
 /**
  * Provides an implementation for the {@link StateChangeBusinessProcess}.
@@ -35,7 +34,7 @@ public class StateChangeBusinessProcessImpl implements StateChangeBusinessProces
         }
     }
 
-    private final BpmService bpmService;
+    private final DataModel dataModel;
 
     @SuppressWarnings("unused")
     private long id;
@@ -47,9 +46,9 @@ public class StateChangeBusinessProcessImpl implements StateChangeBusinessProces
     private String processId;
 
     @Inject
-    public StateChangeBusinessProcessImpl(BpmService bpmService) {
+    public StateChangeBusinessProcessImpl(DataModel dataModel) {
         super();
-        this.bpmService = bpmService;
+        this.dataModel = dataModel;
     }
 
     StateChangeBusinessProcessImpl initialize(String deploymentId, String processId) {
@@ -75,20 +74,19 @@ public class StateChangeBusinessProcessImpl implements StateChangeBusinessProces
 
     @Override
     public void executeOnEntry(String sourceId, State state) {
-        this.executeWithChangeType(sourceId, state, "entry");
+        this.executeWithChangeType(sourceId, state, StateChangeBusinessProcessStartEvent.Type.ENTRY);
     }
 
     @Override
     public void executeOnExit(String sourceId, State state) {
-        this.executeWithChangeType(sourceId, state, "exit");
+        this.executeWithChangeType(sourceId, state, StateChangeBusinessProcessStartEvent.Type.EXIT);
     }
 
-    private void executeWithChangeType(String sourceId, State state, String changeType) {
-        Map<String, Object> parameters = ImmutableMap.of(
-                SOURCE_ID_BPM_PARAMETER_NAME, sourceId,
-                STATE_ID_BPM_PARAMETER_NAME, state.getId(),
-                CHANGE_TYPE_BPM_PARAMETER_NAME, changeType);
-        this.bpmService.startProcess(this.deploymentId, this.processId, parameters);
+    private void executeWithChangeType(String sourceId, State state, StateChangeBusinessProcessStartEvent.Type changeType) {
+        this.dataModel
+                .getInstance(StateChangeBusinessProcessStartEventImpl.class)
+                .initialize(this, sourceId, state, changeType)
+                .publish();
     }
 
 }
