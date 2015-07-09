@@ -9,7 +9,7 @@
 
     <artifactId>protocols</artifactId>
     <packaging>pom</packaging>
-    <version>9.1.18-SNAPSHOT</version>
+    <version>9.1.19</version>
     <name>protocols</name>
 
     <dependencies>
@@ -108,8 +108,8 @@
     </dependencyManagement>
 
     <scm>
-        <connection>scm:svn:http://source.eict.vpdc/svn/labo/protocols/trunk</connection>
-        <developerConnection>scm:svn:http://source.eict.vpdc/svn/labo/protocols/trunk</developerConnection>
+        <connection>scm:svn:http://source.eict.vpdc/svn/labo/protocols/tags/9.1.19</connection>
+        <developerConnection>scm:svn:http://source.eict.vpdc/svn/labo/protocols/tags/9.1.19</developerConnection>
     </scm>
 
     <issueManagement>
