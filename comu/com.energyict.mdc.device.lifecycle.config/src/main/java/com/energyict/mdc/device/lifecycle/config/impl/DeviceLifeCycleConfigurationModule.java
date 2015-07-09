@@ -2,7 +2,7 @@ package com.energyict.mdc.device.lifecycle.config.impl;
 
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 
-import com.elster.jupiter.bpm.BpmService;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.transaction.TransactionService;
@@ -24,7 +24,7 @@ public class DeviceLifeCycleConfigurationModule extends AbstractModule {
         requireBinding(NlsService.class);
         requireBinding(UserService.class);
         requireBinding(TransactionService.class);
-        requireBinding(BpmService.class);
+        requireBinding(EventService.class);
         bind(DeviceLifeCycleConfigurationService.class).to(DeviceLifeCycleConfigurationServiceImpl.class).in(Scopes.SINGLETON);
     }
 

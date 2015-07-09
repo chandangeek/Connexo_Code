@@ -1,11 +1,11 @@
 package com.energyict.mdc.device.lifecycle.config.impl;
 
 import com.energyict.mdc.device.lifecycle.config.TransitionBusinessProcess;
+import com.energyict.mdc.device.lifecycle.config.TransitionBusinessProcessStartEvent;
 
-import com.elster.jupiter.bpm.BpmService;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.State;
-
-import java.util.Map;
+import com.elster.jupiter.orm.DataModel;
 
 import org.junit.*;
 import org.junit.runner.*;
@@ -33,32 +33,37 @@ public class TransitionBusinessProcessImplExecuteTest {
     private static final String PROCESS_ID = "processId";
 
     @Mock
-    private BpmService bpmService;
+    private DataModel dataModel;
+    @Mock
+    private EventService eventService;
     @Mock
     private State state;
 
     @Before
     public void initializeMocks() {
+        when(this.dataModel.getInstance(TransitionBusinessProcessStartEventImpl.class)).thenReturn(new TransitionBusinessProcessStartEventImpl(this.eventService));
         when(this.state.getId()).thenReturn(STATE_ID);
     }
+
     @Test
-    public void createWithoutConstraint() {
+    public void executePublishesEventToEventService() {
         TransitionBusinessProcess testInstance = this.getTestInstance();
 
         // Business method
         testInstance.executeOn(DEVICE_ID, this.state);
 
         // Asserts
-        ArgumentCaptor<Map> parametersArgumentCaptor = ArgumentCaptor.forClass(Map.class);
-        verify(this.bpmService).startProcess(eq(DEPLOYMENT_ID), eq(PROCESS_ID), parametersArgumentCaptor.capture());
-        Map<String, Object> parameters = parametersArgumentCaptor.getValue();
-        assertThat(parameters).containsOnlyKeys(TransitionBusinessProcess.DEVICE_ID_BPM_PARAMETER_NAME, TransitionBusinessProcess.STATE_ID_BPM_PARAMETER_NAME);
-        assertThat(parameters.get(TransitionBusinessProcess.DEVICE_ID_BPM_PARAMETER_NAME)).isEqualTo(DEVICE_ID);
-        assertThat(parameters.get(TransitionBusinessProcess.STATE_ID_BPM_PARAMETER_NAME)).isEqualTo(STATE_ID);
+        ArgumentCaptor<TransitionBusinessProcessStartEvent> eventArgumentCaptor = ArgumentCaptor.forClass(TransitionBusinessProcessStartEvent.class);
+        verify(this.eventService).postEvent(eq(TransitionBusinessProcessStartEvent.TOPIC), eventArgumentCaptor.capture());
+        TransitionBusinessProcessStartEvent event = eventArgumentCaptor.getValue();
+        assertThat(event.deploymentId()).isEqualTo(DEPLOYMENT_ID);
+        assertThat(event.processId()).isEqualTo(PROCESS_ID);
+        assertThat(event.deviceId()).isEqualTo(DEVICE_ID);
+        assertThat(event.state()).isEqualTo(this.state);
     }
 
     private TransitionBusinessProcessImpl getTestInstance() {
-        TransitionBusinessProcessImpl businessProcess = new TransitionBusinessProcessImpl(this.bpmService);
+        TransitionBusinessProcessImpl businessProcess = new TransitionBusinessProcessImpl(dataModel);
         businessProcess.initialize(DEPLOYMENT_ID, PROCESS_ID);
         return businessProcess;
     }
