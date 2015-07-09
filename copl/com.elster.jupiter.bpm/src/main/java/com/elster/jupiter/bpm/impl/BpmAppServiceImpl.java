@@ -37,7 +37,7 @@ public class BpmAppServiceImpl implements BpmAppService {
 
     @Activate
     public final void activate(BundleContext context) {
-        App app = new App("BPM", "Flow", "connexo", bpmService.getBpmServer().getUrl(), user -> user.getPrivileges().stream().anyMatch(p -> "privilege.design.bpm".equals(p.getName())));
+        App app = new App("BPM", "Flow", "connexo", bpmService.getBpmServer().getUrl(), user -> user.getPrivileges(bpmService.COMPONENTNAME).stream().anyMatch(p -> "privilege.design.bpm".equals(p.getName())));
         registration = context.registerService(App.class, app, null);
     }
 
