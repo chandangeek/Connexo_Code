@@ -37,7 +37,7 @@ Ext.define('InsightApp.controller.insight.Main', {
         Uni.store.MenuItems.add(menuItem);
 
         var portalItem1 = Ext.create('Uni.model.PortalItem', {
-            title: Uni.I18n.translate('general.UsagePoints', 'INS', 'Usage Points'),
+            title: Uni.I18n.translate('general.usagePoints', 'INS', 'Usage Points'),
             portal: 'insight',
             items: [
                 {

@@ -10,7 +10,7 @@ Ext.define('InsightApp.controller.insight.History', {
             disabled: true,
             items: {
                 usagepoints: {
-                	title: Uni.I18n.translate('general.usagepoints', 'INS', 'Usage Points'),
+                	title: Uni.I18n.translate('general.usagePoints', 'INS', 'Usage Points'),
                     route: 'usagepoints',
                     controller: 'InsightApp.controller.insight.UsagePoint',
                     action: 'test'

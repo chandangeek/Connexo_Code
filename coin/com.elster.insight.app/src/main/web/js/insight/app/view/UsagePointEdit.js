@@ -46,18 +46,27 @@ Ext.define('InsightApp.view.UsagePointEdit', {
                     xtype: 'hiddenfield',
                     name: 'connectionState',
                     value: 'UNKNOWN'
+                },                {
+                    xtype: 'hiddenfield',
+                    name: 'nominalVoltage.unit',
+                    value: 'V'
+                },                {
+                    xtype: 'hiddenfield',
+                    name: 'nominalVoltage.multiplier',
+                    value: '0'
                 },
                 {
                     xtype: 'textfield',
                     name: 'mRID',
-                    fieldLabel: Uni.I18n.translate('general.formFieldLabel.mRID', 'INS', 'mRID'),
+                    fieldLabel: Uni.I18n.translate('usagePoint.formFieldLabel.mRID', 'INS', 'mRID'),
+                    required: true,
                     maxLength: 75,
                     width: 600
                 },
                 {
                     xtype: 'textfield',
                     name: 'name',
-                    fieldLabel: Uni.I18n.translate('general.formFieldLabel.name', 'INS', 'Name'),
+                    fieldLabel: Uni.I18n.translate('usagePoint.formFieldLabel.name', 'INS', 'Name'),
                     allowBlank: false,
                     maxLength: 75,
                     required: true,
@@ -74,8 +83,27 @@ Ext.define('InsightApp.view.UsagePointEdit', {
                     valueField: 'name',
                     allowBlank: false,
                     required: true,
-                    width: 600
+                    width: 600,
+                    listeners: {
+                    	change: function(field, newValue, oldValue) {
+	                		if (newValue == 'ELECTRICITY') {
+								this.up().down('textfield[name=nominalVoltage.value]').show();
+	                		} else {
+	                			this.up().down('textfield[name=nominalVoltage.value]').hide();
+	                		}
+                    	}
+                    }
                 },
+                {
+                    xtype: 'textfield',
+                    name: 'nominalVoltage.value',
+                    fieldLabel: Uni.I18n.translate('usagePoint.formFieldLabel.nominalVoltage', 'INS', 'Nominal Voltage'),
+                    allowBlank: true,
+                    maxLength: 75,
+                    required: false,
+                    width: 600,
+                    hidden: true
+                },                	
                 {
                     xtype: 'fieldcontainer',
                     ui: 'actions',
