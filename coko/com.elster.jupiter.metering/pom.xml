@@ -87,6 +87,11 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
+            <artifactId>bpm</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
             <artifactId>bootstrap.h2</artifactId>
             <scope>test</scope>
         </dependency>

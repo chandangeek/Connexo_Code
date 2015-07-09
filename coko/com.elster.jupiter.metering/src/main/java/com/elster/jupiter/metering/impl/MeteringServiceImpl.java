@@ -11,6 +11,7 @@ import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
@@ -29,6 +30,8 @@ import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.JournalEntry;
 import com.elster.jupiter.orm.OrmService;
@@ -61,11 +64,18 @@ import javax.validation.MessageInterpolator;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.Period;
-import java.util.*;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
+
 
 @Component(name = "com.elster.jupiter.metering", service = {MeteringService.class, ServerMeteringService.class, InstallService.class, PrivilegesProvider.class}, property = "name=" + MeteringService.COMPONENTNAME)
 public class MeteringServiceImpl implements ServerMeteringService, InstallService, PrivilegesProvider {
@@ -515,6 +525,19 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
                         Privileges.BROWSE_ANY, Privileges.ADMIN_ANY,
                         Privileges.BROWSE_OWN, Privileges.ADMIN_OWN)));
         return resources;
+    }
+
+
+    public Layer getLayer() {
+        return Layer.DOMAIN;
+    }
+
+    @Override
+    public List<TranslationKey> getKeys() {
+        List<TranslationKey> translationKeys = new ArrayList<>();
+        Arrays.stream(MessageSeeds.values()).forEach(translationKeys::add);
+        Arrays.stream(DefaultTranslationKey.values()).forEach(translationKeys::add);
+        return translationKeys;
     }
 
 }

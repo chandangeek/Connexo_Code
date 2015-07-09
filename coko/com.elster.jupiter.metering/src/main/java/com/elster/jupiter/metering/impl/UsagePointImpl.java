@@ -53,7 +53,6 @@ public class UsagePointImpl implements UsagePoint {
 	@SuppressWarnings("unused")
 	private String userName;
 
-
     private TemporalReference<UsagePointDetailImpl> detail = Temporals.absent();
 
     // associations
@@ -61,29 +60,29 @@ public class UsagePointImpl implements UsagePoint {
 	private final Reference<ServiceLocation> serviceLocation = ValueReference.absent();
 	private final List<MeterActivationImpl> meterActivations = new ArrayList<>();
 	private final List<UsagePointAccountability> accountabilities = new ArrayList<>();
-	
+
     private final DataModel dataModel;
     private final EventService eventService;
     private final Provider<MeterActivationImpl> meterActivationFactory;
     private final Provider<UsagePointAccountabilityImpl> accountabilityFactory;
 
     @Inject
-	UsagePointImpl(DataModel dataModel, EventService eventService, 
-			Provider<MeterActivationImpl> meterActivationFactory, 
+	UsagePointImpl(DataModel dataModel, EventService eventService,
+			Provider<MeterActivationImpl> meterActivationFactory,
 			Provider<UsagePointAccountabilityImpl> accountabilityFactory) {
         this.dataModel = dataModel;
         this.eventService = eventService;
         this.meterActivationFactory = meterActivationFactory;
         this.accountabilityFactory = accountabilityFactory;
     }
-	
+
 	UsagePointImpl init(String mRID , ServiceCategory serviceCategory) {
 		this.mRID = mRID;
 		this.serviceCategory.set(serviceCategory);
 		this.isSdp = true;
         return this;
 	}
-	
+
 	@Override
 	public long getId() {
 		return id;
@@ -91,10 +90,10 @@ public class UsagePointImpl implements UsagePoint {
 
 	@Override 
 	public long getServiceLocationId() {
-		ServiceLocation location = getServiceLocation();
+		ServiceLocation location = getServiceLocation().get();
 		return location == null ? 0 : location.getId();
 	}
-	
+
 	@Override
 	public String getAliasName() {
 		return aliasName;
@@ -151,8 +150,8 @@ public class UsagePointImpl implements UsagePoint {
 	}
 
 	@Override
-	public ServiceLocation getServiceLocation() {
-		return serviceLocation.get();
+	public Optional<ServiceLocation> getServiceLocation() {
+		return serviceLocation.getOptional();
 	}
 
 	@Override
@@ -231,7 +230,7 @@ public class UsagePointImpl implements UsagePoint {
 	public List<MeterActivationImpl> getMeterActivations() {
 		return ImmutableList.copyOf(meterActivations);
 	}
-	
+
 	@Override
 	public Optional<MeterActivation> getCurrentMeterActivation() {
         return meterActivations.stream()
@@ -239,12 +238,12 @@ public class UsagePointImpl implements UsagePoint {
                 .map(MeterActivation.class::cast)
                 .findAny();
     }
-	
+
 	@Override
 	public Instant getCreateDate() {
 		return createTime;
 	}
-	
+
 	@Override
 	public Instant getModificationDate() {
 		return modTime; 
@@ -253,7 +252,7 @@ public class UsagePointImpl implements UsagePoint {
 	public long getVersion() {
 		return version;
 	}
-	
+
 	@Override
 	public List<UsagePointAccountability> getAccountabilities() {
         return ImmutableList.copyOf(accountabilities);
@@ -266,7 +265,7 @@ public class UsagePointImpl implements UsagePoint {
 		adopt(result);
 		return result;
 	}
-    
+
     @Override
 	public MeterActivation activate(Meter meter, Instant start) {
 		MeterActivationImpl result = meterActivationFactory.get().init(meter, this, start);
@@ -274,7 +273,7 @@ public class UsagePointImpl implements UsagePoint {
 		adopt(result);
 		return result;
 	}
-    
+
     public void adopt(MeterActivationImpl meterActivation) {
         meterActivations.stream()
                 .filter(activation -> activation.getId() != meterActivation.getId())
@@ -297,7 +296,7 @@ public class UsagePointImpl implements UsagePoint {
 		}
     	meterActivations.add(meterActivation);
     }
-	
+
 	@Override
 	public UsagePointAccountability addAccountability(PartyRole role , Party party , Instant start) {
 		UsagePointAccountability accountability = accountabilityFactory.get().init(this, party, role, start);
@@ -359,7 +358,7 @@ public class UsagePointImpl implements UsagePoint {
         touch();
         return toUpdate;
     }
-    
+
     private void validateAddingDetail(UsagePointDetail candidate) {
         for (UsagePointDetail usagePointDetail : detail.effective(candidate.getRange())) {
             if (candidate.conflictsWith(usagePointDetail)) {
