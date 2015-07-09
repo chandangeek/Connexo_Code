@@ -160,7 +160,9 @@ public class DeviceAttributesInfoFactory {
         }
         if(DeviceAttribute.USAGE_POINT.isEditableForState(state) && info.usagePoint != null){
             meteringService.findUsagePoint(info.usagePoint.attributeId).ifPresent(usagePoint -> {
-
+                device.getCurrentMeterActivation().ifPresent(meterActivation -> {
+                    meterActivation.setUsagePoint(usagePoint);
+                });
             });
         }
         CIMLifecycleDates lifecycleDates = device.getLifecycleDates();
