@@ -1,13 +1,10 @@
-package com.elster.upiter.fileimport.rest.impl;
+package com.elster.jupiter.fileimport.rest.impl;
 
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.fileimport.FileImporter;
 import com.elster.jupiter.fileimport.FileImporterFactory;
 import com.elster.jupiter.fileimport.ImportSchedule;
 import com.elster.jupiter.fileimport.ImportScheduleBuilder;
-import com.elster.jupiter.fileimport.rest.impl.FileImportScheduleInfo;
-import com.elster.jupiter.fileimport.rest.impl.FileImportScheduleInfos;
-import com.elster.jupiter.fileimport.rest.impl.FileImporterInfo;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.util.time.ScheduleExpression;
@@ -42,7 +39,7 @@ public class FileImportOccurrenceScheduleResourceTest extends FileImportOccurren
     @Test
     public void testGetImportSchedules() {
         mockImportSchedules(mockImportSchedule(1));
-        Response response = target("/importservices").queryParam("application", "SYS").request().get();
+        Response response = target("/importservices").request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
 
         FileImportScheduleInfos infos = response.readEntity(FileImportScheduleInfos.class);

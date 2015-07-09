@@ -1,8 +1,7 @@
-package com.elster.upiter.fileimport.rest.impl;
+package com.elster.jupiter.fileimport.rest.impl;
 
 import com.elster.jupiter.fileimport.FileImporter;
 import com.elster.jupiter.fileimport.FileImporterFactory;
-import com.elster.jupiter.fileimport.rest.impl.FileImporterInfos;
 import com.google.common.collect.ImmutableList;
 import org.junit.Before;
 import org.junit.Test;
@@ -14,7 +13,7 @@ import static org.mockito.Matchers.anyMap;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class FileImportersResourceTestOccurrence extends FileImportOccurrenceApplicationTest {
+public class FileImportersResourceTest extends FileImportApplicationTest {
     @Before
     public void setUp() throws Exception {
         super.setUp();
@@ -23,7 +22,7 @@ public class FileImportersResourceTestOccurrence extends FileImportOccurrenceApp
 
     @Test
     public void testSysGetImporters() {
-        Response response = target("/importers").queryParam("application", "SYS").request().get();
+        Response response = target("/importers").request().header("X-CONNEXO-APPLICATION-NAME", "SYS").get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
 
         FileImporterInfos infos = response.readEntity(FileImporterInfos.class);
@@ -36,7 +35,7 @@ public class FileImportersResourceTestOccurrence extends FileImportOccurrenceApp
 
     @Test
     public void testMdcGetImporters() {
-        Response response = target("/importers").queryParam("application", "MDC").request().get();
+        Response response = target("/importers").request().header("X-CONNEXO-APPLICATION-NAME", "MDC").get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
 
         FileImporterInfos infos = response.readEntity(FileImporterInfos.class);
