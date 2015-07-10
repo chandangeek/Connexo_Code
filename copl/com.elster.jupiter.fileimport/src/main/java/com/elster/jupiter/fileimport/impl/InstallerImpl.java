@@ -49,16 +49,6 @@ class InstallerImpl {
         dataModel.install(true, true);
     }
 
-    /*
-    private void createPrivileges() {
-        userService.createResourceWithPrivileges("SYS", "fileImport.importServices", "fileImport.importServices.description", new String[]
-             {Privileges.ADMINISTRATE_IMPORT_SERVICES, Privileges.VIEW_IMPORT_SERVICES});
-        userService.
-                createResourceWithPrivileges("MDC", "fileImport.importServicesMdc", "fileImport.importServices.description", new String[]
-                {Privileges.VIEW_MDC_IMPORT_SERVICES});
-    }
-    */
-
     private void createTranslations() {
         List<Translation> translations = new ArrayList<>(MessageSeeds.values().length);
         for (MessageSeeds messageSeed : MessageSeeds.values()) {
