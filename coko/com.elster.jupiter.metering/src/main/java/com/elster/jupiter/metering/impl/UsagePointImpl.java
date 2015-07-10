@@ -90,8 +90,7 @@ public class UsagePointImpl implements UsagePoint {
 
 	@Override 
 	public long getServiceLocationId() {
-		ServiceLocation location = getServiceLocation().get();
-		return location == null ? 0 : location.getId();
+		return getServiceLocation().map(ServiceLocation::getId).orElse(0L);
 	}
 
 	@Override
