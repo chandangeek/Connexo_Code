@@ -28,14 +28,14 @@ public class LogBookResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
     @Path("/{id}")
-    public Response getLogBook(@PathParam("id") long id, @BeanParam SelectedFields fields, @Context UriInfo uriInfo) {
+    public Response getLogBook(@PathParam("id") long id, @BeanParam FieldSelection fields, @Context UriInfo uriInfo) {
         return Response.ok().build();
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
-    public Response getLogBooks(@BeanParam JsonQueryParameters queryParameters, @BeanParam SelectedFields fields,@Context UriInfo uriInfo) {
+    public Response getLogBooks(@BeanParam JsonQueryParameters queryParameters, @BeanParam FieldSelection fields,@Context UriInfo uriInfo) {
         return Response.ok().build();
     }
 

@@ -59,20 +59,34 @@ public class DeviceLifecycleActionResource {
         this.clock = clock;
     }
 
+    @GET
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
+    @Path("/{actionId}")
+    public Response getAction(@PathParam("mrid") String mRID,
+                              @PathParam("actionId") long actionId,
+                              @Context UriInfo uriInfo,
+                              @BeanParam FieldSelection fieldSelection) {
+
+        Device device = deviceService.findByUniqueMrid(mRID).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND.getStatusCode()));
+        ExecutableAction executableAction = getExecutableActionByIdOrThrowException(actionId, device);
+        return Response.ok(deviceLifecycleActionInfoFactory.createDeviceLifecycleActionInfo(device, (AuthorizedTransitionAction) executableAction.getAction(), uriInfo, fieldSelection.getFields())).build();
+    }
+
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
     public Response getDeviceExecutableActions(@PathParam("mrid") String mRID,
-                                               @BeanParam SelectedFields fields,
+                                               @BeanParam FieldSelection fieldSelection,
                                                @Context UriInfo uriInfo,
                                                @BeanParam JsonQueryParameters queryParameters) {
         Device device = deviceService.findByUniqueMrid(mRID).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND.getStatusCode()));
-        List<DeviceLifeCycleActionInfo> infos = deviceLifeCycleService.getExecutableActions(device).stream().
+        List<LifeCycleActionInfo> infos = deviceLifeCycleService.getExecutableActions(device).stream().
                 map(ExecutableAction::getAction).
                 filter(aa -> aa instanceof AuthorizedTransitionAction).
                 map(AuthorizedTransitionAction.class::cast).
-                map(action -> deviceLifecycleActionInfoFactory.createDeviceLifecycleActionInfo(device, action, uriInfo)).
+                map(action -> deviceLifecycleActionInfoFactory.createDeviceLifecycleActionInfo(device, action, uriInfo, fieldSelection.getFields())).
                 collect(toList());
         UriBuilder uriBuilder = uriInfo.getBaseUriBuilder().
                 path(DeviceLifecycleActionResource.class).
@@ -89,7 +103,7 @@ public class DeviceLifecycleActionResource {
                 @PathParam("mrid") String mrid,
                 @PathParam("actionId") long actionId,
                 @BeanParam JsonQueryParameters queryParameters,
-                DeviceLifeCycleActionInfo info){
+                LifeCycleActionInfo info){
         Device device = deviceService.findByUniqueMrid(mrid).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND.getStatusCode()));
         if (info==null) {
             throw new WebApplicationException(Response.Status.BAD_REQUEST);
@@ -105,7 +119,7 @@ public class DeviceLifecycleActionResource {
         return Response.ok().build();
     }
 
-    private List<ExecutableActionProperty> getExecutableActionPropertiesFromInfo(DeviceLifeCycleActionInfo info, AuthorizedTransitionAction authorizedAction) {
+    private List<ExecutableActionProperty> getExecutableActionPropertiesFromInfo(LifeCycleActionInfo info, AuthorizedTransitionAction authorizedAction) {
         if (info.properties==null) {
             return Collections.emptyList();
         }
@@ -135,7 +149,7 @@ public class DeviceLifecycleActionResource {
         return executableProperties;
     }
 
-    private ExecutableAction getExecutableActionByIdOrThrowException(@PathParam("actionId") long actionId, Device device) {
+    private ExecutableAction getExecutableActionByIdOrThrowException(long actionId, Device device) {
         return deviceLifeCycleService.getExecutableActions(device)
                     .stream()
                     .filter(candidate -> candidate.getAction().getId() == actionId)

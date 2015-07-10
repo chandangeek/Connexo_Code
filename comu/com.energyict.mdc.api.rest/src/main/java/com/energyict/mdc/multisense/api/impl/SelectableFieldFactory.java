@@ -7,9 +7,9 @@ import javax.ws.rs.core.UriInfo;
 /**
  * Created by bvn on 7/9/15.
  */
-public interface SelectableFieldFactory<I,B> {
+public abstract class SelectableFieldFactory<I,B> {
 
-    default public void copySelectedFields(I infoObject, B businessObject, UriInfo uriInfo, Collection<String> fields) {
+    protected void copySelectedFields(I infoObject, B businessObject, UriInfo uriInfo, Collection<String> fields) {
         Map<String, PropertyCopier<I, B>> fieldMap = buildFieldMap();
         if (fields==null || fields.isEmpty()) {
             fields = fieldMap.keySet();
@@ -17,7 +17,7 @@ public interface SelectableFieldFactory<I,B> {
         fields.stream().filter(fieldMap::containsKey).map(fieldMap::get).forEach(copier -> copier.copy(infoObject, businessObject, uriInfo));
     }
 
-    public Map<String, PropertyCopier<I, B>> buildFieldMap();
+    abstract protected Map<String, PropertyCopier<I, B>> buildFieldMap();
 
 
 }

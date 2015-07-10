@@ -6,6 +6,9 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.imp.DeviceImportService;
+import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
+import com.energyict.mdc.device.lifecycle.ExecutableAction;
+import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.TopologyTimeline;
 import java.time.Instant;
@@ -22,22 +25,26 @@ import javax.ws.rs.core.Link;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
+import static java.util.stream.Collectors.toList;
+
 /**
  * Created by bvn on 4/30/15.
  */
-public class DeviceInfoFactory implements SelectableFieldFactory<DeviceInfo,Device> {
+public class DeviceInfoFactory extends SelectableFieldFactory<DeviceInfo,Device> {
 
     private static final int RECENTLY_ADDED_COUNT = 5;
 
     private final DeviceImportService deviceImportService;
     private final TopologyService topologyService;
     private final IssueService issueService;
+    private final DeviceLifeCycleService deviceLifeCycleService;
 
     @Inject
-    public DeviceInfoFactory(DeviceImportService deviceImportService, TopologyService topologyService, IssueService issueService) {
+    public DeviceInfoFactory(DeviceImportService deviceImportService, TopologyService topologyService, IssueService issueService, DeviceLifeCycleService deviceLifeCycleService) {
         this.deviceImportService = deviceImportService;
         this.topologyService = topologyService;
         this.issueService = issueService;
+        this.deviceLifeCycleService = deviceLifeCycleService;
     }
 
     public DeviceInfo asHypermedia(Device device, UriInfo uriInfo, Collection<String> fields) {
@@ -54,7 +61,7 @@ public class DeviceInfoFactory implements SelectableFieldFactory<DeviceInfo,Devi
         return uriInfo.getBaseUriBuilder().path(DeviceResource.class).path("{mrid}");
     }
 
-    public Map<String, PropertyCopier<DeviceInfo,Device>> buildFieldMap() {
+    protected Map<String, PropertyCopier<DeviceInfo,Device>> buildFieldMap() {
         Map<String, PropertyCopier<DeviceInfo, Device>> map = new HashMap<>();
         map.put("id", (deviceInfo, device, uriInfo) -> deviceInfo.id = device.getId());
         map.put("link", (deviceInfo, device, uriInfo) -> deviceInfo.link = Link.fromUriBuilder(getUriTemplate(uriInfo)).rel("self").title("self reference").build(device.getmRID()));
@@ -69,7 +76,24 @@ public class DeviceInfoFactory implements SelectableFieldFactory<DeviceInfo,Devi
         map.put("isDirectlyAddressable", (deviceInfo, device, uriInfo) -> deviceInfo.isDirectlyAddressable = device.getDeviceConfiguration().isDirectlyAddressable());
         map.put("isGateway", (deviceInfo, device, uriInfo) -> deviceInfo.isGateway = device.getDeviceConfiguration().canActAsGateway());
         map.put("version", (deviceInfo, device, uriInfo) -> deviceInfo.version = device.getVersion());
-        map.put("lifecycle", (deviceInfo, device, uriInfo) -> deviceInfo.lifecycle = device.getState().getName());
+        map.put("lifecycleState", (deviceInfo, device, uriInfo) -> deviceInfo.lifecycleState = device.getState().getName());
+        map.put("actions", (deviceInfo, device, uriInfo) -> {
+            UriBuilder uriBuilder = uriInfo.getBaseUriBuilder().
+                    path(DeviceLifecycleActionResource.class).
+                    path(DeviceLifecycleActionResource.class, "getAction").
+                    resolveTemplate("mrid", device.getmRID());
+            deviceInfo.actions = deviceLifeCycleService.getExecutableActions(device).stream().
+                    map(ExecutableAction::getAction).
+                    filter(aa -> aa instanceof AuthorizedTransitionAction).
+                    map(AuthorizedTransitionAction.class::cast).
+                    map(action -> {
+                        LinkInfo linkInfo = new LinkInfo();
+                        linkInfo.id = action.getId();
+                        linkInfo.link = Link.fromUriBuilder(uriBuilder).build(action.getId());
+                        return linkInfo;
+                    }).
+                    collect(toList());
+        } );
         map.put("physicalGateway", (deviceInfo, device, uriInfo) -> {
             Optional<Device> physicalGateway = topologyService.getPhysicalGateway(device);
             if (physicalGateway.isPresent()) {

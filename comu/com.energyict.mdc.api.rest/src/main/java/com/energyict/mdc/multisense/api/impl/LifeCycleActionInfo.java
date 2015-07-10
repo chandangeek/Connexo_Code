@@ -2,11 +2,11 @@ package com.energyict.mdc.multisense.api.impl;
 
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import java.time.Instant;
-import java.util.List;
+import java.util.Collection;
 
-public class DeviceLifeCycleActionInfo extends LinkInfo {
+public class LifeCycleActionInfo extends LinkInfo {
     public String name;
     public Instant effectiveTimestamp;
-    public List<PropertyInfo> properties;
+    public Collection<PropertyInfo> properties;
     public long deviceVersion;
 }

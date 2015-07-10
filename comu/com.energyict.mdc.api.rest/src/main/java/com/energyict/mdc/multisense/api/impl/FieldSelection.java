@@ -8,11 +8,11 @@ import javax.ws.rs.QueryParam;
 /**
  * Converts CSV string to list of individual field names
  */
-public class SelectedFields {
+public class FieldSelection {
 
     private final List<String> split;
 
-    public SelectedFields(@QueryParam("fields") String fields) {
+    public FieldSelection(@QueryParam("fields") String fields) {
         split = fields!=null? Collections.unmodifiableList(Arrays.asList(fields.split(","))): Collections.emptyList();
     }
 

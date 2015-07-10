@@ -209,7 +209,7 @@ public class ApiTest extends DeviceDataPublicApiJerseyTest {
         ExecutableAction executableAction1 = mockExecutableAction(1L, "action.name.1", MicroAction.ENABLE_ESTIMATION, stringPropertySpec);
         ExecutableAction executableAction2 = mockExecutableAction(2L, "action.name.2", MicroAction.ENABLE_VALIDATION, stringPropertySpec);
         when(deviceLifeCycleService.getExecutableActions(deviceXas)).thenReturn(Arrays.asList(executableAction1, executableAction2));
-        DeviceLifeCycleActionInfo info = new DeviceLifeCycleActionInfo();
+        LifeCycleActionInfo info = new LifeCycleActionInfo();
         info.deviceVersion = 333;
         info.name = "action.name.1";
         info.properties = new ArrayList<>();
@@ -242,7 +242,7 @@ public class ApiTest extends DeviceDataPublicApiJerseyTest {
         ExecutableAction executableAction1 = mockExecutableAction(1L, "action.name.1", MicroAction.ENABLE_ESTIMATION, stringPropertySpec);
         ExecutableAction executableAction2 = mockExecutableAction(2L, "action.name.2", MicroAction.ENABLE_VALIDATION, stringPropertySpec);
         when(deviceLifeCycleService.getExecutableActions(deviceXas)).thenReturn(Arrays.asList(executableAction1, executableAction2));
-        DeviceLifeCycleActionInfo info = new DeviceLifeCycleActionInfo();
+        LifeCycleActionInfo info = new LifeCycleActionInfo();
         info.deviceVersion = 333;
         info.name = "action.name.1";
         info.properties = new ArrayList<>();
@@ -353,7 +353,7 @@ public class ApiTest extends DeviceDataPublicApiJerseyTest {
         PropertySpec datePropertySpec = mockDatePropertySpec(now);
         ExecutableAction executableAction1 = mockExecutableAction(1L, "action.name.1", MicroAction.ENABLE_ESTIMATION, datePropertySpec);
         when(deviceLifeCycleService.getExecutableActions(deviceXas)).thenReturn(Collections.singletonList(executableAction1));
-        DeviceLifeCycleActionInfo info = new DeviceLifeCycleActionInfo();
+        LifeCycleActionInfo info = new LifeCycleActionInfo();
         info.deviceVersion = 333;
         info.name = "action.name.1";
         info.properties = new ArrayList<>();
