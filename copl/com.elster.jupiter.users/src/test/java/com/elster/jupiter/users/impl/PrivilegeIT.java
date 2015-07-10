@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Optional;
 
+import com.elster.jupiter.users.ResourceDefinition;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -69,12 +70,9 @@ public class PrivilegeIT {
                 new TransactionModule(),
                 new UserModule(),
                 new NlsModule());
-        injector.getInstance(TransactionService.class).execute(new Transaction<Void>() {
-            @Override
-            public Void perform() {
-                injector.getInstance(UserService.class);
-                return null;
-            }
+        injector.getInstance(TransactionService.class).execute(() -> {
+            injector.getInstance(UserService.class);
+            return null;
         });
     }
 
@@ -90,7 +88,9 @@ public class PrivilegeIT {
             protected void doPerform() {
                 UserService userService = injector.getInstance(UserService.class);
 
-                userService.createModuleResourceWithPrivileges("USR", "User", "Test user resource", Arrays.asList("Test privilege"));
+                userService.saveResourceWithPrivileges("USR", "User", "Test user resource", new String[]{"Test privilege"});
+
+
 
                 Optional<Resource> found = userService.findResource("User");
 

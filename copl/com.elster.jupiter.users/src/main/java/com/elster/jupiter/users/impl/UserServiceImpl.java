@@ -55,7 +55,7 @@ public class UserServiceImpl implements UserService, InstallService, Translation
     }
 
     @Inject
-    public UserServiceImpl(OrmService ormService, TransactionService transactionService, QueryService queryService, NlsService nlsService) {
+    public UserServiceImpl(OrmService ormService, TransactionService transactionService, QueryService queryService, NlsService nlsService, ThreadPrincipalService threadPrincipalService) {
         setTransactionService(transactionService);
         setQueryService(queryService);
         setOrmService(ormService);
@@ -425,13 +425,7 @@ public class UserServiceImpl implements UserService, InstallService, Translation
     }
 
     private Principal getPrincipal() {
-        return new Principal() {
-
-            @Override
-            public String getName() {
-                return "Jupiter Installer";
-            }
-        };
+        return () -> "Jupiter Installer";
     }
 
     @Reference(name = "ModulePrivilegesProvider", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
@@ -475,33 +469,19 @@ public class UserServiceImpl implements UserService, InstallService, Translation
         applicationPrivilegesProviders.remove(applicationPrivilegesProvider);
     }
 
-    void installResources() {
-        for (ApplicationPrivilegesProvider privilegesProvider : applicationPrivilegesProviders) {
-            doInstallApplicationPrivileges(privilegesProvider);
-        }
-    }
-
-    private void doInstallApplicationPrivileges(ApplicationPrivilegesProvider applicationPrivilegesProvider) {
-        /*for(String resource:applicationPrivilegesProvider.getApplicationPrivileges()){
-            createPr(resource.getComponentName(),
-                    resource.getName(),
-                    resource.getDescription(),
-                    resource.getPrivileges().stream().toArray(String[]::new));
-        }*/
-    }
-
     private void installPrivileges() {
         for (PrivilegesProvider privilegesProvider : privilegesProviders) {
             doInstallPrivileges(privilegesProvider);
         }
     }
 
-    private void createOrUpdateResourceWithPrivileges(String component, String name, String description, String[] privileges) {
+    @Override
+    public void saveResourceWithPrivileges(String moduleName, String name, String description, String[] privileges) {
         Optional<Resource> found = findResource(name);
-        Resource resource = found.isPresent() ? found.get() : createResource(component, name, description);
-        if(!resource.getComponentName().equalsIgnoreCase(component)){
+        Resource resource = found.isPresent() ? found.get() : createResource(moduleName, name, description);
+        if(!resource.getComponentName().equalsIgnoreCase(moduleName)){
             resource.delete();
-            resource = createResource(component, name, description);
+            resource = createResource(moduleName, name, description);
         }
         for (String privilege : privileges) {
             resource.createPrivilege(privilege);
@@ -510,7 +490,7 @@ public class UserServiceImpl implements UserService, InstallService, Translation
 
     private void doInstallPrivileges(PrivilegesProvider privilegesProvider) {
         for(ResourceDefinition resource:privilegesProvider.getModuleResources()){
-            createOrUpdateResourceWithPrivileges(resource.getComponentName(),
+            saveResourceWithPrivileges(resource.getComponentName(),
                     resource.getName(),
                     resource.getDescription(),
                     resource.getPrivilegeNames().stream().toArray(String[]::new));
