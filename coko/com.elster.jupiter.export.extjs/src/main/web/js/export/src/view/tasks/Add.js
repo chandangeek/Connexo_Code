@@ -424,7 +424,7 @@ Ext.define('Dxp.view.tasks.Add', {
                             },
                             {
                                 xtype: 'button',
-                                itemId: 'addDestinationButton',
+                                itemId: 'add-destination-button',
                                 text: Uni.I18n.translate('dataExportdestinations.addDestination', 'CFG', 'Add destination'),
                                 margin: '0 0 0 10'
                             }

@@ -31,6 +31,25 @@ Ext.define('Dxp.model.Destination', {
                 }
                 return 'unknown';
             }
+        },
+        {
+            name: 'tooltiptext',
+            persist: false,
+            mapping: function (data) {
+                if (data.type === 'FILE') {
+                    return Uni.I18n.translate('dataExportdestinations.fileLocation', 'DES', 'File location') + ': ' + data.fileLocation + '&lt;br/&gt;' +
+                    Uni.I18n.translate('dataExportdestinations.fileName', 'DES', 'File name') + ': ' + data.fileName + '&lt;br/&gt;' +
+                    Uni.I18n.translate('dataExportdestinations.fileExtension', 'DES', 'File extension') + ': ' + data.fileExtension;
+
+                }
+                if (data.type === 'EMAIL') {
+                    return Uni.I18n.translate('dataExportdestinations.recipients', 'DES', 'Recipients') + ': ' + data.recipients + '&lt;br/&gt;' +
+                        Uni.I18n.translate('dataExportdestinations.subject', 'DES', 'Subject') + ': ' + data.subject + '&lt;br/&gt;' +
+                        Uni.I18n.translate('dataExportdestinations.fileName', 'DES', 'File name') + ': ' + data.fileName + '&lt;br/&gt;' +
+                        Uni.I18n.translate('dataExportdestinations.fileExtension', 'DES', 'File extension') + ': ' + data.fileExtension;
+                }
+                return 'unknown';
+            }
         }
     ]
 });

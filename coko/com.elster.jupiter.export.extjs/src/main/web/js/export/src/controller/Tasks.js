@@ -113,6 +113,10 @@ Ext.define('Dxp.controller.Tasks', {
             'data-export-tasks-add #add-export-task-button': {
                 click: this.addTask
             },
+
+            'data-export-tasks-add #add-destination-button': {
+                click: this.showAddDestination
+            },
             'data-export-tasks-add #file-formatter-combo': {
                 change: this.updateProperties
             },
@@ -269,6 +273,15 @@ Ext.define('Dxp.controller.Tasks', {
 
             Ext.resumeLayouts(true);
         }
+    },
+
+    showAddDestination: function (button) {
+        var me = this,
+            view = Ext.create('Dxp.view.tasks.AddDestination');
+        me.getApplication().fireEvent('changecontentevent', view);
+
+        Ext.util.History.on('change', this.checkRoute, this);
+
     },
 
     showAddExportTask: function () {
@@ -742,6 +755,13 @@ Ext.define('Dxp.controller.Tasks', {
         } else {
             propertyForm.hide();
         }
+    },
+
+    addDestination: function (button) {
+        var me = this;
+        var page = me.getAddPage();
+        var form = page.down('#add-destination-form');
+        var formErrorsPanel = form.down('#form-errors');
     },
 
     addTask: function (button) {

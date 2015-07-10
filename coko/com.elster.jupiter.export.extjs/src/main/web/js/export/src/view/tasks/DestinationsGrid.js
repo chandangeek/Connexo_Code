@@ -22,6 +22,11 @@ Ext.define('Dxp.view.tasks.DestinationsGrid', {
             },
             {
                 header: Uni.I18n.translate('general.destination', 'DES', 'Destination'),
+                renderer : function(val, meta, record) {
+                    meta.tdAttr = 'data-qtip="' + record.data.tooltiptext + '"';
+
+                    return val;
+                },
                 dataIndex: 'destination',
                 flex: 1
             },
