@@ -53,9 +53,7 @@ Ext.define('Mdc.controller.setup.DevicesAddGroupController', {
     initAddDeviceGroupActionController: function () {
         if (this.getEditPage()) {
             this.isDynamic = this.getApplication().getController('Mdc.controller.setup.AddDeviceGroupAction').dynamic;
-        } else {
-            this.getApplication().getController('Mdc.controller.setup.AddDeviceGroupAction').disableCreateWidget();
         }
-    },
+    }
 
 });

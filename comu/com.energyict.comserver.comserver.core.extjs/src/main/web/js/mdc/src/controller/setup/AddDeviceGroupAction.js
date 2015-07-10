@@ -103,11 +103,9 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
 
     addDeviceGroupWidget: null,
     dynamic: false,
-    createWidget: true,
     router: null,
 
     init: function () {
-        this.createWidget = true;
         this.control({
             'adddevicegroup-wizard #backButton': {
                 click: this.backClick
@@ -138,7 +136,6 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
     },
 
     nextClick: function () {
-        this.createWidget = false;
         var layout = this.getAddDeviceGroupWizard().getLayout(),
             nameField = this.getNameTextField(),
             step1ErrorMsg = this.getStep1FormErrorMessage();
@@ -147,17 +144,12 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
             step1ErrorMsg.show();
             nameField.markInvalid(Uni.I18n.translate('general.nameIsRequired', 'MDC', 'Name is required'));
             Ext.resumeLayouts(true);
-            this.createWidget = true;
         } else if (layout.getNext().name === this.stepTwo && nameField.getValue() !== '' && this.nameExistsAlready()) {
             Ext.suspendLayouts();
             step1ErrorMsg.show();
             nameField.markInvalid(Uni.I18n.translate('devicegroup.duplicatename', 'MDC', 'A device group with this name already exists.'));
             Ext.resumeLayouts(true);
-            this.createWidget = true;
         } else {
-            if (this.createWidget) {
-                this.createWidget = false;
-            }
             if (layout.getNext().name === this.stepTwo) {
                 if (this.getDynamicRadioButton().checked) {
                     this.getStaticGridFilter().setVisible(false);
@@ -217,10 +209,6 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
         }
     },
 
-    disableCreateWidget: function () {
-        this.createWidget = false;
-    },
-
     addDeviceGroupAndReturnToList: function () {
         this.addDeviceGroupWidget = null;
         this.addDeviceGroup();
@@ -261,7 +249,6 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
                 success: function () {
                     me.getController('Uni.controller.history.Router').getRoute('devices/devicegroups').forward();
                     me.getApplication().fireEvent('acknowledge', 'Device group added');
-                    me.createWidget = true;
                 },
                 failure: function (response) {
                     if (response.status == 400) {
@@ -290,14 +277,11 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
     },
 
     showAddDeviceGroupAction: function () {
-        if (this.createWidget) {
-            this.addDeviceGroupWidget = Ext.widget('add-devicegroup-browse');
-            if (this.router) {
-                this.router = undefined;
-            }
-            this.getApplication().fireEvent('changecontentevent', this.addDeviceGroupWidget);
+        this.addDeviceGroupWidget = Ext.widget('add-devicegroup-browse');
+        if (this.router) {
+            this.router = undefined;
         }
-        this.createWidget = true;
+        this.getApplication().fireEvent('changecontentevent', this.addDeviceGroupWidget);
     },
 
     changeContent: function (nextCmp, currentCmp) {
