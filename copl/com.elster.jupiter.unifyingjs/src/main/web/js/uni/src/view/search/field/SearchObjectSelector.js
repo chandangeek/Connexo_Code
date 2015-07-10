@@ -18,6 +18,7 @@ Ext.define('Uni.view.search.field.SearchObjectSelector', {
                 arrowAlign: 'right',
                 menuAlign: 'tl-bl',
                 menu: {
+                    plain: true,
                     enableScrolling: true,
                     maxHeight: 350,
                     itemId: 'mnu-domain',
