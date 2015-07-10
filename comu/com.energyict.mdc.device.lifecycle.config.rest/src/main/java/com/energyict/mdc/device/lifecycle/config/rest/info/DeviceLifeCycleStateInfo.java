@@ -1,11 +1,13 @@
 package com.energyict.mdc.device.lifecycle.config.rest.info;
 
+import com.elster.jupiter.fsm.ProcessReference;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DeviceLifeCycleStateInfo {
@@ -14,6 +16,8 @@ public class DeviceLifeCycleStateInfo {
     public boolean isCustom;
     public boolean isInitial;
     public long version;
+    public List<TransitionBusinessProcessInfo> onEntry = new ArrayList<>();
+    public List<TransitionBusinessProcessInfo> onExit = new ArrayList<>();
 
     public DeviceLifeCycleStateInfo() {}
 
@@ -29,5 +33,11 @@ public class DeviceLifeCycleStateInfo {
         } else {
             this.name = state.getName();
         }
+        addAllBusinessProcessInfos(onEntry, state.getOnEntryProcesses());
+        addAllBusinessProcessInfos(onExit, state.getOnExitProcesses());
+    }
+
+    private void addAllBusinessProcessInfos(List<TransitionBusinessProcessInfo> target, List<ProcessReference> source){
+        target.addAll(source.stream().map(ProcessReference::getStateChangeBusinessProcess).map(x -> new TransitionBusinessProcessInfo(x.getId(), x.getDeploymentId(), x.getProcessId())).collect(Collectors.toList()));
     }
 }

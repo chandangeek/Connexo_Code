@@ -21,16 +21,8 @@ import com.energyict.mdc.device.lifecycle.config.rest.impl.i18n.MessageSeeds;
 import com.energyict.mdc.device.lifecycle.config.rest.i18n.MicroActionTranslationKey;
 import com.energyict.mdc.device.lifecycle.config.rest.i18n.MicroCategoryTranslationKey;
 import com.energyict.mdc.device.lifecycle.config.rest.i18n.MicroCheckTranslationKey;
-import com.energyict.mdc.device.lifecycle.config.rest.impl.resource.DeviceLifeCycleActionResource;
-import com.energyict.mdc.device.lifecycle.config.rest.impl.resource.DeviceLifeCycleResource;
-import com.energyict.mdc.device.lifecycle.config.rest.impl.resource.DeviceLifeCycleStateResource;
-import com.energyict.mdc.device.lifecycle.config.rest.impl.resource.ResourceHelper;
-import com.energyict.mdc.device.lifecycle.config.rest.info.AuthorizedActionInfoFactory;
-import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleFactory;
-import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCyclePrivilegeFactory;
-import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleStateFactory;
-import com.energyict.mdc.device.lifecycle.config.rest.info.MicroActionAndCheckInfoFactory;
-import com.energyict.mdc.device.lifecycle.config.rest.info.StateTransitionEventTypeFactory;
+import com.energyict.mdc.device.lifecycle.config.rest.impl.resource.*;
+import com.energyict.mdc.device.lifecycle.config.rest.info.*;
 import com.google.common.collect.ImmutableSet;
 
 import java.util.*;
@@ -66,6 +58,7 @@ public class DeviceLifeCycleConfigApplication extends Application implements Tra
                 DeviceLifeCycleResource.class,
                 DeviceLifeCycleStateResource.class,
                 DeviceLifeCycleActionResource.class,
+                TransitionBusinessProcessResource.class,
                 RestValidationExceptionMapper.class);
     }
 
@@ -157,6 +150,7 @@ public class DeviceLifeCycleConfigApplication extends Application implements Tra
             bind(StateTransitionEventTypeFactory.class).to(StateTransitionEventTypeFactory.class);
             bind(DeviceLifeCycleFactory.class).to(DeviceLifeCycleFactory.class);
             bind(MicroActionAndCheckInfoFactory.class).to(MicroActionAndCheckInfoFactory.class);
+            bind(TransitionBusinessProcessInfoFactory.class).to(TransitionBusinessProcessInfoFactory.class);
 
             bind(deviceLifeCycleConfigurationService).to(DeviceLifeCycleConfigurationService.class);
             bind(finiteStateMachineService).to(FiniteStateMachineService.class);

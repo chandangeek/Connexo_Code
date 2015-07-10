@@ -1,8 +1,6 @@
 package com.energyict.mdc.device.lifecycle.config.rest.impl.resource;
 
-import com.elster.jupiter.fsm.FiniteStateMachine;
-import com.elster.jupiter.fsm.FiniteStateMachineUpdater;
-import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.fsm.*;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.elster.jupiter.rest.util.PagedInfoList;
@@ -13,9 +11,7 @@ import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.Privileges;
 import com.energyict.mdc.device.lifecycle.config.rest.impl.i18n.MessageSeeds;
-import com.energyict.mdc.device.lifecycle.config.rest.info.AuthorizedActionInfoFactory;
-import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleStateFactory;
-import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleStateInfo;
+import com.energyict.mdc.device.lifecycle.config.rest.info.*;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -44,6 +40,7 @@ public class DeviceLifeCycleStateResource {
     public DeviceLifeCycleStateResource(
             ExceptionFactory exceptionFactory,
             DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService,
+            FiniteStateMachineService finiteStateMachineService,
             DeviceLifeCycleStateFactory deviceLifeCycleStateFactory,
             AuthorizedActionInfoFactory authorizedActionInfoFactory,
             ResourceHelper resourceHelper) {
@@ -138,8 +135,6 @@ public class DeviceLifeCycleStateResource {
         fsmUpdater.removeState(stateForDeletion).complete();
         return Response.ok(deviceLifeCycleStateFactory.from(stateForDeletion)).build();
     }
-
-
 
     private void checkStateHasTransitions(DeviceLifeCycle deviceLifeCycle, State stateForDeletion) {
         List<Long> transitionIds = deviceLifeCycle.getFiniteStateMachine().getTransitions().stream()

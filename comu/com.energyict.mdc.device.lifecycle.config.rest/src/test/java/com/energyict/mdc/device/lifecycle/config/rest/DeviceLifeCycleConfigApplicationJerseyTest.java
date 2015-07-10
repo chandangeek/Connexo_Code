@@ -2,10 +2,7 @@ package com.energyict.mdc.device.lifecycle.config.rest;
 
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.fsm.FiniteStateMachineService;
-import com.elster.jupiter.fsm.State;
-import com.elster.jupiter.fsm.StateTransition;
-import com.elster.jupiter.fsm.StateTransitionEventType;
+import com.elster.jupiter.fsm.*;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.users.UserService;
@@ -23,11 +20,8 @@ import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 import com.energyict.mdc.device.lifecycle.config.impl.DefaultLifeCycleTranslationKey;
 import com.energyict.mdc.device.lifecycle.config.rest.impl.DeviceLifeCycleConfigApplication;
 import com.energyict.mdc.device.lifecycle.config.rest.impl.i18n.MessageSeeds;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Optional;
+
+import java.util.*;
 import javax.ws.rs.core.Application;
 import org.mockito.Matchers;
 import org.mockito.Mock;
@@ -92,10 +86,76 @@ public class DeviceLifeCycleConfigApplicationJerseyTest extends FelixRestApplica
         return state;
     }
 
+    public State mockSimpleStateWithEntryAndExitProcesses(long id, String name, StateChangeBusinessProcess[] onEntry, StateChangeBusinessProcess[] onExit  ){
+        State state = mock(State.class);
+        when(state.getId()).thenReturn(id);
+        when(state.getName()).thenReturn(name);
+        when(state.isCustom()).thenReturn(false);
+        when(state.isInitial()).thenReturn(false);
+
+        List<ProcessReference> onEntryReferences = Collections.emptyList();
+        if (onEntry != null) {
+            onEntryReferences = new ArrayList<>(onEntry.length);
+            for (StateChangeBusinessProcess each : onEntry) {
+                ProcessReference reference = mock(ProcessReference.class);
+                when(reference.getStateChangeBusinessProcess()).thenReturn(each);
+
+                onEntryReferences.add(reference);
+            }
+        }
+        List<ProcessReference> onExitReferences = Collections.emptyList();
+        if (onExit != null) {
+            onExitReferences = new ArrayList<>(onExit.length);
+            for (StateChangeBusinessProcess each : onExit) {
+                ProcessReference reference = mock(ProcessReference.class);
+                when(reference.getStateChangeBusinessProcess()).thenReturn(each);
+
+                onExitReferences.add(reference);
+            }
+        }
+        when(state.getOnEntryProcesses()).thenReturn(onEntryReferences);
+        when(state.getOnExitProcesses()).thenReturn(onExitReferences);
+        return state;
+    }
+
     public List<State> mockDefaultStates(){
         List<State> states = new ArrayList<>(3);
         states.add(mockSimpleState(2, DefaultState.DECOMMISSIONED.getKey()));
         states.add(mockSimpleState(1, DefaultState.COMMISSIONING.getKey()));
+        states.add(mockSimpleState(3, DefaultState.IN_STOCK.getKey()));
+        return states;
+    }
+
+    public List<State> mockDefaultStatesWithOnEntryProcessesForDecommissioned(){
+        List<State> states = new ArrayList<>(3);
+        states.add(mockSimpleStateWithEntryAndExitProcesses(2, DefaultState.DECOMMISSIONED.getKey(),
+                new StateChangeBusinessProcess[]{mockStateChangeBusinessProcess(1, "deploymentIdOnEntry1", "processIdOnEntry1"),
+                        mockStateChangeBusinessProcess(2, "deploymentIdOnEntry2", "processIdOnEntry2")},
+                null));
+        states.add(mockSimpleState(1, DefaultState.COMMISSIONING.getKey()));
+        states.add(mockSimpleState(3, DefaultState.IN_STOCK.getKey()));
+        return states;
+    }
+
+    public List<State> mockDefaultStatesWithOnExitProcessesForInStock(){
+        List<State> states = new ArrayList<>(3);
+        states.add(mockSimpleState(2, DefaultState.DECOMMISSIONED.getKey()));
+        states.add(mockSimpleState(1, DefaultState.COMMISSIONING.getKey()));
+        states.add(mockSimpleStateWithEntryAndExitProcesses(3, DefaultState.IN_STOCK.getKey(), null,
+                new StateChangeBusinessProcess[]{mockStateChangeBusinessProcess(1, "deploymentIdOnExit1", "processIdOnExit1"),
+                        mockStateChangeBusinessProcess(2, "deploymentIdOnExit2", "processIdOnExit2"),
+                        mockStateChangeBusinessProcess(3, "deploymentIdOnExit3", "processIdOnExit3")}));
+        return states;
+    }
+
+    public List<State> mockDefaultStatesWithOnEntryAndOnExitProcessesForCommissioning(){
+        List<State> states = new ArrayList<>(3);
+        states.add(mockSimpleState(2, DefaultState.DECOMMISSIONED.getKey()));
+        states.add(mockSimpleStateWithEntryAndExitProcesses(1,
+                DefaultState.COMMISSIONING.getKey(),
+                new StateChangeBusinessProcess[]{mockStateChangeBusinessProcess(1, "deploymentIdOnEntry1", "processIdOnEntry1"),
+                                        mockStateChangeBusinessProcess(2, "deploymentIdOnEntry2", "processIdOnEntry2")},
+                new StateChangeBusinessProcess[]{mockStateChangeBusinessProcess(3, "deploymentIdOnExit1", "processIdOnExit1")}));
         states.add(mockSimpleState(3, DefaultState.IN_STOCK.getKey()));
         return states;
     }
@@ -132,5 +192,13 @@ public class DeviceLifeCycleConfigApplicationJerseyTest extends FelixRestApplica
         actions.add(mockSimpleAction(1, DefaultLifeCycleTranslationKey.TRANSITION_FROM_IN_STOCK_TO_COMMISSIONING.getDefaultFormat(), states.get(2), states.get(1)));
         actions.add(mockSimpleAction(2, DefaultLifeCycleTranslationKey.TRANSITION_FROM_INACTIVE_TO_DECOMMISSIONED.getDefaultFormat(), states.get(1), states.get(0)));
         return actions;
+    }
+
+    public StateChangeBusinessProcess mockStateChangeBusinessProcess(long id, String deploymentId, String processId){
+        StateChangeBusinessProcess process = mock(StateChangeBusinessProcess.class);
+        when(process.getId()).thenReturn(id);
+        when(process.getDeploymentId()).thenReturn(deploymentId);
+        when(process.getProcessId()).thenReturn(processId);
+        return process;
     }
 }
