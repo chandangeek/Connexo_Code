@@ -6,7 +6,6 @@ import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 
 import java.util.Collection;
-import java.util.Optional;
 
 public enum ReadingModificationFlag {
 
@@ -15,18 +14,19 @@ public enum ReadingModificationFlag {
     REMOVED;
 
     public static ReadingModificationFlag getModificationFlag(ReadingRecord reading) {
-        return getModificationFlag(Optional.of(reading), reading.getReadingQualities());
+        return getModificationFlag(reading, reading.getReadingQualities());
     }
 
-    public static ReadingModificationFlag getModificationFlag(Optional<? extends BaseReadingRecord> reading, Collection<? extends ReadingQuality> readingQualities) {
-        if (reading.isPresent() && reading.get().wasAdded()) {
-            return ADDED;
-        }
-        if (reading.isPresent() && reading.get().edited() &&
-                readingQualities.stream().anyMatch(quality -> quality.getType().qualityIndex().orElse(null) == QualityCodeIndex.EDITGENERIC)) {
-            return EDITED;
-        }
-        if (!reading.isPresent() && readingQualities.stream().anyMatch(quality -> quality.getType().qualityIndex().orElse(null) == QualityCodeIndex.REJECTED)) {
+    public static ReadingModificationFlag getModificationFlag(BaseReadingRecord reading, Collection<? extends ReadingQuality> readingQualities) {
+        if (reading != null) {
+            if (reading.wasAdded()) {
+                return ADDED;
+            }
+            if (reading.edited() &&
+                    readingQualities.stream().anyMatch(quality -> quality.getType().qualityIndex().orElse(null) == QualityCodeIndex.EDITGENERIC)) {
+                return EDITED;
+            }
+        } else if (readingQualities.stream().anyMatch(quality -> quality.getType().qualityIndex().orElse(null) == QualityCodeIndex.REJECTED)) {
             return REMOVED;
         }
         return null;
