@@ -154,7 +154,7 @@ public class ExecutionLevelResourceTest extends DeviceConfigurationApplicationJe
 
     private Group mockUserGroup(long id, String name) {
         Group mock = mock(Group.class);
-        when(mock.hasPrivilege(Matchers.<String>anyObject())).thenReturn(true);
+        when(mock.hasPrivilege("MDC", Matchers.<String>anyObject())).thenReturn(true);
         when(mock.getName()).thenReturn(name);
         when(mock.getId()).thenReturn(id);
         return mock;
