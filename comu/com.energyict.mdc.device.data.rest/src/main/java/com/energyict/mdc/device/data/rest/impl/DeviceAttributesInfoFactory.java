@@ -1,7 +1,9 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.RestValidationBuilder;
@@ -158,9 +160,15 @@ public class DeviceAttributesInfoFactory {
             }
             this.deviceImportService.addDeviceToBatch(device, info.batch.displayValue);
         }
-        if(DeviceAttribute.USAGE_POINT.isEditableForState(state) && info.usagePoint != null){
+        Optional<UsagePoint> currentUsagePoint = device.getUsagePoint();
+        if(DeviceAttribute.USAGE_POINT.isEditableForState(state) && info.usagePoint != null
+                && (!currentUsagePoint.isPresent() || currentUsagePoint.get().getId() != info.usagePoint.attributeId)) {
             meteringService.findUsagePoint(info.usagePoint.attributeId).ifPresent(usagePoint -> {
-
+                meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).ifPresent(amrSystem -> {
+                    amrSystem.findMeter(String.valueOf(device.getId())).ifPresent(meter -> {
+                        usagePoint.activate(meter, Instant.now());
+                    });
+                });
             });
         }
         CIMLifecycleDates lifecycleDates = device.getLifecycleDates();
