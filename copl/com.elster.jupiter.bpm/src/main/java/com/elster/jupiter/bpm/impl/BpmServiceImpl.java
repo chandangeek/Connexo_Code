@@ -30,7 +30,7 @@ import java.util.*;
 
 @Component(
         name = "com.elster.jupiter.bpm",
-        service = {BpmService.class, InstallService.class},
+        service = {BpmService.class, InstallService.class, PrivilegesProvider.class},
         immediate = true,
         property = "name=" + BpmService.COMPONENTNAME)
 public class BpmServiceImpl implements BpmService, InstallService, PrivilegesProvider {
