@@ -296,7 +296,7 @@ public class DeviceLifeCycleServiceImplTest {
     public void executeActionThatCurrentUserIsNotAllowedToExecute() {
         DeviceLifeCycleServiceImpl service = this.getTestInstance();
         when(this.action.getLevels()).thenReturn(EnumSet.of(AuthorizedAction.Level.FOUR));
-        when(this.user.hasPrivilege(this.privilege)).thenReturn(false);
+        when(this.user.hasPrivilege("MDC", this.privilege)).thenReturn(false);
 
         // Business method
         try {
@@ -314,7 +314,7 @@ public class DeviceLifeCycleServiceImplTest {
     public void executeCallsFactoryForEveryCheck() {
         DeviceLifeCycleServiceImpl service = this.getTestInstance();
         when(this.action.getLevels()).thenReturn(EnumSet.of(AuthorizedAction.Level.FOUR));
-        when(this.user.hasPrivilege(this.privilege)).thenReturn(true);
+        when(this.user.hasPrivilege("MDC", this.privilege)).thenReturn(true);
         when(this.action.getChecks()).thenReturn(new HashSet<>(Arrays.asList(MicroCheck.values())));
 
         // Business method
@@ -330,7 +330,7 @@ public class DeviceLifeCycleServiceImplTest {
     public void allChecksAreEvaluatedAgainstTheDevice() {
         DeviceLifeCycleServiceImpl service = this.getTestInstance();
         when(this.action.getLevels()).thenReturn(EnumSet.of(AuthorizedAction.Level.FOUR));
-        when(this.user.hasPrivilege(this.privilege)).thenReturn(true);
+        when(this.user.hasPrivilege("MDC", this.privilege)).thenReturn(true);
         MicroCheck microCheck1 = MicroCheck.ALL_ISSUES_AND_ALARMS_ARE_CLOSED;
         MicroCheck microCheck2 = MicroCheck.AT_LEAST_ONE_SCHEDULED_COMMUNICATION_TASK_AVAILABLE;
         ServerMicroCheck serverMicroCheck1 = mock(ServerMicroCheck.class);
@@ -353,7 +353,7 @@ public class DeviceLifeCycleServiceImplTest {
     public void allFailingChecksAreReported() {
         DeviceLifeCycleServiceImpl service = this.getTestInstance();
         when(this.action.getLevels()).thenReturn(EnumSet.of(AuthorizedAction.Level.FOUR));
-        when(this.user.hasPrivilege(this.privilege)).thenReturn(true);
+        when(this.user.hasPrivilege("MDC", this.privilege)).thenReturn(true);
         MicroCheck microCheck1 = MicroCheck.ALL_ISSUES_AND_ALARMS_ARE_CLOSED;
         MicroCheck microCheck2 = MicroCheck.AT_LEAST_ONE_SCHEDULED_COMMUNICATION_TASK_AVAILABLE;
         MicroCheck microCheck3 = MicroCheck.CONNECTION_PROPERTIES_ARE_ALL_VALID;
@@ -394,7 +394,7 @@ public class DeviceLifeCycleServiceImplTest {
     public void executeCallsFactoryForEveryAction() {
         DeviceLifeCycleServiceImpl service = this.getTestInstance();
         when(this.action.getLevels()).thenReturn(EnumSet.of(AuthorizedAction.Level.FOUR));
-        when(this.user.hasPrivilege(this.privilege)).thenReturn(true);
+        when(this.user.hasPrivilege("MDC", this.privilege)).thenReturn(true);
         when(this.action.getActions()).thenReturn(new HashSet<>(Arrays.asList(MicroAction.values())));
 
         // Business method
@@ -410,7 +410,7 @@ public class DeviceLifeCycleServiceImplTest {
     public void executeTriggersEvent() {
         DeviceLifeCycleServiceImpl service = this.getTestInstance();
         when(this.action.getLevels()).thenReturn(EnumSet.of(AuthorizedAction.Level.FOUR));
-        when(this.user.hasPrivilege(this.privilege)).thenReturn(true);
+        when(this.user.hasPrivilege("MDC", this.privilege)).thenReturn(true);
         when(this.action.getActions()).thenReturn(new HashSet<>(Arrays.asList(MicroAction.values())));
 
         // Business method
@@ -426,7 +426,7 @@ public class DeviceLifeCycleServiceImplTest {
         DeviceLifeCycleServiceImpl service = this.getTestInstance();
         when(this.action.getActions()).thenReturn(new HashSet<>(Arrays.asList(MicroAction.ENABLE_VALIDATION)));
         when(this.action.getLevels()).thenReturn(EnumSet.of(AuthorizedAction.Level.FOUR));
-        when(this.user.hasPrivilege(this.privilege)).thenReturn(true);
+        when(this.user.hasPrivilege("MDC", this.privilege)).thenReturn(true);
         PropertySpec validationStartDatePropertySpec = mock(PropertySpec.class);
         when(validationStartDatePropertySpec.getName()).thenReturn("validationStartDate");
         when(validationStartDatePropertySpec.isRequired()).thenReturn(true);
@@ -449,7 +449,7 @@ public class DeviceLifeCycleServiceImplTest {
         DeviceLifeCycleServiceImpl service = this.getTestInstance();
         when(this.action.getActions()).thenReturn(new HashSet<>(Arrays.asList(MicroAction.ENABLE_VALIDATION)));
         when(this.action.getLevels()).thenReturn(EnumSet.of(AuthorizedAction.Level.FOUR));
-        when(this.user.hasPrivilege(this.privilege)).thenReturn(true);
+        when(this.user.hasPrivilege("MDC", this.privilege)).thenReturn(true);
         PropertySpec validationStartDatePropertySpec = mock(PropertySpec.class);
         when(validationStartDatePropertySpec.getName()).thenReturn("validationStartDate");
         when(validationStartDatePropertySpec.isRequired()).thenReturn(true);
@@ -471,7 +471,7 @@ public class DeviceLifeCycleServiceImplTest {
         DeviceLifeCycleServiceImpl service = this.getTestInstance();
         when(this.action.getActions()).thenReturn(new HashSet<>(Arrays.asList(MicroAction.SET_LAST_READING)));
         when(this.action.getLevels()).thenReturn(EnumSet.of(AuthorizedAction.Level.FOUR));
-        when(this.user.hasPrivilege(this.privilege)).thenReturn(true);
+        when(this.user.hasPrivilege("MDC", this.privilege)).thenReturn(true);
         ServerMicroAction setLastReading = mock(ServerMicroAction.class);
         when(this.microActionFactory.from(MicroAction.SET_LAST_READING)).thenReturn(setLastReading);
         Instant effectiveTimeStamp = Instant.ofEpochMilli(123456789);
@@ -490,7 +490,7 @@ public class DeviceLifeCycleServiceImplTest {
         DeviceLifeCycleServiceImpl service = this.getTestInstance();
         when(this.action.getActions()).thenReturn(new HashSet<>(Arrays.asList(MicroAction.SET_LAST_READING)));
         when(this.action.getLevels()).thenReturn(EnumSet.of(AuthorizedAction.Level.FOUR));
-        when(this.user.hasPrivilege(this.privilege)).thenReturn(true);
+        when(this.user.hasPrivilege("MDC", this.privilege)).thenReturn(true);
         ServerMicroAction setLastReading = mock(ServerMicroAction.class);
         when(this.microActionFactory.from(MicroAction.SET_LAST_READING)).thenReturn(setLastReading);
         Instant effectiveTimeStamp = Instant.ofEpochMilli(123456789);
@@ -509,7 +509,7 @@ public class DeviceLifeCycleServiceImplTest {
         DeviceLifeCycleServiceImpl service = this.getTestInstance();
         when(this.action.getActions()).thenReturn(new HashSet<>(Arrays.asList(MicroAction.SET_LAST_READING)));
         when(this.action.getLevels()).thenReturn(EnumSet.of(AuthorizedAction.Level.FOUR));
-        when(this.user.hasPrivilege(this.privilege)).thenReturn(true);
+        when(this.user.hasPrivilege("MDC", this.privilege)).thenReturn(true);
         ServerMicroAction setLastReading = mock(ServerMicroAction.class);
         when(this.microActionFactory.from(MicroAction.SET_LAST_READING)).thenReturn(setLastReading);
         when(this.lifeCycle.getMaximumFutureEffectiveTimestamp()).thenReturn(Instant.ofEpochMilli(100000L));
@@ -540,7 +540,7 @@ public class DeviceLifeCycleServiceImplTest {
         when(action.getTransitionBusinessProcess()).thenReturn(businessProcess);
         when(action.getLevels()).thenReturn(EnumSet.of(AuthorizedAction.Level.FOUR));
         when(action.getState()).thenReturn(this.state);
-        when(this.user.hasPrivilege(this.privilege)).thenReturn(true);
+        when(this.user.hasPrivilege("MDC", this.privilege)).thenReturn(true);
 
         // Business method
         service.execute(action, this.device, Instant.now());
@@ -568,7 +568,7 @@ public class DeviceLifeCycleServiceImplTest {
         AuthorizedBusinessProcessAction businessProcessAction = mock(AuthorizedBusinessProcessAction.class);
         when(businessProcessAction.getLevels()).thenReturn(EnumSet.of(AuthorizedAction.Level.FOUR));
         when(this.lifeCycle.getAuthorizedActions(any(State.class))).thenReturn(Arrays.asList(this.action, businessProcessAction));
-        when(this.user.hasPrivilege(this.privilege)).thenReturn(false);
+        when(this.user.hasPrivilege("MDC", this.privilege)).thenReturn(false);
 
         // Business method
         List<ExecutableAction> executableActions = service.getExecutableActions(this.device);
@@ -587,8 +587,8 @@ public class DeviceLifeCycleServiceImplTest {
         Privilege allowed = mock(Privilege.class);
         when(this.deviceLifeCycleConfigurationService.findInitiateActionPrivilege(AuthorizedAction.Level.THREE.getPrivilege())).thenReturn(Optional.of(allowed));
         when(this.lifeCycle.getAuthorizedActions(any(State.class))).thenReturn(Arrays.asList(this.action, businessProcessAction));
-        when(this.user.hasPrivilege(this.privilege)).thenReturn(false);
-        when(this.user.hasPrivilege(allowed)).thenReturn(true);
+        when(this.user.hasPrivilege("MDC", this.privilege)).thenReturn(false);
+        when(this.user.hasPrivilege("MDC", allowed)).thenReturn(true);
 
         // Business method
         List<ExecutableAction> executableActions = service.getExecutableActions(this.device);
@@ -609,7 +609,7 @@ public class DeviceLifeCycleServiceImplTest {
         when(this.deviceLifeCycleConfigurationService.findInitiateActionPrivilege(AuthorizedAction.Level.FOUR.getPrivilege())).thenReturn(Optional.of(allowed));
         when(this.deviceLifeCycleConfigurationService.findInitiateActionPrivilege(AuthorizedAction.Level.THREE.getPrivilege())).thenReturn(Optional.of(allowed));
         when(this.lifeCycle.getAuthorizedActions(any(State.class))).thenReturn(Arrays.asList(this.action, businessProcessAction));
-        when(this.user.hasPrivilege(allowed)).thenReturn(true);
+        when(this.user.hasPrivilege("MDC", allowed)).thenReturn(true);
 
         // Business method
         List<ExecutableAction> executableActions = service.getExecutableActions(this.device);
@@ -638,7 +638,7 @@ public class DeviceLifeCycleServiceImplTest {
         Privilege allowed = mock(Privilege.class);
         when(this.deviceLifeCycleConfigurationService.findInitiateActionPrivilege(AuthorizedAction.Level.FOUR.getPrivilege())).thenReturn(Optional.of(allowed));
         when(this.deviceLifeCycleConfigurationService.findInitiateActionPrivilege(AuthorizedAction.Level.THREE.getPrivilege())).thenReturn(Optional.of(allowed));
-        when(this.user.hasPrivilege(allowed)).thenReturn(true);
+        when(this.user.hasPrivilege("MDC", allowed)).thenReturn(true);
         AuthorizedBusinessProcessAction action = mock(AuthorizedBusinessProcessAction.class);
         when(action.getLevels()).thenReturn(EnumSet.of(AuthorizedAction.Level.FOUR));
         List<AuthorizedAction> actions = Arrays.asList(action);
@@ -657,7 +657,7 @@ public class DeviceLifeCycleServiceImplTest {
         Privilege allowed = mock(Privilege.class);
         when(this.deviceLifeCycleConfigurationService.findInitiateActionPrivilege(AuthorizedAction.Level.FOUR.getPrivilege())).thenReturn(Optional.of(allowed));
         when(this.deviceLifeCycleConfigurationService.findInitiateActionPrivilege(AuthorizedAction.Level.THREE.getPrivilege())).thenReturn(Optional.of(allowed));
-        when(this.user.hasPrivilege(allowed)).thenReturn(true);
+        when(this.user.hasPrivilege("MDC", allowed)).thenReturn(true);
         StateTransition stateTransition1 = mock(StateTransition.class);
         StateTransitionEventType eventType1 = mock(StateTransitionEventType.class);
         when(eventType1.getId()).thenReturn(1L);
@@ -688,7 +688,7 @@ public class DeviceLifeCycleServiceImplTest {
         Privilege allowed = mock(Privilege.class);
         when(this.deviceLifeCycleConfigurationService.findInitiateActionPrivilege(AuthorizedAction.Level.FOUR.getPrivilege())).thenReturn(Optional.of(allowed));
         when(this.deviceLifeCycleConfigurationService.findInitiateActionPrivilege(AuthorizedAction.Level.THREE.getPrivilege())).thenReturn(Optional.of(allowed));
-        when(this.user.hasPrivilege(allowed)).thenReturn(true);
+        when(this.user.hasPrivilege("MDC", allowed)).thenReturn(true);
         StateTransition stateTransition1 = mock(StateTransition.class);
         StateTransitionEventType eventType1 = mock(StateTransitionEventType.class);
         when(eventType1.getId()).thenReturn(1L);

@@ -15,6 +15,7 @@ import java.time.Instant;
 import java.util.Optional;
 import java.util.Properties;
 
+import org.mockito.Matchers;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.log.LogService;
@@ -207,7 +208,7 @@ public class InMemoryIntegrationPersistence {
         this.eventAdmin = mock(EventAdmin.class);
         this.principal = mock(User.class);
         when(this.principal.getName()).thenReturn(testName);
-        when(this.principal.hasPrivilege(any(Privilege.class))).thenReturn(true);
+        when(this.principal.hasPrivilege(Matchers.matches("MDC"), any(Privilege.class))).thenReturn(true);
         this.licenseService = mock(LicenseService.class);
         when(this.licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.<License>empty());
         this.issueService = mock(IssueService.class);
