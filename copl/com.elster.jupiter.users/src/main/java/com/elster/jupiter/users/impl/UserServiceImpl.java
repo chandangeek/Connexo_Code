@@ -42,7 +42,6 @@ public class UserServiceImpl implements UserService, InstallService, Translation
 
     private static final String TRUSTSTORE_PATH="com.elster.jupiter.users.truststore";
     private static final String TRUSTSTORE_PASS="com.elster.jupiter.users.truststorepass";
-    private String trustStorePath;
 
     private static final String JUPITER_REALM = "Local";
 
