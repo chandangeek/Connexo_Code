@@ -648,6 +648,35 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
     }
 
     @Test
+    public void testCloneDeviceConfiguration() throws Exception {
+        DeviceType deviceType = mockDeviceType("clone", 31L);
+        DeviceConfiguration deviceConfiguration101 = mock(DeviceConfiguration.class);
+        DeviceConfiguration deviceConfiguration102 = mock(DeviceConfiguration.class);
+
+        when(deviceConfiguration101.getId()).thenReturn(101L);
+        when(deviceConfiguration101.getDeviceType()).thenReturn(deviceType);
+        when(deviceConfiguration101.getName()).thenReturn("old name");
+
+        when(deviceConfiguration102.getId()).thenReturn(102L);
+        when(deviceConfiguration102.getDeviceType()).thenReturn(deviceType);
+        when(deviceConfiguration102.getName()).thenReturn("new name");
+
+        when(deviceConfigurationService.findDeviceType(31L)).thenReturn(Optional.of(deviceType));
+        when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration101, deviceConfiguration102));
+
+        DeviceConfigurationInfo deviceConfigurationInfo = new DeviceConfigurationInfo(deviceConfiguration101);
+        deviceConfigurationInfo.name = "new name";
+
+        when(deviceConfigurationService.cloneDeviceConfiguration(deviceConfiguration101, deviceConfigurationInfo.name)).thenReturn(deviceConfiguration102);
+        Entity<DeviceConfigurationInfo> json = Entity.json(deviceConfigurationInfo);
+        Response response = target("/devicetypes/31/deviceconfigurations/101/clone").request().post(json);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        assertThat(deviceConfiguration101.getId()).isNotEqualTo(deviceConfiguration102.getId());
+        assertThat(deviceConfiguration101.getName()).isNotEqualTo(deviceConfiguration102.getName());
+        assertThat(deviceConfiguration101.getDeviceType()).isEqualTo(deviceConfiguration102.getDeviceType());
+    }
+
+    @Test
     public void testDeleteDeviceConfiguration() throws Exception {
         DeviceType deviceType = mockDeviceType("updater", 31L);
         DeviceConfiguration deviceConfiguration101 = mock(DeviceConfiguration.class);
