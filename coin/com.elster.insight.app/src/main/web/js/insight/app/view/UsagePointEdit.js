@@ -39,24 +39,6 @@ Ext.define('InsightApp.view.UsagePointEdit', {
                     name: 'id'
                 },
                 {
-                    xtype: 'hiddenfield',
-                    name: 'amiBillingReady',
-                    value: 'UNKNOWN'
-                },
-                {
-                    xtype: 'hiddenfield',
-                    name: 'connectionState',
-                    value: 'UNKNOWN'
-                },                {
-                    xtype: 'hiddenfield',
-                    name: 'nominalVoltage.unit',
-                    value: 'V'
-                },                {
-                    xtype: 'hiddenfield',
-                    name: 'nominalVoltage.multiplier',
-                    value: '0'
-                },
-                {
                     xtype: 'textfield',
                     name: 'mRID',
                     fieldLabel: Uni.I18n.translate('usagePoint.formFieldLabel.mRID', 'INS', 'mRID'),

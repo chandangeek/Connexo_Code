@@ -38,6 +38,7 @@ Ext.define('InsightApp.controller.insight.UsagePoint', {
 	        button.setDisabled(true);
 	        page.setLoading('Saving...');
 	        formErrorsPanel.hide();
+	        //TODO: Some way to use success: and failure: instead of callback: to clean this up?
 	        model.save({
 	            callback: function (model, operation, success) {
 	                page.setLoading(false);
@@ -57,15 +58,14 @@ Ext.define('InsightApp.controller.insight.UsagePoint', {
     formToModel: function () {
         var me=this,
             form = this.getUsagePointEditPage().down('form'),
-            queryString = Ext.Object.toQueryString(form.getValues()),
-            values = Ext.Object.fromQueryString(queryString, true),
+            values = form.getValues(),
             model = Ext.create('InsightApp.model.UsagePoint'),
             q = Ext.create('InsightApp.model.Quantity');
         model.beginEdit();
         model.set(values);
-        q.set('unit', values['nominalVoltage.unit']);
+        q.set('unit', 'V');
         q.set('value', values['nominalVoltage.value']);
-        q.set('multiplier', values['nominalVoltage.multiplier']);
+        q.set('multiplier', 0);
         model.set('nominalServiceVoltage', q.getData());
         model.endEdit();
 
@@ -84,6 +84,7 @@ Ext.define('InsightApp.controller.insight.UsagePoint', {
                 break;
         }
         this.getApplication().fireEvent('acknowledge', messageText);
+        //TODO: Go to a page that makes sense here
         //router.getRoute('administration/comservers').forward();
     },
     onFailureSaving: function (response) {
