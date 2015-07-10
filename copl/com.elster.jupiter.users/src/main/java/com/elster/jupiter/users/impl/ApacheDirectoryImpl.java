@@ -13,15 +13,19 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
+import javax.naming.ldap.*;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLHandshakeException;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManagerFactory;
 
-import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Optional;
+import java.io.IOException;
+import java.security.KeyStore;
+import java.util.*;
 
 public class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
     static String TYPE_IDENTIFIER = "APD";
-
+    StartTlsResponse tls = null;
     @Inject
     public ApacheDirectoryImpl(DataModel dataModel, UserService userService) {
         super(dataModel, userService);
@@ -66,16 +70,99 @@ public class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
 
     @Override
     public Optional<User> authenticate(String name, String password) {
+        List<String> urls = getUrls();
+        if(getSecurity()==null||getSecurity().contains("NONE")){
+            return authenticateSimple(name,password,urls);
+        }else if(getSecurity().contains("SSL")) {
+            return authenticateSSL(name, password,urls);
+        }else if(getSecurity().contains("TLS")){
+            return authenticateTLS(name,password,urls);
+        }else{
+            return Optional.empty();
+        }
+    }
+
+    private Optional<User> authenticateSimple(String name, String password,List<String> urls){
         Hashtable<String, Object> env = new Hashtable<>();
         env.putAll(commonEnvLDAP);
-        env.put(Context.PROVIDER_URL, getUrl());
+        env.put(Context.PROVIDER_URL, urls.get(0));
         env.put(Context.SECURITY_PRINCIPAL,"uid=" + name + "," + getBaseUser());
         env.put(Context.SECURITY_CREDENTIALS, password);
         try {
             new InitialDirContext(env);
             return Optional.of(userService.findOrCreateUser(name, this.getDomain(), TYPE_IDENTIFIER));
         } catch (NamingException e) {
-            return Optional.empty();
+            if((urls.size()>1)&&(e.toString().contains("CommunicationException")||e.toString().contains("ServiceUnavailableException"))){
+                urls.remove(0);
+                return authenticateSimple(name,password,urls);
+            }else {
+                return Optional.empty();
+            }
         }
     }
+
+    private Optional<User> authenticateSSL(String name, String password,List<String> urls){
+        Hashtable<String, Object> env = new Hashtable<>();
+        env.putAll(commonEnvLDAP);
+        env.put(Context.PROVIDER_URL, urls.get(0));
+        env.put(Context.SECURITY_PRINCIPAL,"uid=" + name + "," + getBaseUser());
+        env.put(Context.SECURITY_CREDENTIALS, password);
+        env.put(Context.SECURITY_PROTOCOL,"ssl");
+        try {
+            new InitialDirContext(env);
+            return Optional.of(userService.findOrCreateUser(name, this.getDomain(), TYPE_IDENTIFIER));
+        } catch (NamingException e) {
+            if((urls.size()>1)&&(e.toString().contains("CommunicationException")||e.toString().contains("ServiceUnavailableException"))){
+                urls.remove(0);
+                return authenticateSSL(name, password, urls);
+            }else {
+                return Optional.empty();
+            }
+        }
+    }
+
+    private Optional<User> authenticateTLS(String name, String password,List<String> urls){
+        Hashtable<String, Object> env = new Hashtable<>();
+        env.putAll(commonEnvLDAP);
+        env.put(Context.PROVIDER_URL, urls.get(0));
+        try{
+            LdapContext ctx = new InitialLdapContext(env, null);
+            ExtendedRequest tlsRequest = new StartTlsRequest();
+            ExtendedResponse tlsResponse = ctx.extendedOperation(tlsRequest);
+            tls = (StartTlsResponse)tlsResponse;
+            tls.negotiate();
+            env.put(Context.SECURITY_PRINCIPAL,"uid=" + name + "," + getBaseUser());
+            env.put(Context.SECURITY_CREDENTIALS, password);
+            Optional<User> user = Optional.of(userService.findOrCreateUser(name, this.getDomain(), TYPE_IDENTIFIER));
+            return user;
+        }catch(IOException | NamingException e){
+            if((urls.size()>1)&&(e.toString().contains("CommunicationException")||e.toString().contains("ServiceUnavailableException"))){
+                urls.remove(0);
+                return authenticateTLS(name, password, urls);
+            }else {
+                return Optional.empty();
+            }
+        }finally {
+            if(tls != null){
+                try {
+                    tls.close();
+                }catch (IOException e){
+
+                }
+            }
+        }
+
+    }
+
+    private List<String> getUrls(){
+        List<String> urls = new ArrayList<String>();
+        urls.add(getUrl());
+        if(getBackupUrl() != null) {
+            String[] backupUrls = getBackupUrl().split(";");
+            Arrays.stream(backupUrls).forEach(s -> urls.add(s));
+        }
+        return urls;
+    }
+
+
 }

@@ -11,6 +11,8 @@ public abstract class AbstractLdapDirectoryImpl extends AbstractUserDirectoryImp
     private String directoryUser;
     private String password;
     private String url;
+    private String backupurl;
+    private String security;
     private String baseUser;
     private String baseGroup;
     private boolean manageGroupsInternal;
@@ -42,6 +44,26 @@ public abstract class AbstractLdapDirectoryImpl extends AbstractUserDirectoryImp
     @Override
     public String getUrl() {
         return url;
+    }
+
+    @Override
+    public String getSecurity(){
+        return security;
+    }
+
+    @Override
+    public String getBackupUrl(){
+        return backupurl;
+    }
+
+    @Override
+    public void setSecurity(String security){
+        this.security = security;
+    }
+
+    @Override
+    public void setBackupUrl(String backupUrl){
+        this.backupurl = backupUrl;
     }
 
     @Override

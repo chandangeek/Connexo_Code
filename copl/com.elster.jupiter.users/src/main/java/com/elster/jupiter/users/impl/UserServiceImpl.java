@@ -1,5 +1,21 @@
 package com.elster.jupiter.users.impl;
 
+import static com.elster.jupiter.util.Checks.is;
+
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.List;
+import java.util.Optional;
+
+import javax.inject.Inject;
+import javax.validation.MessageInterpolator;
+
+import org.osgi.framework.BundleContext;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.nls.*;
@@ -39,13 +55,11 @@ public class UserServiceImpl implements UserService, InstallService, Translation
     private volatile UserPreferencesService userPreferencesService;
     private volatile ThreadPrincipalService threadPrincipalService;
 
+    private static final String TRUSTSTORE_PATH="com.elster.jupiter.users.truststore";
+    private static final String TRUSTSTORE_PASS="com.elster.jupiter.users.truststorepass";
+    private String trustStorePath;
 
     private static final String JUPITER_REALM = "Local";
-
-    //List<Resource> moduleResources = new ArrayList<>();//CopyOnWriteArrayList<>();
-    //Map<String, List<String> >applicationResources = new ConcurrentHashMap<>();
-
-    //Map<String, String> privilegeResource = new ConcurrentHashMap<>();
 
     private volatile List<PrivilegesProvider> privilegesProviders = new CopyOnWriteArrayList<>();
 
@@ -61,14 +75,17 @@ public class UserServiceImpl implements UserService, InstallService, Translation
         setOrmService(ormService);
         setNlsService(nlsService);
         setThreadPrincipalService(threadPrincipalService);
-        activate();
+        activate(null);
         if (!dataModel.isInstalled()) {
             install();
         }
     }
 
     @Activate
-    public void activate() {
+    public void activate(BundleContext context) {
+        if(context != null) {
+            setTrustStore(context);
+        }
         dataModel.register(new AbstractModule() {
             @Override
             protected void configure() {
@@ -85,6 +102,16 @@ public class UserServiceImpl implements UserService, InstallService, Translation
     public Optional<User> authenticate(String domain, String userName, String password) {
         UserDirectory userDirectory = is(domain).empty() ? findDefaultUserDirectory() : getUserDirectory(domain);
         return userDirectory.authenticate(userName, password);
+    }
+
+    private void setTrustStore(BundleContext bundleContext) {
+        String trustStorePath = bundleContext.getProperty(TRUSTSTORE_PATH);
+        String trustStorePass = bundleContext.getProperty(TRUSTSTORE_PASS);
+        if ((trustStorePath != null) && (trustStorePass != null)) {
+            System.setProperty("javax.net.ssl.trustStore", trustStorePath);
+            System.setProperty("javax.net.ssl.trustStorePassword", trustStorePass);
+
+        }
     }
 
     private UserDirectory getUserDirectory(String domain) {
