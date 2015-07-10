@@ -52,23 +52,84 @@ Ext.define('Dsh.controller.Communications', {
         {
             ref: 'connectionsPreviewActionBtn',
             selector: '#connectionsPreviewActionBtn'
+        },
+        {
+            ref: 'latestResultFilter',
+            selector: 'dsh-view-widget-communicationstopfilter #latest-result-filter'
+        },
+        {
+            ref: 'finishedBetweenFilter',
+            selector: 'dsh-view-widget-communicationstopfilter #finish-interval-filter'
+        },
+        {
+            ref: 'comTaskFilter',
+            selector: 'dsh-view-widget-communicationstopfilter #com-task-filter'
+        },
+        {
+            ref: 'comScheduleFilter',
+            selector: 'dsh-view-widget-communicationstopfilter #com-schedule-filter'
         }
     ],
 
     init: function () {
-        this.control({
+        var me = this;
+        me.control({
             '#communicationsdetails #communicationslist': {
-                selectionchange: this.onSelectionChange
+                selectionchange: me.onSelectionChange
             },
             'communications-list #generate-report': {
-                click: this.onGenerateReport
+                click: me.onGenerateReport
             },
             'communications-list #btn-communications-bulk-action': {
-                click: this.forwardToBulk
+                click: me.forwardToBulk
+            },
+            // disable the finished between filter if the latest result filter is used:
+            'dsh-view-widget-communicationstopfilter #latest-result-filter': {
+                change: me.updateFinishedBetweenFilter
+            },
+            // disable the latest result filter if the finished between filter is used:
+            'dsh-view-widget-communicationstopfilter #finish-interval-filter': {
+                filterupdate: me.updateLatestResultFilter,
+                filtervaluechange: me.updateLatestResultFilter
+            },
+            // disable the com schedule filter if the com task filter is used:
+            'dsh-view-widget-communicationstopfilter #com-task-filter': {
+                change: me.updateComScheduleFilter
+            },
+            // disable the com task filter if the com schedule filter is used:
+            'dsh-view-widget-communicationstopfilter #com-schedule-filter': {
+                change: me.updateComTaskFilter
             }
         });
 
-        this.callParent(arguments);
+        me.callParent(arguments);
+    },
+
+    updateFinishedBetweenFilter: function(combo, newValue) {
+        this.getFinishedBetweenFilter().getChooseIntervalButton().setDisabled(Ext.isArray(newValue) && newValue.length!==0);
+    },
+
+    updateLatestResultFilter: function() {
+        var me = this;
+        if (me.getLatestResultFilter()) {
+            me.getLatestResultFilter().setDisabled(me.getFinishedBetweenFilter().getParamValue() !== undefined);
+        } else {
+            // Retry until you can perform the above
+            Ext.TaskManager.start({
+                run: me.updateLatestResultFilter,
+                interval: 200,
+                repeat: 1,
+                scope: me
+            });
+        }
+    },
+
+    updateComScheduleFilter: function(combo, newValue) {
+        this.getComScheduleFilter().setDisabled(Ext.isArray(newValue) && newValue.length!==0);
+    },
+
+    updateComTaskFilter: function(combo, newValue) {
+        this.getComTaskFilter().setDisabled(Ext.isArray(newValue) && newValue.length!==0);
     },
 
     showOverview: function () {
