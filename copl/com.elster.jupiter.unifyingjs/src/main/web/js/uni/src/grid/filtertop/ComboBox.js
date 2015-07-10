@@ -22,6 +22,8 @@ Ext.define('Uni.grid.filtertop.ComboBox', {
 
         if (Ext.isDefined(me.options) && !Ext.isDefined(me.store)) {
             me.store = me.createStoreFromOptions();
+        } else {
+            me.store = Ext.getStore(me.store) || Ext.create(me.store);
         }
 
         me.listConfig = me.listConfig || {};
