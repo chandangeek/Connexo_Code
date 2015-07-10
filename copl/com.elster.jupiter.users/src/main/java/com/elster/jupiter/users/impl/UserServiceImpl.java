@@ -61,7 +61,7 @@ public class UserServiceImpl implements UserService, InstallService, Translation
         setThreadPrincipalService(threadPrincipalService);
         activate(null);
         if (!dataModel.isInstalled()) {
-            install();
+            installDataModel(true);
         }
     }
 
@@ -343,8 +343,15 @@ public class UserServiceImpl implements UserService, InstallService, Translation
     }
 
     public void install() {
+        installDataModel(false);
+    }
+
+    private void installDataModel(boolean inTest){
         InstallerImpl installer = new InstallerImpl(dataModel, this);
         installer.install(getRealm());
+        if(inTest) {
+            doInstallPrivileges(this);
+        }
         installPrivileges();
         installer.addDefaults();
     }
