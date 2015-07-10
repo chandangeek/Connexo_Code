@@ -16,6 +16,7 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import com.elster.jupiter.http.whiteboard.App;
+import com.elster.jupiter.http.whiteboard.BundleResolver;
 import com.elster.jupiter.http.whiteboard.DefaultStartPage;
 import com.elster.jupiter.http.whiteboard.FileResolver;
 import com.elster.jupiter.http.whiteboard.HttpResource;
@@ -60,8 +61,8 @@ public class InsightAppServiceImpl implements InsightAppService, InstallService,
 
     @Activate
     public final void activate(BundleContext context) {
-        //HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, HTTP_RESOURCE_LOCAL_NAME, new BundleResolver(context), new DefaultStartPage(APP_NAME));
-        HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, "/home/kurtk/Projects/git/insight/com.elster.jupiter.insight.app/src/main/web/js/insight", new FileResolver(), new DefaultStartPage(APP_NAME));
+        HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, HTTP_RESOURCE_LOCAL_NAME, new BundleResolver(context), new DefaultStartPage(APP_NAME));
+        //HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, "/home/kurtk/Projects/git/insight/com.elster.jupiter.insight.app/src/main/web/js/insight", new FileResolver(), new DefaultStartPage(APP_NAME));
         App app = new App(APP_KEY, APP_NAME, APP_ICON, HTTP_RESOURCE_ALIAS, resource, user -> isAllowed(user));
 
         registration = context.registerService(App.class, app, null);
@@ -121,6 +122,6 @@ public class InsightAppServiceImpl implements InsightAppService, InstallService,
 
 	@Override
 	public Layer getLayer() {
-		return Layer.UI;
+		return Layer.REST;
 	}
 }

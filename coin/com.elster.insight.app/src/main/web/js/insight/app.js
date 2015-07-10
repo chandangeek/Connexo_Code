@@ -1,3 +1,5 @@
+//Ext.require('Uni.Loader');
+
 Ext.onReady(function () {
     var loader = Ext.create('Uni.Loader');
 
