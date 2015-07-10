@@ -16,6 +16,7 @@ Ext.define('Mdc.usagepointmanagement.view.UsagePointAttributesFormMain', {
             {
                 xtype: 'fieldcontainer',
                 fieldLabel: Uni.I18n.translate('usagePointManagement.generalAttributes', 'MDC', 'General attributes'),
+                itemId: "usagePointGeneralAttributes",
                 labelAlign: 'top',
                 layout: 'vbox',
                 defaults: {

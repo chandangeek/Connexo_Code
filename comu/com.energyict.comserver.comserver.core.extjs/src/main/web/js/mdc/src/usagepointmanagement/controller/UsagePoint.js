@@ -70,7 +70,8 @@ Ext.define('Mdc.usagepointmanagement.controller.UsagePoint', {
                                         autoEl: {
                                             tag: 'a',
                                             href: '#/devices/' + item.get('meter').mRID,
-                                            html: item.get('meter').mRID
+                                            html: item.get('meter').mRID,
+                                            itemId: 'up-device-link'
                                         }
                                     },
                                     {
