@@ -47,7 +47,7 @@ public class DeviceLifeCycleIT extends PersistenceIntegrationTest {
     @Transactional
     public void lifeCycleDatesOnNewDevice() {
         // Business method
-        Device device = this.createSimpleDevice("lifeCycleDatesOnNewDevice");
+        Device device = this.createSimpleDevice("lifeCycleDatesOnNewDevice", Instant.now());
 
         // Asserts
         assertThat(device.getLifecycleDates()).isNotNull();
@@ -64,7 +64,7 @@ public class DeviceLifeCycleIT extends PersistenceIntegrationTest {
     public void activateDeviceSetsInstalledDate() {
         Instant creationTime = Instant.ofEpochMilli(10000L);
         when(inMemoryPersistence.getClock().instant()).thenReturn(creationTime);
-        Device device = this.createSimpleDevice("activateDeviceSetsInstalledDate");
+        Device device = this.createSimpleDevice("activateDeviceSetsInstalledDate",creationTime);
 
         Instant activationTime = Instant.ofEpochMilli(20000L);
         when(inMemoryPersistence.getClock().instant()).thenReturn(activationTime);
@@ -97,7 +97,7 @@ public class DeviceLifeCycleIT extends PersistenceIntegrationTest {
     public void installInActiveFromInStockDoesNotSetAnyCimDate() {
         Instant creationTime = Instant.ofEpochMilli(10000L);
         when(inMemoryPersistence.getClock().instant()).thenReturn(creationTime);
-        Device device = this.createSimpleDevice("installInActiveFromInStockDoesNotSetAnyCimDate");
+        Device device = this.createSimpleDevice("installInActiveFromInStockDoesNotSetAnyCimDate", Instant.now());
 
         Instant activationTime = Instant.ofEpochMilli(20000L);
         when(inMemoryPersistence.getClock().instant()).thenReturn(activationTime);
@@ -130,7 +130,7 @@ public class DeviceLifeCycleIT extends PersistenceIntegrationTest {
     public void startCommissioningDoesNotSetAnyCimDate() {
         Instant creationTime = Instant.ofEpochMilli(10000L);
         when(inMemoryPersistence.getClock().instant()).thenReturn(creationTime);
-        Device device = this.createSimpleDevice("startCommissioningDoesNotSetAnyCimDate");
+        Device device = this.createSimpleDevice("startCommissioningDoesNotSetAnyCimDate", creationTime);
 
         Instant activationTime = Instant.ofEpochMilli(20000L);
         when(inMemoryPersistence.getClock().instant()).thenReturn(activationTime);
@@ -156,7 +156,7 @@ public class DeviceLifeCycleIT extends PersistenceIntegrationTest {
         this.changeInitialState(DefaultState.COMMISSIONING);
         Instant creationTime = Instant.ofEpochMilli(10000L);
         when(inMemoryPersistence.getClock().instant()).thenReturn(creationTime);
-        Device device = this.createSimpleDevice("activateFromCommissioningSetsInstallDate");
+        Device device = this.createSimpleDevice("activateFromCommissioningSetsInstallDate", creationTime);
 
         Instant activationTime = Instant.ofEpochMilli(20000L);
         when(inMemoryPersistence.getClock().instant()).thenReturn(activationTime);
@@ -190,7 +190,7 @@ public class DeviceLifeCycleIT extends PersistenceIntegrationTest {
         this.changeInitialState(DefaultState.COMMISSIONING);
         Instant creationTime = Instant.ofEpochMilli(10000L);
         when(inMemoryPersistence.getClock().instant()).thenReturn(creationTime);
-        Device device = this.createSimpleDevice("installInActiveFromInCommissioningDoesNotSetAnyCimDate");
+        Device device = this.createSimpleDevice("installInActiveFromInCommissioningDoesNotSetAnyCimDate", creationTime);
 
         Instant activationTime = Instant.ofEpochMilli(20000L);
         when(inMemoryPersistence.getClock().instant()).thenReturn(activationTime);
@@ -224,7 +224,7 @@ public class DeviceLifeCycleIT extends PersistenceIntegrationTest {
         this.changeInitialState(DefaultState.ACTIVE);
         Instant creationTime = Instant.ofEpochMilli(10000L);
         when(inMemoryPersistence.getClock().instant()).thenReturn(creationTime);
-        Device device = this.createSimpleDevice("deactivateSetsRemovedDate");
+        Device device = this.createSimpleDevice("deactivateSetsRemovedDate", creationTime);
 
         Instant deactivationTime = Instant.ofEpochMilli(20000L);
         when(inMemoryPersistence.getClock().instant()).thenReturn(deactivationTime);
@@ -249,7 +249,7 @@ public class DeviceLifeCycleIT extends PersistenceIntegrationTest {
     public void reactivateAlsoResetsInstallDate() {
         Instant creationTime = Instant.ofEpochMilli(10000L);
         when(inMemoryPersistence.getClock().instant()).thenReturn(creationTime);
-        Device device = this.createSimpleDevice("reactivateAlsoResetsInstallDate");
+        Device device = this.createSimpleDevice("creactivateAlsoResetsInstallDate", creationTime);
 
         // Activate the device for the first time
         Instant initialActivationTime = Instant.ofEpochMilli(20000L);
@@ -305,7 +305,10 @@ public class DeviceLifeCycleIT extends PersistenceIntegrationTest {
         this.changeInitialState(DefaultState.ACTIVE);
         Instant creationTime = Instant.ofEpochMilli(10000L);
         when(inMemoryPersistence.getClock().instant()).thenReturn(creationTime);
-        Device device = this.createSimpleDevice("decommissionActiveDeviceSetsRetiredDate");
+        Device device = this.createSimpleDevice("decommissionActiveDeviceSetsRetiredDate",creationTime);
+
+        assertThat(device.forValidation().isValidationActive()).isTrue();
+        assertThat(device.forEstimation().isEstimationActive()).isTrue();
 
         Instant decommissioningTime = Instant.ofEpochMilli(20000L);
         when(inMemoryPersistence.getClock().instant()).thenReturn(decommissioningTime);
@@ -331,7 +334,7 @@ public class DeviceLifeCycleIT extends PersistenceIntegrationTest {
         this.changeInitialState(DefaultState.INACTIVE);
         Instant creationTime = Instant.ofEpochMilli(10000L);
         when(inMemoryPersistence.getClock().instant()).thenReturn(creationTime);
-        Device device = this.createSimpleDevice("decommissionInactiveDeviceSetsRetiredDate");
+        Device device = this.createSimpleDevice("decommissionInactiveDeviceSetsRetiredDate", creationTime);
 
         Instant decommissioningTime = Instant.ofEpochMilli(20000L);
         when(inMemoryPersistence.getClock().instant()).thenReturn(decommissioningTime);
@@ -357,8 +360,11 @@ public class DeviceLifeCycleIT extends PersistenceIntegrationTest {
         stateMachine.startUpdate().complete(state.get()).save();
     }
 
-    private Device createSimpleDevice(String mRID) {
-        return createSimpleDeviceWithName(DEVICE_NAME, mRID);
+    private Device createSimpleDevice(String mRID, Instant when) {
+        Device device =  createSimpleDeviceWithName(DEVICE_NAME, mRID);
+        device.forValidation().activateValidation(when);
+        device.forEstimation().activateEstimation();
+        return device;
     }
 
 }
