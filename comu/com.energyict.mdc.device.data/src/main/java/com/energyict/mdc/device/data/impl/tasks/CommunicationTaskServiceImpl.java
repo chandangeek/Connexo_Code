@@ -40,6 +40,7 @@ import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
+import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.ComServer;
@@ -851,6 +852,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
         sqlBuilder.append(TableSpecs.DDC_DEVICE.name());
         sqlBuilder.append(" dev on cte.device = dev.id ");
         this.appendDeviceGroupConditions(deviceGroup, sqlBuilder);
+        this.appendRestrictedStatesCondition(sqlBuilder);
         sqlBuilder.append(" group by dev.devicetype, cte.lastsess_highestpriocomplcode");
         Map<Long, Map<CompletionCode, Long>> partialCounters = this.fetchComTaskHeatMapCounters(sqlBuilder);
         return this.buildDeviceTypeHeatMap(partialCounters);
@@ -951,6 +953,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
         sqlBuilder.append(TableSpecs.DDC_COMTASKEXEC.name());
         sqlBuilder.append(" cte where obsolete_date is null and lastsession is not null");
         this.appendDeviceGroupConditions(deviceGroup, sqlBuilder);
+        this.appendRestrictedStatesCondition(sqlBuilder);
         sqlBuilder.append(" group by cte.lastsess_highestpriocomplcode");
         return this.addMissingCompletionCodeCounters(this.fetchCompletionCodeCounters(sqlBuilder));
     }
@@ -966,6 +969,31 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
             }
             sqlBuilder.append(")");
         }
+    }
+
+    /*
+     select ED.amrid
+       from MTR_ENDDEVICESTATUS ES,
+        (select FS.ID
+          from FSM_STATE FS
+          where FS.OBSOLETE_TIMESTAMP IS NULL and FS.NAME NOT IN ('dlc.default.inStock', 'dlc.default.decommissioned')) FS,
+        MTR_ENDDEVICE ED
+       where ES.STARTTIME <= 1436517667000 and ES.ENDTIME > 1436517667000 and ED.ID = ES.ENDDEVICE and ES.STATE = FS.ID;
+     */
+    private void appendRestrictedStatesCondition(SqlBuilder sqlBuilder) {
+        long currentTime = Instant.now().toEpochMilli();
+        sqlBuilder.append(" and cte.device in");
+        sqlBuilder.append(" (select ED.amrid");
+        sqlBuilder.append(" from MTR_ENDDEVICESTATUS ES, (select FS.ID from FSM_STATE FS where FS.OBSOLETE_TIMESTAMP IS NULL and ");
+        sqlBuilder.append("FS.NAME NOT IN ('");
+        sqlBuilder.append(DefaultState.IN_STOCK.getKey());
+        sqlBuilder.append("', '");
+        sqlBuilder.append(DefaultState.DECOMMISSIONED.getKey());
+        sqlBuilder.append("')) FS, MTR_ENDDEVICE ED where ES.STARTTIME <= ");
+        sqlBuilder.append(String.valueOf(currentTime));
+        sqlBuilder.append(" and ES.ENDTIME > ");
+        sqlBuilder.append(String.valueOf(currentTime));
+        sqlBuilder.append(" and ED.ID = ES.ENDDEVICE and ES.STATE = FS.ID)");
     }
 
     private Map<CompletionCode, Long> fetchCompletionCodeCounters(SqlBuilder builder) {

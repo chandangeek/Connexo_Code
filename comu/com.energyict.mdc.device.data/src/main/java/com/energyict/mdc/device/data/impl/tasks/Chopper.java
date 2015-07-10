@@ -1,50 +1,45 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
-import com.energyict.mdc.common.HasId;
-
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 /**
- * A Chopper is capable of chopping up a set of business objects
- * {@link HasId that have an id} into chunks of at most 'n' elements.
+ * A Chopper is capable of chopping up a set of objects into chunks of at most 'n' elements.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-08-22 (11:15)
  */
-public final class Chopper {
+public final class Chopper<T> {
 
-    private final Set<? extends HasId> idBusinessObjects;
+    private final Collection<T> objects;
 
-    public Chopper(Set<? extends HasId> idBusinessObjects) {
+    public Chopper(Collection<T> objects) {
         super();
-        this.idBusinessObjects = idBusinessObjects;
+        this.objects = objects;
     }
 
-    public static Chopper chopUp(Set<? extends HasId> idBusinessObjects) {
-        return new Chopper(idBusinessObjects);
+    public static <T> Chopper<T> chopUp(Collection<T> objects) {
+        return new Chopper(objects);
     }
 
-    public List<List<? extends HasId>> into (int chunckSize) {
-        List<List<? extends HasId>> allChunks = new ArrayList<>();
-        if (this.idBusinessObjects.size() <= chunckSize) {
-            List<HasId> singleChuck = new ArrayList<>(this.idBusinessObjects);
+    public List<List<T>> into (int chunkSize) {
+        List<List<T>> allChunks = new ArrayList<>();
+        if (this.objects.size() <= chunkSize) {
+            List<T> singleChuck = new ArrayList<>(this.objects);
             allChunks.add(singleChuck);
-        }
-        else {
-            List<HasId> currentChunk = new ArrayList<>(chunckSize);
+        } else {
+            List<T> currentChunk = new ArrayList<>(chunkSize);
             allChunks.add(currentChunk);
-            for (HasId hasId : this.idBusinessObjects) {
-                if (currentChunk.size() == chunckSize) {
+            for (T obj : this.objects) {
+                if (currentChunk.size() == chunkSize) {
                     // Current chuck is full, take another one
-                    currentChunk = new ArrayList<>(chunckSize);
+                    currentChunk = new ArrayList<>(chunkSize);
                     allChunks.add(currentChunk);
                 }
-                currentChunk.add(hasId);
+                currentChunk.add(obj);
             }
         }
         return allChunks;
     }
-
 }
