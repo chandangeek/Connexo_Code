@@ -327,6 +327,7 @@ Ext.define('Uni.grid.filtertop.Interval', {
         me.getToDateField().reset();
         me.getToHourField().reset();
         me.getToMinuteField().reset();
+        me.fireEvent('filtervaluechange');
     },
 
     setFilterValue: function (data) {
@@ -342,6 +343,7 @@ Ext.define('Uni.grid.filtertop.Interval', {
                 me.setToDateValue(new Date(parseInt(toDate)));
             }
         }
+        me.fireEvent('filtervaluechange');
     },
 
     getParamValue: function () {
