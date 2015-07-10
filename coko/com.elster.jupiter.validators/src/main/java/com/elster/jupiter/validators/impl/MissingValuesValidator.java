@@ -66,12 +66,10 @@ class MissingValuesValidator extends AbstractValidator {
     				instants = new HashSet<>();
     			} else {
     				instants = new HashSet<>(channel.toList(Range.closed(start, interval.upperEndpoint())));
+                    if (readingType.getBulkReadingType().map(bulk -> channel.getReadingTypes().contains(bulk)).orElse(false)) {
+                        instants.remove(start);
+                    }
     			}
-    		} else {
-    			instants = new HashSet<>(channel.toList(interval));
-//                if (readingType.getBulkReadingType().map(bulk -> channel.getReadingTypes().contains(bulk)).orElse(false)) {
-//                    instants.remove(start);
-//                }
     		}
     	}
     }
