@@ -29,7 +29,7 @@ Ext.define('Uni.controller.Search', {
         },
         {
             ref: 'searchDomainCombo',
-            selector: 'uni-view-search-overview combo#domain'
+            selector: 'uni-view-search-field-search-object-selector'
         },
         {
             ref: 'addCriteriaCombo',
@@ -98,18 +98,18 @@ Ext.define('Uni.controller.Search', {
     onSearchDomainsLoad: function (records, operation, success) {
         var me = this,
             searchDomainValue = me.getSearchDomainHistoryValue(),
-            searchDomainCombo = me.getSearchDomainCombo();
+            searchDomainCombo = me.getSearchDomainCombo().down('#domain');
 
         if (!Ext.isEmpty(records) && records.findRecord('displayValue', searchDomainValue) !== null) {
             searchDomainCombo.setValue(records.findRecord('displayValue', searchDomainValue).get('id'));
-        } else if (searchDomainCombo.getValue() === null && !Ext.isEmpty(records)) {
+        } else if (searchDomainCombo && !Ext.isEmpty(records)) {
             searchDomainCombo.setValue(records.first().get('id'));
         }
     },
 
     initComponentListeners: function () {
         var me = this,
-            searchDomainCombo = me.getSearchDomainCombo(),
+            searchDomainCombo = me.getSearchDomainCombo().down('#domain'),
             addCriteriaCombo = me.getAddCriteriaCombo(),
             removablePropertiesContainer = me.getRemovablePropertiesContainer(),
             searchButton = me.getSearchButton(),
@@ -262,10 +262,10 @@ Ext.define('Uni.controller.Search', {
         }
     },
 
-    onChangeSearchDomain: function (field, newValue, oldValue, options) {
-        var me = options.scope,
+    onChangeSearchDomain: function (field, newValue) {
+        var me = newValue.scope,
             searchDomains = Ext.getStore('Uni.store.search.Domains'),
-            searchDomain = searchDomains.findRecord('id', newValue),
+            searchDomain = searchDomains.findRecord('id', field.text, 0, true, true),
             searchResults = Ext.getStore('Uni.store.search.Results'),
             searchProperties = Ext.getStore('Uni.store.search.Properties'),
             fields = Ext.getStore('Uni.store.search.Fields'),
