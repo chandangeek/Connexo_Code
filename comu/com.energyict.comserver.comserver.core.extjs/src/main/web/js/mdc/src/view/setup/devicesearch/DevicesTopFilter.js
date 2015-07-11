@@ -2,6 +2,12 @@ Ext.define('Mdc.view.setup.devicesearch.DevicesTopFilter', {
     extend: 'Uni.grid.FilterPanelTop',
     xtype: 'mdc-view-setup-devicesearch-devicestopfilter',
 
+    requires: [
+        'Mdc.store.Devices',
+        'Mdc.store.filter.DeviceTypes',
+        'Mdc.store.DeviceConfigurations'
+    ],
+
     store: 'Mdc.store.Devices',
 
     initComponent: function () {
