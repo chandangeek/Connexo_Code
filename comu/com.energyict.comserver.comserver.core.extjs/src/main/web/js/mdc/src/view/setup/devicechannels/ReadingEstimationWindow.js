@@ -38,13 +38,13 @@ Ext.define('Mdc.view.setup.devicechannels.ReadingEstimationWindow', {
                     items: [
                         {
                             itemId: 'rbtn-is-bulk-no',
-                            boxLabel: Uni.I18n.translate('general.valuekWh', 'MDC', 'Value (kWh)'),
+                            boxLabel: Uni.I18n.translate('general.valueWh', 'MDC', 'Value (Wh)'),
                             inputValue: false,
                             checked: true
                         },
                         {
                             itemId: 'rbtn-is-bulk-yes',
-                            boxLabel: Uni.I18n.translate('general.bulkValuekWh', 'FWC', 'Bulk value (kWh)'),
+                            boxLabel: Uni.I18n.translate('general.bulkValueWh', 'FWC', 'Bulk value (Wh)'),
                             inputValue: true
                         }
                     ]

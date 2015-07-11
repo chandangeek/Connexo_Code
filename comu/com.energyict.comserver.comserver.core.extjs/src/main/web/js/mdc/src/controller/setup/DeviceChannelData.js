@@ -314,11 +314,9 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 
         dataStore.each(function (record) {
             var point = {},
-                deltaValidationInfo = record.getValidationInfo().getMainValidationInfo(),
+                mainValidationInfo = record.getValidationInfo().getMainValidationInfo(),
                 bulkValidationInfo = record.getValidationInfo().getBulkValidationInfo(),
-                deltaModificationFlag = deltaValidationInfo ? deltaValidationInfo.get('valueModificationFlag') : null,
-                bulkModificationFlag = bulkValidationInfo ? bulkValidationInfo.get('valueModificationFlag') : null,
-                deltaNotValidated = deltaValidationInfo.get('validationResult') ? (deltaValidationInfo.get('validationResult').split('.')[1] == 'notValidated') : false,
+                deltaNotValidated = mainValidationInfo.get('validationResult') ? (mainValidationInfo.get('validationResult').split('.')[1] == 'notValidated') : false,
                 properties = record.get('readingProperties');
 
             point.x = record.get('interval').start;
@@ -327,11 +325,14 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             point.intervalEnd = record.get('interval').end;
             point.collectedValue = record.get('collectedValue');
             point.mesurementType = mesurementType;
+            point.color = okColor;
+            point.tooltipColor = tooltipOkColor;
 
-            if (record.get('modificationFlag') == 'EDITED') {
-                point.color = (deltaModificationFlag == 'ESTIMATED') ? estimatedColor : okColor;
-                point.tooltipColor = (deltaModificationFlag == 'ESTIMATED') ? tooltipEstimatedColor : tooltipOkColor;
+            if (mainValidationInfo.get('valueModificationFlag') == 'EDITED') {
                 point.edited = true;
+            } else if (mainValidationInfo.get('estimatedByRule')) {
+                point.color = estimatedColor;
+                point.tooltipColor = tooltipEstimatedColor;
             } else if (properties.delta.notValidated || properties.bulk.notValidated) {
                 point.color = notValidatedColor;
                 point.tooltipColor = tooltipNotValidatedColor
@@ -341,12 +342,10 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             } else if (properties.delta.informative || properties.bulk.informative) {
                 point.color = informativeColor;
                 point.tooltipColor = tooltipInformativeColor;
-            } else {
-                point.color = okColor;
-                point.tooltipColor = tooltipOkColor;
             }
-            if (bulkModificationFlag == 'ESTIMATED') {
-                point.bulkEstimated = true;
+
+            if (bulkValidationInfo.get('valueModificationFlag') == 'EDITED') {
+                point.bulkEdited = true;
             }
 
             Ext.merge(point, properties);
@@ -544,16 +543,15 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 
     beforeEditRecord: function (editor, event) {
         var intervalFlags = event.record.get('intervalFlags');
-
+        event.row.querySelector('span') && event.row.querySelector('span').remove();
         event.column.getEditor().allowBlank = !(intervalFlags && intervalFlags.length);
     },
 
     resumeEditorFieldValidation: function (editor, event) {
         var me = this,
             chart = me.getPage().down('#deviceLoadProfileChannelGraphView').chart,
-            grid = me.getPage().down('deviceLoadProfileChannelDataGrid'),
             point = chart.get(event.record.get('interval').start),
-            updatedObj = {};
+            updatedObj;
 
         if (event.column) {
             event.column.getEditor().allowBlank = true;
@@ -578,39 +576,16 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                     chart.xAxis[0].removePlotBand(event.record.get('interval').start);
                     event.record.set('plotBand', false);
                 }
-                updatedObj.y = parseFloat(event.record.get('value'));
-
-                if (event.estimated) {
-                    updatedObj.delta = {};
-                    updatedObj.bulk = {};
-                    updatedObj.estimated = true;
-                    updatedObj.collectedValue = event.record.get('collectedValue');
-                    updatedObj.color = '#568343';
-                    updatedObj.tooltipColor = 'rgba(86, 131, 67, 0.3)';
-                    updatedObj.edited = event.record.data.validationInfo.mainValidationInfo.valueModificationFlag == 'ESTIMATED';
-                    updatedObj.bulkEstimated = event.record.data.validationInfo.bulkValidationInfo.valueModificationFlag == 'ESTIMATED';
-                    updatedObj.delta.suspect = event.record.data.validationInfo.mainValidationInfo.validationResult.split('.')[1] == 'suspect';
-                    updatedObj.delta.notValidated = event.record.data.validationInfo.mainValidationInfo.validationResult.split('.')[1] == 'notValidated';
-                    updatedObj.bulk.suspect = event.record.data.validationInfo.bulkValidationInfo.validationResult.split('.')[1] == 'suspect';
-                    updatedObj.bulk.notValidated = event.record.data.validationInfo.bulkValidationInfo.validationResult.split('.')[1] == 'notValidated';
-                } else {
-                    updatedObj.color = 'rgba(112,187,81,0.3)';
-                    updatedObj.edited = true;
-                    if (point.estimated) {
-                        event.record.data.validationInfo.mainValidationInfo.validationResult = event.record.get('mainValidationInformation').validationResult;
-                        event.record.data.validationInfo.bulkValidationInfo.validationResult = event.record.get('bulkValidationInformation').validationResult;
-                        grid.getView().refreshNode(grid.getStore().indexOf(event.record));
-                        updatedObj.delta = {};
-                        updatedObj.bulk = {};
-                        updatedObj.tooltipColor = 'rgba(235, 86, 66, 0.3)';
-                        updatedObj.delta.suspect = event.record.get('readingProperties').delta.suspect;
-                        updatedObj.delta.notValidated = event.record.get('readingProperties').delta.notValidated;
-                        updatedObj.bulk.suspect = event.record.get('readingProperties').bulk.suspect;
-                        updatedObj.bulk.notValidated = event.record.get('readingProperties').bulk.notValidated;
-                        updatedObj.estimated = false;
-                    }
-                }
+                updatedObj = {
+                    y: parseFloat(event.record.get('value')),
+                    collectedValue: event.record.get('collectedValue'),
+                    color: 'rgba(112,187,81,0.3)'
+                };
                 point.update(updatedObj);
+            }
+
+            if (event.row && event.record.isModified('value')) {
+                event.row.querySelector('span') && event.row.querySelector('span').remove();
             }
         }
     },
@@ -704,21 +679,31 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 var responseText = Ext.decode(operation.response.responseText, true);
                 if (success) {
                     if (!Ext.isArray(readings)) {
-                        readings.set(responseText[0]);
+                        if (record.get('estimateBulk')) {
+                            readings.set('collectedValue', responseText[0].collectedValue);
+                            readings.data.validationInfo.bulkValidationInfo.validationResult = 'validationStatus.ok';
+                        } else {
+                            readings.set('value', responseText[0].value);
+                            readings.data.validationInfo.mainValidationInfo.validationResult = 'validationStatus.ok';
+                        }
                         grid.getView().refreshNode(grid.getStore().indexOf(readings));
                         me.resumeEditorFieldValidation(grid.editingPlugin, {
-                            record: readings,
-                            estimated: true
+                            record: readings
                         });
                     } else {
                         Ext.Array.each(responseText, function (estimatedReading) {
                             Ext.Array.findBy(readings, function (reading) {
                                 if (estimatedReading.interval.start == reading.get('interval').start) {
-                                    reading.set(estimatedReading);
+                                    if (record.get('estimateBulk')) {
+                                        reading.set('collectedValue', estimatedReading.collectedValue);
+                                        reading.data.validationInfo.bulkValidationInfo.validationResult = 'validationStatus.ok';
+                                    } else {
+                                        reading.set('value', estimatedReading.value);
+                                        reading.data.validationInfo.mainValidationInfo.validationResult = 'validationStatus.ok';
+                                    }
                                     grid.getView().refreshNode(grid.getStore().indexOf(reading));
                                     me.resumeEditorFieldValidation(grid.editingPlugin, {
-                                        record: reading,
-                                        estimated: true
+                                        record: reading
                                     });
                                     return true;
                                 }

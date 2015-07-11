@@ -13,7 +13,6 @@ Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
         {name: 'collectedValue', type: 'auto'},
         {name: 'intervalFlags', type: 'auto'},
         {name: 'validationStatus', type: 'auto'},
-        {name: 'modificationFlag', type: 'auto'},
         'validationInfo',
         {
             name: 'interval_start',
@@ -65,11 +64,6 @@ Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
                 if (mainValidationInfo.valueModificationFlag && data.reportedDateTime) {
                     result = {
                         flag: mainValidationInfo.valueModificationFlag,
-                        date: data.reportedDateTime
-                    }
-                } else if (data.modificationFlag && data.reportedDateTime) {
-                    result = {
-                        flag: data.modificationFlag,
                         date: data.reportedDateTime
                     }
                 }

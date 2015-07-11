@@ -14,38 +14,39 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
     updateForm: function (record) {
         var me = this,
             intervalEnd = record.get('interval_end'),
-            bulkValueField = me.down('displayfield[name=collectedValue]'),
-            title = Uni.DateTime.formatDateLong(intervalEnd)
-                + ' ' + Uni.I18n.translate('general.at', 'MDC', 'At').toLowerCase() + ' '
-                + Uni.DateTime.formatTimeLong(intervalEnd);
+            title = Uni.DateTime.formatDateLong(intervalEnd) + ' ' + Uni.I18n.translate('general.at', 'MDC', 'At').toLowerCase() + ' ' + Uni.DateTime.formatTimeLong(intervalEnd),
+            mainValidationInfo = record.getValidationInfo().getMainValidationInfo(),
+            bulkValidationInfo = record.getValidationInfo().getBulkValidationInfo();
 
         Ext.suspendLayouts();
         me.down('#general-panel').setTitle(title);
         me.down('#values-panel').setTitle(title);
-        bulkValueField.setVisible(record.get('isBulk'));
         me.down('form').loadRecord(record);
-
-        if (record.getValidationInfo().getMainValidationInfo().get('validationRules') && !Ext.isEmpty(record.getValidationInfo().getMainValidationInfo().get('validationRules'))) {
-            me.down('#mainReadingQualities').show();
-            me.setReadingQualities(me.down('#mainReadingQualities'), record.getValidationInfo().getMainValidationInfo().get('validationRules'));
-        } else {
-            me.down('#mainReadingQualities').hide();
-        }
-
-        if (record.getValidationInfo().getBulkValidationInfo().get('validationRules') && !Ext.isEmpty(record.getValidationInfo().getBulkValidationInfo().get('validationRules'))) {
-            me.down('#bulkReadingQualities').show();
-            me.setReadingQualities(me.down('#bulkReadingQualities'), record.getValidationInfo().getBulkValidationInfo().get('validationRules'));
-        } else {
-            me.down('#bulkReadingQualities').hide();
-        }
-
+        me.setReadingQualities(me.down('#mainReadingQualities'), mainValidationInfo);
+        me.setReadingQualities(me.down('#bulkReadingQualities'), bulkValidationInfo);
         me.setGeneralReadingQualities(me.down('#generalReadingQualities'), me.up('tabbedDeviceChannelsView').channel.get('validationInfo'));
         me.down('#readingDataValidated').setValue(record.getValidationInfo().get('dataValidated'));
-
         Ext.resumeLayouts(true);
     },
 
-    setReadingQualities: function (field, value) {
+    setReadingQualities: function (field, info) {
+        var me = this,
+            estimatedRule,
+            estimatedRuleName;
+
+        field.show();
+        if (!Ext.isEmpty(info.get('validationRules'))) {
+            me.setValidationRules(me.down('#mainReadingQualities'), info.get('validationRules'));
+        } else if (info.get('estimatedByRule')) {
+            estimatedRule = info.get('estimatedByRule');
+            estimatedRuleName = '<a href="#/administration/estimationrulesets/' + estimatedRule.ruleSetId + '/rules/' + estimatedRule.id + '">' + estimatedRule.name + '</a>';
+            field.setValue(Uni.I18n.translate('deviceChannelData.estimatedAccordingTo', 'MDC', 'Estimated according to') + ' ' + estimatedRuleName);
+        } else {
+            field.hide();
+        }
+    },
+
+    setValidationRules: function (field, value) {
         var str = '',
             prop,
             failEqualDataValue,
@@ -123,11 +124,42 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
         }
     },
 
+    setValueWithResult: function (value, type) {
+        var me = this,
+            record = me.down('form').getRecord(),
+            measurementType = me.channelRecord.get('unitOfMeasure'),
+            validationResult = record.get(type + 'ValidationInformation').validationResult,
+            validationResultText = '',
+            formatValue;
+
+        if (validationResult) {
+            switch (validationResult.split('.')[1]) {
+                case 'notValidated':
+                    validationResultText = '(' + Uni.I18n.translate('devicechannelsreadings.validationResult.notvalidated', 'MDC', 'Not validated') + ')' +
+                        '<img style="position: absolute; margin-left: 5px" width="16" height="16" src="../sky/build/resources/images/shared/Not-validated.png"/>&nbsp;&nbsp;&nbsp;&nbsp;';
+                    break;
+                case 'suspect':
+                    validationResultText = '(' + Uni.I18n.translate('devicechannelsreadings.validationResult.suspect', 'MDC', 'Suspect') + ')' +
+                        '<img style="position: absolute; margin-left: 5px" width="16" height="16" src="../sky/build/resources/images/shared/Suspect.png"/>&nbsp;&nbsp;&nbsp;&nbsp;';
+                    break;
+                case 'ok':
+                    validationResultText = '(' + Uni.I18n.translate('devicechannelsreadings.validationResult.notsuspect', 'MDC', 'Not suspect') + ')';
+                    break;
+            }
+        }
+
+        if (!Ext.isEmpty(value)) {
+            formatValue = Uni.Number.formatNumber(value, -1);
+            return !Ext.isEmpty(formatValue) ? formatValue + ' ' + measurementType + ' ' + validationResultText : '';
+        } else {
+            return Uni.I18n.translate('general.missing', 'MDC', 'Missing') + ' ' + validationResultText;
+        }
+    },
+
     initComponent: function () {
         var me = this,
             generalItems = [],
-            valuesItems = [],
-            measurementType = me.channelRecord.get('unitOfMeasure');
+            valuesItems = [];
 
         generalItems.push(
             {
@@ -166,133 +198,60 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
             }
         );
 
-
         valuesItems.push(
             {
                 xtype: 'fieldcontainer',
+                labelWidth: 200,
                 fieldLabel: Uni.I18n.translate('deviceloadprofiles.channels.value', 'MDC', 'Value'),
-                labelAlign: 'top',
-                defaults: {
-                    xtype: 'displayfield',
-                    labelWidth: 200
-                },
-                layout: 'vbox',
+                layout: 'hbox',
                 items: [
                     {
-                        xtype: 'fieldcontainer',
-                        fieldLabel: Uni.I18n.translate('deviceloadprofiles.channels.value', 'MDC', 'Value'),
-                        layout: 'hbox',
-                        items: [
-                            {
-                                xtype: 'displayfield',
-                                name: 'value',
-                                renderer: function (v) {
-                                    if (!Ext.isEmpty(v)) {
-                                        var value = Uni.Number.formatNumber(v, -1);
-                                        return !Ext.isEmpty(value) ? value + ' ' + measurementType : '';
-                                    }
-                                    return '';
-                                }
-                            },
-                            {
-                                xtype: 'edited-displayfield',
-                                name: 'mainModificationState',
-                                margin: '0 0 0 10'
-                            }
-                        ]
-                    },
-                    {
-                        fieldLabel: Uni.I18n.translate('devicechannelsreadings.validationResult.title', 'MDC', 'Validation result'),
-                        name: 'mainValidationInformation',
+                        xtype: 'displayfield',
+                        name: 'value',
                         renderer: function (value) {
-                            var res = '';
-                            if (value.validationResult) {
-                                switch (value.validationResult.split('.')[1]) {
-                                    case 'notValidated':
-                                        res = Uni.I18n.translate('devicechannelsreadings.validationResult.notvalidated', 'MDC', 'Not validated');
-                                        break;
-                                    case 'suspect':
-                                        res = Uni.I18n.translate('devicechannelsreadings.validationResult.suspect', 'MDC', 'Suspect');
-                                        break;
-                                    case 'ok':
-                                        res = Uni.I18n.translate('devicechannelsreadings.validationResult.notsuspect', 'MDC', 'Not suspect');
-                                        break;
-                                }
-                            } else {
-                                res = Uni.I18n.translate('devicechannelsreadings.validationResult.notvalidated', 'MDC', 'Not validated');
-                            }
-                            return res;
+                            return me.setValueWithResult(value, 'main');
                         }
                     },
                     {
-                        fieldLabel: Uni.I18n.translate('devicechannelsreadings.readingqualities.title', 'MDC', 'Reading qualities'),
-                        itemId: 'mainReadingQualities',
-                        htmlEncode: false
+                        xtype: 'edited-displayfield',
+                        name: 'mainModificationState',
+                        margin: '0 0 0 10'
                     }
                 ]
             },
             {
+                xtype: 'displayfield',
+                labelWidth: 200,
+                fieldLabel: Uni.I18n.translate('devicechannelsreadings.readingqualities.title', 'MDC', 'Reading qualities'),
+                itemId: 'mainReadingQualities',
+                htmlEncode: false
+            },
+            {
                 xtype: 'fieldcontainer',
+                labelWidth: 200,
                 fieldLabel: Uni.I18n.translate('deviceloadprofiles.channels.bulkValue', 'MDC', 'Bulk value'),
-                labelAlign: 'top',
-                defaults: {
-                    xtype: 'displayfield',
-                    labelWidth: 200
-                },
-                layout: 'vbox',
+                layout: 'hbox',
                 items: [
                     {
-                        xtype: 'fieldcontainer',
-                        fieldLabel: Uni.I18n.translate('deviceloadprofiles.channels.value', 'MDC', 'Value'),
-                        layout: 'hbox',
-                        items: [
-                            {
-                                xtype: 'displayfield',
-                                name: 'collectedValue',
-                                renderer: function (v) {
-                                    if (!Ext.isEmpty(v)) {
-                                        var value = Uni.Number.formatNumber(v, -1);
-                                        return !Ext.isEmpty(value) ? value + ' ' + measurementType : '';
-                                    }
-                                    return '';
-                                }
-                            },
-                            {
-                                xtype: 'edited-displayfield',
-                                name: 'bulkModificationState',
-                                margin: '0 0 0 10'
-                            }
-                        ]
-                    },
-                    {
-                        fieldLabel: Uni.I18n.translate('devicechannelsreadings.validationResult.title', 'MDC', 'Validation result'),
-                        name: 'bulkValidationInformation',
+                        xtype: 'displayfield',
+                        name: 'collectedValue',
                         renderer: function (value) {
-                            var res = '';
-                            if (value.validationResult) {
-                                switch (value.validationResult.split('.')[1]) {
-                                    case 'notValidated':
-                                        res = Uni.I18n.translate('devicechannelsreadings.validationResult.notvalidated', 'MDC', 'Not validated');
-                                        break;
-                                    case 'suspect':
-                                        res = Uni.I18n.translate('devicechannelsreadings.validationResult.suspect', 'MDC', 'Suspect');
-                                        break;
-                                    case 'ok':
-                                        res = Uni.I18n.translate('devicechannelsreadings.validationResult.notsuspect', 'MDC', 'Not suspect');
-                                        break;
-                                }
-                            } else {
-                                res = Uni.I18n.translate('devicechannelsreadings.validationResult.notvalidated', 'MDC', 'Not validated');
-                            }
-                            return res;
+                            return me.setValueWithResult(value, 'bulk');
                         }
                     },
                     {
-                        fieldLabel: Uni.I18n.translate('devicechannelsreadings.readingqualities.title', 'MDC', 'Reading qualities'),
-                        itemId: 'bulkReadingQualities',
-                        htmlEncode: false
+                        xtype: 'edited-displayfield',
+                        name: 'bulkModificationState',
+                        margin: '0 0 0 10'
                     }
                 ]
+            },
+            {
+                xtype: 'displayfield',
+                labelWidth: 200,
+                fieldLabel: Uni.I18n.translate('devicechannelsreadings.readingqualities.title', 'MDC', 'Reading qualities'),
+                itemId: 'bulkReadingQualities',
+                htmlEncode: false
             }
         );
 
@@ -320,6 +279,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                             itemId: 'values-panel',
                             frame: true,
                             items: valuesItems,
+                            layout: 'vbox',
                             title: 'sdfsd'
                         }
                     }
