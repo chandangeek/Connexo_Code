@@ -1102,8 +1102,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     }
 
     private boolean isUserAuthorizedForAction(DeviceMessageUserAction action, User user) {
-        Optional<Privilege> privilege = ((DeviceConfigurationServiceImpl) deviceConfigurationService).findPrivilege(action.getPrivilege());
-        return privilege.isPresent() && user.hasPrivilege("MDC",privilege.get().getName());
+        return user.hasPrivilege("MDC",action.getPrivilege());
     }
 
     private Optional<User> getCurrentUser() {

@@ -2,21 +2,34 @@ package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
-import com.elster.jupiter.users.*;
+import com.elster.jupiter.domain.util.QueryService;
+import com.elster.jupiter.estimation.EstimationRuleSet;
+import com.elster.jupiter.estimation.EstimationService;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.nls.*;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.users.PrivilegesProvider;
+import com.elster.jupiter.users.ResourceDefinition;
+import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.validation.ValidationRuleSet;
+import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.config.*;
-import com.energyict.mdc.device.config.DeviceConfigurationEstimationRuleSetUsage;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.device.config.security.Privileges;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
-import com.energyict.mdc.masterdata.ChannelType;
-import com.energyict.mdc.masterdata.LoadProfileType;
-import com.energyict.mdc.masterdata.LogBookType;
-import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.masterdata.MeasurementType;
-import com.energyict.mdc.masterdata.RegisterType;
+import com.energyict.mdc.masterdata.*;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
@@ -26,54 +39,23 @@ import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
-import com.elster.jupiter.domain.util.QueryService;
-import com.elster.jupiter.estimation.EstimationRuleSet;
-import com.elster.jupiter.estimation.EstimationService;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.nls.TranslationKeyProvider;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
-import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Order;
-import com.elster.jupiter.validation.ValidationRuleSet;
-import com.elster.jupiter.validation.ValidationService;
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Multiset;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
-
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
-
 import java.security.Principal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Clock;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.logging.Level;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -106,8 +88,6 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     private volatile ValidationService validationService;
     private volatile EstimationService estimationService;
     private volatile QueryService queryService;
-
-    private final Set<Privilege> privileges = new HashSet<>();
 
     public DeviceConfigurationServiceImpl() {
         super();
@@ -439,19 +419,11 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     @Reference
     public void setUserService(UserService userService) {
         this.userService = userService;
-        initPrivileges();
     }
 
     @Reference
     public void setSchedulingService(SchedulingService schedulingService) {
         this.schedulingService = schedulingService;
-    }
-
-    Optional<Privilege> findPrivilege(String userActionPrivilege) {
-        return this.privileges
-                .stream()
-                .filter(privilege -> privilege.getName().equals(userActionPrivilege))
-                .findAny();
     }
 
     private Module getModule() {
@@ -499,7 +471,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     @Override
     public void install() {
         new Installer(this.dataModel, this.eventService, userService).install(true);
-        initPrivileges();
+        //initPrivileges();
     }
 
     @Override
@@ -657,23 +629,6 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     @Override
     public List<DeviceConfiguration> getLinkableDeviceConfigurations(ValidationRuleSet validationRuleSet) {
         return new LinkableConfigResolverBySql(queryService.wrap(dataModel.query(DeviceConfiguration.class, DeviceType.class))).getLinkableDeviceConfigurations(validationRuleSet);
-    }
-
-    private void initPrivileges() {
-        privileges.clear();
-        List<Resource> resources = userService.getResources("MDC");
-        for (Resource resource : resources) {
-            for (Privilege privilege : resource.getPrivileges()) {
-                Optional<DeviceSecurityUserAction> found = DeviceSecurityUserAction.forPrivilege(privilege.getName());
-                if (found.isPresent()) {
-                    privileges.add(privilege);
-                }
-                Optional<DeviceMessageUserAction> deviceMessageUserAction = DeviceMessageUserAction.forPrivilege(privilege.getName());
-                if(deviceMessageUserAction.isPresent()){
-                    privileges.add(privilege);
-                }
-            }
-        }
     }
 
     @Override

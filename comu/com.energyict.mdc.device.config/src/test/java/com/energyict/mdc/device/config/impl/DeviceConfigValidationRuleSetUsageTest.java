@@ -80,7 +80,9 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.anyVararg;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -136,6 +138,7 @@ public class DeviceConfigValidationRuleSetUsageTest {
     @Before
     public void setup () {
         when(principal.getName()).thenReturn("Ernie");
+        when(userService.getPrivileges()).thenReturn(Arrays.asList());
         this.bootstrapModule = new InMemoryBootstrapModule();
         injector = Guice.createInjector(
                 new MockModule(),
@@ -213,7 +216,6 @@ public class DeviceConfigValidationRuleSetUsageTest {
             bind(InboundDeviceProtocolService.class).toInstance(inboundDeviceProtocolService);
             bind(LicensedProtocolService.class).toInstance(licensedProtocolService);
             bind(UserService.class).toInstance(userService);
-            //bind(ValidationService.class).toInstance(validationService);
 
         }
     }

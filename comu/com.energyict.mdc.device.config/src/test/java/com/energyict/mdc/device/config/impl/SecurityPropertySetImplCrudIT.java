@@ -136,7 +136,7 @@ public class SecurityPropertySetImplCrudIT {
         initializeStaticMocks();
         User principal = mock(User.class);
         when(principal.getName()).thenReturn(SecurityPropertySetImplCrudIT.class.getSimpleName());
-        when(principal.hasPrivilege(anyString(), any(Privilege.class))).thenReturn(true);
+        when(principal.hasPrivilege(anyString(), anyString())).thenReturn(true);
         Injector injector = null;
         try {
             injector = Guice.createInjector(

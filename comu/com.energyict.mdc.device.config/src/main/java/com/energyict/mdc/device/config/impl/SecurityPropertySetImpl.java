@@ -366,8 +366,7 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
     }
 
     private boolean isAuthorized(DeviceSecurityUserAction action, User user) {
-        Optional<Privilege> privilege = ((DeviceConfigurationServiceImpl) deviceConfigurationService).findPrivilege(action.getPrivilege());
-        return privilege.isPresent() && user.hasPrivilege("MDC",privilege.get());
+        return user.hasPrivilege("MDC",action.getPrivilege());
     }
 
     public boolean editingIsAuthorizedFor (DeviceSecurityUserAction action, User user) {
