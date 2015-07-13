@@ -208,4 +208,30 @@ public class LoadProfileSpecImplTest extends DeviceTypeProvidingPersistenceTest 
         registerType = PersistenceTest.inMemoryPersistence.getMasterDataService().findRegisterTypeByReadingType(readingType).get();
     }
 
+    @Test
+    @Transactional
+    public void cloneWithOverruledObisCodeTest() {
+        LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
+        DeviceConfiguration clone = deviceType.newConfiguration("MyClone").add();
+
+        LoadProfileSpec clonedLoadProfileSpec = ((ServerLoadProfileSpec) loadProfileSpec).cloneForDeviceConfig(clone);
+
+        assertThat(clonedLoadProfileSpec.getDeviceConfiguration().getId()).isEqualTo(clone.getId());
+        assertThat(clonedLoadProfileSpec.getDeviceObisCode()).isEqualTo(overruledLoadProfileSpecObisCode);
+        assertThat(clonedLoadProfileSpec.getObisCode()).isEqualTo(loadProfileTypeObisCode);
+    }
+
+    @Test
+    @Transactional
+    public void cloneWithoutOverruledObisCodeTest() {
+        LoadProfileSpec loadProfileSpec = getReloadedDeviceConfiguration().createLoadProfileSpec(this.loadProfileType).add();
+        DeviceConfiguration clone = deviceType.newConfiguration("MyClone").add();
+
+        LoadProfileSpec clonedLoadProfileSpec = ((ServerLoadProfileSpec) loadProfileSpec).cloneForDeviceConfig(clone);
+
+        assertThat(clonedLoadProfileSpec.getDeviceConfiguration().getId()).isEqualTo(clone.getId());
+        assertThat(clonedLoadProfileSpec.getDeviceObisCode()).isEqualTo(loadProfileTypeObisCode);
+        assertThat(clonedLoadProfileSpec.getObisCode()).isEqualTo(loadProfileTypeObisCode);
+    }
+
 }

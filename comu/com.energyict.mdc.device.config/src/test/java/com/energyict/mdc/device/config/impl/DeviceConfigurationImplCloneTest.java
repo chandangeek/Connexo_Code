@@ -1,7 +1,9 @@
 package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.validation.ValidationRuleSet;
 import com.energyict.mdc.device.config.*;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
@@ -192,6 +194,42 @@ public class DeviceConfigurationImplCloneTest extends PersistenceTest {
         });
     }
 
+    @Test
+    @Transactional
+    public void cloneWithValidationRuleSetsTest() {
+        DeviceType deviceType = createSimpleDeviceType();
+        DeviceConfiguration configWithValidation = deviceType.newConfiguration("configWithValidation").add();
+        ValidationRuleSet validationRuleSet1 = inMemoryPersistence.getValidationService().createValidationRuleSet("MyValRul1");
+        ValidationRuleSet validationRuleSet2 = inMemoryPersistence.getValidationService().createValidationRuleSet("MyValRul2");
+        configWithValidation.addValidationRuleSet(validationRuleSet1);
+        configWithValidation.addValidationRuleSet(validationRuleSet2);
+        configWithValidation.save();
+
+        DeviceConfiguration clone = inMemoryPersistence.getDeviceConfigurationService().cloneDeviceConfiguration(configWithValidation, "Clone");
+        assertThat(clone.getValidationRuleSets()).hasSize(2);
+        assertThat(clone.getDeviceConfValidationRuleSetUsages()).hasSize(2);
+        assertThat(clone.getValidationRuleSets()).containsOnly(validationRuleSet1, validationRuleSet2);
+    }
+
+    @Test
+    @Transactional
+    public void cloneWithEstimationRuleSetsTest() {
+        DeviceType deviceType = createSimpleDeviceType();
+        DeviceConfiguration configWithEstimation = deviceType.newConfiguration("configWithEstimation").add();
+        EstimationRuleSet myEstimationRule1 = inMemoryPersistence.getEstimationService().createEstimationRuleSet("MyEstimationRule1");
+        myEstimationRule1.save();
+        EstimationRuleSet myEstimationRule2 = inMemoryPersistence.getEstimationService().createEstimationRuleSet("MyEstimationRule2");
+        myEstimationRule2.save();
+        configWithEstimation.addEstimationRuleSet(myEstimationRule1);
+        configWithEstimation.addEstimationRuleSet(myEstimationRule2);
+        configWithEstimation.save();
+
+        DeviceConfiguration clone = inMemoryPersistence.getDeviceConfigurationService().cloneDeviceConfiguration(configWithEstimation, "Clone");
+        assertThat(clone.getEstimationRuleSets()).hasSize(2);
+        assertThat(clone.getDeviceConfigEstimationRuleSetUsages()).hasSize(2);
+        assertThat(clone.getEstimationRuleSets()).containsOnly(myEstimationRule1, myEstimationRule2);
+    }
+
     private void enhanceDeviceProtocolWithSecurityPropertySet(int accessLevelOne, int accessLevelPentagon) {
         when(deviceProtocol.getAuthenticationAccessLevels()).thenReturn(Arrays.<AuthenticationDeviceAccessLevel>asList(
                 new AuthenticationDeviceAccessLevel() {
@@ -285,24 +323,4 @@ public class DeviceConfigurationImplCloneTest extends PersistenceTest {
         deviceType.save();
         return deviceType;
     }
-
-//    @Test
-//    @Transactional
-//    public void cloneWithConnectionMethodsTest() {
-//        String connectionMethodName = "MyConnectionMethodName";
-//        ConnectionTypePluggableClass connectionTypePluggableClass = mock(ConnectionTypePluggableClass.class);
-//        ConnectionType connectionType = mock(ConnectionType.class);
-//        when(connectionType.getDirection()).thenReturn(ConnectionType.Direction.OUTBOUND);
-//        when(connectionTypePluggableClass.getConnectionType()).thenReturn(connectionType);
-//        enhanceDeviceProtocolWithDirectlyAddressableCapability();
-//        DeviceType deviceType = createSimpleDeviceType();
-//        DeviceConfiguration original = deviceType.newConfiguration("EmptyDeviceConfiguration").isDirectlyAddressable(true).add();
-//        PartialScheduledConnectionTaskImpl scheduledConnectionTask = original.newPartialScheduledConnectionTask(connectionMethodName, connectionTypePluggableClass, TimeDuration.minutes(5), ConnectionStrategy.AS_SOON_AS_POSSIBLE).build();
-//
-//        DeviceConfiguration clone = inMemoryPersistence.getDeviceConfigurationService().cloneDeviceConfiguration(original, "ClonedEmptyDeviceConfiguration");
-//
-//        verifyBasicStuffForClonedConfigs(original, clone);
-//        assertThat(clone.getPartialOutboundConnectionTasks()).hasSize(1);
-//        assertThat(clone.getPartialOutboundConnectionTasks().get(0).getName()).isEqualTo(connectionMethodName);
-//    }
 }

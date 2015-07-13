@@ -16,6 +16,7 @@ import com.energyict.mdc.device.config.exceptions.CannotChangeLogbookTypeOfLogbo
 import com.energyict.mdc.device.config.exceptions.LogbookTypeIsNotConfiguredOnDeviceTypeException;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.masterdata.LogBookType;
+
 import javax.inject.Inject;
 import javax.inject.Provider;
 import java.time.Instant;
@@ -25,10 +26,10 @@ import java.time.Instant;
  * Date: 12/11/12
  * Time: 13:30
  */
-public class LogBookSpecImpl extends PersistentIdObject<LogBookSpec> implements LogBookSpec {
+public class LogBookSpecImpl extends PersistentIdObject<LogBookSpec> implements ServerLogBookSpec {
 
     private final Reference<DeviceConfiguration> deviceConfiguration = ValueReference.absent();
-    @IsPresent(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.LOGBOOK_SPEC_LOGBOOK_TYPE_IS_REQUIRED + "}")
+    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.LOGBOOK_SPEC_LOGBOOK_TYPE_IS_REQUIRED + "}")
     private final Reference<LogBookType> logBookType = ValueReference.absent();
     private String overruledObisCodeString;
     private ObisCode overruledObisCode;
@@ -78,7 +79,7 @@ public class LogBookSpecImpl extends PersistentIdObject<LogBookSpec> implements 
         super.save();
     }
 
-    private void validateBeforeAddToConfiguration () {
+    private void validateBeforeAddToConfiguration() {
         Save.CREATE.validate(this.dataModel.getValidatorFactory().getValidator(), this);
         this.validateDeviceTypeContainsLogbookType();
     }
@@ -89,14 +90,14 @@ public class LogBookSpecImpl extends PersistentIdObject<LogBookSpec> implements 
         DeviceType deviceType = getDeviceConfiguration().getDeviceType();
         long expectedLogBookTypeId = getLogBookType().getId();
         for (LogBookType lbType : deviceType.getLogBookTypes()) {
-            if (lbType.getId() == expectedLogBookTypeId){
+            if (lbType.getId() == expectedLogBookTypeId) {
                 return;
             }
         }
         throw new LogbookTypeIsNotConfiguredOnDeviceTypeException(this.thesaurus, getLogBookType());
     }
 
-    private void validateUpdate () {
+    private void validateUpdate() {
         Save.UPDATE.validate(this.dataModel.getValidatorFactory().getValidator(), this);
     }
 
@@ -151,6 +152,13 @@ public class LogBookSpecImpl extends PersistentIdObject<LogBookSpec> implements 
         this.overruledObisCode = overruledObisCode;
     }
 
+    @Override
+    public LogBookSpec cloneForDeviceConfig(DeviceConfiguration deviceConfiguration) {
+        LogBookSpec.LogBookSpecBuilder builder = deviceConfiguration.createLogBookSpec(getLogBookType());
+        builder.setOverruledObisCode(getObisCode().equals(getDeviceObisCode()) ? null : getDeviceObisCode());
+        return builder.add();
+    }
+
     abstract static class LogBookSpecBuilder implements LogBookSpec.LogBookSpecBuilder {
 
         final LogBookSpecImpl logBookSpec;
@@ -160,13 +168,13 @@ public class LogBookSpecImpl extends PersistentIdObject<LogBookSpec> implements 
         }
 
         @Override
-        public LogBookSpec.LogBookSpecBuilder setOverruledObisCode(ObisCode overruledObisCode){
+        public LogBookSpec.LogBookSpecBuilder setOverruledObisCode(ObisCode overruledObisCode) {
             this.logBookSpec.setOverruledObisCode(overruledObisCode);
             return this;
         }
 
         @Override
-        public LogBookSpecImpl add(){
+        public LogBookSpecImpl add() {
             this.logBookSpec.validateBeforeAddToConfiguration();
             return this.logBookSpec;
         }
