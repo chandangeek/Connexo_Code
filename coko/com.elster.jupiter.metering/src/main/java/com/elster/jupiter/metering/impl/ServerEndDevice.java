@@ -21,7 +21,7 @@ public interface ServerEndDevice extends EndDevice {
      *
      * @param newState The new State
      */
-    public void changeState(State newState);
+    public void changeState(State newState, Instant effective);
 
     /**
      * Changes this EndDevice's {@link FiniteStateMachine},
