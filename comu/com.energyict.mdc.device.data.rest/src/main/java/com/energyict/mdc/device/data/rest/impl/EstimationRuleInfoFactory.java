@@ -37,6 +37,7 @@ public class EstimationRuleInfoFactory {
         EstimationRuleInfo info = new EstimationRuleInfo();
         info.id = estimationRule.getId();
         info.ruleSetId = estimationRule.getRuleSet().getId();
+        info.deleted = estimationRule.isObsolete();
         info.name = estimationRule.getName();
         info.properties = propertyUtils.convertPropertySpecsToPropertyInfos(estimationRule.getPropertySpecs(), estimationRule.getProps());
         return info;

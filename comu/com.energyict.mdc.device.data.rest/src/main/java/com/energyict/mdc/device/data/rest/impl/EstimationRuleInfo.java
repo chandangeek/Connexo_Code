@@ -15,4 +15,6 @@ public class EstimationRuleInfo {
 
     public List<PropertyInfo> properties = new ArrayList<PropertyInfo>();
 
+    public Boolean deleted;
+
 }
