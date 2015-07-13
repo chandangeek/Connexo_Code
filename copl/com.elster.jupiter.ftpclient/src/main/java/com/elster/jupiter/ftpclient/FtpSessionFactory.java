@@ -1,9 +1,8 @@
 package com.elster.jupiter.ftpclient;
 
-import java.nio.file.FileSystem;
-import java.util.function.Consumer;
+import java.io.IOException;
 
 public interface FtpSessionFactory {
 
-    void runInSession(Consumer<FileSystem> ftpSessionBehavior);
+    void runInSession(IOConsumer ftpSessionBehavior) throws IOException;
 }
