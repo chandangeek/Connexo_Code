@@ -9,11 +9,7 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.energyict.mdc.common.ComWindow;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.interval.PartialTime;
-import com.energyict.mdc.device.config.ConnectionStrategy;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
-import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.device.config.*;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -204,5 +200,31 @@ public class PartialScheduledConnectionTaskImpl extends PartialOutboundConnectio
             return timeDuration.getSeconds() == secondsWithinDay ? timeDuration : TimeDuration.seconds(secondsWithinDay);
         }
 
+    }
+
+    @Override
+    public PartialConnectionTask cloneForDeviceConfig(DeviceConfiguration deviceConfiguration) {
+        PartialScheduledConnectionTaskBuilder builder = deviceConfiguration.newPartialScheduledConnectionTask(getName(), getPluggableClass(), getRescheduleDelay(), getConnectionStrategy());
+        builder.allowSimultaneousConnections(isSimultaneousConnectionsAllowed());
+        builder.asDefault(isDefault());
+        builder.comWindow(new ComWindow(getCommunicationWindow().getStart(), getCommunicationWindow().getEnd()));
+        builder.initiationTask(getCorrespondingConnectionInitiationTaskForDeviceConfig(deviceConfiguration));
+        if (getNextExecutionSpecs() != null) {
+            builder.nextExecutionSpec().temporalExpression(getNextExecutionSpecs().getTemporalExpression().getEvery(), getNextExecutionSpecs().getTemporalExpression().getOffset()).set();
+        }
+        getProperties().stream().forEach(partialConnectionTaskProperty -> builder.addProperty(partialConnectionTaskProperty.getName(), partialConnectionTaskProperty.getValue()));
+        builder.comPortPool(getComPortPool());
+        return builder.build();
+    }
+
+    private PartialConnectionInitiationTaskImpl getCorrespondingConnectionInitiationTaskForDeviceConfig(DeviceConfiguration deviceConfiguration) {
+        if(getInitiatorTask() != null){
+            return (PartialConnectionInitiationTaskImpl) deviceConfiguration.getPartialConnectionInitiationTasks().
+                    stream().filter(partialConnectionInitiationTask ->
+                    getInitiatorTask().getConnectionType().equals(partialConnectionInitiationTask.getConnectionType())).
+                    findFirst().orElse(null);
+        } else {
+            return null;
+        }
     }
 }

@@ -1,7 +1,6 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.PartialInboundConnectionTask;
+import com.energyict.mdc.device.config.*;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.protocol.api.ConnectionType;
@@ -77,4 +76,12 @@ public class PartialInboundConnectionTaskImpl extends PartialConnectionTaskImpl 
         return InboundComPortPool.class;
     }
 
+    @Override
+    public PartialConnectionTask cloneForDeviceConfig(DeviceConfiguration deviceConfiguration) {
+        PartialInboundConnectionTaskBuilder builder = deviceConfiguration.newPartialInboundConnectionTask(getName(), getPluggableClass());
+        builder.asDefault(isDefault());
+        getProperties().stream().forEach(partialConnectionTaskProperty -> builder.addProperty(partialConnectionTaskProperty.getName(), partialConnectionTaskProperty.getValue()));
+        builder.comPortPool(getComPortPool());
+        return builder.build();
+    }
 }

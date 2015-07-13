@@ -34,7 +34,7 @@ import java.util.List;
  * Date: 9/11/12
  * Time: 10:24
  */
-public class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> implements LoadProfileSpec {
+public class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> implements ServerLoadProfileSpec {
 
     private final ServerDeviceConfigurationService deviceConfigurationService;
     @IsPresent(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.LOAD_PROFILE_SPEC_LOAD_PROFILE_TYPE_IS_REQUIRED + "}")
@@ -176,6 +176,23 @@ public class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> imp
     public void created(ChannelSpecImpl channelSpec) {
         // Reset cache
         this.channelSpecs = null;
+    }
+
+    @Override
+    public LoadProfileSpec cloneForDeviceConfig(DeviceConfiguration deviceConfiguration) {
+        LoadProfileSpec.LoadProfileSpecBuilder builder = deviceConfiguration.createLoadProfileSpec(getLoadProfileType());
+        LoadProfileSpec loadProfileSpec = builder.setOverruledObisCode(getObisCode().equals(getDeviceObisCode()) ? null : getDeviceObisCode()).add();
+        getChannelSpecs().forEach(channelSpec -> {
+            ChannelSpec.ChannelSpecBuilder channelSpecBuilder = deviceConfiguration.createChannelSpec(channelSpec.getChannelType(), loadProfileSpec);
+            channelSpecBuilder.setOverruledObisCode(channelSpec.getObisCode().equals(channelSpec.getDeviceObisCode()) ? null : channelSpec.getDeviceObisCode());
+            channelSpecBuilder.setInterval(channelSpec.getInterval());
+            channelSpecBuilder.setNbrOfFractionDigits(channelSpec.getNbrOfFractionDigits());
+            channelSpecBuilder.setOverflow(channelSpec.getOverflow());
+            channelSpecBuilder.setReadingMethod(channelSpec.getReadingMethod());
+            channelSpecBuilder.setValueCalculationMethod(channelSpec.getValueCalculationMethod());
+            channelSpecBuilder.add();
+        });
+        return loadProfileSpec;
     }
 
     abstract static class LoadProfileSpecBuilder implements LoadProfileSpec.LoadProfileSpecBuilder {

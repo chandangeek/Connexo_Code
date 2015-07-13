@@ -175,4 +175,29 @@ public class LogBookSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         this.getReloadedDeviceConfiguration().deleteLogBookSpec(logBookSpec);
     }
 
+    @Test
+    @Transactional
+    public void cloneWithOverruledObisCodeTest() {
+        LogBookSpec logBookSpec = createDefaultTestingLogBookSpecWithOverruledObisCode();
+        DeviceConfiguration clone = deviceType.newConfiguration("MyClone").add();
+
+        LogBookSpec clonedLogBookSpec = ((ServerLogBookSpec) logBookSpec).cloneForDeviceConfig(clone);
+
+        assertThat(clonedLogBookSpec.getDeviceConfiguration().getId()).isEqualTo(clone.getId());
+        assertThat(clonedLogBookSpec.getObisCode()).isEqualTo(logBookTypeObisCode);
+        assertThat(clonedLogBookSpec.getDeviceObisCode()).isEqualTo(overruledLogBookSpecObisCode);
+    }
+
+    @Test
+    @Transactional
+    public void cloneWithoutOverruledObisCodeTest() {
+        LogBookSpec logBookSpec = getReloadedDeviceConfiguration().createLogBookSpec(this.logBookType).add();
+        DeviceConfiguration clone = deviceType.newConfiguration("MyClone").add();
+
+        LogBookSpec clonedLogBookSpec = ((ServerLogBookSpec) logBookSpec).cloneForDeviceConfig(clone);
+
+        assertThat(clonedLogBookSpec.getDeviceConfiguration().getId()).isEqualTo(clone.getId());
+        assertThat(clonedLogBookSpec.getObisCode()).isEqualTo(logBookTypeObisCode);
+        assertThat(clonedLogBookSpec.getDeviceObisCode()).isEqualTo(logBookTypeObisCode);
+    }
 }

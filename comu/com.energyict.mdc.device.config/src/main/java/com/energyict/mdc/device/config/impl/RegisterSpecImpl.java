@@ -29,7 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public abstract class RegisterSpecImpl<T extends RegisterSpec> extends PersistentIdObject<T> implements RegisterSpec {
+public abstract class RegisterSpecImpl<T extends RegisterSpec> extends PersistentIdObject<T> implements ServerRegisterSpec {
 
     protected static final String NUMERICAL_DISCRIMINATOR = "0";
     protected static final String TEXTUAL_DISCRIMINATOR = "1";

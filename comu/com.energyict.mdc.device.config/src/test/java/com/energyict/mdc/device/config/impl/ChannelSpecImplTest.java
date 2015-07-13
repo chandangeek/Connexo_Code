@@ -424,4 +424,48 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         getReloadedDeviceConfiguration().activate();
         getReloadedDeviceConfiguration().deleteChannelSpec(channelSpec);
     }
+
+
+    @Test
+    @Transactional
+    public void cloneChannelSpecsWithoutOverruledObisCodeTest() {
+        LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
+        ChannelSpec channelSpec = createDefaultChannelSpec(loadProfileSpec);
+        DeviceConfiguration clone = deviceType.newConfiguration("MyClone").add();
+
+        LoadProfileSpec lpSpecWithChannels = ((ServerLoadProfileSpec) loadProfileSpec).cloneForDeviceConfig(clone);
+        assertThat(lpSpecWithChannels.getChannelSpecs()).hasSize(1);
+        ChannelSpec clonedChannelSpec = lpSpecWithChannels.getChannelSpecs().get(0);
+        assertThat(clonedChannelSpec.getObisCode()).isEqualTo(channelTypeObisCode);
+        assertThat(clonedChannelSpec.getDeviceObisCode()).isEqualTo(channelTypeObisCode);
+        assertThat(clonedChannelSpec.getDeviceConfiguration().getId()).isEqualTo(clone.getId());
+        assertThat(clonedChannelSpec.getChannelType().getId()).isEqualTo(channelType.getId());
+        assertThat(clonedChannelSpec.getInterval()).isEqualTo(channelType.getInterval());
+        assertThat(clonedChannelSpec.getNbrOfFractionDigits()).isEqualTo(channelSpec.getNbrOfFractionDigits());
+        assertThat(clonedChannelSpec.getOverflow()).isEqualTo(channelSpec.getOverflow());
+        assertThat(clonedChannelSpec.getReadingMethod().getCode()).isEqualTo(channelSpec.getReadingMethod().getCode());
+        assertThat(clonedChannelSpec.getValueCalculationMethod().getCode()).isEqualTo(channelSpec.getValueCalculationMethod().getCode());
+    }
+
+    @Test
+    @Transactional
+    public void cloneChannelSpecsWithOverruledObisCodeTest() {
+        LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
+        ObisCode deviceChannelObisCode = ObisCode.fromString("1.2.3.4.55.6");
+        ChannelSpec channelSpec = getReloadedDeviceConfiguration().createChannelSpec(channelType, loadProfileSpec).setOverruledObisCode(deviceChannelObisCode).add();
+        DeviceConfiguration clone = deviceType.newConfiguration("MyClone").add();
+
+        LoadProfileSpec lpSpecWithChannels = ((ServerLoadProfileSpec) loadProfileSpec).cloneForDeviceConfig(clone);
+        assertThat(lpSpecWithChannels.getChannelSpecs()).hasSize(1);
+        ChannelSpec clonedChannelSpec = lpSpecWithChannels.getChannelSpecs().get(0);
+        assertThat(clonedChannelSpec.getObisCode()).isEqualTo(channelTypeObisCode);
+        assertThat(clonedChannelSpec.getDeviceObisCode()).isEqualTo(deviceChannelObisCode);
+        assertThat(clonedChannelSpec.getDeviceConfiguration().getId()).isEqualTo(clone.getId());
+        assertThat(clonedChannelSpec.getChannelType().getId()).isEqualTo(channelType.getId());
+        assertThat(clonedChannelSpec.getInterval()).isEqualTo(channelType.getInterval());
+        assertThat(clonedChannelSpec.getNbrOfFractionDigits()).isEqualTo(channelSpec.getNbrOfFractionDigits());
+        assertThat(clonedChannelSpec.getOverflow()).isEqualTo(channelSpec.getOverflow());
+        assertThat(clonedChannelSpec.getReadingMethod().getCode()).isEqualTo(channelSpec.getReadingMethod().getCode());
+        assertThat(clonedChannelSpec.getValueCalculationMethod().getCode()).isEqualTo(channelSpec.getValueCalculationMethod().getCode());
+    }
 }

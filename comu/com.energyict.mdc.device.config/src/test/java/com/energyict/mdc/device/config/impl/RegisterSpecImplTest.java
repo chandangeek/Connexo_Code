@@ -441,4 +441,80 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
                 add();
         getReloadedDeviceConfiguration().save();
     }
+
+    @Test
+    @Transactional
+    public void cloneTextualWithOverruledObisCodeTest() {
+        ObisCode deviceObisCode = ObisCode.fromString("1.9.1.8.17.255");
+        TextualRegisterSpec.Builder builder = getReloadedDeviceConfiguration().createTextualRegisterSpec(registerType);
+        builder.setOverruledObisCode(deviceObisCode);
+        TextualRegisterSpec textualRegisterSpec = builder.add();
+
+        DeviceConfiguration cloneConfig = deviceType.newConfiguration("MyClone").add();
+        RegisterSpec registerSpec = ((ServerRegisterSpec) textualRegisterSpec).cloneForDeviceConfig(cloneConfig);
+
+        assertThat(registerSpec.getDeviceConfiguration().getId()).isEqualTo(cloneConfig.getId());
+        assertThat(registerSpec.getDeviceObisCode()).isEqualTo(deviceObisCode);
+        assertThat(registerSpec.getObisCode()).isEqualTo(registerType.getObisCode());
+    }
+
+    @Test
+    @Transactional
+    public void cloneTexturalRegisterWithoutOverruledObisCodeTest() {
+        TextualRegisterSpec.Builder builder = getReloadedDeviceConfiguration().createTextualRegisterSpec(registerType);
+        TextualRegisterSpec textualRegisterSpec = builder.add();
+
+        DeviceConfiguration cloneConfig = deviceType.newConfiguration("MyClone").add();
+        RegisterSpec registerSpec = ((ServerRegisterSpec) textualRegisterSpec).cloneForDeviceConfig(cloneConfig);
+
+        assertThat(registerSpec.getDeviceConfiguration().getId()).isEqualTo(cloneConfig.getId());
+        assertThat(registerSpec.getDeviceObisCode()).isEqualTo(registerType.getObisCode());
+        assertThat(registerSpec.getObisCode()).isEqualTo(registerType.getObisCode());
+    }
+
+    @Test
+    @Transactional
+    public void cloneNumericalRegisterWithOverruledObisCodeTest() {
+        ObisCode deviceObisCode = ObisCode.fromString("1.9.1.8.17.255");
+        BigDecimal overFlowValue = BigDecimal.valueOf(65111L);
+        int numberOfDigits = 7;
+        int numberOfFractionDigits = 6;
+        NumericalRegisterSpec.Builder builder = getReloadedDeviceConfiguration().createNumericalRegisterSpec(registerType);
+        builder.setOverruledObisCode(deviceObisCode);
+        builder.setOverflowValue(overFlowValue);
+        builder.setNumberOfDigits(numberOfDigits);
+        builder.setNumberOfFractionDigits(numberOfFractionDigits);
+        NumericalRegisterSpec numericalRegisterSpec = builder.add();
+
+        DeviceConfiguration cloneConfig = deviceType.newConfiguration("MyClone").add();
+        NumericalRegisterSpec registerSpec = (NumericalRegisterSpec) ((NumericalRegisterSpecImpl) numericalRegisterSpec).cloneForDeviceConfig(cloneConfig);
+        assertThat(registerSpec.getDeviceConfiguration().getId()).isEqualTo(cloneConfig.getId());
+        assertThat(registerSpec.getDeviceObisCode()).isEqualTo(deviceObisCode);
+        assertThat(registerSpec.getObisCode()).isEqualTo(registerType.getObisCode());
+        assertThat(registerSpec.getNumberOfDigits()).isEqualTo(numberOfDigits);
+        assertThat(registerSpec.getNumberOfFractionDigits()).isEqualTo(numberOfFractionDigits);
+        assertThat(registerSpec.getOverflowValue()).isEqualTo(overFlowValue);
+    }
+
+    @Test
+    @Transactional
+    public void cloneNumericalRegisterWithoutOverruledObisCodeTest() {
+        BigDecimal overFlowValue = BigDecimal.valueOf(65111L);
+        int numberOfDigits = 7;
+        int numberOfFractionDigits = 6;
+        NumericalRegisterSpec.Builder builder = getReloadedDeviceConfiguration().createNumericalRegisterSpec(registerType);
+        builder.setOverflowValue(overFlowValue);
+        builder.setNumberOfDigits(numberOfDigits);
+        builder.setNumberOfFractionDigits(numberOfFractionDigits);
+        NumericalRegisterSpec numericalRegisterSpec = builder.add();
+
+        DeviceConfiguration cloneConfig = deviceType.newConfiguration("MyClone").add();
+        NumericalRegisterSpec registerSpec = (NumericalRegisterSpec) ((NumericalRegisterSpecImpl) numericalRegisterSpec).cloneForDeviceConfig(cloneConfig);
+        assertThat(registerSpec.getDeviceConfiguration().getId()).isEqualTo(cloneConfig.getId());
+        assertThat(registerSpec.getDeviceObisCode()).isEqualTo(registerType.getObisCode());
+        assertThat(registerSpec.getObisCode()).isEqualTo(registerType.getObisCode());
+        assertThat(registerSpec.getNumberOfDigits()).isEqualTo(numberOfDigits);
+        assertThat(registerSpec.getNumberOfFractionDigits()).isEqualTo(numberOfFractionDigits);
+        assertThat(registerSpec.getOverflowValue()).isEqualTo(overFlowValue);
+    }
 }

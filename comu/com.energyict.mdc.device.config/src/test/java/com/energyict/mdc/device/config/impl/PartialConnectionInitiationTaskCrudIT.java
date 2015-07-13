@@ -382,4 +382,44 @@ public class PartialConnectionInitiationTaskCrudIT {
     public interface MyDeviceProtocolPluggableClass extends DeviceProtocolPluggableClass {
     }
 
+
+    @Test
+    @Transactional
+    public void cloneTest() {
+        PartialConnectionInitiationTaskImpl connectionInitiationTask;
+        DeviceConfiguration deviceConfiguration;
+        DeviceConfiguration clonedDeviceConfig;
+        DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
+        deviceType.save();
+
+        deviceConfiguration = deviceType.newConfiguration("Normal").add();
+        deviceConfiguration.setDirectlyAddressable(true);
+        deviceConfiguration.save();
+        clonedDeviceConfig = deviceType.newConfiguration("Clone").add();
+        clonedDeviceConfig.setDirectlyAddressable(true);
+        clonedDeviceConfig.save();
+
+        connectionInitiationTask = deviceConfiguration
+                .newPartialConnectionInitiationTask(
+                        "MyInitiation",
+                        connectionTypePluggableClass,
+                        TimeDuration.seconds(60))
+                .comPortPool(outboundComPortPool)
+                .build();
+        deviceConfiguration.setDirectlyAddressable(true);
+        deviceConfiguration.save();
+
+        Optional<PartialConnectionTask> found = deviceConfigurationService.getPartialConnectionTask(connectionInitiationTask.getId());
+        PartialConnectionTask partialConnectionTask = ((ServerPartialConnectionTask) found.get()).cloneForDeviceConfig(clonedDeviceConfig);
+
+        assertThat(partialConnectionTask).isInstanceOf(PartialConnectionInitiationTaskImpl.class);
+
+        PartialConnectionInitiationTaskImpl partialConnectionInitiationTask = (PartialConnectionInitiationTaskImpl) partialConnectionTask;
+
+        assertThat(partialConnectionInitiationTask.getComPortPool().getId()).isEqualTo(outboundComPortPool.getId());
+        assertThat(partialConnectionInitiationTask.isDefault()).isFalse();
+        assertThat(partialConnectionInitiationTask.getConfiguration().getId()).isEqualTo(clonedDeviceConfig.getId());
+        assertThat(partialConnectionInitiationTask.getConnectionType()).isEqualTo(connectionTypePluggableClass.getConnectionType());
+        assertThat(partialConnectionInitiationTask.getName()).isEqualTo("MyInitiation");
+    }
 }
