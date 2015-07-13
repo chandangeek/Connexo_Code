@@ -31,10 +31,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * @author sva
- * @since 5/03/13 - 16:12
- */
 class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<ProtocolDialectConfigurationProperties> implements ProtocolDialectConfigurationProperties {
 
     private Reference<DeviceConfiguration> deviceConfiguration = ValueReference.absent();
@@ -50,10 +46,13 @@ class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<P
     private String protocolDialectName;
     @Valid
     private List<ProtocolDialectConfigurationPropertyImpl> propertyList = new ArrayList<>();
-
+    @SuppressWarnings("unused") //Used by the orm
     private String userName;
+    @SuppressWarnings("unused") //Used by the orm
     private long version;
+    @SuppressWarnings("unused") //Used by the orm
     private Instant createTime;
+    @SuppressWarnings("unused") //Used by the orm
     private Instant modTime;
 
     // transient
@@ -153,6 +152,11 @@ class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<P
     }
 
     @Override
+    public final boolean isComplete() {
+        return getPropertySpecs().stream().filter(PropertySpec :: isRequired).noneMatch(x->this.getProperty(x.getName()) == null);
+    }
+
+    @Override
     protected final CreateEventType createEventType() {
         return CreateEventType.PROTOCOLCONFIGPROPS;
     }
@@ -246,6 +250,7 @@ class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<P
         return getTypedProperties().getProperty(name);
     }
 
+    @SuppressWarnings("unchecked")
     private String asStringValue(String name, Object value) {
         PropertySpec propertySpec = getPropertySpec(name);
         if (propertySpec == null) {
