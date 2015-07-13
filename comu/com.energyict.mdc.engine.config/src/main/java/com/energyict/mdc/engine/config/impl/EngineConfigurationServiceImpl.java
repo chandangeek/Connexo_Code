@@ -1,6 +1,5 @@
 package com.energyict.mdc.engine.config.impl;
 
-import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.elster.jupiter.domain.util.DefaultFinder;
@@ -41,7 +40,6 @@ import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.PrivilegesProvider;
-import com.elster.jupiter.users.Resource;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.proxy.LazyLoader;
 import com.google.inject.AbstractModule;
