@@ -9,35 +9,29 @@ import java.util.stream.Collectors;
  */
 class SysAppPrivileges {
 
-    //license
-    static String VIEW_LICENSE = "privilege.view.license";
-    static String UPLOAD_LICENSE = "privilege.upload.license";
-
-    //users
-    static String ADMINISTRATE_USER_ROLE = "privilege.administrate.userAndRole";
-    static String VIEW_USER_ROLE = "privilege.view.userAndRole";
-    
-    //time periods
-    static String ADMINISTRATE_RELATIVE_PERIOD = "privilege.administrate.period";
-    static String VIEW_RELATIVE_PERIOD = "privilege.view.period";
-
-    //export
-    static String ADMINISTRATE_DATA_EXPORT_TASK = "privilege.administrate.dataExportTask";
-    static String VIEW_DATA_EXPORT_TASK = "privilege.view.dataExportTask";
-    static String UPDATE_DATA_EXPORT_TASK = "privilege.update.dataExportTask";
-    static String UPDATE_SCHEDULE_DATA_EXPORT_TASK = "privilege.update.schedule.dataExportTask";
-    static String RUN_DATA_EXPORT_TASK = "privilege.run.dataExportTask";
-
-    //import
-    static String ADMINISTRATE_IMPORT_SERVICES = "privilege.administrate.importServices";
-    static String VIEW_IMPORT_SERVICES = "privilege.view.importServices";
-
-
     static List<String> getApplicationPrivileges(){
-        return Arrays.asList(VIEW_LICENSE, UPLOAD_LICENSE,ADMINISTRATE_USER_ROLE, VIEW_USER_ROLE,
-                ADMINISTRATE_RELATIVE_PERIOD, VIEW_RELATIVE_PERIOD,ADMINISTRATE_DATA_EXPORT_TASK,
-                VIEW_DATA_EXPORT_TASK,UPDATE_DATA_EXPORT_TASK,UPDATE_SCHEDULE_DATA_EXPORT_TASK,
-                RUN_DATA_EXPORT_TASK,ADMINISTRATE_IMPORT_SERVICES,VIEW_IMPORT_SERVICES);
+        return Arrays.asList(
+                //license
+                com.elster.jupiter.license.security.Privileges.VIEW_LICENSE,
+                com.elster.jupiter.license.security.Privileges.UPLOAD_LICENSE,
+                //users
+                com.elster.jupiter.users.security.Privileges.ADMINISTRATE_USER_ROLE,
+                com.elster.jupiter.users.security.Privileges.VIEW_USER_ROLE,
+                //time periods
+                com.elster.jupiter.time.security.Privileges.ADMINISTRATE_RELATIVE_PERIOD,
+                com.elster.jupiter.time.security.Privileges.VIEW_RELATIVE_PERIOD,
+                //export
+                com.elster.jupiter.export.security.Privileges.ADMINISTRATE_DATA_EXPORT_TASK,
+                com.elster.jupiter.export.security.Privileges.VIEW_DATA_EXPORT_TASK,
+                com.elster.jupiter.export.security.Privileges.UPDATE_DATA_EXPORT_TASK,
+                com.elster.jupiter.export.security.Privileges.UPDATE_SCHEDULE_DATA_EXPORT_TASK,
+                com.elster.jupiter.export.security.Privileges.RUN_DATA_EXPORT_TASK,
+                //import
+                com.elster.jupiter.fileimport.security.Privileges.ADMINISTRATE_IMPORT_SERVICES,
+                com.elster.jupiter.fileimport.security.Privileges.VIEW_IMPORT_SERVICES,
+                //license
+                com.elster.jupiter.data.lifecycle.security.Privileges.VIEW_DATA_PURGE,
+                com.elster.jupiter.data.lifecycle.security.Privileges.ADMINISTRATE_DATA_PURGE);
     }
 
 }
