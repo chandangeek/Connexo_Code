@@ -9,6 +9,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.users.Privilege;
@@ -90,6 +91,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 /**
@@ -1224,7 +1226,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     @Override
     public long getVersion() {
         return version;
-    };
+    }
 
     List<DeviceProtocolConfigurationProperty> getProtocolPropertyList() {
         return protocolProperties;
@@ -1413,4 +1415,49 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         }
     }
 
+    @Override
+    public DeviceConfiguration clone(String nameOfClone) {
+        DeviceConfiguration clone = getDeviceType().newConfiguration(nameOfClone)
+                .canActAsGateway(canActAsGateway())
+                .description(getDescription())
+                .gatewayType(getGetwayType())
+                .isDirectlyAddressable(isDirectlyAddressable())
+                .add();
+        this.getDeviceProtocolProperties().getPropertySpecs().stream().forEach(cloneDeviceProtocolProperties(clone));
+        this.getProtocolDialectConfigurationPropertiesList().stream().forEach(cloneDeviceProtocolDialectProperties(clone));
+        getSecurityPropertySets().forEach(securityPropertySet -> ((ServerSecurityPropertySet) securityPropertySet).cloneForDeviceConfig(clone));
+        getPartialConnectionTasks().forEach(partialConnectionTask -> ((ServerPartialConnectionTask) partialConnectionTask).cloneForDeviceConfig(clone));
+        getComTaskEnablements().forEach(comTaskEnablement -> ((ServerComTaskEnablement) comTaskEnablement).cloneForDeviceConfig(clone));
+        getDeviceMessageEnablements().forEach(deviceMessageEnablement -> ((ServerDeviceMessageEnablement) deviceMessageEnablement).cloneForDeviceConfig(clone));
+        getRegisterSpecs().forEach(registerSpec -> ((ServerRegisterSpec) registerSpec).cloneForDeviceConfig(clone));
+        getLogBookSpecs().forEach(logBookSpec -> ((ServerLogBookSpec) logBookSpec).cloneForDeviceConfig(clone));
+        getLoadProfileSpecs().forEach(loadProfileSpec -> ((ServerLoadProfileSpec) loadProfileSpec).cloneForDeviceConfig(clone));
+        getValidationRuleSets().forEach(clone::addValidationRuleSet);
+        getEstimationRuleSets().forEach(clone::addEstimationRuleSet);
+        clone.save();
+        return clone;
+    }
+
+    private Consumer<ProtocolDialectConfigurationProperties> cloneDeviceProtocolDialectProperties(DeviceConfiguration clone) {
+        return protocolDialectConfigurationProperties -> protocolDialectConfigurationProperties.getPropertySpecs().stream().forEach(copyDeviceProtocolDialectProperty(clone, protocolDialectConfigurationProperties));
+    }
+
+    private Consumer<PropertySpec> copyDeviceProtocolDialectProperty(DeviceConfiguration clone, ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties) {
+        return propertySpec -> {
+            Object propertyValue = protocolDialectConfigurationProperties.getProperty(propertySpec.getName());
+            if (propertyValue != null) {
+                clone.findOrCreateProtocolDialectConfigurationProperties(protocolDialectConfigurationProperties.getDeviceProtocolDialect())
+                        .setProperty(propertySpec.getName(), propertyValue);
+            }
+        };
+    }
+
+    private Consumer<PropertySpec> cloneDeviceProtocolProperties(DeviceConfiguration clone) {
+        return propertySpec -> {
+            Object propertyValue = this.getDeviceProtocolProperties().getProperty(propertySpec.getName());
+            if(propertyValue != null){
+                clone.getDeviceProtocolProperties().setProperty(propertySpec.getName(), propertyValue);
+            }
+        };
+    }
 }

@@ -576,4 +576,38 @@ public class PartialInboundConnectionTaskCrudIT {
         }
     }
 
+    @Test
+    @Transactional
+    public void cloneTest() {
+        PartialInboundConnectionTaskImpl inboundConnectionTask;
+        DeviceConfiguration deviceConfiguration;
+        DeviceConfiguration clonedDeviceConfig;
+        DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
+        deviceType.save();
+
+        deviceConfiguration = deviceType.newConfiguration("Normal").add();
+        deviceConfiguration.save();
+        clonedDeviceConfig = deviceType.newConfiguration("Clone").add();
+        clonedDeviceConfig.save();
+
+        inboundConnectionTask = deviceConfiguration.newPartialInboundConnectionTask("MyInbound", connectionTypePluggableClass)
+                .comPortPool(inboundComPortPool)
+                .asDefault(true).build();
+        deviceConfiguration.save();
+
+        Optional<PartialConnectionTask> found = deviceConfigurationService.getPartialConnectionTask(inboundConnectionTask.getId());
+
+        PartialConnectionTask partialConnectionTask = ((ServerPartialConnectionTask) found.get()).cloneForDeviceConfig(clonedDeviceConfig);
+
+        assertThat(partialConnectionTask).isInstanceOf(PartialInboundConnectionTaskImpl.class);
+
+        PartialInboundConnectionTaskImpl partialInboundConnectionTask = (PartialInboundConnectionTaskImpl) partialConnectionTask;
+
+        assertThat(partialInboundConnectionTask.getComPortPool().getId()).isEqualTo(inboundComPortPool.getId());
+        assertThat(partialInboundConnectionTask.isDefault()).isTrue();
+        assertThat(partialInboundConnectionTask.getConfiguration().getId()).isEqualTo(clonedDeviceConfig.getId());
+        assertThat(partialInboundConnectionTask.getConnectionType()).isEqualTo(connectionTypePluggableClass.getConnectionType());
+        assertThat(partialInboundConnectionTask.getName()).isEqualTo("MyInbound");
+
+    }
 }

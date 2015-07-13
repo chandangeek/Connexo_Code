@@ -250,6 +250,32 @@ public class SecurityPropertySetImplCrudIT {
 
     @Test
     @Transactional
+    public void cloneTest() {
+        SecurityPropertySet propertySet;
+        DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
+        deviceType.save();
+
+        DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("Normal").add();
+        deviceConfiguration.save();
+
+        propertySet = deviceConfiguration.createSecurityPropertySet("Name")
+                .authenticationLevel(1)
+                .encryptionLevel(2)
+                .addUserAction(EDITDEVICESECURITYPROPERTIES1)
+                .addUserAction(EDITDEVICESECURITYPROPERTIES2)
+                .build();
+        DeviceConfiguration clonedDeviceConfig = deviceType.newConfiguration("Clone").add();
+        SecurityPropertySet clonedSecurityPropertySet = ((ServerSecurityPropertySet) propertySet).cloneForDeviceConfig(clonedDeviceConfig);
+
+        assertThat(propertySet.getAuthenticationDeviceAccessLevel()).isEqualTo(clonedSecurityPropertySet.getAuthenticationDeviceAccessLevel());
+        assertThat(propertySet.getEncryptionDeviceAccessLevel()).isEqualTo(clonedSecurityPropertySet.getEncryptionDeviceAccessLevel());
+        assertThat(propertySet.getName()).isEqualTo(clonedSecurityPropertySet.getName());
+        assertThat(clonedSecurityPropertySet.getDeviceConfiguration().getId()).isEqualTo(clonedDeviceConfig.getId());
+        assertThat(clonedSecurityPropertySet.getUserActions()).containsOnly(EDITDEVICESECURITYPROPERTIES1, EDITDEVICESECURITYPROPERTIES2);
+    }
+
+    @Test
+    @Transactional
     public void testDeletion() {
         SecurityPropertySet propertySet;
         DeviceConfiguration deviceConfiguration;

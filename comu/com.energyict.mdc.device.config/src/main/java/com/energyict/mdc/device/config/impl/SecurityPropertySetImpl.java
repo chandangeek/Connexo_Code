@@ -12,12 +12,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
-import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.DeviceSecurityUserAction;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.SecurityPropertySet;
+import com.energyict.mdc.device.config.*;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteSecurityPropertySetWhileInUseException;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.dynamic.relation.Relation;
@@ -57,7 +52,7 @@ import static com.energyict.mdc.protocol.api.security.DeviceAccessLevel.NOT_USED
  * @since 2012-12-14 (11:09)
  */
 @LevelMustBeProvidedIfSupportedByDevice(groups = {Save.Create.class, Save.Update.class})
-public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPropertySet> implements SecurityPropertySet, PersistenceAware {
+public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPropertySet> implements ServerSecurityPropertySet, PersistenceAware {
 
     @Size(max= Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
@@ -469,5 +464,14 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
             List<AuthenticationDeviceAccessLevel> levels = value.getDeviceProtocol().getAuthenticationAccessLevels();
             return levels.isEmpty() ? Arrays.<AuthenticationDeviceAccessLevel>asList(new NoAuthentication()) : levels;
         }
+    }
+
+    @Override
+    public SecurityPropertySet cloneForDeviceConfig(DeviceConfiguration deviceConfiguration) {
+        SecurityPropertySetBuilder builder = deviceConfiguration.createSecurityPropertySet(getName());
+        builder.authenticationLevel(authenticationLevelId);
+        builder.encryptionLevel(encryptionLevelId);
+        getUserActions().stream().forEach(builder::addUserAction);
+        return builder.build();
     }
 }

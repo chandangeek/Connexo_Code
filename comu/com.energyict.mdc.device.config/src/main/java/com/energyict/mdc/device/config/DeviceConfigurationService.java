@@ -268,4 +268,6 @@ public interface DeviceConfigurationService {
 
     public Finder<DeviceConfiguration> findDeviceConfigurationsForEstimationRuleSet(EstimationRuleSet estimationRuleSet);
 
+    DeviceConfiguration cloneDeviceConfiguration(DeviceConfiguration templateDeviceConfiguration, String name);
+
 }

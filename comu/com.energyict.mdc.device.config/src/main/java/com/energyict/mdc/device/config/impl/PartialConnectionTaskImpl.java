@@ -42,7 +42,7 @@ import java.util.Map;
  * @author sva
  * @since 21/01/13 - 16:44
  */
-public abstract class PartialConnectionTaskImpl extends PersistentNamedObject<PartialConnectionTask> implements PartialConnectionTask {
+public abstract class PartialConnectionTaskImpl extends PersistentNamedObject<PartialConnectionTask> implements ServerPartialConnectionTask {
 
     public static final Map<String, Class<? extends PartialConnectionTask>> IMPLEMENTERS = ImmutableMap.<String, Class<? extends PartialConnectionTask>>of("0", PartialConnectionInitiationTaskImpl.class, "1", PartialInboundConnectionTaskImpl.class, "2", PartialScheduledConnectionTaskImpl.class);
 

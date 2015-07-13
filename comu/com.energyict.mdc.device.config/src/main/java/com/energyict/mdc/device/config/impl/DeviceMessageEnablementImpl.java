@@ -8,6 +8,7 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceMessageEnablement;
+import com.energyict.mdc.device.config.DeviceMessageEnablementBuilder;
 import com.energyict.mdc.device.config.DeviceMessageUserAction;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
@@ -25,7 +26,7 @@ import java.util.stream.Collectors;
  * Date: 9/30/14
  * Time: 1:36 PM
  */
-public class DeviceMessageEnablementImpl extends PersistentIdObject<DeviceMessageEnablement> implements DeviceMessageEnablement, PersistenceAware {
+public class DeviceMessageEnablementImpl extends PersistentIdObject<DeviceMessageEnablement> implements ServerDeviceMessageEnablement, PersistenceAware {
 
     static class DeviceMessageUserActionRecord {
 
@@ -132,5 +133,12 @@ public class DeviceMessageEnablementImpl extends PersistentIdObject<DeviceMessag
 
     protected void setDeviceConfiguration(DeviceConfiguration deviceConfiguration) {
         this.deviceConfiguration.set(deviceConfiguration);
+    }
+
+    @Override
+    public DeviceMessageEnablement cloneForDeviceConfig(DeviceConfiguration deviceConfiguration) {
+        DeviceMessageEnablementBuilder deviceMessageEnablement = deviceConfiguration.createDeviceMessageEnablement(getDeviceMessageId());
+        getUserActions().forEach(deviceMessageEnablement::addUserAction);
+        return deviceMessageEnablement.build();
     }
 }
