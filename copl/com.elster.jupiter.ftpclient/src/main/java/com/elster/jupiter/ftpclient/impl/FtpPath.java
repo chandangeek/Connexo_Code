@@ -26,10 +26,10 @@ import static com.elster.jupiter.util.streams.Predicates.not;
 final class FtpPath implements Path {
 
     private static final Pattern SEPARATOR = Pattern.compile("/");
-    private final FtpFileSystem fileSystem;
+    private final AbstractFtpFileSystem fileSystem;
     private final List<String> names;
 
-    FtpPath(FtpFileSystem fileSystem, String name) {
+    FtpPath(AbstractFtpFileSystem fileSystem, String name) {
         this.fileSystem = fileSystem;
         ImmutableList.Builder<String> builder = ImmutableList.builder();
         boolean hasRootPart = name.startsWith("/");
@@ -42,7 +42,7 @@ final class FtpPath implements Path {
         names = builder.build();
     }
 
-    FtpPath(FtpFileSystem fileSystem, List<String> names) {
+    FtpPath(AbstractFtpFileSystem fileSystem, List<String> names) {
         this.fileSystem = fileSystem;
         if (names.isEmpty()) {
             this.names = Collections.emptyList();
@@ -60,7 +60,7 @@ final class FtpPath implements Path {
     }
 
     @Override
-    public FtpFileSystem getFileSystem() {
+    public AbstractFtpFileSystem getFileSystem() {
         return fileSystem;
     }
 
@@ -217,7 +217,7 @@ final class FtpPath implements Path {
     @Override
     public URI toUri() {
         try {
-            return new URI(EdtFtpjFileSystemProvider.SCHEME, fileSystem.getHost(), toAbsolutePath().toString(), null);
+            return new URI(fileSystem.getUri().getScheme(), fileSystem.getHost(), toAbsolutePath().toString(), null);
         } catch (URISyntaxException e) {
             throw new IllegalStateException(e);
         }

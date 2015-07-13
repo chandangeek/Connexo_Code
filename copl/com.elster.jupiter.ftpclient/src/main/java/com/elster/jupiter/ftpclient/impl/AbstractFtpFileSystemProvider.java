@@ -20,7 +20,6 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileAttribute;
 import java.nio.file.attribute.FileAttributeView;
 import java.nio.file.spi.FileSystemProvider;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -30,16 +29,13 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-public class EdtFtpjFileSystemProvider extends FileSystemProvider {
-
-    public static final String SCHEME = "ftp";
-    public static final int COPY_BUFFER_SIZE = 2048;
-
-    private Map<URI, FtpFileSystem> openFileSystems = new ConcurrentHashMap<>();
-
+abstract class AbstractFtpFileSystemProvider<T extends AbstractFtpFileSystem> extends FileSystemProvider {
     private final ExecutorService executorService;
+    private final String scheme;
+    private Map<URI, T> openFileSystems = new ConcurrentHashMap<>();
 
-    public EdtFtpjFileSystemProvider() {
+    AbstractFtpFileSystemProvider(String scheme) {
+        this.scheme = scheme;
         ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(8, 16, 1, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
         threadPoolExecutor.allowCoreThreadTimeOut(true);
         this.executorService = threadPoolExecutor;
@@ -47,18 +43,18 @@ public class EdtFtpjFileSystemProvider extends FileSystemProvider {
 
     @Override
     public String getScheme() {
-        return SCHEME;
+        return scheme;
     }
 
     @Override
-    public FtpFileSystem newFileSystem(URI uri, Map<String, ?> env) throws IOException {
+    public T newFileSystem(URI uri, Map<String, ?> env) throws IOException {
         UpdatableHolder<Boolean> wasNew = new UpdatableHolder<>(false);
-        FtpFileSystem fileSystem = null;
+        T fileSystem = null;
         try {
             fileSystem = openFileSystems.computeIfAbsent(uri, u -> {
                 wasNew.update(true);
                 try {
-                    FtpFileSystem ftpFileSystem = new FtpFileSystem(this, uri);
+                    T ftpFileSystem = createNewFileSystem(uri);
                     ftpFileSystem.open();
                     return ftpFileSystem;
                 } catch (IOException e) {
@@ -74,8 +70,10 @@ public class EdtFtpjFileSystemProvider extends FileSystemProvider {
         return fileSystem;
     }
 
+    abstract T createNewFileSystem(URI uri);
+
     @Override
-    public FtpFileSystem getFileSystem(URI uri) {
+    public T getFileSystem(URI uri) {
         return Optional.ofNullable(openFileSystems.get(uri)).orElseThrow(FileSystemNotFoundException::new);
     }
 
@@ -110,66 +108,6 @@ public class EdtFtpjFileSystemProvider extends FileSystemProvider {
     @Override
     public void copy(Path source, Path target, CopyOption... options) throws IOException {
         throw new UnsupportedOperationException();
-//        FtpPath ftpSource = (FtpPath) source;
-//        FtpPath ftpTarget = (FtpPath) target;
-//        if (Arrays.stream(options).noneMatch(StandardCopyOption.REPLACE_EXISTING::equals) && ftpTarget.exists()) {
-//            throw new FileAlreadyExistsException(ftpTarget.toString());
-//        }
-//
-//        PipedInputStream pipedInputStream = new PipedInputStream(COPY_BUFFER_SIZE);
-//        PipedOutputStream pipedOutputStream = new PipedOutputStream(pipedInputStream);
-//        Future<?> writeFuture = executorService.submit(() -> {
-//            try {
-//                ftpTarget.getFileSystem().write(ftpTarget, pipedInputStream);
-//            } finally {
-//                pipedInputStream.close();
-//            }
-//            return null;
-//        });
-//        Future<?> readFuture = executorService.submit(() -> {
-//            try (OutputStream outputStream = pipedOutputStream) {
-//                ftpSource.getFileSystem().read(ftpSource, pipedOutputStream);
-//            }
-//            return null;
-//        });
-//        boolean interruption = false;
-//        ExecutionException readException = null;
-//        try {
-//            readFuture.get();
-//        } catch (InterruptedException e) {
-//            interruption = true; // we'll restore interruption once we've finished.
-//        } catch (ExecutionException e) {
-//            readException = e; // check writeFuture as well and add suppressed exceptions before rethrowing
-//        }
-//        try {
-//            writeFuture.get();
-//        } catch (InterruptedException e) {
-//            interruption = true; // we'll restore interruption once we've finished.
-//        } catch (ExecutionException e) {
-//            if (readException == null) {
-//                throw launder(e.getCause());
-//            }
-//            throw launder(readException.getCause(), e.getCause());
-//        } finally {
-//            if (interruption) {
-//                Thread.currentThread().interrupt();
-//            }
-//        }
-    }
-
-    private RuntimeException launder(Throwable e, Throwable... suppressed) throws IOException {
-        Arrays.stream(suppressed)
-                .forEach(e::addSuppressed);
-        if (e instanceof RuntimeException) {
-            return (RuntimeException) e;
-        }
-        if (e instanceof IOException) {
-            throw (IOException) e;
-        }
-        if (e instanceof Error) {
-            throw (Error) e;
-        }
-        throw new IllegalStateException("Not unchecked", e);
     }
 
     @Override
@@ -221,13 +159,11 @@ public class EdtFtpjFileSystemProvider extends FileSystemProvider {
     @Override
     public void setAttribute(Path path, String attribute, Object value, LinkOption... options) throws IOException {
         throw new UnsupportedOperationException();
-    }
-
-    ExecutorService getExecutorService() {
+    }ExecutorService getExecutorService() {
         return executorService;
     }
 
-    public void closed(FtpFileSystem ftpFileSystem) {
+    public void closed(T ftpFileSystem) {
         openFileSystems.remove(ftpFileSystem.getUri());
     }
 }

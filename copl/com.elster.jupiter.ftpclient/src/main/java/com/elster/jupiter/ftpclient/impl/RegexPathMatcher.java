@@ -4,7 +4,7 @@ import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.util.regex.Pattern;
 
-public class RegexPathMatcher implements PathMatcher {
+class RegexPathMatcher implements PathMatcher {
 
     private final Pattern pattern;
 

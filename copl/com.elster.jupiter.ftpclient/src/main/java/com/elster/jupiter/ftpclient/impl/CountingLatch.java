@@ -18,11 +18,21 @@ class CountingLatch {
 
         @Override
         protected boolean tryAcquire(int arg) {
-            return getState() == 0;
+            while (getState() == 0) {
+                if (compareAndSetState(0, 1)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        @Override
+        protected boolean tryRelease(int arg) {
+            return tryReleaseShared(arg);
         }
 
         protected int tryAcquireShared(int acquires) {
-            // Increment count; signal when transition to zero
+            // Increment count
             for (;;) {
                 int c = getState();
                 int nextc = c+1;
@@ -55,6 +65,7 @@ class CountingLatch {
 
     public void await() throws InterruptedException {
         sync.acquire(1);
+        sync.release(1);
     }
 
     public boolean await(long timeout, TimeUnit unit)

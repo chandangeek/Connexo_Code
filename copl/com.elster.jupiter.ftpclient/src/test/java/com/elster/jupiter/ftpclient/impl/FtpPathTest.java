@@ -20,12 +20,12 @@ public class FtpPathTest extends EqualsContractTest {
 
     private FtpFileSystem fileSystem;
     private FtpPath instanceA;
-    private EdtFtpjFileSystemProvider ftpjFileSystemProvider;
+    private FtpFileSystemProvider ftpjFileSystemProvider;
 
     @Before
     public void equalsContractSetUp() {
         try {
-            ftpjFileSystemProvider = new EdtFtpjFileSystemProvider();
+            ftpjFileSystemProvider = new FtpFileSystemProvider();
             fileSystem = ftpjFileSystemProvider.newFileSystem(new URI("ftp", "localhost", null, null), Collections.emptyMap());
         } catch (IOException | URISyntaxException e) {
             throw new RuntimeException(e);

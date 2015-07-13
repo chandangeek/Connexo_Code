@@ -1,1 +1,1 @@
-com.elster.jupiter.ftpclient.impl.EdtFtpjFileSystemProvider
+com.elster.jupiter.ftpclient.impl.FtpFileSystemProvider
