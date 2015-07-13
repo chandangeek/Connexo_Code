@@ -491,10 +491,11 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     @Override
     public List<ResourceDefinition> getModuleResources() {
         List<ResourceDefinition> resources = new ArrayList<>();
-        resources.add(userService.createModuleResourceWithPrivileges(MeteringService.COMPONENTNAME, "metering.metering", "metering.metering.description",
+        resources.add(userService.createModuleResourceWithPrivileges(MeteringService.COMPONENTNAME, DefaultTranslationKey.PRIVILEGE_USAGE_POINT_NAME.getKey(), DefaultTranslationKey.PRIVILEGE_USAGE_POINT_DESCRIPTION.getKey(),
                 Arrays.asList(
                         Privileges.BROWSE_ANY, Privileges.ADMIN_ANY,
                         Privileges.BROWSE_OWN, Privileges.ADMIN_OWN)));
+
         return resources;
     }
 
