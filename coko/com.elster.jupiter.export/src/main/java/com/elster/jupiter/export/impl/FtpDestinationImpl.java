@@ -24,9 +24,11 @@ class FtpDestinationImpl extends AbstractDataExportDestination implements FtpDes
 
     private class Sender {
         private final TagReplacerFactory tagReplacerFactory;
+        private final FileSystem remoteFileSystem;
 
-        private Sender(TagReplacerFactory tagReplacerFactory) {
+        private Sender(TagReplacerFactory tagReplacerFactory, FileSystem remoteFileSystem) {
             this.tagReplacerFactory = tagReplacerFactory;
+            this.remoteFileSystem = remoteFileSystem;
         }
 
         private void send(Map<StructureMarker, Path> files) {
@@ -39,8 +41,7 @@ class FtpDestinationImpl extends AbstractDataExportDestination implements FtpDes
                     doCopy(path, determineTargetFile(structureMarker, remoteFileSystem));
                 });
             } catch (IOException e) {
-                //// TODO
-                throw new RuntimeException(e);
+                throw new FtpIOException(getThesaurus(), getServer(), port, e);
             }
         }
 
@@ -66,7 +67,7 @@ class FtpDestinationImpl extends AbstractDataExportDestination implements FtpDes
         }
 
         private Path getTargetDirectory(String fileLocation) {
-            return getDefaultExportDir().resolve(fileLocation);
+            return remoteFileSystem.getPath("/").resolve(fileLocation);
         }
 
         private Path getDefaultExportDir() {
@@ -77,6 +78,7 @@ class FtpDestinationImpl extends AbstractDataExportDestination implements FtpDes
     }
 
     private String server;
+    private int port = 21;
     private String user;
     private String password;
     private String fileName;
@@ -99,7 +101,15 @@ class FtpDestinationImpl extends AbstractDataExportDestination implements FtpDes
 
     @Override
     public void send(Map<StructureMarker, Path> files, TagReplacerFactory tagReplacerFactory) {
-        new Sender(tagReplacerFactory).send(files);
+        try {
+            ftpClientService.getFtpFactory(getServer(), port, getUser(), getPassword()).runInSession(
+                    remoteFileSystem -> {
+                        new Sender(tagReplacerFactory, remoteFileSystem).send(files);
+                    }
+            );
+        } catch (IOException e) {
+            throw new FtpIOException(getThesaurus(), getServer(), port, e);
+        }
     }
 
     @Override
