@@ -1,7 +1,9 @@
 package com.elster.jupiter.insight.app.impl;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -16,8 +18,14 @@ import org.osgi.service.component.annotations.Reference;
 import com.elster.jupiter.http.whiteboard.App;
 import com.elster.jupiter.http.whiteboard.BundleResolver;
 import com.elster.jupiter.http.whiteboard.DefaultStartPage;
+import com.elster.jupiter.http.whiteboard.FileResolver;
 import com.elster.jupiter.http.whiteboard.HttpResource;
 import com.elster.jupiter.insight.app.InsightAppService;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.SimpleTranslationKey;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
@@ -26,12 +34,12 @@ import com.elster.jupiter.util.HasName;
 
 @Component(
         name = "com.elster.jupiter.insight.app",
-        service = {InsightAppService.class, InstallService.class},
+        service = {InsightAppService.class, InstallService.class, TranslationKeyProvider.class},
         property = "name=" + InsightAppService.COMPONENTNAME,
         immediate = true
 )
-public class InsightAppServiceImpl implements InsightAppService, InstallService {
-
+public class InsightAppServiceImpl implements InsightAppService, InstallService, TranslationKeyProvider {
+    private static final Logger LOGGER = Logger.getLogger(InsightAppServiceImpl.class.getName());
     public static final String HTTP_RESOURCE_ALIAS = "/insight";
     public static final String HTTP_RESOURCE_LOCAL_NAME = "/js/insight";
 
@@ -53,8 +61,8 @@ public class InsightAppServiceImpl implements InsightAppService, InstallService 
 
     @Activate
     public final void activate(BundleContext context) {
-        HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, HTTP_RESOURCE_LOCAL_NAME, new BundleResolver(context), new DefaultStartPage(APP_NAME));
-//        HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, "C:\\Users\\lvz\\Documents\\Workspace\\Jupiter\\com.elster.jupiter.system.app\\src\\main\\web\\js\\system", new FileResolver(), new DefaultStartPage(APP_NAME));
+//        HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, HTTP_RESOURCE_LOCAL_NAME, new BundleResolver(context), new DefaultStartPage(APP_NAME));
+        HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, "C:\\connexo-jupiter\\insight110\\com.elster.jupiter.insight.app\\src\\main\\web\\js\\insight", new FileResolver(), new DefaultStartPage(APP_NAME));
         App app = new App(APP_KEY, APP_NAME, APP_ICON, HTTP_RESOURCE_ALIAS, resource, user -> isAllowed(user));
 
         registration = context.registerService(App.class, app, null);
@@ -72,7 +80,7 @@ public class InsightAppServiceImpl implements InsightAppService, InstallService 
 
     @Override
     public List<String> getPrerequisiteModules() {
-        return Arrays.asList(UserService.COMPONENTNAME);
+        return Arrays.asList(UserService.COMPONENTNAME, MeteringService.COMPONENTNAME);
     }
 
     @Reference
@@ -93,7 +101,27 @@ public class InsightAppServiceImpl implements InsightAppService, InstallService 
     }
 
     private List<Privilege> getApplicationPrivileges() {
-        return userService.getResources(APPLICATION_KEY).stream().flatMap(resource -> resource.getPrivileges().stream()).collect(Collectors.toList());
+        return userService.getResources("MDC").stream().flatMap(resource -> resource.getPrivileges().stream()).collect(Collectors.toList());
+    }
+    
+    @Override
+    public List<TranslationKey> getKeys() {
+        try {
+            return SimpleTranslationKey.loadFromInputStream(this.getClass().getClassLoader().getResourceAsStream("i18n.properties"));
+        } catch (IOException e) {
+            LOGGER.severe("Failed to load translations for the '" + COMPONENTNAME + "' component bundle.");
+        }
+        return null;
     }
 
+	@Override
+	public String getComponentName() {
+		//TODO: Change to COMPONENT_NAME after pulling the extjs stuff into a new bundle, etc.
+		return "INS";
+	}
+
+	@Override
+	public Layer getLayer() {
+		return Layer.REST;
+	}
 }

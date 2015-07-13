@@ -4,7 +4,9 @@ Ext.define('InsightApp.Application', {
     controllers: [
         'InsightApp.controller.Main'
     ],
-
+    models: [
+             'InsightApp.model.UsagePointComplete'
+         ],
     launch: function () {
         // Removes the loading indicator.
         Ext.fly('appLoadingWrapper').destroy();
