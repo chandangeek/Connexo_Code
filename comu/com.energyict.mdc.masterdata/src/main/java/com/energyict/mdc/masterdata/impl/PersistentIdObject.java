@@ -18,10 +18,15 @@ import java.time.Instant;
  */
 public abstract class PersistentIdObject<T> {
 
+    @SuppressWarnings("unused")
     private long id;
+    @SuppressWarnings("unused")
     private String userName;
+    @SuppressWarnings("unused")
     private long version;
+    @SuppressWarnings("unused")
     private Instant createTime;
+    @SuppressWarnings("unused")
     private Instant modTime;
 
     protected final Class<T> domainClass;
@@ -46,6 +51,10 @@ public abstract class PersistentIdObject<T> {
 
     protected <U> DataMapper<U> mapper(Class<U> api) {
         return this.dataModel.mapper(api);
+    }
+
+    protected EventService getEventService() {
+        return eventService;
     }
 
     public void save () {

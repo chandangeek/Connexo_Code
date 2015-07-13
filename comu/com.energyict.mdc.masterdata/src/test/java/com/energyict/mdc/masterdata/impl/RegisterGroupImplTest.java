@@ -275,6 +275,17 @@ public class RegisterGroupImplTest {
         verify(this.dataModel, never()).touch(testInstance);
     }
 
+    @Test
+    public void deletePublishesValidateDeleteEventFirst() {
+        RegisterGroupImpl testInstance = this.getTestInstance();
+
+        // Business method
+        testInstance.delete();
+
+        // Asserts
+        verify(this.eventService).postEvent(EventType.REGISTERGROUP_VALIDATEDELETE.topic(), testInstance);
+    }
+
     private RegisterGroupImpl getTestInstance() {
         return new RegisterGroupImpl(this.dataModel, this.eventService, this.thesaurus, this.publisher);
     }

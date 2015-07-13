@@ -51,7 +51,8 @@ public class RegisterGroupImpl extends PersistentNamedObject<RegisterGroup> impl
 
     @Override
     protected void validateDelete() {
-        // Nothing to validate
+        // Send notification to dependent modules that may have reference to this RegisterGroup
+        this.getEventService().postEvent(EventType.REGISTERGROUP_VALIDATEDELETE.topic(), this);
     }
 
     @Override
