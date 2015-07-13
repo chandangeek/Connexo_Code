@@ -132,7 +132,7 @@ public class ChannelResource {
         boolean isValidationActive = deviceValidation.isValidationActive(channel, clock.instant());
         if (intervalStart != null && intervalEnd != null) {
             List<LoadProfileReading> channelData = channel.getChannelData(Ranges.openClosed(Instant.ofEpochMilli(intervalStart), Instant.ofEpochMilli(intervalEnd)));
-            List<ChannelDataInfo> infos = channelData.stream().map(loadProfileReading -> deviceDataInfoFactory.createChannelDataInfo(loadProfileReading, isValidationActive, deviceValidation)).collect(Collectors.toList());
+            List<ChannelDataInfo> infos = channelData.stream().map(loadProfileReading -> deviceDataInfoFactory.createChannelDataInfo(channel, loadProfileReading, isValidationActive, deviceValidation)).collect(Collectors.toList());
             infos = filter(infos, uriInfo.getQueryParameters());
             List<ChannelDataInfo> paginatedChannelData = ListPager.of(infos).from(queryParameters).find();
             PagedInfoList pagedInfoList = PagedInfoList.fromPagedList("data", paginatedChannelData, queryParameters);

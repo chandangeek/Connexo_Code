@@ -1,19 +1,30 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.cbo.QualityCodeIndex;
+import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationRuleSetVersion;
-import com.elster.jupiter.validation.rest.*;
-import com.energyict.mdc.device.data.*;
-import com.energyict.mdc.device.data.rest.ValueModificationFlag;
+import com.elster.jupiter.validation.rest.PropertyUtils;
+import com.elster.jupiter.validation.rest.ValidationRuleInfo;
+import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
+import com.elster.jupiter.validation.rest.ValidationRuleSetInfo;
+import com.elster.jupiter.validation.rest.ValidationRuleSetVersionInfo;
+import com.energyict.mdc.device.data.Channel;
+import com.energyict.mdc.device.data.DeviceValidation;
+import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.device.data.NumericalRegister;
 import com.google.common.collect.ImmutableList;
 
 import javax.inject.Inject;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -24,11 +35,13 @@ import java.util.stream.Collectors;
 public class ValidationInfoFactory {
 
     private final ValidationRuleInfoFactory validationRuleInfoFactory;
+    private final EstimationRuleInfoFactory estimationRuleInfoFactory;
     private final PropertyUtils propertyUtils;
 
     @Inject
-    public ValidationInfoFactory(ValidationRuleInfoFactory validationRuleInfoFactory, PropertyUtils propertyUtils) {
+    public ValidationInfoFactory(ValidationRuleInfoFactory validationRuleInfoFactory, EstimationRuleInfoFactory estimationRuleInfoFactory, PropertyUtils propertyUtils) {
         this.validationRuleInfoFactory = validationRuleInfoFactory;
+        this.estimationRuleInfoFactory = estimationRuleInfoFactory;
         this.propertyUtils = propertyUtils;
     }
 
@@ -170,23 +183,28 @@ public class ValidationInfoFactory {
         return result;
     }
 
-    ValidationInfo createValidationInfoFor(Map.Entry<Channel, DataValidationStatus> entry, DeviceValidation deviceValidation, ReadingModificationFlag readingModificationFlag) {
-        ValidationInfo validationInfo = new ValidationInfo();
-        DataValidationStatus dataValidationStatus = entry.getValue();
-        validationInfo.dataValidated = dataValidationStatus.completelyValidated();
-        validationInfo.mainValidationInfo.validationRules = validationRuleInfoFactory.createInfosForDataValidationStatus(dataValidationStatus);
-        validationInfo.mainValidationInfo.validationResult = ValidationStatus.forResult(deviceValidation.getValidationResult(dataValidationStatus.getReadingQualities()));
-        validationInfo.mainValidationInfo.valueModificationFlag = ValueModificationFlag.getModificationFlag(dataValidationStatus.getReadingQualities(), readingModificationFlag);
-        if (entry.getKey().getReadingType().isCumulative() && entry.getKey().getReadingType().getCalculatedReadingType().isPresent()) {
-            validationInfo.bulkValidationInfo.validationRules = validationRuleInfoFactory.createInfosForBulkDataValidationStatus(dataValidationStatus);
-            validationInfo.bulkValidationInfo.validationResult = ValidationStatus.forResult(deviceValidation.getValidationResult(dataValidationStatus.getBulkReadingQualities()));
-            validationInfo.bulkValidationInfo.valueModificationFlag = ValueModificationFlag.getModificationFlag(dataValidationStatus.getBulkReadingQualities(), readingModificationFlag);
+    VeeReadingInfo createVeeReadingInfo(Channel channel, DataValidationStatus dataValidationStatus, DeviceValidation deviceValidation) {
+        VeeReadingInfo veeReadingInfo = new VeeReadingInfo();
+        veeReadingInfo.dataValidated = dataValidationStatus.completelyValidated();
+        veeReadingInfo.mainValidationInfo.validationResult = ValidationStatus.forResult(deviceValidation.getValidationResult(dataValidationStatus.getReadingQualities()));
+        veeReadingInfo.mainValidationInfo.validationRules = validationRuleInfoFactory.createInfosForDataValidationStatus(dataValidationStatus);
+        veeReadingInfo.mainValidationInfo.estimatedByRule = estimationRuleInfoFactory.createEstimationRuleInfo(dataValidationStatus.getReadingQualities());
+        if (channel.getReadingType().getCalculatedReadingType().isPresent()) {
+            veeReadingInfo.bulkValidationInfo.validationResult = ValidationStatus.forResult(deviceValidation.getValidationResult(dataValidationStatus.getBulkReadingQualities()));
+            veeReadingInfo.bulkValidationInfo.validationRules = validationRuleInfoFactory.createInfosForBulkDataValidationStatus(dataValidationStatus);
+            veeReadingInfo.bulkValidationInfo.estimatedByRule = estimationRuleInfoFactory.createEstimationRuleInfo(dataValidationStatus.getBulkReadingQualities());
         }
-        return validationInfo;
+        return veeReadingInfo;
     }
 
-
-
+    VeeReadingInfo createVeeReadingInfoWithModificationFlags(Channel channel, DataValidationStatus dataValidationStatus, DeviceValidation deviceValidation, IntervalReadingRecord reading) {
+        VeeReadingInfo veeReadingInfo = createVeeReadingInfo(channel, dataValidationStatus, deviceValidation);
+        veeReadingInfo.mainValidationInfo.valueModificationFlag = ReadingModificationFlag.getModificationFlag(reading, dataValidationStatus.getReadingQualities());
+        if (channel.getReadingType().getCalculatedReadingType().isPresent()) {
+            veeReadingInfo.bulkValidationInfo.valueModificationFlag = ReadingModificationFlag.getModificationFlag(reading, dataValidationStatus.getBulkReadingQualities());
+        }
+        return veeReadingInfo;
+    }
 
     DetailedValidationInfo createDetailedValidationInfo(Boolean active, List<DataValidationStatus> dataValidationStatuses, Optional<Instant> lastChecked) {
         DetailedValidationInfo detailedValidationInfo = new DetailedValidationInfo();

@@ -35,6 +35,8 @@ public class NumericalReadingInfo extends ReadingInfo {
     public ValidationStatus validationResult;
     @JsonProperty("suspectReason")
     public Set<ValidationRuleInfo> suspectReason;
+    @JsonProperty("estimatedByRule")
+    public EstimationRuleInfo estimatedByRule;
 
     public NumericalReadingInfo() {}
 
