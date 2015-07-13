@@ -30,9 +30,8 @@ public enum TableSpecs {
             table.map(FiniteStateMachineImpl.class);
             Column id = table.addAutoIdColumn();
             table.addAuditColumns();
-            Column name = table.column("NAME").varChar().notNull().map(FiniteStateMachineImpl.Fields.NAME.fieldName()).add();
+            table.column("NAME").varChar().notNull().map(FiniteStateMachineImpl.Fields.NAME.fieldName()).add();
             table.column("OBSOLETE_TIMESTAMP").number().conversion(ColumnConversion.NUMBER2INSTANT).map(FiniteStateMachineImpl.Fields.OBSOLETE_TIMESTAMP.fieldName()).add();
-            table.unique("UK_FSM_FINITESTATEMACHINE").on(name).add();
             table.primaryKey("PK_FSM_FINITESTATEMACHINE").on(id).add();
         }
     },
