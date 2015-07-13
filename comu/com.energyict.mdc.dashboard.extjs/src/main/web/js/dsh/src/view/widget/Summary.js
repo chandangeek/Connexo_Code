@@ -100,7 +100,7 @@ Ext.define('Dsh.view.widget.Summary', {
             if (item.get('id')) {
                 var filter = me.router.filter.getWriteData(true, true);
                 filter[record.get('alias')] = item.get('id');
-                var href = me.router.getRoute('workspace/' + me.parent + '/details').buildUrl(null, {filter: filter});
+                var href = me.createUrl(me.router.getRoute('workspace/' + me.parent + '/details').buildUrl(null, {}), filter);
                 item.set('href', href);
                 item.set('itemId', 'summary-percentage-' + item.get('displayName').toLowerCase());
             }
@@ -115,6 +115,30 @@ Ext.define('Dsh.view.widget.Summary', {
 
         view.bindStore(record.counters());
         me.setTitle('<h3>' + Uni.I18n.translatePlural('overview.widget.' + me.parent + '.header', total, 'DSH', me.wTitle + ' ({0})') + '</h3>');
+    },
+
+    createUrl: function(basePath, filter) {
+        var url = basePath,
+            questionMarkAdded = false;
+
+        if (filter) {
+            if (filter.hasOwnProperty('deviceGroup') && filter.deviceGroup.length > 0) {
+                if (!questionMarkAdded) {
+                    url += '?';
+                    questionMarkAdded = true;
+                }
+                url += ('deviceGroups=' + filter.deviceGroup);
+            }
+            if (filter.hasOwnProperty('currentStates') && Array.isArray(filter.currentStates)) {
+                if (!questionMarkAdded) {
+                    url += '?';
+                }
+                Ext.Array.each(filter.currentStates, function(state) {
+                    url += ('&currentStates=' + state);
+                });
+            }
+        }
+        return url;
     },
 
     initKpi: function (record) {
