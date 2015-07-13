@@ -183,11 +183,12 @@ Ext.define('Uni.grid.FilterPanelTop', {
     },
 
     applyFilters: function () {
-        var me = this;
-        var pagingToolbarTop = this.up('contentcontainer').down('pagingtoolbartop');
-        var pagingToolbarBottom = this.up('contentcontainer').down('pagingtoolbarbottom');
+        var me = this,
+            pagingToolbarTop = this.up('contentcontainer').down('pagingtoolbartop'),
+            pagingToolbarBottom = this.up('contentcontainer').down('pagingtoolbarbottom');
+
         if (Ext.isDefined(pagingToolbarTop) && pagingToolbarTop !== null) {
-            pagingToolbarTop.totalCount = 0;
+            pagingToolbarTop.resetPaging();
         }
         if (Ext.isDefined(pagingToolbarBottom) && pagingToolbarBottom !== null) {
             pagingToolbarBottom.resetPaging();

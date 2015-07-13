@@ -480,7 +480,7 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
 
     addNavItemClickHandler: function (me, page, navItem) {
         navItem.getEl().on('click', function () {
-            if (me.fireEvent('beforechange', me, next) !== false) {
+            if (me.fireEvent('beforechange', me, page) !== false) {
                 me.doLoadPage(page);
                 return true;
             }
