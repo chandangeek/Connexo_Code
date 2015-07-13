@@ -69,7 +69,13 @@ class DataExportStrategyImpl implements DataExportStrategy {
         CONTINUOUS {
             @Override
             Range<Instant> adjustedExportPeriod(DataExportOccurrence occurrence, ReadingTypeDataExportItem item) {
-                return item.getLastRun()
+                return item.getLastExportPeriod()
+                        .filter(Range::hasUpperBound)
+                        .map(Range::upperEndpoint)
+                        .filter(instant -> {
+                            Range<Instant> exportedDataInterval = occurrence.getExportedDataInterval();
+                            return exportedDataInterval.hasLowerBound() && exportedDataInterval.lowerEndpoint().isAfter(instant);
+                        })
                         .map(instant -> copy(occurrence.getExportedDataInterval()).withOpenLowerBound(instant))
                         .orElse(occurrence.getExportedDataInterval());
             }

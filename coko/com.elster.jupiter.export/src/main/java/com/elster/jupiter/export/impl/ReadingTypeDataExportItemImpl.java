@@ -12,9 +12,13 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.RefAny;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.util.Ranges;
+import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Optional;
 
 public class ReadingTypeDataExportItemImpl implements IReadingTypeDataExportItem {
@@ -114,6 +118,13 @@ public class ReadingTypeDataExportItemImpl implements IReadingTypeDataExportItem
     @Override
     public Optional<? extends DataExportOccurrence> getLastOccurrence() {
         return getLastRun().flatMap(trigger -> dataExportService.findDataExportOccurrence(getTask(), trigger));
+    }
+
+    @Override
+    public Optional<Range<Instant>> getLastExportPeriod() {
+        return getLastRun()
+                .map(instant -> getSelector().getExportPeriod().getInterval(ZonedDateTime.ofInstant(instant, ZoneId.systemDefault())))
+                .map(range -> Ranges.map(range, ZonedDateTime::toInstant));
     }
 
     private ExportTask getTask() {
