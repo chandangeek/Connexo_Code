@@ -47,7 +47,6 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileOverview', {
                 var func = function () {
                     me.getApplication().fireEvent('changecontentevent', tabWidget);
                     Ext.suspendLayouts();
-                    tabWidget.down('#deviceLoadProfileDataSideFilter').setVisible(false);
                     tabWidget.down('#loadProfile-specifications').add(widget);
                     tabController.showTab(0);
 
