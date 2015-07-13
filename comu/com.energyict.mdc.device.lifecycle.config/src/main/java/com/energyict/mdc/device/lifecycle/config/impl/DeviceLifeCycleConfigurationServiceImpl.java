@@ -37,14 +37,7 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -85,6 +78,13 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
         this.setEventService(eventService);
         this.activate();
         this.install();
+        this.initializeTestPrivileges();
+    }
+
+    private void initializeTestPrivileges() {
+        this.getModuleResources().stream()
+                .filter(Objects::nonNull)
+                .forEach(resource -> this.userService.saveResourceWithPrivileges(resource.getComponentName(), resource.getName(), resource.getDescription(), resource.getPrivilegeNames().toArray(new String[resource.getPrivilegeNames().size()])));
         this.initializePrivileges();
     }
 
@@ -171,9 +171,7 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
     private void initializePrivileges() {
         this.privileges.clear();
         this.userService
-            .getResources(Installer.PRIVILEGES_COMPONENT)
-            .stream()
-            .flatMap(r -> r.getPrivileges().stream())
+            .getPrivileges().stream()
             .forEach(this::addPrivilegeIfFound);
     }
 
