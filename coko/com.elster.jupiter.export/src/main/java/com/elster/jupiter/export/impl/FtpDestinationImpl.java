@@ -6,6 +6,7 @@ import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.FtpDestination;
 import com.elster.jupiter.export.StructureMarker;
+import com.elster.jupiter.ftpclient.FtpClientService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 
@@ -33,10 +34,17 @@ class FtpDestinationImpl extends AbstractDataExportDestination implements FtpDes
         }
 
         private void copyFile(StructureMarker structureMarker, Path path) {
-            doCopy(path, determineTargetFile(structureMarker));
+            try {
+                ftpClientService.getFtpFactory(getServer(), 21, getUser(), getPassword()).runInSession(remoteFileSystem -> {
+                    doCopy(path, determineTargetFile(structureMarker, remoteFileSystem));
+                });
+            } catch (IOException e) {
+                //// TODO
+                throw new RuntimeException(e);
+            }
         }
 
-        private Path determineTargetFile(StructureMarker structureMarker) {
+        private Path determineTargetFile(StructureMarker structureMarker, FileSystem remoteFileSystem) {
             TagReplacer tagReplacer = tagReplacerFactory.forMarker(structureMarker);
             Path targetDirectory = getTargetDirectory(tagReplacer.replaceTags(fileLocation));
             if (!Files.exists(targetDirectory)) {
@@ -76,11 +84,13 @@ class FtpDestinationImpl extends AbstractDataExportDestination implements FtpDes
     private String fileLocation;
 
     private final DataVaultService dataVaultService;
+    private final FtpClientService ftpClientService;
 
     @Inject
-    FtpDestinationImpl(DataModel dataModel, Clock clock, Thesaurus thesaurus, DataExportService dataExportService, AppService appService, FileSystem fileSystem, DataVaultService dataVaultService) {
+    FtpDestinationImpl(DataModel dataModel, Clock clock, Thesaurus thesaurus, DataExportService dataExportService, AppService appService, FileSystem fileSystem, DataVaultService dataVaultService, FtpClientService ftpClientService) {
         super(dataModel, clock, thesaurus, dataExportService, appService, fileSystem);
         this.dataVaultService = dataVaultService;
+        this.ftpClientService = ftpClientService;
     }
 
     static FtpDestinationImpl from(IExportTask task, DataModel dataModel, String server, String user, String password, String fileLocation, String fileName, String fileExtension) {
