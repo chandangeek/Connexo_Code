@@ -1428,6 +1428,8 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         this.getProtocolDialectConfigurationPropertiesList().stream().forEach(cloneDeviceProtocolDialectProperties(clone));
         getSecurityPropertySets().forEach(securityPropertySet -> ((ServerSecurityPropertySet) securityPropertySet).cloneForDeviceConfig(clone));
         getPartialConnectionTasks().forEach(partialConnectionTask -> ((ServerPartialConnectionTask) partialConnectionTask).cloneForDeviceConfig(clone));
+        getComTaskEnablements().forEach(comTaskEnablement -> ((ServerComTaskEnablement) comTaskEnablement).cloneForDeviceConfig(clone));
+        getDeviceMessageEnablements().forEach(deviceMessageEnablement -> ((ServerDeviceMessageEnablement) deviceMessageEnablement).cloneForDeviceConfig(clone));
         clone.save();
         return clone;
     }

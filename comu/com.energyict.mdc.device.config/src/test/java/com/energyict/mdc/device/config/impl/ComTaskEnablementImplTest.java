@@ -720,7 +720,9 @@ public class ComTaskEnablementImplTest extends PersistenceWithRealProtocolPlugga
         assertThat(clonedComTaskEnablement.getComTask().getId()).isEqualTo(this.comTask1.getId());
         assertThat(clonedComTaskEnablement.getDeviceConfiguration()).isNotNull();
         assertThat(clonedComTaskEnablement.getDeviceConfiguration().getId()).isEqualTo(this.deviceConfiguration2.getId());
-        assertThat(clonedComTaskEnablement.getSecurityPropertySet()).isNotNull();
+        assertThat(clonedComTaskEnablement.getSecurityPropertySet().getId()).isNotEqualTo(securityPropertySet1.getId());
+        assertThat(clonedComTaskEnablement.getSecurityPropertySet().getAuthenticationDeviceAccessLevel()).isEqualTo(securityPropertySet1.getAuthenticationDeviceAccessLevel());
+        assertThat(clonedComTaskEnablement.getSecurityPropertySet().getEncryptionDeviceAccessLevel()).isEqualTo(securityPropertySet1.getEncryptionDeviceAccessLevel());
         assertThat(clonedComTaskEnablement.getPriority()).isEqualTo(ComTaskEnablement.DEFAULT_PRIORITY);
     }
 

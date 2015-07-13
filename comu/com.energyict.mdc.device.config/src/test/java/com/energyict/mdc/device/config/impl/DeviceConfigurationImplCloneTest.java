@@ -2,14 +2,11 @@ package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.config.*;
-import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
-import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import org.fest.assertions.core.Condition;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,9 +26,9 @@ import static org.mockito.Mockito.when;
  * Time: 10:29
  */
 @RunWith(MockitoJUnitRunner.class)
-public class DeviceConfigurationCloneTest extends PersistenceTest {
+public class DeviceConfigurationImplCloneTest extends PersistenceTest {
 
-    private final String DEVICE_TYPE_NAME = DeviceConfigurationCloneTest.class.getName() + "Type";
+    private final String DEVICE_TYPE_NAME = DeviceConfigurationImplCloneTest.class.getName() + "Type";
     private final String propertyName1 = "PropName";
     private final String propertyName2 = "OtherPropName";
     private final String protocolDialectName1 = "Dialect1";
