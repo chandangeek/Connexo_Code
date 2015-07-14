@@ -45,6 +45,7 @@ public enum TableSpecs {
             Column destinationColumn = table.column("DESTINATION").varChar(30).notNull().add();
             Column nameColumn = table.column("NAME").varChar(30).notNull().map("name").add();
             table.column("SYSTEMMANAGED").bool().map("systemManaged").add();
+            table.column("filter").varChar().map("filter").add();
             table.addAuditColumns();
             table.primaryKey("MSG_PK_SUBSCRIBERSPEC").on(destinationColumn , nameColumn).add();
             table.foreignKey("MSG_FK_SUBSCRIBERSPEC").references(MSG_DESTINATIONSPEC.name()).onDelete(CASCADE).map("destination").reverseMap("subscribers").on(destinationColumn).composition().add();

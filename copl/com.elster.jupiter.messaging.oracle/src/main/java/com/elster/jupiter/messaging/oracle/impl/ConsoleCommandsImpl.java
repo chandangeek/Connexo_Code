@@ -27,7 +27,7 @@ import java.util.logging.Logger;
         property = {"name=" + MessageService.COMPONENTNAME + "2", "osgi.command.scope=messagingoracle",
                 "osgi.command.function=aqcreatetable", "osgi.command.function=aqdroptable",
                 "osgi.command.function=drain", "osgi.command.function=subscribe", "osgi.command.function=createQueue",
-                "osgi.command.function=destinations", "osgi.command.function=activate" })
+                "osgi.command.function=destinations", "osgi.command.function=activate", "osgi.command.function=resubscribe"})
 public class ConsoleCommandsImpl {
 
     private static final Logger LOGGER = Logger.getLogger(ConsoleCommandsImpl.class.getName());
@@ -116,15 +116,37 @@ public class ConsoleCommandsImpl {
     		transactionService.builder()
         		.principal(() -> "Command line")
         		.run(() -> {
-        			Optional<DestinationSpec> destination = messageService.getDestinationSpec(destinationName);
-        			if (!destination.isPresent()) {
-        				System.err.println("No such destination " + destinationName);
-        			}
-        			destination.get().subscribe(subscriberName);
-        		});
-    	} catch (Exception ex) {
+                    Optional<DestinationSpec> destination = messageService.getDestinationSpec(destinationName);
+                    if (!destination.isPresent()) {
+                        System.err.println("No such destination " + destinationName);
+                    }
+                    destination.get().subscribe(subscriberName);
+                });
+        } catch (Exception ex) {
     		ex.printStackTrace();
     	}
+    }
+
+    public void resubscribe(String destinationName, String subsriberName) {
+        try {
+            transactionService.builder()
+                    .principal(() -> "Command line")
+                    .run(() -> {
+                        Optional<DestinationSpec> destination = messageService.getDestinationSpec(destinationName);
+                        if (!destination.isPresent()) {
+                            System.err.println("No such destination " + destinationName);
+                        }
+                        Optional<SubscriberSpec> subscriber = destination.get().getSubscribers().stream().filter(s -> s.getName().equalsIgnoreCase(subsriberName)).findFirst();
+                        if (subscriber.isPresent()) {
+                            SubscriberSpecImpl subscriberImpl = (SubscriberSpecImpl) subscriber.get();
+                            subscriberImpl.unSubscribe();
+                            subscriberImpl.subscribe();
+                        }
+
+                    });
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     public void activate(String destinationName) {

@@ -5,11 +5,11 @@ import com.elster.jupiter.messaging.MessageBuilder;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.pubsub.Publisher;
-
 import oracle.jdbc.OracleConnection;
 import oracle.jdbc.aq.AQEnqueueOptions;
 import oracle.jdbc.aq.AQMessage;
 import oracle.jdbc.aq.AQMessageProperties;
+
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.Duration;
@@ -52,6 +52,16 @@ class BytesMessageBuilder implements MessageBuilder {
     }
 
     @Override
+    public MessageBuilder withCorrelationId(String correlationId) {
+        try {
+            getMessageProperties().setCorrelation(correlationId);
+            return this;
+        } catch (SQLException e) {
+            throw new UnderlyingSQLFailedException(e);
+        }
+    }
+
+    @Override
     public void send() {
         try {
             trySend(bytes);
@@ -85,7 +95,7 @@ class BytesMessageBuilder implements MessageBuilder {
         message.setPayload(bytes);
         try (Connection connection = dataModel.getConnection(false)) {
             OracleConnection oraConnection= connection.unwrap(OracleConnection.class);
-            oraConnection.enqueue(destinationSpec.getName(), new AQEnqueueOptions() , message);
+            oraConnection.enqueue(destinationSpec.getName(), options, message);
             publisher.publish(message);
         }
     }
