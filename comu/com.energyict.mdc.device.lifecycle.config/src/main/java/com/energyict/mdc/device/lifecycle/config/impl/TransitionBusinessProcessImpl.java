@@ -1,21 +1,14 @@
 package com.energyict.mdc.device.lifecycle.config.impl;
 
 import com.energyict.mdc.device.lifecycle.config.TransitionBusinessProcess;
-import com.energyict.mdc.device.lifecycle.config.TransitionBusinessProcessStartEvent;
 
-import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.orm.DataModel;
-import com.google.common.collect.ImmutableMap;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
-import java.util.Map;
-
-import static com.energyict.mdc.device.lifecycle.config.TransitionBusinessProcess.DEVICE_ID_BPM_PARAMETER_NAME;
 
 /**
  * Provides an implementation for the {@link TransitionBusinessProcessImpl} component.
@@ -80,9 +73,6 @@ public class TransitionBusinessProcessImpl implements TransitionBusinessProcess 
 
     @Override
     public void executeOn(long deviceId, State currentState) {
-        Map<String, Object> parameters = ImmutableMap.of(
-                TransitionBusinessProcess.DEVICE_ID_BPM_PARAMETER_NAME, deviceId,
-                TransitionBusinessProcess.STATE_ID_BPM_PARAMETER_NAME, currentState.getId());
         this.dataModel
                 .getInstance(TransitionBusinessProcessStartEventImpl.class)
                 .initialize(this, deviceId, currentState)
