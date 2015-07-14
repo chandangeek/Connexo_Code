@@ -99,7 +99,10 @@ public class Installer {
 
         DestinationSpec destinationSpec = messageService.getDestinationSpec(EventService.JUPITER_EVENTS).get();
         try {
-            destinationSpec.subscribe(ModuleConstants.AQ_DATA_COLLECTION_EVENT_SUBSC);
+            destinationSpec.subscribe(ModuleConstants.AQ_DATA_COLLECTION_EVENT_SUBSC, whereCorrelationId().like("com/energyict/mdc/connectiontask/%")
+                    .or(whereCorrelationId().isEqualTo("com/energyict/mdc/device/data/device/CREATED")
+                            .or(whereCorrelationId().isEqualTo("com/energyict/mdc/inboundcommunication/UNKNOWNDEVICE"))
+                            .or(whereCorrelationId().isEqualTo("com/energyict/mdc/outboundcommunication/UNKNOWNSLAVEDEVICE"))));
         } catch (DuplicateSubscriberNameException e) {
             // subscriber already exists, ignoring
         }
