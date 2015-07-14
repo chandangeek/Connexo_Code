@@ -9,6 +9,8 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import java.time.Clock;
+import java.time.Instant;
 import java.util.logging.Logger;
 
 /**
@@ -23,6 +25,7 @@ import java.util.logging.Logger;
 public class StateTransitionChangeEventTopicHandler implements TopicHandler {
 
     private Logger logger = Logger.getLogger(StateTransitionChangeEventTopicHandler.class.getName());
+    private volatile Clock clock;
     private volatile FiniteStateMachineService stateMachineService;
     private volatile MeteringService meteringService;
 
@@ -33,10 +36,16 @@ public class StateTransitionChangeEventTopicHandler implements TopicHandler {
 
     // For testing purposes
     @Inject
-    public StateTransitionChangeEventTopicHandler(FiniteStateMachineService stateMachineService, MeteringService meteringService) {
+    public StateTransitionChangeEventTopicHandler(Clock clock, FiniteStateMachineService stateMachineService, MeteringService meteringService) {
         this();
+        this.setClock(clock);
         this.setStateMachineService(stateMachineService);
         this.setMeteringService(meteringService);
+    }
+
+    @Reference
+    public void setClock(Clock clock) {
+        this.clock = clock;
     }
 
     @Reference
@@ -65,7 +74,15 @@ public class StateTransitionChangeEventTopicHandler implements TopicHandler {
     }
 
     private void handle(StateTransitionChangeEvent event, ServerEndDevice endDevice) {
-        endDevice.changeState(event.getNewState());
+        endDevice.changeState(event.getNewState(), this.effectiveTimestampFrom(event));
+    }
+
+    private Instant effectiveTimestampFrom(StateTransitionChangeEvent event) {
+        Instant effectiveTimestamp = event.getEffectiveTimestamp();
+        if (effectiveTimestamp == null) {
+            effectiveTimestamp = this.clock.instant();
+        }
+        return effectiveTimestamp;
     }
 
     @Override

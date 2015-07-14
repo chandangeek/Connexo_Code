@@ -30,7 +30,6 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
-import com.elster.jupiter.util.time.Interval;
 import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
@@ -173,7 +172,7 @@ public class EndDeviceImplIT {
             ServerEndDevice endDevice = (ServerEndDevice) meteringService.findAmrSystem(1).get().newEndDevice("amrID", "mRID");
 
             // Business method
-            endDevice.changeState(stateMachine.getInitialState());
+            endDevice.changeState(stateMachine.getInitialState(), Instant.now());
 
             // Asserts: see expected exception rule
         }
@@ -189,7 +188,7 @@ public class EndDeviceImplIT {
             ServerEndDevice endDevice = (ServerEndDevice) meteringService.findAmrSystem(1).get().newEndDevice(stateMachine, "amrID", "mRID");
 
             // Business method
-            endDevice.changeState(otherStateMachine.getInitialState());
+            endDevice.changeState(otherStateMachine.getInitialState(), Instant.now());
 
             // Asserts: see expected exception rule
         }
@@ -210,7 +209,7 @@ public class EndDeviceImplIT {
             // Business method
             State second = stateMachine.getState("Second").get();
             stateId = second.getId();
-            endDevice.changeState(second);
+            endDevice.changeState(second, Instant.now());
             context.commit();
         }
 
@@ -243,7 +242,7 @@ public class EndDeviceImplIT {
             when(this.clock.instant()).thenReturn(april1st);
 
             // Business method
-            endDevice.changeState(changedState);
+            endDevice.changeState(changedState, april1st);
             context.commit();
         }
 
@@ -278,7 +277,7 @@ public class EndDeviceImplIT {
             deviceId = endDevice.getId();
             changedStateId = changedState.getId();
             when(this.clock.instant()).thenReturn(april1st);
-            endDevice.changeState(changedState);
+            endDevice.changeState(changedState, april1st);
             context.commit();
         }
         EndDevice endDevice = meteringService.findEndDevice(deviceId).get();
