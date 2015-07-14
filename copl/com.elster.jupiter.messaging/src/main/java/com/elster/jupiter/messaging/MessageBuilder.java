@@ -1,10 +1,13 @@
 package com.elster.jupiter.messaging;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.time.Duration;
 
 /**
  * Builder interface for messages.
  */
+@ProviderType
 public interface MessageBuilder {
 
     /**
@@ -18,5 +21,7 @@ public interface MessageBuilder {
      * @return the messageBuilder, for chaining calls.
      */
     MessageBuilder expiringAfter(Duration duration);
+
+    MessageBuilder withCorrelationId(String correlationId);
 
 }
