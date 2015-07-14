@@ -8,24 +8,40 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
         'Mdc.view.setup.devicechannels.ValidationPreview',
         'Uni.form.field.EditedDisplay'
     ],
-
+    channels: null,
     frame: false,
 
     updateForm: function (record) {
         var me = this,
             intervalEnd = record.get('interval_end'),
             title = Uni.DateTime.formatDateLong(intervalEnd) + ' ' + Uni.I18n.translate('general.at', 'MDC', 'At').toLowerCase() + ' ' + Uni.DateTime.formatTimeLong(intervalEnd),
-            mainValidationInfo = record.getValidationInfo().getMainValidationInfo(),
-            bulkValidationInfo = record.getValidationInfo().getBulkValidationInfo();
+            mainValidationInfo,
+            bulkValidationInfo;
 
         Ext.suspendLayouts();
         me.down('#general-panel').setTitle(title);
         me.down('#values-panel').setTitle(title);
         me.down('form').loadRecord(record);
-        me.setReadingQualities(me.down('#mainReadingQualities'), mainValidationInfo);
-        me.setReadingQualities(me.down('#bulkReadingQualities'), bulkValidationInfo);
-        me.setGeneralReadingQualities(me.down('#generalReadingQualities'), me.up('tabbedDeviceChannelsView').channel.get('validationInfo'));
-        me.down('#readingDataValidated').setValue(record.getValidationInfo().get('dataValidated'));
+
+        if (me.channels) {
+            Ext.Array.each(me.channels, function (channel) {
+                mainValidationInfo = record.get('channelValidationData')[channel.id].mainValidationInfo;
+                bulkValidationInfo = record.get('channelValidationData')[channel.id].bulkValidationInfo;
+                me.setReadingQualities(me.down('#mainReadingQualities' + channel.id), mainValidationInfo);
+                me.setReadingQualities(me.down('#bulkReadingQualities' + channel.id), bulkValidationInfo);
+                me.down('#channelValue' + channel.id).setValue(record.get('channelData')[channel.id]);
+                me.down('#channelBulkValue' + channel.id).setValue(record.get('channelCollectedData')[channel.id]);
+                me.setGeneralReadingQualities(me.down('#generalReadingQualities'), me.up('deviceLoadProfilesData').loadProfile.get('validationInfo'));
+                me.down('#readingDataValidated').setValue(record.get('channelValidationData')[channel.id].dataValidated);
+            });
+        } else {
+            mainValidationInfo = record.get('validationInfo').mainValidationInfo;
+            bulkValidationInfo = record.get('validationInfo').bulkValidationInfo;
+            me.setReadingQualities(me.down('#mainReadingQualities'), mainValidationInfo);
+            me.setReadingQualities(me.down('#bulkReadingQualities'), bulkValidationInfo);
+            me.setGeneralReadingQualities(me.down('#generalReadingQualities'), me.up('tabbedDeviceChannelsView').channel.get('validationInfo'));
+            me.down('#readingDataValidated').setValue(record.getValidationInfo().get('dataValidated'));
+        }
         Ext.resumeLayouts(true);
     },
 
@@ -35,11 +51,12 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
             estimatedRuleName;
 
         field.show();
-        if (!Ext.isEmpty(info.get('validationRules'))) {
-            me.setValidationRules(me.down('#mainReadingQualities'), info.get('validationRules'));
-        } else if (info.get('estimatedByRule')) {
-            estimatedRule = info.get('estimatedByRule');
-            estimatedRuleName = '<a href="#/administration/estimationrulesets/' + estimatedRule.ruleSetId + '/rules/' + estimatedRule.id + '">' + estimatedRule.name + '</a>';
+        if (!Ext.isEmpty(info.validationRules)) {
+            me.setValidationRules(field, info.validationRules);
+        } else if (info.estimatedByRule) {
+            estimatedRule = info.estimatedByRule;
+            estimatedRuleName = estimatedRule.deleted ? estimatedRule.name + ' ' + Uni.I18n.translate('device.registerData.removedRule', 'MDC', '(removed rule)') :
+                '<a href="#/administration/estimationrulesets/' + estimatedRule.ruleSetId + '/rules/' + estimatedRule.id + '">' + estimatedRule.name + '</a>';
             field.setValue(Uni.I18n.translate('deviceChannelData.estimatedAccordingTo', 'MDC', 'Estimated according to') + ' ' + estimatedRuleName);
         } else {
             field.hide();
@@ -103,7 +120,9 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
     setGeneralReadingQualities: function (field, value) {
         var result = '',
             me = this,
-            url;
+            url,
+            view = me.up('tabbedDeviceChannelsView') || me.up('deviceLoadProfilesData');
+
         if (!Ext.isEmpty(value.suspectReason)) {
             field.show();
             Ext.Array.each(value.suspectReason, function (rule) {
@@ -111,7 +130,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                     result += Ext.String.htmlEncode(rule.key.name) + ' ' + Uni.I18n.translate('device.registerData.removedRule', 'MDC', '(removed rule)') + ' - ' + rule.value + ' ' + Uni.I18n.translate('general.suspects', 'MDC', 'suspects') + '<br>';
                 } else {
                     if (Cfg.privileges.Validation.canViewOrAdministrate()) {
-                        url = me.up('tabbedDeviceChannelsView').router.getRoute('administration/rulesets/overview/versions/overview/rules').buildUrl({ruleSetId: rule.key.ruleSetVersion.ruleSet.id, versionId: rule.key.ruleSetVersion.id, ruleId: rule.key.id});
+                        url = view.router.getRoute('administration/rulesets/overview/versions/overview/rules').buildUrl({ruleSetId: rule.key.ruleSetVersion.ruleSet.id, versionId: rule.key.ruleSetVersion.id, ruleId: rule.key.id});
                         result += '<a href="' + url + '"> ' + Ext.String.htmlEncode(rule.key.name) + '</a>';
                     } else {
                         result = Ext.String.htmlEncode(rule.key.name);
@@ -124,23 +143,36 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
         }
     },
 
-    setValueWithResult: function (value, type) {
+    setValueWithResult: function (value, type, channelId) {
         var me = this,
             record = me.down('form').getRecord(),
-            measurementType = me.channelRecord.get('unitOfMeasure'),
-            validationResult = record.get(type + 'ValidationInformation').validationResult,
+            measurementType,
+            validationResult,
             validationResultText = '',
-            formatValue;
+            formatValue,
+            channel;
+
+        if (me.channels) {
+            channel = Ext.Array.findBy(me.channels, function (item) {
+                return item.id == channelId;
+            });
+            measurementType = channel.calculatedReadingType ? channel.calculatedReadingType.unit : channel.readingType.unit;
+            validationResult = (type == 'main') ? record.get('channelValidationData')[channelId].mainValidationInfo.validationResult :
+                record.get('channelValidationData')[channelId].bulkValidationInfo.validationResult;
+        } else {
+            measurementType = me.channelRecord.get('unitOfMeasure');
+            validationResult = record.get(type + 'ValidationInformation').validationResult;
+        }
 
         if (validationResult) {
             switch (validationResult.split('.')[1]) {
                 case 'notValidated':
                     validationResultText = '(' + Uni.I18n.translate('devicechannelsreadings.validationResult.notvalidated', 'MDC', 'Not validated') + ')' +
-                        '<img style="position: absolute; margin-left: 5px" width="16" height="16" src="../sky/build/resources/images/shared/Not-validated.png"/>&nbsp;&nbsp;&nbsp;&nbsp;';
+                        '<img style="vertical-align: top; margin-left: 5px" width="16" height="16" src="../sky/build/resources/images/shared/Not-validated.png"/>';
                     break;
                 case 'suspect':
                     validationResultText = '(' + Uni.I18n.translate('devicechannelsreadings.validationResult.suspect', 'MDC', 'Suspect') + ')' +
-                        '<img style="position: absolute; margin-left: 5px" width="16" height="16" src="../sky/build/resources/images/shared/Suspect.png"/>&nbsp;&nbsp;&nbsp;&nbsp;';
+                        '<img style="vertical-align: top; margin-left: 5px" width="16" height="16" src="../sky/build/resources/images/shared/Suspect.png"/>';
                     break;
                 case 'ok':
                     validationResultText = '(' + Uni.I18n.translate('devicechannelsreadings.validationResult.notsuspect', 'MDC', 'Not suspect') + ')';
@@ -149,8 +181,12 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
         }
 
         if (!Ext.isEmpty(value)) {
-            formatValue = Uni.Number.formatNumber(value, -1);
-            return !Ext.isEmpty(formatValue) ? formatValue + ' ' + measurementType + ' ' + validationResultText : '';
+            if (me.channels) {
+                return value + ' ' + measurementType + ' ' + validationResultText;
+            } else {
+                formatValue = Uni.Number.formatNumber(value, -1);
+                return !Ext.isEmpty(formatValue) ? formatValue + ' ' + measurementType + ' ' + validationResultText : '';
+            }
         } else {
             return Uni.I18n.translate('general.missing', 'MDC', 'Missing') + ' ' + validationResultText;
         }
@@ -172,7 +208,14 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
             },
             {
                 xtype: 'interval-flags-displayfield',
-                name: 'intervalFlags'
+                name: 'intervalFlags',
+                renderer: function (value, field) {
+                    if (Ext.isEmpty(value)) {
+                        field.hide();
+                    } else {
+                        return value;
+                    }
+                }
             },
             {
                 fieldLabel: Uni.I18n.translate('devicechannelsreadings.validationstatus.title', 'MDC', 'Validation status'),
@@ -198,62 +241,110 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
             }
         );
 
-        valuesItems.push(
-            {
-                xtype: 'fieldcontainer',
-                labelWidth: 200,
-                fieldLabel: Uni.I18n.translate('deviceloadprofiles.channels.value', 'MDC', 'Value'),
-                layout: 'hbox',
-                items: [
-                    {
+        if (me.channels) {
+            Ext.Array.each(me.channels, function (channel) {
+                valuesItems.push({
+                    xtype: 'fieldcontainer',
+                    fieldLabel: channel.name,
+                    itemId: 'channelFieldContainer' + channel.id,
+                    labelAlign: 'top',
+                    labelWidth: 400,
+                    layout: 'vbox',
+                    margin: '20 0 0 0',
+                    defaults: {
                         xtype: 'displayfield',
-                        name: 'value',
-                        renderer: function (value) {
-                            return me.setValueWithResult(value, 'main');
-                        }
+                        labelWidth: 200
                     },
-                    {
-                        xtype: 'edited-displayfield',
-                        name: 'mainModificationState',
-                        margin: '0 0 0 10'
-                    }
-                ]
-            },
-            {
-                xtype: 'displayfield',
-                labelWidth: 200,
-                fieldLabel: Uni.I18n.translate('devicechannelsreadings.readingqualities.title', 'MDC', 'Reading qualities'),
-                itemId: 'mainReadingQualities',
-                htmlEncode: false
-            },
-            {
-                xtype: 'fieldcontainer',
-                labelWidth: 200,
-                fieldLabel: Uni.I18n.translate('deviceloadprofiles.channels.bulkValue', 'MDC', 'Bulk value'),
-                layout: 'hbox',
-                items: [
-                    {
-                        xtype: 'displayfield',
-                        name: 'collectedValue',
-                        renderer: function (value) {
-                            return me.setValueWithResult(value, 'bulk');
+                    items: [
+                        {
+                            fieldLabel: Uni.I18n.translate('deviceloadprofiles.channels.value', 'MDC', 'Value'),
+                            itemId: 'channelValue' + channel.id,
+                            renderer: function (value) {
+                                if (value) {
+                                    return me.setValueWithResult(value, 'main', channel.id);
+                                }
+                            }
+                        },
+                        {
+                            fieldLabel: Uni.I18n.translate('devicechannelsreadings.readingqualities.title', 'MDC', 'Reading qualities'),
+                            itemId: 'mainReadingQualities' + channel.id,
+                            htmlEncode: false
+                        },
+                        {
+                            fieldLabel: Uni.I18n.translate('deviceloadprofiles.channels.bulkValue', 'MDC', 'Bulk value'),
+                            itemId: 'channelBulkValue' + channel.id,
+                            renderer: function (value) {
+                                if (value) {
+                                    return me.setValueWithResult(value, 'bulk', channel.id);
+                                }
+                            }
+                        },
+                        {
+                            fieldLabel: Uni.I18n.translate('devicechannelsreadings.readingqualities.title', 'MDC', 'Reading qualities'),
+                            itemId: 'bulkReadingQualities' + channel.id,
+                            htmlEncode: false
                         }
-                    },
-                    {
-                        xtype: 'edited-displayfield',
-                        name: 'bulkModificationState',
-                        margin: '0 0 0 10'
-                    }
-                ]
-            },
-            {
-                xtype: 'displayfield',
-                labelWidth: 200,
-                fieldLabel: Uni.I18n.translate('devicechannelsreadings.readingqualities.title', 'MDC', 'Reading qualities'),
-                itemId: 'bulkReadingQualities',
-                htmlEncode: false
-            }
-        );
+                    ]
+                });
+            });
+        } else {
+            valuesItems.push(
+                {
+                    xtype: 'fieldcontainer',
+                    labelWidth: 200,
+                    fieldLabel: Uni.I18n.translate('deviceloadprofiles.channels.value', 'MDC', 'Value'),
+                    layout: 'hbox',
+                    items: [
+                        {
+                            xtype: 'displayfield',
+                            name: 'value',
+                            renderer: function (value) {
+                                return me.setValueWithResult(value, 'main');
+                            }
+                        },
+                        {
+                            xtype: 'edited-displayfield',
+                            name: 'mainModificationState',
+                            margin: '0 0 0 10'
+                        }
+                    ]
+                },
+                {
+                    xtype: 'displayfield',
+                    labelWidth: 200,
+                    fieldLabel: Uni.I18n.translate('devicechannelsreadings.readingqualities.title', 'MDC', 'Reading qualities'),
+                    itemId: 'mainReadingQualities',
+                    htmlEncode: false
+                },
+                {
+                    xtype: 'fieldcontainer',
+                    labelWidth: 200,
+                    fieldLabel: Uni.I18n.translate('deviceloadprofiles.channels.bulkValue', 'MDC', 'Bulk value'),
+                    layout: 'hbox',
+                    items: [
+                        {
+                            xtype: 'displayfield',
+                            name: 'collectedValue',
+                            renderer: function (value) {
+                                return me.setValueWithResult(value, 'bulk');
+                            }
+                        },
+                        {
+                            xtype: 'edited-displayfield',
+                            name: 'bulkModificationState',
+                            margin: '0 0 0 10'
+                        }
+                    ]
+                },
+                {
+                    xtype: 'displayfield',
+                    labelWidth: 200,
+                    fieldLabel: Uni.I18n.translate('devicechannelsreadings.readingqualities.title', 'MDC', 'Reading qualities'),
+                    itemId: 'bulkReadingQualities',
+                    htmlEncode: false
+                }
+            );
+        }
 
         me.items = {
             xtype: 'form',

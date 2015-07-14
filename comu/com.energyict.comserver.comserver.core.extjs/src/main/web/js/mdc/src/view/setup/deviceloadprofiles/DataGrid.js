@@ -50,7 +50,8 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.DataGrid', {
             }
         ];
         Ext.Array.each(me.channels, function (channel) {
-            var channelHeader = !Ext.isEmpty(channel.calculatedReadingType) ? channel.calculatedReadingType.measuringPeriod + ' ' + channel.calculatedReadingType.aliasName + ' (' + channel.calculatedReadingType.unit + ')' : channel.readingType.measuringPeriod + ' ' + channel.readingType.aliasName + ' (' + channel.readingType.unit + ')';
+            var channelHeader = channel.calculatedReadingType ? channel.calculatedReadingType.fullAliasName + ' (' + channel.calculatedReadingType.unit + ')' :
+                channel.readingType.fullAliasName + ' (' + channel.calculatedReadingType.unit + ')';
             me.columns.push({
                 header: channelHeader,
                 dataIndex: 'channelData',
@@ -69,12 +70,12 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.DataGrid', {
                             cls +=  ' icon-validation-black'
                         }
                         metaData.tdCls = cls;
+                        if (record.data.channelValidationData[channel.id].mainValidationInfo.estimatedByRule) {
+                            return !Ext.isEmpty(data[channel.id]) ? data[channel.id] + ' ' +
+                                '<span style="margin: 0 0 0 10px; font-size: 16px; color: #33CC33; position: absolute" class="icon-play4"</span>' : '';
+                        }
                     }
-                    if (!Ext.isEmpty(data[channel.id])) {
-                        return  data[channel.id] ;
-                    } else {
-                        return '';
-                    }
+                    return !Ext.isEmpty(data[channel.id]) ? data[channel.id] : '';
                 }
             });
         });
