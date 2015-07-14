@@ -96,15 +96,19 @@ public class Installer {
 
     private void addJupiterEventSubscribers() {
         Optional<DestinationSpec> destinationSpec = this.messageService.getDestinationSpec(EventService.JUPITER_EVENTS);
-        if(destinationSpec.isPresent()){
+        if (destinationSpec.isPresent()) {
             DestinationSpec jupiterEvents = destinationSpec.get();
             Arrays.asList(
-                    ComTaskEnablementConnectionMessageHandlerFactory.SUBSCRIBER_NAME,
-                    ComTaskEnablementPriorityMessageHandlerFactory.SUBSCRIBER_NAME,
-                    ComTaskEnablementStatusMessageHandlerFactory.SUBSCRIBER_NAME).stream().
-                    filter(subscriber->!jupiterEvents.getSubscribers().stream().anyMatch(s->s.getName().equals(subscriber))).
-                    forEach(jupiterEvents::subscribe);
+                    Pair.of(ComTaskEnablementConnectionMessageHandlerFactory.SUBSCRIBER_NAME, whereCorrelationId().like("com/energyict/mdc/device/config/comtaskenablement/%")),
+                    Pair.of(ComTaskEnablementPriorityMessageHandlerFactory.SUBSCRIBER_NAME, whereCorrelationId().isEqualTo("com/energyict/mdc/device/config/comtaskenablement/PRIORITY_UPDATED")),
+                    Pair.of(ComTaskEnablementStatusMessageHandlerFactory.SUBSCRIBER_NAME, whereCorrelationId().like("com/energyict/mdc/device/config/comtaskenablement/%"))).stream().
+                    filter(subscriber -> !jupiterEvents.getSubscribers().stream().anyMatch(s -> s.getName().equals(subscriber.getFirst()))).
+                    forEach(subscriber -> this.doSubscriber(jupiterEvents, subscriber));
         }
+    }
+
+    private void doSubscriber(DestinationSpec jupiterEvents, Pair<String, Condition> subscriber) {
+        jupiterEvents.subscribe(subscriber.getFirst(), subscriber.getLast());
     }
 
     private void createKpiCalculatorDestination() {
