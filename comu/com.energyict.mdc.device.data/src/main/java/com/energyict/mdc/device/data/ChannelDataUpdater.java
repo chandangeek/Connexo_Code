@@ -24,7 +24,9 @@ public interface ChannelDataUpdater {
 
     public ChannelDataUpdater editChannelData(List<BaseReading> modifiedChannelData);
 
-    ChannelDataUpdater editBulkChannelData(List<BaseReading> modifiedChannelData);
+    public ChannelDataUpdater editBulkChannelData(List<BaseReading> modifiedChannelData);
+
+    public ChannelDataUpdater confirmChannelData(List<BaseReading> modifiedChannelData);
 
     /**
      * Completes the transaction, effectively applying all the changes
