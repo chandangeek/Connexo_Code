@@ -3,7 +3,7 @@ Ext.define('InsightApp.controller.insight.Main', {
 
     controllers: [
         'InsightApp.controller.insight.History',
- //       'InsightApp.controller.insight.UsagePoint',
+        'InsightApp.controller.insight.UsagePoint',
         'InsightApp.usagepointmanagement.controller.UsagePoint'
     ],
 

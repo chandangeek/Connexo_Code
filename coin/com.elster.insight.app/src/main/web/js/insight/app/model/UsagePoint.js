@@ -1,8 +1,5 @@
 Ext.define('InsightApp.model.UsagePoint', {
     extend: 'Ext.data.Model',
-    requires: [
-       'InsightApp.model.Quantity'
-    ],
     fields: [
         {name: 'id', type: 'number', useNull: true},
         {name: 'mRID', type: 'string'},
@@ -17,7 +14,7 @@ Ext.define('InsightApp.model.UsagePoint', {
         {name: 'isSdp', type: 'boolean'},
         {name: 'isVirtual', type: 'boolean'},
         {name: 'minimalUsageExpected', type: 'boolean'},
-        'nominalServiceVoltage',
+        {name: 'nominalServiceVoltage', type: 'auto'},
         {name: 'version', type: 'number', useNull: true},
         {name: 'deviceMRID', type: 'string',persist: false, mapping:'meterActivationInfos.meterActivations[0].meter.mRID'},
         {
@@ -59,14 +56,6 @@ Ext.define('InsightApp.model.UsagePoint', {
             mapping: 'serviceLocation.direction'
         }
     ],
-    hasOne: {
-    	    name: 'nominalServiceVoltage',
-        	model: 'InsightApp.model.Quantity',
-        	associationName: 'nominalServiceVoltage',
-        	associationKey: 'nominalServiceVoltage',
-        	setterName:'setNominalServiceVoltage',
-        	getterName: 'getNominalServiceVoltage'
-    },
     proxy: {
         type: 'rest',
         url: '/api/mtr/usagepoints/',

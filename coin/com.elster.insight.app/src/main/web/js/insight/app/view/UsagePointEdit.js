@@ -86,23 +86,31 @@ Ext.define('InsightApp.view.UsagePointEdit', {
                     listeners: {
                     	change: function(field, newValue, oldValue) {
 	                		if (newValue == 'ELECTRICITY') {
-								this.up().down('textfield[name=nominalVoltage.value]').show();
+								this.up().down('panel[title=Extra]').show();
 	                		} else {
-	                			this.up().down('textfield[name=nominalVoltage.value]').hide();
+	                			this.up().down('panel[title=Extra]').hide();
 	                		}
                     	}
                     }
                 },
                 {
-                    xtype: 'textfield',
-                    name: 'nominalVoltage.value',
-                    fieldLabel: Uni.I18n.translate('usagePoint.formFieldLabel.nominalVoltage', 'INS', 'Nominal Voltage'),
-                    allowBlank: true,
-                    maxLength: 75,
-                    required: false,
-                    width: 600,
-                    hidden: true
-                },                	
+                	xtype: 'panel',
+                	title: 'Extra',
+                	layout: 'form',
+                	ui: 'large',
+                	hidden: true,
+                	width: 600,
+                	items: [
+                        {
+                            xtype: 'numberfield',
+                            name: 'nominalVoltageValue',
+                            labelWidth: 250,
+                            fieldLabel: Uni.I18n.translate('usagePoint.formFieldLabel.nominalVoltage', 'INS', 'Nominal Voltage'),
+                            allowBlank: true,
+                            required: false
+                        }            	
+                	]                	
+                },
                 {
                     xtype: 'fieldcontainer',
                     ui: 'actions',
@@ -120,7 +128,6 @@ Ext.define('InsightApp.view.UsagePointEdit', {
                             xtype: 'button',
                             ui: 'link',
                             itemId: 'cancelLink',
-  //                          href: '#/administration/comservers/'
                             href: '#/insight'
                         }
                     ]

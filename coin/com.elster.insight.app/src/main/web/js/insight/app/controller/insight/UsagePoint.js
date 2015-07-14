@@ -60,13 +60,13 @@ Ext.define('InsightApp.controller.insight.UsagePoint', {
             form = this.getUsagePointEditPage().down('form'),
             values = form.getValues(),
             model = Ext.create('InsightApp.model.UsagePoint'),
-            q = Ext.create('InsightApp.model.Quantity');
+            q = Object();
         model.beginEdit();
         model.set(values);
-        q.set('unit', 'V');
-        q.set('value', values['nominalVoltage.value']);
-        q.set('multiplier', 0);
-        model.set('nominalServiceVoltage', q.getData());
+        q.unit='V';
+        q.multiplier=0;
+        q.value=values['nominalVoltageValue'];
+        model.set('nominalServiceVoltage', q);
         model.endEdit();
 
         return model;
