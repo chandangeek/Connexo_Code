@@ -13,7 +13,7 @@ import java.time.Instant;
  * Therefore, a ComPort is said to be dedicated to that
  * particular ComServer.
  * <p/>
- * The types of ports are devided in two main categories that
+ * The types of ports are split in two main categories that
  * relate to the in or outbound nature of the communication.
  * Outbound communication is initiated by the ComServer
  * while inbound communication is initiated by the device.
@@ -61,7 +61,7 @@ public interface ComPort extends HasId, HasName  {
     public boolean isActive ();
 
     /**
-     * Sets the active status of this ComPort
+     * Sets the active status of this ComPort.
      */
     public void setActive(boolean activate);
 
@@ -124,7 +124,7 @@ public interface ComPort extends HasId, HasName  {
     public void makeObsolete ();
 
     /**
-     * Indicates if this ComPort is obsolete
+     * Indicates if this ComPort is obsolete.
      *
      * @return A flag that indicates if this ComPort is obsolete
      */

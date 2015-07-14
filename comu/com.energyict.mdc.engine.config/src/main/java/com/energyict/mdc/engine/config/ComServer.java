@@ -235,7 +235,7 @@ public interface ComServer extends HasId, HasName {
     public void makeObsolete ();
 
     /**
-     * Indicates if this ComServer is obsolete
+     * Indicates if this ComServer is obsolete.
      *
      * @return A flag that indicates if this ComServer is obsolete
      */
