@@ -8,6 +8,8 @@ import com.elster.jupiter.messaging.MessageBuilder;
 import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.conditions.Condition;
+
 import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
@@ -101,6 +103,11 @@ class TransientDestinationSpec implements DestinationSpec {
     }
 
     @Override
+    public SubscriberSpec subscribe(String name, Condition filter) {
+        return subscribe(name);
+    }
+
+    @Override
     public void unSubscribe(String subscriberSpecName) {
         if (!isActive()) {
             throw new InactiveDestinationException(thesaurus, this, name);
@@ -161,6 +168,11 @@ class TransientDestinationSpec implements DestinationSpec {
 
         @Override
         public MessageBuilder expiringAfter(Duration duration) {
+            return this;
+        }
+
+        @Override
+        public MessageBuilder withCorrelationId(String correlationId) {
             return this;
         }
     }
