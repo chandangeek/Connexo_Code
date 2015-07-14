@@ -20,5 +20,6 @@ public interface Privileges {
     String REVOKE_INVENTORY_MANAGEMENT = "privilege.revoke.inventoryManagement";
 
     String ADMINISTRATE_DEVICE_ATTRIBUTE = "privilege.administrate.attribute.device";
+    String ADMINISTRATE_DECOMMISSIONED_DEVICE_DATA = "privilege.administer.decommissioned.deviceData";
 
 }
