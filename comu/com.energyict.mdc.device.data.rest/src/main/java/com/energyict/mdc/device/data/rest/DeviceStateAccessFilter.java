@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.rest;
 
+import com.elster.jupiter.users.User;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
@@ -41,7 +42,10 @@ public class DeviceStateAccessFilter implements ContainerRequestFilter {
         List<PathSegment> pathSegments = this.uriInfo.getPathSegments(true);
         if (pathSegments == null || pathSegments.size() < MINIMUM_SEGMENT_COUNT){
             LOGGER.warning("You applied the RestrictedDeviceState annotation for incorrect resource. " +
-                    "The annotated resource url MUST match this template: \"/device/mrid/*\"");
+                    "The annotated resource url MUST match this template: \"/some_path_segment/{device_mrid}/*\"");
+            return;
+        }
+        if (isUserHasIgnoredRole(requestContext)){
             return;
         }
         if (!isRestrictedHttpMethod(requestContext)){
@@ -82,6 +86,26 @@ public class DeviceStateAccessFilter implements ContainerRequestFilter {
         DeviceStatesRestricted classAnnotation = this.resourceInfo.getResourceClass().getAnnotation(DeviceStatesRestricted.class);
         if (classAnnotation != null && classAnnotation.methods() != null){
             return Arrays.asList(classAnnotation.methods()).contains(requestContext.getMethod());
+        }
+        return false;
+    }
+
+    private boolean isUserHasIgnoredRole(ContainerRequestContext requestContext){
+        String[] ignoredRoles = null;
+        DeviceStatesRestricted methodAnnotation = resourceInfo.getResourceMethod().getAnnotation(DeviceStatesRestricted.class);
+        if (methodAnnotation != null){
+            ignoredRoles = methodAnnotation.ignoredUserRoles();
+        } else {
+            DeviceStatesRestricted classAnnotation = resourceInfo.getResourceClass().getAnnotation(DeviceStatesRestricted.class);
+            if (classAnnotation != null) {
+                ignoredRoles = classAnnotation.ignoredUserRoles();
+            }
+        }
+        if (ignoredRoles != null && ignoredRoles.length > 0){
+            User user = (User) requestContext.getSecurityContext().getUserPrincipal();
+            if (user != null) {
+                return Arrays.stream(ignoredRoles).anyMatch(user::hasPrivilege);
+            }
         }
         return false;
     }

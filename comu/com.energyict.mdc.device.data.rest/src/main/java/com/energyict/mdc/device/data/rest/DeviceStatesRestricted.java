@@ -12,7 +12,9 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
  * This annotation can be used for restriction access for a specific REST URL based on current device state.
- * Resource url MUST match "devices/{device_MRID}*" url
+ * Can be applied for resource class or resource method. If it is applied for both resource method and resource class
+ * then values from the method annotation will be used.
+ * Resource url MUST match "/some_path_segment/{device_mrid}/*" url
  */
 @Retention(RUNTIME)
 @Target({TYPE, METHOD})
@@ -23,7 +25,9 @@ public @interface DeviceStatesRestricted {
     DefaultState[] value();
 
     /**
-     * Ignored when annotation is applied to method
+     * Ignored when annotation is applied to a method
      */
     String[] methods() default {HttpMethod.GET, HttpMethod.POST, HttpMethod.PUT, HttpMethod.DELETE};
+
+    String[] ignoredUserRoles() default {};
 }
