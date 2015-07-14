@@ -1,24 +1,25 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.nls.SimpleNlsKey;
 import com.elster.jupiter.nls.SimpleTranslation;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.Translation;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.Pair;
+import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.impl.events.ComTaskEnablementConnectionMessageHandlerFactory;
 import com.energyict.mdc.device.data.impl.events.ComTaskEnablementPriorityMessageHandlerFactory;
 import com.energyict.mdc.device.data.impl.events.ComTaskEnablementStatusMessageHandlerFactory;
 import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiCalculatorHandlerFactory;
 import com.energyict.mdc.device.data.security.Privileges;
-
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.messaging.DestinationSpec;
-import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.messaging.QueueTableSpec;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.users.UserService;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,6 +28,8 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import static com.elster.jupiter.messaging.DestinationSpec.whereCorrelationId;
 
 /**
  * Represents the Installer for the Device data bundle.
@@ -90,15 +93,19 @@ public class Installer {
 
     private void addJupiterEventSubscribers() {
         Optional<DestinationSpec> destinationSpec = this.messageService.getDestinationSpec(EventService.JUPITER_EVENTS);
-        if(destinationSpec.isPresent()){
+        if (destinationSpec.isPresent()) {
             DestinationSpec jupiterEvents = destinationSpec.get();
             Arrays.asList(
-                    ComTaskEnablementConnectionMessageHandlerFactory.SUBSCRIBER_NAME,
-                    ComTaskEnablementPriorityMessageHandlerFactory.SUBSCRIBER_NAME,
-                    ComTaskEnablementStatusMessageHandlerFactory.SUBSCRIBER_NAME).stream().
-                    filter(subscriber->!jupiterEvents.getSubscribers().stream().anyMatch(s->s.getName().equals(subscriber))).
-                    forEach(jupiterEvents::subscribe);
+                    Pair.of(ComTaskEnablementConnectionMessageHandlerFactory.SUBSCRIBER_NAME, whereCorrelationId().like("com/energyict/mdc/device/config/comtaskenablement/%")),
+                    Pair.of(ComTaskEnablementPriorityMessageHandlerFactory.SUBSCRIBER_NAME, whereCorrelationId().isEqualTo("com/energyict/mdc/device/config/comtaskenablement/PRIORITY_UPDATED")),
+                    Pair.of(ComTaskEnablementStatusMessageHandlerFactory.SUBSCRIBER_NAME, whereCorrelationId().like("com/energyict/mdc/device/config/comtaskenablement/%"))).stream().
+                    filter(subscriber -> !jupiterEvents.getSubscribers().stream().anyMatch(s -> s.getName().equals(subscriber.getFirst()))).
+                    forEach(subscriber -> this.doSubscriber(jupiterEvents, subscriber));
         }
+    }
+
+    private void doSubscriber(DestinationSpec jupiterEvents, Pair<String, Condition> subscriber) {
+        jupiterEvents.subscribe(subscriber.getFirst(), subscriber.getLast());
     }
 
     private void createKpiCalculatorDestination() {
@@ -123,7 +130,7 @@ public class Installer {
     private void createPrivileges() {
         this.userService.createResourceWithPrivileges("MDC", "device.devices", "device.devices.description", new String[]{Privileges.ADD_DEVICE, Privileges.VIEW_DEVICE, Privileges.REMOVE_DEVICE});
         this.userService.createResourceWithPrivileges("MDC", "deviceData.deviceData", "deviceData.deviceData.description", new String[]{Privileges.ADMINISTRATE_DEVICE_DATA});
-        this.userService.createResourceWithPrivileges("MDC", "deviceCommunication.deviceCommunications", "deviceCommunication.deviceCommunications.description", new String[]{Privileges.ADMINISTRATE_DEVICE_COMMUNICATION,Privileges.OPERATE_DEVICE_COMMUNICATION});
+        this.userService.createResourceWithPrivileges("MDC", "deviceCommunication.deviceCommunications", "deviceCommunication.deviceCommunications.description", new String[]{Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.OPERATE_DEVICE_COMMUNICATION});
         this.userService.createResourceWithPrivileges("MDC", "deviceGroup.deviceGroups", "deviceGroup.deviceGroups.description", new String[]{Privileges.ADMINISTRATE_DEVICE_GROUP, Privileges.ADMINISTRATE_DEVICE_ENUMERATED_GROUP, Privileges.VIEW_DEVICE_GROUP_DETAIL});
         this.userService.createResourceWithPrivileges("MDC", "inventoryManagement.inventoryManagements", "inventoryManagement.inventoryManagements.description", new String[]{Privileges.IMPORT_INVENTORY_MANAGEMENT, Privileges.REVOKE_INVENTORY_MANAGEMENT});
     }
