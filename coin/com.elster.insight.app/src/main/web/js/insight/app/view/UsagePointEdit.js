@@ -57,6 +57,21 @@ Ext.define('InsightApp.view.UsagePointEdit', {
                     width: 600
                 },
                 {
+                    xtype: 'textfield',
+                    name: 'description',
+                    fieldLabel: Uni.I18n.translate('usagePoint.formFieldLabel.description', 'INS', 'Description'),
+                    allowBlank: true,
+                    maxLength: 75,
+                    required: false,
+                    width: 600
+                },
+                {
+                    xtype: 'checkbox',
+                    name: 'isSdp',
+                    fieldLabel: Uni.I18n.translate('usagePoint.formFieldLabel.isSdp', 'INS', 'SDP?'),
+                    width: 600
+                },
+                {
                 	xtype: 'combobox',
                     name: 'serviceCategory',
                     fieldLabel: Uni.I18n.translate('usagePoint.formFieldLabel.serviceType', 'INS', 'Service Type'),

@@ -28,7 +28,6 @@ Ext.define('InsightApp.controller.insight.History', {
                    		}
                    	}
                 },
-
             }
         }
     }
