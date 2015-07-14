@@ -39,6 +39,7 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.proxy.LazyLoader;
+import com.elster.jupiter.util.streams.DecoratedStream;
 import com.elster.jupiter.util.streams.Predicates;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -419,12 +420,11 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
 
     @Override
     public List<ComPortPool> findContainingComPortPoolsForComServer(ComServer comServer) {
-        return comServer
-                .getComPorts()
-                .stream()
+        return DecoratedStream.decorate(comServer.getComPorts().stream())
                 .filter(each -> each instanceof OutboundComPort)
                 .map(OutboundComPort.class::cast)
                 .flatMap(each -> this.findContainingComPortPoolsForComPort(each).stream())
+                .distinct(OutboundComPortPool::getId)
                 .collect(Collectors.toList());
     }
 
