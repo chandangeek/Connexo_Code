@@ -105,7 +105,8 @@ Ext.define('InsightApp.view.UsagePointEdit', {
                             xtype: 'button',
                             ui: 'link',
                             itemId: 'cancelLink',
-                            href: '#/administration/comservers/'
+  //                          href: '#/administration/comservers/'
+                            href: '#/insight'
                         }
                     ]
                 }
