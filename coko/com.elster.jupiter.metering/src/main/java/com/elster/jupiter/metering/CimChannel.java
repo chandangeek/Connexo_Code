@@ -43,6 +43,7 @@ public interface CimChannel {
     List<BaseReadingRecord> getReadingsOnOrBefore(Instant when, int readingCount);
 
     void editReadings(List<? extends BaseReading> readings);
+    void confirmReadings(List<? extends BaseReading> readings);
     void estimateReadings(List<? extends BaseReading> readings);
     void removeReadings(List<? extends BaseReadingRecord> readings);
 

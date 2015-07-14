@@ -1,5 +1,5 @@
 package com.elster.jupiter.metering;
 
 public enum StorerProcess {
-    DEFAULT, EDIT, ESTIMATION
+    DEFAULT, EDIT, ESTIMATION, CONFIRM
 }

@@ -36,4 +36,8 @@ public interface BaseReadingRecord extends BaseReading {
     	return edited() && 
     		getReadingQualities().stream().anyMatch(quality -> quality.getType().qualityIndex().orElse(null) == QualityCodeIndex.ADDED);     			
     }
+
+    default boolean confirmed() {
+        return getProcesStatus().get(ProcessStatus.Flag.CONFIRMED);
+    }
 }

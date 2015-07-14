@@ -477,6 +477,14 @@ public final class ChannelImpl implements ChannelContract {
     }
 
     @Override
+    public void confirmReadings(List<? extends BaseReading> readings) {
+        getCimChannel(getMainReadingType()).get().confirmReadings(readings);
+        if (getBulkQuantityReadingType().isPresent() && getCimChannel(getBulkQuantityReadingType().get()).isPresent()) {
+            getCimChannel(getBulkQuantityReadingType().get()).get().confirmReadings(readings);
+        }
+    }
+
+    @Override
     public void removeReadings(List<? extends BaseReadingRecord> readings) { // TODO make this for a specific readingType
         if (readings.isEmpty()) {
             return;
