@@ -1,13 +1,17 @@
 package com.elster.jupiter.messaging;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.orm.TransactionRequired;
 import com.elster.jupiter.util.HasName;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Where;
 
 import java.util.List;
 
 /**
  * Destination is an abstraction of a topic or queue.
  */
+@ProviderType
 public interface DestinationSpec extends HasName {
 
     /**
@@ -71,6 +75,9 @@ public interface DestinationSpec extends HasName {
     @TransactionRequired
     SubscriberSpec subscribe(String name);
 
+    SubscriberSpec subscribe(String name, Condition filter);
+
+
     SubscriberSpec subscribeSystemManaged(String name);
 
     void save();
@@ -81,4 +88,8 @@ public interface DestinationSpec extends HasName {
     void unSubscribe(String subscriberSpecName);
 
     void delete();
+
+    static Where whereCorrelationId() {
+        return Where.where("corrid");
+    }
 }
