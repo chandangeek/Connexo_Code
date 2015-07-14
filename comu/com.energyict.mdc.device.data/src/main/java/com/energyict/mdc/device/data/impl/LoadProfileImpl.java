@@ -10,7 +10,6 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LoadProfileReading;
 
-import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.BaseReading;
@@ -39,13 +38,18 @@ public class LoadProfileImpl implements LoadProfile {
 
     private final DataModel dataModel;
 
+    @SuppressWarnings("unused")
     private long id;
     private Reference<DeviceImpl> device = ValueReference.absent();
     private Reference<LoadProfileSpec> loadProfileSpec = ValueReference.absent();
     private Instant lastReading;
+    @SuppressWarnings("unused")
     private String userName;
+    @SuppressWarnings("unused")
     private long version;
+    @SuppressWarnings("unused")
     private Instant createTime;
+    @SuppressWarnings("unused")
     private Instant modTime;
 
     @Inject
@@ -76,8 +80,8 @@ public class LoadProfileImpl implements LoadProfile {
     @Override
     public boolean isVirtualLoadProfile() {
         boolean needsProxy = this.device.get().getDeviceType().isLogicalSlave();
-        boolean noWildCardInBfield = !getLoadProfileSpec().getDeviceObisCode().anyChannel();
-        return needsProxy && noWildCardInBfield;
+        boolean noWildCardInBField = !getLoadProfileSpec().getDeviceObisCode().anyChannel();
+        return needsProxy && noWildCardInBField;
     }
 
     @Override
@@ -120,13 +124,14 @@ public class LoadProfileImpl implements LoadProfile {
         return this.device.get().getChannelData(this, interval);
     }
 
-    private void update() {
-        Save.UPDATE.save(dataModel, this);
+    private void updateLastReading() {
+        this.dataModel.update(this, "lastReading");
     }
 
     abstract static class LoadProfileUpdater implements LoadProfile.LoadProfileUpdater {
 
         private final LoadProfileImpl loadProfile;
+        private boolean dirty = false;
 
         protected LoadProfileUpdater(LoadProfileImpl loadProfile) {
             this.loadProfile = loadProfile;
@@ -136,7 +141,7 @@ public class LoadProfileImpl implements LoadProfile {
         public LoadProfile.LoadProfileUpdater setLastReadingIfLater(Instant lastReading) {
             Instant loadProfileLastReading = this.loadProfile.lastReading;
             if (lastReading != null && (loadProfileLastReading == null || lastReading.isAfter(loadProfileLastReading))) {
-                this.loadProfile.lastReading = lastReading;
+                this.setLastReading(lastReading);
             }
             return this;
         }
@@ -144,13 +149,17 @@ public class LoadProfileImpl implements LoadProfile {
         @Override
         public LoadProfile.LoadProfileUpdater setLastReading(Instant lastReading) {
             this.loadProfile.lastReading = lastReading;
+            this.dirty = true;
             return this;
         }
 
         @Override
         public void update() {
-            this.loadProfile.update();
+            if (this.dirty) {
+                this.loadProfile.updateLastReading();
+            }
         }
+
     }
 
     /**
