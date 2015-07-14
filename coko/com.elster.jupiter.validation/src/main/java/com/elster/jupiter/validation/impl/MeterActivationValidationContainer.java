@@ -94,6 +94,9 @@ public class MeterActivationValidationContainer {
     		.map(IMeterActivationValidation::getRuleSet)
     		.collect(Collectors.toList());
     }
-	
+
+	public void update() {
+		meterActivationValidations.forEach(IMeterActivationValidation::save);
+	}
 }
 	

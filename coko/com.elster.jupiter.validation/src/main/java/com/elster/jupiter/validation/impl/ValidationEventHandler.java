@@ -39,7 +39,7 @@ public class ValidationEventHandler extends EventHandler<LocalEvent> {
     protected void onEvent(LocalEvent event, Object... eventDetails) {
         if (event.getType().getTopic().equals(CREATEDTOPIC)) {
             ReadingStorer storer = (ReadingStorer) event.getSource();
-            if (!StorerProcess.ESTIMATION.equals(storer.getStorerProcess())) {
+            if (!StorerProcess.ESTIMATION.equals(storer.getStorerProcess()) && !StorerProcess.CONFIRM.equals(storer.getStorerProcess())) {
                 handleReadingStorer(storer);
             }
         }

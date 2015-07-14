@@ -333,7 +333,9 @@ public class ValidationServiceImpl implements ValidationService, InstallService 
     	container.moveLastCheckedBefore(ranges);
     	if (isValidationActiveOnStorage(meterActivation)) {
     		container.validate();
-    	}
+    	} else {
+            container.update();
+        }
     }
 
     private boolean isValidationActive(MeterActivation meterActivation) {
