@@ -15,6 +15,8 @@ Ext.define('InsightApp.model.UsagePoint', {
         {name: 'isVirtual', type: 'boolean'},
         {name: 'minimalUsageExpected', type: 'boolean'},
         {name: 'nominalServiceVoltage', type: 'auto'},
+        {name: 'ratedCurrent', type: 'auto'},
+        {name: 'ratedPower', type: 'auto'},
         {name: 'version', type: 'number', useNull: true},
         {name: 'deviceMRID', type: 'string',persist: false, mapping:'meterActivationInfos.meterActivations[0].meter.mRID'},
         {

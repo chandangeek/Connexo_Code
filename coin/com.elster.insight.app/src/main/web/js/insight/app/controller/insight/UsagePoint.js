@@ -59,17 +59,22 @@ Ext.define('InsightApp.controller.insight.UsagePoint', {
         var me=this,
             form = this.getUsagePointEditPage().down('form'),
             values = form.getValues(),
-            model = Ext.create('InsightApp.model.UsagePoint'),
-            q = Object();
+            model = Ext.create('InsightApp.model.UsagePoint');
         model.beginEdit();
         model.set(values);
-        q.unit='V';
-        q.multiplier=0;
-        q.value=values['nominalVoltageValue'];
-        model.set('nominalServiceVoltage', q);
+        model.set('nominalServiceVoltage', me.buildQuantity(values['nominalVoltageValue'], 'V', 0));
+        model.set('ratedCurrent', me.buildQuantity(values['ratedCurrentValue'], 'A', 0));
+        model.set('ratedPower', me.buildQuantity(values['ratedPowerValue'], 'W', 3));
         model.endEdit();
 
         return model;
+    },
+    buildQuantity: function(value, unit, mult) {
+    	var o = Object();
+    	o.value = value;
+    	o.unit = unit;
+    	o.multiplier = mult;
+    	return o;
     },
     onSuccessSaving: function (action) {
         var router = this.getController('Uni.controller.history.Router'),

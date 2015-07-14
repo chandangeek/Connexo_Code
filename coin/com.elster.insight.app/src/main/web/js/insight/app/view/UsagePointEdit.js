@@ -105,10 +105,26 @@ Ext.define('InsightApp.view.UsagePointEdit', {
                             xtype: 'numberfield',
                             name: 'nominalVoltageValue',
                             labelWidth: 250,
-                            fieldLabel: Uni.I18n.translate('usagePoint.formFieldLabel.nominalVoltage', 'INS', 'Nominal Voltage'),
+                            fieldLabel: Uni.I18n.translate('usagePoint.formFieldLabel.nominalVoltage', 'INS', 'Nominal Voltage (V)'),
                             allowBlank: true,
                             required: false
-                        }            	
+                        },
+                        {
+                            xtype: 'numberfield',
+                            name: 'ratedCurrentValue',
+                            labelWidth: 250,
+                            fieldLabel: Uni.I18n.translate('usagePoint.formFieldLabel.ratedCurrent', 'INS', 'Rated Current (A)'),
+                            allowBlank: true,
+                            required: false
+                        },
+                        {
+                            xtype: 'numberfield',
+                            name: 'ratedPowerValue',
+                            labelWidth: 250,
+                            fieldLabel: Uni.I18n.translate('usagePoint.formFieldLabel.ratedPower', 'INS', 'Rated Power (kW)'),
+                            allowBlank: true,
+                            required: false
+                        }
                 	]                	
                 },
                 {
