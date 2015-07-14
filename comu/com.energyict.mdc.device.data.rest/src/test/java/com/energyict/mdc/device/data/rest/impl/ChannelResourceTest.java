@@ -241,6 +241,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         assertThat(jsonModel.<List<?>>get("$.data[0].validationInfo.bulkValidationInfo.validationRules")).isEmpty();
         assertThat(jsonModel.<Number>get("$.data[0].validationInfo.bulkValidationInfo.estimatedByRule.id")).isEqualTo(13);
         assertThat(jsonModel.<Number>get("$.data[0].validationInfo.bulkValidationInfo.estimatedByRule.ruleSetId")).isEqualTo(15);
+        assertThat(jsonModel.<Boolean>get("$.data[0].validationInfo.bulkValidationInfo.estimatedByRule.deleted")).isFalse();
         assertThat(jsonModel.<String>get("$.data[0].validationInfo.bulkValidationInfo.estimatedByRule.name")).isEqualTo("EstimationRule");
         assertThat(jsonModel.<List<?>>get("$.data[0].validationInfo.bulkValidationInfo.estimatedByRule.properties")).isEmpty();
 

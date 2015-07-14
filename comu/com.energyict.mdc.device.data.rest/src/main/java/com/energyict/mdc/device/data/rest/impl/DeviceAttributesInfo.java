@@ -41,26 +41,7 @@ public class DeviceAttributesInfo {
             }
         },
         BATCH,
-        USAGE_POINT {
-            @Override
-            public List<DefaultState> attributeIsEditableForStates() {
-                return Arrays.asList(
-                        DefaultState.COMMISSIONING,
-                        DefaultState.ACTIVE,
-                        DefaultState.INACTIVE
-                );
-            }
-
-            @Override
-            public List<DefaultState> attributeIsAllowedForStates() {
-                return Arrays.asList(
-                        DefaultState.COMMISSIONING,
-                        DefaultState.ACTIVE,
-                        DefaultState.INACTIVE,
-                        DefaultState.DECOMMISSIONED
-                );
-            }
-        },
+        USAGE_POINT,
         SERVICE_CATEGORY {
             @Override
             public List<DefaultState> attributeIsEditableForStates() {
