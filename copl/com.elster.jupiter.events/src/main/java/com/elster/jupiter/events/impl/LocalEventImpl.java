@@ -9,7 +9,6 @@ import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.beans.BeanService;
 import com.elster.jupiter.util.json.JsonService;
-
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
 
@@ -57,7 +56,7 @@ public class LocalEventImpl implements LocalEvent {
     @Override
     public void publish() {
         String payload = jsonService.serialize(extractProperties());
-        getEventDestination().message(payload).send();
+        getEventDestination().message(payload).withCorrelationId(getType().getTopic()).send();
 
     }
 
