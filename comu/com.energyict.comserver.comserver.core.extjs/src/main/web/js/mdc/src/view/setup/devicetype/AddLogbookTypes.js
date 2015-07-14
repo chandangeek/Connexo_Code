@@ -36,8 +36,11 @@ Ext.define('Mdc.view.setup.devicetype.AddLogbookTypes', {
                             Uni.I18n.translate('logbooktypes.empty.list.item1', 'MDC', 'No logbook types are defined yet'),
                             Uni.I18n.translate('logbooktypes.empty.list.item2', 'MDC', 'All logbook types are already added to the device type.')
                         ]
+                    },
+                    onLoad: function (store, records) {
+                        this.up('#addLogbookPanel').down('button[action=add]').setVisible(records && records.length);
+                        this.updateOnChange(!(records && records.length));
                     }
-
                 },
                 {
                     xtype: 'container',

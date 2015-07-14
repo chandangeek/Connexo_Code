@@ -33,7 +33,12 @@ Ext.define('Mdc.view.setup.searchitems.SideFilter', {
                     xtype: 'textfield',
                     name: 'mrid',
                     itemId: 'mrid',
-                    fieldLabel: Uni.I18n.translate('searchItems.mrid', 'MDC', 'MRID')
+                    fieldLabel: Uni.I18n.translate('searchItems.mrid', 'MDC', 'MRID'),
+                    listeners: {
+                        afterrender: function(field) {
+                            field.focus(false, 200);
+                        }
+                    }
                 },
                 {
                     xtype: 'textfield',

@@ -60,6 +60,7 @@ Ext.define('Mdc.view.setup.devicechannels.Grid', {
         me.dockedItems = [
             {
                 xtype: 'pagingtoolbartop',
+                usesExactCount: true,
                 store: me.store,
                 dock: 'top',
                 displayMsg: Uni.I18n.translate('devicechannels.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} channels'),
