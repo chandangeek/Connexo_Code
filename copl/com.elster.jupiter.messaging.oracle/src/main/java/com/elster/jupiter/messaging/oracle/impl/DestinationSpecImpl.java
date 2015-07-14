@@ -12,8 +12,8 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.pubsub.Publisher;
+import com.elster.jupiter.util.conditions.Condition;
 import com.google.common.collect.ImmutableList;
-
 import oracle.AQ.AQQueueTable;
 import oracle.jdbc.OracleConnection;
 import oracle.jms.AQjmsDestination;
@@ -25,7 +25,6 @@ import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.QueueConnection;
 import javax.jms.Session;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -141,6 +140,10 @@ class DestinationSpecImpl implements DestinationSpec {
         return subscribe(name, false);
     }
 
+    @Override
+    public SubscriberSpec subscribe(String name, Condition filter) {
+        return subscribe(name, false, filter);
+    }
 
     @Override
     public SubscriberSpec subscribeSystemManaged(String name) {
@@ -148,6 +151,10 @@ class DestinationSpecImpl implements DestinationSpec {
     }
 
     private SubscriberSpec subscribe(String name, boolean systemManaged) {
+        return subscribe(name, systemManaged, null);
+    }
+
+    private SubscriberSpec subscribe(String name, boolean systemManaged, Condition filter) {
         if (!isActive()) {
             throw new InactiveDestinationException(thesaurus, this, name);
         }
@@ -160,7 +167,7 @@ class DestinationSpecImpl implements DestinationSpec {
         if (isQueue() && !currentConsumers.isEmpty()) {
             throw new AlreadyASubscriberForQueueException(thesaurus, this);
         }
-        SubscriberSpecImpl result = SubscriberSpecImpl.from(dataModel, this, name, systemManaged);
+        SubscriberSpecImpl result = SubscriberSpecImpl.from(dataModel, this, name, systemManaged, filter);
         result.subscribe();
         subscribers.add(result);
         dataModel.mapper(DestinationSpec.class).update(this);

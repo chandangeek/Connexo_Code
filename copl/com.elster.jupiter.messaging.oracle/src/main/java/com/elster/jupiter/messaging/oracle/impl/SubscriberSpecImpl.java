@@ -7,13 +7,14 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-
+import com.elster.jupiter.util.Checks;
+import com.elster.jupiter.util.conditions.Condition;
 import oracle.jdbc.OracleConnection;
 import oracle.jdbc.aq.AQDequeueOptions;
 import oracle.jdbc.aq.AQMessage;
 
 import javax.inject.Inject;
-
+import javax.validation.constraints.Size;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -35,6 +36,8 @@ public class SubscriberSpecImpl implements SubscriberSpec {
      */
     private static final Duration DEFAULT_WAIT = Duration.ofSeconds(60);
     private String name;
+    @Size(max = 4000)
+    private String filter;
 
     @SuppressWarnings("unused")
     private long version;
@@ -63,10 +66,21 @@ public class SubscriberSpecImpl implements SubscriberSpec {
     }
 
     SubscriberSpecImpl init(DestinationSpec destination, String name, boolean systemManaged) {
+        return init(destination, name, systemManaged, null);
+    }
+
+    SubscriberSpecImpl init(DestinationSpec destination, String name, boolean systemManaged, Condition filter) {
         this.destination.set(destination);
         this.name = name;
         this.systemManaged = systemManaged;
+        this.filter = toString(filter);
         return this;
+    }
+
+    private String toString(Condition filter) {
+        ConditionVisitor visitor = new ConditionVisitor();
+        filter.visit(visitor);
+        return visitor.toString();
     }
 
     static SubscriberSpecImpl from(DataModel dataModel, DestinationSpec destinationSpec, String name) {
@@ -74,7 +88,11 @@ public class SubscriberSpecImpl implements SubscriberSpec {
     }
 
     static SubscriberSpecImpl from(DataModel dataModel, DestinationSpec destinationSpec, String name, boolean systemManaged) {
-        return dataModel.getInstance(SubscriberSpecImpl.class).init(destinationSpec, name, systemManaged);
+        return from(dataModel, destinationSpec, name, systemManaged, null);
+    }
+
+    static SubscriberSpecImpl from(DataModel dataModel, DestinationSpec destinationSpec, String name, boolean systemManaged, Condition filter) {
+        return dataModel.getInstance(SubscriberSpecImpl.class).init(destinationSpec, name, systemManaged, filter);
     }
 
     @Override
@@ -201,6 +219,7 @@ public class SubscriberSpecImpl implements SubscriberSpec {
             try (PreparedStatement statement = connection.prepareStatement(subscribeSql())) {
                 statement.setString(1, name);
                 statement.setString(2, destination.get().getName());
+                statement.setString(3, Checks.is(filter).emptyOrOnlyWhiteSpace() ? null : filter);
                 statement.execute();
             }
         }
@@ -228,7 +247,7 @@ public class SubscriberSpecImpl implements SubscriberSpec {
         return
                 "declare subscriber sys.aq$_agent;  " +
                         "begin subscriber := sys.aq$_agent(?,null,null); " +
-                        "dbms_aqadm.add_subscriber(?,subscriber); end;";
+                        "dbms_aqadm.add_subscriber(?,subscriber, ?); end;";
 
 
     }
