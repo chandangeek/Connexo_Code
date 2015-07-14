@@ -27,10 +27,7 @@ import com.energyict.mdc.device.data.TextRegister;
 import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.time.Clock;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -195,6 +192,7 @@ public class DeviceDataInfoFactory {
             billingReadingInfo.validationResult = ValidationStatus.forResult(ValidationResult.getValidationResult(status.getReadingQualities()));
             billingReadingInfo.suspectReason = validationRuleInfoFactory.createInfosForDataValidationStatus(status);
             billingReadingInfo.estimatedByRule = estimationRuleInfoFactory.createEstimationRuleInfo(status.getReadingQualities());
+            billingReadingInfo.isConfirmed = validationInfoFactory.isConfirmedData(reading.getActualReading(), status.getReadingQualities());
         });
         return billingReadingInfo;
     }
@@ -219,6 +217,7 @@ public class DeviceDataInfoFactory {
             numericalReadingInfo.validationResult = ValidationStatus.forResult(ValidationResult.getValidationResult(status.getReadingQualities()));
             numericalReadingInfo.suspectReason = validationRuleInfoFactory.createInfosForDataValidationStatus(status);
             numericalReadingInfo.estimatedByRule = estimationRuleInfoFactory.createEstimationRuleInfo(status.getReadingQualities());
+            numericalReadingInfo.isConfirmed = validationInfoFactory.isConfirmedData(reading.getActualReading(), status.getReadingQualities());
         });
         return numericalReadingInfo;
     }

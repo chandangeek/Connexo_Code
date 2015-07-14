@@ -9,6 +9,7 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.Ranges;
@@ -68,7 +69,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
     @Mock
     private LoadProfile loadProfile;
     @Mock
-    private LoadProfileReading loadProfileReading, addedloadProfileReading, editedProfileReading, removedProfileReading;
+    private LoadProfileReading loadProfileReading, addedloadProfileReading, editedProfileReading, removedProfileReading, confirmedProfileReading;
     @Mock
     private ChannelSpec channelSpec;
     @Mock
@@ -80,9 +81,9 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
     @Mock
     private EstimationRule estimationRule;
     @Mock
-    private ReadingQualityRecord quality1;
-    @Mock
-    private ReadingQualityRecord quality2;
+    private ReadingQualityRecord quality1, quality2, quality3;
+/*    @Mock
+    private ReadingQualityRecord quality2;*/
     @Mock
     private ValidationRuleSet validationRuleSet;
     @Mock
@@ -90,11 +91,12 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
     @Mock
     private ValidationEvaluator evaluator;
     @Mock
-    private IntervalReadingRecord readingRecord, addedReadingRecord, editedReadingRecord;
+    private IntervalReadingRecord readingRecord, addedReadingRecord, editedReadingRecord, confirmedReadingRecord;
 
     private ReadingQualityType readingQualityTypeValidated = new ReadingQualityType("3.0.1"),
                                 readingQualityTypeEdited = new ReadingQualityType("3.7.0"),
-                                 readingQualityTypeRejected = new ReadingQualityType("3.7.3");
+                                 readingQualityTypeRejected = new ReadingQualityType("3.7.3"),
+                                readingQualityTypeConfirmed = new ReadingQualityType("3.10.1");
 
     public ChannelResourceTest() {
     }
@@ -107,7 +109,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(loadProfile.getChannels()).thenReturn(Arrays.asList(channel));
 
         Range<Instant> interval = Ranges.openClosed(Instant.ofEpochMilli(intervalStart), Instant.ofEpochMilli(intervalEnd));
-        when(channel.getChannelData(interval)).thenReturn(asList(loadProfileReading, addedloadProfileReading, editedProfileReading, removedProfileReading));
+        when(channel.getChannelData(interval)).thenReturn(asList(loadProfileReading, addedloadProfileReading, editedProfileReading, removedProfileReading, confirmedProfileReading));
         when(loadProfileReading.getRange()).thenReturn(interval);
         when(loadProfileReading.getFlags()).thenReturn(Arrays.asList(ProfileStatus.Flag.BATTERY_LOW));
         doReturn(BATTERY_LOW).when(thesaurus).getString(BATTERY_LOW, BATTERY_LOW);
@@ -127,6 +129,13 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(editedReadingRecord.wasAdded()).thenReturn(false);
         when(editedReadingRecord.edited()).thenReturn(true);
         when(editedReadingRecord.getReportedDateTime()).thenReturn(LAST_READING);
+
+        when(confirmedProfileReading.getRange()).thenReturn(interval);
+        when(confirmedProfileReading.getChannelValues()).thenReturn(ImmutableMap.of(channel, confirmedReadingRecord));
+        when(confirmedReadingRecord.wasAdded()).thenReturn(false);
+        when(confirmedReadingRecord.edited()).thenReturn(false);
+        when(confirmedReadingRecord.confirmed()).thenReturn(true);
+        when(confirmedReadingRecord.getReportedDateTime()).thenReturn(LAST_READING);
 
         when(removedProfileReading.getRange()).thenReturn(interval);
         when(removedProfileReading.getReadingTime()).thenReturn(LAST_READING);
@@ -157,11 +166,17 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         ReadingQualityType readingQualityType = ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.ESTIMATED, (int)estimationRule.getId());
         when(quality2.getType()).thenReturn(readingQualityType);
         doReturn(Optional.of(estimationRule)).when(estimationService).findEstimationRuleByQualityType(readingQualityType);
+        //add confirm quality
+        dataValidationStatus.addBulkReadingQuality(quality3, Collections.emptyList());
+        when(quality3.isConfirmed()).thenReturn(true);
+        when(quality3.getType()).thenReturn(readingQualityTypeConfirmed);
 
         when(loadProfileReading.getChannelValidationStates()).thenReturn(ImmutableMap.of(channel, dataValidationStatus));
         when(addedloadProfileReading.getChannelValidationStates()).thenReturn(ImmutableMap.of(channel, dataValidationStatus));
         DataValidationStatus statusForBulkEdited = mockDataValidationStatus(readingQualityTypeEdited, true);
         when(editedProfileReading.getChannelValidationStates()).thenReturn(ImmutableMap.of(channel, statusForBulkEdited));
+        DataValidationStatus statusForBulkConfirmed = mockDataValidationStatus(readingQualityTypeConfirmed, true);
+        when(confirmedProfileReading.getChannelValidationStates()).thenReturn(ImmutableMap.of(channel, statusForBulkConfirmed));
         DataValidationStatus statusForValueRemoved = mockDataValidationStatus(readingQualityTypeRejected, false);
         when(removedProfileReading.getChannelValidationStates()).thenReturn(ImmutableMap.of(channel, statusForValueRemoved));
 
@@ -209,7 +224,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
 
         JsonModel jsonModel = JsonModel.create(json);
 
-        assertThat(jsonModel.<List<?>>get("$.data")).hasSize(4);
+        assertThat(jsonModel.<List<?>>get("$.data")).hasSize(5);
         assertThat(jsonModel.<Long>get("$.data[0].interval.start")).isEqualTo(1410774630000L);
         assertThat(jsonModel.<Long>get("$.data[0].interval.end")).isEqualTo(1410828630000L);
         assertThat(jsonModel.<List<?>>get("$.data[0].intervalFlags")).hasSize(1);
@@ -246,6 +261,10 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         assertThat(jsonModel.<String>get("$.data[3].validationInfo.mainValidationInfo.valueModificationFlag")).isEqualTo("REMOVED");
         assertThat(jsonModel.<String>get("$.data[3].validationInfo.bulkValidationInfo.valueModificationFlag")).isNull();
         assertThat(jsonModel.<Long>get("$.data[3].reportedDateTime")).isEqualTo(LAST_READING.toEpochMilli());
+
+        assertThat(jsonModel.<Boolean>get("$.data[4].validationInfo.mainValidationInfo.isConfirmed")).isEqualTo(false);
+        assertThat(jsonModel.<Boolean>get("$.data[4].validationInfo.bulkValidationInfo.isConfirmed")).isEqualTo(true);
+        assertThat(jsonModel.<Long>get("$.data[4].reportedDateTime")).isEqualTo(LAST_READING.toEpochMilli());
     }
 
     @Test
@@ -258,6 +277,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         ChannelDataUpdater channelDataUpdater = mock(ChannelDataUpdater.class);
         when(channelDataUpdater.editChannelData(anyList())).thenReturn(channelDataUpdater);
         when(channelDataUpdater.editBulkChannelData(anyList())).thenReturn(channelDataUpdater);
+        when(channelDataUpdater.confirmChannelData(anyList())).thenReturn(channelDataUpdater);
         when(channelDataUpdater.removeChannelData(anyList())).thenReturn(channelDataUpdater);
         when(channel.startEditingData()).thenReturn(channelDataUpdater);
         when(device.getId()).thenReturn(1L);
@@ -309,7 +329,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
 
         JsonModel jsonModel = JsonModel.create(json);
 
-        assertThat(jsonModel.<List<?>>get("$.data")).hasSize(4);
+        assertThat(jsonModel.<List<?>>get("$.data")).hasSize(5);
     }
 
     @Test

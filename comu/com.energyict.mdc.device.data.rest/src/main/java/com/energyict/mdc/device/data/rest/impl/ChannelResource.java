@@ -164,9 +164,10 @@ public class ChannelResource {
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(device, channelId);
         List<BaseReading> editedReadings = new ArrayList<>();
         List<BaseReading> editedBulkReadings = new ArrayList<>();
+        List<BaseReading> confirmedReadings = new ArrayList<>();
         List<Range<Instant>> removeCandidates = new ArrayList<>();
         channelDataInfos.forEach((channelDataInfo) -> {
-            if (channelDataInfo.value == null && channelDataInfo.collectedValue == null) {
+            if (!(isToBeConfirmed(channelDataInfo)) && channelDataInfo.value == null && channelDataInfo.collectedValue == null) {
                 removeCandidates.add(
                         Range.openClosed(
                                 Instant.ofEpochMilli(channelDataInfo.interval.start),
@@ -179,11 +180,19 @@ public class ChannelResource {
                 if (channelDataInfo.collectedValue != null) {
                     editedBulkReadings.add(channelDataInfo.createNewBulk());
                 }
+                if (isToBeConfirmed(channelDataInfo)) {
+                    confirmedReadings.add(channelDataInfo.createConfirm());
+                }
             }
         });
-        channel.startEditingData().removeChannelData(removeCandidates).editChannelData(editedReadings).editBulkChannelData(editedBulkReadings).complete();
+        channel.startEditingData().removeChannelData(removeCandidates).editChannelData(editedReadings).editBulkChannelData(editedBulkReadings).confirmChannelData(confirmedReadings).complete();
 
         return Response.status(Response.Status.OK).build();
+    }
+
+    private boolean isToBeConfirmed(ChannelDataInfo channelDataInfo) {
+        return ((channelDataInfo.validationInfo != null && channelDataInfo.validationInfo.mainValidationInfo != null && channelDataInfo.validationInfo.mainValidationInfo.isConfirmed) ||
+                (channelDataInfo.validationInfo != null && channelDataInfo.validationInfo.bulkValidationInfo != null && channelDataInfo.validationInfo.bulkValidationInfo.isConfirmed));
     }
 
     @POST
