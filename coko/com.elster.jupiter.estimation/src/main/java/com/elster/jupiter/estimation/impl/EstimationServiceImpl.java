@@ -22,6 +22,7 @@ import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
@@ -505,6 +506,11 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
                         Privileges.Constants.ADMINISTRATE_ESTIMATION_TASK, Privileges.Constants.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE,
                         Privileges.Constants.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE_CONFIGURATION)));
         return resources;
+    }
+
+    @Override
+    public Optional<? extends EstimationRule> findEstimationRuleByQualityType(ReadingQualityType readingQualityType) {
+        return getEstimationRule(readingQualityType.getIndexCode());
     }
 
     class DefaultEstimatorCreator implements EstimatorCreator {

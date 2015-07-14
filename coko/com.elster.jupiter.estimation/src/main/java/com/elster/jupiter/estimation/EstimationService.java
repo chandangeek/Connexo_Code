@@ -2,6 +2,7 @@ package com.elster.jupiter.estimation;
 
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.google.common.collect.Range;
 
@@ -51,4 +52,6 @@ public interface EstimationService {
     Query<EstimationRuleSet> getEstimationRuleSetQuery();
 
     Query<? extends EstimationTask> getEstimationTaskQuery();
+
+    Optional<? extends  EstimationRule> findEstimationRuleByQualityType(ReadingQualityType readingQualityType);
 }
