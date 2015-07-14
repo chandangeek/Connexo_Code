@@ -5,8 +5,10 @@ import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.validation.ValidationRuleSet;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
@@ -947,6 +949,22 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
     public void testCanNotRemoveDeviceConfigIfInUse() throws Exception {
         DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("first").description("this is it!").add();
         deviceConfiguration.activate();
+
+        deviceType.removeConfiguration(deviceConfiguration);
+    }
+
+    @Test
+    @Transactional
+    public void testCanRemoveDeviceConfigurationWithLinkedValidationAndEstimationRuleSets() {
+        DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("first").description("this is it!").add();
+
+        ValidationRuleSet validationRuleSet = inMemoryPersistence.getValidationService().createValidationRuleSet("ValidationRuleSet");
+        validationRuleSet.save();
+        deviceConfiguration.addValidationRuleSet(validationRuleSet);
+
+        EstimationRuleSet estimationRuleSet = inMemoryPersistence.getEstimationService().createEstimationRuleSet("EstimationRuleSet");
+        estimationRuleSet.save();
+        deviceConfiguration.addEstimationRuleSet(estimationRuleSet);
 
         deviceType.removeConfiguration(deviceConfiguration);
     }
