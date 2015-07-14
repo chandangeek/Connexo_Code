@@ -107,11 +107,10 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     protected ComTaskEnablement comTaskEnablement1;
     protected ComTaskEnablement comTaskEnablement2;
     protected ComTaskEnablement comTaskEnablement3;
-    private ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties;
 
     @Before
     public void getFirstProtocolDialectConfigurationPropertiesFromDeviceConfiguration() {
-        this.protocolDialectConfigurationProperties = this.deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0);
+        this.deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0);
     }
 
     public OnlineComServer getOnlineComServer() {
@@ -355,7 +354,6 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
         PARTIAL_SCHEDULED_CONNECTION_TASK2_ID = partialScheduledConnectionTask2.getId();
         PARTIAL_CONNECTION_INITIATION_TASK1_ID = partialConnectionInitiationTask.getId();
         PARTIAL_CONNECTION_INITIATION_TASK2_ID = partialConnectionInitiationTask2.getId();
-
     }
 
     private Device createSimpleDevice(String mRID) {
