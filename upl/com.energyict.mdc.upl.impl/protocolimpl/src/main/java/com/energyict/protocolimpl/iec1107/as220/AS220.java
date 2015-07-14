@@ -1,6 +1,10 @@
 package com.energyict.protocolimpl.iec1107.as220;
 
-import com.energyict.cbo.*;
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.BusinessException;
+import com.energyict.cbo.NestedIOException;
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dialer.connection.ConnectionException;
@@ -9,11 +13,32 @@ import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.DemandResetProtocol;
+import com.energyict.protocol.HHUEnabler;
+import com.energyict.protocol.HalfDuplexEnabler;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MessageEntry;
+import com.energyict.protocol.MessageProtocol;
+import com.energyict.protocol.MessageResult;
+import com.energyict.protocol.MeterExceptionInfo;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterProtocol;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocol.messaging.Message;
 import com.energyict.protocol.messaging.MessageTag;
 import com.energyict.protocol.messaging.MessageValue;
-import com.energyict.protocolimpl.base.*;
+import com.energyict.protocolimpl.base.DataDumpParser;
+import com.energyict.protocolimpl.base.DataParseException;
+import com.energyict.protocolimpl.base.DataParser;
+import com.energyict.protocolimpl.base.PluggableMeterProtocol;
+import com.energyict.protocolimpl.base.ProtocolChannelMap;
+import com.energyict.protocolimpl.base.RtuPlusServerHalfDuplexController;
 import com.energyict.protocolimpl.dlms.as220.ProfileLimiter;
 import com.energyict.protocolimpl.iec1107.ChannelMap;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
@@ -29,7 +54,15 @@ import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.TimeZone;
 import java.util.logging.Logger;
 
 /**
@@ -47,6 +80,7 @@ public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
     private static final int MAX_LOADPROFILE = 2;
     private static final String PROPERTY_DATE_FORMAT = "DateFormat";
     private static final String PROPERTY_BILLING_DATE_FORMAT = "BillingDateFormat";
+	private static final String INVERT_BILLING_ORDER = "InvertBillingOrder";
     private static final String DEFAULT_DATE_FORMAT = "yy/mm/dd";
 
     private String strID;
@@ -93,6 +127,7 @@ public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
 
     private int rs485RtuPlusServer = 0;
     private int limitMaxNrOfDays = 0;
+	private boolean invertBillingOrder;
 
     private DataDumpParser dataDumpParser;
     private String dateFormat = null;
@@ -229,6 +264,7 @@ public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
             this.halfDuplex = Integer.parseInt(properties.getProperty("HalfDuplex", "0").trim());
             this.rs485RtuPlusServer = Integer.parseInt(properties.getProperty("RS485RtuPlusServer", "0").trim());
             this.limitMaxNrOfDays = Integer.parseInt(properties.getProperty(PR_LIMIT_MAX_NR_OF_DAYS, "0"));
+            this.invertBillingOrder = getBooleanProperty(properties, INVERT_BILLING_ORDER);
         } catch (NumberFormatException e) {
             throw new InvalidPropertyException("DukePower, validateProperties, NumberFormatException, " + e.getMessage());
         }
@@ -237,7 +273,10 @@ public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
             throw new InvalidPropertyException("Invalid loadProfileNumber (" + this.loadProfileNumber + "). Minimum value: " + MIN_LOADPROFILE
                     + " Maximum value: " + MAX_LOADPROFILE);
         }
+    }
 
+	private boolean getBooleanProperty(Properties properties, String propertyName) {
+		return properties.getProperty(propertyName, "0").trim().equals("1");
     }
 
     protected boolean isDataReadout() {
@@ -309,6 +348,7 @@ public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
         result.add("FailOnUnitMismatch");
         result.add("RS485RtuPlusServer");
         result.add(PR_LIMIT_MAX_NR_OF_DAYS);
+		result.add(INVERT_BILLING_ORDER);
         return result;
     }
 
@@ -577,19 +617,18 @@ public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
             }
 
             if (obis.getF() != 255) {
-                int f = -1;
-                if (dataReadoutRequest == 2) {
-                    f = Math.abs(obis.getF());
-                    if (f >= getBillingCount()) {
-                        throw new NoSuchRegisterException("Billing count is only " + getBillingCount() + " so cannot read register with F = " + obis.getF());
-                    }
-                } else {
-                    f = getBillingCount() - Math.abs(obis.getF());
-                    if (f < 0) {
-                        throw new NoSuchRegisterException("Billing count is only " + getBillingCount() + " so cannot read register with F = " + obis.getF());
-                    }
-                }
-                fs = "*" + ProtocolUtils.buildStringDecimal(f, 2);
+				if (Math.abs(obis.getF()) >= getBillingCount()) {
+					throw new NoSuchRegisterException("Billing count is only " + getBillingCount() + " so cannot read register with F = " + obis.getF());
+				}
+				int f = -1;
+				if (dataReadoutRequest == 2) {
+					f = Math.abs(obis.getF());
+				} else {
+					f = invertBillingOrder
+							? Math.abs(obis.getF())
+							: getBillingCount() - Math.abs(obis.getF());
+				}
+				fs = "*" + ProtocolUtils.buildStringDecimal(f, 2);
             }
 
             if ("1.1.14.7.0.255".equals(obis.toString())) {   // current frequency
