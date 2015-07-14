@@ -32,7 +32,10 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                 me.down('#channelValue' + channel.id).setValue(record.get('channelData')[channel.id]);
                 me.down('#channelBulkValue' + channel.id).setValue(record.get('channelCollectedData')[channel.id]);
                 me.setGeneralReadingQualities(me.down('#generalReadingQualities'), me.up('deviceLoadProfilesData').loadProfile.get('validationInfo'));
+            });
+            Ext.Array.findBy(me.channels, function (channel) {
                 me.down('#readingDataValidated').setValue(record.get('channelValidationData')[channel.id].dataValidated);
+                return !record.get('channelValidationData')[channel.id].dataValidated;
             });
         } else {
             mainValidationInfo = record.get('validationInfo').mainValidationInfo;
