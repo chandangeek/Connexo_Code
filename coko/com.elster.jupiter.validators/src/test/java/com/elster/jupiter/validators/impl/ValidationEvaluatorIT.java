@@ -98,7 +98,7 @@ public class ValidationEvaluatorIT {
                     new FiniteStateMachineModule(),
                     new MeteringGroupsModule(),
                     new TaskModule(),
-                    new MeteringModule(),
+                    new MeteringModule(false, "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0"),
                     new PartyModule(),
                     new EventsModule(),
                     new DomainUtilModule(),
