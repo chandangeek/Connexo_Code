@@ -13,6 +13,8 @@ Ext.define('InsightApp.model.UsagePoint', {
         {name: 'checkBilling', type: 'boolean'},
         {name: 'isSdp', type: 'boolean'},
         {name: 'isVirtual', type: 'boolean'},
+        {name: 'grounded', type: 'boolean'},
+        {name: 'phaseCode', type: 'string'},
         {name: 'minimalUsageExpected', type: 'boolean'},
         {name: 'nominalServiceVoltage', type: 'auto'},
         {name: 'ratedCurrent', type: 'auto'},

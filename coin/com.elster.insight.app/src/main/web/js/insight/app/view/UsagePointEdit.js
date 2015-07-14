@@ -8,6 +8,33 @@ var serviceTypes = Ext.create('Ext.data.Store', {
 	]
 });
 
+var phaseCodes = Ext.create('Ext.data.Store', {
+	fields: ['value'],
+	data: [
+	       {'value': 'Unknown'},
+	       {'value': 'ABCN'}, 
+	       {'value': 'ABC'}, 
+	       {'value': 'ABN'}, 
+	       {'value': 'ACN'}, 
+	       {'value': 'BCN'}, 
+	       {'value': 'AB'}, 
+	       {'value': 'AC'}, 
+	       {'value': 'BC'}, 
+	       {'value': 'AN'}, 
+	       {'value': 'BN'}, 
+	       {'value': 'CN'}, 
+	       {'value': 'A'}, 
+	       {'value': 'B'}, 
+	       {'value': 'C'}, 
+	       {'value': 'N'}, 
+	       {'value': 's1N'}, 
+	       {'value': 's2N'}, 
+	       {'value': 's12N'}, 
+	       {'value': 's1'}, 
+	       {'value': 's2'}, 
+	       {'value': 's12'}]
+});
+
 Ext.define('InsightApp.view.UsagePointEdit', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.usagePointEdit',
@@ -72,6 +99,12 @@ Ext.define('InsightApp.view.UsagePointEdit', {
                     width: 600
                 },
                 {
+                    xtype: 'checkbox',
+                    name: 'isVirtual',
+                    fieldLabel: Uni.I18n.translate('usagePoint.formFieldLabel.isVirtual', 'INS', 'Virtual?'),
+                    width: 600
+                },
+                {
                 	xtype: 'combobox',
                     name: 'serviceCategory',
                     fieldLabel: Uni.I18n.translate('usagePoint.formFieldLabel.serviceType', 'INS', 'Service Type'),
@@ -124,6 +157,25 @@ Ext.define('InsightApp.view.UsagePointEdit', {
                             fieldLabel: Uni.I18n.translate('usagePoint.formFieldLabel.ratedPower', 'INS', 'Rated Power (kW)'),
                             allowBlank: true,
                             required: false
+                        },
+                        {
+	                    	xtype: 'combobox',
+	                        name: 'phaseCode',
+	                        fieldLabel: Uni.I18n.translate('usagePoint.formFieldLabel.phaseCode', 'INS', 'Phase Code'),
+	                        store: phaseCodes,
+	                        queryMode: 'local',
+	                        editable: false,
+	                        displayField: 'value',
+	                        valueField: 'value',
+	                        allowBlank: true,
+	                        required: false,
+                            labelWidth: 250
+                        },
+                        {
+                            xtype: 'checkbox',
+                            name: 'grounded',
+                            labelWidth: 250,
+                            fieldLabel: Uni.I18n.translate('usagePoint.formFieldLabel.grounded', 'INS', 'Grounded?')
                         }
                 	]                	
                 },
