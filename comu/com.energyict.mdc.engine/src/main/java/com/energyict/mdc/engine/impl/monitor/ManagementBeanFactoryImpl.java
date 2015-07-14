@@ -43,7 +43,7 @@ public class ManagementBeanFactoryImpl implements ManagementBeanFactory {
 
     private volatile Clock clock;
     private volatile Thesaurus thesaurus;
-    private Map<ObjectName, Object> registeredMBeans = new HashMap<>();
+    private final Map<ObjectName, Object> registeredMBeans = new HashMap<>();
 
     @SuppressWarnings("unused")
     @Reference
