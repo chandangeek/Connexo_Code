@@ -44,6 +44,7 @@ public interface Channel {
     boolean hasMacroPeriod();
     boolean hasData();
 	void editReadings(List<? extends BaseReading> readings);
+    void confirmReadings(List<? extends BaseReading> readings);
 	void removeReadings(List<? extends BaseReadingRecord> readings);
 	Instant getFirstDateTime();
 	Instant getLastDateTime();

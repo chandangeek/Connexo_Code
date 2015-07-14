@@ -103,4 +103,7 @@ public interface MeteringService {
      */
     void changeStateMachine(Instant effective, FiniteStateMachine oldStateMachine, FiniteStateMachine newStateMachine, Subquery deviceAmrIdSubquery);
 
+    List<ReadingType> getAvailableEquidistantReadingTypes();
+
+    List<ReadingType> getAvailableNonEquidistantReadingTypes();
 }

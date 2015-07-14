@@ -205,6 +205,34 @@ public abstract class AbstractCimChannel implements CimChannel {
     }
 
     @Override
+    public void confirmReadings(List<? extends BaseReading> readings) {
+        if (readings.isEmpty()) {
+            return;
+        }
+        ReadingQualityType qualityForUpdate = ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.ACCEPTED);
+        ReadingStorer storer = meteringService.createUpdatingStorer(StorerProcess.CONFIRM);
+        Map<Instant, List<ReadingQualityRecordImpl>> readingQualityByTimestamp = findReadingQualitiesByTimestamp(readings);
+
+        for (BaseReading reading : readings) {
+            List<ReadingQualityRecordImpl> currentQualityRecords = Optional.ofNullable(readingQualityByTimestamp.get(reading.getTimeStamp()))
+                    .orElseGet(Collections::emptyList)
+                    .stream()
+                    .filter(r -> r.getReadingType().equals(getReadingType()))
+                    .collect(Collectors.toList());
+
+            if (currentQualityRecords.stream().filter(ReadingQualityRecord::isSuspect).findFirst().isPresent()) {
+                Optional<BaseReadingRecord> oldReading = getReading(reading.getTimeStamp());
+                ProcessStatus processStatus = ProcessStatus.of(ProcessStatus.Flag.CONFIRMED).or(oldReading.map(BaseReadingRecord::getProcesStatus).orElse(ProcessStatus.of()));
+                this.createReadingQuality(qualityForUpdate, reading).save();
+                makeNoLongerSuspect(currentQualityRecords);
+                makeNoLongerEstimated(currentQualityRecords);
+                storer.addReading(this, reading, processStatus);
+            }
+        }
+        storer.execute();
+    }
+
+    @Override
     public void estimateReadings(List<? extends BaseReading> readings) {
         if (readings.isEmpty()) {
             return;
@@ -257,6 +285,7 @@ public abstract class AbstractCimChannel implements CimChannel {
             }
             makeNoLongerSuspect(currentQualityRecords);
             makeNoLongerEstimated(currentQualityRecords);
+            makeNoLongerConfirmed(currentQualityRecords);
             storer.addReading(this, reading, processStatus);
         }
         storer.execute();
@@ -286,6 +315,12 @@ public abstract class AbstractCimChannel implements CimChannel {
     private void makeNoLongerEstimated(List<ReadingQualityRecordImpl> currentQualityRecords) {
         currentQualityRecords.stream()
                 .filter(ReadingQualityRecordImpl::hasEstimatedCategory)
+                .forEach(ReadingQualityRecordImpl::makePast);
+    }
+
+    private void makeNoLongerConfirmed(List<ReadingQualityRecordImpl> currentQualityRecords) {
+        currentQualityRecords.stream()
+                .filter(ReadingQualityRecordImpl::isConfirmed)
                 .forEach(ReadingQualityRecordImpl::makePast);
     }
 

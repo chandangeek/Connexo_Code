@@ -376,8 +376,20 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     }
 
     @Override
+    public List<ReadingType> getAvailableEquidistantReadingTypes() {
+        return dataModel.stream(ReadingType.class).filter(where(ReadingTypeImpl.Fields.equidistant.name()).isEqualTo(true))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ReadingType> getAvailableNonEquidistantReadingTypes() {
+        return dataModel.stream(ReadingType.class).filter(where(ReadingTypeImpl.Fields.equidistant.name()).isEqualTo(false))
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public List<ReadingType> getAllReadingTypesWithoutInterval() {
-        Condition withoutIntervals = where("mRID").matches("^0.[0-9]+.0", "");
+        Condition withoutIntervals = where(ReadingTypeImpl.Fields.mRID.name()).matches("^0.[0-9]+.0", "");
         return dataModel.mapper(ReadingType.class).select(withoutIntervals);
     }
 

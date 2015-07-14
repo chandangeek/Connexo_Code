@@ -25,7 +25,7 @@ public final class ReadingQualityType {
     public static ReadingQualityType of(QualityCodeSystem system , QualityCodeCategory category, int index) {
     	return new ReadingQualityType(Joiner.on(".").join(system.ordinal(), category.ordinal(), index));
     }
-    
+
     public String getCode() {
         return code;
     }
