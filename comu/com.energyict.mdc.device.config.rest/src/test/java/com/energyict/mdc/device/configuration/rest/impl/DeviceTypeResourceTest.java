@@ -71,10 +71,7 @@ import org.mockito.Matchers;
 import org.mockito.Mockito;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -390,7 +387,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         assertThat(map.get("total")).describedAs("JSon representation of a field, JavaScript impact if it changed").isEqualTo(1);
         assertThat((List) map.get("deviceConfigurations")).hasSize(1).describedAs("JSon representation of a field, JavaScript impact if it changed");
         Map jsonDeviceConfiguration = (Map) ((List) map.get("deviceConfigurations")).get(0);
-        assertThat(jsonDeviceConfiguration).hasSize(12);
+        assertThat(jsonDeviceConfiguration).hasSize(13);
         assertThat(jsonDeviceConfiguration.get("id")).isEqualTo(113).describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceConfiguration.get("name")).isEqualTo("defcon").describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceConfiguration.get("active")).isEqualTo(true).describedAs("JSon representation of a field, JavaScript impact if it changed");
@@ -662,6 +659,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         when(deviceConfiguration102.getName()).thenReturn("new name");
 
         when(deviceConfigurationService.findDeviceType(31L)).thenReturn(Optional.of(deviceType));
+        when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(anyLong(), anyLong())).thenReturn(Optional.of(deviceConfiguration101));
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration101, deviceConfiguration102));
 
         DeviceConfigurationInfo deviceConfigurationInfo = new DeviceConfigurationInfo(deviceConfiguration101);
@@ -669,7 +667,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
 
         when(deviceConfigurationService.cloneDeviceConfiguration(deviceConfiguration101, deviceConfigurationInfo.name)).thenReturn(deviceConfiguration102);
         Entity<DeviceConfigurationInfo> json = Entity.json(deviceConfigurationInfo);
-        Response response = target("/devicetypes/31/deviceconfigurations/101/clone").request().post(json);
+        Response response = target("/devicetypes/31/deviceconfigurations/101").request().post(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         assertThat(deviceConfiguration101.getId()).isNotEqualTo(deviceConfiguration102.getId());
         assertThat(deviceConfiguration101.getName()).isNotEqualTo(deviceConfiguration102.getName());
