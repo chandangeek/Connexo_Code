@@ -59,6 +59,8 @@ Ext.define('Dxp.controller.Tasks', {
 
     ],
 
+
+
     refs: [
         {
             ref: 'page',
@@ -67,6 +69,10 @@ Ext.define('Dxp.controller.Tasks', {
         {
             ref: 'addPage',
             selector: 'data-export-tasks-add'
+        },
+        {
+            ref: 'addDestinationPage',
+            selector: 'data-export-add-destination'
         },
         {
             ref: 'detailsPage',
@@ -92,6 +98,7 @@ Ext.define('Dxp.controller.Tasks', {
     taskId: null,
 
     readingTypesArray: null,
+    destinationsArray: [],
 
     init: function () {
         this.control({
@@ -113,15 +120,23 @@ Ext.define('Dxp.controller.Tasks', {
             'data-export-tasks-add #add-export-task-button': {
                 click: this.addTask
             },
-
+            /*'data-export-add-destination #add-destination-button': {
+                change: this.updateDestinationAttributes
+            },*/
             'data-export-tasks-add #add-destination-button': {
                 click: this.showAddDestination
+            },
+            'data-export-add-destination #save-destination-button': {
+                click: this.addDestinationToGrid
             },
             'data-export-tasks-add #file-formatter-combo': {
                 change: this.updateProperties
             },
             'data-export-tasks-add #data-selector-combo': {
                 change: this.updateDataSelectorProperties
+            },
+            'data-export-add-destination #destination-methods-combo': {
+                change: this.updateDestinationAttributes
             },
             'data-export-tasks-add #addReadingTypeButton': {
                 click: this.showAddReadingGrid
@@ -132,6 +147,7 @@ Ext.define('Dxp.controller.Tasks', {
             '#AddReadingTypesToTaskSetup button[name=add]': {
                 click: this.addSelectedReadingTypes
             },
+
             'data-export-tasks-setup dxp-tasks-grid': {
                 select: this.showPreview
             },
@@ -275,12 +291,83 @@ Ext.define('Dxp.controller.Tasks', {
         }
     },
 
+    showAddReadingGrid: function () {
+        var me = this,
+            router = this.getController('Uni.controller.history.Router'),
+            page = this.getAddPage(),
+            readingTypesStore = page.down('#readingTypesGridPanel').getStore(),
+            addReadingTypesRoute = router.currentRoute + '/readingtypes';
+
+        // Prepare the already assigned reading types (for method addReadingTypes())
+        me.readingTypesArray = [];
+        readingTypesStore.each(function (record) {
+            me.readingTypesArray.push(record.getData());
+        });
+
+        me.saveFormValues();
+        router.getRoute(addReadingTypesRoute).forward();
+    },
+
     showAddDestination: function (button) {
+        var me = this,
+            router = this.getController('Uni.controller.history.Router'),
+            addDestinationRoute = router.currentRoute + '/destination';
+        //me.destinationsArray = [];
+        me.saveFormValues();
+        router.getRoute(addDestinationRoute).forward();
+
+    },
+
+    addDestination: function () {
         var me = this,
             view = Ext.create('Dxp.view.tasks.AddDestination');
         me.getApplication().fireEvent('changecontentevent', view);
 
-        Ext.util.History.on('change', this.checkRoute, this);
+        view.down('#destination-methods-combo').setValue('FILE');
+    },
+
+    showAllDestinationAttributes: function(visible) {
+        this.showFileDestinationAttributes(visible);
+        this.showMailDestinationAttributes(visible);
+    },
+
+    showFileDestinationAttributes: function(visible) {
+        var me = this,
+            page = me.getAddDestinationPage();
+            page.down('#destination-file-name').setVisible(visible);
+            page.down('#destination-file-extension').setVisible(visible);
+            page.down('#destination-file-location').setVisible(visible);
+
+        page.down('#destination-file-name').disabled = !visible;
+        page.down('#destination-file-extension').disabled = !visible;
+        page.down('#destination-file-location').disabled = !visible;
+    },
+
+    showMailDestinationAttributes: function(visible) {
+        var me = this,
+            page = me.getAddDestinationPage();
+        page.down('#destination-recipients').setVisible(visible);
+        page.down('#destination-subject').setVisible(visible);
+        page.down('#destination-attachment-name').setVisible(visible);
+        page.down('#destination-attachment-extension').setVisible(visible);
+
+        page.down('#destination-recipients').disabled = !visible;
+        page.down('#destination-subject').disabled = !visible;
+        page.down('#destination-attachment-name').disabled = !visible;
+        page.down('#destination-attachment-extension').disabled = !visible;
+    },
+
+    updateDestinationAttributes: function() {
+        var me = this,
+            page = me.getAddDestinationPage();
+        var method = page.down('#destination-methods-combo').getValue();
+        me.showAllDestinationAttributes(false);
+        if (method === 'FILE') {
+            me.showFileDestinationAttributes(true);
+        }
+        if (method === 'MAIL') {
+            me.showMailDestinationAttributes(true);
+        }
 
     },
 
@@ -291,8 +378,8 @@ Ext.define('Dxp.controller.Tasks', {
             dataSelectorCombo = view.down('#data-selector-combo'),
             deviceGroupCombo = view.down('#device-group-combo'),
             exportPeriodCombo = view.down('#export-period-combo'),
-            destinationsGrid = view.down('#task-destinations-grid'),
-            recurrenceTypeCombo = view.down('#recurrence-type');
+            destinationsStore = view.down('#task-destinations-grid').getStore(),
+            recurrenceTypeCombo = view.down('#recurrence-type'),
         readingTypesStore = view.down('#readingTypesGridPanel').getStore();
 
         me.getApplication().fireEvent('changecontentevent', view);
@@ -303,6 +390,7 @@ Ext.define('Dxp.controller.Tasks', {
         me.fromEdit = false;
 
         readingTypesStore.removeAll();
+        destinationsStore.removeAll();
         exportPeriodCombo.store.load({
             params: {
                 category: 'relativeperiod.category.dataExport'
@@ -757,12 +845,64 @@ Ext.define('Dxp.controller.Tasks', {
         }
     },
 
-    addDestination: function (button) {
+    addSelectedReadingTypes: function () {
+        var me = this,
+            widget = this.getAddReadingTypesSetup(),
+            grid = widget.down('#addReadingTypesGrid'),
+            selection = grid.getView().getSelectionModel().getSelection();
+
+        if (selection.length > 0) {
+            Ext.each(selection, function (record) {
+                me.readingTypesArray.push({readingType: record.get('readingType')});
+            });
+        }
+
+        me.forwardToPreviousPage();
+    },
+
+
+    addDestinationToGrid: function(button) {
         var me = this;
-        var page = me.getAddPage();
+        var page = me.getAddDestinationPage();
         var form = page.down('#add-destination-form');
         var formErrorsPanel = form.down('#form-errors');
+        if (form.isValid()) {
+            var formValues = form.getForm().getValues();
+            if (formValues['method'] === 'FILE') {
+                //tooltip & method duplicated from destination model, have not found another way!
+                var destinationModel = Ext.create('Dxp.model.Destination', {
+                    type: 'FILE',
+                    fileName: formValues['fileName'],
+                    fileExtension: formValues['fileExtension'],
+                    fileLocation: formValues['fileLocation'],
+                    method: Uni.I18n.translate('dataExportdestinations.saveFile', 'DES', 'Save file'),
+                    destination:  formValues['fileLocation'] + '/' + formValues['fileName'] + '.' + formValues['fileExtension'],
+                    tooltip: Uni.I18n.translate('dataExportdestinations.fileLocation', 'DES', 'File location') + ': ' + formValues['fileLocation'] + '&lt;br/&gt;' +
+                        Uni.I18n.translate('dataExportdestinations.fileName', 'DES', 'File name') + ': ' + formValues['fileName'] + '&lt;br/&gt;' +
+                        Uni.I18n.translate('dataExportdestinations.fileExtension', 'DES', 'File extension') + ': ' + formValues['fileExtension']
+                })
+            } else if (formValues['method'] === 'EMAIL') {
+                var destinationModel = Ext.create('Dxp.model.Destination', {
+                    type: 'EMAIL',
+                    fileName: formValues['attachmentName'],
+                    fileExtension: formValues['attachmentExtension'],
+                    recipients: formValues['recipients'],
+                    subject: formValues['subject'],
+                    method: Uni.I18n.translate('dataExportdestinations.email', 'DES', 'Email'),
+                    destination: formValues['recipients'],
+                    tooltip: Uni.I18n.translate('dataExportdestinations.recipients', 'DES', 'Recipients') + ': ' + formValues['recipients'] + '&lt;br/&gt;' +
+                        Uni.I18n.translate('dataExportdestinations.subject', 'DES', 'Subject') + ': ' + formValues['subject'] + '&lt;br/&gt;' +
+                        Uni.I18n.translate('dataExportdestinations.fileName', 'DES', 'File name') + ': ' + formValues['attachmentName'] + '&lt;br/&gt;' +
+                        Uni.I18n.translate('dataExportdestinations.fileExtension', 'DES', 'File extension') + ': ' + formValues['attachmentExtension']
+                })
+            }
+            me.destinationsArray.push(destinationModel);
+            me.forwardToPreviousPage();
+        } else {
+            formErrorsPanel.show();
+        }
     },
+
 
     addTask: function (button) {
         var me = this,
@@ -959,22 +1099,7 @@ Ext.define('Dxp.controller.Tasks', {
         }
     },
 
-    showAddReadingGrid: function () {
-        var me = this,
-            router = this.getController('Uni.controller.history.Router'),
-            page = this.getAddPage(),
-            readingTypesStore = page.down('#readingTypesGridPanel').getStore(),
-            addReadingTypesRoute = router.currentRoute + '/readingtypes';
 
-        // Prepare the already assigned reading types (for method addReadingTypes())
-        me.readingTypesArray = [];
-        readingTypesStore.each(function (record) {
-            me.readingTypesArray.push(record.getData());
-        });
-
-        me.saveFormValues();
-        router.getRoute(addReadingTypesRoute).forward();
-    },
 
     forwardToPreviousPage: function () {
         var router = this.getController('Uni.controller.history.Router'),
@@ -995,20 +1120,7 @@ Ext.define('Dxp.controller.Tasks', {
         this.loadReadingTypes();
     },
 
-    addSelectedReadingTypes: function () {
-        var me = this,
-            widget = this.getAddReadingTypesSetup(),
-            grid = widget.down('#addReadingTypesGrid'),
-            selection = grid.getView().getSelectionModel().getSelection();
 
-        if (selection.length > 0) {
-            Ext.each(selection, function (record) {
-                me.readingTypesArray.push({readingType: record.get('readingType')});
-            });
-        }
-
-        me.forwardToPreviousPage();
-    },
 
     loadReadingTypes: function () {
         var me = this,
@@ -1043,13 +1155,20 @@ Ext.define('Dxp.controller.Tasks', {
             form = page.down('#add-data-export-task-form'),
             formValues = form.getValues(),
             readingTypesStore = page.down('#readingTypesGridPanel').getStore(),
+            destinationsStore = page.down('#task-destinations-grid').getStore(),
+            storeDestinations = [],
             arrReadingTypes = [];
 
         readingTypesStore.each(function (record) {
             arrReadingTypes.push(record.getData());
         });
 
+        destinationsStore.each(function (record) {
+            storeDestinations.push(record);
+        });
+
         formValues.readingTypes = arrReadingTypes;
+        formValues.destinations = storeDestinations;
         me.getStore('Dxp.store.Clipboard').set('addDataExportTaskValues', formValues);
 
     },
@@ -1059,7 +1178,11 @@ Ext.define('Dxp.controller.Tasks', {
             obj = me.getStore('Dxp.store.Clipboard').get('addDataExportTaskValues'),
             page = me.getAddPage(),
             readingTypesArray = obj.readingTypes,
+            destinationsArray = obj.destinations,
             readingTypesGrid = page.down('#readingTypesGridPanel'),
+            destinationsGrid = page.down('#task-destinations-grid'),
+            emptyDestinationsLabel = page.down('#noDestinationsLabel'),
+            destinationsStore = destinationsGrid.getStore(),
             gridStore = readingTypesGrid.getStore();
 
         gridStore.removeAll();
@@ -1075,6 +1198,22 @@ Ext.define('Dxp.controller.Tasks', {
                     gridStore.add(readingType);
                 });
             }
+        }
+
+        if (me.destinationsArray) {
+            Ext.each(me.destinationsArray, function (record) {
+                destinationsStore.add(record);
+            });
+        } else {
+            if (!Ext.isEmpty(destinationsArray)) {
+                Ext.each(destinationsArray, function (destination) {
+                    destinationsStore.add(destination);
+                });
+            }
+        }
+        if (destinationsStore.count() > 0) {
+            emptyDestinationsLabel.hide();
+            destinationsGrid.show();
         }
 
         var formModel = Ext.create('Dxp.model.AddDataExportTaskForm', obj);
@@ -1099,11 +1238,12 @@ Ext.define('Dxp.controller.Tasks', {
     checkRoute: function (token) {
         var me = this,
             relativeRegexp = /administration\/relativeperiods\/add/,
+            destinationRegexp = /administration\/dataexporttasks\/(.*)\/destination/,
             readingRegexp = /administration\/dataexporttasks\/(.*)\/readingtypes/;
 
         Ext.util.History.un('change', this.checkRoute, this);
 
-        if (token.search(relativeRegexp) == -1 && token.search(readingRegexp) == -1) {
+        if (token.search(relativeRegexp) == -1 && token.search(readingRegexp) == -1 && token.search(destinationRegexp) == -1) {
             me.getStore('Dxp.store.Clipboard').clear('addDataExportTaskValues');
         }
     },

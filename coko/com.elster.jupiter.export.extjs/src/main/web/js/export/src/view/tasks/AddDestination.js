@@ -1,18 +1,18 @@
 Ext.define('Dxp.view.tasks.AddDestination', {
     extend: 'Uni.view.container.ContentContainer',
-    alias: 'widget.add-destination',
+    alias: 'widget.data-export-add-destination',
     edit: false,
     returnLink: null,
     router: null,
     setEdit: function (edit) {
         if (edit) {
             this.edit = edit;
-            this.down('#add-destination-button').setText(Uni.I18n.translate('general.save', 'DES', 'Save'));
-            this.down('#add-destination-button').action = 'editDestination';
+            this.down('#save-destination-button').setText(Uni.I18n.translate('general.save', 'DES', 'Save'));
+            this.down('#save-destination-button').action = 'editDestination';
         } else {
             this.edit = edit;
-            this.down('#add-destination-button').setText(Uni.I18n.translate('general.add', 'DES', 'Add'));
-            this.down('#add-destination-button').action = 'addDestination';
+            this.down('#save-destination-button').setText(Uni.I18n.translate('general.add', 'DES', 'Add'));
+            this.down('#save-destination-button').action = 'addDestination';
         }
         if (this.returnLink) {
             this.down('#cancel-link').href = this.returnLink;
@@ -40,15 +40,28 @@ Ext.define('Dxp.view.tasks.AddDestination', {
                         width: 500
                     },
                     {
-                        xtype: 'textfield',
+                        xtype: 'combo',
+                        store: Ext.create('Ext.data.Store', {
+                            fields: [
+                                {name: 'displayValue'},
+                                {name: 'value'}
+                            ],
+
+                            data: [
+                                //{label: Uni.I18n.translate('dataExport.saveFile', 'DES', 'Save file'), value: 'FILE'},
+                                //{label: Uni.I18n.translate('dataExport.mail', 'DES', 'Mail'), value: 'MAIL'}
+                                {displayValue: 'Save file', value: 'FILE'},
+                                {displayValue: 'Mail', value: 'MAIL'}
+                            ]
+                        }),
                         name: 'method',
-                        itemId: 'destination-method',
+                        itemId: 'destination-methods-combo',
                         width: 500,
                         required: true,
-                        fieldLabel: Uni.I18n.translate('dataExport.medthod', 'DES', 'Method'),
-                        allowBlank: false,
-                        enforceMaxLength: true,
-                        maxLength: 80
+                        fieldLabel: Uni.I18n.translate('dataExport.method', 'DES', 'Method'),
+                        queryMode: 'local',
+                        displayField: 'displayValue',
+                        valueField: 'value',
                     },
 
                     {
@@ -69,7 +82,7 @@ Ext.define('Dxp.view.tasks.AddDestination', {
                         itemId: 'destination-file-extension',
                         width: 500,
                         required: true,
-                        fieldLabel: Uni.I18n.translate('general.fileExtension', 'DES', 'File extension'),
+                        fieldLabel: Uni.I18n.translate('dataExport.fileExtension', 'DES', 'File extension'),
                         allowBlank: false,
                         enforceMaxLength: true,
                         maxLength: 80
@@ -81,12 +94,60 @@ Ext.define('Dxp.view.tasks.AddDestination', {
                         itemId: 'destination-file-location',
                         width: 500,
                         required: true,
-                        fieldLabel: Uni.I18n.translate('general.fileLocation', 'DES', 'File location'),
+                        fieldLabel: Uni.I18n.translate('dataExport.fileLocation', 'DES', 'File location'),
                         allowBlank: false,
                         enforceMaxLength: true,
                         maxLength: 80
                     },
 
+                    {
+                        xtype: 'textarea',
+                        name: 'recipients',
+                        itemId: 'destination-recipients',
+                        width: 500,
+                        height: 80,
+                        required: true,
+                        fieldLabel: Uni.I18n.translate('dataExport.recipients', 'DES', 'To'),
+                        allowBlank: false,
+                        enforceMaxLength: true,
+                        maxLength: 80
+                    },
+
+                    {
+                        xtype: 'textfield',
+                        name: 'subject',
+                        itemId: 'destination-subject',
+                        width: 500,
+                        required: true,
+                        fieldLabel: Uni.I18n.translate('dataExport.subject', 'DES', 'Subject'),
+                        allowBlank: false,
+                        enforceMaxLength: true,
+                        maxLength: 80
+                    },
+
+                    {
+                        xtype: 'textfield',
+                        name: 'attachmentName',
+                        itemId: 'destination-attachment-name',
+                        width: 500,
+                        required: true,
+                        fieldLabel: Uni.I18n.translate('dataExport.attachmentName', 'DES', 'Attachment name'),
+                        allowBlank: false,
+                        enforceMaxLength: true,
+                        maxLength: 80
+                    },
+
+                    {
+                        xtype: 'textfield',
+                        name: 'attachmentExtension',
+                        itemId: 'destination-attachment-extension',
+                        width: 500,
+                        required: true,
+                        fieldLabel: Uni.I18n.translate('dataExport.attachmentExtension', 'DES', 'Attachment extension'),
+                        allowBlank: false,
+                        enforceMaxLength: true,
+                        maxLength: 80
+                    },
 
                     {
                         xtype: 'fieldcontainer',
@@ -96,7 +157,7 @@ Ext.define('Dxp.view.tasks.AddDestination', {
                         items: [
                             {
                                 xtype: 'button',
-                                itemId: 'add-destination-button',
+                                itemId: 'save-destination-button',
                                 text: Uni.I18n.translate('general.add', 'DES', 'Add'),
                                 ui: 'action'
                             },
