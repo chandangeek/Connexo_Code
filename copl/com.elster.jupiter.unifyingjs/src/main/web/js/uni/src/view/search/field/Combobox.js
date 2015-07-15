@@ -5,30 +5,60 @@ Ext.define('Uni.view.search.field.Combobox', {
     extend: 'Ext.form.field.ComboBox',
     requires: [
         'Ext.grid.Panel'
+        //'Ext.grid.feature.Summary'
     ],
     xtype: 'search-combo',
     store: Ext.create('Ext.data.Store', {
         fields: ['name', 'value'],
         data: [
-            {'name': Uni.I18n.translate('window.messabox.yes', 'FWC', 'Yes'), 'value': 'true'},
-            {'name': Uni.I18n.translate('window.messabox.no', 'FWC', 'No'), 'value': 'false'}
+            {'name': 'Value1', 'value': '1'},
+            {'name': 'Value2', 'value': '2'},
+            {'name': 'Value3', 'value': '1'},
+            {'name': 'Value4', 'value': '2'},
+            {'name': 'Value5', 'value': '1'},
+            {'name': 'Value6', 'value': '2'},
+            {'name': 'Value7', 'value': '1'},
+            {'name': 'Value8', 'value': '2'},
+            {'name': 'Value9', 'value': '1'},
+            {'name': 'Value10', 'value': '2'},
+            {'name': 'Value11', 'value': '1'},
+            {'name': 'Value12', 'value': '2'},
+            {'name': 'Zalue13', 'value': '1'},
+            {'name': 'Zalue14', 'value': '2'},
+            {'name': 'Zalue15', 'value': '1'},
+            {'name': 'Zalue16', 'value': '2'},
+            {'name': 'Zalue17', 'value': '1'},
+            {'name': 'Zalue18', 'value': '2'},
+            {'name': 'Zalue19', 'value': '1'},
+            {'name': 'Zalue20', 'value': '2'},
+            {'name': 'Zalue21', 'value': '1'},
+            {'name': 'Zalue22', 'value': '2'},
+            {'name': 'Zalue23', 'value': '1'},
+            {'name': 'Zalue24', 'value': '2'},
+            {'name': 'Zalue25', 'value': '1'},
+            {'name': 'Zalue26', 'value': '2'}
         ]
     }),
     initComponent: function () {
         var me = this;
 
         me.defaultListConfig = {
-            columns: [
-                {
+            columns: {
+                style: {
+                    borderRadius: '0'
+                },
+                items: {
                     dataIndex: me.displayField,
+                    //summaryRenderer: function(value, summaryData, dataIndex) {
+                    //    return 'Only first 100 records are displayed';
+                    //},
                     flex: 1
                 }
-            ]
+            }
         };
         me.callParent(arguments);
     },
 
-    // copied from ComboBox
     createPicker: function() {
         var me = this,
             picker,
@@ -36,9 +66,14 @@ Ext.define('Uni.view.search.field.Combobox', {
             opts = Ext.apply({
                 selModel: {
                     selType: 'checkboxmodel',
-                    mode: me.multiSelect ? 'SIMPLE' : 'SINGLE'
+                    mode: me.multiSelect ? 'SIMPLE' : 'SINGLE',
+                    showHeaderCheckbox: true,
+                    toggleUiHeader: function(isChecked) {
+                        picker.down('#select-all').setRawValue(isChecked);
+                    }
                 },
                 minWidth: 300,
+                maxHeight: 400,
                 floating: true,
                 hidden: true,
                 hideHeaders: true,
@@ -54,39 +89,90 @@ Ext.define('Uni.view.search.field.Combobox', {
                 displayField: me.displayField,
                 focusOnToFront: false,
                 pageSize: me.pageSize,
-                tbar: [
-                    {
-                        itemId: 'filter-operator',
-                        text: '='
+                bodyStyle: {
+                    borderWidth: '1px 0 0 0 !important',
+                    borderRadius: '0 0 10px 10px',
+                    border: 'none'
+                },
+                defaults: {
+                    margin: 0
+                },
+                dockedItems: {
+                    defaults: {
+                        xtype: 'toolbar',
+                        dock: 'top',
+                        margin: 0,
+                        padding: 0
                     },
-                    {
-                        itemId: 'filter-valid',
-                        text: 'v'
-                    },
-                    {
-                        itemId: 'filter-input',
-                        xtype: 'textfield',
-                        flex: 1,
-                        listeners: {
-                            change: function (elm, value) {
-                                var store = me.picker.getStore();
-                                store.clearFilter(true);
-                                store.filter(me.displayField, value);
-                                me.picker.down('#filter-clear').setVisible(!!value);
+                    padding: 5,
+                    items: [
+                        {
+                            items: [
+                                {
+                                    itemId: 'filter-operator',
+                                    text: '='
+                                },
+                                {
+                                    itemId: 'filter-valid',
+                                    text: 'v'
+                                },
+                                {
+                                    itemId: 'filter-input',
+                                    xtype: 'textfield',
+                                    flex: 1,
+                                    listeners: {
+                                        change: function (elm, value) {
+                                            var store = me.picker.getStore();
+                                            store.clearFilter(true);
+                                            store.filter(me.displayField, value);
+                                            me.picker.down('#filter-clear').setVisible(!!value);
+                                        }
+                                    }
+                                },
+                                {
+                                    itemId: 'filter-clear',
+                                    hidden: true,
+                                    text: 'x',
+                                    listeners: {
+                                        click: function () {
+                                            me.picker.down('#filter-input').reset();
+                                        }
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            xtype: 'container',
+                            itemId: 'limit-notification',
+                            html: 'Only first 100 records are displayed'
+                        },
+                        {
+                            xtype: 'checkboxfield',
+                            itemId: 'select-all',
+                            boxLabel  : 'Select all',
+                            name      : 'topping',
+                            inputValue: '1',
+                            handler: function(elm, value) {
+                                var sel = me.picker.getSelectionModel();
+                                // Prevent focus changes on the view, since we're selecting/deselecting all records
+                                sel.preventFocus = true;
+                                if (!value) {
+                                    sel.deselectAll();
+                                } else {
+                                    sel.selectAll();
+                                }
+                                delete sel.preventFocus;
                             }
+                        },
+                        {
+                            xtype: 'checkboxfield',
+                            boxLabel  : 'Is empty',
+                            name      : 'topping',
+                            inputValue: '1'
                         }
-                    },
-                    {
-                        itemId: 'filter-clear',
-                        hidden: true,
-                        text: 'x',
-                        listeners: {
-                            click: function () {
-                                me.picker.down('#filter-input').reset();
-                            }
-                        }
-                    }
-                ]
+                    ]
+                }
+
             }, me.listConfig, me.defaultListConfig);
 
         picker = me.picker = Ext.create('Ext.grid.Panel', opts);
