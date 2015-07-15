@@ -90,8 +90,8 @@ public class InsightAppServiceImpl implements InsightAppService, InstallService,
 
     private void assignPrivilegesToDefaultRoles() {
         List<Privilege> availablePrivileges = getApplicationPrivileges();
-        userService.grantGroupWithPrivilege(UserService.DEFAULT_ADMIN_ROLE, availablePrivileges.stream().map(HasName::getName).toArray(String[]::new));
-        userService.grantGroupWithPrivilege(UserService.BATCH_EXECUTOR_ROLE, availablePrivileges.stream().map(HasName::getName).toArray(String[]::new));
+        userService.grantGroupWithPrivilege(UserService.DEFAULT_ADMIN_ROLE, APP_NAME, availablePrivileges.stream().map(HasName::getName).toArray(String[]::new));
+        userService.grantGroupWithPrivilege(UserService.BATCH_EXECUTOR_ROLE, APP_NAME, availablePrivileges.stream().map(HasName::getName).toArray(String[]::new));
     }
 
     private boolean isAllowed(User user) {
