@@ -61,9 +61,13 @@ public class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements 
     private ObisCode overruledObisCode;
     private BigDecimal overflow;
     private TimeDuration interval;
+    @SuppressWarnings("unused")
     private String userName;
+    @SuppressWarnings("unused")
     private long version;
+    @SuppressWarnings("unused")
     private Instant createTime;
+    @SuppressWarnings("unused")
     private Instant modTime;
 
     @Inject
@@ -160,11 +164,6 @@ public class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements 
         return getChannelType().getReadingType();
     }
 
-
-    private void created() {
-        LoadProfileSpecImpl loadProfileSpec = (LoadProfileSpecImpl) this.getLoadProfileSpec();
-        loadProfileSpec.created(this);
-    }
     private void validate() {
         validateInterval();
         validateDeviceTypeContainsChannelType();
@@ -173,25 +172,25 @@ public class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements 
     }
 
     private void validateBeforeAdd() {
-        Save.CREATE.validate(this.dataModel.getValidatorFactory().getValidator(), this);
+        Save.CREATE.validate(this.getDataModel(), this);
     }
 
     private void validateInterval() {
         if (!this.loadProfileSpec.isPresent()) {
             if (getInterval() == null) {
-                throw IntervalIsRequiredException.forChannelSpecWithoutLoadProfileSpec(this.thesaurus);
+                throw IntervalIsRequiredException.forChannelSpecWithoutLoadProfileSpec(this.getThesaurus());
             }
             if (getInterval().getCount() <= 0) {
-                throw UnsupportedIntervalException.intervalOfChannelSpecShouldBeLargerThanZero(this.thesaurus, getInterval().getCount());
+                throw UnsupportedIntervalException.intervalOfChannelSpecShouldBeLargerThanZero(this.getThesaurus(), getInterval().getCount());
             }
             if ((getInterval().getTimeUnit() == TimeDuration.TimeUnit.DAYS ||
                     getInterval().getTimeUnit() == TimeDuration.TimeUnit.MONTHS ||
                     getInterval().getTimeUnit() == TimeDuration.TimeUnit.YEARS) &&
                     getInterval().getCount() != 1) {
-                throw UnsupportedIntervalException.intervalOfChannelShouldBeOneIfUnitIsLargerThanOneHour(this.thesaurus, getInterval().getCount());
+                throw UnsupportedIntervalException.intervalOfChannelShouldBeOneIfUnitIsLargerThanOneHour(this.getThesaurus(), getInterval().getCount());
             }
             if (getInterval().getTimeUnit() == TimeDuration.TimeUnit.WEEKS) {
-                throw UnsupportedIntervalException.weeksAreNotSupportedForChannelSpecs(this.thesaurus, this);
+                throw UnsupportedIntervalException.weeksAreNotSupportedForChannelSpecs(this.getThesaurus(), this);
             }
         }
     }
@@ -199,18 +198,18 @@ public class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements 
     private void validateChannelSpecsForDuplicateChannelTypes() {
         Optional<ChannelSpec> channelSpec = this.deviceConfigurationService.findChannelSpecForLoadProfileSpecAndChannelType(getLoadProfileSpec(), getChannelType());
         if (channelSpec.isPresent() && channelSpec.get().getId() != getId()) {
-            throw DuplicateChannelTypeException.forChannelSpecInLoadProfileSpec(thesaurus, channelSpec.get(), getChannelType(), this.getLoadProfileSpec());
+            throw DuplicateChannelTypeException.forChannelSpecInLoadProfileSpec(this.getThesaurus(), channelSpec.get(), getChannelType(), this.getLoadProfileSpec());
         }
     }
 
     private void validateDeviceTypeContainsChannelType() {
         if (this.loadProfileSpec.isPresent()) { // then the ChannelType should be included in the LoadProfileSpec
             if (!doesListContainIdObject(getLoadProfileSpec().getLoadProfileType().getChannelTypes(), getChannelType())) {
-                throw RegisterTypeIsNotConfiguredException.forChannelInLoadProfileSpec(thesaurus, getLoadProfileSpec(), getChannelType(), this);
+                throw RegisterTypeIsNotConfiguredException.forChannelInLoadProfileSpec(this.getThesaurus(), getLoadProfileSpec(), getChannelType(), this);
             }
         } else { // then the ChannelType should be included in the DeviceType
             if (!doesListContainIdObject(getDeviceConfiguration().getDeviceType().getRegisterTypes(), getChannelType())) {
-                throw RegisterTypeIsNotConfiguredException.forChannelInDeviceType(thesaurus, this, getChannelType(), getDeviceConfiguration().getDeviceType());
+                throw RegisterTypeIsNotConfiguredException.forChannelInDeviceType(this.getThesaurus(), this, getChannelType(), getDeviceConfiguration().getDeviceType());
             }
         }
     }
@@ -218,7 +217,7 @@ public class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements 
     private void validateDeviceConfigurationContainsLoadProfileSpec() {
         if (this.loadProfileSpec.isPresent()) {
             if (!doesListContainIdObject(getDeviceConfiguration().getLoadProfileSpecs(), getLoadProfileSpec())) {
-                throw new LoadProfileSpecIsNotConfiguredOnDeviceConfigurationException(this.thesaurus, getLoadProfileSpec());
+                throw new LoadProfileSpecIsNotConfiguredOnDeviceConfigurationException(this.getThesaurus(), getLoadProfileSpec());
             }
         }
     }
@@ -229,7 +228,7 @@ public class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements 
     }
 
     private void validateUpdate() {
-        Save.UPDATE.validate(this.dataModel.getValidatorFactory().getValidator(), this);
+        Save.UPDATE.validate(this.getDataModel(), this);
         this.validate();
     }
 
@@ -258,10 +257,6 @@ public class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements 
         return getDeviceConfiguration().getDeviceType() + "/" + getDeviceConfiguration() + "/" + getReadingType().getAliasName();
     }
 
-    protected String getInvalidCharacters() {
-        return "./";
-    }
-
     @Override
     public void setChannelType(ChannelType channelType) {
         if (this.channelType.isPresent()) {
@@ -274,7 +269,7 @@ public class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements 
         DeviceConfiguration deviceConfiguration = getDeviceConfiguration();
         MeasurementType myMeasurementType = this.getChannelType();
         if (deviceConfiguration != null && deviceConfiguration.isActive() && myMeasurementType != null && myMeasurementType.getId() != measurementType.getId()) {
-            throw new CannotChangeChannelTypeOfChannelSpecException(this.thesaurus);
+            throw new CannotChangeChannelTypeOfChannelSpecException(this.getThesaurus());
         }
     }
 
@@ -316,7 +311,7 @@ public class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements 
 
     private void validateLoadProfileSpecForUpdate(LoadProfileSpec loadProfileSpec) {
         if (deviceConfiguration.isPresent() && getDeviceConfiguration().isActive() && this.loadProfileSpec.isPresent() && this.getLoadProfileSpec().getId() != loadProfileSpec.getId()) {
-            throw new CannotChangeLoadProfileSpecOfChannelSpec(this.thesaurus);
+            throw new CannotChangeLoadProfileSpecOfChannelSpec(this.getThesaurus());
         }
     }
 

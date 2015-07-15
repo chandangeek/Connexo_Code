@@ -45,7 +45,7 @@ public interface PartialConnectionTask extends HasName, HasId {
 
     /**
      * Gets the list of {@link PartialConnectionTaskProperty PartialConnectionTaskProperties}
-     * for this {@link PartialConnectionTask}
+     * for this {@link PartialConnectionTask}.
      *
      * @return The List of PartialConnectionTaskProperties
      */
@@ -68,7 +68,7 @@ public interface PartialConnectionTask extends HasName, HasId {
     public PartialConnectionTaskProperty getProperty(String name);
 
     /**
-     * Gets the {@link DeviceCommunicationConfiguration} that owns this {@link PartialConnectionTask}
+     * Gets the {@link DeviceCommunicationConfiguration} that owns this {@link PartialConnectionTask}.
      *
      * @return The DeviceConfiguration
      */

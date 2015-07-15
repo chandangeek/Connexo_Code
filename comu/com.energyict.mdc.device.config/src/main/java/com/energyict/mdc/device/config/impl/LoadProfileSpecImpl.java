@@ -42,9 +42,13 @@ public class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> imp
     private String overruledObisCodeString;
     private ObisCode overruledObisCode;
     private final Reference<DeviceConfiguration> deviceConfiguration = ValueReference.absent();
+    @SuppressWarnings("unused")
     private String userName;
+    @SuppressWarnings("unused")
     private long version;
+    @SuppressWarnings("unused")
     private Instant createTime;
+    @SuppressWarnings("unused")
     private Instant modTime;
     private List<ChannelSpec> channelSpecs; // Cache
 
@@ -91,13 +95,13 @@ public class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> imp
 
     void validateBeforeAddToDeviceConfiguration () {
         this.validateDeviceTypeContainsLoadProfileType();
-        Save.CREATE.validate(this.dataModel.getValidatorFactory().getValidator(), this);
+        Save.CREATE.validate(this.getDataModel(), this);
     }
 
     private void validateDeviceTypeContainsLoadProfileType() {
         DeviceType deviceType = getDeviceConfiguration().getDeviceType();
         if (!hasLoadProfileType(deviceType, getLoadProfileType())) {
-            throw new LoadProfileTypeIsNotConfiguredOnDeviceTypeException(this.thesaurus, getLoadProfileType());
+            throw new LoadProfileTypeIsNotConfiguredOnDeviceTypeException(this.getThesaurus(), getLoadProfileType());
         }
     }
 
@@ -111,7 +115,7 @@ public class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> imp
     }
 
     void validateUpdate () {
-        Save.UPDATE.validate(this.dataModel.getValidatorFactory().getValidator(), this);
+        Save.UPDATE.validate(this.getDataModel(), this);
     }
 
     @Override
@@ -122,7 +126,7 @@ public class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> imp
     @Override
     public void validateDelete() {
         if (!this.getChannelSpecs().isEmpty()) {
-            throw new CannotDeleteLoadProfileSpecLinkedChannelSpecsException(this.thesaurus);
+            throw new CannotDeleteLoadProfileSpecLinkedChannelSpecsException(this.getThesaurus());
         }
     }
 

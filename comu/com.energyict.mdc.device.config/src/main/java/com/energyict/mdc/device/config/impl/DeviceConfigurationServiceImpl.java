@@ -359,7 +359,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Override
-    public Optional<PartialConnectionTask> getPartialConnectionTask(long id) {
+    public Optional<PartialConnectionTask> findPartialConnectionTask(long id) {
         return dataModel.mapper(PartialConnectionTask.class).getOptional(id);
     }
 

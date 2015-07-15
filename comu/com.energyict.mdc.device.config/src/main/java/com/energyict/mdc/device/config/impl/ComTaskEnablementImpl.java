@@ -70,9 +70,13 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
     private boolean suspended;
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private Reference<ProtocolDialectConfigurationProperties> protocolDialectConfigurationProperties = ValueReference.absent();
+    @SuppressWarnings("unused")
     private String userName;
+    @SuppressWarnings("unused")
     private long version;
+    @SuppressWarnings("unused")
     private Instant createTime;
+    @SuppressWarnings("unused")
     private Instant modTime;
 
     @Inject
@@ -144,7 +148,7 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
 
     @Override
     protected void doDelete() {
-        this.dataModel.remove(this);
+        this.getDataModel().remove(this);
     }
 
     @Override

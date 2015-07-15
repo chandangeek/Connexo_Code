@@ -254,7 +254,7 @@ class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<P
     private String asStringValue(String name, Object value) {
         PropertySpec propertySpec = getPropertySpec(name);
         if (propertySpec == null) {
-            throw new NoSuchPropertyOnDialectException(thesaurus, getDeviceProtocolDialect(), name);
+            throw new NoSuchPropertyOnDialectException(this.getThesaurus(), getDeviceProtocolDialect(), name);
         }
         return propertySpec.getValueFactory().toStringValue(value);
     }

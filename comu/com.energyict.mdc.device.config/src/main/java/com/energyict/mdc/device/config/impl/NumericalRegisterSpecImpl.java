@@ -85,18 +85,18 @@ public class NumericalRegisterSpecImpl extends RegisterSpecImpl<NumericalRegiste
         if (this.overflowValue != null) {
             int scale = this.overflowValue.scale();
             if (scale > this.numberOfFractionDigits) {
-                throw new OverFlowValueHasIncorrectFractionDigitsException(this.thesaurus, this.overflowValue, scale, this.numberOfFractionDigits);
+                throw new OverFlowValueHasIncorrectFractionDigitsException(this.getThesaurus(), this.overflowValue, scale, this.numberOfFractionDigits);
             }
         }
     }
 
     /**
-     * We need to validate the OverFlow value and the NumberOfDigits together
+     * We need to validate the OverFlow value and the NumberOfDigits together.
      */
     private void validateOverFlowAndNumberOfDigits() {
         if (this.overflowValue != null && this.numberOfDigits > 0) {
             if (this.overflowValue.compareTo(BigDecimal.valueOf(10).pow(numberOfDigits)) == 1) {
-                throw new OverFlowValueCanNotExceedNumberOfDigitsException(this.thesaurus, this.overflowValue, Math.pow(10, this.numberOfDigits), this.numberOfDigits);
+                throw new OverFlowValueCanNotExceedNumberOfDigitsException(this.getThesaurus(), this.overflowValue, Math.pow(10, this.numberOfDigits), this.numberOfDigits);
             }
             // should be covered by field validation
             //else if (this.overflowValue.compareTo(BigDecimal.ZERO) <= 0) {

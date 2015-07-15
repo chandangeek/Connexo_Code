@@ -33,9 +33,13 @@ public class LogBookSpecImpl extends PersistentIdObject<LogBookSpec> implements 
     private final Reference<LogBookType> logBookType = ValueReference.absent();
     private String overruledObisCodeString;
     private ObisCode overruledObisCode;
+    @SuppressWarnings("unused")
     private String userName;
+    @SuppressWarnings("unused")
     private long version;
+    @SuppressWarnings("unused")
     private Instant createTime;
+    @SuppressWarnings("unused")
     private Instant modTime;
 
     @Inject
@@ -80,7 +84,7 @@ public class LogBookSpecImpl extends PersistentIdObject<LogBookSpec> implements 
     }
 
     private void validateBeforeAddToConfiguration() {
-        Save.CREATE.validate(this.dataModel.getValidatorFactory().getValidator(), this);
+        Save.CREATE.validate(this.getDataModel(), this);
         this.validateDeviceTypeContainsLogbookType();
     }
 
@@ -94,11 +98,11 @@ public class LogBookSpecImpl extends PersistentIdObject<LogBookSpec> implements 
                 return;
             }
         }
-        throw new LogbookTypeIsNotConfiguredOnDeviceTypeException(this.thesaurus, getLogBookType());
+        throw new LogbookTypeIsNotConfiguredOnDeviceTypeException(this.getThesaurus(), getLogBookType());
     }
 
     private void validateUpdate() {
-        Save.UPDATE.validate(this.dataModel.getValidatorFactory().getValidator(), this);
+        Save.UPDATE.validate(this.getDataModel(), this);
     }
 
     @Override
@@ -138,7 +142,7 @@ public class LogBookSpecImpl extends PersistentIdObject<LogBookSpec> implements 
 
     private void validateLogbookTypeForUpdate(LogBookType loadProfileType) {
         if (this.logBookType.isPresent() && this.getLogBookType().getId() != loadProfileType.getId()) {
-            throw new CannotChangeLogbookTypeOfLogbookSpecException(this.thesaurus);
+            throw new CannotChangeLogbookTypeOfLogbookSpecException(this.getThesaurus());
         }
     }
 

@@ -35,6 +35,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
@@ -67,9 +68,13 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
     private List<UserActionRecord> userActionRecords = new ArrayList<>();
     private final ThreadPrincipalService threadPrincipalService;
     private final DeviceConfigurationService deviceConfigurationService;
+    @SuppressWarnings("unused")
     private String userName;
+    @SuppressWarnings("unused")
     private long version;
+    @SuppressWarnings("unused")
     private Instant createTime;
+    @SuppressWarnings("unused")
     private Instant modTime;
 
     @Override
@@ -99,12 +104,12 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
 
     @Override
     protected void doDelete() {
-        dataModel.mapper(SecurityPropertySet.class).remove(this);
+        this.getDataModel().mapper(SecurityPropertySet.class).remove(this);
     }
 
     @Override
     protected void validateDelete() {
-        List<ComTaskEnablement> comTaskEnablements = dataModel.mapper(ComTaskEnablement.class).find(ComTaskEnablementImpl.Fields.SECURITY_PROPERTY_SET.fieldName(), this);
+        List<ComTaskEnablement> comTaskEnablements = this.getDataModel().mapper(ComTaskEnablement.class).find(ComTaskEnablementImpl.Fields.SECURITY_PROPERTY_SET.fieldName(), this);
         if (!comTaskEnablements.isEmpty()) {
             throw new CannotDeleteSecurityPropertySetWhileInUseException(this.getThesaurus(), this);
         }
@@ -135,9 +140,13 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
     static class UserActionRecord {
         private DeviceSecurityUserAction userAction;
         private Reference<SecurityPropertySet> set = ValueReference.absent();
+        @SuppressWarnings("unused")
         private String userName;
+        @SuppressWarnings("unused")
         private long version;
+        @SuppressWarnings("unused")
         private Instant createTime;
+        @SuppressWarnings("unused")
         private Instant modTime;
 
         UserActionRecord() {
@@ -152,9 +161,7 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
 
     @Override
     public void postLoad() {
-        for (UserActionRecord userActionRecord : userActionRecords) {
-            userActions.add(userActionRecord.userAction);
-        }
+        userActions.addAll(userActionRecords.stream().map(userActionRecord -> userActionRecord.userAction).collect(Collectors.toList()));
     }
 
     @Inject
@@ -369,10 +376,6 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
         return action.isEditing() && this.isAuthorized(action, user);
     }
 
-    public boolean isExecutableIsAuthorizedFor(DeviceSecurityUserAction action, User user){
-        return action.isExecutable() && this.isAuthorized(action, user);
-    }
-
     @Override
     public void setAuthenticationLevel(int authenticationLevelId) {
         this.authenticationLevelId = authenticationLevelId;
@@ -417,14 +420,11 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
             return Collections.emptyList();
         }
 
-        protected String getInvalidCharacters() {
-            return "./";
-        }
     }
 
     @Override
     public void update() {
-        dataModel.mapper(SecurityPropertySet.class).update(this);
+        this.getDataMapper().update(this);
     }
 
     public static class LevelsAreSupportedValidator implements ConstraintValidator<LevelMustBeProvidedIfSupportedByDevice, SecurityPropertySetImpl> {

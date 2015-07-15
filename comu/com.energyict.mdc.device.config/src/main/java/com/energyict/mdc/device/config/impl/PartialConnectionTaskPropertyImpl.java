@@ -33,9 +33,13 @@ class PartialConnectionTaskPropertyImpl implements PartialConnectionTaskProperty
     @Size(max = 4000, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String value;
     private transient Object objectValue;
+    @SuppressWarnings("unused")
     private String userName;
+    @SuppressWarnings("unused")
     private long version;
+    @SuppressWarnings("unused")
     private Instant createTime;
+    @SuppressWarnings("unused")
     private Instant modTime;
 
     @Inject
@@ -52,7 +56,7 @@ class PartialConnectionTaskPropertyImpl implements PartialConnectionTaskProperty
     }
 
     private Object getValueObjectFromStringValue(String propertyStringValue) {
-        PropertySpec propertySpec = getPartialConnectionTask().getConnectionType().getPropertySpec(name);
+        PropertySpec propertySpec = this.getPropertySpec();
         if (propertySpec != null) {
             ValueFactory valueFactory = propertySpec.getValueFactory();
             return valueFactory.fromStringValue(propertyStringValue);
@@ -61,7 +65,7 @@ class PartialConnectionTaskPropertyImpl implements PartialConnectionTaskProperty
     }
 
     private String asStringValue(Object value) {
-        PropertySpec propertySpec = getPartialConnectionTask().getConnectionType().getPropertySpec(name);
+        PropertySpec propertySpec = this.getPropertySpec();
         if (propertySpec != null) {
             ValueFactory valueFactory = propertySpec.getValueFactory();
             if (valueFactory.getValueType().isInstance(value)) {
@@ -81,7 +85,7 @@ class PartialConnectionTaskPropertyImpl implements PartialConnectionTaskProperty
     @Override
     public Object getValue() {
         if (objectValue == null) {
-            objectValue = getValueObjectFromStringValue(value);
+            objectValue = this.getValueObjectFromStringValue(value);
         }
         return objectValue;
     }
@@ -96,8 +100,17 @@ class PartialConnectionTaskPropertyImpl implements PartialConnectionTaskProperty
         this.value = asStringValue(value);
     }
 
+    boolean isRequired() {
+        return this.getPropertySpec().isRequired();
+    }
+
+    private PropertySpec getPropertySpec() {
+        return this.getPartialConnectionTask().getConnectionType().getPropertySpec(name);
+    }
+
     @Override
     public void save() {
         dataModel.mapper(PartialConnectionTaskPropertyImpl.class).update(this);
     }
+
 }
