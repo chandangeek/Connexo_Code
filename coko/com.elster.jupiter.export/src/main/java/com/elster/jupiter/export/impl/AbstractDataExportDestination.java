@@ -6,6 +6,7 @@ import com.elster.jupiter.export.DataExportDestination;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.EmailDestination;
 import com.elster.jupiter.export.FileDestination;
+import com.elster.jupiter.export.FtpDestination;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
@@ -21,7 +22,11 @@ import java.util.Map;
 
 public abstract class AbstractDataExportDestination implements IDataExportDestination {
 
-    static final Map<String, Class<? extends DataExportDestination>> IMPLEMENTERS = ImmutableMap.<String, Class<? extends DataExportDestination>>of(FileDestination.TYPE_IDENTIFIER, FileDestinationImpl.class, EmailDestination.TYPE_IDENTIFIER, EmailDestinationImpl.class);
+    static final Map<String, Class<? extends DataExportDestination>> IMPLEMENTERS = ImmutableMap.<String, Class<? extends DataExportDestination>>of(
+            FileDestination.TYPE_IDENTIFIER, FileDestinationImpl.class,
+            EmailDestination.TYPE_IDENTIFIER, EmailDestinationImpl.class,
+            FtpDestination.TYPE_IDENTIFIER, FtpDestinationImpl.class
+    );
 
     private long id;
     private Reference<IExportTask> task = ValueReference.absent();

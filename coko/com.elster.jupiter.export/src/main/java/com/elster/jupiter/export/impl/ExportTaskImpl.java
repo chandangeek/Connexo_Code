@@ -10,6 +10,7 @@ import com.elster.jupiter.export.DataExportStatus;
 import com.elster.jupiter.export.EmailDestination;
 import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.export.FileDestination;
+import com.elster.jupiter.export.FtpDestination;
 import com.elster.jupiter.export.ReadingTypeDataSelector;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
@@ -448,6 +449,14 @@ class ExportTaskImpl implements IExportTask {
         destinations.add(emailDestination);
         save();
         return emailDestination;
+    }
+
+    @Override
+    public FtpDestination addFtpDestination(String server, String user, String password, String fileLocation, String fileName, String fileExtension) {
+        FtpDestinationImpl ftpDestination = FtpDestinationImpl.from(this, dataModel, server, user, password, fileLocation, fileName, fileExtension);
+        destinations.add(ftpDestination);
+        save();
+        return ftpDestination;
     }
 
     @Override

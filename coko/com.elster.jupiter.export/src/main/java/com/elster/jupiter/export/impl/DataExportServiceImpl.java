@@ -2,6 +2,7 @@ package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.appserver.AppServer;
 import com.elster.jupiter.appserver.AppService;
+import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.export.DataExportService;
@@ -85,6 +86,7 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
     private volatile FileSystem fileSystem;
     private volatile Path tempDirectory;
     private volatile ValidationService validationService;
+    private volatile DataVaultService dataVaultService;
 
     private Map<DataFormatterFactory, List<String>> dataFormatterFactories = new ConcurrentHashMap<>();
     private Map<DataSelectorFactory, String> dataSelectorFactories = new ConcurrentHashMap<>();
@@ -95,7 +97,7 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
     }
 
     @Inject
-    public DataExportServiceImpl(OrmService ormService, TimeService timeService, TaskService taskService, MeteringGroupsService meteringGroupsService, MessageService messageService, NlsService nlsService, MeteringService meteringService, QueryService queryService, Clock clock, UserService userService, AppService appService, TransactionService transactionService, PropertySpecService propertySpecService, MailService mailService, BundleContext context, FileSystem fileSystem, ValidationService validationService) {
+    public DataExportServiceImpl(OrmService ormService, TimeService timeService, TaskService taskService, MeteringGroupsService meteringGroupsService, MessageService messageService, NlsService nlsService, MeteringService meteringService, QueryService queryService, Clock clock, UserService userService, AppService appService, TransactionService transactionService, PropertySpecService propertySpecService, MailService mailService, BundleContext context, FileSystem fileSystem, ValidationService validationService, DataVaultService dataVaultService) {
         setOrmService(ormService);
         setTimeService(timeService);
         setTaskService(taskService);
@@ -112,6 +114,7 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
         setPropertySpecService(propertySpecService);
         setFileSystem(fileSystem);
         setValidationService(validationService);
+        setDataVaultService(dataVaultService);
         activate(context);
         if (!dataModel.isInstalled()) {
             install();
@@ -184,7 +187,7 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
 
     @Override
     public List<String> getPrerequisiteModules() {
-        return Arrays.asList(OrmService.COMPONENTNAME, TimeService.COMPONENT_NAME, MeteringService.COMPONENTNAME, TaskService.COMPONENTNAME, MeteringGroupsService.COMPONENTNAME, MessageService.COMPONENTNAME, NlsService.COMPONENTNAME, AppService.COMPONENT_NAME);
+        return Arrays.asList(OrmService.COMPONENTNAME, TimeService.COMPONENT_NAME, MeteringService.COMPONENTNAME, TaskService.COMPONENTNAME, MeteringGroupsService.COMPONENTNAME, MessageService.COMPONENTNAME, NlsService.COMPONENTNAME, AppService.COMPONENT_NAME, DataVaultService.COMPONENT_NAME);
     }
 
     @Override
@@ -247,6 +250,11 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
         this.userService = userService;
     }
 
+    @Reference
+    public void setDataVaultService(DataVaultService dataVaultService) {
+        this.dataVaultService = dataVaultService;
+    }
+
     public void removeFormatter(DataFormatterFactory dataFormatterFactory) {
         dataFormatterFactories.remove(dataFormatterFactory);
     }
@@ -276,6 +284,7 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
                     bind(MailService.class).toInstance(mailService);
                     bind(FileSystem.class).toInstance(fileSystem);
                     bind(ValidationService.class).toInstance(validationService);
+                    bind(DataVaultService.class).toInstance(dataVaultService);
                 }
             });
             addSelector(new StandardDataSelectorFactory(transactionService, meteringService, thesaurus), ImmutableMap.of(DATA_TYPE_PROPERTY, STANDARD_DATA_TYPE));

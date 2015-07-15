@@ -86,6 +86,8 @@ public interface ExportTask extends HasName, HasAuditInfo {
 
     EmailDestination addEmailDestination(String recipients, String subject, String attachmentName, String attachmentExtension);
 
+    FtpDestination addFtpDestination(String server, String user, String password, String fileLocation, String fileName, String fileExtension);
+
     void removeDestination(DataExportDestination destination);
 
     List<DataExportDestination> getDestinations();
