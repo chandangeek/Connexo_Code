@@ -90,7 +90,7 @@ public class DeviceLifeCycleBuilderImpl implements DeviceLifeCycleBuilder {
     }
 
     private class AuthorizedActionBuilderImpl<AT extends AuthorizedAction, T extends AuthorizedActionImpl> implements AuthorizedActionBuilder<AT> {
-        protected final T underConstruction;
+        private final T underConstruction;
 
         protected AuthorizedActionBuilderImpl(T underConstruction) {
             super();
@@ -137,9 +137,9 @@ public class DeviceLifeCycleBuilderImpl implements DeviceLifeCycleBuilder {
 
         @Override
         public AuthorizedTransitionActionBuilder addCheck(MicroCheck check, MicroCheck... otherChecks) {
-            this.underConstruction.add(check);
+            this.getUnderConstruction().add(check);
             for (MicroCheck otherCheck : otherChecks) {
-                this.underConstruction.add(otherCheck);
+                this.getUnderConstruction().add(otherCheck);
             }
             return this;
         }
@@ -147,16 +147,16 @@ public class DeviceLifeCycleBuilderImpl implements DeviceLifeCycleBuilder {
         @Override
         public AuthorizedTransitionActionBuilder addAllChecks(Set<MicroCheck> checks) {
             for (MicroCheck check : checks) {
-                this.underConstruction.add(check);
+                this.getUnderConstruction().add(check);
             }
             return this;
         }
 
         @Override
         public AuthorizedTransitionActionBuilder addAction(MicroAction action, MicroAction... otherActions) {
-            this.underConstruction.add(action);
+            this.getUnderConstruction().add(action);
             for (MicroAction otherAction : otherActions) {
-                this.underConstruction.add(otherAction);
+                this.getUnderConstruction().add(otherAction);
             }
             return this;
         }
@@ -164,7 +164,7 @@ public class DeviceLifeCycleBuilderImpl implements DeviceLifeCycleBuilder {
         @Override
         public AuthorizedTransitionActionBuilder addAllActions(Set<MicroAction> actions) {
             for (MicroAction action : actions) {
-                this.underConstruction.add(action);
+                this.getUnderConstruction().add(action);
             }
             return this;
         }
