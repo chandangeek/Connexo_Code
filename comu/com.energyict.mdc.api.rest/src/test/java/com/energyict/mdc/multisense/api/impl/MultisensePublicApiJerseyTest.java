@@ -1,0 +1,243 @@
+package com.energyict.mdc.multisense.api.impl;
+
+import com.elster.jupiter.cbo.Accumulation;
+import com.elster.jupiter.cbo.Aggregate;
+import com.elster.jupiter.cbo.Commodity;
+import com.elster.jupiter.cbo.FlowDirection;
+import com.elster.jupiter.cbo.MacroPeriod;
+import com.elster.jupiter.cbo.MeasurementKind;
+import com.elster.jupiter.cbo.MetricMultiplier;
+import com.elster.jupiter.cbo.Phase;
+import com.elster.jupiter.cbo.RationalNumber;
+import com.elster.jupiter.cbo.ReadingTypeUnit;
+import com.elster.jupiter.cbo.TimeAttribute;
+import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
+import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.domain.util.QueryParameters;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.properties.BigDecimalFactory;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.PropertySpecPossibleValues;
+import com.elster.jupiter.properties.StringFactory;
+import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.data.ConnectionTaskService;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.device.data.imp.Batch;
+import com.energyict.mdc.device.data.imp.DeviceImportService;
+import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
+import com.energyict.mdc.device.lifecycle.config.DefaultState;
+import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.dynamic.DateFactory;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import java.math.BigDecimal;
+import java.time.Clock;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Currency;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+import javax.ws.rs.core.Application;
+import org.mockito.Mock;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+/**
+ * Created by bvn on 9/19/14.
+ */
+public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTest {
+    @Mock
+    DeviceService deviceService;
+    @Mock
+    TopologyService topologyService;
+    @Mock
+    DeviceImportService deviceImportService;
+    @Mock
+    DeviceConfigurationService deviceConfigurationService;
+    @Mock
+    IssueService issueService;
+    @Mock
+    DeviceLifeCycleService deviceLifeCycleService;
+    @Mock
+    FiniteStateMachineService finiteStateMachineService;
+    @Mock
+    ConnectionTaskService connectionTaskService;
+    @Mock
+    EngineConfigurationService engineConfigurationService;
+    @Mock
+    Clock clock;
+
+    @Override
+    protected MessageSeed[] getMessageSeeds() {
+        return new MessageSeed[0];
+    }
+
+    @Override
+    protected Application getApplication() {
+        PublicRestApplication application = new PublicRestApplication();
+        application.setNlsService(nlsService);
+        application.setTransactionService(transactionService);
+        application.setDeviceConfigurationService(deviceConfigurationService);
+        application.setDeviceService(deviceService);
+        application.setTopologyService(topologyService);
+        application.setDeviceImportService(deviceImportService);
+        application.setIssueService(issueService);
+        application.setDeviceLifeCycleService(deviceLifeCycleService);
+        application.setFiniteStateMachineService(finiteStateMachineService);
+        application.setConnectionTaskService(connectionTaskService);
+        application.setEngineConfigurationService(engineConfigurationService);
+        application.setClock(clock);
+        return application;
+    }
+
+    public ReadingType mockReadingType(String mrid){
+        ReadingType readingType = mock(ReadingType.class);
+        when(readingType.getMRID()).thenReturn(mrid);
+        when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.DAILY);
+        when(readingType.getAggregate()).thenReturn(Aggregate.AVERAGE);
+        when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.FIXEDBLOCK1MIN);
+        when(readingType.getAccumulation()).thenReturn(Accumulation.BULKQUANTITY);
+        when(readingType.getFlowDirection()).thenReturn(FlowDirection.FORWARD);
+        when(readingType.getCommodity()).thenReturn(Commodity.AIR);
+        when(readingType.getMeasurementKind()).thenReturn(MeasurementKind.ACVOLTAGEPEAK);
+        when(readingType.getInterharmonic()).thenReturn(new RationalNumber(1, 2));
+        when(readingType.getArgument()).thenReturn(new RationalNumber(1, 2));
+        when(readingType.getTou()).thenReturn(3);
+        when(readingType.getCpp()).thenReturn(4);
+        when(readingType.getConsumptionTier()).thenReturn(5);
+        when(readingType.getPhases()).thenReturn(Phase.PHASEA);
+        when(readingType.getMultiplier()).thenReturn(MetricMultiplier.CENTI);
+        when(readingType.getUnit()).thenReturn(ReadingTypeUnit.AMPERE);
+        when(readingType.getCurrency()).thenReturn(Currency.getInstance("EUR"));
+        when(readingType.getCalculatedReadingType()).thenReturn(Optional.<ReadingType>empty());
+        when(readingType.isCumulative()).thenReturn(true);
+        return readingType;
+    }
+
+    Device mockDevice(String mrid, String serial, DeviceType deviceType) {
+        Device mock = mock(Device.class);
+        when(mock.getmRID()).thenReturn(mrid);
+        when(mock.getName()).thenReturn(mrid);
+        long deviceId = (long) mrid.hashCode();
+        when(mock.getId()).thenReturn(deviceId);
+        when(mock.getSerialNumber()).thenReturn(serial);
+        when(mock.getVersion()).thenReturn(333L);
+        State state = mock(State.class);
+        when(state.getName()).thenReturn(DefaultState.IN_STOCK.getKey());
+        when(mock.getState()).thenReturn(state);
+        when(mock.getDeviceType()).thenReturn(deviceType);
+        DeviceConfiguration deviceConfig = mock(DeviceConfiguration.class);
+        when(deviceConfig.getName()).thenReturn("Default configuration");
+        when(deviceConfig.getId()).thenReturn(34L);
+        when(mock.getDeviceConfiguration()).thenReturn(deviceConfig);
+        Register register = mock(Register.class);
+        when(register.getRegisterSpecId()).thenReturn(666L);
+        when(mock.getRegisters()).thenReturn(Collections.singletonList(register));
+        Batch batch = mock(Batch.class);
+        when(batch.getName()).thenReturn("BATCH A");
+        when(mock.getDeviceProtocolProperties()).thenReturn(TypedProperties.empty());
+        when(deviceImportService.findBatch(deviceId)).thenReturn(Optional.of(batch));
+        when(topologyService.getPhysicalGateway(mock)).thenReturn(Optional.empty());
+        when(this.deviceService.findByUniqueMrid(mrid)).thenReturn(Optional.of(mock));
+        when(this.deviceService.findAndLockDeviceByIdAndVersion(deviceId, 333L)).thenReturn(Optional.of(mock));
+        return mock;
+    }
+
+    DeviceType mockDeviceType(long id, String name) {
+        DeviceType mock = mock(DeviceType.class);
+        when(mock.getId()).thenReturn(id);
+        when(mock.getName()).thenReturn(name);
+        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(1000 + id, "Default");
+        when(mock.getConfigurations()).thenReturn(Collections.singletonList(deviceConfiguration));
+        DeviceProtocolPluggableClass pluggableClass = mock(DeviceProtocolPluggableClass.class);
+        when(pluggableClass.getId()).thenReturn(id * id);
+        when(mock.getDeviceProtocolPluggableClass()).thenReturn(pluggableClass);
+        when(deviceConfigurationService.findDeviceType(id)).thenReturn(Optional.of(mock));
+        return mock;
+    }
+
+    DeviceConfiguration mockDeviceConfiguration(long id, String name) {
+        DeviceConfiguration mock = mock(DeviceConfiguration.class);
+        when(mock.getId()).thenReturn(id);
+        when(mock.getName()).thenReturn(name);
+
+        return mock;
+    }
+
+    PropertySpec mockStringPropertySpec() {
+        PropertySpec propertySpec = mock(PropertySpec.class);
+        when(propertySpec.isRequired()).thenReturn(true);
+        when(propertySpec.getName()).thenReturn("string.property");
+        when(propertySpec.getValueFactory()).thenReturn(new StringFactory());
+        PropertySpecPossibleValues possibleValues = mock(PropertySpecPossibleValues.class);
+        when(possibleValues.getDefault()).thenReturn("default");
+        when(propertySpec.getPossibleValues()).thenReturn(possibleValues);
+
+        return propertySpec;
+    }
+
+
+    PropertySpec mockBigDecimalPropertySpec() {
+        PropertySpec propertySpec = mock(PropertySpec.class);
+        when(propertySpec.isRequired()).thenReturn(true);
+        when(propertySpec.getName()).thenReturn("decimal.property");
+        when(propertySpec.getValueFactory()).thenReturn(new BigDecimalFactory());
+        PropertySpecPossibleValues possibleValues = mock(PropertySpecPossibleValues.class);
+        when(possibleValues.getDefault()).thenReturn(BigDecimal.ONE);
+        when(propertySpec.getPossibleValues()).thenReturn(possibleValues);
+        return propertySpec;
+    }
+
+    PropertySpec mockExhaustiveListPropertySpec() {
+        PropertySpec propertySpec = mock(PropertySpec.class);
+        when(propertySpec.isRequired()).thenReturn(true);
+        when(propertySpec.getName()).thenReturn("list.property");
+        when(propertySpec.getValueFactory()).thenReturn(new StringFactory());
+        PropertySpecPossibleValues possibleValues = mock(PropertySpecPossibleValues.class);
+        when(possibleValues.isExhaustive()).thenReturn(true);
+        when(possibleValues.getAllValues()).thenReturn(Arrays.asList("Value1", "Value2", "Value3"));
+        when(possibleValues.getDefault()).thenReturn("Value1");
+        when(propertySpec.getPossibleValues()).thenReturn(possibleValues);
+        return propertySpec;
+    }
+
+    PropertySpec mockDatePropertySpec(Date defaultValue) {
+        PropertySpec propertySpec = mock(PropertySpec.class);
+        when(propertySpec.isRequired()).thenReturn(true);
+        when(propertySpec.getName()).thenReturn("date.property");
+        when(propertySpec.getValueFactory()).thenReturn(new DateFactory());
+        PropertySpecPossibleValues possibleValues = mock(PropertySpecPossibleValues.class);
+        when(possibleValues.getDefault()).thenReturn(defaultValue);
+        when(propertySpec.getPossibleValues()).thenReturn(possibleValues);
+        return propertySpec;
+    }
+
+    <T> Finder<T> mockFinder(List<T> list) {
+        Finder<T> finder = mock(Finder.class);
+
+        when(finder.paged(anyInt(), anyInt())).thenReturn(finder);
+        when(finder.sorted(anyString(), any(Boolean.class))).thenReturn(finder);
+        when(finder.from(any(QueryParameters.class))).thenReturn(finder);
+        when(finder.find()).thenReturn(list);
+        when(finder.stream()).thenReturn(list.stream());
+        return finder;
+    }
+
+
+
+
+}

@@ -125,13 +125,27 @@ public class DeviceInfoFactory extends SelectableFieldFactory<DeviceInfo,Device>
                 UriBuilder uriBuilder = uriInfo.getBaseUriBuilder().
                         path(LogBookResource.class).
                         path(LogBookResource.class, "getLogBook").
-                        resolveTemplate("deviceTypeId", device.getDeviceType().getId()).
-                        resolveTemplate("deviceConfigurationId", device.getDeviceConfiguration().getId()).
-                        resolveTemplate("deviceId", device.getmRID()).
+                        resolveTemplate("mrid", device.getmRID()).
                         resolveTemplate("id", logBook.getId());
                 linkInfo.link = Link.fromUriBuilder(uriBuilder).rel("related").title("log book").build();
             }
         });
+        map.put("connectionMethods", (deviceInfo, device, uriInfo) -> {
+            deviceInfo.connectionMethods = device.getConnectionTasks().stream().
+                    map(connectionTask -> {
+                        LinkInfo linkInfo = new LinkInfo();
+                        linkInfo.id = connectionTask.getId();
+                        UriBuilder uriBuilder = uriInfo.getBaseUriBuilder().
+                                path(ConnectionTaskResource.class).
+                                path(ConnectionTaskResource.class, "getConnectionTask").
+                                resolveTemplate("mrid", device.getmRID()).
+                                resolveTemplate("id", connectionTask.getId());
+                        linkInfo.link = Link.fromUriBuilder(uriBuilder).rel("related").title("connection method").build();
+                        return linkInfo;
+                    }).
+                    collect(toList());
+        });
+
         map.put("loadProfiles", (deviceInfo, device, uriInfo) -> {
             deviceInfo.loadProfiles = new ArrayList<>();
             for (LoadProfile loadProfile: device.getLoadProfiles()) {

@@ -17,7 +17,7 @@ import javax.ws.rs.core.UriInfo;
 /**
  * Created by bvn on 4/22/15.
  */
-@Path("/devices/{deviceId}/logbooks")
+@Path("/devices/{mrid}/logbooks")
 public class LogBookResource {
 
     @Inject

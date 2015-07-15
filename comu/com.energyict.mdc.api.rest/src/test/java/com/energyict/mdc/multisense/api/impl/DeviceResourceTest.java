@@ -1,9 +1,6 @@
 package com.energyict.mdc.multisense.api.impl;
 
 import com.elster.jupiter.domain.util.Finder;
-import com.elster.jupiter.domain.util.QueryParameters;
-import com.elster.jupiter.fsm.State;
-import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecPossibleValues;
 import com.elster.jupiter.properties.StringFactory;
@@ -12,31 +9,26 @@ import com.elster.jupiter.rest.util.properties.PropertyTypeInfo;
 import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.validation.rest.PropertyType;
-import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.Register;
-import com.energyict.mdc.device.data.imp.Batch;
+import com.energyict.mdc.device.data.LogBook;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.lifecycle.ExecutableAction;
 import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
-import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.lifecycle.impl.ExecutableActionPropertyImpl;
 import com.energyict.mdc.dynamic.DateAndTimeFactory;
 import com.energyict.mdc.dynamic.DateFactory;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.jayway.jsonpath.JsonModel;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import org.junit.Before;
@@ -45,8 +37,6 @@ import org.mockito.ArgumentCaptor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -54,7 +44,7 @@ import static org.mockito.Mockito.when;
 /**
  * Created by bvn on 4/29/15.
  */
-public class ApiTest extends DeviceDataPublicApiJerseyTest {
+public class DeviceResourceTest extends MultisensePublicApiJerseyTest {
 
     private Device deviceXas;
 
@@ -73,61 +63,11 @@ public class ApiTest extends DeviceDataPublicApiJerseyTest {
         Finder<DeviceType> deviceTypeFinder = mockFinder(Arrays.asList(water, gas, elec1, elec2, elec3, elec4, elec5));
         when(this.deviceConfigurationService.findAllDeviceTypes()).thenReturn(deviceTypeFinder);
 
-        Device device = mockDevice("DAV", "65749846514");
-        deviceXas = mockDevice("XAS", "5544657642");
-        Device device3 = mockDevice("PIO", "54687651356");
+        Device device = mockDevice("DAV", "65749846514", elec1);
+        deviceXas = mockDevice("XAS", "5544657642", elec1);
+        Device device3 = mockDevice("PIO", "54687651356", elec2);
         Finder<Device> deviceFinder = mockFinder(Arrays.asList(device, deviceXas, device3));
         when(this.deviceService.findAllDevices(any(Condition.class))).thenReturn(deviceFinder);
-    }
-
-    private Device mockDevice(String mrid, String serial) {
-        Device mock = mock(Device.class);
-        when(mock.getmRID()).thenReturn(mrid);
-        when(mock.getName()).thenReturn(mrid);
-        long deviceId = (long) mrid.hashCode();
-        when(mock.getId()).thenReturn(deviceId);
-        when(mock.getSerialNumber()).thenReturn(serial);
-        when(mock.getVersion()).thenReturn(333L);
-        State state = mock(State.class);
-        when(state.getName()).thenReturn(DefaultState.IN_STOCK.getKey());
-        when(mock.getState()).thenReturn(state);
-        DeviceType deviceType = mockDeviceType(31L, "X1");
-        when(mock.getDeviceType()).thenReturn(deviceType);
-        DeviceConfiguration deviceConfig = mock(DeviceConfiguration.class);
-        when(deviceConfig.getName()).thenReturn("Default configuration");
-        when(deviceConfig.getId()).thenReturn(34L);
-        when(mock.getDeviceConfiguration()).thenReturn(deviceConfig);
-        Register register = mock(Register.class);
-        when(register.getRegisterSpecId()).thenReturn(666L);
-        when(mock.getRegisters()).thenReturn(Collections.singletonList(register));
-        Batch batch = mock(Batch.class);
-        when(batch.getName()).thenReturn("BATCH A");
-        when(deviceImportService.findBatch(deviceId)).thenReturn(Optional.of(batch));
-        when(topologyService.getPhysicalGateway(mock)).thenReturn(Optional.empty());
-        when(this.deviceService.findByUniqueMrid(mrid)).thenReturn(Optional.of(mock));
-        when(this.deviceService.findAndLockDeviceByIdAndVersion(deviceId, 333L)).thenReturn(Optional.of(mock));
-        return mock;
-    }
-
-    private DeviceType mockDeviceType(long id, String name) {
-        DeviceType mock = mock(DeviceType.class);
-        when(mock.getId()).thenReturn(id);
-        when(mock.getName()).thenReturn(name);
-        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(1000 + id, "Default");
-        when(mock.getConfigurations()).thenReturn(Collections.singletonList(deviceConfiguration));
-        DeviceProtocolPluggableClass pluggableClass = mock(DeviceProtocolPluggableClass.class);
-        when(pluggableClass.getId()).thenReturn(id*id);
-        when(mock.getDeviceProtocolPluggableClass()).thenReturn(pluggableClass);
-        when(deviceConfigurationService.findDeviceType(id)).thenReturn(Optional.of(mock));
-        return mock;
-    }
-
-    private DeviceConfiguration mockDeviceConfiguration(long id, String name) {
-        DeviceConfiguration mock = mock(DeviceConfiguration.class);
-        when(mock.getId()).thenReturn(id);
-        when(mock.getName()).thenReturn(name);
-
-        return mock;
     }
 
     @Test
@@ -157,9 +97,42 @@ public class ApiTest extends DeviceDataPublicApiJerseyTest {
     }
 
     @Test
-    public void testHypermediaLinkJsonCallSingle() throws Exception {
-        Response response = target("/devices/XAS").request("application/json").get();
+    public void testDeviceFields() throws Exception {
+        Response response = target("/devices/fields").request("application/json").get();
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
+        assertThat(model.<List>get("$")).hasSize(21);
+        assertThat(model.<List<String>>get("$")).contains("actions","batch","connectionMethods","deviceConfiguration",
+                "deviceProtocolPluggeableClassId","gatewayType","id","isDirectlyAddressable","isGateway","lifecycleState",
+                "link","loadProfiles","logBooks","mRID","name","nbrOfDataCollectionIssues","physicalGateway","serialNumber",
+                "slaveDevices","version","yearOfCertification");
+    }
+
+    @Test
+    public void testHypermediaLinkWithConnectionMethods() throws Exception {
+        ConnectionTask<?, ?> connectionTask13 = mock(ConnectionTask.class);
+        when(connectionTask13.getId()).thenReturn(13L);
+        ConnectionTask<?, ?> connectionTask14 = mock(ConnectionTask.class);
+        when(connectionTask14.getId()).thenReturn(14L);
+        when(deviceXas.getConnectionTasks()).thenReturn(Arrays.asList(connectionTask13, connectionTask14));
+        Response response = target("/devices/XAS").queryParam("fields","connectionMethods").request("application/json").get();
+        JsonModel model = JsonModel.model((InputStream) response.getEntity());
+        assertThat(model.<List>get("$.connectionMethods")).hasSize(2);
+        assertThat(model.<Integer>get("$.connectionMethods[0].id")).isEqualTo(13);
+        assertThat(model.<String>get("$.connectionMethods[0].link.params.rel")).isEqualTo("related");
+        assertThat(model.<String>get("$.connectionMethods[0].link.href")).isEqualTo("http://localhost:9998/devices/XAS/connectionmethods/13");
+    }
+
+    @Test
+    public void testHypermediaLinkWithLogBooks() throws Exception {
+        LogBook logBook1 = mock(LogBook.class);
+        when(logBook1.getId()).thenReturn(13L);
+        when(deviceXas.getLogBooks()).thenReturn(Arrays.asList(logBook1));
+        Response response = target("/devices/XAS").queryParam("fields","logBooks").request("application/json").get();
+        JsonModel model = JsonModel.model((InputStream) response.getEntity());
+        assertThat(model.<List>get("$.logBooks")).hasSize(1);
+        assertThat(model.<Integer>get("$.logBooks[0].id")).isEqualTo(13);
+        assertThat(model.<String>get("$.logBooks[0].link.params.rel")).isEqualTo("related");
+        assertThat(model.<String>get("$.logBooks[0].link.href")).isEqualTo("http://localhost:9998/devices/XAS/logbooks/13");
     }
 
     @Test
@@ -210,7 +183,7 @@ public class ApiTest extends DeviceDataPublicApiJerseyTest {
         ExecutableAction executableAction2 = mockExecutableAction(2L, "action.name.2", MicroAction.ENABLE_VALIDATION, stringPropertySpec);
         when(deviceLifeCycleService.getExecutableActions(deviceXas)).thenReturn(Arrays.asList(executableAction1, executableAction2));
         LifeCycleActionInfo info = new LifeCycleActionInfo();
-        info.deviceVersion = 333;
+        info.deviceVersion = 333L;
         info.name = "action.name.1";
         info.properties = new ArrayList<>();
         PropertyInfo propertyInfo = new PropertyInfo();
@@ -243,7 +216,7 @@ public class ApiTest extends DeviceDataPublicApiJerseyTest {
         ExecutableAction executableAction2 = mockExecutableAction(2L, "action.name.2", MicroAction.ENABLE_VALIDATION, stringPropertySpec);
         when(deviceLifeCycleService.getExecutableActions(deviceXas)).thenReturn(Arrays.asList(executableAction1, executableAction2));
         LifeCycleActionInfo info = new LifeCycleActionInfo();
-        info.deviceVersion = 333;
+        info.deviceVersion = 333L;
         info.name = "action.name.1";
         info.properties = new ArrayList<>();
         info.effectiveTimestamp = now;
@@ -268,18 +241,6 @@ public class ApiTest extends DeviceDataPublicApiJerseyTest {
         assertThat(instantArgumentCaptor.getValue()).isEqualTo(now);
     }
 
-    private PropertySpec mockStringPropertySpec() {
-        PropertySpec propertySpec = mock(PropertySpec.class);
-        when(propertySpec.isRequired()).thenReturn(true);
-        when(propertySpec.getName()).thenReturn("string.property");
-        when(propertySpec.getValueFactory()).thenReturn(new StringFactory());
-        PropertySpecPossibleValues possibleValues = mock(PropertySpecPossibleValues.class);
-        when(possibleValues.getDefault()).thenReturn("default");
-        when(propertySpec.getPossibleValues()).thenReturn(possibleValues);
-
-        return propertySpec;
-    }
-
     @Test
     public void testGetDeviceExecutableActionsWithBigDecimalProperties() throws Exception {
         PropertySpec bigDecimalPropertySpec = mockBigDecimalPropertySpec();
@@ -294,17 +255,6 @@ public class ApiTest extends DeviceDataPublicApiJerseyTest {
         assertThat(model.<Boolean>get("data[0].properties[0].required")).isEqualTo(true);
     }
 
-    private PropertySpec mockBigDecimalPropertySpec() {
-        PropertySpec propertySpec = mock(PropertySpec.class);
-        when(propertySpec.isRequired()).thenReturn(true);
-        when(propertySpec.getName()).thenReturn("decimal.property");
-        when(propertySpec.getValueFactory()).thenReturn(new BigDecimalFactory());
-        PropertySpecPossibleValues possibleValues = mock(PropertySpecPossibleValues.class);
-        when(possibleValues.getDefault()).thenReturn(BigDecimal.ONE);
-        when(propertySpec.getPossibleValues()).thenReturn(possibleValues);
-        return propertySpec;
-    }
-
     @Test
     public void testGetDeviceExecutableActionsWithListProperties() throws Exception {
         PropertySpec listPropertySpec = mockExhaustiveListPropertySpec();
@@ -317,19 +267,6 @@ public class ApiTest extends DeviceDataPublicApiJerseyTest {
         assertThat(model.<String>get("data[0].properties[0].propertyValueInfo.defaultValue")).isEqualTo("Value1");
         assertThat(model.<String>get("data[0].properties[0].propertyTypeInfo.simplePropertyType")).isEqualTo("TEXT");
         assertThat(model.<Boolean>get("data[0].properties[0].required")).isEqualTo(true);
-    }
-
-    private PropertySpec mockExhaustiveListPropertySpec() {
-        PropertySpec propertySpec = mock(PropertySpec.class);
-        when(propertySpec.isRequired()).thenReturn(true);
-        when(propertySpec.getName()).thenReturn("list.property");
-        when(propertySpec.getValueFactory()).thenReturn(new StringFactory());
-        PropertySpecPossibleValues possibleValues = mock(PropertySpecPossibleValues.class);
-        when(possibleValues.isExhaustive()).thenReturn(true);
-        when(possibleValues.getAllValues()).thenReturn(Arrays.asList("Value1", "Value2", "Value3"));
-        when(possibleValues.getDefault()).thenReturn("Value1");
-        when(propertySpec.getPossibleValues()).thenReturn(possibleValues);
-        return propertySpec;
     }
 
     @Test
@@ -354,7 +291,7 @@ public class ApiTest extends DeviceDataPublicApiJerseyTest {
         ExecutableAction executableAction1 = mockExecutableAction(1L, "action.name.1", MicroAction.ENABLE_ESTIMATION, datePropertySpec);
         when(deviceLifeCycleService.getExecutableActions(deviceXas)).thenReturn(Collections.singletonList(executableAction1));
         LifeCycleActionInfo info = new LifeCycleActionInfo();
-        info.deviceVersion = 333;
+        info.deviceVersion = 333L;
         info.name = "action.name.1";
         info.properties = new ArrayList<>();
         PropertyInfo propertyInfo = new PropertyInfo();
@@ -376,17 +313,6 @@ public class ApiTest extends DeviceDataPublicApiJerseyTest {
         assertThat(value.get(0).getPropertySpec().getValueFactory().getClass()).isEqualTo(DateFactory.class);
     }
 
-
-    private PropertySpec mockDatePropertySpec(Date defaultValue) {
-        PropertySpec propertySpec = mock(PropertySpec.class);
-        when(propertySpec.isRequired()).thenReturn(true);
-        when(propertySpec.getName()).thenReturn("date.property");
-        when(propertySpec.getValueFactory()).thenReturn(new DateFactory());
-        PropertySpecPossibleValues possibleValues = mock(PropertySpecPossibleValues.class);
-        when(possibleValues.getDefault()).thenReturn(defaultValue);
-        when(propertySpec.getPossibleValues()).thenReturn(possibleValues);
-        return propertySpec;
-    }
 
     @Test
     public void testGetDeviceExecutableActionsWithDateTimeProperties() throws Exception {
@@ -437,17 +363,6 @@ public class ApiTest extends DeviceDataPublicApiJerseyTest {
 
         target("/devicetypes").queryParam("fields", "deviceConfigurations").request("application/json").get();
 
-    }
-
-    private <T> Finder<T> mockFinder(List<T> list) {
-        Finder<T> finder = mock(Finder.class);
-
-        when(finder.paged(anyInt(), anyInt())).thenReturn(finder);
-        when(finder.sorted(anyString(), any(Boolean.class))).thenReturn(finder);
-        when(finder.from(any(QueryParameters.class))).thenReturn(finder);
-        when(finder.find()).thenReturn(list);
-        when(finder.stream()).thenReturn(list.stream());
-        return finder;
     }
 
 }

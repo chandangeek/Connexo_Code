@@ -23,6 +23,7 @@ public class DeviceInfo extends LinkInfo {
     public GatewayType gatewayType;
     public Boolean isDirectlyAddressable;
     public Boolean isGateway;
+    public List<LinkInfo> connectionMethods;
     public List<LinkInfo> logBooks;
     public List<LinkInfo> loadProfiles;
     public List<LinkInfo> slaveDevices;

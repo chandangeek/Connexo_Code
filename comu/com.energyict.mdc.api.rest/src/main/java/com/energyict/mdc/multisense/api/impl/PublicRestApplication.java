@@ -14,10 +14,12 @@ import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.ExceptionLogger;
 import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.imp.DeviceImportService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.google.common.collect.ImmutableSet;
 import java.time.Clock;
@@ -26,6 +28,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
+import javax.inject.Singleton;
 import javax.ws.rs.core.Application;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
@@ -34,10 +37,10 @@ import org.osgi.service.component.annotations.Reference;
 @Component(name = "com.energyict.multisense.public.rest",
         service = {Application.class, TranslationKeyProvider.class},
         immediate = true,
-        property = {"alias=/dda", "app=MDC", "name=" + DeviceApplication.COMPONENT_NAME, "version=v2.0"})
-public class DeviceApplication extends Application implements TranslationKeyProvider {
+        property = {"alias=/dda", "app=MDC", "name=" + PublicRestApplication.COMPONENT_NAME, "version=v2.0"})
+public class PublicRestApplication extends Application implements TranslationKeyProvider {
 
-    private final Logger logger = Logger.getLogger(DeviceApplication.class.getName());
+    private final Logger logger = Logger.getLogger(PublicRestApplication.class.getName());
 
     public static final String APP_KEY = "MDC";
     public static final String COMPONENT_NAME = "DDA";
@@ -52,6 +55,8 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     private volatile Thesaurus thesaurus;
     private volatile NlsService nlsService;
     private volatile TransactionService transactionService;
+    private volatile ConnectionTaskService connectionTaskService;
+    private volatile EngineConfigurationService engineConfigurationService;
     private volatile Clock clock;
 
     @Override
@@ -63,6 +68,8 @@ public class DeviceApplication extends Application implements TranslationKeyProv
                 DeviceConfigurationResource.class,
                 DeviceTypeResource.class,
                 DeviceLifecycleActionResource.class,
+                ConnectionTaskResource.class,
+                ComPortPoolResource.class,
                 DeviceLifeCycleActionViolationExceptionMapper.class
         );
     }
@@ -116,6 +123,16 @@ public class DeviceApplication extends Application implements TranslationKeyProv
         this.transactionService = transactionService;
     }
 
+    @Reference
+    public void setConnectionTaskService(ConnectionTaskService connectionTaskService) {
+        this.connectionTaskService = connectionTaskService;
+    }
+
+    @Reference
+    public void setEngineConfigurationService(EngineConfigurationService engineConfigurationService) {
+        this.engineConfigurationService = engineConfigurationService;
+    }
+
     @Override
     public String getComponentName() {
         return COMPONENT_NAME;
@@ -153,20 +170,26 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(deviceImportService).to(DeviceImportService.class);
             bind(deviceConfigurationService).to(DeviceConfigurationService.class);
             bind(issueService).to(IssueService.class);
-            bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
-            bind(MdcPropertyUtils.class).to(MdcPropertyUtils.class);
             bind(thesaurus).to(Thesaurus.class);
             bind(nlsService).to(NlsService.class);
-            bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(topologyService).to(TopologyService.class);
-            bind(DeviceInfoFactory.class).to(DeviceInfoFactory.class);
-            bind(DeviceLifecycleActionInfoFactory.class).to(DeviceLifecycleActionInfoFactory.class);
-            bind(DeviceTypeInfoFactory.class).to(DeviceTypeInfoFactory.class);
-            bind(DeviceConfigurationInfoFactory.class).to(DeviceConfigurationInfoFactory.class);
             bind(finiteStateMachineService).to(FiniteStateMachineService.class);
             bind(deviceLifeCycleService).to(DeviceLifeCycleService.class);
             bind(transactionService).to(TransactionService.class);
+            bind(connectionTaskService).to(ConnectionTaskService.class);
+            bind(engineConfigurationService).to(EngineConfigurationService.class);
             bind(clock).to(Clock.class);
+
+            bind(MdcPropertyUtils.class).to(MdcPropertyUtils.class).in(Singleton.class);
+            bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
+            bind(ExceptionFactory.class).to(ExceptionFactory.class);
+
+            bind(DeviceInfoFactory.class).to(DeviceInfoFactory.class).in(Singleton.class);
+            bind(DeviceLifecycleActionInfoFactory.class).to(DeviceLifecycleActionInfoFactory.class).in(Singleton.class);
+            bind(DeviceTypeInfoFactory.class).to(DeviceTypeInfoFactory.class).in(Singleton.class);
+            bind(DeviceConfigurationInfoFactory.class).to(DeviceConfigurationInfoFactory.class).in(Singleton.class);
+            bind(ConnectionTaskInfoFactory.class).to(ConnectionTaskInfoFactory.class).in(Singleton.class);
+            bind(ComPortPoolInfoFactory.class).to(ComPortPoolInfoFactory.class).in(Singleton.class);
         }
     }
 

@@ -157,6 +157,10 @@
             <artifactId>json-path</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.device.data.rest</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
