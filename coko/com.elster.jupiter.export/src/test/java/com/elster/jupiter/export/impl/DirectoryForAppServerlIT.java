@@ -15,6 +15,7 @@ import com.elster.jupiter.export.DataFormatter;
 import com.elster.jupiter.export.DataFormatterFactory;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
+import com.elster.jupiter.ftpclient.impl.FtpModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.mail.impl.MailModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
@@ -149,7 +150,8 @@ public class DirectoryForAppServerlIT {
                     new MailModule(),
                     new BpmModule(),
                     new ValidationModule(),
-                    new DataVaultModule()
+                    new DataVaultModule(),
+                    new FtpModule()
             );
         } catch (Exception e) {
             throw new RuntimeException(e);

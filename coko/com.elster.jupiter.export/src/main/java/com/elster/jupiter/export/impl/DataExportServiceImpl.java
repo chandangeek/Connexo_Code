@@ -11,6 +11,7 @@ import com.elster.jupiter.export.DataFormatterFactory;
 import com.elster.jupiter.export.DataSelectorFactory;
 import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.export.StructureMarker;
+import com.elster.jupiter.ftpclient.FtpClientService;
 import com.elster.jupiter.mail.MailService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
@@ -88,6 +89,8 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
     private volatile ValidationService validationService;
     private volatile DataVaultService dataVaultService;
 
+    private volatile FtpClientService ftpClientService;
+
     private Map<DataFormatterFactory, List<String>> dataFormatterFactories = new ConcurrentHashMap<>();
     private Map<DataSelectorFactory, String> dataSelectorFactories = new ConcurrentHashMap<>();
     private Optional<DestinationSpec> destinationSpec = Optional.empty();
@@ -97,7 +100,7 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
     }
 
     @Inject
-    public DataExportServiceImpl(OrmService ormService, TimeService timeService, TaskService taskService, MeteringGroupsService meteringGroupsService, MessageService messageService, NlsService nlsService, MeteringService meteringService, QueryService queryService, Clock clock, UserService userService, AppService appService, TransactionService transactionService, PropertySpecService propertySpecService, MailService mailService, BundleContext context, FileSystem fileSystem, ValidationService validationService, DataVaultService dataVaultService) {
+    public DataExportServiceImpl(OrmService ormService, TimeService timeService, TaskService taskService, MeteringGroupsService meteringGroupsService, MessageService messageService, NlsService nlsService, MeteringService meteringService, QueryService queryService, Clock clock, UserService userService, AppService appService, TransactionService transactionService, PropertySpecService propertySpecService, MailService mailService, BundleContext context, FileSystem fileSystem, ValidationService validationService, DataVaultService dataVaultService, FtpClientService ftpClientService) {
         setOrmService(ormService);
         setTimeService(timeService);
         setTaskService(taskService);
@@ -115,6 +118,7 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
         setFileSystem(fileSystem);
         setValidationService(validationService);
         setDataVaultService(dataVaultService);
+        setFtpClientService(ftpClientService);
         activate(context);
         if (!dataModel.isInstalled()) {
             install();
@@ -255,6 +259,11 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
         this.dataVaultService = dataVaultService;
     }
 
+    @Reference
+    public void setFtpClientService(FtpClientService ftpClientService) {
+        this.ftpClientService = ftpClientService;
+    }
+
     public void removeFormatter(DataFormatterFactory dataFormatterFactory) {
         dataFormatterFactories.remove(dataFormatterFactory);
     }
@@ -285,6 +294,7 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
                     bind(FileSystem.class).toInstance(fileSystem);
                     bind(ValidationService.class).toInstance(validationService);
                     bind(DataVaultService.class).toInstance(dataVaultService);
+                    bind(FtpClientService.class).toInstance(ftpClientService);
                 }
             });
             addSelector(new StandardDataSelectorFactory(transactionService, meteringService, thesaurus), ImmutableMap.of(DATA_TYPE_PROPERTY, STANDARD_DATA_TYPE));
