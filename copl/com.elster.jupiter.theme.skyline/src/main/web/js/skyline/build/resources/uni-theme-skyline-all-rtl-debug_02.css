@@ -7975,6 +7975,11 @@ body.login .x-panel-login .x-field-error .x-form-display-field {
   margin-bottom: 0;
 }
 
+/* line 50, ../../sass/src/container/Search.scss */
+.x-menu-item-checkbox {
+  margin: 7px 0px 0px 9px !important;
+}
+
 /* line 3, ../../sass/src/LoadMask.scss */
 .x-panel .x-mask {
   background: white !important;

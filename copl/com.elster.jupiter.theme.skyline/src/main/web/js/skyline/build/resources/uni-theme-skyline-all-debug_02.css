@@ -6175,6 +6175,11 @@ body.login .x-panel-login .x-field-error .x-form-display-field {
   margin-bottom: 0;
 }
 
+/* line 50, ../../sass/src/container/Search.scss */
+.x-menu-item-checkbox {
+  margin: 7px 0px 0px 9px !important;
+}
+
 /* line 3, ../../sass/src/LoadMask.scss */
 .x-panel .x-mask {
   background: white !important;
@@ -16332,11 +16337,4 @@ a:hover, a.x-btn:hover {
 .x-btn-tag-medium-disabled:after {
   display: none;
   content: "x-slicer:stretch:bottom, corners:url(images/btn/btn-tag-medium-disabled-corners.gif), sides:url(images/btn/btn-tag-medium-disabled-sides.gif), frame-bg:url(images/btn/btn-tag-medium-disabled-fbg.gif), bg:url(images/btn/btn-tag-medium-disabled-bg.gif)";
-}
-
-/*</if slicer>*/
-/* */
-/* line 255, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
-.x-btn-tag-large {
-  border-color: transparent;
 }
