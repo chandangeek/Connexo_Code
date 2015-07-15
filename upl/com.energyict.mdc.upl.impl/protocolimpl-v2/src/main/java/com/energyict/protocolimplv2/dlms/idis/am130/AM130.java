@@ -51,7 +51,7 @@ public class AM130 extends AM500 {
     private AM130RegisterFactory registerFactory = null;
 
     /**
-     * The version date
+     * The protocol version date
      */
     @Override
     public String getVersion() {
