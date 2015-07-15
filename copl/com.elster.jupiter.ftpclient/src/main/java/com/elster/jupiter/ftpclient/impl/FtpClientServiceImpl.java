@@ -5,6 +5,7 @@ import com.elster.jupiter.ftpclient.FtpSessionFactory;
 import com.elster.jupiter.ftpclient.IOConsumer;
 import org.osgi.service.component.annotations.Component;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -17,6 +18,10 @@ public class FtpClientServiceImpl implements FtpClientService {
     private final FtpFileSystemProvider ftpProvider = new FtpFileSystemProvider();
     private final FtpsFileSystemProvider ftpsProvider = new FtpsFileSystemProvider();
     private final SftpFileSystemProvider sftpProvider = new SftpFileSystemProvider();
+
+    @Inject
+    public FtpClientServiceImpl() {
+    }
 
     @Override
     public FtpSessionFactory getFtpFactory(String host, int port, String user, String password) {
