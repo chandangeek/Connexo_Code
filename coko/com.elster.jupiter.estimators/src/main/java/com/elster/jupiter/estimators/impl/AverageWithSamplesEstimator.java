@@ -6,7 +6,6 @@ import com.elster.jupiter.estimation.AdvanceReadingsSettingsFactory;
 import com.elster.jupiter.estimation.BulkAdvanceReadingsSettings;
 import com.elster.jupiter.estimation.Estimatable;
 import com.elster.jupiter.estimation.EstimationBlock;
-import com.elster.jupiter.estimation.EstimationBlockFormatter;
 import com.elster.jupiter.estimation.EstimationResult;
 import com.elster.jupiter.estimation.EstimationRuleProperties;
 import com.elster.jupiter.estimation.NoneAdvanceReadingsSettings;
@@ -27,13 +26,11 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeService;
-import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.logging.LoggingContext;
 import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.ValidationService;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
@@ -51,8 +48,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.streams.Predicates.either;
@@ -569,12 +564,11 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
 
     private Range<Instant> getPeriod(Channel channel, Instant referenceTime) {
         if (relativePeriod != null && timeService.getAllRelativePeriod().getId() != relativePeriod.getId()) {
-            Range<ZonedDateTime> range = relativePeriod.getInterval(ZonedDateTime.ofInstant(referenceTime, channel.getZoneId()));
-            return Ranges.map(range, ZonedDateTime::toInstant);
+            return relativePeriod.getOpenClosedInterval(ZonedDateTime.ofInstant(referenceTime, channel.getZoneId()));
         } else {
             Instant start = channel.getMeterActivation().getStart();
             Optional<Instant> lastChecked = validationService.getLastChecked(channel);
-            return lastChecked.map(end -> Range.openClosed(start, end)).orElseGet(() -> Range.atLeast(start));
+            return lastChecked.map(end -> Range.openClosed(start, end)).orElseGet(() -> Range.greaterThan(start));
         }
     }
 
