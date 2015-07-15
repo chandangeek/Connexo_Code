@@ -10,7 +10,6 @@ import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.logging.LoggingContext;
 import com.elster.jupiter.util.streams.Functions;
 import com.google.common.collect.Range;
@@ -64,8 +63,7 @@ class EstimationTaskExecutor implements TaskExecutor {
 
     private Range<Instant> period(MeterActivation meterActivation, RelativePeriod relativePeriod, Instant triggerTime) {
         ZonedDateTime referenceDate = ZonedDateTime.ofInstant(triggerTime, meterActivation.getZoneId());
-        Range<ZonedDateTime> interval = relativePeriod.getInterval(referenceDate);
-        return Ranges.map(interval, ZonedDateTime::toInstant);
+        return relativePeriod.getOpenClosedInterval(referenceDate);
     }
 
     private EstimationTask getEstimationTask(TaskOccurrence occurrence) {
