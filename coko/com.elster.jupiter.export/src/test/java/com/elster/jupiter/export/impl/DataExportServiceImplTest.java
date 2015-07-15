@@ -178,7 +178,7 @@ public class DataExportServiceImplTest {
         when(dataModel.getInstance(DataExportOccurrenceImpl.class)).thenReturn(dataExportOccurrence1);
         when(taskOccurrence.getTriggerTime()).thenReturn(NOW);
         when(readingTypeDataSelector.getExportPeriod()).thenReturn(relativePeriod);
-        when(relativePeriod.getInterval(any())).thenReturn(Range.openClosed(ZonedDateTime.ofInstant(NOW, ZoneId.of("Europe/Paris")), ZonedDateTime.ofInstant(NOW, ZoneId.of("Europe/Paris"))));
+        when(relativePeriod.getOpenClosedInterval(any())).thenReturn(Range.openClosed(NOW, NOW));
 
         assertThat(dataExportService.createExportOccurrence(taskOccurrence)).isEqualTo(dataExportOccurrence1);
         assertThat(dataExportOccurrence1.getTask()).isEqualTo(iExportTask);
