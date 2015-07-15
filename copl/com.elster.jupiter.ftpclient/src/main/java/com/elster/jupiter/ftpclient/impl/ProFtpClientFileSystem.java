@@ -236,6 +236,7 @@ abstract class ProFtpClientFileSystem<T extends ProFtpClientFileSystem<T>> exten
         };
     }
 
+    @Override
     InputStream openInputStream(FtpPath path) throws IOException {
         if (!this.equals(path.getFileSystem())) {
             throw new IllegalArgumentException();

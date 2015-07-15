@@ -3,6 +3,7 @@ package com.elster.jupiter.ftpclient.impl;
 import com.google.common.collect.ImmutableList;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.nio.channels.SeekableByteChannel;
@@ -103,6 +104,8 @@ abstract class AbstractFtpFileSystem extends FileSystem {
     abstract <V extends FileAttributeView> V getFileAttributeView(FtpPath ftpPath, Class<V> type);
 
     abstract DirectoryStream<Path> newDirectoryStream(FtpPath ftpDir, DirectoryStream.Filter<? super Path> filter);
+
+    abstract InputStream openInputStream(FtpPath path) throws IOException;
 
     abstract OutputStream openOutputStream(FtpPath path) throws IOException;
 
