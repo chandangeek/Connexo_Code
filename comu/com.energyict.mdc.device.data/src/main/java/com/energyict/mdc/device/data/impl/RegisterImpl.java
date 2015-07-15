@@ -178,6 +178,7 @@ public abstract class RegisterImpl<R extends Reading> implements Register<R> {
     private class RegisterDataUpdaterImpl implements RegisterDataUpdater {
         private final RegisterImpl<R> register;
         private final List<BaseReading> edited = new ArrayList<>();
+        private final List<BaseReading> confirmed = new ArrayList<>();
         private final Map<Channel, List<BaseReadingRecord>> obsolete = new HashMap<>();
         private Optional<Instant> activationDate = Optional.empty();
 
@@ -190,6 +191,13 @@ public abstract class RegisterImpl<R extends Reading> implements Register<R> {
         public RegisterDataUpdater editReading(BaseReading modified) {
             this.activationDate.ifPresent(previousTimestamp -> this.setActivationDateIfBefore(modified.getTimeStamp()));
             this.edited.add(modified);
+            return this;
+        }
+
+        @Override
+        public RegisterDataUpdater confirmReading(BaseReading modified) {
+            this.activationDate.ifPresent(previousTimestamp -> this.setActivationDateIfBefore(modified.getTimeStamp()));
+            this.confirmed.add(modified);
             return this;
         }
 
@@ -214,6 +222,7 @@ public abstract class RegisterImpl<R extends Reading> implements Register<R> {
         public void complete() {
             this.activationDate.ifPresent(this.register.device::ensureActiveOn);
             this.edited.forEach(this::addOrEdit);
+            this.confirmed.forEach(this::confirm);
         }
 
         private void addOrEdit(BaseReading reading) {
@@ -221,6 +230,12 @@ public abstract class RegisterImpl<R extends Reading> implements Register<R> {
                 .findOrCreateKoreChannel(reading.getTimeStamp(), this.register)
                 .editReadings(Arrays.asList(reading));
             this.obsolete.forEach(Channel::removeReadings);
+        }
+
+        private void confirm(BaseReading reading) {
+            this.register.device
+                    .findOrCreateKoreChannel(reading.getTimeStamp(), this.register)
+                    .confirmReadings(Arrays.asList(reading));
         }
     }
 
