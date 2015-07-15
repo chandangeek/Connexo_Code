@@ -153,6 +153,10 @@ public class FirmwareCampaignHandler implements MessageHandler {
             this.topic = topic;
         }
 
+        public String getTopic() {
+            return topic;
+        }
+
         public abstract void handle(Map<String, Object> properties, FirmwareCampaignHandlerContext context);
 
         public static Optional<Handler> getHandlerForTopic(String topic) {

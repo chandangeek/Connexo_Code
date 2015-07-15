@@ -4,12 +4,11 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.exception.ExceptionCatcher;
 import com.energyict.mdc.firmware.security.Privileges;
 
-import java.util.Arrays;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -51,12 +50,15 @@ public class Installer {
 
     private void createJupiterEventsSubscriber() {
         Optional<DestinationSpec> destinationSpec = this.messageService.getDestinationSpec(EventService.JUPITER_EVENTS);
-        if(destinationSpec.isPresent()){
+        if (destinationSpec.isPresent()) {
             DestinationSpec jupiterEvents = destinationSpec.get();
-            Arrays.asList(FirmwareCampaignHandlerFactory.FIRMWARE_CAMPAIGNS_SUBSCRIBER)
-                    .stream()
-                    .filter(subscriber -> !jupiterEvents.getSubscribers().stream().anyMatch(s -> s.getName().equals(subscriber)))
-                    .forEach(jupiterEvents::subscribe);
+            if (!jupiterEvents.getSubscribers().stream().anyMatch(s -> s.getName().equals(FirmwareCampaignHandlerFactory.FIRMWARE_CAMPAIGNS_SUBSCRIBER))) {
+                Condition or = Condition.FALSE;
+                for (FirmwareCampaignHandler.Handler handler : FirmwareCampaignHandler.Handler.values()) {
+                    or = or.or(DestinationSpec.whereCorrelationId().isEqualTo(handler.getTopic()));
+                }
+                jupiterEvents.subscribe(FirmwareCampaignHandlerFactory.FIRMWARE_CAMPAIGNS_SUBSCRIBER, or);
+            }
         }
     }
 
