@@ -101,8 +101,8 @@ final class GroupImpl implements Group , PersistenceAware {
     private List<PrivilegeInGroup> getPrivilegeInGroups(String applicationName) {
         return getPrivilegeInGroups()
                 .stream()
-                .filter(p->p.getApplicationName().equalsIgnoreCase(applicationName))
-                .collect(Collectors.toList());
+                .filter(p -> (applicationName == null)? true: p.getApplicationName().equalsIgnoreCase(applicationName))
+                        .collect(Collectors.toList());
     }
     
     @Override
