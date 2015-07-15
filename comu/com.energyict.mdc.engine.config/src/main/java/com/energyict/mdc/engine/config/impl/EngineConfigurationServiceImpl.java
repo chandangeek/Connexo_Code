@@ -42,6 +42,8 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.proxy.LazyLoader;
+import com.elster.jupiter.util.streams.DecoratedStream;
+import com.elster.jupiter.util.streams.Predicates;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.json.JSONException;
@@ -52,7 +54,6 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -240,8 +241,8 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
     }
 
     /**
-     * Convert the given List of {@link ComServer comServers} to a proper list of {@link OnlineComServer}
-     * A {@link ClassCastException} will be thrown if the given {@link ComServer comServer} could not be casted to {@link OnlineComServer}
+     * Converts the given List of {@link ComServer comServers} to a proper list of {@link OnlineComServer}.
+     * A {@link ClassCastException} will be thrown if the given {@link ComServer comServer} could not be casted to {@link OnlineComServer}.
      *
      * @param comServers the given list of ComServers
      * @return a list of {@link OnlineComServer}
@@ -251,8 +252,8 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
     }
 
     /**
-     * Convert the given List of {@link ComServer comServers} to a proper list of {@link OfflineComServer}
-     * A {@link ClassCastException} will be thrown if the given {@link ComServer comServer} could not be casted to {@link OfflineComServer}
+     * Converts the given List of {@link ComServer comServers} to a proper list of {@link OfflineComServer}.
+     * A {@link ClassCastException} will be thrown if the given {@link ComServer comServer} could not be casted to {@link OfflineComServer}.
      *
      * @param comServers the given list of ComServers
      * @return a list of {@link OfflineComServer}
@@ -262,8 +263,8 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
     }
 
     /**
-     * Convert the given List of {@link ComServer comServers} to a proper list of {@link RemoteComServer}
-     * A {@link ClassCastException} will be thrown if the given {@link ComServer comServer} could not be casted to {@link RemoteComServer}
+     * Converts the given List of {@link ComServer comServers} to a proper list of {@link RemoteComServer}.
+     * A {@link ClassCastException} will be thrown if the given {@link ComServer comServer} could not be casted to {@link RemoteComServer}.
      *
      * @param comServers the given list of ComServers
      * @return a list of {@link RemoteComServer}
@@ -295,19 +296,17 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
     }
 
     private List<OutboundComPort> convertComportListToOutBoundComPorts(final List<ComPort> comPorts) {
-        List<OutboundComPort> outboundComPorts = new ArrayList<>(comPorts.size());
-        for (ComPort comPort : comPorts) {
-            outboundComPorts.add((OutboundComPort) comPort);
-        }
-        return outboundComPorts;
+        return comPorts
+                .stream()
+                .map(OutboundComPort.class::cast)
+                .collect(Collectors.toList());
     }
 
     private List<InboundComPort> convertComportListToInBoundComPorts(final List<ComPort> comPorts) {
-        List<InboundComPort> inboundComPorts = new ArrayList<>(comPorts.size());
-        for (ComPort comPort : comPorts) {
-            inboundComPorts.add((InboundComPort) comPort);
-        }
-        return inboundComPorts;
+        return comPorts
+                .stream()
+                .map(InboundComPort.class::cast)
+                .collect(Collectors.toList());
     }
 
 
@@ -368,23 +367,19 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
     }
 
     private List<OutboundComPortPool> convertComportPoolListToOutBoundComPortPools(final List<ComPortPool> comPortPools) {
-        List<OutboundComPortPool> outboundComPortPools = new ArrayList<>(comPortPools.size());
-        for (ComPortPool comPortPool : comPortPools) {
-            if (!comPortPool.isInbound()) {
-                outboundComPortPools.add((OutboundComPortPool) comPortPool);
-            }
-        }
-        return outboundComPortPools;
+        return comPortPools
+                .stream()
+                .filter(Predicates.not(ComPortPool::isInbound))
+                .map(OutboundComPortPool.class::cast)
+                .collect(Collectors.toList());
     }
 
     private List<InboundComPortPool> convertComportPoolListToInBoundComPortPools(final List<ComPortPool> comPortPools) {
-        List<InboundComPortPool> inboundComPortPools = new ArrayList<>(comPortPools.size());
-        for (ComPortPool comPortPool : comPortPools) {
-            if (comPortPool.isInbound()) {
-                inboundComPortPools.add((InboundComPortPool) comPortPool);
-            }
-        }
-        return inboundComPortPools;
+        return comPortPools
+                .stream()
+                .filter(ComPortPool::isInbound)
+                .map(InboundComPortPool.class::cast)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -420,22 +415,20 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
     @Override
     public List<OutboundComPortPool> findContainingComPortPoolsForComPort(OutboundComPort comPort) {
         List<ComPortPoolMember> comPortPoolMembers = getComPortPoolMemberDataMapper().find("comPort", comPort);
-        List<OutboundComPortPool> comPortPools = new ArrayList<>();
-        for (ComPortPoolMember comPortPoolMember : comPortPoolMembers) {
-            comPortPools.add(comPortPoolMember.getComPortPool());
-        }
-        return comPortPools;
+        return comPortPoolMembers
+                .stream()
+                .map(ComPortPoolMember::getComPortPool)
+                .collect(Collectors.toList());
     }
 
     @Override
     public List<ComPortPool> findContainingComPortPoolsForComServer(ComServer comServer) {
-        List<ComPortPool> comPortPools = new ArrayList<>();
-        for (ComPort comPort : comServer.getComPorts()) {
-            if (comPort instanceof OutboundComPort) {
-                comPortPools.addAll(findContainingComPortPoolsForComPort((OutboundComPort) comPort));
-            }
-        }
-        return comPortPools;
+        return DecoratedStream.decorate(comServer.getComPorts().stream())
+                .filter(each -> each instanceof OutboundComPort)
+                .map(OutboundComPort.class::cast)
+                .flatMap(each -> this.findContainingComPortPoolsForComPort(each).stream())
+                .distinct(OutboundComPortPool::getId)
+                .collect(Collectors.toList());
     }
 
     @Override

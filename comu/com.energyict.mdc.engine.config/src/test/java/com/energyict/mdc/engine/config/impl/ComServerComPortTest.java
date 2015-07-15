@@ -5,6 +5,7 @@ import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.engine.config.ComPort;
+import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.engine.config.ModemBasedInboundComPort;
@@ -33,6 +34,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Fail.fail;
@@ -315,6 +317,57 @@ public class ComServerComPortTest extends PersistenceTest {
                 .add();
     }
 
+    @Test
+    @Transactional
+    public void findContainingComPortPoolsForComServerWithoutPorts() {
+        OnlineComServer comServer = this.createOnlineComServer();
+
+        // Business method
+        List<ComPortPool> comPortPools = this.getEngineModelService().findContainingComPortPoolsForComServer(comServer);
+
+        // Asserts
+        assertThat(comPortPools).isEmpty();
+    }
+
+    @Test
+    @Transactional
+    public void findContainingComPortPoolsForComServerWithAllPortInTheSamePool() {
+        OutboundComPortPool comPortPool = this.createOutboundComPortPool();
+        OnlineComServer comServer = this.createOnlineComServer();
+        int numberOfComPorts = 3;
+        this.addComPorts(comServer, numberOfComPorts);
+        comServer.getOutboundComPorts().forEach(comPortPool::addOutboundComPort);
+
+        // Business method
+        List<ComPortPool> comPortPools = this.getEngineModelService().findContainingComPortPoolsForComServer(comServer);
+
+        // Asserts
+        assertThat(comPortPools).hasSize(1);
+        assertThat(comPortPools.get(0).getId()).isEqualTo(comPortPool.getId());
+    }
+
+    @Test
+    @Transactional
+    public void findContainingComPortPoolsForComServerWithAllPortInTheDifferentPools() {
+        OutboundComPortPool comPortPool1 = this.createOutboundComPortPool("ComServerComPortTest-1");
+        OutboundComPortPool comPortPool2 = this.createOutboundComPortPool("ComServerComPortTest-2");
+        OutboundComPortPool comPortPool3 = this.createOutboundComPortPool("ComServerComPortTest-3");
+        OnlineComServer comServer = this.createOnlineComServer();
+        int numberOfComPorts = 3;
+        this.addComPorts(comServer, numberOfComPorts);
+        comPortPool1.addOutboundComPort(comServer.getOutboundComPorts().get(0));
+        comPortPool2.addOutboundComPort(comServer.getOutboundComPorts().get(1));
+        comPortPool3.addOutboundComPort(comServer.getOutboundComPorts().get(2));
+
+        // Business method
+        List<ComPortPool> comPortPools = this.getEngineModelService().findContainingComPortPoolsForComServer(comServer);
+        Set<Long> comPortPoolIds = comPortPools.stream().map(ComPortPool::getId).collect(Collectors.toSet());
+
+        // Asserts
+        assertThat(comPortPools).hasSize(3);
+        assertThat(comPortPoolIds).containsOnly(comPortPool1.getId(), comPortPool2.getId(), comPortPool3.getId());
+    }
+
     private int uniqueComPortId=1;
     private void addComPorts(OnlineComServer comServer, int numberOfComPorts) {
         for (int i = 0; i < numberOfComPorts; i++) {
@@ -381,7 +434,11 @@ public class ComServerComPortTest extends PersistenceTest {
     }
 
     private OutboundComPortPool createOutboundComPortPool () {
-        OutboundComPortPool comPortPool = getEngineModelService().newOutboundComPortPool("ComServerComPortTest", ComPortType.TCP, TimeDuration.minutes(1));
+        return this.createOutboundComPortPool("ComServerComPortTest");
+    }
+
+    private OutboundComPortPool createOutboundComPortPool (String name) {
+        OutboundComPortPool comPortPool = getEngineModelService().newOutboundComPortPool(name, ComPortType.TCP, TimeDuration.minutes(1));
         comPortPool.setActive(true);
         comPortPool.save();
         return comPortPool;
