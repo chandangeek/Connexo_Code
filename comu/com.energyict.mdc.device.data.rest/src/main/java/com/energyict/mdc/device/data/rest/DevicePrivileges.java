@@ -1,7 +1,9 @@
 package com.energyict.mdc.device.data.rest;
 
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.users.User;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 
 import java.util.ArrayList;
@@ -31,24 +33,29 @@ public final class DevicePrivileges {
     public static final String DEVICES_ACTIONS_GENERAL_ATTRIBUTES = "devices.actions.general.attributes";
     public static final String DEVICES_ACTIONS_COMMUNICATION_TASKS = "devices.actions.communication.tasks";
     public static final String DEVICES_ACTIONS_CONNECTION_METHODS = "devices.actions.connection.methods";
+    public static final String DEVICES_ACTIONS_DATA_EDIT = "devices.actions.data.edit";
     public static final String DEVICES_PAGES_COMMUNICATION_PLANNING = "devices.pages.communication.planning";
 
-    public static List<String> getPrivilegesFor(Device device){
-        return PrivilegesBasedOnDeviceState.get(device.getState()).getPrivileges();
+    public static List<String> getPrivilegesFor(Device device, User user){
+        return PrivilegesBasedOnDeviceState.get(device.getState()).getPrivileges(user);
     }
 
     private enum PrivilegesBasedOnDeviceState {
         DEFAULT(null),
         DECOMMISSIONED(Collections.singletonList(DefaultState.DECOMMISSIONED)){
             @Override
-            List<String> getPrivileges() {
-                return Collections.emptyList();
+            List<String> getPrivileges(User user) {
+                List<String> privileges = new ArrayList<>();
+                if (user != null && user.hasPrivilege(Privileges.ADMINISTRATE_DECOMMISSIONED_DEVICE_DATA)) {
+                    privileges.add(DEVICES_ACTIONS_DATA_EDIT);
+                }
+                return privileges;
             }
         },
         IN_STOCK(Collections.singletonList(DefaultState.IN_STOCK)){
             @Override
-            List<String> getPrivileges() {
-                List<String> privileges = new ArrayList<>(super.getPrivileges());
+            List<String> getPrivileges(User user) {
+                List<String> privileges = new ArrayList<>(super.getPrivileges(user));
                 privileges.remove(DEVICES_WIDGET_ISSUES);
                 privileges.remove(DEVICES_WIDGET_VALIDATION);
                 privileges.remove(DEVICES_WIDGET_COMMUNICATION_TOPOLOGY);
@@ -67,7 +74,7 @@ public final class DevicePrivileges {
             this.matchedStates = matchedStates;
         }
 
-        List<String> getPrivileges(){
+        List<String> getPrivileges(User user){
             return Arrays.asList(
                     DevicePrivileges.DEVICES_WIDGET_ISSUES,
                     DevicePrivileges.DEVICES_WIDGET_VALIDATION,
@@ -86,6 +93,7 @@ public final class DevicePrivileges {
                     DevicePrivileges.DEVICES_ACTIONS_GENERAL_ATTRIBUTES,
                     DevicePrivileges.DEVICES_ACTIONS_COMMUNICATION_TASKS,
                     DevicePrivileges.DEVICES_ACTIONS_CONNECTION_METHODS,
+                    DevicePrivileges.DEVICES_ACTIONS_DATA_EDIT,
                     DevicePrivileges.DEVICES_PAGES_COMMUNICATION_PLANNING
             );
         }
