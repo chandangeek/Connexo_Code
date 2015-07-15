@@ -53,6 +53,7 @@ import javax.inject.Inject;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -88,14 +89,16 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
     private final EventService eventService;
     private final MeteringService meteringService;
     private final ProtocolPluggableService protocolPluggableService;
+    private final Clock clock;
 
     @Inject
-    public ConnectionTaskServiceImpl(DeviceDataModelService deviceDataModelService, EventService eventService, MeteringService meteringService, ProtocolPluggableService protocolPluggableService) {
+    public ConnectionTaskServiceImpl(DeviceDataModelService deviceDataModelService, EventService eventService, MeteringService meteringService, ProtocolPluggableService protocolPluggableService, Clock clock) {
         super();
         this.deviceDataModelService = deviceDataModelService;
         this.eventService = eventService;
         this.meteringService = meteringService;
         this.protocolPluggableService = protocolPluggableService;
+        this.clock = clock;
     }
 
     @Override
@@ -972,7 +975,7 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
        where ES.STARTTIME <= 1436517667000 and ES.ENDTIME > 1436517667000 and ED.ID = ES.ENDDEVICE and ES.STATE = FS.ID;
      */
     private void appendRestrictedStatesCondition(SqlBuilder sqlBuilder) {
-        long currentTime = Instant.now().toEpochMilli();
+        long currentTime = this.clock.millis();
         sqlBuilder.append(" and ct.device in");
         sqlBuilder.append(" (select ED.amrid");
         sqlBuilder.append(" from MTR_ENDDEVICESTATUS ES, (select FS.ID from FSM_STATE FS where FS.OBSOLETE_TIMESTAMP IS NULL and ");

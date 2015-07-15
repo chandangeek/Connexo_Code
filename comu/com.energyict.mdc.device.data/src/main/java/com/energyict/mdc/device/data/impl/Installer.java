@@ -122,7 +122,7 @@ public class Installer {
 
     private void createPrivileges() {
         this.userService.createResourceWithPrivileges("MDC", "device.devices", "device.devices.description", new String[]{Privileges.ADD_DEVICE, Privileges.VIEW_DEVICE, Privileges.REMOVE_DEVICE, Privileges.ADMINISTRATE_DEVICE_ATTRIBUTE});
-        this.userService.createResourceWithPrivileges("MDC", "deviceData.deviceData", "deviceData.deviceData.description", new String[]{Privileges.ADMINISTRATE_DEVICE_DATA, Privileges.ADMINISTRATE_DECOMMISSIONED_DEVICE_DATA});
+        this.userService.createResourceWithPrivileges("MDC", "deviceData.deviceData", "deviceData.deviceData.description", new String[]{Privileges.ADMINISTRATE_DEVICE_DATA, Privileges.ADMINISTER_DECOMMISSIONED_DEVICE_DATA});
         this.userService.createResourceWithPrivileges("MDC", "deviceCommunication.deviceCommunications", "deviceCommunication.deviceCommunications.description", new String[]{Privileges.ADMINISTRATE_DEVICE_COMMUNICATION,Privileges.OPERATE_DEVICE_COMMUNICATION});
         this.userService.createResourceWithPrivileges("MDC", "deviceGroup.deviceGroups", "deviceGroup.deviceGroups.description", new String[]{Privileges.ADMINISTRATE_DEVICE_GROUP, Privileges.ADMINISTRATE_DEVICE_ENUMERATED_GROUP, Privileges.VIEW_DEVICE_GROUP_DETAIL});
         this.userService.createResourceWithPrivileges("MDC", "inventoryManagement.inventoryManagements", "inventoryManagement.inventoryManagements.description", new String[]{Privileges.IMPORT_INVENTORY_MANAGEMENT, Privileges.REVOKE_INVENTORY_MANAGEMENT});

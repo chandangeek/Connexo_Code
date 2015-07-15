@@ -55,6 +55,7 @@ import javax.inject.Inject;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -89,12 +90,14 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
 
     private final DeviceDataModelService deviceDataModelService;
     private final MeteringService meteringService;
+    private final Clock clock;
 
     @Inject
-    public CommunicationTaskServiceImpl(DeviceDataModelService deviceDataModelService, MeteringService meteringService) {
+    public CommunicationTaskServiceImpl(DeviceDataModelService deviceDataModelService, MeteringService meteringService, Clock clock) {
         super();
         this.deviceDataModelService = deviceDataModelService;
         this.meteringService = meteringService;
+        this.clock = clock;
     }
 
     @Override
@@ -981,7 +984,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
        where ES.STARTTIME <= 1436517667000 and ES.ENDTIME > 1436517667000 and ED.ID = ES.ENDDEVICE and ES.STATE = FS.ID;
      */
     private void appendRestrictedStatesCondition(SqlBuilder sqlBuilder) {
-        long currentTime = Instant.now().toEpochMilli();
+        long currentTime = this.clock.millis();
         sqlBuilder.append(" and cte.device in");
         sqlBuilder.append(" (select ED.amrid");
         sqlBuilder.append(" from MTR_ENDDEVICESTATUS ES, (select FS.ID from FSM_STATE FS where FS.OBSOLETE_TIMESTAMP IS NULL and ");

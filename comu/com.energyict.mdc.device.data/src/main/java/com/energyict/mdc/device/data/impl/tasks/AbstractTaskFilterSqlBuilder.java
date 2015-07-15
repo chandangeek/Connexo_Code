@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
+import com.elster.jupiter.util.streams.DecoratedStream;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
@@ -105,44 +106,15 @@ public abstract class AbstractTaskFilterSqlBuilder {
             this.append(" = ");
             this.append(objectMapper.apply(objects.iterator().next()));
         } else {
-            List<List<T>> chunksOfObjects = this.chopUp(objects);
-            Iterator<List<T>> chunkIterator = chunksOfObjects.iterator();
-            while (chunkIterator.hasNext()) {
-                List<T> chunkOfObjects = chunkIterator.next();
-                this.appendInSql(columnName);
-                this.appendList(chunkOfObjects.stream(), objectMapper);
-                if (chunkIterator.hasNext()) {
-                    this.append(") or ");
-                }
-            }
-            this.append(")");
+            this.append(DecoratedStream.decorate(objects.stream())
+                    .partitionPer(MAX_ELEMENTS_FOR_IN_CLAUSE)
+                    .map(chunk -> chunk.stream().filter(Objects::nonNull).map(objectMapper).collect(Collectors.joining(", ")))
+                    .collect(Collectors.joining(") OR " + columnName + " IN (" , columnName + " IN (", ") ")));
         }
     }
 
     protected <T extends HasId> void appendInClause(String columnName, Set<T> idBusinessObjects) {
         this.appendInClause(columnName, idBusinessObjects, obj -> String.valueOf(obj.getId()));
-    }
-
-    /**
-     * Chops the set of {@link HasId} into chunks of at most 1000 elements.
-     *
-     * @param objects collection which will be splitted into chunks
-     * @return The list of chunks
-     */
-    protected <T> List<List<T>> chopUp(Collection<T> objects) {
-        return Chopper.chopUp(objects).into(MAX_ELEMENTS_FOR_IN_CLAUSE);
-    }
-
-    protected void appendInSql(String columnName) {
-        this.append(columnName);
-        this.append(" in (");
-    }
-
-    protected <T> void appendList(Stream<T> objectsStream, Function<T, ? extends CharSequence> mapper){
-        this.append(objectsStream
-                .filter(Objects::nonNull)
-                .map(mapper)
-                .collect(Collectors.joining(", ")));
     }
 
     protected void appendDeviceTypeSql(String targetTableName, Set<DeviceType> deviceTypes) {
