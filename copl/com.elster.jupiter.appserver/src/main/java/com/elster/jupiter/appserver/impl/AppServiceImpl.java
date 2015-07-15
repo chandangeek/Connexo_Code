@@ -84,6 +84,7 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber {
 
     @Inject
     AppServiceImpl(OrmService ormService, NlsService nlsService, TransactionService transactionService, MessageService messageService, CronExpressionParser cronExpressionParser, JsonService jsonService, FileImportService fileImportService, TaskService taskService, UserService userService, QueryService queryService, BundleContext bundleContext) {
+        this();
         setOrmService(ormService);
         setNlsService(nlsService);
         setTransactionService(transactionService);
@@ -99,7 +100,6 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber {
             install();
         }
         activate(bundleContext);
-        threadGroup = new ThreadGroup("AppServer message listeners");
     }
 
     @Activate
@@ -120,6 +120,7 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber {
                     bind(Thesaurus.class).toInstance(thesaurus);
                     bind(MessageInterpolator.class).toInstance(thesaurus);
                     bind(AppService.class).toInstance(AppServiceImpl.this);
+                    bind(IAppService.class).toInstance(AppServiceImpl.this);
                 }
             });
 
@@ -222,12 +223,9 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber {
             allServerSubscriberSpec = subscriberSpec.get();
             final ExecutorService executorService = new CancellableTaskExecutorService(1, new AppServerThreadFactory(threadGroup, new LoggingUncaughtExceptionHandler(thesaurus), this, () -> "All Server messages"));
             final Future<?> cancellableTask = executorService.submit(new MessageHandlerTask(allServerSubscriberSpec, new CommandHandler(), transactionService, thesaurus));
-            deactivateTasks.add(new Runnable() {
-                @Override
-                public void run() {
-                    cancellableTask.cancel(false);
-                    executorService.shutdownNow();
-                }
+            deactivateTasks.add(() -> {
+                cancellableTask.cancel(false);
+                executorService.shutdownNow();
             });
         }
     }
@@ -238,12 +236,9 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber {
             SubscriberSpec appServerSubscriberSpec = subscriberSpec.get();
             final ExecutorService executorService = new CancellableTaskExecutorService(1, new AppServerThreadFactory(threadGroup, new LoggingUncaughtExceptionHandler(thesaurus), this, () -> "This AppServer messages"));
             final Future<?> cancellableTask = executorService.submit(new MessageHandlerTask(appServerSubscriberSpec, new CommandHandler(), transactionService, thesaurus));
-            deactivateTasks.add(new Runnable() {
-                @Override
-                public void run() {
-                    cancellableTask.cancel(false);
-                    executorService.shutdownNow();
-                }
+            deactivateTasks.add(() -> {
+                cancellableTask.cancel(false);
+                executorService.shutdownNow();
             });
         }
     }
@@ -421,14 +416,11 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber {
 
     public void stop() {
         Thread stoppingThread = new Thread(
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            context.getBundle(0).stop();
-                        } catch (BundleException e) {
-                            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                        }
+                () -> {
+                    try {
+                        context.getBundle(0).stop();
+                    } catch (BundleException e) {
+                        LOGGER.log(Level.SEVERE, e.getMessage(), e);
                     }
                 });
         stoppingThread.start();
@@ -441,6 +433,17 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber {
                 .find()
                 .stream()
                 .collect(Collectors.toMap(ImportFolderForAppServer::getAppServer, ImportFolderForAppServer::getImportFolder));
+    }
+
+
+    @Override
+    public List<AppServer> getImportScheduleAppServers(Long importScheduleId) {
+        return dataModel.mapper(ImportScheduleOnAppServer.class)
+                .find("importScheduleId", importScheduleId )
+                .stream()
+                .filter(i->i.getImportSchedule().isPresent())
+                .map(ImportScheduleOnAppServer::getAppServer)
+                .collect(Collectors.toList());
     }
 
     public DataModel getDataModel() {

@@ -15,7 +15,7 @@ import java.util.List;
  * Date: 6/10/2014
  * Time: 12:03
  */
-@Component(name = "com.elster.jupiter.appserver.translations", service = {TranslationProvider.class}, property = {"name=" + AppService.COMPONENT_NAME}, immediate = true)
+@Component(name = "com.elster.jupiter.appserver.translations", service = {TranslationKeyProvider.class}, property = {"name=" + AppService.COMPONENT_NAME}, immediate = true)
 public class TranslationProvider implements TranslationKeyProvider {
 
     @Override

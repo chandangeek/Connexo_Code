@@ -35,17 +35,7 @@ class Installer {
         createTables();
         createBatchExecutor();
         createAllServerTopic();
-        //createTranslations();
     }
-
-   /* private void createTranslations() {
-        List<Translation> translations = new ArrayList<>(MessageSeeds.values().length);
-        for (MessageSeeds messageSeed : MessageSeeds.values()) {
-            SimpleNlsKey nlsKey = SimpleNlsKey.key(AppService.COMPONENT_NAME, Layer.DOMAIN, messageSeed.getKey()).defaultMessage(messageSeed.getDefaultFormat());
-            translations.add(SimpleTranslation.translation(nlsKey, Locale.ENGLISH, messageSeed.getDefaultFormat()));
-        }
-        thesaurus.addTranslations(translations);
-    }*/
 
     private void createAllServerTopic() {
         try {
