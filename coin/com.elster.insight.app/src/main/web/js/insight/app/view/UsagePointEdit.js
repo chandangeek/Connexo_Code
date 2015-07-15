@@ -11,7 +11,7 @@ var serviceTypes = Ext.create('Ext.data.Store', {
 var phaseCodes = Ext.create('Ext.data.Store', {
 	fields: ['value'],
 	data: [
-	       {'value': 'Unknown'},
+	       {'value': 'UNKNOWN'},
 	       {'value': 'ABCN'}, 
 	       {'value': 'ABC'}, 
 	       {'value': 'ABN'}, 
@@ -27,12 +27,12 @@ var phaseCodes = Ext.create('Ext.data.Store', {
 	       {'value': 'B'}, 
 	       {'value': 'C'}, 
 	       {'value': 'N'}, 
-	       {'value': 's1N'}, 
-	       {'value': 's2N'}, 
-	       {'value': 's12N'}, 
-	       {'value': 's1'}, 
-	       {'value': 's2'}, 
-	       {'value': 's12'}]
+	       {'value': 'S1N'}, 
+	       {'value': 'S2N'}, 
+	       {'value': 'S12N'}, 
+	       {'value': 'S1'}, 
+	       {'value': 'S2'}, 
+	       {'value': 'S12'}]
 });
 
 Ext.define('InsightApp.view.UsagePointEdit', {
@@ -78,9 +78,9 @@ Ext.define('InsightApp.view.UsagePointEdit', {
                     xtype: 'textfield',
                     name: 'name',
                     fieldLabel: Uni.I18n.translate('usagePoint.formFieldLabel.name', 'INS', 'Name'),
-                    allowBlank: false,
+                    allowBlank: true,
                     maxLength: 75,
-                    required: true,
+                    required: false,
                     width: 600
                 },
                 {
@@ -95,19 +95,19 @@ Ext.define('InsightApp.view.UsagePointEdit', {
                 {
                     xtype: 'checkbox',
                     name: 'isSdp',
-                    fieldLabel: Uni.I18n.translate('usagePoint.formFieldLabel.isSdp', 'INS', 'SDP?'),
+                    fieldLabel: Uni.I18n.translate('usagePoint.formFieldLabel.isSdp', 'INS', 'SDP'),
                     width: 600
                 },
                 {
                     xtype: 'checkbox',
                     name: 'isVirtual',
-                    fieldLabel: Uni.I18n.translate('usagePoint.formFieldLabel.isVirtual', 'INS', 'Virtual?'),
+                    fieldLabel: Uni.I18n.translate('usagePoint.formFieldLabel.isVirtual', 'INS', 'Virtual'),
                     width: 600
                 },
                 {
                 	xtype: 'combobox',
                     name: 'serviceCategory',
-                    fieldLabel: Uni.I18n.translate('usagePoint.formFieldLabel.serviceType', 'INS', 'Service Type'),
+                    fieldLabel: Uni.I18n.translate('usagePoint.formFieldLabel.serviceType', 'INS', 'Service category'),
                     store: serviceTypes,
                     queryMode: 'local',
                     editable: false,
@@ -163,6 +163,7 @@ Ext.define('InsightApp.view.UsagePointEdit', {
 	                        name: 'phaseCode',
 	                        fieldLabel: Uni.I18n.translate('usagePoint.formFieldLabel.phaseCode', 'INS', 'Phase Code'),
 	                        store: phaseCodes,
+	                        value: 'UNKNOWN',
 	                        queryMode: 'local',
 	                        editable: false,
 	                        displayField: 'value',
@@ -175,7 +176,7 @@ Ext.define('InsightApp.view.UsagePointEdit', {
                             xtype: 'checkbox',
                             name: 'grounded',
                             labelWidth: 250,
-                            fieldLabel: Uni.I18n.translate('usagePoint.formFieldLabel.grounded', 'INS', 'Grounded?')
+                            fieldLabel: Uni.I18n.translate('usagePoint.formFieldLabel.grounded', 'INS', 'Grounded')
                         }
                 	]                	
                 },
