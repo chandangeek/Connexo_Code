@@ -239,7 +239,7 @@ Ext.define('Uni.view.container.PreviewContainer', {
     },
 
     onLoad: function (store, records) {
-        this.updateOnChange(records==null || records.length === 0);
+        this.updateOnChange(!this.grid.store.getCount());
     },
 
     onChange: function(store) {
