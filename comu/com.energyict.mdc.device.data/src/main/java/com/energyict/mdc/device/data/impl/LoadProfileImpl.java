@@ -281,6 +281,7 @@ public class LoadProfileImpl implements LoadProfile {
         private final List<BaseReadingRecord> removed = new ArrayList<>();
         private final List<BaseReading> edited = new ArrayList<>();
         private final List<BaseReading> editedBulk = new ArrayList<>();
+        private final List<BaseReading> confirmed = new ArrayList<>();
 
         private ChannelDataUpdaterImpl(ChannelImpl channel) {
             super();
@@ -296,6 +297,12 @@ public class LoadProfileImpl implements LoadProfile {
         @Override
         public ChannelDataUpdater editBulkChannelData(List<BaseReading> modifiedChannelData) {
             this.editedBulk.addAll(modifiedChannelData);
+            return this;
+        }
+
+        @Override
+        public ChannelDataUpdater confirmChannelData(List<BaseReading> modifiedChannelData) {
+            this.confirmed.addAll(modifiedChannelData);
             return this;
         }
 
@@ -318,6 +325,7 @@ public class LoadProfileImpl implements LoadProfile {
             if (readingTypeRef.isPresent() && this.koreChannel.getCimChannel(readingTypeRef.get()).isPresent()) {
                 this.koreChannel.getCimChannel(readingTypeRef.get()).get().editReadings(this.editedBulk);
             }
+            this.koreChannel.confirmReadings(this.confirmed);
             this.koreChannel.removeReadings(this.removed);
         }
 
