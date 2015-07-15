@@ -12,13 +12,15 @@ import com.elster.jupiter.time.RelativePeriodCategoryUsage;
 import com.elster.jupiter.util.collections.ArrayDiffList;
 import com.elster.jupiter.util.collections.DiffList;
 import com.google.common.collect.Range;
+
+import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import javax.inject.Inject;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 
 @Unique(fields = "name", groups = Save.Create.class, message = "{" + MessageSeeds.Keys.NAME_MUST_BE_UNIQUE + "}")
 public class RelativePeriodImpl extends EntityImpl implements RelativePeriod {
@@ -38,8 +40,43 @@ public class RelativePeriodImpl extends EntityImpl implements RelativePeriod {
     }
 
     @Override
-    public Range<ZonedDateTime> getInterval(ZonedDateTime referenceDate) {
+    public Range<ZonedDateTime> getClosedZonedInterval(ZonedDateTime referenceDate) {
         return Range.closed(this.from.getRelativeDate(referenceDate), this.to.getRelativeDate(referenceDate));
+    }
+
+    @Override
+    public Range<Instant> getClosedInterval(ZonedDateTime referenceDate) {
+        return Range.closed(this.from.getRelativeDate(referenceDate).toInstant(), this.to.getRelativeDate(referenceDate).toInstant());
+    }
+
+    @Override
+    public Range<ZonedDateTime> getOpenClosedZonedInterval(ZonedDateTime referenceDate) {
+        return Range.openClosed(this.from.getRelativeDate(referenceDate), this.to.getRelativeDate(referenceDate));
+    }
+
+    @Override
+    public Range<Instant> getOpenClosedInterval(ZonedDateTime referenceDate) {
+        return Range.openClosed(this.from.getRelativeDate(referenceDate).toInstant(), this.to.getRelativeDate(referenceDate).toInstant());
+    }
+
+    @Override
+    public Range<ZonedDateTime> getClosedOpenZonedInterval(ZonedDateTime referenceDate) {
+        return Range.closedOpen(this.from.getRelativeDate(referenceDate), this.to.getRelativeDate(referenceDate));
+    }
+
+    @Override
+    public Range<Instant> getClosedOpenInterval(ZonedDateTime referenceDate) {
+        return Range.closedOpen(this.from.getRelativeDate(referenceDate).toInstant(), this.to.getRelativeDate(referenceDate).toInstant());
+    }
+
+    @Override
+    public Range<ZonedDateTime> getOpenZonedInterval(ZonedDateTime referenceDate) {
+        return Range.open(this.from.getRelativeDate(referenceDate), this.to.getRelativeDate(referenceDate));
+    }
+
+    @Override
+    public Range<Instant> getOpenInterval(ZonedDateTime referenceDate) {
+        return Range.open(this.from.getRelativeDate(referenceDate).toInstant(), this.to.getRelativeDate(referenceDate).toInstant());
     }
 
     @Override
