@@ -34,6 +34,8 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.logging.Logger;
 
+import static com.elster.jupiter.messaging.DestinationSpec.whereCorrelationId;
+
 public class Installer {
     private static final Logger LOG = Logger.getLogger("DataCollectionIssueInstaller");
 
