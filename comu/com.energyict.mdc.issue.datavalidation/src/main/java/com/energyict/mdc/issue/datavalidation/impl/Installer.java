@@ -12,6 +12,8 @@ import com.energyict.mdc.issue.datavalidation.impl.event.DataValidationEventDesc
 import com.energyict.mdc.issue.datavalidation.impl.event.DataValidationEventHandlerFactory;
 import com.google.inject.Inject;
 
+import static com.elster.jupiter.messaging.DestinationSpec.whereCorrelationId;
+
 public class Installer {
 
     private final IssueService issueService;
@@ -58,6 +60,8 @@ public class Installer {
 
     private void setAQSubscriber() {
         DestinationSpec destinationSpec = messageService.getDestinationSpec(EventService.JUPITER_EVENTS).get();
-        destinationSpec.subscribe(DataValidationEventHandlerFactory.AQ_DATA_VALIDATION_EVENT_SUBSCRIBER);
+        destinationSpec.subscribe(DataValidationEventHandlerFactory.AQ_DATA_VALIDATION_EVENT_SUBSCRIBER,
+                whereCorrelationId().isEqualTo(DataValidationEventDescription.CANNOT_ESTIMATE_DATA.getTopic())
+                        .or(whereCorrelationId().isEqualTo(DataValidationEventDescription.READINGQUALITY_DELETED.getTopic())));
     }
 }
