@@ -8,8 +8,6 @@ import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.beans.BeanService;
 import com.elster.jupiter.util.json.JsonService;
-import java.time.Clock;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -21,10 +19,12 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 import org.osgi.service.event.Event;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
+import java.util.Locale;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -123,7 +123,10 @@ public class LocalEventImplTest {
 
         localEvent.publish();
 
-        verify(destination.message(SERIALIZED)).send();
+        verify(destination).message(SERIALIZED);
+        verify(destination.message(SERIALIZED)).withCorrelationId(TOPIC);
+        verify(destination.message(SERIALIZED).withCorrelationId(TOPIC)).send();
+
     }
 
 
@@ -133,5 +136,14 @@ public class LocalEventImplTest {
 
     private interface Owner {
         String getName();
+    }
+
+    @Test
+    public void testLocales() {
+        Locale[] availableLocales = Locale.getAvailableLocales();
+        System.out.println(availableLocales.length);
+        for (Locale availableLocale : availableLocales) {
+            System.out.println(availableLocale + ": " + availableLocale.getDisplayName() + " - " + availableLocale.getDisplayCountry() + " - " + availableLocale.getDisplayLanguage());
+        }
     }
 }
