@@ -150,9 +150,9 @@ public class ReadingTypeDataSelectorImplTest {
         doReturn(UPDATED_RECORD_TIME.toInstant()).when(readingRecord3).getTimeStamp();
         doReturn(UPDATED_RECORD_TIME.toInstant()).when(readingRecord4).getTimeStamp();
         doReturn(SINCE.toInstant()).when(occurrence).getTriggerTime();
-        doReturn(UPDATE_PERIOD).when(updatePeriod).getInterval(any());
+        doReturn(UPDATE_INTERVAL).when(updatePeriod).getOpenClosedInterval(any());
         doReturn(READING_TYPE_MRID).when(readingType).getMRID();
-        doReturn(UPDATE_WINDOW_PERIOD).when(updateWindow).getInterval(UPDATED_RECORD_TIME);
+        doReturn(UPDATE_WINDOW_INTERVAL).when(updateWindow).getOpenClosedInterval(UPDATED_RECORD_TIME);
         doReturn(validationEvaluator).when(validationService).getEvaluator();
 
     }

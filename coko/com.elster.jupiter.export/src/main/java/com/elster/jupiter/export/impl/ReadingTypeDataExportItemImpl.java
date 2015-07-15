@@ -12,7 +12,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.RefAny;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.util.Ranges;
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
@@ -123,8 +122,7 @@ public class ReadingTypeDataExportItemImpl implements IReadingTypeDataExportItem
     @Override
     public Optional<Range<Instant>> getLastExportPeriod() {
         return getLastRun()
-                .map(instant -> getSelector().getExportPeriod().getInterval(ZonedDateTime.ofInstant(instant, ZoneId.systemDefault())))
-                .map(range -> Ranges.map(range, ZonedDateTime::toInstant));
+                .map(instant -> getSelector().getExportPeriod().getOpenClosedInterval(ZonedDateTime.ofInstant(instant, ZoneId.systemDefault())));
     }
 
     private ExportTask getTask() {

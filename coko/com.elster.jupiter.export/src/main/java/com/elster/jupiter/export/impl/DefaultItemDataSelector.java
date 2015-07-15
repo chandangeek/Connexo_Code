@@ -21,7 +21,6 @@ import com.elster.jupiter.metering.readings.Reading;
 import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.time.RelativePeriod;
-import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.validation.ValidationService;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
@@ -137,8 +136,7 @@ class DefaultItemDataSelector implements ItemDataSelector {
         if (updateWindow.isPresent()) {
             RelativePeriod window = updateWindow.get();
             RangeSet<Instant> rangeSet = readings.stream()
-                    .map(baseReadingRecord -> window.getInterval(ZonedDateTime.ofInstant(baseReadingRecord.getTimeStamp(), item.getReadingContainer().getZoneId())))
-                    .map(period -> Ranges.map(period, ZonedDateTime::toInstant))
+                    .map(baseReadingRecord -> window.getOpenClosedInterval(ZonedDateTime.ofInstant(baseReadingRecord.getTimeStamp(), item.getReadingContainer().getZoneId())))
                     .collect(toImmutableRangeSet());
             readings = rangeSet.asRanges().stream()
                     .flatMap(range -> {
@@ -202,8 +200,7 @@ class DefaultItemDataSelector implements ItemDataSelector {
                 .map(ReadingTypeDataSelector::getStrategy)
                 .filter(DataExportStrategy::isExportUpdate)
                 .flatMap(DataExportStrategy::getUpdatePeriod)
-                .map(relativePeriod -> relativePeriod.getInterval(ZonedDateTime.ofInstant(occurrence.getTriggerTime(), item.getReadingContainer().getZoneId())))
-                .map(period -> Ranges.map(period, ZonedDateTime::toInstant))
+                .map(relativePeriod -> relativePeriod.getOpenClosedInterval(ZonedDateTime.ofInstant(occurrence.getTriggerTime(), item.getReadingContainer().getZoneId())))
                 .orElse(null);
     }
 
