@@ -14,14 +14,16 @@ import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.devtools.ExtjsFilter;
 import com.elster.jupiter.metering.ReadingType;
 import com.jayway.jsonpath.JsonModel;
+import org.junit.Test;
+
+import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Currency;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.IntStream;
-import javax.ws.rs.core.Response;
-import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -94,7 +96,7 @@ public class ReadingTypeFieldResourceTest extends MeteringApplicationJerseyTest 
         Response response = target("/fields/readingtypes").queryParam("start", 0).queryParam("limit", 10).request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel jsonModel = JsonModel.model((ByteArrayInputStream)response.getEntity());
-        assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(30);
+        assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(11);
         assertThat(jsonModel.<List>get("$.readingTypes")).hasSize(10);
     }
 
@@ -107,7 +109,7 @@ public class ReadingTypeFieldResourceTest extends MeteringApplicationJerseyTest 
         Response response = target("/fields/readingtypes").queryParam("start", 10).queryParam("limit", 10).request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel jsonModel = JsonModel.model((ByteArrayInputStream)response.getEntity());
-        assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(30);
+        assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(21);
         assertThat(jsonModel.<List>get("$.readingTypes")).hasSize(10);
     }
 
@@ -268,6 +270,35 @@ public class ReadingTypeFieldResourceTest extends MeteringApplicationJerseyTest 
         assertThat(jsonModel.<String>get("$.unitsOfMeasure[0].name")).isEqualTo("GW");
         assertThat(jsonModel.<Integer>get("$.unitsOfMeasure[0].multiplier")).isEqualTo(9);
         assertThat(jsonModel.<Integer>get("$.unitsOfMeasure[0].unit")).isEqualTo(38);
+    }
+
+    @Test
+    public void testGetEquidistantReadingTypes() throws Exception {
+        ReadingType equidistantRT = mockReadingTypeWithAlias("[15min] Delta A+", "equidistant");
+        ReadingType nonequidistantRT = mockReadingTypeWithAlias("Bulk A+", "nonequidistant");
+
+        when(meteringService.getAvailableEquidistantReadingTypes()).thenReturn(Arrays.asList(equidistantRT));
+        when(meteringService.getAvailableNonEquidistantReadingTypes()).thenReturn(Arrays.asList(nonequidistantRT));
+        when(meteringService.getAvailableReadingTypes()).thenReturn(Arrays.asList(equidistantRT, nonequidistantRT));
+
+        String response = target("fields/readingtypes").queryParam("filter", ExtjsFilter.filter("equidistant", "true")).request().get(String.class);
+
+        JsonModel jsonModel = JsonModel.create(response);
+        assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(1);
+        assertThat(jsonModel.<String>get("$.readingTypes[0].aliasName")).isEqualTo("equidistant");
+
+        response = target("fields/readingtypes").queryParam("filter", ExtjsFilter.filter("equidistant", "false")).request().get(String.class);
+
+        jsonModel = JsonModel.create(response);
+        assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(1);
+        assertThat(jsonModel.<String>get("$.readingTypes[0].aliasName")).isEqualTo("nonequidistant");
+
+        response = target("fields/readingtypes").queryParam("filter", ExtjsFilter.filter().create()).request().get(String.class);
+
+        jsonModel = JsonModel.create(response);
+        assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(2);
+        assertThat(jsonModel.<String>get("$.readingTypes[0].aliasName")).isEqualTo("equidistant");
+        assertThat(jsonModel.<String>get("$.readingTypes[1].aliasName")).isEqualTo("nonequidistant");
     }
 
     private ReadingType mockReadingType(String name) {
