@@ -13,7 +13,6 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.device.config.ConnectionStrategy;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.TaskPriorityConstants;
 import com.energyict.mdc.device.data.ComTaskExecutionFields;
@@ -30,7 +29,6 @@ import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.ConnectionType;
@@ -67,32 +65,20 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     private ConnectionStrategy connectionStrategy;
     private Instant nextExecutionTimestamp;
     private Instant plannedNextExecutionTimestamp;
+    @SuppressWarnings("unused")
     private int priority;
     private boolean allowSimultaneousConnections;
     private Reference<ConnectionInitiationTask> initiationTask = ValueReference.absent();
     private int maxNumberOfTries = -1;
     private UpdateStrategy updateStrategy = new Noop();
 
-    private final DeviceConfigurationService deviceConfigurationService;
     private final ServerCommunicationTaskService communicationTaskService;
 
     @Inject
-    protected ScheduledConnectionTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, ServerConnectionTaskService connectionTaskService, ServerCommunicationTaskService communicationTaskService, DeviceService deviceService, DeviceConfigurationService deviceConfigurationService, ProtocolPluggableService protocolPluggableService, RelationService relationService, SchedulingService schedulingService) {
+    protected ScheduledConnectionTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, ServerConnectionTaskService connectionTaskService, ServerCommunicationTaskService communicationTaskService, DeviceService deviceService, ProtocolPluggableService protocolPluggableService, RelationService relationService, SchedulingService schedulingService) {
         super(dataModel, eventService, thesaurus, clock, connectionTaskService, communicationTaskService, deviceService, protocolPluggableService, relationService);
         this.schedulingService = schedulingService;
-        this.deviceConfigurationService = deviceConfigurationService;
         this.communicationTaskService = communicationTaskService;
-    }
-
-    public void initializeWithAsapStrategy(Device device, PartialScheduledConnectionTask partialConnectionTask, OutboundComPortPool comPortPool) {
-        super.initialize(device, partialConnectionTask, comPortPool);
-        this.setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE);
-    }
-
-    public void initializeWithMinimizeStrategy(Device device, PartialScheduledConnectionTask partialConnectionTask, OutboundComPortPool comPortPool, NextExecutionSpecs nextExecutionSpecs) {
-        super.initialize(device, partialConnectionTask, comPortPool);
-        this.setConnectionStrategy(ConnectionStrategy.MINIMIZE_CONNECTIONS);
-        this.setNextExecutionSpecs(nextExecutionSpecs);
     }
 
     @Override

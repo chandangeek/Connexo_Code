@@ -121,11 +121,17 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     private Reference<CPPT> comPortPool = ValueReference.absent();
     private Reference<ComServer> comServer = ValueReference.absent();
     private Reference<ComSession> lastSession = ValueReference.absent();
+    @SuppressWarnings("unused")
     private boolean lastSessionStatus; // Redundant copy from lastSession to improve query performance
+    @SuppressWarnings("unused")
     private ComSession.SuccessIndicator lastSessionSuccessIndicator;   // Redundant copy from lastSession to improve query performance
+    @SuppressWarnings("unused")
     private String userName;
+    @SuppressWarnings("unused")
     private long version;
+    @SuppressWarnings("unused")
     private Instant createTime;
+    @SuppressWarnings("unused")
     private Instant modTime;
 
     private final Clock clock;

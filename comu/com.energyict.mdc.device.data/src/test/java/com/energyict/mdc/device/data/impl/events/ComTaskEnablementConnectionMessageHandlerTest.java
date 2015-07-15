@@ -73,8 +73,8 @@ public class ComTaskEnablementConnectionMessageHandlerTest {
         when(this.partialConnectionTask2.getConfiguration()).thenReturn(this.deviceConfiguration);
         when(this.deviceConfiguration.getPartialConnectionTasks()).thenReturn(Arrays.asList(this.partialConnectionTask1, this.partialConnectionTask2));
         when(this.deviceConfigurationService.findComTaskEnablement(COMTASK_ENABLEMENT_ID)).thenReturn(Optional.of(this.comTaskEnablement));
-        when(this.deviceConfigurationService.getPartialConnectionTask(PARTIAL_CONNECTION_TASK_ID1)).thenReturn(Optional.of(this.partialConnectionTask1));
-        when(this.deviceConfigurationService.getPartialConnectionTask(PARTIAL_CONNECTION_TASK_ID2)).thenReturn(Optional.of(this.partialConnectionTask2));
+        when(this.deviceConfigurationService.findPartialConnectionTask(PARTIAL_CONNECTION_TASK_ID1)).thenReturn(Optional.of(this.partialConnectionTask1));
+        when(this.deviceConfigurationService.findPartialConnectionTask(PARTIAL_CONNECTION_TASK_ID2)).thenReturn(Optional.of(this.partialConnectionTask2));
     }
 
     /**

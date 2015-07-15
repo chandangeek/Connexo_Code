@@ -98,7 +98,7 @@ public class ComTaskEnablementConnectionMessageHandler implements MessageHandler
         }
 
         private PartialConnectionTask getPartialConnectionTask() {
-            return getDeviceConfigurationService().getPartialConnectionTask(this.getLong("partialConnectionTaskId")).get();
+            return getDeviceConfigurationService().findPartialConnectionTask(this.getLong("partialConnectionTaskId")).get();
         }
     }
 
@@ -108,7 +108,7 @@ public class ComTaskEnablementConnectionMessageHandler implements MessageHandler
         }
 
         private PartialConnectionTask getPartialConnectionTask() {
-            return getDeviceConfigurationService().getPartialConnectionTask(this.getLong("partialConnectionTaskId")).get();
+            return getDeviceConfigurationService().findPartialConnectionTask(this.getLong("partialConnectionTaskId")).get();
         }
     }
 
@@ -130,11 +130,11 @@ public class ComTaskEnablementConnectionMessageHandler implements MessageHandler
         }
 
         private PartialConnectionTask getNewPartialConnectionTask() {
-            return getDeviceConfigurationService().getPartialConnectionTask(this.getLong("newPartialConnectionTaskId")).get();
+            return getDeviceConfigurationService().findPartialConnectionTask(this.getLong("newPartialConnectionTaskId")).get();
         }
 
         private PartialConnectionTask getOldPartialConnectionTask() {
-            return getDeviceConfigurationService().getPartialConnectionTask(this.getLong("oldPartialConnectionTaskId")).get();
+            return getDeviceConfigurationService().findPartialConnectionTask(this.getLong("oldPartialConnectionTaskId")).get();
         }
 
     }
@@ -145,7 +145,7 @@ public class ComTaskEnablementConnectionMessageHandler implements MessageHandler
         }
 
         private PartialConnectionTask getPartialConnectionTask() {
-            return getDeviceConfigurationService().getPartialConnectionTask(this.getLong("partialConnectionTaskId")).get();
+            return getDeviceConfigurationService().findPartialConnectionTask(this.getLong("partialConnectionTaskId")).get();
         }
     }
 
@@ -155,7 +155,7 @@ public class ComTaskEnablementConnectionMessageHandler implements MessageHandler
         }
 
         private PartialConnectionTask getPartialConnectionTask() {
-            return getDeviceConfigurationService().getPartialConnectionTask(this.getLong("partialConnectionTaskId")).get();
+            return getDeviceConfigurationService().findPartialConnectionTask(this.getLong("partialConnectionTaskId")).get();
         }
     }
 

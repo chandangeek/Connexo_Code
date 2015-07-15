@@ -3,7 +3,6 @@ package com.energyict.mdc.device.data.impl;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.GatewayType;
@@ -86,8 +85,6 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
     private static final ObisCode loadProfileObisCode = ObisCode.fromString("1.0.99.1.0.255");
     private final TimeZone testDefaultTimeZone = TimeZone.getTimeZone("Canada/East-Saskatchewan");
     private final TimeDuration interval = TimeDuration.minutes(15);
-    private final Unit unit1 = Unit.get("kWh");
-    private final Unit unit2 = Unit.get("MWh");
 
     private ReadingType forwardEnergyReadingType;
     private ReadingType reverseEnergyReadingType;
@@ -95,7 +92,6 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
     private ObisCode averageForwardEnergyObisCode;
     private ObisCode forwardEnergyObisCode;
     private ObisCode reverseEnergyObisCode;
-    private LoadProfileType loadProfileType;
 
     @Rule
     public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
@@ -297,7 +293,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
     }
 
     /**
-     * This test will get the default TimeZone of the system
+     * This test will get the default TimeZone of the system.
      */
     @Test
     @Transactional
@@ -1158,7 +1154,8 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
     private DeviceConfiguration createDeviceConfigurationWithTwoChannelSpecs(TimeDuration myInterval) {
         RegisterType registerType1 = createRegisterTypeIfMissing(forwardEnergyObisCode, forwardEnergyReadingType);
         RegisterType registerType2 = createRegisterTypeIfMissing(reverseEnergyObisCode, reverseEnergyReadingType);
-        loadProfileType = inMemoryPersistence.getMasterDataService().newLoadProfileType("LoadProfileType", loadProfileObisCode, myInterval, Arrays.asList(registerType1, registerType2));
+        LoadProfileType loadProfileType = inMemoryPersistence.getMasterDataService()
+                .newLoadProfileType("LoadProfileType", loadProfileObisCode, myInterval, Arrays.asList(registerType1, registerType2));
         loadProfileType.save();
         ChannelType channelTypeForRegisterType1 = loadProfileType.findChannelType(registerType1).get();
         ChannelType channelTypeForRegisterType2 = loadProfileType.findChannelType(registerType2).get();
