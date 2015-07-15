@@ -58,7 +58,6 @@ class Installer {
                 this::createDestinationAndSubscriber,
                 this::createRelativePeriodCategory,
                 this::createTranslations,
-                this::createPrivileges,
                 this::createRelativePeriods
         ).andHandleExceptionsWith(Throwable::printStackTrace)
                 .execute();
@@ -101,11 +100,6 @@ class Installer {
 
     private void installDataModel() {
         dataModel.install(true, true);
-    }
-
-    private void createPrivileges() {
-        userService.createResourceWithPrivileges("SYS", "dataExportTask.dataExportTasks", "dataExportTask.dataExportTasks.description", new String[]
-                {Privileges.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.VIEW_DATA_EXPORT_TASK, Privileges.UPDATE_DATA_EXPORT_TASK, Privileges.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.RUN_DATA_EXPORT_TASK});
     }
 
     private RelativePeriodCategory getCategory() {

@@ -4,6 +4,7 @@ import com.elster.jupiter.appserver.AppServer;
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
+import com.elster.jupiter.export.security.Privileges;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataExportTaskBuilder;
 import com.elster.jupiter.export.DataFormatterFactory;
@@ -29,6 +30,8 @@ import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.users.PrivilegesProvider;
+import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.HasName;
 import com.google.common.collect.ImmutableMap;
@@ -60,8 +63,8 @@ import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Operator.EQUAL;
 
-@Component(name = "com.elster.jupiter.export", service = {DataExportService.class, IDataExportService.class, InstallService.class}, property = "name=" + DataExportService.COMPONENTNAME, immediate = true)
-public class DataExportServiceImpl implements IDataExportService, InstallService {
+@Component(name = "com.elster.jupiter.export", service = {DataExportService.class, IDataExportService.class, InstallService.class,PrivilegesProvider.class}, property = "name=" + DataExportService.COMPONENTNAME, immediate = true)
+public class DataExportServiceImpl implements IDataExportService, InstallService,PrivilegesProvider {
 
     public static final String DESTINATION_NAME = "DataExport";
     public static final String SUBSCRIBER_NAME = "DataExport";
@@ -428,4 +431,21 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
         return dataModel.mapper(IExportTask.class).getUnique("recurrentTask", recurrentTask);
     }
 
+    @Override
+    public String getModuleName() {
+        return DataExportService.COMPONENTNAME;
+    }
+
+    @Override
+    public List<ResourceDefinition> getModuleResources() {
+        List<ResourceDefinition> resources = new ArrayList<>();
+        resources.add(userService.createModuleResourceWithPrivileges(getModuleName(),
+                "dataExportTask.dataExportTasks", "dataExportTask.dataExportTasks.description",
+                Arrays.asList(Privileges.ADMINISTRATE_DATA_EXPORT_TASK,
+                        Privileges.VIEW_DATA_EXPORT_TASK,
+                        Privileges.UPDATE_DATA_EXPORT_TASK,
+                        Privileges.UPDATE_SCHEDULE_DATA_EXPORT_TASK,
+                        Privileges.RUN_DATA_EXPORT_TASK)));
+        return resources;
+    }
 }
