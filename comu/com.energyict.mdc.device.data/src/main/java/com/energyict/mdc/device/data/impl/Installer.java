@@ -12,6 +12,8 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.Translation;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.Pair;
+import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceDataServices;
@@ -20,6 +22,7 @@ import com.energyict.mdc.device.data.impl.events.ComTaskEnablementPriorityMessag
 import com.energyict.mdc.device.data.impl.events.ComTaskEnablementStatusMessageHandlerFactory;
 import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiCalculatorHandlerFactory;
 import com.energyict.mdc.device.data.security.Privileges;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -27,6 +30,8 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import static com.elster.jupiter.messaging.DestinationSpec.whereCorrelationId;
 
 /**
  * Represents the Installer for the Device data bundle.
