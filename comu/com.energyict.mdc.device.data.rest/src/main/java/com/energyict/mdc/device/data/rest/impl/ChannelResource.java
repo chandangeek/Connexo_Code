@@ -40,7 +40,7 @@ import static com.elster.jupiter.util.streams.Predicates.not;
 @DeviceStatesRestricted(
         value = {DefaultState.DECOMMISSIONED},
         methods = {HttpMethod.PUT, HttpMethod.POST, HttpMethod.DELETE},
-        ignoredUserRoles = {Privileges.ADMINISTRATE_DECOMMISSIONED_DEVICE_DATA})
+        ignoredUserRoles = {Privileges.ADMINISTER_DECOMMISSIONED_DEVICE_DATA})
 public class ChannelResource {
     private final Provider<ChannelResourceHelper> channelHelper;
     private final ResourceHelper resourceHelper;
@@ -108,7 +108,7 @@ public class ChannelResource {
     @GET
     @Path("/{channelid}/data")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.ADMINISTRATE_DEVICE_DATA, Privileges.ADMINISTRATE_DECOMMISSIONED_DEVICE_DATA})
+    @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.ADMINISTRATE_DEVICE_DATA, Privileges.ADMINISTER_DECOMMISSIONED_DEVICE_DATA})
     public Response getChannelData(@PathParam("mRID") String mRID, @PathParam("channelid") long channelId, @QueryParam("intervalStart") Long intervalStart, @QueryParam("intervalEnd") Long intervalEnd, @BeanParam JsonQueryParameters queryParameters, @Context UriInfo uriInfo) {
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(mRID, channelId);
         DeviceValidation deviceValidation = channel.getDevice().forValidation();
@@ -164,7 +164,7 @@ public class ChannelResource {
     @Path("/{channelid}/data")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_DATA, Privileges.ADMINISTRATE_DECOMMISSIONED_DEVICE_DATA})
+    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_DATA, Privileges.ADMINISTER_DECOMMISSIONED_DEVICE_DATA})
     public Response editChannelData(@PathParam("mRID") String mRID, @PathParam("channelid") long channelId, @BeanParam JsonQueryParameters queryParameters, List<ChannelDataInfo> channelDataInfos) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(device, channelId);

@@ -1106,6 +1106,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     public void testActivateEstimationOnDevice() {
         Device device = mockDeviceForTopologyTest("device");
         when(deviceService.findAndLockDeviceByIdAndVersion(1L, 13L)).thenReturn(Optional.of(device));
+        when(deviceService.findByUniqueMrid("device")).thenReturn(Optional.of(device));
         when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.empty());
         when(deviceImportService.findBatch(Matchers.anyLong())).thenReturn(Optional.empty());
         when(device.getCurrentMeterActivation()).thenReturn(Optional.empty());
@@ -1116,7 +1117,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         info.estimationStatus = new DeviceEstimationStatusInfo();
         info.estimationStatus.active = true;
 
-        Response response = target("/devices/1").request().put(Entity.json(info));
+        Response response = target("/devices/device/estimationrulesets/esimationstatus").request().put(Entity.json(info));
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(device.forEstimation()).activateEstimation();
@@ -1126,6 +1127,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     public void testDeactivateEstimationOnDevice() {
         Device device = mockDeviceForTopologyTest("device");
         when(deviceService.findAndLockDeviceByIdAndVersion(1L, 13L)).thenReturn(Optional.of(device));
+        when(deviceService.findByUniqueMrid("device")).thenReturn(Optional.of(device));
         when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.empty());
         when(deviceImportService.findBatch(Matchers.anyLong())).thenReturn(Optional.empty());
         when(device.getCurrentMeterActivation()).thenReturn(Optional.empty());
@@ -1136,7 +1138,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         info.estimationStatus = new DeviceEstimationStatusInfo();
         info.estimationStatus.active = false;
 
-        Response response = target("/devices/1").request().put(Entity.json(info));
+        Response response = target("/devices/device/estimationrulesets/esimationstatus").request().put(Entity.json(info));
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(device.forEstimation()).deactivateEstimation();
@@ -1262,7 +1264,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
         String response = target("/devices/1/privileges").request().get(String.class);
         JsonModel model = JsonModel.create(response);
-        assertThat(model.<Number>get("$.total")).isEqualTo(11);
+        assertThat(model.<Number>get("$.total")).isEqualTo(12);
         List<String> privileges = model.<List<String>>get("$.privileges[*].name");
         assertThat(privileges).contains(
                 DevicePrivileges.DEVICES_ACTIONS_VALIDATION_RULE_SETS,
@@ -1275,6 +1277,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
                 DevicePrivileges.DEVICES_ACTIONS_GENERAL_ATTRIBUTES,
                 DevicePrivileges.DEVICES_ACTIONS_COMMUNICATION_TASKS,
                 DevicePrivileges.DEVICES_ACTIONS_CONNECTION_METHODS,
+                DevicePrivileges.DEVICES_ACTIONS_DATA_EDIT,
                 DevicePrivileges.DEVICES_PAGES_COMMUNICATION_PLANNING
         );
     }
@@ -1304,7 +1307,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
         String response = target("/devices/1/privileges").request().get(String.class);
         JsonModel model = JsonModel.create(response);
-        assertThat(model.<Number>get("$.total")).isEqualTo(18);
+        assertThat(model.<Number>get("$.total")).isEqualTo(19);
         List<String> privileges = model.<List<String>>get("$.privileges[*].name");
         assertThat(privileges).contains(
                 DevicePrivileges.DEVICES_WIDGET_ISSUES,
@@ -1324,6 +1327,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
                 DevicePrivileges.DEVICES_ACTIONS_GENERAL_ATTRIBUTES,
                 DevicePrivileges.DEVICES_ACTIONS_COMMUNICATION_TASKS,
                 DevicePrivileges.DEVICES_ACTIONS_CONNECTION_METHODS,
+                DevicePrivileges.DEVICES_ACTIONS_DATA_EDIT,
                 DevicePrivileges.DEVICES_PAGES_COMMUNICATION_PLANNING
         );
     }
