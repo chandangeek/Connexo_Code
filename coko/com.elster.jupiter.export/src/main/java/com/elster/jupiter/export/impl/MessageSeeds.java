@@ -27,7 +27,7 @@ public enum MessageSeeds implements MessageSeed {
     FILE_IO(1015, "file.io.writing.failure", "Failure while doing IO on file {0}", Level.SEVERE),
     PARENT_BREAKING_PATH_NOT_ALLOWED(1016, Keys.PARENT_BREAKING_PATH, "Paths that navigate above parent are not allowed here", Level.SEVERE),
     INVALIDCHARS_EXCEPTION(1017, Keys.INVALIDCHARS_EXCEPTION, "Characters {0} are not allowed.", Level.SEVERE),
-    FTP_IO(1018, "file.io.writing.failure", "Failure while doing IO on ftp server {0}, port {1}.", Level.SEVERE);
+    FTP_IO(1018, "ftp.io.writing.failure", "Failure while doing IO on ftp server {0}, port {1}.", Level.SEVERE);
 
     private final int number;
     private final String key;

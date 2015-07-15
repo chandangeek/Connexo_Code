@@ -15,6 +15,7 @@ import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.export.ValidatedDataOption;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
+import com.elster.jupiter.ftpclient.impl.FtpModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.mail.impl.MailModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
@@ -183,7 +184,10 @@ public class DataExportServiceImplIT {
                     new InMemoryMessagingModule(),
                     new IdsModule(),
                     new FiniteStateMachineModule(),
-                    new MeteringModule(),
+                    new MeteringModule(false,
+                            "0.0.5.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0",
+                            "0.0.2.1.19.1.12.0.0.0.0.0.0.0.0.0.72.0"
+                            ),
                     new PartyModule(),
                     new EventsModule(),
                     new DomainUtilModule(),
@@ -202,7 +206,8 @@ public class DataExportServiceImplIT {
                     new MailModule(),
                     new ValidationModule(),
                     new BpmModule(),
-                    new DataVaultModule()
+                    new DataVaultModule(),
+                    new FtpModule()
             );
         } catch (Exception e) {
             throw new RuntimeException(e);
