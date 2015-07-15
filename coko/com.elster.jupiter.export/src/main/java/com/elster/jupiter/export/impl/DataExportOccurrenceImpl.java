@@ -6,7 +6,6 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
-import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.logging.LogEntry;
 import com.elster.jupiter.util.logging.LogEntryFinder;
 import com.elster.jupiter.util.time.Interval;
@@ -15,7 +14,6 @@ import com.google.common.collect.Range;
 import javax.inject.Inject;
 import java.time.Instant;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -49,8 +47,7 @@ class DataExportOccurrenceImpl implements IDataExportOccurrence {
         //TODO ZoneId !!
 
         task.getReadingTypeDataSelector()
-                .map(selector -> selector.getExportPeriod().getInterval(occurrence.getTriggerTime().atZone(ZoneId.systemDefault())))
-                .map(zonedDateTimeRange -> Ranges.map(zonedDateTimeRange, ZonedDateTime::toInstant))
+                .map(selector -> selector.getExportPeriod().getOpenClosedInterval(occurrence.getTriggerTime().atZone(ZoneId.systemDefault())))
                 .ifPresent(instantRange -> {
                     exportedDataInterval = Interval.of(instantRange);
                     exportedDataBoundaryType = Interval.EndpointBehavior.fromRange(instantRange);
