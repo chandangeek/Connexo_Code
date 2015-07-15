@@ -78,9 +78,12 @@ public class SubscriberSpecImpl implements SubscriberSpec {
     }
 
     private String toString(Condition filter) {
-        ConditionVisitor visitor = new ConditionVisitor();
-        filter.visit(visitor);
-        return visitor.toString();
+        if (filter != null) {
+            ConditionVisitor visitor = new ConditionVisitor();
+            filter.visit(visitor);
+            return visitor.toString();
+        }
+        return null;
     }
 
     static SubscriberSpecImpl from(DataModel dataModel, DestinationSpec destinationSpec, String name) {
