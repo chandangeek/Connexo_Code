@@ -161,13 +161,13 @@ public class ConnectionMethodResource {
         updateProperties(connectionMethodInfo, partialConnectionTask);
         partialConnectionTask.save();
 
-        return Response.ok(connectionMethodInfoFactory.asInfo(deviceConfigurationService.getPartialConnectionTask(partialConnectionTask.getId()).get(), uriInfo)).build();
+        return Response.ok(connectionMethodInfoFactory.asInfo(deviceConfigurationService.findPartialConnectionTask(partialConnectionTask.getId()).get(), uriInfo)).build();
     }
 
     /**
-     * Add new properties, update existing and remove properties no longer listed
-     * Converts String values to correct type
-     * Discards properties if there is no matching propertySpec
+     * Adds new properties, updates existing and removes properties no longer listed.
+     * Converts String values to correct type.
+     * Discards properties if there is no matching propertySpec.
      */
     private void updateProperties(ConnectionMethodInfo<PartialConnectionTask> connectionMethodInfo, PartialConnectionTask partialConnectionTask) {
         if (connectionMethodInfo.properties != null) {
