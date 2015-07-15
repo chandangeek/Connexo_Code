@@ -89,6 +89,10 @@
             <artifactId>mdc.device.data</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.firmware</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>users</artifactId>
         </dependency>
