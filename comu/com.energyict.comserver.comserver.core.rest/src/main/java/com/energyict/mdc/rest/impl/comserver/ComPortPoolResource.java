@@ -121,7 +121,7 @@ public class ComPortPoolResource {
     }
 
     private void getComPortPoolsByConnectionTask(List<ComPortPool> comPortPools, String compatibleWithConnectionTask) {
-        PartialConnectionTask partialConnectionTask = this.deviceConfigurationService.getPartialConnectionTask(Integer.parseInt(compatibleWithConnectionTask)).get();
+        PartialConnectionTask partialConnectionTask = this.deviceConfigurationService.findPartialConnectionTask(Integer.parseInt(compatibleWithConnectionTask)).get();
         Set<ComPortType> supportedComPortTypes =  partialConnectionTask.getConnectionType().getSupportedComPortTypes();
         for (ComPortType supportedComPortType : supportedComPortTypes) {
             if(partialConnectionTask.getPluggableClass().getConnectionType().getDirection().equals(ConnectionType.Direction.OUTBOUND)){
