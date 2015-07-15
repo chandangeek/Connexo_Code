@@ -77,6 +77,10 @@ Ext.define('Est.estimationrules.controller.AddReadingTypes', {
                     {
                         property: 'selectedReadings',
                         value: selectedReadings
+                    },
+                    {
+                        property: 'equidistant',
+                        value: true
                     }
                 ]));
                 readingTypesStore.data.clear();
@@ -211,6 +215,10 @@ Ext.define('Est.estimationrules.controller.AddReadingTypes', {
         });
         Ext.resumeLayouts(true);
         newFilter.push(selectedReadings);
+        newFilter.push({
+            property: 'equidistant',
+            value: true
+        });
         readingTypesStoreProxy.setExtraParam('filter', Ext.encode(newFilter));
         readingTypesStore.data.clear();
         readingTypesStore.loadPage(1);
