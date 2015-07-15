@@ -465,7 +465,6 @@ Ext.define('Mdc.controller.history.Setup', {
                                                     }
                                                 },
                                                 //Estimation rule sets
-
                                                 estimationrulesets: {
                                                     title: Uni.I18n.translate('estimation.title', 'MDC', 'Estimation rule sets'),
                                                     route: 'estimationrulesets',
@@ -490,6 +489,22 @@ Ext.define('Mdc.controller.history.Setup', {
                                                     controller: 'Mdc.controller.setup.Messages',
                                                     action: 'showMessagesOverview'
                                                 }
+                                            }
+                                        },
+                                        clone: {
+                                            title: 'Clone',
+                                            route: '{deviceConfigurationId}/clone',
+                                            privileges: Mdc.privileges.DeviceType.admin,
+                                            controller: 'Mdc.controller.setup.DeviceConfigurations',
+                                            action: 'showDeviceConfigurationCloneView',
+                                            callback: function (route) {
+                                                this.getApplication().on('loadDeviceConfiguration', function (record) {
+                                                    route.setTitle(Uni.I18n.translate('cloneDeviceConfiguration.title',
+                                                        'MDC', "Clone device configuration '{0}'", [record.get('name')]));
+                                                    return true;
+                                                }, {single: true});
+
+                                                return this;
                                             }
                                         }
                                     }
