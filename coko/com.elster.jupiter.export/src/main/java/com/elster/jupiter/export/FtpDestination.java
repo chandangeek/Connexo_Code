@@ -1,6 +1,6 @@
 package com.elster.jupiter.export;
 
-public interface FtpDestination {
+public interface FtpDestination extends DataExportDestination {
 
     String TYPE_IDENTIFIER = "FTPXX";
 

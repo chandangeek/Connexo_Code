@@ -1,7 +1,5 @@
 package com.elster.jupiter.export.impl;
 
-import com.elster.jupiter.appserver.AppServer;
-import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.FtpDestination;
@@ -70,11 +68,6 @@ class FtpDestinationImpl extends AbstractDataExportDestination implements FtpDes
             return remoteFileSystem.getPath("/").resolve(fileLocation);
         }
 
-        private Path getDefaultExportDir() {
-            AppServer appServer = getAppService().getAppServer().orElseThrow(IllegalStateException::new);
-            return getDataExportService().getExportDirectory(appServer).orElseGet(() -> getFileSystem().getPath("").toAbsolutePath());
-        }
-
     }
 
     private String server;
@@ -89,8 +82,8 @@ class FtpDestinationImpl extends AbstractDataExportDestination implements FtpDes
     private final FtpClientService ftpClientService;
 
     @Inject
-    FtpDestinationImpl(DataModel dataModel, Clock clock, Thesaurus thesaurus, DataExportService dataExportService, AppService appService, FileSystem fileSystem, DataVaultService dataVaultService, FtpClientService ftpClientService) {
-        super(dataModel, clock, thesaurus, dataExportService, appService, fileSystem);
+    FtpDestinationImpl(DataModel dataModel, Clock clock, Thesaurus thesaurus, DataExportService dataExportService, FileSystem fileSystem, DataVaultService dataVaultService, FtpClientService ftpClientService) {
+        super(dataModel, clock, thesaurus, dataExportService, fileSystem);
         this.dataVaultService = dataVaultService;
         this.ftpClientService = ftpClientService;
     }

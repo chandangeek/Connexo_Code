@@ -32,10 +32,10 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class FileDestinationTest {
 
-    public static final String DATA1 = "blablablablabla1";
-    public static final String DATA2 = "blablablablabla2";
-    public static final String DATA3 = "blablablablabla3";
-    public static final String DATA4 = "blablablablabla4";
+    public static final String DATA1 = "line 1";
+    public static final String DATA2 = "line 2";
+    public static final String DATA3 = "line 3";
+    public static final String DATA4 = "line 4";
     public static final String APPSERVER_PATH = "/appserver/export";
     public static final String FILENAME = "filename";
     public static final String EXTENSION = "txt";
@@ -104,7 +104,7 @@ public class FileDestinationTest {
 
     private String getContent(Path file) {
         try {
-            StringBuffer content = new StringBuffer();
+            StringBuilder content = new StringBuilder();
             List<String> lines = Files.readAllLines(file);
             for (String line : lines) {
                 content.append(line);

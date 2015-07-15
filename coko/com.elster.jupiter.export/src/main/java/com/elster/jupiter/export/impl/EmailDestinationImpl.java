@@ -68,7 +68,7 @@ class EmailDestinationImpl extends AbstractDataExportDestination implements Emai
 
     @Inject
     EmailDestinationImpl(DataModel dataModel, Clock clock, Thesaurus thesaurus, DataExportService dataExportService, AppService appService, FileSystem fileSystem, MailService mailService) {
-        super(dataModel, clock, thesaurus, dataExportService, appService, fileSystem);
+        super(dataModel, clock, thesaurus, dataExportService, fileSystem);
         this.mailService = mailService;
     }
 
