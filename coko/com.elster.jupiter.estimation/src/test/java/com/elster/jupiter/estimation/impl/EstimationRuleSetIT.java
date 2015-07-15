@@ -59,7 +59,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class EstimationRuleSetImplTest {
+public class EstimationRuleSetIT {
 
     public static final String ZERO_FILL = "zeroFill";
     private Injector injector;
@@ -107,7 +107,7 @@ public class EstimationRuleSetImplTest {
                     new InMemoryMessagingModule(),
                     new IdsModule(),
                     new FiniteStateMachineModule(),
-                    new MeteringModule(),
+                    new MeteringModule(false, "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0"),
                     new MeteringGroupsModule(),
                     new TaskModule(),
                     new TimeModule(),
