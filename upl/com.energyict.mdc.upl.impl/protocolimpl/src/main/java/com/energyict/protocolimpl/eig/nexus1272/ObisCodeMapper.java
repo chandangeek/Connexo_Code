@@ -1,10 +1,5 @@
 package com.energyict.protocolimpl.eig.nexus1272;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.math.BigDecimal;
-import java.util.Date;
-
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
@@ -18,6 +13,12 @@ import com.energyict.protocolimpl.eig.nexus1272.parse.LinePoint;
 import com.energyict.protocolimpl.eig.nexus1272.parse.NexusDataParser;
 import com.energyict.protocolimpl.eig.nexus1272.parse.ScaledEnergySetting;
 import com.energyict.protocolimpl.eig.nexus1272.parse.ScaledEnergySettingFactory;
+
+import java.io.IOException;
+import java.io.OutputStream;
+import java.math.BigDecimal;
+import java.math.MathContext;
+import java.util.Date;
 
 public class ObisCodeMapper {
 
@@ -219,7 +220,7 @@ public class ObisCodeMapper {
 									divisor = new BigDecimal(Math.pow(10, numDecimals));
 								unitEnergy=ses.getUnit();
 							}
-							bd = bd.divide(divisor);
+							bd = bd.divide(divisor, MathContext.DECIMAL128);
 							Quantity q = new Quantity(bd, unitEnergy);  
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
@@ -244,7 +245,7 @@ public class ObisCodeMapper {
 									divisor = new BigDecimal(Math.pow(10, numDecimals));
 								unitEnergy=ses.getUnit();
 							}
-							bd = bd.divide(divisor);
+							bd = bd.divide(divisor, MathContext.DECIMAL128);
 							Quantity q = new Quantity(bd, unitEnergy);  
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
@@ -269,7 +270,7 @@ public class ObisCodeMapper {
 									divisor = new BigDecimal(Math.pow(10, numDecimals));
 								unitEnergy=ses.getUnit();
 							}
-							bd = bd.divide(divisor);
+							bd = bd.divide(divisor, MathContext.DECIMAL128);
 							Quantity q = new Quantity(bd, unitEnergy);  
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
@@ -406,7 +407,7 @@ public class ObisCodeMapper {
 									divisor = new BigDecimal(Math.pow(10, numDecimals));
 								unitEnergy=ses.getUnit();
 							}
-							bd = bd.divide(divisor);
+							bd = bd.divide(divisor, MathContext.DECIMAL128);
 							Quantity q = new Quantity(bd, unitEnergy);  
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
@@ -432,7 +433,7 @@ public class ObisCodeMapper {
 									divisor = new BigDecimal(Math.pow(10, numDecimals));
 								unitEnergy=ses.getUnit();
 							}
-							bd = bd.divide(divisor);
+							bd = bd.divide(divisor, MathContext.DECIMAL128);
 							Quantity q = new Quantity(bd, unitEnergy);  
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
@@ -458,7 +459,7 @@ public class ObisCodeMapper {
 									divisor = new BigDecimal(Math.pow(10, numDecimals));
 								unitEnergy=ses.getUnit();
 							}
-							bd = bd.divide(divisor);
+							bd = bd.divide(divisor, MathContext.DECIMAL128);
 							Quantity q = new Quantity(bd, unitEnergy);  
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
@@ -484,7 +485,7 @@ public class ObisCodeMapper {
 									divisor = new BigDecimal(Math.pow(10, numDecimals));
 								unitEnergy=ses.getUnit();
 							}
-							bd = bd.divide(divisor);
+							bd = bd.divide(divisor, MathContext.DECIMAL128);
 							Quantity q = new Quantity(bd, unitEnergy);  
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
@@ -520,7 +521,7 @@ public class ObisCodeMapper {
 									divisor = new BigDecimal(Math.pow(10, numDecimals));
 								unitEnergy=ses.getUnit();
 							}
-							bd = bd.divide(divisor);
+							bd = bd.divide(divisor, MathContext.DECIMAL128);
 							Quantity q = new Quantity(bd, unitEnergy);  
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
@@ -552,8 +553,8 @@ public class ObisCodeMapper {
 									divisor = new BigDecimal(Math.pow(10, numDecimals));
 								unitEnergy=ses.getUnit();
 							}
-							bd = bd.divide(divisor);
-							bd2 = bd2.divide(divisor);
+							bd = bd.divide(divisor, MathContext.DECIMAL128);
+							bd2 = bd2.divide(divisor, MathContext.DECIMAL128);
 							BigDecimal val = bd2.add(bd);
 							Quantity q = new Quantity(val, unitEnergy);
 							registerValue = new RegisterValue(obisCode,q,new Date());
@@ -588,8 +589,8 @@ public class ObisCodeMapper {
 									divisor = new BigDecimal(Math.pow(10, numDecimals));
 								unitEnergy=ses.getUnit();
 							}
-							bd = bd.divide(divisor);
-							bd2 = bd2.divide(divisor);
+							bd = bd.divide(divisor, MathContext.DECIMAL128);
+							bd2 = bd2.divide(divisor, MathContext.DECIMAL128);
 							BigDecimal val = bd2.add(bd);
 							Quantity q = new Quantity(val, unitEnergy);
 							registerValue = new RegisterValue(obisCode,q,new Date());
@@ -624,8 +625,8 @@ public class ObisCodeMapper {
 									divisor = new BigDecimal(Math.pow(10, numDecimals));
 								unitEnergy=ses.getUnit();
 							}
-							bd = bd.divide(divisor);
-							bd2 = bd2.divide(divisor);
+							bd = bd.divide(divisor, MathContext.DECIMAL128);
+							bd2 = bd2.divide(divisor, MathContext.DECIMAL128);
 							BigDecimal val = bd2.add(bd);
 							Quantity q = new Quantity(val, unitEnergy);
 							registerValue = new RegisterValue(obisCode,q,new Date());
@@ -662,7 +663,7 @@ public class ObisCodeMapper {
 									divisor = new BigDecimal(Math.pow(10, numDecimals));
 								unitEnergy=ses.getUnit();
 							}
-							bd = bd.divide(divisor);
+							bd = bd.divide(divisor, MathContext.DECIMAL128);
 							Quantity q = new Quantity(bd, unitEnergy);  
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
@@ -696,8 +697,8 @@ public class ObisCodeMapper {
 									divisor = new BigDecimal(Math.pow(10, numDecimals));
 								unitEnergy=ses.getUnit();
 							}
-							bd = bd.divide(divisor);
-							bd2 = bd2.divide(divisor);
+							bd = bd.divide(divisor, MathContext.DECIMAL128);
+							bd2 = bd2.divide(divisor, MathContext.DECIMAL128);
 							BigDecimal val = bd2.add(bd);
 							Quantity q = new Quantity(val, unitEnergy);
 							registerValue = new RegisterValue(obisCode,q,new Date());
@@ -732,8 +733,8 @@ public class ObisCodeMapper {
 									divisor = new BigDecimal(Math.pow(10, numDecimals));
 								unitEnergy=ses.getUnit();
 							}
-							bd = bd.divide(divisor);
-							bd2 = bd2.divide(divisor);
+							bd = bd.divide(divisor, MathContext.DECIMAL128);
+							bd2 = bd2.divide(divisor, MathContext.DECIMAL128);
 							BigDecimal val = bd2.add(bd);
 							Quantity q = new Quantity(val, unitEnergy);
 							registerValue = new RegisterValue(obisCode,q,new Date());
@@ -768,8 +769,8 @@ public class ObisCodeMapper {
 									divisor = new BigDecimal(Math.pow(10, numDecimals));
 								unitEnergy=ses.getUnit();
 							}
-							bd = bd.divide(divisor);
-							bd2 = bd2.divide(divisor);
+							bd = bd.divide(divisor, MathContext.DECIMAL128);
+							bd2 = bd2.divide(divisor, MathContext.DECIMAL128);
 							BigDecimal val = bd2.add(bd);
 							Quantity q = new Quantity(val, unitEnergy);
 							registerValue = new RegisterValue(obisCode,q,new Date());
@@ -1283,7 +1284,7 @@ public class ObisCodeMapper {
 			ndp.parseFourByteInt();
 			int ptNum = ndp.parseFourByteInt();
 			int ptDen = ndp.parseFourByteInt();
-			multiplier = new BigDecimal(ctNum).divide(new BigDecimal(ctDen)).multiply(new BigDecimal(ptNum).divide(new BigDecimal(ptDen)));
+			multiplier = new BigDecimal(ctNum).divide(new BigDecimal(ctDen), MathContext.DECIMAL128).multiply(new BigDecimal(ptNum).divide(new BigDecimal(ptDen), MathContext.DECIMAL128));
 		}
 
 		return bd.multiply((multiplier));
@@ -1303,7 +1304,7 @@ public class ObisCodeMapper {
 			int ptNum = ndp.parseFourByteInt();
 			int ptDen = ndp.parseFourByteInt();
 
-			PTmultiplier = new BigDecimal(ptNum).divide(new BigDecimal(ptDen));
+			PTmultiplier = new BigDecimal(ptNum).divide(new BigDecimal(ptDen), MathContext.DECIMAL128);
 		}
 
 		return bd.multiply((PTmultiplier));
@@ -1319,7 +1320,7 @@ public class ObisCodeMapper {
 			int ctNum = ndp.parseFourByteInt();
 			int ctDen = ndp.parseFourByteInt();
 
-			CTmultiplier = new BigDecimal(ctNum).divide(new BigDecimal(ctDen));
+			CTmultiplier = new BigDecimal(ctNum).divide(new BigDecimal(ctDen), MathContext.DECIMAL128);
 		}
 
 		return bd.multiply((CTmultiplier));

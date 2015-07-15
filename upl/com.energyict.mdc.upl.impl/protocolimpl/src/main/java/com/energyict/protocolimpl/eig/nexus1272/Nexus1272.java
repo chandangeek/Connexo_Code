@@ -161,6 +161,9 @@ public class Nexus1272 extends AbstractProtocol  {
 		return fwVersion;
 	}
 
+	/**
+	 * Returns the protocol version date
+	 */
     @Override
 	public String getProtocolVersion() {
         return "$Date$";

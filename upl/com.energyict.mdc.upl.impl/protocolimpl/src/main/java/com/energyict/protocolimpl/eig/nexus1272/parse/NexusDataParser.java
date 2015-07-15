@@ -1,12 +1,13 @@
 package com.energyict.protocolimpl.eig.nexus1272.parse;
 
+import com.energyict.protocol.ProtocolUtils;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.util.Calendar;
 import java.util.Date;
-
-import com.energyict.protocol.ProtocolUtils;
 
 public class NexusDataParser {
 
@@ -56,30 +57,30 @@ public class NexusDataParser {
 		byte[] b = new byte[4];
 		bais.read(b, 0, 4);
 		int i = ProtocolUtils.getInt(b);
-		BigDecimal bd = new BigDecimal(i).divide(new BigDecimal(65536));
+		BigDecimal bd = new BigDecimal(i).divide(new BigDecimal(65536), MathContext.DECIMAL128);
 		return bd;
 	}
 	
 	public BigDecimal parseF8() throws IOException {
 		int val = (int) ProtocolUtils.getLong(bais, 2);
 		if (val < 1000) 
-			return new BigDecimal(val).divide(new BigDecimal(1000));
+			return new BigDecimal(val).divide(new BigDecimal(1000), MathContext.DECIMAL128);
 		else if (val < 2000)
-			return new BigDecimal(2).subtract(new BigDecimal(val).divide(new BigDecimal(1000)));
+			return new BigDecimal(2).subtract(new BigDecimal(val).divide(new BigDecimal(1000), MathContext.DECIMAL128));
 		else if (val < 3000)
-			return new BigDecimal(val).divide(new BigDecimal(1000)).add(new BigDecimal(-2));
+			return new BigDecimal(val).divide(new BigDecimal(1000), MathContext.DECIMAL128).add(new BigDecimal(-2));
 		else if (val < 4000)
-			return new BigDecimal(4).subtract(new BigDecimal(val).divide(new BigDecimal(1000)));
+			return new BigDecimal(4).subtract(new BigDecimal(val).divide(new BigDecimal(1000), MathContext.DECIMAL128));
 		else 
 			throw new IOException("Illegal value for average power factor, must be less than 4000, got " + val);
 	}
 	
 	public BigDecimal parseF9() throws IOException {
-		return new BigDecimal(ProtocolUtils.getShort(bais)).divide(new BigDecimal(100));
+		return new BigDecimal(ProtocolUtils.getShort(bais)).divide(new BigDecimal(100), MathContext.DECIMAL128);
 	}
 	
 	public BigDecimal parseF10() throws IOException {
-		return new BigDecimal(ProtocolUtils.getShort(bais)).divide(new BigDecimal(100));
+		return new BigDecimal(ProtocolUtils.getShort(bais)).divide(new BigDecimal(100), MathContext.DECIMAL128);
 	}
 	
 	public long parseF18() throws IOException {

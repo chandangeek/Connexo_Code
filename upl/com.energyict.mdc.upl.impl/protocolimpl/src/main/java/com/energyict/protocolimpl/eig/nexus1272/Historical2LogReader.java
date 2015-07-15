@@ -1,25 +1,24 @@
 package com.energyict.protocolimpl.eig.nexus1272;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-
-import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.IntervalStateBits;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.ansi.c12.tables.IntervalSet;
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.eig.nexus1272.command.Command;
 import com.energyict.protocolimpl.eig.nexus1272.command.NexusCommandFactory;
 import com.energyict.protocolimpl.eig.nexus1272.parse.LinePoint;
 import com.energyict.protocolimpl.eig.nexus1272.parse.ScaledEnergySetting;
 import com.energyict.protocolimpl.eig.nexus1272.parse.ScaledEnergySettingFactory;
+
+import java.io.IOException;
+import java.io.OutputStream;
+import java.math.BigDecimal;
+import java.math.MathContext;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 public class Historical2LogReader extends AbstractLogReader {
 
@@ -120,7 +119,7 @@ public class Historical2LogReader extends AbstractLogReader {
 								if (numDecimals!=0)
 									divisor = new BigDecimal(Math.pow(10, numDecimals));
 							}
-							val = val.divide(divisor);
+							val = val.divide(divisor, MathContext.DECIMAL128);
 							intervalData.addValue(val, 0, eiStatus);
 							break;
 						}
