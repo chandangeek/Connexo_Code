@@ -1,6 +1,5 @@
 package com.elster.jupiter.export.impl;
 
-import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.export.DataExportDestination;
 import com.elster.jupiter.export.DataExportService;
@@ -33,7 +32,6 @@ public abstract class AbstractDataExportDestination implements IDataExportDestin
     private final DataModel dataModel;
     private final Thesaurus thesaurus;
     private final DataExportService dataExportService;
-    private final AppService appService;
     private final FileSystem fileSystem;
     private final Clock clock;
     private long version;
@@ -42,12 +40,11 @@ public abstract class AbstractDataExportDestination implements IDataExportDestin
     private String userName;
 
     @Inject
-    AbstractDataExportDestination(DataModel dataModel, Clock clock, Thesaurus thesaurus, DataExportService dataExportService, AppService appService, FileSystem fileSystem) {
+    AbstractDataExportDestination(DataModel dataModel, Clock clock, Thesaurus thesaurus, DataExportService dataExportService, FileSystem fileSystem) {
         this.dataModel = dataModel;
         this.clock = clock;
         this.thesaurus = thesaurus;
         this.dataExportService = dataExportService;
-        this.appService = appService;
         this.fileSystem = fileSystem;
     }
 
@@ -86,10 +83,6 @@ public abstract class AbstractDataExportDestination implements IDataExportDestin
 
     final Thesaurus getThesaurus() {
         return this.thesaurus;
-    }
-
-    final AppService getAppService() {
-        return appService;
     }
 
     final DataExportService getDataExportService() {

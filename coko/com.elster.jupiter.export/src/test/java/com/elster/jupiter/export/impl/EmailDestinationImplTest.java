@@ -36,10 +36,10 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class EmailDestinationImplTest {
 
-    public static final String DATA1 = "blablablablabla1";
-    public static final String DATA2 = "blablablablabla2";
-    public static final String DATA3 = "blablablablabla3";
-    public static final String DATA4 = "blablablablabla4";
+    public static final String DATA1 = "line 1";
+    public static final String DATA2 = "line 2";
+    public static final String DATA3 = "line 3";
+    public static final String DATA4 = "line 4";
     public static final String SUBJECT = "subject";
 
     private Clock clock = Clock.systemDefaultZone();

@@ -66,11 +66,13 @@ class FileDestinationImpl extends AbstractDataExportDestination implements FileD
         }
 
         private Path getDefaultExportDir() {
-            AppServer appServer = getAppService().getAppServer().orElseThrow(IllegalStateException::new);
+            AppServer appServer = appService.getAppServer().orElseThrow(IllegalStateException::new);
             return getDataExportService().getExportDirectory(appServer).orElseGet(() -> getFileSystem().getPath("").toAbsolutePath());
         }
 
     }
+
+    private final AppService appService;
 
     private String fileName;
     private String fileExtension;
@@ -79,7 +81,8 @@ class FileDestinationImpl extends AbstractDataExportDestination implements FileD
 
     @Inject
     FileDestinationImpl(DataModel dataModel, Clock clock, Thesaurus thesaurus, DataExportService dataExportService, AppService appService, FileSystem fileSystem) {
-        super(dataModel, clock, thesaurus, dataExportService, appService, fileSystem);
+        super(dataModel, clock, thesaurus, dataExportService, fileSystem);
+        this.appService = appService;
     }
 
     static FileDestinationImpl from(IExportTask task, DataModel dataModel, String fileLocation, String fileName, String fileExtension) {
