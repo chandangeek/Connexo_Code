@@ -33,7 +33,7 @@ Ext.define('Uni.controller.Search', {
         },
         {
             ref: 'addCriteriaCombo',
-            selector: 'uni-view-search-overview combo#addcriteria'
+            selector: 'uni-view-search-field-add-criteria-button'
         },
         {
             ref: 'stickyPropertiesContainer',
@@ -85,6 +85,7 @@ Ext.define('Uni.controller.Search', {
     showOverview: function () {
         var me = this,
             widget = Ext.widget('uni-view-search-overview'),
+            removablesStore = Ext.getStore('Uni.store.search.Removables'),
             searchDomains = Ext.getStore('Uni.store.search.Domains');
 
         me.getApplication().fireEvent('changecontentevent', widget);
@@ -93,6 +94,7 @@ Ext.define('Uni.controller.Search', {
         me.filters.removeAll();
 
         searchDomains.load();
+        removablesStore.load();
     },
 
     onSearchDomainsLoad: function (records, operation, success) {
@@ -110,7 +112,7 @@ Ext.define('Uni.controller.Search', {
     initComponentListeners: function () {
         var me = this,
             searchDomainCombo = me.getSearchDomainCombo().down('#domain'),
-            addCriteriaCombo = me.getAddCriteriaCombo(),
+            addCriteriaCombo = me.getAddCriteriaCombo().down('#addcriteria'),
             removablePropertiesContainer = me.getRemovablePropertiesContainer(),
             searchButton = me.getSearchButton(),
             clearFiltersButton = me.getClearFiltersButton();
@@ -121,7 +123,8 @@ Ext.define('Uni.controller.Search', {
         });
 
         addCriteriaCombo.on({
-            select: me.onSelectAddCriteria,
+            menuhide: me.onSelectAddCriteria,
+            //select: me.onSelectAddCriteria,
             scope: me
         });
 
@@ -250,16 +253,18 @@ Ext.define('Uni.controller.Search', {
         var me = this,
             emptyText = Uni.I18n.translate('search.overview.addCriteria.emptyText', 'UNI', 'Add criteria'),
             addCriteriaCombo = me.getAddCriteriaCombo(),
-            criteriaStore = addCriteriaCombo.store;
+            criteriaStore = Ext.getStore('Uni.store.search.Removables');
 
-        if (criteriaStore.count() === 0) {
-            emptyText = Uni.I18n.translate('search.overview.addCriteria.emptyText.none', 'UNI', 'No criteria to add');
+        if (addCriteriaCombo) {
+            addCriteriaCombo = me.getAddCriteriaCombo().down('#addcriteria');
+            if (criteriaStore.count() === 0) {
+                emptyText = Uni.I18n.translate('search.overview.addCriteria.emptyText.none', 'UNI', 'No criteria to add');
+            }
+            if (addCriteriaCombo.text !== emptyText) {
+                addCriteriaCombo.text = emptyText;
+            }
         }
 
-        if (addCriteriaCombo.inputEl.dom.placeholder !== emptyText && addCriteriaCombo.emptyText !== emptyText) {
-            addCriteriaCombo.inputEl.dom.placeholder = emptyText;
-            addCriteriaCombo.emptyText = emptyText;
-        }
     },
 
     onChangeSearchDomain: function (field, newValue) {
@@ -381,16 +386,13 @@ Ext.define('Uni.controller.Search', {
 
     onSelectAddCriteria: function (field, records, options) {
         var me = options.scope,
-            property = Ext.isArray(records) && !Ext.isEmpty(records) ? records[0] : null,
-            addCriteriaCombo = me.getAddCriteriaCombo(),
-            criteriaStore = field.store;
+            property = !Ext.isEmpty(records) ? records[0] : null,
+            criteriaStore = Ext.getStore('Uni.store.search.Removables');
 
         if (property !== null) {
             me.addRemovableProperty(records[0]);
             criteriaStore.remove(records[0]);
         }
-
-        addCriteriaCombo.setValue(undefined, false);
     },
 
     removeStickyProperties: function () {

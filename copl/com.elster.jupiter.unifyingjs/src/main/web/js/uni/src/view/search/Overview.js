@@ -13,7 +13,8 @@ Ext.define('Uni.view.search.Overview', {
         'Uni.store.search.Domains',
         'Uni.store.search.Removables',
         'Uni.view.search.field.YesNo',
-        'Uni.view.search.field.SearchObjectSelector'
+        'Uni.view.search.field.SearchObjectSelector',
+        'Uni.view.search.field.AddCriteriaButton'
     ],
 
     padding: '16 16 16 16',
@@ -73,12 +74,7 @@ Ext.define('Uni.view.search.Overview', {
                                     type: 'column'
                                 }
                             },
-                            // temporary to test this type of field
-                            /*                        {
-                             xtype: 'uni-view-search-field-yesno',
-                             emptyText: Uni.I18n.translate('view.search.field.yesno.label.issues', 'UNI', 'Has datacollection issues')
-                             },*/
-                            {
+/*                            {
                                 cellCls: 'search-cell search-last',
                                 xtype: 'combo',
                                 itemId: 'addcriteria',
@@ -90,6 +86,11 @@ Ext.define('Uni.view.search.Overview', {
                                 forceSelection: true,
                                 queryMode: 'local',
                                 multiSelect: false
+                            },*/
+                            {
+                                cellCls: 'search-cell search-last',
+                                margin: '0 2 0 0',
+                                xtype: 'uni-view-search-field-add-criteria-button'
                             },
                             // Extra criteria.
                             {
