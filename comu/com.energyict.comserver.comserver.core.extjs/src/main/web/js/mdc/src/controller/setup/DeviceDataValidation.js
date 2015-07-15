@@ -206,8 +206,8 @@ Ext.define('Mdc.controller.setup.DeviceDataValidation', {
                     callback: function () {
                         me.getRulesSetGrid().getSelectionModel().doSelect(me.getRulesSetGrid().getStore().indexOf(record));
                         me.getApplication().fireEvent('acknowledge', ruleSetIsActive ?
-                            Uni.I18n.translatePlural('device.dataValidation.ruleSet.deactivated', ruleSetName, 'MDC', 'Rule set {0} was deactivated successfully') :
-                            Uni.I18n.translatePlural('device.dataValidation.ruleSet.activated', ruleSetName, 'MDC', 'Rule set {0} was activated successfully'));
+                            Uni.I18n.translate('device.dataValidation.ruleSet.deactivated', 'MDC', 'Validation rule set deactivated') :
+                            Uni.I18n.translate('device.dataValidation.ruleSet.activated', 'MDC', 'Validation rule set activated'));
                     }
                 });
             }
