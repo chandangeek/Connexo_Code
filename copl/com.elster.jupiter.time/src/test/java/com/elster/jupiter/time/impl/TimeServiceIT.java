@@ -217,7 +217,7 @@ public class TimeServiceIT {
 
         ZonedDateTime zonedDateTime = ZonedDateTime.of(2015, 6, 22, 15, 16, 12, 212551252, TimeZoneNeutral.getMcMurdo());
 
-        Range<ZonedDateTime> interval = thisWeek.getInterval(zonedDateTime);
+        Range<ZonedDateTime> interval = thisWeek.getClosedZonedInterval(zonedDateTime);
         assertThat(interval.hasLowerBound()).isTrue();
         assertThat(interval.lowerEndpoint()).isEqualTo(ZonedDateTime.of(2015, 6, 21, 0, 0, 0, 0, TimeZoneNeutral.getMcMurdo()));
         assertThat(interval.hasUpperBound()).isTrue();

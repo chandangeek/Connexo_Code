@@ -9,9 +9,6 @@ import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.List;
 
-/**
- * Created by igh on 1/04/2015.
- */
 public enum AllRelativePeriod implements RelativePeriod {
 
     INSTANCE;
@@ -32,7 +29,42 @@ public enum AllRelativePeriod implements RelativePeriod {
     }
 
     @Override
-    public Range<ZonedDateTime> getInterval(ZonedDateTime referenceDate) {
+    public Range<ZonedDateTime> getClosedZonedInterval(ZonedDateTime referenceDate) {
+        return Range.all();
+    }
+
+    @Override
+    public Range<Instant> getClosedInterval(ZonedDateTime referenceDate) {
+        return Range.all();
+    }
+
+    @Override
+    public Range<ZonedDateTime> getOpenClosedZonedInterval(ZonedDateTime referenceDate) {
+        return Range.all();
+    }
+
+    @Override
+    public Range<Instant> getOpenClosedInterval(ZonedDateTime referenceDate) {
+        return Range.all();
+    }
+
+    @Override
+    public Range<ZonedDateTime> getClosedOpenZonedInterval(ZonedDateTime referenceDate) {
+        return Range.all();
+    }
+
+    @Override
+    public Range<Instant> getClosedOpenInterval(ZonedDateTime referenceDate) {
+        return Range.all();
+    }
+
+    @Override
+    public Range<ZonedDateTime> getOpenZonedInterval(ZonedDateTime referenceDate) {
+        return Range.all();
+    }
+
+    @Override
+    public Range<Instant> getOpenInterval(ZonedDateTime referenceDate) {
         return Range.all();
     }
 
