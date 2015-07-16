@@ -312,7 +312,7 @@ Ext.define('Dxp.controller.Tasks', {
         var me = this,
             router = this.getController('Uni.controller.history.Router'),
             addDestinationRoute = router.currentRoute + '/destination';
-        //me.destinationsArray = [];
+        me.destinationsArray = [];
         me.saveFormValues();
         router.getRoute(addDestinationRoute).forward();
 
@@ -365,7 +365,7 @@ Ext.define('Dxp.controller.Tasks', {
         if (method === 'FILE') {
             me.showFileDestinationAttributes(true);
         }
-        if (method === 'MAIL') {
+        if (method === 'EMAIL') {
             me.showMailDestinationAttributes(true);
         }
 
@@ -381,6 +381,8 @@ Ext.define('Dxp.controller.Tasks', {
             destinationsStore = view.down('#task-destinations-grid').getStore(),
             recurrenceTypeCombo = view.down('#recurrence-type'),
         readingTypesStore = view.down('#readingTypesGridPanel').getStore();
+
+        //me.destinationsArray = [];
 
         me.getApplication().fireEvent('changecontentevent', view);
 
@@ -418,8 +420,10 @@ Ext.define('Dxp.controller.Tasks', {
     showEditExportTask: function (taskId) {
 
         var me = this,
+
             router = me.getController('Uni.controller.history.Router'),
             view;
+        //me.destinationsArray = [];
         if (me.fromDetails) {
             view = Ext.create('Dxp.view.tasks.Add', {
                 edit: true,
@@ -440,7 +444,12 @@ Ext.define('Dxp.controller.Tasks', {
             dataSelectorCombo = view.down('#data-selector-combo'),
             emptyDestinationsLabel = view.down('#noDestinationsLabel'),
             destinationsGrid = view.down('#task-destinations-grid'),
+            destinationsStore = view.down('#task-destinations-grid').getStore(),
+            readingTypesStore = view.down('#readingTypesGridPanel').getStore(),
             recurrenceTypeCombo = view.down('#recurrence-type');
+
+        //readingTypesStore.removeAll();
+        destinationsStore.removeAll();
 
         dataSelectorCombo.disabled = true;
         me.fromEdit = true;
@@ -458,6 +467,11 @@ Ext.define('Dxp.controller.Tasks', {
                         if (record.destinationsStore.count() > 0) {
                             emptyDestinationsLabel.hide();
                             destinationsGrid.store.add(record.destinations().data.items);
+
+                            /*Ext.each(record.destinations().data.items, function (record) {
+                                me.destinationsArray.push(record);
+                            });*/
+
                             destinationsGrid.show();
                         }
 
@@ -866,23 +880,24 @@ Ext.define('Dxp.controller.Tasks', {
         var page = me.getAddDestinationPage();
         var form = page.down('#add-destination-form');
         var formErrorsPanel = form.down('#form-errors');
+        var destinationModel;
         if (form.isValid()) {
             var formValues = form.getForm().getValues();
             if (formValues['method'] === 'FILE') {
                 //tooltip & method duplicated from destination model, have not found another way!
-                var destinationModel = Ext.create('Dxp.model.Destination', {
+                destinationModel = Ext.create('Dxp.model.Destination', {
                     type: 'FILE',
                     fileName: formValues['fileName'],
                     fileExtension: formValues['fileExtension'],
                     fileLocation: formValues['fileLocation'],
                     method: Uni.I18n.translate('dataExportdestinations.saveFile', 'DES', 'Save file'),
                     destination:  formValues['fileLocation'] + '/' + formValues['fileName'] + '.' + formValues['fileExtension'],
-                    tooltip: Uni.I18n.translate('dataExportdestinations.fileLocation', 'DES', 'File location') + ': ' + formValues['fileLocation'] + '&lt;br/&gt;' +
+                    tooltiptext: Uni.I18n.translate('dataExportdestinations.fileLocation', 'DES', 'File location') + ': ' + formValues['fileLocation'] + '&lt;br/&gt;' +
                         Uni.I18n.translate('dataExportdestinations.fileName', 'DES', 'File name') + ': ' + formValues['fileName'] + '&lt;br/&gt;' +
                         Uni.I18n.translate('dataExportdestinations.fileExtension', 'DES', 'File extension') + ': ' + formValues['fileExtension']
                 })
             } else if (formValues['method'] === 'EMAIL') {
-                var destinationModel = Ext.create('Dxp.model.Destination', {
+                destinationModel = Ext.create('Dxp.model.Destination', {
                     type: 'EMAIL',
                     fileName: formValues['attachmentName'],
                     fileExtension: formValues['attachmentExtension'],
@@ -890,7 +905,7 @@ Ext.define('Dxp.controller.Tasks', {
                     subject: formValues['subject'],
                     method: Uni.I18n.translate('dataExportdestinations.email', 'DES', 'Email'),
                     destination: formValues['recipients'],
-                    tooltip: Uni.I18n.translate('dataExportdestinations.recipients', 'DES', 'Recipients') + ': ' + formValues['recipients'] + '&lt;br/&gt;' +
+                    tooltiptext: Uni.I18n.translate('dataExportdestinations.recipients', 'DES', 'Recipients') + ': ' + formValues['recipients'] + '&lt;br/&gt;' +
                         Uni.I18n.translate('dataExportdestinations.subject', 'DES', 'Subject') + ': ' + formValues['subject'] + '&lt;br/&gt;' +
                         Uni.I18n.translate('dataExportdestinations.fileName', 'DES', 'File name') + ': ' + formValues['attachmentName'] + '&lt;br/&gt;' +
                         Uni.I18n.translate('dataExportdestinations.fileExtension', 'DES', 'File extension') + ': ' + formValues['attachmentExtension']
@@ -1064,12 +1079,13 @@ Ext.define('Dxp.controller.Tasks', {
                 record.propertiesStore.add(selectorPropertyForm.getRecord().properties().data.items)
             }
             record.destinations();
-            record.destinationsStore.add([Ext.create('Dxp.model.Destination', {
+            record.destinationsStore.add(page.down('#task-destinations-grid').getStore().data.items);
+            /*record.destinationsStore.add([Ext.create('Dxp.model.Destination', {
                 fileName: 'test',
                 fileExtension: 'csv',
                 fileLocation: '.',
                 type: 'FILE',
-            })]);
+            })]);*/
 
 
             record.endEdit();
@@ -1186,6 +1202,7 @@ Ext.define('Dxp.controller.Tasks', {
             gridStore = readingTypesGrid.getStore();
 
         gridStore.removeAll();
+        destinationsStore.removeAll();
 
         if (me.readingTypesArray) {
             Ext.each(me.readingTypesArray, function (record) {
@@ -1200,17 +1217,16 @@ Ext.define('Dxp.controller.Tasks', {
             }
         }
 
-        if (me.destinationsArray) {
-            Ext.each(me.destinationsArray, function (record) {
-                destinationsStore.add(record);
+        if (!Ext.isEmpty(destinationsArray)) {
+            Ext.each(destinationsArray, function (destination) {
+                destinationsStore.add(destination);
             });
-        } else {
-            if (!Ext.isEmpty(destinationsArray)) {
-                Ext.each(destinationsArray, function (destination) {
-                    destinationsStore.add(destination);
-                });
-            }
         }
+        Ext.each(me.destinationsArray, function (record) {
+            destinationsStore.add(record);
+        });
+        me.destinationsArray = [];
+
         if (destinationsStore.count() > 0) {
             emptyDestinationsLabel.hide();
             destinationsGrid.show();

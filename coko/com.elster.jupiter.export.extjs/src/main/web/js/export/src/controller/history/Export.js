@@ -68,6 +68,13 @@ Ext.define('Dxp.controller.history.Export', {
                                             controller: 'Dxp.controller.Tasks',
                                             privileges: Dxp.privileges.DataExport.update,
                                             action: 'addReadingTypes'
+                                        },
+                                        destination: {
+                                            title: 'Add destination',
+                                            route: 'destination',
+                                            controller: 'Dxp.controller.Tasks',
+                                            privileges: Dxp.privileges.DataExport.update,
+                                            action: 'addDestination'
                                         }
                                     }
                                 },

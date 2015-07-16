@@ -50,8 +50,9 @@ Ext.define('Dxp.view.tasks.AddDestination', {
                             data: [
                                 //{label: Uni.I18n.translate('dataExport.saveFile', 'DES', 'Save file'), value: 'FILE'},
                                 //{label: Uni.I18n.translate('dataExport.mail', 'DES', 'Mail'), value: 'MAIL'}
+                                //translation does not work?
                                 {displayValue: 'Save file', value: 'FILE'},
-                                {displayValue: 'Mail', value: 'MAIL'}
+                                {displayValue: 'Mail', value: 'EMAIL'}
                             ]
                         }),
                         name: 'method',
