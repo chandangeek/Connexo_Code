@@ -1,8 +1,12 @@
 Ext.define('Dlc.devicelifecyclestates.model.DeviceLifeCycleState', {
-  extend: 'Ext.data.Model',
+    extend: 'Ext.data.Model',
+    alias: 'deviceLifeCycleState',
+    requires: [
+        'Dlc.devicelifecyclestates.model.TransitionBusinessProcess'
+    ],
     fields: [
         {name: 'id', type: 'int', useNull: true},
-        {name:'name', type: 'string'},
+        {name: 'name', type: 'string'},
         {name: 'isCustom', type: 'boolean'},
         {name: 'isInitial', type: 'boolean'},
         {
@@ -11,7 +15,14 @@ Ext.define('Dlc.devicelifecyclestates.model.DeviceLifeCycleState', {
             mapping: function (data) {
                 return data.name;
             }
-        }
+        },
+        {name: 'onEntry'},
+        {name: 'onExit'}
+    ],
+
+    associations: [
+        {name: 'onEntry', type: 'hasMany', model: 'Dlc.devicelifecyclestates.model.TransitionBusinessProcess', associationKey: 'onEntry'},
+        {name: 'onExit', type: 'hasMany', model: 'Dlc.devicelifecyclestates.model.TransitionBusinessProcess', associationKey: 'onExit'}
     ],
     proxy: {
         type: 'rest',

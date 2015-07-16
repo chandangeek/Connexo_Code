@@ -3,11 +3,13 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
 
     views: [
         'Dlc.devicelifecyclestates.view.Setup',
-        'Dlc.devicelifecyclestates.view.Edit'
+        'Dlc.devicelifecyclestates.view.Edit',
+        'Dlc.devicelifecyclestates.view.AddProcessesToState'
     ],
 
     stores: [
-        'Dlc.devicelifecyclestates.store.DeviceLifeCycleStates'
+        'Dlc.devicelifecyclestates.store.DeviceLifeCycleStates',
+        'Dlc.devicelifecyclestates.store.AvailableTransitionBusinessProcesses'
     ],
 
     models: [
@@ -21,12 +23,20 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
             selector: 'device-life-cycle-states-setup'
         },
         {
+            ref: 'editPage',
+            selector: 'device-life-cycle-state-edit'
+        },
+        {
             ref: 'lifeCycleStatesGrid',
             selector: 'device-life-cycle-states-grid'
         },
         {
             ref: 'lifeCycleStatesEditForm',
             selector: '#lifeCycleStateEditForm'
+        },
+        {
+            ref: 'addProcessesToState',
+            selector: 'AddProcessesToState'
         }
     ],
 
@@ -53,8 +63,20 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
             'device-life-cycle-state-edit #createEditButton': {
                 click: this.saveState
             },
+            'device-life-cycle-state-edit #addOnEntryTransitionBusinessProcess':{
+                click: this.addEntryTransitionBusinessProcessesToState
+            },
+            'device-life-cycle-state-edit #addOnExitTransitionBusinessProcess':{
+                click: this.addExitTransitionBusinessProcessesToState
+            },
             'device-life-cycle-states-action-menu': {
                 show: this.configureMenu
+            },
+            'AddProcessesToState button[name=cancel]': {
+                click: this.forwardToPreviousPage
+            },
+            'AddProcessesToState button[name=add]': {
+                click: this.addSelectedProcesses
             }
         });
     },
@@ -210,8 +232,7 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
             stateModel = me.getModel('Dlc.devicelifecyclestates.model.DeviceLifeCycleState'),
             router = me.getController('Uni.controller.history.Router'),
             deviceLifeCycleModel = me.getModel('Dlc.devicelifecycles.model.DeviceLifeCycle'),
-            form = widget.down('#lifeCycleStateEditForm'),
-            createBtn = widget.down('#createEditButton');
+            form = widget.down('#lifeCycleStateEditForm');
 
         me.fromEditTransition = router.queryParams.fromEditTransitionPage === 'true';
         me.fromAddTransition = router.queryParams.fromEditTransitionPage === 'false';
@@ -225,29 +246,15 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
         me.getApplication().fireEvent('changecontentevent', widget);
         widget.setLoading(true);
         if (!Ext.isEmpty(id)) {
-            form.setTitle(Uni.I18n.translate('deviceLifeCycleStates.edit', 'DLC', 'Edit state'));
             stateModel.load(id, {
                 success: function (record) {
-                    var editTitle = Uni.I18n.translate('general.edit', 'DLC', 'Edit') + " '" + record.get('name') + "'";
-                    form.setTitle(editTitle);
                     form.loadRecord(record);
-                    me.getApplication().fireEvent('loadlifecyclestate', editTitle);
-                    createBtn.setText(Uni.I18n.translate('general.save', 'MDC', 'Save'));
-                    createBtn.action = 'save';
-                    if (!record.get('isCustom')) {
-                        createBtn.disable();
-                        form.down('#lifeCycleStateNameField').hide();
-                        form.down('#lifeCycleStateNameDisplayField').setValue(record.get('name'));
-                        form.down('#lifeCycleStateNameDisplayField').show();
-                    }
-                    widget.setLoading(false);
                 }
             });
         } else {
             form.loadRecord(Ext.create(stateModel));
-            form.setTitle(Uni.I18n.translate('deviceLifeCycleStates.add', 'DLC', 'Add state'));
-            widget.setLoading(false);
         }
+        widget.setLoading(false);
     },
 
     removeState: function () {
@@ -275,5 +282,54 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
                 }
             }
         });
+    },
+
+    addEntryTransitionBusinessProcessesToState: function (){
+        var page = this.getEditPage(),
+           router = this.getController('Uni.controller.history.Router'),
+           store =  page.down('#processesOnEntryGridPanel').getStore(),
+           widget =  Ext.widget('AddProcessesToState');
+        if (!Ext.isEmpty(store)){
+             widget.gridToUpdate = '#processesOnEntryGridPanel';
+             widget.exclude(store.data.items);
+        }
+        this.getApplication().fireEvent('changecontentevent', widget );
+    },
+
+    addExitTransitionBusinessProcessesToState: function (){
+        var page = this.getEditPage() ||  Ext.widget('device-life-cycle-state-edit'),
+           store =  page.down('#processesOnExitGridPanel').getStore(),
+           widget =  Ext.widget('AddProcessesToState');
+        if (!Ext.isEmpty(store)){
+            widget.gridToUpdate = '#processesOnExitGridPanel';
+            widget.exclude(store.data.items);
+        }
+        this.getApplication().fireEvent('changecontentevent', widget );
+    },
+
+    forwardToPreviousPage: function () {
+        var me = this;
+        var router = me.getController('Uni.controller.history.Router'),
+            splittedPath = router.currentRoute.split('/');
+
+        splittedPath.pop();
+
+        router.getRoute(splittedPath.join('/')).forward();
+    },
+
+    addSelectedProcesses: function () {
+       var  page = this.getEditPage(),
+            widget = this.getAddProcessesToState(),
+            selection = widget.getSelection(),
+            router = this.getController('Uni.controller.history.Router').r;
+
+        if (selection.length > 0) {
+            console.log(widget.gridToUpdate);
+            var store = page.down(widget.gridToUpdate).getStore();
+            Ext.each(selection, function (transitionBusinessProcess) {
+                store.add(transitionBusinessProcess);
+           });
+        }
     }
+
 });

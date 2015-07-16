@@ -85,6 +85,20 @@ Ext.define('Dlc.main.controller.history.DeviceLifeCycle', {
                                                     return true;
                                                 }, {single: true});
                                                 return this;
+                                            },
+                                            items:{
+                                                addEntryProcesses:{
+                                                    title: Uni.I18n.translate('transitionBusinessProcess.addToState', 'DLC', 'Add processes'),
+                                                    route: 'entryprocesses',
+                                                    controller: 'Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates',
+                                                    action: 'addEntryTransitionBusinessProcessesToState'
+                                                },
+                                                addExitProcesses:{
+                                                    title: Uni.I18n.translate('transitionBusinessProcess.addToState', 'DLC', 'Add processes'),
+                                                    route: 'exitprocesses',
+                                                    controller: 'Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates',
+                                                    action: 'addExitTransitionBusinessProcessesToState'
+                                                }
                                             }
                                         }
                                     }
