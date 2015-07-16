@@ -73,11 +73,13 @@ public class ConnectionTaskResourceTest extends MultisensePublicApiJerseyTest {
         assertThat(jsonModel.<String>get("$.status")).isEqualTo("Active");
         assertThat(jsonModel.<Boolean>get("$.isDefault")).isEqualTo(true);
         assertThat(jsonModel.<Boolean>get("$.allowSimultaneousConnections")).isEqualTo(true);
-        assertThat(jsonModel.<String>get("$.connectionType")).isEqualTo("pluggeable class");
+        assertThat(jsonModel.<String>get("$.connectionType")).isEqualTo("outbound pluggeable class");
         assertThat(jsonModel.<Integer>get("$.rescheduleRetryDelay.count")).isEqualTo(60);
         assertThat(jsonModel.<String>get("$.rescheduleRetryDelay.timeUnit")).isEqualTo("minutes");
         assertThat(jsonModel.<String>get("$.link.params.rel")).isEqualTo(LinkInfo.REF_SELF);
         assertThat(jsonModel.<String>get("$.link.href")).isEqualTo("http://localhost:9998/devices/XAS/connectionmethods/41");
+        assertThat(jsonModel.<Integer>get("$.comWindow.start")).isEqualTo(7200000);
+        assertThat(jsonModel.<Integer>get("$.comWindow.end")).isEqualTo(14400000);
         assertThat(jsonModel.<String>get("$.comPortPool.link.href")).isEqualTo("http://localhost:9998/comportpools/65");
         assertThat(jsonModel.<String>get("$.comPortPool.link.params.rel")).isEqualTo("related");
         assertThat(jsonModel.<List>get("$.properties")).hasSize(1);

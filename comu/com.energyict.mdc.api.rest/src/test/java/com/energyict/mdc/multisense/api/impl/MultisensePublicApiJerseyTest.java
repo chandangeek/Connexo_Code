@@ -24,10 +24,13 @@ import com.elster.jupiter.properties.PropertySpecPossibleValues;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.common.interval.PartialTime;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.Device;
@@ -42,6 +45,7 @@ import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.DateFactory;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
@@ -251,6 +255,7 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         when(connectionTask.getConnectionType()).thenReturn(connectionType);
         when(connectionTask.getTypedProperties()).thenReturn(TypedProperties.empty());
         when(connectionTask.getRescheduleDelay()).thenReturn(TimeDuration.minutes(60));
+        when(connectionTask.getCommunicationWindow()).thenReturn(new ComWindow(PartialTime.fromHours(2), PartialTime.fromHours(4)));
         return connectionTask;
     }
 
@@ -260,10 +265,58 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         when(partial.getPluggableClass()).thenReturn(connectionTaskPluggeableClass);
         when(partial.getName()).thenReturn(name);
         when(partial.getId()).thenReturn(id);
-        when(connectionTaskPluggeableClass.getName()).thenReturn("pluggeable class");
+        when(connectionTaskPluggeableClass.getName()).thenReturn("outbound pluggeable class");
         return partial;
     }
 
+    PartialInboundConnectionTask mockPartialInboundConnectionTask(long id, String name, DeviceConfiguration deviceConfig) {
+        PartialInboundConnectionTask mock = mock(PartialInboundConnectionTask.class);
+        when(mock.getName()).thenReturn(name);
+        ConnectionTypePluggableClass connectionTaskPluggeableClass = mock(ConnectionTypePluggableClass.class);
+        when(mock.getPluggableClass()).thenReturn(connectionTaskPluggeableClass);
+        when(mock.getId()).thenReturn(id);
+        when(mock.getConfiguration()).thenReturn(deviceConfig);
+        when(connectionTaskPluggeableClass.getName()).thenReturn("inbound pluggeable class");
+        InboundComPortPool comPortPool = mockInboundComPortPool(65L);
+        when(mock.getComPortPool()).thenReturn(comPortPool);
+        ConnectionType connectionType = mock(ConnectionType.class);
+        PropertySpec propertySpec = mockStringPropertySpec();
+        when(connectionType.getPropertySpecs()).thenReturn(Collections.singletonList(propertySpec));
+        when(mock.getConnectionType()).thenReturn(connectionType);
+        when(mock.getTypedProperties()).thenReturn(TypedProperties.empty());
+        when(mock.getTypedProperties()).thenReturn(TypedProperties.empty());
+
+        return mock;
+    }
+
+    PartialScheduledConnectionTask mockPartialOutboundConnectionTask(long id, String name, DeviceConfiguration deviceConfig) {
+        PartialScheduledConnectionTask mock = mock(PartialScheduledConnectionTask.class);
+        when(mock.getName()).thenReturn(name);
+        ConnectionTypePluggableClass connectionTaskPluggeableClass = mock(ConnectionTypePluggableClass.class);
+        when(mock.getPluggableClass()).thenReturn(connectionTaskPluggeableClass);
+        when(mock.getId()).thenReturn(id);
+        when(mock.getConfiguration()).thenReturn(deviceConfig);
+        when(connectionTaskPluggeableClass.getName()).thenReturn("outbound pluggeable class");
+        OutboundComPortPool comPortPool = mock(OutboundComPortPool.class);
+        when(comPortPool.getId()).thenReturn(165L);
+        when(mock.getComPortPool()).thenReturn(comPortPool);
+        ConnectionType connectionType = mock(ConnectionType.class);
+        PropertySpec propertySpec = mockStringPropertySpec();
+        when(connectionType.getPropertySpecs()).thenReturn(Collections.singletonList(propertySpec));
+        when(mock.getConnectionType()).thenReturn(connectionType);
+        when(mock.getTypedProperties()).thenReturn(TypedProperties.empty());
+        when(mock.isSimultaneousConnectionsAllowed()).thenReturn(true);
+        when(mock.getRescheduleDelay()).thenReturn(TimeDuration.minutes(60));
+        when(mock.getCommunicationWindow()).thenReturn(new ComWindow(PartialTime.fromHours(2), PartialTime.fromHours(4)));
+
+        return mock;
+    }
+
+    private InboundComPortPool mockInboundComPortPool(long id) {
+        InboundComPortPool mock = mock(InboundComPortPool.class);
+        when(mock.getId()).thenReturn(id);
+        return mock;
+    }
 
     <T> Finder<T> mockFinder(List<T> list) {
         Finder<T> finder = mock(Finder.class);
