@@ -120,14 +120,14 @@ Ext.define('Dxp.controller.Tasks', {
             'data-export-tasks-add #add-export-task-button': {
                 click: this.addTask
             },
-            /*'data-export-add-destination #add-destination-button': {
-                change: this.updateDestinationAttributes
-            },*/
             'data-export-tasks-add #add-destination-button': {
                 click: this.showAddDestination
             },
             'data-export-add-destination #save-destination-button': {
                 click: this.addDestinationToGrid
+            },
+            'data-export-add-destination #cancel-add-destination-link': {
+                click: this.forwardToPreviousPage
             },
             'data-export-tasks-add #file-formatter-combo': {
                 change: this.updateProperties
