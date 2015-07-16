@@ -4,6 +4,9 @@ import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.IOException;
 import java.net.URI;
@@ -11,26 +14,48 @@ import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyVararg;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.when;
 
+@RunWith(MockitoJUnitRunner.class)
 public class FtpPathTest extends EqualsContractTest {
 
-    private FtpFileSystem fileSystem;
     private FtpPath instanceA;
+    @Mock
+    private FtpFileSystem fileSystem;
+    @Mock
     private FtpFileSystemProvider ftpjFileSystemProvider;
+    private URI uri;
 
     @Before
     public void equalsContractSetUp() {
         try {
-            ftpjFileSystemProvider = new FtpFileSystemProvider();
-            fileSystem = ftpjFileSystemProvider.newFileSystem(new URI("ftp", "localhost", null, null), Collections.emptyMap());
-        } catch (IOException | URISyntaxException e) {
-            throw new RuntimeException(e);
+            doReturn(fileSystem).when(ftpjFileSystemProvider).newFileSystem(any(URI.class), any());
+            when(fileSystem.getPath(any(), anyVararg())).thenAnswer(invocation -> {
+                ArrayList<String> paths = new ArrayList<>();
+                Object[] arguments = invocation.getArguments();
+                for (int i = 0; i < arguments.length; i++) {
+                    paths.addAll(Arrays.asList((String) arguments[i]));
+                }
+                return new FtpPath(fileSystem, paths);
+            });
+
+            com.enterprisedt.util.license.License.setLicenseDetails("EnergyICTnv", "326-1363-8168-7486");
+            try {
+                uri = new URI("ftp", "test:test", "localhost", 21, null, null, null);
+                when(fileSystem.getUri()).thenReturn(uri);
+            } catch (URISyntaxException e) {
+                throw new RuntimeException(e);
+            }
+            super.equalsContractSetUp();
+        } catch (IOException e) {
+            throw new AssertionError(e);
         }
-        super.equalsContractSetUp();
     }
 
     @After

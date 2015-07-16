@@ -217,7 +217,7 @@ final class FtpPath implements Path {
     @Override
     public URI toUri() {
         try {
-            return new URI(fileSystem.getUri().getScheme(), fileSystem.getHost(), toAbsolutePath().toString(), null);
+            return new URI(fileSystem.getUri().getScheme(), fileSystem.getUri().getHost(), toAbsolutePath().toString(), null);
         } catch (URISyntaxException e) {
             throw new IllegalStateException(e);
         }

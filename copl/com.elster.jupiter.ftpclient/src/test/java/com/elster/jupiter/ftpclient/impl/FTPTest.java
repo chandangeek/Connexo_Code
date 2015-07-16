@@ -37,6 +37,7 @@ public class FTPTest {
 
     @Before
     public void setUp() {
+        com.enterprisedt.util.license.License.setLicenseDetails("EnergyICTnv", "326-1363-8168-7486");
         fakeFtpServer = new FakeFtpServer();
         fakeFtpServer.addUserAccount(new UserAccount(USERNAME, PASSWORD, "c:\\data"));
 

@@ -63,6 +63,9 @@ abstract class ProFtpClientFileSystem<T extends ProFtpClientFileSystem<T>> exten
     void open() throws IOException {
         try {
             String userInfo = getUri().getUserInfo();
+            if (userInfo == null) {
+                throw new IOException("unable to log in");
+            }
             Matcher matcher = AUTH.matcher(userInfo);
             if (matcher.matches()) {
                 ftpClient.setRemoteHost(getHost());
