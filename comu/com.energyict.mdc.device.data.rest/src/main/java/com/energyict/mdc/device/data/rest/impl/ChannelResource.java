@@ -78,8 +78,8 @@ public class ChannelResource {
     }
 
     private List<Channel> getFilteredChannels(Device device, JsonQueryFilter filter){
-        Predicate<String> filterByLoadProfileName = getFilterIfAvailable("loadProfileName", filter);
-        Predicate<String> filterByChannelName = getFilterIfAvailable("channelName", filter);
+        Predicate<String> filterByLoadProfileName = getStringListFilterIfAvailable("loadProfileName", filter);
+        Predicate<String> filterByChannelName = getStringFilterIfAvailable("channelName", filter);
         return device.getLoadProfiles().stream()
                 .filter(l -> filterByLoadProfileName.test(l.getLoadProfileSpec().getLoadProfileType().getName()))
                 .flatMap(l -> l.getChannels().stream())
@@ -87,11 +87,34 @@ public class ChannelResource {
                 .collect(Collectors.toList());
     }
 
-    private Predicate<String> getFilterIfAvailable(String name, JsonQueryFilter filter){
+    private Predicate<String> getStringFilterIfAvailable(String name, JsonQueryFilter filter){
         if (filter.hasProperty(name)){
             Pattern pattern = getFilterPattern(filter.getString(name));
             if (pattern != null){
                 return s -> pattern.matcher(s).matches();
+            }
+        }
+        return s -> true;
+    }
+
+    private Predicate<String> getStringListFilterIfAvailable(String name, JsonQueryFilter filter){
+        if (filter.hasProperty(name)){
+            List<String> entries = filter.getStringList(name);
+            List<Pattern> patterns = new ArrayList<>();
+            for (String entry : entries) {
+                patterns.add(getFilterPattern(entry));
+            }
+            if (!patterns.isEmpty()){
+                return s -> {
+                    boolean match = false;
+                    for (Pattern pattern : patterns) {
+                        match = match || pattern.matcher(s).matches();
+                        if (match) {
+                            break;
+                        }
+                    }
+                    return match;
+                };
             }
         }
         return s -> true;
@@ -115,7 +138,7 @@ public class ChannelResource {
         boolean isValidationActive = deviceValidation.isValidationActive(channel, clock.instant());
         if (intervalStart != null && intervalEnd != null) {
             List<LoadProfileReading> channelData = channel.getChannelData(Ranges.openClosed(Instant.ofEpochMilli(intervalStart), Instant.ofEpochMilli(intervalEnd)));
-            List<ChannelDataInfo> infos = channelData.stream().map(loadProfileReading -> deviceDataInfoFactory.createChannelDataInfo(loadProfileReading, isValidationActive, deviceValidation)).collect(Collectors.toList());
+            List<ChannelDataInfo> infos = channelData.stream().map(loadProfileReading -> deviceDataInfoFactory.createChannelDataInfo(channel, loadProfileReading, isValidationActive, deviceValidation)).collect(Collectors.toList());
             infos = filter(infos, uriInfo.getQueryParameters());
             List<ChannelDataInfo> paginatedChannelData = ListPager.of(infos).from(queryParameters).find();
             PagedInfoList pagedInfoList = PagedInfoList.fromPagedList("data", paginatedChannelData, queryParameters);
@@ -170,9 +193,10 @@ public class ChannelResource {
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(device, channelId);
         List<BaseReading> editedReadings = new ArrayList<>();
         List<BaseReading> editedBulkReadings = new ArrayList<>();
+        List<BaseReading> confirmedReadings = new ArrayList<>();
         List<Range<Instant>> removeCandidates = new ArrayList<>();
         channelDataInfos.forEach((channelDataInfo) -> {
-            if (channelDataInfo.value == null && channelDataInfo.collectedValue == null) {
+            if (!(isToBeConfirmed(channelDataInfo)) && channelDataInfo.value == null && channelDataInfo.collectedValue == null) {
                 removeCandidates.add(
                         Range.openClosed(
                                 Instant.ofEpochMilli(channelDataInfo.interval.start),
@@ -185,11 +209,19 @@ public class ChannelResource {
                 if (channelDataInfo.collectedValue != null) {
                     editedBulkReadings.add(channelDataInfo.createNewBulk());
                 }
+                if (isToBeConfirmed(channelDataInfo)) {
+                    confirmedReadings.add(channelDataInfo.createConfirm());
+                }
             }
         });
-        channel.startEditingData().removeChannelData(removeCandidates).editChannelData(editedReadings).editBulkChannelData(editedBulkReadings).complete();
+        channel.startEditingData().removeChannelData(removeCandidates).editChannelData(editedReadings).editBulkChannelData(editedBulkReadings).confirmChannelData(confirmedReadings).complete();
 
         return Response.status(Response.Status.OK).build();
+    }
+
+    private boolean isToBeConfirmed(ChannelDataInfo channelDataInfo) {
+        return ((channelDataInfo.validationInfo != null && channelDataInfo.validationInfo.mainValidationInfo != null && channelDataInfo.validationInfo.mainValidationInfo.isConfirmed) ||
+                (channelDataInfo.validationInfo != null && channelDataInfo.validationInfo.bulkValidationInfo != null && channelDataInfo.validationInfo.bulkValidationInfo.isConfirmed));
     }
 
     @POST

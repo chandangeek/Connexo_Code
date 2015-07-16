@@ -91,6 +91,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     @Before
     public void setupStubs() {
         readingType = mockReadingType("0.1.2.3.5.6.7.8.9.1.2.3.4.5.6.7.8");
+        when(readingType.getCalculatedReadingType()).thenReturn(Optional.of(readingType));
     }
 
     @Test
@@ -538,6 +539,8 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(channel1.getChannelSpec()).thenReturn(channelSpec);
         LoadProfile loadProfile3 = mockLoadProfile("lp3", 3, new TimeDuration(15, TimeDuration.TimeUnit.MINUTES), channel1);
         when(channel1.getLoadProfile()).thenReturn(loadProfile3);
+        when(channel1.getReadingType()).thenReturn(readingType);
+        when(readingType.getCalculatedReadingType()).thenReturn(Optional.empty());
         when(device1.getLoadProfiles()).thenReturn(Arrays.asList(loadProfile3));
         when(deviceService.findByUniqueMrid("mrid2")).thenReturn(Optional.of(device1));
         List<LoadProfileReading> loadProfileReadings = new ArrayList<>();
@@ -1197,6 +1200,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         ReadingType readingType = mock(ReadingType.class);
         when(readingType.getMRID()).thenReturn(mrid);
         when(mock.getReadingType()).thenReturn(readingType);
+        when(mock.getReadingType().getCalculatedReadingType()).thenReturn(Optional.of(readingType));
         when(mock.getInterval()).thenReturn(new TimeDuration("15 minutes"));
         Unit unit = Unit.get("kWh");
         when(mock.getLastReading()).thenReturn(Optional.empty());

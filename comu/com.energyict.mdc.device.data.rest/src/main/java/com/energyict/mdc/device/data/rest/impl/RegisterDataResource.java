@@ -128,7 +128,12 @@ public class RegisterDataResource {
     public Response editRegisterData(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId, ReadingInfo readingInfo) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         Register<?> register = resourceHelper.findRegisterOrThrowException(device, registerId);
-        register.startEditingData().editReading(readingInfo.createNew(register)).complete();
+        if((readingInfo instanceof NumericalReadingInfo && NumericalReadingInfo.class.cast(readingInfo).isConfirmed != null && NumericalReadingInfo.class.cast(readingInfo).isConfirmed) ||
+                (readingInfo instanceof BillingReadingInfo && BillingReadingInfo.class.cast(readingInfo).isConfirmed != null && BillingReadingInfo.class.cast(readingInfo).isConfirmed)) {
+            register.startEditingData().confirmReading(readingInfo.createNew(register)).complete();
+        } else {
+            register.startEditingData().editReading(readingInfo.createNew(register)).complete();
+        }
         return Response.status(Response.Status.OK).build();
     }
 
