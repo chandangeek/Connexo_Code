@@ -25,7 +25,7 @@ public class FileImportOccurrenceInfo {
     public FileImportOccurrenceInfo(){
 
     }
-    private FileImportOccurrenceInfo(FileImportOccurrence fileImportOccurrence, Thesaurus thesaurus){
+    public FileImportOccurrenceInfo(FileImportOccurrence fileImportOccurrence, Thesaurus thesaurus){
         this.id = this.occurrenceId = fileImportOccurrence.getId();
         this.fileName = fileImportOccurrence.getFileName();
         this.importServiceId = fileImportOccurrence.getImportSchedule().getId();

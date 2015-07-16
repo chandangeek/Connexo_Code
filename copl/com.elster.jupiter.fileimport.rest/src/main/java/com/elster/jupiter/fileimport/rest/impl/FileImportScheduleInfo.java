@@ -42,12 +42,9 @@ public class FileImportScheduleInfo {
 
     }
     public FileImportScheduleInfo(ImportSchedule importSchedule, AppService appService, Thesaurus thesaurus, PropertyUtils propertyUtils) {
-
-        //
         id = importSchedule.getId();
         active = importSchedule.isActive();
         name = importSchedule.getName();
-        //destinationName = importSchedule.getDestination().getName();
         importDirectory = importSchedule.getImportDirectory().toString();
         inProcessDirectory = importSchedule.getInProcessDirectory().toString();
         successDirectory = importSchedule.getSuccessDirectory().toString();

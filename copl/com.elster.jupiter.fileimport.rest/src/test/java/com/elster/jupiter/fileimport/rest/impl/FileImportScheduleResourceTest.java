@@ -1,20 +1,12 @@
-package com.elster.upiter.fileimport.rest.impl;
+package com.elster.jupiter.fileimport.rest.impl;
 
 import com.elster.jupiter.domain.util.Finder;
-import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.fileimport.FileImporter;
 import com.elster.jupiter.fileimport.FileImporterFactory;
 import com.elster.jupiter.fileimport.ImportSchedule;
 import com.elster.jupiter.fileimport.ImportScheduleBuilder;
-import com.elster.jupiter.fileimport.rest.impl.FileImportScheduleInfo;
-import com.elster.jupiter.fileimport.rest.impl.FileImportScheduleInfos;
-import com.elster.jupiter.fileimport.rest.impl.FileImporterInfo;
 import com.elster.jupiter.messaging.DestinationSpec;
-import com.elster.jupiter.rest.util.JsonQueryParameters;
-import com.elster.jupiter.rest.util.QueryParameters;
-import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.transaction.Transaction;
-import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.time.ScheduleExpression;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -26,7 +18,6 @@ import org.mockito.stubbing.Answer;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
-import java.io.File;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
@@ -48,7 +39,7 @@ public class FileImportScheduleResourceTest  extends FileImportApplicationTest {
     @Test
     public void testGetImportSchedules() {
         mockImportSchedules(mockImportSchedule(1));
-        Response response = target("/importservices").queryParam("application", "SYS").request().get();
+        Response response = target("/importservices").request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
 
         FileImportScheduleInfos infos = response.readEntity(FileImportScheduleInfos.class);

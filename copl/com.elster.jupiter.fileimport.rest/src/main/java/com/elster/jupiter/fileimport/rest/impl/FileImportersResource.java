@@ -10,10 +10,7 @@ import com.elster.jupiter.transaction.TransactionService;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -47,7 +44,7 @@ public class FileImportersResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_IMPORT_SERVICES, Privileges.VIEW_IMPORT_SERVICES})
-    public Response getImporters(@Context UriInfo uriInfo, @QueryParam("application") String applicationName) {
+    public Response getImporters(@Context UriInfo uriInfo, @HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName) {
         QueryParameters params = QueryParameters.wrap(uriInfo.getQueryParameters());
 
         List<FileImporterFactory> importers = fileImportService.getAvailableImporters(applicationName);
