@@ -1,5 +1,8 @@
 package com.energyict.mdc.multisense.api.impl;
 
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.rest.util.properties.PropertyInfo;
+import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
@@ -12,6 +15,8 @@ import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.jayway.jsonpath.JsonModel;
 import java.io.InputStream;
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -144,18 +149,20 @@ public class ConnectionTaskResourceTest extends MultisensePublicApiJerseyTest {
         info.comPortPool.id = 13L;
         info.isDefault = true;
         info.allowSimultaneousConnections = true;
+        info.properties = new ArrayList<>();
+        PropertyInfo property = new PropertyInfo();
+        info.properties.add(property);
+        property.propertyValueInfo = new PropertyValueInfo<>(8080, "");
+        property.key = "decimal.property";
 
         OutboundComPortPool outboundComPortPool = mock(OutboundComPortPool.class);
         when(engineConfigurationService.findOutboundComPortPool(info.comPortPool.id)).thenReturn(Optional.of(outboundComPortPool));
 
         DeviceType elec1 = mockDeviceType(101, "Electricity 1");
         DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(1101L, "Default configuration", elec1);
-        PartialScheduledConnectionTask pct1 = mock(PartialScheduledConnectionTask.class);
-        when(pct1.getName()).thenReturn("new outbound");
-        when(pct1.getId()).thenReturn(333L);
-        PartialScheduledConnectionTask pct2 = mock(PartialScheduledConnectionTask.class);
-        when(pct2.getName()).thenReturn("legacy");
-        when(pct2.getId()).thenReturn(444L);
+        PropertySpec propertySpec = mockBigDecimalPropertySpec();
+        PartialScheduledConnectionTask pct1 = mockPartialScheduledConnectionTask(333L, "new outbound", propertySpec);
+        PartialScheduledConnectionTask pct2 = mockPartialScheduledConnectionTask(444L, "legacy");
         when(deviceConfiguration.getPartialConnectionTasks()).thenReturn(Arrays.asList(pct1, pct2));
         Device deviceXas = mockDevice("XAS", "5544657642", deviceConfiguration);
 
@@ -168,16 +175,19 @@ public class ConnectionTaskResourceTest extends MultisensePublicApiJerseyTest {
         ArgumentCaptor<ConnectionTask.ConnectionTaskLifecycleStatus> connectionTaskLifecycleStatusArgumentCaptor = ArgumentCaptor.forClass(ConnectionTask.ConnectionTaskLifecycleStatus.class);
         when(builder.setConnectionTaskLifecycleStatus(connectionTaskLifecycleStatusArgumentCaptor.capture())).thenReturn(builder);
         when(builder.setSimultaneousConnectionsAllowed(true)).thenReturn(builder);
+        ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<Object> objectArgumentCaptor = ArgumentCaptor.forClass(Object.class);
+        when(builder.setProperty(stringArgumentCaptor.capture(), objectArgumentCaptor.capture())).thenReturn(builder);
         when(builder.add()).thenReturn(scheduledConnectionTask);
 
+        // ACTUAL CALL
         Response response = target("devices/XAS/connectionmethods").request().post(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
         assertThat(response.getLocation().toString()).isEqualTo("http://localhost:9998/devices/XAS/connectionmethods/6789");
         assertThat(comPortPoolArgumentCaptor.getValue()).isEqualTo(outboundComPortPool);
         assertThat(connectionTaskLifecycleStatusArgumentCaptor.getValue()).isEqualTo(info.status);
-
-//        scheduledConnectionTaskBuilder.setConnectionStrategy(info.connectionStrategy);
-//        scheduledConnectionTaskBuilder.setNextExecutionSpecsFrom(info.nextExecutionSpecs != null ? info.nextExecutionSpecs.asTemporalExpression() : null);
+        assertThat(stringArgumentCaptor.getValue()).isEqualTo("decimal.property");
+        assertThat(objectArgumentCaptor.getValue()).isEqualTo(BigDecimal.valueOf(8080));
 
         verify(connectionTaskService).setDefaultConnectionTask(scheduledConnectionTask);
 

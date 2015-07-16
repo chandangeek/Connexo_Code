@@ -259,13 +259,14 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         return connectionTask;
     }
 
-    PartialScheduledConnectionTask mockPartialScheduledConnectionTask(long id, String name) {
+    PartialScheduledConnectionTask mockPartialScheduledConnectionTask(long id, String name, PropertySpec ... propertySpecs) {
         PartialScheduledConnectionTask partial = mock(PartialScheduledConnectionTask.class);
         ConnectionTypePluggableClass connectionTaskPluggeableClass = mock(ConnectionTypePluggableClass.class);
         when(partial.getPluggableClass()).thenReturn(connectionTaskPluggeableClass);
         when(partial.getName()).thenReturn(name);
         when(partial.getId()).thenReturn(id);
         when(connectionTaskPluggeableClass.getName()).thenReturn("outbound pluggeable class");
+        when(connectionTaskPluggeableClass.getPropertySpecs()).thenReturn(Arrays.asList(propertySpecs));
         return partial;
     }
 
