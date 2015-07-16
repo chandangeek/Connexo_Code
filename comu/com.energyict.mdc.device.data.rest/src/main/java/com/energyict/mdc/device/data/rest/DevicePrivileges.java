@@ -36,6 +36,7 @@ public final class DevicePrivileges {
     public static final String DEVICES_ACTIONS_GENERAL_ATTRIBUTES = "devices.actions.general.attributes";
     public static final String DEVICES_ACTIONS_COMMUNICATION_TASKS = "devices.actions.communication.tasks";
     public static final String DEVICES_ACTIONS_CONNECTION_METHODS = "devices.actions.connection.methods";
+    public static final String DEVICES_ACTIONS_FIRMWARE_MANAGEMENT = "devices.actions.firmware.management";
     public static final String DEVICES_ACTIONS_DATA_EDIT = "devices.actions.data.edit";
     public static final String DEVICES_PAGES_COMMUNICATION_PLANNING = "devices.pages.communication.planning";
 
@@ -61,9 +62,6 @@ public final class DevicePrivileges {
                 List<String> privileges = new ArrayList<>(super.getPrivileges(user));
                 privileges.remove(DEVICES_WIDGET_ISSUES);
                 privileges.remove(DEVICES_WIDGET_VALIDATION);
-                privileges.remove(DEVICES_WIDGET_COMMUNICATION_TOPOLOGY);
-                privileges.remove(DEVICES_WIDGET_CONNECTION);
-                privileges.remove(DEVICES_WIDGET_COMMUNICATION_TASKS);
                 privileges.remove(DEVICES_ACTIONS_VALIDATION);
                 privileges.remove(DEVICES_ACTIONS_ESTIMATION);
                 return privileges;
@@ -97,6 +95,7 @@ public final class DevicePrivileges {
                     DevicePrivileges.DEVICES_ACTIONS_COMMUNICATION_TASKS,
                     DevicePrivileges.DEVICES_ACTIONS_CONNECTION_METHODS,
                     DevicePrivileges.DEVICES_ACTIONS_DATA_EDIT,
+                    DevicePrivileges.DEVICES_ACTIONS_FIRMWARE_MANAGEMENT,
                     DevicePrivileges.DEVICES_PAGES_COMMUNICATION_PLANNING
             );
         }
