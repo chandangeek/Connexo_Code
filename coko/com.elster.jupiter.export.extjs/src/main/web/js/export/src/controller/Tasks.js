@@ -957,7 +957,22 @@ Ext.define('Dxp.controller.Tasks', {
             formErrorsPanel.show();
         }
 
-        if ((form.isValid()) && (!emptyReadingTypes)) {
+        var emptyDestinations = page.down('#task-destinations-grid').getStore().data.items.length == 0;
+        if (emptyDestinations) {
+            //form.down('#destinationsFieldcontainer').addCls('error-border');
+            //form.down('#destinationsFieldcontainer').setActiveError('This field is required');
+            form.down('#noDestinationsErrorLabel').show();
+
+            form.getForm().markInvalid(
+                Ext.create('Object', {
+                    id: 'destinationsFieldcontainer',
+                    msg: 'This field is required'
+                }));
+
+            formErrorsPanel.show();
+        }
+
+        if ((form.isValid()) && (!emptyReadingTypes) && (!emptyDestinations)) {
             var record = me.taskModel || Ext.create('Dxp.model.DataExportTask'),
                 readingTypesStore = page.down('#readingTypesGridPanel').getStore(),
                 arrReadingTypes = [];

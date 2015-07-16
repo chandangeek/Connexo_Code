@@ -405,6 +405,7 @@ Ext.define('Dxp.view.tasks.Add', {
 
                     {
                         xtype: 'fieldcontainer',
+                        itemId: 'destinationsFieldcontainer',
                         required: true,
                         fieldLabel: Uni.I18n.translate('dataExportdestinations.destinations', 'DES', 'Destinations'),
                         layout: 'hbox',
@@ -431,6 +432,15 @@ Ext.define('Dxp.view.tasks.Add', {
 
                         ]
                     },
+
+                    {
+                         xtype: 'label',
+                         text: 'This field is required',
+                         cls: 'x-form-invalid-under',
+                         itemId: 'noDestinationsErrorLabel',
+                         hidden: true,
+                         margin: '0 0 00 266'
+                     },
 
                     {
                         xtype: 'fieldcontainer',
