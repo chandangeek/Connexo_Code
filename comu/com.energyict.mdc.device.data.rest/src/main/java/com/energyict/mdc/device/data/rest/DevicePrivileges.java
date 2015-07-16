@@ -3,6 +3,9 @@ package com.energyict.mdc.device.data.rest;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.users.User;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceDataServices;
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 
@@ -46,7 +49,7 @@ public final class DevicePrivileges {
             @Override
             List<String> getPrivileges(User user) {
                 List<String> privileges = new ArrayList<>();
-                if (user != null && user.hasPrivilege(Privileges.ADMINISTER_DECOMMISSIONED_DEVICE_DATA)) {
+                if (user != null && user.hasPrivilege(DeviceDataServices.COMPONENT_NAME, Privileges.ADMINISTER_DECOMMISSIONED_DEVICE_DATA)) {
                     privileges.add(DEVICES_ACTIONS_DATA_EDIT);
                 }
                 return privileges;

@@ -104,7 +104,7 @@ public class DeviceStateAccessFilter implements ContainerRequestFilter {
         if (ignoredRoles != null && ignoredRoles.length > 0){
             User user = (User) requestContext.getSecurityContext().getUserPrincipal();
             if (user != null) {
-                return Arrays.stream(ignoredRoles).anyMatch(user::hasPrivilege);
+                return Arrays.stream(ignoredRoles).anyMatch(candidate -> user.hasPrivilege(null, candidate));
             }
         }
         return false;
