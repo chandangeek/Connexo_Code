@@ -464,7 +464,6 @@
                 <module>../com.energyict.mdc.scheduling.rest</module>
                 <module>../com.energyict.mdc.tasks</module>
                 <module>../com.energyict.mdc.tasks.rest</module>
-                <module>../com.energyict.mdc.NEW</module>
                 <!-- Can we please keep this list organized alphabetically -->
             </modules>
         </profile>
