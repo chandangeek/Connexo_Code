@@ -46,7 +46,7 @@ import java.util.stream.Collectors;
 public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements ServerDeviceType {
 
     enum Fields {
-        CONFLICTINGMAPPING("conflictingMapping"),
+        CONFLICTINGMAPPING("deviceConfigConflictMappings"),
         ;
 
         private final String javaFieldName;
@@ -74,7 +74,8 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     private List<DeviceTypeLogBookTypeUsage> logBookTypeUsages = new ArrayList<>();
     private List<DeviceTypeLoadProfileTypeUsage> loadProfileTypeUsages = new ArrayList<>();
     private List<DeviceTypeRegisterTypeUsage> registerTypeUsages = new ArrayList<>();
-    private List<DeviceConfigConflictMapping> conflictingMapping = new ArrayList<>();
+    @Valid
+    private List<DeviceConfigConflictMapping> deviceConfigConflictMappings = new ArrayList<>();
     private long deviceProtocolPluggableClassId;
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DEVICE_PROTOCOL_IS_REQUIRED + "}")
     private DeviceProtocolPluggableClass deviceProtocolPluggableClass;
@@ -226,6 +227,18 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         this.touch();
     }
 
+    @Override
+    public void updateConflictingMappings() {
+
+    }
+
+    @Override
+    public DeviceConfigConflictMapping newConflictMappingFor(DeviceConfiguration origin, DeviceConfiguration destination) {
+        DeviceConfigConflictMapping deviceConfigConflictMapping = dataModel.getInstance(DeviceConfigConflictMappingImpl.class).initialize(this, origin, destination);
+        this.deviceConfigConflictMappings.add(deviceConfigConflictMapping);
+        return deviceConfigConflictMapping;
+    }
+
     private void closeCurrentDeviceLifeCycle(Instant now) {
         DeviceLifeCycleInDeviceType deviceLifeCycleInDeviceType = this.deviceLifeCycle.effective(now).get();
         deviceLifeCycleInDeviceType.close(now);
@@ -284,6 +297,11 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     @Override
     public long getVersion() {
         return this.version;
+    }
+
+    @Override
+    public List<DeviceConfigConflictMapping> getDeviceConfigConflictMappings() {
+        return deviceConfigConflictMappings;
     }
 
     @Override

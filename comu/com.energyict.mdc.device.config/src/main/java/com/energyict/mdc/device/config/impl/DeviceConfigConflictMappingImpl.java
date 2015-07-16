@@ -5,15 +5,13 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.energyict.mdc.device.config.*;
 
+import javax.inject.Inject;
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Supplier;
 
 /**
- * Copyrights EnergyICT
- * Date: 13/07/15
- * Time: 15:12
+ * Straightforward implementation of a DeviceConfigConflictMapping
  */
 public class DeviceConfigConflictMappingImpl implements DeviceConfigConflictMapping {
 
@@ -35,10 +33,11 @@ public class DeviceConfigConflictMappingImpl implements DeviceConfigConflictMapp
         String fieldName() {
             return javaFieldName;
         }
-    }
 
+    }
     @IsPresent
     private final Reference<DeviceType> deviceType = ValueReference.absent();
+
     @IsPresent
     private final Reference<DeviceConfiguration> originDeviceConfig = ValueReference.absent();
     @IsPresent
@@ -49,24 +48,25 @@ public class DeviceConfigConflictMappingImpl implements DeviceConfigConflictMapp
     @Valid
     private List<ConflictingSecuritySetSolution> securitySetSolutions = new ArrayList<>();
 
-    @Override
-    public DeviceConfiguration getOriginDeviceConfiguration() {
-        return originDeviceConfig.orElseThrow(originDeviceConfigurationIsRequired());
+    @Inject
+    public DeviceConfigConflictMappingImpl() {
     }
 
-    private Supplier<? extends RuntimeException> originDeviceConfigurationIsRequired() {
-        // TODO
-        return null;
+    public DeviceConfigConflictMapping initialize(DeviceTypeImpl deviceType, DeviceConfiguration origin, DeviceConfiguration destination) {
+        this.deviceType.set(deviceType);
+        this.originDeviceConfig.set(origin);
+        this.destinationDeviceConfig.set(destination);
+        return this;
+    }
+
+    @Override
+    public DeviceConfiguration getOriginDeviceConfiguration() {
+        return originDeviceConfig.get();
     }
 
     @Override
     public DeviceConfiguration getDestinationDeviceConfiguration() {
-        return destinationDeviceConfig.orElseThrow(destinationDeviceConfigurationIsRequired());
-    }
-
-    private Supplier<? extends RuntimeException> destinationDeviceConfigurationIsRequired() {
-        //TODO
-        return null;
+        return destinationDeviceConfig.get();
     }
 
     @Override

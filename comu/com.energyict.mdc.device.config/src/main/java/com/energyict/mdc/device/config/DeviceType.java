@@ -153,6 +153,8 @@ public interface DeviceType extends HasId, HasName {
 
     long getVersion();
 
+    List<DeviceConfigConflictMapping> getDeviceConfigConflictMappings();
+
     public interface DeviceConfigurationBuilder {
 
         /**

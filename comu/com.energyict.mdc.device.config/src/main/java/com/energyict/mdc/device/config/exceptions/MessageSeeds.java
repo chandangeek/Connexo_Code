@@ -146,6 +146,10 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     UNDER_MINIMUM_RESCHEDULE_DELAY(15009, Keys.UNDER_MINIMUM_RESCHEDULE_DELAY, "Reschedule delay is below minimum.", SEVERE),
     VETO_CONNECTIONTYPE_PLUGGABLECLASS_DELETION(15010, "connectionTypePluggableClass.XstillInUseByY", "ConnectionType Pluggable Class {0} is still in use by {1}", SEVERE),
     VETO_COMPORTPOOL_DELETION(15011, "comPortPoolXstillInUseByY", "ComPortPool {0} is still in use by connection method(s): {1}", SEVERE),
+    ORIGIN_CONNECTION_TASK_IS_EMPTY(15012, "originConnectionTaskIsEmpty", "The value of the origin connection task is empty", SEVERE),
+    DESTINATION_CONNECTION_TASK_IS_EMPTY(15013, "destinationConnectionTaskIsEmpty", "The value of the destination connection task is empty", SEVERE),
+    ORIGIN_SECURITY_PROPERTY_SET_IS_EMPTY(15014, "originSecurityPropertySetIsEmpty", "The value of the origin security property set is empty", SEVERE),
+    DESTINATION_SECURITY_PROPERTY_SET_IS_EMPTY(15015, "destinationSecurityPropertySetIsEmpty", "The value of the destination security property set is empty", SEVERE),
     ;
 
     private final int number;

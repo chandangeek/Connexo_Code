@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.energyict.mdc.device.config.DeviceConfigConflictMapping;
+import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 
@@ -17,6 +19,19 @@ public interface ServerDeviceType extends DeviceType {
      *
      * @param deviceLifeCycle The DeviceLifeCycle
      */
-    public void updateDeviceLifeCycle(DeviceLifeCycle deviceLifeCycle);
+    void updateDeviceLifeCycle(DeviceLifeCycle deviceLifeCycle);
 
+    /**
+     * Updates the DeviceConfigConflictMappings
+     */
+    void updateConflictingMappings();
+
+    /**
+     * Creates a new DeviceConfigConflictMapping.
+     *
+     * @param origin the origin DeviceConfiguration
+     * @param destination the destination DeviceConfiguration
+     * @return a newly created DeviceConfigConflictMapping for this DeviceType with the given configs
+     */
+    DeviceConfigConflictMapping newConflictMappingFor(DeviceConfiguration origin, DeviceConfiguration destination);
 }
