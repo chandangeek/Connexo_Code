@@ -68,7 +68,7 @@ public class MdcAppInstaller implements InstallService {
     }
 
     private List<Privilege> getApplicationPrivileges() {
-        return userService.getResources(MdcAppService.APPLICATION_KEY).stream().flatMap(resource -> resource.getPrivileges().stream()).collect(Collectors.toList());
+        return userService.getPrivileges(MdcAppService.APPLICATION_KEY);
     }
 
     private String[] getPrivilegesMeterOperator(){
