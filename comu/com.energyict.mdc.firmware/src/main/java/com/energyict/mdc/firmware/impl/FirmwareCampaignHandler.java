@@ -8,6 +8,7 @@ import com.elster.jupiter.orm.OptimisticLockException;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaignStatus;
@@ -19,6 +20,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -66,6 +68,7 @@ public class FirmwareCampaignHandler implements MessageHandler {
                                     .filter(Optional::isPresent)
                                     .map(Optional::get)
                                     .filter(device -> device.getDeviceConfiguration().getDeviceType().getId() == firmwareCampaign.get().getDeviceType().getId())
+                                    .filter(filterDevicesByAllowedStates())
                                     .collect(Collectors.toList());
                         }
                         if (devices.isEmpty()) {
@@ -186,5 +189,7 @@ public class FirmwareCampaignHandler implements MessageHandler {
         }
     }
 
-
+    private static Predicate<Device> filterDevicesByAllowedStates() {
+        return device -> !DefaultState.DECOMMISSIONED.getKey().equals(device.getState().getName());
+    }
 }
