@@ -22,23 +22,30 @@ import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecPossibleValues;
 import com.elster.jupiter.properties.StringFactory;
+import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.imp.Batch;
 import com.energyict.mdc.device.data.imp.DeviceImportService;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.DateFactory;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.engine.config.OutboundComPortPool;
+import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.util.Arrays;
@@ -128,7 +135,7 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         return readingType;
     }
 
-    Device mockDevice(String mrid, String serial, DeviceType deviceType) {
+    Device mockDevice(String mrid, String serial, DeviceConfiguration deviceConfiguration) {
         Device mock = mock(Device.class);
         when(mock.getmRID()).thenReturn(mrid);
         when(mock.getName()).thenReturn(mrid);
@@ -139,11 +146,7 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         State state = mock(State.class);
         when(state.getName()).thenReturn(DefaultState.IN_STOCK.getKey());
         when(mock.getState()).thenReturn(state);
-        when(mock.getDeviceType()).thenReturn(deviceType);
-        DeviceConfiguration deviceConfig = mock(DeviceConfiguration.class);
-        when(deviceConfig.getName()).thenReturn("Default configuration");
-        when(deviceConfig.getId()).thenReturn(34L);
-        when(mock.getDeviceConfiguration()).thenReturn(deviceConfig);
+        when(mock.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         Register register = mock(Register.class);
         when(register.getRegisterSpecId()).thenReturn(666L);
         when(mock.getRegisters()).thenReturn(Collections.singletonList(register));
@@ -175,6 +178,12 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         when(mock.getId()).thenReturn(id);
         when(mock.getName()).thenReturn(name);
 
+        return mock;
+    }
+
+    DeviceConfiguration mockDeviceConfiguration(long id, String name, DeviceType deviceType) {
+        DeviceConfiguration mock = mockDeviceConfiguration(id, name);
+        when(mock.getDeviceType()).thenReturn(deviceType);
         return mock;
     }
 
@@ -225,6 +234,36 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         when(propertySpec.getPossibleValues()).thenReturn(possibleValues);
         return propertySpec;
     }
+
+    ScheduledConnectionTask mockScheduledConnectionTask(long id, String name, Device deviceXas, OutboundComPortPool comPortPool, PartialScheduledConnectionTask partial) {
+        ScheduledConnectionTask connectionTask = mock(ScheduledConnectionTask.class);
+        when(connectionTask.getId()).thenReturn(id);
+        when(connectionTask.getName()).thenReturn(name);
+        when(connectionTask.isDefault()).thenReturn(true);
+        when(connectionTask.getStatus()).thenReturn(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE);
+        when(connectionTask.getDevice()).thenReturn(deviceXas);
+        when(connectionTask.isSimultaneousConnectionsAllowed()).thenReturn(true);
+        when(connectionTask.getComPortPool()).thenReturn(comPortPool);
+        when(connectionTask.getPartialConnectionTask()).thenReturn(partial);
+        ConnectionType connectionType = mock(ConnectionType.class);
+        PropertySpec propertySpec = mockStringPropertySpec();
+        when(connectionType.getPropertySpecs()).thenReturn(Collections.singletonList(propertySpec));
+        when(connectionTask.getConnectionType()).thenReturn(connectionType);
+        when(connectionTask.getTypedProperties()).thenReturn(TypedProperties.empty());
+        when(connectionTask.getRescheduleDelay()).thenReturn(TimeDuration.minutes(60));
+        return connectionTask;
+    }
+
+    PartialScheduledConnectionTask mockPartialScheduledConnectionTask(long id, String name) {
+        PartialScheduledConnectionTask partial = mock(PartialScheduledConnectionTask.class);
+        ConnectionTypePluggableClass connectionTaskPluggeableClass = mock(ConnectionTypePluggableClass.class);
+        when(partial.getPluggableClass()).thenReturn(connectionTaskPluggeableClass);
+        when(partial.getName()).thenReturn(name);
+        when(partial.getId()).thenReturn(id);
+        when(connectionTaskPluggeableClass.getName()).thenReturn("pluggeable class");
+        return partial;
+    }
+
 
     <T> Finder<T> mockFinder(List<T> list) {
         Finder<T> finder = mock(Finder.class);

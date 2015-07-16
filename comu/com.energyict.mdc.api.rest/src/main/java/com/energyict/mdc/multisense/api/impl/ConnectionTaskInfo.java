@@ -12,13 +12,23 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  * Created by bvn on 7/13/15.
  */
 public class ConnectionTaskInfo extends LinkInfo {
-    public String name;
+    public ConnectionTaskType direction;
+    public LinkInfo connectionMethod;
     @XmlJavaTypeAdapter(ConnectionTaskLifecycleStateAdapter.class)
     public ConnectionTask.ConnectionTaskLifecycleStatus status;
     public String connectionType;
     public LinkInfo comPortPool;
     public Boolean isDefault;
+
+    // Scheduled
     public List<PropertyInfo> properties;
+    public ComWindowInfo comWindow;
+    @XmlJavaTypeAdapter(ConnectionStrategyAdapter.class)
+    public ConnectionStrategy connectionStrategy;
+    public Boolean allowSimultaneousConnections;
+    public TimeDurationInfo rescheduleRetryDelay;
+    public TemporalExpressionInfo nextExecutionSpecs;
+
 
 }
 
@@ -27,16 +37,3 @@ class ComWindowInfo {
     public Integer end;
 }
 
-class InboundConnectionTaskInfo extends ConnectionTaskInfo {
-
-}
-
-
-class ScheduledConnectionTaskInfo extends ConnectionTaskInfo {
-    public ComWindowInfo comWindow;
-    @XmlJavaTypeAdapter(ConnectionStrategyAdapter.class)
-    public ConnectionStrategy connectionStrategy;
-    public Boolean allowSimultaneousConnections;
-    public TimeDurationInfo rescheduleRetryDelay;
-    public TemporalExpressionInfo nextExecutionSpecs;
-}

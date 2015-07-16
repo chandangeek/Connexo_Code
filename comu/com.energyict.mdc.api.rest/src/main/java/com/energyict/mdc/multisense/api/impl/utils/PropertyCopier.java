@@ -1,4 +1,4 @@
-package com.energyict.mdc.multisense.api.impl;
+package com.energyict.mdc.multisense.api.impl.utils;
 
 import javax.ws.rs.core.UriInfo;
 

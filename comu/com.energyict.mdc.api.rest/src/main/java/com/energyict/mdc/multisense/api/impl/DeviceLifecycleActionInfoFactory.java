@@ -6,6 +6,7 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
+import com.energyict.mdc.multisense.api.impl.utils.PropertyCopier;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import java.util.Collection;
 import java.util.HashMap;
@@ -48,7 +49,7 @@ public class DeviceLifecycleActionInfoFactory extends SelectableFieldFactory<Lif
             UriBuilder uriBuilder = uriInfo.getBaseUriBuilder().
                     path(DeviceLifecycleActionResource.class).
                     path(DeviceLifecycleActionResource.class, "executeAction");
-            deviceLifeCycleActionInfo.link = Link.fromUriBuilder(uriBuilder).rel("self").build(deviceAction.device.getmRID(), deviceAction.action.getId());
+            deviceLifeCycleActionInfo.link = Link.fromUriBuilder(uriBuilder).rel(LinkInfo.REF_SELF).build(deviceAction.device.getmRID(), deviceAction.action.getId());
         });
         map.put("properties", (deviceLifeCycleActionInfo, deviceAction, uriInfo) -> {
             List<PropertySpec> uniquePropertySpecsForMicroActions =

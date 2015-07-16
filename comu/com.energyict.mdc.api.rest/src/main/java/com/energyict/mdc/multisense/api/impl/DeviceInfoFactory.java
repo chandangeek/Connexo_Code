@@ -11,6 +11,7 @@ import com.energyict.mdc.device.lifecycle.ExecutableAction;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.TopologyTimeline;
+import com.energyict.mdc.multisense.api.impl.utils.PropertyCopier;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -18,7 +19,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.ws.rs.core.Link;
@@ -53,10 +53,6 @@ public class DeviceInfoFactory extends SelectableFieldFactory<DeviceInfo,Device>
         return deviceInfo;
     }
 
-    public Set<String> getAvailableFields() {
-        return buildFieldMap().keySet();
-    }
-
     private UriBuilder getUriTemplate(UriInfo uriInfo) {
         return uriInfo.getBaseUriBuilder().path(DeviceResource.class).path("{mrid}");
     }
@@ -64,7 +60,7 @@ public class DeviceInfoFactory extends SelectableFieldFactory<DeviceInfo,Device>
     protected Map<String, PropertyCopier<DeviceInfo,Device>> buildFieldMap() {
         Map<String, PropertyCopier<DeviceInfo, Device>> map = new HashMap<>();
         map.put("id", (deviceInfo, device, uriInfo) -> deviceInfo.id = device.getId());
-        map.put("link", (deviceInfo, device, uriInfo) -> deviceInfo.link = Link.fromUriBuilder(getUriTemplate(uriInfo)).rel("self").title("self reference").build(device.getmRID()));
+        map.put("link", (deviceInfo, device, uriInfo) -> deviceInfo.link = Link.fromUriBuilder(getUriTemplate(uriInfo)).rel(LinkInfo.REF_SELF).title("self reference").build(device.getmRID()));
         map.put("name", (deviceInfo, device, uriInfo) -> deviceInfo.name = device.getName());
         map.put("mRID", (deviceInfo, device, uriInfo) -> deviceInfo.mRID = device.getmRID());
         map.put("serialNumber", (deviceInfo, device, uriInfo) -> deviceInfo.serialNumber = device.getSerialNumber());
@@ -165,10 +161,10 @@ public class DeviceInfoFactory extends SelectableFieldFactory<DeviceInfo,Device>
         map.put("deviceConfiguration", (deviceInfo, device, uriInfo) -> {
             deviceInfo.deviceConfiguration = new DeviceConfigurationInfo();
             deviceInfo.deviceConfiguration.id = device.getDeviceConfiguration().getId();
-            deviceInfo.deviceConfiguration.link = Link.fromUriBuilder(uriInfo.getBaseUriBuilder().path(DeviceConfigurationResource.class).path("{id}")).rel("up").title("Device configuration").build(device.getDeviceType().getId(), device.getDeviceConfiguration().getId());
-            deviceInfo.deviceConfiguration.deviceType = new DeviceTypeInfo();
+            deviceInfo.deviceConfiguration.link = Link.fromUriBuilder(uriInfo.getBaseUriBuilder().path(DeviceConfigurationResource.class).path("{id}")).rel(LinkInfo.REF_PARENT).title("Device configuration").build(device.getDeviceType().getId(), device.getDeviceConfiguration().getId());
+            deviceInfo.deviceConfiguration.deviceType = new LinkInfo();
             deviceInfo.deviceConfiguration.deviceType.id = device.getDeviceType().getId();
-            deviceInfo.deviceConfiguration.deviceType.link = Link.fromUriBuilder(uriInfo.getBaseUriBuilder().path(DeviceTypeResource.class).path("{id}")).rel("up").title("Device type").build(device.getDeviceType().getId());
+            deviceInfo.deviceConfiguration.deviceType.link = Link.fromUriBuilder(uriInfo.getBaseUriBuilder().path(DeviceTypeResource.class).path("{id}")).rel(LinkInfo.REF_PARENT).title("Device type").build(device.getDeviceType().getId());
         });
         return map;
     }

@@ -2,6 +2,7 @@ package com.energyict.mdc.multisense.api.impl;
 
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.multisense.api.impl.utils.PropertyCopier;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -47,7 +48,7 @@ public class DeviceTypeInfoFactory {
         });
         map.put("link", (deviceTypeInfo, deviceType, uriInfo) -> {
             UriBuilder uriBuilder = uriInfo.getBaseUriBuilder().path(DeviceTypeResource.class).path("{id}");
-            deviceTypeInfo.link = Link.fromUriBuilder(uriBuilder).rel("self").title("self reference").build(deviceType.getId());
+            deviceTypeInfo.link = Link.fromUriBuilder(uriBuilder).rel(LinkInfo.REF_SELF).title("self reference").build(deviceType.getId());
         });
         map.put("description", (deviceTypeInfo, deviceType, uriInfo) -> {
             deviceTypeInfo.description = deviceType.getDescription();

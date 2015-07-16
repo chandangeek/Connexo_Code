@@ -7,6 +7,9 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  * Created by bvn on 4/30/15.
  */
 public class LinkInfo {
+    public static final String REF_SELF = "self";
+    public static final String REF_PARENT = "up";
+
     public Long id;
     @XmlJavaTypeAdapter(Link.JaxbAdapter.class)
     public Link link;

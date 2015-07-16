@@ -1,15 +1,22 @@
 package com.energyict.mdc.multisense.api.impl;
 
 import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.services.ListPager;
+import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.multisense.api.impl.utils.FieldSelection;
+import com.energyict.mdc.multisense.api.impl.utils.MessageSeeds;
+import com.energyict.mdc.multisense.api.impl.utils.PagedInfoList;
+import java.net.URI;
 import java.util.List;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -28,24 +35,26 @@ import static java.util.stream.Collectors.toList;
 @Path("devices/{mrid}/connectionmethods")
 public class ConnectionTaskResource {
 
-    private final DeviceService deviceService;
     private final ConnectionTaskInfoFactory connectionTaskInfoFactory;
     private final ConnectionTaskService connectionTaskService;
+    private final ResourceHelper resourceHelper;
+    private final ExceptionFactory exceptionFactory;
 
     @Inject
-    public ConnectionTaskResource(DeviceService deviceService, ConnectionTaskInfoFactory connectionTaskInfoFactory, ConnectionTaskService connectionTaskService) {
-        this.deviceService = deviceService;
+    public ConnectionTaskResource(ConnectionTaskInfoFactory connectionTaskInfoFactory, ConnectionTaskService connectionTaskService, ResourceHelper resourceHelper, ExceptionFactory exceptionFactory) {
         this.connectionTaskInfoFactory = connectionTaskInfoFactory;
         this.connectionTaskService = connectionTaskService;
+        this.resourceHelper = resourceHelper;
+        this.exceptionFactory = exceptionFactory;
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     public Response getConnectionMethods(@PathParam("mrid") String mrid,
                                          @Context UriInfo uriInfo,
                                          @BeanParam FieldSelection fieldSelection,
                                          @BeanParam JsonQueryParameters queryParameters) {
-        Device device = deviceService.findByUniqueMrid(mrid).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND.getStatusCode()));
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         List<ConnectionTaskInfo> infos = ListPager.
                 of(device.getConnectionTasks(), (a, b) -> a.getName().compareTo(b.getName())).
                 from(queryParameters).stream().
@@ -56,7 +65,7 @@ public class ConnectionTaskResource {
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Path("/{id}")
     public Response getConnectionTask(@PathParam("mrid") String mrid,
                                         @PathParam("id") long id,
@@ -71,5 +80,45 @@ public class ConnectionTaskResource {
         return Response.ok(info).build();
     }
 
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON+";charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
+    public Response createConnectionTaskResource(@PathParam("mrid") String mrid, ConnectionTaskInfo connectionTaskInfo, @Context UriInfo uriInfo) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
+        if (connectionTaskInfo.connectionMethod ==null) {
+            throw exceptionFactory.newException(MessageSeeds.MISSING_PARTIAL_CONNECTION_METHOD);
+        }
+        PartialConnectionTask partialConnectionTask = findPartialConnectionTaskOrThrowException(device, connectionTaskInfo.connectionMethod.id);
+        if (connectionTaskInfo.direction ==null) {
+            throw exceptionFactory.newException(MessageSeeds.MISSING_CONNECTION_TASK_TYPE);
+        }
+        ConnectionTask<?, ?> task = connectionTaskInfo.direction.createTask(connectionTaskInfo, connectionTaskInfoFactory, device, partialConnectionTask);
+        if (connectionTaskInfo.isDefault) {
+            connectionTaskService.setDefaultConnectionTask(task);
+        }
+
+        URI uri = uriInfo.getBaseUriBuilder().
+                path(ConnectionTaskResource.class).
+                path(ConnectionTaskResource.class, "getConnectionTask").
+                build(device.getmRID(), task.getId());
+
+        return Response.created(uri).build();
+    }
+
+    @GET
+    @Path("/fields")
+    @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
+    public Response getFields() {
+        return Response.ok(connectionTaskInfoFactory.getAvailableFields().stream().sorted().collect(toList())).build();
+    }
+
+
+    private PartialConnectionTask findPartialConnectionTaskOrThrowException(Device device, long id) {
+        return device.getDeviceConfiguration().
+                getPartialConnectionTasks().stream().
+                filter(pct->pct.getId()==id).
+                findFirst().
+                orElseThrow(()->exceptionFactory.newException(MessageSeeds.NO_SUCH_PARTIAL_CONNECTION_TASK));
+    }
 
 }

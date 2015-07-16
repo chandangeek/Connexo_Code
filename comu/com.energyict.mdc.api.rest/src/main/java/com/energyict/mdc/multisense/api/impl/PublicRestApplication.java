@@ -20,6 +20,7 @@ import com.energyict.mdc.device.data.imp.DeviceImportService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.multisense.api.impl.utils.DeviceLifeCycleActionViolationExceptionMapper;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.google.common.collect.ImmutableSet;
 import java.time.Clock;
@@ -70,6 +71,7 @@ public class PublicRestApplication extends Application implements TranslationKey
                 DeviceLifecycleActionResource.class,
                 ConnectionTaskResource.class,
                 ComPortPoolResource.class,
+                PartialConnectionTaskResource.class,
                 DeviceLifeCycleActionViolationExceptionMapper.class
         );
     }
@@ -183,6 +185,7 @@ public class PublicRestApplication extends Application implements TranslationKey
             bind(MdcPropertyUtils.class).to(MdcPropertyUtils.class).in(Singleton.class);
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
+            bind(ResourceHelper.class).to(ResourceHelper.class);
 
             bind(DeviceInfoFactory.class).to(DeviceInfoFactory.class).in(Singleton.class);
             bind(DeviceLifecycleActionInfoFactory.class).to(DeviceLifecycleActionInfoFactory.class).in(Singleton.class);
@@ -190,6 +193,7 @@ public class PublicRestApplication extends Application implements TranslationKey
             bind(DeviceConfigurationInfoFactory.class).to(DeviceConfigurationInfoFactory.class).in(Singleton.class);
             bind(ConnectionTaskInfoFactory.class).to(ConnectionTaskInfoFactory.class).in(Singleton.class);
             bind(ComPortPoolInfoFactory.class).to(ComPortPoolInfoFactory.class).in(Singleton.class);
+            bind(PartialConnectionTaskInfoFactory.class).to(PartialConnectionTaskInfoFactory.class).in(Singleton.class);
         }
     }
 

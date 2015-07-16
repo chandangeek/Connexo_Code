@@ -10,6 +10,9 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.imp.DeviceImportService;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.multisense.api.impl.utils.FieldSelection;
+import com.energyict.mdc.multisense.api.impl.utils.MessageSeeds;
+import com.energyict.mdc.multisense.api.impl.utils.PagedInfoList;
 import java.net.URI;
 import java.util.Collections;
 import java.util.List;
@@ -47,16 +50,18 @@ public class DeviceResource {
     private final DeviceImportService deviceImportService;
     private final ExceptionFactory exceptionFactory;
     private final TopologyService topologyService;
+    private final ResourceHelper resourceHelper;
 
 
     @Inject
-    public DeviceResource(DeviceService deviceService, DeviceInfoFactory deviceInfoFactory, DeviceConfigurationService deviceConfigurationService, DeviceImportService deviceImportService, ExceptionFactory exceptionFactory, TopologyService topologyService) {
+    public DeviceResource(DeviceService deviceService, DeviceInfoFactory deviceInfoFactory, DeviceConfigurationService deviceConfigurationService, DeviceImportService deviceImportService, ExceptionFactory exceptionFactory, TopologyService topologyService, ResourceHelper resourceHelper) {
         this.deviceService = deviceService;
         this.deviceInfoFactory = deviceInfoFactory;
         this.deviceConfigurationService = deviceConfigurationService;
         this.deviceImportService = deviceImportService;
         this.exceptionFactory = exceptionFactory;
         this.topologyService = topologyService;
+        this.resourceHelper = resourceHelper;
     }
 
     @GET
@@ -137,7 +142,7 @@ public class DeviceResource {
     @RolesAllowed(Privileges.REMOVE_DEVICE)
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     public Response deleteDevice(@PathParam("mrid") String mrid) {
-        Device device = deviceService.findByUniqueMrid(mrid).orElseThrow(() -> new WebApplicationException(Response.Status.CONFLICT));
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         device.delete();
         return Response.ok().build();
     }

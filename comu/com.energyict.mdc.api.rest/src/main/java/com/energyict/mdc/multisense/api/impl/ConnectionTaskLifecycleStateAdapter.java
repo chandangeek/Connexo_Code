@@ -2,6 +2,7 @@ package com.energyict.mdc.multisense.api.impl;
 
 import com.energyict.mdc.common.rest.MapBasedXmlAdapter;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.multisense.api.impl.utils.TranslationSeeds;
 
 /**
  * Copyrights EnergyICT

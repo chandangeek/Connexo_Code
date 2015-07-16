@@ -9,6 +9,7 @@ import com.elster.jupiter.rest.util.properties.PropertyTypeInfo;
 import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.validation.rest.PropertyType;
+import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LogBook;
@@ -21,7 +22,6 @@ import com.energyict.mdc.device.lifecycle.impl.ExecutableActionPropertyImpl;
 import com.energyict.mdc.dynamic.DateAndTimeFactory;
 import com.energyict.mdc.dynamic.DateFactory;
 import com.jayway.jsonpath.JsonModel;
-import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -63,37 +63,13 @@ public class DeviceResourceTest extends MultisensePublicApiJerseyTest {
         Finder<DeviceType> deviceTypeFinder = mockFinder(Arrays.asList(water, gas, elec1, elec2, elec3, elec4, elec5));
         when(this.deviceConfigurationService.findAllDeviceTypes()).thenReturn(deviceTypeFinder);
 
-        Device device = mockDevice("DAV", "65749846514", elec1);
-        deviceXas = mockDevice("XAS", "5544657642", elec1);
-        Device device3 = mockDevice("PIO", "54687651356", elec2);
+        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(13L, "Default configuration", elec1);
+        Device device = mockDevice("DAV", "65749846514", deviceConfiguration);
+        deviceXas = mockDevice("XAS", "5544657642", deviceConfiguration);
+        DeviceConfiguration deviceConfiguration2 = mockDeviceConfiguration(23L, "Default configuration", elec2);
+        Device device3 = mockDevice("PIO", "54687651356", deviceConfiguration2);
         Finder<Device> deviceFinder = mockFinder(Arrays.asList(device, deviceXas, device3));
         when(this.deviceService.findAllDevices(any(Condition.class))).thenReturn(deviceFinder);
-    }
-
-    @Test
-    public void testJsonCallSinglePage() throws Exception {
-
-        Response response = target("/devicetypes").queryParam("start",0).queryParam("limit",10).request("application/json").get();
-        JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
-        assertThat(model.<List>get("$.data")).hasSize(7);
-        assertThat(model.<List>get("$.link")).hasSize(1);
-
-    }
-
-    @Test
-    public void testJsonCallMultiPage() throws Exception {
-
-        Response response = target("/devicetypes").queryParam("start",2).queryParam("limit", 2).request("application/json").get();
-        JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
-        assertThat(model.<List>get("$.data")).hasSize(2);
-        assertThat(model.<List>get("$.link")).hasSize(3);
-
-    }
-
-    @Test
-    public void testJsonCallSingle() throws Exception {
-        Response response = target("/devicetypes/10").request("application/json").get();
-        JsonModel model = JsonModel.model((InputStream) response.getEntity());
     }
 
     @Test
@@ -101,10 +77,10 @@ public class DeviceResourceTest extends MultisensePublicApiJerseyTest {
         Response response = target("/devices/fields").request("application/json").get();
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
         assertThat(model.<List>get("$")).hasSize(21);
-        assertThat(model.<List<String>>get("$")).contains("actions","batch","connectionMethods","deviceConfiguration",
-                "deviceProtocolPluggeableClassId","gatewayType","id","isDirectlyAddressable","isGateway","lifecycleState",
-                "link","loadProfiles","logBooks","mRID","name","nbrOfDataCollectionIssues","physicalGateway","serialNumber",
-                "slaveDevices","version","yearOfCertification");
+        assertThat(model.<List<String>>get("$")).containsOnly("actions", "batch", "connectionMethods", "deviceConfiguration",
+                "deviceProtocolPluggeableClassId", "gatewayType", "id", "isDirectlyAddressable", "isGateway", "lifecycleState",
+                "link", "loadProfiles", "logBooks", "mRID", "name", "nbrOfDataCollectionIssues", "physicalGateway", "serialNumber",
+                "slaveDevices", "version", "yearOfCertification");
     }
 
     @Test
@@ -156,7 +132,7 @@ public class DeviceResourceTest extends MultisensePublicApiJerseyTest {
         assertThat(model.<List>get("data")).hasSize(2);
         assertThat(model.<Integer>get("data[0].id")).isEqualTo(1);
         assertThat(model.<String>get("data[0].name")).isEqualTo("action.name.1");
-        assertThat(model.<String>get("data[0].link.params.rel")).isEqualTo("self");
+        assertThat(model.<String>get("data[0].link.params.rel")).isEqualTo(LinkInfo.REF_SELF);
         assertThat(model.<String>get("data[0].link.href")).isEqualTo("http://localhost:9998/devices/XAS/actions/1");
         assertThat(model.<List>get("data[0].properties")).hasSize(1);
         assertThat(model.<String>get("data[0].properties[0].key")).isEqualTo("string.property");
@@ -165,7 +141,7 @@ public class DeviceResourceTest extends MultisensePublicApiJerseyTest {
         assertThat(model.<Boolean>get("data[0].properties[0].required")).isEqualTo(true);
         assertThat(model.<Integer>get("data[1].id")).isEqualTo(2);
         assertThat(model.<String>get("data[1].name")).isEqualTo("action.name.2");
-        assertThat(model.<String>get("data[1].link.params.rel")).isEqualTo("self");
+        assertThat(model.<String>get("data[1].link.params.rel")).isEqualTo(LinkInfo.REF_SELF);
         assertThat(model.<String>get("data[1].link.href")).isEqualTo("http://localhost:9998/devices/XAS/actions/2");
         assertThat(model.<List>get("data[1].properties")).hasSize(1);
         assertThat(model.<String>get("data[1].properties[0].key")).isEqualTo("string.property");
@@ -329,6 +305,17 @@ public class DeviceResourceTest extends MultisensePublicApiJerseyTest {
         assertThat(model.<Boolean>get("data[0].properties[0].required")).isEqualTo(true);
     }
 
+    @Test
+    public void testDeviceTypeWithConfig() throws Exception {
+        DeviceType serial = mockDeviceType(4, "Serial");
+        DeviceType serial2 = mockDeviceType(6, "Serial 2");
+        Finder<DeviceType> finder = mockFinder(Arrays.asList(serial, serial2));
+        when(deviceConfigurationService.findAllDeviceTypes()).thenReturn(finder);
+
+        target("/devicetypes").queryParam("fields", "deviceConfigurations").request("application/json").get();
+
+    }
+
     private PropertySpec mockDateTimePropertySpec(Date date) {
         PropertySpec propertySpec = mock(PropertySpec.class);
         when(propertySpec.isRequired()).thenReturn(true);
@@ -352,17 +339,6 @@ public class DeviceResourceTest extends MultisensePublicApiJerseyTest {
         when(mock.getAction()).thenReturn(transitionAction);
 
         return mock;
-    }
-
-    @Test
-    public void testDeviceTypeWithConfig() throws Exception {
-        DeviceType serial = mockDeviceType(4, "Serial");
-        DeviceType serial2 = mockDeviceType(6, "Serial 2");
-        Finder<DeviceType> finder = mockFinder(Arrays.asList(serial, serial2));
-        when(deviceConfigurationService.findAllDeviceTypes()).thenReturn(finder);
-
-        target("/devicetypes").queryParam("fields", "deviceConfigurations").request("application/json").get();
-
     }
 
 }
