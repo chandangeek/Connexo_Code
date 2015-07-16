@@ -60,7 +60,8 @@ Ext.define('Dlc.devicelifecyclestates.view.AddProcessesToState', {
              ]
         }
     ],
-    gridToUpdate: null,
+    returnLink: null,
+    storeToUpdate: null,
     exclude: function( excludedProcessesArray) {
         if (!Ext.isEmpty(excludedProcessesArray)) {
             this.down('#add-process-grid').getStore().remove(excludedProcessesArray);

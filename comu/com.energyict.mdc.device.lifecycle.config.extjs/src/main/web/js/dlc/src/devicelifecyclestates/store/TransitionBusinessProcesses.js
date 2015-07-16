@@ -4,6 +4,5 @@ Ext.define('Dlc.devicelifecyclestates.store.TransitionBusinessProcesses', {
         'Dlc.devicelifecyclestates.model.TransitionBusinessProcess'
     ],
     model: 'Dlc.devicelifecyclestates.model.TransitionBusinessProcess',
-    storeId: 'TransitionBusinessProcessesForState',
-    autoLoad: false,
+    autoLoad: false
 });

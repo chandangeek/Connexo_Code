@@ -3,7 +3,8 @@ Ext.define('Dlc.devicelifecyclestates.view.Edit', {
     alias: 'widget.device-life-cycle-state-edit',
     requires: [
         'Uni.view.container.ContentContainer',
-        'Uni.grid.column.Default'
+        'Uni.grid.column.Default',
+        'Dlc.devicelifecyclestates.store.TransitionBusinessProcesses'
     ],
     content: [
         {
@@ -188,5 +189,12 @@ Ext.define('Dlc.devicelifecyclestates.view.Edit', {
                 this.getForm().loadRecord(record);
             }
         }
-    ]
+    ],
+    initComponent: function() {
+        this.callParent(arguments);
+        var onEntryStore = Ext.create('Dlc.devicelifecyclestates.store.TransitionBusinessProcesses', {storeId: 'onEntry'});
+        this.down('#processesOnEntryGridPanel').getView().bindStore(onEntryStore);
+        var onExitStore = Ext.create('Dlc.devicelifecyclestates.store.TransitionBusinessProcesses', {storeId: 'onExit'});
+        this.down('#processesOnExitGridPanel').getView().bindStore(onExitStore);
+    }
 });

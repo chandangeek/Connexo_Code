@@ -9,7 +9,8 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
 
     stores: [
         'Dlc.devicelifecyclestates.store.DeviceLifeCycleStates',
-        'Dlc.devicelifecyclestates.store.AvailableTransitionBusinessProcesses'
+        'Dlc.devicelifecyclestates.store.AvailableTransitionBusinessProcesses',
+        'Dlc.devicelifecyclestates.store.TransitionBusinessProcesses'
     ],
 
     models: [
@@ -285,24 +286,31 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
     },
 
     addEntryTransitionBusinessProcessesToState: function (){
-        var page = this.getEditPage(),
-           router = this.getController('Uni.controller.history.Router'),
-           store =  page.down('#processesOnEntryGridPanel').getStore(),
-           widget =  Ext.widget('AddProcessesToState');
+        var router = this.getController('Uni.controller.history.Router'),
+           storeToUpdate = 'onEntry',
+           store =  Ext.data.StoreManager.lookup(storeToUpdate),
+           widget = Ext.widget('AddProcessesToState', {
+                        returnLink: router.getRoute().buildUrl()
+           });
+
         if (!Ext.isEmpty(store)){
-             widget.gridToUpdate = '#processesOnEntryGridPanel';
+             widget.storeToUpdate = storeToUpdate;
              widget.exclude(store.data.items);
         }
         this.getApplication().fireEvent('changecontentevent', widget );
     },
 
     addExitTransitionBusinessProcessesToState: function (){
-        var page = this.getEditPage() ||  Ext.widget('device-life-cycle-state-edit'),
-           store =  page.down('#processesOnExitGridPanel').getStore(),
-           widget =  Ext.widget('AddProcessesToState');
+        var router = this.getController('Uni.controller.history.Router'),
+           storeToUpdate = 'onExit',
+           store =  Ext.data.StoreManager.lookup(storeToUpdate),
+           widget = Ext.widget('AddProcessesToState', {
+                        returnLink: router.getRoute().buildUrl()
+           });
+
         if (!Ext.isEmpty(store)){
-            widget.gridToUpdate = '#processesOnExitGridPanel';
-            widget.exclude(store.data.items);
+             widget.storeToUpdate = storeToUpdate;
+             widget.exclude(store.data.items);
         }
         this.getApplication().fireEvent('changecontentevent', widget );
     },
@@ -318,18 +326,22 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
     },
 
     addSelectedProcesses: function () {
-       var  page = this.getEditPage(),
+        var router = this.getController('Uni.controller.history.Router'),
             widget = this.getAddProcessesToState(),
-            selection = widget.getSelection(),
-            router = this.getController('Uni.controller.history.Router').r;
+            selection = widget.getSelection();
 
-        if (selection.length > 0) {
-            console.log(widget.gridToUpdate);
-            var store = page.down(widget.gridToUpdate).getStore();
+        router.getRoute(widget.returnlink).forward();
+        var form =  this.getLifeCycleStatesEditForm();
+
+        if (!Ext.isEmpty(selection)) {
+            var store = Ext.data.StoreManager.lookup(widget.storeToUpdate);
+            console.log('before :'+ store.count()+' processes set');
             Ext.each(selection, function (transitionBusinessProcess) {
                 store.add(transitionBusinessProcess);
-           });
+            });
+            console.log('after :'+store.count()+' processes set');
         }
+        form.updateRecord(this.getDeviceLifeCycleState());
     }
 
 });

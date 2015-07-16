@@ -5,13 +5,6 @@ Ext.define('Dlc.devicelifecyclestates.store.AvailableTransitionBusinessProcesses
     ],
     model: 'Dlc.devicelifecyclestates.model.TransitionBusinessProcess',
     storeId: 'AvailableTransitionBusinessProcesses',
-    remoteSort: false,
-    sorters: [
-        {
-            property: 'processId',
-            direction: 'ASC'
-        }
-    ],
     proxy: {
         type: 'memory'
     },
