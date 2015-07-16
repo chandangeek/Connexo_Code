@@ -31,7 +31,7 @@ public abstract class OutboundConnectionTaskImpl<PCTT extends PartialOutboundCon
         implements OutboundConnectionTask<PCTT> {
 
     /**
-     * The Default amount of seconds a ComTask should wait before retrying
+     * The Default amount of seconds a ComTask should wait before retrying.
      */
     public static final int DEFAULT_COMTASK_FAILURE_RESCHEDULE_DELAY_SECONDS = 300;
     protected static final int DEFAULT_MAX_NUMBER_OF_TRIES = 3;

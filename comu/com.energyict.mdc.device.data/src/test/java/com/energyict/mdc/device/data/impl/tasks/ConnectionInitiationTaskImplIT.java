@@ -2,9 +2,10 @@ package com.energyict.mdc.device.data.impl.tasks;
 
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.elster.jupiter.util.time.Interval;
 import com.google.common.collect.Range;
 
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
 import com.energyict.mdc.device.data.exceptions.CannotUpdateObsoleteConnectionTaskException;
 import com.energyict.mdc.device.data.exceptions.ConnectionTaskIsAlreadyObsoleteException;
@@ -18,7 +19,6 @@ import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecutionUpdater;
 import com.energyict.mdc.dynamic.relation.RelationAttributeType;
 import org.assertj.core.api.Condition;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.List;
@@ -121,7 +121,10 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
     }
 
     private ConnectionInitiationTaskImpl createSimpleConnectionInitiationTask() {
+        return this.createSimpleConnectionInitiationTask(this.partialConnectionInitiationTask);
+    }
 
+    private ConnectionInitiationTaskImpl createSimpleConnectionInitiationTask(PartialConnectionInitiationTask partialConnectionInitiationTask) {
         ConnectionInitiationTaskImpl connectionInitiationTask = (ConnectionInitiationTaskImpl) device.getConnectionInitiationTaskBuilder(partialConnectionInitiationTask)
                 .setComPortPool(outboundTcpipComPortPool)
                 .add();
@@ -162,16 +165,19 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
 
     @Test(expected = PartialConnectionTaskNotPartOfDeviceConfigurationException.class)
     @Transactional
-    // Todo (JP-1122): enable this test when done
-    @Ignore
     public void testCreateOfDifferentConfig() {
+        DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration("testCreateOfDifferentConfig");
+        deviceConfigurationBuilder.isDirectlyAddressable(true);
+        DeviceConfiguration deviceConfiguration2 = deviceConfigurationBuilder.add();
+        deviceConfiguration2.activate();
+
         PartialConnectionInitiationTask partialConnectionInitiationTask = mock(PartialConnectionInitiationTask.class);
         when(partialConnectionInitiationTask.getId()).thenReturn(PARTIAL_CONNECTION_INITIATION_TASK2_ID);
         when(partialConnectionInitiationTask.getName()).thenReturn("testCreateOfDifferentConfig");
-        when(partialConnectionInitiationTask.getConfiguration()).thenReturn(deviceConfiguration);
+        when(partialConnectionInitiationTask.getConfiguration()).thenReturn(deviceConfiguration2);
         when(partialConnectionInitiationTask.getPluggableClass()).thenReturn(outboundNoParamsConnectionTypePluggableClass);
 
-        ConnectionInitiationTaskImpl connectionInitiationTask = createSimpleConnectionInitiationTask();
+        ConnectionInitiationTaskImpl connectionInitiationTask = createSimpleConnectionInitiationTask(partialConnectionInitiationTask);
 
         // Business method
         connectionInitiationTask.save();
