@@ -110,7 +110,9 @@ public class UserResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public PrivilegeInfos getUserPrivileges(@Context SecurityContext securityContext) {
         User user = (User) securityContext.getUserPrincipal();
-        return new PrivilegeInfos(user.getPrivileges("SYS"));
+        PrivilegeInfos infos = new PrivilegeInfos(user.getPrivileges("SYS"));
+        infos.addAll(user.getPrivileges("MDC"));
+        return infos;
     }
 
     @PUT
