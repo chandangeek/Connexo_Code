@@ -67,35 +67,9 @@ public class Installer {
         catch (Exception e) {
             this.logger.log(Level.SEVERE, e.getMessage(), e);
         }
-        this.createPrivileges();
+
         this.createEventTypes();
         this.installDefaultLifeCycle();
-    }
-
-    private void createPrivileges() {
-        this.logger.fine(() -> "Creating privileges");
-        this.userService.createResourceWithPrivileges(
-                PRIVILEGES_COMPONENT,
-                "deviceLifeCycleAdministration.deviceLifeCycleAdministrations",
-                "deviceLifeCycleAdministration.deviceLifeCycleAdministrations.description",
-                this.deviceLifeCycleAdministrationPrivileges());
-        this.userService.createResourceWithPrivileges(
-                PRIVILEGES_COMPONENT,
-                "deviceLifeCycle.deviceLifeCycle",
-                "deviceLifeCycle.deviceLifeCycle.description",
-                this.allDeviceLifeCycleActionPrivileges());
-    }
-
-    private String[] deviceLifeCycleAdministrationPrivileges(){
-        return new String[] {Privileges.VIEW_DEVICE_LIFE_CYCLE, Privileges.CONFIGURE_DEVICE_LIFE_CYCLE};
-    }
-
-    private String[] allDeviceLifeCycleActionPrivileges() {
-        return new String[]{
-                Privileges.INITIATE_ACTION_1,
-                Privileges.INITIATE_ACTION_2,
-                Privileges.INITIATE_ACTION_3,
-                Privileges.INITIATE_ACTION_4};
     }
 
     private void createEventTypes() {
@@ -107,6 +81,7 @@ public class Installer {
             }
         }
     }
+
 
     private DeviceLifeCycle installDefaultLifeCycle() {
         Map<String, CustomStateTransitionEventType> eventTypes = this.findOrCreateStateTransitionEventTypes();

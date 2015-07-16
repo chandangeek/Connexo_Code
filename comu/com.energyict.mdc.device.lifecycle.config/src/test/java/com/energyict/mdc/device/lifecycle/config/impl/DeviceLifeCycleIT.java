@@ -18,10 +18,12 @@ import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViol
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.CustomStateTransitionEventType;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.FiniteStateMachineBuilder;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.fsm.StandardStateTransitionEventType;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.time.TimeDuration;
@@ -49,6 +51,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class DeviceLifeCycleIT {
 
+    public static final String CUSTOM_EVENT_SYMBOL = "forTestingPurposesOnly";
     private static InMemoryPersistence inMemoryPersistence;
 
     @Rule
@@ -606,9 +609,14 @@ public class DeviceLifeCycleIT {
 
     @Transactional
     @Test
-    public void addCustomTransitionActionWithoutActions() {
-        FiniteStateMachine stateMachine = this.createFiniteStateMachineWithCustomTransitions();
-        StateTransition stateTransition = stateMachine.getTransitions().get(0);
+    public void addTransitionActionForStandardEventWithoutActions() {
+        FiniteStateMachine stateMachine = this.createFiniteStateMachineWithStandardEventTypes();
+        StateTransition stateTransition =
+                stateMachine
+                        .getTransitions()
+                        .stream()
+                        .filter(t -> t.getEventType() instanceof StandardStateTransitionEventType)
+                        .findAny().get();
 
         // Business method
         DeviceLifeCycleBuilder builder = this.getTestService().newDeviceLifeCycleUsing("Test", stateMachine);
@@ -1219,7 +1227,20 @@ public class DeviceLifeCycleIT {
 
     private FiniteStateMachine createFiniteStateMachineWithCustomTransitions() {
         FiniteStateMachineService finiteStateMachineService = inMemoryPersistence.getService(FiniteStateMachineService.class);
-        CustomStateTransitionEventType eventType = finiteStateMachineService.newCustomStateTransitionEventType("forTestingPurposesOnly");
+        CustomStateTransitionEventType eventType = finiteStateMachineService.newCustomStateTransitionEventType(CUSTOM_EVENT_SYMBOL);
+        eventType.save();
+        FiniteStateMachineBuilder stateMachineBuilder = finiteStateMachineService.newFiniteStateMachine("For Testing Purposes Only");
+        State b = stateMachineBuilder.newCustomState("B").complete();
+        State a = stateMachineBuilder.newCustomState("A").on(eventType).transitionTo(b).complete();
+        FiniteStateMachine stateMachine = stateMachineBuilder.complete(a);
+        stateMachine.save();
+        return stateMachine;
+    }
+
+    private FiniteStateMachine createFiniteStateMachineWithStandardEventTypes() {
+        com.elster.jupiter.events.EventType jupiterEventType = inMemoryPersistence.getService(EventService.class).getEventType(EventType.START_BPM.topic()).get();
+        FiniteStateMachineService finiteStateMachineService = inMemoryPersistence.getService(FiniteStateMachineService.class);
+        StandardStateTransitionEventType eventType = finiteStateMachineService.newStandardStateTransitionEventType(jupiterEventType);
         eventType.save();
         FiniteStateMachineBuilder stateMachineBuilder = finiteStateMachineService.newFiniteStateMachine("For Testing Purposes Only");
         State b = stateMachineBuilder.newCustomState("B").complete();
