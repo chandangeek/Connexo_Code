@@ -157,6 +157,9 @@ Ext.define('Dxp.controller.Tasks', {
             'dxp-tasks-action-menu': {
                 click: this.chooseAction
             },
+            'dxp-tasks-destination-action-menu': {
+                click: this.chooseDestinationAction
+            },
             'tasks-history-action-menu': {
                 click: this.chooseAction
             },
@@ -609,6 +612,21 @@ Ext.define('Dxp.controller.Tasks', {
 
 
         Ext.resumeLayouts();
+    },
+
+    chooseDestinationAction: function (menu, item) {
+        switch (item.action) {
+            case 'removeDestination':
+                var me = this,
+                    page = me.getAddPage(),
+                    destinationsGrid = page.down('#task-destinations-grid');
+                destinationsGrid.getStore().remove(menu.record);
+                break;
+            case 'editDestination':
+                //;
+                break;
+        }
+
     },
 
     chooseAction: function (menu, item) {
@@ -1094,6 +1112,7 @@ Ext.define('Dxp.controller.Tasks', {
                 record.propertiesStore.add(selectorPropertyForm.getRecord().properties().data.items)
             }
             record.destinations();
+            record.destinationsStore.removeAll();
             record.destinationsStore.add(page.down('#task-destinations-grid').getStore().data.items);
             /*record.destinationsStore.add([Ext.create('Dxp.model.Destination', {
                 fileName: 'test',
