@@ -33,11 +33,11 @@ Ext.define('Dsh.view.widget.FavoriteDeviceGroups', {
                                     '<tr>',
                                         '<td style="height: 20px">',
                                             Mdc.privileges.DeviceGroup.canAdministrateOrViewDetails()
-                                                ? '<a href="#/devices/devicegroups/{id}">{name}</a>' :
+                                                ? '<a href="#/devices/devicegroups/{id}">{name:htmlEncode}</a>' :
                                                 (
                                                     Mdc.privileges.DeviceGroup.canAdministrateDeviceOfEnumeratedGroup()?
                                                         (
-                                                            '<tpl if="dynamic==true"{dynamic}>{name}<tpl else><a href="#/devices/devicegroups/{id}">{name}</a></tpl>'
+                                                            '<tpl if="dynamic==true"{dynamic}>{name:htmlEncode}<tpl else><a href="#/devices/devicegroups/{id}">{name:htmlEncode}</a></tpl>'
                                                         )
                                                          :
                                                         '{name}'

@@ -26,7 +26,7 @@ Ext.define('Dsh.view.widget.ConnectionsList', {
                 flex: 1,
                 renderer: function (val) {
                     return  (Mdc.privileges.Device.canView() || Mdc.privileges.Device.canAdministrateDeviceData())
-                        ? '<a href="#/devices/' + val.id + '">' + val.name + '</a>' : val.name
+                        ? '<a href="#/devices/' + val.id + '">' + Ext.String.htmlEncode(val.name) + '</a>' : Ext.String.htmlEncode(val.name)
                 }
             },
             {
@@ -35,7 +35,7 @@ Ext.define('Dsh.view.widget.ConnectionsList', {
                 dataIndex: 'connectionMethod',
                 flex: 1,
                 renderer: function (val) {
-                    return val ? val.name : ''
+                    return val ? Ext.String.htmlEncode(val.name) : ''
                 }
             },
             {
@@ -44,7 +44,7 @@ Ext.define('Dsh.view.widget.ConnectionsList', {
                 dataIndex: 'currentState',
                 flex: 1,
                 renderer: function (val) {
-                    return val ? val.displayValue : ''
+                    return val ? Ext.String.htmlEncode(val.displayValue) : ''
                 }
             },
             {
@@ -53,7 +53,7 @@ Ext.define('Dsh.view.widget.ConnectionsList', {
                 dataIndex: 'latestStatus',
                 flex: 1,
                 renderer: function (val) {
-                    return val ? val.displayValue : ''
+                    return val ? Ext.String.htmlEncode(val.displayValue) : ''
                 }
             },
             {
@@ -63,7 +63,7 @@ Ext.define('Dsh.view.widget.ConnectionsList', {
                 name: 'latestResult',
                 flex: 1,
                 renderer: function (val) {
-                    return val ? val.displayValue : ''
+                    return val ? Ext.String.htmlEncode(val.displayValue) : ''
 
                 }
             },

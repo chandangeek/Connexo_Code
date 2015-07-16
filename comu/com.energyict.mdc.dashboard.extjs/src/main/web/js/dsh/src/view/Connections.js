@@ -6,7 +6,7 @@ Ext.define('Dsh.view.Connections', {
     requires: [
         'Dsh.view.widget.ConnectionsList',
         'Dsh.view.widget.PreviewConnection',
-        'Dsh.view.widget.SideFilter',
+        'Dsh.view.widget.ConnectionsTopFilter',
         'Dsh.view.widget.connection.CommunicationsList',
         'Dsh.view.widget.connection.PreviewCommunication',
         'Dsh.store.ConnectionTasks'
@@ -16,11 +16,13 @@ Ext.define('Dsh.view.Connections', {
         {
             xtype: 'panel',
             ui: 'large',
-            title: Uni.I18n.translate('workspace.dataCommunication.connections.title', 'DSH', 'Connections')
-        },
-        {
-            xtype: 'filter-top-panel',
-            itemId: 'dshconnectionsfilterpanel'
+            title: Uni.I18n.translate('workspace.dataCommunication.connections.title', 'DSH', 'Connections'),
+            dockedItems: [
+                {
+                    dock: 'top',
+                    xtype: 'dsh-view-widget-connectionstopfilter'
+                }
+            ]
         },
         {
             xtype: 'panel',
@@ -36,7 +38,8 @@ Ext.define('Dsh.view.Connections', {
                     reasons: [
                         Uni.I18n.translate('workspace.dataCommunication.connections.empty.list.item1', 'DSH', 'No connections in the system.'),
                         Uni.I18n.translate('workspace.dataCommunication.connections.empty.list.item2', 'DSH', 'No connections found due to applied filters.')
-                    ]
+                    ],
+                    margins: '16 0 0 0'
                 },
                 previewComponent: {
                     xtype: 'preview_connection',
@@ -74,12 +77,6 @@ Ext.define('Dsh.view.Connections', {
                     }
                 }
             ]
-        }
-    ],
-    side: [
-        {
-            xtype: 'dsh-side-filter',
-            itemId: 'dshconnectionssidefilter'
         }
     ],
 

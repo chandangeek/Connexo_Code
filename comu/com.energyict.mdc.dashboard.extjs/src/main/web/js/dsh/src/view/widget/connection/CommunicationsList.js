@@ -22,7 +22,7 @@ Ext.define('Dsh.view.widget.connection.CommunicationsList', {
                 text: Uni.I18n.translate('connection.communication.widget.details.commmunication', 'DSH', 'Communication task'),
                 dataIndex: 'comTask',
                 renderer: function (val) {
-                    return val.name;
+                    return Ext.String.htmlEncode(val.name);
                 },
                 flex: 2
             },
@@ -32,7 +32,7 @@ Ext.define('Dsh.view.widget.connection.CommunicationsList', {
                 dataIndex: 'device',
                 flex: 1,
                 renderer: function (val) {
-                    return val.name ? val.name : '';
+                    return val.name ? Ext.String.htmlEncode(val.name) : '';
                 }
             },
             {
@@ -41,7 +41,7 @@ Ext.define('Dsh.view.widget.connection.CommunicationsList', {
                 dataIndex: 'currentState',
                 flex: 1,
                 renderer: function (val) {
-                    return val.displayValue ? val.displayValue : '';
+                    return val.displayValue ? Ext.String.htmlEncode(val.displayValue) : '';
                 }
             },
             {
@@ -50,7 +50,7 @@ Ext.define('Dsh.view.widget.connection.CommunicationsList', {
                 dataIndex: 'result',
                 flex: 1,
                 renderer: function (val) {
-                    return val.displayValue ? val.displayValue : '';
+                    return val.displayValue ? Ext.String.htmlEncode(val.displayValue) : '';
                 }
             },
             {

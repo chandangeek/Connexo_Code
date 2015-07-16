@@ -1,5 +1,5 @@
 Ext.define('Dsh.controller.Communications', {
-    extend: 'Dsh.controller.BaseController',
+    extend: 'Ext.app.Controller',
 
     models: [
         'Dsh.model.ConnectionTask',
@@ -35,11 +35,7 @@ Ext.define('Dsh.controller.Communications', {
         },
         {
             ref: 'filterPanel',
-            selector: '#communicationsdetails filter-top-panel'
-        },
-        {
-            ref: 'sideFilterForm',
-            selector: '#communicationsdetails #filter-form'
+            selector: '#communicationsdetails dsh-view-widget-communicationstopfilter'
         },
         {
             ref: 'communicationsGrid',
@@ -56,41 +52,101 @@ Ext.define('Dsh.controller.Communications', {
         {
             ref: 'connectionsPreviewActionBtn',
             selector: '#connectionsPreviewActionBtn'
+        },
+        {
+            ref: 'latestResultFilter',
+            selector: 'dsh-view-widget-communicationstopfilter #latest-result-filter'
+        },
+        {
+            ref: 'finishedBetweenFilter',
+            selector: 'dsh-view-widget-communicationstopfilter #finish-interval-filter'
+        },
+        {
+            ref: 'comTaskFilter',
+            selector: 'dsh-view-widget-communicationstopfilter #com-task-filter'
+        },
+        {
+            ref: 'comScheduleFilter',
+            selector: 'dsh-view-widget-communicationstopfilter #com-schedule-filter'
         }
     ],
 
-    prefix: '#communicationsdetails',
-
     init: function () {
-        this.control({
+        var me = this;
+        me.control({
             '#communicationsdetails #communicationslist': {
-                selectionchange: this.onSelectionChange
+                selectionchange: me.onSelectionChange
             },
             'communications-list #generate-report': {
-                click: this.onGenerateReport
+                click: me.onGenerateReport
             },
             'communications-list #btn-communications-bulk-action': {
-                click: this.forwardToBulk
+                click: me.forwardToBulk
+            },
+            // disable the finished between filter if the latest result filter is used:
+            'dsh-view-widget-communicationstopfilter #latest-result-filter': {
+                change: me.updateFinishedBetweenFilter
+            },
+            // disable the latest result filter if the finished between filter is used:
+            'dsh-view-widget-communicationstopfilter #finish-interval-filter': {
+                filterupdate: me.updateLatestResultFilter,
+                filtervaluechange: me.updateLatestResultFilter
+            },
+            // disable the com schedule filter if the com task filter is used:
+            'dsh-view-widget-communicationstopfilter #com-task-filter': {
+                change: me.updateComScheduleFilter
+            },
+            // disable the com task filter if the com schedule filter is used:
+            'dsh-view-widget-communicationstopfilter #com-schedule-filter': {
+                change: me.updateComTaskFilter
             }
         });
 
-        this.callParent(arguments);
+        me.callParent(arguments);
+    },
+
+    updateFinishedBetweenFilter: function(combo, newValue) {
+        this.getFinishedBetweenFilter().getChooseIntervalButton().setDisabled(Ext.isArray(newValue) && newValue.length!==0);
+    },
+
+    updateLatestResultFilter: function() {
+        var me = this;
+        if (me.getLatestResultFilter()) {
+            me.getLatestResultFilter().setDisabled(me.getFinishedBetweenFilter().getParamValue() !== undefined);
+        } else {
+            // Retry until you can perform the above
+            Ext.TaskManager.start({
+                run: me.updateLatestResultFilter,
+                interval: 200,
+                repeat: 1,
+                scope: me
+            });
+        }
+    },
+
+    updateComScheduleFilter: function(combo, newValue) {
+        this.getComScheduleFilter().setDisabled(Ext.isArray(newValue) && newValue.length!==0);
+    },
+
+    updateComTaskFilter: function(combo, newValue) {
+        this.getComTaskFilter().setDisabled(Ext.isArray(newValue) && newValue.length!==0);
     },
 
     showOverview: function () {
-        var widget = Ext.widget('communications-details'),
-            store = this.getStore('Dsh.store.CommunicationTasks');
+        var me = this,
+            widget = Ext.widget('communications-details'),
+            store = me.getStore('Dsh.store.CommunicationTasks');
 
-        this.getApplication().fireEvent('changecontentevent', widget);
-        this.initFilter();
+        me.getApplication().fireEvent('changecontentevent', widget);
         store.load();
     },
 
     initMenu: function (record, menuItems, me) {
+        var me = this;
 
-        this.getCommunicationsGridActionMenu().menu.removeAll();
-        this.getCommunicationPreviewActionMenu().menu.removeAll();
-        this.getConnectionsPreviewActionBtn().menu.removeAll();
+        me.getCommunicationsGridActionMenu().menu.removeAll();
+        me.getCommunicationPreviewActionMenu().menu.removeAll();
+        me.getConnectionsPreviewActionBtn().menu.removeAll();
 
         Ext.suspendLayouts();
 
@@ -158,11 +214,11 @@ Ext.define('Dsh.controller.Communications', {
             }
         };
 
-        this.getCommunicationsGridActionMenu().menu.add(menuItems);
-        this.getCommunicationPreviewActionMenu().menu.add(menuItems);
+        me.getCommunicationsGridActionMenu().menu.add(menuItems);
+        me.getCommunicationPreviewActionMenu().menu.add(menuItems);
 
         if (record.get('connectionTask').comSessionId !== 0) {
-            this.getConnectionsPreviewActionBtn().menu.add(connectionMenuItem);
+            me.getConnectionsPreviewActionBtn().menu.add(connectionMenuItem);
         }
 
         Ext.resumeLayouts(true);
@@ -174,8 +230,9 @@ Ext.define('Dsh.controller.Communications', {
             connPreview = me.getConnectionPreview(),
             record = selected[0],
             menuItems = [];
+
         if (record) {
-            this.initMenu(record, menuItems, me);
+            me.initMenu(record, menuItems, me);
             preview.loadRecord(record);
             preview.setTitle(record.get('name') + ' on ' + record.get('device').name);
             if (record.getData().connectionTask) {
@@ -191,56 +248,61 @@ Ext.define('Dsh.controller.Communications', {
 
     viewCommunicationLog: function (item) {
         location.href = '#/devices/' + item.action.comTask.mRID
-            + '/communicationtasks/' + item.action.comTask.comTaskId
-            + '/history/' + item.action.comTask.sessionId
-            + '/viewlog' +
-            '?filter=%7B%22logLevels%22%3A%5B%22Error%22%2C%22Warning%22%2C%22Information%22%5D%2C%22id%22%3Anull%7D';
+        + '/communicationtasks/' + item.action.comTask.comTaskId
+        + '/history/' + item.action.comTask.sessionId
+        + '/viewlog'
+        + '?filter=%7B%22logLevels%22%3A%5B%22Error%22%2C%22Warning%22%2C%22Information%22%5D%2C%22id%22%3Anull%7D';
     },
 
     viewConnectionLog: function (item) {
-        location.href = '#/devices/' + item.action.connection.mRID + '/connectionmethods/' + item.action.connection.connectionMethodId + '/history/' + item.action.connection.sessionId + '/viewlog' +
-            '?filter=%7B%22logLevels%22%3A%5B%22Error%22%2C%22Warning%22%2C%22Information%22%5D%2C%22logTypes%22%3A%5B%22Connections%22%2C%22Communications%22%5D%7D'
+        location.href = '#/devices/' + encodeURIComponent(item.action.connection.mRID) + '/connectionmethods/'
+        + item.action.connection.connectionMethodId + '/history/' + item.action.connection.sessionId + '/viewlog'
+        + '?logLevels=Error&logLevels=Warning&logLevels=Information&communications=Connections&communications=Communications'
     },
 
     onGenerateReport: function () {
-        var me = this;
-        var router = this.getController('Uni.controller.history.Router');
-        var fieldsToFilterNameMap = {};
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            fieldsToFilterNameMap = {},
+            reportFilter = false,
+            filterName = undefined,
+            fieldValue = undefined,
+            filters = me.getFilterPanel().filters;
+
         fieldsToFilterNameMap['deviceGroup'] = 'GROUPNAME';
         fieldsToFilterNameMap['currentStates'] = 'STATUS';
         fieldsToFilterNameMap['latestResults'] = null;
         fieldsToFilterNameMap['comSchedules'] = 'SCHEDULENAME';
         fieldsToFilterNameMap['deviceTypes'] = null;
         fieldsToFilterNameMap['comTasks'] = 'COMTASKNAME';
+        fieldsToFilterNameMap['startInterval'] = 'CONNECTIONDATE';
+        // TODO Check if finished interval is even supported by the Yellowfin report.
+        //fieldsToFilterNameMap['finishInterval'] = 'CONNECTIONDATE-FINISH';
 
-        var reportFilter = false;
-
-        var fields = me.getSideFilterForm().getForm().getFields();
-        fields.each(function (field) {
+        filters.each(function (filter) {
+            filterName = fieldsToFilterNameMap[filter.dataIndex];
             reportFilter = reportFilter || {};
-            var filterName = fieldsToFilterNameMap[field.getName()];
-            if (filterName) {
-                var fieldValue = field.getRawValue();
-                if (field.getXType() == 'side-filter-combo') {
-                    fieldValue = Ext.isString(fieldValue) && fieldValue.split(', ') || fieldValue;
-                    fieldValue = _.isArray(fieldValue) && _.compact(fieldValue) || fieldValue;
-                }
+            fieldValue = undefined;
+
+            switch (filter.getXType()) {
+                case 'uni-grid-filtertop-interval':
+                    var fromValue = filter.getFromDateValue(),
+                        toValue = filter.getToDateValue();
+
+                    if (Ext.isDefined(fromValue) && Ext.isDefined(toValue)) {
+                        fieldValue = {
+                            from: Ext.Date.format(fromValue, "Y-m-d H:i:s"),
+                            to: Ext.Date.format(toValue, "Y-m-d H:i:s")
+                        };
+                    }
+                    break;
+                default:
+                    fieldValue = filter.getParamValue();
+                    break;
             }
+
             reportFilter[filterName] = fieldValue;
-        });
-
-        //handle special startBetween and finishBetween;
-        //router.filter.startedBetween
-        //router.filter.finishBetween
-
-        if(router.filter && router.filter.startedBetween){
-            var from = router.filter.startedBetween.get('from');
-            var to = router.filter.startedBetween.get('to');
-            reportFilter['CONNECTIONDATE'] ={
-                'from':from && Ext.Date.format(from,"Y-m-d H:i:s"),
-                'to':to && Ext.Date.format(to,"Y-m-d H:i:s")
-            };
-        }
+        }, me);
 
         router.getRoute('generatereport').forward(null, {
             category: 'MDC',

@@ -36,7 +36,7 @@ Ext.define('Dsh.view.widget.PreviewCommunication', {
                             if(value!==''){
                                 var result = '';
                                 Ext.each(value, function(item){
-                                    result = result + '<li>'+ item.name+'</li>'
+                                    result = result + '<li>'+ Ext.String.htmlEncode(item.name)+'</li>'
                                 });
                                 return result;
                             } else {
@@ -51,7 +51,7 @@ Ext.define('Dsh.view.widget.PreviewCommunication', {
                         var res = '';
                         if (val) {
                             Mdc.privileges.Device.canViewOrAdministrateDeviceData()
-                                ? res = '<a href="#/devices/' + val.id + '">' + val.name + '</a>' : res = val.name;
+                                ? res = '<a href="#/devices/' + val.id + '">' + Ext.String.htmlEncode(val.name) + '</a>' : res = Ext.String.htmlEncode(val.name);
                         }
                         return res;
                     }
@@ -63,7 +63,7 @@ Ext.define('Dsh.view.widget.PreviewCommunication', {
                         var res = '';
                         if (val) {
                             Mdc.privileges.DeviceType.canView()
-                                ? res = '<a href="#/administration/devicetypes/' + val.id + '">' + val.name + '</a>' : res = val.name;
+                                ? res = '<a href="#/administration/devicetypes/' + val.id + '">' + Ext.String.htmlEncode(val.name) + '</a>' : res = Ext.String.htmlEncode(val.name);
                         }
                         return res;
                     }
@@ -77,10 +77,10 @@ Ext.define('Dsh.view.widget.PreviewCommunication', {
                             val.devType.id + '/deviceconfigurations/' +
                             val.config.id +
                             '">' +
-                            val.config.name +
+                            Ext.String.htmlEncode(val.config.name) +
                             '</a>');
                         if (res !== '' && !Mdc.privileges.DeviceType.canView()) {
-                            res = val.config.name;
+                            res = Ext.String.htmlEncode(val.config.name);
                         }
                         return res
                     }
@@ -128,14 +128,14 @@ Ext.define('Dsh.view.widget.PreviewCommunication', {
                     fieldLabel: Uni.I18n.translate('communication.widget.details.currentState', 'DSH', 'Current state'),
                     name: 'currentState',
                     renderer: function (val) {
-                        return val.displayValue ? val.displayValue : '';
+                        return val.displayValue ? Ext.String.htmlEncode(val.displayValue) : '';
                     }
                 },
                 {
                     fieldLabel: Uni.I18n.translate('communication.widget.details.latestResult', 'DSH', 'Latest result'),
                     name: 'latestResult',
                     renderer: function (val) {
-                        return val.displayValue ? val.displayValue : '';
+                        return val.displayValue ? Ext.String.htmlEncode(val.displayValue) : '';
                     }
                 },
                 {

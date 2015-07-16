@@ -28,6 +28,9 @@ Ext.define('Dsh.view.widget.HeatMap', {
         var me = this;
         if (title && categories) {
             title = title[0].toUpperCase() + title.slice(1);
+            for(var i=0;i<categories.length;i++){
+                categories[i] = Ext.String.htmlEncode(categories[i]);
+            }
             me.chart.series[0].yAxis.update({title: {text: title}}, false);
             me.chart.series[0].yAxis.update({categories: categories}, false);
         }
@@ -92,7 +95,6 @@ Ext.define('Dsh.view.widget.HeatMap', {
             var me = this,
                 ycat = [],
                 xcat = store.collect('displayValue');
-
             Ext.each(store.getAt(0).data.data, function (item) {
                 ycat.push(item.displayName);
             });

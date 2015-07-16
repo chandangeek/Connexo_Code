@@ -89,7 +89,7 @@ Ext.define('Dsh.controller.history.Workspace', {
                     route: 'selectfavoritedevicegroups',
                     controller: 'Dsh.controller.OperatorDashboard',
                     //privileges: ['privilege.administrate.deviceGroup'],
-                    action: 'showMyFavorieDeviceGroups'
+                    action: 'showMyFavoriteDeviceGroups'
                 }
             }
         }

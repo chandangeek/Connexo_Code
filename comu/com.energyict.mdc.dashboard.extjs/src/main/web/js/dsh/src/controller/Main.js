@@ -21,7 +21,6 @@ Ext.define('Dsh.controller.Main', {
 
     controllers: [
         'Dsh.controller.history.Workspace',
-        'Dsh.controller.BaseController',
         'Dsh.controller.CommunicationOverview',
         'Dsh.controller.ConnectionOverview',
         'Dsh.controller.OperatorDashboard',
