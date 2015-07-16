@@ -17,11 +17,14 @@ import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
+import com.elster.jupiter.users.PrivilegesProvider;
+import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.validation.*;
+import com.elster.jupiter.validation.security.Privileges;
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.*;
@@ -38,8 +41,8 @@ import java.util.stream.Collectors;
 import static com.elster.jupiter.util.conditions.Operator.EQUAL;
 import static com.elster.jupiter.util.conditions.Where.where;
 
-@Component(name = "com.elster.jupiter.validation", service = {InstallService.class, ValidationService.class}, property = "name=" + ValidationService.COMPONENTNAME, immediate = true)
-public class ValidationServiceImpl implements ValidationService, InstallService {
+@Component(name = "com.elster.jupiter.validation", service = {InstallService.class, ValidationService.class, PrivilegesProvider.class}, property = "name=" + ValidationService.COMPONENTNAME, immediate = true)
+public class ValidationServiceImpl implements ValidationService, InstallService, PrivilegesProvider {
 
     public static final String DESTINATION_NAME = "DataValidation";
     public static final String SUBSCRIBER_NAME = "DataValidation";
@@ -53,6 +56,8 @@ public class ValidationServiceImpl implements ValidationService, InstallService 
     private volatile Thesaurus thesaurus;
     private volatile QueryService queryService;
     private volatile UserService userService;
+
+
 
     private final List<ValidatorFactory> validatorFactories = new CopyOnWriteArrayList<>();
     private final List<ValidationRuleSetResolver> ruleSetResolvers = new CopyOnWriteArrayList<>();
@@ -227,7 +232,7 @@ public class ValidationServiceImpl implements ValidationService, InstallService 
                 .ifPresent(meterValidation -> {
                     meterValidation.setValidateOnStorage(true);
                     meterValidation.save();
-            });
+                });
     }
 
 
@@ -459,6 +464,22 @@ public class ValidationServiceImpl implements ValidationService, InstallService 
         validatorFactories.remove(validatorfactory);
     }
 
+    @Override
+    public String getModuleName() {
+        return ValidationService.COMPONENTNAME;
+    }
+
+    @Override
+    public List<ResourceDefinition> getModuleResources() {
+        List<ResourceDefinition> resources = new ArrayList<>();
+        resources.add(userService.createModuleResourceWithPrivileges(ValidationService.COMPONENTNAME, "validation.validations", "validation.validations.description",
+                Arrays.asList(
+                        Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.VIEW_VALIDATION_CONFIGURATION,
+                        Privileges.VALIDATE_MANUAL,Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE,
+                        Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION)));
+        return resources;
+    }
+
     class DefaultValidatorCreator implements ValidatorCreator {
 
         @Override
@@ -577,6 +598,7 @@ public class ValidationServiceImpl implements ValidationService, InstallService 
     public Optional<DataValidationOccurrence> findDataValidationOccurrence(TaskOccurrence occurrence) {
         return dataModel.query(DataValidationOccurrence.class, DataValidationTask.class).select(EQUAL.compare("taskOccurrence", occurrence)).stream().findFirst();
     }
+
 
     private Optional<DataValidationTask> getDataValidationTaskForRecurrentTask(RecurrentTask recurrentTask) {
         return dataModel.mapper(DataValidationTask.class).getUnique("recurrentTask", recurrentTask);
