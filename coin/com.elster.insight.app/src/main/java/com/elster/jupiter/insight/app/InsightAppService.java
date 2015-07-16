@@ -1,6 +1,5 @@
 package com.elster.jupiter.insight.app;
 
-import com.elster.jupiter.nls.TranslationKeyProvider;
 
 public interface InsightAppService  {
 

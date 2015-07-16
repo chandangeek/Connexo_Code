@@ -18,7 +18,6 @@ Ext.define('InsightApp.controller.Main', {
 
     controllers: [
         'InsightApp.controller.insight.Main',
-        'Cfg.controller.Main',
-        'Est.main.controller.Main'
+        'Cfg.controller.Main'
     ]
 });

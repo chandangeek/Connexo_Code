@@ -26,4 +26,8 @@ Thumbs.db
 .classpath
 .project
 target/
+src/main/web/js/insight/bootstrap.css
+src/main/web/js/insight/bootstrap.js
+src/main/web/js/insight/bootstrap.json
+
   
