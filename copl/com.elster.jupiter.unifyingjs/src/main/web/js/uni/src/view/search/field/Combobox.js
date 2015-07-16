@@ -8,6 +8,17 @@ Ext.define('Uni.view.search.field.Combobox', {
         //'Ext.grid.feature.Summary'
     ],
     xtype: 'search-combo',
+    queryMode: 'local',
+    editable: false,
+    //fieldStyle: {
+    //    background: '#71adc7'
+    //},
+    getDisplayValue: function() {
+        return this.rendered ? this.getPicker().selection.count() + ' selected' : this.emptyText;
+    },
+    disableKeyFilter: true,
+    enableKeyEvents: false,
+    forceSelection: true,
     store: Ext.create('Ext.data.Store', {
         fields: ['name', 'value'],
         data: [
@@ -39,6 +50,7 @@ Ext.define('Uni.view.search.field.Combobox', {
             {'name': 'Zalue26', 'value': '2'}
         ]
     }),
+
     initComponent: function () {
         var me = this;
 
@@ -63,6 +75,14 @@ Ext.define('Uni.view.search.field.Combobox', {
         var me = this,
             picker,
             menuCls = Ext.baseCSSPrefix + 'menu',
+            selection = Ext.create('Ext.data.Store', {
+                fields: ['name', 'value']
+                //listeners: {
+                //    datachanged: function() {
+                //        picker.down('#selection-count').update('Selected: ' + this.count());
+                //    }
+                //}
+            });
             opts = Ext.apply({
                 selModel: {
                     selType: 'checkboxmodel',
@@ -70,6 +90,51 @@ Ext.define('Uni.view.search.field.Combobox', {
                     showHeaderCheckbox: true,
                     toggleUiHeader: function(isChecked) {
                         picker.down('#select-all').setRawValue(isChecked);
+                    },
+
+                    //processSelection: function() {
+                    //    //var me = this,
+                    //    //    handler = me.handler;
+                    //    //if (handler) {
+                    //    //    handler.call(me.scope || me, me, newVal);
+                    //    //}
+                    //    this.callParent(arguments);
+                    //    debugger;
+                    //},
+                    //onSelectChange: function() {
+                    //    debugger;
+                    //    this.callOverridden(arguments);
+                    //}
+
+                    //onStoreLoad: function(){
+                    //    debugger;
+                    //    //this.callParent(arguments);
+                    //    //this.updateHeaderState();
+                    //
+                    //},
+                    onStoreLoad: function() {
+                        this.superclass.onStoreLoad.apply(this);
+                        this.select(selection.getRange(), true, true);
+                        this.updateHeaderState();
+                    },
+
+                    onStoreRefresh: function(){
+                        this.superclass.onStoreRefresh.apply(this);
+                        this.select(_.intersection(this.getStore().getRange(),selection.getRange()), true, true);
+                        this.updateHeaderState();
+                    },
+                    listeners: {
+                        beforeselect: function(s, record) {
+                            selection.add(record);
+                            //selection.remove(s.getStore().getRange());
+                            //
+                        },
+                        beforedeselect: function(s, record) {
+                            selection.remove(record);
+                            //selection.remove(s.getStore().getRange());
+                            //
+                        }
+
                     }
                 },
                 minWidth: 300,
@@ -176,6 +241,10 @@ Ext.define('Uni.view.search.field.Combobox', {
             }, me.listConfig, me.defaultListConfig);
 
         picker = me.picker = Ext.create('Ext.grid.Panel', opts);
+        picker.selection = selection;
+        //picker.getStore().on('refresh', function () {
+        //    picker.getSelectionModel().select(this.getRange(), true, true);
+        //});
 
         // hack: pass getNode() to the view
         picker.getNode = function() {
