@@ -340,7 +340,7 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
             console.log('after :'+store.count()+' processes set');
         }
 
-        var form =  this.getLifeCycleStatesEditForm().updateRecord();
+        this.getLifeCycleStatesEditForm().updateRecord();
     }
 
 });
