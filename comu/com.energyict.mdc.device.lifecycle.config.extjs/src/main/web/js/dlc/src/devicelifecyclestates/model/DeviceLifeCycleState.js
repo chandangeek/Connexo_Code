@@ -16,8 +16,8 @@ Ext.define('Dlc.devicelifecyclestates.model.DeviceLifeCycleState', {
                 return data.name;
             }
         },
-        {name: 'onEntry'},
-        {name: 'onExit'}
+        'onEntry',
+        'onExit'
     ],
 
     associations: [

@@ -331,8 +331,6 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
             selection = widget.getSelection();
 
         router.getRoute(widget.returnlink).forward();
-        var form =  this.getLifeCycleStatesEditForm();
-
         if (!Ext.isEmpty(selection)) {
             var store = Ext.data.StoreManager.lookup(widget.storeToUpdate);
             console.log('before :'+ store.count()+' processes set');
@@ -341,7 +339,8 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
             });
             console.log('after :'+store.count()+' processes set');
         }
-        form.updateRecord(this.getDeviceLifeCycleState());
+
+        var form =  this.getLifeCycleStatesEditForm().updateRecord();
     }
 
 });
