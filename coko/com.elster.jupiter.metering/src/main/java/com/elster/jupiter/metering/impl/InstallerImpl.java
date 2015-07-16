@@ -83,7 +83,6 @@ public class InstallerImpl {
         List<ServiceCategoryImpl> serviceCategories = createServiceCategories();
         createReadingTypes();
         createPartyRoles();
-        createPrivileges();
         createAmrSystems();
         createEndDeviceEventTypes();
         createEventTypes();
@@ -236,15 +235,19 @@ public class InstallerImpl {
         }
     }
 
-    private void createPrivileges() {
-        ExceptionCatcher.executing(
-                () -> {
-                    this.userService.createResourceWithPrivileges("MDC", DefaultTranslationKey.PRIVILEGE_USAGE_POINT_NAME.getKey(),
-                            DefaultTranslationKey.PRIVILEGE_USAGE_POINT_DESCRIPTION.getKey(),
-                            new String[] {Privileges.BROWSE_ANY, Privileges.BROWSE_OWN, Privileges.ADMIN_ANY, Privileges.ADMIN_OWN});
-                })
-            .andHandleExceptionsWith(Throwable::printStackTrace)
-            .execute();
+
+    private List<String> getPrivileges() {
+        Field[] fields = Privileges.class.getFields();
+        List<String> result = new ArrayList<>(fields.length);
+        for (Field each : fields) {
+            try {
+                result.add((String) each.get(null));
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return result;
+
     }
 
     private void createTranslations(List<ServiceCategoryImpl> serviceCategories) {
