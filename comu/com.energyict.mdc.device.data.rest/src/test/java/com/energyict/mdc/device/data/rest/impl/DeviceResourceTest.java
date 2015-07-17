@@ -1268,9 +1268,12 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
         String response = target("/devices/1/privileges").request().get(String.class);
         JsonModel model = JsonModel.create(response);
-        assertThat(model.<Number>get("$.total")).isEqualTo(12);
+        assertThat(model.<Number>get("$.total")).isEqualTo(16);
         List<String> privileges = model.<List<String>>get("$.privileges[*].name");
         assertThat(privileges).contains(
+                DevicePrivileges.DEVICES_WIDGET_COMMUNICATION_TOPOLOGY,
+                DevicePrivileges.DEVICES_WIDGET_CONNECTION,
+                DevicePrivileges.DEVICES_WIDGET_COMMUNICATION_TASKS,
                 DevicePrivileges.DEVICES_ACTIONS_VALIDATION_RULE_SETS,
                 DevicePrivileges.DEVICES_ACTIONS_ESTIMATION_RULE_SETS,
                 DevicePrivileges.DEVICES_ACTIONS_COMMUNICATION_PLANNING,
@@ -1282,6 +1285,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
                 DevicePrivileges.DEVICES_ACTIONS_COMMUNICATION_TASKS,
                 DevicePrivileges.DEVICES_ACTIONS_CONNECTION_METHODS,
                 DevicePrivileges.DEVICES_ACTIONS_DATA_EDIT,
+                DevicePrivileges.DEVICES_ACTIONS_FIRMWARE_MANAGEMENT,
                 DevicePrivileges.DEVICES_PAGES_COMMUNICATION_PLANNING
         );
     }
@@ -1311,7 +1315,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
         String response = target("/devices/1/privileges").request().get(String.class);
         JsonModel model = JsonModel.create(response);
-        assertThat(model.<Number>get("$.total")).isEqualTo(19);
+        assertThat(model.<Number>get("$.total")).isEqualTo(20);
         List<String> privileges = model.<List<String>>get("$.privileges[*].name");
         assertThat(privileges).contains(
                 DevicePrivileges.DEVICES_WIDGET_ISSUES,
@@ -1332,6 +1336,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
                 DevicePrivileges.DEVICES_ACTIONS_COMMUNICATION_TASKS,
                 DevicePrivileges.DEVICES_ACTIONS_CONNECTION_METHODS,
                 DevicePrivileges.DEVICES_ACTIONS_DATA_EDIT,
+                DevicePrivileges.DEVICES_ACTIONS_FIRMWARE_MANAGEMENT,
                 DevicePrivileges.DEVICES_PAGES_COMMUNICATION_PLANNING
         );
     }
