@@ -4,5 +4,6 @@ Private-Package:  \
 	com.energyict.mdc.device.config.impl
 Export-Package:  \
 	com.energyict.mdc.device.config,\
+	com.energyict.mdc.device.config.events,\
 	com.energyict.mdc.device.config.exceptions,\
 	com.energyict.mdc.device.config.security

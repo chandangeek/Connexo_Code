@@ -9,8 +9,10 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.events.EventType;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.device.config.events.PartialConnectionTaskUpdateDetails;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
@@ -108,6 +110,7 @@ import java.util.Optional;
 import org.junit.*;
 import org.junit.rules.*;
 import org.junit.runner.*;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -426,6 +429,7 @@ public class PartialOutboundConnectionTaskCrudIT {
                 .nextExecutionSpec().temporalExpression(new TimeDuration(6, TimeDuration.TimeUnit.HOURS),new TimeDuration(1, TimeDuration.TimeUnit.HOURS)).set()
                 .asDefault(true).build();
         deviceConfiguration.save();
+        reset(eventService.getSpy());
 
         ComWindow newComWindow = new ComWindow(DateTimeConstants.SECONDS_PER_HOUR * 2, DateTimeConstants.SECONDS_PER_HOUR * 3);
         PartialScheduledConnectionTask task;
@@ -440,13 +444,9 @@ public class PartialOutboundConnectionTaskCrudIT {
 
         Optional<PartialConnectionTask> found = deviceConfigurationService.findPartialConnectionTask(outboundConnectionTask.getId());
         assertThat(found.isPresent()).isTrue();
-
         PartialConnectionTask partialConnectionTask = found.get();
-
         assertThat(partialConnectionTask).isInstanceOf(PartialScheduledConnectionTaskImpl.class);
-
         PartialScheduledConnectionTaskImpl reloadedPartialOutboundConnectionTask = (PartialScheduledConnectionTaskImpl) partialConnectionTask;
-
         assertThat(reloadedPartialOutboundConnectionTask.getComPortPool().getId()).isEqualTo(outboundComPortPool1.getId());
         assertThat(reloadedPartialOutboundConnectionTask.isDefault()).isFalse();
         assertThat(reloadedPartialOutboundConnectionTask.getConfiguration().getId()).isEqualTo(deviceConfiguration.getId());
@@ -456,8 +456,10 @@ public class PartialOutboundConnectionTaskCrudIT {
         assertThat(reloadedPartialOutboundConnectionTask.getTemporalExpression().getEvery().getTimeUnit()).isEqualTo(TimeDuration.TimeUnit.HOURS);
         assertThat(reloadedPartialOutboundConnectionTask.getName()).isEqualTo("Changed");
 
-        verify(eventService.getSpy()).postEvent(EventType.PARTIAL_SCHEDULED_CONNECTION_TASK_UPDATED.topic(), task);
-
+        ArgumentCaptor<PartialConnectionTaskUpdateDetails> updateDetailsArgumentCaptor = ArgumentCaptor.forClass(PartialConnectionTaskUpdateDetails.class);
+        verify(eventService.getSpy()).postEvent(eq(EventType.PARTIAL_SCHEDULED_CONNECTION_TASK_UPDATED.topic()), updateDetailsArgumentCaptor.capture());
+        PartialConnectionTaskUpdateDetails updateDetails = updateDetailsArgumentCaptor.getValue();
+        assertThat(updateDetails.getPartialConnectionTask()).isEqualTo(task);
     }
 
     @Test

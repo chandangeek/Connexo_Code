@@ -73,7 +73,7 @@ public abstract class PartialConnectionTaskImpl extends PersistentNamedObject<Pa
     private List<PartialConnectionTaskPropertyImpl> properties = new ArrayList<>();
     /**
      * Holds the name of all required properties that were removed during
-     * an edit session and publishes them as part of the update event.
+     * an edit session to be published as part of the update event.
      */
     private List<String> removedRequiredProperties = new ArrayList<>();
     @SuppressWarnings("unused")
@@ -242,15 +242,9 @@ public abstract class PartialConnectionTaskImpl extends PersistentNamedObject<Pa
         this.removedRequiredProperties.clear();
     }
 
-    /**
-     * Used by the event mechanism.
-     * @see EventType#PARTIAL_CONNECTION_INITIATION_TASK_UPDATED
-     * @see EventType#PARTIAL_SCHEDULED_CONNECTION_TASK_UPDATED
-     * @see EventType#PARTIAL_INBOUND_CONNECTION_TASK_UPDATED
-     */
-    @SuppressWarnings("unused")
-    public String getRemovedRequiredPropertiesAsString() {
-        return this.removedRequiredProperties.stream().collect(Collectors.joining(","));
+    @Override
+    protected Object toUpdateEventSource() {
+        return new PartialConnectionTaskUpdateDetailsImpl(this, this.removedRequiredProperties);
     }
 
     public static class HasSpecValidator implements ConstraintValidator<PartialConnectionTaskPropertyMustHaveSpec, PartialConnectionTaskPropertyImpl> {

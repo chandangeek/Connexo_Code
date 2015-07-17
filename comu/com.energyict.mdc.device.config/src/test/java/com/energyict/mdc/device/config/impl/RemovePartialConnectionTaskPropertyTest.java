@@ -2,6 +2,7 @@ package com.energyict.mdc.device.config.impl;
 
 import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.events.EventType;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
@@ -15,6 +16,7 @@ import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
@@ -28,7 +30,7 @@ import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
-import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -42,6 +44,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.osgi.framework.BundleContext;
+import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
 
 import javax.validation.Validator;
@@ -54,7 +57,6 @@ import java.sql.SQLException;
 import java.time.Clock;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Map;
 import java.util.Optional;
 
 import org.junit.*;
@@ -95,6 +97,7 @@ public class RemovePartialConnectionTaskPropertyTest {
     private static LicenseService licenseService;
     private static TransactionService transactionService;
     private static EventService eventService;
+    private static Publisher publisher;
     private static NlsService nlsService;
     private static Thesaurus thesaurus;
     private static ValidationService validationService;
@@ -138,7 +141,6 @@ public class RemovePartialConnectionTaskPropertyTest {
                 bootstrapModule,
                 new ThreadSecurityModule(principal),
                 new InMemoryMessagingModule(),
-                new PubSubModule(),
                 new EventsModule(),
                 new TransactionModule(false),
                 new OrmModule());
@@ -165,6 +167,7 @@ public class RemovePartialConnectionTaskPropertyTest {
         thesaurus = mock(Thesaurus.class);
         nlsService = mock(NlsService.class);
         when(nlsService.getThesaurus(anyString(), any(Layer.class))).thenReturn(thesaurus);
+        publisher = mock(Publisher.class);
         validationService = mock(ValidationService.class);
         estimationService = mock(EstimationService.class);
         meteringService = mock(MeteringService.class);
@@ -231,17 +234,18 @@ public class RemovePartialConnectionTaskPropertyTest {
         partialConnectionTask.setProperty(PORT_PROPERTY_SPEC_NAME, BigDecimal.valueOf(4059L));
         partialConnectionTask.save();
         resetAndInitializeJsonService();
+        reset(publisher);
 
         // Business method
         partialConnectionTask.removeProperty(HOST_PROPERTY_SPEC_NAME);
         partialConnectionTask.save();
 
         // Asserts
-        ArgumentCaptor<Map> eventPropertiesCaptor = ArgumentCaptor.forClass(Map.class);
-        verify(jsonService).serialize(eventPropertiesCaptor.capture());
-        Map<String, Object> eventProperties = eventPropertiesCaptor.getValue();
-        assertThat(eventProperties).containsKey("removedRequiredProperties");
-        assertThat(eventProperties).containsEntry("removedRequiredProperties", HOST_PROPERTY_SPEC_NAME);
+        ArgumentCaptor<LocalEvent> eventArgumentCaptor = ArgumentCaptor.forClass(LocalEvent.class);
+        verify(publisher).publish(eventArgumentCaptor.capture());
+        LocalEvent localEvent = eventArgumentCaptor.getValue();
+        Event osgiEvent = localEvent.toOsgiEvent();
+        assertThat(osgiEvent.getProperty("removedRequiredProperties")).isEqualTo(HOST_PROPERTY_SPEC_NAME);
     }
 
     @Test
@@ -252,6 +256,7 @@ public class RemovePartialConnectionTaskPropertyTest {
         partialConnectionTask.setProperty(PORT_PROPERTY_SPEC_NAME, BigDecimal.valueOf(4059L));
         partialConnectionTask.save();
         resetAndInitializeJsonService();
+        reset(publisher);
 
         // Business method
         partialConnectionTask.removeProperty(HOST_PROPERTY_SPEC_NAME);
@@ -259,10 +264,11 @@ public class RemovePartialConnectionTaskPropertyTest {
         partialConnectionTask.save();
 
         // Asserts
-        ArgumentCaptor<Map> eventPropertiesCaptor = ArgumentCaptor.forClass(Map.class);
-        verify(jsonService).serialize(eventPropertiesCaptor.capture());
-        Map<String, Object> eventProperties = eventPropertiesCaptor.getValue();
-        assertThat(eventProperties).containsEntry("removedRequiredProperties", HOST_PROPERTY_SPEC_NAME + "," + PORT_PROPERTY_SPEC_NAME);
+        ArgumentCaptor<LocalEvent> eventArgumentCaptor = ArgumentCaptor.forClass(LocalEvent.class);
+        verify(publisher).publish(eventArgumentCaptor.capture());
+        LocalEvent localEvent = eventArgumentCaptor.getValue();
+        Event osgiEvent = localEvent.toOsgiEvent();
+        assertThat(osgiEvent.getProperty("removedRequiredProperties")).isEqualTo(HOST_PROPERTY_SPEC_NAME + "," + PORT_PROPERTY_SPEC_NAME);
     }
 
     @Test
@@ -273,6 +279,7 @@ public class RemovePartialConnectionTaskPropertyTest {
         partialConnectionTask.setProperty(PORT_PROPERTY_SPEC_NAME, BigDecimal.valueOf(4059L));
         partialConnectionTask.save();
         resetAndInitializeJsonService();
+        reset(publisher);
 
         // Business method
         partialConnectionTask.removeProperty(HOST_PROPERTY_SPEC_NAME);
@@ -282,10 +289,11 @@ public class RemovePartialConnectionTaskPropertyTest {
         partialConnectionTask.save();
 
         // Asserts
-        ArgumentCaptor<Map> eventPropertiesCaptor = ArgumentCaptor.forClass(Map.class);
-        verify(jsonService).serialize(eventPropertiesCaptor.capture());
-        Map<String, Object> eventProperties = eventPropertiesCaptor.getValue();
-        assertThat(eventProperties).containsEntry("removedRequiredProperties", "");
+        ArgumentCaptor<LocalEvent> eventArgumentCaptor = ArgumentCaptor.forClass(LocalEvent.class);
+        verify(publisher).publish(eventArgumentCaptor.capture());
+        LocalEvent localEvent = eventArgumentCaptor.getValue();
+        Event osgiEvent = localEvent.toOsgiEvent();
+        assertThat(osgiEvent.containsProperty("removedRequiredProperties")).isTrue();
     }
 
     @Test
@@ -297,16 +305,18 @@ public class RemovePartialConnectionTaskPropertyTest {
         partialConnectionTask.setProperty(TIMEOUT_PROPERTY_SPEC_NAME, BigDecimal.ONE);
         partialConnectionTask.save();
         resetAndInitializeJsonService();
+        reset(publisher);
 
         // Business method
         partialConnectionTask.removeProperty(TIMEOUT_PROPERTY_SPEC_NAME);
         partialConnectionTask.save();
 
         // Asserts
-        ArgumentCaptor<Map> eventPropertiesCaptor = ArgumentCaptor.forClass(Map.class);
-        verify(jsonService).serialize(eventPropertiesCaptor.capture());
-        Map<String, Object> eventProperties = eventPropertiesCaptor.getValue();
-        assertThat(eventProperties).containsEntry("removedRequiredProperties", "");
+        ArgumentCaptor<LocalEvent> eventArgumentCaptor = ArgumentCaptor.forClass(LocalEvent.class);
+        verify(publisher).publish(eventArgumentCaptor.capture());
+        LocalEvent localEvent = eventArgumentCaptor.getValue();
+        Event osgiEvent = localEvent.toOsgiEvent();
+        assertThat(osgiEvent.getProperty("removedRequiredProperties")).isEqualTo("");
     }
 
     @Test
@@ -318,6 +328,7 @@ public class RemovePartialConnectionTaskPropertyTest {
         partialConnectionTask.setProperty(TIMEOUT_PROPERTY_SPEC_NAME, BigDecimal.ONE);
         partialConnectionTask.save();
         resetAndInitializeJsonService();
+        reset(publisher);
 
         // Business method
         partialConnectionTask.removeProperty(TIMEOUT_PROPERTY_SPEC_NAME);
@@ -325,10 +336,11 @@ public class RemovePartialConnectionTaskPropertyTest {
         partialConnectionTask.save();
 
         // Asserts
-        ArgumentCaptor<Map> eventPropertiesCaptor = ArgumentCaptor.forClass(Map.class);
-        verify(jsonService).serialize(eventPropertiesCaptor.capture());
-        Map<String, Object> eventProperties = eventPropertiesCaptor.getValue();
-        assertThat(eventProperties).containsEntry("removedRequiredProperties", "");
+        ArgumentCaptor<LocalEvent> eventArgumentCaptor = ArgumentCaptor.forClass(LocalEvent.class);
+        verify(publisher).publish(eventArgumentCaptor.capture());
+        LocalEvent localEvent = eventArgumentCaptor.getValue();
+        Event osgiEvent = localEvent.toOsgiEvent();
+        assertThat(osgiEvent.getProperty("removedRequiredProperties")).isEqualTo("");
     }
 
     private PartialScheduledConnectionTaskImpl testInstance() {
@@ -357,6 +369,7 @@ public class RemovePartialConnectionTaskPropertyTest {
             bind(ValidationService.class).toInstance(validationService);
             bind(EstimationService.class).toInstance(estimationService);
             bind(MeteringService.class).toInstance(meteringService);
+            bind(Publisher.class).toInstance(publisher);
             bind(UserService.class).toInstance(userService);
             bind(JsonService.class).toInstance(jsonService);
             bind(BeanService.class).toInstance(beanService);

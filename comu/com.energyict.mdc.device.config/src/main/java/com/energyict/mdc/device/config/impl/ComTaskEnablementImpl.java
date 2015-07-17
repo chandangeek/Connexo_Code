@@ -9,6 +9,7 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.energyict.mdc.device.config.*;
+import com.energyict.mdc.device.config.events.EventType;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.tasks.ComTask;
 import org.hibernate.validator.constraints.Range;

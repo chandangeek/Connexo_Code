@@ -2,6 +2,7 @@ package com.energyict.mdc.device.config.impl;
 
 import com.energyict.mdc.device.config.DeviceMessageUserAction;
 import com.energyict.mdc.device.config.DeviceSecurityUserAction;
+import com.energyict.mdc.device.config.events.EventType;
 import com.energyict.mdc.device.config.security.Privileges;
 
 import com.elster.jupiter.events.EventService;

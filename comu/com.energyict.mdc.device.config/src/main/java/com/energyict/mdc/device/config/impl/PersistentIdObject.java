@@ -78,7 +78,11 @@ public abstract class PersistentIdObject<T> {
     protected abstract CreateEventType createEventType();
 
     private void notifyUpdated() {
-        this.getEventService().postEvent(this.updateEventType().topic(), this);
+        this.getEventService().postEvent(this.updateEventType().topic(), this.toUpdateEventSource());
+    }
+
+    protected Object toUpdateEventSource() {
+        return this;
     }
 
     protected abstract UpdateEventType updateEventType();

@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.energyict.mdc.device.config.events.EventType;
+
 /**
  * Subset of {@link EventType}s that relate to
  * {@link com.energyict.mdc.device.config.ComTaskEnablement}

@@ -1,10 +1,11 @@
-package com.energyict.mdc.device.config.impl;
+package com.energyict.mdc.device.config.events;
+
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.EventTypeBuilder;
 import com.elster.jupiter.events.ValueType;
 import com.elster.jupiter.orm.TransactionRequired;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
 
 /**
  * Models the different event types that are produced by this "device type and configurations bundle".
@@ -165,11 +166,6 @@ public enum EventType {
             eventTypeBuilder.withProperty("removedRequiredProperties", ValueType.STRING, "removedRequiredPropertiesAsString");
             return eventTypeBuilder;
         }
-
-        @Override
-        EventTypeBuilder shouldPublish(EventTypeBuilder eventTypeBuilder) {
-            return eventTypeBuilder.shouldPublish();
-        }
     },
     PARTIAL_INBOUND_CONNECTION_TASK_VALIDATE_DELETE("partialinboundconnectiontask/VALIDATE_DELETE"),
     PARTIAL_INBOUND_CONNECTION_TASK_DELETED("partialinboundconnectiontask/DELETED"),
@@ -181,11 +177,6 @@ public enum EventType {
             eventTypeBuilder.withProperty("removedRequiredProperties", ValueType.STRING, "removedRequiredPropertiesAsString");
             return eventTypeBuilder;
         }
-
-        @Override
-        EventTypeBuilder shouldPublish(EventTypeBuilder eventTypeBuilder) {
-            return eventTypeBuilder.shouldPublish();
-        }
     },
     PARTIAL_SCHEDULED_CONNECTION_TASK_VALIDATE_DELETE("partialscheduledconnectiontask/VALIDATE_DELETE"),
     PARTIAL_SCHEDULED_CONNECTION_TASK_DELETED("partialscheduledconnectiontask/DELETED"),
@@ -196,11 +187,6 @@ public enum EventType {
             super.addCustomProperties(eventTypeBuilder);
             eventTypeBuilder.withProperty("removedRequiredProperties", ValueType.STRING, "removedRequiredPropertiesAsString");
             return eventTypeBuilder;
-        }
-
-        @Override
-        EventTypeBuilder shouldPublish(EventTypeBuilder eventTypeBuilder) {
-            return eventTypeBuilder.shouldPublish();
         }
     },
     PARTIAL_CONNECTION_INITIATION_TASK_DELETED("partialconnectioninitiationtask/DELETED"),
@@ -228,7 +214,7 @@ public enum EventType {
     }
 
     @TransactionRequired
-    void install(EventService eventService) {
+    public void install(EventService eventService) {
         EventTypeBuilder builder = eventService.buildEventTypeWithTopic(topic())
                 .name(name())
                 .component(DeviceConfigurationService.COMPONENTNAME)
