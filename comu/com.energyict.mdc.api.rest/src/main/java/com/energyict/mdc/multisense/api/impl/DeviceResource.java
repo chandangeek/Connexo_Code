@@ -40,7 +40,8 @@ import javax.ws.rs.core.UriInfo;
 import static java.util.stream.Collectors.toList;
 
 /**
- * Created by bvn on 4/22/15.
+ * @servicetag Device
+ * @author bvn
  */
 @Path("/devices")
 public class DeviceResource {
@@ -65,6 +66,16 @@ public class DeviceResource {
         this.resourceHelper = resourceHelper;
     }
 
+    /**
+     * @title View the contents of a uniquely identified device
+     *
+     * @summary Device is identified by mRID
+     * @statuscode 404 If there is no device with the provided mRID
+     * @param mRID The device's mRID
+     * @param fieldSelection comma separated list of fields that will be add to the response. If absent, all fields will be added
+     * @param uriInfo
+     * @return DeviceInfo
+     */
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})

@@ -10,6 +10,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 /**
  * generic helper class to json-serialize a list of info-objects into a json format that is understood by our ExtJS paging component.
+ * This class has a generic type so Miredot can generate better documentation
  */
 public class PagedInfoList<T> {
 
