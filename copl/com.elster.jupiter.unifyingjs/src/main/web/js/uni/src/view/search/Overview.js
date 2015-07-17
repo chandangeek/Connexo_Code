@@ -14,7 +14,8 @@ Ext.define('Uni.view.search.Overview', {
         'Uni.store.search.Removables',
         'Uni.view.search.field.YesNo',
         'Uni.view.search.field.SearchObjectSelector',
-        'Uni.view.search.field.AddCriteriaButton'
+        'Uni.view.search.field.AddCriteriaButton',
+        'Uni.view.search.field.DateRangeField'
     ],
 
     padding: '16 16 16 16',
@@ -64,6 +65,10 @@ Ext.define('Uni.view.search.Overview', {
                                 text: Uni.I18n.translate('search.overview.criteria.label', 'UNI', 'Criteria')
 
                             },
+                            // temp for testing date range field
+                            {
+                                xtype: 'uni-view-search-field-date-range'
+                            },
                             {
                                 xtype: 'container',
                                 itemId: 'stickycriteria',
@@ -74,7 +79,7 @@ Ext.define('Uni.view.search.Overview', {
                                     type: 'column'
                                 }
                             },
-/*                            {
+/*                            { //leaved for integration default field
                                 cellCls: 'search-cell search-last',
                                 xtype: 'combo',
                                 itemId: 'addcriteria',
