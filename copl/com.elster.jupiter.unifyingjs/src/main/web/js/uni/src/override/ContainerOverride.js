@@ -5,10 +5,11 @@ Ext.define('Uni.override.ContainerOverride', {
     override: 'Ext.container.AbstractContainer',
     requires: [
         'Ext.Array',
-        'Uni.Auth'
+        'Uni.Auth',
+        'Uni.DynamicPrivileges'
     ],
 
-    add: function() {
+    add: function () {
         var me = this,
             args = Ext.Array.slice(arguments),
             items;
@@ -20,14 +21,18 @@ Ext.define('Uni.override.ContainerOverride', {
         }
 
         var len = items.length;
-        var i=0;
+        var i = 0;
         var allowedItems = [];
         for (; i < len; i++) {
             var item = items[i];
             if (item != null &&
                 (typeof item.privileges === 'undefined' ||
-                    typeof item.privileges === null ||
-                    Uni.Auth.checkPrivileges(item.privileges))) {
+                    item.privileges === null ||
+                    Uni.Auth.checkPrivileges(item.privileges)) &&
+                (typeof item.dynamicPrivilege === 'undefined' ||
+                    item.dynamicPrivilege === null ||
+                    Uni.DynamicPrivileges.checkDynamicPrivileges(item.dynamicPrivilege))
+                ) {
                 allowedItems.push(item);
             }
         }

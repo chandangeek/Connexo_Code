@@ -245,13 +245,19 @@ Ext.define('Uni.controller.history.Router', {
                     // fire the controller action with this route params as arguments
                     var controller = me.getController(config.controller);
 
+                    var applyAction = function() {
+                        me.fireEvent('routematch', me);
+                        controller[action].apply(controller, routeArguments);
+                    };
+
                     var dispatch = function () {
                         if (!Uni.Auth.checkPrivileges(config.privileges)) {
                             crossroads.parse("/error/notfound");
-                            return;
+                        } else if (config.dynamicPrivilegeStores){
+                            Uni.DynamicPrivileges.loadPage(config.dynamicPrivilegeStores, config.dynamicPrivilege, applyAction, me);
+                        } else {
+                            applyAction();
                         }
-                        me.fireEvent('routematch', me);
-                        controller[action].apply(controller, routeArguments);
                     };
 
                     // load filter
