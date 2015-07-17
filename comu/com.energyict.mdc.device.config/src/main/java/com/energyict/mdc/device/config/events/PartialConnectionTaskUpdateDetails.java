@@ -31,19 +31,19 @@ public interface PartialConnectionTaskUpdateDetails {
     public PartialConnectionTask getPartialConnectionTask();
 
     /**
-     * Gets the list of required properties
-     * that were removed during the update session.
+     * Gets the list of required properties that were
+     * added or removed during the update session.
      *
      * @return The list of required properties
      */
-    public List<String> getRemovedRequiredProperties();
+    public List<String> getAddedOrRemovedRequiredProperties();
 
     /**
      * Gets the comma separated list of required properties
-     * that were removed during the update session.
+     * that were added or removed during the update session.
      *
      * @return The comma separated list of required properties
      */
-    public String getRemovedRequiredPropertiesAsString();
+    public String getAddedOrRemovedRequiredPropertiesAsString();
 
 }

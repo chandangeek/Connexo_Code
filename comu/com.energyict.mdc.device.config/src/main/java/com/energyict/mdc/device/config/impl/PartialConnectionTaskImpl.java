@@ -72,10 +72,10 @@ public abstract class PartialConnectionTaskImpl extends PersistentNamedObject<Pa
     @Valid
     private List<PartialConnectionTaskPropertyImpl> properties = new ArrayList<>();
     /**
-     * Holds the name of all required properties that were removed during
+     * Holds the name of all required properties that were added or removed during
      * an edit session to be published as part of the update event.
      */
-    private List<String> removedRequiredProperties = new ArrayList<>();
+    private List<String> addedOrRemovedRequiredProperties = new ArrayList<>();
     @SuppressWarnings("unused")
     private String userName;
     @SuppressWarnings("unused")
@@ -151,7 +151,15 @@ public abstract class PartialConnectionTaskImpl extends PersistentNamedObject<Pa
         PartialConnectionTaskPropertyImpl property = PartialConnectionTaskPropertyImpl.from(this.getDataModel(), this, key, value);
         Save.CREATE.validate(this.getDataModel(), property);
         properties.add(property);
-        this.removedRequiredProperties.remove(key);
+        if (property.isRequired()) {
+            if (this.addedOrRemovedRequiredProperties.contains(key)) {
+                // The property was removed in the same edit session
+                this.addedOrRemovedRequiredProperties.remove(key);
+            }
+            else {
+                this.addedOrRemovedRequiredProperties.add(key);
+            }
+        }
     }
 
     @Override
@@ -160,7 +168,13 @@ public abstract class PartialConnectionTaskImpl extends PersistentNamedObject<Pa
             PartialConnectionTaskPropertyImpl property = iterator.next();
             if (property.getName().equals(key)) {
                 if (property.isRequired()) {
-                    this.removedRequiredProperties.add(key);
+                    if (this.addedOrRemovedRequiredProperties.contains(key)) {
+                        // The property was added in the same edit session
+                        this.addedOrRemovedRequiredProperties.remove(key);
+                    }
+                    else {
+                        this.addedOrRemovedRequiredProperties.add(key);
+                    }
                 }
                 iterator.remove();
                 return;
@@ -239,12 +253,12 @@ public abstract class PartialConnectionTaskImpl extends PersistentNamedObject<Pa
     @Override
     public void save() {
         super.save();
-        this.removedRequiredProperties.clear();
+        this.addedOrRemovedRequiredProperties.clear();
     }
 
     @Override
     protected Object toUpdateEventSource() {
-        return new PartialConnectionTaskUpdateDetailsImpl(this, this.removedRequiredProperties);
+        return new PartialConnectionTaskUpdateDetailsImpl(this, this.addedOrRemovedRequiredProperties);
     }
 
     public static class HasSpecValidator implements ConstraintValidator<PartialConnectionTaskPropertyMustHaveSpec, PartialConnectionTaskPropertyImpl> {

@@ -18,12 +18,12 @@ import java.util.stream.Collectors;
 public class PartialConnectionTaskUpdateDetailsImpl implements PartialConnectionTaskUpdateDetails {
 
     private final PartialConnectionTask partialConnectionTask;
-    private final List<String> removedRequiredProperties;
+    private final List<String> addedOrRemovedRequiredProperties;
 
-    public PartialConnectionTaskUpdateDetailsImpl(PartialConnectionTask partialConnectionTask, List<String> removedRequiredProperties) {
+    public PartialConnectionTaskUpdateDetailsImpl(PartialConnectionTask partialConnectionTask, List<String> addedOrRemovedRequiredProperties) {
         super();
         this.partialConnectionTask = partialConnectionTask;
-        this.removedRequiredProperties = new ArrayList<>(removedRequiredProperties);
+        this.addedOrRemovedRequiredProperties = new ArrayList<>(addedOrRemovedRequiredProperties);
     }
 
     @Override
@@ -37,13 +37,13 @@ public class PartialConnectionTaskUpdateDetailsImpl implements PartialConnection
     }
 
     @Override
-    public List<String> getRemovedRequiredProperties() {
-        return ImmutableList.copyOf(this.removedRequiredProperties);
+    public List<String> getAddedOrRemovedRequiredProperties() {
+        return ImmutableList.copyOf(this.addedOrRemovedRequiredProperties);
     }
 
     @Override
-    public String getRemovedRequiredPropertiesAsString() {
-        return this.removedRequiredProperties.stream().collect(Collectors.joining(","));
+    public String getAddedOrRemovedRequiredPropertiesAsString() {
+        return this.addedOrRemovedRequiredProperties.stream().collect(Collectors.joining(","));
     }
 
 }

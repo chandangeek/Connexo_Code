@@ -78,13 +78,13 @@ import static org.mockito.Mockito.when;
 
 /**
  * Tests that the appropriate event is published when
- * properties are removed from a PartialConnectionTask.
+ * properties are added/removed from a PartialConnectionTask.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-07-15 (10:23)
  */
 @RunWith(MockitoJUnitRunner.class)
-public class RemovePartialConnectionTaskPropertyTest {
+public class AddRemovePartialConnectionTaskPropertyTest {
 
     private static final String HOST_PROPERTY_SPEC_NAME = "host";
     private static final String PORT_PROPERTY_SPEC_NAME = "port";
@@ -135,7 +135,7 @@ public class RemovePartialConnectionTaskPropertyTest {
     public static void initializeDatabase() throws SQLException {
         initializeStaticMocks();
         Principal principal = mock(Principal.class);
-        when(principal.getName()).thenReturn(RemovePartialConnectionTaskPropertyTest.class.getSimpleName());
+        when(principal.getName()).thenReturn(AddRemovePartialConnectionTaskPropertyTest.class.getSimpleName());
         Injector injector = Guice.createInjector(
                 new MockModule(),
                 bootstrapModule,
@@ -151,6 +151,11 @@ public class RemovePartialConnectionTaskPropertyTest {
             installEventTypes();
             ctx.commit();
         }
+    }
+
+    @AfterClass
+    public static void cleanUpDataBase() throws SQLException {
+        bootstrapModule.deactivate();
     }
 
     private static void installEventTypes() {
@@ -228,6 +233,27 @@ public class RemovePartialConnectionTaskPropertyTest {
 
     @Test
     @Transactional
+    public void testAddRequiredProperty() {
+        PartialScheduledConnectionTaskImpl partialConnectionTask = this.testInstance();
+        partialConnectionTask.setProperty(PORT_PROPERTY_SPEC_NAME, BigDecimal.valueOf(4059L));
+        partialConnectionTask.save();
+        resetAndInitializeJsonService();
+        reset(publisher);
+
+        // Business method
+        partialConnectionTask.setProperty(HOST_PROPERTY_SPEC_NAME, "localhost");
+        partialConnectionTask.save();
+
+        // Asserts
+        ArgumentCaptor<LocalEvent> eventArgumentCaptor = ArgumentCaptor.forClass(LocalEvent.class);
+        verify(publisher).publish(eventArgumentCaptor.capture());
+        LocalEvent localEvent = eventArgumentCaptor.getValue();
+        Event osgiEvent = localEvent.toOsgiEvent();
+        assertThat(osgiEvent.getProperty("addedOrRemovedRequiredProperties")).isEqualTo(HOST_PROPERTY_SPEC_NAME);
+    }
+
+    @Test
+    @Transactional
     public void testRemoveRequiredProperty() {
         PartialScheduledConnectionTaskImpl partialConnectionTask = this.testInstance();
         partialConnectionTask.setProperty(HOST_PROPERTY_SPEC_NAME, "localhost");
@@ -245,12 +271,33 @@ public class RemovePartialConnectionTaskPropertyTest {
         verify(publisher).publish(eventArgumentCaptor.capture());
         LocalEvent localEvent = eventArgumentCaptor.getValue();
         Event osgiEvent = localEvent.toOsgiEvent();
-        assertThat(osgiEvent.getProperty("removedRequiredProperties")).isEqualTo(HOST_PROPERTY_SPEC_NAME);
+        assertThat(osgiEvent.getProperty("addedOrRemovedRequiredProperties")).isEqualTo(HOST_PROPERTY_SPEC_NAME);
     }
 
     @Test
     @Transactional
-    public void testRemoveRequiredProperties() {
+    public void testAddAllRequiredProperties() {
+        PartialScheduledConnectionTaskImpl partialConnectionTask = this.testInstance();
+        partialConnectionTask.save();
+        resetAndInitializeJsonService();
+        reset(publisher);
+
+        // Business method
+        partialConnectionTask.setProperty(HOST_PROPERTY_SPEC_NAME, "localhost");
+        partialConnectionTask.setProperty(PORT_PROPERTY_SPEC_NAME, BigDecimal.valueOf(4059L));
+        partialConnectionTask.save();
+
+        // Asserts
+        ArgumentCaptor<LocalEvent> eventArgumentCaptor = ArgumentCaptor.forClass(LocalEvent.class);
+        verify(publisher).publish(eventArgumentCaptor.capture());
+        LocalEvent localEvent = eventArgumentCaptor.getValue();
+        Event osgiEvent = localEvent.toOsgiEvent();
+        assertThat(osgiEvent.getProperty("addedOrRemovedRequiredProperties")).isEqualTo(HOST_PROPERTY_SPEC_NAME + "," + PORT_PROPERTY_SPEC_NAME);
+    }
+
+    @Test
+    @Transactional
+    public void testRemoveAllRequiredProperties() {
         PartialScheduledConnectionTaskImpl partialConnectionTask = this.testInstance();
         partialConnectionTask.setProperty(HOST_PROPERTY_SPEC_NAME, "localhost");
         partialConnectionTask.setProperty(PORT_PROPERTY_SPEC_NAME, BigDecimal.valueOf(4059L));
@@ -268,7 +315,7 @@ public class RemovePartialConnectionTaskPropertyTest {
         verify(publisher).publish(eventArgumentCaptor.capture());
         LocalEvent localEvent = eventArgumentCaptor.getValue();
         Event osgiEvent = localEvent.toOsgiEvent();
-        assertThat(osgiEvent.getProperty("removedRequiredProperties")).isEqualTo(HOST_PROPERTY_SPEC_NAME + "," + PORT_PROPERTY_SPEC_NAME);
+        assertThat(osgiEvent.getProperty("addedOrRemovedRequiredProperties")).isEqualTo(HOST_PROPERTY_SPEC_NAME + "," + PORT_PROPERTY_SPEC_NAME);
     }
 
     @Test
@@ -293,7 +340,52 @@ public class RemovePartialConnectionTaskPropertyTest {
         verify(publisher).publish(eventArgumentCaptor.capture());
         LocalEvent localEvent = eventArgumentCaptor.getValue();
         Event osgiEvent = localEvent.toOsgiEvent();
-        assertThat(osgiEvent.containsProperty("removedRequiredProperties")).isTrue();
+        assertThat(osgiEvent.getProperty("addedOrRemovedRequiredProperties")).isEqualTo("");
+    }
+
+    @Test
+    @Transactional
+    public void testSetAndRemoveAgainForRequiredProperties() {
+        PartialScheduledConnectionTaskImpl partialConnectionTask = this.testInstance();
+        partialConnectionTask.save();
+        resetAndInitializeJsonService();
+        reset(publisher);
+
+        // Business method
+        partialConnectionTask.setProperty(HOST_PROPERTY_SPEC_NAME, "some.host");
+        partialConnectionTask.removeProperty(HOST_PROPERTY_SPEC_NAME);
+        partialConnectionTask.setProperty(PORT_PROPERTY_SPEC_NAME, BigDecimal.TEN);
+        partialConnectionTask.removeProperty(PORT_PROPERTY_SPEC_NAME);
+        partialConnectionTask.save();
+
+        // Asserts
+        ArgumentCaptor<LocalEvent> eventArgumentCaptor = ArgumentCaptor.forClass(LocalEvent.class);
+        verify(publisher).publish(eventArgumentCaptor.capture());
+        LocalEvent localEvent = eventArgumentCaptor.getValue();
+        Event osgiEvent = localEvent.toOsgiEvent();
+        assertThat(osgiEvent.getProperty("addedOrRemovedRequiredProperties")).isEqualTo("");
+    }
+
+    @Test
+    @Transactional
+    public void testAddOptionalProperty() {
+        PartialScheduledConnectionTaskImpl partialConnectionTask = this.testInstance();
+        partialConnectionTask.setProperty(HOST_PROPERTY_SPEC_NAME, "localhost");
+        partialConnectionTask.setProperty(PORT_PROPERTY_SPEC_NAME, BigDecimal.valueOf(4059L));
+        partialConnectionTask.save();
+        resetAndInitializeJsonService();
+        reset(publisher);
+
+        // Business method
+        partialConnectionTask.setProperty(TIMEOUT_PROPERTY_SPEC_NAME, BigDecimal.ONE);
+        partialConnectionTask.save();
+
+        // Asserts
+        ArgumentCaptor<LocalEvent> eventArgumentCaptor = ArgumentCaptor.forClass(LocalEvent.class);
+        verify(publisher).publish(eventArgumentCaptor.capture());
+        LocalEvent localEvent = eventArgumentCaptor.getValue();
+        Event osgiEvent = localEvent.toOsgiEvent();
+        assertThat(osgiEvent.getProperty("addedOrRemovedRequiredProperties")).isEqualTo("");
     }
 
     @Test
@@ -316,7 +408,30 @@ public class RemovePartialConnectionTaskPropertyTest {
         verify(publisher).publish(eventArgumentCaptor.capture());
         LocalEvent localEvent = eventArgumentCaptor.getValue();
         Event osgiEvent = localEvent.toOsgiEvent();
-        assertThat(osgiEvent.getProperty("removedRequiredProperties")).isEqualTo("");
+        assertThat(osgiEvent.getProperty("addedOrRemovedRequiredProperties")).isEqualTo("");
+    }
+
+    @Test
+    @Transactional
+    public void testSetAndRemoveAgainForOptionalProperty() {
+        PartialScheduledConnectionTaskImpl partialConnectionTask = this.testInstance();
+        partialConnectionTask.setProperty(HOST_PROPERTY_SPEC_NAME, "localhost");
+        partialConnectionTask.setProperty(PORT_PROPERTY_SPEC_NAME, BigDecimal.valueOf(4059L));
+        partialConnectionTask.save();
+        resetAndInitializeJsonService();
+        reset(publisher);
+
+        // Business method
+        partialConnectionTask.setProperty(TIMEOUT_PROPERTY_SPEC_NAME, BigDecimal.TEN);
+        partialConnectionTask.removeProperty(TIMEOUT_PROPERTY_SPEC_NAME);
+        partialConnectionTask.save();
+
+        // Asserts
+        ArgumentCaptor<LocalEvent> eventArgumentCaptor = ArgumentCaptor.forClass(LocalEvent.class);
+        verify(publisher).publish(eventArgumentCaptor.capture());
+        LocalEvent localEvent = eventArgumentCaptor.getValue();
+        Event osgiEvent = localEvent.toOsgiEvent();
+        assertThat(osgiEvent.getProperty("addedOrRemovedRequiredProperties")).isEqualTo("");
     }
 
     @Test
@@ -340,7 +455,7 @@ public class RemovePartialConnectionTaskPropertyTest {
         verify(publisher).publish(eventArgumentCaptor.capture());
         LocalEvent localEvent = eventArgumentCaptor.getValue();
         Event osgiEvent = localEvent.toOsgiEvent();
-        assertThat(osgiEvent.getProperty("removedRequiredProperties")).isEqualTo("");
+        assertThat(osgiEvent.getProperty("addedOrRemovedRequiredProperties")).isEqualTo("");
     }
 
     private PartialScheduledConnectionTaskImpl testInstance() {
@@ -350,7 +465,7 @@ public class RemovePartialConnectionTaskPropertyTest {
     }
 
     private PartialScheduledConnectionTaskImpl newInstanceFromDataModel() {
-        PartialScheduledConnectionTaskImpl partialConnectionTask = new PartialScheduledConnectionTaskImpl(this.dataModel, eventService, this.thesaurus, this.protocolPluggableService, this.schedulingService);
+        PartialScheduledConnectionTaskImpl partialConnectionTask = new PartialScheduledConnectionTaskImpl(this.dataModel, eventService, thesaurus, this.protocolPluggableService, this.schedulingService);
         partialConnectionTask.setId(FIXED_ID);
         return partialConnectionTask;
     }

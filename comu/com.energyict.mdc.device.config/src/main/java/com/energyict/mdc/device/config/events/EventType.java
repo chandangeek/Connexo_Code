@@ -163,7 +163,7 @@ public enum EventType {
         @Override
         protected EventTypeBuilder addCustomProperties(EventTypeBuilder eventTypeBuilder) {
             super.addCustomProperties(eventTypeBuilder);
-            eventTypeBuilder.withProperty("removedRequiredProperties", ValueType.STRING, "removedRequiredPropertiesAsString");
+            eventTypeBuilder.withProperty("addedOrRemovedRequiredProperties", ValueType.STRING, "addedOrRemovedRequiredPropertiesAsString");
             return eventTypeBuilder;
         }
     },
@@ -174,7 +174,7 @@ public enum EventType {
         @Override
         protected EventTypeBuilder addCustomProperties(EventTypeBuilder eventTypeBuilder) {
             super.addCustomProperties(eventTypeBuilder);
-            eventTypeBuilder.withProperty("removedRequiredProperties", ValueType.STRING, "removedRequiredPropertiesAsString");
+            eventTypeBuilder.withProperty("addedOrRemovedRequiredProperties", ValueType.STRING, "addedOrRemovedRequiredPropertiesAsString");
             return eventTypeBuilder;
         }
     },
@@ -185,7 +185,7 @@ public enum EventType {
         @Override
         protected EventTypeBuilder addCustomProperties(EventTypeBuilder eventTypeBuilder) {
             super.addCustomProperties(eventTypeBuilder);
-            eventTypeBuilder.withProperty("removedRequiredProperties", ValueType.STRING, "removedRequiredPropertiesAsString");
+            eventTypeBuilder.withProperty("addedOrRemovedRequiredProperties", ValueType.STRING, "addedOrRemovedRequiredPropertiesAsString");
             return eventTypeBuilder;
         }
     },
