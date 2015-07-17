@@ -63,12 +63,12 @@ Ext.define('Cfg.view.validation.SideFilter', {
                     dock: 'bottom',
                     items: [
                         {
-                            text: Uni.I18n.translate('connection.widget.sideFilter.apply', 'DSH', 'Apply'),
+                            text: Uni.I18n.translate('validationTasks.connection.widget.sideFilter.apply', 'CFG', 'Apply'),
                             ui: 'action',
                             action: 'applyfilter'
                         },
                         {
-                            text: Uni.I18n.translate('connection.widget.sideFilter.clearAll', 'DSH', 'Clear all'),
+                            text: Uni.I18n.translate('validationTasks.connection.widget.sideFilter.clearAll', 'CFG', 'Clear all'),
                             action: 'clearfilter'
                         }
                     ]
