@@ -1,18 +1,14 @@
 package com.energyict.mdc.app.impl;
 
 import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.HasName;
 import com.energyict.mdc.app.MdcAppService;
-
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 /**
  * Copyrights EnergyICT
@@ -53,22 +49,26 @@ public class MdcAppInstaller implements InstallService {
     }
 
     private void assignPrivilegesToDefaultRoles() {
-        List<Privilege> availablePrivileges =  getApplicationPrivileges();
-        String[] privilegesWithoutReports = availablePrivileges.stream().map(HasName::getName).filter(p -> !p.equals(com.elster.jupiter.yellowfin.security.Privileges.VIEW_REPORTS)).toArray(String[]::new);
-        String[] privilegesMeterOperator = getPrivilegesMeterOperator();
+        String[] privilegesMeterExpert =  getPrivilegesMeterExpert();
 
-        userService.grantGroupWithPrivilege(MdcAppService.Roles.METER_OPERATOR.value(), MdcAppService.APPLICATION_KEY, privilegesMeterOperator);
-        userService.grantGroupWithPrivilege(MdcAppService.Roles.METER_EXPERT.value(), MdcAppService.APPLICATION_KEY, privilegesWithoutReports);
-        userService.grantGroupWithPrivilege(UserService.BATCH_EXECUTOR_ROLE, MdcAppService.APPLICATION_KEY, privilegesWithoutReports);
-        userService.grantGroupWithPrivilege(MdcAppService.Roles.REPORT_VIEWER.value(), MdcAppService.APPLICATION_KEY, availablePrivileges.stream().map(HasName::getName).filter(p -> p.equals(com.elster.jupiter.yellowfin.security.Privileges.VIEW_REPORTS)).toArray(String[]::new));
+        userService.grantGroupWithPrivilege(MdcAppService.Roles.METER_OPERATOR.value(), MdcAppService.APPLICATION_KEY, getPrivilegesMeterOperator());
+        userService.grantGroupWithPrivilege(MdcAppService.Roles.METER_EXPERT.value(), MdcAppService.APPLICATION_KEY, privilegesMeterExpert);
+        userService.grantGroupWithPrivilege(UserService.BATCH_EXECUTOR_ROLE, MdcAppService.APPLICATION_KEY, privilegesMeterExpert);
+        userService.grantGroupWithPrivilege(MdcAppService.Roles.REPORT_VIEWER.value(), MdcAppService.APPLICATION_KEY, getPrivilegesReportViewer());
         //TODO: workaround: attached Meter expert to user admin !!! to remove this line when the user can be created/added to system
         userService.getUser(1).ifPresent(u -> u.join(userService.getGroups().stream().filter(e -> e.getName().equals(MdcAppService.Roles.METER_EXPERT.value())).findFirst().get()));
         //TODO: workaround: attached Report viewer to user admin !!! to remove this line when the user can be created/added to system
         userService.getUser(1).ifPresent(u -> u.join(userService.getGroups().stream().filter(e -> e.getName().equals(MdcAppService.Roles.REPORT_VIEWER.value())).findFirst().get()));
     }
 
-    private List<Privilege> getApplicationPrivileges() {
-        return userService.getPrivileges(MdcAppService.APPLICATION_KEY);
+    private String[] getPrivilegesMeterExpert() {
+        return MdcAppPrivileges.getApplicationPrivileges().stream().filter(p -> !p.equals(com.elster.jupiter.yellowfin.security.Privileges.VIEW_REPORTS)).toArray(String[]::new);
+    }
+
+    private String[] getPrivilegesReportViewer() {
+        return new String[]{
+                com.elster.jupiter.yellowfin.security.Privileges.VIEW_REPORTS
+        };
     }
 
     private String[] getPrivilegesMeterOperator(){
