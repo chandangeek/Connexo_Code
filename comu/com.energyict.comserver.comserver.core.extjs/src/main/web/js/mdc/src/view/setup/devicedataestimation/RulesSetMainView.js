@@ -56,7 +56,8 @@ Ext.define('Mdc.view.setup.devicedataestimation.RulesSetMainView', {
                                         xtype: 'button',
                                         itemId: 'deviceDataEstimationStateChangeBtn',
                                         action: '',
-                                        privileges: Mdc.privileges.DeviceConfigurationEstimations.viewfineTuneEstimationConfigurationOnDevice
+                                        privileges: Mdc.privileges.DeviceConfigurationEstimations.viewfineTuneEstimationConfigurationOnDevice,
+                                        dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.estimationActions
                                     }
                                 ]
                             }
@@ -81,13 +82,6 @@ Ext.define('Mdc.view.setup.devicedataestimation.RulesSetMainView', {
                                     reasons: [
                                         Uni.I18n.translate('estimationDevice.rulesSetGrid.emptyCmp.item1', 'MDC', 'No estimation rule sets have been defined yet'),
                                         Uni.I18n.translate('estimationDevice.rulesSetGrid.emptyCmp.item2', 'MDC', 'Estimation rule sets exist, but you do not have permission to view them')
-                                    ],
-                                    stepItems: [
-                                        {
-                                            text: Uni.I18n.translate('estimationDevice.addRuleSet', 'MDC', 'Add estimation rule set'),
-                                            itemId: 'add-estimation-rule-set',
-                                            href: me.router.getRoute('administration/estimationrulesets/addruleset').buildUrl({}, {previousRoute: me.router.getRoute().buildUrl()})
-                                        }
                                     ]
                                 },
                                 previewComponent: {

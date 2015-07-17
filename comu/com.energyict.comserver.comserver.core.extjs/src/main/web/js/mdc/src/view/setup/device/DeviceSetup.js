@@ -255,7 +255,8 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                     {
                         xtype: 'deviceCommunicationTopologyPanel',
                         privileges: Mdc.privileges.Device.deviceOperator,
-                        router: me.router
+                        router: me.router,
+                        dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.topologyWidget
                     }
                 ]
             },
@@ -276,12 +277,14 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                     {
                         xtype: 'deviceOpenIssuesPanel',
                         privileges: Isu.privileges.Issue.viewAdminDevice,
-                        router: me.router
+                        router: me.router,
+                        dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.issuesWidget
                     },
                     {
                         xtype: 'device-data-validation-panel',
                         privileges: Cfg.privileges.Validation.fineTuneOnDevice,
-                        mRID: me.device.get('mRID')
+                        mRID: me.device.get('mRID'),
+                        dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.validationWidget
                     }
                 ]
             },
@@ -289,6 +292,7 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                 xtype: 'panel',
                 privileges: Mdc.privileges.Device.deviceOperator,
                 itemId: 'device-connections-panel',
+                dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.connectionWidget,
                 style: {
                     marginRight: '20px',
                     marginTop: '20px'
@@ -313,6 +317,7 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                 xtype: 'panel',
                 privileges: Mdc.privileges.Device.deviceOperator,
                 itemId: 'device-communications-panel',
+                dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.communicationTasksWidget,
                 style: {
                     marginRight: '20px',
                     marginTop: '20px'

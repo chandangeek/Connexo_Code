@@ -199,6 +199,8 @@ Ext.define('Mdc.controller.setup.Devices', {
         transitionsStore.getProxy().setUrl(mRID);
         attributesModel.getProxy().setUrl(mRID);
 
+//        me.getController('Mdc.stateprivileges.controller.DeviceStatePrivileges').loadRestrictions();
+
         Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
             success: function (device) {
                 me.getApplication().fireEvent('loadDevice', device);
@@ -223,11 +225,11 @@ Ext.define('Mdc.controller.setup.Devices', {
                         me.getDeviceGeneralInformationForm().loadRecord(attributes);
                     }
                 });
-                me.getDeviceCommunicationTopologyPanel().setRecord(device);
-                me.getDeviceOpenIssuesPanel().setDataCollectionIssues(device);
-                me.getDeviceDataValidationPanel().setValidationResult();
+                !!me.getDeviceCommunicationTopologyPanel() && me.getDeviceCommunicationTopologyPanel().setRecord(device);
+                !!me.getDeviceOpenIssuesPanel() && me.getDeviceOpenIssuesPanel().setDataCollectionIssues(device);
+                !!me.getDeviceDataValidationPanel() && me.getDeviceDataValidationPanel().setValidationResult();
 
-                me.getDeviceValidationResultFieldLink().getEl().set({href: '#/devices/' + mRID + '/validationresults/data'});
+                !!me.getDeviceValidationResultFieldLink() && me.getDeviceValidationResultFieldLink().getEl().set({href: '#/devices/' + mRID + '/validationresults/data'});
 
                 if ((device.get('hasLoadProfiles') || device.get('hasLogBooks') || device.get('hasRegisters'))
                     && Cfg.privileges.Validation.canUpdateDeviceValidation()) {
@@ -256,7 +258,7 @@ Ext.define('Mdc.controller.setup.Devices', {
         lastUpdateField.update('Last updated at ' + Uni.DateTime.formatTimeShort(new Date()));
         deviceConnectionsStore.load(function (records) {
             if (!widget.isDestroyed) {
-                widget.down('#connectionslist').setTitle(Ext.String.format(Uni.I18n.translate('device.connections.title', 'MDC', 'Connections ({0})'), records.length));
+                !!widget.down('#connectionslist') && widget.down('#connectionslist').setTitle(Ext.String.format(Uni.I18n.translate('device.connections.title', 'MDC', 'Connections ({0})'), records.length));
             }
         });
     },
@@ -271,7 +273,7 @@ Ext.define('Mdc.controller.setup.Devices', {
         lastUpdateField.update('Last updated at ' + Uni.DateTime.formatTimeShort(new Date()));
         deviceCommunicationsStore.load(function (records) {
             if (!widget.isDestroyed) {
-                widget.down('#communicationslist').setTitle(Ext.String.format(Uni.I18n.translate('device.communicationTasks.title', 'MDC', 'Communication tasks ({0})'), records.length));
+                !!widget.down('#communicationslist') && widget.down('#communicationslist').setTitle(Ext.String.format(Uni.I18n.translate('device.communicationTasks.title', 'MDC', 'Communication tasks ({0})'), records.length));
             }
         });
     },

@@ -20,9 +20,9 @@ Ext.define('Mdc.controller.setup.DeviceDataValidation', {
         {ref: 'rulesSetPreviewCt', selector: '#deviceDataValidationRulesSetPreviewCt'},
         {ref: 'rulePreview', selector: '#deviceDataValidationRulePreview'},
         {ref: 'changeRuleSetStateActionMenuItem', selector: '#changeRuleSetStateActionMenuItem'},
-        {ref: 'ruleSetVersionsGrid', selector:'#deviceDataValidationRuleSetVersionsGrid'},
+        {ref: 'ruleSetVersionsGrid', selector: '#deviceDataValidationRuleSetVersionsGrid'},
         {ref: 'rulesSetVersionPreviewCt', selector: '#deviceDataValidationRuleSetVersionsPreviewCt'},
-        {ref: 'ruleSetVersionsPreview', selector:'#deviceDataValidationRulesSetVersionPreview'}
+        {ref: 'ruleSetVersionsPreview', selector: '#deviceDataValidationRulesSetVersionPreview'}
     ],
     mRID: null,
     ruleSetId: null,
@@ -101,19 +101,19 @@ Ext.define('Mdc.controller.setup.DeviceDataValidation', {
             });
         this.getRulesSetPreviewCt().add(rulesSetPreview);
         var menuItem = this.getChangeRuleSetStateActionMenuItem();
-        menuItem.setText(validationRuleSet.get('isActive') ?
-            Uni.I18n.translate('general.deactivate', 'MDC', 'Deactivate') :
-            Uni.I18n.translate('general.activate', 'MDC', 'Activate'))
+        if (!!menuItem) {
+            menuItem.setText(validationRuleSet.get('isActive') ?
+                Uni.I18n.translate('general.deactivate', 'MDC', 'Deactivate') :
+                Uni.I18n.translate('general.activate', 'MDC', 'Activate'))
+        }
     },
-
-
 
 
     onRulesSetVersionGridAfterRender: function (grid) {
         var me = this,
-			ruleSetId = this.getRulesSetGrid().getSelectionModel().getLastSelected().get('id');
-		
-		grid.store.getProxy().setExtraParam('ruleSetId',ruleSetId);
+            ruleSetId = this.getRulesSetGrid().getSelectionModel().getLastSelected().get('id');
+
+        grid.store.getProxy().setExtraParam('ruleSetId', ruleSetId);
 
 
         grid.store.load({
@@ -121,9 +121,9 @@ Ext.define('Mdc.controller.setup.DeviceDataValidation', {
             callback: function () {
 
                 var rec = grid.store.find('status', 'CURRENT');
-                if ((rec>=0)|| (me.getView())) {
+                if ((rec >= 0) || (me.getView())) {
                     grid.getSelectionModel().select(rec);
-                }else{
+                } else {
                     grid.getSelectionModel().doSelect(0);
                 }
             }
@@ -144,8 +144,8 @@ Ext.define('Mdc.controller.setup.DeviceDataValidation', {
         var ruleSetId = this.getRulesSetGrid().getSelectionModel().getLastSelected().get('id');
         var versionId = this.getRuleSetVersionsGrid().getSelectionModel().getLastSelected().get('id');
 
-        grid.store.getProxy().setExtraParam('ruleSetId',ruleSetId);
-        grid.store.getProxy().setExtraParam('versionId',versionId);
+        grid.store.getProxy().setExtraParam('ruleSetId', ruleSetId);
+        grid.store.getProxy().setExtraParam('versionId', versionId);
         //var versionId = this.getRuleSetVersionsGrid().getSelectionModel().getLastSelected().get('id');
         grid.store.load({
             ruleSetId: ruleSetId,
