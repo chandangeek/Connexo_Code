@@ -100,6 +100,8 @@ Ext.define('Dxp.controller.Tasks', {
     readingTypesArray: null,
     destinationsArray: [],
 
+    destinationToEdit: null,
+
     init: function () {
         this.control({
             'data-export-tasks-add #recurrence-trigger': {
@@ -127,7 +129,7 @@ Ext.define('Dxp.controller.Tasks', {
                 click: this.addDestinationToGrid
             },
             'data-export-add-destination #cancel-add-destination-link': {
-                click: this.forwardToPreviousPage
+                click: this.cancelAddDestination
             },
             'data-export-tasks-add #file-formatter-combo': {
                 change: this.updateProperties
@@ -167,6 +169,11 @@ Ext.define('Dxp.controller.Tasks', {
                 selectionchange: this.onSelectionChange
             }
         });
+    },
+
+    cancelAddDestination: function() {
+        //add the old one again, it was removed before the edit (edit = remove + add new)
+        this.doAddDestinationToGrid();
     },
 
     showDataExportTasks: function () {
@@ -326,8 +333,32 @@ Ext.define('Dxp.controller.Tasks', {
             view = Ext.create('Dxp.view.tasks.AddDestination');
         me.getApplication().fireEvent('changecontentevent', view);
 
-        view.down('#destination-methods-combo').setValue('FILE');
+        if (me.destinationToEdit) {
+            view.down('#save-destination-button').setText(Uni.I18n.translate('general.save', 'DES', 'Save'));
+            view.down('#add-destination-form').setTitle(Uni.I18n.translate('dataExport.editDestination', 'DES', 'Edit destination'));
+            me.showAllDestinationAttributes(false);
+            var type = me.destinationToEdit.get('type');
+            if (type == 'FILE') {
+                me.showFileDestinationAttributes(true);
+                view.down('#destination-methods-combo').setValue('FILE');
+                view.down('#destination-file-name').setValue(me.destinationToEdit.get('fileName'));
+                view.down('#destination-file-extension').setValue(me.destinationToEdit.get('fileExtension'));
+                view.down('#destination-file-location').setValue(me.destinationToEdit.get('fileLocation'));
+            } else if (type == 'EMAIL') {
+                me.showMailDestinationAttributes(true);
+                view.down('#destination-methods-combo').setValue('EMAIL');
+                view.down('#destination-recipients').setValue(me.destinationToEdit.get('recipients'));
+                view.down('#destination-subject').setValue(me.destinationToEdit.get('subject'));
+                view.down('#destination-attachment-name').setValue(me.destinationToEdit.get('fileName'));
+                view.down('#destination-attachment-extension').setValue(me.destinationToEdit.get('fileExtension'));
+            }
+        } else {
+            view.down('#destination-methods-combo').setValue('FILE');
+        }
     },
+
+
+
 
     showAllDestinationAttributes: function(visible) {
         this.showFileDestinationAttributes(visible);
@@ -615,15 +646,20 @@ Ext.define('Dxp.controller.Tasks', {
     },
 
     chooseDestinationAction: function (menu, item) {
+        var me = this;
         switch (item.action) {
             case 'removeDestination':
-                var me = this,
-                    page = me.getAddPage(),
+                var page = me.getAddPage(),
                     destinationsGrid = page.down('#task-destinations-grid');
                 destinationsGrid.getStore().remove(menu.record);
                 break;
             case 'editDestination':
-                //;
+                me.destinationToEdit = menu.record;
+                var page = me.getAddPage(),
+                    destinationsGrid = page.down('#task-destinations-grid');
+                // edit = remove + add new
+                destinationsGrid.getStore().remove(menu.record);
+                me.showAddDestination();
                 break;
         }
 
@@ -892,47 +928,62 @@ Ext.define('Dxp.controller.Tasks', {
         me.forwardToPreviousPage();
     },
 
-
     addDestinationToGrid: function(button) {
         var me = this;
-        var page = me.getAddDestinationPage();
-        var form = page.down('#add-destination-form');
-        var formErrorsPanel = form.down('#form-errors');
-        var destinationModel;
-        if (form.isValid()) {
-            var formValues = form.getForm().getValues();
-            if (formValues['method'] === 'FILE') {
-                //tooltip & method duplicated from destination model, have not found another way!
-                destinationModel = Ext.create('Dxp.model.Destination', {
-                    type: 'FILE',
-                    fileName: formValues['fileName'],
-                    fileExtension: formValues['fileExtension'],
-                    fileLocation: formValues['fileLocation'],
-                    method: Uni.I18n.translate('dataExportdestinations.saveFile', 'DES', 'Save file'),
-                    destination:  formValues['fileLocation'] + '/' + formValues['fileName'] + '.' + formValues['fileExtension'],
-                    tooltiptext: Uni.I18n.translate('dataExportdestinations.fileLocation', 'DES', 'File location') + ': ' + formValues['fileLocation'] + '&lt;br/&gt;' +
+        me.destinationToEdit = null;
+        me.doAddDestinationToGrid(button)  ;
+    },
+
+
+    doAddDestinationToGrid: function(button) {
+        var me = this;
+        //edit destination was cancelled, add the old one again
+        if (me.destinationToEdit) {
+            me.destinationsArray.push(me.destinationToEdit);
+            me.destinationToEdit = null;
+            me.forwardToPreviousPage();
+        } else {
+            var page = me.getAddDestinationPage();
+            var form = page.down('#add-destination-form');
+            var formErrorsPanel = form.down('#form-errors');
+            var destinationModel;
+            if (form.isValid()) {
+                var formValues = form.getForm().getValues();
+                if (formValues['method'] === 'FILE') {
+                    //tooltip & method duplicated from destination model, have not found another way!
+                    destinationModel = Ext.create('Dxp.model.Destination', {
+                        type: 'FILE',
+                        fileName: formValues['fileName'],
+                        fileExtension: formValues['fileExtension'],
+                        fileLocation: formValues['fileLocation'],
+                        method: Uni.I18n.translate('dataExportdestinations.saveFile', 'DES', 'Save file'),
+                        destination: formValues['fileLocation'] + '/' + formValues['fileName'] + '.' + formValues['fileExtension'],
+                        tooltiptext: Uni.I18n.translate('dataExportdestinations.fileLocation', 'DES', 'File location') + ': ' + formValues['fileLocation'] + '&lt;br/&gt;' +
                         Uni.I18n.translate('dataExportdestinations.fileName', 'DES', 'File name') + ': ' + formValues['fileName'] + '&lt;br/&gt;' +
                         Uni.I18n.translate('dataExportdestinations.fileExtension', 'DES', 'File extension') + ': ' + formValues['fileExtension']
-                })
-            } else if (formValues['method'] === 'EMAIL') {
-                destinationModel = Ext.create('Dxp.model.Destination', {
-                    type: 'EMAIL',
-                    fileName: formValues['attachmentName'],
-                    fileExtension: formValues['attachmentExtension'],
-                    recipients: formValues['recipients'],
-                    subject: formValues['subject'],
-                    method: Uni.I18n.translate('dataExportdestinations.email', 'DES', 'Email'),
-                    destination: formValues['recipients'],
-                    tooltiptext: Uni.I18n.translate('dataExportdestinations.recipients', 'DES', 'Recipients') + ': ' + formValues['recipients'] + '&lt;br/&gt;' +
+                    })
+                } else if (formValues['method'] === 'EMAIL') {
+                    destinationModel = Ext.create('Dxp.model.Destination', {
+                        type: 'EMAIL',
+                        fileName: formValues['attachmentName'],
+                        fileExtension: formValues['attachmentExtension'],
+                        recipients: formValues['recipients'],
+                        subject: formValues['subject'],
+                        method: Uni.I18n.translate('dataExportdestinations.email', 'DES', 'Email'),
+                        destination: formValues['recipients'],
+                        tooltiptext: Uni.I18n.translate('dataExportdestinations.recipients', 'DES', 'Recipients') + ': ' + formValues['recipients'] + '&lt;br/&gt;' +
                         Uni.I18n.translate('dataExportdestinations.subject', 'DES', 'Subject') + ': ' + formValues['subject'] + '&lt;br/&gt;' +
                         Uni.I18n.translate('dataExportdestinations.fileName', 'DES', 'File name') + ': ' + formValues['attachmentName'] + '&lt;br/&gt;' +
                         Uni.I18n.translate('dataExportdestinations.fileExtension', 'DES', 'File extension') + ': ' + formValues['attachmentExtension']
-                })
+                    })
+                }
+                me.destinationsArray.push(destinationModel);
+                me.forwardToPreviousPage();
             }
-            me.destinationsArray.push(destinationModel);
-            me.forwardToPreviousPage();
-        } else {
+            else
+            {
             formErrorsPanel.show();
+            }
         }
     },
 

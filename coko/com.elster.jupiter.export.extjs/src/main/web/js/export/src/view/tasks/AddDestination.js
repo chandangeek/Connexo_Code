@@ -23,7 +23,7 @@ Ext.define('Dxp.view.tasks.AddDestination', {
         me.content = [
             {
                 xtype: 'form',
-                title: Uni.I18n.translate('general.addDataExportTask', 'DES', 'Add destination'),
+                title: Uni.I18n.translate('dataExport.addDestination', 'DES', 'Add destination'),
                 itemId: 'add-destination-form',
                 ui: 'large',
                 width: '100%',
