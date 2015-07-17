@@ -94,10 +94,17 @@ Ext.define('Dsh.controller.Connections', {
     showOverview: function () {
         var me = this,
             widget = Ext.widget('connections-details'),
+            commPanel = me.getCommunicationsPanel(),
             store = me.getStore('Dsh.store.ConnectionTasks');
 
         me.getApplication().fireEvent('changecontentevent', widget);
         store.load();
+        store.on('load', function(records, operation, success) {
+            debugger;
+            if (success && records.data.length === 0) {
+                commPanel.hide();
+            }
+        });
     },
 
     onCommunicationSelectionChange: function (grid, selected) {
@@ -107,16 +114,20 @@ Ext.define('Dsh.controller.Connections', {
             preview = me.getCommunicationPreview(),
             menuItems = [];
 
-        commPanel.show();
-        record.data.devConfig = {
-            config: record.data.deviceConfiguration,
-            devType: record.data.deviceType
-        };
+        if (!_.isEmpty(record)) {
+            commPanel.show();
+            record.data.devConfig = {
+                config: record.data.deviceConfiguration,
+                devType: record.data.deviceType
+            };
 
-        record.data.title = record.data.comTask.name + ' on ' + record.data.device.name;
-        preview.setTitle(record.data.title);
-        preview.loadRecord(record);
-        me.initMenu(record, menuItems);
+            record.data.title = Ext.String.format(
+                Uni.I18n.translate('connection.widget.details.title.methodX.on.deviceY', 'DSH', '{0} on {1}'),
+                record.data.comTask.name, record.data.device.name);
+            preview.setTitle(record.data.title);
+            preview.loadRecord(record);
+            me.initMenu(record, menuItems);
+        }
     },
 
     initMenu: function (record, menuItems) {
