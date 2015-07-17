@@ -158,7 +158,7 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
 
     private Group mockUserGroup(long id, String name) {
         Group mock = mock(Group.class);
-        when(mock.hasPrivilege(Matchers.<String>anyObject())).thenReturn(true);
+        when(mock.hasPrivilege(Matchers.matches("MDC"), Matchers.<String>anyObject())).thenReturn(true);
         when(mock.getName()).thenReturn(name);
         when(mock.getId()).thenReturn(id);
         return mock;
@@ -166,7 +166,7 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
 
     private Group mockUserGroup(long id, String name, List<String> privileges) {
         Group mock = mock(Group.class);
-        when(mock.hasPrivilege(Matchers.<String>anyObject())).then(invocationOnMock -> privileges.contains(invocationOnMock.getArguments()[0]));
+        when(mock.hasPrivilege(Matchers.matches("MDC"), Matchers.<String>anyObject())).then(invocationOnMock -> privileges.contains(invocationOnMock.getArguments()[1]));
         when(mock.getName()).thenReturn(name);
         when(mock.getId()).thenReturn(id);
         return mock;
