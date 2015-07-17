@@ -186,7 +186,7 @@ enum TableSpecs {
             table.column("ATTACHMENTEXTENSION").varChar(Table.NAME_LENGTH).map("attachmentExtension").add();
 
             table.column("SERVER").varChar(Table.DESCRIPTION_LENGTH).map("server").add();
-            table.column("USER").varChar(Table.DESCRIPTION_LENGTH).map("user").add();
+            table.column("USERID").varChar(Table.DESCRIPTION_LENGTH).map("user").add();
             table.column("PASSWORD").varChar(Table.DESCRIPTION_LENGTH).map("password").add();
 
             table.addAuditColumns();
