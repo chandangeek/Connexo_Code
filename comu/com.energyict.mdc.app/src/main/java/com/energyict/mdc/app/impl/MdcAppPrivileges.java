@@ -17,6 +17,13 @@ class MdcAppPrivileges {
                 com.elster.jupiter.validation.security.Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE,
                 com.elster.jupiter.validation.security.Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION,
 
+                //export
+                com.elster.jupiter.export.security.Privileges.ADMINISTRATE_DATA_EXPORT_TASK,
+                com.elster.jupiter.export.security.Privileges.VIEW_DATA_EXPORT_TASK,
+                com.elster.jupiter.export.security.Privileges.UPDATE_DATA_EXPORT_TASK,
+                com.elster.jupiter.export.security.Privileges.UPDATE_SCHEDULE_DATA_EXPORT_TASK,
+                com.elster.jupiter.export.security.Privileges.RUN_DATA_EXPORT_TASK,
+
                 //issue
                 com.elster.jupiter.issue.security.Privileges.ACTION_ISSUE,
                 com.elster.jupiter.issue.security.Privileges.ASSIGN_ISSUE,
