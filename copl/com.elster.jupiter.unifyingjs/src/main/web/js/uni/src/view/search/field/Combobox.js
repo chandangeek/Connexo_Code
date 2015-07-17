@@ -123,6 +123,7 @@ Ext.define('Uni.view.search.field.Combobox', {
                         this.select(_.intersection(this.getStore().getRange(),selection.getRange()), true, true);
                         this.updateHeaderState();
                     },
+
                     listeners: {
                         beforeselect: function(s, record) {
                             selection.add(record);
@@ -178,31 +179,69 @@ Ext.define('Uni.view.search.field.Combobox', {
                                     text: '='
                                 },
                                 {
-                                    itemId: 'filter-valid',
-                                    text: 'v'
-                                },
-                                {
-                                    itemId: 'filter-input',
-                                    xtype: 'textfield',
+                                    xtype: 'fieldset',
+                                    layout: 'hbox',
                                     flex: 1,
-                                    listeners: {
-                                        change: function (elm, value) {
-                                            var store = me.picker.getStore();
-                                            store.clearFilter(true);
-                                            store.filter(me.displayField, value);
-                                            me.picker.down('#filter-clear').setVisible(!!value);
+                                    padding: 0,
+                                    style: {
+                                        borderRadius: '5px'
+                                    },
+                                    tooltip: 'Specify filter to narrow down selection list. Maximum 100 records are displayed.',
+                                    items: [
+                                        {
+                                            xtype: 'button',
+                                            itemId: 'filter-valid',
+                                            iconCls: 'icon icon-checkbox',
+                                            style: {
+                                                fontSize: '16px'
+                                            },
+                                            padding: 4,
+                                            margin: 0,
+                                            tooltip: 'Filter all selectd values',
+                                            ui: 'plain',
+                                            handler: function () {
+                                                var store = me.picker.getStore();
+                                                store.clearFilter(true);
+                                                store.filter({
+                                                    filterFn: function(item) { return selection.getRange().indexOf(item) >= 0; }
+                                                });
+                                            }
+                                        },
+                                        {
+                                            itemId: 'filter-input',
+                                            xtype: 'textfield',
+                                            flex: 1,
+                                            fieldStyle: {
+                                                border: 0,
+                                                margin: 0
+                                            },
+                                            listeners: {
+                                                change: function (elm, value) {
+                                                    var store = me.picker.getStore();
+                                                    store.clearFilter(true);
+                                                    store.filter(me.displayField, new RegExp(value));
+                                                    me.picker.down('#filter-clear').setVisible(!!value);
+                                                }
+                                            }
+                                        },
+                                        {
+                                            xtype: 'button',
+                                            itemId: 'filter-clear',
+                                            hidden: true,
+                                            ui: 'plain',
+                                            iconCls: ' icon-close4',
+                                            padding: 4,
+                                            margin: 0,
+                                            style: {
+                                                fontSize: '16px'
+                                            },
+                                            listeners: {
+                                                click: function () {
+                                                    me.picker.down('#filter-input').reset();
+                                                }
+                                            }
                                         }
-                                    }
-                                },
-                                {
-                                    itemId: 'filter-clear',
-                                    hidden: true,
-                                    text: 'x',
-                                    listeners: {
-                                        click: function () {
-                                            me.picker.down('#filter-input').reset();
-                                        }
-                                    }
+                                    ]
                                 }
                             ]
                         },
