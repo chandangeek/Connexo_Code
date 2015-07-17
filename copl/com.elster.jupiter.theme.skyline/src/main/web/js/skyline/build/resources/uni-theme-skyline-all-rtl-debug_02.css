@@ -7980,6 +7980,17 @@ body.login .x-panel-login .x-field-error .x-form-display-field {
   margin: 7px 0px 0px 9px !important;
 }
 
+/* line 53, ../../sass/src/container/Search.scss */
+.x-toolbar {
+  background-color: #71adc7 !important;
+}
+
+/* line 56, ../../sass/src/container/Search.scss */
+.x-spacers {
+  background-color: #71adc7 !important;
+  border-color: #71adc7 !important;
+}
+
 /* line 3, ../../sass/src/LoadMask.scss */
 .x-panel .x-mask {
   background: white !important;

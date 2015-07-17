@@ -1,3 +1,11 @@
+/* line 418, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
+.x-panel-header-tile-collapsed-bottom-ml,
+.x-panel-header-tile-collapsed-bottom-mr {
+  zoom: 1;
+  background-image: url(images/panel-header/panel-header-tile-collapsed-bottom-sides.gif);
+  background-repeat: repeat-y;
+}
+
 /* line 430, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
 .x-panel-header-tile-collapsed-bottom-mc {
   padding: 0px 0px 0px 0px;
