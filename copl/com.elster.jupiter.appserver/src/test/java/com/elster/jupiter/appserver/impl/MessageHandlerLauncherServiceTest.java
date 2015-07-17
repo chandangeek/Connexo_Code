@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 
+import static com.elster.jupiter.devtools.tests.assertions.JupiterAssertions.assertThat;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -138,7 +139,7 @@ public class MessageHandlerLauncherServiceTest {
             arrivalLatch.await();
 
             verify(subscriberSpec, atLeastOnce()).receive();
-        } catch(Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         } finally {
             messageHandlerLauncherService.deactivate();
@@ -179,7 +180,7 @@ public class MessageHandlerLauncherServiceTest {
 
             verify(handler, transactionService.inTransaction()).process(message);
 
-        } catch(Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         } finally {
             messageHandlerLauncherService.deactivate();
@@ -236,4 +237,48 @@ public class MessageHandlerLauncherServiceTest {
     }
 
 
+    @Test
+    public void testCorruptMessageHandlerFactory() throws InterruptedException {
+        doThrow(RuntimeException.class).when(factory).newMessageHandler();
+
+        final CountDownLatch arrivalLatch = new CountDownLatch(2);
+        when(appService.getSubscriberExecutionSpecs()).thenReturn(Arrays.asList(subscriberExecutionSpec));
+        when(appService.getAppServer()).thenReturn(Optional.of(appServer));
+        when(appServer.isActive()).thenReturn(true);
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("subscriber", SUBSCRIBER);
+        map.put("destination", DESTINATION);
+
+        int threadCount = 0;
+
+        try {
+            messageHandlerLauncherService.activate();
+            threadCount = threadCount();
+
+            messageHandlerLauncherService.addResource(factory, map);
+
+            assertThat(messageHandlerLauncherService.futureReport()).isEmpty();
+            assertThat(messageHandlerLauncherService.threadReport()).isEmpty();
+
+            assertThat(threadCount()).isEqualTo(threadCount);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            messageHandlerLauncherService.deactivate();
+        }
+    }
+
+    private int threadCount() {
+        ThreadGroup threadGroup = Thread.currentThread().getThreadGroup();
+        while (threadGroup.getParent() != threadGroup && threadGroup.getParent() != null) {
+            threadGroup = threadGroup.getParent();
+        }
+        int activeCount = threadGroup.activeCount();
+
+        Thread[] threads = new Thread[activeCount * 2];
+        int count = threadGroup.enumerate(threads, true);
+        return count;
+    }
 }

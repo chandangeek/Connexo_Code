@@ -35,10 +35,14 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 @Component(name = "com.elster.jupiter.appserver.messagehandlerlauncher", service = MessageHandlerLauncherService.class, immediate = true)
 public class MessageHandlerLauncherService implements IAppService.CommandListener {
+
+    private static final Logger LOGGER = Logger.getLogger(MessageHandlerLauncherService.class.getName());
 
     private volatile IAppService appService;
     private volatile ThreadPrincipalService threadPrincipalService;
@@ -215,11 +219,20 @@ public class MessageHandlerLauncherService implements IAppService.CommandListene
         CancellableTaskExecutorService executorService = newExecutorService(SubscriberKey.of(subscriberSpec), threadCount);
         executors.put(factory, executorService);
         List<Future<?>> submittedFutures = new ArrayList<>(threadCount);
-        for (int i = 0; i < threadCount; i++) {
-            Future<?> future = submitTask(executorService, subscriberSpec, factory);
-            submittedFutures.add(future);
+        try {
+            for (int i = 0; i < threadCount; i++) {
+                Future<?> future = submitTask(executorService, subscriberSpec, factory);
+                submittedFutures.add(future);
+            }
+            futures.put(executorService, new CopyOnWriteArrayList<>(submittedFutures));
+        } catch (RuntimeException e) {
+            // we can't allow corrupt MessageHandlerFactories to disrupt our configuration
+            if (submittedFutures.isEmpty()) {
+                executors.remove(factory);
+                executorService.shutdownNow();
+            }
+            LOGGER.log(Level.SEVERE, e, () -> "MessageHandlerFactory for subscriber " + subscriberSpec.getDestination().getName() + " : " + subscriberSpec.getName() + " threw an exception while creating a new Messagehandler.");
         }
-        futures.put(executorService, new CopyOnWriteArrayList<>(submittedFutures));
     }
 
     private Future<?> submitTask(CancellableTaskExecutorService executorService, SubscriberSpec subscriberSpec, MessageHandlerFactory factory) {
