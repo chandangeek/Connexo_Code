@@ -59,6 +59,17 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                     validateOnChange: true,
                     fieldStyle: 'text-align: right'
                 },
+                dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.deviceDataEditActions,
+                width: 200
+            },
+            {
+                header: Uni.I18n.translate('deviceloadprofiles.channels.value', 'MDC', 'Value') + ' (' + measurementType + ')',
+                dataIndex: 'value',
+                align: 'right',
+                renderer: function (v, metaData, record) {
+                    return me.formatColumn(v, metaData, record, record.data.validationInfo.mainValidationInfo);
+                },
+                hidden: Mdc.dynamicprivileges.DeviceState.canEditData(),
                 width: 200
             },
             {

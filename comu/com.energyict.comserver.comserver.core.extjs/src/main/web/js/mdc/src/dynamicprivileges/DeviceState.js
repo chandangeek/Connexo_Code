@@ -1,6 +1,10 @@
 Ext.define('Mdc.dynamicprivileges.DeviceState', {
     singleton: true,
 
+    requires: [
+        'Uni.DynamicPrivileges'
+    ],
+
     issuesWidget: 'devices.widget.issues',
     validationWidget:'devices.widget.validation',
     topologyWidget: 'devices.widget.communication.topology',
@@ -19,6 +23,11 @@ Ext.define('Mdc.dynamicprivileges.DeviceState', {
     estimationRuleSetsActions: 'devices.actions.estimation.rulesets',
     deviceCommandActions: 'devices.actions.device.commands',
     firmwareManagementActions: 'devices.actions.firmware.management',
-    communicationPlanningPages: 'devices.pages.communication.planning'
+    deviceDataEditActions: 'devices.actions.data.edit',
+    communicationPlanningPages: 'devices.pages.communication.planning',
+
+    canEditData: function() {
+        return Uni.DynamicPrivileges.checkDynamicPrivileges(Mdc.dynamicprivileges.DeviceState.deviceDataEditActions);
+    }
 
 });

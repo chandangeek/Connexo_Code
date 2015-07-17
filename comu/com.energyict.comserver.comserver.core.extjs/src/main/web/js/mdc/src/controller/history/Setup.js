@@ -1235,6 +1235,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                     controller: 'Mdc.controller.setup.DeviceRegisterTab',
                                     privileges: Mdc.privileges.Device.viewDeviceCommunication,
                                     action: 'initTabShowDeviceRegisterDataView',
+                                    dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.deviceStateStore,
                                     callback: function (route) {
                                         this.getApplication().on('loadRegisterConfiguration', function (record) {
                                             route.setTitle(record.get('readingType').fullAliasName);
@@ -1249,14 +1250,18 @@ Ext.define('Mdc.controller.history.Setup', {
                                             route: 'add',
                                             controller: 'Mdc.controller.setup.DeviceRegisterDataEdit',
                                             privileges: Mdc.privileges.Device.administrateDeviceData,
-                                            action: 'showDeviceRegisterConfigurationDataAddView'
+                                            action: 'showDeviceRegisterConfigurationDataAddView',
+                                            dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.deviceStateStore,
+                                            dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.deviceDataEditActions
                                         },
                                         edit: {
                                             title: Uni.I18n.translate('device.registerData.editReading', 'MDC', 'Edit reading'),
                                             route: '{timestamp}/edit',
                                             controller: 'Mdc.controller.setup.DeviceRegisterDataEdit',
                                             privileges: Mdc.privileges.Device.administrateDeviceData,
-                                            action: 'showDeviceRegisterConfigurationDataEditView'
+                                            action: 'showDeviceRegisterConfigurationDataEditView',
+                                            dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.deviceStateStore,
+                                            dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.deviceDataEditActions
                                         }
                                     }
                                 }
@@ -1482,6 +1487,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                     privileges: Mdc.privileges.Device.viewDeviceCommunication,
                                     action: 'showData',
                                     filter: 'Mdc.model.ChannelOfLoadProfilesOfDeviceDataFilter',
+                                    dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.deviceStateStore,
                                     callback: function (route) {
                                         this.getApplication().on('channelOfLoadProfileOfDeviceLoad', function (record) {
                                             route.setTitle(record.get('name'));

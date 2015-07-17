@@ -199,8 +199,6 @@ Ext.define('Mdc.controller.setup.Devices', {
         transitionsStore.getProxy().setUrl(mRID);
         attributesModel.getProxy().setUrl(mRID);
 
-//        me.getController('Mdc.stateprivileges.controller.DeviceStatePrivileges').loadRestrictions();
-
         Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
             success: function (device) {
                 me.getApplication().fireEvent('loadDevice', device);
