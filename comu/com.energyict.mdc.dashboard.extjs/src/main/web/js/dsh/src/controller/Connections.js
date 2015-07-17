@@ -100,7 +100,6 @@ Ext.define('Dsh.controller.Connections', {
         me.getApplication().fireEvent('changecontentevent', widget);
         store.load();
         store.on('load', function(records, operation, success) {
-            debugger;
             if (success && records.data.length === 0) {
                 commPanel.hide();
             }
