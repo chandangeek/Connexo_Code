@@ -61,12 +61,15 @@ Ext.define('Fwc.controller.History', {
             route: 'devices/{mRID}/firmware',
             controller: 'Fwc.devicefirmware.controller.DeviceFirmware',
             action: 'showDeviceFirmware',
+            dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.deviceStateStore,
             items: {
                 upload: {
                     title: Uni.I18n.translate('firmware.route.devicefirmware.upload', 'FWC', 'Upgrade meter firmware'),
                     route: 'upload',
                     controller: 'Fwc.devicefirmware.controller.DeviceFirmware',
                     action: 'showDeviceFirmwareUpload',
+                    dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.deviceStateStore,
+                    dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.firmwareManagementActions,
                     callback: function (route) {
                         this.getApplication().on('uploadfirmwareoption', function (title) {
                             route.setTitle(title);

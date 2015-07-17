@@ -28,7 +28,8 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
                 iconCls: 'x-uni-action-iconD',
                 menu: {
                     xtype: 'device-firmware-action-menu'
-                }
+                },
+                dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.firmwareManagementActions
             }
         ]
     },
