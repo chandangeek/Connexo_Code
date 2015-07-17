@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.logging.Logger;
 
 public class DeviceInFirmwareCampaignImpl implements DeviceInFirmwareCampaign {
 
@@ -145,7 +146,7 @@ public class DeviceInFirmwareCampaignImpl implements DeviceInFirmwareCampaign {
     public FirmwareManagementDeviceStatus updateStatus(FirmwareComTaskExecution comTaskExecution) {
         FirmwareManagementDeviceStatus currentStatus = getStatus();
         if (currentStatus == null || NON_FINAL_STATUSES.contains(currentStatus.key())) {
-            FirmwareManagementDeviceUtils helper = helperProvider.get().onDevice(getDevice(), comTaskExecution);
+            FirmwareManagementDeviceUtils helper = helperProvider.get().onDevice(comTaskExecution.getDevice(), comTaskExecution);
             Optional<DeviceMessage<Device>> firmwareMessage = helper.getFirmwareMessages()
                     .stream()
                     .filter(candidate -> candidate.getId() == firmwareMessageId)
@@ -160,9 +161,37 @@ public class DeviceInFirmwareCampaignImpl implements DeviceInFirmwareCampaign {
             } else {
                 setStatus(FirmwareManagementDeviceStatus.CANCELLED);
             }
+            logDeviceStatusUpdate(currentStatus, getStatus(), comTaskExecution, helper);
             save();
         }
         return getStatus();
+    }
+
+    private void logDeviceStatusUpdate(FirmwareManagementDeviceStatus oldStatus, FirmwareManagementDeviceStatus newStatus, FirmwareComTaskExecution comTaskExecution, FirmwareManagementDeviceUtils helper){
+        if (oldStatus == newStatus) {
+            StringBuilder log = new StringBuilder();
+            log.append("Status check for device with mrid ='").append(getDevice().getmRID()).append("' in firmware campaign '")
+                    .append(getFirmwareCampaign().getName()).append("' (id = ").append(getFirmwareCampaign().getId()).append(") was failed.\n");
+            log.append("\t").append("Old status = ").append(oldStatus.name()).append("\n");
+            log.append("\t").append("New status = ").append(newStatus.name()).append("\n");
+            log.append("\t").append("Firmware comTaskExecution id = ").append(comTaskExecution.getId()).append("\n");
+            log.append("\t").append("Helper taskIsFailed = ").append(helper.taskIsFailed()).append("\n");
+            log.append("\t").append("Helper taskIsBusy = ").append(helper.taskIsBusy()).append("\n");
+            log.append("\t").append("Helper firmware messages = ");
+            logDeviceMessages(log, helper.getFirmwareMessages());
+            log.append("\n\t").append("Internal device messages = ");
+            logDeviceMessages(log, getDevice().getMessages());
+            log.append("\n\t").append("Device messages from execution = ");
+            logDeviceMessages(log, comTaskExecution.getDevice().getMessages());
+            Logger.getLogger(DeviceInFirmwareCampaign.class.getName()).warning(log.toString());
+        }
+    }
+
+    private void logDeviceMessages(StringBuilder log, List<DeviceMessage<Device>> messages){
+        for (DeviceMessage<Device> message : messages) {
+            log.append("\n\t\t").append("message id = ").append(message.getId()).append(", type = ").append(message.getDeviceMessageId().name())
+                    .append(", status = ").append(message.getStatus().name()).append(", release date = " + message.getReleaseDate().toEpochMilli());
+        }
     }
 
     @Override
