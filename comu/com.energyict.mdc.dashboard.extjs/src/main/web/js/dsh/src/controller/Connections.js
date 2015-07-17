@@ -64,6 +64,7 @@ Ext.define('Dsh.controller.Connections', {
     ],
 
     init: function () {
+        this.getStore('Dsh.store.ConnectionTasks').addListener('load', this.onStoreLoad, this);
         this.control({
             'connections-details #connectionsdetails': {
                 selectionchange: this.onSelectionChange
@@ -91,19 +92,21 @@ Ext.define('Dsh.controller.Connections', {
         this.callParent(arguments);
     },
 
+    onStoreLoad: function(records, operation, success) {
+        var commPanel = this.getCommunicationsPanel();
+
+        if (commPanel && success && records.data.length === 0) {
+            commPanel.hide();
+        }
+    },
+
     showOverview: function () {
         var me = this,
             widget = Ext.widget('connections-details'),
-            commPanel = me.getCommunicationsPanel(),
             store = me.getStore('Dsh.store.ConnectionTasks');
 
         me.getApplication().fireEvent('changecontentevent', widget);
         store.load();
-        store.on('load', function(records, operation, success) {
-            if (success && records.data.length === 0) {
-                commPanel.hide();
-            }
-        });
     },
 
     onCommunicationSelectionChange: function (grid, selected) {
