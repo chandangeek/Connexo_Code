@@ -172,8 +172,14 @@ Ext.define('Dxp.controller.Tasks', {
     },
 
     cancelAddDestination: function() {
-        //add the old one again, it was removed before the edit (edit = remove + add new)
-        this.doAddDestinationToGrid();
+        if (!this.destinationToEdit) {
+            //cancel "add destination"
+            this.forwardToPreviousPage();
+        } else {
+            //cancel "edit" destination
+            //add the old one again, it was removed before the edit (edit = remove + add new)
+            this.doAddDestinationToGrid();
+        }
     },
 
     showDataExportTasks: function () {
