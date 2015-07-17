@@ -40,6 +40,7 @@ import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
+import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.ComServer;
@@ -53,6 +54,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -88,14 +90,16 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
     private final EventService eventService;
     private final MeteringService meteringService;
     private final ProtocolPluggableService protocolPluggableService;
+    private final Clock clock;
 
     @Inject
-    public ConnectionTaskServiceImpl(DeviceDataModelService deviceDataModelService, EventService eventService, MeteringService meteringService, ProtocolPluggableService protocolPluggableService) {
+    public ConnectionTaskServiceImpl(DeviceDataModelService deviceDataModelService, EventService eventService, MeteringService meteringService, ProtocolPluggableService protocolPluggableService, Clock clock) {
         super();
         this.deviceDataModelService = deviceDataModelService;
         this.eventService = eventService;
         this.meteringService = meteringService;
         this.protocolPluggableService = protocolPluggableService;
+        this.clock = clock;
     }
 
     @Override
@@ -651,6 +655,7 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
         sqlBuilder.append("      and ct.obsolete_date is null");
         sqlBuilder.append("      and ct.lastsession is not null");
         this.appendDeviceGroupConditions(deviceGroup, sqlBuilder);
+        this.appendRestrictedStatesCondition(sqlBuilder);
         sqlBuilder.append(" group by ct.lastSessionSuccessIndicator");
         return this.addMissingSuccessIndicatorCounters(this.fetchSuccessIndicatorCounters(sqlBuilder));
     }
@@ -752,12 +757,14 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
         sqlBuilder.append(" ct where ct.status = 0 and ct.lastSessionSuccessIndicator = 0");
         this.appendConnectionTypeHeatMapComTaskExecutionSessionConditions(atLeastOneFailingComTask, sqlBuilder);
         this.appendDeviceGroupConditions(deviceGroup, sqlBuilder);
+        this.appendRestrictedStatesCondition(sqlBuilder);
         sqlBuilder.append(" group by ct.CONNECTIONTYPEPLUGGABLECLASS, ct.lastSessionSuccessIndicator");
         sqlBuilder.append(" UNION ALL ");
         sqlBuilder.append("select ct.CONNECTIONTYPEPLUGGABLECLASS, ct.lastSessionSuccessIndicator, count(*) from ");
         sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
         sqlBuilder.append(" ct where ct.status = 0 and ct.lastSessionSuccessIndicator > 0");
         this.appendDeviceGroupConditions(deviceGroup, sqlBuilder);
+        this.appendRestrictedStatesCondition(sqlBuilder);
         sqlBuilder.append(" group by ct.CONNECTIONTYPEPLUGGABLECLASS, ct.lastSessionSuccessIndicator");
         return this.fetchConnectionTypeHeatMapCounters(sqlBuilder);
     }
@@ -871,6 +878,7 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
         sqlBuilder.append(" dev on ct.device = dev.id where ct.status = 0 and ct.lastSessionSuccessIndicator = 0");
         this.appendConnectionTypeHeatMapComTaskExecutionSessionConditions(atLeastOneFailingComTask, sqlBuilder);
         this.appendDeviceGroupConditions(deviceGroup, sqlBuilder);
+        this.appendRestrictedStatesCondition(sqlBuilder);
         sqlBuilder.append(" group by dev.devicetype, ct.lastSessionSuccessIndicator");
         sqlBuilder.append(" UNION ALL ");
         sqlBuilder.append("select dev.DEVICETYPE, ct.lastSessionSuccessIndicator, count(*) from ");
@@ -879,6 +887,7 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
         sqlBuilder.append(TableSpecs.DDC_DEVICE.name());
         sqlBuilder.append(" dev on ct.device = dev.id where ct.status = 0 and ct.lastSessionSuccessIndicator > 0 ");
         this.appendDeviceGroupConditions(deviceGroup, sqlBuilder);
+        this.appendRestrictedStatesCondition(sqlBuilder);
         sqlBuilder.append(" group by dev.devicetype, ct.lastSessionSuccessIndicator");
         return this.fetchConnectionTypeHeatMapCounters(sqlBuilder);
     }
@@ -952,12 +961,14 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
         sqlBuilder.append(" ct where ct.status = 0 and ct.lastSessionSuccessIndicator = 0");
         this.appendConnectionTypeHeatMapComTaskExecutionSessionConditions(atLeastOneFailingComTask, sqlBuilder);
         this.appendDeviceGroupConditions(deviceGroup, sqlBuilder);
+        this.appendRestrictedStatesCondition(sqlBuilder);
         sqlBuilder.append(" group by ct.comportpool, ct.lastSessionSuccessIndicator");
         sqlBuilder.append(" UNION ALL ");
         sqlBuilder.append("select ct.COMPORTPOOL, ct.lastSessionSuccessIndicator, count(*) from ");
         sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
         sqlBuilder.append(" ct where ct.status = 0 and ct.lastSessionSuccessIndicator > 0");
         this.appendDeviceGroupConditions(deviceGroup, sqlBuilder);
+        this.appendRestrictedStatesCondition(sqlBuilder);
         sqlBuilder.append(" group by ct.comportpool, ct.lastSessionSuccessIndicator");
         return this.fetchConnectionTypeHeatMapCounters(sqlBuilder);
     }
@@ -973,6 +984,31 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
             }
             sqlBuilder.append(")");
         }
+    }
+
+    /*
+     select ED.amrid
+       from MTR_ENDDEVICESTATUS ES,
+        (select FS.ID
+          from FSM_STATE FS
+          where FS.OBSOLETE_TIMESTAMP IS NULL and FS.NAME NOT IN ('dlc.default.inStock', 'dlc.default.decommissioned')) FS,
+        MTR_ENDDEVICE ED
+       where ES.STARTTIME <= 1436517667000 and ES.ENDTIME > 1436517667000 and ED.ID = ES.ENDDEVICE and ES.STATE = FS.ID;
+     */
+    private void appendRestrictedStatesCondition(SqlBuilder sqlBuilder) {
+        long currentTime = this.clock.millis();
+        sqlBuilder.append(" and ct.device in");
+        sqlBuilder.append(" (select ED.amrid");
+        sqlBuilder.append(" from MTR_ENDDEVICESTATUS ES, (select FS.ID from FSM_STATE FS where FS.OBSOLETE_TIMESTAMP IS NULL and ");
+        sqlBuilder.append("FS.NAME NOT IN ('");
+        sqlBuilder.append(DefaultState.IN_STOCK.getKey());
+        sqlBuilder.append("', '");
+        sqlBuilder.append(DefaultState.DECOMMISSIONED.getKey());
+        sqlBuilder.append("')) FS, MTR_ENDDEVICE ED where ES.STARTTIME <= ");
+        sqlBuilder.append(String.valueOf(currentTime));
+        sqlBuilder.append(" and ES.ENDTIME > ");
+        sqlBuilder.append(String.valueOf(currentTime));
+        sqlBuilder.append(" and ED.ID = ES.ENDDEVICE and ES.STATE = FS.ID)");
     }
 
     private Map<ComPortPool, List<Long>> buildComPortPoolHeatMap(Map<Long, Map<ComSession.SuccessIndicator, Long>> partialCounters, Map<Long, Map<ComSession.SuccessIndicator, Long>> remainingCounters) {

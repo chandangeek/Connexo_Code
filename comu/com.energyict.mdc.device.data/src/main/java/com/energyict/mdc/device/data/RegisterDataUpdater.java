@@ -18,6 +18,8 @@ public interface RegisterDataUpdater {
 
     public RegisterDataUpdater editReading(BaseReading modified);
 
+    public RegisterDataUpdater confirmReading(BaseReading modified);
+
     public RegisterDataUpdater removeReading(Instant timestamp);
 
     /**
