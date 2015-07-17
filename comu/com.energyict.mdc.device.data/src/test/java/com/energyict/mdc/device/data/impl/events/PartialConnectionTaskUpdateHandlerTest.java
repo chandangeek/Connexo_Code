@@ -81,7 +81,7 @@ public class PartialConnectionTaskUpdateHandlerTest {
     @Test
     public void eventWithoutPropertiesIsIgnored() {
         PartialConnectionTaskUpdateHandler testInstance = this.testInstance();
-        Event osgiEvent = spy(new Event(TOPIC, ImmutableMap.of("removedRequiredProperties", "")));
+        Event osgiEvent = spy(new Event(TOPIC, ImmutableMap.of("addedOrRemovedRequiredProperties", "")));
         when(this.localEvent.toOsgiEvent()).thenReturn(osgiEvent);
 
         // Business method
@@ -107,7 +107,7 @@ public class PartialConnectionTaskUpdateHandlerTest {
     @Test
     public void handlerPostsAsyncMessage() {
         PartialConnectionTaskUpdateHandler testInstance = this.testInstance();
-        Event osgiEvent = new Event(TOPIC, ImmutableMap.of("removedRequiredProperties", "prop1,prop2"));
+        Event osgiEvent = new Event(TOPIC, ImmutableMap.of("addedOrRemovedRequiredProperties", "prop1,prop2"));
         when(this.localEvent.toOsgiEvent()).thenReturn(osgiEvent);
         PartialConnectionTask partialConnectionTask = mock(PartialConnectionTask.class);
         when(partialConnectionTask.getId()).thenReturn(PARTIAL_CONNECTION_TASK_ID);

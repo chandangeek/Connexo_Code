@@ -5,7 +5,6 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.data.ConnectionTaskFields;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.exceptions.CannotDeleteUsedDefaultConnectionTaskException;
 import com.energyict.mdc.device.data.exceptions.CannotUpdateObsoleteConnectionTaskException;
 import com.energyict.mdc.device.data.exceptions.ConnectionTaskIsAlreadyObsoleteException;
@@ -36,7 +35,6 @@ import com.energyict.mdc.dynamic.relation.CanLock;
 import com.energyict.mdc.dynamic.relation.DefaultRelationParticipant;
 import com.energyict.mdc.dynamic.relation.Relation;
 import com.energyict.mdc.dynamic.relation.RelationAttributeType;
-import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.dynamic.relation.RelationType;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.ComServer;
@@ -138,21 +136,17 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     private final Clock clock;
     private final ServerConnectionTaskService connectionTaskService;
     private final ServerCommunicationTaskService communicationTaskService;
-    private final DeviceService deviceService;
     private final ProtocolPluggableService protocolPluggableService;
-    private final RelationService relationService;
 
     private boolean allowIncomplete = true;
 
-    protected ConnectionTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, ServerConnectionTaskService connectionTaskService, ServerCommunicationTaskService communicationTaskService, DeviceService deviceService, ProtocolPluggableService protocolPluggableService, RelationService relationService) {
+    protected ConnectionTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, ServerConnectionTaskService connectionTaskService, ServerCommunicationTaskService communicationTaskService, ProtocolPluggableService protocolPluggableService) {
         super(ConnectionTask.class, dataModel, eventService, thesaurus);
         this.cache = new PropertyCache<>(this);
         this.clock = clock;
         this.connectionTaskService = connectionTaskService;
         this.communicationTaskService = communicationTaskService;
-        this.deviceService = deviceService;
         this.protocolPluggableService = protocolPluggableService;
-        this.relationService = relationService;
     }
 
     public void initialize(Device device, PCTT partialConnectionTask, CPPT comPortPool) {
@@ -165,7 +159,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         this.pluggableClass = partialConnectionTask.getPluggableClass();
         this.pluggableClassId = this.pluggableClass.getId();
         this.comPortPool.set(comPortPool);
-        if (partialConnectionTask.isDefault() && !this.device.get().getConnectionTasks().stream().filter(connectionTask -> connectionTask.isDefault()).findAny().isPresent()) {
+        if (partialConnectionTask.isDefault() && !this.device.get().getConnectionTasks().stream().filter(ConnectionTask::isDefault).findAny().isPresent()) {
             this.isDefault = partialConnectionTask.isDefault();
         }
     }

@@ -65,7 +65,7 @@ public class PartialConnectionTaskUpdateHandler extends EventHandler<LocalEvent>
     }
 
     private String getRemovedProperties(LocalEvent event) {
-        return (String) event.toOsgiEvent().getProperty("removedRequiredProperties");
+        return (String) event.toOsgiEvent().getProperty("addedOrRemovedRequiredProperties");
     }
 
 }
