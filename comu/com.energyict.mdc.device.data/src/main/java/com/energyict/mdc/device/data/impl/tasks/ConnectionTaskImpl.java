@@ -58,6 +58,7 @@ import com.elster.jupiter.util.time.Interval;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 
+import javax.validation.ConstraintViolationException;
 import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
@@ -87,7 +88,7 @@ import static com.energyict.mdc.protocol.pluggable.ConnectionTypePropertyRelatio
 public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPPT extends ComPortPool>
     extends PersistentIdObject<ConnectionTask>
     implements
-        ConnectionTask<CPPT, PCTT>,
+        ServerConnectionTask<CPPT, PCTT>,
         ConnectionTaskPropertyProvider,
         CanLock,
         DefaultRelationParticipant,
@@ -716,12 +717,6 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     }
 
     @Override
-    @XmlAttribute
-    public ConnectionTaskLifecycleStatus getStatus() {
-        return this.status;
-    }
-
-    @Override
     public boolean isDefault() {
         return this.isDefault;
     }
@@ -823,6 +818,32 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     }
 
     @Override
+    @XmlAttribute
+    public ConnectionTaskLifecycleStatus getStatus() {
+        return this.status;
+    }
+
+    void setStatus(ConnectionTaskLifecycleStatus status) {
+        this.status = status;
+    }
+
+    @Override
+    public void revalidatePropertiesAndAdjustStatus() {
+        if (this.getId() > 0 && this.isActive()) {
+            try {
+                Save.UPDATE.save(this.getDataModel(), this);
+            }
+            catch (ConstraintViolationException e) {
+                /* Assumption: no changes on this ConnectionTask
+                 * therefore: exception relates to missing required properties
+                 * so set the status to Incomplete and apply change. */
+                this.setStatus(ConnectionTaskLifecycleStatus.INCOMPLETE);
+                this.getDataModel().update(this, ConnectionTaskFields.STATUS.fieldName());
+            }
+        }
+    }
+
+    @Override
     public void deactivate() {
         this.status = ConnectionTaskLifecycleStatus.INACTIVE;
         this.update();
@@ -904,10 +925,6 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
             return false;
         }
         return true;
-    }
-
-    void setStatus(ConnectionTaskLifecycleStatus status) {
-        this.status = status;
     }
 
     /**

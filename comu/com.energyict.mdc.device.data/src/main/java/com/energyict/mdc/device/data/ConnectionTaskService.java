@@ -35,18 +35,18 @@ import java.util.Set;
 @ProviderType
 public interface ConnectionTaskService {
 
-    public String FILTER_ITEMIZER_QUEUE_DESTINATION = "ItemizeConnFilterQD";
-    public String FILTER_ITEMIZER_QUEUE_SUBSCRIBER = "ItemizeConnFilterQS";
-    public String FILTER_ITEMIZER_QUEUE_DISPLAYNAME = "Itemize connection rescheduling from filter";
-    public String CONNECTION_RESCHEDULER_QUEUE_DESTINATION = "ReschConnQD";
-    public String CONNECTION_RESCHEDULER_QUEUE_SUBSCRIBER = "ReschConnQS";
-    public String CONNECTION_RESCHEDULER_QUEUE_DISPLAYNAME = "Handle connection rescheduling";
-    public String FILTER_ITEMIZER_PROPERTIES_QUEUE_DESTINATION = "ItemizeConnPropFilterQD";
-    public String FILTER_ITEMIZER_PROPERTIES_QUEUE_SUBSCRIBER = "ItemizeConnPropFilterQS";
-    public String FILTER_ITEMIZER_PROPERTIES_QUEUE_DISPLAYNAME = "Itemize connection property updates from filter";
-    public String CONNECTION_PROP_UPDATER_QUEUE_DESTINATION = "PropUpConnQD";
-    public String CONNECTION_PROP_UPDATER_QUEUE_SUBSCRIBER = "PropUpConnQS";
-    public String CONNECTION_PROP_UPDATER_QUEUE_DISPLAYNAME = "Handle connection property updates";
+    public static final String FILTER_ITEMIZER_QUEUE_DESTINATION = "ItemizeConnFilterQD";
+    public static final String FILTER_ITEMIZER_QUEUE_SUBSCRIBER = "ItemizeConnFilterQS";
+    public static final String FILTER_ITEMIZER_QUEUE_DISPLAYNAME = "Itemize connection rescheduling from filter";
+    public static final String CONNECTION_RESCHEDULER_QUEUE_DESTINATION = "ReschConnQD";
+    public static final String CONNECTION_RESCHEDULER_QUEUE_SUBSCRIBER = "ReschConnQS";
+    public static final String CONNECTION_RESCHEDULER_QUEUE_DISPLAY_NAME = "Handle connection rescheduling";
+    public static final String FILTER_ITEMIZER_PROPERTIES_QUEUE_DESTINATION = "ItemizeConnPropFilterQD";
+    public static final String FILTER_ITEMIZER_PROPERTIES_QUEUE_SUBSCRIBER = "ItemizeConnPropFilterQS";
+    public static final String FILTER_ITEMIZER_PROPERTIES_QUEUE_DISPLAY_NAME = "Itemize connection property updates from filter";
+    public static final String CONNECTION_PROP_UPDATER_QUEUE_DESTINATION = "PropUpConnQD";
+    public static final String CONNECTION_PROP_UPDATER_QUEUE_SUBSCRIBER = "PropUpConnQS";
+    public static final String CONNECTION_PROP_UPDATER_QUEUE_DISPLAY_NAME = "Handle connection property updates";
 
     public Optional<ConnectionTask> findConnectionTask(long id);
 
@@ -65,7 +65,7 @@ public interface ConnectionTaskService {
      *
      * @param partialConnectionTask The PartialConnectionTask
      * @param device                The Device
-     * @return The ConnectionTask or <code>null</code> if there is no such ConnectionTask yet
+     * @return The ConnectionTask or <code>Optional.empty()</code> if there is no such ConnectionTask yet
      */
     public Optional<ConnectionTask> findConnectionTaskForPartialOnDevice(PartialConnectionTask partialConnectionTask, Device device);
 

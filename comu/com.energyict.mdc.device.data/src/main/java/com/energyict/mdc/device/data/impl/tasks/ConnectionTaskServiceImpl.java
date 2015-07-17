@@ -49,6 +49,7 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import org.joda.time.DateTimeConstants;
 
 import javax.inject.Inject;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -169,9 +170,29 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
     public Optional<ConnectionTask> findConnectionTaskForPartialOnDevice(PartialConnectionTask partialConnectionTask, Device device) {
         Condition condition =
                     where(ConnectionTaskFields.DEVICE.fieldName()).isEqualTo(device).
-                and(where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull()).
+                and(where(ConnectionTaskFields.OBSOLETE_DATE.fieldName()).isNull()).
                 and(where(ConnectionTaskFields.PARTIAL_CONNECTION_TASK.fieldName()).isEqualTo(partialConnectionTask));
         return this.deviceDataModelService.dataModel().mapper(ConnectionTask.class).select(condition).stream().findFirst();
+    }
+
+    @Override
+    public List<Long> findConnectionTasksForPartialId(long partialConnectionTaskId) {
+        List<Long> connectionTaskIds = new ArrayList<>();
+        SqlBuilder sqlBuilder = new SqlBuilder("select id from " + TableSpecs.DDC_CONNECTIONTASK + " where OBSOLETE_DATE is null and PARTIALCONNECTIONTASK =");
+        sqlBuilder.addLong(partialConnectionTaskId);
+        try (Connection connection = this.deviceDataModelService.dataModel().getConnection(true)) {
+            try (PreparedStatement statement = sqlBuilder.prepare(connection)) {
+                try (ResultSet resultSet = statement.executeQuery()) {
+                    while (resultSet.next()) {
+                        connectionTaskIds.add(resultSet.getLong(1));
+                    }
+                }
+            }
+        }
+        catch (SQLException e) {
+            throw new UnderlyingSQLFailedException(e);
+        }
+        return connectionTaskIds;
     }
 
     @Override

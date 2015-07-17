@@ -7,6 +7,7 @@ import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.device.config.events.EventType;
 import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
 import com.energyict.mdc.tasks.ComTask;
 import org.osgi.service.event.EventConstants;
@@ -171,6 +172,11 @@ public class ComTaskEnablementConnectionMessageHandler implements MessageHandler
                 DeviceConfiguration deviceConfiguration = eventData.getComTaskEnablement().getDeviceConfiguration();
                 communicationTaskService.switchOnDefault(comTask, deviceConfiguration);
             }
+
+            @Override
+            protected EventType eventType() {
+                return EventType.COMTASKENABLEMENT_SWITCH_ON_DEFAULT;
+            }
         },
 
         SWITCH_OFF_DEFAULT {
@@ -182,6 +188,11 @@ public class ComTaskEnablementConnectionMessageHandler implements MessageHandler
                 ComTask comTask = eventData.getComTaskEnablement().getComTask();
                 DeviceConfiguration deviceConfiguration = eventData.getComTaskEnablement().getDeviceConfiguration();
                 communicationTaskService.switchOffDefault(comTask, deviceConfiguration);
+            }
+
+            @Override
+            protected EventType eventType() {
+                return EventType.COMTASKENABLEMENT_SWITCH_OFF_DEFAULT;
             }
         },
 
@@ -199,6 +210,11 @@ public class ComTaskEnablementConnectionMessageHandler implements MessageHandler
                         deviceConfiguration,
                         eventData.getPartialConnectionTask());
             }
+
+            @Override
+            protected EventType eventType() {
+                return EventType.COMTASKENABLEMENT_SWITCH_FROM_DEFAULT_TO_TASK;
+            }
         },
 
         SWITCH_FROM_TASK_TO_DEFAULT {
@@ -214,6 +230,11 @@ public class ComTaskEnablementConnectionMessageHandler implements MessageHandler
                         comTask,
                         deviceConfiguration,
                         eventData.getPartialConnectionTask());
+            }
+
+            @Override
+            protected EventType eventType() {
+                return EventType.COMTASKENABLEMENT_SWITCH_FROM_TASK_TO_DEFAULT;
             }
         },
 
@@ -232,6 +253,11 @@ public class ComTaskEnablementConnectionMessageHandler implements MessageHandler
                         eventData.getOldPartialConnectionTask(),
                         eventData.getNewPartialConnectionTask());
             }
+
+            @Override
+            protected EventType eventType() {
+                return EventType.COMTASKENABLEMENT_SWITCH_BETWEEN_TASKS;
+            }
         },
 
         USE_TASK {
@@ -247,6 +273,11 @@ public class ComTaskEnablementConnectionMessageHandler implements MessageHandler
                         comTask,
                         deviceConfiguration,
                         eventData.getPartialConnectionTask());
+            }
+
+            @Override
+            protected EventType eventType() {
+                return EventType.COMTASKENABLEMENT_START_USING_TASK;
             }
         },
 
@@ -264,6 +295,11 @@ public class ComTaskEnablementConnectionMessageHandler implements MessageHandler
                         deviceConfiguration,
                         eventData.getPartialConnectionTask());
             }
+
+            @Override
+            protected EventType eventType() {
+                return EventType.COMTASKENABLEMENT_REMOVE_TASK;
+            }
         },
 
         DEV_NULL {
@@ -271,13 +307,25 @@ public class ComTaskEnablementConnectionMessageHandler implements MessageHandler
             void process(Map<String, Object> messageProperties, ServiceLocator serviceLocator) {
                 // Designed to ignore everything
             }
+
+            @Override
+            protected String topic() {
+                return "";
+            }
+
+            @Override
+            protected EventType eventType() {
+                return null;
+            }
         };
 
         abstract void process(Map<String, Object> messageProperties, ServiceLocator serviceLocator);
 
-        private String topic() {
-            return "com/energyict/mdc/device/config/comtaskenablement/" + this.name();
+        protected String topic() {
+            return this.eventType().topic();
         }
+
+        protected abstract EventType eventType();
 
         private static ActualEventHandler forTopic(String topic) {
             Set<ActualEventHandler> candidates = EnumSet.range(SWITCH_ON_DEFAULT, REMOVE_TASK);

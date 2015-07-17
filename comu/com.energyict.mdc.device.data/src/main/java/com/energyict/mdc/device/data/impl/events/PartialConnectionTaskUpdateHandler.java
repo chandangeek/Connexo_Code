@@ -1,10 +1,10 @@
 package com.energyict.mdc.device.data.impl.events;
 
 import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.data.impl.EventType;
+import com.energyict.mdc.device.config.events.PartialConnectionTaskUpdateDetails;
 
-import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.LocalEvent;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.pubsub.EventHandler;
 import com.elster.jupiter.pubsub.Subscriber;
 import com.elster.jupiter.util.Checks;
@@ -27,9 +27,9 @@ import java.util.regex.Pattern;
 @SuppressWarnings("unused")
 public class PartialConnectionTaskUpdateHandler extends EventHandler<LocalEvent> {
 
-    static final Pattern TOPIC = Pattern.compile("com/energyict/mdc/device/config/partial(.*)connectiontask/UPDATE");
+    static final Pattern TOPIC = Pattern.compile("com/energyict/mdc/device/config/partial(.*)connectiontask/UPDATED");
 
-    private volatile EventService eventService;
+    private volatile MessageService messageService;
 
     // For OSGi purposes
     public PartialConnectionTaskUpdateHandler() {
@@ -37,14 +37,14 @@ public class PartialConnectionTaskUpdateHandler extends EventHandler<LocalEvent>
     }
 
     // For testing purposes
-    PartialConnectionTaskUpdateHandler(EventService eventService) {
+    PartialConnectionTaskUpdateHandler(MessageService messageService) {
         this();
-        this.setEventService(eventService);
+        this.setMessageService(messageService);
     }
 
     @Reference
-    public void setEventService(EventService eventService) {
-        this.eventService = eventService;
+    public void setMessageService(MessageService messageService) {
+        this.messageService = messageService;
     }
 
     @Override
@@ -55,8 +55,11 @@ public class PartialConnectionTaskUpdateHandler extends EventHandler<LocalEvent>
             String removedProperties = this.getRemovedProperties(event);
             if (!Checks.is(removedProperties).empty()) {
                 // At least one required property was removed, so post event
-                PartialConnectionTask partialConnectionTask = (PartialConnectionTask) event.getSource();
-                this.eventService.postEvent(EventType.CONNECTIONTASK_CHECK_ALL_ACTIVE.topic(), new RevalidateAllConnectionTasksAfterPropertyRemoval(partialConnectionTask.getId()));
+                PartialConnectionTaskUpdateDetails updateDetails = (PartialConnectionTaskUpdateDetails) event.getSource();
+                StartConnectionTasksRevalidationAfterPropertyRemoval
+                    .forPublishing(this.messageService)
+                    .with(updateDetails.getId())
+                    .publish();
             }
         }
     }
