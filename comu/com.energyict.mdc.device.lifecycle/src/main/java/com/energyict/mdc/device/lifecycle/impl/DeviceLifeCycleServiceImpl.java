@@ -1,7 +1,6 @@
 package com.energyict.mdc.device.lifecycle.impl;
 
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.impl.tasks.Chopper;
 import com.energyict.mdc.device.lifecycle.ActionDoesNotRelateToDeviceStateException;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolation;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolationException;
