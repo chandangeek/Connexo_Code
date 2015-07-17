@@ -3,6 +3,7 @@ package com.energyict.mdc.multisense.api.impl;
 
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.multisense.api.impl.utils.PropertyCopier;
+import com.energyict.mdc.multisense.api.impl.utils.SelectableFieldFactory;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;

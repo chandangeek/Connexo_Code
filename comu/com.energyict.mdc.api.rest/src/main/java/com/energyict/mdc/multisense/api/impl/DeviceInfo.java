@@ -18,14 +18,11 @@ public class DeviceInfo extends LinkInfo {
     public Integer yearOfCertification;
     public String batch;
     public DeviceInfo masterDevice;
-    public Integer nbrOfDataCollectionIssues;
     @XmlJavaTypeAdapter(GatewayTypeAdapter.class)
     public GatewayType gatewayType;
     public Boolean isDirectlyAddressable;
     public Boolean isGateway;
     public List<LinkInfo> connectionMethods;
-    public List<LinkInfo> logBooks;
-    public List<LinkInfo> loadProfiles;
     public List<LinkInfo> slaveDevices;
     public List<LinkInfo> actions;
     public String lifecycleState;

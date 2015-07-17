@@ -6,6 +6,7 @@ import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.multisense.api.impl.utils.PropertyCopier;
+import com.energyict.mdc.multisense.api.impl.utils.SelectableFieldFactory;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;

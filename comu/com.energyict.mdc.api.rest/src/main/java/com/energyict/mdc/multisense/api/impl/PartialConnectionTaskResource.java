@@ -17,7 +17,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
@@ -43,8 +42,8 @@ public class PartialConnectionTaskResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Path("/{id}")
-    public Response getPartialConnectionTask(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigId") long deviceConfigId, @PathParam("id") long id,
-                                             @Context UriInfo uriInfo, @BeanParam FieldSelection fieldSelection) {
+    public PartialConnectionTaskInfo getPartialConnectionTask(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigId") long deviceConfigId, @PathParam("id") long id,
+                                                              @Context UriInfo uriInfo, @BeanParam FieldSelection fieldSelection) {
         PartialConnectionTask partialConnectionTask = deviceConfigurationService.
                 findDeviceType(deviceTypeId)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_DEVICE_TYPE))
@@ -56,14 +55,13 @@ public class PartialConnectionTaskResource {
                 .filter(task -> task.getId() == id)
                 .findFirst()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_PARTIAL_CONNECTION_TASK));
-        PartialConnectionTaskInfo info = partialConnectionTypeInfoFactory.from(partialConnectionTask, uriInfo, fieldSelection.getFields());
-        return Response.ok(info).build();
+        return partialConnectionTypeInfoFactory.from(partialConnectionTask, uriInfo, fieldSelection.getFields());
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
-    public Response getPartialConnectionTasks(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigId") long deviceConfigId,
-                                             @Context UriInfo uriInfo, @BeanParam FieldSelection fieldSelection, @BeanParam JsonQueryParameters queryParameters) {
+    public PagedInfoList<PartialConnectionTaskInfo> getPartialConnectionTasks(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigId") long deviceConfigId,
+                                                                              @Context UriInfo uriInfo, @BeanParam FieldSelection fieldSelection, @BeanParam JsonQueryParameters queryParameters) {
         List<PartialConnectionTask> partialConnectionTasks = deviceConfigurationService.
                 findDeviceType(deviceTypeId)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_DEVICE_TYPE))
@@ -81,14 +79,14 @@ public class PartialConnectionTaskResource {
                 .resolveTemplate("deviceTypeId", deviceTypeId)
                 .resolveTemplate("deviceConfigId", deviceConfigId);
 
-        return Response.ok(PagedInfoList.from(infos, queryParameters, uriBuilder, uriInfo)).build();
+        return PagedInfoList.from(infos, queryParameters, uriBuilder, uriInfo);
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Path("/fields")
-    public Response getPartialConnectionTasks() {
-        return Response.ok(partialConnectionTypeInfoFactory.getAvailableFields().stream().sorted().collect(toList())).build();
+    public List<String> getPartialConnectionTasks() {
+        return partialConnectionTypeInfoFactory.getAvailableFields().stream().sorted().collect(toList());
     }
 
 

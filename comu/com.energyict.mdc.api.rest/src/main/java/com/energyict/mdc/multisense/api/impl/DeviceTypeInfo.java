@@ -8,5 +8,5 @@ import java.util.List;
 public class DeviceTypeInfo extends LinkInfo {
     public String name;
     public String description;
-    public List<DeviceConfigurationInfo> deviceConfigurations;
+    public List<LinkInfo> deviceConfigurations;
 }

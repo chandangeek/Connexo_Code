@@ -1,4 +1,4 @@
-package com.energyict.mdc.multisense.api.impl;
+package com.energyict.mdc.multisense.api.impl.utils;
 
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;

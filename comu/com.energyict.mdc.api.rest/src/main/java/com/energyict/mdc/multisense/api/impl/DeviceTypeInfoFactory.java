@@ -56,9 +56,12 @@ public class DeviceTypeInfoFactory {
         map.put("deviceConfigurations", (deviceTypeInfo, deviceType, uriInfo) -> {
             deviceTypeInfo.deviceConfigurations = new ArrayList<>();
             for (DeviceConfiguration deviceConfiguration : deviceType.getConfigurations()) {
-                DeviceConfigurationInfo deviceConfigurationInfo = new DeviceConfigurationInfo();
+                LinkInfo deviceConfigurationInfo = new LinkInfo();
                 deviceConfigurationInfo.id = deviceConfiguration.getId();
-                deviceConfigurationInfo.link = Link.fromUriBuilder(uriInfo.getBaseUriBuilder().path(DeviceConfigurationResource.class).path("{id}")).rel("child").title("Device configuration").build(deviceType.getId(), deviceConfiguration.getId());
+                UriBuilder uriBuilder = uriInfo.getBaseUriBuilder()
+                        .path(DeviceConfigurationResource.class)
+                        .path(DeviceConfigurationResource.class, "getDeviceConfiguration");
+                deviceConfigurationInfo.link = Link.fromUriBuilder(uriBuilder).rel("child").title("Device configuration").build(deviceType.getId(), deviceConfiguration.getId());
                 deviceTypeInfo.deviceConfigurations.add(deviceConfigurationInfo);
             }
         });

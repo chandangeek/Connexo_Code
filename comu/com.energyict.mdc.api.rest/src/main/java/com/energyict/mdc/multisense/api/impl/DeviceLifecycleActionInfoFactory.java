@@ -7,6 +7,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.multisense.api.impl.utils.PropertyCopier;
+import com.energyict.mdc.multisense.api.impl.utils.SelectableFieldFactory;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import java.util.Collection;
 import java.util.HashMap;

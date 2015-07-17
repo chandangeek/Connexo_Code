@@ -21,6 +21,7 @@ import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.multisense.api.impl.utils.DeviceLifeCycleActionViolationExceptionMapper;
+import com.energyict.mdc.multisense.api.impl.utils.ResourceHelper;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.google.common.collect.ImmutableSet;
 import java.time.Clock;

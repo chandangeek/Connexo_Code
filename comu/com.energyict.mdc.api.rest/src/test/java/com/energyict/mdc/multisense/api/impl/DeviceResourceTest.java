@@ -12,7 +12,6 @@ import com.elster.jupiter.validation.rest.PropertyType;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.lifecycle.ExecutableAction;
 import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
@@ -76,10 +75,10 @@ public class DeviceResourceTest extends MultisensePublicApiJerseyTest {
     public void testDeviceFields() throws Exception {
         Response response = target("/devices/fields").request("application/json").get();
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
-        assertThat(model.<List>get("$")).hasSize(21);
+        assertThat(model.<List>get("$")).hasSize(18);
         assertThat(model.<List<String>>get("$")).containsOnly("actions", "batch", "connectionMethods", "deviceConfiguration",
                 "deviceProtocolPluggeableClassId", "gatewayType", "id", "isDirectlyAddressable", "isGateway", "lifecycleState",
-                "link", "loadProfiles", "logBooks", "mRID", "name", "nbrOfDataCollectionIssues", "physicalGateway", "serialNumber",
+                "link", "mRID", "name", "physicalGateway", "serialNumber",
                 "slaveDevices", "version", "yearOfCertification");
     }
 
@@ -96,19 +95,6 @@ public class DeviceResourceTest extends MultisensePublicApiJerseyTest {
         assertThat(model.<Integer>get("$.connectionMethods[0].id")).isEqualTo(13);
         assertThat(model.<String>get("$.connectionMethods[0].link.params.rel")).isEqualTo("related");
         assertThat(model.<String>get("$.connectionMethods[0].link.href")).isEqualTo("http://localhost:9998/devices/XAS/connectionmethods/13");
-    }
-
-    @Test
-    public void testHypermediaLinkWithLogBooks() throws Exception {
-        LogBook logBook1 = mock(LogBook.class);
-        when(logBook1.getId()).thenReturn(13L);
-        when(deviceXas.getLogBooks()).thenReturn(Arrays.asList(logBook1));
-        Response response = target("/devices/XAS").queryParam("fields","logBooks").request("application/json").get();
-        JsonModel model = JsonModel.model((InputStream) response.getEntity());
-        assertThat(model.<List>get("$.logBooks")).hasSize(1);
-        assertThat(model.<Integer>get("$.logBooks[0].id")).isEqualTo(13);
-        assertThat(model.<String>get("$.logBooks[0].link.params.rel")).isEqualTo("related");
-        assertThat(model.<String>get("$.logBooks[0].link.href")).isEqualTo("http://localhost:9998/devices/XAS/logbooks/13");
     }
 
     @Test

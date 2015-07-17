@@ -15,6 +15,7 @@ import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.multisense.api.impl.utils.MessageSeeds;
 import com.energyict.mdc.multisense.api.impl.utils.PropertyCopier;
+import com.energyict.mdc.multisense.api.impl.utils.SelectableFieldFactory;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
@@ -31,7 +32,7 @@ import javax.ws.rs.core.UriInfo;
 /**
  * Created by bvn on 7/13/15.
  */
-public class ConnectionTaskInfoFactory extends SelectableFieldFactory<ConnectionTaskInfo, ConnectionTask<?,?>>{
+public class ConnectionTaskInfoFactory extends SelectableFieldFactory<ConnectionTaskInfo, ConnectionTask<?,?>> {
 
     private final MdcPropertyUtils mdcPropertyUtils;
     private final EngineConfigurationService engineConfigurationService;

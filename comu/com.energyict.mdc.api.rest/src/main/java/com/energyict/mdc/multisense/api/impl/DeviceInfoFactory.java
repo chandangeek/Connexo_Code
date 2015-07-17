@@ -3,8 +3,6 @@ package com.energyict.mdc.multisense.api.impl;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.energyict.mdc.device.config.GatewayType;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.LoadProfile;
-import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.imp.DeviceImportService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.ExecutableAction;
@@ -12,8 +10,8 @@ import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.TopologyTimeline;
 import com.energyict.mdc.multisense.api.impl.utils.PropertyCopier;
+import com.energyict.mdc.multisense.api.impl.utils.SelectableFieldFactory;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -68,7 +66,6 @@ public class DeviceInfoFactory extends SelectableFieldFactory<DeviceInfo,Device>
         map.put("yearOfCertification", (deviceInfo, device, uriInfo) -> deviceInfo.yearOfCertification = device.getYearOfCertification());
         map.put("batch", (deviceInfo, device, uriInfo) -> deviceImportService.findBatch(device.getId()).ifPresent(batch -> deviceInfo.batch = batch.getName()));
         map.put("gatewayType", (deviceInfo, device, uriInfo) -> deviceInfo.gatewayType=device.getConfigurationGatewayType());
-        map.put("nbrOfDataCollectionIssues", (deviceInfo, device, uriInfo) -> deviceInfo.nbrOfDataCollectionIssues = issueService.countOpenDataCollectionIssues(device.getmRID()));
         map.put("isDirectlyAddressable", (deviceInfo, device, uriInfo) -> deviceInfo.isDirectlyAddressable = device.getDeviceConfiguration().isDirectlyAddressable());
         map.put("isGateway", (deviceInfo, device, uriInfo) -> deviceInfo.isGateway = device.getDeviceConfiguration().canActAsGateway());
         map.put("version", (deviceInfo, device, uriInfo) -> deviceInfo.version = device.getVersion());
@@ -112,20 +109,6 @@ public class DeviceInfoFactory extends SelectableFieldFactory<DeviceInfo,Device>
                         .collect(Collectors.toList());
             }
         });
-        map.put("logBooks", (deviceInfo, device, uriInfo) -> {
-            deviceInfo.logBooks = new ArrayList<>();
-            for (LogBook logBook : device.getLogBooks()) {
-                LinkInfo linkInfo = new LinkInfo();
-                deviceInfo.logBooks.add(linkInfo);
-                linkInfo.id = logBook.getId();
-                UriBuilder uriBuilder = uriInfo.getBaseUriBuilder().
-                        path(LogBookResource.class).
-                        path(LogBookResource.class, "getLogBook").
-                        resolveTemplate("mrid", device.getmRID()).
-                        resolveTemplate("id", logBook.getId());
-                linkInfo.link = Link.fromUriBuilder(uriBuilder).rel("related").title("log book").build();
-            }
-        });
         map.put("connectionMethods", (deviceInfo, device, uriInfo) -> {
             deviceInfo.connectionMethods = device.getConnectionTasks().stream().
                     map(connectionTask -> {
@@ -140,23 +123,6 @@ public class DeviceInfoFactory extends SelectableFieldFactory<DeviceInfo,Device>
                         return linkInfo;
                     }).
                     collect(toList());
-        });
-
-        map.put("loadProfiles", (deviceInfo, device, uriInfo) -> {
-            deviceInfo.loadProfiles = new ArrayList<>();
-            for (LoadProfile loadProfile: device.getLoadProfiles()) {
-                LinkInfo linkInfo = new LinkInfo();
-                deviceInfo.loadProfiles.add(linkInfo);
-                linkInfo.id = loadProfile.getId();
-                UriBuilder uriBuilder = uriInfo.getBaseUriBuilder().
-                        path(LoadProfileResource.class).
-                        path(LoadProfileResource.class, "getLoadProfile").
-                        resolveTemplate("deviceTypeId", device.getDeviceType().getId()).
-                        resolveTemplate("deviceConfigurationId", device.getDeviceConfiguration().getId()).
-                        resolveTemplate("deviceId", device.getmRID()).
-                        resolveTemplate("id", loadProfile.getId());
-                linkInfo.link = Link.fromUriBuilder(uriBuilder).rel("related").title("load profile").build();
-            }
         });
         map.put("deviceConfiguration", (deviceInfo, device, uriInfo) -> {
             deviceInfo.deviceConfiguration = new DeviceConfigurationInfo();

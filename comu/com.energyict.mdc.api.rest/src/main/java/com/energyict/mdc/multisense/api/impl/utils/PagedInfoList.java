@@ -11,11 +11,11 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 /**
  * generic helper class to json-serialize a list of info-objects into a json format that is understood by our ExtJS paging component.
  */
-public class PagedInfoList {
+public class PagedInfoList<T> {
 
     @XmlJavaTypeAdapter(Link.JaxbAdapter.class)
     public List<Link> link;
-    public List<?> data = new ArrayList<>();
+    public List<T> data = new ArrayList<>();
 
     public PagedInfoList() {
     }
@@ -32,8 +32,8 @@ public class PagedInfoList {
      * @param uriInfo
      * @return A PagedInfoList that will be correctly serialized as JSON paging object
      */
-    public static PagedInfoList from(List<?> infos, QueryParameters queryParameters, UriBuilder uriBuilder, UriInfo uriInfo)  {
-        PagedInfoList list = new PagedInfoList();
+    public static <T> PagedInfoList<T> from(List<T> infos, QueryParameters queryParameters, UriBuilder uriBuilder, UriInfo uriInfo)  {
+        PagedInfoList<T> list = new PagedInfoList<>();
         if (uriInfo.getQueryParameters().containsKey("fields")) {
             uriBuilder.queryParam("fields", uriInfo.getQueryParameters().getFirst("fields"));
         }
@@ -72,8 +72,8 @@ public class PagedInfoList {
      *                        the list if infos,
      * @return A PagedInfoList that will be correctly serialized as JSON paging object, understood by ExtJS
      */
-    public static PagedInfoList from(List<?> infos, QueryParameters queryParameters) {
-        PagedInfoList list = new PagedInfoList();
+    public static <T> PagedInfoList<T> from(List<T> infos, QueryParameters queryParameters) {
+        PagedInfoList<T> list = new PagedInfoList<>();
         if (queryParameters.getStart().isPresent() && queryParameters.getLimit().isPresent()) {
             int limit = queryParameters.getLimit().get();
             boolean hasNextPage = infos.size() > limit;

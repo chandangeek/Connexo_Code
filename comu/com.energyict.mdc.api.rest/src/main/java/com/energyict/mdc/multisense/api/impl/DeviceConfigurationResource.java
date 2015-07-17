@@ -42,8 +42,8 @@ public class DeviceConfigurationResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
-    @Path("/{id}")
-    public Response getHypermediaDeviceConfiguration(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("id") long id, @BeanParam FieldSelection fields, @Context UriInfo uriInfo) {
+    @Path("/{deviceConfigId}")
+    public DeviceConfigurationInfo getDeviceConfiguration(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigId") long id, @BeanParam FieldSelection fields, @Context UriInfo uriInfo) {
         DeviceConfigurationInfo deviceConfigurationInfo = deviceConfigurationService.
                 findDeviceType(id)
                 .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND.getStatusCode())).
@@ -51,21 +51,21 @@ public class DeviceConfigurationResource {
                         map(dc -> deviceConfigurationInfoFactory.asHypermedia(dc, uriInfo, fields.getFields())).
                         findFirst()
                         .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND.getStatusCode()));
-        return Response.ok(deviceConfigurationInfo).build();
+        return deviceConfigurationInfo;
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
-    public Response getHypermediaDeviceConfigurations(@PathParam("deviceTypeId") long deviceTypeId, @BeanParam JsonQueryParameters queryParameters, @BeanParam FieldSelection fields,@Context UriInfo uriInfo) {
+    public PagedInfoList<DeviceConfigurationInfo> getHypermediaDeviceConfigurations(@PathParam("deviceTypeId") long deviceTypeId, @BeanParam JsonQueryParameters queryParameters,
+                                                           @BeanParam FieldSelection fields,@Context UriInfo uriInfo) {
         List<DeviceConfiguration> allDeviceConfigurations = deviceConfigurationService.
                 findDeviceType(deviceTypeId)
                 .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND.getStatusCode())).getConfigurations();
         List<DeviceConfigurationInfo> infos = ListPager.of(allDeviceConfigurations).from(queryParameters).find().stream().map(dc -> deviceConfigurationInfoFactory.asHypermedia(dc, uriInfo, fields.getFields())).collect(toList());
         UriBuilder uri = uriInfo.getBaseUriBuilder().path(DeviceConfigurationResource.class).resolveTemplate("deviceTypeId", deviceTypeId);
 
-        PagedInfoList infoList = PagedInfoList.from(infos, queryParameters, uri, uriInfo);
-        return Response.ok(infoList).build();
+        return PagedInfoList.from(infos, queryParameters, uri, uriInfo);
     }
 
 

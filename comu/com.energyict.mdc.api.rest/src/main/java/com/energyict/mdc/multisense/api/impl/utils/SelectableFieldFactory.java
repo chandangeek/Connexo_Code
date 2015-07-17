@@ -1,4 +1,4 @@
-package com.energyict.mdc.multisense.api.impl;
+package com.energyict.mdc.multisense.api.impl.utils;
 
 import com.energyict.mdc.multisense.api.impl.utils.PropertyCopier;
 import java.util.Collection;

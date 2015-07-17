@@ -17,7 +17,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
@@ -41,21 +40,21 @@ public class ComPortPoolResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    public Response getComPortPools(@BeanParam JsonQueryParameters queryParameters, @Context UriInfo uriInfo, @BeanParam FieldSelection fieldSelection) {
+    public PagedInfoList<ComPortPoolInfo> getComPortPools(@BeanParam JsonQueryParameters queryParameters, @Context UriInfo uriInfo, @BeanParam FieldSelection fieldSelection) {
         List<ComPortPoolInfo> page = ListPager.
                 of(engineConfigurationService.findAllComPortPools()).
                 from(queryParameters).stream().
                 map(cpp -> comPortPoolFactory.asHypermedia(cpp, uriInfo, fieldSelection.getFields())).
                 collect(toList());
         UriBuilder uriBuilder = uriInfo.getBaseUriBuilder().path(ComPortPoolResource.class);
-        return Response.ok(PagedInfoList.from(page, queryParameters, uriBuilder, uriInfo)).build();
+        return PagedInfoList.from(page, queryParameters, uriBuilder, uriInfo);
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Path("/{id}")
-    public Response getComPortPool(@PathParam("id") long id, @Context UriInfo uriInfo, @BeanParam FieldSelection fieldSelection) {
+    public ComPortPoolInfo getComPortPool(@PathParam("id") long id, @Context UriInfo uriInfo, @BeanParam FieldSelection fieldSelection) {
         ComPortPool comPortPool = engineConfigurationService.findComPortPool(id).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NOT_FOUND));
-        return Response.ok(comPortPoolFactory.asHypermedia(comPortPool, uriInfo, fieldSelection.getFields())).build();
+        return comPortPoolFactory.asHypermedia(comPortPool, uriInfo, fieldSelection.getFields());
     }
 }

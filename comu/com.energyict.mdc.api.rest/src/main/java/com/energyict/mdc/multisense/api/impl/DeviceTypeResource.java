@@ -40,20 +40,19 @@ public class DeviceTypeResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
-    @Path("/{id}")
-    public Response getHypermediaDeviceType(@PathParam("id") long id, @BeanParam FieldSelection fields, @Context UriInfo uriInfo) {
-        DeviceTypeInfo deviceTypeInfo = deviceConfigurationService.findDeviceType(id).map(d -> deviceTypeInfoFactory.asHypermedia(d, uriInfo, fields.getFields())).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND.getStatusCode()));
-        return Response.ok(deviceTypeInfo).build();
+    @Path("/{deviceTypeId}")
+    public DeviceTypeInfo getHypermediaDeviceType(@PathParam("deviceTypeId") long id, @BeanParam FieldSelection fields, @Context UriInfo uriInfo) {
+        return deviceConfigurationService.findDeviceType(id).map(d -> deviceTypeInfoFactory.asHypermedia(d, uriInfo, fields.getFields())).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND.getStatusCode()));
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
-    public Response getHypermediaDeviceTypes(@BeanParam JsonQueryParameters queryParameters, @BeanParam FieldSelection fields,@Context UriInfo uriInfo) {
+    public PagedInfoList<DeviceTypeInfo> getHypermediaDeviceTypes(@BeanParam JsonQueryParameters queryParameters, @BeanParam FieldSelection fields, @Context UriInfo uriInfo) {
         List<DeviceTypeInfo> infos = deviceConfigurationService.findAllDeviceTypes().from(queryParameters).stream().map(d -> deviceTypeInfoFactory.asHypermedia(d, uriInfo, fields.getFields())).collect(toList());
 
         UriBuilder uri = uriInfo.getBaseUriBuilder().path(DeviceTypeResource.class);
-        return Response.ok(PagedInfoList.from(infos, queryParameters, uri, uriInfo)).build();
+        return PagedInfoList.from(infos, queryParameters, uri, uriInfo);
     }
 
 }

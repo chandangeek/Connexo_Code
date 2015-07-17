@@ -13,6 +13,7 @@ import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.multisense.api.impl.utils.FieldSelection;
 import com.energyict.mdc.multisense.api.impl.utils.MessageSeeds;
 import com.energyict.mdc.multisense.api.impl.utils.PagedInfoList;
+import com.energyict.mdc.multisense.api.impl.utils.ResourceHelper;
 import java.net.URI;
 import java.util.Collections;
 import java.util.List;
@@ -68,18 +69,17 @@ public class DeviceResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
     @Path("/{mrid}")
-    public Response getDevice(@PathParam("mrid") String mRID, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
-        DeviceInfo deviceInfo = deviceService.findByUniqueMrid(mRID).map(d -> deviceInfoFactory.asHypermedia(d, uriInfo, fieldSelection.getFields())).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND.getStatusCode()));
-        return Response.ok(deviceInfo).build();
+    public DeviceInfo getDevice(@PathParam("mrid") String mRID, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
+        return deviceService.findByUniqueMrid(mRID).map(d -> deviceInfoFactory.asHypermedia(d, uriInfo, fieldSelection.getFields())).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND.getStatusCode()));
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
-    public Response getDevices(@BeanParam JsonQueryParameters queryParameters, @BeanParam FieldSelection fields, @Context UriInfo uriInfo) {
+    public PagedInfoList getDevices(@BeanParam JsonQueryParameters queryParameters, @BeanParam FieldSelection fields, @Context UriInfo uriInfo) {
         List<DeviceInfo> infos = deviceService.findAllDevices(Condition.TRUE).from(queryParameters).stream().map(d -> deviceInfoFactory.asHypermedia(d, uriInfo, fields.getFields())).collect(toList());
         UriBuilder uriBuilder = uriInfo.getBaseUriBuilder().path(DeviceResource.class);
-        return Response.ok(PagedInfoList.from(infos, queryParameters, uriBuilder, uriInfo)).build();
+        return PagedInfoList.from(infos, queryParameters, uriBuilder, uriInfo);
     }
 
     @POST
@@ -113,7 +113,7 @@ public class DeviceResource {
     @Consumes(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_COMMUNICATION)
-    public Response updateDevice(@PathParam("mrid") String mrid, DeviceInfo info, @Context SecurityContext securityContext, @Context UriInfo uriInfo) {
+    public DeviceInfo updateDevice(@PathParam("mrid") String mrid, DeviceInfo info, @Context SecurityContext securityContext, @Context UriInfo uriInfo) {
         Device device = deviceService.findAndLockDeviceBymRIDAndVersion(mrid, info.version == null ? 0 : info.version).orElseThrow(() -> new WebApplicationException(Response.Status.CONFLICT));
         if (info.masterDevice!=null && info.masterDevice.mRID != null) {
             if (device.getDeviceConfiguration().isDirectlyAddressable()) {
@@ -133,7 +133,7 @@ public class DeviceResource {
         device.setSerialNumber(info.serialNumber);
         device.setYearOfCertification(info.yearOfCertification);
         device.save();
-        return Response.ok(deviceInfoFactory.asHypermedia(device, uriInfo, Collections.emptyList())).build();
+        return deviceInfoFactory.asHypermedia(device, uriInfo, Collections.emptyList());
     }
 
 
@@ -151,8 +151,8 @@ public class DeviceResource {
     @Path("/fields")
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
-    public Response getFields() {
-        return Response.ok(deviceInfoFactory.getAvailableFields().stream().sorted().collect(toList())).build();
+    public List<String> getFields() {
+        return deviceInfoFactory.getAvailableFields().stream().sorted().collect(toList());
     }
 
 }
