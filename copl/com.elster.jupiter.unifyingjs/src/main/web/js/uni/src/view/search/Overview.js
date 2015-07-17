@@ -15,7 +15,8 @@ Ext.define('Uni.view.search.Overview', {
         'Uni.view.search.field.YesNo',
         'Uni.view.search.field.SearchObjectSelector',
         'Uni.view.search.field.AddCriteriaButton',
-        'Uni.view.search.field.DateRangeField'
+        'Uni.view.search.field.DateRangeField',
+        'Uni.view.search.field.NumberRange'
     ],
 
     padding: '16 16 16 16',
@@ -66,8 +67,11 @@ Ext.define('Uni.view.search.Overview', {
 
                             },
                             // temp for testing date range field
-                            {
+/*                            {
                                 xtype: 'uni-view-search-field-date-range'
+                            },*/
+                            {
+                                xtype: 'uni-view-search-field-number-range'
                             },
                             {
                                 xtype: 'container',
