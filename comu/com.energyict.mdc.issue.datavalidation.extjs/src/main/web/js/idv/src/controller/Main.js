@@ -9,7 +9,8 @@ Ext.define('Idv.controller.Main', {
         'Uni.model.PortalItem',
         'Uni.store.PortalItems',
         'Uni.store.MenuItems',
-        'Isu.privileges.Issue'
+        'Isu.privileges.Issue',
+        'Cfg.privileges.Validation'
     ],
 
     controllers: [
@@ -45,6 +46,7 @@ Ext.define('Idv.controller.Main', {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             dataCollection = null,
+            items = [],
             historian = me.getController('Idv.controller.history.Workspace'); // Forces route registration.
 
         if (Isu.privileges.Issue.canViewAdminDevice()) {
@@ -56,22 +58,32 @@ Ext.define('Idv.controller.Main', {
             }));
         }
 
-        if (Isu.privileges.Issue.canViewAdminDevice()) {
+        if (Isu.privileges.Issue.canViewAdminDevice() || Cfg.privileges.Validation.canView()) {
+
+            if (Isu.privileges.Issue.canViewAdminDevice()) {
+                items.push({
+                    text: 'Issues',
+                    href: router.getRoute('workspace/datavalidationissues').buildUrl()
+                });
+                items.push({
+                    text: 'My open issues',
+                    itemId: 'my-open-issues',
+                    href: router.getRoute('workspace/datavalidationissues').buildUrl({}, {myopenissues: true})
+                });
+            }
+
+            if (Cfg.privileges.Validation.canView()) {
+                items.push( {
+                    text: Uni.I18n.translate('validation.validationOverview.title', 'CFG', 'Validation overview'),
+                    href: '#/workspace/datavalidationoverview'
+                });
+            }
+
             dataCollection = Ext.create('Uni.model.PortalItem', {
                 title: 'Data validation',
                 portal: 'workspace',
                 route: 'datavalidation',
-                items: [
-                    {
-                        text: 'Issues',
-                        href: router.getRoute('workspace/datavalidationissues').buildUrl()
-                    },
-                    {
-                        text: 'My open issues',
-                        itemId: 'my-open-issues',
-                        href: router.getRoute('workspace/datavalidationissues').buildUrl({}, {myopenissues: true})
-                    }
-                ]
+                items:  items
             });
         }
 

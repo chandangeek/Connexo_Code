@@ -56,8 +56,16 @@ Ext.define('Idv.controller.history.Workspace', {
                             }
                         }
                     }
+                },
+                datavalidationoverview: {
+                    title: Uni.I18n.translate('validation.validationOverview.title', 'CFG', 'Validation overview'),
+                    route: 'datavalidationoverview',
+                    controller: 'Cfg.controller.Overview',
+                    action: 'showOverview',
+                    filter: 'Cfg.model.OverviewFilter'
                 }
             }
+
         }
     },
 
