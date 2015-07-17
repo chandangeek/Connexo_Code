@@ -16,25 +16,25 @@ public enum SupportedNumberFormat {
     FORMAT3(DOT, "123456789.012"),
     FORMAT4(COMMA, "123456789,012");
 
-    String decimalSeparator;
-    String groupSeparator;
+    Character decimalSeparator;
+    Character groupSeparator;
     String example;
 
-    SupportedNumberFormat(String decimalSeparator, String example) {
+    SupportedNumberFormat(Character decimalSeparator, String example) {
         this.decimalSeparator = decimalSeparator;
         this.example = example;
     }
 
-    SupportedNumberFormat(String decimalSeparator, String groupSeparator, String example) {
+    SupportedNumberFormat(Character decimalSeparator, Character groupSeparator, String example) {
         this(decimalSeparator, example);
         this.groupSeparator = groupSeparator;
     }
 
-    public String getDecimalSeparator() {
+    public Character getDecimalSeparator() {
         return decimalSeparator;
     }
 
-    public String getGroupSeparator() {
+    public Character getGroupSeparator() {
         return groupSeparator;
     }
 

@@ -1,6 +1,6 @@
 package com.energyict.mdc.device.data.importers.impl.parsers;
 
-import jdk.nashorn.internal.runtime.ParserException;
+import com.energyict.mdc.device.data.importers.impl.exceptions.ParserException;
 
 public interface FieldParser<T> {
 

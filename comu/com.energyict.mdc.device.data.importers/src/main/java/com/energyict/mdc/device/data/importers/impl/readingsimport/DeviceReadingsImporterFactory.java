@@ -65,10 +65,10 @@ public class DeviceReadingsImporterFactory extends AbstractDeviceDataFileImporte
         Optional<FileImporterProperty> delimiter = properties.stream().filter(p -> DELIMITER.equals(p.getName())).findFirst();
         Optional<FileImporterProperty> numberFormat = properties.stream().filter(p -> NUMBER_FORMAT.equals(p.getName())).findFirst();
         if (delimiter.isPresent() && numberFormat.isPresent()) {
-            String delimiterValue = (String) delimiter.get().getValue();
+            char delimiterValue = ((String) delimiter.get().getValue()).charAt(0);
             SupportedNumberFormat numberFormatValue = ((SupportedNumberFormat.SupportedNumberFormatInfo) numberFormat.get().getValue()).getFormat();
-            if (COMMA.equals(delimiterValue) && (COMMA.equals(numberFormatValue.getDecimalSeparator()) ||
-                    (numberFormatValue.getGroupSeparator() != null && COMMA.equals(numberFormatValue.getGroupSeparator())))) {
+            if (COMMA == delimiterValue && (COMMA == numberFormatValue.getDecimalSeparator() ||
+                    (numberFormatValue.getGroupSeparator() != null && COMMA == numberFormatValue.getGroupSeparator().charValue()))) {
                 throw new LocalizedFieldValidationException(MessageSeeds.NUMBER_FORMAT_IS_INCOMPATIBLE_WITH_DELIMITER, "properties." + NUMBER_FORMAT);
             }
         }
@@ -98,7 +98,7 @@ public class DeviceReadingsImporterFactory extends AbstractDeviceDataFileImporte
     @Override
     public List<PropertySpec> getPropertySpecs() {
         ImmutableList.Builder<PropertySpec> builder = ImmutableList.builder();
-        builder.add(propertySpecService.stringPropertySpecWithValuesAndDefaultValue(DELIMITER, true, SEMICOLON, SEMICOLON, COMMA));
+        builder.add(propertySpecService.stringPropertySpecWithValuesAndDefaultValue(DELIMITER, true, String.valueOf(SEMICOLON), String.valueOf(SEMICOLON), String.valueOf(COMMA)));
         builder.add(new DateFormatPropertySpec(DATE_FORMAT, thesaurus));//TODO set default value depending on application server timezone
         builder.add(new TimeZonePropertySpec(TIME_ZONE, thesaurus));
         builder.add(propertySpecService.stringReferencePropertySpec(NUMBER_FORMAT, true,
