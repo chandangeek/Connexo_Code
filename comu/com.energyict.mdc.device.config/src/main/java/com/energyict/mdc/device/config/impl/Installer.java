@@ -44,26 +44,9 @@ public class Installer {
             this.logger.log(Level.SEVERE, e.getMessage(), e);
         }
         createEventTypes();
-        createPrivileges();
-        createDTCPrivileges();
     }
 
-    private void createPrivileges() {
-        try {
-            this.userService.createResourceWithPrivileges("MDC", "masterData.masterData", "masterData.masterData.description", new String[] {Privileges.ADMINISTRATE_MASTER_DATA, Privileges.VIEW_MASTER_DATA});
-            this.userService.createResourceWithPrivileges("MDC", "deviceType.deviceTypes", "deviceType.deviceTypes.description", new String[]{Privileges.ADMINISTRATE_DEVICE_TYPE, Privileges.VIEW_DEVICE_TYPE});
-        } catch (Exception e) {
-            this.logger.log(Level.SEVERE, e.getMessage(), e);
-        }
-    }
 
-    private void createDTCPrivileges() {
-        List<String> collect = Arrays.asList(DeviceSecurityUserAction.values()).stream().map(DeviceSecurityUserAction::getPrivilege).collect(toList());
-        //collect.addAll(Arrays.asList(DeviceMessageUserAction.values()).stream().map(DeviceMessageUserAction::getPrivilege).collect(toList()));
-        this.userService.createResourceWithPrivileges("MDC", "deviceSecurity.deviceSecurities", "deviceSecurity.deviceSecurities.description", collect.toArray(new String[collect.size()]));
-        List<String> collectDeviceUserMessages = Arrays.asList(DeviceMessageUserAction.values()).stream().map(DeviceMessageUserAction::getPrivilege).collect(toList());
-        this.userService.createResourceWithPrivileges("MDC", "deviceCommand.deviceCommands", "deviceCommand.deviceCommands.description", collectDeviceUserMessages.toArray(new String[collectDeviceUserMessages.size()]));
-    }
 
     private void createEventTypes() {
         for (EventType eventType : EventType.values()) {

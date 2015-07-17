@@ -45,6 +45,7 @@ import java.util.Optional;
 
 import org.junit.*;
 import org.junit.rules.*;
+import org.mockito.Matchers;
 
 import static com.elster.jupiter.cbo.Commodity.ELECTRICITY_SECONDARY_METERED;
 import static com.elster.jupiter.cbo.FlowDirection.FORWARD;
@@ -649,7 +650,7 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
     @Transactional
     public void currentUserHasCorrectLevelTest() {
         User mockedUser = inMemoryPersistence.getMockedUser();
-        when(mockedUser.hasPrivilege(DeviceMessageUserAction.EXECUTEDEVICEMESSAGE1.getPrivilege())).thenReturn(true);
+        when(mockedUser.hasPrivilege(anyString(), Matchers.eq(DeviceMessageUserAction.EXECUTEDEVICEMESSAGE1.getPrivilege()))).thenReturn(true);
 
         DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("currentUserHasCorrectLevelTest").add();
 
@@ -660,7 +661,7 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
     @Transactional
     public void currentUserDoesntHaveCorrectLevelTest() {
         User mockedUser = inMemoryPersistence.getMockedUser();
-        when(mockedUser.hasPrivilege(anyString())).thenReturn(false);
+        when(mockedUser.hasPrivilege(anyString(),anyString())).thenReturn(false);
 
         DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("currentUserDoesntHaveCorrectLevelTest").add();
 
@@ -671,7 +672,7 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
     @Transactional
     public void currentUserHasAllPrivilegeButNotConfiguredOnConfigTest() {
         User mockedUser = inMemoryPersistence.getMockedUser();
-        when(mockedUser.hasPrivilege(anyString())).thenReturn(true);
+        when(mockedUser.hasPrivilege(anyString(),anyString())).thenReturn(true);
 
         DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("currentUserHasAllPrivilegeButNotConfiguredOnConfigTest").add();
 
@@ -687,7 +688,7 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
         deviceConfiguration.save();
 
         User mockedUser = inMemoryPersistence.getMockedUser();
-        when(mockedUser.hasPrivilege(DeviceMessageUserAction.EXECUTEDEVICEMESSAGE1.getPrivilege())).thenReturn(true);
+        when(mockedUser.hasPrivilege(anyString(),Matchers.eq(DeviceMessageUserAction.EXECUTEDEVICEMESSAGE1.getPrivilege()))).thenReturn(true);
 
         assertThat(deviceConfiguration.isAuthorized(DeviceMessageId.CONTACTOR_CLOSE)).isTrue();
     }
@@ -702,7 +703,7 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
         deviceConfiguration.save();
 
         User mockedUser = inMemoryPersistence.getMockedUser();
-        when(mockedUser.hasPrivilege(anyString())).thenReturn(false);
+        when(mockedUser.hasPrivilege(anyString(),anyString())).thenReturn(false);
 
         assertThat(deviceConfiguration.isAuthorized(DeviceMessageId.CONTACTOR_CLOSE)).isFalse();
     }
@@ -716,7 +717,7 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
         deviceConfiguration.save();
 
         User mockedUser = inMemoryPersistence.getMockedUser();
-        when(mockedUser.hasPrivilege(DeviceMessageUserAction.EXECUTEDEVICEMESSAGE1.getPrivilege())).thenReturn(true);
+        when(mockedUser.hasPrivilege(anyString(),Matchers.eq(DeviceMessageUserAction.EXECUTEDEVICEMESSAGE1.getPrivilege()))).thenReturn(true);
 
         assertThat(deviceConfiguration.isAuthorized(DeviceMessageId.PLC_CONFIGURATION_SET_PAN_ID)).isFalse();
     }

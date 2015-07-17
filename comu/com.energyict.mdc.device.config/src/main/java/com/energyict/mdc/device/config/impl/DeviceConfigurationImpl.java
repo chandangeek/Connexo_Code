@@ -39,15 +39,12 @@ import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.ComTask;
-import com.google.common.collect.ImmutableList;
-
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.validation.Valid;
 import javax.validation.constraints.Size;
-
 import java.security.Principal;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -334,12 +331,8 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         this.channelSpecs.clear();
         this.logBookSpecs.clear();
         this.configurationPropertiesList.clear();
-        List<DeviceConfValidationRuleSetUsage> usageCopy = ImmutableList.copyOf(deviceConfValidationRuleSetUsages);
-        for(DeviceConfValidationRuleSetUsage usage : usageCopy) {
-            if (usage.getDeviceConfiguration().getId() == this.getId()) {
-                deviceConfValidationRuleSetUsages.remove(usage);
-            }
-        }
+        this.deviceConfValidationRuleSetUsages.clear();
+        this.deviceConfigurationEstimationRuleSetUsages.clear();
     }
 
     private void validateAllChannelSpecsHaveUniqueObisCodes() {
@@ -1065,8 +1058,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     }
 
     private boolean isUserAuthorizedForAction(DeviceMessageUserAction action, User user) {
-        Optional<Privilege> privilege = ((DeviceConfigurationServiceImpl) deviceConfigurationService).findPrivilege(action.getPrivilege());
-        return privilege.isPresent() && user.hasPrivilege(privilege.get().getName());
+        return user.hasPrivilege("MDC",action.getPrivilege());
     }
 
     private Optional<User> getCurrentUser() {
