@@ -7,6 +7,8 @@ Ext.define('Mdc.model.ChannelReadingValidationResult', {
         {name: 'validationResult', type: 'string'},
         'validationRules',
         'valueModificationFlag',
-        'estimatedByRule'
+        'estimatedByRule',
+        'confirmedNotSaved',
+        'isConfirmed'
     ]
 });

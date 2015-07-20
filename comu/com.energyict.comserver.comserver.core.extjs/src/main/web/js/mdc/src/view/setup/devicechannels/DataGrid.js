@@ -142,16 +142,21 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
         var cls = 'icon-validation-cell',
             status = validationInfo.validationResult ? validationInfo.validationResult.split('.')[1] : '';
 
-        if (!record.data.validationInfo.dataValidated || status == 'notValidated') {
+        if (status == 'notValidated') {
             cls += ' icon-validation-black';
+        } else if (validationInfo.confirmedNotSaved) {
+            cls += ' x-grid-dirty-cell';
         } else if (status == 'suspect') {
             cls += ' icon-validation-red';
         }
+
         metaData.tdCls = cls;
         if (!Ext.isEmpty(v)) {
             var value = Uni.Number.formatNumber(v, -1);
             if (validationInfo.estimatedByRule && !record.isModified('value')) {
                 return !Ext.isEmpty(value) ? value + '<span style="margin: 0 0 0 10px; font-size: 16px; color: #33CC33; position: absolute" class="icon-play4"</span>' : '';
+            } else if (validationInfo.isConfirmed) {
+                return !Ext.isEmpty(value) ? value + '<span style="margin: 0 0 0 10px; position: absolute" class="icon-checkmark3"</span>' : '';
             } else {
                 return !Ext.isEmpty(value) ? value : '';
             }
