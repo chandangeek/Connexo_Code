@@ -18,6 +18,7 @@ Ext.define('Uni.Loader', {
         'Uni.DateTime',
         'Uni.Number',
         'Uni.Auth',
+        'Uni.DynamicPrivileges',
 
         'Uni.controller.Acknowledgements',
         'Uni.controller.Configuration',
