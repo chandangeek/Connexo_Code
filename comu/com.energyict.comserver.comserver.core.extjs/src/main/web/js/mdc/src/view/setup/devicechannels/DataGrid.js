@@ -81,7 +81,8 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                 xtype: 'edited-column',
                 header: '',
                 dataIndex: 'mainModificationState',
-                width: 30
+                width: 30,
+                emptyText: ' '
             },
             {
                 header: Uni.I18n.translate('deviceloadprofiles.channels.bulkValue', 'MDC', 'Bulk value') + ' (' + measurementType + ')',
@@ -110,7 +111,8 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                 xtype: 'edited-column',
                 header: '',
                 dataIndex: 'bulkModificationState',
-                width: 30
+                width: 30,
+                emptyText: ' '
             },
             {
                 xtype: 'interval-flags-column',
