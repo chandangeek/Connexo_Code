@@ -1,7 +1,5 @@
 package com.energyict.mdc.app.impl;
 
-import com.energyict.mdc.device.data.security.Privileges;
-
 import java.util.Arrays;
 import java.util.List;
 
@@ -53,9 +51,10 @@ class MdcAppPrivileges {
                 com.energyict.mdc.device.data.security.Privileges.ADMINISTRATE_DEVICE_COMMUNICATION,
                 com.energyict.mdc.device.data.security.Privileges.OPERATE_DEVICE_COMMUNICATION,
 
-                //mdc.device.data - Device data
+                // mdc.device.data - Device data
                 com.energyict.mdc.device.data.security.Privileges.ADMINISTRATE_DEVICE_ATTRIBUTE,
                 com.energyict.mdc.device.data.security.Privileges.ADMINISTRATE_DEVICE_DATA,
+                com.energyict.mdc.device.data.security.Privileges.ADMINISTER_DECOMMISSIONED_DEVICE_DATA,
 
                 //mdc.device.data - Devices group
                 com.energyict.mdc.device.data.security.Privileges.ADMINISTRATE_DEVICE_GROUP,
