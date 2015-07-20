@@ -573,6 +573,7 @@
                 <module>../com.elster.jupiter.bpm.extjs</module>
                 <module>../com.elster.jupiter.bpm.handler</module>
                 <module>../com.elster.jupiter.bpm.rest</module>
+                <module>../com.elster.jupiter.cps</module>
                 <module>../com.elster.jupiter.datavault</module>
                 <module>../com.elster.jupiter.domain.util</module>
                 <module>../com.elster.jupiter.events</module>
