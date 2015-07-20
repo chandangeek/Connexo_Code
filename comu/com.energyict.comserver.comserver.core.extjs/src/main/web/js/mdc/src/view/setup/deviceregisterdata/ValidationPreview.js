@@ -41,7 +41,11 @@ Ext.define('Mdc.view.setup.deviceregisterdata.ValidationPreview', {
                             field.hide();
                             break;
                         case 'validationStatus.ok':
-                            return Uni.I18n.translate('general.notSuspect', 'MDC', 'Not suspect');
+                            if (field.up('form').getRecord().get('isConfirmed')) {
+                                return Uni.I18n.translate('general.notSuspect', 'MDC', 'Not suspect') + ' ' + '<span style="margin-left: 5px; vertical-align: top" class="icon-checkmark3"</span>';
+                            } else {
+                                return Uni.I18n.translate('general.notSuspect', 'MDC', 'Not suspect');
+                            }
                             break;
                         case 'validationStatus.suspect':
                             return Uni.I18n.translate('validationStatus.suspect', 'MDC', 'Suspect') + ' ' + '<span class="icon-validation icon-validation-red"></span>';
@@ -56,10 +60,13 @@ Ext.define('Mdc.view.setup.deviceregisterdata.ValidationPreview', {
             }
         },
         {
-            fieldLabel: Uni.I18n.translate('device.registerData.failedValidationRules', 'MDC', 'Failed validation rules'),
+            fieldLabel: Uni.I18n.translate('general.readingQualities', 'MDC', 'Reading qualities'),
             name: 'suspectReason',
             renderer: function (value, field) {
-                if (!Ext.isEmpty(value)) {
+                if (field.up('form').getRecord() && field.up('form').getRecord().get('isConfirmed')) {
+                    field.show();
+                    return Uni.I18n.translate('general.confirmed', 'MDC', 'Confirmed');
+                } else if (!Ext.isEmpty(value)) {
                     field.show();
                     var str = '',
                         prop,
@@ -114,9 +121,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.ValidationPreview', {
                 } else {
                     field.hide();
                     return '';
-
                 }
-
             }
         }
     ]

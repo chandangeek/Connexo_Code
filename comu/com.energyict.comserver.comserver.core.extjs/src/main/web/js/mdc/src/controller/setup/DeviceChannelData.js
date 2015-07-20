@@ -540,7 +540,6 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 
     beforeEditRecord: function (editor, event) {
         var intervalFlags = event.record.get('intervalFlags');
-        event.row.querySelector('span') && event.row.querySelector('span').remove();
         event.column.getEditor().allowBlank = !(intervalFlags && intervalFlags.length);
     },
 
@@ -727,18 +726,13 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             mainValueSuspect,
             bulkValueSuspect;
 
-        if (records.length > 1) {
-            Ext.Array.findBy(records, function (item) {
-                mainValueSuspect = item.getValidationInfo().getMainValidationInfo().get('validationResult').split('.')[1] == 'suspect';
-                bulkValueSuspect = item.getValidationInfo().getBulkValidationInfo().get('validationResult').split('.')[1] == 'suspect';
-                return mainValueSuspect || bulkValueSuspect;
-            });
-            menu.down('#confirm-value').setVisible(mainValueSuspect || bulkValueSuspect);
-            menu.down('#estimate-value').setVisible(mainValueSuspect || bulkValueSuspect);
-        } else {
-            menu.down('#confirm-value').hide();
-            menu.down('#estimate-value').hide();
-        }
+        Ext.Array.findBy(records, function (item) {
+            mainValueSuspect = item.getValidationInfo().getMainValidationInfo().get('validationResult').split('.')[1] == 'suspect';
+            bulkValueSuspect = item.getValidationInfo().getBulkValidationInfo().get('validationResult').split('.')[1] == 'suspect';
+            return mainValueSuspect || bulkValueSuspect;
+        });
+        menu.down('#confirm-value').setVisible(mainValueSuspect || bulkValueSuspect);
+        menu.down('#estimate-value').setVisible(mainValueSuspect || bulkValueSuspect);
     },
 
     chooseBulkAction: function (menu, item) {
