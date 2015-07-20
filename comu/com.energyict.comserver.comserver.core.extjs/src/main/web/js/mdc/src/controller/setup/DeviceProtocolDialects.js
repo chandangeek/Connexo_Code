@@ -111,7 +111,7 @@ Ext.define('Mdc.controller.setup.DeviceProtocolDialects', {
         var me = this;
         var returnlink;
 
-        if (me.getApplication().getController('Mdc.controller.history.Setup').tokenizePreviousTokens().indexOf('null') > -1) {
+        if (me.getApplication().getController('Mdc.controller.history.Setup').tokenizePreviousTokens().indexOf('null') >= -1) {
             returnlink = '#/devices/' + encodeURIComponent(mRID) + '/protocols';
         } else {
             returnlink = me.getApplication().getController('Mdc.controller.history.Setup').tokenizePreviousTokens();
