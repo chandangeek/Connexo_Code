@@ -5,6 +5,9 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.UsagePointBuilder;
+
+import java.time.Clock;
 import java.util.Optional;
 import org.junit.After;
 import org.junit.Before;
@@ -30,17 +33,23 @@ public class CreateUsagePointTransactionTest {
     private ServiceCategory serviceCategory;
     @Mock
     private UsagePoint usagePoint;
+    
+    @Mock
+	private Clock clock;
+    
+	private UsagePointBuilder usagePointBuilder;
 
     @Before
     public void setUp() {
         when(meteringService.getServiceCategory(ServiceKind.ELECTRICITY)).thenReturn(Optional.of(serviceCategory));
+       
 
         info = new UsagePointInfo();
         info.serviceCategory = ServiceKind.ELECTRICITY;
         info.mRID = MR_ID;
         info.phaseCode = PhaseCode.A;
 
-        transaction = new CreateUsagePointTransaction(info, meteringService);
+        transaction = new CreateUsagePointTransaction(info, meteringService, clock);
     }
 
 
@@ -51,8 +60,12 @@ public class CreateUsagePointTransactionTest {
 
     @Test
     public void test() {
-        when(serviceCategory.newUsagePoint(MR_ID)).thenReturn(usagePoint);
-
+    	when(serviceCategory.newUsagePoint(MR_ID)).thenReturn(usagePoint);
+    	when(serviceCategory.newUsagePointBuilder()).thenReturn(usagePointBuilder);
+        when(usagePointBuilder.build()).thenReturn(usagePoint);
+    	when(clock.instant()).thenReturn(Clock.systemDefaultZone().instant());
+        
+        
         UsagePoint result = transaction.perform();
 
         assertThat(result).isEqualTo(usagePoint);

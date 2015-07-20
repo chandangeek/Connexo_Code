@@ -116,7 +116,7 @@ public class UsagePointResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public UsagePointInfos createUsagePoint(UsagePointInfo info) {
         UsagePointInfos result = new UsagePointInfos();
-        result.add(transactionService.execute(new CreateUsagePointTransaction(info, meteringService)), clock);
+        result.add(transactionService.execute(new CreateUsagePointTransaction(info, meteringService, clock)), clock);
         return result;
     }
 
