@@ -23,6 +23,8 @@ import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.multisense.api.impl.utils.DeviceLifeCycleActionViolationExceptionMapper;
 import com.energyict.mdc.multisense.api.impl.utils.ResourceHelper;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
+import com.energyict.mdc.tasks.TaskService;
 import com.google.common.collect.ImmutableSet;
 import java.time.Clock;
 import java.util.Collections;
@@ -59,7 +61,9 @@ public class PublicRestApplication extends Application implements TranslationKey
     private volatile TransactionService transactionService;
     private volatile ConnectionTaskService connectionTaskService;
     private volatile EngineConfigurationService engineConfigurationService;
+    private volatile TaskService taskService;
     private volatile Clock clock;
+    private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -73,6 +77,9 @@ public class PublicRestApplication extends Application implements TranslationKey
                 ConnectionTaskResource.class,
                 ComPortPoolResource.class,
                 PartialConnectionTaskResource.class,
+                ComTaskResource.class,
+                DeviceMessageCategoryResource.class,
+                ProtocolTaskResource.class,
                 DeviceLifeCycleActionViolationExceptionMapper.class
         );
     }
@@ -165,6 +172,16 @@ public class PublicRestApplication extends Application implements TranslationKey
         this.clock = clock;
     }
 
+    @Reference
+    public void setTaskService(TaskService taskService) {
+        this.taskService = taskService;
+    }
+
+    @Reference
+    public void setDeviceMessageSpecificationService(DeviceMessageSpecificationService deviceMessageSpecificationService) {
+        this.deviceMessageSpecificationService = deviceMessageSpecificationService;
+    }
+
     class HK2Binder extends AbstractBinder {
 
         @Override
@@ -181,6 +198,8 @@ public class PublicRestApplication extends Application implements TranslationKey
             bind(transactionService).to(TransactionService.class);
             bind(connectionTaskService).to(ConnectionTaskService.class);
             bind(engineConfigurationService).to(EngineConfigurationService.class);
+            bind(taskService).to(TaskService.class);
+            bind(deviceMessageSpecificationService).to(DeviceMessageSpecificationService.class);
             bind(clock).to(Clock.class);
 
             bind(MdcPropertyUtils.class).to(MdcPropertyUtils.class).in(Singleton.class);
@@ -195,6 +214,9 @@ public class PublicRestApplication extends Application implements TranslationKey
             bind(ConnectionTaskInfoFactory.class).to(ConnectionTaskInfoFactory.class).in(Singleton.class);
             bind(ComPortPoolInfoFactory.class).to(ComPortPoolInfoFactory.class).in(Singleton.class);
             bind(PartialConnectionTaskInfoFactory.class).to(PartialConnectionTaskInfoFactory.class).in(Singleton.class);
+            bind(ComTaskInfoFactory.class).to(ComTaskInfoFactory.class).in(Singleton.class);
+            bind(DeviceMessageCategoryInfoFactory.class).to(DeviceMessageCategoryInfoFactory.class).in(Singleton.class);
+            bind(ProtocolTaskInfoFactory.class).to(ProtocolTaskInfoFactory.class).in(Singleton.class);
         }
     }
 

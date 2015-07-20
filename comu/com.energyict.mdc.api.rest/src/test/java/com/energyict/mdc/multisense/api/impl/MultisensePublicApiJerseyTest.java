@@ -49,7 +49,14 @@ import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
+import com.energyict.mdc.tasks.ClockTask;
+import com.energyict.mdc.tasks.ClockTaskType;
+import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.tasks.ProtocolTask;
+import com.energyict.mdc.tasks.TaskService;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.util.Arrays;
@@ -90,6 +97,10 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
     @Mock
     EngineConfigurationService engineConfigurationService;
     @Mock
+    TaskService taskService;
+    @Mock
+    DeviceMessageSpecificationService deviceMessageSpecificationService;
+    @Mock
     Clock clock;
 
     @Override
@@ -112,6 +123,8 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         application.setConnectionTaskService(connectionTaskService);
         application.setEngineConfigurationService(engineConfigurationService);
         application.setClock(clock);
+        application.setTaskService(taskService);
+        application.setDeviceMessageSpecificationService(deviceMessageSpecificationService);
         return application;
     }
 
@@ -317,6 +330,33 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         InboundComPortPool mock = mock(InboundComPortPool.class);
         when(mock.getId()).thenReturn(id);
         return mock;
+    }
+
+    ComTask mockComTask(long id, String name, ProtocolTask ... protocolTasks) {
+        ComTask mock = mock(ComTask.class);
+        when(mock.getId()).thenReturn(id);
+        when(mock.getName()).thenReturn(name);
+        when(mock.getProtocolTasks()).thenReturn(Arrays.asList(protocolTasks));
+        when(taskService.findComTask(id)).thenReturn(Optional.of(mock));
+        return mock;
+    }
+
+    DeviceMessageCategory mockDeviceMessageCategory(int id, String name) {
+        DeviceMessageCategory mock = mock(DeviceMessageCategory.class);
+        when(mock.getId()).thenReturn(id);
+        when(mock.getName()).thenReturn(name);
+        when(mock.getDescription()).thenReturn("Description of "+name);
+        when(mock.getMessageSpecifications()).thenReturn(Collections.emptyList());
+        when(deviceMessageSpecificationService.findCategoryById(id)).thenReturn(Optional.of(mock));
+        return mock;
+    }
+
+    ClockTask mockClockTask(long id) {
+        ClockTask protocolTask = mock(ClockTask.class);
+        when(protocolTask.getId()).thenReturn(id);
+        when(protocolTask.getClockTaskType()).thenReturn(ClockTaskType.SETCLOCK);
+        when(taskService.findProtocolTask(id)).thenReturn(Optional.of(protocolTask));
+        return protocolTask;
     }
 
     <T> Finder<T> mockFinder(List<T> list) {

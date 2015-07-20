@@ -9,14 +9,13 @@ import javax.ws.rs.QueryParam;
  * Converts CSV string to list of individual field names
  */
 public class FieldSelection {
-
-    private final List<String> split;
-
-    public FieldSelection(@QueryParam("fields") String fields) {
-        split = fields!=null? Collections.unmodifiableList(Arrays.asList(fields.split(","))): Collections.emptyList();
-    }
+    /**
+     * Comma separated list of fields that will be added to the response,
+     * if absent, all fields will be added.
+     */
+    private @QueryParam("fields") String fields;
 
     public List<String> getFields() {
-        return split;
+        return fields!=null? Collections.unmodifiableList(Arrays.asList(fields.split(","))): Collections.emptyList();
     }
 }
