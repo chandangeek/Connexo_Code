@@ -400,7 +400,7 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     private List<ComTask> availableComTasks() {
-        return this.taskService.findAllComTasks();
+        return this.taskService.findAllComTasks().find();
     }
 
     private EnumSet<TaskStatus> successTaskStatusses() {
