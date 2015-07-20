@@ -7,7 +7,8 @@ import java.util.logging.Level;
  * Created by bvn on 5/26/15.
  */
 public enum MessageSeeds implements MessageSeed {
-    MAX_PAGE_SIZE_EXCEEDED(1, "The maximum page size of {0} was exceeded");
+    MAX_PAGE_SIZE_EXCEEDED(1, "The maximum page size of {0} was exceeded"),
+    UNPAGED_NOT_ALLOWED(2, "This query can only be called with paging parameters");
 
     private final int number;
     private final String defaultFormat;

@@ -68,7 +68,7 @@ public final class DefaultFinder<T> implements Finder<T> {
         }
         if (start==null || pageSize ==null) {
             if (maxPageSize!=null) {
-                throw new MaxPageSizeExceeded(thesaurus, maxPageSize);
+                throw new UnpagedNotAllowed(thesaurus, maxPageSize);
             }
             return query.select(condition, sortingColumns.toArray(new Order[sortingColumns.size()]));
         } else {
@@ -95,6 +95,9 @@ public final class DefaultFinder<T> implements Finder<T> {
     @Override
     public Finder<T> maxPageSize(Thesaurus thesaurus, int maxPageSize) {
         this.thesaurus = thesaurus;
+        if (this.maxPageSize!=null) {
+            throw new IllegalArgumentException("Maximum page size has already been set");
+        }
         if (maxPageSize<=0) {
             throw new IllegalArgumentException("Maximum page size must be greater than 0");
         }
@@ -118,5 +121,12 @@ class MaxPageSizeExceeded extends LocalizedException {
 
     protected MaxPageSizeExceeded(Thesaurus thesaurus, int size) {
         super(thesaurus, MessageSeeds.MAX_PAGE_SIZE_EXCEEDED, size);
+    }
+}
+
+class UnpagedNotAllowed extends LocalizedException {
+
+    protected UnpagedNotAllowed(Thesaurus thesaurus, int size) {
+        super(thesaurus, MessageSeeds.UNPAGED_NOT_ALLOWED, size);
     }
 }
