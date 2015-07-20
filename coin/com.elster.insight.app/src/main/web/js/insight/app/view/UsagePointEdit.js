@@ -2,9 +2,9 @@
 var serviceTypes = Ext.create('Ext.data.Store', {
 	fields: ['name', 'displayName'],
 	data : [
-		    {'name':'ELECTRICITY', 'displayName':'Electric'},
-		    {'name':'WATER', 'displayName':'Water'},
-		    {'name':'GAS', 'displayName':'Gas'}
+		    {'name':'ELECTRICITY', 'displayName':'ELECTRICITY'},
+		    {'name':'WATER', 'displayName':'WATER'},
+		    {'name':'GAS', 'displayName':'GAS'}
 	]
 });
 
@@ -119,18 +119,19 @@ Ext.define('InsightApp.view.UsagePointEdit', {
                     listeners: {
                     	change: function(field, newValue, oldValue) {
 	                		if (newValue == 'ELECTRICITY') {
-								this.up().down('panel[title=Extra]').show();
+								this.up().down('panel[itemId=form-technical-information]').show();
 	                		} else {
-	                			this.up().down('panel[title=Extra]').hide();
+	                			this.up().down('panel[itemId=form-technical-information]').hide();
 	                		}
                     	}
                     }
                 },
                 {
                 	xtype: 'panel',
-                	title: Uni.I18n.translate('usagePoint.formFieldLabel.extraFields', 'INS', 'Extra'),
+                	title: Uni.I18n.translate('usagePoint.formFieldLabel.technicalInformation', 'INS', 'Technical information'),
                 	layout: 'form',
                 	ui: 'large',
+                	itemId: 'form-technical-information',
                 	hidden: true,
                 	width: 600,
                 	items: [
