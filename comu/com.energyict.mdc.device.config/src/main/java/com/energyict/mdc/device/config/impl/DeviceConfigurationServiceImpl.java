@@ -562,7 +562,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
             List<DeviceConfiguration> deviceConfigurations = getDeviceConfigurationsFromComSchedule(comSchedule, connection);
             Collection<ComTask> comTasks;
             if (deviceConfigurations.isEmpty()) {
-                comTasks = taskService.findAllComTasks();
+                comTasks = taskService.findAllComTasks().find();
             } else {
                 comTasks = getComTasksEnabledOnAllDeviceConfigurations(deviceConfigurations);
             }
