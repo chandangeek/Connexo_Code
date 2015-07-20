@@ -24,9 +24,9 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
     ],
 
     refs: [
-        {ref: 'communicationTaskGridPanel', selector: '#communicationTaskGrid'},
-        {ref: 'communicationTaskPreviewPanel', selector: '#communicationTaskPreview'},
-        {ref: 'communicationTaskPreviewForm', selector: '#communicationTaskPreviewForm'},
+        {ref: 'communicationTaskGridPanel', selector: 'communicationTaskSetup communicationTaskGrid'},
+        {ref: 'communicationTaskPreviewPanel', selector: 'communicationTaskSetup communicationTaskPreview'},
+        {ref: 'communicationTaskPreviewForm', selector: 'communicationTaskSetup #communicationTaskPreviewForm'},
         {ref: 'communicationTaskEditForm', selector: '#communicationTaskEditForm'},
         {ref: 'communicationTaskEditPanel', selector: '#communicationTaskEdit'},
         {ref: 'communicationTaskSetupPanel', selector: '#communicationTaskSetup'},
@@ -36,7 +36,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
     init: function () {
         var me = this;
         me.control({
-            '#communicationTaskGrid': {
+            'communicationTaskSetup communicationTaskGrid': {
                 select: me.loadCommunicationTaskDetail
             },
             '#communicationTaskSetup': {
@@ -138,7 +138,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
         var me = this,
             grid = me.getCommunicationTaskGridPanel();
         if (!Ext.isEmpty(grid)) {
-            var numberOfCommunicationTasksContainer = Ext.ComponentQuery.query('#communicationTaskGrid #communicationTasksCount')[0],
+            var numberOfCommunicationTasksContainer = grid.down('#communicationTasksCount'),
                 gridView = grid.getView(),
                 selectionModel = gridView.getSelectionModel(),
                 communicationTasksCount = me.getCommunicationTaskConfigsOfDeviceConfigurationStore().getCount(),

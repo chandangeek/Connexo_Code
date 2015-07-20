@@ -76,7 +76,8 @@ Ext.define('Mdc.view.setup.devicegeneralattributes.Setup', {
             privileges: Mdc.privileges.Device.administrateDeviceCommunication,
             href: typeof me.router.getRoute('devices/device/generalattributes/edit') !== 'undefined'
                 ? me.router.getRoute('devices/device/generalattributes/edit').buildUrl() : null,
-            text: Uni.I18n.translate('general.edit', 'MDC', 'Edit')
+            text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
+            dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.generalAttributesActions
         });
 
 

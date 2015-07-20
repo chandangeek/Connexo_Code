@@ -10,25 +10,29 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodActionMe
             text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
             privileges: Mdc.privileges.Device.administrateDeviceCommunication,
             itemId: 'editDeviceConnectionMethod',
-            action: 'editDeviceConnectionMethod'
+            action: 'editDeviceConnectionMethod',
+            dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.connectionMethodsActions
         },
         {
             text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
             privileges: Mdc.privileges.Device.administrateDeviceCommunication,
             itemId: 'deleteDeviceConnectionMethod',
-            action: 'deleteDeviceConnectionMethod'
+            action: 'deleteDeviceConnectionMethod',
+            dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.connectionMethodsActions
         },
         {
             text: Uni.I18n.translate('deviceconnectionmethod.setAsDefault', 'MDC', 'Set as default'),
             privileges: Mdc.privileges.Device.administrateDeviceCommunication,
             itemId: 'toggleDefaultMenuItem',
-            action: 'toggleDefault'
+            action: 'toggleDefault',
+            dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.connectionMethodsActions
         },
         {
             text: Uni.I18n.translate('deviceconnectionmethod.activate', 'MDC', 'Activate'),
             privileges: Mdc.privileges.Device.operateDeviceCommunication,
             itemId: 'toggleActiveMenuItem',
-            action: 'toggleActive'
+            action: 'toggleActive',
+            dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.connectionMethodsActions
         },
         {
             text: Uni.I18n.translate('deviceconnectionmethod.viewHistory', 'MDC', 'View history'),

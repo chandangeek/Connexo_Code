@@ -64,6 +64,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.billing.Grid', {
             {
                 xtype: 'uni-actioncolumn',
                 privileges: Mdc.privileges.Device.administrateDeviceData,
+                dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.deviceDataEditActions,
                 menu: {
                     xtype: 'deviceregisterdataactionmenu'
                 }

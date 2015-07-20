@@ -76,6 +76,7 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodsGrid', 
                         text: Uni.I18n.translate('deviceconnectionmethod.addConnectionMethod', 'MDC', 'Add connection method'),
                         privileges: Mdc.privileges.Device.administrateDeviceCommunication,
                         iconCls: 'x-uni-action-iconD',
+                        dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.connectionMethodsActions,
                         menu: {
                             plain: true,
                             items: [

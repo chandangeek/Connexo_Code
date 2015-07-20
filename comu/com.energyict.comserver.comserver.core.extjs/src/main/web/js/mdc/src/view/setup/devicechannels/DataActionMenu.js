@@ -15,7 +15,8 @@ Ext.define('Mdc.view.setup.devicechannels.DataActionMenu', {
         {
             itemId: 'edit-value',
             text: Uni.I18n.translate('devicechannels.editReadings.editValue', 'MDC', 'Edit value'),
-            action: 'editValue'
+            action: 'editValue',
+            dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.deviceDataEditActions
         },
         {
             itemId: 'confirm-value',
@@ -32,7 +33,8 @@ Ext.define('Mdc.view.setup.devicechannels.DataActionMenu', {
         {
             itemId: 'remove-reading',
             text: Uni.I18n.translate('devicechannels.editReadings.removeReading', 'MDC', 'Remove reading'),
-            action: 'removeReading'
+            action: 'removeReading',
+            dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.deviceDataEditActions
         }       
     ]
 });

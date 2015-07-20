@@ -56,7 +56,8 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RulesSetMainView', {
                                         xtype: 'button',
                                         itemId: 'deviceDataValidationStateChangeBtn',
                                         privileges:Cfg.privileges.Validation.device,
-                                        action: ''
+                                        action: '',
+                                        dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.validationActions
                                     }
                                 ]
                             }

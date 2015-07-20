@@ -1,5 +1,8 @@
 Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypesAddToDeviceTypeSetup', {
     extend: 'Uni.view.container.ContentContainer',
+    requires: [
+        'Uni.view.container.EmptyGridContainer'
+    ],
     alias: 'widget.loadProfileTypesAddToDeviceTypeSetup',
     itemId: 'loadProfileTypesAddToDeviceTypeSetup',
     store: 'LoadProfileTypesOnDeviceTypeAvailable',
@@ -32,7 +35,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypesAddToDeviceTypeSetup'
         me.callParent(arguments);
         me.down('panel').add(
             {
-                xtype: 'preview-container',
+                xtype: 'emptygridcontainer',
                 grid: {
                     xtype: 'loadProfileTypesAddToDeviceTypeGrid',
                     itemId: 'loadprofile-type-add-grid',
@@ -46,6 +49,10 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypesAddToDeviceTypeSetup'
                         Uni.I18n.translate('loadprofiletypes.empty.list.item1', 'MDC', 'No load profile types are defined yet'),
                         Uni.I18n.translate('loadprofiletypes.empty.list.item2', 'MDC', 'All load profile types are already added to the device type.')
                     ]
+                },
+                onLoad: function (store, records) {
+                    this.up('#addLoadProfileTypePanel').down('#addButton').setVisible(records && records.length);
+                    this.getLayout().setActiveItem(!(records && records.length) ? this.getEmptyCt() : this.getGridCt());
                 }
 
             },

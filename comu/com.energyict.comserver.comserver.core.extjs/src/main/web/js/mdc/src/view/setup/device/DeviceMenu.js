@@ -82,12 +82,13 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
                     {
                         text: Uni.I18n.translate('devicemenu.communicationPlanning', 'MDC', 'Communication planning'),
                         itemId: 'communicationSchedulesLink',
-                        href: '#/devices/' + encodeURIComponent(mRID) + '/communicationplanning'
+                        href: '#/devices/' + encodeURIComponent(mRID) + '/communicationplanning',
+                        dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.communicationPlanningPages
                     },
                     {
                         text: Uni.I18n.translate('devicemenu.communicationTasks', 'MDC', 'Communication tasks'),
                         itemId: 'communicationTasksLink',
-                        href: '#/devices/' + encodeURIComponent(mRID) + '/communicationtasks',
+                        href: '#/devices/' + encodeURIComponent(mRID) + '/communicationtasks'
                     },
                     {
                         text: Uni.I18n.translate('devicemenu.connectionMethods', 'MDC', 'Connection methods'),

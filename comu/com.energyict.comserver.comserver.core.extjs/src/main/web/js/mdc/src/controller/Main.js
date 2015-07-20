@@ -3,12 +3,15 @@ Ext.define('Mdc.controller.Main', {
 
     requires: [
         'Uni.controller.Navigation',
-        'Uni.store.MenuItems'
+        'Uni.store.MenuItems',
+        'Mdc.dynamicprivileges.DeviceState',
+        'Mdc.dynamicprivileges.Stores'
     ],
 
     stores: [
         'Mdc.store.ChannelsOfLoadProfilesOfDevice',
-        'Mdc.store.LoadProfilesOfDevice'
+        'Mdc.store.LoadProfilesOfDevice',
+        'Mdc.store.DeviceStatePrivileges'
     ],
 
     controllers: [

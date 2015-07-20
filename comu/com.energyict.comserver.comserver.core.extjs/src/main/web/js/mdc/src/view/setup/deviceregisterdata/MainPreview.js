@@ -15,6 +15,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.MainPreview', {
             privileges: Mdc.privileges.Device.administrateDeviceData,
             iconCls: 'x-uni-action-iconD',
             itemId: 'gridPreviewActionMenu',
+            dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.deviceDataEditActions,
             menu: {
                 xtype: 'deviceregisterdataactionmenu'
             }

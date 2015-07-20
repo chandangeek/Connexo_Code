@@ -234,17 +234,17 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
                             me.getApplication().fireEvent('changecontentevent', widget);
                             if (store.proxy.reader.rawData.hasCommandsWithPrivileges) {
                                 if (store.count() === 0) {
-                                    widget.down('#empty_grid_deviceAddCommandButton').show();
+                                    !!widget.down('#empty_grid_deviceAddCommandButton') && widget.down('#empty_grid_deviceAddCommandButton').show();
                                     widget.down('#no-items-found-panel-steps-label').show()
                                 } else {
-                                    widget.down('#deviceAddCommandButton').show();
+                                    !!widget.down('#empty_grid_deviceAddCommandButton') && widget.down('#deviceAddCommandButton').show();
                                 }
                             } else {
                                 if (store.count() === 0) {
-                                    widget.down('#empty_grid_deviceAddCommandButton').hide();
+                                    !!widget.down('#empty_grid_deviceAddCommandButton') && widget.down('#empty_grid_deviceAddCommandButton').hide();
                                     widget.down('#no-items-found-panel-steps-label').hide();
                                 } else {
-                                    widget.down('#deviceAddCommandButton').hide();
+                                    !!widget.down('#deviceAddCommandButton') && widget.down('#deviceAddCommandButton').hide();
                                 }
                             }
 

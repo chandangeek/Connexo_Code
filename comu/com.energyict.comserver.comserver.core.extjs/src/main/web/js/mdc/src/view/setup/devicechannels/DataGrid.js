@@ -59,13 +59,25 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                     validateOnChange: true,
                     fieldStyle: 'text-align: right'
                 },
+                dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.deviceDataEditActions,
+                width: 200
+            },
+            {
+                header: Uni.I18n.translate('deviceloadprofiles.channels.value', 'MDC', 'Value') + ' (' + measurementType + ')',
+                dataIndex: 'value',
+                align: 'right',
+                renderer: function (v, metaData, record) {
+                    return me.formatColumn(v, metaData, record, record.data.validationInfo.mainValidationInfo);
+                },
+                hidden: Mdc.dynamicprivileges.DeviceState.canEditData(),
                 width: 200
             },
             {
                 xtype: 'edited-column',
                 header: '',
                 dataIndex: 'mainModificationState',
-                width: 30
+                width: 30,
+                emptyText: ' '
             },
             {
                 header: Uni.I18n.translate('deviceloadprofiles.channels.bulkValue', 'MDC', 'Bulk value') + ' (' + measurementType + ')',
@@ -81,7 +93,8 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                 xtype: 'edited-column',
                 header: '',
                 dataIndex: 'bulkModificationState',
-                width: 30
+                width: 30,
+                emptyText: ' '
             },
             {
                 xtype: 'interval-flags-column',
