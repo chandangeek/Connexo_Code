@@ -9,6 +9,7 @@ import java.util.Objects;
 import javax.inject.Inject;
 
 import com.elster.jupiter.metering.AmiBillingReadyKind;
+import com.elster.jupiter.metering.ElectricityDetailBuilder;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointConnectedKind;
 import com.elster.jupiter.metering.UsagePointDetail;
@@ -71,6 +72,17 @@ public abstract class UsagePointDetailImpl implements UsagePointDetail {
         this.connectionState = UsagePointConnectedKind.UNKNOWN;
         return this;
     }
+    
+    UsagePointDetailImpl init(UsagePoint usagePoint, ElectricityDetailBuilder builder, Interval interval) {
+    	this.usagePoint.set(usagePoint);
+        this.interval = Objects.requireNonNull(interval);
+        this.amiBillingReady = builder.getAmiBillingReady();
+        this.connectionState = builder.getConnectionState();
+        this.minimalUsageExpected = builder.isMinimalUsageExpected();
+        this.serviceDeliveryRemark = builder.getServiceDeliveryRemark();
+        return this;
+		
+	}
 
     @Override
     public void update() {
@@ -158,4 +170,5 @@ public abstract class UsagePointDetailImpl implements UsagePointDetail {
         }
         interval = Interval.of(Range.closedOpen(getRange().lowerEndpoint(), date));
     }
+
 }

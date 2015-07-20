@@ -1,15 +1,15 @@
 package com.elster.jupiter.metering;
 
+import java.time.Instant;
+import java.util.List;
+import java.util.Optional;
+
 import com.elster.jupiter.cbo.IdentifiedObject;
 import com.elster.jupiter.cbo.MarketRoleKind;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.users.User;
 import com.google.common.collect.Range;
-
-import java.time.Instant;
-import java.util.List;
-import java.util.Optional;
 
 public interface UsagePoint extends IdentifiedObject , ReadingContainer {
 	long getId();
@@ -25,6 +25,9 @@ public interface UsagePoint extends IdentifiedObject , ReadingContainer {
 	long getServiceLocationId();
 	Optional<ServiceLocation> getServiceLocation();
 	ServiceCategory getServiceCategory();
+	
+	public UsagePointBuilder getNewBuilder(ServiceCategory serviceCategory);
+	public UsagePointDetailBuilder getNewUsagePointDetailBuilder();
 
 	void setServiceLocation(ServiceLocation serviceLocation);
 	void setServicePriority(String servicePriority);
@@ -63,4 +66,6 @@ public interface UsagePoint extends IdentifiedObject , ReadingContainer {
     UsagePointDetail terminateDetail(UsagePointDetail detail, Instant date);
 
     Optional<? extends MeterActivation> getMeterActivation(Instant when);
+	ElectricityDetailBuilder newElectricityDetailBuilder(Instant start);
+	
 }

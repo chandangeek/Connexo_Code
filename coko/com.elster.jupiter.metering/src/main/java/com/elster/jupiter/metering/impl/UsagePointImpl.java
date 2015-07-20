@@ -3,16 +3,20 @@ package com.elster.jupiter.metering.impl;
 import com.elster.jupiter.cbo.MarketRoleKind;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.BaseReadingRecord;
+import com.elster.jupiter.metering.ElectricityDetailBuilder;
 import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingContainer;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
+import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.ServiceLocation;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointAccountability;
+import com.elster.jupiter.metering.UsagePointBuilder;
 import com.elster.jupiter.metering.UsagePointDetail;
+import com.elster.jupiter.metering.UsagePointDetailBuilder;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.TemporalReference;
@@ -22,6 +26,7 @@ import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRepresentation;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.users.User;
+import com.elster.jupiter.util.time.Interval;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
 
@@ -82,6 +87,63 @@ public class UsagePointImpl implements UsagePoint {
 		this.isSdp = true;
         return this;
 	}
+	
+	public UsagePointBuilder getNewBuilder(ServiceCategory serviceCategory) {
+		return new UsagePointBuilderImpl(serviceCategory, this);
+	}
+	
+//	public UsagePointDetailBuilder getNewUsagePointDetailBuilder() {
+//		if (id == 0) {
+//			//cannot create a new usage point detail on an unsaved usagepoint
+//			
+//		}
+//	}
+    public UsagePointDetail newUsagePointDetail(Instant start) {
+    	Interval interval = Interval.of(Range.atLeast(start));
+    	ServiceKind kind = getServiceCategory().getKind();
+        if (kind.equals(ServiceKind.ELECTRICITY)) {
+            return ElectricityDetailImpl.from(dataModel, this, interval);
+        } 
+        else if (kind.equals(ServiceKind.GAS)) {
+            return GasDetailImpl.from(dataModel, this, interval);
+        } else if (kind.equals(ServiceKind.WATER)) {
+            return WaterDetailImpl.from(dataModel, this, interval);
+        } else {
+            return DefaultDetailImpl.from(dataModel, this, interval);
+        }
+    }
+    
+    @Override
+	public UsagePointDetailBuilder getNewUsagePointDetailBuilder() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ElectricityDetailBuilder newElectricityDetailBuilder(Instant start) {
+		Interval interval = Interval.of(Range.atLeast(start));
+		return new ElectricityDetailBuilderImpl(dataModel, this, interval);
+	}
+	
+	
+	
+	UsagePointImpl init(UsagePointBuilder upb) {
+		this.serviceCategory.set(upb.getServiceCategory());
+		
+		this.aliasName=upb.getAliasName();
+		this.description=upb.getDescription();
+		this.mRID = upb.getmRID();
+		this.name=upb.getName();
+		this.isSdp=upb.isSdp();
+		this.isVirtual=upb.isVirtual();
+		this.outageRegion=upb.getOutageRegion();
+		this.readCycle=upb.getReadCycle();
+		this.readRoute=upb.getReadRoute();
+		this.servicePriority=upb.getServicePriority();
+		
+		save();
+		return this;
+	}
 
 	@Override
 	public long getId() {
@@ -90,7 +152,10 @@ public class UsagePointImpl implements UsagePoint {
 
 	@Override 
 	public long getServiceLocationId() {
-		return getServiceLocation().map(ServiceLocation::getId).orElse(0L);
+		return 0L;
+//		ServiceLocation location = getServiceLocation().get();
+//		return location == null ? 0 : location.getId();
+
 	}
 
 	@Override
@@ -439,4 +504,5 @@ public class UsagePointImpl implements UsagePoint {
 				.map(MeterActivation::getZoneId)
 				.orElse(ZoneId.systemDefault());
 	}
+
 }
