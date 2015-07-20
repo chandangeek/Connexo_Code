@@ -61,8 +61,8 @@ public class InsightAppServiceImpl implements InsightAppService, InstallService,
 
     @Activate
     public final void activate(BundleContext context) {
-        HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, HTTP_RESOURCE_LOCAL_NAME, new BundleResolver(context), new DefaultStartPage(APP_NAME));
-//        HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, "/home/kurtk/Projects/git/insight/com.elster.jupiter.insight.app/src/main/web/js/insight", new FileResolver(), new DefaultStartPage(APP_NAME));
+//        HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, HTTP_RESOURCE_LOCAL_NAME, new BundleResolver(context), new DefaultStartPage(APP_NAME));
+        HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, "/home/kurtk/Projects/git/insight/com.elster.jupiter.insight.app/src/main/web/js/insight", new FileResolver(), new DefaultStartPage(APP_NAME));
         App app = new App(APP_KEY, APP_NAME, APP_ICON, HTTP_RESOURCE_ALIAS, resource, user -> isAllowed(user));
 
         registration = context.registerService(App.class, app, null);
@@ -90,8 +90,8 @@ public class InsightAppServiceImpl implements InsightAppService, InstallService,
 
     private void assignPrivilegesToDefaultRoles() {
         List<Privilege> availablePrivileges = getApplicationPrivileges();
-        userService.grantGroupWithPrivilege(UserService.DEFAULT_ADMIN_ROLE, APP_KEY, availablePrivileges.stream().map(HasName::getName).toArray(String[]::new));
-        userService.grantGroupWithPrivilege(UserService.BATCH_EXECUTOR_ROLE, APP_KEY, availablePrivileges.stream().map(HasName::getName).toArray(String[]::new));
+        userService.grantGroupWithPrivilege(UserService.DEFAULT_ADMIN_ROLE, MeteringService.COMPONENTNAME, availablePrivileges.stream().map(HasName::getName).toArray(String[]::new));
+        userService.grantGroupWithPrivilege(UserService.BATCH_EXECUTOR_ROLE, MeteringService.COMPONENTNAME, availablePrivileges.stream().map(HasName::getName).toArray(String[]::new));
     }
 
     private boolean isAllowed(User user) {
