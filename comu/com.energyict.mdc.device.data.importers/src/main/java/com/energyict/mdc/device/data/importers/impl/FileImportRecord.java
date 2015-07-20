@@ -3,7 +3,6 @@ package com.energyict.mdc.device.data.importers.impl;
 public class FileImportRecord {
 
     private long lineNumber;
-
     private String deviceMRID;
 
     public FileImportRecord(long lineNumber) {
@@ -18,7 +17,7 @@ public class FileImportRecord {
         return lineNumber;
     }
 
-    public String getDeviceMRID() {
+    public String getDeviceMrid() {
         return deviceMRID;
     }
 }

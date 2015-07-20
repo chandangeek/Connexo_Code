@@ -1,18 +1,22 @@
 package com.energyict.mdc.device.data.importers.impl;
 
 import com.elster.jupiter.nls.TranslationKey;
+import com.energyict.mdc.device.data.importers.impl.devices.shipment.DeviceShipmentImporterFactory;
 import com.energyict.mdc.device.data.importers.impl.readingsimport.DeviceReadingsImporterFactory;
 
 public enum TranslationKeys implements TranslationKey {
 
     DATA_IMPORTER_SUBSCRIBER(DeviceDataImporterMessageHandler.SUBSCRIBER_NAME, "Handle data import"),
 
-    //Device Readings Importer's translation keys
+    // Properties translations
+    DEVICE_DATA_IMPORTER_DELIMITER(DeviceDataImporterProperty.DELIMITER.getPropertyKey(), "Delimiter"),
+    DEVICE_DATA_IMPORTER_DATE_FORMAT(DeviceDataImporterProperty.DATE_FORMAT.getPropertyKey(), "Date format"),
+    DEVICE_DATA_IMPORTER_TIMEZONE(DeviceDataImporterProperty.TIME_ZONE.getPropertyKey(), "Time zone"),
+    DEVICE_DATA_IMPORTER_NUMBER_FORMAT(DeviceDataImporterProperty.NUMBER_FORMAT.getPropertyKey(), "Number format"),
+
+    //Translations for importer names
     DEVICE_READINGS_IMPORTER(DeviceReadingsImporterFactory.NAME, "Device readings importer"),
-    DEVICE_READINGS_IMPORTER_DELIMITER(DeviceReadingsImporterFactory.DELIMITER, "Delimiter"),
-    DEVICE_READINGS_IMPORTER_DATEFORMAT(DeviceReadingsImporterFactory.DATE_FORMAT, "Date format"),
-    DEVICE_READINGS_IMPORTER_TIMEZONE(DeviceReadingsImporterFactory.TIME_ZONE, "Time zone"),
-    DEVICE_READINGS_IMPORTER_NUMBERFORMAT(DeviceReadingsImporterFactory.NUMBER_FORMAT, "Number format")
+    DEVICE_SHIPMENT_IMPORTER(DeviceShipmentImporterFactory.NAME, "Register devices from shipment file"),
     ;
 
     private final String key;

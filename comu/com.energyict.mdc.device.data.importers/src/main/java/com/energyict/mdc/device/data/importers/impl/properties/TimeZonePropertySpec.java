@@ -5,6 +5,7 @@ import com.elster.jupiter.properties.BasicPropertySpec;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpecPossibleValuesImpl;
 import com.elster.jupiter.properties.StringFactory;
+import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
 
 import java.time.format.DateTimeFormatter;
@@ -27,7 +28,7 @@ public class TimeZonePropertySpec extends BasicPropertySpec {
     public boolean validateValue(Object objectValue) throws InvalidValueException {
         if (objectValue instanceof String && super.validateValueIgnoreRequired(objectValue)) {
             String value = (String) objectValue;
-            if (value == null || value.isEmpty()) {
+            if (Checks.is(value).emptyOrOnlyWhiteSpace()) {
                 return false;
             }
             try {
