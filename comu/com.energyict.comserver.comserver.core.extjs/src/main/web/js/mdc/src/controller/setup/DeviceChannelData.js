@@ -740,7 +740,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             records = me.getPage().down('deviceLoadProfileChannelDataGrid').getSelectionModel().getSelection();
 
         switch (item.action) {
-            case 'bulkEstimateValue':
+            case 'estimateValue':
                 me.estimateValue(records);
                 break;
             case 'confirmValue':
