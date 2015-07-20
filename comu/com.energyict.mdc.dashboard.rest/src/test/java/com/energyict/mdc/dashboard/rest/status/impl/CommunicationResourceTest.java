@@ -143,7 +143,8 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
         when(comTask2.getId()).thenReturn(12L);
         ComTask comTask3 = mock(ComTask.class);
         when(comTask3.getId()).thenReturn(13L);
-        when(taskService.findAllComTasks()).thenReturn(Arrays.asList(comTask1, comTask2, comTask3));
+        Finder<ComTask> comTaskFinder = mockFinder(Arrays.asList(comTask1, comTask2, comTask3));
+        when(taskService.findAllComTasks()).thenReturn(comTaskFinder);
 
         Map<String, Object> map = target("/communications").queryParam("filter", ExtjsFilter.filter("comTasks", Arrays.asList(13l, 12l))).queryParam("start", 0).queryParam("limit", 10).request().get(Map.class);
 
