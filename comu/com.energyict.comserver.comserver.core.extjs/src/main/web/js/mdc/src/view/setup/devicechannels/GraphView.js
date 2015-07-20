@@ -107,9 +107,9 @@ Ext.define('Mdc.view.setup.devicechannels.GraphView', {
                         iconSpan = '<span class="{icon}" ' + 'style="height: 16px; ' + 'width: 16px; ' +
                             'display: inline-block; ' + 'vertical-align: top; ' + 'margin-left: 4px"></span>',
                         editedIconSpan = '<span class="uni-icon-edit"' + 'style="height: 13px; ' + 'width: 13px; ' +
-                            'display: inline-block; ' + 'vertical-align: top; ' + 'margin-left: 4px"></span>';
-
-//                     confirmed: 'icon-checkmark'
+                            'display: inline-block; ' + 'vertical-align: top; ' + 'margin-left: 4px"></span>',
+                        mainValue,
+                        bulkValue;
 
                     if (point.delta.suspect) {
                         deltaIcon = 'icon-validation-red';
@@ -123,14 +123,14 @@ Ext.define('Mdc.view.setup.devicechannels.GraphView', {
                         bulkIcon = 'icon-validation-black';
                     }
 
+                    mainValue = point.y ? point.y + ' ' + point.mesurementType : Uni.I18n.translate('general.missing', 'MDC', 'Missing');
+                    bulkValue = point.collectedValue ? point.collectedValue + ' ' + point.mesurementType : Uni.I18n.translate('general.missing', 'MDC', 'Missing');
                     html += '<br/>Interval ' + Highcharts.dateFormat('%H:%M', point.x);
                     html += ' - ' + Highcharts.dateFormat('%H:%M', point.intervalEnd) + '<br>';
                     html += '<table style="margin-top: 10px"><tbody>';
                     bgColor = point.tooltipColor;
-                    html += '<tr><td><b>' + point.series.name + ':</b></td><td>' + point.y + ' ' +
-                        point.mesurementType + (point.edited ? editedIconSpan : '') + iconSpan.replace('{icon}', deltaIcon) + '</td></tr>';
-                    html += '<tr><td><b>' + 'Bulk value:' + '</b></td><td>' + point.collectedValue + ' ' +
-                        point.mesurementType + (point.bulkEdited ? editedIconSpan : '') + iconSpan.replace('{icon}', bulkIcon) + '</td></tr>';
+                    html += '<tr><td><b>' + point.series.name + ':</b></td><td>' + mainValue + (point.edited ? editedIconSpan : '') + iconSpan.replace('{icon}', deltaIcon) + '</td></tr>';
+                    html += '<tr><td><b>' + 'Bulk value:' + '</b></td><td>' + bulkValue + (point.bulkEdited ? editedIconSpan : '') + iconSpan.replace('{icon}', bulkIcon) + '</td></tr>';
 
                     html += '</tbody></table>';
                     html = '<div style="background-color: ' + bgColor + '; padding: 8px">' + html + '</div>';

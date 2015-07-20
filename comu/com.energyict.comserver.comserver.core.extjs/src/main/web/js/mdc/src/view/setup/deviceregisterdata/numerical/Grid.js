@@ -33,6 +33,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Grid', {
                         var result = record.data.validationResult,
                             status = result.split('.')[1],
                             cls = 'icon-validation-cell';
+
                         if (status === 'suspect') {
                             cls +=  ' icon-validation-red'
                         }
@@ -42,7 +43,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Grid', {
                         metaData.tdCls = cls;
                     }
                     if (!Ext.isEmpty(data)) {
-                        return Uni.Number.formatNumber(data, -1);
+                        return record.get('isConfirmed') ? Uni.Number.formatNumber(data, -1) + '<span style="margin: 0 0 0 10px; position: absolute" class="icon-checkmark3"</span>' : Uni.Number.formatNumber(data, -1);
                     }
                 }
             },
@@ -73,7 +74,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Grid', {
                         metaData.tdCls = cls;
                     }
                     if (!Ext.isEmpty(data)) {
-                        return Uni.Number.formatNumber(data, -1);
+                        return record.get('isConfirmed') ? Uni.Number.formatNumber(data, -1) + '<span style="margin: 0 0 0 10px; position: absolute" class="icon-checkmark3"</span>' : Uni.Number.formatNumber(data, -1);
                     }
                 }
             },

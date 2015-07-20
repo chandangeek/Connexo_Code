@@ -52,6 +52,10 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
         me.control({
             '#deviceregisterreportsetup #deviceregisterreportgrid': {
                 select: me.loadGridItemDetail
+            },
+            'deviceregisterdataactionmenu': {
+                beforeshow: this.checkSuspect,
+                click: this.chooseAction
             }
         });
     },
@@ -125,6 +129,40 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
                 });
             }
         });
+    },
+
+    chooseAction: function (menu, item) {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            grid = me.getPage().down('grid'),
+            record = grid.getView().getSelectionModel().getLastSelected();
+
+        switch (item.action) {
+            case 'confirmValue':
+                me.getPage().setLoading();
+                record.getProxy().extraParams = ({mRID: router.arguments.mRID, registerId: router.arguments.registerId});
+                record.set('isConfirmed', true);
+                record.save({
+                    callback: function (rec, operation, success) {
+                        if (success) {
+                            rec.set('validationResult', 'validationStatus.ok');
+                            grid.getView().refreshNode(grid.getStore().indexOf(rec));
+                            me.getPage().down('form').loadRecord(rec);
+                        }
+                        me.getPage().setLoading(false);
+                    }
+                });
+                break;
+        }
+    },
+
+    checkSuspect: function (menu) {
+        var me = this,
+            record = me.getPage().down('grid').getView().getSelectionModel().getLastSelected(),
+            mainStatus = record.get('validationResult').split('.')[1] == 'suspect',
+            bulkStatus = record.get('validationResult').split('.')[1] == 'suspect';
+
+        menu.down('#confirm-value').setVisible(mainStatus || bulkStatus);
     }
 })
 ;

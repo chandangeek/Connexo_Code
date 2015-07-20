@@ -154,10 +154,7 @@ Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
                 return result;
             }
         },
-        {
-            name: 'plotBand',
-            persist: false
-        }
+        'confirmed'
     ],
     associations: [
         {

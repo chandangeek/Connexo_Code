@@ -99,6 +99,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 click: this.estimateReading
             },
             'channel-data-bulk-action-menu': {
+                beforeshow: this.checkSuspects,
                 click: this.chooseBulkAction
             }
         });
@@ -300,7 +301,6 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         var data = [],
             missedValues = [],
             mesurementType = channelRecord.get('unitOfMeasure'),
-            missedColor = 'rgba(235, 86, 66, 0.3)',
             okColor = "#70BB51",
             estimatedColor = "#568343",
             suspectColor = 'rgba(235, 86, 66, 1)',
@@ -316,7 +316,6 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             var point = {},
                 mainValidationInfo = record.getValidationInfo().getMainValidationInfo(),
                 bulkValidationInfo = record.getValidationInfo().getBulkValidationInfo(),
-                deltaNotValidated = mainValidationInfo.get('validationResult') ? (mainValidationInfo.get('validationResult').split('.')[1] == 'notValidated') : false,
                 properties = record.get('readingProperties');
 
             point.x = record.get('interval').start;
@@ -333,13 +332,13 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             } else if (mainValidationInfo.get('estimatedByRule')) {
                 point.color = estimatedColor;
                 point.tooltipColor = tooltipEstimatedColor;
-            } else if (properties.delta.notValidated || properties.bulk.notValidated) {
+            } else if (properties.delta.notValidated) {
                 point.color = notValidatedColor;
                 point.tooltipColor = tooltipNotValidatedColor
-            } else if (properties.delta.suspect || properties.bulk.suspect) {
+            } else if (properties.delta.suspect) {
                 point.color = suspectColor;
                 point.tooltipColor = tooltipSuspectColor
-            } else if (properties.delta.informative || properties.bulk.informative) {
+            } else if (properties.delta.informative) {
                 point.color = informativeColor;
                 point.tooltipColor = tooltipInformativeColor;
             }
@@ -350,17 +349,6 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 
             Ext.merge(point, properties);
             data.unshift(point);
-
-            !point.y && (point.y = null);
-            if (!point.y) {
-                missedValues.push({
-                    id: record.get('interval').start,
-                    from: record.get('interval').start,
-                    to: record.get('interval').end,
-                    color: deltaNotValidated ? notValidatedColor : missedColor
-                });
-                record.set('plotBand', true);
-            }
         });
         return {data: data, missedValues: missedValues};
     },
@@ -436,6 +424,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
     chooseAction: function (menu, item) {
         var me = this,
             point,
+            grid = me.getPage().down('deviceLoadProfileChannelDataGrid'),
             chart = me.getPage().down('#deviceLoadProfileChannelGraphView').chart;
 
         switch (item.action) {
@@ -445,24 +434,18 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             case 'removeReading':
                 menu.record.set('value', null);
                 menu.record.set('intervalFlags', []);
-
-                if (!menu.record.get('plotBand')) {
-                    chart.xAxis[0].addPlotBand({
-                        id: menu.record.get('interval').start,
-                        from: menu.record.get('interval').start,
-                        to: menu.record.get('interval').end,
-                        color: 'rgba(235, 86, 66, 0.3)'
-                    });
-
-                    menu.record.set('plotBand', true);
-                    point = chart.get(menu.record.get('interval').start);
-                    point.update({ y: null });
-                }
-
+                menu.record.set('confirmed', false);
+                menu.record.data.validationInfo.mainValidationInfo.validationResult = 'validationStatus.ok';
+                grid.getView().refreshNode(grid.getStore().indexOf(menu.record));
+                point = chart.get(menu.record.get('interval').start);
+                point.update({ y: NaN });
                 me.showButtons();
                 break;
             case 'estimateValue':
                 me.estimateValue(menu.record);
+                break;
+            case 'confirmValue':
+                me.confirmValue(menu.record, false);
                 break;
         }
     },
@@ -528,10 +511,24 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
     },
 
     getChangedData: function (store) {
-        var changedData = [];
+        var changedData = [],
+            confirmedObj;
 
         Ext.Array.each(store.getUpdatedRecords(), function (record) {
-            if (record.isModified('value')) {
+            if (record.get('confirmed')) {
+                confirmedObj = {
+                    interval: record.get('interval'),
+                    validationInfo: {
+                        mainValidationInfo: {
+                            isConfirmed: record.data.validationInfo.mainValidationInfo.confirmedNotSaved || false
+                        },
+                        bulkValidationInfo: {
+                            isConfirmed: record.data.validationInfo.bulkValidationInfo.confirmedNotSaved || false
+                        }
+                    }
+                };
+                changedData.push(confirmedObj);
+            } else if (record.isModified('value')) {
                 changedData.push(_.pick(record.getData(), 'interval', 'value'));
             } else if (record.isModified('collectedValue')) {
                 changedData.push(_.pick(record.getData(), 'interval', 'collectedValue'));
@@ -543,7 +540,6 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 
     beforeEditRecord: function (editor, event) {
         var intervalFlags = event.record.get('intervalFlags');
-        event.row.querySelector('span') && event.row.querySelector('span').remove();
         event.column.getEditor().allowBlank = !(intervalFlags && intervalFlags.length);
     },
 
@@ -551,6 +547,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         var me = this,
             chart = me.getPage().down('#deviceLoadProfileChannelGraphView').chart,
             point = chart.get(event.record.get('interval').start),
+            grid = me.getPage().down('deviceLoadProfileChannelDataGrid'),
             updatedObj;
 
         if (event.column) {
@@ -561,21 +558,8 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             me.getPage().down('#save-changes-button').isHidden() && me.showButtons();
 
             if (!event.record.get('value')) {
-                if (!event.record.get('plotBand')) {
-                    chart.xAxis[0].addPlotBand({
-                        id: event.record.get('interval').start,
-                        from: event.record.get('interval').start,
-                        to: event.record.get('interval').end,
-                        color: 'rgba(235, 86, 66, 0.3)'
-                    });
-                }
-                event.record.set('plotBand', true);
-                point.update({ y: null });
+                point.update({ y: NaN });
             } else {
-                if (event.record.get('plotBand')) {
-                    chart.xAxis[0].removePlotBand(event.record.get('interval').start);
-                    event.record.set('plotBand', false);
-                }
                 updatedObj = {
                     y: parseFloat(event.record.get('value')),
                     collectedValue: event.record.get('collectedValue'),
@@ -586,6 +570,11 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 
             if (event.row && event.record.isModified('value')) {
                 event.row.querySelector('span') && event.row.querySelector('span').remove();
+            }
+            if (event.column) {
+                event.record.data.validationInfo.mainValidationInfo.validationResult = 'validationStatus.ok';
+                grid.getView().refreshNode(grid.getStore().indexOf(event.record));
+                event.record.set('confirmed', false);
             }
         }
     },
@@ -667,8 +656,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 
     saveChannelDataEstimateModel: function (record, readings) {
         var me = this,
-            router = me.getController('Uni.controller.history.Router'),
-            grid = me.getPage().down('deviceLoadProfileChannelDataGrid');
+            router = me.getController('Uni.controller.history.Router');
 
         record.getProxy().setUrl(router.arguments);
         me.getReadingEstimationWindow().setLoading();
@@ -679,32 +667,12 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 var responseText = Ext.decode(operation.response.responseText, true);
                 if (success) {
                     if (!Ext.isArray(readings)) {
-                        if (record.get('estimateBulk')) {
-                            readings.set('collectedValue', responseText[0].collectedValue);
-                            readings.data.validationInfo.bulkValidationInfo.validationResult = 'validationStatus.ok';
-                        } else {
-                            readings.set('value', responseText[0].value);
-                            readings.data.validationInfo.mainValidationInfo.validationResult = 'validationStatus.ok';
-                        }
-                        grid.getView().refreshNode(grid.getStore().indexOf(readings));
-                        me.resumeEditorFieldValidation(grid.editingPlugin, {
-                            record: readings
-                        });
+                        me.updateEstimatedValues(record, readings, responseText[0]);
                     } else {
                         Ext.Array.each(responseText, function (estimatedReading) {
                             Ext.Array.findBy(readings, function (reading) {
                                 if (estimatedReading.interval.start == reading.get('interval').start) {
-                                    if (record.get('estimateBulk')) {
-                                        reading.set('collectedValue', estimatedReading.collectedValue);
-                                        reading.data.validationInfo.bulkValidationInfo.validationResult = 'validationStatus.ok';
-                                    } else {
-                                        reading.set('value', estimatedReading.value);
-                                        reading.data.validationInfo.mainValidationInfo.validationResult = 'validationStatus.ok';
-                                    }
-                                    grid.getView().refreshNode(grid.getStore().indexOf(reading));
-                                    me.resumeEditorFieldValidation(grid.editingPlugin, {
-                                        record: reading
-                                    });
+                                    me.updateEstimatedValues(record, reading, estimatedReading);
                                     return true;
                                 }
                             });
@@ -721,11 +689,50 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         });
     },
 
-    checkSuspect: function (menu) {
-        var mainStatus = menu.record.getValidationInfo().getMainValidationInfo().get('validationResult').split('.')[1],
-            bulkStatus = menu.record.getValidationInfo().getBulkValidationInfo().get('validationResult').split('.')[1];
+    updateEstimatedValues: function (record, reading, estimatedReading) {
+        var me = this,
+            grid = me.getPage().down('deviceLoadProfileChannelDataGrid');
 
-        menu.down('#estimate-value').setVisible(mainStatus == 'suspect' || bulkStatus == 'suspect');
+        if (record.get('estimateBulk')) {
+            reading.set('collectedValue', estimatedReading.collectedValue);
+            reading.data.validationInfo.bulkValidationInfo.validationResult = 'validationStatus.ok';
+        } else {
+            reading.set('value', estimatedReading.value);
+            reading.data.validationInfo.mainValidationInfo.validationResult = 'validationStatus.ok';
+        }
+        grid.getView().refreshNode(grid.getStore().indexOf(reading));
+
+        me.resumeEditorFieldValidation(grid.editingPlugin, {
+            record: reading
+        });
+        reading.set('confirmed', false);
+    },
+
+    checkSuspect: function (menu) {
+        var mainStatus = menu.record.getValidationInfo().getMainValidationInfo().get('validationResult').split('.')[1] == 'suspect',
+            bulkStatus = menu.record.getValidationInfo().getBulkValidationInfo().get('validationResult').split('.')[1] == 'suspect';
+
+        menu.down('#estimate-value').setVisible(mainStatus || bulkStatus);
+        if (menu.record.get('confirmed') || menu.record.isModified('value') || menu.record.isModified('collectedValue')) {
+            menu.down('#confirm-value').hide();
+        } else {
+            menu.down('#confirm-value').setVisible(mainStatus || bulkStatus);
+        }
+    },
+
+    checkSuspects: function (menu) {
+        var me = this,
+            records = me.getPage().down('deviceLoadProfileChannelDataGrid').getSelectionModel().getSelection(),
+            mainValueSuspect,
+            bulkValueSuspect;
+
+        Ext.Array.findBy(records, function (item) {
+            mainValueSuspect = item.getValidationInfo().getMainValidationInfo().get('validationResult').split('.')[1] == 'suspect';
+            bulkValueSuspect = item.getValidationInfo().getBulkValidationInfo().get('validationResult').split('.')[1] == 'suspect';
+            return mainValueSuspect || bulkValueSuspect;
+        });
+        menu.down('#confirm-value').setVisible(mainValueSuspect || bulkValueSuspect);
+        menu.down('#estimate-value').setVisible(mainValueSuspect || bulkValueSuspect);
     },
 
     chooseBulkAction: function (menu, item) {
@@ -734,9 +741,49 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 
         switch (item.action) {
             case 'bulkEstimateValue':
-                me.estimateValue(records, true);
+                me.estimateValue(records);
+                break;
+            case 'confirmValue':
+                me.confirmValue(records, true);
                 break;
         }
+    },
+
+    confirmValue: function (record, isBulk) {
+        var me = this,
+            grid = me.getPage().down('deviceLoadProfileChannelDataGrid'),
+            mainStatus,
+            bulkStatus,
+            isModified,
+            chart = me.getPage().down('#deviceLoadProfileChannelGraphView').chart,
+            func = function (rec) {
+                isModified = rec.isModified('value') || rec.isModified('collectedValue');
+                if (!rec.get('confirmed') && !isModified) {
+                    mainStatus = rec.getValidationInfo().getMainValidationInfo().get('validationResult').split('.')[1] == 'suspect';
+                    bulkStatus = rec.getValidationInfo().getBulkValidationInfo().get('validationResult').split('.')[1] == 'suspect';
+                    if (mainStatus) {
+                        rec.data.validationInfo.mainValidationInfo.confirmedNotSaved = true;
+                        chart.get(rec.get('interval').start).update({ color: 'rgba(112,187,81,0.3)' });
+                    }
+                    if (bulkStatus) {
+                        rec.data.validationInfo.bulkValidationInfo.confirmedNotSaved = true;
+                    }
+                    if (mainStatus || bulkStatus) {
+                        grid.getView().refreshNode(grid.getStore().indexOf(rec));
+                        rec.set('confirmed', true);
+                    }
+                }
+            };
+
+        if (isBulk) {
+            Ext.Array.each(record, function (reading) {
+                func(reading);
+            });
+        } else {
+            func(record);
+        }
+
+        me.showButtons();
     }
 });
 

@@ -8,6 +8,12 @@ Ext.define('Mdc.view.setup.deviceregisterdata.ActionMenu', {
     defaultAlign: 'tr-br?',
     items: [
         {
+            itemId: 'confirm-value',
+            hidden: true,
+            text: Uni.I18n.translate('general.confirm', 'MDC', 'Confirm'),
+            action: 'confirmValue'
+        },
+        {
             itemId: 'editData',
             text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
             action: 'editData'

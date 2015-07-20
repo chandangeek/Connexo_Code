@@ -11,6 +11,7 @@ Ext.define('Mdc.model.RegisterData', {
         {name: 'dataValidated', type:'auto', persist: false},
         {name: 'suspectReason', type:'auto', persist: false},
         {name: 'validationResult', type:'auto', persist: false},
+        {name: 'isConfirmed', type: 'boolean'},
         {
             name: 'modificationState',
             persist: false,

@@ -51,15 +51,20 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
     setReadingQualities: function (field, info) {
         var me = this,
             estimatedRule,
-            estimatedRuleName;
+            estimatedRuleName,
+            url,
+            view = me.up('tabbedDeviceChannelsView') || me.up('deviceLoadProfilesData');
 
         field.show();
-        if (!Ext.isEmpty(info.validationRules)) {
+        if (info.isConfirmed) {
+            field.setValue(Uni.I18n.translate('general.confirmed', 'MDC', 'Confirmed'));
+        } else if (!Ext.isEmpty(info.validationRules)) {
             me.setValidationRules(field, info.validationRules);
         } else if (info.estimatedByRule) {
             estimatedRule = info.estimatedByRule;
+            url = view.router.getRoute('administration/estimationrulesets/estimationruleset/rules/rule').buildUrl({ruleSetId: estimatedRule.ruleSetId, ruleId: estimatedRule.id});
             estimatedRuleName = estimatedRule.deleted ? estimatedRule.name + ' ' + Uni.I18n.translate('device.registerData.removedRule', 'MDC', '(removed rule)') :
-                '<a href="#/administration/estimationrulesets/' + estimatedRule.ruleSetId + '/rules/' + estimatedRule.id + '">' + estimatedRule.name + '</a>';
+                '<a href="' + url + '">' + estimatedRule.name + '</a>';
             field.setValue(Uni.I18n.translate('deviceChannelData.estimatedAccordingTo', 'MDC', 'Estimated according to') + ' ' + estimatedRuleName);
         } else {
             field.hide();
@@ -179,6 +184,9 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                     break;
                 case 'ok':
                     validationResultText = '(' + Uni.I18n.translate('devicechannelsreadings.validationResult.notsuspect', 'MDC', 'Not suspect') + ')';
+                    if (!me.channels && record.get(type + 'ValidationInformation').isConfirmed) {
+                        validationResultText += '<span style="margin-left: 5px; vertical-align: top" class="icon-checkmark3"</span>';
+                    }
                     break;
             }
         }
@@ -238,7 +246,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                 }
             },
             {
-                fieldLabel: Uni.I18n.translate('devicechannelsreadings.readingqualities.title', 'MDC', 'Reading qualities'),
+                fieldLabel: Uni.I18n.translate('general.readingQualities', 'MDC', 'Reading qualities'),
                 itemId: 'generalReadingQualities',
                 htmlEncode: false
             }
@@ -263,9 +271,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                             fieldLabel: Uni.I18n.translate('deviceloadprofiles.channels.value', 'MDC', 'Value'),
                             itemId: 'channelValue' + channel.id,
                             renderer: function (value) {
-                                if (value) {
-                                    return me.setValueWithResult(value, 'main', channel.id);
-                                }
+                                return me.setValueWithResult(value, 'main', channel.id);
                             }
                         },
                         {
@@ -277,13 +283,11 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                             fieldLabel: Uni.I18n.translate('deviceloadprofiles.channels.bulkValue', 'MDC', 'Bulk value'),
                             itemId: 'channelBulkValue' + channel.id,
                             renderer: function (value) {
-                                if (value) {
-                                    return me.setValueWithResult(value, 'bulk', channel.id);
-                                }
+                                return me.setValueWithResult(value, 'bulk', channel.id);
                             }
                         },
                         {
-                            fieldLabel: Uni.I18n.translate('devicechannelsreadings.readingqualities.title', 'MDC', 'Reading qualities'),
+                            fieldLabel: Uni.I18n.translate('general.readingQualities', 'MDC', 'Reading qualities'),
                             itemId: 'bulkReadingQualities' + channel.id,
                             htmlEncode: false
                         }
