@@ -437,8 +437,8 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         model.getProxy().setExtraParam('deviceType', this.deviceTypeId);
 
 
-        if (me.getApplication().getController('Mdc.controller.history.Setup').tokenizePreviousTokens().indexOf('null') > -1) {
-            returnLink = '#/administration/devicetypes/';
+        if (me.getApplication().getController('Mdc.controller.history.Setup').tokenizePreviousTokens().indexOf('null') >= -1) {
+            returnLink = '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations';
         } else {
             returnLink = me.getApplication().getController('Mdc.controller.history.Setup').tokenizePreviousTokens();
         }
