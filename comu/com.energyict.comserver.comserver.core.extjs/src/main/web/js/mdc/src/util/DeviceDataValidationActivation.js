@@ -15,7 +15,7 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
         if (view.down('#deviceDataValidationStatusField')) {
             view.down('#deviceDataValidationStatusField').setValue(Uni.I18n.translate('device.dataValidation.updatingStatus', 'MDC', 'Updating status...'));
             view.down('#dataValidationStatusPanel').setLoading(true);
-            view.down('#deviceDataValidationStateChangeBtn').setDisabled(true);
+            !!view.down('#deviceDataValidationStateChangeBtn') && view.down('#deviceDataValidationStateChangeBtn').setDisabled(true);
         }
         Ext.Ajax.request({
             url: '../../api/ddr/devices/' + encodeURIComponent(mRID) + '/validationrulesets/validationstatus',
@@ -35,17 +35,20 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
                             Uni.I18n.translate('general.active', 'MDC', 'Active') :
                             Uni.I18n.translate('general.inactive', 'MDC', 'Inactive')
                     );
-                    view.down('#deviceDataValidationStateChangeBtn').setText((res.isActive ?
+                    if (!!view.down('#deviceDataValidationStateChangeBtn')) {
+                        view.down('#deviceDataValidationStateChangeBtn').setText((res.isActive ?
                             Uni.I18n.translate('general.deactivate', 'MDC', 'Deactivate') :
                             Uni.I18n.translate('general.activate', 'MDC', 'Activate')) +
-                        ' ' + Uni.I18n.translate('device.dataValidation.statusSection.buttonAppendix', 'MDC', 'data validation')
-                    );
-                    view.down('#deviceDataValidationStateChangeBtn').action = res.isActive ? 'deactivate' : 'activate';
-                    view.down('#deviceDataValidationStateChangeBtn').setDisabled(false);
+                            ' ' + Uni.I18n.translate('device.dataValidation.statusSection.buttonAppendix', 'MDC', 'data validation')
+                        );
+                        view.down('#deviceDataValidationStateChangeBtn').action = res.isActive ? 'deactivate' : 'activate';
+                        view.down('#deviceDataValidationStateChangeBtn').setDisabled(false);
+                    }
+
                 } else {
                     var record = Ext.create('Mdc.model.DeviceValidation', res);
                     if (!view.isDestroyed) {
-                        view.down('#deviceDataValidationForm').loadRecord(record);
+                        !!view.down('#deviceDataValidationForm') && view.down('#deviceDataValidationForm').loadRecord(record);
                     }
                 }
             }

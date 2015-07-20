@@ -288,37 +288,30 @@ Ext.define('Mdc.controller.setup.LoadProfileTypesOnDeviceType', {
     },
 
     showDeviceTypeLoadProfileTypesAddView: function (deviceTypeId) {
-        var me = this;
-        //  availableLoadProfilesStore = me.getStore('Mdc.store.LoadProfileTypesOnDeviceTypeAvailable');
+        var me = this,
+            availableLoadProfilesStore = me.getLoadProfileTypesOnDeviceTypeAvailableStore(),
+            contentPanel = Ext.ComponentQuery.query('viewport > #contentPanel')[0];
 
         me.deviceTypeId = deviceTypeId;
         me.store.getProxy().setExtraParam('deviceType', deviceTypeId);
-        this.getLoadProfileTypesOnDeviceTypeAvailableStore().getProxy().setExtraParam('deviceType', deviceTypeId);
-        this.getLoadProfileTypesOnDeviceTypeAvailableStore().load(
-            {
-                callback: function () {
-                    me.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
-                        success: function (deviceType) {
-                            me.getApplication().fireEvent('loadDeviceType', deviceType);
-                            me.deviceTypeName = deviceType.get('name');
-                            me.intervalStore.load({
-                                    callback: function () {
-                                        var widget = Ext.widget('loadProfileTypesAddToDeviceTypeSetup', {
-                                            intervalStore: me.intervalStore,
-                                            deviceTypeId: deviceTypeId
-                                        });
-                                        me.getApplication().fireEvent('loadDeviceType', deviceType);
-                                        me.getApplication().fireEvent('changecontentevent', widget);
-                                        me.getLoadProfileTypesOnDeviceTypeAvailableStore().fireEvent('load', me.getLoadProfileTypesOnDeviceTypeAvailableStore());
-                                        me.getAddLoadProfileTypesGrid().getSelectionModel().deselectAll();
-                                    }
-                                }
-                            )
-                        }
-                    });
-                }
-            });
+        me.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
+            success: function (deviceType) {
+                me.getApplication().fireEvent('loadDeviceType', deviceType);
+                me.deviceTypeName = deviceType.get('name');
+            }
+        });
+        contentPanel.setLoading();
+        me.intervalStore.load(function () {
+            contentPanel.setLoading(false);
+            me.getApplication().fireEvent('changecontentevent', Ext.widget('loadProfileTypesAddToDeviceTypeSetup', {
+                intervalStore: me.intervalStore,
+                deviceTypeId: deviceTypeId
+            }));
+            availableLoadProfilesStore.getProxy().setExtraParam('deviceType', deviceTypeId);
+            availableLoadProfilesStore.load();
+        });
     },
+
     showLoadProfileTypesErrorPanel: function () {
         var me = this,
             formErrorsPanel = me.getAddLoadProfileTypePanel().down('#add-loadprofile-type-errors'),

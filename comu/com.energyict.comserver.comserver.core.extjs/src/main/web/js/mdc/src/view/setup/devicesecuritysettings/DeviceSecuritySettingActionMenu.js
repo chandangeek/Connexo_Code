@@ -10,7 +10,8 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingActionMen
             text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
             privileges: Mdc.privileges.DeviceSecurity.editLevels,
             itemId: 'editDeviceSecuritySetting',
-            action: 'editDeviceSecuritySetting'
+            action: 'editDeviceSecuritySetting',
+            dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.securitySettingsActions
         },
         {
             text: Uni.I18n.translate('general.showEncryptedValue', 'MDC', 'Show values'),

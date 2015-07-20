@@ -41,11 +41,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                 header: Uni.I18n.translate('deviceloadprofiles.endOfInterval', 'MDC', 'End of interval'),
                 dataIndex: 'interval_end',
                 renderer: function (value) {
-                    return value
-                        ? Uni.DateTime.formatDateShort(value)
-                        + ' ' + Uni.I18n.translate('general.at', 'MDC', 'At').toLowerCase() + ' '
-                        + Uni.DateTime.formatTimeShort(value)
-                        : '';
+                    return value ? Uni.DateTime.formatDateShort(value) + ' ' + Uni.I18n.translate('general.at', 'MDC', 'At').toLowerCase() + ' ' + Uni.DateTime.formatTimeShort(value) : '';
                 },
                 flex: 1
             },
@@ -54,19 +50,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                 dataIndex: 'value',
                 align: 'right',
                 renderer: function (v, metaData, record) {
-                    var cls = 'icon-validation-cell',
-                        status = record.data.validationInfo.mainValidationInfo.validationResult ? record.data.validationInfo.mainValidationInfo.validationResult.split('.')[1] : '';
-
-                    if (!record.data.validationInfo.dataValidated || status == 'notValidated') {
-                        cls += ' icon-validation-black';
-                    } else if (status == 'suspect') {
-                        cls += ' icon-validation-red';
-                    }
-                    metaData.tdCls = cls;
-                    if (!Ext.isEmpty(v)) {
-                        var value = Uni.Number.formatNumber(v, -1);
-                        return !Ext.isEmpty(value) ? value : '';
-                    }
+                    return me.formatColumn(v, metaData, record, record.data.validationInfo.mainValidationInfo);
                 },
                 editor: {
                     xtype: 'textfield',
@@ -75,6 +59,17 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                     validateOnChange: true,
                     fieldStyle: 'text-align: right'
                 },
+                dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.deviceDataEditActions,
+                width: 200
+            },
+            {
+                header: Uni.I18n.translate('deviceloadprofiles.channels.value', 'MDC', 'Value') + ' (' + measurementType + ')',
+                dataIndex: 'value',
+                align: 'right',
+                renderer: function (v, metaData, record) {
+                    return me.formatColumn(v, metaData, record, record.data.validationInfo.mainValidationInfo);
+                },
+                hidden: Mdc.dynamicprivileges.DeviceState.canEditData(),
                 width: 200
             },
             {
@@ -91,20 +86,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                 align: 'right',
                 hidden: Ext.isEmpty(calculatedReadingType),
                 renderer: function (v, metaData, record) {
-                    var cls = 'icon-validation-cell',
-                        status = record.data.validationInfo.bulkValidationInfo.validationResult ? record.data.validationInfo.bulkValidationInfo.validationResult.split('.')[1] : '';
-
-                    if (!record.data.validationInfo.dataValidated || status == 'notValidated') {
-                        cls += ' icon-validation-black';
-                    } else if (status == 'suspect') {
-                        cls += ' icon-validation-red';
-                    }
-
-                    metaData.tdCls = cls;
-                    if (!Ext.isEmpty(v)) {
-                        var value = Uni.Number.formatNumber(v, -1);
-                        return !Ext.isEmpty(value) ? value : '';
-                    }
+                    return me.formatColumn(v, metaData, record, record.data.validationInfo.bulkValidationInfo);
                 }
             },
             {
@@ -167,6 +149,25 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
         ];
 
         me.callParent(arguments);
-    }
+    },
 
+    formatColumn: function (v, metaData, record, validationInfo) {
+        var cls = 'icon-validation-cell',
+            status = validationInfo.validationResult ? validationInfo.validationResult.split('.')[1] : '';
+
+        if (!record.data.validationInfo.dataValidated || status == 'notValidated') {
+            cls += ' icon-validation-black';
+        } else if (status == 'suspect') {
+            cls += ' icon-validation-red';
+        }
+        metaData.tdCls = cls;
+        if (!Ext.isEmpty(v)) {
+            var value = Uni.Number.formatNumber(v, -1);
+            if (validationInfo.estimatedByRule && !record.isModified('value')) {
+                return !Ext.isEmpty(value) ? value + '<span style="margin: 0 0 0 10px; font-size: 16px; color: #33CC33; position: absolute" class="icon-play4"</span>' : '';
+            } else {
+                return !Ext.isEmpty(value) ? value : '';
+            }
+        }
+    }
 });

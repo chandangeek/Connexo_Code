@@ -122,6 +122,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
                 });
                 widget = Ext.widget('deviceLoadProfilesData', {
                     router: router,
+                    loadProfile: record,
                     channels: record.get('channels'),
                     device: device,
                     filter: {
@@ -316,16 +317,8 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
     },
 
     showPreview: function (selectionModel, record) {
-        var preview = this.getPage().down('#deviceLoadProfilesDataPreview'),
-            intervalEnd = record.get('interval_end');
+        var preview = this.getPage().down('deviceLoadProfileChannelDataPreview');
 
-        preview.rendered && Ext.suspendLayouts();
-
-        preview.setTitle(Uni.DateTime.formatDateLong(intervalEnd)
-            + ' ' + Uni.I18n.translate('general.at', 'MDC', 'At').toLowerCase() + ' '
-            + Uni.DateTime.formatTimeLong(intervalEnd));
-        preview.down('#deviceLoadProfilesDataPreviewForm').loadRecord(record);
-
-        preview.rendered && Ext.resumeLayouts(true);
+        preview.updateForm(record);
     }
 });

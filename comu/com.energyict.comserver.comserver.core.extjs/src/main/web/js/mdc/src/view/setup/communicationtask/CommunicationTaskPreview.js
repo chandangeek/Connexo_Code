@@ -6,7 +6,7 @@ Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskPreview', {
         'Mdc.view.setup.communicationtask.CommunicationTaskActionMenu'
     ],
     frame: true,
-
+    title: ' ',
     tools: [
         {
             xtype: 'button',

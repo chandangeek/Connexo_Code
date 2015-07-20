@@ -1,9 +1,10 @@
 Ext.define('Mdc.controller.setup.DeviceConfigurations', {
     extend: 'Ext.app.Controller',
 
-    requires: [
-    ],
+    requires: [],
     deviceTypeId: null,
+    deviceConfigurationId: null,
+    deviceConfigurationVersion: null,
     views: [
         'setup.deviceconfiguration.DeviceConfigurationsSetup',
         'setup.deviceconfiguration.DeviceConfigurationsGrid',
@@ -12,7 +13,8 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         'setup.deviceconfiguration.DeviceConfigurationEdit',
         'setup.deviceconfiguration.DeviceConfigurationLogbooks',
         'setup.deviceconfiguration.AddLogbookConfigurations',
-        'setup.deviceconfiguration.EditLogbookConfiguration'
+        'setup.deviceconfiguration.EditLogbookConfiguration',
+        'setup.deviceconfiguration.DeviceConfigurationClone'
     ],
 
     stores: [
@@ -47,7 +49,8 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         {ref: 'typeOfGatewayCombo', selector: '#deviceConfigurationEditForm #typeOfGatewayCombo'},
         {ref: 'typeOfGatewayComboContainer', selector: '#deviceConfigurationEditForm #typeOfGatewayComboContainer'},
         {ref: 'editLogbookConfiguration', selector: 'edit-logbook-configuration'},
-        {ref: 'previewActionMenu', selector: 'deviceConfigurationPreview #device-configuration-action-menu'}
+        {ref: 'previewActionMenu', selector: 'deviceConfigurationPreview #device-configuration-action-menu'},
+        {ref: 'deviceConfigurationCloneForm', selector: '#deviceConfigurationCloneForm'}
 
 
     ],
@@ -62,10 +65,14 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
             },
             '#deviceconfigurationsgrid actioncolumn': {
                 editDeviceConfiguration: this.editDeviceConfigurationHistory,
+                cloneDeviceConfiguration: this.cloneDeviceConfigurationHistory,
                 deleteDeviceConfiguration: this.deleteTheDeviceConfiguration
             },
             '#deviceConfigurationPreview menuitem[action=editDeviceConfiguration]': {
                 click: this.editDeviceConfigurationHistoryFromPreview
+            },
+            '#deviceConfigurationPreview menuitem[action=cloneDeviceConfiguration]': {
+                click: this.cloneDeviceConfigurationHistoryFromPreview
             },
             'add-logbook-configurations add-logbook-configurations-grid': {
                 selectionchange: this.enableAddBtn
@@ -79,11 +86,17 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
             '#deviceConfigurationDetail menuitem[action=editDeviceConfiguration]': {
                 click: this.editDeviceConfigurationFromDetailsHistory
             },
+            '#deviceConfigurationDetail menuitem[action=cloneDeviceConfiguration]': {
+                click: this.cloneDeviceConfigurationFromDetailsHistory
+            },
             '#device-configuration-action-menu': {
                 click: this.chooseAction
             },
             'deviceConfigurationEdit #createEditButton': {
                 click: this.createEditDeviceConfiguration
+            },
+            'deviceConfigurationClone #clone-button': {
+                click: this.cloneDeviceConfiguration
             },
             '#deviceConfigurationEditForm #deviceIsGatewayCombo': {
                 change: this.showTypeOfGatewayCombo
@@ -103,23 +116,21 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
     },
 
     showDeviceConfigurations: function (id) {
-        var me = this;
+        var me = this, widget = Ext.widget('deviceConfigurationsSetup', {deviceTypeId: id});
         this.deviceTypeId = id;
         this.getDeviceConfigurationsStore().getProxy().setExtraParam('deviceType', id);
+        me.getApplication().fireEvent('changecontentevent', widget);
         this.getDeviceConfigurationsStore().load({
             callback: function () {
-                var widget = Ext.widget('deviceConfigurationsSetup', {deviceTypeId: id});
                 Ext.ModelManager.getModel('Mdc.model.DeviceType').load(id, {
                     success: function (deviceType) {
                         me.getApplication().fireEvent('loadDeviceType', deviceType);
-                        me.getApplication().fireEvent('changecontentevent', widget);
                         widget.down('deviceTypeSideMenu #overviewLink').setText(deviceType.get('name'));
                         me.getDeviceConfigurationsGrid().getSelectionModel().doSelect(0);
                     }
                 });
             }
         });
-
     },
 
     previewDeviceConfiguration: function (grid, record) {
@@ -149,10 +160,10 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
             this.getDeviceConfigurationPreviewForm().loadRecord(deviceConfigurations[0]);
 
             var actionMenu = this.getDeviceConfigurationPreview().down('#device-configuration-action-menu');
-            if(actionMenu)
+            if (actionMenu)
                 actionMenu.record = deviceConfigurations[0];
 
-            if(this.getDeviceConfigurationPreview().down('#device-configuration-action-menu')) {
+            if (this.getDeviceConfigurationPreview().down('#device-configuration-action-menu')) {
                 this.getDeviceConfigurationPreview().down('#device-configuration-action-menu').record = deviceConfigurations[0];
             }
             this.getDeviceConfigurationPreview().getLayout().setActiveItem(1);
@@ -166,7 +177,10 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
 
     showDeviceConfigurationDetailsView: function (devicetype, deviceconfiguration) {
         var me = this;
-        var widget = Ext.widget('deviceConfigurationDetail', {deviceTypeId: devicetype, deviceConfigurationId: deviceconfiguration});
+        var widget = Ext.widget('deviceConfigurationDetail', {
+            deviceTypeId: devicetype,
+            deviceConfigurationId: deviceconfiguration
+        });
         var deviceConfigModel = Ext.ModelManager.getModel('Mdc.model.DeviceConfiguration');
         this.deviceTypeId = devicetype;
         me.getApplication().fireEvent('changecontentevent', widget);
@@ -198,7 +212,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
 
                         widget.down('form').loadRecord(deviceConfiguration);
                         var menuItem = widget.down('#device-configuration-action-menu');
-                        if(menuItem)
+                        if (menuItem)
                             menuItem.record = deviceConfiguration;
 
                         Ext.resumeLayouts(true);
@@ -224,6 +238,18 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
 
     editDeviceConfigurationFromDetailsHistory: function () {
         this.editDeviceConfigurationHistory(this.getDeviceConfigurationDetailForm().getRecord());
+    },
+
+    cloneDeviceConfigurationHistory: function (record) {
+        location.href = '#/administration/devicetypes/' + encodeURIComponent(this.deviceTypeId) + '/deviceconfigurations/' + encodeURIComponent(record.get('id')) + '/clone';
+    },
+
+    cloneDeviceConfigurationHistoryFromPreview: function () {
+        location.href = '#/administration/devicetypes/' + encodeURIComponent(this.deviceTypeId) + '/deviceconfigurations/' + encodeURIComponent(this.getDeviceConfigurationsGrid().getSelectionModel().getSelection()[0].get('id')) + '/clone';
+    },
+
+    cloneDeviceConfigurationFromDetailsHistory: function () {
+        this.cloneDeviceConfigurationHistory(this.getDeviceConfigurationDetailForm().getRecord());
     },
 
     chooseAction: function (menu, item) {
@@ -439,6 +465,68 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                     }
                 });
 
+            }
+        });
+    },
+
+    showDeviceConfigurationCloneView: function (deviceTypeId, deviceConfigurationId) {
+        var me = this, widget,
+            model = Ext.ModelManager.getModel('Mdc.model.DeviceConfiguration'),
+            router = me.getController('Uni.controller.history.Router'),
+            pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0];
+
+        me.deviceTypeId = deviceTypeId;
+        me.deviceConfigurationId = deviceConfigurationId;
+        model.getProxy().setExtraParam('deviceType', this.deviceTypeId);
+
+        pageMainContent.setLoading(true);
+
+        model.load(deviceConfigurationId, {
+            success: function (deviceConfiguration) {
+                me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfiguration);
+                me.deviceConfigurationVersion = deviceConfiguration.get('version');
+                Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
+                    success: function (deviceType) {
+                        widget = Ext.widget('deviceConfigurationClone', {
+                            router: router,
+                            deviceConfigurationName: deviceConfiguration.get('name')
+                        });
+                        me.getApplication().fireEvent('loadDeviceType', deviceType);
+                        me.getApplication().fireEvent('changecontentevent', widget);
+                        pageMainContent.setLoading(false);
+                    }
+                });
+
+            }
+        });
+    },
+
+    cloneDeviceConfiguration: function () {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
+            name = me.getDeviceConfigurationCloneForm().getValues(),
+            record = Ext.create(Mdc.model.DeviceConfiguration);
+
+        me.getDeviceConfigurationCloneForm().getForm().clearInvalid();
+        record.set('version', me.deviceConfigurationVersion);
+        record.set(name);
+        pageMainContent.setLoading(true);
+
+        record.save({
+            url: '/api/dtc/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId,
+            success: function () {
+                router.getRoute('administration/devicetypes/view/deviceconfigurations').forward();
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceconfiguration.acknowledgment.cloned', 'MDC', 'Device configuration cloned'));
+            },
+            failure: function (record, operation) {
+                var json = Ext.decode(operation.response.responseText);
+                if (json && json.errors) {
+                    me.getDeviceConfigurationCloneForm().getForm().markInvalid(json.errors);
+                }
+            },
+            callback: function () {
+                pageMainContent.setLoading(false);
             }
         });
     },

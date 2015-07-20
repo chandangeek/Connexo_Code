@@ -71,6 +71,7 @@ Ext.define('Mdc.view.setup.devicecommand.DeviceCommandsGrid', {
                 menu: {
                     xtype: 'device-command-action-menu'
                 },
+                dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.deviceCommandActions,
                 isDisabled: function(view, rowIndex, colIndex, item, record) {
                     var status = record.get('status').value;
                     var hasCommandsWithPrivileges = view.getStore().proxy.reader.rawData.hasCommandsWithPrivileges;
@@ -94,7 +95,8 @@ Ext.define('Mdc.view.setup.devicecommand.DeviceCommandsGrid', {
                         hidden: Mdc.privileges.DeviceCommands.executeCommands,
                         text: 'Add command',
                         itemId: 'deviceAddCommandButton',
-                        mRID: me.mRID
+                        mRID: me.mRID,
+                        dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.deviceCommandActions
                     }
                 ]
             },

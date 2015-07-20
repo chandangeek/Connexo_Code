@@ -9,6 +9,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.Data', {
     ],
 
     router: null,
+    loadProfile: null,
     channels: null,
 
     initComponent: function () {

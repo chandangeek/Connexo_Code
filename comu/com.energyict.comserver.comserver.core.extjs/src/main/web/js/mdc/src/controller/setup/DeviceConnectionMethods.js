@@ -139,23 +139,27 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
     previewDeviceConnectionMethod: function () {
         var connectionMethod = this.getDeviceConnectionMethodsGrid().getSelectionModel().getSelection();
         if (connectionMethod.length == 1) {
-            this.getToggleDefaultMenuItem().setText(connectionMethod[0].get('isDefault') === true ? Uni.I18n.translate('deviceconnectionmethod.unsetAsDefault', 'MDC', 'Remove as default') : Uni.I18n.translate('deviceconnectionmethod.setAsDefault', 'MDC', 'Set as default'));
-            this.getToggleActiveMenuItem().setText(connectionMethod[0].get('status') === 'connectionTaskStatusInActive' ? Uni.I18n.translate('deviceconnectionmethod.activate', 'MDC', 'Activate') : Uni.I18n.translate('deviceconnectionmethod.deActivate', 'MDC', 'Deactivate'));
-            if (connectionMethod[0].get('status') === 'connectionTaskStatusIncomplete') {
-                this.getToggleActiveMenuItem().setVisible(false);
-            } else {
-                this.getToggleActiveMenuItem().setVisible(true);
+            if (!!this.getToggleDefaultMenuItem()) {
+                this.getToggleDefaultMenuItem().setText(connectionMethod[0].get('isDefault') === true ? Uni.I18n.translate('deviceconnectionmethod.unsetAsDefault', 'MDC', 'Remove as default') : Uni.I18n.translate('deviceconnectionmethod.setAsDefault', 'MDC', 'Set as default'));
+                this.getToggleActiveMenuItem().setText(connectionMethod[0].get('status') === 'connectionTaskStatusInActive' ? Uni.I18n.translate('deviceconnectionmethod.activate', 'MDC', 'Activate') : Uni.I18n.translate('deviceconnectionmethod.deActivate', 'MDC', 'Deactivate'));
+                if (connectionMethod[0].get('status') === 'connectionTaskStatusIncomplete') {
+                    this.getToggleActiveMenuItem().setVisible(false);
+                } else {
+                    this.getToggleActiveMenuItem().setVisible(true);
+                }
             }
             this.getDeviceConnectionMethodPreviewForm().loadRecord(connectionMethod[0]);
             var connectionMethodName = connectionMethod[0].get('name');
             this.getDeviceConnectionMethodPreview().getLayout().setActiveItem(1);
             this.getDeviceConnectionMethodPreview().setTitle(connectionMethodName);
-            this.getDeviceConnectionMethodPreview().down('#toggleDefaultMenuItem').setText(connectionMethod[0].get('isDefault') === true ? Uni.I18n.translate('deviceconnectionmethod.unsetAsDefault', 'MDC', 'Remove as default') : Uni.I18n.translate('deviceconnectionmethod.setAsDefault', 'MDC', 'Set as default'));
-            this.getDeviceConnectionMethodPreview().down('#toggleActiveMenuItem').setText(connectionMethod[0].get('status') === 'connectionTaskStatusInActive' || connectionMethod[0].get('status') === 'connectionTaskStatusIncomplete' ? Uni.I18n.translate('deviceconnectionmethod.activate', 'MDC', 'Activate') : Uni.I18n.translate('deviceconnectionmethod.deActivate', 'MDC', 'Deactivate'));
-            if (connectionMethod[0].get('status') === 'connectionTaskStatusIncomplete') {
-                this.getDeviceConnectionMethodPreview().down('#toggleActiveMenuItem').hidden = true;
-            } else {
-                this.getDeviceConnectionMethodPreview().down('#toggleActiveMenuItem').hidden = false;
+            !!this.getDeviceConnectionMethodPreview().down('#toggleDefaultMenuItem') && this.getDeviceConnectionMethodPreview().down('#toggleDefaultMenuItem').setText(connectionMethod[0].get('isDefault') === true ? Uni.I18n.translate('deviceconnectionmethod.unsetAsDefault', 'MDC', 'Remove as default') : Uni.I18n.translate('deviceconnectionmethod.setAsDefault', 'MDC', 'Set as default'));
+            if (!!this.getDeviceConnectionMethodPreview().down('#toggleActiveMenuItem')) {
+                this.getDeviceConnectionMethodPreview().down('#toggleActiveMenuItem').setText(connectionMethod[0].get('status') === 'connectionTaskStatusInActive' || connectionMethod[0].get('status') === 'connectionTaskStatusIncomplete' ? Uni.I18n.translate('deviceconnectionmethod.activate', 'MDC', 'Activate') : Uni.I18n.translate('deviceconnectionmethod.deActivate', 'MDC', 'Deactivate'));
+                if (connectionMethod[0].get('status') === 'connectionTaskStatusIncomplete') {
+                    this.getDeviceConnectionMethodPreview().down('#toggleActiveMenuItem').hidden = true;
+                } else {
+                    this.getDeviceConnectionMethodPreview().down('#toggleActiveMenuItem').hidden = false;
+                }
             }
             if (connectionMethod[0].propertiesStore.data.items.length > 0) {
                 this.getDeviceConnectionMethodPreview().down('#connectionDetailsTitle').setVisible(true);
@@ -184,11 +188,11 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
         this.editDeviceConnectionMethodHistory(this.getDeviceConnectionMethodPreviewForm().getRecord());
     },
 
-    viewConnectionHistory:function(record){
+    viewConnectionHistory: function (record) {
         location.href = '#/devices/' + encodeURIComponent(this.mrid) + '/connectionmethods/' + encodeURIComponent(record.get('id')) + '/history';
     },
 
-    viewConnectionHistoryFromPreview:function(){
+    viewConnectionHistoryFromPreview: function () {
         this.viewConnectionHistory(this.getDeviceConnectionMethodPreviewForm().getRecord());
     },
 
@@ -401,16 +405,16 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
                             confirmText: Uni.I18n.translate('general.yes', 'UNI', 'Yes'),
                             cancelText: Uni.I18n.translate('general.no', 'UNI', 'No')
                         }).show({
-                            msg: Uni.I18n.translate('deviceconnectionmethod.createIncomplete.msg', 'MDC', 'Are you sure you want to add this incomplete connection method?'),
-                            title: Uni.I18n.translate('deviceconnectionmethod.createIncomplete.title', 'MDC', 'One or more required attributes are missing'),
-                            config: {
-                                me: me,
-                                record: record,
-                                isNewRecord: isNewRecord
-                            },
+                                msg: Uni.I18n.translate('deviceconnectionmethod.createIncomplete.msg', 'MDC', 'Are you sure you want to add this incomplete connection method?'),
+                                title: Uni.I18n.translate('deviceconnectionmethod.createIncomplete.title', 'MDC', 'One or more required attributes are missing'),
+                                config: {
+                                    me: me,
+                                    record: record,
+                                    isNewRecord: isNewRecord
+                                },
 
-                            fn: me.saveAsIncomplete
-                        });
+                                fn: me.saveAsIncomplete
+                            });
                     } else {
                         me.getDeviceConnectionMethodEditForm().getForm().markInvalid(json.errors);
                         me.getDeviceConnectionMethodEditView().down('property-form').getForm().markInvalid(json.errors);

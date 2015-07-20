@@ -35,8 +35,8 @@ Ext.define('Mdc.view.setup.validation.AddRuleSetsGrid', {
         'Select validation rule sets in table'
     ),
 
-	gridHeight: undefined,
-	gridHeaderHeight: undefined,
+    gridHeight: undefined,
+    gridHeaderHeight: undefined,
 
     allChosenByDefault: false,
 
@@ -70,13 +70,15 @@ Ext.define('Mdc.view.setup.validation.AddRuleSetsGrid', {
         me.cancelHref = '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigId + '/validationrulesets';
         me.callParent(arguments);
     },
-	
-	
-	 onChangeSelectionGroupType: function (radiogroup, value) {
-		var me = this;			
-			
-		me.up('validation-add-rulesets').down('validation-ruleset-view').setVisible(!me.isAllSelected());
-		this.callParent(arguments);
-	 }
+
+    onChangeSelectionGroupType: function (radiogroup, value) {
+        var me = this;
+        if (me.view) {
+            var selection = me.view.getSelectionModel().getSelection();
+
+            me.up('validation-add-rulesets').down('validation-ruleset-view').setVisible(!me.isAllSelected() && selection.length !== 0);
+            this.callParent(arguments);
+        }
+    }
 });
 

@@ -36,7 +36,8 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RulesSetGrid', {
                 xtype: 'uni-actioncolumn',
                 flex: 2,
                 privileges:Cfg.privileges.Validation.device,
-                items: 'Mdc.view.setup.devicedatavalidation.RulesSetActionMenu'
+                items: 'Mdc.view.setup.devicedatavalidation.RulesSetActionMenu',
+                dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.validationRuleSetsActions
             }
         ];
         me.dockedItems = [

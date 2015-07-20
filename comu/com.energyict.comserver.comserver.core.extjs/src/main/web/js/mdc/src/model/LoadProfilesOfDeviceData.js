@@ -34,6 +34,13 @@ Ext.define('Mdc.model.LoadProfilesOfDeviceData', {
        },
         {name: 'validationActive', type: 'auto'},
         {
+            name: 'validationStatus',
+            persist: false,
+            mapping: function (data) {
+                return data.validationActive;
+            }
+        },
+        {
             name: 'interval_start',
             persist: false,
             mapping: function (data) {
