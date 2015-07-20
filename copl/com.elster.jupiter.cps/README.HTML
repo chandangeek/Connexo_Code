@@ -1,0 +1,33 @@
+<html><body><h1>com.elster.jupiter.cas</h1>
+<p>This bundle provides support for custom attributes.
+The main interface is CustomPropertySet, a named wrapper for a set of PropertySpec.
+The set of properties extend the properties of an existing domain class
+and are treated as a consistent unit. The CustomPropertySet defines this domain class.
+Every object of the domain class will therefore be extended with these properties
+and the user will be able to specify values for the properties for every object
+of the domain class.
+A CustomPropertySet can be "versioned" at which point the history
+of the changes are maintained at the object level.
+</p>
+<p>
+The CustomPropertySetService provides a whiteboard on which CustomPropertySet components
+are published. As they appear on the whiteboard, they are persisted so that other
+services can reference the CustomPropertySet. Note that the services, when asked,
+will provide a consistent view on the persistent CustomPropertySet. It will NOT
+return a CustomPropertySet when it has not registered on the whiteboard (after e.g.
+a system stop/start).
+</p>
+<h2>Release History</h2>
+<h3>Version 1.0.0</h3>
+<ul>
+	<li>Initial version, providing only the base entities and services.</li>
+</ul>
+
+<h2>Exported Packages</h2>
+<table>
+<tr><th>package</th><th>version</th><th>description</th></tr>
+<tr><td>com.elster.jupiter.cps</td><td>1.0.0</td><td>Public Api</td></tr>
+</table>
+<h2>Provided Services</h2>
+<ul><li>com.elster.jupiter.cps.CustomPropertySetService</li></ul>
+</body></html>

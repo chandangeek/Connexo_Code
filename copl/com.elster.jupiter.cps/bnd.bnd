@@ -1,0 +1,5 @@
+-classpath: target/classes
+-dsannotations: *
+Include-Resource: README.HTML
+Private-Package: com.elster.jupiter.cps.impl
+Export-Package: com.elster.jupiter.cps
