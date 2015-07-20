@@ -128,7 +128,7 @@ Ext.define('InsightApp.view.UsagePointEdit', {
                 },
                 {
                 	xtype: 'panel',
-                	title: 'Extra',
+                	title: Uni.I18n.translate('usagePoint.formFieldLabel.extraFields', 'INS', 'Extra'),
                 	layout: 'form',
                 	ui: 'large',
                 	hidden: true,

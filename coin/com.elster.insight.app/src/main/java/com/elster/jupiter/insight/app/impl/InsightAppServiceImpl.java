@@ -90,8 +90,8 @@ public class InsightAppServiceImpl implements InsightAppService, InstallService,
 
     private void assignPrivilegesToDefaultRoles() {
         List<Privilege> availablePrivileges = getApplicationPrivileges();
-        userService.grantGroupWithPrivilege(UserService.DEFAULT_ADMIN_ROLE, APPLICATION_KEY, availablePrivileges.stream().map(HasName::getName).toArray(String[]::new));
-        userService.grantGroupWithPrivilege(UserService.BATCH_EXECUTOR_ROLE, APPLICATION_KEY, availablePrivileges.stream().map(HasName::getName).toArray(String[]::new));
+        userService.grantGroupWithPrivilege(UserService.DEFAULT_ADMIN_ROLE, APP_KEY, availablePrivileges.stream().map(HasName::getName).toArray(String[]::new));
+        userService.grantGroupWithPrivilege(UserService.BATCH_EXECUTOR_ROLE, APP_KEY, availablePrivileges.stream().map(HasName::getName).toArray(String[]::new));
     }
 
     private boolean isAllowed(User user) {
@@ -101,7 +101,7 @@ public class InsightAppServiceImpl implements InsightAppService, InstallService,
     }
 
     private List<Privilege> getApplicationPrivileges() {
-        return userService.getResources("MDC").stream().flatMap(resource -> resource.getPrivileges().stream()).collect(Collectors.toList());
+        return userService.getResources(MeteringService.COMPONENTNAME).stream().flatMap(resource -> resource.getPrivileges().stream()).collect(Collectors.toList());
     }
     
     @Override
