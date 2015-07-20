@@ -2,6 +2,8 @@ package com.elster.jupiter.cps;
 
 import aQute.bnd.annotation.ProviderType;
 
+import java.util.List;
+
 /**
  * Provides support for adding custom properties to
  * entities that are provided by all Connexo bundles.
@@ -30,5 +32,22 @@ public interface CustomPropertySetService {
      * @param customPropertySet The CustomPropertySet
      */
     void removeCustomPropertySet(CustomPropertySet customPropertySet);
+
+    /**
+     * Finds all {@link RegisteredCustomPropertySet}s.
+     *
+     * @return The List of RegisteredCustomPropertySet
+     */
+    List<RegisteredCustomPropertySet> findRegisteredCustomPropertySets();
+
+    /**
+     * Finds all {@link RegisteredCustomPropertySet}s that provide
+     * custom properties for the specified domain class.
+     *
+     * @param domainClass The domain class
+     * @return The List of RegisteredCustomPropertySet
+     */
+    List<RegisteredCustomPropertySet> findRegisteredCustomPropertySets(Class domainClass);
+
 
 }
