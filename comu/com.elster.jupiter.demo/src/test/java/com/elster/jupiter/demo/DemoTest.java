@@ -638,7 +638,7 @@ public class DemoTest {
         injector.getInstance(FirmwareService.class);
         MdcAppInstaller mdcAppInstaller = new MdcAppInstaller();
         mdcAppInstaller.setUserService(injector.getInstance(UserService.class));
-        mdcAppInstaller.install();
+        mdcAppInstaller.createDefaultRoles();
     }
 
     private void tuneDeviceCountForSpeedTest() {
