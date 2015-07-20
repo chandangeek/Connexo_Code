@@ -9,6 +9,7 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.energyict.mdc.device.config.*;
+import com.energyict.mdc.device.config.events.EventType;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.tasks.ComTask;
 import org.hibernate.validator.constraints.Range;
@@ -70,9 +71,13 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
     private boolean suspended;
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private Reference<ProtocolDialectConfigurationProperties> protocolDialectConfigurationProperties = ValueReference.absent();
+    @SuppressWarnings("unused")
     private String userName;
+    @SuppressWarnings("unused")
     private long version;
+    @SuppressWarnings("unused")
     private Instant createTime;
+    @SuppressWarnings("unused")
     private Instant modTime;
 
     @Inject
@@ -144,7 +149,7 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
 
     @Override
     protected void doDelete() {
-        this.dataModel.remove(this);
+        this.getDataModel().remove(this);
     }
 
     @Override

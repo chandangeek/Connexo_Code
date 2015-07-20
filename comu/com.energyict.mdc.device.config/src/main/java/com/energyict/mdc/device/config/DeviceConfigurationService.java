@@ -227,7 +227,7 @@ public interface DeviceConfigurationService {
 
     public Finder<DeviceConfiguration> findDeviceConfigurationsUsingDeviceType(DeviceType deviceType);
 
-    public Optional<PartialConnectionTask> getPartialConnectionTask(long id);
+    public Optional<PartialConnectionTask> findPartialConnectionTask(long id);
 
     public List<PartialConnectionTask> findByConnectionTypePluggableClass(ConnectionTypePluggableClass connectionTypePluggableClass);
 

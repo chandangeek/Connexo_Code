@@ -1,13 +1,11 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.energyict.mdc.common.InvalidValueException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialConnectionTaskProperty;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.engine.config.ComPortPool;
-import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -35,6 +33,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Provides an implementation for the {@link com.energyict.mdc.device.config.PartialConnectionTask} interface.
@@ -72,9 +71,18 @@ public abstract class PartialConnectionTaskImpl extends PersistentNamedObject<Pa
     private boolean isDefault;
     @Valid
     private List<PartialConnectionTaskPropertyImpl> properties = new ArrayList<>();
+    /**
+     * Holds the name of all required properties that were added or removed during
+     * an edit session to be published as part of the update event.
+     */
+    private List<String> addedOrRemovedRequiredProperties = new ArrayList<>();
+    @SuppressWarnings("unused")
     private String userName;
+    @SuppressWarnings("unused")
     private long version;
+    @SuppressWarnings("unused")
     private Instant createTime;
+    @SuppressWarnings("unused")
     private Instant modTime;
 
     @Inject
@@ -86,8 +94,6 @@ public abstract class PartialConnectionTaskImpl extends PersistentNamedObject<Pa
     void setConfiguration(DeviceConfiguration configuration) {
         this.configuration.set(configuration);
     }
-
-    protected abstract Class<? extends ComPortPool> expectedComPortPoolType ();
 
     protected abstract ValidateDeleteEventType validateDeleteEventType();
 
@@ -136,21 +142,40 @@ public abstract class PartialConnectionTaskImpl extends PersistentNamedObject<Pa
             if (property.getName().equals(key)) {
                 property.setValue(value);
                 if (this.getId() != 0) {
-                    Save.UPDATE.validate(dataModel, property);
+                    Save.UPDATE.validate(this.getDataModel(), property);
                     property.save();
                 }
                 return;
             }
         }
-        PartialConnectionTaskPropertyImpl property = PartialConnectionTaskPropertyImpl.from(dataModel, this, key, value);
-        Save.CREATE.validate(dataModel, property);
+        PartialConnectionTaskPropertyImpl property = PartialConnectionTaskPropertyImpl.from(this.getDataModel(), this, key, value);
+        Save.CREATE.validate(this.getDataModel(), property);
         properties.add(property);
+        if (property.isRequired()) {
+            if (this.addedOrRemovedRequiredProperties.contains(key)) {
+                // The property was removed in the same edit session
+                this.addedOrRemovedRequiredProperties.remove(key);
+            }
+            else {
+                this.addedOrRemovedRequiredProperties.add(key);
+            }
+        }
     }
 
     @Override
     public void removeProperty(String key) {
         for (Iterator<PartialConnectionTaskPropertyImpl> iterator = properties.iterator(); iterator.hasNext(); ) {
-            if (iterator.next().getName().equals(key)) {
+            PartialConnectionTaskPropertyImpl property = iterator.next();
+            if (property.getName().equals(key)) {
+                if (property.isRequired()) {
+                    if (this.addedOrRemovedRequiredProperties.contains(key)) {
+                        // The property was added in the same edit session
+                        this.addedOrRemovedRequiredProperties.remove(key);
+                    }
+                    else {
+                        this.addedOrRemovedRequiredProperties.add(key);
+                    }
+                }
                 iterator.remove();
                 return;
             }
@@ -160,22 +185,15 @@ public abstract class PartialConnectionTaskImpl extends PersistentNamedObject<Pa
     @Override
     public TypedProperties getTypedProperties () {
         TypedProperties typedProperties = TypedProperties.inheritingFrom(this.getPluggableClass().getProperties(getPropertySpecs()));
-        for (PartialConnectionTaskProperty property : this.getProperties()) {
-            if (property.getValue() != null) {
-                typedProperties.setProperty(property.getName(), property.getValue());
-            }
-        }
+        this.getProperties()
+                .stream()
+                .filter(p -> p.getValue() != null)
+                .forEach(p -> typedProperties.setProperty(p.getName(), p.getValue()));
         return typedProperties.getUnmodifiableView();
     }
 
     private List<PropertySpec> getPropertySpecs() {
         return this.getPluggableClass().getConnectionType().getPropertySpecs();
-    }
-
-    protected void validateNotNull (Object propertyValue, String propertyName) throws InvalidValueException {
-        if (propertyValue == null) {
-            throw new InvalidValueException("XcannotBeEmpty", "\"{0}\" is a required property", propertyName);
-        }
     }
 
     @Override
@@ -207,10 +225,6 @@ public abstract class PartialConnectionTaskImpl extends PersistentNamedObject<Pa
         this.post();
     }
 
-    String getInvalidCharacters() {
-        return "./";
-    }
-
     final void doSetComportPool(ComPortPool comPortPool) {
         this.comPortPool.set(comPortPool);
     }
@@ -222,20 +236,29 @@ public abstract class PartialConnectionTaskImpl extends PersistentNamedObject<Pa
     }
 
     public void setDefault(boolean asDefault) {
-        if(asDefault){
-            for (PartialConnectionTaskImpl partialConnectionTask : getPartialConnectionTasksImpls()) {
-                partialConnectionTask.clearDefault();
-            }
+        if (asDefault) {
+            getPartialConnectionTasksImpls().forEach(PartialConnectionTaskImpl::clearDefault);
         }
         this.isDefault = asDefault;
     }
 
     private List<PartialConnectionTaskImpl> getPartialConnectionTasksImpls() {
-        List<PartialConnectionTaskImpl> connectionTaskImpls = new ArrayList<>();
-        for (PartialConnectionTask partialConnectionTask : getConfiguration().getPartialConnectionTasks()) {
-            connectionTaskImpls.add((PartialConnectionTaskImpl) partialConnectionTask);
-        }
-        return connectionTaskImpls;
+        return getConfiguration()
+                .getPartialConnectionTasks()
+                .stream()
+                .map(PartialConnectionTaskImpl.class::cast)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public void save() {
+        super.save();
+        this.addedOrRemovedRequiredProperties.clear();
+    }
+
+    @Override
+    protected Object toUpdateEventSource() {
+        return new PartialConnectionTaskUpdateDetailsImpl(this, this.addedOrRemovedRequiredProperties);
     }
 
     public static class HasSpecValidator implements ConstraintValidator<PartialConnectionTaskPropertyMustHaveSpec, PartialConnectionTaskPropertyImpl> {
@@ -268,11 +291,12 @@ public abstract class PartialConnectionTaskImpl extends PersistentNamedObject<Pa
     protected boolean validateUniqueName() {
         String name = this.getName();
         DeviceConfiguration configuration = getConfiguration();
-        for(PartialConnectionTask partialConnectionTask:configuration.getPartialConnectionTasks()){
-            if(partialConnectionTask.getName().equals(name) && partialConnectionTask.getId()!=this.getId()){
+        for (PartialConnectionTask partialConnectionTask:configuration.getPartialConnectionTasks()) {
+            if (partialConnectionTask.getName().equals(name) && partialConnectionTask.getId() != this.getId()) {
                 return false;
             }
         }
         return true;
     }
+
 }

@@ -263,7 +263,7 @@ public class PartialConnectionInitiationTaskCrudIT {
         deviceConfiguration.setDirectlyAddressable(true);
         deviceConfiguration.save();
 
-        Optional<PartialConnectionTask> found = deviceConfigurationService.getPartialConnectionTask(connectionInitiationTask.getId());
+        Optional<PartialConnectionTask> found = deviceConfigurationService.findPartialConnectionTask(connectionInitiationTask.getId());
         assertThat(found.isPresent()).isTrue();
 
         PartialConnectionTask partialConnectionTask = found.get();
@@ -307,7 +307,7 @@ public class PartialConnectionInitiationTaskCrudIT {
         partialConnectionInitiationTask.setName("Changed");
         partialConnectionInitiationTask.save();
 
-        Optional<PartialConnectionTask> found = deviceConfigurationService.getPartialConnectionTask(connectionInitiationTask.getId());
+        Optional<PartialConnectionTask> found = deviceConfigurationService.findPartialConnectionTask(connectionInitiationTask.getId());
         assertThat(found.isPresent()).isTrue();
 
         PartialConnectionTask partialConnectionTask = found.get();
@@ -349,7 +349,7 @@ public class PartialConnectionInitiationTaskCrudIT {
         deviceConfiguration.remove(partialOutboundConnectionTask);
         deviceConfiguration.save();
 
-        Optional<PartialConnectionTask> found = deviceConfigurationService.getPartialConnectionTask(connectionInitiationTask.getId());
+        Optional<PartialConnectionTask> found = deviceConfigurationService.findPartialConnectionTask(connectionInitiationTask.getId());
         assertThat(found.isPresent()).isFalse();
 
     }
@@ -409,7 +409,7 @@ public class PartialConnectionInitiationTaskCrudIT {
         deviceConfiguration.setDirectlyAddressable(true);
         deviceConfiguration.save();
 
-        Optional<PartialConnectionTask> found = deviceConfigurationService.getPartialConnectionTask(connectionInitiationTask.getId());
+        Optional<PartialConnectionTask> found = deviceConfigurationService.findPartialConnectionTask(connectionInitiationTask.getId());
         PartialConnectionTask partialConnectionTask = ((ServerPartialConnectionTask) found.get()).cloneForDeviceConfig(clonedDeviceConfig);
 
         assertThat(partialConnectionTask).isInstanceOf(PartialConnectionInitiationTaskImpl.class);

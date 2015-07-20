@@ -12,7 +12,7 @@ import java.util.List;
 
 /**
  * Provides code reuse opportunities for entities in this bundle
- * that are persistable and have a unique ID
+ * that are persistable and have a unique ID.
  * <p/>
  * Copyrights EnergyICT
  * Date: 31/01/14
@@ -22,16 +22,20 @@ public abstract class PersistentIdObject<T> {
 
     private long id;
 
-    protected final Class<T> domainClass;
-    protected final DataModel dataModel;
-    protected final EventService eventService;
-    protected final Thesaurus thesaurus;
+    private final Class<T> domainClass;
+    private final DataModel dataModel;
+    private final EventService eventService;
+    private final Thesaurus thesaurus;
 
     protected PersistentIdObject(Class<T> domainClass, DataModel dataModel, EventService eventService, Thesaurus thesaurus) {
         this.domainClass = domainClass;
         this.dataModel = dataModel;
         this.eventService = eventService;
         this.thesaurus = thesaurus;
+    }
+
+    protected DataModel getDataModel() {
+        return dataModel;
     }
 
     protected DataMapper<T> getDataMapper() {
@@ -47,7 +51,7 @@ public abstract class PersistentIdObject<T> {
     }
 
     public void save () {
-        if (this.id > 0) {
+        if (this.getId() > 0) {
             this.post();
             this.notifyUpdated();
         }
@@ -74,7 +78,11 @@ public abstract class PersistentIdObject<T> {
     protected abstract CreateEventType createEventType();
 
     private void notifyUpdated() {
-        this.getEventService().postEvent(this.updateEventType().topic(), this);
+        this.getEventService().postEvent(this.updateEventType().topic(), this.toUpdateEventSource());
+    }
+
+    protected Object toUpdateEventSource() {
+        return this;
     }
 
     protected abstract UpdateEventType updateEventType();
@@ -115,7 +123,7 @@ public abstract class PersistentIdObject<T> {
         return id;
     }
 
-    public void setId(long id){
+    void setId(long id){
         this.id = id;
     }
 
@@ -127,7 +135,7 @@ public abstract class PersistentIdObject<T> {
      * @param second another HasId object
      * @return true if both the ID's of the given HasId objects is the same
      */
-    public boolean isSameIdObject(HasId first, HasId second) {
+    protected boolean isSameIdObject(HasId first, HasId second) {
         return first.getId() == second.getId();
     }
 
@@ -139,7 +147,7 @@ public abstract class PersistentIdObject<T> {
      * @param idObject  the hasId object to check if it exists in the list
      * @return true if the idObject is an element of the list, false otherwise
      */
-    public boolean doesListContainIdObject(List<? extends HasId> hasIdList, HasId idObject) {
+    protected boolean doesListContainIdObject(List<? extends HasId> hasIdList, HasId idObject) {
         for (HasId hasId : hasIdList) {
             if (isSameIdObject(hasId, idObject)) {
                 return true;
@@ -154,13 +162,14 @@ public abstract class PersistentIdObject<T> {
      * @param hasIdList the list containing the HasId objects
      * @param idObject the hasId object to remove from the list
      */
-    public void removeFromHasIdList(List<? extends HasId> hasIdList, HasId idObject){
+    protected void removeFromHasIdList(List<? extends HasId> hasIdList, HasId idObject){
         Iterator<? extends HasId> hasIdIterator = hasIdList.iterator();
         while (hasIdIterator.hasNext()){
             HasId hasId = hasIdIterator.next();
-            if(isSameIdObject(hasId, idObject)){
+            if (isSameIdObject(hasId, idObject)) {
                 hasIdIterator.remove();
             }
         }
     }
+
 }

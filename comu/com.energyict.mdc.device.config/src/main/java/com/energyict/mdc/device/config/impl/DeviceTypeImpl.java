@@ -129,7 +129,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
 
     public void touch() {
         if (this.getId() != 0) {
-            this.dataModel.touch(this);
+            this.getDataModel().touch(this);
         }
     }
 
@@ -242,13 +242,13 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     private void closeCurrentDeviceLifeCycle(Instant now) {
         DeviceLifeCycleInDeviceType deviceLifeCycleInDeviceType = this.deviceLifeCycle.effective(now).get();
         deviceLifeCycleInDeviceType.close(now);
-        this.dataModel.update(deviceLifeCycleInDeviceType);
+        this.getDataModel().update(deviceLifeCycleInDeviceType);
     }
 
     private void setDeviceLifeCycle(DeviceLifeCycle deviceLifeCycle, Instant effective) {
         Interval effectivityInterval = Interval.of(Range.atLeast(effective));
         this.deviceLifeCycle.add(
-                this.dataModel
+                this.getDataModel()
                         .getInstance(DeviceLifeCycleInDeviceTypeImpl.class)
                         .initialize(effectivityInterval, this, deviceLifeCycle));
     }
@@ -401,7 +401,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     private void validateLoadProfileTypeNotUsedByLoadProfileSpec(LoadProfileType loadProfileType) {
         List<LoadProfileSpec> loadProfileSpecs = this.getLoadProfileSpecsForLoadProfileType(loadProfileType);
         if (!loadProfileSpecs.isEmpty()) {
-            throw CannotDeleteBecauseStillInUseException.loadProfileTypeIsStillInUseByLoadProfileSpec(this.thesaurus, loadProfileType, loadProfileSpecs);
+            throw CannotDeleteBecauseStillInUseException.loadProfileTypeIsStillInUseByLoadProfileSpec(this.getThesaurus(), loadProfileType, loadProfileSpecs);
         }
     }
 
@@ -425,18 +425,19 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     }
 
     private void collectLoadProfileSpecsForLoadProfileType(LoadProfileType loadProfileType, DeviceConfiguration deviceConfiguration, List<LoadProfileSpec> loadProfileSpecs) {
-        for (LoadProfileSpec loadProfileSpec : deviceConfiguration.getLoadProfileSpecs()) {
-            if (loadProfileSpec.getLoadProfileType().getId() == loadProfileType.getId()) {
-                loadProfileSpecs.add(loadProfileSpec);
-            }
-        }
+        loadProfileSpecs.addAll(
+                deviceConfiguration
+                        .getLoadProfileSpecs()
+                        .stream()
+                        .filter(loadProfileSpec -> loadProfileSpec.getLoadProfileType().getId() == loadProfileType.getId())
+                        .collect(Collectors.toList()));
     }
 
     @Override
     public void addLogBookType(LogBookType logBookType) {
         for (DeviceTypeLogBookTypeUsage logBookTypeUsage : this.logBookTypeUsages) {
             if (logBookTypeUsage.sameLogBookType(logBookType)) {
-                throw new LogBookTypeAlreadyInDeviceTypeException(this.thesaurus, this, logBookType);
+                throw new LogBookTypeAlreadyInDeviceTypeException(this.getThesaurus(), this, logBookType);
             }
         }
         this.logBookTypeUsages.add(new DeviceTypeLogBookTypeUsage(this, logBookType));
@@ -468,7 +469,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     private void validateRegisterTypeNotUsedByChannelSpec(MeasurementType measurementType) {
         List<ChannelSpec> channelSpecs = this.getChannelSpecsForChannelType(measurementType);
         if (!channelSpecs.isEmpty()) {
-            throw CannotDeleteBecauseStillInUseException.channelTypeIsStillInUseByChannelSpecs(this.thesaurus, measurementType, channelSpecs);
+            throw CannotDeleteBecauseStillInUseException.channelTypeIsStillInUseByChannelSpecs(this.getThesaurus(), measurementType, channelSpecs);
         }
     }
 
@@ -485,17 +486,18 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     }
 
     private void collectChannelSpecsForChannelType(MeasurementType measurementType, DeviceConfiguration deviceConfiguration, List<ChannelSpec> channelSpecs) {
-        for (ChannelSpec channelSpec : deviceConfiguration.getChannelSpecs()) {
-            if (channelSpec.getChannelType().getId() == measurementType.getId()) {
-                channelSpecs.add(channelSpec);
-            }
-        }
+        channelSpecs.addAll(
+                deviceConfiguration.
+                        getChannelSpecs()
+                        .stream()
+                        .filter(channelSpec -> channelSpec.getChannelType().getId() == measurementType.getId())
+                        .collect(Collectors.toList()));
     }
 
     private void validateRegisterTypeNotUsedByRegisterSpec(MeasurementType measurementType) {
         List<RegisterSpec> registerSpecs = this.getRegisterSpecsForRegisterType(measurementType);
         if (!registerSpecs.isEmpty()) {
-            throw CannotDeleteBecauseStillInUseException.registerTypeIsStillInUseByRegisterSpecs(this.thesaurus, measurementType, registerSpecs);
+            throw CannotDeleteBecauseStillInUseException.registerTypeIsStillInUseByRegisterSpecs(this.getThesaurus(), measurementType, registerSpecs);
         }
     }
 
@@ -512,11 +514,12 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     }
 
     private void collectRegisterSpecsForRegisterType(MeasurementType measurementType, DeviceConfiguration deviceConfiguration, List<RegisterSpec> registerSpecs) {
-        for (RegisterSpec registerSpec : deviceConfiguration.getRegisterSpecs()) {
-            if (registerSpec.getRegisterType().getId() == measurementType.getId()) {
-                registerSpecs.add(registerSpec);
-            }
-        }
+        registerSpecs.addAll(
+                deviceConfiguration
+                        .getRegisterSpecs()
+                        .stream()
+                        .filter(registerSpec -> registerSpec.getRegisterType().getId() == measurementType.getId())
+                        .collect(Collectors.toList()));
     }
 
     @Override
@@ -534,7 +537,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     private void validateLogBookTypeNotUsedByLogBookSpec(LogBookType logBookType) {
         List<LogBookSpec> logBookSpecs = this.getLogBookSpecsForLogBookType(logBookType);
         if (!logBookSpecs.isEmpty()) {
-            throw CannotDeleteBecauseStillInUseException.logBookTypeIsStillInUseByLogBookSpec(this.thesaurus, logBookType, logBookSpecs);
+            throw CannotDeleteBecauseStillInUseException.logBookTypeIsStillInUseByLogBookSpec(this.getThesaurus(), logBookType, logBookSpecs);
         }
     }
 
@@ -558,11 +561,12 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     }
 
     private void collectLogBookSpecsForLogBookType(LogBookType logBookType, DeviceConfiguration deviceConfiguration, List<LogBookSpec> logBookSpecs) {
-        for (LogBookSpec logBookSpec : deviceConfiguration.getLogBookSpecs()) {
-            if (logBookSpec.getLogBookType().getId() == logBookType.getId()) {
-                logBookSpecs.add(logBookSpec);
-            }
-        }
+        logBookSpecs.addAll(
+                deviceConfiguration
+                        .getLogBookSpecs()
+                        .stream()
+                        .filter(logBookSpec -> logBookSpec.getLogBookType().getId() == logBookType.getId())
+                        .collect(Collectors.toList()));
     }
 
     public boolean supportsMessaging() {
@@ -605,7 +609,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
 
     @Override
     public DeviceConfigurationBuilder newConfiguration(String name) {
-        return new ConfigurationBuilder(this.dataModel.getInstance(DeviceConfigurationImpl.class).initialize(this, name));
+        return new ConfigurationBuilder(this.getDataModel().getInstance(DeviceConfigurationImpl.class).initialize(this, name));
     }
 
     private enum BuildingMode {
@@ -790,7 +794,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         public DeviceConfiguration add() {
             this.mode.verify();
             this.doNestedBuilders();
-            Save.CREATE.validate(dataModel, this.underConstruction);
+            Save.CREATE.validate(getDataModel(), this.underConstruction);
             addConfiguration(this.underConstruction);
             this.mode = BuildingMode.COMPLETE;
             this.underConstruction.getDeviceType().getDeviceProtocolPluggableClass()
@@ -806,9 +810,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         }
 
         private void doNestedBuilders() {
-            for (NestedBuilder nestedBuilder : this.nestedBuilders) {
-                nestedBuilder.add();
-            }
+            this.nestedBuilders.forEach(DeviceTypeImpl.NestedBuilder::add);
         }
     }
 

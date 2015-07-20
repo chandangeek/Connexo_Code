@@ -44,9 +44,13 @@ public abstract class RegisterSpecImpl<T extends RegisterSpec> extends Persisten
     @Size(max = 80, groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String overruledObisCodeString;
     private ObisCode overruledObisCode;
+    @SuppressWarnings("unused")
     private String userName;
+    @SuppressWarnings("unused")
     private long version;
+    @SuppressWarnings("unused")
     private Instant createTime;
+    @SuppressWarnings("unused")
     private Instant modTime;
 
     @Inject
@@ -100,7 +104,7 @@ public abstract class RegisterSpecImpl<T extends RegisterSpec> extends Persisten
     }
 
     protected void validateBeforeAddToConfiguration() {
-        Save.CREATE.validate(this.dataModel, this);
+        Save.CREATE.validate(this.getDataModel(), this);
         this.validate();
     }
 
@@ -117,7 +121,7 @@ public abstract class RegisterSpecImpl<T extends RegisterSpec> extends Persisten
             }
         }
         if (notFound) {
-            throw new RegisterTypeIsNotConfiguredOnDeviceTypeException(this.thesaurus, getRegisterType());
+            throw new RegisterTypeIsNotConfiguredOnDeviceTypeException(this.getThesaurus(), getRegisterType());
         }
     }
 
@@ -149,7 +153,7 @@ public abstract class RegisterSpecImpl<T extends RegisterSpec> extends Persisten
 
     @Override
     public void validateUpdate() {
-        Save.UPDATE.validate(this.dataModel.getValidatorFactory().getValidator(), this);
+        Save.UPDATE.validate(this.getDataModel(), this);
         this.validate();
     }
 

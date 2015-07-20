@@ -1,12 +1,11 @@
-package com.energyict.mdc.device.config.impl;
+package com.energyict.mdc.device.config.events;
+
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.EventTypeBuilder;
 import com.elster.jupiter.events.ValueType;
 import com.elster.jupiter.orm.TransactionRequired;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
-
-import javax.xml.ws.Service;
 
 /**
  * Models the different event types that are produced by this "device type and configurations bundle".
@@ -160,15 +159,36 @@ public enum EventType {
     PROTOCOLCONFIGURATIONPROPS_VALIDATEDELETE("protocolconfigurationprops/VALIDATEDELETE"),
     PROTOCOLCONFIGURATIONPROPS_VALIDATEREMOVE_ONE("protocolconfigurationprops/VALIDATE_REMOVE_ONE"),
     PARTIAL_INBOUND_CONNECTION_TASK_CREATED("partialinboundconnectiontask/CREATED"),
-    PARTIAL_INBOUND_CONNECTION_TASK_UPDATED("partialinboundconnectiontask/UPDATED"),
+    PARTIAL_INBOUND_CONNECTION_TASK_UPDATED("partialinboundconnectiontask/UPDATED") {
+        @Override
+        protected EventTypeBuilder addCustomProperties(EventTypeBuilder eventTypeBuilder) {
+            super.addCustomProperties(eventTypeBuilder);
+            eventTypeBuilder.withProperty("addedOrRemovedRequiredProperties", ValueType.STRING, "addedOrRemovedRequiredPropertiesAsString");
+            return eventTypeBuilder;
+        }
+    },
     PARTIAL_INBOUND_CONNECTION_TASK_VALIDATE_DELETE("partialinboundconnectiontask/VALIDATE_DELETE"),
     PARTIAL_INBOUND_CONNECTION_TASK_DELETED("partialinboundconnectiontask/DELETED"),
     PARTIAL_SCHEDULED_CONNECTION_TASK_CREATED("partialscheduledconnectiontask/CREATED"),
-    PARTIAL_SCHEDULED_CONNECTION_TASK_UPDATED("partialscheduledconnectiontask/UPDATED"),
+    PARTIAL_SCHEDULED_CONNECTION_TASK_UPDATED("partialscheduledconnectiontask/UPDATED") {
+        @Override
+        protected EventTypeBuilder addCustomProperties(EventTypeBuilder eventTypeBuilder) {
+            super.addCustomProperties(eventTypeBuilder);
+            eventTypeBuilder.withProperty("addedOrRemovedRequiredProperties", ValueType.STRING, "addedOrRemovedRequiredPropertiesAsString");
+            return eventTypeBuilder;
+        }
+    },
     PARTIAL_SCHEDULED_CONNECTION_TASK_VALIDATE_DELETE("partialscheduledconnectiontask/VALIDATE_DELETE"),
     PARTIAL_SCHEDULED_CONNECTION_TASK_DELETED("partialscheduledconnectiontask/DELETED"),
     PARTIAL_CONNECTION_INITIATION_TASK_CREATED("partialconnectioninitiationtask/CREATED"),
-    PARTIAL_CONNECTION_INITIATION_TASK_UPDATED("partialconnectioninitiationtask/UPDATED"),
+    PARTIAL_CONNECTION_INITIATION_TASK_UPDATED("partialconnectioninitiationtask/UPDATED") {
+        @Override
+        protected EventTypeBuilder addCustomProperties(EventTypeBuilder eventTypeBuilder) {
+            super.addCustomProperties(eventTypeBuilder);
+            eventTypeBuilder.withProperty("addedOrRemovedRequiredProperties", ValueType.STRING, "addedOrRemovedRequiredPropertiesAsString");
+            return eventTypeBuilder;
+        }
+    },
     PARTIAL_CONNECTION_INITIATION_TASK_DELETED("partialconnectioninitiationtask/DELETED"),
     PARTIAL_CONNECTION_INITIATION_TASK_VALIDATE_DELETE("partialconnectioninitiationtask/VALIDATE_DELETE"),
     DEVICE_COMMUNICATION_CONFIGURATION_CREATED("devicecommunicationconfiguration/CREATED"),
@@ -194,7 +214,7 @@ public enum EventType {
     }
 
     @TransactionRequired
-    void install(EventService eventService) {
+    public void install(EventService eventService) {
         EventTypeBuilder builder = eventService.buildEventTypeWithTopic(topic())
                 .name(name())
                 .component(DeviceConfigurationService.COMPONENTNAME)

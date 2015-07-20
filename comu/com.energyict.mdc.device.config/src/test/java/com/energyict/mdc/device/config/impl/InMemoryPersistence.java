@@ -125,9 +125,6 @@ public class InMemoryPersistence {
     private ConnectionTypeService connectionTypeService;
     private InMemoryBootstrapModule bootstrapModule;
 
-    public InMemoryPersistence() {
-    }
-
     public void initializeDatabaseWithMockedProtocolPluggableService(String testName, boolean showSqlLogging) {
         this.initializeDatabase(testName, showSqlLogging, true);
     }

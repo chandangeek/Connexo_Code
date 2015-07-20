@@ -1,25 +1,31 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.energyict.mdc.common.ComWindow;
+import com.energyict.mdc.common.interval.PartialTime;
+import com.energyict.mdc.device.config.ConnectionStrategy;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
+import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.device.config.PartialScheduledConnectionTaskBuilder;
+import com.energyict.mdc.device.config.exceptions.MessageSeeds;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.scheduling.SchedulingService;
+
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.energyict.mdc.common.ComWindow;
-import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.common.interval.PartialTime;
-import com.energyict.mdc.device.config.*;
-import com.energyict.mdc.device.config.exceptions.MessageSeeds;
-import com.energyict.mdc.engine.config.EngineConfigurationService;
-import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.mdc.scheduling.SchedulingService;
 import com.elster.jupiter.time.TemporalExpression;
+import com.elster.jupiter.time.TimeDuration;
+import org.joda.time.DateTimeConstants;
+
 import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import javax.validation.constraints.NotNull;
-import org.joda.time.DateTimeConstants;
 
 
 /**
@@ -41,7 +47,7 @@ public class PartialScheduledConnectionTaskImpl extends PartialOutboundConnectio
     private Reference<PartialConnectionInitiationTask> initiator = ValueReference.absent();
 
     @Inject
-    PartialScheduledConnectionTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, EngineConfigurationService engineConfigurationService, ProtocolPluggableService protocolPluggableService, SchedulingService schedulingService) {
+    PartialScheduledConnectionTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, ProtocolPluggableService protocolPluggableService, SchedulingService schedulingService) {
         super(dataModel, eventService, thesaurus, protocolPluggableService, schedulingService);
     }
 
@@ -98,7 +104,7 @@ public class PartialScheduledConnectionTaskImpl extends PartialOutboundConnectio
 
     @Override
     protected void doDelete() {
-        dataModel.mapper(PartialScheduledConnectionTaskImpl.class).remove(this);
+        this.getDataModel().mapper(PartialScheduledConnectionTaskImpl.class).remove(this);
     }
 
     public static PartialScheduledConnectionTaskImpl from(DataModel dataModel, ConnectionStrategy connectionStrategy) {

@@ -32,9 +32,13 @@ public class DeviceMessageEnablementImpl extends PersistentIdObject<DeviceMessag
 
         private DeviceMessageUserAction userAction;
         private Reference<DeviceMessageEnablement> deviceMessageEnablement = ValueReference.absent();
+        @SuppressWarnings("unused")
         private String userName;
+        @SuppressWarnings("unused")
         private long version;
+        @SuppressWarnings("unused")
         private Instant createTime;
+        @SuppressWarnings("unused")
         private Instant modTime;
 
         DeviceMessageUserActionRecord() {
@@ -53,9 +57,13 @@ public class DeviceMessageEnablementImpl extends PersistentIdObject<DeviceMessag
     private List<DeviceMessageUserActionRecord> deviceMessageUserActionRecords = new ArrayList<>();
     private Reference<DeviceConfiguration> deviceConfiguration = ValueReference.absent();
     private DeviceMessageId deviceMessageId;
+    @SuppressWarnings("unused")
     private String userName;
+    @SuppressWarnings("unused")
     private long version;
+    @SuppressWarnings("unused")
     private Instant createTime;
+    @SuppressWarnings("unused")
     private Instant modTime;
 
     static DeviceMessageEnablement from(DataModel dataModel, DeviceConfigurationImpl deviceConfiguration, DeviceMessageId deviceMessageId) {
@@ -118,7 +126,7 @@ public class DeviceMessageEnablementImpl extends PersistentIdObject<DeviceMessag
 
     @Override
     protected void doDelete() {
-        dataModel.mapper(DeviceMessageEnablement.class).remove(this);
+        this.getDataModel().mapper(DeviceMessageEnablement.class).remove(this);
     }
 
     @Override

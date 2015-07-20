@@ -87,6 +87,7 @@ import static com.energyict.mdc.device.config.DeviceSecurityUserAction.VIEWDEVIC
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -135,7 +136,7 @@ public class SecurityPropertySetImplCrudIT {
         initializeStaticMocks();
         User principal = mock(User.class);
         when(principal.getName()).thenReturn(SecurityPropertySetImplCrudIT.class.getSimpleName());
-        when(principal.hasPrivilege(any(Privilege.class))).thenReturn(true);
+        when(principal.hasPrivilege(anyString(), anyString())).thenReturn(true);
         Injector injector = null;
         try {
             injector = Guice.createInjector(
