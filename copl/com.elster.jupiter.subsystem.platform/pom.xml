@@ -77,6 +77,11 @@
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
+                <artifactId>cps</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.elster.jupiter</groupId>
                 <artifactId>datavault</artifactId>
                 <version>1.1.0-SNAPSHOT</version>
             </dependency>
@@ -326,6 +331,10 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>bpm.rest</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>cps</artifactId>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
