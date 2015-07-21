@@ -1,6 +1,6 @@
 package com.energyict.mdc.device.data.importers.parsers;
 
-import com.energyict.mdc.device.data.importers.impl.exceptions.ParserException;
+import com.energyict.mdc.device.data.importers.impl.exceptions.FileImportParserException;
 import com.energyict.mdc.device.data.importers.impl.parsers.BigDecimalParser;
 import com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat;
 import org.junit.Test;
@@ -53,7 +53,7 @@ public class BigDecimalParserTest {
         assertThat(value).isEqualTo(BigDecimal.valueOf(123456789.012));
     }
 
-    @Test(expected = ParserException.class)
+    @Test(expected = FileImportParserException.class)
     public void testParsedException() {
         parserFormat1.parse("text");
     }

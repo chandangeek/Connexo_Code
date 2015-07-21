@@ -3,7 +3,7 @@ package com.energyict.mdc.device.data.importers.impl.parsers;
 
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
-import com.energyict.mdc.device.data.importers.impl.exceptions.ParserException;
+import com.energyict.mdc.device.data.importers.impl.exceptions.FileImportParserException;
 import com.energyict.mdc.device.data.importers.impl.exceptions.ValueParserException;
 import com.energyict.mdc.device.data.importers.impl.properties.TimeZonePropertySpec;
 
@@ -22,21 +22,21 @@ public class DateParser implements FieldParser<ZonedDateTime> {
         this.timeZone = timeZone;
     }
 
-    public ZonedDateTime parse(String value) throws ParserException {
+    public ZonedDateTime parse(String value) throws ValueParserException {
         if (Checks.is(value).emptyOrOnlyWhiteSpace()) {
             return null;
         }
         return parseNonEmptyDateString(value);
     }
 
-    private ZonedDateTime parseNonEmptyDateString(String value) throws ParserException {
+    private ZonedDateTime parseNonEmptyDateString(String value) throws ValueParserException {
         try {
             DateTimeFormatter dataTimeFormatter = DateTimeFormatter.ofPattern(format);
             LocalDateTime localDateTime = LocalDateTime.parse(value, dataTimeFormatter);
             ZoneId zoneId = ZoneId.from(TimeZonePropertySpec.format.parse(timeZone));
             return ZonedDateTime.of(localDateTime, zoneId);
         } catch (Exception e) {
-            throw new ValueParserException(MessageSeeds.BAD_VALUE_FORMAT_ERROR, format);
+            throw new ValueParserException(value, format);
         }
     }
 }

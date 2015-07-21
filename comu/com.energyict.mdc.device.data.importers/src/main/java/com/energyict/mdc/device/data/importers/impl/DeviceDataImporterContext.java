@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.data.importers.impl;
 
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpecService;
 import org.osgi.service.component.annotations.Component;
@@ -25,7 +27,7 @@ public class DeviceDataImporterContext {
     }
 
     @Reference
-    public void setThesaurus(Thesaurus thesaurus) {
-        this.thesaurus = thesaurus;
+    public void setNlsService(NlsService nlsService) {
+        this.thesaurus = nlsService.getThesaurus(DeviceDataImporterMessageHandler.COMPONENT, Layer.DOMAIN);
     }
 }

@@ -6,6 +6,6 @@ public class LiteralStringParser implements FieldParser<String> {
     }
 
     public String parse(String value) {
-        return value.trim();
+        return value != null ? value.trim() : null;
     }
 }

@@ -1,10 +1,19 @@
 package com.energyict.mdc.device.data.importers.impl.exceptions;
 
-import com.elster.jupiter.util.exception.MessageSeed;
+public class ValueParserException extends  RuntimeException {
 
-public class ValueParserException extends ImportException {
+    private String rawValue;
+    private String expected;
+    public ValueParserException(String rawValue, String expected) {
+        this.rawValue = rawValue;
+        this.expected = expected;
+    }
 
-    public ValueParserException(MessageSeed message, Object... args) {
-        super(message, args);
+    public String getValue() {
+        return rawValue;
+    }
+
+    public String getExpected() {
+        return expected;
     }
 }
