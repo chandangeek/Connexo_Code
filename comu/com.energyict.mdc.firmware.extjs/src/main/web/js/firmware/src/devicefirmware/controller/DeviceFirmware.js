@@ -111,7 +111,7 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
 
         record.save({
             success: function () {
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceFirmware.upgrade.success', 'FWC', 'Firmware upgrade scheduled.'));
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceFirmware.upgrade.success', 'FWC', 'Firmware upload scheduled.'));
                 container.setLoading(false);
                 router.getRoute('devices/device/firmware').forward();
             },
@@ -169,7 +169,7 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
         form.setLoading();
         record.retry(encodeURIComponent(router.arguments.mRID), function (operation, success) {
             if (success) {
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceFirmware.upgrade.retried', 'FWC', 'Firmware upgrade retried.'));
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceFirmware.upgrade.retried', 'FWC', 'Firmware upload retried.'));
                 router.getRoute().forward();
             }
             form.setLoading(false);
@@ -190,7 +190,7 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
         message.setId(devicemessageId);
         message.destroy({
             success: function () {
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceFirmware.upgrade.cancelled', 'FWC', 'Firmware upgrade cancelled.'));
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceFirmware.upgrade.cancelled', 'FWC', 'Firmware upload cancelled.'));
                 router.getRoute().forward();
             },
             callback: function () {
