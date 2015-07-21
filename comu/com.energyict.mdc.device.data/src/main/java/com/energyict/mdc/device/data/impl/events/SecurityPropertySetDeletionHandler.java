@@ -4,6 +4,7 @@ import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.config.SecurityPropertySet;
+import com.energyict.mdc.device.config.events.EventType;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -18,11 +19,11 @@ import org.osgi.service.component.annotations.Reference;
  * @since 2014-07-10 (15:04)
  */
 @Component(name = "com.energyict.mdc.device.data.delete.securitypropertyset.eventhandler", service = TopicHandler.class, immediate = true)
+@SuppressWarnings("unused")
 public class SecurityPropertySetDeletionHandler implements TopicHandler {
 
-    static final String TOPIC = "com/energyict/mdc/device/config/securitypropertyset/VALIDATE_DELETE";
+    private static final String TOPIC = EventType.SECURITY_PROPERTY_SET_VALIDATE_DELETE.topic();
 
-    private volatile DeviceDataModelService deviceDataModelService;
     private volatile ProtocolPluggableService protocolPluggableService;
     private volatile Thesaurus thesaurus;
 
@@ -39,7 +40,6 @@ public class SecurityPropertySetDeletionHandler implements TopicHandler {
 
     @Reference
     public void setDeviceDataModelService(DeviceDataModelService deviceDataModelService) {
-        this.deviceDataModelService = deviceDataModelService;
         this.thesaurus = deviceDataModelService.thesaurus();
     }
 

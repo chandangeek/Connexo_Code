@@ -38,7 +38,7 @@ public class UserHasTheMessagePrivilegeValidator implements ConstraintValidator<
                 Optional<DeviceMessageEnablement> deviceMessageEnablementOptional = deviceMessage.getDevice().getDeviceConfiguration().getDeviceMessageEnablements().stream().filter(deviceMessageEnablement -> deviceMessageEnablement.getDeviceMessageId().equals(deviceMessage.getDeviceMessageId())).findFirst();
                 if (deviceMessageEnablementOptional.isPresent()) {
                     DeviceMessageEnablement deviceMessageEnablement = deviceMessageEnablementOptional.get();
-                    if (!deviceMessageEnablement.getUserActions().stream().anyMatch(deviceMessageUserAction -> currentUser.hasPrivilege(deviceMessageUserAction.getPrivilege()))) {
+                    if (!deviceMessageEnablement.getUserActions().stream().anyMatch(deviceMessageUserAction -> currentUser.hasPrivilege("MDC", deviceMessageUserAction.getPrivilege()))) {
                         context.disableDefaultConstraintViolation();
                         context.
                                 buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.DEVICE_MESSAGE_USER_NOT_ALLOWED + "}").

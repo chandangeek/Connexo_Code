@@ -1,10 +1,11 @@
 package com.energyict.mdc.device.data.impl.events;
 
+import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.device.data.impl.DeviceDataModelService;
+
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -18,7 +19,7 @@ import org.osgi.service.component.annotations.Reference;
 @Component(name = "com.energyict.mdc.device.data.delete.comtaskenablement.eventhandler", service = TopicHandler.class, immediate = true)
 public class ComTaskEnablementDeletionHandler implements TopicHandler {
 
-    static final String TOPIC = "com/energyict/mdc/device/config/comtaskenablement/VALIDATEDELETE";
+    static final String TOPIC = com.energyict.mdc.device.config.events.EventType.COMTASKENABLEMENT_VALIDATEDELETE.topic();
 
     private volatile DeviceDataModelService deviceDataModelService;
     private volatile Thesaurus thesaurus;

@@ -55,7 +55,7 @@ public class PartialConnectionTaskDeletionHandler extends EventHandler<LocalEven
     }
 
     /**
-     * Vetos the deletion of the {@link PartialConnectionTask}
+     * Vetoes the deletion of the {@link PartialConnectionTask}
      * by throwing an exception when the PartialConnectionTask
      * is used by at least on Device, i.e. at least one
      * ConnectionTask that uses it on a Device.

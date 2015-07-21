@@ -18,6 +18,14 @@ public enum EventType {
     CONNECTIONTASK_UPDATED("connectiontask/UPDATED"),
     CONNECTIONTASK_SETASDEFAULT("connectiontask/SETASDEFAULT"),
     CONNECTIONTASK_CLEARDEFAULT("connectiontask/CLEARDEFAULT"),
+    CONNECTIONTASK_CHECK_ALL_ACTIVE("connectiontask/CHECKALLACTIVE") {
+        @Override
+        protected EventTypeBuilder addCustomProperties(EventTypeBuilder eventTypeBuilder) {
+            eventTypeBuilder.withProperty("partialConnectionTaskId", ValueType.LONG, "partialConnectionTaskId");
+            eventTypeBuilder.shouldPublish();
+            return eventTypeBuilder;
+        }
+    },
     CONNECTIONTASK_DELETED("connectiontask/DELETED"),
     DEVICE_CREATED("device/CREATED"),
     DEVICE_DELETED("device/DELETED"),
