@@ -143,18 +143,15 @@ Ext.define('Uni.view.notifications.NoItemsFoundPanel', {
         }
 
         if (!Ext.isEmpty(me.stepItems)) {
-            var stepItems = me.stepItems;
-            if (!Ext.isArray(stepItems)) {
-                stepItems = [stepItems];
-            }
-            if (typeof stepItems[0].privileges === 'undefined' || Uni.Auth.hasAnyPrivilege(stepItems[0].privileges)) {
+            var itemsContainer = me.createSteps(me.stepItems);
+
+            if (!!itemsContainer) {
                 wrapper.add({
                     xtype: 'component',
                     itemId: 'no-items-found-panel-steps-label',
                     html: '<span class="steps-text">' + me.stepsText + '</span>'
                 });
-
-                wrapper.add(me.createSteps(me.stepItems));
+                wrapper.add(itemsContainer);
             }
         }
 
@@ -202,6 +199,10 @@ Ext.define('Uni.view.notifications.NoItemsFoundPanel', {
             container.add(Ext.clone(stepItems));
         }
         Ext.resumeLayouts();
-        return container;
+        if (container.items.length != 0) {
+            return container;
+        } else {
+            return null;
+        }
     }
 });
