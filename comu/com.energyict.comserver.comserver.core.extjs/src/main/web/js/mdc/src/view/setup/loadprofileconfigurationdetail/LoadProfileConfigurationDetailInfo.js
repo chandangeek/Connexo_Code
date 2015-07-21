@@ -27,7 +27,7 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
         },
         {
             xtype: 'obis-displayfield',
-            name: 'obisCode'
+            name: 'overruledObisCode'
         },
         {
             xtype: 'displayfield',

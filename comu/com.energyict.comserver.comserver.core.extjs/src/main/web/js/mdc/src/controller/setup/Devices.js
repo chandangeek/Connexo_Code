@@ -233,7 +233,7 @@ Ext.define('Mdc.controller.setup.Devices', {
                     && Cfg.privileges.Validation.canUpdateDeviceValidation()) {
                     me.updateDataValidationStatusSection(mRID, widget);
                 } else {
-                    widget.down('device-data-validation-panel').hide();
+                    !!widget.down('device-data-validation-panel') && widget.down('device-data-validation-panel').hide();
                 }
                 viewport.setLoading(false);
 

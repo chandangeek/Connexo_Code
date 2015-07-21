@@ -323,7 +323,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                     } else {
                         me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('connectionmethod.acknowlegment.save', 'MDC', 'Connection method saved'));
                     }
-              //      me.showConnectionMethods(me.deviceTypeId, me.deviceConfigurationId);
+                    me.showConnectionMethods(me.deviceTypeId, me.deviceConfigurationId);
                 },
                 failure: function (record, operation) {
                     var json = Ext.decode(operation.response.responseText);
@@ -399,16 +399,22 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
         var connectionStrategiesStore = Ext.StoreManager.get('ConnectionStrategies');
         this.deviceTypeId = deviceTypeId;
         this.deviceConfigurationId = deviceConfigId;
-        var me = this;
+        var me = this,
+            returnLink;
 
         var model = Ext.ModelManager.getModel('Mdc.model.ConnectionMethod');
         model.getProxy().extraParams = ({deviceType: deviceTypeId, deviceConfig: deviceConfigId});
+        if (me.getApplication().getController('Mdc.controller.history.Setup').tokenizePreviousTokens().indexOf('null') >= -1) {
+            returnLink = '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/connectionmethods';
+        } else {
+            returnLink = me.getApplication().getController('Mdc.controller.history.Setup').tokenizePreviousTokens();
+        }
         model.load(connectionMethodId, {
             success: function (connectionMethod) {
                 me.getApplication().fireEvent('loadConnectionMethod', connectionMethod);
                 var widget = Ext.widget('connectionMethodEdit', {
                     edit: true,
-                    returnLink: me.getApplication().getController('Mdc.controller.history.Setup').tokenizePreviousTokens(),
+                    returnLink: returnLink,
                     connectionTypes: connectionTypesStore,
                     comPortPools: me.comPortPoolStore,
                     connectionStrategies: connectionStrategiesStore,

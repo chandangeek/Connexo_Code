@@ -173,7 +173,8 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
         var me = this;
         this.deviceTypeId = deviceTypeId;
         this.deviceConfigId = deviceConfigId;
-        var registerTypesOfDevicetypeStore = Ext.data.StoreManager.lookup('AvailableRegisterTypesForDeviceConfiguration');
+        var registerTypesOfDevicetypeStore = Ext.data.StoreManager.lookup('AvailableRegisterTypesForDeviceConfiguration'),
+            router = this.getController('Uni.controller.history.Router');
 
         registerTypesOfDevicetypeStore.getProxy().setExtraParam('deviceType', deviceTypeId);
         registerTypesOfDevicetypeStore.getProxy().setExtraParam('filter', Ext.encode([
@@ -203,7 +204,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
                                 var widget = Ext.widget('registerConfigEdit', {
                                     edit: false,
                                     registerTypesOfDeviceType: registerTypesOfDevicetypeStore,
-                                    returnLink: '#/administration/devicetypes/' + deviceTypeId + '/deviceconfigurations/' + deviceConfigId + '/registerconfigurations'
+                                    returnLink: router.getRoute('administration/devicetypes/view/deviceconfigurations/view/registerconfigurations').buildUrl()
                                 });
                                 me.getApplication().fireEvent('changecontentevent', widget);
                                 me.getRegisterConfigEditForm().setTitle(Uni.I18n.translate('registerConfigs.createRegisterConfig', 'MDC', 'Add register configuration'));
@@ -234,7 +235,8 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
     createRegisterConfiguration: function () {
         var me = this;
         var record = Ext.create(Mdc.model.RegisterConfiguration),
-            values = this.getRegisterConfigEditForm().getValues();
+            values = this.getRegisterConfigEditForm().getValues(),
+            router = this.getController('Uni.controller.history.Router');
 
         var view = this.getRegisterConfigEditForm();
         var newObisCode = view.down('#editObisCodeField').getValue();
@@ -249,7 +251,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
             record.save({
                 success: function (record) {
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('registerConfig.acknowlegment.added', 'MDC', 'Register configuration added'));
-                    location.href = '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigId + '/registerconfigurations';
+                    router.getRoute('administration/devicetypes/view/deviceconfigurations/view/registerconfigurations').forward();
                 },
                 failure: function (record, operation) {
                     var json = Ext.decode(operation.response.responseText);
@@ -309,7 +311,9 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
         this.deviceTypeId = deviceTypeId;
         this.deviceConfigId = deviceConfigurationId;
         var me = this;
-        var registerTypesOfDevicetypeStore = Ext.data.StoreManager.lookup('RegisterTypesOfDevicetype');
+        var registerTypesOfDevicetypeStore = Ext.data.StoreManager.lookup('RegisterTypesOfDevicetype'),
+            router = this.getController('Uni.controller.history.Router');
+
         registerTypesOfDevicetypeStore.getProxy().setExtraParam('deviceType', deviceTypeId);
 
         registerTypesOfDevicetypeStore.load({
@@ -317,7 +321,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
                 var widget = Ext.widget('registerConfigEdit', {
                     edit: true,
                     registerTypesOfDeviceType: registerTypesOfDevicetypeStore,
-                    returnLink: me.getApplication().getController('Mdc.controller.history.Setup').tokenizePreviousTokens()
+                    returnLink: router.getRoute('administration/devicetypes/view/deviceconfigurations/view/registerconfigurations').buildUrl()
                 });
                 me.getApplication().fireEvent('changecontentevent', widget);
                 widget.setLoading(true);
@@ -335,7 +339,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
                                         me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfiguration);
                                         widget.down('form').loadRecord(registerConfiguration);
                                         me.getApplication().fireEvent('loadRegisterConfiguration', registerConfiguration);
-                                        me.getRegisterConfigEditForm().setTitle(Uni.I18n.translate('general.edit', 'MDC', 'Edit') + " '" + registerConfiguration.get('name') + "'");
+                                        me.getRegisterConfigEditForm().setTitle(Uni.I18n.translate('general.edit', 'MDC', 'Edit') + " '" + registerConfiguration.get('readingType').fullAliasName + "'");
                                         widget.down('#registerTypeComboBox').setValue(registerConfiguration.get('registerType'));
                                         if(registerConfiguration.get('asText')===true){
                                             widget.down('#textRadio').setValue(true);
@@ -355,7 +359,9 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
 
     editRegisterConfiguration: function () {
         var record = this.getRegisterConfigEditForm().getRecord(),
-            values = this.getRegisterConfigEditForm().getValues();
+            values = this.getRegisterConfigEditForm().getValues(),
+            router = this.getController('Uni.controller.history.Router');
+
         var me = this;
 
         var view = this.getRegisterConfigEditForm();
@@ -371,7 +377,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
             record.save({
                 success: function (record) {
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('registerConfig.acknowlegment.saved', 'MDC', 'Register configuration saved'));
-                    location.href = me.getApplication().getController('Mdc.controller.history.Setup').tokenizePreviousTokens()
+                    router.getRoute('administration/devicetypes/view/deviceconfigurations/view/registerconfigurations').forward();
                 },
                 failure: function (record, operation) {
                     var json = Ext.decode(operation.response.responseText);

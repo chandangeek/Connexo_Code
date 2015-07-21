@@ -1281,6 +1281,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             route: 'validationresults/configuration',
                             controller: 'Mdc.controller.setup.DeviceValidationResults',
                             privileges: ['privilege.administrate.validationConfiguration','privilege.view.validationConfiguration','privilege.view.fineTuneValidationConfiguration.onDevice'],
+                            dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.deviceStateStore,
                             action: 'showDeviceValidationResultsMainView',
 							filter: 'Mdc.model.ValidationResultsDataFilter',
 							params: {
@@ -1293,6 +1294,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             controller: 'Mdc.controller.setup.DeviceValidationResults',
                             privileges: ['privilege.administrate.validationConfiguration','privilege.view.validationConfiguration','privilege.view.fineTuneValidationConfiguration.onDevice'],
                             action: 'showDeviceValidationResultsMainView',
+                            dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.deviceStateStore,
 							filter: 'Mdc.model.ValidationResultsDataFilter',
 							params: {
 								'activeTab': 1	
