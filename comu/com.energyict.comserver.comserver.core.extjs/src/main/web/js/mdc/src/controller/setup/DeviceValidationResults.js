@@ -1,54 +1,54 @@
 Ext.define('Mdc.controller.setup.DeviceValidationResults', {
-    extend: 'Ext.app.Controller',	
-	requires: [
-        'Mdc.store.ValidationResultsDurations'     
+    extend: 'Ext.app.Controller',
+    requires: [
+        'Mdc.store.ValidationResultsDurations'
     ],
-	models: [
-		'Mdc.model.ValidationResultsDataFilter',
-		'Mdc.model.ValidationResults',
+    models: [
+        'Mdc.model.ValidationResultsDataFilter',
+        'Mdc.model.ValidationResults',
         'Mdc.model.ValidationResultsDataView',
-		'Mdc.model.ValidationRuleSet',
-		'Mdc.model.ValidationRuleSetVersion',
-		'Mdc.model.ValidationRuleSetVersionRule'
-	],
-	stores: [
+        'Mdc.model.ValidationRuleSet',
+        'Mdc.model.ValidationRuleSetVersion',
+        'Mdc.model.ValidationRuleSetVersionRule'
+    ],
+    stores: [
         'Mdc.store.DataIntervalAndZoomLevels',
         'Mdc.store.ValidationResultsDurations',
-		'Mdc.store.ValidationResultsRuleSets',
-		'Mdc.store.ValidationResultsRules',
-		'Mdc.store.ValidationResultsVersions',
+        'Mdc.store.ValidationResultsRuleSets',
+        'Mdc.store.ValidationResultsRules',
+        'Mdc.store.ValidationResultsVersions',
         'Mdc.store.ValidationResultsLoadProfiles',
         'Mdc.store.ValidationResultsRegisters'
     ],
-	views: [
+    views: [
         'Mdc.view.setup.devicevalidationresults.ValidationResultsMainView'
-    ],	
-	refs: [
+    ],
+    refs: [
         //{ref: 'page', selector: '#deviceValidationResultsMainView'},
-		{ref: 'validationResultsTabPanel', selector: '#tab-validation-results'},
-		{ref: 'sideFilterForm', selector: '#frm-device-validation-results-filter'},
-		{ref: 'filterPanel', selector: 'mdc-device-validation-results-main-view filter-top-panel'},
+        {ref: 'validationResultsTabPanel', selector: '#tab-validation-results'},
+        {ref: 'sideFilterForm', selector: '#frm-device-validation-results-filter'},
+        {ref: 'filterPanel', selector: 'mdc-device-validation-results-main-view filter-top-panel'},
         {ref: 'filterDataPanel', selector: 'mdc-device-validation-results-main-view #validation-results-data-filter'},
-		{ref: 'validationResultsRulesetForm', selector: '#frm-device-validation-results-ruleset'},
+        {ref: 'validationResultsRulesetForm', selector: '#frm-device-validation-results-ruleset'},
         {ref: 'validationResultsLoadProfileRegisterForm', selector: '#frm-device-validation-results-load-profile-register'},
-		{ref: 'configurationViewValidationResultsBrowse', selector: '#con-configuration-view-validation-results-browse'},		
-		{ref: 'ruleSetGrid', selector: '#rule-set-list'},
-		{ref: 'ruleSetVersionGrid', selector: '#rule-set-version-list'},
-		{ref: 'ruleSetVersionRuleGrid', selector: '#rule-set-version-rule-list'},
-		{ref: 'ruleSetVersionRulePreview', selector: '#rule-set-version-rule-preview'},		
-		{ref: 'configurationViewValidateNowBtn', selector: 'mdc-device-validation-results-ruleset #btn-configuration-view-validate-now'},
-		{ref: 'dataViewValidateNowBtn', selector: 'mdc-device-validation-results-load-profile-register #btn-data-view-validate-now'},
+        {ref: 'configurationViewValidationResultsBrowse', selector: '#con-configuration-view-validation-results-browse'},
+        {ref: 'ruleSetGrid', selector: '#rule-set-list'},
+        {ref: 'ruleSetVersionGrid', selector: '#rule-set-version-list'},
+        {ref: 'ruleSetVersionRuleGrid', selector: '#rule-set-version-rule-list'},
+        {ref: 'ruleSetVersionRulePreview', selector: '#rule-set-version-rule-preview'},
+        {ref: 'configurationViewValidateNowBtn', selector: 'mdc-device-validation-results-ruleset #btn-configuration-view-validate-now'},
+        {ref: 'dataViewValidateNowBtn', selector: 'mdc-device-validation-results-load-profile-register #btn-data-view-validate-now'},
         {ref: 'loadProfileGrid', selector: '#validation-result-load-profile-list'},
-        {ref: 'registerGrid', selector: '#validation-result-register-list'},		
-		{ref: 'configurationViewDataValidated', selector: '#frm-device-validation-results-ruleset #dpl-configuration-view-data-validated'},
-		{ref: 'configurationViewValidationResults', selector: '#frm-device-validation-results-ruleset #dpl-configuration-view-validation-results'},		
-		{ref: 'dataViewDataValidated', selector: '#frm-device-validation-results-load-profile-register #dpl-data-view-data-validated'},
-		{ref: 'dataViewValidationResults', selector: '#frm-device-validation-results-load-profile-register #dpl-data-view-validation-results'}
-		
-    ],    
+        {ref: 'registerGrid', selector: '#validation-result-register-list'},
+        {ref: 'configurationViewDataValidated', selector: '#frm-device-validation-results-ruleset #dpl-configuration-view-data-validated'},
+        {ref: 'configurationViewValidationResults', selector: '#frm-device-validation-results-ruleset #dpl-configuration-view-validation-results'},
+        {ref: 'dataViewDataValidated', selector: '#frm-device-validation-results-load-profile-register #dpl-data-view-data-validated'},
+        {ref: 'dataViewValidationResults', selector: '#frm-device-validation-results-load-profile-register #dpl-data-view-validation-results'}
+
+    ],
     mRID: null,
     veto: false,
-	dataValidationLastChecked: null,
+    dataValidationLastChecked: null,
     loadProfileDurations: [],
     registerDuration: {},
     validationResultsDataObject: {},
@@ -56,54 +56,54 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
     isDefaultFilter: true,
 
     init: function () {
-		var me = this;
+        var me = this;
         me.control({
             '#tab-validation-results': {
                 tabChange: this.changeTab
-            },			
-			'#pnl-device-validation-results-filter': {
+            },
+            '#pnl-device-validation-results-filter': {
                 removeFilter: this.removeFilterItem,
                 clearAllFilters: this.clearFilter
             },
-			'#validation-results-data-filter': {
+            '#validation-results-data-filter': {
                 removeFilter: this.removeFilterItem,
                 clearAllFilters: this.clearFilter
             },
-			'mdc-device-validation-results-side-filter #btn-device-validation-results-filter-apply': {
+            'mdc-device-validation-results-side-filter #btn-device-validation-results-filter-apply': {
                 click: this.applyFilter
             },
             'mdc-device-validation-results-side-filter #btn-device-validation-results-filter-reset': {
                 click: this.clearFilter
             },
-			'#con-configuration-view-validation-results-browse #rule-set-list': {
+            '#con-configuration-view-validation-results-browse #rule-set-list': {
                 selectionchange: this.onRuleSetGridSelectionChange
-            },			
-			'#con-configuration-view-validation-results-browse #rule-set-version-list': {
+            },
+            '#con-configuration-view-validation-results-browse #rule-set-version-list': {
                 selectionchange: this.onRuleSetVersionGridSelectionChange
-            },			
-			'#con-configuration-view-validation-results-browse #rule-set-version-rule-list': {
+            },
+            '#con-configuration-view-validation-results-browse #rule-set-version-rule-list': {
                 selectionchange: this.onRuleSetVersionRuleGridSelectionChange
-            },						
-			'mdc-device-validation-results-ruleset #btn-configuration-view-validate-now': {
+            },
+            'mdc-device-validation-results-ruleset #btn-configuration-view-validate-now': {
                 click: this.validateNow
             },
-			'mdc-device-validation-results-load-profile-register #btn-data-view-validate-now': {
+            'mdc-device-validation-results-load-profile-register #btn-data-view-validate-now': {
                 click: this.validateNow
-            }			
-			
+            }
+
         });
 
-      this.callParent();
+        this.callParent();
     },
 
-	showDeviceValidationResultsMainView: function (mRID, ruleSetId, versionId, ruleId, activeTab) {	
-	
-		 var me = this,
-            viewport = Ext.ComponentQuery.query('viewport')[0];
-			
-		activeTab = activeTab || ruleId || versionId || ruleSetId;
+    showDeviceValidationResultsMainView: function (mRID, ruleSetId, versionId, ruleId, activeTab) {
 
-        me.mRID = mRID;	
+        var me = this,
+            viewport = Ext.ComponentQuery.query('viewport')[0];
+
+        activeTab = activeTab || ruleId || versionId || ruleSetId;
+
+        me.mRID = mRID;
         viewport.setLoading();
 
         Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
@@ -115,19 +115,19 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
                 me.getApplication().fireEvent('changecontentevent', widget);
                 me.veto = true;
                 me.getValidationResultsTabPanel().setActiveTab(activeTab);
-                if(activeTab == 0)
+                if (activeTab == 0)
                     me.loadConfigurationData();
                 else
                     me.loadValidationResultsData();
                 me.veto = false;
             },
-			failure: function (response) {
-				viewport.setLoading(false);
-			}
+            failure: function (response) {
+                viewport.setLoading(false);
+            }
         });
-	},
+    },
 
-	changeTab: function (tabPanel, tab) {
+    changeTab: function (tabPanel, tab) {
         if (!this.veto) {
 
             var me = this,
@@ -136,10 +136,10 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
                 route,
                 filterParams = {};
 
-            if (tab.itemId === 'validationResults-configuration') {				
+            if (tab.itemId === 'validationResults-configuration') {
                 routeParams.mRID = encodeURIComponent(me.mRID);
                 route = 'devices/device/validationresultsconfiguration';
-                route && (route = router.getRoute(route));				
+                route && (route = router.getRoute(route));
                 route && route.forward(routeParams, router.queryParams);
             }
             else if (tab.itemId === 'validationResults-data') {
@@ -153,131 +153,131 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
         } else {
             this.veto = false;
         }
-	},
-	
-	setDefaults : function(){
-		 var me = this,
+    },
+
+    setDefaults: function () {
+        var me = this,
             router = me.getController('Uni.controller.history.Router'),
-            intervalStart = (new Date()).setHours(0,0,0,0),
-			durationsStore = me.getStore('Mdc.store.ValidationResultsDurations'),
-			firstItem = durationsStore.first();
-			
+            intervalStart = (new Date()).setHours(0, 0, 0, 0),
+            durationsStore = me.getStore('Mdc.store.ValidationResultsDurations'),
+            firstItem = durationsStore.first();
+
         router.filter.beginEdit();
         router.filter.set('intervalStart', moment(intervalStart).toDate());
         router.filter.set('duration', '1years');
-		router.filter.endEdit();
+        router.filter.endEdit();
 
         me.isDefaultFilter = true;
-	},
+    },
 
-	getIntervalStart: function (intervalEnd, item) {
+    getIntervalStart: function (intervalEnd, item) {
         return moment(intervalEnd).subtract(item.get('timeUnit'), item.get('count')).toDate();
     },
 
-	setFilterView: function () {
+    setFilterView: function () {
         var me = this,
-			filterForm = me.getSideFilterForm(),
+            filterForm = me.getSideFilterForm(),
             filterView = me.getFilterPanel(),
             filterDataView = me.getFilterDataPanel(),
             intervalStartField = filterForm.down('[name=intervalStart]'),
             intervalStart = intervalStartField.getValue(),
             eventDateText = '';
 
-		if(!me.isDefaultFilter) {
+        if (!me.isDefaultFilter) {
             eventDateText += Uni.DateTime.formatDateShort(intervalStart);
             filterView.setFilter('eventDateChanged', Uni.I18n.translate('validationResults.intervallabel', 'MDC', 'From'), eventDateText, true);
             filterDataView.setFilter('eventDateChanged', Uni.I18n.translate('validationResults.intervallabel', 'MDC', 'From'), eventDateText, true);
         }
 
         filterView.down('#Reset').setText(Uni.I18n.translate('general.reset', 'MDC', 'Reset'));
-		filterDataView.down('#Reset').setText(Uni.I18n.translate('general.reset', 'MDC', 'Reset'));
+        filterDataView.down('#Reset').setText(Uni.I18n.translate('general.reset', 'MDC', 'Reset'));
         me.setFilterDataView();
-	},
+    },
 
-	setFilterDataView: function(){
-		var me = this,
-			filterForm = me.getSideFilterForm(),
-			filterDataView = me.getFilterDataPanel(),
-			itemTypeContainer = filterForm.down('[name=itemTypeContainer]'),
-			router = me.getController('Uni.controller.history.Router'),
-			ruleSetId = router.arguments['ruleSetId'],
-			versionId = router.arguments['ruleSetVersionId'],
-			ruleId = router.arguments['ruleId'],
-			itemName, model;	
-		
-		if (ruleId){
-			itemTypeContainer.setFieldLabel(Uni.I18n.translate('validationResults.rule', 'MDC', 'Validation rule'));
-			model = me.getModel('Mdc.model.ValidationRuleSetVersionRule');
-			model.getProxy().setUrl(ruleSetId, versionId, ruleId);
-			
-			model.load('', {
-				success: function (record) {	
-					itemName = record.get('name');
-					filterDataView.setFilter('itemTypeContainer', filterForm.down('#fco-item-type').getFieldLabel(), itemName);
-					
-				}
-			});
-		}
-		else if (versionId){
-			itemTypeContainer.setFieldLabel(Uni.I18n.translate('validationResults.ruleSet.version', 'MDC', 'Validation rule set version'));
-			model = me.getModel('Mdc.model.ValidationRuleSetVersion');
-			model.getProxy().setUrl(ruleSetId, versionId);
-			
-			model.load('', {
-				success: function (record) {
-					itemName = record.get('name');
-					filterDataView.setFilter('itemTypeContainer', filterForm.down('#fco-item-type').getFieldLabel(), itemName);
-				}
-			});
-		}
-		else if (ruleSetId){		
-			itemTypeContainer.setFieldLabel(Uni.I18n.translate('validationResults.ruleSet', 'MDC', 'Validation rule set'));
-			model = me.getModel('Mdc.model.ValidationRuleSet');
-			model.getProxy().setUrl(ruleSetId);
-			
-			model.load('', {
-				success: function (record) {
-					itemName = record.get('name');
-					filterDataView.setFilter('itemTypeContainer', filterForm.down('#fco-item-type').getFieldLabel(), itemName);
-				}
-			});
-		}	
-		 
-	},
-	
-	clearFilter: function () {
-		 var me = this,
-                router = me.getController('Uni.controller.history.Router'),
-                routeParams = router.arguments;
-				
-		delete router.queryParams[this.root];	
-		activeTab = me.getValidationResultsTabPanel().getActiveTab();
-		if (activeTab.itemId === 'validationResults-data'){
-			route = 'devices/device/validationresultsdata';
-			route && (route = router.getRoute(route));
-			route && route.forward(routeParams);
-		}
-		else
-			this.getSideFilterForm().getRecord().getProxy().destroy();
-    },	
-	
+    setFilterDataView: function () {
+        var me = this,
+            filterForm = me.getSideFilterForm(),
+            filterDataView = me.getFilterDataPanel(),
+            itemTypeContainer = filterForm.down('[name=itemTypeContainer]'),
+            router = me.getController('Uni.controller.history.Router'),
+            ruleSetId = router.arguments['ruleSetId'],
+            versionId = router.arguments['ruleSetVersionId'],
+            ruleId = router.arguments['ruleId'],
+            itemName, model;
+
+        if (ruleId) {
+            itemTypeContainer.setFieldLabel(Uni.I18n.translate('validationResults.rule', 'MDC', 'Validation rule'));
+            model = me.getModel('Mdc.model.ValidationRuleSetVersionRule');
+            model.getProxy().setUrl(ruleSetId, versionId, ruleId);
+
+            model.load('', {
+                success: function (record) {
+                    itemName = record.get('name');
+                    filterDataView.setFilter('itemTypeContainer', filterForm.down('#fco-item-type').getFieldLabel(), itemName);
+
+                }
+            });
+        }
+        else if (versionId) {
+            itemTypeContainer.setFieldLabel(Uni.I18n.translate('validationResults.ruleSet.version', 'MDC', 'Validation rule set version'));
+            model = me.getModel('Mdc.model.ValidationRuleSetVersion');
+            model.getProxy().setUrl(ruleSetId, versionId);
+
+            model.load('', {
+                success: function (record) {
+                    itemName = record.get('name');
+                    filterDataView.setFilter('itemTypeContainer', filterForm.down('#fco-item-type').getFieldLabel(), itemName);
+                }
+            });
+        }
+        else if (ruleSetId) {
+            itemTypeContainer.setFieldLabel(Uni.I18n.translate('validationResults.ruleSet', 'MDC', 'Validation rule set'));
+            model = me.getModel('Mdc.model.ValidationRuleSet');
+            model.getProxy().setUrl(ruleSetId);
+
+            model.load('', {
+                success: function (record) {
+                    itemName = record.get('name');
+                    filterDataView.setFilter('itemTypeContainer', filterForm.down('#fco-item-type').getFieldLabel(), itemName);
+                }
+            });
+        }
+
+    },
+
+    clearFilter: function () {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            routeParams = router.arguments;
+
+        delete router.queryParams[this.root];
+        activeTab = me.getValidationResultsTabPanel().getActiveTab();
+        if (activeTab.itemId === 'validationResults-data') {
+            route = 'devices/device/validationresultsdata';
+            route && (route = router.getRoute(route));
+            route && route.forward(routeParams);
+        }
+        else
+            this.getSideFilterForm().getRecord().getProxy().destroy();
+    },
+
     removeFilterItem: function (key) {
         var me = this,
             router = this.getController('Uni.controller.history.Router'),
             record = router.filter,
-			routeParams = router.arguments;
-		
-		if (key === 'itemTypeContainer') {
-			delete router.queryParams[this.root];
-			route = 'devices/device/validationresultsdata';
-			route && (route = router.getRoute(route));
-			route && route.forward(routeParams);
+            routeParams = router.arguments;
+
+        if (key === 'itemTypeContainer') {
+            delete router.queryParams[this.root];
+            route = 'devices/device/validationresultsdata';
+            route && (route = router.getRoute(route));
+            route && route.forward(routeParams);
             record.set(key, false);
         }
         me.isDefaultFilter = true;
     },
 
-	applyFilter: function () {
+    applyFilter: function () {
         var me = this,
             filterForm = this.getSideFilterForm();
 
@@ -286,61 +286,61 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
         me.isDefaultFilter = false;
     },
 
-	validateNow : function () {		
-		 var me = this,
-			viewport = Ext.ComponentQuery.query('viewport')[0],
-			confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
+    validateNow: function () {
+        var me = this,
+            viewport = Ext.ComponentQuery.query('viewport')[0],
+            confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
                 itemId: 'validateNowConfirmationWindow',
-                confirmText: Uni.I18n.translate('validationResults.validate.confirm', 'MDC', 'Validate'),				
-				msg: 'message',
+                confirmText: Uni.I18n.translate('validationResults.validate.confirm', 'MDC', 'Validate'),
+                msg: 'message',
                 confirmation: function () {
                     me.onValidateNow(this);
                 }
             });
-		
-        viewport.setLoading();		
-		Ext.Ajax.request({
+
+        viewport.setLoading();
+        Ext.Ajax.request({
             url: '../../api/ddr/devices/' + encodeURIComponent(me.mRID) + '/validationrulesets/validationstatus',
             method: 'GET',
             timeout: 60000,
             success: function (response) {
-			
-				viewport.setLoading(false);		
-				
-                var res = Ext.JSON.decode(response.responseText);				
-				if (!res.isActive || res.allDataValidated){
-					return;
-				}
-				
+
+                viewport.setLoading(false);
+
+                var res = Ext.JSON.decode(response.responseText);
+                if (!res.isActive || res.allDataValidated) {
+                    return;
+                }
+
                 if (res.lastChecked) {
                     me.dataValidationLastChecked = new Date(res.lastChecked);
                 } else {
                     me.dataValidationLastChecked = new Date();
                 }
-				
-				confirmationWindow.insert(1,me.getActivationConfirmationContent());
-				confirmationWindow.show({
-					title: Ext.String.format(Uni.I18n.translate('validationResults.validate.title', 'MDC', 'Validate data of device {0}?'), me.mRID)
-				});
-                
+
+                confirmationWindow.insert(1, me.getActivationConfirmationContent());
+                confirmationWindow.show({
+                    title: Ext.String.format(Uni.I18n.translate('validationResults.validate.title', 'MDC', 'Validate data of device {0}?'), me.mRID)
+                });
+
             },
-			failure: function (record) {
-				viewport.setLoading(false);
-			}
+            failure: function (record) {
+                viewport.setLoading(false);
+            }
         });
-		
+
         confirmationWindow.on('close', function () {
             this.destroy();
-        });		
-	},
-	
-	 onValidateNow: function (confWindow) {
-	 		
+        });
+    },
+
+    onValidateNow: function (confWindow) {
+
         var me = this;
-		
-		var isFromLastValidation = confWindow.down('#rdg-validation-run').getValue().validation === 'lastValidation';
+
+        var isFromLastValidation = confWindow.down('#rdg-validation-run').getValue().validation === 'lastValidation';
         var isFromNewValidation = confWindow.down('#rdg-validation-run').getValue().validation === 'newValidation';
-	
+
         me.confirmationWindowButtonsDisable(true);
         Ext.Ajax.request({
             url: '../../api/ddr/devices/' + encodeURIComponent(me.mRID) + '/validationrulesets/validationstatus',
@@ -349,8 +349,8 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
                 isActive: 'true',
                 lastChecked: (isFromNewValidation ? confWindow.down('#dtm-validation-from-date').getValue().getTime() : me.dataValidationLastChecked.getTime())
             },
-            success: function () {                
-                me.validateData(confWindow);                
+            success: function () {
+                me.validateData(confWindow);
             },
             failure: function (response) {
                 var res = Ext.JSON.decode(response.responseText);
@@ -360,39 +360,39 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
         });
     },
 
-	 validateData: function (confWindow) {
+    validateData: function (confWindow) {
         var me = this;
 
         confWindow.down('#pnl-validation-progress').add(Ext.create('Ext.ProgressBar', {
                 margin: '5 0 15 0'
             })).wait({
-            duration: 120000,
-            text: Uni.I18n.translate('device.dataValidation.isInProgress', 'MDC', 'Data validation is in progress. Please wait...'),
-            fn: function () {
-                me.destroyConfirmationWindow();
-                Ext.widget('messagebox', {
-                    buttons: [
-                        {
-                            text: Uni.I18n.translate('general.close', 'MDC', 'Close'),
-                            ui: 'remove',
-                            handler: function () {
-                                this.up('window').close();
+                duration: 120000,
+                text: Uni.I18n.translate('device.dataValidation.isInProgress', 'MDC', 'Data validation is in progress. Please wait...'),
+                fn: function () {
+                    me.destroyConfirmationWindow();
+                    Ext.widget('messagebox', {
+                        buttons: [
+                            {
+                                text: Uni.I18n.translate('general.close', 'MDC', 'Close'),
+                                ui: 'remove',
+                                handler: function () {
+                                    this.up('window').close();
+                                }
+                            }
+                        ],
+                        listeners: {
+                            close: function () {
+                                this.destroy();
                             }
                         }
-                    ],
-                    listeners: {
-                        close: function () {
-                            this.destroy();
-                        }
-                    }
-                }).show({
-                    ui: 'notification-error',
-                    title: Uni.I18n.translate('device.dataValidation.timeout.title', 'MDC', 'Data validation takes longer as expected'),
-                    msg: Uni.I18n.translate('device.dataValidation.timeout.msg', 'MDC', 'Data validation takes longer as expected. Data validation will continue in the background'),
-                    icon: Ext.MessageBox.ERROR
-                });
-            }
-        });
+                    }).show({
+                            ui: 'notification-error',
+                            title: Uni.I18n.translate('device.dataValidation.timeout.title', 'MDC', 'Data validation takes longer as expected'),
+                            msg: Uni.I18n.translate('device.dataValidation.timeout.msg', 'MDC', 'Data validation takes longer as expected. Data validation will continue in the background'),
+                            icon: Ext.MessageBox.ERROR
+                        });
+                }
+            });
 
         Ext.Ajax.suspendEvent('requestexception');
 
@@ -403,9 +403,9 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
             success: function () {
                 me.destroyConfirmationWindow();
                 me.getApplication().fireEvent('acknowledge',
-                        Uni.I18n.translatePlural('device.dataValidation.activation.validated', me.mRID, 'MDC', 'Data validation completed'));   
+                    Uni.I18n.translatePlural('device.dataValidation.activation.validated', me.mRID, 'MDC', 'Data validation completed'));
 
-				me.showDeviceValidationResultsMainView(me.mRID, 0);
+                me.showDeviceValidationResultsMainView(me.mRID, 0);
             },
             failure: function (response) {
                 if (confWindow) {
@@ -420,69 +420,69 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
             }
         });
     },
-	
-	getActivationConfirmationContent: function () {
+
+    getActivationConfirmationContent: function () {
         var me = this;
         return Ext.create('Ext.container.Container', {
             defaults: {
                 labelAlign: 'left'
             },
             items: [
-				{
+                {
                     xtype: 'radiogroup',
                     itemId: 'rdg-validation-run',
                     columns: 1,
-					padding: '-10 0 0 60',
+                    padding: '-10 0 0 60',
                     defaults: {
                         name: 'validationRun'
                     },
                     items: [
-						{
-							boxLabel: Uni.I18n.translate('validationResults.validate.fromLast', 'MDC', 'Validate data from last validation'),
-							inputValue: 'lastValidation',
-							itemId: 'rdo-validate-from-last',
-							xtype: 'radiofield',
-							checked: true,
-							name: 'validation'
-						}, 
-						{
-							xtype: 'container',
-							layout: {
-								type: 'hbox',
-								align: 'stretch'
-							},
-							width: 300,							
-							items: [	
-								{
-									boxLabel: Uni.I18n.translate('validationResults.validate.from', 'MDC', 'Validate data from'),
-									inputValue: 'newValidation',
-									itemId: 'rdo-validate-from-date',
-									xtype: 'radiofield',									
-									name: 'validation'
-								},
-								{
-									xtype: 'datefield',
-									itemId: 'dtm-validation-from-date',
-									editable: false,
-									showToday: false,
-									value: me.dataValidationLastChecked,
-									fieldLabel: '  ',
-									labelWidth: 10,
-									width: 150,
-									listeners: {
-										focus: {
-											fn: function () {														
-												var radioButton = Ext.ComponentQuery.query('#rdg-validation-run #rdo-validate-from-date')[0];
-												radioButton.setValue(true);
-											}
-										}
-                                    }									
-								}
-							]
-						}   
+                        {
+                            boxLabel: Uni.I18n.translate('validationResults.validate.fromLast', 'MDC', 'Validate data from last validation'),
+                            inputValue: 'lastValidation',
+                            itemId: 'rdo-validate-from-last',
+                            xtype: 'radiofield',
+                            checked: true,
+                            name: 'validation'
+                        },
+                        {
+                            xtype: 'container',
+                            layout: {
+                                type: 'hbox',
+                                align: 'stretch'
+                            },
+                            width: 300,
+                            items: [
+                                {
+                                    boxLabel: Uni.I18n.translate('validationResults.validate.from', 'MDC', 'Validate data from'),
+                                    inputValue: 'newValidation',
+                                    itemId: 'rdo-validate-from-date',
+                                    xtype: 'radiofield',
+                                    name: 'validation'
+                                },
+                                {
+                                    xtype: 'datefield',
+                                    itemId: 'dtm-validation-from-date',
+                                    editable: false,
+                                    showToday: false,
+                                    value: me.dataValidationLastChecked,
+                                    fieldLabel: '  ',
+                                    labelWidth: 10,
+                                    width: 150,
+                                    listeners: {
+                                        focus: {
+                                            fn: function () {
+                                                var radioButton = Ext.ComponentQuery.query('#rdg-validation-run #rdo-validate-from-date')[0];
+                                                radioButton.setValue(true);
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
                     ]
                 },
-				{
+                {
                     xtype: 'panel',
                     itemId: 'pnl-validation-date-errors',
                     hidden: true,
@@ -501,8 +501,8 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
             ]
         });
     },
-	
-	destroyConfirmationWindow: function () {
+
+    destroyConfirmationWindow: function () {
         if (Ext.ComponentQuery.query('#validateNowConfirmationWindow')[0]) {
             Ext.ComponentQuery.query('#validateNowConfirmationWindow')[0].removeAll(true);
             Ext.ComponentQuery.query('#validateNowConfirmationWindow')[0].destroy();
@@ -515,73 +515,76 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
             Ext.ComponentQuery.query('#validateNowConfirmationWindow')[0].down('button[name=cancel]').setDisabled(value);
         }
     },
-	
-	 showValidationActivationErrors: function (errors) {
+
+    showValidationActivationErrors: function (errors) {
         if (Ext.ComponentQuery.query('#validateNowConfirmationWindow')[0]) {
             Ext.ComponentQuery.query('#validateNowConfirmationWindow')[0].down('#pnl-validation-date-errors').update(errors);
             Ext.ComponentQuery.query('#validateNowConfirmationWindow')[0].down('#pnl-validation-date-errors').setVisible(true);
         }
     },
-	
-	loadConfigurationData: function(){
-		var me = this,		
-			viewport = Ext.ComponentQuery.query('viewport')[0],
-			models = me.getModel('Mdc.model.ValidationResults'),
-			router = me.getController('Uni.controller.history.Router');
 
-		if (Ext.isEmpty(router.filter.data.intervalStart)) {
+    loadConfigurationData: function () {
+        var me = this,
+            viewport = Ext.ComponentQuery.query('viewport')[0],
+            models = me.getModel('Mdc.model.ValidationResults'),
+            router = me.getController('Uni.controller.history.Router');
+
+        if (Ext.isEmpty(router.filter.data.intervalStart)) {
             me.setDefaults();
-        } else{
+        } else {
             me.isDefaultFilter = false;
         }
         me.getSideFilterForm().loadRecord(router.filter);
         me.setFilterView();
-		
-		var updatingStatus = Uni.I18n.translate('validationResults.updatingStatus', 'MDC', 'Updating status...');
-		me.getConfigurationViewDataValidated().setValue(Uni.I18n.translate('device.dataValidation.updatingStatus', 'MDC', 'Updating status...'));
-		me.getConfigurationViewValidationResults().setValue(Uni.I18n.translate('device.dataValidation.updatingStatus', 'MDC', 'Updating status...'));
+
+        var updatingStatus = Uni.I18n.translate('validationResults.updatingStatus', 'MDC', 'Updating status...');
+        me.getConfigurationViewDataValidated().setValue(Uni.I18n.translate('device.dataValidation.updatingStatus', 'MDC', 'Updating status...'));
+        me.getConfigurationViewValidationResults().setValue(Uni.I18n.translate('device.dataValidation.updatingStatus', 'MDC', 'Updating status...'));
 
 
         models.getProxy().setUrl(me.mRID);
         models.getProxy().setFilterParameters(me.jsonValidationResultData);
-		models.getProxy().setFilterModel(router.filter);
+        models.getProxy().setFilterModel(router.filter);
 
-        viewport.setLoading();		
-		models.load('', {
-			success: function (record) {
-				me.loadConfigurationDataItems(record);				
-				viewport.setLoading(false);
+        viewport.setLoading();
+        models.load('', {
+            success: function (record) {
+                me.loadConfigurationDataItems(record);
+                viewport.setLoading(false);
             },
-			failure: function (response) {
-				viewport.setLoading(false);
-			}
+            failure: function (response) {
+                viewport.setLoading(false);
+            }
         });
-	},
-	
-	loadConfigurationDataItems : function(record){
-		var me = this,
-			validationResultsRulesetForm = me.getValidationResultsRulesetForm();
-			ruleSetGrid = me.getRuleSetGrid(),
-			ruleSetVersionGrid = me.getRuleSetVersionGrid(),
-			ruleSetVersionRuleGrid = me.getRuleSetVersionRuleGrid(),
-			router = me.getController('Uni.controller.history.Router');
-		
-		validationResultsRulesetForm.loadRecord(record);
-		ruleSetGrid.router = router;
-		ruleSetVersionGrid.router = router;
-		ruleSetVersionRuleGrid.router = router;		
-		
-		var configurationViewValidationResultsBrowse = me.getConfigurationViewValidationResultsBrowse();				
-		configurationViewValidationResultsBrowse.setVisible(record.get('detailedRuleSets') && record.get('detailedRuleSets').length >0);
-		
-		var configurationViewValidateNowBtn = me.getConfigurationViewValidateNowBtn();
-		configurationViewValidateNowBtn.setDisabled(!record.get('isActive') || record.get('allDataValidated'));
-		
-		ruleSetGrid.getStore().on('datachanged', function (){ruleSetGrid.getSelectionModel().select(0); return true;}, this);
-		ruleSetGrid.getStore().loadData(record.get('detailedRuleSets'));		
-	},
+    },
 
-    loadValidationResultsData: function(){
+    loadConfigurationDataItems: function (record) {
+        var me = this,
+            validationResultsRulesetForm = me.getValidationResultsRulesetForm();
+        ruleSetGrid = me.getRuleSetGrid(),
+            ruleSetVersionGrid = me.getRuleSetVersionGrid(),
+            ruleSetVersionRuleGrid = me.getRuleSetVersionRuleGrid(),
+            router = me.getController('Uni.controller.history.Router');
+
+        validationResultsRulesetForm.loadRecord(record);
+        ruleSetGrid.router = router;
+        ruleSetVersionGrid.router = router;
+        ruleSetVersionRuleGrid.router = router;
+
+        var configurationViewValidationResultsBrowse = me.getConfigurationViewValidationResultsBrowse();
+        configurationViewValidationResultsBrowse.setVisible(record.get('detailedRuleSets') && record.get('detailedRuleSets').length > 0);
+
+        var configurationViewValidateNowBtn = me.getConfigurationViewValidateNowBtn();
+        !!configurationViewValidateNowBtn && configurationViewValidateNowBtn.setDisabled(!record.get('isActive') || record.get('allDataValidated'));
+
+        ruleSetGrid.getStore().on('datachanged', function () {
+            ruleSetGrid.getSelectionModel().select(0);
+            return true;
+        }, this);
+        ruleSetGrid.getStore().loadData(record.get('detailedRuleSets'));
+    },
+
+    loadValidationResultsData: function () {
         var me = this,
             viewport = Ext.ComponentQuery.query('viewport')[0],
             models = me.getModel('Mdc.model.ValidationResultsDataView'),
@@ -591,9 +594,9 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
             filterForm = me.getSideFilterForm(),
             intervalStartField = filterForm.down('[name=intervalStart]');
 
-		if (Ext.isEmpty(router.filter.data.intervalStart)) {
+        if (Ext.isEmpty(router.filter.data.intervalStart)) {
             me.setDefaults();
-        } else{
+        } else {
             me.isDefaultFilter = false;
         }
 
@@ -628,16 +631,16 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
                     loadProfilesList.push({
                         id: loadProfile.id,
                         intervalStart: (me.isDefaultFilter)
-                            ?moment(new Date()).valueOf() - zoomLevelsStore.getIntervalInMs(zoomLevelsStore.getIntervalRecord(loadProfile.interval).get('all'))
-                            :moment(intervalStartField.getValue()).valueOf(),
+                            ? moment(new Date()).valueOf() - zoomLevelsStore.getIntervalInMs(zoomLevelsStore.getIntervalRecord(loadProfile.interval).get('all'))
+                            : moment(intervalStartField.getValue()).valueOf(),
                         intervalEnd: (me.isDefaultFilter)
-                            ?moment(new Date()).valueOf()
-                            :moment(intervalStartField.getValue()).valueOf() + zoomLevelsStore.getIntervalInMs(zoomLevelsStore.getIntervalRecord(loadProfile.interval).get('all'))
+                            ? moment(new Date()).valueOf()
+                            : moment(intervalStartField.getValue()).valueOf() + zoomLevelsStore.getIntervalInMs(zoomLevelsStore.getIntervalRecord(loadProfile.interval).get('all'))
                     })
                 });
 
                 // for registers
-                me.registerDuration.interval = {count: 1,timeUnit: 'years'};
+                me.registerDuration.interval = {count: 1, timeUnit: 'years'};
                 me.registerDuration.intervalInMs = zoomLevelsStore.getIntervalInMs(me.registerDuration.interval);
                 me.registerDuration.intervalRecord = zoomLevelsStore.getIntervalRecord(me.registerDuration.interval);
 
@@ -669,25 +672,25 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
         });
     },
 
-    loadValidationResultsDataItems : function(record){
+    loadValidationResultsDataItems: function (record) {
 
         var me = this,
             validationResultsDataForm = me.getValidationResultsLoadProfileRegisterForm();
-            loadProfileGrid = me.getLoadProfileGrid(),
+        loadProfileGrid = me.getLoadProfileGrid(),
             registerGrid = me.getRegisterGrid(),
-			validationResultsDataForm.loadRecord(record),
+            validationResultsDataForm.loadRecord(record),
             router = me.getController('Uni.controller.history.Router'),
             detailedValidationLoadProfile = record.get('detailedValidationLoadProfile'),
             detailedValidationRegister = record.get('detailedValidationRegister'),
             filterForm = me.getSideFilterForm(),
             intervalStartField = filterForm.down('[name=intervalStart]');
 
-        loadProfileGrid.router=router;
+        loadProfileGrid.router = router;
         Ext.Array.each(detailedValidationLoadProfile, function (loadProfile) {
 
             Ext.Array.each(me.loadProfileDurations, function (loadProfileDuration) {
                 if (loadProfile.id == loadProfileDuration.id) {
-                    loadProfile.interval = me.isDefaultFilter ? null: loadProfileDuration.interval;
+                    loadProfile.interval = me.isDefaultFilter ? null : loadProfileDuration.interval;
                     loadProfile.intervalInMs = loadProfileDuration.intervalInMs;
                     loadProfile.intervalRecord = loadProfileDuration.intervalRecord;
 
@@ -705,13 +708,13 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
             });
         });
         loadProfileGrid.getStore().loadData(detailedValidationLoadProfile);
-		loadProfileGrid.setVisible(record.get('detailedValidationLoadProfile') && record.get('detailedValidationLoadProfile').length >0);				
+        loadProfileGrid.setVisible(record.get('detailedValidationLoadProfile') && record.get('detailedValidationLoadProfile').length > 0);
         loadProfileGrid.getSelectionModel().select(0);
 
 
-        registerGrid.router=router;
+        registerGrid.router = router;
         Ext.Array.each(detailedValidationRegister, function (register) {
-            register.interval = me.isDefaultFilter ? null: me.registerDuration.interval;
+            register.interval = me.isDefaultFilter ? null : me.registerDuration.interval;
             register.intervalInMs = me.registerDuration.intervalInMs;
             register.intervalRecord = me.registerDuration.intervalRecord;
 
@@ -725,36 +728,42 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
 
         });
         registerGrid.getStore().loadData(detailedValidationRegister);
-		registerGrid.setVisible(record.get('detailedValidationRegister') && record.get('detailedValidationRegister').length >0);		
+        registerGrid.setVisible(record.get('detailedValidationRegister') && record.get('detailedValidationRegister').length > 0);
         registerGrid.getSelectionModel().select(0);
 
 
-		var dataViewValidateNowBtn = me.getDataViewValidateNowBtn();
-		dataViewValidateNowBtn.setDisabled(!record.get('isActive') || record.get('allDataValidated'));
+        var dataViewValidateNowBtn = me.getDataViewValidateNowBtn();
+        !!dataViewValidateNowBtn && dataViewValidateNowBtn.setDisabled(!record.get('isActive') || record.get('allDataValidated'));
     },
 
-	onRuleSetGridSelectionChange : function(grid, record){	
-		var me = this,
-			ruleSetVersionGrid = me.getRuleSetVersionGrid();
-		
-		ruleSetVersionGrid.getStore().on('datachanged', function (){ruleSetVersionGrid.getSelectionModel().select(0); return true;}, this);
-		ruleSetVersionGrid.getStore().loadData(record[0].get('detailedRuleSetVersions'));		
-	},
+    onRuleSetGridSelectionChange: function (grid, record) {
+        var me = this,
+            ruleSetVersionGrid = me.getRuleSetVersionGrid();
 
-	onRuleSetVersionGridSelectionChange : function(grid, record){
-		var me = this,
-			ruleSetVersionRuleGrid = me.getRuleSetVersionRuleGrid();
-		
-		ruleSetVersionRuleGrid.getStore().on('datachanged', function (){ruleSetVersionRuleGrid.getSelectionModel().select(0); return true;}, this);
-		ruleSetVersionRuleGrid.getStore().loadData(record[0].get('detailedRules'));	
-	},
-      
-	onRuleSetVersionRuleGridSelectionChange : function(grid, record){
-		var me = this,			
-			rulePreview = me.getRuleSetVersionRulePreview(),
-			validationRule = record[0],
-			readingTypes = validationRule.data.readingTypes;
-		
+        ruleSetVersionGrid.getStore().on('datachanged', function () {
+            ruleSetVersionGrid.getSelectionModel().select(0);
+            return true;
+        }, this);
+        ruleSetVersionGrid.getStore().loadData(record[0].get('detailedRuleSetVersions'));
+    },
+
+    onRuleSetVersionGridSelectionChange: function (grid, record) {
+        var me = this,
+            ruleSetVersionRuleGrid = me.getRuleSetVersionRuleGrid();
+
+        ruleSetVersionRuleGrid.getStore().on('datachanged', function () {
+            ruleSetVersionRuleGrid.getSelectionModel().select(0);
+            return true;
+        }, this);
+        ruleSetVersionRuleGrid.getStore().loadData(record[0].get('detailedRules'));
+    },
+
+    onRuleSetVersionRuleGridSelectionChange: function (grid, record) {
+        var me = this,
+            rulePreview = me.getRuleSetVersionRulePreview(),
+            validationRule = record[0],
+            readingTypes = validationRule.data.readingTypes;
+
         rulePreview.loadRecord(validationRule);
         rulePreview.setTitle(validationRule.get('name'));
         Ext.suspendLayouts();
@@ -785,6 +794,6 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
             );
         }
         Ext.resumeLayouts(true);
-	}
-	
+    }
+
 });
