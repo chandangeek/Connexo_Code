@@ -9,10 +9,14 @@ import javax.ws.rs.core.Response;
 
 import com.elster.jupiter.metering.ElectricityDetail;
 import com.elster.jupiter.metering.ElectricityDetailBuilder;
+import com.elster.jupiter.metering.GasDetail;
+import com.elster.jupiter.metering.GasDetailBuilder;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointBuilder;
+import com.elster.jupiter.metering.WaterDetail;
+import com.elster.jupiter.metering.WaterDetailBuilder;
 import com.elster.jupiter.transaction.Transaction;
 
 final class CreateUsagePointTransaction implements Transaction<UsagePoint> {
@@ -59,8 +63,10 @@ final class CreateUsagePointTransaction implements Transaction<UsagePoint> {
         		doPopulateElectricityDetails(usagePoint);
         		break;
 		case GAS:
+				doPopulateWaterDetails(usagePoint);
 			break;
 		case WATER:
+				doPopulateGasDetails(usagePoint);
 			break;
 		case HEAT:
 		case INTERNET:
@@ -91,6 +97,26 @@ final class CreateUsagePointTransaction implements Transaction<UsagePoint> {
 			.withPhaseCode(info.phaseCode)
 			.withRatedCurrent(info.ratedCurrent)
 			.withRatedPower(info.ratedPower)
+			.withServiceDeliveryRemark(info.serviceDeliveryRemark)
+			.build();
+	}
+	
+	private void doPopulateGasDetails(UsagePoint usagePoint) {
+		GasDetailBuilder builder = usagePoint.newGasDetailBuilder(clock.instant());
+		GasDetail detail = builder.withAmiBillingReady(info.amiBillingReady)
+			.withCheckBilling(info.checkBilling)
+			.withConnectionState(info.connectionState)
+			.withMinimalUsageExpected(info.minimalUsageExpected)
+			.withServiceDeliveryRemark(info.serviceDeliveryRemark)
+			.build();
+	}
+
+	private void doPopulateWaterDetails(UsagePoint usagePoint) {
+		WaterDetailBuilder builder = usagePoint.newWaterDetailBuilder(clock.instant());
+		WaterDetail detail = builder.withAmiBillingReady(info.amiBillingReady)
+			.withCheckBilling(info.checkBilling)
+			.withConnectionState(info.connectionState)
+			.withMinimalUsageExpected(info.minimalUsageExpected)
 			.withServiceDeliveryRemark(info.serviceDeliveryRemark)
 			.build();
 	}

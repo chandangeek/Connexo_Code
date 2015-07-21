@@ -13,6 +13,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -36,7 +37,7 @@ public class CreateUsagePointTransactionTest {
     
     @Mock
 	private Clock clock;
-    
+    @Mock
 	private UsagePointBuilder usagePointBuilder;
 
     @Before
@@ -62,6 +63,19 @@ public class CreateUsagePointTransactionTest {
     public void test() {
     	when(serviceCategory.newUsagePoint(MR_ID)).thenReturn(usagePoint);
     	when(serviceCategory.newUsagePointBuilder()).thenReturn(usagePointBuilder);
+    	when(serviceCategory.getKind()).thenReturn(ServiceKind.INTERNET);
+    	
+		when(usagePointBuilder.withAliasName(Matchers.anyString())).thenReturn(usagePointBuilder);
+    	when(usagePointBuilder.withDescription(Matchers.anyString())).thenReturn(usagePointBuilder);
+    	when(usagePointBuilder.withIsSdp(Matchers.anyBoolean())).thenReturn(usagePointBuilder);
+    	when(usagePointBuilder.withIsVirtual(Matchers.anyBoolean())).thenReturn(usagePointBuilder);
+    	when(usagePointBuilder.withMRID(Matchers.anyString())).thenReturn(usagePointBuilder);
+    	when(usagePointBuilder.withName(Matchers.anyString())).thenReturn(usagePointBuilder);
+    	when(usagePointBuilder.withOutageRegion(Matchers.anyString())).thenReturn(usagePointBuilder);
+    	when(usagePointBuilder.withReadCycle(Matchers.anyString())).thenReturn(usagePointBuilder);
+    	when(usagePointBuilder.withReadRoute(Matchers.anyString())).thenReturn(usagePointBuilder);
+    	when(usagePointBuilder.withServicePriority(Matchers.anyString())).thenReturn(usagePointBuilder);
+    	
         when(usagePointBuilder.build()).thenReturn(usagePoint);
     	when(clock.instant()).thenReturn(Clock.systemDefaultZone().instant());
         
