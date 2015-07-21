@@ -14,7 +14,11 @@ Ext.define('Uni.grid.column.ValidationFlag', {
                 cls += 'icon-validation-black'
             }
             metaData.tdCls = cls;
-            return !Ext.isEmpty(value) ? Ext.String.htmlEncode(value) : '';
+            if (!Ext.isEmpty(value)) {
+                return record.get('isConfirmed') ? Ext.String.htmlEncode(value) + '<span style="margin: 0 0 0 10px; position: absolute" class="icon-checkmark3"</span>' : Ext.String.htmlEncode(value);
+            } else {
+                return '';
+            }
         }
     }
 });

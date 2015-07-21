@@ -13,11 +13,12 @@ Ext.define('Uni.grid.filtertop.Interval', {
     dataIndexTo: null,
     defaultFromDate: undefined,
     defaultToDate: undefined,
-
+    originalTitle: null,
 
     initComponent: function () {
         var me = this;
 
+        me.originalTitle = me.text;
         me.items = [
             {
                 xtype: 'button',
@@ -37,6 +38,26 @@ Ext.define('Uni.grid.filtertop.Interval', {
                             align: 'stretchmax'
                         },
                         items: [
+                            {
+                                xtype: 'fieldcontainer',
+                                margins: '4 8 0 10',
+                                layout: {
+                                    type: 'column',
+                                    align: 'stretch',
+                                    pack: 'center'
+                                },
+                                items: [
+                                    {
+                                        xtype: 'label',
+                                        html: '&nbsp;',
+                                        width: 48
+                                    },
+                                    {
+                                        xtype: 'label',
+                                        html: me.text
+                                    }
+                                ]
+                            },
                             {
                                 xtype: 'fieldcontainer',
                                 margins: '8 8 0 8',
@@ -276,6 +297,7 @@ Ext.define('Uni.grid.filtertop.Interval', {
         if (me.isIntervalValid()) {
             me.fireFilterUpdateEvent();
             me.getChooseIntervalButton().hideMenu();
+            me.updateTitle();
         }
     },
 
@@ -313,6 +335,7 @@ Ext.define('Uni.grid.filtertop.Interval', {
         me.resetValue();
         me.fireFilterUpdateEvent();
         me.getChooseIntervalButton().hideMenu();
+        me.updateTitle();
     },
 
     resetValue: function () {
@@ -343,6 +366,7 @@ Ext.define('Uni.grid.filtertop.Interval', {
                 me.setToDateValue(new Date(parseInt(toDate)));
             }
         }
+        me.updateTitle();
         me.fireEvent('filtervaluechange');
     },
 
@@ -456,5 +480,17 @@ Ext.define('Uni.grid.filtertop.Interval', {
 
     getIntervalForm: function() {
         return this.down('#uni-interval-form');
+    },
+
+    updateTitle: function(title) {
+        var me = this,
+            fromValue = me.getFromDateValue(),
+            toValue = me.getToDateValue();
+
+        if (Ext.isDefined(fromValue) && Ext.isDefined(toValue)) {
+            me.down('button').setText( Uni.DateTime.formatDateTimeShort(new Date(fromValue)) + ' / ' + Uni.DateTime.formatDateTimeShort(new Date(toValue)) );
+        } else {
+            me.down('button').setText( me.originalTitle );
+        }
     }
 });
