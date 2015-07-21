@@ -190,11 +190,17 @@ Ext.define('Mdc.view.setup.device.DeviceCommunicationTopologyPanel', {
                     display: 'inline-block',
                     textDecoration: 'none !important',
                     position: 'absolute',
-                    top: '15px'
+                    top: '8px'
                 },
-                btnsLeftOffsetListener = function (btn) {
-                    btn.el.dom.style.left = btnsLeftOffset + 'px';
-                };
+                btnsLeftOffsetListener;
+
+            if (btnsLeftOffset === 0) {
+                btnsLeftOffset = 120;
+            }
+
+            btnsLeftOffsetListener = function (btn) {
+                btn.el.dom.style.left = btnsLeftOffset + 'px';
+            };
 
             // Edit button
             if (edit) {
