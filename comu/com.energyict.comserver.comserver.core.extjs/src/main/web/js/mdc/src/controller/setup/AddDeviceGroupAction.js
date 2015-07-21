@@ -408,41 +408,32 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
                         staticDevices.load(function (existingRecords) {
                             var staticGrid = me.getStaticGrid();
                             if (staticGrid) {
-                                var previousArrayIds = [],
-                                    modifyArray = function (arr) {
-                                        var arrayWithIds = [];
-                                        Ext.Array.each(arr, function (item) {
-                                            arrayWithIds.push(item.get('id'));
-                                        });
-                                        return arrayWithIds;
-                                    };
                                 store = staticGrid.getStore();
                                 staticGrid.un('selectionchange', staticGrid.onSelectionChange);
                                 staticGrid.getUncheckAllButton().on('click', function () {
                                     staticDevices.loadData([], false);
                                     staticGrid.getSelectionCounter().setText(staticGrid.counterTextFn(staticDevices.getCount()));
                                 });
-                                staticGrid.on('selectionchange', function (selModel, selectedRecords) {
-                                    var idsOfUpdatedRecords = (previousArrayIds.length < modifyArray(selectedRecords).length) ? _.difference(modifyArray(selectedRecords), previousArrayIds) :
-                                            _.difference(previousArrayIds, modifyArray(selectedRecords)),
-                                        updatedRec;
-                                    if (idsOfUpdatedRecords.length === 1) {
-                                        updatedRec = store.getById(idsOfUpdatedRecords[0]);
-                                        selModel.isSelected(updatedRec) ? staticDevices.add(updatedRec) : staticDevices.remove(updatedRec);
-                                    }
-                                    staticGrid.getSelectionCounter().setText(staticGrid.counterTextFn(staticDevices.getCount()));
-                                    staticGrid.getUncheckAllButton().setDisabled(selModel.getSelection().length === 0);
-                                    previousArrayIds = modifyArray(selectedRecords);
+                                staticGrid.onSelectionChangeInGroup(existingRecords);
+                                staticGrid.on('select', function (selectionModel, record) {
+                                    staticDevices.add(record);
+                                    staticGrid.onSelectionChangeInGroup(staticDevices.getRange());
+                                });
+                                staticGrid.on('deselect', function (selectionModel, record) {
+                                    staticDevices.remove(record);
+                                    staticGrid.onSelectionChangeInGroup(staticDevices.getRange());
                                 });
                                 store.setFilterModel(router.filter);
 
                                 store.on('prefetch', function (store, records) {
                                     if (!staticGrid.isDestroyed) {
+                                        staticGrid.suspendEvent('select');
                                         staticGrid.getSelectionModel().select(Ext.Array.filter(existingRecords, function (existingItem) {
                                             return !!Ext.Array.findBy(records, function (item) {
                                                 return existingItem.getId() === item.getId();
                                             });
                                         }), true);
+                                        staticGrid.resumeEvent('select');
                                     } else {
                                         store.un('prefetch', this);
                                     }

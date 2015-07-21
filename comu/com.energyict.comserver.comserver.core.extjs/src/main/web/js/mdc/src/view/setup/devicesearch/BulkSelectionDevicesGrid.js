@@ -85,5 +85,11 @@ Ext.define('Mdc.view.setup.devicesearch.BulkSelectionDevicesGrid', {
         ];
 
         me.callParent();
+    },
+
+    // specific method for a static devices grid on an edit device group page that is used instead of onSelectionChange()
+    onSelectionChangeInGroup: function (records) {
+        this.getSelectionCounter().setText(this.counterTextFn(records.length));
+        this.getUncheckAllButton().setDisabled(!records.length);
     }
 });
