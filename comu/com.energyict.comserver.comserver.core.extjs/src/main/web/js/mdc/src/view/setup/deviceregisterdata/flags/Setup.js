@@ -30,7 +30,8 @@ Ext.define('Mdc.view.setup.deviceregisterdata.flags.Setup', {
                                 {
                                     text:  Uni.I18n.translate('device.registerData.addReading','MDC','Add reading'),
                                     privileges: Mdc.privileges.Device.administrateDeviceData,
-                                    href: '#/devices/' + encodeURIComponent(me.mRID) + '/registers/' + me.registerId + '/data/add'
+                                    href: '#/devices/' + encodeURIComponent(me.mRID) + '/registers/' + me.registerId + '/data/add',
+                                    dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.deviceDataEditActions
                                 }
                             ]
                         },
