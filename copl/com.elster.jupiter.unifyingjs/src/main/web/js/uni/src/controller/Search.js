@@ -28,37 +28,37 @@ Ext.define('Uni.controller.Search', {
             selector: 'uni-view-search-overview'
         },
         {
-            ref: 'searchDomainCombo',
-            selector: 'uni-view-search-field-search-object-selector'
+            ref: 'objectSelector',
+            selector: 'uni-view-search-overview search-object-selector'
         },
         {
-            ref: 'addCriteriaCombo',
-            selector: 'uni-view-search-field-add-criteria-button'
-        },
-        {
-            ref: 'stickyPropertiesContainer',
-            selector: 'uni-view-search-overview container#stickycriteria'
-        },
-        {
-            ref: 'removablePropertiesPlaceholder',
-            selector: 'uni-view-search-overview component#removablecriteriaplaceholder'
-        },
-        {
-            ref: 'removablePropertiesContainer',
-            selector: 'uni-view-search-overview container#removablecriteria'
-        },
-        {
-            ref: 'searchButton',
-            selector: 'uni-view-search-overview button[action=search]'
-        },
-        {
-            ref: 'clearFiltersButton',
-            selector: 'uni-view-search-overview button[action=clearFilters]'
-        },
-        {
-            ref: 'resultsGrid',
-            selector: 'uni-view-search-overview uni-view-search-results'
+            ref: 'criteriaSelector',
+            selector: 'uni-view-search-overview search-criteria-selector'
         }
+        //{
+        //    ref: 'stickyPropertiesContainer',
+        //    selector: 'uni-view-search-overview container#stickycriteria'
+        //},
+        //{
+        //    ref: 'removablePropertiesPlaceholder',
+        //    selector: 'uni-view-search-overview component#removablecriteriaplaceholder'
+        //},
+        //{
+        //    ref: 'removablePropertiesContainer',
+        //    selector: 'uni-view-search-overview container#removablecriteria'
+        //},
+        //{
+        //    ref: 'searchButton',
+        //    selector: 'uni-view-search-overview button[action=search]'
+        //},
+        //{
+        //    ref: 'clearFiltersButton',
+        //    selector: 'uni-view-search-overview button[action=clearFilters]'
+        //},
+        //{
+        //    ref: 'resultsGrid',
+        //    selector: 'uni-view-search-overview uni-view-search-results'
+        //}
     ],
 
     filterObjectParam: 'filter',
@@ -73,6 +73,12 @@ Ext.define('Uni.controller.Search', {
 
         me.initHistorians();
         me.initStoreListeners();
+
+        me.control({
+            'search-object-selector': {
+                change: me.onChangeSearchDomain
+            }
+        });
     },
 
     /**
@@ -90,7 +96,7 @@ Ext.define('Uni.controller.Search', {
 
         me.getApplication().fireEvent('changecontentevent', widget);
 
-        me.initComponentListeners();
+        //me.initComponentListeners();
         me.filters.removeAll();
 
         searchDomains.load();
@@ -99,28 +105,23 @@ Ext.define('Uni.controller.Search', {
 
     onSearchDomainsLoad: function (records, operation, success) {
         var me = this,
-            searchDomainValue = me.getSearchDomainHistoryValue(),
-            searchDomainCombo = me.getSearchDomainCombo().down('#domain');
+            router = this.getController('Uni.controller.history.Router'),
+            value = router.queryParams.searchDomain,
+            selector = me.getObjectSelector();
 
-        if (!Ext.isEmpty(records) && records.findRecord('displayValue', searchDomainValue) !== null) {
-            searchDomainCombo.setValue(records.findRecord('displayValue', searchDomainValue).get('id'));
-        } else if (searchDomainCombo && !Ext.isEmpty(records)) {
-            searchDomainCombo.setValue(records.first().get('id'));
+        if (value && !Ext.isEmpty(records) && records.findRecord('displayValue', value) !== null) {
+            selector.setValue(records.findRecord('displayValue', value).get('id'));
+        } else if (selector && !Ext.isEmpty(records)) {
+            selector.setValue(records.first().get('id'));
         }
     },
 
     initComponentListeners: function () {
         var me = this,
-            searchDomainCombo = me.getSearchDomainCombo().down('#domain'),
             addCriteriaCombo = me.getAddCriteriaCombo().down('#addcriteria'),
             removablePropertiesContainer = me.getRemovablePropertiesContainer(),
             searchButton = me.getSearchButton(),
             clearFiltersButton = me.getClearFiltersButton();
-
-        searchDomainCombo.on({
-            change: me.onChangeSearchDomain,
-            scope: me
-        });
 
         addCriteriaCombo.on({
             menuhide: me.onSelectAddCriteria,
@@ -161,20 +162,20 @@ Ext.define('Uni.controller.Search', {
             load: me.onSearchPropertiesLoad,
             scope: me
         });
-
-        removableProperties.on({
-            add: me.onUpdateRemovablesStore,
-            load: me.onUpdateRemovablesStore,
-            update: me.onUpdateRemovablesStore,
-            remove: me.onUpdateRemovablesStore,
-            bulkremove: me.onUpdateRemovablesStore,
-            scope: me
-        });
-
-        resultsStore.on({
-            beforeload: me.onBeforeLoad,
-            scope: me
-        });
+        //
+        //removableProperties.on({
+        //    add: me.onUpdateRemovablesStore,
+        //    load: me.onUpdateRemovablesStore,
+        //    update: me.onUpdateRemovablesStore,
+        //    remove: me.onUpdateRemovablesStore,
+        //    bulkremove: me.onUpdateRemovablesStore,
+        //    scope: me
+        //});
+        //
+        //resultsStore.on({
+        //    beforeload: me.onBeforeLoad,
+        //    scope: me
+        //});
     },
 
     onBeforeLoad: function (store, options) {
@@ -219,11 +220,12 @@ Ext.define('Uni.controller.Search', {
 
         Ext.suspendLayouts();
 
-        me.initStickyCriteria();
-        me.initRemovableCriteria();
+        //me.initStickyCriteria();
+        //me.initRemovableCriteria();
 
-        Uni.util.Filters.loadHistoryState(me.filters, true);
-        me.applyFilters();
+        me.getCriteriaSelector().bindStore(criteriaStore);
+        //Uni.util.Filters.loadHistoryState(me.filters, true);
+        //me.applyFilters();
 
         Ext.resumeLayouts(true);
     },
@@ -242,12 +244,12 @@ Ext.define('Uni.controller.Search', {
         propertiesStore.clearFilter();
     },
 
-    initRemovableCriteria: function () {
-        var me = this;
-
-        me.removeRemovableProperties();
-        me.updateRemovableContainerVisibility();
-    },
+    //initRemovableCriteria: function () {
+    //    var me = this;
+    //
+    //    me.removeRemovableProperties();
+    //    me.updateRemovableContainerVisibility();
+    //},
 
     onUpdateRemovablesStore: function () {
         var me = this,
@@ -267,17 +269,18 @@ Ext.define('Uni.controller.Search', {
 
     },
 
-    onChangeSearchDomain: function (field, newValue) {
-        var me = newValue.scope,
+    onChangeSearchDomain: function (field, value) {
+        var me = this,
+            router = this.getController('Uni.controller.history.Router'),
             searchDomains = Ext.getStore('Uni.store.search.Domains'),
-            searchDomain = searchDomains.findRecord('id', field.text, 0, true, true),
             searchResults = Ext.getStore('Uni.store.search.Results'),
             searchProperties = Ext.getStore('Uni.store.search.Properties'),
             fields = Ext.getStore('Uni.store.search.Fields'),
-            model = 'Uni.model.search.Result';
+            searchDomain = searchDomains.findRecord('id', value, 0, true, true);
 
         if (searchDomain !== null && Ext.isDefined(searchDomain)) {
-            me.updateSearchDomainHistoryState(searchDomain);
+            Uni.util.History.suspendEventsForNextCall();
+            router.getRoute().forward(null, {searchDomain: searchDomain.get('displayValue')});
 
             searchProperties.getProxy().url = searchDomain.get('glossaryHref');
             searchProperties.load();
@@ -286,11 +289,11 @@ Ext.define('Uni.controller.Search', {
             fields.load({
                 callback: function (records, operation, success) {
                     if (success) {
-                        me.updateResultModelAndColumnsFromFields(records);
-
-                        searchResults.removeAll();
-                        searchResults.getProxy().url = searchDomain.get('selfHref');
-                        me.lastRequest = searchResults.load();
+                        //me.updateResultModelAndColumnsFromFields(records);
+                        //
+                        //searchResults.removeAll();
+                        //searchResults.getProxy().url = searchDomain.get('selfHref');
+                        //me.lastRequest = searchResults.load();
                     }
                 },
                 scope: me
@@ -370,19 +373,15 @@ Ext.define('Uni.controller.Search', {
         };
     },
 
-    updateSearchDomainHistoryState: function (searchDomain) {
-        var params = {searchDomain: searchDomain.get('displayValue')},
-            href = Uni.util.QueryString.buildHrefWithQueryString(params, false);
-
-        if (location.href !== href) {
-            Uni.util.History.suspendEventsForNextCall();
-            location.href = href;
-        }
-    },
-
-    getSearchDomainHistoryValue: function () {
-        return Uni.util.QueryString.getQueryStringValues().searchDomain;
-    },
+    //updateSearchDomainHistoryState: function (searchDomain) {
+    //    var params = {searchDomain: searchDomain.get('displayValue')},
+    //        href = Uni.util.QueryString.buildHrefWithQueryString(params, false);
+    //
+    //    if (location.href !== href) {
+    //        Uni.util.History.suspendEventsForNextCall();
+    //        location.href = href;
+    //    }
+    //},
 
     onSelectAddCriteria: function (field, records, options) {
         var me = options.scope,

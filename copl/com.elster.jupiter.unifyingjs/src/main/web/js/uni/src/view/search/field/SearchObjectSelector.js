@@ -1,67 +1,62 @@
 Ext.define('Uni.view.search.field.SearchObjectSelector', {
-    extend: 'Ext.panel.Panel',
-    alias: 'widget.uni-view-search-field-search-object-selector',
-    xtype: 'uni-view-search-field-search-object-selector',
-    layout: 'hbox',
+    extend: 'Ext.button.Button',
+    xtype: 'search-object-selector',
+    style: {
+        'background-color': '#71adc7'
+    },
+    mixins: [
+        'Ext.util.Bindable'
+    ],
+    text: Uni.I18n.translate('search.overview.searchDomains.emptyText', 'UNI', 'Search domains'),
+    arrowAlign: 'right',
+    menuAlign: 'tl-bl',
+
+    setValue: function(value) {
+        this.value = value;
+        var item = this.menu.items.findBy(function(item){return item.value == value});
+
+        if (item) {
+            item.setActive();
+            this.setText(item.text);
+            this.fireEvent('change', this, item.value);
+        }
+    },
 
     initComponent: function () {
         var me = this;
-        var store = Ext.getStore('Uni.store.search.Domains' || 'ext-empty-store');
-        this.items = [
-            {
-                xtype: 'button',
-                style: {
-                    'background-color': '#71adc7'
-                },
-                itemId: 'domain',
-                text: Uni.I18n.translate('search.overview.searchDomains.emptyText', 'UNI', 'Search domains'),
-                arrowAlign: 'right',
-                menuAlign: 'tl-bl',
-                menu: {
-                    plain: true,
-                    enableScrolling: true,
-                    maxHeight: 350,
-                    itemId: 'mnu-domain',
-                    listeners: {
-                        click: function (cmp, item) {
-
-                            //me.router.getRoute().forward(null, {searchDomain: item.value});
-                            //debugger;
-                           // me.scope.filter.set('domain', item.value);
-                           // me.scope.filter.save();
-                        }
-                    }
-                },
-                setValue: function(value) {
-                    var item = this.menu.items.findBy(function(item){return item.value == value});
-                    if (item) {
-                        item.setActive();
-                        this.setText(item.text);
-                        this.fireEvent('change', this);
-                        }
-
+        me.menu = {
+            plain: true,
+                enableScrolling: true,
+                maxHeight: 350,
+                itemId: 'search-object-menu',
+                listeners: {
+                click: function(cmp, item) {
+                    me.setValue(item.value);
                 }
             }
-        ];
+        };
 
-        this.callParent(arguments);
+        me.callParent(arguments);
+        me.bindStore('Uni.store.search.Domains' || 'ext-empty-store', true);
+        me.getStore().on('load', me.onStoreLoad, me);
+    },
 
-        var button = me.down('#domain');
+    onStoreLoad: function() {
+        var me = this,
+            menu = me.menu;
+
         Ext.suspendLayouts();
-
-        store.load(function () {
-            var menu = button.menu;
-            menu.removeAll();
-
-            store.each(function (item) {
-                menu.add({
-                    text: item.get('displayValue'),
-                    value: item.get('id')
-                })
-            });
-            //button.setValue(me.scope.filter.get('domain'));
+        menu.removeAll();
+        me.getStore().each(function (item) {
+            menu.add({
+                text: item.get('displayValue'),
+                value: item.get('id')
+            })
         });
 
+        if (me.value) {
+            me.setValue(me.value);
+        }
         Ext.resumeLayouts(true);
     }
 });

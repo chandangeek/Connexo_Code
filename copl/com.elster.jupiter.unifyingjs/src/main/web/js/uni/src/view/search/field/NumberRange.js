@@ -33,7 +33,6 @@ Ext.define('Uni.view.search.field.NumberRange', {
     initComponent: function () {
         var me = this,
             menu = Ext.create('Ext.menu.Menu', {
-                id: 'mainMenu',
                 plain: true,
                 style: {
                     overflow: 'visible'

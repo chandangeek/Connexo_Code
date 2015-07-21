@@ -14,7 +14,7 @@ Ext.define('Uni.view.search.Overview', {
         'Uni.store.search.Removables',
         'Uni.view.search.field.YesNo',
         'Uni.view.search.field.SearchObjectSelector',
-        'Uni.view.search.field.AddCriteriaButton',
+        'Uni.view.search.field.SearchCriteriaSelector',
         'Uni.view.search.field.DateRangeField',
         'Uni.view.search.field.NumberRange'
     ],
@@ -39,95 +39,84 @@ Ext.define('Uni.view.search.Overview', {
                         xtype: 'panel',
                         ui: 'filter',
                         layout: {
-                            type: 'table',
-                            columns: 3,
-                            tableAttrs: {
-                                cls: 'search-table'
-                            }
+                            type: 'vbox',
+                            align : 'stretch'
                         },
                         defaults: {
-                            cellCls: 'search-cell'
+                            xtype: 'panel',
+                            layout: 'hbox'
                         },
                         items: [
-                            // Type of search.
                             {
-                                cellCls: 'search-cell search-label',
-                                xtype: 'label',
-                                text: Uni.I18n.translate('search.overview.searchDomains.label', 'UNI', 'Search for')
-                            },
-                            {
-                                colspan: 2,
-                                xtype: 'uni-view-search-field-search-object-selector'
-                            },
-                            // Sticky criteria.
-                            {
-                                cellCls: 'search-cell search-label',
-                                xtype: 'label',
-                                text: Uni.I18n.translate('search.overview.criteria.label', 'UNI', 'Criteria')
-
-                            },
-                            // temp for testing date range field
-/*                            {
-                                xtype: 'uni-view-search-field-date-range'
-                            },*/
-                            {
-                                xtype: 'uni-view-search-field-number-range'
-                            },
-                            {
-                                xtype: 'container',
-                                itemId: 'stickycriteria',
-                                defaults: {
-                                    margin: '10 10 10 0'
-                                },
-                                layout: {
-                                    type: 'column'
-                                }
-                            },
-/*                            { //leaved for integration default field
-                                cellCls: 'search-cell search-last',
-                                xtype: 'combo',
-                                itemId: 'addcriteria',
-                                emptyText: Uni.I18n.translate('search.overview.addCriteria.emptyText', 'UNI', 'Add criteria'),
-                                margin: '0 2 0 0',
-                                store: 'Uni.store.search.Removables',
-                                displayField: 'displayValue',
-                                valueField: 'name',
-                                forceSelection: true,
-                                queryMode: 'local',
-                                multiSelect: false
-                            },*/
-                            {
-                                cellCls: 'search-cell search-last',
-                                margin: '0 2 0 0',
-                                xtype: 'uni-view-search-field-add-criteria-button'
-                            },
-                            // Extra criteria.
-                            {
-                                html: '&nbsp;',
-                                itemId: 'removablecriteriaplaceholder'
-                            },
-                            {
-                                colspan: 2,
-                                xtype: 'container',
-                                itemId: 'removablecriteria',
-                                defaults: {
-                                    margin: '0 10 10 0'
-                                },
-                                layout: {
-                                    type: 'column'
-                                }
-                            },
-                            // Filter controls.
-                            {
-                                colspan: 3,
-                                xtype: 'container',
-                                layout: {
-                                    type: 'hbox'
-                                },
+                                // Type of search.
+                                xtype: 'toolbar',
+                                itemId: 'search-domain',
                                 items: [
                                     {
-                                        flex: 1
+
+                                        xtype: 'label',
+                                        text: Uni.I18n.translate('search.overview.searchDomains.label', 'UNI', 'Search for'),
+                                        width: 100
                                     },
+                                    {
+                                        itemId: 'search-object-selector',
+                                        xtype: 'search-object-selector'
+                                    },
+                                    '->',
+                                    {
+                                        disabled: true,
+                                        xtype: 'search-criteria-selector'
+                                    }
+                                ]
+                            },
+                            {
+                                // Sticky criteria.
+                                itemId: 'search-criteria-sticky',
+                                hidden: true,
+                                items: [
+                                    {
+                                        xtype: 'label',
+                                        text: Uni.I18n.translate('search.overview.criteria.label', 'UNI', 'Criteria'),
+                                        width: 100
+                                    },
+                                    {
+                                        flex: 1,
+                                        xtype: 'container',
+                                        itemId: 'criteria-sticky-items',
+                                        //defaults: {
+                                        //    margin: '10 10 10 0'
+                                        //},
+                                        layout: 'column'
+                                    }
+                                ]
+                            },
+                            {
+                                // Sticky criteria.
+                                itemId: 'search-criteria-removable',
+                                hidden: true,
+                                items: [
+                                    {
+                                        xtype: 'label',
+                                        text: '',
+                                        width: 100
+                                    },
+                                    {
+                                        flex: 1,
+                                        xtype: 'container',
+                                        itemId: 'criteria-removable-items',
+                                        //defaults: {
+                                        //    margin: '10 10 10 0'
+                                        //},
+                                        layout: {
+                                            type: 'column'
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                xtype: 'toolbar',
+                                items: [
+                                    '->',
                                     {
                                         xtype: 'button',
                                         ui: 'action',
@@ -142,44 +131,69 @@ Ext.define('Uni.view.search.Overview', {
                                     }
                                 ]
                             },
-                            // Sorting. (Not in scope at this moment of writing, removing breaks the column layout so just disabling the xtypes.)
-
                             {
-                                cellCls: 'search-cell search-label',
-                                //xtype: 'label',
-                                text: 'Sort'
-                            },
-                            {
-                                //hidden: true,
-                                //xtype: 'container',
-                                layout: {
-                                    type: 'hbox'
+                                // Sorting. (Not in scope at this moment of writing, removing breaks the column layout so just disabling the xtypes.)
+                                xtype: 'toolbar',
+                                margin: 0,
+                                defaults: {
+                                    disabled: true
                                 },
                                 items: [
                                     {
-                                        //xtype: 'combo',
-                                        emptyText: Uni.I18n.translate('general.addSort', 'UNI', 'Add sort')
-                                    }
-                                ]
-                            },
-                            {
-                                cellCls: 'search-cell search-last',
-                                //xtype: 'container',
-                                layout: {
-                                    type: 'hbox'
-                                },
-                                items: [
-                                    {
-                                        flex: 1
+                                        xtype: 'label',
+                                        text: 'Sort',
+                                        width: 100
                                     },
                                     {
-                                        //xtype: 'button',
+                                        text: Uni.I18n.translate('general.addSort', 'UNI', 'Add sort')
+                                    },
+                                    '->',
+                                    {
                                         text: Uni.I18n.translate('general.clearSorting', 'UNI', 'Clear sorting'),
-                                        action: 'clearSorting',
-                                        margin: '0 0 0 0'
+                                        action: 'clearSorting'
                                     }
                                 ]
                             }
+
+                            // temp for testing date range field
+/*                            {
+                                xtype: 'uni-view-search-field-date-range'
+                            },*/
+                            //{
+                            //    xtype: 'uni-view-search-field-number-range'
+                            //},
+
+/*                            { //leaved for integration default field
+                                cellCls: 'search-cell search-last',
+                                xtype: 'combo',
+                                itemId: 'addcriteria',
+                                emptyText: Uni.I18n.translate('search.overview.addCriteria.emptyText', 'UNI', 'Add criteria'),
+                                margin: '0 2 0 0',
+                                store: 'Uni.store.search.Removables',
+                                displayField: 'displayValue',
+                                valueField: 'name',
+                                forceSelection: true,
+                                queryMode: 'local',
+                                multiSelect: false
+                            },*/
+
+                            // Extra criteria.
+                            //{
+                            //    html: '&nbsp;',
+                            //    itemId: 'removablecriteriaplaceholder'
+                            //},
+                            //{
+                            //    colspan: 2,
+                            //    xtype: 'container',
+                            //    itemId: 'removablecriteria',
+                            //    defaults: {
+                            //        margin: '0 10 10 0'
+                            //    },
+                            //    layout: {
+                            //        type: 'column'
+                            //    }
+                            //},
+                            // Filter controls.
                         ]
                     },
                     {
