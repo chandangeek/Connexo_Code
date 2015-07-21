@@ -6,15 +6,20 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
+import com.elster.jupiter.metering.readings.ReadingQuality;
+import com.elster.jupiter.metering.readings.beans.ReadingQualityImpl;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.orm.query.impl.SubqueryImpl;
 import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskOccurrence;
@@ -23,8 +28,7 @@ import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Pair;
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.conditions.*;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.validation.*;
 import com.elster.jupiter.validation.security.Privileges;
@@ -48,76 +52,76 @@ import static com.elster.jupiter.util.conditions.Operator.EQUAL;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(name = "com.elster.jupiter.validation", service = {InstallService.class, ValidationService.class, PrivilegesProvider.class}, property = "name=" + ValidationService.COMPONENTNAME, immediate = true)
-public class ValidationServiceImpl implements ValidationService, InstallService, PrivilegesProvider {
+     public class ValidationServiceImpl implements ValidationService, InstallService, PrivilegesProvider {
 
-    public static final String DESTINATION_NAME = "DataValidation";
-    public static final String SUBSCRIBER_NAME = "DataValidation";
-    private volatile EventService eventService;
-    private volatile MeteringService meteringService;
-    private volatile MeteringGroupsService meteringGroupsService;
-    private volatile Clock clock;
-    private volatile MessageService messageService;
-    private volatile TaskService taskService;
-    private volatile DataModel dataModel;
-    private volatile Thesaurus thesaurus;
-    private volatile QueryService queryService;
-    private volatile UserService userService;
+        public static final String DESTINATION_NAME = "DataValidation";
+        public static final String SUBSCRIBER_NAME = "DataValidation";
+        private volatile EventService eventService;
+        private volatile MeteringService meteringService;
+        private volatile MeteringGroupsService meteringGroupsService;
+        private volatile Clock clock;
+        private volatile MessageService messageService;
+        private volatile TaskService taskService;
+        private volatile DataModel dataModel;
+        private volatile Thesaurus thesaurus;
+        private volatile QueryService queryService;
+        private volatile UserService userService;
 
 
 
-    private final List<ValidatorFactory> validatorFactories = new CopyOnWriteArrayList<>();
-    private final List<ValidationRuleSetResolver> ruleSetResolvers = new CopyOnWriteArrayList<>();
-    private Optional<DestinationSpec> destinationSpec = Optional.empty();
+        private final List<ValidatorFactory> validatorFactories = new CopyOnWriteArrayList<>();
+        private final List<ValidationRuleSetResolver> ruleSetResolvers = new CopyOnWriteArrayList<>();
+        private Optional<DestinationSpec> destinationSpec = Optional.empty();
 
-    public ValidationServiceImpl() {
-    }
-
-    @Inject
-    ValidationServiceImpl(Clock clock,MessageService messageService, EventService eventService, TaskService taskService, MeteringService meteringService, MeteringGroupsService meteringGroupsService, OrmService ormService, QueryService queryService, NlsService nlsService, UserService userService, Publisher publisher) {
-        this.clock = clock;
-        this.messageService = messageService;
-        setMessageService(messageService);
-        this.eventService = eventService;
-        this.meteringService = meteringService;
-        this.meteringGroupsService = meteringGroupsService;
-        this.taskService = taskService;
-        setQueryService(queryService);
-        setOrmService(ormService);
-        setNlsService(nlsService);
-        setUserService(userService);
-        activate();
-        if (!dataModel.isInstalled()) {
-            install();
+        public ValidationServiceImpl() {
         }
-        // subscribe manually when not using OSGI
-        ValidationEventHandler handler = new ValidationEventHandler();
-        handler.setValidationService(this);
-        publisher.addSubscriber(handler);
-    }
 
-    @Activate
-    public final void activate() {
-        dataModel.register(new AbstractModule() {
-            @Override
-            protected void configure() {
-                bind(Clock.class).toInstance(clock);
-                bind(EventService.class).toInstance(eventService);
-                bind(TaskService.class).toInstance(taskService);
-                bind(MeteringService.class).toInstance(meteringService);
-                bind(MeteringGroupsService.class).toInstance(meteringGroupsService);
-                bind(DataModel.class).toInstance(dataModel);
-                bind(ValidationService.class).toInstance(ValidationServiceImpl.this);
-                bind(ValidatorCreator.class).toInstance(new DefaultValidatorCreator());
-                bind(Thesaurus.class).toInstance(thesaurus);
-                bind(MessageInterpolator.class).toInstance(thesaurus);
-                bind(UserService.class).toInstance(userService);
+        @Inject
+        ValidationServiceImpl(Clock clock,MessageService messageService, EventService eventService, TaskService taskService, MeteringService meteringService, MeteringGroupsService meteringGroupsService, OrmService ormService, QueryService queryService, NlsService nlsService, UserService userService, Publisher publisher) {
+            this.clock = clock;
+            this.messageService = messageService;
+            setMessageService(messageService);
+            this.eventService = eventService;
+            this.meteringService = meteringService;
+            this.meteringGroupsService = meteringGroupsService;
+            this.taskService = taskService;
+            setQueryService(queryService);
+            setOrmService(ormService);
+            setNlsService(nlsService);
+            setUserService(userService);
+            activate();
+            if (!dataModel.isInstalled()) {
+                install();
             }
-        });
-    }
+            // subscribe manually when not using OSGI
+            ValidationEventHandler handler = new ValidationEventHandler();
+            handler.setValidationService(this);
+            publisher.addSubscriber(handler);
+        }
 
-    @Deactivate
-    public void deactivate() {
-    }
+        @Activate
+        public final void activate() {
+            dataModel.register(new AbstractModule() {
+                @Override
+                protected void configure() {
+                    bind(Clock.class).toInstance(clock);
+                    bind(EventService.class).toInstance(eventService);
+                    bind(TaskService.class).toInstance(taskService);
+                    bind(MeteringService.class).toInstance(meteringService);
+                    bind(MeteringGroupsService.class).toInstance(meteringGroupsService);
+                    bind(DataModel.class).toInstance(dataModel);
+                    bind(ValidationService.class).toInstance(ValidationServiceImpl.this);
+                    bind(ValidatorCreator.class).toInstance(new DefaultValidatorCreator());
+                    bind(Thesaurus.class).toInstance(thesaurus);
+                    bind(MessageInterpolator.class).toInstance(thesaurus);
+                    bind(UserService.class).toInstance(userService);
+                }
+            });
+        }
+
+        @Deactivate
+        public void deactivate() {
+        }
 
     @Override
     public void install() {
@@ -604,63 +608,72 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
     }
 
     @Override
-    public List<ValidationSummary> getValidationResultsOfDeviceGroup(Long groupId, Optional<Integer> start, Optional<Integer> limit) {
+    public Optional<SqlBuilder> getValidationResults(long endDeviceGroupId, Optional<Integer> start, Optional<Integer> limit) {
+        SqlBuilder sqlBuilder = new SqlBuilder();
+        Query<EndDevice> query = meteringService.getEndDeviceQuery();
 
-        List<ValidationSummary> list = new ArrayList<>();
+        Optional<EndDeviceGroup> found = meteringGroupsService.findEndDeviceGroup(endDeviceGroupId);
+        if(found.isPresent()){
+            EndDeviceGroup deviceGroup = found.get();
+            try {
+                sqlBuilder.append("SELECT MED.id FROM (");
 
-        try {
-            Query<EndDevice> query = meteringService.getEndDeviceQuery();
-
-            meteringGroupsService.findEndDeviceGroup(groupId).ifPresent(deviceGroup -> {
-                try {
-                    SqlBuilder sqlBuilder = new SqlBuilder();
-                    sqlBuilder.append("SELECT med.id, ed2.mrid FROM (" );
-                    if (deviceGroup instanceof QueryEndDeviceGroup) {
-                        Condition condition = null;
-                        condition = meteringGroupsService.pollEndDeviceQueryProvider(deviceGroup.getQueryProviderName(), Duration.ofMinutes(1)).get().getQueryCondition(((QueryEndDeviceGroup) deviceGroup).getCondition());
-                        sqlBuilder.add(query.asSubquery(condition, "id").toFragment());
-                    } else {
-                        sqlBuilder.add(((EnumeratedEndDeviceGroup) deviceGroup).getAmrIdSubQuery().toFragment());
-                    }
-                    sqlBuilder.append(") MED  " +
-                            "LEFT JOIN MTR_ENDDEVICE ed2 on med.id = ed2.id " +
-                            "WHERE EXISTS " +
-                            "      (SELECT * " +
-                            "      FROM MTR_READINGQUALITY mrq " +
-                            "        LEFT JOIN MTR_CHANNEL mc ON (mrq.CHANNELID=mc.id) " +
-                            "       LEFT JOIN MTR_METERACTIVATION MA ON (mc.meteractivationid=ma.id) " +
-                            "    " +
-                            "      WHERE (mrq.type  = '3.5.258' " +
-                            "      OR mrq.type      = '3.5.259') " +
-                            "      AND mrq.actual   ='Y' " +
-                            "      AND MA.meterid=med.id " +
-                            "      )");
-                    if(start.isPresent() && limit.isPresent()) {
-                        sqlBuilder = sqlBuilder.asPageBuilder(start.get()+1, start.get() + limit.get()+1);
-                    }
-                    try (PreparedStatement statement = sqlBuilder.prepare(dataModel.getConnection(false))) {
-                        try (ResultSet resultSet = statement.executeQuery()) {
-                            while (resultSet.next()) {
-                                Long id = resultSet.getLong(1);
-                                String mrId = resultSet.getString(2);
-                                ValidationSummary summary = new ValidationSummary();
-                                summary.setId(id);
-                                summary.setMrID(mrId);
-                                summary.setSuspects(0);
-                                list.add(summary);
-                            }
-                        }
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
+                if (deviceGroup instanceof QueryEndDeviceGroup) {
+                    Condition condition = meteringGroupsService.pollEndDeviceQueryProvider(deviceGroup.getQueryProviderName(), Duration.ofMinutes(1)).get().getQueryCondition(((QueryEndDeviceGroup) deviceGroup).getCondition());
+                    sqlBuilder.add(query.asSubquery(condition, "id").toFragment());
+                } else {
+                    sqlBuilder.add(((EnumeratedEndDeviceGroup) deviceGroup).getAmrIdSubQuery().toFragment());
                 }
 
-            });
-        }
-        catch (Exception e) {
-        }
+                sqlBuilder.append(") MED  " +
+                        "WHERE EXISTS " +
+                            "(" +
+                                "SELECT * FROM MTR_READINGQUALITY mrq " +
+                                "LEFT JOIN MTR_CHANNEL mc ON (mrq.CHANNELID=mc.id) " +
+                                "LEFT JOIN MTR_METERACTIVATION MA ON (mc.meteractivationid=ma.id) " +
+                                "WHERE " + "" +
+                                    "(" +
+                                        "mrq.type = '3.5.258' " +
+                                        "OR " +
+                                        "mrq.type = '3.5.259'" +
+                                    ") " +
+                                    "AND " +
+                                    "mrq.actual='Y' " +
+                                    "AND " +
+                                    "MA.meterid=med.id" +
+                            ")");
 
-        return list;
+                if(start.isPresent() && limit.isPresent()) {
+                    sqlBuilder = sqlBuilder.asPageBuilder("id", start.get()+1, start.get() + limit.get()+1);
+                }
+
+                /*Query<EndDevice> vQuery = meteringService.getEndDeviceValidationQuery();
+
+                Condition select = (where("mrq.type").isEqualTo("'3.5.258'").or(
+                                where("mrq.type").isEqualTo("'3.5.259'"))).and(
+                                where("mrq.actual").isEqualTo("'Y'")).and(
+                                where("mrq.CHANNELID").isEqualTo("mc.id"));
+                Subquery exists =   ListOperator.exists(vQuery.asSubquery(select)).getSubquery();
+
+
+                if (deviceGroup instanceof QueryEndDeviceGroup) {
+                    Condition condition = meteringGroupsService.pollEndDeviceQueryProvider(deviceGroup.getQueryProviderName(), Duration.ofMinutes(1)).get().getQueryCondition(((QueryEndDeviceGroup) deviceGroup).getCondition());
+                    Subquery devs = query.asSubquery(condition, "id");
+                } else {
+                    Subquery devs = ((EnumeratedEndDeviceGroup) deviceGroup).getAmrIdSubQuery();
+                }
+
+                Query<EndDevice> outQuery = meteringService.getEndDeviceQuery();*/
+
+                return Optional.of(sqlBuilder);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        };
+
+        return Optional.empty();
     }
 
     private Optional<DataValidationTask> getDataValidationTaskForRecurrentTask(RecurrentTask recurrentTask) {
