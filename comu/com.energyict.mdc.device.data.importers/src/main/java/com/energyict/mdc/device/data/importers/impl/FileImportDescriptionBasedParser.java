@@ -1,11 +1,9 @@
 package com.energyict.mdc.device.data.importers.impl;
 
 import com.elster.jupiter.util.Checks;
-import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.data.importers.impl.exceptions.FileImportParserException;
 import com.energyict.mdc.device.data.importers.impl.exceptions.ValueParserException;
 import com.energyict.mdc.device.data.importers.impl.fields.FileImportField;
-import jdk.nashorn.internal.runtime.ParserException;
 import org.apache.commons.csv.CSVRecord;
 
 import java.util.ArrayList;
@@ -27,7 +25,7 @@ public class FileImportDescriptionBasedParser<T extends FileImportRecord> implem
         List<FileImportField<?>> fields = this.descriptor.getFields(record);
         List<String> rawValues = getRawValues(csvRecord);
         if (rawValues.size() < fields.size()){
-            throw new FileImportParserException(MessageSeeds.FILE_FORMAT_ERROR, fields.size(), rawValues.size());
+            throw new FileImportParserException(MessageSeeds.FILE_FORMAT_ERROR, csvRecord.getRecordNumber(), fields.size(), rawValues.size());
         }
         for (int i = 0; i < rawValues.size(); i++) {
             String rawValue = rawValues.get(i);

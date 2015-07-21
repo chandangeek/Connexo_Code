@@ -2,8 +2,6 @@ package com.energyict.mdc.device.data.importers.impl.parsers;
 
 
 import com.elster.jupiter.util.Checks;
-import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
-import com.energyict.mdc.device.data.importers.impl.exceptions.FileImportParserException;
 import com.energyict.mdc.device.data.importers.impl.exceptions.ValueParserException;
 
 import java.text.NumberFormat;

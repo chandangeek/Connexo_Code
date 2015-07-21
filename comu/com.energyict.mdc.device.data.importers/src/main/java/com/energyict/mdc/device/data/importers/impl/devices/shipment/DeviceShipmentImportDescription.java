@@ -8,7 +8,6 @@ import com.energyict.mdc.device.data.importers.impl.parsers.DateParser;
 import com.energyict.mdc.device.data.importers.impl.parsers.LiteralStringParser;
 import com.energyict.mdc.device.data.importers.impl.parsers.NumberParser;
 
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 

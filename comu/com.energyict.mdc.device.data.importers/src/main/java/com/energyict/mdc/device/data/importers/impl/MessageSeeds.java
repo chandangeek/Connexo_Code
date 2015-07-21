@@ -18,6 +18,9 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     FILE_FORMAT_ERROR(4, "FileFormatError", "File format error: wrong number of columns in the line {0}. Importer service expects {1} but was {2}.", Level.SEVERE),
     LINE_MISSING_VALUE_ERROR(5, "LineMissingValueError", "Format error for line {0}: missing value for column ''{1}''.", Level.SEVERE),
     LINE_FORMAT_ERROR(6, "LineFormatError", "Format error for line {0}: wrong value format for column ''{1}'' (expected format = ''{2}'')", Level.SEVERE),
+
+    NO_DEVICE_TYPE(7, "ImportProcessorNoDeviceType", "Error in line {0}: No device type found with name: {1}.", Level.WARNING),
+    NO_DEVICE_CONFIGURATION(8, "ImportProcessorNoDeviceConfiguration", "Error in line {0}: No device configuration found with name: {1}.", Level.WARNING),
     ;
 
     private final int number;

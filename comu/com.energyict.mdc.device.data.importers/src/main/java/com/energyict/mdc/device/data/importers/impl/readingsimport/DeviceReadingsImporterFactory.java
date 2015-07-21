@@ -9,6 +9,7 @@ import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty;
 import com.energyict.mdc.device.data.importers.impl.TranslationKeys;
 import com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import java.util.EnumSet;
@@ -68,6 +69,7 @@ public class DeviceReadingsImporterFactory extends AbstractDeviceDataFileImporte
     }
 
     @Override
+    @Reference
     public void setDeviceDataImporterContext(DeviceDataImporterContext context) {
         this.context = context;
     }

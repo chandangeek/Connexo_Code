@@ -56,7 +56,7 @@ public class DeviceShipmentImporterFactory extends AbstractDeviceDataFileImporte
 
         FileImportParser<DeviceShipmentImportRecord> parser = new FileImportDescriptionBasedParser(
                 new DeviceShipmentImportDescription(dateFormat, timeZone));
-        FileImportProcessor<DeviceShipmentImportRecord> processor = new DeviceShipmentImportProcessor();
+        FileImportProcessor<DeviceShipmentImportRecord> processor = new DeviceShipmentImportProcessor(getContext());
         return DeviceDataCsvImporter.withParser(parser).withProcessor(processor).withDelimiter(delimiter.charAt(0)).build(getContext());
     }
 

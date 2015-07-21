@@ -79,7 +79,7 @@ public class DeviceDataCsvImporter<T extends FileImportRecord> implements FileIm
                 linesWithWarning++;
             }
         } catch (Exception e) {
-            failRecordProcess(fileImportOccurrence, e);
+            failRecordProcess(fileImportOccurrence, e, data);
         }
     }
 
@@ -117,10 +117,14 @@ public class DeviceDataCsvImporter<T extends FileImportRecord> implements FileIm
         }
     }
 
-    private void failRecordProcess(FileImportOccurrence importOccurrence, Exception exception) {
-        String message = exception.getLocalizedMessage();
+    private void failRecordProcess(FileImportOccurrence importOccurrence, Exception exception, T data) {
+        String message = null;
         if (exception instanceof ImportException) {
             message = ((ImportException) exception).getLocalizedMessage(this.context.getThesaurus());
+        } else {
+            // Always specify line number and device mrid
+            message = TranslationKeys.IMPORT_DEFAULT_PROCESSOR_ERROR_TEMPLATE.getTranslated(this.context.getThesaurus(),
+                    data.getLineNumber(), data.getDeviceMrid(), exception.getLocalizedMessage());
         }
         importOccurrence.getLogger().warning(message);
         this.linesWithError++;

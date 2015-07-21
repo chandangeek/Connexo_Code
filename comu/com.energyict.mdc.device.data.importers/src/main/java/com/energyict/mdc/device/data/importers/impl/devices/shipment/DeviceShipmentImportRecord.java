@@ -10,7 +10,7 @@ public class DeviceShipmentImportRecord extends FileImportRecord {
     private String deviceConfiguration;
     private ZonedDateTime shipmentDate;
     private String serialNumber;
-    private int yearOfCertification;
+    private Integer yearOfCertification;
     private String batch;
 
     public String getDeviceType() {
@@ -45,11 +45,11 @@ public class DeviceShipmentImportRecord extends FileImportRecord {
         this.serialNumber = serialNumber;
     }
 
-    public int getYearOfCertification() {
+    public Integer getYearOfCertification() {
         return yearOfCertification;
     }
 
-    public void setYearOfCertification(int yearOfCertification) {
+    public void setYearOfCertification(Integer yearOfCertification) {
         this.yearOfCertification = yearOfCertification;
     }
 

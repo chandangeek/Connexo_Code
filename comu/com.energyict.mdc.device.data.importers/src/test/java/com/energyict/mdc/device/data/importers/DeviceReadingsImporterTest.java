@@ -18,8 +18,6 @@ import java.io.InputStream;
 
 import static org.mockito.Mockito.when;
 
-@Ignore
-@RunWith(MockitoJUnitRunner.class)
 public class DeviceReadingsImporterTest {
 
     @Mock
@@ -28,7 +26,6 @@ public class DeviceReadingsImporterTest {
     @Mock
     private DeviceDataImporterContext context;
 
-    @Test
     public void test() {
         String csv = "Device MRID;Reading date;Reading type MRID;Reading value;\n" +
                 "device;17/07/2015 11:43;0.0.0.0.0.0.0.0.0.0.0.0.0.0;100500;";

@@ -2,7 +2,6 @@ package com.energyict.mdc.device.data.importers.impl.readingsimport;
 
 import com.energyict.mdc.device.data.importers.impl.FileImportParser;
 import com.energyict.mdc.device.data.importers.impl.exceptions.FileImportParserException;
-import com.energyict.mdc.device.data.importers.impl.exceptions.ValueParserException;
 import com.energyict.mdc.device.data.importers.impl.parsers.BigDecimalParser;
 import com.energyict.mdc.device.data.importers.impl.parsers.DateParser;
 import com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat;

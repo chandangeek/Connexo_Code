@@ -10,10 +10,20 @@ import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
 
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.TimeZone;
+import java.util.concurrent.TimeUnit;
 
 public class TimeZonePropertySpec extends BasicPropertySpec {
 
-    static final String DEFAULT = "GMT+03:00";//IT MUST NOT BE DEFAULT VALUE
+    static final String DEFAULT;
+    static {
+        TimeZone timeZone = TimeZone.getDefault();
+        int rawOffset = timeZone.getRawOffset();
+        long hours = TimeUnit.MILLISECONDS.toHours(rawOffset);
+        long minutes = TimeUnit.MILLISECONDS.toMinutes(rawOffset) - TimeUnit.HOURS.toMinutes(hours);
+        DEFAULT = String.format("GMT%s%02d:%02d", rawOffset > 0 ? "+" : "-", hours, minutes);
+    }
+
     public static DateTimeFormatter format = DateTimeFormatter.ofPattern("O");
 
     private Thesaurus thesaurus;
