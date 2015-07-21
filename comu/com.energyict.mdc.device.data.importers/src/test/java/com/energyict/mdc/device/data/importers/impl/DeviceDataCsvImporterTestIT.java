@@ -23,6 +23,9 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -68,10 +71,13 @@ public class DeviceDataCsvImporterTestIT {
     @Mock
     private Thesaurus thesaurus;
     @Mock
-    DeviceDataImporterContext context;
+    private DeviceDataImporterContext context;
+    @Mock
+    private Logger logger;
 
     @Before
     public void beforeTest() {
+        reset(logger, context, thesaurus);
         when(thesaurus.getString(anyString(), anyString())).thenAnswer(invocationOnMock -> {
             for (MessageSeed messageSeeds : MessageSeeds.values()) {
                 if (messageSeeds.getKey().equals(invocationOnMock.getArguments()[0])) {
@@ -114,121 +120,213 @@ public class DeviceDataCsvImporterTestIT {
         return processor;
     }
 
+    private FileImportOccurrence mockFileImportOccurrence(String csv) {
+        FileImportOccurrence importOccurrence = mock(FileImportOccurrence.class);
+        when(importOccurrence.getLogger()).thenReturn(logger);
+        when(importOccurrence.getContents()).thenReturn(new ByteArrayInputStream(csv.getBytes()));
+        return importOccurrence;
+    }
+
+    private DeviceDataCsvImporter<FileImportRecord> mockImporter(FileImportParser<FileImportRecord> parser, FileImportProcessor<FileImportRecord> processor) {
+        return DeviceDataCsvImporter.withParser(parser).withProcessor(processor).withDelimiter(';').build(context);
+    }
+
     @Test
     // No devices were processed (No devices in file)
     public void testNoDevicesInFile() throws Exception {
         String csv = "Device MRID;SomeColumn";
-        Logger logger = mock(Logger.class);
-        FileImportOccurrence importOccurrence = mock(FileImportOccurrence.class);
-        when(importOccurrence.getLogger()).thenReturn(logger);
-        when(importOccurrence.getContents()).thenReturn(new ByteArrayInputStream(csv.getBytes()));
+        FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImportParser<FileImportRecord> parser = mockParserWithExceptionOnLine(null);
         FileImportProcessor<FileImportRecord> processor = mockProcessor(null, null);
-        DeviceDataCsvImporter<FileImportRecord> importer = DeviceDataCsvImporter.withParser(parser).withProcessor(processor).withDelimiter(';').build(context);
+        DeviceDataCsvImporter<FileImportRecord> importer = mockImporter(parser, processor);
 
         importer.process(importOccurrence);
         verify(importOccurrence).markFailure(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED.getDefaultFormat());
+        verify(logger, never()).info(Matchers.anyString());
+        verify(logger, never()).warning(Matchers.anyString());
+        verify(logger, never()).severe(Matchers.anyString());
     }
 
     @Test
-    // Processor fails on device 1
+    // No devices were processed
+    public void testBadColumnTitles() throws Exception {
+        String csv = "Column1;Column2;Column2\nvalue;value2;value3";
+        FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
+        FileImportParser<FileImportRecord> parser = mockParserWithExceptionOnLine(null);
+        FileImportProcessor<FileImportRecord> processor = mockProcessor(null, null);
+        DeviceDataCsvImporter<FileImportRecord> importer = mockImporter(parser, processor);
+
+        importer.process(importOccurrence);
+        verify(importOccurrence).markFailure(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED.getDefaultFormat());
+        verify(logger, never()).info(Matchers.anyString());
+        verify(logger, never()).warning(Matchers.anyString());
+        verify(logger, times(1)).severe(Matchers.anyString());
+    }
+
+    @Test
+    // Parser fails on device 1
     // 0 success, 0 warning, 0 error
     public void testFailOnDevice1() throws Exception {
         String csv = "Device MRID\ndevice1\ndevice2\ndevice3";
-        Logger logger = mock(Logger.class);
-        FileImportOccurrence importOccurrence = mock(FileImportOccurrence.class);
-        when(importOccurrence.getLogger()).thenReturn(logger);
-        when(importOccurrence.getContents()).thenReturn(new ByteArrayInputStream(csv.getBytes()));
+        FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImportParser<FileImportRecord> parser = mockParserWithExceptionOnLine(2);
         FileImportProcessor<FileImportRecord> processor = mockProcessor(null, null);
-        DeviceDataCsvImporter<FileImportRecord> importer = DeviceDataCsvImporter.withParser(parser).withProcessor(processor).withDelimiter(';').build(context);
+        DeviceDataCsvImporter<FileImportRecord> importer = mockImporter(parser, processor);
 
         importer.process(importOccurrence);
         verify(importOccurrence).markFailure(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED.getDefaultFormat());
     }
 
     @Test
-    // Processor fails on device 2
+    // Parser fails on device 2
     // 1 success, 0 warning, 0 error
     public void testFailOnDevice2() throws Exception {
         String csv = "Device MRID\ndevice1\ndevice2\ndevice3";
-        Logger logger = mock(Logger.class);
-        FileImportOccurrence importOccurrence = mock(FileImportOccurrence.class);
-        when(importOccurrence.getLogger()).thenReturn(logger);
-        when(importOccurrence.getContents()).thenReturn(new ByteArrayInputStream(csv.getBytes()));
+        FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImportParser<FileImportRecord> parser = mockParserWithExceptionOnLine(3);
         FileImportProcessor<FileImportRecord> processor = mockProcessor(null, null);
-        DeviceDataCsvImporter<FileImportRecord> importer = DeviceDataCsvImporter.withParser(parser).withProcessor(processor).withDelimiter(';').build(context);
+        DeviceDataCsvImporter<FileImportRecord> importer = mockImporter(parser, processor);
 
         importer.process(importOccurrence);
-        verify(importOccurrence).markFailure(TranslationKeys.IMPORT_RESULT_SOME_DEVICES_WERE_PROCESSED_WITH_ERRORS.getTranslated(thesaurus, 1, 1));
+        verify(importOccurrence).markFailure(TranslationKeys.IMPORT_RESULT_FAIL.getTranslated(thesaurus, 1));
+        verify(logger, never()).info(Matchers.anyString());
+        verify(logger, never()).warning(Matchers.anyString());
+        verify(logger, times(1)).severe(Matchers.anyString());
     }
 
     @Test
-    // Processor fails on device 2
+    // Parser fails on device 2
     // 1 success, 1 warning, 0 error
     public void testFailOnDevice2WithWarningOnDevice1() throws Exception {
         String csv = "Device MRID\ndevice1\ndevice2\ndevice3";
-        Logger logger = mock(Logger.class);
-        FileImportOccurrence importOccurrence = mock(FileImportOccurrence.class);
-        when(importOccurrence.getLogger()).thenReturn(logger);
-        when(importOccurrence.getContents()).thenReturn(new ByteArrayInputStream(csv.getBytes()));
+        FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImportParser<FileImportRecord> parser = mockParserWithExceptionOnLine(3);
         FileImportProcessor<FileImportRecord> processor = mockProcessor(null, 2);
-        DeviceDataCsvImporter<FileImportRecord> importer = DeviceDataCsvImporter.withParser(parser).withProcessor(processor).withDelimiter(';').build(context);
+        DeviceDataCsvImporter<FileImportRecord> importer = mockImporter(parser, processor);
 
         importer.process(importOccurrence);
-        verify(importOccurrence).markFailure(TranslationKeys.IMPORT_RESULT_SOME_DEVICES_WERE_PROCESSED_WITH_WARN.getTranslated(thesaurus, 1, 1));
+        verify(importOccurrence).markFailure(TranslationKeys.IMPORT_RESULT_FAIL_WITH_WARN.getTranslated(thesaurus, 1, 1));
+        verify(logger, times(1)).info(Matchers.anyString());
+        verify(logger, never()).warning(Matchers.anyString());
+        verify(logger, times(1)).severe(Matchers.anyString());
     }
 
     @Test
-    // Processor fails on device 2
+    // Parser fails on device 2
     // 0 success, 0 warning, 1 error
     public void testFailOnDevice2WithErrorOnDevice1() throws Exception {
         String csv = "Device MRID\ndevice1\ndevice2\ndevice3";
-        Logger logger = mock(Logger.class);
-        FileImportOccurrence importOccurrence = mock(FileImportOccurrence.class);
-        when(importOccurrence.getLogger()).thenReturn(logger);
-        when(importOccurrence.getContents()).thenReturn(new ByteArrayInputStream(csv.getBytes()));
+        FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImportParser<FileImportRecord> parser = mockParserWithExceptionOnLine(3);
         FileImportProcessor<FileImportRecord> processor = mockProcessor(2, null);
-        DeviceDataCsvImporter<FileImportRecord> importer = DeviceDataCsvImporter.withParser(parser).withProcessor(processor).withDelimiter(';').build(context);
+        DeviceDataCsvImporter<FileImportRecord> importer = mockImporter(parser, processor);
 
         importer.process(importOccurrence);
-        verify(importOccurrence).markFailure(TranslationKeys.IMPORT_RESULT_SOME_DEVICES_WERE_PROCESSED_WITH_ERRORS.getTranslated(thesaurus, 0, 1));
+        verify(importOccurrence).markFailure(TranslationKeys.IMPORT_RESULT_FAIL_WITH_ERRORS.getTranslated(thesaurus, 0, 1));
+        verify(logger, never()).info(Matchers.anyString());
+        verify(logger, times(1)).warning(Matchers.anyString());
+        verify(logger, times(1)).severe(Matchers.anyString());
     }
 
     @Test
-    // Processor fails on device 3
+    // Parser fails on device 3
     // 1 success, 1 warning, 1 error
     public void testFailOnDevice3WithErrorOnDevice1AndWarningOnDevice2() throws Exception {
         String csv = "Device MRID\ndevice1\ndevice2\ndevice3";
-        Logger logger = mock(Logger.class);
-        FileImportOccurrence importOccurrence = mock(FileImportOccurrence.class);
-        when(importOccurrence.getLogger()).thenReturn(logger);
-        when(importOccurrence.getContents()).thenReturn(new ByteArrayInputStream(csv.getBytes()));
+        FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImportParser<FileImportRecord> parser = mockParserWithExceptionOnLine(4);
         FileImportProcessor<FileImportRecord> processor = mockProcessor(2, 3);
-        DeviceDataCsvImporter<FileImportRecord> importer = DeviceDataCsvImporter.withParser(parser).withProcessor(processor).withDelimiter(';').build(context);
+        DeviceDataCsvImporter<FileImportRecord> importer = mockImporter(parser, processor);
 
         importer.process(importOccurrence);
-        verify(importOccurrence).markFailure(TranslationKeys.IMPORT_RESULT_SOME_DEVICES_WERE_PROCESSED_WITH_ERRORS_AND_WARN.getTranslated(thesaurus, 1, 1, 1));
+        verify(importOccurrence).markFailure(TranslationKeys.IMPORT_RESULT_FAIL_WITH_WARN_AND_ERRORS.getTranslated(thesaurus, 1, 1, 1));
+        verify(logger, times(1)).info(Matchers.anyString());
+        verify(logger, times(1)).warning(Matchers.anyString());
+        verify(logger, times(1)).severe(Matchers.anyString());
     }
 
     @Test
-    // Processor fails on device 3
+    // Parser fails on device 3
     // 1 success, 0 warning, 1 error
     public void testFailOnDevice3WithErrorOnDevice1() throws Exception {
         String csv = "Device MRID\ndevice1\ndevice2\ndevice3";
-        Logger logger = mock(Logger.class);
-        FileImportOccurrence importOccurrence = mock(FileImportOccurrence.class);
-        when(importOccurrence.getLogger()).thenReturn(logger);
-        when(importOccurrence.getContents()).thenReturn(new ByteArrayInputStream(csv.getBytes()));
+        FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImportParser<FileImportRecord> parser = mockParserWithExceptionOnLine(4);
         FileImportProcessor<FileImportRecord> processor = mockProcessor(2, null);
-        DeviceDataCsvImporter<FileImportRecord> importer = DeviceDataCsvImporter.withParser(parser).withProcessor(processor).withDelimiter(';').build(context);
+        DeviceDataCsvImporter<FileImportRecord> importer = mockImporter(parser, processor);
 
         importer.process(importOccurrence);
-        verify(importOccurrence).markFailure(TranslationKeys.IMPORT_RESULT_SOME_DEVICES_WERE_PROCESSED_WITH_ERRORS.getTranslated(thesaurus, 1, 1));
+        verify(importOccurrence).markFailure(TranslationKeys.IMPORT_RESULT_FAIL_WITH_ERRORS.getTranslated(thesaurus, 1, 1));
+        verify(logger, never()).info(Matchers.anyString());
+        verify(logger, times(1)).warning(Matchers.anyString());
+        verify(logger, times(1)).severe(Matchers.anyString());
+    }
+
+    @Test
+    // Parser successfully finished
+    // 2 success, 0 warning, 0 error
+    public void testSuccessWithTwoDevices() throws Exception {
+        String csv = "Device MRID\ndevice1\ndevice2";
+        FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
+        FileImportParser<FileImportRecord> parser = mockParserWithExceptionOnLine(null);
+        FileImportProcessor<FileImportRecord> processor = mockProcessor(null, null);
+        DeviceDataCsvImporter<FileImportRecord> importer = mockImporter(parser, processor);
+
+        importer.process(importOccurrence);
+        verify(importOccurrence).markSuccess(TranslationKeys.IMPORT_RESULT_SUCCESS.getTranslated(thesaurus, 2));
+        verify(logger, never()).info(Matchers.anyString());
+        verify(logger, never()).warning(Matchers.anyString());
+        verify(logger, never()).severe(Matchers.anyString());
+    }
+
+    @Test
+    // Parser successfully finished
+    // 1 success, 1 warning, 0 error
+    public void testSuccessWithWarn() throws Exception {
+        String csv = "Device MRID\ndevice1";
+        FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
+        FileImportParser<FileImportRecord> parser = mockParserWithExceptionOnLine(null);
+        FileImportProcessor<FileImportRecord> processor = mockProcessor(null, 2);
+        DeviceDataCsvImporter<FileImportRecord> importer = mockImporter(parser, processor);
+
+        importer.process(importOccurrence);
+        verify(importOccurrence).markSuccess(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_WARN.getTranslated(thesaurus, 1, 1));
+        verify(logger, times(1)).info(Matchers.anyString());
+        verify(logger, never()).warning(Matchers.anyString());
+        verify(logger, never()).severe(Matchers.anyString());
+    }
+
+    @Test
+    // Parser successfully finished
+    // 0 success, 0 warning, 1 error
+    public void testSuccessWithErrors() throws Exception {
+        String csv = "Device MRID\ndevice1";
+        FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
+        FileImportParser<FileImportRecord> parser = mockParserWithExceptionOnLine(null);
+        FileImportProcessor<FileImportRecord> processor = mockProcessor(2, null);
+        DeviceDataCsvImporter<FileImportRecord> importer = mockImporter(parser, processor);
+
+        importer.process(importOccurrence);
+        verify(importOccurrence).markSuccessWithFailures(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS.getTranslated(thesaurus, 0, 1));
+        verify(logger, never()).info(Matchers.anyString());
+        verify(logger, times(1)).warning(Matchers.anyString());
+        verify(logger, never()).severe(Matchers.anyString());
+    }
+
+    @Test
+    // Parser successfully finished
+    // 1 success, 1 warning, 1 error
+    public void testSuccessWithWarnAndErrors() throws Exception {
+        String csv = "Device MRID\ndevice1\ndevice2";
+        FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
+        FileImportParser<FileImportRecord> parser = mockParserWithExceptionOnLine(null);
+        FileImportProcessor<FileImportRecord> processor = mockProcessor(3, 2);
+        DeviceDataCsvImporter<FileImportRecord> importer = mockImporter(parser, processor);
+
+        importer.process(importOccurrence);
+        verify(importOccurrence).markSuccessWithFailures(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_WARN_AND_ERRORS.getTranslated(thesaurus, 1, 1, 1));
+        verify(logger, times(1)).info(Matchers.anyString());
+        verify(logger, times(1)).warning(Matchers.anyString());
+        verify(logger, never()).severe(Matchers.anyString());
     }
 }

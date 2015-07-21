@@ -10,7 +10,6 @@ import org.apache.commons.csv.CSVRecord;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class DeviceDataCsvImporter<T extends FileImportRecord> implements FileImporter {
 
@@ -45,7 +44,7 @@ public class DeviceDataCsvImporter<T extends FileImportRecord> implements FileIm
     private FileImportProcessor<T> processor;
 
     private int linesWithError = 0;
-    private int lineProcessed = 0;
+    private int linesProcessed = 0;
     private int linesWithWarning = 0;
 
     public static <T extends FileImportRecord> Builder<T> withParser(FileImportParser<T> parser) {
@@ -75,12 +74,12 @@ public class DeviceDataCsvImporter<T extends FileImportRecord> implements FileIm
         FileImportRecordContext recordContext = new FileImportRecordContext(context.getThesaurus(), fileImportOccurrence.getLogger());
         try {
             processor.process(data, recordContext);
-            lineProcessed++;
+            linesProcessed++;
             if (recordContext.hasWarnings()){
                 linesWithWarning++;
             }
         } catch (Exception e) {
-            failLineImportProcess(fileImportOccurrence, e);
+            failRecordProcess(fileImportOccurrence, e);
         }
     }
 
@@ -97,24 +96,28 @@ public class DeviceDataCsvImporter<T extends FileImportRecord> implements FileIm
         importOccurrence.getLogger().severe(message);
         if (linesWithError != 0 && linesWithWarning == 0) {
             // Some devices were processed with errors
-            importOccurrence.markFailure(TranslationKeys.IMPORT_RESULT_SOME_DEVICES_WERE_PROCESSED_WITH_ERRORS
-                    .getTranslated(this.context.getThesaurus(), lineProcessed, linesWithError));
+            importOccurrence.markFailure(TranslationKeys.IMPORT_RESULT_FAIL_WITH_ERRORS
+                    .getTranslated(this.context.getThesaurus(), linesProcessed, linesWithError));
         } else if (linesWithError != 0 && linesWithWarning != 0){
             // Some devices were processed with errors and warnings
-            importOccurrence.markFailure(TranslationKeys.IMPORT_RESULT_SOME_DEVICES_WERE_PROCESSED_WITH_ERRORS_AND_WARN
-                    .getTranslated(this.context.getThesaurus(), lineProcessed, linesWithWarning, linesWithError));
+            importOccurrence.markFailure(TranslationKeys.IMPORT_RESULT_FAIL_WITH_WARN_AND_ERRORS
+                    .getTranslated(this.context.getThesaurus(), linesProcessed, linesWithWarning, linesWithError));
         } else if (linesWithError == 0 && linesWithWarning != 0){
             // Some devices were processed with warnings
-            importOccurrence.markFailure(TranslationKeys.IMPORT_RESULT_SOME_DEVICES_WERE_PROCESSED_WITH_WARN
-                    .getTranslated(this.context.getThesaurus(), lineProcessed, linesWithWarning));
-        } else if (lineProcessed == 0 && linesWithError == 0 && linesWithWarning == 0){
+            importOccurrence.markFailure(TranslationKeys.IMPORT_RESULT_FAIL_WITH_WARN
+                    .getTranslated(this.context.getThesaurus(), linesProcessed, linesWithWarning));
+        } else if (linesProcessed != 0 && linesWithError ==0 && linesWithWarning == 0){
+            // Some devices were processed
+            importOccurrence.markFailure(TranslationKeys.IMPORT_RESULT_FAIL
+                    .getTranslated(this.context.getThesaurus(), linesProcessed));
+        } else if (linesProcessed == 0 && linesWithError == 0 && linesWithWarning == 0){
             // No devices were processed (Bad column headers)
             importOccurrence.markFailure(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED
                     .getTranslated(this.context.getThesaurus()));
         }
     }
 
-    private void failLineImportProcess(FileImportOccurrence importOccurrence, Exception exception) {
+    private void failRecordProcess(FileImportOccurrence importOccurrence, Exception exception) {
         String message = exception.getLocalizedMessage();
         if (exception instanceof ImportException) {
             message = ((ImportException) exception).getLocalizedMessage(this.context.getThesaurus());
@@ -124,26 +127,26 @@ public class DeviceDataCsvImporter<T extends FileImportRecord> implements FileIm
     }
 
     private void finishProcess(FileImportOccurrence importOccurrence) {
-        if (lineProcessed == 0 && linesWithError == 0){
+        if (linesProcessed == 0 && linesWithError == 0){
             // No devices were processed (No devices in file)
             importOccurrence.markFailure(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED
                     .getTranslated(this.context.getThesaurus()));
-        } else if (lineProcessed != 0 && linesWithError == 0 && linesWithWarning == 0){
+        } else if (linesProcessed != 0 && linesWithError == 0 && linesWithWarning == 0){
             // All devices were processed without warnings/errors
             importOccurrence.markSuccess(TranslationKeys.IMPORT_RESULT_SUCCESS
-                    .getTranslated(this.context.getThesaurus(), lineProcessed));
+                    .getTranslated(this.context.getThesaurus(), linesProcessed));
         } else if (linesWithError != 0 && linesWithWarning == 0){
             // All devices were processed but some of the devices failed
             importOccurrence.markSuccessWithFailures(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS
-                    .getTranslated(this.context.getThesaurus(), lineProcessed, linesWithError));
+                    .getTranslated(this.context.getThesaurus(), linesProcessed, linesWithError));
         } else if (linesWithError != 0 && linesWithWarning != 0){
             // All devices were processed but part of them were processed with warnings and failures
-            importOccurrence.markSuccessWithFailures(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS_AND_WARN
-                    .getTranslated(this.context.getThesaurus(), lineProcessed, linesWithWarning, linesWithError));
+            importOccurrence.markSuccessWithFailures(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_WARN_AND_ERRORS
+                    .getTranslated(this.context.getThesaurus(), linesProcessed, linesWithWarning, linesWithError));
         } else if (linesWithError == 0 && linesWithWarning != 0){
             // All devices were processed but part of them were processed with warnings
             importOccurrence.markSuccess(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_WARN
-                    .getTranslated(this.context.getThesaurus(), lineProcessed, linesWithWarning));
+                    .getTranslated(this.context.getThesaurus(), linesProcessed, linesWithWarning));
         } else {
             // Fallback case
             importOccurrence.markFailure(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED

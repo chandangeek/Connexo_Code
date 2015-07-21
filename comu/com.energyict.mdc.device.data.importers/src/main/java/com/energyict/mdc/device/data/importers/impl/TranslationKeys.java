@@ -11,13 +11,14 @@ public enum TranslationKeys implements TranslationKey {
 
     DATA_IMPORTER_SUBSCRIBER(DeviceDataImporterMessageHandler.SUBSCRIBER_NAME, "Handle data import"),
 
-    IMPORT_RESULT_SUCCESS("ImportResultSuccess", "Finished successfully. {0} device(s) processed successfully."),
     IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED("ImportResultNoDevicesWereProcessed", "Failed to complete, no devices have been processed."),
-    IMPORT_RESULT_SOME_DEVICES_WERE_PROCESSED_WITH_ERRORS("ImportResultSomeDevicesWereProcessedWithErrors", "Failed to complete. {0} devices processed successfully, {1} devices skipped due to errors."),
-    IMPORT_RESULT_SOME_DEVICES_WERE_PROCESSED_WITH_ERRORS_AND_WARN("ImportResultSomeDevicesWereProcessedWithErrorsAndWarn", "Failed to complete. {0} devices processed successfully of which {1} devices contain a warning, {2} devices skipped due to errors."),
-    IMPORT_RESULT_SOME_DEVICES_WERE_PROCESSED_WITH_WARN("ImportResultSomeDevicesWereProcessedWithWarn", "Failed to complete. {0} devices processed successfully of which {1} devices contain a warning."),
+    IMPORT_RESULT_FAIL("ImportResultFail", "Failed to complete. {0} devices processed successfully."),
+    IMPORT_RESULT_FAIL_WITH_ERRORS("ImportResultFailWithErrors", "Failed to complete. {0} devices processed successfully, {1} devices skipped due to errors."),
+    IMPORT_RESULT_FAIL_WITH_WARN_AND_ERRORS("ImportResultFailWithWarnAndErrors", "Failed to complete. {0} devices processed successfully of which {1} devices contain a warning, {2} devices skipped due to errors."),
+    IMPORT_RESULT_FAIL_WITH_WARN("ImportResultSFailWithWarn", "Failed to complete. {0} devices processed successfully of which {1} devices contain a warning."),
+    IMPORT_RESULT_SUCCESS("ImportResultSuccess", "Finished successfully. {0} device(s) processed successfully."),
     IMPORT_RESULT_SUCCESS_WITH_ERRORS("ImportResultSuccessWithErrors", "Finished successfully with (some) failures. {0} devices processed successfully, {1} devices skipped due to errors. "),
-    IMPORT_RESULT_SUCCESS_WITH_ERRORS_AND_WARN("ImportResultSuccessWithErrorsAndWarn", "Finished successfully with (some) failures and warnings. {0} devices processed successfully of which {1} devices contain a warning, {2} devices skipped due to errors."),
+    IMPORT_RESULT_SUCCESS_WITH_WARN_AND_ERRORS("ImportResultSuccessWithWarnAndErrors", "Finished successfully with (some) failures and warnings. {0} devices processed successfully of which {1} devices contain a warning, {2} devices skipped due to errors."),
     IMPORT_RESULT_SUCCESS_WITH_WARN("ImportResultSuccessWithWarn", "Failed to complete. {0} devices processed successfully of which {1} devices contain a warning."),
 
     // Properties translations
