@@ -2,11 +2,8 @@ package com.energyict.mdc.device.data.importers.impl;
 
 import com.elster.jupiter.fileimport.FileImporterFactory;
 import com.elster.jupiter.fileimport.FileImporterProperty;
-import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsKey;
-import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.dynamic.PropertySpecService;
 import com.google.common.collect.ImmutableList;
 
 import java.util.EnumSet;
@@ -21,20 +18,14 @@ public abstract class AbstractDeviceDataFileImporterFactory implements FileImpor
     public static final char COMMA = ',';
     public static final char SEMICOLON = ';';
 
-    private DeviceDataImporterContext context;
-
-    public AbstractDeviceDataFileImporterFactory(){
-        this.context = new DeviceDataImporterContext();
-    }
-
     @Override
     public String getDisplayName() {
-        return this.context.getThesaurus().getString(getName(), getDefaultFormat());
+        return getContext().getThesaurus().getString(getName(), getDefaultFormat());
     }
 
     @Override
     public String getDisplayName(String property) {
-        return this.context.getThesaurus().getString(property, getPropertyDefaultFormat(property));
+        return getContext().getThesaurus().getString(property, getPropertyDefaultFormat(property));
     }
 
     @Override
@@ -86,11 +77,6 @@ public abstract class AbstractDeviceDataFileImporterFactory implements FileImpor
     }
 
     @Override
-    public void init(Logger logger) {
-        this.context.setLogger(logger == null ? Logger.getLogger(this.getClass().getName()) : logger);
-    }
-
-    @Override
     public NlsKey getNlsKey() {//not used
         return null;
     }
@@ -100,15 +86,11 @@ public abstract class AbstractDeviceDataFileImporterFactory implements FileImpor
         return null;
     }
 
-    protected DeviceDataImporterContext getContext() {
-        return context;
+    @Override
+    public void init(Logger logger) {//not used
     }
 
-    public void setThesaurus(NlsService nlsService) {
-        this.context.setThesaurus(nlsService.getThesaurus(DeviceDataImporterMessageHandler.COMPONENT, Layer.DOMAIN));
-    }
+    protected abstract DeviceDataImporterContext getContext();
 
-    public void setPropertySpecService(PropertySpecService propertySpecService) {
-        this.context.setPropertySpecService(propertySpecService);
-    }
+    public abstract void setDeviceDataImporterContext(DeviceDataImporterContext context);
 }

@@ -17,6 +17,15 @@ public enum TranslationKeys implements TranslationKey {
     //Translations for importer names
     DEVICE_READINGS_IMPORTER(DeviceReadingsImporterFactory.NAME, "Device readings importer"),
     DEVICE_SHIPMENT_IMPORTER(DeviceShipmentImporterFactory.NAME, "Register devices from shipment file"),
+
+    // Translations for data columns
+    DATA_COLUMN_DEVICE_MRID("DeviceDataImportColumnDeviceMrid", "Device MRID"),
+    DATA_COLUMN_DEVICE_TYPE("DeviceDataImportColumnDeviceType", "Device type"),
+    DATA_COLUMN_DEVICE_CONFIGURATION("DeviceDataImportColumn", "Device configuration"),
+    DATA_COLUMN_SHIPMENT_DATE("DeviceDataImportColumnShipmentDate", "Shipment date"),
+    DATA_COLUMN_SERIAL_NUMBER("DeviceDataImportColumn", "Serial number"),
+    DATA_COLUMN_YEAR_OF_CERTIFICATION("DeviceDataImportColumnYearOfCertification", "Year of certification"),
+    DATA_COLUMN_BATCH("DeviceDataImportColumnBatch", "Batch"),
     ;
 
     private final String key;

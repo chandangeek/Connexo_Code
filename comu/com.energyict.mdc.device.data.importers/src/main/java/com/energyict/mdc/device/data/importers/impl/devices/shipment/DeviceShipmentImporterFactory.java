@@ -2,11 +2,14 @@ package com.energyict.mdc.device.data.importers.impl.devices.shipment;
 
 import com.elster.jupiter.fileimport.FileImporter;
 import com.elster.jupiter.fileimport.FileImporterFactory;
-import com.elster.jupiter.nls.NlsService;
 import com.energyict.mdc.device.data.importers.impl.AbstractDeviceDataFileImporterFactory;
+import com.energyict.mdc.device.data.importers.impl.DeviceDataCsvImporter;
+import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterContext;
 import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty;
+import com.energyict.mdc.device.data.importers.impl.FileImportDescriptionBasedParser;
+import com.energyict.mdc.device.data.importers.impl.FileImportParser;
+import com.energyict.mdc.device.data.importers.impl.FileImportProcessor;
 import com.energyict.mdc.device.data.importers.impl.TranslationKeys;
-import com.energyict.mdc.dynamic.PropertySpecService;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -23,20 +26,16 @@ import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterPro
         service = FileImporterFactory.class,
         immediate = true)
 public class DeviceShipmentImporterFactory extends AbstractDeviceDataFileImporterFactory {
-
     public static final String NAME = "DeviceShipmentImporterFactory";
 
-    // OSGI
-    public DeviceShipmentImporterFactory() {
-        super();
-    }
+    private volatile DeviceDataImporterContext context;
 
-    // Test purpose
+    public DeviceShipmentImporterFactory() {}
+
     @Inject
-    public DeviceShipmentImporterFactory(NlsService nlsService, PropertySpecService propertySpecService) {
+    public DeviceShipmentImporterFactory(DeviceDataImporterContext context) {
         super();
-        setThesaurus(nlsService);
-        setPropertySpecService(propertySpecService);
+        setDeviceDataImporterContext(context);
     }
 
     @Override
@@ -45,13 +44,20 @@ public class DeviceShipmentImporterFactory extends AbstractDeviceDataFileImporte
     }
 
     @Override
-    public FileImporter createImporter(Map<String, Object> properties) {
-        return null;
+    public String getDefaultFormat() {
+        return TranslationKeys.DEVICE_SHIPMENT_IMPORTER.getDefaultFormat();
     }
 
     @Override
-    public String getDefaultFormat() {
-        return TranslationKeys.DEVICE_SHIPMENT_IMPORTER.getDefaultFormat();
+    public FileImporter createImporter(Map<String, Object> properties) {
+        String delimiter = (String) properties.get(DELIMITER.getPropertyKey());
+        String dateFormat = (String) properties.get(DATE_FORMAT.getPropertyKey());
+        String timeZone = (String) properties.get(TIME_ZONE.getPropertyKey());
+
+        FileImportParser<DeviceShipmentImportRecord> parser = new FileImportDescriptionBasedParser(
+                new DeviceShipmentImportDescription(dateFormat, timeZone));
+        FileImportProcessor<DeviceShipmentImportRecord> processor = new DeviceShipmentImportProcessor();
+        return DeviceDataCsvImporter.withParser(parser).withProcessor(processor).withDelimiter(delimiter.charAt(0)).build(getContext());
     }
 
     @Override
@@ -59,13 +65,14 @@ public class DeviceShipmentImporterFactory extends AbstractDeviceDataFileImporte
         return EnumSet.of(DELIMITER, DATE_FORMAT, TIME_ZONE);
     }
 
-    @Reference
-    public final void setThesaurus(NlsService nlsService) {
-        super.setThesaurus(nlsService);
+    @Override
+    protected DeviceDataImporterContext getContext() {
+        return this.context;
     }
 
+    @Override
     @Reference
-    public final void setPropertySpecService(PropertySpecService propertySpecService) {
-        super.setPropertySpecService(propertySpecService);
+    public void setDeviceDataImporterContext(DeviceDataImporterContext context) {
+        this.context = context;
     }
 }

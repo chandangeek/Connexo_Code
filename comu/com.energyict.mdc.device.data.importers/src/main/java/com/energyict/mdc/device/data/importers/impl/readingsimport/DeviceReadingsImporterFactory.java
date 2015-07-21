@@ -2,15 +2,13 @@ package com.energyict.mdc.device.data.importers.impl.readingsimport;
 
 import com.elster.jupiter.fileimport.FileImporter;
 import com.elster.jupiter.fileimport.FileImporterFactory;
-import com.elster.jupiter.nls.NlsService;
 import com.energyict.mdc.device.data.importers.impl.AbstractDeviceDataFileImporterFactory;
 import com.energyict.mdc.device.data.importers.impl.DeviceDataCsvImporter;
+import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterContext;
 import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty;
 import com.energyict.mdc.device.data.importers.impl.TranslationKeys;
 import com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat;
-import com.energyict.mdc.dynamic.PropertySpecService;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import java.util.EnumSet;
@@ -28,17 +26,13 @@ import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterPro
 public class DeviceReadingsImporterFactory extends AbstractDeviceDataFileImporterFactory {
     public static final String NAME = "DeviceReadingsImporterFactory";
 
-    //OSGI
-    public DeviceReadingsImporterFactory() {
-        super();
-    }
+    private volatile DeviceDataImporterContext context;
 
-    // Test purpose
+    public DeviceReadingsImporterFactory() {}
+
     @Inject
-    public DeviceReadingsImporterFactory(NlsService nlsService, PropertySpecService propertySpecService) {
-        super();
-        setThesaurus(nlsService);
-        setPropertySpecService(propertySpecService);
+    public DeviceReadingsImporterFactory(DeviceDataImporterContext context) {
+        setDeviceDataImporterContext(context);
     }
 
     @Override
@@ -50,7 +44,7 @@ public class DeviceReadingsImporterFactory extends AbstractDeviceDataFileImporte
 
         DeviceReadingsImportParser parser = new DeviceReadingsImportParser(dateFormat, timeZone, numberFormat);
         DeviceReadingsImportProcessor processor = new DeviceReadingsImportProcessor();
-        return new DeviceDataCsvImporter<DeviceReadingsImportRecord>(delimiter.charAt(0), parser, processor);
+        return DeviceDataCsvImporter.withParser(parser).withProcessor(processor).withDelimiter(delimiter.charAt(0)).build(getContext());
     }
 
     @Override
@@ -68,13 +62,13 @@ public class DeviceReadingsImporterFactory extends AbstractDeviceDataFileImporte
         return EnumSet.of(DELIMITER, DATE_FORMAT, TIME_ZONE, NUMBER_FORMAT);
     }
 
-    @Reference
-    public final void setThesaurus(NlsService nlsService) {
-        super.setThesaurus(nlsService);
+    @Override
+    protected DeviceDataImporterContext getContext() {
+        return this.context;
     }
 
-    @Reference
-    public final void setPropertySpecService(PropertySpecService propertySpecService) {
-        super.setPropertySpecService(propertySpecService);
+    @Override
+    public void setDeviceDataImporterContext(DeviceDataImporterContext context) {
+        this.context = context;
     }
 }

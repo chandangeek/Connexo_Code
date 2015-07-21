@@ -1,7 +1,9 @@
 package com.energyict.mdc.device.data.importers.impl.parsers;
 
 import com.elster.jupiter.util.Checks;
+import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
 import com.energyict.mdc.device.data.importers.impl.exceptions.ParserException;
+import com.energyict.mdc.device.data.importers.impl.exceptions.ValueParserException;
 import com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat;
 
 import java.math.BigDecimal;
@@ -37,7 +39,7 @@ public class BigDecimalParser implements FieldParser<BigDecimal> {
         try {
             return (BigDecimal) decimalFormat.parse(value.replace(" ", ""));
         } catch (ParseException e) {
-            throw new ParserException(ParserException.Type.INVALID_DATE_FORMAT, numberFormat.getExample(), value);
+            throw new ValueParserException(MessageSeeds.BAD_VALUE_FORMAT_ERROR, numberFormat.getExample());
         }
     }
 }

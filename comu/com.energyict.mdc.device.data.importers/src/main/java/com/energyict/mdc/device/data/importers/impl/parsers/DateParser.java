@@ -2,7 +2,9 @@ package com.energyict.mdc.device.data.importers.impl.parsers;
 
 
 import com.elster.jupiter.util.Checks;
+import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
 import com.energyict.mdc.device.data.importers.impl.exceptions.ParserException;
+import com.energyict.mdc.device.data.importers.impl.exceptions.ValueParserException;
 import com.energyict.mdc.device.data.importers.impl.properties.TimeZonePropertySpec;
 
 import java.time.LocalDateTime;
@@ -34,7 +36,7 @@ public class DateParser implements FieldParser<ZonedDateTime> {
             ZoneId zoneId = ZoneId.from(TimeZonePropertySpec.format.parse(timeZone));
             return ZonedDateTime.of(localDateTime, zoneId);
         } catch (Exception e) {
-            throw new ParserException(ParserException.Type.INVALID_DATE_FORMAT, format, value);
+            throw new ValueParserException(MessageSeeds.BAD_VALUE_FORMAT_ERROR, format);
         }
     }
 }

@@ -2,18 +2,20 @@ package com.energyict.mdc.device.data.importers.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpecService;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
-import java.util.logging.Logger;
-
+@Component(name = "com.energyict.mdc.device.data.importers.DeviceDataImporterContext",
+        service = {DeviceDataImporterContext.class})
 public class DeviceDataImporterContext {
     private volatile PropertySpecService propertySpecService;
     private volatile Thesaurus thesaurus;
-    private volatile Logger logger;
 
     public PropertySpecService getPropertySpecService() {
         return propertySpecService;
     }
 
+    @Reference
     public void setPropertySpecService(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
     }
@@ -22,15 +24,8 @@ public class DeviceDataImporterContext {
         return thesaurus;
     }
 
+    @Reference
     public void setThesaurus(Thesaurus thesaurus) {
         this.thesaurus = thesaurus;
-    }
-
-    public Logger getLogger() {
-        return logger;
-    }
-
-    public void setLogger(Logger logger) {
-        this.logger = logger;
     }
 }

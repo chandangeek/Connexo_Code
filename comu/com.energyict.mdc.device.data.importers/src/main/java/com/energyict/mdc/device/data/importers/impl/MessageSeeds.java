@@ -13,7 +13,12 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
 
     DATE_FORMAT_IS_NOT_VALID(1, "DateFormatIsNotValid", "Invalid date format", Level.SEVERE),
     TIME_ZONE_IS_NOT_VALID(2, "TimeZoneIsNotValid", "Invalid time zone", Level.SEVERE),
-    NUMBER_FORMAT_IS_INCOMPATIBLE_WITH_DELIMITER(3, "NumberFormatIncompatibleWithDelimiter", "Number format is incompatible with delimiter", Level.SEVERE)
+    NUMBER_FORMAT_IS_INCOMPATIBLE_WITH_DELIMITER(3, "NumberFormatIncompatibleWithDelimiter", "Number format is incompatible with delimiter", Level.SEVERE),
+
+    FILE_FORMAT_ERROR(4, "FileFormatError", "File format error: wrong number of columns in the line {0}. Importer service expects {1} but was {2}.", Level.SEVERE),
+    LINE_MISSING_VALUE_ERROR(5, "LineMissingValueError", "Format error for line {0}: missing value for column ''{1}''.", Level.SEVERE),
+    BAD_VALUE_FORMAT_ERROR(6, "BadValueFormatError", "expected format = ''{0}'')", Level.SEVERE),
+    LINE_FORMAT_ERROR(7, "LineFormatError", "Format error for line {0}: wrong data format for column ''{1}'' ({2})", Level.SEVERE),
     ;
 
     private final int number;

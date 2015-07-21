@@ -5,7 +5,14 @@ public class FileImportRecord {
     private long lineNumber;
     private String deviceMRID;
 
+    public FileImportRecord() {
+    }
+
     public FileImportRecord(long lineNumber) {
+        this.lineNumber = lineNumber;
+    }
+
+    public void setLineNumber(long lineNumber) {
         this.lineNumber = lineNumber;
     }
 

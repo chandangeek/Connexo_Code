@@ -1,31 +1,26 @@
 package com.energyict.mdc.device.data.importers.impl.exceptions;
 
-public class ParserException extends ImportException {
-    public static enum Type {
-        FAILED_TO_READ_FROM_FILE("DVI.failedToReadFile"),
-        INVALID_DATE_FORMAT("DVI.invalidDateFormat"),
-        WRONG_NUMBER_OF_FIELDS("DVI.invalidNumberOfFields");
+import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
 
-        private Type(String message){
-            this.message = message;
+public class ParserException extends ImportException {
+    public enum Type {
+        INVALID_DATE_FORMAT(MessageSeeds.DATE_FORMAT_IS_NOT_VALID),
+        LINE_FORMAT(MessageSeeds.LINE_FORMAT_ERROR),
+        ;
+
+        Type(MessageSeed messageSeed) {
+            this.message = messageSeed;
         }
 
-        private String message;
-    };
+        private MessageSeed message;
 
-    Type type;
-
-    public ParserException(Type type) {
-        this.type = type;
+        public ParserException create(Object... args) throws ParserException {
+            throw new ParserException(this.message, args);
+        }
     }
 
-    public ParserException(Type type, String expected, String actual) {
-        this.type = type;
-        this.expected = expected;
-        this.actual = actual;
-    }
-
-    public String getMessage() {
-        return this.type.message;
+    public ParserException(MessageSeed message, Object... args) {
+        super(message, args);
     }
 }
