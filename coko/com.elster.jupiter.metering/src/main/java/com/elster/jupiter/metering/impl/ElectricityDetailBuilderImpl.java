@@ -25,7 +25,6 @@ public class ElectricityDetailBuilderImpl implements ElectricityDetailBuilder{
 	private Quantity ratedPower;
 	private Quantity estimatedLoad;
 	
-	private ElectricityDetailImpl electricityDetailFactory;
 	private UsagePoint usagePoint;
 	private Interval interval;
 	private DataModel dataModel;

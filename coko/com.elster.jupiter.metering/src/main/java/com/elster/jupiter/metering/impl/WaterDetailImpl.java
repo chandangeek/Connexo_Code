@@ -1,12 +1,14 @@
 package com.elster.jupiter.metering.impl;
 
-import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.WaterDetail;
-import com.elster.jupiter.orm.DataModel;
 import java.time.Clock;
-import com.elster.jupiter.util.time.Interval;
 
 import javax.inject.Inject;
+
+import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.WaterDetail;
+import com.elster.jupiter.metering.WaterDetailBuilder;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.util.time.Interval;
 
 public class WaterDetailImpl extends UsagePointDetailImpl implements WaterDetail {
 
@@ -21,6 +23,11 @@ public class WaterDetailImpl extends UsagePointDetailImpl implements WaterDetail
 
     WaterDetailImpl init(UsagePoint usagePoint, Interval interval) {
         super.init(usagePoint, interval);
+        return this;
+    }
+    
+    WaterDetailImpl init(UsagePoint usagePoint, WaterDetailBuilder builder, Interval interval) {
+        super.init(usagePoint, builder, interval);
         return this;
     }
 }

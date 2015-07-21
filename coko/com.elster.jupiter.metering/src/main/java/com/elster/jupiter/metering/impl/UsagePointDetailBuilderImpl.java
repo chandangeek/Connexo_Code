@@ -1,7 +1,6 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.metering.AmiBillingReadyKind;
-import com.elster.jupiter.metering.UsagePointBuilder;
 import com.elster.jupiter.metering.UsagePointConnectedKind;
 import com.elster.jupiter.metering.UsagePointDetailBuilder;
 

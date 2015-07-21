@@ -67,5 +67,7 @@ public interface UsagePoint extends IdentifiedObject , ReadingContainer {
 
     Optional<? extends MeterActivation> getMeterActivation(Instant when);
 	ElectricityDetailBuilder newElectricityDetailBuilder(Instant start);
+	GasDetailBuilder newGasDetailBuilder(Instant instant);
+	WaterDetailBuilder newWaterDetailBuilder(Instant instant);
 	
 }

@@ -2,6 +2,7 @@ package com.elster.jupiter.metering.impl;
 
 import static com.google.common.base.MoreObjects.toStringHelper;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.util.Map;
 import java.util.Objects;
@@ -10,15 +11,14 @@ import javax.inject.Inject;
 
 import com.elster.jupiter.metering.AmiBillingReadyKind;
 import com.elster.jupiter.metering.ElectricityDetailBuilder;
+import com.elster.jupiter.metering.GasDetailBuilder;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointConnectedKind;
 import com.elster.jupiter.metering.UsagePointDetail;
+import com.elster.jupiter.metering.WaterDetailBuilder;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-
-import java.time.Clock;
-
 import com.elster.jupiter.util.time.Interval;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
@@ -82,7 +82,28 @@ public abstract class UsagePointDetailImpl implements UsagePointDetail {
         this.minimalUsageExpected = builder.isMinimalUsageExpected();
         this.serviceDeliveryRemark = builder.getServiceDeliveryRemark();
         return this;
-		
+	}
+    
+    UsagePointDetailImpl init(UsagePoint usagePoint, GasDetailBuilder builder, Interval interval) {
+    	this.usagePoint.set(usagePoint);
+        this.interval = Objects.requireNonNull(interval);
+        this.amiBillingReady = builder.getAmiBillingReady();
+        this.checkBilling=builder.isCheckBilling();
+        this.connectionState = builder.getConnectionState();
+        this.minimalUsageExpected = builder.isMinimalUsageExpected();
+        this.serviceDeliveryRemark = builder.getServiceDeliveryRemark();
+        return this;
+	}
+    
+    UsagePointDetailImpl init(UsagePoint usagePoint, WaterDetailBuilder builder, Interval interval) {
+    	this.usagePoint.set(usagePoint);
+        this.interval = Objects.requireNonNull(interval);
+        this.amiBillingReady = builder.getAmiBillingReady();
+        this.checkBilling=builder.isCheckBilling();
+        this.connectionState = builder.getConnectionState();
+        this.minimalUsageExpected = builder.isMinimalUsageExpected();
+        this.serviceDeliveryRemark = builder.getServiceDeliveryRemark();
+        return this;
 	}
 
     @Override

@@ -1,12 +1,14 @@
 package com.elster.jupiter.metering.impl;
 
-import com.elster.jupiter.metering.GasDetail;
-import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.orm.DataModel;
 import java.time.Clock;
-import com.elster.jupiter.util.time.Interval;
 
 import javax.inject.Inject;
+
+import com.elster.jupiter.metering.GasDetail;
+import com.elster.jupiter.metering.GasDetailBuilder;
+import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.util.time.Interval;
 
 public class GasDetailImpl extends UsagePointDetailImpl implements GasDetail {
 
@@ -21,6 +23,11 @@ public class GasDetailImpl extends UsagePointDetailImpl implements GasDetail {
 
     GasDetailImpl init(UsagePoint usagePoint, Interval interval) {
         super.init(usagePoint, interval);
+        return this;
+    }
+    
+    GasDetailImpl init(UsagePoint usagePoint, GasDetailBuilder builder, Interval interval) {
+        super.init(usagePoint, builder, interval);
         return this;
     }
 }

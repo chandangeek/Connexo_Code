@@ -1,10 +1,21 @@
 package com.elster.jupiter.metering.impl;
 
+import java.time.Instant;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
+import javax.inject.Inject;
+import javax.inject.Provider;
+
 import com.elster.jupiter.cbo.MarketRoleKind;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.ElectricityDetailBuilder;
 import com.elster.jupiter.metering.EventType;
+import com.elster.jupiter.metering.GasDetailBuilder;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingContainer;
@@ -17,6 +28,7 @@ import com.elster.jupiter.metering.UsagePointAccountability;
 import com.elster.jupiter.metering.UsagePointBuilder;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.UsagePointDetailBuilder;
+import com.elster.jupiter.metering.WaterDetailBuilder;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.TemporalReference;
@@ -29,15 +41,6 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.time.Interval;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
-
-import javax.inject.Inject;
-import javax.inject.Provider;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 
 public class UsagePointImpl implements UsagePoint {
 	// persistent fields
@@ -119,10 +122,22 @@ public class UsagePointImpl implements UsagePoint {
 		return null;
 	}
 
-	@Override
+    @Override
 	public ElectricityDetailBuilder newElectricityDetailBuilder(Instant start) {
 		Interval interval = Interval.of(Range.atLeast(start));
 		return new ElectricityDetailBuilderImpl(dataModel, this, interval);
+	}
+    
+    @Override
+	public GasDetailBuilder newGasDetailBuilder(Instant start) {
+		Interval interval = Interval.of(Range.atLeast(start));
+		return new GasDetailBuilderImpl(dataModel, this, interval);
+	}
+    
+    @Override
+	public WaterDetailBuilder newWaterDetailBuilder(Instant start) {
+		Interval interval = Interval.of(Range.atLeast(start));
+		return new WaterDetailBuilderImpl(dataModel, this, interval);
 	}
 	
 	
