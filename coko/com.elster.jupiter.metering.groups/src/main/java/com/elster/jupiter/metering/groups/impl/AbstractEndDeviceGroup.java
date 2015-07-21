@@ -27,6 +27,7 @@ public abstract class AbstractEndDeviceGroup extends AbstractGroup implements En
         this.dataModel = dataModel;
     }
 
+    @Override
     public String getQueryProviderName() {
         return queryProviderName;
     }
