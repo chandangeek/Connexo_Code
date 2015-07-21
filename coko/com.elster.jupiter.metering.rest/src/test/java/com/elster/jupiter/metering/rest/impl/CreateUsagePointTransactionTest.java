@@ -1,6 +1,8 @@
 package com.elster.jupiter.metering.rest.impl;
 
 import com.elster.jupiter.cbo.PhaseCode;
+import com.elster.jupiter.metering.ElectricityDetail;
+import com.elster.jupiter.metering.ElectricityDetailBuilder;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
@@ -39,6 +41,10 @@ public class CreateUsagePointTransactionTest {
 	private Clock clock;
     @Mock
 	private UsagePointBuilder usagePointBuilder;
+    @Mock
+	private ElectricityDetailBuilder edBuilder;
+    @Mock
+	private ElectricityDetail electricityDetail;
 
     @Before
     public void setUp() {
@@ -63,7 +69,7 @@ public class CreateUsagePointTransactionTest {
     public void test() {
     	when(serviceCategory.newUsagePoint(MR_ID)).thenReturn(usagePoint);
     	when(serviceCategory.newUsagePointBuilder()).thenReturn(usagePointBuilder);
-    	when(serviceCategory.getKind()).thenReturn(ServiceKind.INTERNET);
+    	when(serviceCategory.getKind()).thenReturn(ServiceKind.ELECTRICITY);
     	
 		when(usagePointBuilder.withAliasName(Matchers.anyString())).thenReturn(usagePointBuilder);
     	when(usagePointBuilder.withDescription(Matchers.anyString())).thenReturn(usagePointBuilder);
@@ -77,7 +83,22 @@ public class CreateUsagePointTransactionTest {
     	when(usagePointBuilder.withServicePriority(Matchers.anyString())).thenReturn(usagePointBuilder);
     	
         when(usagePointBuilder.build()).thenReturn(usagePoint);
-    	when(clock.instant()).thenReturn(Clock.systemDefaultZone().instant());
+        
+        when(usagePoint.newElectricityDetailBuilder(Matchers.any())).thenReturn(edBuilder);
+        
+        when(edBuilder.withAmiBillingReady(Matchers.any())).thenReturn(edBuilder);
+        when(edBuilder.withCheckBilling(Matchers.anyBoolean())).thenReturn(edBuilder);
+        when(edBuilder.withConnectionState(Matchers.any())).thenReturn(edBuilder);
+        when(edBuilder.withEstimatedLoad(Matchers.any())).thenReturn(edBuilder);
+        when(edBuilder.withGrounded(Matchers.anyBoolean())).thenReturn(edBuilder);
+        when(edBuilder.withMinimalUsageExpected(Matchers.anyBoolean())).thenReturn(edBuilder);
+        when(edBuilder.withNominalServiceVoltage(Matchers.any())).thenReturn(edBuilder);
+        when(edBuilder.withPhaseCode(Matchers.any())).thenReturn(edBuilder);
+        when(edBuilder.withRatedCurrent(Matchers.any())).thenReturn(edBuilder);
+        when(edBuilder.withRatedPower(Matchers.any())).thenReturn(edBuilder);
+        when(edBuilder.withServiceDeliveryRemark(Matchers.anyString())).thenReturn(edBuilder);
+        
+        when(edBuilder.build()).thenReturn(electricityDetail);
         
         
         UsagePoint result = transaction.perform();
