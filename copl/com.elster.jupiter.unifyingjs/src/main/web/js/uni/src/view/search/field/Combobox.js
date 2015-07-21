@@ -1,5 +1,18 @@
 /**
- * @class Uni.view.search.field.YesNo
+ * @class Uni.view.search.field.Combobox
+ *
+ *                         {
+                            colspan: 2,
+                            xtype: 'search-combo',
+                            itemId: 'domain',
+                            //store: 'Uni.store.search.Domains',
+                            emptyText: Uni.I18n.translate('search.overview.searchDomains.emptyText', 'UNI', 'Search domains'),
+                            displayField: 'name',
+                            valueField: 'id',
+                            forceSelection: true,
+                            multiSelect: true
+                        },
+
  */
 Ext.define('Uni.view.search.field.Combobox', {
     extend: 'Ext.form.field.ComboBox',
@@ -48,7 +61,8 @@ Ext.define('Uni.view.search.field.Combobox', {
             {'name': 'Zalue24', 'value': '2'},
             {'name': 'Zalue25', 'value': '1'},
             {'name': 'Zalue26', 'value': '2'}
-        ]
+        ],
+        limit: 10,
     }),
 
     initComponent: function () {
@@ -76,12 +90,12 @@ Ext.define('Uni.view.search.field.Combobox', {
             picker,
             menuCls = Ext.baseCSSPrefix + 'menu',
             selection = Ext.create('Ext.data.Store', {
-                fields: ['name', 'value']
-                //listeners: {
-                //    datachanged: function() {
-                //        picker.down('#selection-count').update('Selected: ' + this.count());
-                //    }
-                //}
+                fields: ['name', 'value'],
+                listeners: {
+                    datachanged: function() {
+                        picker.down('#filter-selected').setDisabled( !this.count() );
+                    }
+                }
             });
             opts = Ext.apply({
                 selModel: {
@@ -157,7 +171,7 @@ Ext.define('Uni.view.search.field.Combobox', {
                 pageSize: me.pageSize,
                 bodyStyle: {
                     borderWidth: '1px 0 0 0 !important',
-                    borderRadius: '0 0 10px 10px',
+                    borderRadius: '0 0 8px 8px',
                     border: 'none'
                 },
                 defaults: {
@@ -190,21 +204,31 @@ Ext.define('Uni.view.search.field.Combobox', {
                                     items: [
                                         {
                                             xtype: 'button',
-                                            itemId: 'filter-valid',
-                                            iconCls: 'icon icon-checkbox',
+                                            itemId: 'filter-selected',
+                                            iconCls: 'icon-checkbox-unchecked2',
+                                            iconClsUnpressed: 'icon-checkbox-unchecked2',
+                                            iconClsPressed: 'icon-checkbox',
+                                            enableToggle: true,
                                             style: {
                                                 fontSize: '16px'
                                             },
-                                            padding: 4,
+                                            padding: 5,
                                             margin: 0,
-                                            tooltip: 'Filter all selectd values',
+                                            tooltip: 'Filter all selected values',
                                             ui: 'plain',
+                                            disabled: true,
                                             handler: function () {
                                                 var store = me.picker.getStore();
-                                                store.clearFilter(true);
-                                                store.filter({
-                                                    filterFn: function(item) { return selection.getRange().indexOf(item) >= 0; }
-                                                });
+                                                if (this.pressed) {
+                                                    this.setIconCls(this.iconClsPressed);
+                                                    store.clearFilter(true);
+                                                    store.filter({
+                                                        filterFn: function(item) { return selection.getRange().indexOf(item) >= 0; }
+                                                    });
+                                                } else {
+                                                    this.setIconCls(this.iconClsUnpressed);
+                                                    store.clearFilter();
+                                                }
                                             }
                                         },
                                         {
@@ -229,8 +253,9 @@ Ext.define('Uni.view.search.field.Combobox', {
                                             itemId: 'filter-clear',
                                             hidden: true,
                                             ui: 'plain',
+                                            tooltip: 'Clear filter',
                                             iconCls: ' icon-close4',
-                                            padding: 4,
+                                            padding: 6,
                                             margin: 0,
                                             style: {
                                                 fontSize: '16px'
@@ -248,12 +273,12 @@ Ext.define('Uni.view.search.field.Combobox', {
                         {
                             xtype: 'container',
                             itemId: 'limit-notification',
-                            html: 'Only first 100 records are displayed'
+                            html: 'Only the first 100 records are displayed. Use filter to narrow down.'
                         },
                         {
                             xtype: 'checkboxfield',
                             itemId: 'select-all',
-                            boxLabel  : 'Select all',
+                            boxLabel  : 'Select all displayed values',
                             name      : 'topping',
                             inputValue: '1',
                             handler: function(elm, value) {
