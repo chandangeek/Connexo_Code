@@ -77,6 +77,7 @@ public abstract class UsagePointDetailImpl implements UsagePointDetail {
     	this.usagePoint.set(usagePoint);
         this.interval = Objects.requireNonNull(interval);
         this.amiBillingReady = builder.getAmiBillingReady();
+        this.checkBilling=builder.isCheckBilling();
         this.connectionState = builder.getConnectionState();
         this.minimalUsageExpected = builder.isMinimalUsageExpected();
         this.serviceDeliveryRemark = builder.getServiceDeliveryRemark();
