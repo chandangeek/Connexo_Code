@@ -496,7 +496,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                                 msg: failureResponseText.message ? failureResponseText.message :
                                     Uni.I18n.translate('general.emptyField', 'MDC', 'Value field can not be empty'),
                                 title: failureResponseText.error ? failureResponseText.error :
-                                    Uni.I18n.translate('general.during.editing', 'MDC,', 'Error during editing')
+                                    Uni.I18n.translate('general.during.editing', 'MDC', 'Error during editing')
                             });
                         }
                     }
@@ -726,13 +726,27 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             mainValueSuspect,
             bulkValueSuspect;
 
-        Ext.Array.findBy(records, function (item) {
-            mainValueSuspect = item.getValidationInfo().getMainValidationInfo().get('validationResult').split('.')[1] == 'suspect';
-            bulkValueSuspect = item.getValidationInfo().getBulkValidationInfo().get('validationResult').split('.')[1] == 'suspect';
-            return mainValueSuspect || bulkValueSuspect;
-        });
-        menu.down('#confirm-value').setVisible(mainValueSuspect || bulkValueSuspect);
-        menu.down('#estimate-value').setVisible(mainValueSuspect || bulkValueSuspect);
+        for (var i = 0; i < records.length; i++) {
+            mainValueSuspect = records[i].getValidationInfo().getMainValidationInfo().get('validationResult').split('.')[1] == 'suspect';
+            bulkValueSuspect = records[i].getValidationInfo().getBulkValidationInfo().get('validationResult').split('.')[1] == 'suspect';
+            if (mainValueSuspect || bulkValueSuspect) {
+                menu.down('#estimate-value').show();
+                break;
+            } else {
+                menu.down('#estimate-value').hide();
+            }
+        }
+
+        for (var j = 0; j < records.length; j++) {
+            mainValueSuspect = records[j].getValidationInfo().getMainValidationInfo().get('validationResult').split('.')[1] == 'suspect';
+            bulkValueSuspect = records[j].getValidationInfo().getBulkValidationInfo().get('validationResult').split('.')[1] == 'suspect';
+            if (!records[j].get('confirmed') && !records[j].isModified('value') && !records[j].isModified('collectedValue') && (mainValueSuspect || bulkValueSuspect)) {
+                menu.down('#confirm-value').show();
+                break;
+            } else {
+                menu.down('#confirm-value').hide();
+            }
+        }
     },
 
     chooseBulkAction: function (menu, item) {
