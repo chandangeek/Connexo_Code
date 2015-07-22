@@ -1,6 +1,7 @@
 package com.energyict.mdc.tasks.rest.impl;
 
 import com.energyict.mdc.common.rest.MapBasedXmlAdapter;
+import com.energyict.mdc.tasks.rest.Categories;
 
 /**
  * Maps Categories to the corresponding REST message seed

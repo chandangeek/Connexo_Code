@@ -2,6 +2,7 @@ package com.energyict.mdc.tasks.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
 
+import com.energyict.mdc.tasks.rest.Categories;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.util.ArrayList;
 import java.util.List;

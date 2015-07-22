@@ -1,5 +1,6 @@
 package com.energyict.mdc.tasks.rest.impl;
 
+import com.energyict.mdc.tasks.rest.Categories;
 import org.junit.Test;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;

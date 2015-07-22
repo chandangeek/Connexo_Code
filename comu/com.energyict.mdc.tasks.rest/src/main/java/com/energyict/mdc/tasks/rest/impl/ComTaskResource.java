@@ -12,6 +12,7 @@ import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.MessagesTask;
 import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.tasks.TaskService;
+import com.energyict.mdc.tasks.rest.Categories;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;

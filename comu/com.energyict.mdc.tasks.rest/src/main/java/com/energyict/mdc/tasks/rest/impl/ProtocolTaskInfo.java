@@ -2,9 +2,9 @@ package com.energyict.mdc.tasks.rest.impl;
 
 import com.energyict.mdc.tasks.ProtocolTask;
 
+import com.energyict.mdc.tasks.rest.Categories;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class ProtocolTaskInfo {
     public Long id;

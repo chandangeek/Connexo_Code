@@ -1,4 +1,4 @@
-package com.energyict.mdc.tasks.rest.impl;
+package com.energyict.mdc.tasks.rest;
 
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.masterdata.LoadProfileType;
@@ -15,6 +15,9 @@ import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.tasks.RegistersTask;
 import com.energyict.mdc.tasks.StatusInformationTask;
 import com.energyict.mdc.tasks.TopologyTask;
+import com.energyict.mdc.tasks.rest.impl.ComTaskInfo;
+import com.energyict.mdc.tasks.rest.impl.ParameterInfo;
+import com.energyict.mdc.tasks.rest.impl.ProtocolTaskInfo;
 import com.energyict.mdc.tasks.rest.impl.util.RestHelper;
 
 import java.util.ArrayList;
