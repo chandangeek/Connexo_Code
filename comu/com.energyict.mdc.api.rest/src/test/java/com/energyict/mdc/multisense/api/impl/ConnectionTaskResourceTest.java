@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import net.minidev.json.JSONArray;
 import org.junit.Test;
@@ -48,7 +49,7 @@ public class ConnectionTaskResourceTest extends MultisensePublicApiJerseyTest {
 
     @Test
     public void testConnectionTaskInfoFields() throws Exception {
-        Response response = target("devices/XAS/connectionmethods/fields").request().get();
+        Response response = target("devices/XAS/connectionmethods").request().accept(MediaType.APPLICATION_JSON).method("PROPFIND", Response.class);
         JsonModel jsonModel = JsonModel.model((InputStream) response.getEntity());
         assertThat(jsonModel.<JSONArray>get("$")).containsOnly("allowSimultaneousConnections", "comPortPool", "comWindow",
                 "connectionStrategy", "connectionType", "id", "direction", "isDefault", "link", "connectionMethod", "nextExecutionSpecs", "properties",

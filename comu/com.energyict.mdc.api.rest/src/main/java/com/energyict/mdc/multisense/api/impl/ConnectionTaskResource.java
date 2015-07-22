@@ -1,6 +1,7 @@
 package com.energyict.mdc.multisense.api.impl;
 
 import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.PROPFIND;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.PartialConnectionTask;
@@ -105,8 +106,7 @@ public class ConnectionTaskResource {
         return Response.created(uri).build();
     }
 
-    @GET
-    @Path("/fields")
+    @PROPFIND
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     public List<String> getFields() {
         return connectionTaskInfoFactory.getAvailableFields().stream().sorted().collect(toList());

@@ -7,6 +7,7 @@ import com.jayway.jsonpath.JsonModel;
 import java.io.ByteArrayInputStream;
 import java.util.Arrays;
 import java.util.List;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import net.minidev.json.JSONArray;
 import org.junit.Before;
@@ -33,7 +34,7 @@ public class PartialConnectionTaskResourceTest extends MultisensePublicApiJersey
 
     @Test
     public void testPartialConnectionTaskFields() throws Exception {
-        Response response = target("/devicetypes/112/deviceconfigurations/113/connectionmethods/fields").request().get();
+        Response response = target("/devicetypes/112/deviceconfigurations/113/connectionmethods").request().accept(MediaType.APPLICATION_JSON).method("PROPFIND", Response.class);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
         assertThat(jsonModel.<JSONArray>get("$")).containsOnly("id", "name", "link", "direction", "comWindow", "rescheduleRetryDelay", "nextExecutionSpecs",
