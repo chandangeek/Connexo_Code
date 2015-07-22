@@ -5,8 +5,6 @@ import com.energyict.mdc.device.data.importers.impl.parsers.FieldParser;
 import java.util.function.Consumer;
 
 public interface FileImportField<R> {
-    String getTitle();
-
     boolean isMandatory();
 
     Consumer<R> getResultConsumer();

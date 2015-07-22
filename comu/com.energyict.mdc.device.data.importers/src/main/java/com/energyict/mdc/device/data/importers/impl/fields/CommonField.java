@@ -6,17 +6,11 @@ import java.util.function.Consumer;
 
 public class CommonField<R> implements FileImportField<R>{
 
-    private String title;
     private boolean mandatory;
     private Consumer<R> consumer;
     private FieldParser<R> parser;
 
     private CommonField(){}
-
-    @Override
-    public String getTitle() {
-        return this.title;
-    }
 
     @Override
     public boolean isMandatory() {
@@ -53,11 +47,6 @@ public class CommonField<R> implements FileImportField<R>{
 
         public FieldBuilder<R> withConsumer(Consumer<R> resultConsumer){
             this.field.consumer = resultConsumer;
-            return this;
-        }
-
-        public FieldBuilder<R> onColumn(String title){
-            this.field.title = title;
             return this;
         }
 

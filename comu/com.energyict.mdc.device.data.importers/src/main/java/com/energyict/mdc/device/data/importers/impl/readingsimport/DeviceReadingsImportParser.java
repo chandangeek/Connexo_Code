@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.importers.impl.readingsimport;
 
 import com.energyict.mdc.device.data.importers.impl.FileImportParser;
+import com.energyict.mdc.device.data.importers.impl.FileImportRecordContext;
 import com.energyict.mdc.device.data.importers.impl.exceptions.FileImportParserException;
 import com.energyict.mdc.device.data.importers.impl.parsers.BigDecimalParser;
 import com.energyict.mdc.device.data.importers.impl.parsers.DateParser;
@@ -21,7 +22,7 @@ public class DeviceReadingsImportParser implements FileImportParser<DeviceReadin
     }
 
     @Override
-    public DeviceReadingsImportRecord parse(CSVRecord csvRecord) throws FileImportParserException {
+    public DeviceReadingsImportRecord parse(CSVRecord csvRecord, FileImportRecordContext recordContext) throws FileImportParserException {
         DeviceReadingsImportRecord importRecord = new DeviceReadingsImportRecord(csvRecord.getRecordNumber());
 
         Iterator<String> fields = csvRecord.iterator();

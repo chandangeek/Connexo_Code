@@ -41,7 +41,7 @@ public class DeviceShipmentImportProcessor implements FileImportProcessor<Device
                 .stream()
                 .filter(candidate -> candidate.getName().equals(data.getDeviceConfiguration()))
                 .findFirst()
-                .orElseThrow(() -> new ProcessorException(MessageSeeds.NO_DEVICE_TYPE, data.getLineNumber(), data.getDeviceType()));
+                .orElseThrow(() -> new ProcessorException(MessageSeeds.NO_DEVICE_CONFIGURATION, data.getLineNumber(), data.getDeviceConfiguration()));
     }
 
     private void addDeviceInBatch(Device device, DeviceShipmentImportRecord data) {

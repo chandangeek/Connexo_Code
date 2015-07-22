@@ -10,6 +10,8 @@ import org.apache.commons.csv.CSVRecord;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class DeviceDataCsvImporter<T extends FileImportRecord> implements FileImporter {
 
@@ -59,8 +61,10 @@ public class DeviceDataCsvImporter<T extends FileImportRecord> implements FileIm
     @Override
     public void process(FileImportOccurrence fileImportOccurrence) {
         try (CSVParser csvParser = getCSVParser(fileImportOccurrence)) {
+            List<String> headers = getCSVFileHeaders(csvParser);
             for (CSVRecord csvRecord : csvParser) {
-                processRecord(fileImportOccurrence, csvRecord);
+                FileImportRecordContext recordContext = new FileImportRecordContext(context.getThesaurus(), fileImportOccurrence.getLogger(), headers);
+                processRecord(fileImportOccurrence, csvRecord, recordContext);
             }
             finishProcess(fileImportOccurrence);
         } catch (Exception e) {
@@ -69,9 +73,8 @@ public class DeviceDataCsvImporter<T extends FileImportRecord> implements FileIm
     }
 
     // Parser exceptions should always fail whole importing process
-    private void processRecord(FileImportOccurrence fileImportOccurrence, CSVRecord csvRecord) throws FileImportParserException {
-        T data = parser.parse(csvRecord);
-        FileImportRecordContext recordContext = new FileImportRecordContext(context.getThesaurus(), fileImportOccurrence.getLogger());
+    private void processRecord(FileImportOccurrence fileImportOccurrence, CSVRecord csvRecord, FileImportRecordContext recordContext) throws FileImportParserException {
+        T data = parser.parse(csvRecord, recordContext);
         try {
             processor.process(data, recordContext);
             linesProcessed++;
@@ -86,6 +89,15 @@ public class DeviceDataCsvImporter<T extends FileImportRecord> implements FileIm
     private CSVParser getCSVParser(FileImportOccurrence fileImportOccurrence) throws IOException {
         CSVFormat csvFormat =  CSVFormat.DEFAULT.withHeader().withIgnoreSurroundingSpaces(true).withDelimiter(csvDelimiter).withCommentMarker(COMMENT_MARKER);
         return new CSVParser(new InputStreamReader(fileImportOccurrence.getContents()), csvFormat);
+    }
+
+    private List<String> getCSVFileHeaders(CSVParser csvParser) {
+        return csvParser.getHeaderMap().entrySet()
+                .stream()
+                .filter(entry -> entry.getKey() != null && entry.getValue() != null)
+                .sorted((e1, e2) -> e1.getValue().compareTo(e2.getValue()))
+                .map(entry -> entry.getKey())
+                .collect(Collectors.toList());
     }
 
     private void failImportProcess(FileImportOccurrence importOccurrence, Exception exception) {

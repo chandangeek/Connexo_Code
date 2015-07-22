@@ -6,7 +6,7 @@ import com.energyict.mdc.device.data.importers.impl.exceptions.ProcessorExceptio
 
 public class DeviceReadingsImportProcessor implements FileImportProcessor<DeviceReadingsImportRecord> {
     @Override
-    public void process(DeviceReadingsImportRecord data, FileImportRecordContext context) throws ProcessorException {
+    public void process(DeviceReadingsImportRecord data, FileImportRecordContext recordContext) throws ProcessorException {
 
     }
 }

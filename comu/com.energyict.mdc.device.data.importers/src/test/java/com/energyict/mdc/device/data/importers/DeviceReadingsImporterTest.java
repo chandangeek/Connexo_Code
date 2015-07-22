@@ -7,11 +7,7 @@ import com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFo
 import com.energyict.mdc.device.data.importers.impl.readingsimport.DeviceReadingsImportParser;
 import com.energyict.mdc.device.data.importers.impl.readingsimport.DeviceReadingsImportProcessor;
 import com.energyict.mdc.device.data.importers.impl.readingsimport.DeviceReadingsImportRecord;
-import jdk.nashorn.internal.ir.annotations.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;

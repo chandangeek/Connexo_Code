@@ -1,0 +1,219 @@
+package com.energyict.mdc.device.data.importers.impl.devices.shipment;
+
+import com.elster.jupiter.fileimport.FileImportOccurrence;
+import com.elster.jupiter.fileimport.FileImporter;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.data.CIMLifecycleDates;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.imp.Batch;
+import com.energyict.mdc.device.data.imp.DeviceImportService;
+import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterContext;
+import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
+import com.energyict.mdc.device.data.importers.impl.TranslationKeys;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Matchers;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
+import java.io.ByteArrayInputStream;
+import java.time.Instant;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.logging.Logger;
+
+import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.DATE_FORMAT;
+import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.DELIMITER;
+import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.TIME_ZONE;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
+public class DeviceShipmentImporterFactoryTest {
+
+    @Mock
+    private Thesaurus thesaurus;
+    private DeviceDataImporterContext context;
+    @Mock
+    private PropertySpecService propertySpecService;
+    @Mock
+    private DeviceConfigurationService deviceConfigurationService;
+    @Mock
+    private DeviceService deviceService;
+    @Mock
+    private DeviceImportService deviceImportService;
+    @Mock
+    private Logger logger;
+
+    @Before
+    public void beforeTest() {
+        reset(logger, thesaurus, deviceConfigurationService, deviceService, deviceImportService);
+        when(thesaurus.getString(anyString(), anyString())).thenAnswer(invocationOnMock -> {
+            for (MessageSeed messageSeeds : MessageSeeds.values()) {
+                if (messageSeeds.getKey().equals(invocationOnMock.getArguments()[0])) {
+                    return messageSeeds.getDefaultFormat();
+                }
+            }
+            for (TranslationKey translation : TranslationKeys.values()) {
+                if (translation.getKey().equals(invocationOnMock.getArguments()[0])) {
+                    return translation.getDefaultFormat();
+                }
+            }
+            return invocationOnMock.getArguments()[1];
+        });
+        context = spy(new DeviceDataImporterContext());
+        context.setDeviceService(deviceService);
+        context.setDeviceConfigurationService(deviceConfigurationService);
+        context.setDeviceImportService(deviceImportService);
+        context.setPropertySpecService(propertySpecService);
+        when(context.getThesaurus()).thenReturn(thesaurus);
+    }
+
+    private FileImportOccurrence mockFileImportOccurrence(String csv) {
+        FileImportOccurrence importOccurrence = mock(FileImportOccurrence.class);
+        when(importOccurrence.getLogger()).thenReturn(logger);
+        when(importOccurrence.getContents()).thenReturn(new ByteArrayInputStream(csv.getBytes()));
+        return importOccurrence;
+    }
+
+    private FileImporter createDeviceShipmentImporter() {
+        DeviceShipmentImporterFactory factory = new DeviceShipmentImporterFactory(context);
+        Map<String, Object> properties = new HashMap<>();
+        properties.put(DELIMITER.getPropertyKey(), ";");
+        properties.put(DATE_FORMAT.getPropertyKey(), "dd/MM/yyyy HH:mm");
+        properties.put(TIME_ZONE.getPropertyKey(), "GMT+00:00");
+        return factory.createImporter(properties);
+    }
+
+    @Test
+    public void testSuccessCase() {
+        String csv = "mrid;device type;device configuration;shipment date; serial number; year of certification;batch\n" +
+                     "VPB0001;Iskra 382;Default;01/08/2015 00:30;0001;2015;batch";
+        FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
+        FileImporter importer = createDeviceShipmentImporter();
+
+        DeviceType deviceType = mock(DeviceType.class);
+        when(deviceConfigurationService.findDeviceTypeByName("Iskra 382")).thenReturn(Optional.of(deviceType));
+        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
+        when(deviceConfiguration.getName()).thenReturn("Default");
+        when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
+        Device device = mock(Device.class);
+        when(deviceService.newDevice(Matchers.eq(deviceConfiguration), Matchers.eq("VPB0001"), Matchers.eq("VPB0001"))).thenReturn(device);
+        CIMLifecycleDates lifecycleDates = mock(CIMLifecycleDates.class);
+        when(device.getLifecycleDates()).thenReturn(lifecycleDates);
+        Batch batch = mock(Batch.class);
+        when(deviceImportService.findOrCreateBatch(Matchers.eq("batch"))).thenReturn(batch);
+
+        importer.process(importOccurrence);
+        verify(importOccurrence).markSuccess(TranslationKeys.IMPORT_RESULT_SUCCESS.getTranslated(thesaurus, 1));
+        verify(logger, never()).info(Matchers.anyString());
+        verify(logger, never()).warning(Matchers.anyString());
+        verify(logger, never()).severe(Matchers.anyString());
+        verify(device, times(1)).setSerialNumber("0001");
+        verify(device, times(1)).setYearOfCertification(2015);
+        verify(lifecycleDates, times(1)).setReceivedDate(Instant.ofEpochMilli(1438389000000L));
+        verify(batch, times(1)).addDevice(device);
+    }
+
+    @Test
+    public void testBadColumnNumberCase() {
+        String csv = "mrid;device type;device configuration;shipment date; serial number; year of certification;batch\n" +
+                "VPB0001;Iskra 382;Default;01/08/2015 00:30;0001;2015";
+        FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
+        FileImporter importer = createDeviceShipmentImporter();
+
+        importer.process(importOccurrence);
+        verify(importOccurrence).markFailure(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED.getTranslated(thesaurus));
+        verify(logger, never()).info(Matchers.anyString());
+        verify(logger, never()).warning(Matchers.anyString());
+        verify(logger, times(1)).severe(MessageSeeds.FILE_FORMAT_ERROR.getTranslated(thesaurus, 2, 7, 6));
+    }
+
+    @Test
+    public void testMissingMandatoryValueCase() {
+        String csv = "mrid;device type;device configuration;shipment date; serial number; year of certification;batch\n" +
+                "VPB0001; ;Default;01/08/2015 00:30;0001;2015;batch";
+        FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
+        FileImporter importer = createDeviceShipmentImporter();
+
+        importer.process(importOccurrence);
+        verify(importOccurrence).markFailure(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED.getTranslated(thesaurus));
+        verify(logger, never()).info(Matchers.anyString());
+        verify(logger, never()).warning(Matchers.anyString());
+        verify(logger, times(1)).severe(MessageSeeds.LINE_MISSING_VALUE_ERROR.getTranslated(thesaurus, 2, "device type"));
+    }
+
+    @Test
+    public void testBadDeviceTypeName() {
+        String csv = "mrid;device type;device configuration;shipment date; serial number; year of certification;batch\n" +
+                "VPB0001;Iskra 382;Default;01/08/2015 00:30;0001;2015;batch";
+        FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
+        FileImporter importer = createDeviceShipmentImporter();
+
+        when(deviceConfigurationService.findDeviceTypeByName("Iskra 382")).thenReturn(Optional.empty());
+
+        importer.process(importOccurrence);
+        verify(importOccurrence).markSuccessWithFailures(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS.getTranslated(thesaurus, 0, 1));
+        verify(logger, never()).info(Matchers.anyString());
+        verify(logger, times(1)).warning(MessageSeeds.NO_DEVICE_TYPE.getTranslated(thesaurus, 2, "Iskra 382"));
+        verify(logger, never()).severe(Matchers.anyString());
+    }
+
+    @Test
+    public void testBadDeviceConfigurationName() {
+        String csv = "mrid;device type;device configuration;shipment date; serial number; year of certification;batch\n" +
+                "VPB0001;Iskra 382;Default;01/08/2015 00:30;0001;2015;batch";
+        FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
+        FileImporter importer = createDeviceShipmentImporter();
+
+        DeviceType deviceType = mock(DeviceType.class);
+        when(deviceConfigurationService.findDeviceTypeByName("Iskra 382")).thenReturn(Optional.of(deviceType));
+        when(deviceType.getConfigurations()).thenReturn(Collections.<DeviceConfiguration>emptyList());
+
+        importer.process(importOccurrence);
+        verify(importOccurrence).markSuccessWithFailures(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS.getTranslated(thesaurus, 0, 1));
+        verify(logger, never()).info(Matchers.anyString());
+        verify(logger, times(1)).warning(MessageSeeds.NO_DEVICE_CONFIGURATION.getTranslated(thesaurus, 2, "Default"));
+        verify(logger, never()).severe(Matchers.anyString());
+    }
+    @Test
+    public void testSomeExceptionDuringDeviceCreation() {
+        String csv = "mrid;device type;device configuration;shipment date; serial number; year of certification;batch\n" +
+                "VPB0001;Iskra 382;Default;01/08/2015 00:30;0001;2015;batch";
+        FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
+        FileImporter importer = createDeviceShipmentImporter();
+
+        DeviceType deviceType = mock(DeviceType.class);
+        when(deviceConfigurationService.findDeviceTypeByName("Iskra 382")).thenReturn(Optional.of(deviceType));
+        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
+        when(deviceConfiguration.getName()).thenReturn("Default");
+        when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
+        doThrow(new RuntimeException("Error!")).when(deviceService)
+                .newDevice(Matchers.eq(deviceConfiguration), Matchers.eq("VPB0001"), Matchers.eq("VPB0001"));
+
+        importer.process(importOccurrence);
+        verify(importOccurrence).markSuccessWithFailures(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS.getTranslated(thesaurus, 0, 1));
+        verify(logger, never()).info(Matchers.anyString());
+        verify(logger, times(1)).warning(TranslationKeys.IMPORT_DEFAULT_PROCESSOR_ERROR_TEMPLATE
+                .getTranslated(thesaurus, 2, "VPB0001", "Error!"));
+        verify(logger, never()).severe(Matchers.anyString());
+    }
+}

@@ -5,6 +5,6 @@ import org.apache.commons.csv.CSVRecord;
 
 public interface FileImportParser<T extends FileImportRecord>{
 
-    T parse(CSVRecord csvRecord) throws FileImportParserException;
+    T parse(CSVRecord csvRecord, FileImportRecordContext recordContext) throws FileImportParserException;
 
 }

@@ -19,7 +19,7 @@ public class FileImportDescriptionBasedParser<T extends FileImportRecord> implem
     }
 
     @Override
-    public T parse(CSVRecord csvRecord) throws FileImportParserException {
+    public T parse(CSVRecord csvRecord, FileImportRecordContext recordContext) throws FileImportParserException {
         T record = this.descriptor.getFileImportRecord();
         record.setLineNumber(csvRecord.getRecordNumber());
         List<FileImportField<?>> fields = this.descriptor.getFields(record);
@@ -32,14 +32,14 @@ public class FileImportDescriptionBasedParser<T extends FileImportRecord> implem
             int currentFieldIdx = i < fields.size() ? i : fields.size() - 1;
             FileImportField<?> currentField = fields.get(currentFieldIdx);
             if (currentField.isMandatory() && Checks.is(rawValue).emptyOrOnlyWhiteSpace()){
-                throw new FileImportParserException(MessageSeeds.LINE_MISSING_VALUE_ERROR, csvRecord.getRecordNumber(), currentField.getTitle());
+                throw new FileImportParserException(MessageSeeds.LINE_MISSING_VALUE_ERROR, csvRecord.getRecordNumber(), recordContext.getHeaderColumn(i));
             }
             Consumer resultConsumer = currentField.getResultConsumer();
             try {
                 resultConsumer.accept(currentField.getParser().parse(rawValue));
             } catch (ValueParserException ex){
                 throw new FileImportParserException(MessageSeeds.LINE_FORMAT_ERROR,
-                        csvRecord.getRecordNumber(), currentField.getTitle(), ex.getExpected());
+                        csvRecord.getRecordNumber(), recordContext.getHeaderColumn(i), ex.getExpected());
             }
         }
         return record;

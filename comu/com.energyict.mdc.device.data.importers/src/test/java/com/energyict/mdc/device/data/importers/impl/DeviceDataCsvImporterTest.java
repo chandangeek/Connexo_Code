@@ -30,7 +30,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class DeviceDataCsvImporterTestIT {
+public class DeviceDataCsvImporterTest {
 
     static class CSVLineMatcher extends ArgumentMatcher<CSVRecord> implements Serializable {
 
@@ -97,10 +97,10 @@ public class DeviceDataCsvImporterTestIT {
     public FileImportParser<FileImportRecord> mockParserWithExceptionOnLine(Integer lineNumber) {
         FileImportParser<FileImportRecord> parser = mock(FileImportParser.class);
         doAnswer(invocationOnMock -> new FileImportRecord(((CSVRecord) invocationOnMock.getArguments()[0]).getRecordNumber()))
-                .when(parser).parse(Matchers.any(CSVRecord.class));
+                .when(parser).parse(Matchers.any(CSVRecord.class), Matchers.any(FileImportRecordContext.class));
         if (lineNumber != null) {
             doThrow(new FileImportParserException(MessageSeeds.FILE_FORMAT_ERROR, 0, 0, 0))
-                    .when(parser).parse(Matchers.argThat(new CSVLineMatcher(lineNumber)));
+                    .when(parser).parse(Matchers.argThat(new CSVLineMatcher(lineNumber)), Matchers.any(FileImportRecordContext.class));
         }
         return parser;
     }
@@ -113,7 +113,7 @@ public class DeviceDataCsvImporterTestIT {
         }
         if (warningLineNumber != null) {
             doAnswer(invocationOnMock -> {
-                ((FileImportRecordContext) invocationOnMock.getArguments()[1]).warning(TranslationKeys.DATA_COLUMN_BATCH);
+                ((FileImportRecordContext) invocationOnMock.getArguments()[1]).warning(TranslationKeys.IMPORT_RESULT_FAIL);
                 return null;
             }).when(processor).process(Matchers.argThat(new RecordLineMatcher(warningLineNumber)), Matchers.any(FileImportRecordContext.class));
         }
