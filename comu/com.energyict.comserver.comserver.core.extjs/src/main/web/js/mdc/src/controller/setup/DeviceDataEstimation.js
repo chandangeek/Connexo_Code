@@ -83,10 +83,16 @@ Ext.define('Mdc.controller.setup.DeviceDataEstimation', {
     },
 
     activateDataValidation: function (activate) {
-        var me = this;
+        var me = this,
+            url = '/api/ddr/devices/' + me.device.get('mRID') + '/estimationrulesets/esimationstatus';
+
         me.device.set('estimationStatus', { active: activate });
         me.getPage().setLoading();
-        me.device.save({
+
+        Ext.Ajax.request({
+            url: url,
+            method: 'PUT',
+            jsonData: Ext.encode(me.device.getData()),
             success: function () {
                 var router = me.getController('Uni.controller.history.Router');
                 router.getRoute().forward();
