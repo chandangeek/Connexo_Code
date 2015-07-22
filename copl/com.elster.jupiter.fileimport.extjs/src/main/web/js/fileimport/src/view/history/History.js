@@ -36,6 +36,7 @@ Ext.define('Fim.view.history.History', {
 
         me.content = {
             xtype: 'panel',
+            itemid : 'fim-history-form',
             ui: 'large',
             title: Uni.I18n.translate('general.history', 'FIM', 'History'),
             items: [
@@ -62,11 +63,13 @@ Ext.define('Fim.view.history.History', {
                     xtype: 'preview-container',
                     grid: {
                         xtype: 'fim-history-grid',
+                        itemId: 'fim-history-grid',
                         router: me.router,
                         showImportService: me.showImportService
                     },
                     emptyComponent: {
                         xtype: 'no-items-found-panel',
+                        itemId: 'fim-history-empty-grid',
                         title: Uni.I18n.translate('importService.history.empty.title', 'FIM', 'No import service history found'),
                         reasons: [
                             Uni.I18n.translate('importService.history.empty.list.item1', 'FIM', 'There is no history available for this import service.'),
@@ -83,6 +86,7 @@ Ext.define('Fim.view.history.History', {
                 {
                     dock: 'top',
                     xtype: 'fim-view-history-importservices-topfilter',
+                    itemId: 'fim-view-history-topfilter',
                     includeServiceCombo: me.showImportService
                 }
             ]
