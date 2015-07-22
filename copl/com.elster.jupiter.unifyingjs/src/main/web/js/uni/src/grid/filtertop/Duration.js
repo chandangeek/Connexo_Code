@@ -24,7 +24,7 @@ Ext.define('Uni.grid.filtertop.Duration', {
 
     initComponent: function () {
         var me = this;
-        me.store = Ext.create(me.durationStore ? me.durationStore : 'Uni.store.Durations');
+        me.store = me.durationStore ? Ext.isString(me.durationStore) ? Ext.create(me.durationStore) : me.durationStore : Ext.create('Uni.store.Durations');
         me.items = [
             {
                 xtype: 'uni-grid-filtertop-datetime-select',
