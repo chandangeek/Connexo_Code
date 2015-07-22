@@ -25,7 +25,7 @@ public class UsagePointProcessor {
     }
 
     public void process(List<UsagePointFileInfo> usagePointFileInfos, FileImportOccurrence fileImportOccurrence) {
-        int failures = 0;
+        int failures = usagePointFileInfos.size() > 0 ? 0 : 1;
         int succeeded = 0;
         int lineNumber = 0;
         Logger logger = fileImportOccurrence.getLogger();
