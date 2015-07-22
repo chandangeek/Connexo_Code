@@ -5,7 +5,6 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.data.ConnectionTaskFields;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.exceptions.CannotDeleteUsedDefaultConnectionTaskException;
 import com.energyict.mdc.device.data.exceptions.CannotUpdateObsoleteConnectionTaskException;
 import com.energyict.mdc.device.data.exceptions.ConnectionTaskIsAlreadyObsoleteException;
@@ -36,7 +35,6 @@ import com.energyict.mdc.dynamic.relation.CanLock;
 import com.energyict.mdc.dynamic.relation.DefaultRelationParticipant;
 import com.energyict.mdc.dynamic.relation.Relation;
 import com.energyict.mdc.dynamic.relation.RelationAttributeType;
-import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.dynamic.relation.RelationType;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.ComServer;
@@ -58,6 +56,7 @@ import com.elster.jupiter.util.time.Interval;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 
+import javax.validation.ConstraintViolationException;
 import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
@@ -87,7 +86,7 @@ import static com.energyict.mdc.protocol.pluggable.ConnectionTypePropertyRelatio
 public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPPT extends ComPortPool>
     extends PersistentIdObject<ConnectionTask>
     implements
-        ConnectionTask<CPPT, PCTT>,
+        ServerConnectionTask<CPPT, PCTT>,
         ConnectionTaskPropertyProvider,
         CanLock,
         DefaultRelationParticipant,
@@ -121,31 +120,33 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     private Reference<CPPT> comPortPool = ValueReference.absent();
     private Reference<ComServer> comServer = ValueReference.absent();
     private Reference<ComSession> lastSession = ValueReference.absent();
+    @SuppressWarnings("unused")
     private boolean lastSessionStatus; // Redundant copy from lastSession to improve query performance
+    @SuppressWarnings("unused")
     private ComSession.SuccessIndicator lastSessionSuccessIndicator;   // Redundant copy from lastSession to improve query performance
+    @SuppressWarnings("unused")
     private String userName;
+    @SuppressWarnings("unused")
     private long version;
+    @SuppressWarnings("unused")
     private Instant createTime;
+    @SuppressWarnings("unused")
     private Instant modTime;
 
     private final Clock clock;
     private final ServerConnectionTaskService connectionTaskService;
     private final ServerCommunicationTaskService communicationTaskService;
-    private final DeviceService deviceService;
     private final ProtocolPluggableService protocolPluggableService;
-    private final RelationService relationService;
 
     private boolean allowIncomplete = true;
 
-    protected ConnectionTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, ServerConnectionTaskService connectionTaskService, ServerCommunicationTaskService communicationTaskService, DeviceService deviceService, ProtocolPluggableService protocolPluggableService, RelationService relationService) {
+    protected ConnectionTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, ServerConnectionTaskService connectionTaskService, ServerCommunicationTaskService communicationTaskService, ProtocolPluggableService protocolPluggableService) {
         super(ConnectionTask.class, dataModel, eventService, thesaurus);
         this.cache = new PropertyCache<>(this);
         this.clock = clock;
         this.connectionTaskService = connectionTaskService;
         this.communicationTaskService = communicationTaskService;
-        this.deviceService = deviceService;
         this.protocolPluggableService = protocolPluggableService;
-        this.relationService = relationService;
     }
 
     public void initialize(Device device, PCTT partialConnectionTask, CPPT comPortPool) {
@@ -158,7 +159,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         this.pluggableClass = partialConnectionTask.getPluggableClass();
         this.pluggableClassId = this.pluggableClass.getId();
         this.comPortPool.set(comPortPool);
-        if (partialConnectionTask.isDefault() && !this.device.get().getConnectionTasks().stream().filter(connectionTask -> connectionTask.isDefault()).findAny().isPresent()) {
+        if (partialConnectionTask.isDefault() && !this.device.get().getConnectionTasks().stream().filter(ConnectionTask::isDefault).findAny().isPresent()) {
             this.isDefault = partialConnectionTask.isDefault();
         }
     }
@@ -710,12 +711,6 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     }
 
     @Override
-    @XmlAttribute
-    public ConnectionTaskLifecycleStatus getStatus() {
-        return this.status;
-    }
-
-    @Override
     public boolean isDefault() {
         return this.isDefault;
     }
@@ -817,6 +812,32 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     }
 
     @Override
+    @XmlAttribute
+    public ConnectionTaskLifecycleStatus getStatus() {
+        return this.status;
+    }
+
+    void setStatus(ConnectionTaskLifecycleStatus status) {
+        this.status = status;
+    }
+
+    @Override
+    public void revalidatePropertiesAndAdjustStatus() {
+        if (this.getId() > 0 && this.isActive()) {
+            try {
+                Save.UPDATE.save(this.getDataModel(), this);
+            }
+            catch (ConstraintViolationException e) {
+                /* Assumption: no changes on this ConnectionTask
+                 * therefore: exception relates to missing required properties
+                 * so set the status to Incomplete and apply change. */
+                this.setStatus(ConnectionTaskLifecycleStatus.INCOMPLETE);
+                this.getDataModel().update(this, ConnectionTaskFields.STATUS.fieldName());
+            }
+        }
+    }
+
+    @Override
     public void deactivate() {
         this.status = ConnectionTaskLifecycleStatus.INACTIVE;
         this.update();
@@ -898,10 +919,6 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
             return false;
         }
         return true;
-    }
-
-    void setStatus(ConnectionTaskLifecycleStatus status) {
-        this.status = status;
     }
 
     /**

@@ -5,6 +5,7 @@ import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.events.EventType;
 import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
 import org.osgi.service.event.EventConstants;
 
@@ -69,6 +70,11 @@ public class ComTaskEnablementStatusMessageHandler implements MessageHandler {
                 ComTaskEnablement comTaskEnablement = serviceLocator.deviceConfigurationService().findComTaskEnablement(comTaskEnablementId).get();
                 serviceLocator.communicationTaskService().suspendAll(comTaskEnablement.getComTask(), comTaskEnablement.getDeviceConfiguration());
             }
+
+            @Override
+            protected EventType eventType() {
+                return EventType.COMTASKENABLEMENT_SUSPEND;
+            }
         },
 
         RESUME {
@@ -77,12 +83,27 @@ public class ComTaskEnablementStatusMessageHandler implements MessageHandler {
                 ComTaskEnablement comTaskEnablement = serviceLocator.deviceConfigurationService().findComTaskEnablement(comTaskEnablementId).get();
                 serviceLocator.communicationTaskService().resumeAll(comTaskEnablement.getComTask(), comTaskEnablement.getDeviceConfiguration());
             }
+
+            @Override
+            protected EventType eventType() {
+                return EventType.COMTASKENABLEMENT_RESUME;
+            }
         },
 
         DEV_NULL {
             @Override
             protected void process(Long comTaskEnablementId, ServiceLocator serviceLocator) {
                 // Designed to ignore everything
+            }
+
+            @Override
+            protected String topic() {
+                return "";
+            }
+
+            @Override
+            protected EventType eventType() {
+                return null;
             }
         };
 
@@ -93,9 +114,11 @@ public class ComTaskEnablementStatusMessageHandler implements MessageHandler {
 
         protected abstract void process(Long comTaskEnablementId, ServiceLocator serviceLocator);
 
-        private String topic() {
-            return "com/energyict/mdc/device/config/comtaskenablement/" + this.name();
+        protected String topic() {
+            return this.eventType().topic();
         }
+
+        protected abstract EventType eventType();
 
         private Long getLong(String key, Map<String, Object> messageProperties) {
             if (messageProperties.containsKey(key)) {

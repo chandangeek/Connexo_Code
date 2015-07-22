@@ -28,6 +28,7 @@ public abstract class AbstractComTaskExecutionFilterSqlBuilder extends AbstractT
     private final Set<ComSchedule> comSchedules;
     private final QueryExecutor<Device> queryExecutor;
     private final List<EndDeviceGroup> deviceGroups;
+    private final Set<String> allowedDeviceStates;
 
     public AbstractComTaskExecutionFilterSqlBuilder(Clock clock, QueryExecutor<Device> queryExecutor) {
         super(clock);
@@ -36,6 +37,7 @@ public abstract class AbstractComTaskExecutionFilterSqlBuilder extends AbstractT
         this.comSchedules = new HashSet<>();
         this.deviceGroups = Collections.emptyList();
         this.queryExecutor = queryExecutor;
+        this.allowedDeviceStates = Collections.emptySet();
     }
 
     public AbstractComTaskExecutionFilterSqlBuilder(Clock clock, ComTaskExecutionFilterSpecification filter, QueryExecutor<Device> queryExecutor) {
@@ -45,6 +47,7 @@ public abstract class AbstractComTaskExecutionFilterSqlBuilder extends AbstractT
         this.comSchedules = new HashSet<>(filter.comSchedules);
         this.deviceGroups = new ArrayList<>(filter.deviceGroups);
         this.queryExecutor = queryExecutor;
+        this.allowedDeviceStates = Collections.emptySet();
     }
 
     protected void appendWhereClause(ServerComTaskStatus taskStatus) {
@@ -54,6 +57,7 @@ public abstract class AbstractComTaskExecutionFilterSqlBuilder extends AbstractT
 
     protected void appendNonStatusWhereClauses() {
         this.appendDeviceTypeSql();
+        this.appendDeviceInStateSql();
         this.appendComTaskSql();
         this.appendComSchedulesSql();
     }
@@ -63,7 +67,11 @@ public abstract class AbstractComTaskExecutionFilterSqlBuilder extends AbstractT
     }
 
     protected void appendDeviceInGroupSql() {
-        this.appendDeviceInGroupSql(this.deviceGroups, this.queryExecutor, "cte");
+        this.appendDeviceInGroupSql(this.deviceGroups, this.queryExecutor, communicationTaskAliasName());
+    }
+
+    protected void appendDeviceInStateSql(){
+        this.appendDeviceInStateSql(communicationTaskAliasName(), this.allowedDeviceStates);
     }
 
     private void appendComTaskSql() {
