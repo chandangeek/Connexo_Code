@@ -79,47 +79,35 @@ Ext.define('Uni.view.search.Overview', {
                             },
                             {
                                 // Sticky criteria.
+                                xtype: 'panel',
                                 itemId: 'search-criteria-sticky',
                                 hidden: true,
-                                items: [
-                                    {
-                                        xtype: 'label',
-                                        text: Uni.I18n.translate('search.overview.criteria.label', 'UNI', 'Criteria'),
-                                        width: 100
-                                    },
-                                    {
-                                        flex: 1,
-                                        xtype: 'container',
-                                        itemId: 'criteria-sticky-items',
-                                        //defaults: {
-                                        //    margin: '10 10 10 0'
-                                        //},
-                                        layout: 'column'
-                                    }
-                                ]
+                                lbar: {
+                                    xtype: 'label',
+                                    text: Uni.I18n.translate('search.overview.criteria.label', 'UNI', 'Criteria'),
+                                    width: 100
+                                },
+                                flex: 1,
+                                defaults: {
+                                    margin: '0 10 10 0'
+                                },
+                                layout: 'column'
                             },
                             {
-                                // Sticky criteria.
+                                // Removable criteria.
+                                xtype: 'panel',
                                 itemId: 'search-criteria-removable',
                                 hidden: true,
-                                items: [
-                                    {
-                                        xtype: 'label',
-                                        text: '',
-                                        width: 100
-                                    },
-                                    {
-                                        flex: 1,
-                                        xtype: 'container',
-                                        itemId: 'criteria-removable-items',
-                                        //defaults: {
-                                        //    margin: '10 10 10 0'
-                                        //},
-                                        layout: {
-                                            type: 'column'
-                                        }
-                                    }
-                                ]
+                                lbar: {
+                                    xtype: 'label',
+                                    text: '',
+                                    width: 100
+                                },
+                                flex: 1,
+                                defaults: {
+                                    margin: '0 10 10 0'
+                                },
+                                layout: 'column'
                             },
                             {
                                 xtype: 'toolbar',

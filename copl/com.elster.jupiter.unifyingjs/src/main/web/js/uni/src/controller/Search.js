@@ -34,31 +34,27 @@ Ext.define('Uni.controller.Search', {
         {
             ref: 'criteriaSelector',
             selector: 'uni-view-search-overview search-criteria-selector'
+        },
+        {
+            ref: 'stickyPropertiesContainer',
+            selector: 'uni-view-search-overview #search-criteria-sticky'
+        },
+        {
+            ref: 'removablePropertiesContainer',
+            selector: 'uni-view-search-overview #search-criteria-removable'
+        },
+        {
+            ref: 'searchButton',
+            selector: 'uni-view-search-overview button[action=search]'
+        },
+        {
+            ref: 'clearFiltersButton',
+            selector: 'uni-view-search-overview button[action=clearFilters]'
+        },
+        {
+            ref: 'resultsGrid',
+            selector: 'uni-view-search-overview uni-view-search-results'
         }
-        //{
-        //    ref: 'stickyPropertiesContainer',
-        //    selector: 'uni-view-search-overview container#stickycriteria'
-        //},
-        //{
-        //    ref: 'removablePropertiesPlaceholder',
-        //    selector: 'uni-view-search-overview component#removablecriteriaplaceholder'
-        //},
-        //{
-        //    ref: 'removablePropertiesContainer',
-        //    selector: 'uni-view-search-overview container#removablecriteria'
-        //},
-        //{
-        //    ref: 'searchButton',
-        //    selector: 'uni-view-search-overview button[action=search]'
-        //},
-        //{
-        //    ref: 'clearFiltersButton',
-        //    selector: 'uni-view-search-overview button[action=clearFilters]'
-        //},
-        //{
-        //    ref: 'resultsGrid',
-        //    selector: 'uni-view-search-overview uni-view-search-results'
-        //}
     ],
 
     filterObjectParam: 'filter',
@@ -77,7 +73,28 @@ Ext.define('Uni.controller.Search', {
         me.control({
             'search-object-selector': {
                 change: me.onChangeSearchDomain
-            }
+            },
+            //addCriteriaCombo.on({
+            //    menuhide: me.onSelectAddCriteria,
+            //    //select: me.onSelectAddCriteria,
+            //    scope: me
+            //});
+            //
+            //removablePropertiesContainer.on({
+            //    add: me.updateRemovableContainerVisibility,
+            //    remove: me.updateRemovableContainerVisibility,
+            //    scope: me
+            //});
+            //
+            //searchButton.on({
+            //    click: me.applyFilters,
+            //    scope: me
+            //});
+            //
+            //clearFiltersButton.on({
+            //    click: me.clearFilters,
+            //    scope: me
+            //});
         });
     },
 
@@ -96,7 +113,6 @@ Ext.define('Uni.controller.Search', {
 
         me.getApplication().fireEvent('changecontentevent', widget);
 
-        //me.initComponentListeners();
         me.filters.removeAll();
 
         searchDomains.load();
@@ -114,36 +130,6 @@ Ext.define('Uni.controller.Search', {
         } else if (selector && !Ext.isEmpty(records)) {
             selector.setValue(records.first().get('id'));
         }
-    },
-
-    initComponentListeners: function () {
-        var me = this,
-            addCriteriaCombo = me.getAddCriteriaCombo().down('#addcriteria'),
-            removablePropertiesContainer = me.getRemovablePropertiesContainer(),
-            searchButton = me.getSearchButton(),
-            clearFiltersButton = me.getClearFiltersButton();
-
-        addCriteriaCombo.on({
-            menuhide: me.onSelectAddCriteria,
-            //select: me.onSelectAddCriteria,
-            scope: me
-        });
-
-        removablePropertiesContainer.on({
-            add: me.updateRemovableContainerVisibility,
-            remove: me.updateRemovableContainerVisibility,
-            scope: me
-        });
-
-        searchButton.on({
-            click: me.applyFilters,
-            scope: me
-        });
-
-        clearFiltersButton.on({
-            click: me.clearFilters,
-            scope: me
-        });
     },
 
     initStoreListeners: function () {
@@ -220,11 +206,11 @@ Ext.define('Uni.controller.Search', {
 
         Ext.suspendLayouts();
 
-        //me.initStickyCriteria();
-        //me.initRemovableCriteria();
+        me.initStickyCriteria();
+        me.initRemovableCriteria();
 
         me.getCriteriaSelector().bindStore(criteriaStore);
-        //Uni.util.Filters.loadHistoryState(me.filters, true);
+        Uni.util.Filters.loadHistoryState(me.filters, true);
         //me.applyFilters();
 
         Ext.resumeLayouts(true);
@@ -232,24 +218,24 @@ Ext.define('Uni.controller.Search', {
 
     initStickyCriteria: function () {
         var me = this,
-            propertiesStore = Ext.getStore('Uni.store.search.Properties');
+            propertiesStore = Ext.getStore('Uni.store.search.Properties'),
+            container = me.getStickyPropertiesContainer();
 
         propertiesStore.filter('sticky', true);
 
         me.removeStickyProperties();
         propertiesStore.each(function (property) {
-            me.addStickyProperty(property);
+            me.addProperty(property, container);
         });
+        container.setVisible(propertiesStore.count());
 
         propertiesStore.clearFilter();
     },
 
-    //initRemovableCriteria: function () {
-    //    var me = this;
-    //
-    //    me.removeRemovableProperties();
-    //    me.updateRemovableContainerVisibility();
-    //},
+    initRemovableCriteria: function () {
+        var me = this;
+        me.removeRemovableProperties();
+    },
 
     onUpdateRemovablesStore: function () {
         var me = this,
@@ -266,7 +252,6 @@ Ext.define('Uni.controller.Search', {
                 addCriteriaCombo.text = emptyText;
             }
         }
-
     },
 
     onChangeSearchDomain: function (field, value) {
@@ -373,16 +358,6 @@ Ext.define('Uni.controller.Search', {
         };
     },
 
-    //updateSearchDomainHistoryState: function (searchDomain) {
-    //    var params = {searchDomain: searchDomain.get('displayValue')},
-    //        href = Uni.util.QueryString.buildHrefWithQueryString(params, false);
-    //
-    //    if (location.href !== href) {
-    //        Uni.util.History.suspendEventsForNextCall();
-    //        location.href = href;
-    //    }
-    //},
-
     onSelectAddCriteria: function (field, records, options) {
         var me = options.scope,
             property = !Ext.isEmpty(records) ? records[0] : null,
@@ -400,11 +375,12 @@ Ext.define('Uni.controller.Search', {
 
         Ext.suspendLayouts();
 
+        me.getStickyPropertiesContainer().setVisible(false);
         me.filters.each(function (filter) {
             property = filter.property;
 
             if (property.get('sticky')) {
-                me.removeStickyProperty(property);
+                me.filters.remove(filter);
             }
         });
 
@@ -423,7 +399,7 @@ Ext.define('Uni.controller.Search', {
 
             widget.on('filterupdate', me.applyFilters, me);
             me.applyConstraintListeners(property, widget);
-            me.updateRemovableContainerVisibility();
+            //me.updateRemovableContainerVisibility();
         }
     },
 
@@ -508,16 +484,8 @@ Ext.define('Uni.controller.Search', {
             container.remove(filterResult);
 
             Uni.util.Filters.updateHistoryState(me.filters);
-            me.updateRemovableContainerVisibility();
+            //me.updateRemovableContainerVisibility();
         }
-    },
-
-    addStickyProperty: function (property) {
-        this.addProperty(property, this.getStickyPropertiesContainer());
-    },
-
-    removeStickyProperty: function (property) {
-        this.removeProperty(property, this.getStickyPropertiesContainer());
     },
 
     removeRemovableProperties: function () {
@@ -526,18 +494,13 @@ Ext.define('Uni.controller.Search', {
             property;
 
         Ext.suspendLayouts();
-
+        me.getRemovablePropertiesContainer().setVisible(false);
         me.filters.each(function (filter) {
             property = filter.property;
 
             if (!property.get('sticky')) {
-                me.removeRemovableProperty(property);
-
-                try {
-                    criteriaStore.add(property);
-                } catch (ex) {
-                    // Ignore the exceptions caused by not rendered components.
-                }
+                me.filters.remove(filter);
+                criteriaStore.add(property);
             }
         });
 
