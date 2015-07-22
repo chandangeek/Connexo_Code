@@ -37,12 +37,7 @@ import com.energyict.protocolimplv2.identifiers.LoadProfileIdentifierById;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Copyrights EnergyICT
@@ -103,7 +98,7 @@ public class IDISProfileDataReader {
                         Date timeStamp;
                         if (structure.isOctetString(0)) {
                             OctetString octetString = structure.getOctetString(0);
-                            timeStamp = octetString.toDate(AXDRDateTimeDeviationType.Negative);
+                            timeStamp = octetString.toDate(AXDRDateTimeDeviationType.Negative, protocol.getTimeZone());
                         } else if (previousTimeStamp != null) {
                             Calendar cal = Calendar.getInstance();
                             cal.setTime(previousTimeStamp);

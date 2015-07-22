@@ -58,16 +58,19 @@ public class OctetString implements Serializable {
     }
 
     /**
-     * Uses the timezone (bytes 9 and 10) that is specified in the AXDR DateTime octetstring.
+     * Uses the timezone (bytes 9 and 10) that is specified in the AXDR DateTime octetstring
+     * Or the given TimeZone if the information is unspecified (0x8000) in the timestamp
      */
-    public Date toDate(AXDRDateTimeDeviationType deviationType) {
-        int deviation = 0;
+    public Date toDate(AXDRDateTimeDeviationType deviationType, TimeZone deviceTimeZone) {
+        TimeZone tz;
         if ((array[9] != NO_DEVIATION[0]) || (array[10] != NO_DEVIATION[1])) {
             int tOffset = ProtocolUtils.getShort(array, 9);
-            deviation = tOffset / SECONDS_PER_MINUTE;
+            int deviation = tOffset / SECONDS_PER_MINUTE;
+            tz = new SimpleTimeZone(deviationType.getGmtOffset(deviation) * 3600 * 1000, deviationType.getGmtNotation(deviation));
+        } else {
+            tz = deviceTimeZone;
         }
 
-        TimeZone tz = new SimpleTimeZone(deviationType.getGmtOffset(deviation) * 3600 * 1000, deviationType.getGmtNotation(deviation));
         return toCalendar(tz).getTime();
     }
 
