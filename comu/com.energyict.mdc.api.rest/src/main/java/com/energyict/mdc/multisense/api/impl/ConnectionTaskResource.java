@@ -89,11 +89,11 @@ public class ConnectionTaskResource {
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     public Response createConnectionTaskResource(@PathParam("mrid") String mrid, ConnectionTaskInfo connectionTaskInfo, @Context UriInfo uriInfo) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
-        if (connectionTaskInfo.connectionMethod ==null) {
+        if (connectionTaskInfo.connectionMethod == null || connectionTaskInfo.connectionMethod.id == null) {
             throw exceptionFactory.newException(MessageSeeds.MISSING_PARTIAL_CONNECTION_METHOD);
         }
         PartialConnectionTask partialConnectionTask = findPartialConnectionTaskOrThrowException(device, connectionTaskInfo.connectionMethod.id);
-        if (connectionTaskInfo.direction ==null) {
+        if (connectionTaskInfo.direction == null) {
             throw exceptionFactory.newException(MessageSeeds.MISSING_CONNECTION_TASK_TYPE);
         }
         ConnectionTask<?, ?> task = connectionTaskInfo.direction.createTask(connectionTaskInfo, connectionTaskInfoFactory, device, partialConnectionTask);
@@ -117,8 +117,11 @@ public class ConnectionTaskResource {
                                                            ConnectionTaskInfo connectionTaskInfo, @Context UriInfo uriInfo) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         ConnectionTask<? extends ComPortPool, ? extends PartialConnectionTask> connectionTask = findConnectionTaskOrThrowException(device, connectionTaskId);
+        if (connectionTaskInfo.connectionMethod == null || connectionTaskInfo.connectionMethod.id == null) {
+            throw exceptionFactory.newException(MessageSeeds.MISSING_PARTIAL_CONNECTION_METHOD);
+        }
         PartialConnectionTask partialConnectionTask = findPartialConnectionTaskOrThrowException(device, connectionTaskInfo.connectionMethod.id);
-        if (connectionTaskInfo.direction ==null) {
+        if (connectionTaskInfo.direction == null) {
             throw exceptionFactory.newException(MessageSeeds.MISSING_CONNECTION_TASK_TYPE);
         }
         ConnectionTask<?, ?> updatedConnectionTask = connectionTaskInfo.direction.updateTask(connectionTaskId, connectionTaskInfo, connectionTaskInfoFactory, device, partialConnectionTask, connectionTask);
