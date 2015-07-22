@@ -130,7 +130,7 @@ Ext.define('Mdc.view.setup.devicechannels.GraphView', {
                     html += '<table style="margin-top: 10px"><tbody>';
                     bgColor = point.tooltipColor;
                     html += '<tr><td><b>' + point.series.name + ':</b></td><td>' + mainValue + (point.edited ? editedIconSpan : '') + iconSpan.replace('{icon}', deltaIcon) + '</td></tr>';
-                    html += '<tr><td><b>' + 'Bulk value:' + '</b></td><td>' + bulkValue + (point.bulkEdited ? editedIconSpan : '') + iconSpan.replace('{icon}', bulkIcon) + '</td></tr>';
+                    html += '<tr><td><b>' + Uni.I18n.translate('general.bulkValue', 'MDC', 'Bulk value') + ':' + '</b></td><td>' + bulkValue + (point.bulkEdited ? editedIconSpan : '') + iconSpan.replace('{icon}', bulkIcon) + '</td></tr>';
 
                     html += '</tbody></table>';
                     html = '<div style="background-color: ' + bgColor + '; padding: 8px">' + html + '</div>';

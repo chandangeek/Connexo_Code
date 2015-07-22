@@ -7,11 +7,13 @@ Ext.define('Mdc.view.setup.devicechannels.DataBulkActionMenu', {
     items: [
         {
             itemId: 'confirm-value',
+            hidden: true,
             text: Uni.I18n.translate('general.confirmValue', 'MDC', 'Confirm value'),
             action: 'confirmValue'
         },
         {
             itemId: 'estimate-value',
+            hidden: true,
             text: Uni.I18n.translate('general.estimateValue', 'MDC', 'Estimate value'),
             action: 'estimateValue'
         }
