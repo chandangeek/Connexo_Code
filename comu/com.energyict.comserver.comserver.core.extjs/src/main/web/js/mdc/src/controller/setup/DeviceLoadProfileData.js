@@ -127,7 +127,8 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
                     device: device,
                     filter: {
                         fromDate: intervalStart,
-                        duration: all.count + all.timeUnit
+                        duration: all.count + all.timeUnit,
+                        durationStore: durationsStore
                     }
                 });
 
