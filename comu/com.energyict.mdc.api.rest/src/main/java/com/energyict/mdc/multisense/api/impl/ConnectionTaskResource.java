@@ -117,14 +117,10 @@ public class ConnectionTaskResource {
                                                            ConnectionTaskInfo connectionTaskInfo, @Context UriInfo uriInfo) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         ConnectionTask<? extends ComPortPool, ? extends PartialConnectionTask> connectionTask = findConnectionTaskOrThrowException(device, connectionTaskId);
-        if (connectionTaskInfo.connectionMethod == null || connectionTaskInfo.connectionMethod.id == null) {
-            throw exceptionFactory.newException(MessageSeeds.MISSING_PARTIAL_CONNECTION_METHOD);
-        }
-        PartialConnectionTask partialConnectionTask = findPartialConnectionTaskOrThrowException(device, connectionTaskInfo.connectionMethod.id);
         if (connectionTaskInfo.direction == null) {
             throw exceptionFactory.newException(MessageSeeds.MISSING_CONNECTION_TASK_TYPE);
         }
-        ConnectionTask<?, ?> updatedConnectionTask = connectionTaskInfo.direction.updateTask(connectionTaskId, connectionTaskInfo, connectionTaskInfoFactory, device, partialConnectionTask, connectionTask);
+        ConnectionTask<?, ?> updatedConnectionTask = connectionTaskInfo.direction.updateTask(connectionTaskId, connectionTaskInfo, connectionTaskInfoFactory, device, connectionTask);
 
         return connectionTaskInfoFactory.from(updatedConnectionTask, uriInfo, Collections.<String>emptyList());
     }

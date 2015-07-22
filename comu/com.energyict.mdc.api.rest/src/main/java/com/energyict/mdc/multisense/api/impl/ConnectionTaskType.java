@@ -12,8 +12,8 @@ import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 public enum ConnectionTaskType implements ConnectionTaskCreator, ConnectionTaskUpdater {
     Inbound {
         @Override
-        public ConnectionTask<?, ?> updateTask(long connectionTaskId, ConnectionTaskInfo info, ConnectionTaskInfoFactory factory, Device device, PartialConnectionTask partialConnectionTask, ConnectionTask<?, ?> connectionTask) {
-            return factory.updateInboundConnectionTask(connectionTaskId, info, device, partialConnectionTask, connectionTask);
+        public ConnectionTask<?, ?> updateTask(long connectionTaskId, ConnectionTaskInfo info, ConnectionTaskInfoFactory factory, Device device, ConnectionTask<?, ?> connectionTask) {
+            return factory.updateInboundConnectionTask(connectionTaskId, info, device, connectionTask);
         }
 
         @Override
@@ -23,8 +23,8 @@ public enum ConnectionTaskType implements ConnectionTaskCreator, ConnectionTaskU
     },
     Outbound {
         @Override
-        public ConnectionTask<?, ?> updateTask(long connectionTaskId, ConnectionTaskInfo info, ConnectionTaskInfoFactory factory, Device device, PartialConnectionTask partialConnectionTask, ConnectionTask<?, ?> connectionTask) {
-            return factory.updateScheduledConnectionTask(connectionTaskId, info, device, partialConnectionTask, connectionTask);
+        public ConnectionTask<?, ?> updateTask(long connectionTaskId, ConnectionTaskInfo info, ConnectionTaskInfoFactory factory, Device device, ConnectionTask<?, ?> connectionTask) {
+            return factory.updateScheduledConnectionTask(connectionTaskId, info, device, connectionTask);
         }
 
         @Override
@@ -47,5 +47,5 @@ interface ConnectionTaskCreator {
 }
 
 interface ConnectionTaskUpdater {
-    public ConnectionTask<?,?> updateTask(long connectionTaskId, ConnectionTaskInfo info, ConnectionTaskInfoFactory factory, Device device, PartialConnectionTask partialConnectionTask, ConnectionTask<?, ?> connectionTask);
+    public ConnectionTask<?,?> updateTask(long connectionTaskId, ConnectionTaskInfo info, ConnectionTaskInfoFactory factory, Device device, ConnectionTask<?, ?> connectionTask);
 }

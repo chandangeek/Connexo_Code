@@ -178,12 +178,12 @@ public class ConnectionTaskInfoFactory extends SelectableFieldFactory<Connection
         return scheduledConnectionTaskBuilder.add();
     }
 
-    public ConnectionTask<?, ?> updateInboundConnectionTask(long connectionTaskId, ConnectionTaskInfo connectionTaskInfo, Device device, PartialConnectionTask partialConnectionTask, ConnectionTask connectionTask) {
+    public ConnectionTask<?, ?> updateInboundConnectionTask(long connectionTaskId, ConnectionTaskInfo connectionTaskInfo, Device device, ConnectionTask connectionTask) {
         if (!InboundConnectionTask.class.isAssignableFrom(connectionTask.getClass())) {
             throw exceptionFactory.newException(MessageSeeds.EXPECTED_INBOUND);
         }
         InboundConnectionTask inboundConnectionTask = (InboundConnectionTask) connectionTask;
-        setPropertiesTo(connectionTaskInfo, inboundConnectionTask, partialConnectionTask);
+        setPropertiesTo(connectionTaskInfo, inboundConnectionTask);
         if (connectionTaskInfo.comPortPool==null || connectionTaskInfo.comPortPool.id==null) {
             inboundConnectionTask.setComPortPool(null);
         } else {
@@ -195,12 +195,12 @@ public class ConnectionTaskInfoFactory extends SelectableFieldFactory<Connection
         return connectionTaskService.findConnectionTask(connectionTaskId).get();
     }
 
-    public ConnectionTask<?, ?> updateScheduledConnectionTask(long connectionTaskId, ConnectionTaskInfo connectionTaskInfo, Device device, PartialConnectionTask partialConnectionTask, ConnectionTask connectionTask) {
+    public ConnectionTask<?, ?> updateScheduledConnectionTask(long connectionTaskId, ConnectionTaskInfo connectionTaskInfo, Device device, ConnectionTask connectionTask) {
         if (!ScheduledConnectionTask.class.isAssignableFrom(connectionTask.getClass())) {
             throw exceptionFactory.newException(MessageSeeds.EXPECTED_OUTBOUND);
         }
         ScheduledConnectionTask scheduledConnectionTask = (ScheduledConnectionTask) connectionTask;
-        setPropertiesTo(connectionTaskInfo, scheduledConnectionTask, partialConnectionTask);
+        setPropertiesTo(connectionTaskInfo, scheduledConnectionTask);
         scheduledConnectionTask.setSimultaneousConnectionsAllowed(connectionTaskInfo.allowSimultaneousConnections);
         if (connectionTaskInfo.comWindow!=null && connectionTaskInfo.comWindow.start != null && connectionTaskInfo.comWindow.end!=null) {
             scheduledConnectionTask.setCommunicationWindow(new ComWindow(connectionTaskInfo.comWindow.start, connectionTaskInfo.comWindow.end));
@@ -224,10 +224,10 @@ public class ConnectionTaskInfoFactory extends SelectableFieldFactory<Connection
         return connectionTaskService.findConnectionTask(connectionTaskId).get();
     }
 
-    private void setPropertiesTo(ConnectionTaskInfo connectionTaskInfo, ConnectionTask<?,?> connectionTask, PartialConnectionTask partialConnectionTask) {
+    private void setPropertiesTo(ConnectionTaskInfo connectionTaskInfo, ConnectionTask<?,?> connectionTask) {
         try {
             if (connectionTaskInfo.properties != null) {
-                for (PropertySpec propertySpec : partialConnectionTask.getPluggableClass().getPropertySpecs()) {
+                for (PropertySpec propertySpec : connectionTask.getPartialConnectionTask().getPluggableClass().getPropertySpecs()) {
                     Object propertyValue = mdcPropertyUtils.findPropertyValue(propertySpec, connectionTaskInfo.properties);
                     if (propertyValue != null) {
                         connectionTask.setProperty(propertySpec.getName(), propertyValue);
