@@ -1,11 +1,10 @@
 Ext.define('Est.main.view.AddReadingTypes', {
     extend: 'Uni.view.container.ContentContainer',
     requires: [
-        'Est.main.view.ReadingTypesSideFilter',
         'Est.main.view.ReadingTypesGrid',
-        'Uni.component.filter.view.FilterTopPanel',
         'Uni.view.container.EmptyGridContainer',
-        'Uni.view.notifications.NoItemsFoundPanel'
+        'Uni.view.notifications.NoItemsFoundPanel',
+        'Est.main.view.ReadingTypeTopFilter'
     ],
     alias: 'widget.add-reading-types',
     itemId: 'add-reading-types',
@@ -14,29 +13,13 @@ Ext.define('Est.main.view.AddReadingTypes', {
     initComponent: function () {
         var me = this;
 
-        me.side = [
-            {
-                title: Uni.I18n.translate('general.filter', 'EST', 'Filter'),
-                ui: 'medium',
-                width: 250,
-                items: [
-                    {
-                        xtype: 'reading-types-side-filter',
-                        itemId: 'reading-types-side-filter',
-                        ui: 'filter'
-                    }
-                ]
-            }
-        ];
-
         me.content = [
             {
                 ui: 'large',
                 title: Uni.I18n.translate('general.addReadingTypes', 'EST', 'Add reading types'),
                 items: [
                     {
-                        xtype: 'filter-top-panel',
-                        itemId: 'add-reading-types-filter-toolbar'
+                        xtype: 'est-main-view-readingtypetopfilter'
                     },
                     {
                         xtype: 'emptygridcontainer',
@@ -56,7 +39,7 @@ Ext.define('Est.main.view.AddReadingTypes', {
                             reasons: [
                                 Uni.I18n.translate('general.readingType.empty.list.item1', 'EST', 'No reading types have been added yet.'),
                                 Uni.I18n.translate('general.readingType.empty.list.item2', 'EST', 'No reading types comply to the filter.'),
-                                Uni.I18n.translate('general.readingType.empty.list.item3', 'EST', 'All reading types have been already added to rule.')
+                                Uni.I18n.translate('general.readingType.empty.list.item3', 'EST', 'All reading types have already been added to the rule.')
                             ]
                         }
                     }

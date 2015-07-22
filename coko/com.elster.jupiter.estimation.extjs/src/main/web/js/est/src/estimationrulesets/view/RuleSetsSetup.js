@@ -71,8 +71,8 @@ Ext.define('Est.estimationrulesets.view.RuleSetsSetup', {
                             itemId: 'pnl-no-estimation-rule-sets',
                             title: Uni.I18n.translate('estimationrulesets.empty.title', 'EST', 'No estimation rule sets found'),
                             reasons: [
-                                Uni.I18n.translate('estimationrulesets.reson1', 'EST', 'No estimation rule sets have been defined yet.'),
-                                Uni.I18n.translate('estimationrulesets.reson2', 'EST', 'Estimation rule sets exist, but you do not have permission to view them.')
+                                Uni.I18n.translate('estimationrulesets.reason1', 'EST', 'No estimation rule sets have been defined yet.'),
+                                Uni.I18n.translate('estimationrulesets.reason2', 'EST', 'Estimation rule sets exist, but you do not have permission to view them.')
                             ],
                             stepItems: [
                                 {
