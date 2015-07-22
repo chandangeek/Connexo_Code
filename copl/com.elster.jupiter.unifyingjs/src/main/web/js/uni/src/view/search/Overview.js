@@ -62,6 +62,14 @@ Ext.define('Uni.view.search.Overview', {
                                         itemId: 'search-object-selector',
                                         xtype: 'search-object-selector'
                                     },
+                                    {flex: 2},
+                                    // temp for testing date/number range field
+                                    {
+                                        xtype: 'uni-view-search-field-date-range'
+                                    },
+                                    {
+                                        xtype: 'uni-view-search-field-number-range'
+                                    },
                                     '->',
                                     {
                                         disabled: true,
@@ -155,13 +163,7 @@ Ext.define('Uni.view.search.Overview', {
                                 ]
                             }
 
-                            // temp for testing date range field
-/*                            {
-                                xtype: 'uni-view-search-field-date-range'
-                            },*/
-                            //{
-                            //    xtype: 'uni-view-search-field-number-range'
-                            //},
+
 
 /*                            { //leaved for integration default field
                                 cellCls: 'search-cell search-last',

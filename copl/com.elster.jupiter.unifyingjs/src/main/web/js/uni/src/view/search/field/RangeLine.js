@@ -1,13 +1,8 @@
 Ext.define('Uni.view.search.field.RangeLine', {
     extend: 'Ext.container.Container',
     xtype: 'uni-view-search-field-range-line',
-    margin: '5px 5px 0px 5px',
+    margin: '5px 5px 3px 5px',
     width: '477',
-    removeHandler: function () {
-        var me = this;
-        debugger;
-        me.down('menu').remove(me.down('menu').focus());
-    },
     items: [
         {
             xtype: 'container',
@@ -22,13 +17,17 @@ Ext.define('Uni.view.search.field.RangeLine', {
                 },
                 {
                     xtype: 'datefield',
-                    margin: '1px 0px 0px 0px',
-                    value: new Date()
+                    margin: '1px 0px 0px 0px'
                 },
                 {
                     xtype: 'label',
                     text: 'at',
                     margin: '3px 15px 0px 25px'
+                },
+                {
+                    flex: 0.1,
+                    itemId: 'flex',
+
                 },
                 {
                     xtype: 'numberfield',
@@ -52,10 +51,12 @@ Ext.define('Uni.view.search.field.RangeLine', {
                     xtype: 'button',
                     iconCls: ' icon-close2',
                     action: 'remove',
-                    margin: '3px 0px 0px 12px',
+                    margin: '1px 0px 0px 12px',
                     handler: function () {
                         var me = this;
-                        me.up('menu').remove(me.up('menu').focus());
+                        me.up('menu').focus().down('datefield').reset();
+                        me.up('menu').focus().down('#hours').reset();
+                        me.up('menu').focus().down('#minutes').reset();
                     }
                 }
             ]

@@ -3,11 +3,6 @@ Ext.define('Uni.view.search.field.NumberLine', {
     xtype: 'uni-view-search-field-number-line',
     margin: '5px 5px 3px 5px',
     width: '477',
-    removeHandler: function () {
-        var me = this;
-        debugger;
-        me.down('menu').remove(me.down('menu').focus());
-    },
     items: [
         {
             xtype: 'container',
@@ -30,10 +25,10 @@ Ext.define('Uni.view.search.field.NumberLine', {
                     xtype: 'button',
                     iconCls: ' icon-close2',
                     action: 'remove',
-                    margin: '3px 0px 0px 10px',
+                    margin: '1px 0px 0px 12px',
                     handler: function () {
                         var me = this;
-                        me.up('menu').remove(me.up('menu').focus());
+                        me.up('menu').focus().down('numberfield').reset();
                     }
                 }
             ]

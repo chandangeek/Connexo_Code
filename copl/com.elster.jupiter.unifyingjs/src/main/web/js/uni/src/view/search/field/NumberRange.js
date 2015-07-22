@@ -6,8 +6,13 @@ Ext.define('Uni.view.search.field.NumberRange', {
         'Uni.view.search.field.NumberLine'
     ],
     layout: 'hbox',
-    clearAllHandler: function () {
-    },
+        clearAllHandler: function () {
+            var me = this;
+            var items = me.down('menu').items.items;
+            Ext.each(items, function( item ) {
+                if (item.down('numberfield')) item.down('numberfield').reset();
+            });
+        },
     addRangeHandler: function () {
         var me = this;
         me.down('menu').add({
@@ -37,37 +42,11 @@ Ext.define('Uni.view.search.field.NumberRange', {
                 style: {
                     overflow: 'visible'
                 },
+                cls: 'x-menu-body-custom',
                 minWidth: 293,
                 items: [
                     {
-                        xtype: 'container',
-                        margin: 5,
-                        layout: 'hbox',
-                        items: [
-                            {
-                                xtype: 'combo',
-                                value: '=',
-                                disabled: true,
-                                width: 55,
-                                margin: '3px 40px 0px 0px'
-                            },
-                            {
-                                xtype: 'numberfield',
-                                margin: '3px 0px 0px 0px',
-                                value: 0,
-                                hideTrigger: true
-                                //width: 180
-                            }/*,
-                             {
-                             xtype: 'button',
-                             iconCls: ' icon-close2',
-                             action: 'remove',
-                             margin: '3px 0px 0px 10px',
-                             handler: function () {
-                             me.removeHandler()
-                             }
-                             }*/
-                        ]
+                        xtype: 'uni-view-search-field-number-line'
                     },
                     {
                         xtype: 'menuseparator'
@@ -92,7 +71,10 @@ Ext.define('Uni.view.search.field.NumberRange', {
                             {
                                 xtype: 'button',
                                 text: Uni.I18n.translate('general.clearAll', 'UNI', 'Clear all'),
-                                align: 'right'
+                                align: 'right',
+                                handler: function () {
+                                    me.clearAllHandler();
+                                }
                             },
                             {
                                 xtype: 'button',
@@ -125,6 +107,8 @@ Ext.define('Uni.view.search.field.NumberRange', {
 
         this.callParent(arguments);
         Ext.suspendLayouts();
+        this.down('menu').items.items[0].down('combo').setValue('=');
+        this.down('menu').items.items[3].down('combo').setValue('<');
         Ext.resumeLayouts(true);
     }
 });
