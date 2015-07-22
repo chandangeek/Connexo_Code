@@ -41,7 +41,7 @@ public class ComTaskResource {
     @Path("/{comTaskId}")
     public ComTaskInfo getComTask(@PathParam("comTaskId") long comTaskId, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
          return taskService.findComTask(comTaskId)
-                 .map(ct->comTaskInfoFactory.asHypermedia(ct, uriInfo, fieldSelection.getFields()))
+                 .map(ct -> comTaskInfoFactory.from(ct, uriInfo, fieldSelection.getFields()))
                  .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 
@@ -49,7 +49,7 @@ public class ComTaskResource {
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     public PagedInfoList<ComTaskInfo> getComTasks(@BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo, @BeanParam JsonQueryParameters queryParameters) {
         List<ComTaskInfo> infos = taskService.findAllComTasks().from(queryParameters).stream()
-                .map(ct -> comTaskInfoFactory.asHypermedia(ct, uriInfo, fieldSelection.getFields()))
+                .map(ct -> comTaskInfoFactory.from(ct, uriInfo, fieldSelection.getFields()))
                 .collect(toList());
         UriBuilder uriBuilder = uriInfo.getBaseUriBuilder()
                 .path(ComTaskResource.class);

@@ -18,7 +18,7 @@ import static java.util.stream.Collectors.toList;
  */
 public class ComTaskInfoFactory extends SelectableFieldFactory<ComTaskInfo, ComTask> {
 
-    public ComTaskInfo asHypermedia(ComTask comTask, UriInfo uriInfo, Collection<String> fields) {
+    public ComTaskInfo from(ComTask comTask, UriInfo uriInfo, Collection<String> fields) {
         ComTaskInfo info = new ComTaskInfo();
         copySelectedFields(info, comTask, uriInfo, fields);
         return info;
