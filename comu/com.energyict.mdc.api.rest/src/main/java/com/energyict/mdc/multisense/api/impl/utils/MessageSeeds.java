@@ -17,8 +17,11 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     NO_SUCH_DEVICE_TYPE(8, "NoSuchDeviceType" , "Device type does not exist"),
     NO_SUCH_DEVICE_CONFIG(9, "NoSuchDeviceConfig" , "Device type does not contain a device configuration with that id"),
     MISSING_PARTIAL_CONNECTION_METHOD(10, "NoPartialConnectionTask" , "The connection method on the device is missing" ),
-    EXPECTED_PARTIAL_INBOUND(11, "ExpectedPartialInbound", "Expected connection method on device to be 'Inbound'-type"),
-    EXPECTED_PARTIAL_OUTBOUND(12, "ExpectedPartialOutbound", "Expected connection method on device to be 'Outbound'-type")
+    EXPECTED_PARTIAL_INBOUND(11, "ExpectedPartialInbound", "Expected connection method on device configuration to be 'Inbound'-type"),
+    EXPECTED_PARTIAL_OUTBOUND(12, "ExpectedPartialOutbound", "Expected connection method on device configuration to be 'Outbound'-type"),
+    NO_SUCH_CONNECTION_TASK(13, "NoSuchConnectionTask" , "The device does not contain a connection method with that id"),
+    EXPECTED_INBOUND(14, "ExpectedInbound", "Expected connection method on device to be 'Inbound'-type"),
+    EXPECTED_OUTBOUND(15, "ExpectedOutbound", "Expected connection method on device to be 'Outbound'-type"),
     ;
 
     private final int number;

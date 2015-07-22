@@ -3,6 +3,7 @@ package com.energyict.mdc.multisense.api.impl;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
+import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
@@ -18,6 +19,7 @@ import java.io.InputStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import javax.ws.rs.client.Entity;
@@ -28,7 +30,11 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -140,6 +146,77 @@ public class ConnectionTaskResourceTest extends MultisensePublicApiJerseyTest {
     }
 
     @Test
+    public void testUpdateInboundConnectionTask() throws Exception {
+        ConnectionTaskInfo info = new ConnectionTaskInfo();
+        info.direction = ConnectionTaskType.Inbound;
+        info.connectionMethod = new LinkInfo();
+        info.connectionMethod.id = 333L;
+        info.status = ConnectionTask.ConnectionTaskLifecycleStatus.INACTIVE;
+        info.comPortPool = new LinkInfo();
+        info.comPortPool.id = 65L;
+        info.isDefault = true;
+
+        InboundComPortPool inboundComPortPool = mock(InboundComPortPool.class);
+        when(engineConfigurationService.findInboundComPortPool(info.comPortPool.id)).thenReturn(Optional.of(inboundComPortPool));
+
+        DeviceType elec1 = mockDeviceType(101, "Electricity 1");
+        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(1101L, "Default configuration", elec1);
+        PartialInboundConnectionTask pct1 = mockPartialInboundConnectionTask(333L, "new inbound", deviceConfiguration);
+        when(deviceConfiguration.getPartialConnectionTasks()).thenReturn(Collections.singletonList(pct1));
+        Device deviceXas = mockDevice("XAS", "5544657642", deviceConfiguration);
+
+        InboundConnectionTask existing = mockInboundConnectionTask(12345L, "existing", deviceXas, inboundComPortPool, pct1);
+        when(deviceXas.getConnectionTasks()).thenReturn(Collections.singletonList(existing));
+
+        ArgumentCaptor<InboundComPortPool> comPortPoolArgumentCaptor = ArgumentCaptor.forClass(InboundComPortPool.class);
+        doNothing().when(existing).setComPortPool(comPortPoolArgumentCaptor.capture());
+
+        Response response = target("devices/XAS/connectionmethods/12345").request().put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        assertThat(comPortPoolArgumentCaptor.getValue()).isEqualTo(inboundComPortPool);
+        verify(existing).deactivate();
+        verify(connectionTaskService, never()).setDefaultConnectionTask(any());
+        verify(connectionTaskService,never()).clearDefaultConnectionTask(any());
+        verify(existing).save();
+    }
+
+    @Test
+    public void testUpdateInboundConnectionTaskUnsetDefault() throws Exception {
+        ConnectionTaskInfo info = new ConnectionTaskInfo();
+        info.direction = ConnectionTaskType.Inbound;
+        info.connectionMethod = new LinkInfo();
+        info.connectionMethod.id = 333L;
+        info.status = ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE;
+        info.comPortPool = new LinkInfo();
+        info.comPortPool.id = 65L;
+        info.isDefault = false;
+
+        InboundComPortPool inboundComPortPool = mock(InboundComPortPool.class);
+        when(engineConfigurationService.findInboundComPortPool(info.comPortPool.id)).thenReturn(Optional.of(inboundComPortPool));
+
+        DeviceType elec1 = mockDeviceType(101, "Electricity 1");
+        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(1101L, "Default configuration", elec1);
+        PartialInboundConnectionTask pct1 = mockPartialInboundConnectionTask(333L, "new inbound", deviceConfiguration);
+        when(deviceConfiguration.getPartialConnectionTasks()).thenReturn(Collections.singletonList(pct1));
+        Device deviceXas = mockDevice("XAS", "5544657642", deviceConfiguration);
+
+        InboundConnectionTask existing = mockInboundConnectionTask(12345L, "existing", deviceXas, inboundComPortPool, pct1);
+        when(deviceXas.getConnectionTasks()).thenReturn(Collections.singletonList(existing));
+
+        ArgumentCaptor<InboundComPortPool> comPortPoolArgumentCaptor = ArgumentCaptor.forClass(InboundComPortPool.class);
+        doNothing().when(existing).setComPortPool(comPortPoolArgumentCaptor.capture());
+
+        Response response = target("devices/XAS/connectionmethods/12345").request().put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        assertThat(comPortPoolArgumentCaptor.getValue()).isEqualTo(inboundComPortPool);
+        verify(existing).activate();
+        verify(connectionTaskService,never()).setDefaultConnectionTask(any());
+        verify(connectionTaskService,times(1)).clearDefaultConnectionTask(deviceXas);
+        verify(existing).save();
+
+    }
+
+    @Test
     public void testCreateScheduledConnectionTask() throws Exception {
         ConnectionTaskInfo info = new ConnectionTaskInfo();
         info.direction = ConnectionTaskType.Outbound;
@@ -191,6 +268,49 @@ public class ConnectionTaskResourceTest extends MultisensePublicApiJerseyTest {
         assertThat(objectArgumentCaptor.getValue()).isEqualTo(BigDecimal.valueOf(8080));
 
         verify(connectionTaskService).setDefaultConnectionTask(scheduledConnectionTask);
-
     }
+
+    @Test
+    public void testUpdateScheduledConnectionTask() throws Exception {
+        ConnectionTaskInfo info = new ConnectionTaskInfo();
+        info.direction = ConnectionTaskType.Outbound;
+        info.connectionMethod = new LinkInfo();
+        info.connectionMethod.id = 333L;
+        info.status = ConnectionTask.ConnectionTaskLifecycleStatus.INACTIVE;
+        info.connectionStrategy = ConnectionStrategy.MINIMIZE_CONNECTIONS;
+        info.comPortPool = new LinkInfo();
+        info.comPortPool.id = 13L;
+        info.isDefault = true;
+        info.allowSimultaneousConnections = true;
+        info.properties = new ArrayList<>();
+        PropertyInfo property = new PropertyInfo();
+        info.properties.add(property);
+        property.propertyValueInfo = new PropertyValueInfo<>(8080, "");
+        property.key = "decimal.property";
+
+        OutboundComPortPool outboundComPortPool = mock(OutboundComPortPool.class);
+        when(engineConfigurationService.findOutboundComPortPool(info.comPortPool.id)).thenReturn(Optional.of(outboundComPortPool));
+
+        DeviceType elec1 = mockDeviceType(101, "Electricity 1");
+        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(1101L, "Default configuration", elec1);
+        PropertySpec propertySpec = mockBigDecimalPropertySpec();
+        PartialScheduledConnectionTask pct1 = mockPartialScheduledConnectionTask(333L, "new outbound", propertySpec);
+        PartialScheduledConnectionTask pct2 = mockPartialScheduledConnectionTask(444L, "legacy");
+        when(deviceConfiguration.getPartialConnectionTasks()).thenReturn(Arrays.asList(pct1, pct2));
+        Device deviceXas = mockDevice("XAS", "5544657642", deviceConfiguration);
+        ScheduledConnectionTask existing = mockScheduledConnectionTask(123456789, "existing", deviceXas, outboundComPortPool, pct1);
+        when(existing.isDefault()).thenReturn(false); // override
+        when(deviceXas.getConnectionTasks()).thenReturn(Collections.singletonList(existing));
+        when(connectionTaskService.findConnectionTask(123456789)).thenReturn(Optional.of(existing));
+        // ACTUAL CALL
+        Response response = target("devices/XAS/connectionmethods/123456789").request().put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        verify(existing).setConnectionStrategy(ConnectionStrategy.MINIMIZE_CONNECTIONS);
+        verify(existing).setSimultaneousConnectionsAllowed(true);
+        verify(existing).setProperty("decimal.property", BigDecimal.valueOf(8080));
+        verify(connectionTaskService).setDefaultConnectionTask(existing);
+        verify(connectionTaskService, never()).clearDefaultConnectionTask(any());
+        verify(existing).save();
+    }
+
 }

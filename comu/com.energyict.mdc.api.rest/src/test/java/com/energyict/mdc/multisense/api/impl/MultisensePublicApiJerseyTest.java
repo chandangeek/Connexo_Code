@@ -39,6 +39,7 @@ import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.imp.Batch;
 import com.energyict.mdc.device.data.imp.DeviceImportService;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
@@ -269,6 +270,25 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         when(connectionTask.getTypedProperties()).thenReturn(TypedProperties.empty());
         when(connectionTask.getRescheduleDelay()).thenReturn(TimeDuration.minutes(60));
         when(connectionTask.getCommunicationWindow()).thenReturn(new ComWindow(PartialTime.fromHours(2), PartialTime.fromHours(4)));
+        when(connectionTaskService.findConnectionTask(id)).thenReturn(Optional.of(connectionTask));
+        return connectionTask;
+    }
+
+    InboundConnectionTask mockInboundConnectionTask(long id, String name, Device deviceXas, InboundComPortPool comPortPool, PartialInboundConnectionTask partial) {
+        InboundConnectionTask connectionTask = mock(InboundConnectionTask.class);
+        when(connectionTask.getId()).thenReturn(id);
+        when(connectionTask.getName()).thenReturn(name);
+        when(connectionTask.isDefault()).thenReturn(true);
+        when(connectionTask.getStatus()).thenReturn(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE);
+        when(connectionTask.getDevice()).thenReturn(deviceXas);
+        when(connectionTask.getComPortPool()).thenReturn(comPortPool);
+        when(connectionTask.getPartialConnectionTask()).thenReturn(partial);
+        ConnectionType connectionType = mock(ConnectionType.class);
+        PropertySpec propertySpec = mockStringPropertySpec();
+        when(connectionType.getPropertySpecs()).thenReturn(Collections.singletonList(propertySpec));
+        when(connectionTask.getConnectionType()).thenReturn(connectionType);
+        when(connectionTask.getTypedProperties()).thenReturn(TypedProperties.empty());
+        when(connectionTaskService.findConnectionTask(id)).thenReturn(Optional.of(connectionTask));
         return connectionTask;
     }
 
@@ -297,7 +317,6 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         PropertySpec propertySpec = mockStringPropertySpec();
         when(connectionType.getPropertySpecs()).thenReturn(Collections.singletonList(propertySpec));
         when(mock.getConnectionType()).thenReturn(connectionType);
-        when(mock.getTypedProperties()).thenReturn(TypedProperties.empty());
         when(mock.getTypedProperties()).thenReturn(TypedProperties.empty());
 
         return mock;

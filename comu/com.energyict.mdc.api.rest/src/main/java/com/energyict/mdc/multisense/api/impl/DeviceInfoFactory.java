@@ -118,7 +118,7 @@ public class DeviceInfoFactory extends SelectableFieldFactory<DeviceInfo,Device>
                                 path(ConnectionTaskResource.class).
                                 path(ConnectionTaskResource.class, "getConnectionTask").
                                 resolveTemplate("mrid", device.getmRID()).
-                                resolveTemplate("id", connectionTask.getId());
+                                resolveTemplate("connectionTaskId", connectionTask.getId());
                         linkInfo.link = Link.fromUriBuilder(uriBuilder).rel("related").title("connection method").build();
                         return linkInfo;
                     }).

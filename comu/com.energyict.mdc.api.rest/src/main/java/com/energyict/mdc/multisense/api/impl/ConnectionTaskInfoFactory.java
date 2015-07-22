@@ -1,5 +1,6 @@
 package com.energyict.mdc.multisense.api.impl;
 
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.ComWindow;
@@ -8,6 +9,7 @@ import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
@@ -23,9 +25,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import javax.inject.Inject;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Link;
-import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
@@ -36,16 +36,18 @@ public class ConnectionTaskInfoFactory extends SelectableFieldFactory<Connection
 
     private final MdcPropertyUtils mdcPropertyUtils;
     private final EngineConfigurationService engineConfigurationService;
+    private final ConnectionTaskService connectionTaskService;
     private final ExceptionFactory exceptionFactory;
 
     @Inject
-    public ConnectionTaskInfoFactory(MdcPropertyUtils mdcPropertyUtils, EngineConfigurationService engineConfigurationService, ExceptionFactory exceptionFactory) {
+    public ConnectionTaskInfoFactory(MdcPropertyUtils mdcPropertyUtils, EngineConfigurationService engineConfigurationService, ConnectionTaskService connectionTaskService, ExceptionFactory exceptionFactory) {
         this.mdcPropertyUtils = mdcPropertyUtils;
         this.engineConfigurationService = engineConfigurationService;
+        this.connectionTaskService = connectionTaskService;
         this.exceptionFactory = exceptionFactory;
     }
 
-    public ConnectionTaskInfo asHypermedia(ConnectionTask<?,?> connectionTask, UriInfo uriInfo, Collection<String> fields) {
+    public ConnectionTaskInfo from(ConnectionTask<?, ?> connectionTask, UriInfo uriInfo, Collection<String> fields) {
         ConnectionTaskInfo info = new ConnectionTaskInfo();
         copySelectedFields(info, connectionTask, uriInfo, fields);
         return info;
@@ -119,7 +121,7 @@ public class ConnectionTaskInfoFactory extends SelectableFieldFactory<Connection
         map.put("nextExecutionSpecs", (connectionTaskInfo, connectionTask, uriInfo) -> {
             if (ScheduledConnectionTask.class.isAssignableFrom(connectionTask.getClass())) {
                 NextExecutionSpecs nextExecutionSpecs = ((ScheduledConnectionTask) connectionTask).getNextExecutionSpecs();
-                if (nextExecutionSpecs!=null) {
+                if (nextExecutionSpecs != null) {
                     connectionTaskInfo.nextExecutionSpecs = TemporalExpressionInfo.from(nextExecutionSpecs.getTemporalExpression());
                 }
             }
@@ -143,9 +145,9 @@ public class ConnectionTaskInfoFactory extends SelectableFieldFactory<Connection
     }
 
 
-    public ScheduledConnectionTask createOutboundConnectionTask(ConnectionTaskInfo info, Device device, PartialConnectionTask partialConnectionTask) {
+    public ScheduledConnectionTask createScheduledConnectionTask(ConnectionTaskInfo info, Device device, PartialConnectionTask partialConnectionTask) {
         if (!PartialScheduledConnectionTask.class.isAssignableFrom(partialConnectionTask.getClass())) {
-            throw new WebApplicationException("Expected partial connection task to be 'Outbound'", Response.Status.BAD_REQUEST);
+            throw exceptionFactory.newException(MessageSeeds.EXPECTED_PARTIAL_OUTBOUND);
         }
 
         PartialScheduledConnectionTask partialScheduledConnectionTask = (PartialScheduledConnectionTask) partialConnectionTask;
@@ -174,6 +176,91 @@ public class ConnectionTaskInfoFactory extends SelectableFieldFactory<Connection
             }
         }
         return scheduledConnectionTaskBuilder.add();
+    }
+
+    public ConnectionTask<?, ?> updateInboundConnectionTask(long connectionTaskId, ConnectionTaskInfo connectionTaskInfo, Device device, PartialConnectionTask partialConnectionTask, ConnectionTask connectionTask) {
+        if (!InboundConnectionTask.class.isAssignableFrom(connectionTask.getClass())) {
+            throw exceptionFactory.newException(MessageSeeds.EXPECTED_INBOUND);
+        }
+        InboundConnectionTask inboundConnectionTask = (InboundConnectionTask) connectionTask;
+        setPropertiesTo(connectionTaskInfo, inboundConnectionTask, partialConnectionTask);
+        if (connectionTaskInfo.comPortPool==null || connectionTaskInfo.comPortPool.id==null) {
+            inboundConnectionTask.setComPortPool(null);
+        } else {
+            inboundConnectionTask.setComPortPool(engineConfigurationService.findInboundComPortPool(connectionTaskInfo.comPortPool.id).orElse(null));
+        }
+        inboundConnectionTask.save();
+        pauseOrResumeTask(connectionTaskInfo, inboundConnectionTask);
+        updateDefaultStatus(connectionTaskInfo, device, inboundConnectionTask);
+        return connectionTaskService.findConnectionTask(connectionTaskId).get();
+    }
+
+    public ConnectionTask<?, ?> updateScheduledConnectionTask(long connectionTaskId, ConnectionTaskInfo connectionTaskInfo, Device device, PartialConnectionTask partialConnectionTask, ConnectionTask connectionTask) {
+        if (!ScheduledConnectionTask.class.isAssignableFrom(connectionTask.getClass())) {
+            throw exceptionFactory.newException(MessageSeeds.EXPECTED_OUTBOUND);
+        }
+        ScheduledConnectionTask scheduledConnectionTask = (ScheduledConnectionTask) connectionTask;
+        setPropertiesTo(connectionTaskInfo, scheduledConnectionTask, partialConnectionTask);
+        scheduledConnectionTask.setSimultaneousConnectionsAllowed(connectionTaskInfo.allowSimultaneousConnections);
+        if (connectionTaskInfo.comWindow!=null && connectionTaskInfo.comWindow.start != null && connectionTaskInfo.comWindow.end!=null) {
+            scheduledConnectionTask.setCommunicationWindow(new ComWindow(connectionTaskInfo.comWindow.start, connectionTaskInfo.comWindow.end));
+        } else {
+            scheduledConnectionTask.setCommunicationWindow(null);
+        }
+        if (connectionTaskInfo.comPortPool==null || connectionTaskInfo.comPortPool.id==null) {
+            scheduledConnectionTask.setComPortPool(null);
+        } else {
+            scheduledConnectionTask.setComPortPool(engineConfigurationService.findOutboundComPortPool(connectionTaskInfo.comPortPool.id).orElse(null));
+        }
+        scheduledConnectionTask.setConnectionStrategy(connectionTaskInfo.connectionStrategy);
+        try {
+            scheduledConnectionTask.setNextExecutionSpecsFrom(connectionTaskInfo.nextExecutionSpecs != null ? connectionTaskInfo.nextExecutionSpecs.asTemporalExpression() : null);
+        } catch (LocalizedFieldValidationException e) {
+            throw e.fromSubField("nextExecutionSpecs");
+        }
+        scheduledConnectionTask.save();
+        pauseOrResumeTask(connectionTaskInfo, scheduledConnectionTask);
+        updateDefaultStatus(connectionTaskInfo, device, scheduledConnectionTask);
+        return connectionTaskService.findConnectionTask(connectionTaskId).get();
+    }
+
+    private void setPropertiesTo(ConnectionTaskInfo connectionTaskInfo, ConnectionTask<?,?> connectionTask, PartialConnectionTask partialConnectionTask) {
+        try {
+            if (connectionTaskInfo.properties != null) {
+                for (PropertySpec propertySpec : partialConnectionTask.getPluggableClass().getPropertySpecs()) {
+                    Object propertyValue = mdcPropertyUtils.findPropertyValue(propertySpec, connectionTaskInfo.properties);
+                    if (propertyValue != null) {
+                        connectionTask.setProperty(propertySpec.getName(), propertyValue);
+                    } else {
+                        connectionTask.removeProperty(propertySpec.getName());
+                    }
+                }
+            }
+        } catch (LocalizedFieldValidationException e) {
+            throw e.fromSubField("properties");
+        }
+    }
+
+    private void updateDefaultStatus(ConnectionTaskInfo connectionTaskInfo, Device device, ConnectionTask<?, ?> connectionTask) {
+        if (connectionTaskInfo.isDefault==null) {
+            connectionTaskInfo.isDefault=false;
+        }
+        if (connectionTaskInfo.isDefault && !connectionTask.isDefault()) {
+            connectionTaskService.setDefaultConnectionTask(connectionTask);
+        } else if (!connectionTaskInfo.isDefault && connectionTask.isDefault()) {
+            connectionTaskService.clearDefaultConnectionTask(device);
+        }
+    }
+
+    private void pauseOrResumeTask(ConnectionTaskInfo connectionTaskInfo, ConnectionTask<?, ?> task) {
+        switch (connectionTaskInfo.status) {
+            case ACTIVE:
+                task.activate();
+                break;
+            case INACTIVE:
+                task.deactivate();
+                break;
+        }
     }
 
 }
