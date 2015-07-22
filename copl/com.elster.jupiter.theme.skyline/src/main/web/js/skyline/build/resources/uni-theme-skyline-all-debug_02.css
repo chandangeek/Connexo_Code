@@ -6181,14 +6181,18 @@ body.login .x-panel-login .x-field-error .x-form-display-field {
 }
 
 /* line 53, ../../sass/src/container/Search.scss */
-.x-toolbar {
-  background-color: #71adc7 !important;
+.x-spacers {
+  background-color: white !important;
+  border-color: white !important;
 }
 
-/* line 56, ../../sass/src/container/Search.scss */
-.x-spacers {
-  background-color: #71adc7 !important;
-  border-color: #71adc7 !important;
+/* line 58, ../../sass/src/container/Search.scss */
+.x-menu-body-custom .x-panel-body {
+  background-color: white !important;
+}
+/* line 61, ../../sass/src/container/Search.scss */
+.x-menu-body-custom .x-toolbar {
+  background-color: white !important;
 }
 
 /* line 3, ../../sass/src/LoadMask.scss */
@@ -16321,13 +16325,4 @@ a:hover, a.x-btn:hover {
 .x-btn-tag-medium-focus:after {
   display: none;
   content: "x-slicer:stretch:bottom, corners:url(images/btn/btn-tag-medium-focus-corners.gif), sides:url(images/btn/btn-tag-medium-focus-sides.gif), frame-bg:url(images/btn/btn-tag-medium-focus-fbg.gif), bg:url(images/btn/btn-tag-medium-focus-bg.gif)";
-}
-
-/*</if slicer>*/
-/* */
-/*<if slicer>*/
-/* line 78, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/slicer.scss */
-.x-btn-tag-medium-over:after {
-  display: none;
-  content: "x-slicer:stretch:bottom, corners:url(images/btn/btn-tag-medium-over-corners.gif), sides:url(images/btn/btn-tag-medium-over-sides.gif), frame-bg:url(images/btn/btn-tag-medium-over-fbg.gif), bg:url(images/btn/btn-tag-medium-over-bg.gif)";
 }

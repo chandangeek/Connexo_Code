@@ -50,10 +50,15 @@
 .x-menu-item-checkbox {
   margin: 7px 0px 0px 9px !important;
 }
-.x-toolbar {
-  background-color: #71adc7 !important;
-}
 .x-spacers {
-  background-color: #71adc7 !important;
-  border-color: #71adc7 !important;
+  background-color: white !important;
+  border-color: white !important;
+}
+.x-menu-body-custom {
+  .x-panel-body {
+    background-color: white !important;
+  }
+  .x-toolbar {
+    background-color: white !important;
+  }
 }

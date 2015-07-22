@@ -2,6 +2,15 @@
 /* */
 /*<if slicer>*/
 /* line 78, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/slicer.scss */
+.x-btn-tag-medium-over:after {
+  display: none;
+  content: "x-slicer:stretch:bottom, corners:url(images/btn/btn-tag-medium-over-corners.gif), sides:url(images/btn/btn-tag-medium-over-sides.gif), frame-bg:url(images/btn/btn-tag-medium-over-fbg.gif), bg:url(images/btn/btn-tag-medium-over-bg.gif)";
+}
+
+/*</if slicer>*/
+/* */
+/*<if slicer>*/
+/* line 78, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/slicer.scss */
 .x-btn-tag-medium-pressed:after {
   display: none;
   content: "x-slicer:stretch:bottom, corners:url(images/btn/btn-tag-medium-pressed-corners.gif), sides:url(images/btn/btn-tag-medium-pressed-sides.gif), frame-bg:url(images/btn/btn-tag-medium-pressed-fbg.gif), bg:url(images/btn/btn-tag-medium-pressed-bg.gif)";
