@@ -38,7 +38,7 @@ public class MdcAppInstaller implements InstallService {
         this.userService = userService;
     }
 
-    private void createDefaultRoles() {
+    public void createDefaultRoles() {
         try {
             userService.createGroup(MdcAppService.Roles.METER_EXPERT.value(), MdcAppService.Roles.METER_EXPERT.description());
             userService.createGroup(MdcAppService.Roles.METER_OPERATOR.value(), MdcAppService.Roles.METER_OPERATOR.description());

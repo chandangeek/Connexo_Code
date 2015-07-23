@@ -1,7 +1,5 @@
 package com.energyict.mdc.app.impl;
 
-import com.energyict.mdc.device.data.security.Privileges;
-
 import java.util.Arrays;
 import java.util.List;
 
@@ -16,6 +14,13 @@ class MdcAppPrivileges {
                 com.elster.jupiter.validation.security.Privileges.VALIDATE_MANUAL,
                 com.elster.jupiter.validation.security.Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE,
                 com.elster.jupiter.validation.security.Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION,
+
+                //export
+                com.elster.jupiter.export.security.Privileges.ADMINISTRATE_DATA_EXPORT_TASK,
+                com.elster.jupiter.export.security.Privileges.VIEW_DATA_EXPORT_TASK,
+                com.elster.jupiter.export.security.Privileges.UPDATE_DATA_EXPORT_TASK,
+                com.elster.jupiter.export.security.Privileges.UPDATE_SCHEDULE_DATA_EXPORT_TASK,
+                com.elster.jupiter.export.security.Privileges.RUN_DATA_EXPORT_TASK,
 
                 //issue
                 com.elster.jupiter.issue.security.Privileges.ACTION_ISSUE,
@@ -46,9 +51,10 @@ class MdcAppPrivileges {
                 com.energyict.mdc.device.data.security.Privileges.ADMINISTRATE_DEVICE_COMMUNICATION,
                 com.energyict.mdc.device.data.security.Privileges.OPERATE_DEVICE_COMMUNICATION,
 
-                //mdc.device.data - Device data
+                // mdc.device.data - Device data
                 com.energyict.mdc.device.data.security.Privileges.ADMINISTRATE_DEVICE_ATTRIBUTE,
                 com.energyict.mdc.device.data.security.Privileges.ADMINISTRATE_DEVICE_DATA,
+                com.energyict.mdc.device.data.security.Privileges.ADMINISTER_DECOMMISSIONED_DEVICE_DATA,
 
                 //mdc.device.data - Devices group
                 com.energyict.mdc.device.data.security.Privileges.ADMINISTRATE_DEVICE_GROUP,
