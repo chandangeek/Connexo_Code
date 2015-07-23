@@ -647,24 +647,6 @@ import static com.elster.jupiter.util.conditions.Where.where;
                     sqlBuilder = sqlBuilder.asPageBuilder("id", start.get()+1, start.get() + limit.get()+1);
                 }
 
-                /*Query<EndDevice> vQuery = meteringService.getEndDeviceValidationQuery();
-
-                Condition select = (where("mrq.type").isEqualTo("'3.5.258'").or(
-                                where("mrq.type").isEqualTo("'3.5.259'"))).and(
-                                where("mrq.actual").isEqualTo("'Y'")).and(
-                                where("mrq.CHANNELID").isEqualTo("mc.id"));
-                Subquery exists =   ListOperator.exists(vQuery.asSubquery(select)).getSubquery();
-
-
-                if (deviceGroup instanceof QueryEndDeviceGroup) {
-                    Condition condition = meteringGroupsService.pollEndDeviceQueryProvider(deviceGroup.getQueryProviderName(), Duration.ofMinutes(1)).get().getQueryCondition(((QueryEndDeviceGroup) deviceGroup).getCondition());
-                    Subquery devs = query.asSubquery(condition, "id");
-                } else {
-                    Subquery devs = ((EnumeratedEndDeviceGroup) deviceGroup).getAmrIdSubQuery();
-                }
-
-                Query<EndDevice> outQuery = meteringService.getEndDeviceQuery();*/
-
                 return Optional.of(sqlBuilder);
 
             } catch (Exception e) {
