@@ -80,6 +80,8 @@ Ext.define('Login.controller.Login', {
             },
             scope: this,
             success: function (response, opt) {
+                var resTokens = response.getResponseHeader('Authorization').split(" ");
+                Ext.util.Cookies.set('X-CONNEXO-XSRF', resTokens[1]);
                 me.loginOK();
             },
             failure: function (response, opt) {
