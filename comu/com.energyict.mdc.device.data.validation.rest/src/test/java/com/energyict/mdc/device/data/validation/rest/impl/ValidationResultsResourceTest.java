@@ -27,12 +27,15 @@ public class ValidationResultsResourceTest extends DeviceDataValidationRestAppli
 
         JsonModel jsonModel = JsonModel.model(target("/validationresults/devicegroups/1").queryParam("start", 0).queryParam("limit", 2).request().get(String.class));
 
-        /*assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(2);
-        assertThat(jsonModel.<Integer>get("$.results[0].id")).isEqualTo(10L);
-        assertThat(jsonModel.<String>get("$.results[0].mrID")).isEqualTo("ABC123451");
-        assertThat(jsonModel.<Integer>get("$.results[0].suspects")).isEqualTo(0);
-        assertThat(jsonModel.<Integer>get("$.results[1].id")).isEqualTo(11L);
-        assertThat(jsonModel.<String>get("$.results[1].mrID")).isEqualTo("ABC123452");
-        assertThat(jsonModel.<Integer>get("$.results[1].suspects")).isEqualTo(1);*/
+        assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(2);
+        assertThat(jsonModel.<String>get("$.summary[0].mrid")).isEqualTo("ABC123451");
+        assertThat(jsonModel.<String>get("$.summary[0].serialNumber")).isEqualTo("123451");
+        assertThat(jsonModel.<String>get("$.summary[0].deviceType")).isEqualTo("DT1");
+        assertThat(jsonModel.<String>get("$.summary[0].deviceConfig")).isEqualTo("DC1");
+
+        assertThat(jsonModel.<String>get("$.summary[1].mrid")).isEqualTo("ABC123452");
+        assertThat(jsonModel.<String>get("$.summary[1].serialNumber")).isEqualTo("123452");
+        assertThat(jsonModel.<String>get("$.summary[1].deviceType")).isEqualTo("DT2");
+        assertThat(jsonModel.<String>get("$.summary[1].deviceConfig")).isEqualTo("DC2");
     }
 }
