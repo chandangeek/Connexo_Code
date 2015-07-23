@@ -180,6 +180,7 @@ public class WhiteBoard extends Application implements BinderProvider, InstallSe
             protected void configure() {
                 this.bind(eventService).to(EventService.class);
                 this.bind(jsonService).to(JsonService.class);
+                this.bind(userService).to(UserService.class);
                 this.bind(WhiteBoard.this).to(WhiteBoard.class);
             }
         };

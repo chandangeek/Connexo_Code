@@ -4,6 +4,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.http.whiteboard.App;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.json.JsonService;
 
 import javax.inject.Inject;
@@ -24,13 +25,17 @@ public class AppResource {
     @Inject
     private EventService eventService;
     @Inject
+    private UserService userService;
+    @Inject
     private JsonService jsonService;
 
 
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public List<AppInfo> getApps(@Context SecurityContext securityContext) {
+        // TODO: sessions will not be used, so we need to explicitly set the security context principal on authentication
         User user = (User) securityContext.getUserPrincipal();
+
         return whiteBoard.getApps().stream().filter(app -> app.isAllowed(user)).map(this::appInfo).collect(Collectors.toList());
     }
 
@@ -55,15 +60,24 @@ public class AppResource {
 
     @POST
     @Path("/logout")
-    public void logout(@Context HttpServletRequest request) {
-        HttpSession session = request.getSession(false);
+    //public void logout(@Context HttpServletRequest request) {
+    public void logout(@Context SecurityContext securityContext) {
+        // TODO: Sessions will not be used, so logout implementation will move to the client side
+        // that is, implement a javascript action to clear out the token cookie/headers
+
+        /*HttpSession session = request.getSession(false);
         if (session != null) {
             User user =( User )session.getAttribute("user");
             if(user!=null){
                 eventService.postEvent(EventType.LOGOUT.topic(), user.getName());
             }
             session.invalidate();
-        }
+        }*/
+
+        // TODO: sessions will not be used, so we need to explicitly set the security context principal on authentication
+        User user = (User) securityContext.getUserPrincipal();
+
+        userService.removeLoggedUser(user);
     }
 
     private AppInfo appInfo(App app) {
