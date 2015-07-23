@@ -17,6 +17,7 @@ Ext.define('Est.main.view.ReadingTypeTopFilter', {
             {
                 type: 'text',
                 dataIndex: 'name',
+                itemId: 'name-field',
                 emptyText: Uni.I18n.translate('general.readingTypeName', 'EST', 'Reading type name'),
             },
             {
@@ -40,6 +41,7 @@ Ext.define('Est.main.view.ReadingTypeTopFilter', {
             {
                 type: 'combobox',
                 dataIndex: 'tou',
+                itemId: 'time-of-use-field',
                 emptyText: Uni.I18n.translate('general.timeOfUse', 'EST', 'Time of use'),
                 store: 'Est.main.store.TimeOfUse',
                 displayField: 'name',
@@ -50,6 +52,7 @@ Ext.define('Est.main.view.ReadingTypeTopFilter', {
             {
                 type: 'combobox',
                 dataIndex: 'time',
+                itemId: 'interval-field',
                 emptyText: Uni.I18n.translate('general.interval', 'EST', 'Interval'),
                 store: 'Est.main.store.Intervals',
                 displayField: 'name',
