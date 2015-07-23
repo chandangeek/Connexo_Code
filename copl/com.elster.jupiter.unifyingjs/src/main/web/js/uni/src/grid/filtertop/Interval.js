@@ -350,6 +350,7 @@ Ext.define('Uni.grid.filtertop.Interval', {
         me.getToDateField().reset();
         me.getToHourField().reset();
         me.getToMinuteField().reset();
+        me.updateTitle();
         me.fireEvent('filtervaluechange');
     },
 
