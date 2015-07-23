@@ -60,8 +60,6 @@ public class BaseValidationRestTest extends JerseyTest {
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     protected ValidationService validationService;
     @Mock
-    protected MeteringService meteringService;
-    @Mock
     private MeteringGroupsService meteringGroupsService;
     @Mock
     protected EndDeviceGroup endDeviceGroup;
@@ -102,7 +100,6 @@ public class BaseValidationRestTest extends JerseyTest {
         super.setUp();
         serviceLocator = new ValidationApplication();
         serviceLocator.setValidationService(validationService);
-        serviceLocator.setMeteringService(meteringService);
         serviceLocator.setRestQueryService(restQueryService);
         serviceLocator.setTransactionService(transactionService);
         serviceLocator.setNlsService(nlsService);

@@ -28,7 +28,6 @@ public class ValidationApplication extends Application implements BinderProvider
 	private volatile ValidationService validationService;
 	private volatile TransactionService transactionService;
 	private volatile RestQueryService restQueryService;
-    private volatile MeteringService meteringService;
     private volatile MeteringGroupsService meteringGroupsService;
 
     private volatile NlsService nlsService;
@@ -55,11 +54,6 @@ public class ValidationApplication extends Application implements BinderProvider
 	public void setRestQueryService(RestQueryService restQueryService) {
 		this.restQueryService = restQueryService;
 	}
-
-    @Reference
-    public void setMeteringService(MeteringService meteringService) {
-        this.meteringService = meteringService;
-    }
 
     @Reference
     public void setMeteringGroupsService(MeteringGroupsService meteringGroupsService) {
