@@ -10,7 +10,6 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
     stores: [
         'Dlc.devicelifecyclestates.store.DeviceLifeCycleStates',
         'Dlc.devicelifecyclestates.store.AvailableTransitionBusinessProcesses',
-        'Dlc.devicelifecyclestates.store.TransitionBusinessProcesses'
     ],
 
     models: [
@@ -286,30 +285,21 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
     },
 
     addEntryTransitionBusinessProcessesToState: function (){
-        var router = this.getController('Uni.controller.history.Router'),
-           storeToUpdate = 'onEntry',
-           store =  Ext.data.StoreManager.lookup(storeToUpdate),
-           widget = Ext.widget('AddProcessesToState', {
-                        returnLink: router.getRoute().buildUrl()
-           });
-
-        if (!Ext.isEmpty(store)){
-             widget.storeToUpdate = storeToUpdate;
-             widget.exclude(store.data.items);
-        }
-        this.getApplication().fireEvent('changecontentevent', widget );
+        this.addTransitionBusinessProcessesToState('onEntry');
     },
 
-    addExitTransitionBusinessProcessesToState: function (){
+    addExitTransitionBusinessProcessesToState: function () {
+        this.addTransitionBusinessProcessesToState('onExit');
+    },
+    addTransitionBusinessProcessesToState: function (storeToUpdate){
         var router = this.getController('Uni.controller.history.Router'),
-           storeToUpdate = 'onExit',
            store =  Ext.data.StoreManager.lookup(storeToUpdate),
            widget = Ext.widget('AddProcessesToState', {
                         returnLink: router.getRoute().buildUrl()
            });
 
-        if (!Ext.isEmpty(store)){
-             widget.storeToUpdate = storeToUpdate;
+        if (store){
+             widget.storeToUpdate = store;
              widget.exclude(store.data.items);
         }
         this.getApplication().fireEvent('changecontentevent', widget );
@@ -330,16 +320,15 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
             widget = this.getAddProcessesToState(),
             selection = widget.getSelection();
 
-        router.getRoute(widget.returnlink).forward();
         if (!Ext.isEmpty(selection)) {
-            var store = Ext.data.StoreManager.lookup(widget.storeToUpdate);
-            console.log('before :'+ store.count()+' processes set');
+            var store = widget.storeToUpdate;
+            console.log(store.storeId +' before :'+  store.count()+' processes set');
             Ext.each(selection, function (transitionBusinessProcess) {
                 store.add(transitionBusinessProcess);
             });
-            console.log('after :'+store.count()+' processes set');
+            console.log(store.storeId +' after :'+store.count()+' processes set');
         }
-
+        router.getRoute(widget.returnlink).forward();
         this.getLifeCycleStatesEditForm().updateRecord();
     }
 

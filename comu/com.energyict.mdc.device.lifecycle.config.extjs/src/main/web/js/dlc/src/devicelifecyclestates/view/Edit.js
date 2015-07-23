@@ -167,7 +167,7 @@ Ext.define('Dlc.devicelifecyclestates.view.Edit', {
                         }
                     ]
                 }
-            ],
+            ] ,
             loadRecord: function (record) {
                 if (Ext.isEmpty(record.get('id'))) { //Add
                     this.setTitle(Uni.I18n.translate('deviceLifeCycleStates.add', 'DLC', 'Add state'));
@@ -188,13 +188,21 @@ Ext.define('Dlc.devicelifecyclestates.view.Edit', {
                 }
                 this.getForm().loadRecord(record);
             }
+
         }
     ],
     initComponent: function() {
         this.callParent(arguments);
-        var onEntryStore = Ext.create('Dlc.devicelifecyclestates.store.TransitionBusinessProcesses', {storeId: 'onEntry'});
+        var onEntryStore = Ext.data.StoreManager.lookup('onEntry');
+        if (!onEntryStore) {
+            onEntryStore = Ext.create('Dlc.devicelifecyclestates.store.TransitionBusinessProcesses', {storeId: 'onEntry'});
+        }
         this.down('#processesOnEntryGridPanel').getView().bindStore(onEntryStore);
-        var onExitStore = Ext.create('Dlc.devicelifecyclestates.store.TransitionBusinessProcesses', {storeId: 'onExit'});
+
+        var onExitStore = Ext.data.StoreManager.lookup('onExit');
+        if (!onExitStore) {
+            onExitStore = Ext.create('Dlc.devicelifecyclestates.store.TransitionBusinessProcesses', {storeId: 'onExit'});
+        }
         this.down('#processesOnExitGridPanel').getView().bindStore(onExitStore);
     }
 });
