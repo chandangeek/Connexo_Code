@@ -74,12 +74,10 @@ Ext.define('Uni.controller.Search', {
             'search-object-selector': {
                 change: me.onChangeSearchDomain
             },
-            //addCriteriaCombo.on({
-            //    menuhide: me.onSelectAddCriteria,
-            //    //select: me.onSelectAddCriteria,
-            //    scope: me
-            //});
-            //
+            'search-criteria-selector menu menucheckitem': {
+                checkchange: me.onCriteriaChange
+            }
+
             //removablePropertiesContainer.on({
             //    add: me.updateRemovableContainerVisibility,
             //    remove: me.updateRemovableContainerVisibility,
@@ -267,9 +265,11 @@ Ext.define('Uni.controller.Search', {
             Uni.util.History.suspendEventsForNextCall();
             router.getRoute().forward(null, {searchDomain: searchDomain.get('displayValue')});
 
+            searchProperties.removeAll();
             searchProperties.getProxy().url = searchDomain.get('glossaryHref');
             searchProperties.load();
 
+            fields.removeAll();
             fields.getProxy().url = searchDomain.get('describedByHref');
             fields.load({
                 callback: function (records, operation, success) {
@@ -358,24 +358,31 @@ Ext.define('Uni.controller.Search', {
         };
     },
 
-    onSelectAddCriteria: function (field, records, options) {
-        var me = options.scope,
-            property = !Ext.isEmpty(records) ? records[0] : null,
-            criteriaStore = Ext.getStore('Uni.store.search.Removables');
+    onCriteriaChange: function (field, checked, e) {
+        var me = this,
+            criteriaStore = Ext.getStore('Uni.store.search.Removables'),
+            container = me.getRemovablePropertiesContainer();
 
-        if (property !== null) {
-            me.addRemovableProperty(records[0]);
-            criteriaStore.remove(records[0]);
+        if (checked) {
+            me.addProperty(field.criteria, container, true);
+            criteriaStore.remove(field.criteria);
+        } else {
+            me.removeProperty(field.criteria, container, true);
+            criteriaStore.add(field.criteria);
         }
+
+        container.setVisible(container.items.length);
     },
 
     removeStickyProperties: function () {
         var me = this,
-            property;
+            property,
+            container = me.getStickyPropertiesContainer();
 
         Ext.suspendLayouts();
 
-        me.getStickyPropertiesContainer().setVisible(false);
+        container.removeAll();
+        container.setVisible(false);
         me.filters.each(function (filter) {
             property = filter.property;
 
@@ -398,7 +405,7 @@ Ext.define('Uni.controller.Search', {
             container.add(filter);
 
             widget.on('filterupdate', me.applyFilters, me);
-            me.applyConstraintListeners(property, widget);
+            //me.applyConstraintListeners(property, widget);
             //me.updateRemovableContainerVisibility();
         }
     },
@@ -491,10 +498,12 @@ Ext.define('Uni.controller.Search', {
     removeRemovableProperties: function () {
         var me = this,
             criteriaStore = Ext.getStore('Uni.store.search.Removables'),
+            container = me.getRemovablePropertiesContainer(),
             property;
 
         Ext.suspendLayouts();
-        me.getRemovablePropertiesContainer().setVisible(false);
+        container.removeAll();
+        container.setVisible(false);
         me.filters.each(function (filter) {
             property = filter.property;
 
@@ -505,10 +514,6 @@ Ext.define('Uni.controller.Search', {
         });
 
         Ext.resumeLayouts(true);
-    },
-
-    addRemovableProperty: function (property) {
-        this.addProperty(property, this.getRemovablePropertiesContainer(), true);
     },
 
     removeRemovableProperty: function (property) {
