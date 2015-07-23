@@ -1,7 +1,6 @@
 package com.energyict.mdc.device.config.impl.deviceconfigchange;
 
 import com.energyict.mdc.common.HasId;
-import com.energyict.mdc.device.config.ConflictingConnectionMethodSolution;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 
 /**
@@ -15,7 +14,6 @@ public class DeviceConfigChangeAction<T extends HasId> {
     private T originConnectionTask;
     private T destinationConnectionTask;
     private DeviceConfigChangeActionType actionType;
-    private ConflictingConnectionMethodSolution solution;
 
     public DeviceConfigChangeAction(DeviceConfiguration originDeviceConfig, DeviceConfiguration destinationDeviceConfig) {
         this.originDeviceConfig = originDeviceConfig;
@@ -32,14 +30,6 @@ public class DeviceConfigChangeAction<T extends HasId> {
 
     public DeviceConfigChangeActionType getActionType() {
         return actionType;
-    }
-
-    public ConflictingConnectionMethodSolution getSolution() {
-        return solution;
-    }
-
-    public void setSolution(ConflictingConnectionMethodSolution solution) {
-        this.solution = solution;
     }
 
     public void setOrigin(T originConnectionTask) {

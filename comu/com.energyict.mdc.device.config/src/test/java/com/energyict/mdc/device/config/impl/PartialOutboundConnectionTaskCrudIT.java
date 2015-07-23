@@ -1,19 +1,56 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.energyict.mdc.common.CanFindByLongPrimaryKey;
-import com.energyict.mdc.common.ComWindow;
-import com.energyict.mdc.common.FactoryIds;
-import com.energyict.mdc.common.HasId;
-import com.energyict.mdc.common.IdBusinessObjectFactory;
-import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.device.config.ConnectionStrategy;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
+import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.datavault.impl.DataVaultModule;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
+import com.elster.jupiter.domain.util.impl.DomainUtilModule;
+import com.elster.jupiter.estimation.EstimationService;
+import com.elster.jupiter.estimation.impl.EstimationModule;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.events.LocalEvent;
+import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
+import com.elster.jupiter.ids.impl.IdsModule;
+import com.elster.jupiter.license.License;
+import com.elster.jupiter.license.LicenseService;
+import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
+import com.elster.jupiter.metering.impl.MeteringModule;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.impl.NlsModule;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.orm.impl.OrmModule;
+import com.elster.jupiter.parties.impl.PartyModule;
+import com.elster.jupiter.properties.impl.BasicPropertiesModule;
+import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.tasks.impl.TaskModule;
+import com.elster.jupiter.time.TemporalExpression;
+import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.time.impl.TimeModule;
+import com.elster.jupiter.transaction.TransactionContext;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.transaction.VoidTransaction;
+import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.users.impl.UserModule;
+import com.elster.jupiter.util.UtilModule;
+import com.elster.jupiter.validation.ValidationService;
+import com.elster.jupiter.validation.impl.ValidationModule;
+import com.energyict.mdc.common.*;
+import com.energyict.mdc.device.config.*;
 import com.energyict.mdc.device.config.events.EventType;
-import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.events.PartialConnectionTaskUpdateDetails;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
+import com.energyict.mdc.device.config.impl.deviceconfigchange.DeviceConfigConflictMappingHandler;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
 import com.energyict.mdc.dynamic.PropertySpecService;
@@ -45,54 +82,17 @@ import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.model.impl.NextExecutionSpecsImpl;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
-
-import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
-import com.elster.jupiter.datavault.impl.DataVaultModule;
-import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
-import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
-import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
-import com.elster.jupiter.domain.util.impl.DomainUtilModule;
-import com.elster.jupiter.estimation.EstimationService;
-import com.elster.jupiter.estimation.impl.EstimationModule;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.events.impl.EventsModule;
-import com.elster.jupiter.fsm.FiniteStateMachineService;
-import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
-import com.elster.jupiter.ids.impl.IdsModule;
-import com.elster.jupiter.license.License;
-import com.elster.jupiter.license.LicenseService;
-import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
-import com.elster.jupiter.metering.impl.MeteringModule;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.impl.NlsModule;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
-import com.elster.jupiter.orm.impl.OrmModule;
-import com.elster.jupiter.parties.impl.PartyModule;
-import com.elster.jupiter.properties.impl.BasicPropertiesModule;
-import com.elster.jupiter.pubsub.impl.PubSubModule;
-import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
-import com.elster.jupiter.tasks.impl.TaskModule;
-import com.elster.jupiter.time.TemporalExpression;
-import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.time.impl.TimeModule;
-import com.elster.jupiter.transaction.TransactionContext;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.transaction.impl.TransactionModule;
-import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.users.impl.UserModule;
-import com.elster.jupiter.util.UtilModule;
-import com.elster.jupiter.validation.ValidationService;
-import com.elster.jupiter.validation.impl.ValidationModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import org.fest.assertions.core.Condition;
 import org.joda.time.DateTimeConstants;
+import org.junit.*;
+import org.junit.rules.TestRule;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
@@ -107,14 +107,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.*;
-import org.junit.rules.*;
-import org.junit.runner.*;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 
@@ -148,6 +141,8 @@ public class PartialOutboundConnectionTaskCrudIT {
     private static OutboundComPortPool outboundComPortPool, outboundComPortPool1;
     private static SpyEventService eventService;
     private static SchedulingService schedulingService;
+    private static Injector injector = null;
+
 
     @Mock
     private MyDeviceProtocolPluggableClass deviceProtocolPluggableClass;
@@ -172,7 +167,6 @@ public class PartialOutboundConnectionTaskCrudIT {
         initializeStaticMocks();
         Principal principal = mock(Principal.class);
         when(principal.getName()).thenReturn(PartialOutboundConnectionTaskCrudIT.class.getSimpleName());
-        Injector injector = null;
         try {
             injector = Guice.createInjector(
                     new MockModule(),
@@ -426,7 +420,7 @@ public class PartialOutboundConnectionTaskCrudIT {
         outboundConnectionTask = deviceConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.MINIMIZE_CONNECTIONS)
                 .comPortPool(outboundComPortPool)
                 .comWindow(COM_WINDOW)
-                .nextExecutionSpec().temporalExpression(new TimeDuration(6, TimeDuration.TimeUnit.HOURS),new TimeDuration(1, TimeDuration.TimeUnit.HOURS)).set()
+                .nextExecutionSpec().temporalExpression(new TimeDuration(6, TimeDuration.TimeUnit.HOURS), new TimeDuration(1, TimeDuration.TimeUnit.HOURS)).set()
                 .asDefault(true).build();
         deviceConfiguration.save();
         reset(eventService.getSpy());
@@ -945,9 +939,124 @@ public class PartialOutboundConnectionTaskCrudIT {
         assertThat(partialOutboundConnectionTask.getConnectionStrategy()).isEqualTo(ConnectionStrategy.MINIMIZE_CONNECTIONS);
     }
 
+    @Test
+    @Transactional
+    public void partialConnectionTaskConflictTest() {
+        DeviceType deviceType = deviceConfigurationService.newDeviceType("ConflictTest", deviceProtocolPluggableClass);
+        deviceType.save();
+
+        DeviceConfiguration firstConfig = createDirectlyAddressableConfig(deviceType, "firstConfig");
+        PartialScheduledConnectionTaskImpl outboundConnectionTask1 = createPartialConnectionTask(firstConfig, "FirstConnectionTask");
+
+        DeviceConfiguration secondConfig = createDirectlyAddressableConfig(deviceType, "secondConfig");
+        PartialScheduledConnectionTaskImpl outboundConnectionTask2 = createPartialConnectionTask(secondConfig, "OtherConnectionTask");
+
+        assertThat(deviceType.getDeviceConfigConflictMappings()).isEmpty();
+        ((ServerDeviceType) deviceType).updateConflictingMappings();
+        assertThat(deviceType.getDeviceConfigConflictMappings()).hasSize(2);
+        assertThat(deviceType.getDeviceConfigConflictMappings()).haveExactly(1, new Condition<DeviceConfigConflictMapping>() {
+            @Override
+            public boolean matches(DeviceConfigConflictMapping deviceConfigConflictMapping) {
+                return matchConfigs(deviceConfigConflictMapping, firstConfig, secondConfig)
+                        && deviceConfigConflictMapping.getConflictingConnectionMethodSolutions().size() == 1
+                        && matchPartialConnectionTasks(outboundConnectionTask1, outboundConnectionTask2, deviceConfigConflictMapping);
+            }
+        });
+        assertThat(deviceType.getDeviceConfigConflictMappings()).haveExactly(1, new Condition<DeviceConfigConflictMapping>() {
+            @Override
+            public boolean matches(DeviceConfigConflictMapping deviceConfigConflictMapping) {
+                return matchConfigs(deviceConfigConflictMapping, secondConfig, firstConfig)
+                        && deviceConfigConflictMapping.getConflictingConnectionMethodSolutions().size() == 1
+                        && matchPartialConnectionTasks(outboundConnectionTask2, outboundConnectionTask1, deviceConfigConflictMapping);
+            }
+        });
+    }
+
+    @Test
+    @Transactional
+    public void resolveConflictsWhenDeviceConfigBecomesInactiveTest() {
+        DeviceType deviceType = deviceConfigurationService.newDeviceType("ConflictTest", deviceProtocolPluggableClass);
+        deviceType.save();
+
+        DeviceConfiguration firstConfig = createDirectlyAddressableConfig(deviceType, "firstConfig");
+        PartialScheduledConnectionTaskImpl outboundConnectionTask1 = createPartialConnectionTask(firstConfig, "FirstConnectionTask");
+
+        DeviceConfiguration secondConfig = createDirectlyAddressableConfig(deviceType, "secondConfig");
+        PartialScheduledConnectionTaskImpl outboundConnectionTask2 = createPartialConnectionTask(secondConfig, "OtherConnectionTask");
+        ((ServerDeviceType) deviceType).updateConflictingMappings();
+        assertThat(deviceType.getDeviceConfigConflictMappings()).hasSize(2); // what is in here is checked in another test
+
+        secondConfig.deactivate();
+
+        ((ServerDeviceType) deviceType).updateConflictingMappings();
+        assertThat(deviceType.getDeviceConfigConflictMappings()).isEmpty();
+    }
+
+    @Test
+    @Transactional
+    public void resolveConnectionTaskConflictWhenRemovalOfConnectionTaskTest() {
+        DeviceType deviceType = deviceConfigurationService.newDeviceType("ConflictTest", deviceProtocolPluggableClass);
+        deviceType.save();
+
+        DeviceConfiguration firstConfig = createDirectlyAddressableConfig(deviceType, "firstConfig");
+        PartialScheduledConnectionTaskImpl outboundConnectionTask1 = createPartialConnectionTask(firstConfig, "FirstConnectionTask");
+
+        DeviceConfiguration secondConfig = createDirectlyAddressableConfig(deviceType, "secondConfig");
+        PartialScheduledConnectionTaskImpl outboundConnectionTask2 = createPartialConnectionTask(secondConfig, "OtherConnectionTask");
+
+        ((ServerDeviceType) deviceType).updateConflictingMappings();
+        assertThat(deviceType.getDeviceConfigConflictMappings()).hasSize(2); // what is in here is checked in another test
+
+        deviceType.save();
+
+        LocalEvent localEvent = mock(LocalEvent.class);
+        com.elster.jupiter.events.EventType eventType = mock(com.elster.jupiter.events.EventType.class);
+        when(eventType.getTopic()).thenReturn(EventType.PARTIAL_SCHEDULED_CONNECTION_TASK_DELETED.topic());
+        when(localEvent.getType()).thenReturn(eventType);
+        when(localEvent.getSource()).thenReturn(outboundConnectionTask2);
+        doAnswer(invocationOnMock -> {
+            injector.getInstance(DeviceConfigConflictMappingHandler.class).onEvent(localEvent, outboundConnectionTask2);
+            return null;
+        }).when(eventService.getSpy()).postEvent(EventType.PARTIAL_SCHEDULED_CONNECTION_TASK_DELETED.topic(), outboundConnectionTask2);
+
+        removeConnectionTaskFromConfig(secondConfig, outboundConnectionTask2);
+        assertThat(deviceType.getDeviceConfigConflictMappings()).isEmpty();
+    }
+
+    private void removeConnectionTaskFromConfig(DeviceConfiguration secondConfig, PartialScheduledConnectionTaskImpl outboundConnectionTask2) {
+        secondConfig.remove(outboundConnectionTask2);
+    }
+
+    private DeviceConfiguration createDirectlyAddressableConfig(DeviceType deviceType, String name) {
+        DeviceConfiguration firstConfig = deviceType.newConfiguration(name).add();
+        firstConfig.setDirectlyAddressable(true);
+        return firstConfig;
+    }
+
+    private PartialScheduledConnectionTaskImpl createPartialConnectionTask(DeviceConfiguration firstConfig, String name) {
+        PartialScheduledConnectionTaskImpl outboundConnectionTask1 = firstConfig.newPartialScheduledConnectionTask(name, connectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.MINIMIZE_CONNECTIONS)
+                .comPortPool(outboundComPortPool)
+                .comWindow(COM_WINDOW)
+                .nextExecutionSpec().temporalExpression(TimeDuration.days(1), NINETY_MINUTES).set()
+                .asDefault(true).build();
+        firstConfig.save();
+        firstConfig.activate();
+        return outboundConnectionTask1;
+    }
+
+    private boolean matchPartialConnectionTasks(PartialScheduledConnectionTaskImpl originPartialConnectionTask, PartialScheduledConnectionTaskImpl destinationPartialConnectionTask, DeviceConfigConflictMapping deviceConfigConflictMapping) {
+        return deviceConfigConflictMapping.getConflictingConnectionMethodSolutions().get(0).getOriginPartialConnectionTask().getId() == originPartialConnectionTask.getId()
+                && deviceConfigConflictMapping.getConflictingConnectionMethodSolutions().get(0).getDestinationPartialConnectionTask().getId() == destinationPartialConnectionTask.getId();
+    }
+
+    private boolean matchConfigs(DeviceConfigConflictMapping deviceConfigConflictMapping, DeviceConfiguration originConfig, DeviceConfiguration destinationConfig) {
+        return deviceConfigConflictMapping.getOriginDeviceConfiguration().getId() == originConfig.getId()
+                && deviceConfigConflictMapping.getDestinationDeviceConfiguration().getId() == destinationConfig.getId();
+    }
+
     private PartialScheduledConnectionTask getConnectionTaskWithName(DeviceConfiguration deviceConfiguration, String connectionTaskName) {
         for (PartialScheduledConnectionTask partialScheduledConnectionTask : deviceConfiguration.getPartialOutboundConnectionTasks()) {
-            if(partialScheduledConnectionTask.getName().equals(connectionTaskName)){
+            if (partialScheduledConnectionTask.getName().equals(connectionTaskName)) {
                 return partialScheduledConnectionTask;
             }
         }
@@ -969,6 +1078,7 @@ public class PartialOutboundConnectionTaskCrudIT {
         public Class valueDomain() {
             return null;
         }
+
         @Override
         public Optional findByPrimaryKey(long id) {
             return null;

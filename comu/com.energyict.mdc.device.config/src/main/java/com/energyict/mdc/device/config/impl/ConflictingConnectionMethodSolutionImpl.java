@@ -44,8 +44,8 @@ public class ConflictingConnectionMethodSolutionImpl implements ConflictingConne
     private Reference<DeviceConfigConflictMapping> conflictingMapping = ValueReference.absent();
     @NotNull
     private DeviceConfigConflictMapping.ConflictingMappingAction action;
-    private Reference<PartialConnectionTask> originConnectionMethod;
-    private Reference<PartialConnectionTask> destinationConnectionMethod;
+    private Reference<PartialConnectionTask> originConnectionMethod = ValueReference.absent();
+    private Reference<PartialConnectionTask> destinationConnectionMethod = ValueReference.absent();
 
     @Inject
     public ConflictingConnectionMethodSolutionImpl(Thesaurus thesaurus) {
@@ -69,6 +69,15 @@ public class ConflictingConnectionMethodSolutionImpl implements ConflictingConne
     @Override
     public PartialConnectionTask getDestinationPartialConnectionTask() {
         return destinationConnectionMethod.orElseThrow(destinationConnectionMethodIsEmpty());
+    }
+
+    @Override
+    public ConflictingConnectionMethodSolution initialize(DeviceConfigConflictMapping deviceConfigConflictMapping, PartialConnectionTask origin, PartialConnectionTask destination) {
+        this.conflictingMapping.set(deviceConfigConflictMapping);
+        this.originConnectionMethod.set(origin);
+        this.destinationConnectionMethod.set(destination);
+        this.action = DeviceConfigConflictMapping.ConflictingMappingAction.NOT_DETERMINED_YET;
+        return this;
     }
 
     private Supplier<? extends LocalizedException> destinationConnectionMethodIsEmpty() {

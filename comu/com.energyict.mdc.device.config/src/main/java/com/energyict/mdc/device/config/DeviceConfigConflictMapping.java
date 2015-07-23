@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.config;
 
+import com.energyict.mdc.common.HasId;
+
 import java.util.List;
 
 /**
@@ -11,17 +13,24 @@ import java.util.List;
  *     <li>Multiple securitySets with the same authentication- and encryptionLevel, but a different name exist</li>
  * </ul>
  */
-public interface DeviceConfigConflictMapping {
+public interface DeviceConfigConflictMapping extends HasId {
+
 
     enum ConflictingMappingAction {
         ADD,
         REMOVE,
-        MAP
-    }
+        MAP,
+        NOT_DETERMINED_YET;
 
+    }
     DeviceConfiguration getOriginDeviceConfiguration();
     DeviceConfiguration getDestinationDeviceConfiguration();
     List<ConflictingConnectionMethodSolution> getConflictingConnectionMethodSolutions();
     List<ConflictingSecuritySetSolution> getConflictingSecuritySetSolutions();
+
     boolean isSolved();
+    void newConflictingConnectionMethods(PartialConnectionTask origin, PartialConnectionTask destination);
+    void newConflictingSecurityPropertySets(SecurityPropertySet origin, SecurityPropertySet destination);
+    void removeConnectionMethodSolution(ConflictingConnectionMethodSolution conflictingConnectionMethodSolution);
+    void removeSecuritySetSolution(ConflictingSecuritySetSolution conflictingSecuritySetSolution);
 }

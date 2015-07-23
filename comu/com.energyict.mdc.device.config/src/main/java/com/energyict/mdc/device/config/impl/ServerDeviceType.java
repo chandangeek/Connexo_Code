@@ -3,6 +3,7 @@ package com.energyict.mdc.device.config.impl;
 import com.energyict.mdc.device.config.DeviceConfigConflictMapping;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 
 /**
@@ -34,4 +35,11 @@ public interface ServerDeviceType extends DeviceType {
      * @return a newly created DeviceConfigConflictMapping for this DeviceType with the given configs
      */
     DeviceConfigConflictMapping newConflictMappingFor(DeviceConfiguration origin, DeviceConfiguration destination);
+
+    /**
+     * Cleans up the DeviceConfigConflictMapping which use the given partialConnectionTask
+     *
+     * @param partialConnectionTask the partialConnectionTask
+     */
+    void removeConflictsFor(PartialConnectionTask partialConnectionTask);
 }

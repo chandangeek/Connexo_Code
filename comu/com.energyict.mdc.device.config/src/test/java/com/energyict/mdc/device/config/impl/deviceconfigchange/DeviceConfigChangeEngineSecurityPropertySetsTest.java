@@ -277,6 +277,81 @@ public class DeviceConfigChangeEngineSecurityPropertySetsTest {
         });
     }
 
+    @Test
+    public void complexScenario1Test() {
+        String name1 = "LowLevel";
+        String name2 = "NoSecurity";
+        String name3 = "HighLevel";
+        String name4 = "PentagonStyle";
+        AuthenticationDeviceAccessLevel authenticationDeviceAccessLevel1 = mock(AuthenticationDeviceAccessLevel.class);
+        EncryptionDeviceAccessLevel encryptionDeviceAccessLevel1 = mock(EncryptionDeviceAccessLevel.class);
+        AuthenticationDeviceAccessLevel authenticationDeviceAccessLevel2 = mock(AuthenticationDeviceAccessLevel.class);
+        EncryptionDeviceAccessLevel encryptionDeviceAccessLevel2 = mock(EncryptionDeviceAccessLevel.class);
+        DeviceType deviceType = mockDeviceType();
+        DeviceConfiguration deviceConfiguration1 = mockActiveDeviceConfiguration();
+        SecurityPropertySet securityPropertySet1 = mockSecurityPropertySet(name1, authenticationDeviceAccessLevel1, encryptionDeviceAccessLevel1);
+        SecurityPropertySet securityPropertySet2 = mockSecurityPropertySet(name3, authenticationDeviceAccessLevel2, encryptionDeviceAccessLevel2);
+        when(deviceConfiguration1.getSecurityPropertySets()).thenReturn(Arrays.asList(securityPropertySet1, securityPropertySet2));
+        DeviceConfiguration deviceConfiguration2 = mockActiveDeviceConfiguration();
+        SecurityPropertySet securityPropertySet3 = mockSecurityPropertySet(name2, authenticationDeviceAccessLevel1, encryptionDeviceAccessLevel1);
+        SecurityPropertySet securityPropertySet4 = mockSecurityPropertySet(name1, authenticationDeviceAccessLevel1, encryptionDeviceAccessLevel1);
+        SecurityPropertySet securityPropertySet5 = mockSecurityPropertySet(name4, authenticationDeviceAccessLevel2, encryptionDeviceAccessLevel2);
+        SecurityPropertySet securityPropertySet6 = mockSecurityPropertySet(name3, authenticationDeviceAccessLevel2, encryptionDeviceAccessLevel2);
+        when(deviceConfiguration2.getSecurityPropertySets()).thenReturn(Arrays.asList(securityPropertySet3, securityPropertySet4, securityPropertySet5, securityPropertySet6));
+        when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration1, deviceConfiguration2));
+        DeviceConfigChangeEngine deviceConfigChangeEngine = new DeviceConfigChangeEngine(deviceType);
+        deviceConfigChangeEngine.calculateConfigChangeActions();
+        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).hasSize(8);
+        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+            @Override
+            public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
+                return matchSecurityPropertySet(deviceConfigChangeAction, deviceConfiguration1, deviceConfiguration2, securityPropertySet1, securityPropertySet4, DeviceConfigChangeActionType.MATCH);
+            }
+        });
+        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+            @Override
+            public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
+                return matchSecurityPropertySet(deviceConfigChangeAction, deviceConfiguration1, deviceConfiguration2, securityPropertySet2, securityPropertySet6, DeviceConfigChangeActionType.MATCH);
+            }
+        });
+        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+            @Override
+            public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
+                return matchSecurityPropertySet(deviceConfigChangeAction, deviceConfiguration1, deviceConfiguration2, null, securityPropertySet3, DeviceConfigChangeActionType.ADD);
+            }
+        });
+        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+            @Override
+            public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
+                return matchSecurityPropertySet(deviceConfigChangeAction, deviceConfiguration1, deviceConfiguration2, null, securityPropertySet5, DeviceConfigChangeActionType.ADD);
+            }
+        });
+        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+            @Override
+            public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
+                return matchSecurityPropertySet(deviceConfigChangeAction, deviceConfiguration2, deviceConfiguration1, securityPropertySet4, securityPropertySet1, DeviceConfigChangeActionType.MATCH);
+            }
+        });
+        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+            @Override
+            public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
+                return matchSecurityPropertySet(deviceConfigChangeAction, deviceConfiguration2, deviceConfiguration1, securityPropertySet6, securityPropertySet2, DeviceConfigChangeActionType.MATCH);
+            }
+        });
+        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+            @Override
+            public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
+                return matchSecurityPropertySet(deviceConfigChangeAction, deviceConfiguration2, deviceConfiguration1, securityPropertySet5, null, DeviceConfigChangeActionType.REMOVE);
+            }
+        });
+        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+            @Override
+            public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
+                return matchSecurityPropertySet(deviceConfigChangeAction, deviceConfiguration2, deviceConfiguration1, securityPropertySet5, null, DeviceConfigChangeActionType.REMOVE);
+            }
+        });
+    }
+
     private boolean matchSecurityPropertySet(DeviceConfigChangeAction deviceConfigChangeAction, DeviceConfiguration originDeviceConfiguration, DeviceConfiguration destinationDeviceConfiguration, SecurityPropertySet origin, SecurityPropertySet destination, DeviceConfigChangeActionType actionType) {
         return deviceConfigChangeAction.getOriginDeviceConfiguration().equals(originDeviceConfiguration)
                 && deviceConfigChangeAction.getDestinationDeviceConfiguration().equals(destinationDeviceConfiguration)

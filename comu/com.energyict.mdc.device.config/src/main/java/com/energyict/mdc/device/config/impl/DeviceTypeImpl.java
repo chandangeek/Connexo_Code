@@ -92,6 +92,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     private Clock clock;
     private ProtocolPluggableService protocolPluggableService;
     private DeviceConfigurationService deviceConfigurationService;
+    private DeviceConfigConflictMappingEngine deviceConfigConflictMappingEngine;
 
     /**
      * The DeviceProtocol of this DeviceType, only for local usage.
@@ -229,14 +230,30 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
 
     @Override
     public void updateConflictingMappings() {
+        getDeviceConfigConflictMappingEngine().reCalculateConflicts();
+    }
 
+    private DeviceConfigConflictMappingEngine getDeviceConfigConflictMappingEngine(){
+        if(this.deviceConfigConflictMappingEngine == null){
+            this.deviceConfigConflictMappingEngine = new DeviceConfigConflictMappingEngine(this);
+        }
+        return this.deviceConfigConflictMappingEngine;
     }
 
     @Override
     public DeviceConfigConflictMapping newConflictMappingFor(DeviceConfiguration origin, DeviceConfiguration destination) {
-        DeviceConfigConflictMapping deviceConfigConflictMapping = dataModel.getInstance(DeviceConfigConflictMappingImpl.class).initialize(this, origin, destination);
+        DeviceConfigConflictMapping deviceConfigConflictMapping = getDataModel().getInstance(DeviceConfigConflictMappingImpl.class).initialize(this, origin, destination);
         this.deviceConfigConflictMappings.add(deviceConfigConflictMapping);
         return deviceConfigConflictMapping;
+    }
+
+    @Override
+    public void removeConflictsFor(PartialConnectionTask partialConnectionTask) {
+        this.deviceConfigConflictMappings.stream().filter(deviceConfigConflictMapping -> deviceConfigConflictMapping.getDestinationDeviceConfiguration().getId() == partialConnectionTask.getConfiguration().getId() || deviceConfigConflictMapping.getOriginDeviceConfiguration().getId() == partialConnectionTask.getConfiguration().getId())
+        .forEach(deviceConfigConflictMapping -> {
+            List<ConflictingConnectionMethodSolution> conflictsWithGivenConnectionTask = deviceConfigConflictMapping.getConflictingConnectionMethodSolutions().stream().filter(conflictingConnectionMethodSolution -> conflictingConnectionMethodSolution.getDestinationPartialConnectionTask().getId() == partialConnectionTask.getId() || conflictingConnectionMethodSolution.getOriginPartialConnectionTask().getId() == partialConnectionTask.getId()).collect(Collectors.toList());
+            conflictsWithGivenConnectionTask.stream().forEach(deviceConfigConflictMapping::removeConnectionMethodSolution);
+        });
     }
 
     private void closeCurrentDeviceLifeCycle(Instant now) {

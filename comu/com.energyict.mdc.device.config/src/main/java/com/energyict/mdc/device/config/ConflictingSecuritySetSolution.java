@@ -14,4 +14,6 @@ public interface ConflictingSecuritySetSolution {
     DeviceConfigConflictMapping.ConflictingMappingAction getConflictingMappingAction();
     SecurityPropertySet getOriginSecurityPropertySet();
     SecurityPropertySet getDestinationSecurityPropertySet();
+
+    ConflictingSecuritySetSolution initialize(DeviceConfigConflictMapping deviceConfigConflictMapping, SecurityPropertySet origin, SecurityPropertySet destination);
 }

@@ -23,8 +23,8 @@ public class ConflictingSecuritySetSolutionImpl implements ConflictingSecuritySe
     enum Fields {
         CONFLICTINGMAPPING("conflictingMapping"),
         ACTION("action"),
-        ORIGINSECURITYSET("originSecuritySet"),
-        DESTINATIONSECURITYSET("destinationSecuritySet");
+        ORIGINSECURITYSET("originSecurityPropertySet"),
+        DESTINATIONSECURITYSET("destinationSecurityPropertySet");
 
         private final String javaFieldName;
 
@@ -45,8 +45,8 @@ public class ConflictingSecuritySetSolutionImpl implements ConflictingSecuritySe
     private Reference<DeviceConfigConflictMapping> conflictingMapping = ValueReference.absent();
     @NotNull
     private DeviceConfigConflictMapping.ConflictingMappingAction action;
-    private Reference<SecurityPropertySet> originSecurityPropertySet;
-    private Reference<SecurityPropertySet> destinationSecurityPropertySet;
+    private Reference<SecurityPropertySet> originSecurityPropertySet = ValueReference.absent();
+    private Reference<SecurityPropertySet> destinationSecurityPropertySet = ValueReference.absent();
 
     @Inject
     public ConflictingSecuritySetSolutionImpl(Thesaurus thesaurus) {
@@ -70,6 +70,15 @@ public class ConflictingSecuritySetSolutionImpl implements ConflictingSecuritySe
     @Override
     public SecurityPropertySet getDestinationSecurityPropertySet() {
         return destinationSecurityPropertySet.orElseThrow(destinationSecurityPropertySetIsEmpty());
+    }
+
+    @Override
+    public ConflictingSecuritySetSolution initialize(DeviceConfigConflictMapping deviceConfigConflictMapping, SecurityPropertySet origin, SecurityPropertySet destination) {
+        this.conflictingMapping.set(deviceConfigConflictMapping);
+        this.originSecurityPropertySet.set(destination);
+        this.destinationSecurityPropertySet.set(destination);
+        this.action = DeviceConfigConflictMapping.ConflictingMappingAction.NOT_DETERMINED_YET;
+        return this;
     }
 
     private Supplier<? extends LocalizedException> destinationSecurityPropertySetIsEmpty() {

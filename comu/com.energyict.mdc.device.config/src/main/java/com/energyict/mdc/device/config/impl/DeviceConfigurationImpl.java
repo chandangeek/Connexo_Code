@@ -803,9 +803,14 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
 
     private void remove(PartialConnectionTaskImpl partialConnectionTask) {
         partialConnectionTask.validateDelete();
+        getServerDeviceType().removeConflictsFor(partialConnectionTask);
         if (partialConnectionTasks.remove(partialConnectionTask) && getId() > 0) {
             this.getEventService().postEvent(partialConnectionTask.deleteEventType().topic(), partialConnectionTask);
         }
+    }
+
+    private ServerDeviceType getServerDeviceType() {
+        return (ServerDeviceType) deviceType.get();
     }
 
     @Override

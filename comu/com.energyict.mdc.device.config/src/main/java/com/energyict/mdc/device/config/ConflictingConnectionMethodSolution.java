@@ -14,4 +14,6 @@ public interface ConflictingConnectionMethodSolution {
     DeviceConfigConflictMapping.ConflictingMappingAction getConflictingMappingAction();
     PartialConnectionTask getOriginPartialConnectionTask();
     PartialConnectionTask getDestinationPartialConnectionTask();
+
+    ConflictingConnectionMethodSolution initialize(DeviceConfigConflictMapping deviceConfigConflictMapping, PartialConnectionTask origin, PartialConnectionTask destination);
 }
