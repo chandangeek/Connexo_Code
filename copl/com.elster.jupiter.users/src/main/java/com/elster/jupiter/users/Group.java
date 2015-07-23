@@ -22,6 +22,7 @@ public interface Group extends HasName {
     void delete();
 
     Map<String, List<Privilege>> getPrivileges();
+
     List<Privilege> getPrivileges(String applicationName);
 
     boolean hasPrivilege(String applicationName, Privilege privilege);

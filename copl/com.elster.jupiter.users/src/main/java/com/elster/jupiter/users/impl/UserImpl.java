@@ -261,6 +261,11 @@ public class UserImpl implements User {
     }
 
     @Override
+    public Set<Privilege> getPrivileges() {
+        return getPrivileges(null);
+    }
+
+    @Override
     public Set<Privilege> getPrivileges(String applicationName) {
         Set<Privilege> privileges = new HashSet<>();
         List<Group> groups = getGroups();

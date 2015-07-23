@@ -60,6 +60,8 @@ public interface User extends Principal, HasName {
 
     void setLocale(Locale locale);
 
+    Set<Privilege> getPrivileges();
+
     Set<Privilege> getPrivileges(String applicationName);
 
     String getDomain();
