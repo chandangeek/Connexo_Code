@@ -147,6 +147,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
                 } else {
                     this.getToggleActiveMenuItem().setVisible(true);
                 }
+                this.getToggleActiveMenuItem().updateLayout();
             }
             this.getDeviceConnectionMethodPreviewForm().loadRecord(connectionMethod[0]);
             var connectionMethodName = connectionMethod[0].get('name');
