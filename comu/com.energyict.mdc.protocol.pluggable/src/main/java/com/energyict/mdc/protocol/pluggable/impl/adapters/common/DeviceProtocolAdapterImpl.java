@@ -43,27 +43,29 @@ public abstract class DeviceProtocolAdapterImpl implements DeviceProtocolAdapter
     private final PropertySpecService propertySpecService;
     private final ProtocolPluggableService protocolPluggableService;
     private final SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory;
+    private final CapabilityAdapterMappingFactory capabilityAdapterMappingFactory;
 
     /**
-     * Gets the instance of the {@link CachingProtocol}
+     * Gets the instance of the {@link CachingProtocol}.
      *
      * @return the cachingProtocol
      */
     public abstract CachingProtocol getCachingProtocol();
 
     /**
-     * Gets the instance of the {@link HHUEnabler}
+     * Gets the instance of the {@link HHUEnabler}.
      *
      * @return the hhuEnabler
      */
     public abstract HHUEnabler getHhuEnabler();
 
-    protected DeviceProtocolAdapterImpl(PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory, DataModel dataModel) {
+    protected DeviceProtocolAdapterImpl(PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory, DataModel dataModel, CapabilityAdapterMappingFactory capabilityAdapterMappingFactory) {
         super();
         this.propertySpecService = propertySpecService;
         this.protocolPluggableService = protocolPluggableService;
         this.securitySupportAdapterMappingFactory = securitySupportAdapterMappingFactory;
         this.dataModel = dataModel;
+        this.capabilityAdapterMappingFactory = capabilityAdapterMappingFactory;
     }
 
     protected PropertySpecService getPropertySpecService() {
@@ -172,8 +174,7 @@ public abstract class DeviceProtocolAdapterImpl implements DeviceProtocolAdapter
     }
 
     public List<DeviceProtocolCapabilities> getDeviceProtocolCapabilities() {
-        CapabilityAdapterMappingFactory factory = new CapabilityAdapterMappingFactoryImpl(this.dataModel);
-        Integer mapping = factory.getCapabilitiesMappingForDeviceProtocol(getProtocolClass().getCanonicalName());
+        Integer mapping = this.capabilityAdapterMappingFactory.getCapabilitiesMappingForDeviceProtocol(getProtocolClass().getCanonicalName());
         if (mapping != null) {
             return getCapabilitesListFromFlags(mapping);
         }

@@ -31,7 +31,7 @@ import java.util.Set;
 
 /**
  * Abstract class for implementing the {@link DeviceMessageSupport}
- * for legacy protocols
+ * for legacy protocols.
  * <p/>
  * Copyrights EnergyICT
  * Date: 11/03/13
@@ -43,6 +43,7 @@ public abstract class AbstractDeviceMessageConverterAdapter implements DeviceMes
     private static final int EXECUTE_PENDING_MASK = 0b0010;
 
     private final DataModel dataModel;
+    private final MessageAdapterMappingFactory messageAdapterMappingFactory;
     private final ProtocolPluggableService protocolPluggableService;
     private final IssueService issueService;
     private final CollectedDataFactory collectedDataFactory;
@@ -50,12 +51,12 @@ public abstract class AbstractDeviceMessageConverterAdapter implements DeviceMes
     private String serialNumber = "";
 
     /**
-     * Mask indicating that both method calls are made
+     * Mask indicating that both method calls are made.
      */
     private static final int FIRE_MESSAGES_MASK = UPDATE_SENT_MASK | EXECUTE_PENDING_MASK;
 
     /**
-     * The messageConverter which will be used
+     * The messageConverter which will be used.
      */
     private LegacyMessageConverter legacyMessageConverter;
 
@@ -67,22 +68,23 @@ public abstract class AbstractDeviceMessageConverterAdapter implements DeviceMes
     private int fireMessagesTracker = 0b0000;
 
     /**
-     * Indication whether the legacy protocol supports messaging
+     * Indication whether the legacy protocol supports messaging.
      */
     private boolean messagesAreSupported = true;
 
     private Map<MessageEntry, OfflineDeviceMessage> messageEntries = new HashMap<>();
 
-    protected AbstractDeviceMessageConverterAdapter(DataModel dataModel, ProtocolPluggableService protocolPluggableService, IssueService issueService, CollectedDataFactory collectedDataFactory) {
+    protected AbstractDeviceMessageConverterAdapter(DataModel dataModel, MessageAdapterMappingFactory messageAdapterMappingFactory, ProtocolPluggableService protocolPluggableService, IssueService issueService, CollectedDataFactory collectedDataFactory) {
         super();
         this.dataModel = dataModel;
+        this.messageAdapterMappingFactory = messageAdapterMappingFactory;
         this.protocolPluggableService = protocolPluggableService;
         this.issueService = issueService;
         this.collectedDataFactory = collectedDataFactory;
     }
 
     /**
-     * Creates a new instance of a {@link LegacyMessageConverter} component based on the given className
+     * Creates a new instance of a {@link LegacyMessageConverter} component based on the given className.
      *
      * @param className the className of the LegacyMessageConverter
      * @return the newly created instance
@@ -253,7 +255,7 @@ public abstract class AbstractDeviceMessageConverterAdapter implements DeviceMes
     }
 
     /**
-     * Get the className of the LegacyMessageConverter based on the given MeterProtocol
+     * Get the className of the LegacyMessageConverter based on the given MeterProtocol.
      *
      * @param deviceProtocolJavaClassname the javaClassName of the protocol to match
      * @return the className of the LegacyMessageConverter to use
@@ -267,7 +269,7 @@ public abstract class AbstractDeviceMessageConverterAdapter implements DeviceMes
     }
 
     private MessageAdapterMappingFactory getMessageAdapterMappingFactory() {
-        return new MessageAdapterMappingFactoryImpl(this.dataModel);
+        return this.messageAdapterMappingFactory;
     }
 
 }
