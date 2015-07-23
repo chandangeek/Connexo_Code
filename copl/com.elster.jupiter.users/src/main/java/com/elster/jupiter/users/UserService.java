@@ -84,4 +84,10 @@ public interface UserService {
     ResourceDefinition createModuleResourceWithPrivileges(String moduleName, String resourceName, String resourceDescription, List<String> privileges);
 
     void saveResourceWithPrivileges(String moduleName, String name, String description, String[] privileges);
+
+    Optional<User> getLoggedInUser(long userId);
+
+    void addLoggedInUser(User user);
+
+    void removeLoggedUser(User user);
 }

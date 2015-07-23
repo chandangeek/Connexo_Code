@@ -46,8 +46,9 @@ public class UserServiceImpl implements UserService, InstallService, Translation
     private static final String JUPITER_REALM = "Local";
 
     private volatile List<PrivilegesProvider> privilegesProviders = new CopyOnWriteArrayList<>();
-
     private volatile List<ApplicationPrivilegesProvider> applicationPrivilegesProviders = new CopyOnWriteArrayList<>();
+
+    private List<User> loggedInUsers = new ArrayList<>();
 
     public UserServiceImpl() {
     }
@@ -504,6 +505,28 @@ public class UserServiceImpl implements UserService, InstallService, Translation
         for (String privilege : privileges) {
             resource.createPrivilege(privilege);
         }
+    }
+
+    @Override
+    public Optional<User> getLoggedInUser(long userId) {
+        Optional<User> found = this.loggedInUsers.stream().filter(user -> (user.getId() == userId)).findFirst();
+        if(!found.isPresent()){
+            found = this.getUser(userId);
+        }
+
+        return found;
+    }
+
+    @Override
+    public void addLoggedInUser(User user) {
+        if(!this.loggedInUsers.contains(user)){
+            this.loggedInUsers.add(user);
+        }
+    }
+
+    @Override
+    public void removeLoggedUser(User user) {
+        this.loggedInUsers.remove(user);
     }
 
     private void doInstallPrivileges(PrivilegesProvider privilegesProvider) {
