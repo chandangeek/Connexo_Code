@@ -1467,6 +1467,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             privileges: Mdc.privileges.Device.viewDevice,
                             action: 'showOverview',
                             filter: 'Mdc.model.filter.DeviceChannelsFilter',
+                            dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.deviceStateStore,
                             items: {
                                 channel: {
                                     title: Uni.I18n.translate('routing.channel', 'MDC', 'Channel'),
