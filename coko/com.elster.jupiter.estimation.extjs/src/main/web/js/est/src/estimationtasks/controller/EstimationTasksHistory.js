@@ -16,13 +16,7 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksHistory', {
     ],
 
     refs: [
-        {ref: 'actionMenu', selector: 'estimationtasks-history-action-menu'},
-        {ref: 'preview', selector: 'estimationtasks-history-preview'},
-        {ref: 'previewForm', selector: 'estimationtasks-history-preview-form'},
         {ref: 'overviewLink', selector: '#estimationtasks-overview-link'},
-        {ref: 'sideFilterForm', selector: '#side-filter #filter-form'},
-        {ref: 'filterTopPanel', selector: '#estimationtasks-history-filter-top-panel'},
-        {ref: 'filterTopSeparator', selector: '#estimationtasks-history-filter-top-separator'},
         {ref: 'history', selector: 'estimationtasks-history'}
     ],
 
@@ -30,16 +24,6 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksHistory', {
         this.control({
             'estimationtasks-history-grid': {
                 select: this.showPreview
-            },
-            'estimationtasks-history-filter-form  button[action=applyfilter]': {
-                click: this.applyHistoryFilter
-            },
-            'estimationtasks-history-filter-form  button[action=clearfilter]': {
-                click: this.clearHistoryFilter
-            },
-            '#estimationtasks-history-filter-top-panel': {
-                removeFilter: this.removeHistoryFilter,
-                clearAllFilters: this.clearHistoryFilter
             }
         });
     },
@@ -51,6 +35,7 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksHistory', {
             store = me.getStore('Est.estimationtasks.store.EstimationTasksHistory'),
             widget,
             pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0];
+
         store.getProxy().setUrl(router.arguments);
 
         pageMainContent.setLoading(true);
@@ -60,7 +45,6 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksHistory', {
                 widget = Ext.widget('estimationtasks-history', {router: router, taskId: currentTaskId});
                 me.getApplication().fireEvent('changecontentevent', widget);
                 Ext.suspendLayouts();
-                me.initFilter();
                 me.getOverviewLink().setText(record.get('name'));
                 me.getApplication().fireEvent('estimationTaskLoaded', record);
                 Ext.resumeLayouts(true);
@@ -87,64 +71,6 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksHistory', {
 
             previewForm.loadRecord(record);
             Ext.resumeLayouts(true);
-        }
-    },
-
-    initFilter: function () {
-        var me = this,
-            router = this.getController('Uni.controller.history.Router'),
-            filter = router.filter,
-            date;
-
-        me.getSideFilterForm().loadRecord(filter);
-        for (var f in filter.getData()) {
-            var name = '', estimationPeriod;
-            switch (f) {
-                case 'startedOnFrom':
-                    name = Uni.I18n.translate('estimationtasks.general.startedFrom', 'EST', 'Started from');
-                    break;
-                case 'startedOnTo':
-                    name = Uni.I18n.translate('estimationtasks.general.startedTo', 'EST', 'Started to');
-                    break;
-                case 'finishedOnFrom':
-                    name = Uni.I18n.translate('estimationtasks.general.finishedFrom', 'EST', 'Finished from');
-                    name = 'Finished from';
-                    break;
-                case 'finishedOnTo':
-                    name = Uni.I18n.translate('estimationtasks.general.finishedTo', 'EST', 'Finished to');
-                    break;
-            }
-            if (!Ext.isEmpty(filter.get(f))) {
-                date = new Date(filter.get(f));
-                me.getFilterTopPanel().setFilter(f, name, estimationPeriod
-                    ? Uni.DateTime.formatDateLong(date)
-                    : Uni.DateTime.formatDateLong(date)
-                + ' ' + Uni.I18n.translate('estimationtasks.general.at', 'EST', 'At').toLowerCase() + ' '
-                + Uni.DateTime.formatTimeShort(date));
-            }
-        }
-        me.getFilterTopPanel().setVisible(true);
-    },
-
-    applyHistoryFilter: function () {
-
-        this.getSideFilterForm().updateRecord();
-        this.getSideFilterForm().getRecord().save();
-    },
-
-    clearHistoryFilter: function () {
-
-        this.getSideFilterForm().getForm().reset();
-        this.getFilterTopPanel().setVisible(false);
-        this.getSideFilterForm().getRecord().getProxy().destroy();
-    },
-
-    removeHistoryFilter: function (key) {
-        var router = this.getController('Uni.controller.history.Router'),
-            record = router.filter;
-        if (record) {
-            delete record.data[key];
-            record.save();
         }
     }
 });

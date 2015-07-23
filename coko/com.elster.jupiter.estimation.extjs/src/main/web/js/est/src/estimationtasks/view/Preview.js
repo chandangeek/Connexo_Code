@@ -2,6 +2,7 @@ Ext.define('Est.estimationtasks.view.Preview', {
     extend: 'Ext.panel.Panel',
     frame: true,
     alias: 'widget.estimationtasks-preview',
+    title: ' ',
 
     requires: [
         'Est.estimationtasks.view.DetailForm'

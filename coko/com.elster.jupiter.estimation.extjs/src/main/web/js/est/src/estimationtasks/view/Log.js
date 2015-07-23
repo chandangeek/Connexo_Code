@@ -47,7 +47,11 @@ Ext.define('Est.estimationtasks.view.Log', {
                         xtype: 'no-items-found-panel',
                         title: Uni.I18n.translate('estimationtasks.log.empty.title', 'EST', 'No logs found'),
                         reasons: [
-                            me.task.get('name') + ' ' + Uni.I18n.translate('estimationtasks.general.startedon', 'EST', 'started on') + ' ' + me.runStartedOn + ' ' + Uni.I18n.translate('estimationtasks.log.empty.list.item1', 'EST', 'did not create any logs.')
+                            Ext.String.format(
+                                Uni.I18n.translate('estimationtasks.log.empty.list.item1', 'EST', "Estimation task '{0}' started on {1} did not create any logs."),
+                                me.task.get('name'),
+                                me.runStartedOn
+                            )
                         ]
                     }
                 }
