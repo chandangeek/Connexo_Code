@@ -616,11 +616,11 @@ import static com.elster.jupiter.util.conditions.Where.where;
         if(found.isPresent()){
             EndDeviceGroup deviceGroup = found.get();
             try {
-                sqlBuilder.append("SELECT MED.id FROM (");
+                sqlBuilder.append("SELECT MED.amrid FROM (");
 
                 if (deviceGroup instanceof QueryEndDeviceGroup) {
                     Condition condition = meteringGroupsService.pollEndDeviceQueryProvider(deviceGroup.getQueryProviderName(), Duration.ofMinutes(1)).get().getQueryCondition(((QueryEndDeviceGroup) deviceGroup).getCondition());
-                    sqlBuilder.add(query.asSubquery(condition, "id").toFragment());
+                    sqlBuilder.add(query.asSubquery(condition, "amrid").toFragment());
                 } else {
                     sqlBuilder.add(((EnumeratedEndDeviceGroup) deviceGroup).getAmrIdSubQuery().toFragment());
                 }
@@ -640,11 +640,11 @@ import static com.elster.jupiter.util.conditions.Where.where;
                                     "AND " +
                                     "mrq.actual='Y' " +
                                     "AND " +
-                                    "MA.meterid=med.id" +
+                                    "MA.meterid=med.amrid" +
                             ")");
 
                 if(start.isPresent() && limit.isPresent()) {
-                    sqlBuilder = sqlBuilder.asPageBuilder("id", start.get()+1, start.get() + limit.get()+1);
+                    sqlBuilder = sqlBuilder.asPageBuilder("amrid", start.get()+1, start.get() + limit.get()+1);
                 }
 
                 return Optional.of(sqlBuilder);
