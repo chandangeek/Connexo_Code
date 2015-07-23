@@ -38,7 +38,8 @@ Ext.onReady(function () {
 
     loader.onReady(function () {
         Ext.Ajax.defaultHeaders = {
-            'X-CONNEXO-APPLICATION-NAME': 'SYS' // a function that return the main application
+            'X-CONNEXO-APPLICATION-NAME': 'SYS', // a function that return the main application
+            'Authorization': 'Bearer ' + Ext.util.Cookies.get('X-CONNEXO-XSRF')
         };
         // <debug>
         Ext.Loader.setConfig({
