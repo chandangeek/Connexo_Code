@@ -1,18 +1,28 @@
 Ext.define('Uni.view.search.field.NumberRange', {
-    extend: 'Ext.panel.Panel',
+    extend: 'Ext.button.Button',
     alias: 'widget.uni-view-search-field-number-range',
     xtype: 'uni-view-search-field-number-range',
+    text: Uni.I18n.translate('search.overview.lastReadingDate.emptyText', 'UNI', 'Interval'),
+    arrowAlign: 'right',
+    menuAlign: 'tr-br',
     requires: [
         'Uni.view.search.field.NumberLine'
     ],
     layout: 'hbox',
-        clearAllHandler: function () {
-            var me = this;
-            var items = me.down('menu').items.items;
-            Ext.each(items, function( item ) {
-                if (item.down('numberfield')) item.down('numberfield').reset();
-            });
-        },
+    style: {
+        'background-color': '#71adc7'
+    },
+    mixins: [
+        'Ext.util.Bindable'
+    ],
+
+    clearAllHandler: function () {
+        var me = this;
+        var items = me.down('menu').items.items;
+        Ext.each(items, function (item) {
+            if (item.down('numberfield')) item.down('numberfield').reset();
+        });
+    },
     addRangeHandler: function () {
         var me = this;
         me.down('menu').add({
@@ -36,79 +46,70 @@ Ext.define('Uni.view.search.field.NumberRange', {
     },
 
     initComponent: function () {
-        var me = this,
-            menu = Ext.create('Ext.menu.Menu', {
-                plain: true,
-                style: {
-                    overflow: 'visible'
+        var me = this;
+        me.menu = {
+            plain: true,
+            style: {
+                overflow: 'visible'
+            },
+            cls: 'x-menu-body-custom',
+            minWidth: 273,
+            items: [
+                {
+                    xtype: 'uni-view-search-field-number-line'
                 },
-                cls: 'x-menu-body-custom',
-                minWidth: 293,
-                items: [
-                    {
-                        xtype: 'uni-view-search-field-number-line'
-                    },
-                    {
-                        xtype: 'menuseparator'
-                    },
-                    {
-                        xtype: 'uni-view-search-field-number-line'
-                    },
-                    {
-                        xtype: 'uni-view-search-field-number-line'
-                    }
-                ],
-                dockedItems: [
-                    {
-                        xtype: 'toolbar',
-                        background: '#71adc7',
-                        dock: 'bottom',
-                        items: [
-                            {
-                                flex: 1,
-                                cls: 'x-spacers'
-                            },
-                            {
-                                xtype: 'button',
-                                text: Uni.I18n.translate('general.clearAll', 'UNI', 'Clear all'),
-                                align: 'right',
-                                handler: function () {
-                                    me.clearAllHandler();
-                                }
-                            },
-                            {
-                                xtype: 'button',
-                                ui: 'action',
-                                text: Uni.I18n.translate('general.addRange', 'UNI', 'Add number range'),
-                                action: 'addrange',
-                                margin: '0 0 0 0',
-                                handler: function () {
-                                    me.addRangeHandler();
-                                }
-                            },
-                            {
-                                flex: 1,
-                                cls: 'x-spacers'
+                {
+                    xtype: 'menuseparator'
+                },
+                {
+                    xtype: 'uni-view-search-field-number-line'
+                },
+                {
+                    xtype: 'uni-view-search-field-number-line'
+                }
+            ],
+            dockedItems: [
+                {
+                    xtype: 'toolbar',
+                    background: '#71adc7',
+                    dock: 'bottom',
+                    items: [
+                        {
+                            flex: 2,
+                            cls: 'x-spacers'
+                        },
+                        {
+                            xtype: 'button',
+                            text: Uni.I18n.translate('general.clearAll', 'UNI', 'Clear all'),
+                            align: 'right',
+                            handler: function () {
+                                me.clearAllHandler();
                             }
-                        ]
-                    }
-                ]
-            });
-        this.items = [
-            {
-                xtype: 'button',
-                itemId: 'date',
-                text: Uni.I18n.translate('search.overview.lastReadingDate.emptyText', 'UNI', 'Interval'),
-                arrowAlign: 'right',
-                menuAlign: 'tr-br',
-                menu: menu
-            }
-        ];
+                        },
+                        {
+                            xtype: 'button',
+                            ui: 'action',
+                            text: Uni.I18n.translate('general.addRange', 'UNI', 'Add number range'),
+                            action: 'addrange',
+                            margin: '0 0 0 0',
+                            handler: function () {
+                                me.addRangeHandler();
+                            }
+                        },
+                        {
+                            flex: 1.35,
+                            cls: 'x-spacers'
+                        }
+                    ]
+                }
+            ]
+        };
+
 
         this.callParent(arguments);
         Ext.suspendLayouts();
-        this.down('menu').items.items[0].down('combo').setValue('=');
-        this.down('menu').items.items[3].down('combo').setValue('<');
+        this.menu.items.items[0].down('combo').setValue('=');
+        this.menu.items.items[3].down('combo').setValue('<');
         Ext.resumeLayouts(true);
     }
 });
