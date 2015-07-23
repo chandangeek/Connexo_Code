@@ -11,31 +11,31 @@ Ext.define('Ddv.view.Grid', {
         me.columns = [
             {
                 header: Uni.I18n.translate('validation.validationOverview.mRID', 'DDV', 'Name'),
-                dataIndex: 'mrId',
+                dataIndex: 'mrid',
                 renderer: function (value, b, record) {
-                    return '<a href="#/devices/' + record.get('mrId') + '/validationresults/data">' + Ext.String.htmlEncode(value) + '</a>';
+                    return '<a href="#/devices/' + record.get('mrid') + '/validationresults/data">' + Ext.String.htmlEncode(value) + '</a>';
                 },
                 fixed: true,
                 flex: 1
-            }/*,
+            },
              {
-             header: Uni.I18n.translate('validation.validationOverview.serialNumber', 'CFG', 'Serial number'),
+             header: Uni.I18n.translate('validation.validationOverview.serialNumber', 'DDV', 'Serial number'),
              dataIndex: 'serialNumber',
              fixed: true,
              flex: 1
              },
              {
-             header: Uni.I18n.translate('validation.validationOverview.deviceType', 'CFG', 'Type'),
-             dataIndex: 'deviceTypeName',
+             header: Uni.I18n.translate('validation.validationOverview.deviceType', 'DDV', 'Type'),
+             dataIndex: 'deviceType',
              fixed: true,
              flex: 1
              },
              {
-             header: Uni.I18n.translate('validation.validationOverview.configuration', 'CFG', 'Configuration'),
-             dataIndex: 'deviceConfigurationName',
+             header: Uni.I18n.translate('validation.validationOverview.configuration', 'DDV', 'Configuration'),
+             dataIndex: 'deviceConfig',
              fixed: true,
              flex: 1
-             }*/
+             }
         ];
 
         if (!me.isHidden())

@@ -6,7 +6,7 @@ Ext.define('Ddv.store.ValidationOverview', {
 
     proxy: {
         type: 'rest',
-        urlTpl: '/api/val/validationresults/devicegroups/{groupId}',
+        urlTpl: '/api/dvr/validationresults/devicegroups/{groupId}',
 
         setUrl: function (params) {
             this.url = this.urlTpl.replace('{groupId}', params.get('deviceGroup'));

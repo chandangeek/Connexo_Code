@@ -4,7 +4,6 @@ Ext.define('Ddv.controller.Main', {
     requires: [
         'Uni.controller.Navigation',
         'Uni.Auth',
-        'Ddv.privileges.Validation'
     ],
 
     controllers: [
