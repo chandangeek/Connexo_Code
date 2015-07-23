@@ -160,7 +160,7 @@ public class ConnectionTaskInfoFactory extends SelectableFieldFactory<Connection
         scheduledConnectionTaskBuilder.setConnectionStrategy(info.connectionStrategy);
         scheduledConnectionTaskBuilder.setNextExecutionSpecsFrom(info.nextExecutionSpecs != null ? info.nextExecutionSpecs.asTemporalExpression() : null);
         scheduledConnectionTaskBuilder.setConnectionTaskLifecycleStatus(info.status);
-        scheduledConnectionTaskBuilder.setSimultaneousConnectionsAllowed(info.allowSimultaneousConnections);
+        scheduledConnectionTaskBuilder.setSimultaneousConnectionsAllowed(info.allowSimultaneousConnections!=null?info.allowSimultaneousConnections:false);
         if (info.comWindow!=null && info.comWindow.end != null && info.comWindow.start != null) {
             scheduledConnectionTaskBuilder.setCommunicationWindow(new ComWindow(info.comWindow.start, info.comWindow.end));
         }
@@ -201,7 +201,7 @@ public class ConnectionTaskInfoFactory extends SelectableFieldFactory<Connection
         }
         ScheduledConnectionTask scheduledConnectionTask = (ScheduledConnectionTask) connectionTask;
         setPropertiesTo(connectionTaskInfo, scheduledConnectionTask);
-        scheduledConnectionTask.setSimultaneousConnectionsAllowed(connectionTaskInfo.allowSimultaneousConnections);
+        scheduledConnectionTask.setSimultaneousConnectionsAllowed(connectionTaskInfo.allowSimultaneousConnections!=null?connectionTaskInfo.allowSimultaneousConnections:false);
         if (connectionTaskInfo.comWindow!=null && connectionTaskInfo.comWindow.start != null && connectionTaskInfo.comWindow.end!=null) {
             scheduledConnectionTask.setCommunicationWindow(new ComWindow(connectionTaskInfo.comWindow.start, connectionTaskInfo.comWindow.end));
         } else {

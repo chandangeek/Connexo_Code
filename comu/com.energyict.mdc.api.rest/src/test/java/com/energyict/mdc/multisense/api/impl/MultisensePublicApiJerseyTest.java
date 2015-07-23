@@ -49,10 +49,13 @@ import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
+import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.tasks.ClockTask;
 import com.energyict.mdc.tasks.ClockTaskType;
 import com.energyict.mdc.tasks.ComTask;
@@ -103,6 +106,8 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
     DeviceMessageSpecificationService deviceMessageSpecificationService;
     @Mock
     Clock clock;
+    @Mock
+    ProtocolPluggableService protocolPluggableService;
 
     @Override
     protected MessageSeed[] getMessageSeeds() {
@@ -126,6 +131,7 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         application.setClock(clock);
         application.setTaskService(taskService);
         application.setDeviceMessageSpecificationService(deviceMessageSpecificationService);
+        application.setProtocolPluggableService(protocolPluggableService);
         return application;
     }
 
@@ -376,6 +382,44 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         when(protocolTask.getClockTaskType()).thenReturn(ClockTaskType.SETCLOCK);
         when(taskService.findProtocolTask(id)).thenReturn(Optional.of(protocolTask));
         return protocolTask;
+    }
+
+    DeviceProtocolPluggableClass mockPluggableClass(long id, String name, String version) {
+        DeviceProtocolPluggableClass mock = mock(DeviceProtocolPluggableClass.class);
+        when(mock.getId()).thenReturn(id);
+        when(mock.getName()).thenReturn(name);
+        when(mock.getJavaClassName()).thenReturn("com.energyict.prot."+name+".class");
+        when(mock.getVersion()).thenReturn(version);
+        when(protocolPluggableService.findDeviceProtocolPluggableClass(id)).thenReturn(Optional.of(mock));
+        DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
+        when(deviceProtocol.getAuthenticationAccessLevels()).thenReturn(Collections.emptyList());
+        when(deviceProtocol.getEncryptionAccessLevels()).thenReturn(Collections.emptyList());
+        when(mock.getDeviceProtocol()).thenReturn(deviceProtocol);
+        return mock;
+    }
+
+    DeviceProtocolPluggableClass mockPluggableClass(long id, String name, String version, List<AuthenticationDeviceAccessLevel> accessLvls) {
+        DeviceProtocolPluggableClass mock = mock(DeviceProtocolPluggableClass.class);
+        when(mock.getId()).thenReturn(id);
+        when(mock.getName()).thenReturn(name);
+        when(mock.getJavaClassName()).thenReturn("com.energyict.prot."+name+".class");
+        when(mock.getVersion()).thenReturn(version);
+        when(protocolPluggableService.findDeviceProtocolPluggableClass(id)).thenReturn(Optional.of(mock));
+        DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
+        when(deviceProtocol.getAuthenticationAccessLevels()).thenReturn(accessLvls);
+        when(mock.getDeviceProtocol()).thenReturn(deviceProtocol);
+
+        return mock;
+    }
+
+    AuthenticationDeviceAccessLevel mockAuthenticationAccessLevel(int id) {
+        AuthenticationDeviceAccessLevel mock = mock(AuthenticationDeviceAccessLevel.class);
+        when(mock.getId()).thenReturn(id);
+        when(mock.getTranslationKey()).thenReturn("aal"+id);
+        when(thesaurus.getStringBeyondComponent("aal" + id, "aal" + id)).thenReturn("Proper name for "+id);
+        PropertySpec propertySpec = mockBigDecimalPropertySpec();
+        when(mock.getSecurityProperties()).thenReturn(Collections.singletonList(propertySpec));
+        return mock;
     }
 
     <T> Finder<T> mockFinder(List<T> list) {

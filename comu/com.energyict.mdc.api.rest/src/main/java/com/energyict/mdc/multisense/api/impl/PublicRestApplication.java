@@ -24,6 +24,7 @@ import com.energyict.mdc.multisense.api.impl.utils.DeviceLifeCycleActionViolatio
 import com.energyict.mdc.multisense.api.impl.utils.ResourceHelper;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.tasks.TaskService;
 import com.google.common.collect.ImmutableSet;
 import java.time.Clock;
@@ -62,6 +63,7 @@ public class PublicRestApplication extends Application implements TranslationKey
     private volatile ConnectionTaskService connectionTaskService;
     private volatile EngineConfigurationService engineConfigurationService;
     private volatile TaskService taskService;
+    private volatile ProtocolPluggableService protocolPluggableService;
     private volatile Clock clock;
     private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
 
@@ -80,6 +82,8 @@ public class PublicRestApplication extends Application implements TranslationKey
                 ComTaskResource.class,
                 DeviceMessageCategoryResource.class,
                 ProtocolTaskResource.class,
+                DeviceProtocolPluggableClassResource.class,
+                AuthenticationDeviceAccessLevelResource.class,
                 DeviceLifeCycleActionViolationExceptionMapper.class
         );
     }
@@ -178,6 +182,11 @@ public class PublicRestApplication extends Application implements TranslationKey
     }
 
     @Reference
+    public void setProtocolPluggableService(ProtocolPluggableService protocolPluggableService) {
+        this.protocolPluggableService = protocolPluggableService;
+    }
+
+    @Reference
     public void setDeviceMessageSpecificationService(DeviceMessageSpecificationService deviceMessageSpecificationService) {
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
     }
@@ -201,6 +210,7 @@ public class PublicRestApplication extends Application implements TranslationKey
             bind(taskService).to(TaskService.class);
             bind(deviceMessageSpecificationService).to(DeviceMessageSpecificationService.class);
             bind(clock).to(Clock.class);
+            bind(protocolPluggableService).to(ProtocolPluggableService.class);
 
             bind(MdcPropertyUtils.class).to(MdcPropertyUtils.class).in(Singleton.class);
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
@@ -217,6 +227,8 @@ public class PublicRestApplication extends Application implements TranslationKey
             bind(ComTaskInfoFactory.class).to(ComTaskInfoFactory.class).in(Singleton.class);
             bind(DeviceMessageCategoryInfoFactory.class).to(DeviceMessageCategoryInfoFactory.class).in(Singleton.class);
             bind(ProtocolTaskInfoFactory.class).to(ProtocolTaskInfoFactory.class).in(Singleton.class);
+            bind(DeviceProtocolPluggableClassInfoFactory.class).to(DeviceProtocolPluggableClassInfoFactory.class).in(Singleton.class);
+            bind(DeviceAccessLevelInfoFactory.class).to(DeviceAccessLevelInfoFactory.class).in(Singleton.class);
         }
     }
 

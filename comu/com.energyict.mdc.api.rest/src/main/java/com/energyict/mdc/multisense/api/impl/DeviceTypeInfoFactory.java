@@ -32,7 +32,7 @@ public class DeviceTypeInfoFactory {
         return fields.stream().filter(fieldSelectionMap::containsKey).map(fieldSelectionMap::get).collect(toList());
     }
 
-    public DeviceTypeInfo asHypermedia(DeviceType deviceType, UriInfo uriInfo, List<String> fields) {
+    public DeviceTypeInfo asInfo(DeviceType deviceType, UriInfo uriInfo, List<String> fields) {
         DeviceTypeInfo deviceTypeInfo = new DeviceTypeInfo();
         getSelectedFields(fields).stream().forEach(copier -> copier.copy(deviceTypeInfo, deviceType, uriInfo));
         return deviceTypeInfo;
