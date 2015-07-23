@@ -405,6 +405,9 @@
                 <module>../com.energyict.mdc.device.data.imp.messagehandlers</module>
                 <module>../com.energyict.mdc.device.data.imp.rest</module>
                 <module>../com.energyict.mdc.device.data.imp.extjs</module>
+                <module>../com.energyict.mdc.device.data.validation</module>
+                <module>../com.energyict.mdc.device.data.validation.rest</module>
+                <module>../com.energyict.mdc.device.data.validation.extjs</module>
                 <module>../com.energyict.mdc.dynamic</module>
                 <module>../com.energyict.mdc.engine</module>
                 <module>../com.energyict.mdc.engine.config</module>
