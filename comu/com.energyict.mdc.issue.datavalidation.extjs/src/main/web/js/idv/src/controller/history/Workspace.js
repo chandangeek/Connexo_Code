@@ -58,11 +58,11 @@ Ext.define('Idv.controller.history.Workspace', {
                     }
                 },
                 datavalidationoverview: {
-                    title: Uni.I18n.translate('validation.validationOverview.title', 'CFG', 'Validation overview'),
+                    title: Uni.I18n.translate('validation.validationOverview.title', 'DDV', 'Validation overview'),
                     route: 'datavalidationoverview',
-                    controller: 'Cfg.controller.Overview',
+                    controller: 'Ddv.controller.ValidationOverview',
                     action: 'showOverview',
-                    filter: 'Cfg.model.OverviewFilter'
+                    filter: 'Ddv.model.ValidationOverviewFilter'
                 }
             }
 

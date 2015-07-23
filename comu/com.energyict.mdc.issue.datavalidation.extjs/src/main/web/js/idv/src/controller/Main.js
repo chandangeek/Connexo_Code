@@ -10,7 +10,11 @@ Ext.define('Idv.controller.Main', {
         'Uni.store.PortalItems',
         'Uni.store.MenuItems',
         'Isu.privileges.Issue',
-        'Cfg.privileges.Validation'
+
+        'Cfg.privileges.Validation',
+        'Ddv.controller.ValidationOverview',
+        'Ddv.model.ValidationOverviewFilter'
+
     ],
 
     controllers: [
@@ -74,7 +78,7 @@ Ext.define('Idv.controller.Main', {
 
             if (Cfg.privileges.Validation.canView()) {
                 items.push( {
-                    text: Uni.I18n.translate('validation.validationOverview.title', 'CFG', 'Validation overview'),
+                    text: Uni.I18n.translate('validation.validationOverview.title', 'DDV', 'Validation overview'),
                     href: '#/workspace/datavalidationoverview'
                 });
             }
