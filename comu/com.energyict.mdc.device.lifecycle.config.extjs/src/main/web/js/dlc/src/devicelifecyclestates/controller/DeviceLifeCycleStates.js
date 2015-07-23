@@ -81,7 +81,6 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
         });
     },
 
-
     configureMenu: function (menu) {
         var initialAction = menu.down('#initialAction'),
             isInitial = menu.record.get('isInitial');
@@ -292,19 +291,27 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
         this.addTransitionBusinessProcessesToState('onExit');
     },
     addTransitionBusinessProcessesToState: function (storeToUpdate){
+        var router = this.getController('Uni.controller.history.Router');
+        router.getRoute('administration/devicelifecycles/devicelifecycle/states/edit'+(storeToUpdate === 'onEntry' ? '/addEntryProcesses' : '/addExitProcesses')).forward(router.arguments);
+    },
+    showAvailableEntryTransitionProcesses: function (){
+        this.showAvailableTransitionProcesses('onEntry');
+    },
+    showAvailableExitTransitionProcesses: function () {
+        this.showAvailableTransitionProcesses('onExit');
+    },
+    showAvailableTransitionProcesses: function(storeToUpdate){
         var router = this.getController('Uni.controller.history.Router'),
-           store =  Ext.data.StoreManager.lookup(storeToUpdate),
-           widget = Ext.widget('AddProcessesToState', {
-                        returnLink: router.getRoute().buildUrl()
-           });
-
+            store =  Ext.data.StoreManager.lookup(storeToUpdate),
+            widget = Ext.widget('AddProcessesToState', {
+                         returnLink: router.getRoute().buildUrl()
+            });
         if (store){
              widget.storeToUpdate = store;
              widget.exclude(store.data.items);
         }
         this.getApplication().fireEvent('changecontentevent', widget );
     },
-
     forwardToPreviousPage: function () {
         var me = this;
         var router = me.getController('Uni.controller.history.Router'),
@@ -328,8 +335,7 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
             });
             console.log(store.storeId +' after :'+store.count()+' processes set');
         }
-        router.getRoute(widget.returnlink).forward();
-        this.getLifeCycleStatesEditForm().updateRecord();
+        this.forwardToPreviousPage();
     }
 
 });

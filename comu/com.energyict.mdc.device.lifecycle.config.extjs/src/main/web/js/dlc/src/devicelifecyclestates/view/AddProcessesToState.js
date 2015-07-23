@@ -4,6 +4,8 @@ Ext.define('Dlc.devicelifecyclestates.view.AddProcessesToState', {
     requires: ['Dlc.devicelifecyclestates.view.AddProcessesToStateGrid',
                'Dlc.devicelifecyclestates.store.AvailableTransitionBusinessProcesses'],
     overflowY: true,
+    returnLink: null,
+    storeToUpdate: null,
     content: [
         {
             xtype: 'panel',
@@ -60,8 +62,6 @@ Ext.define('Dlc.devicelifecyclestates.view.AddProcessesToState', {
              ]
         }
     ],
-    returnLink: null,
-    storeToUpdate: null,
     exclude: function( excludedProcessesArray) {
         if (!Ext.isEmpty(excludedProcessesArray)) {
             this.down('#add-process-grid').getStore().remove(excludedProcessesArray);
