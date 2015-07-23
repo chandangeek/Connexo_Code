@@ -74,7 +74,7 @@ public final class SqlBuilder implements SqlFragment {
     
     @Deprecated
     public void addDate(java.util.Date date) {
-    	addDate( date == null ? null : date.toInstant());
+    	addDate(date == null ? null : date.toInstant());
     }
 
     public StringBuilder getBuffer() {
@@ -108,6 +108,10 @@ public final class SqlBuilder implements SqlFragment {
 
     public void space() {
         builder.append(" ");
+    }
+
+    public void insertAt(int offset, String string) {
+        builder.insert(offset, string);
     }
 
     public void append(String string) {
@@ -154,6 +158,18 @@ public final class SqlBuilder implements SqlFragment {
 
     public SqlBuilder asPageBuilder(int from, int to) {
         SqlBuilder result = new SqlBuilder("select * from (select x.*, ROWNUM rnum from (");
+        result.add(this);
+        result.append(") x where ROWNUM <= ");
+        result.addInt(to);
+        result.append(") where rnum >= ");
+        result.addInt(from);
+        return result;
+    }
+
+    public SqlBuilder asPageBuilder(String field, int from, int to) {
+        SqlBuilder result = new SqlBuilder("select ");
+        result.append(field);
+        result.append(" from (select x.*, ROWNUM rnum from (");
         result.add(this);
         result.append(") x where ROWNUM <= ");
         result.addInt(to);
