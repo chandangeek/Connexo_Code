@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.energyict</groupId>
+        <artifactId>mdc.parent</artifactId>
+        <version>1.1.0-SNAPSHOT</version>
+        <relativePath>../com.energyict.comserver.parent/pom.xml</relativePath>
+    </parent>
+
+    <artifactId>mdc.device.data.validation.extjs</artifactId>
+    <version>1.1.0-SNAPSHOT</version>
+    <packaging>bundle</packaging>
+    <name>[MDC] mdc.device.data.validation.extjs</name>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.compendium</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>cbo</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>http.whiteboard</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>install</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>systemadmin</artifactId>
+        </dependency>
+    </dependencies>
+
+    <profiles>
+        <profile>
+            <id>sencha-build</id>
+            <properties>
+                <js.dir>js/ddv</js.dir>
+            </properties>
+        </profile>
+    </profiles>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>**/*</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>src/main/web/js/ddv/build</directory>
+                <targetPath>js/ddv/build</targetPath>
+                <includes>
+                    <include>resources/**/*</include>
+                    <include>*.js</include>
+                </includes>
+            </resource>
+        </resources>
+    </build>
+</project>
