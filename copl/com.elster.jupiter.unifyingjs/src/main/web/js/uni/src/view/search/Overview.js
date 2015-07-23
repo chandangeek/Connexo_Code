@@ -16,7 +16,8 @@ Ext.define('Uni.view.search.Overview', {
         'Uni.view.search.field.SearchObjectSelector',
         'Uni.view.search.field.SearchCriteriaSelector',
         'Uni.view.search.field.DateRangeField',
-        'Uni.view.search.field.NumberRange'
+        'Uni.view.search.field.NumberRange',
+        'Uni.view.search.field.Combobox'
     ],
 
     padding: '16 16 16 16',
@@ -51,6 +52,9 @@ Ext.define('Uni.view.search.Overview', {
                                 // Type of search.
                                 xtype: 'toolbar',
                                 itemId: 'search-domain',
+                                defaults: {
+                                    margin: '0 10 10 0'
+                                },
                                 items: [
                                     {
 
@@ -62,7 +66,17 @@ Ext.define('Uni.view.search.Overview', {
                                         itemId: 'search-object-selector',
                                         xtype: 'search-object-selector'
                                     },
-                                    {flex: 2},
+                                    {
+                                        xtype: 'search-combo',
+                                        itemId: 'domain',
+                                        //store: 'Uni.store.search.Domains',
+                                        emptyText: Uni.I18n.translate('search.overview.searchDomains.emptyText', 'UNI', 'Search domains'),
+                                        displayField: 'name',
+                                        valueField: 'id',
+                                        margin: '0 20 10 0',
+                                        forceSelection: true,
+                                        multiSelect: true
+                                    },
                                     // temp for testing date/number range field
                                     {
                                         xtype: 'uni-view-search-field-date-range'

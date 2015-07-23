@@ -119,7 +119,8 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
             store.each(function (item) {
                 me.menu.add({
                     text: item.get('displayValue'),
-                    value: item.get('name')
+                    value: item.get('name'),
+                    criteria: item
                 })
             });
         }
