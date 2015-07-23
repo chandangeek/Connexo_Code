@@ -92,11 +92,11 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
         preview.setTitle(readingType.aliasName + (!Ext.isEmpty(readingType.names.unitOfMeasure) ? (' (' + readingType.names.unitOfMeasure + ')') : ''));
 
         if (!record.data.validationInfo.validationActive) {
-            preview.down('#validateNowChannel').hide();
-            Ext.ComponentQuery.query('#channelActionMenu #validateNowChannel')[0].hide();
+            !!preview.down('#validateNowChannel') && preview.down('#validateNowChannel').hide();
+            !!Ext.ComponentQuery.query('#channelActionMenu #validateNowChannel')[0] && Ext.ComponentQuery.query('#channelActionMenu #validateNowChannel')[0].hide();
         } else {
-            preview.down('#validateNowChannel').show();
-            Ext.ComponentQuery.query('#channelActionMenu #validateNowChannel')[0].show();
+            !!preview.down('#validateNowChannel') && preview.down('#validateNowChannel').show();
+            !!Ext.ComponentQuery.query('#channelActionMenu #validateNowChannel')[0] && Ext.ComponentQuery.query('#channelActionMenu #validateNowChannel')[0].show();
         }
         preview.down('#deviceLoadProfileChannelsPreviewForm').loadRecord(record);
         preview.down('#deviceLoadProfileChannelsActionMenu').record = record;

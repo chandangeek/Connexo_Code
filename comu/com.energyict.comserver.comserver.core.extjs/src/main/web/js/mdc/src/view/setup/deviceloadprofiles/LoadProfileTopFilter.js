@@ -15,7 +15,9 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.LoadProfileTopFilter', {
                 dataIndexTo: 'intervalEnd',
                 defaultFromDate: me.filterDefault.fromDate,
                 defaultDuration: me.filterDefault.duration,
-                text: Uni.I18n.translate('communications.widget.topfilter.startedDate', 'DSH', 'Start date')
+                text: Uni.I18n.translate('communications.widget.topfilter.startedDate', 'DSH', 'Start date'),
+                durationStore: me.filterDefault.durationStore,
+                loadStore: false
             },
             {
                 type: 'checkbox',
