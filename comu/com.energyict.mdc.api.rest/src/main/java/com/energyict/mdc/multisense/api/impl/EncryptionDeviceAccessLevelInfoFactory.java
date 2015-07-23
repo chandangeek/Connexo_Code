@@ -7,7 +7,6 @@ import com.energyict.mdc.multisense.api.impl.utils.PropertyCopier;
 import com.energyict.mdc.multisense.api.impl.utils.SelectableFieldFactory;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceAccessLevel;
 import java.util.Collection;
 import java.util.HashMap;
@@ -16,18 +15,18 @@ import javax.inject.Inject;
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.UriInfo;
 
-public class DeviceAccessLevelInfoFactory extends SelectableFieldFactory<DeviceAccessLevelInfo, Pair<DeviceProtocolPluggableClass, DeviceAccessLevel>> {
+public class EncryptionDeviceAccessLevelInfoFactory extends SelectableFieldFactory<DeviceAccessLevelInfo, Pair<DeviceProtocolPluggableClass, DeviceAccessLevel>> {
 
     private final MdcPropertyUtils mdcPropertyUtils;
     private final Thesaurus thesaurus;
 
     @Inject
-    public DeviceAccessLevelInfoFactory(MdcPropertyUtils mdcPropertyUtils, Thesaurus thesaurus) {
+    public EncryptionDeviceAccessLevelInfoFactory(MdcPropertyUtils mdcPropertyUtils, Thesaurus thesaurus) {
         this.mdcPropertyUtils = mdcPropertyUtils;
         this.thesaurus = thesaurus;
     }
 
-    public DeviceAccessLevelInfo from(DeviceProtocolPluggableClass pluggableClass, AuthenticationDeviceAccessLevel authenticationDeviceAccessLevel, UriInfo uriInfo, Collection<String> fields) {
+    public DeviceAccessLevelInfo from(DeviceProtocolPluggableClass pluggableClass, DeviceAccessLevel authenticationDeviceAccessLevel, UriInfo uriInfo, Collection<String> fields) {
         DeviceAccessLevelInfo info = new DeviceAccessLevelInfo();
         copySelectedFields(info, Pair.of(pluggableClass,authenticationDeviceAccessLevel), uriInfo, fields);
         return info;
@@ -42,10 +41,10 @@ public class DeviceAccessLevelInfoFactory extends SelectableFieldFactory<DeviceA
         map.put("link", ((deviceAccessLevelInfo, deviceAccessLevel, uriInfo) ->
             deviceAccessLevelInfo.link = Link.fromUriBuilder(uriInfo.
                     getBaseUriBuilder().
-                    path(AuthenticationDeviceAccessLevelResource.class).
-                    path(AuthenticationDeviceAccessLevelResource.class, "getAuthenticationDeviceAccessLevel")).
+                    path(EncryptionDeviceAccessLevelResource.class).
+                    path(EncryptionDeviceAccessLevelResource.class, "getEncryptionDeviceAccessLevel")).
                     rel(LinkInfo.REF_SELF).
-                    title("Authentication access level").
+                    title("Encryption access level").
                     build(deviceAccessLevel.getFirst().getId(),deviceAccessLevel.getLast().getId())
         ));
 

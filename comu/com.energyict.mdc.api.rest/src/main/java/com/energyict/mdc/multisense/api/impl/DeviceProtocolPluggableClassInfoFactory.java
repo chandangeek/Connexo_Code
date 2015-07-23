@@ -57,6 +57,27 @@ public class DeviceProtocolPluggableClassInfoFactory extends SelectableFieldFact
                         return linkInfo;
                     }).collect(toList());
         }));
+        map.put("encryptionAccessLevels", ((deviceProtocolPluggableClassInfo, deviceProtocolPluggableClass, uriInfo) -> {
+            UriBuilder uriBuilder = uriInfo.getBaseUriBuilder()
+                    .path(EncryptionDeviceAccessLevelResource.class)
+                    .path(EncryptionDeviceAccessLevelResource.class, "getEncryptionDeviceAccessLevel")
+                    .resolveTemplate("deviceProtocolPluggableClassId", deviceProtocolPluggableClass.getId());
+            deviceProtocolPluggableClassInfo.encryptionAccessLevels = deviceProtocolPluggableClass
+                    .getDeviceProtocol()
+                    .getEncryptionAccessLevels()
+                    .stream()
+                    .sorted((aa1, aa2) -> aa1.getTranslationKey().compareTo(aa2.getTranslationKey()))
+                    .map(aal -> {
+                        LinkInfo linkInfo = new LinkInfo();
+                        linkInfo.id = (long)aal.getId();
+                        linkInfo.link = Link.fromUriBuilder(uriBuilder).
+                                rel("related").
+                                title("Encryption access level").
+                                build(aal.getId());
+
+                        return linkInfo;
+                    }).collect(toList());
+        }));
 
         return map;
     }

@@ -84,6 +84,7 @@ public class PublicRestApplication extends Application implements TranslationKey
                 ProtocolTaskResource.class,
                 DeviceProtocolPluggableClassResource.class,
                 AuthenticationDeviceAccessLevelResource.class,
+                EncryptionDeviceAccessLevelResource.class,
                 DeviceLifeCycleActionViolationExceptionMapper.class
         );
     }
@@ -228,7 +229,8 @@ public class PublicRestApplication extends Application implements TranslationKey
             bind(DeviceMessageCategoryInfoFactory.class).to(DeviceMessageCategoryInfoFactory.class).in(Singleton.class);
             bind(ProtocolTaskInfoFactory.class).to(ProtocolTaskInfoFactory.class).in(Singleton.class);
             bind(DeviceProtocolPluggableClassInfoFactory.class).to(DeviceProtocolPluggableClassInfoFactory.class).in(Singleton.class);
-            bind(DeviceAccessLevelInfoFactory.class).to(DeviceAccessLevelInfoFactory.class).in(Singleton.class);
+            bind(AuthenticationDeviceAccessLevelInfoFactory.class).to(AuthenticationDeviceAccessLevelInfoFactory.class).in(Singleton.class);
+            bind(EncryptionDeviceAccessLevelInfoFactory.class).to(EncryptionDeviceAccessLevelInfoFactory.class).in(Singleton.class);
         }
     }
 

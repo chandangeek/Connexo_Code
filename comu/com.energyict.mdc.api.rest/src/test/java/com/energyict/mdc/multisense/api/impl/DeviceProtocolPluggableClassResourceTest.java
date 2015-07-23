@@ -3,6 +3,7 @@ package com.energyict.mdc.multisense.api.impl;
 import com.elster.jupiter.domain.util.Finder;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.jayway.jsonpath.JsonModel;
 import java.io.InputStream;
 import java.util.Collections;
@@ -17,8 +18,9 @@ public class DeviceProtocolPluggableClassResourceTest extends MultisensePublicAp
 
     @Test
     public void testAllGetDeviceProtocolPluggableClasssPaged() throws Exception {
-        AuthenticationDeviceAccessLevel accessLevel = mockAuthenticationAccessLevel(2);
-        DeviceProtocolPluggableClass pluggableClass = mockPluggableClass(31L, "WebRTU", "1.9.2.3546", Collections.singletonList(accessLevel));
+        AuthenticationDeviceAccessLevel authAccessLevel = mockAuthenticationAccessLevel(2);
+        EncryptionDeviceAccessLevel encAccessLevel = mockEncryptionAccessLevel(3);
+        DeviceProtocolPluggableClass pluggableClass = mockPluggableClass(31L, "WebRTU", "1.9.2.3546", Collections.singletonList(authAccessLevel), Collections.singletonList(encAccessLevel));
         Finder<DeviceProtocolPluggableClass> deviceProtocolPluggableClassFinder = mockFinder(Collections.singletonList(pluggableClass));
         when(protocolPluggableService.findAllDeviceProtocolPluggableClasses()).thenReturn(deviceProtocolPluggableClassFinder);
         Response response = target("/pluggableclasses").queryParam("start",0).queryParam("limit",10).request().get();
@@ -37,6 +39,10 @@ public class DeviceProtocolPluggableClassResourceTest extends MultisensePublicAp
         assertThat(model.<Integer>get("$.data[0].authenticationAccessLevels[0].id")).isEqualTo(2);
         assertThat(model.<String>get("$.data[0].authenticationAccessLevels[0].link.params.rel")).isEqualTo("related");
         assertThat(model.<String>get("$.data[0].authenticationAccessLevels[0].link.href")).isEqualTo("http://localhost:9998/pluggableclasses/31/authenticationaccesslevels/2");
+        assertThat(model.<List>get("$.data[0].encryptionAccessLevels")).hasSize(1);
+        assertThat(model.<Integer>get("$.data[0].encryptionAccessLevels[0].id")).isEqualTo(3);
+        assertThat(model.<String>get("$.data[0].encryptionAccessLevels[0].link.params.rel")).isEqualTo("related");
+        assertThat(model.<String>get("$.data[0].encryptionAccessLevels[0].link.href")).isEqualTo("http://localhost:9998/pluggableclasses/31/encryptionaccesslevels/3");
         assertThat(model.<String>get("data[0].link.params.rel")).isEqualTo(LinkInfo.REF_SELF);
         assertThat(model.<String>get("data[0].link.href")).isEqualTo("http://localhost:9998/pluggableclasses/31");
     }
@@ -51,14 +57,16 @@ public class DeviceProtocolPluggableClassResourceTest extends MultisensePublicAp
         assertThat(model.<String>get("$.name")).isEqualTo("WebRTU");
         assertThat(model.<String>get("$.version")).isNull();
         assertThat(model.<String>get("$.link")).isNull();
+        assertThat(model.<String>get("$.authenticationaccesslevel")).isNull();
+        assertThat(model.<String>get("$.encryptionaccesslevel")).isNull();
     }
 
     @Test
     public void testDeviceProtocolPluggableClassFields() throws Exception {
         Response response = target("/pluggableclasses").request("application/json").method("PROPFIND", Response.class);
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
-        assertThat(model.<List>get("$")).hasSize(6);
-        assertThat(model.<List<String>>get("$")).containsOnly("id", "link", "name", "version", "javaClassName", "authenticationAccessLevels");
+        assertThat(model.<List>get("$")).hasSize(7);
+        assertThat(model.<List<String>>get("$")).containsOnly("id", "link", "name", "version", "javaClassName", "authenticationAccessLevels", "encryptionAccessLevels");
     }
 
 

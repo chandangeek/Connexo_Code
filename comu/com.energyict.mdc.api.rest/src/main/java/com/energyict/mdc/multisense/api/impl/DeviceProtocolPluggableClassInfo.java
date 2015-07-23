@@ -7,4 +7,5 @@ public class DeviceProtocolPluggableClassInfo extends LinkInfo {
     public String version;
     public String javaClassName;
     public List<LinkInfo> authenticationAccessLevels;
+    public List<LinkInfo> encryptionAccessLevels;
 }

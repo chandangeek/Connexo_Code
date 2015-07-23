@@ -23,52 +23,52 @@ import javax.ws.rs.core.UriInfo;
 
 import static java.util.stream.Collectors.toList;
 
-@Path("pluggableclasses/{deviceProtocolPluggableClassId}/authenticationaccesslevels")
-public class AuthenticationDeviceAccessLevelResource {
+@Path("pluggableclasses/{deviceProtocolPluggableClassId}/encryptionaccesslevels")
+public class EncryptionDeviceAccessLevelResource {
 
-    private final AuthenticationDeviceAccessLevelInfoFactory authenticationDeviceAccessLevelInfoFactory;
+    private final EncryptionDeviceAccessLevelInfoFactory encryptionDeviceAccessLevelInfoFactory;
     private final ProtocolPluggableService protocolPluggableService;
 
     @Inject
-    public AuthenticationDeviceAccessLevelResource(AuthenticationDeviceAccessLevelInfoFactory authenticationDeviceAccessLevelInfoFactory, ProtocolPluggableService protocolPluggableService) {
-        this.authenticationDeviceAccessLevelInfoFactory = authenticationDeviceAccessLevelInfoFactory;
+    public EncryptionDeviceAccessLevelResource(EncryptionDeviceAccessLevelInfoFactory encryptionDeviceAccessLevelInfoFactory, ProtocolPluggableService protocolPluggableService) {
+        this.encryptionDeviceAccessLevelInfoFactory = encryptionDeviceAccessLevelInfoFactory;
         this.protocolPluggableService = protocolPluggableService;
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
-    @Path("/{authenticationDeviceAccessLevelId}")
-    public DeviceAccessLevelInfo getAuthenticationDeviceAccessLevel(
+    @Path("/{encryptionDeviceAccessLevelId}")
+    public DeviceAccessLevelInfo getEncryptionDeviceAccessLevel(
             @PathParam("deviceProtocolPluggableClassId") long deviceProtocolPluggableClassId,
-            @PathParam("authenticationDeviceAccessLevelId") long authenticationDeviceAccessLevelId,
+            @PathParam("encryptionDeviceAccessLevelId") long encryptionDeviceAccessLevelId,
             @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
         DeviceProtocolPluggableClass pluggableClass = protocolPluggableService.findDeviceProtocolPluggableClass(deviceProtocolPluggableClassId)
                 .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
         return pluggableClass.getDeviceProtocol()
-                .getAuthenticationAccessLevels()
+                .getEncryptionAccessLevels()
                 .stream()
-                .filter(lvl -> lvl.getId() == authenticationDeviceAccessLevelId)
+                .filter(lvl -> lvl.getId() == encryptionDeviceAccessLevelId)
                 .findFirst()
-                .map(lvl -> authenticationDeviceAccessLevelInfoFactory.from(pluggableClass, lvl, uriInfo, fieldSelection.getFields()))
+                .map(lvl -> encryptionDeviceAccessLevelInfoFactory.from(pluggableClass, lvl, uriInfo, fieldSelection.getFields()))
                 .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
-    public PagedInfoList<DeviceAccessLevelInfo> getAuthenticationDeviceAccessLevels(
+    public PagedInfoList<DeviceAccessLevelInfo> getEncryptionDeviceAccessLevels(
             @PathParam("deviceProtocolPluggableClassId") long deviceProtocolPluggableClassId,
-            @PathParam("authenticationDeviceAccessLevelId") long authenticationDeviceAccessLevelId,
+            @PathParam("encryptionDeviceAccessLevelId") long encryptionDeviceAccessLevelId,
             @BeanParam JsonQueryParameters queryParameters,
             @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
         DeviceProtocolPluggableClass pluggableClass = protocolPluggableService.findDeviceProtocolPluggableClass(deviceProtocolPluggableClassId)
                 .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-        List<DeviceAccessLevelInfo> infos = ListPager.of(pluggableClass.getDeviceProtocol().getAuthenticationAccessLevels()).from(queryParameters)
+        List<DeviceAccessLevelInfo> infos = ListPager.of(pluggableClass.getDeviceProtocol().getEncryptionAccessLevels()).from(queryParameters)
                 .stream()
-                .map(lvl -> authenticationDeviceAccessLevelInfoFactory.from(pluggableClass, lvl, uriInfo, fieldSelection.getFields()))
+                .map(lvl -> encryptionDeviceAccessLevelInfoFactory.from(pluggableClass, lvl, uriInfo, fieldSelection.getFields()))
                 .collect(toList());
 
         UriBuilder uriBuilder = uriInfo.getBaseUriBuilder()
-                .path(AuthenticationDeviceAccessLevelResource.class)
+                .path(EncryptionDeviceAccessLevelResource.class)
                 .resolveTemplate("deviceProtocolPluggableClassId", deviceProtocolPluggableClassId);
         return PagedInfoList.from(infos,queryParameters,uriBuilder, uriInfo);
     }
@@ -76,7 +76,7 @@ public class AuthenticationDeviceAccessLevelResource {
     @PROPFIND
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     public List<String> getFields() {
-        return authenticationDeviceAccessLevelInfoFactory.getAvailableFields().stream().sorted().collect(toList());
+        return encryptionDeviceAccessLevelInfoFactory.getAvailableFields().stream().sorted().collect(toList());
     }
 
 

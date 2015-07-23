@@ -54,6 +54,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.tasks.ClockTask;
@@ -398,7 +399,9 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         return mock;
     }
 
-    DeviceProtocolPluggableClass mockPluggableClass(long id, String name, String version, List<AuthenticationDeviceAccessLevel> accessLvls) {
+    DeviceProtocolPluggableClass mockPluggableClass(long id, String name, String version,
+                                                    List<AuthenticationDeviceAccessLevel> authAccessLvls,
+                                                    List<EncryptionDeviceAccessLevel> encAccessLvls) {
         DeviceProtocolPluggableClass mock = mock(DeviceProtocolPluggableClass.class);
         when(mock.getId()).thenReturn(id);
         when(mock.getName()).thenReturn(name);
@@ -406,7 +409,8 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         when(mock.getVersion()).thenReturn(version);
         when(protocolPluggableService.findDeviceProtocolPluggableClass(id)).thenReturn(Optional.of(mock));
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
-        when(deviceProtocol.getAuthenticationAccessLevels()).thenReturn(accessLvls);
+        when(deviceProtocol.getAuthenticationAccessLevels()).thenReturn(authAccessLvls);
+        when(deviceProtocol.getEncryptionAccessLevels()).thenReturn(encAccessLvls);
         when(mock.getDeviceProtocol()).thenReturn(deviceProtocol);
 
         return mock;
@@ -417,6 +421,16 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         when(mock.getId()).thenReturn(id);
         when(mock.getTranslationKey()).thenReturn("aal"+id);
         when(thesaurus.getStringBeyondComponent("aal" + id, "aal" + id)).thenReturn("Proper name for "+id);
+        PropertySpec propertySpec = mockBigDecimalPropertySpec();
+        when(mock.getSecurityProperties()).thenReturn(Collections.singletonList(propertySpec));
+        return mock;
+    }
+
+    EncryptionDeviceAccessLevel mockEncryptionAccessLevel(int id) {
+        EncryptionDeviceAccessLevel mock = mock(EncryptionDeviceAccessLevel.class);
+        when(mock.getId()).thenReturn(id);
+        when(mock.getTranslationKey()).thenReturn("eal"+id);
+        when(thesaurus.getStringBeyondComponent("eal" + id, "eal" + id)).thenReturn("Proper name for "+id);
         PropertySpec propertySpec = mockBigDecimalPropertySpec();
         when(mock.getSecurityProperties()).thenReturn(Collections.singletonList(propertySpec));
         return mock;
