@@ -69,7 +69,7 @@ public class SysAppServiceImpl implements SysAppService, InstallService, Applica
 
     @Override
     public List<String> getPrerequisiteModules() {
-        return Arrays.asList(UserService.COMPONENTNAME, "APS", "DES", "LIC", "TME", "BPM", "APR", "LFC", "YFN", "FIM");
+        return Arrays.asList(UserService.COMPONENTNAME, "APS", "LIC", "TME", "BPM", "APR", "LFC", "YFN", "FIM");
     }
 
     @Reference
@@ -78,18 +78,17 @@ public class SysAppServiceImpl implements SysAppService, InstallService, Applica
     }
 
     private void assignPrivilegesToDefaultRoles() {
-        List<Privilege> availablePrivileges = getDBApplicationPrivileges();
-        userService.grantGroupWithPrivilege(UserService.DEFAULT_ADMIN_ROLE, APPLICATION_KEY,availablePrivileges.stream().map(HasName::getName).toArray(String[]::new));
-        userService.grantGroupWithPrivilege(UserService.BATCH_EXECUTOR_ROLE, APPLICATION_KEY, availablePrivileges.stream().map(HasName::getName).toArray(String[]::new));
+        String[] adminPrivileges = getAdminPrivileges();
+        userService.grantGroupWithPrivilege(UserService.DEFAULT_ADMIN_ROLE, APPLICATION_KEY, adminPrivileges);
+        userService.grantGroupWithPrivilege(UserService.BATCH_EXECUTOR_ROLE, APPLICATION_KEY, adminPrivileges);
     }
 
     private boolean isAllowed(User user) {
-        List<Privilege> appPrivileges = getDBApplicationPrivileges();
-        return user.getPrivileges(APPLICATION_KEY).stream().anyMatch(appPrivileges::contains);
+        return !user.getPrivileges(APPLICATION_KEY).isEmpty();
     }
 
-    private List<Privilege> getDBApplicationPrivileges() {
-        return userService.getPrivileges(APPLICATION_KEY);
+    private String[] getAdminPrivileges() {
+        return SysAppPrivileges.getApplicationPrivileges().stream().toArray(String[]::new);
     }
 
 

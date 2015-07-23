@@ -20,12 +20,6 @@ class SysAppPrivileges {
                 //time periods
                 com.elster.jupiter.time.security.Privileges.ADMINISTRATE_RELATIVE_PERIOD,
                 com.elster.jupiter.time.security.Privileges.VIEW_RELATIVE_PERIOD,
-                //export
-                com.elster.jupiter.export.security.Privileges.ADMINISTRATE_DATA_EXPORT_TASK,
-                com.elster.jupiter.export.security.Privileges.VIEW_DATA_EXPORT_TASK,
-                com.elster.jupiter.export.security.Privileges.UPDATE_DATA_EXPORT_TASK,
-                com.elster.jupiter.export.security.Privileges.UPDATE_SCHEDULE_DATA_EXPORT_TASK,
-                com.elster.jupiter.export.security.Privileges.RUN_DATA_EXPORT_TASK,
                 //import
                 com.elster.jupiter.fileimport.security.Privileges.ADMINISTRATE_IMPORT_SERVICES,
                 com.elster.jupiter.fileimport.security.Privileges.VIEW_IMPORT_SERVICES,
