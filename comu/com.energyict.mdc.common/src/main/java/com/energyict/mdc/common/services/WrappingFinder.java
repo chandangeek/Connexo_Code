@@ -2,6 +2,7 @@ package com.energyict.mdc.common.services;
 
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.QueryParameters;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.sql.SqlFragment;
 import java.util.List;
@@ -32,6 +33,12 @@ public abstract class WrappingFinder<T, S> implements Finder<T> {
     public List<T> find() {
         List<S> list = delegate.find();
         return convert(list);
+    }
+
+    @Override
+    public Finder<T> maxPageSize(Thesaurus thesaurus, int maxPageSize) {
+        delegate.maxPageSize(thesaurus,maxPageSize);
+        return this;
     }
 
     public abstract List<T> convert(List<S> list);
