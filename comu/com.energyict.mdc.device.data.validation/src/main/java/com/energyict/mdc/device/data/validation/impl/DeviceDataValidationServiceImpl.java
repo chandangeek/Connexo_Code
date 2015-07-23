@@ -57,7 +57,7 @@ public class DeviceDataValidationServiceImpl implements DeviceDataValidationServ
                     "LEFT JOIN DTC_DEVICETYPE DT ON (dev.devicetype=DT.id) " +
                     "LEFT JOIN DTC_DEVICECONFIG DC ON (dev.deviceconfigid=DC.id) " +
                     "WHERE " +
-                        "(ED.AMRSYSTEMID = " + KnownAmrSystem.MDC.getId() + "  AND (ED.id) IN (");
+                        "(ED.AMRSYSTEMID = " + KnownAmrSystem.MDC.getId() + "  AND (ED.amrid) IN (");
             sqlBuilder.append("))");
 
             try (PreparedStatement statement = sqlBuilder.prepare(dataModel.getConnection(false))) {
