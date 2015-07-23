@@ -434,7 +434,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             case 'removeReading':
                 menu.record.set('value', null);
                 menu.record.set('intervalFlags', []);
-                menu.record.set('confirmed', false);
+                menu.record.get('confirmed') && menu.record.set('confirmed', false);
                 menu.record.data.validationInfo.mainValidationInfo.validationResult = 'validationStatus.ok';
                 grid.getView().refreshNode(grid.getStore().indexOf(menu.record));
                 point = chart.get(menu.record.get('interval').start);
@@ -548,34 +548,68 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             chart = me.getPage().down('#deviceLoadProfileChannelGraphView').chart,
             point = chart.get(event.record.get('interval').start),
             grid = me.getPage().down('deviceLoadProfileChannelDataGrid'),
+            value = parseFloat(event.record.get('value')),
+            collectedValue = event.record.get('collectedValue'),
+            condition = (isNaN(point.y) && isNaN(value)) ? false : (point.y != value),
             updatedObj;
 
         if (event.column) {
             event.column.getEditor().allowBlank = true;
         }
 
-        if (event.record.isModified('value') || (point.y != parseFloat(event.record.get('value')))) {
+        if (event.record.isModified('value')) {
             me.getPage().down('#save-changes-button').isHidden() && me.showButtons();
 
             if (!event.record.get('value')) {
                 point.update({ y: NaN });
             } else {
                 updatedObj = {
-                    y: parseFloat(event.record.get('value')),
-                    collectedValue: event.record.get('collectedValue'),
+                    y: value,
+                    collectedValue: collectedValue,
                     color: 'rgba(112,187,81,0.3)'
                 };
                 point.update(updatedObj);
             }
 
-            if (event.row && event.record.isModified('value')) {
-                event.row.querySelector('span') && event.row.querySelector('span').remove();
-            }
             if (event.column) {
                 event.record.data.validationInfo.mainValidationInfo.validationResult = 'validationStatus.ok';
                 grid.getView().refreshNode(grid.getStore().indexOf(event.record));
-                event.record.set('confirmed', false);
+                event.record.get('confirmed') && event.record.set('confirmed', false);
             }
+        } else if (condition) {
+            me.resetChanges(event.record, point);
+        }
+    },
+
+    resetChanges: function (record, point) {
+        var me = this,
+            properties = record.get('readingProperties'),
+            grid = me.getPage().down('deviceLoadProfileChannelDataGrid'),
+            store = grid.getStore(),
+            color = '#70BB51';
+
+        if (record.getValidationInfo().getMainValidationInfo().get('estimatedByRule')) {
+            color = '#568343';
+        } else if (properties.delta.notValidated) {
+            color = '#71adc7';
+        } else if (properties.delta.suspect) {
+            color = 'rgba(235, 86, 66, 1)';
+        } else if (properties.delta.informative) {
+            color = '#dedc49';
+        }
+        record.data.validationInfo.mainValidationInfo.validationResult = record.getValidationInfo().getMainValidationInfo().get('validationResult');
+        record.data.validationInfo.bulkValidationInfo.validationResult = record.getValidationInfo().getBulkValidationInfo().get('validationResult');
+        record.get('confirmed') && record.set('confirmed', false);
+        grid.getView().refreshNode(store.indexOf(record));
+        point.update({
+            y: parseFloat(record.get('value')),
+            collectedValue: record.get('collectedValue'),
+            color: color
+        });
+        record.reject();
+        if (!store.getUpdatedRecords().length) {
+            me.getPage().down('#save-changes-button').hide();
+            me.getPage().down('#undo-button').hide();
         }
     },
 
@@ -679,7 +713,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                         });
                     }
                     me.getReadingEstimationWindow().destroy();
-                    me.showButtons();
+                    me.getPage().down('#save-changes-button').isHidden() && me.showButtons();
                 } else {
                     me.getReadingEstimationWindow().setLoading(false);
                     me.getReadingEstimationWindow().down('#error-label').show();
@@ -705,7 +739,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         me.resumeEditorFieldValidation(grid.editingPlugin, {
             record: reading
         });
-        reading.set('confirmed', false);
+        reading.get('confirmed') && reading.set('confirmed', false);
     },
 
     checkSuspect: function (menu) {
@@ -797,7 +831,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             func(record);
         }
 
-        me.showButtons();
+        me.getPage().down('#save-changes-button').isHidden() && me.showButtons();
     }
 });
 
