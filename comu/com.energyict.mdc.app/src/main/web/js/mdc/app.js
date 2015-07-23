@@ -32,6 +32,10 @@ Ext.onReady(function () {
             path: '../../apps/dvi/src'
         },
         {
+            name: 'Ddv',
+            path: '../../apps/ddv/src'
+        },
+        {
             name: 'Dsh',
             path: '../../apps/dsh/src'
         },
