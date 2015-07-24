@@ -1,5 +1,10 @@
 Ext.define('Ddv.controller.ValidationOverview', {
     extend: 'Ext.app.Controller',
+
+    requires: [
+        'Dsh.model.Filterable'
+    ],
+
     views: [
         'Ddv.view.ValidationOverview'
     ],
