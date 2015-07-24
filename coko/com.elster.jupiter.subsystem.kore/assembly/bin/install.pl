@@ -219,6 +219,11 @@ sub install_connexo {
 		print $FH "com.elster.jupiter.datasource.jdbcurl=$jdbcUrl\n";
 		print $FH "com.elster.jupiter.datasource.jdbcuser=$dbUserName\n";
 		print $FH "com.elster.jupiter.datasource.jdbcpassword=$dbPassword\n";
+		print $FH "\n";
+		print $FH "mail.smtp.host=\n";
+		print $FH "mail.user=\n";
+		print $FH "mail.password=\n";
+		print $FH "mail.from=\n";
 		close($FH);
 
 		print "\n\nInstalling Connexo database schema ...\n";
