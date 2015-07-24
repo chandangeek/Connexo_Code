@@ -362,8 +362,10 @@ Ext.define('Uni.grid.filtertop.Interval', {
                 fromDate = tokens[0],
                 toDate = tokens[1];
 
-            if (fromDate && toDate) {
+            if (fromDate) {
                 me.setFromDateValue(new Date(parseInt(fromDate)));
+            }
+            if (toDate) {
                 me.setToDateValue(new Date(parseInt(toDate)));
             }
         }
@@ -376,11 +378,19 @@ Ext.define('Uni.grid.filtertop.Interval', {
             fromValue = me.getFromDateValue(),
             toValue = me.getToDateValue();
 
-        if (Ext.isDefined(fromValue) && Ext.isDefined(toValue)) {
-            return fromValue + '-' + toValue;
+        if (!Ext.isDefined(fromValue) && !Ext.isDefined(toValue)) {
+            return undefined;
         }
 
-        return undefined;
+        var result = '';
+        if (Ext.isDefined(fromValue)) {
+            result += fromValue;
+        }
+        result += '-';
+        if (Ext.isDefined(toValue)) {
+            result += toValue;
+        }
+        return result;
     },
 
     applyParamValue: function (params, includeUndefined, flattenObjects) {
@@ -388,11 +398,14 @@ Ext.define('Uni.grid.filtertop.Interval', {
             fromValue = me.getFromDateValue(),
             toValue = me.getToDateValue();
 
-        if (!includeUndefined && Ext.isDefined(fromValue) && Ext.isDefined(toValue)) {
+        if (Ext.isDefined(fromValue)) {
             params[me.dataIndexFrom] = fromValue;
-            params[me.dataIndexTo] = toValue;
-        } else if (!Ext.isDefined(fromValue) || !Ext.isDefined(toValue)) {
+        } else if (includeUndefined) {
             params[me.dataIndexFrom] = undefined;
+        }
+        if (Ext.isDefined(toValue)) {
+            params[me.dataIndexTo] = toValue;
+        } else if (includeUndefined) {
             params[me.dataIndexTo] = undefined;
         }
     },
@@ -490,6 +503,10 @@ Ext.define('Uni.grid.filtertop.Interval', {
 
         if (Ext.isDefined(fromValue) && Ext.isDefined(toValue)) {
             me.down('button').setText( Uni.DateTime.formatDateTimeShort(new Date(fromValue)) + ' / ' + Uni.DateTime.formatDateTimeShort(new Date(toValue)) );
+        } else if (Ext.isDefined(fromValue)) {
+            me.down('button').setText( Uni.DateTime.formatDateTimeShort(new Date(fromValue)) + ' / *' );
+        } else if (Ext.isDefined(toValue)) {
+            me.down('button').setText( '* / ' + Uni.DateTime.formatDateTimeShort(new Date(toValue)) );
         } else {
             me.down('button').setText( me.originalTitle );
         }
