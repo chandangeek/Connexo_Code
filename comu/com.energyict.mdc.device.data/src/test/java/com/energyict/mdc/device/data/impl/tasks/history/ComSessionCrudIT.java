@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.impl.tasks.history;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.Translator;
 import com.energyict.mdc.device.config.ComTaskEnablement;
@@ -159,6 +160,8 @@ public class ComSessionCrudIT {
 
     @Mock
     DeviceProtocolPluggableClass deviceProtocolPluggableClass;
+    @Mock
+    Thesaurus thesaurus;
     private DeviceConfigurationService deviceConfigurationService;
     private DeviceType deviceType;
     private DeviceConfiguration deviceConfiguration;
@@ -206,6 +209,7 @@ public class ComSessionCrudIT {
             bind(LicenseService.class).toInstance(licenseService);
             bind(LogService.class).toInstance(mock(LogService.class));
             bind(IssueService.class).toInstance(mock(IssueService.class, RETURNS_DEEP_STUBS));
+            bind(Thesaurus.class).toInstance(thesaurus);
         }
 
     }
