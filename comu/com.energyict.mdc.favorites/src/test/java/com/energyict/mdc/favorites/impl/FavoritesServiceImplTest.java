@@ -1,5 +1,6 @@
 package com.energyict.mdc.favorites.impl;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
@@ -143,6 +144,7 @@ public class FavoritesServiceImplTest {
             bind(LicenseService.class).toInstance(mock(LicenseService.class));
             bind(BundleContext.class).toInstance(mock(BundleContext.class));
             bind(LogService.class).toInstance(mock(LogService.class));
+            bind(Thesaurus.class).toInstance(mock(Thesaurus.class));
             bind(IssueService.class).toInstance(mock(IssueService.class, RETURNS_DEEP_STUBS));
         }
     }
