@@ -27,9 +27,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
         {ref: 'registerConfigGrid', selector: '#registerconfiggrid'},
         {ref: 'rulesForRegisterConfigGrid', selector: '#rulesForRegisterConfigGrid'},
         {ref: 'registerConfigPreviewForm', selector: '#registerConfigPreviewForm'},
-
         {ref: 'ruleForRegisterConfigPreview', selector: '#ruleForRegisterConfigPreview'},
-
         {ref: 'registerConfigPreview', selector: '#registerConfigPreview'},
         {ref: 'registerConfigEditForm', selector: '#registerConfigEditForm'},
         {ref: 'createRegisterConfigBtn', selector: '#createRegisterConfigBtn'},
@@ -37,7 +35,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
         {ref: 'numberOfDigits', selector: '#numberOfDigits'},
         {ref: 'rulesForRegisterConfigGrid', selector: 'validation-rules-for-registerconfig-grid'},
         {ref: 'rulesForRegisterConfigPreview', selector: 'register-config-and-rules-preview-container > #rulesForRegisterConfigPreview'},
-
+        {ref: 'registerTypeCombo', selector: '#registerConfigEditForm #registerTypeComboBox'},
         {ref: 'validationRulesForRegisterConfigPreview', selector: 'register-config-and-rules-preview-container validation-rule-preview'},
         {ref: 'registerConfigNumberPanel', selector: '#registerConfigNumberPanel'}
     ],
@@ -56,9 +54,6 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
             '#registerconfiggrid actioncolumn': {
                 editRegisterConfig: this.editRegisterConfigurationHistory,
                 deleteRegisterConfig: this.deleteRegisterConfiguration
-            },
-            '#registerConfigEditForm combobox': {
-                change: this.changeRegisterType
             },
             '#createEditButton[action=createRegisterConfiguration]': {
                 click: this.createRegisterConfiguration
@@ -83,7 +78,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
             },
             'register-config-and-rules-preview-container rules-for-registerconfig-actionmenu': {
                 click: this.viewRule
-            },'#registerConfigEditForm #valueTypeRadioGroup': {
+            }, '#registerConfigEditForm #valueTypeRadioGroup': {
                 change: this.hideShowNumberFields
             }
         });
@@ -148,7 +143,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
         this.deviceConfigId = deviceConfigId;
         var widget = Ext.widget('registerConfigSetup', {deviceTypeId: deviceTypeId, deviceConfigId: deviceConfigId});
 
-        if(me.getCreateRegisterConfigBtn())
+        if (me.getCreateRegisterConfigBtn())
             me.getCreateRegisterConfigBtn().href = '#/administration/devicetypes/' + deviceTypeId + '/deviceconfigurations/' + deviceConfigId + '/registerconfigurations/add';
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
             success: function (deviceType) {
@@ -159,8 +154,6 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
                     success: function (deviceConfig) {
                         me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfig);
                         widget.down('#stepsMenu #deviceConfigurationOverviewLink').setText(deviceConfig.get('name'));
-                        var deviceTypeName = deviceType.get('name');
-                        var deviceConfigName = deviceConfig.get('name');
                         me.getApplication().fireEvent('changecontentevent', widget);
                         me.getRegisterConfigGrid().getSelectionModel().doSelect(0);
                     }
@@ -190,7 +183,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
         registerTypesOfDevicetypeStore.getProxy().startParam = null;
         registerTypesOfDevicetypeStore.getProxy().limitParam = null;
         registerTypesOfDevicetypeStore.load({
-            callback: function (store) {
+            callback: function () {
                 Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
                     success: function (deviceType) {
                         me.getApplication().fireEvent('loadDeviceType', deviceType);
@@ -199,8 +192,6 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
                         model.load(deviceConfigId, {
                             success: function (deviceConfig) {
                                 me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfig);
-                                var deviceTypeName = deviceType.get('name');
-                                var deviceConfigName = deviceConfig.get('name');
                                 var widget = Ext.widget('registerConfigEdit', {
                                     edit: false,
                                     registerTypesOfDeviceType: registerTypesOfDevicetypeStore,
@@ -211,6 +202,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
                                 widget.down('#editNumberOfDigitsField').setValue(8);
                                 widget.down('#editNumberOfFractionDigitsField').setValue(0);
                                 widget.down('#editOverflowValueField').setValue(100000000);
+                                me.getRegisterTypeCombo().on('change', me.changeRegisterType, me);
                             }
                         });
                     }
@@ -341,7 +333,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
                                         me.getApplication().fireEvent('loadRegisterConfiguration', registerConfiguration);
                                         me.getRegisterConfigEditForm().setTitle(Uni.I18n.translate('general.edit', 'MDC', 'Edit') + " '" + registerConfiguration.get('readingType').fullAliasName + "'");
                                         widget.down('#registerTypeComboBox').setValue(registerConfiguration.get('registerType'));
-                                        if(registerConfiguration.get('asText')===true){
+                                        if (registerConfiguration.get('asText') === true) {
                                             widget.down('#textRadio').setValue(true);
                                         } else {
                                             widget.down('#numberRadio').setValue(true);
@@ -389,17 +381,26 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
         }
     },
 
-    hideShowNumberFields: function(radioGroup){
+    hideShowNumberFields: function (radioGroup) {
         var visible = !(radioGroup.getValue().asText);
         this.getRegisterConfigEditForm().down('#editNumberOfDigitsField').setVisible(visible);
         this.getRegisterConfigEditForm().down('#editNumberOfFractionDigitsField').setVisible(visible);
         this.getRegisterConfigEditForm().down('#editOverflowValueField').setVisible(visible);
         this.getRegisterConfigEditForm().down('#overflowMsg').setVisible(visible);
-        if(visible){
+        if (visible) {
             var values = this.getRegisterConfigEditForm().getValues();
-            if(values.numberOfDigits===''){this.getRegisterConfigEditForm().down('#editNumberOfDigitsField').setValue(8)};
-            if(values.numberOfFractionDigits===''){this.getRegisterConfigEditForm().down('#editNumberOfFractionDigitsField').setValue(0)};
-            if(values.overflow===''){this.getRegisterConfigEditForm().down('#editOverflowValueField').setValue(100000000)};
+            if (values.numberOfDigits === '') {
+                this.getRegisterConfigEditForm().down('#editNumberOfDigitsField').setValue(8)
+            }
+            ;
+            if (values.numberOfFractionDigits === '') {
+                this.getRegisterConfigEditForm().down('#editNumberOfFractionDigitsField').setValue(0)
+            }
+            ;
+            if (values.overflow === '') {
+                this.getRegisterConfigEditForm().down('#editOverflowValueField').setValue(100000000)
+            }
+            ;
         }
     }
 

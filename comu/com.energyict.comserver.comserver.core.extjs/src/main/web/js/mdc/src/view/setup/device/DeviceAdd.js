@@ -52,8 +52,16 @@ Ext.define('Mdc.view.setup.device.DeviceAdd', {
                             msgTarget: 'under',
                             maxLength: 80,
                             enforceMaxLength: true,
+                            maskRe: /^[^ /]+$/,
                             validateOnBlur: false,
-                            validateOnChange: false
+                            validateOnChange: false,
+                            listeners: {
+                                'change': function(field, newVal, oldVal){
+                                    if (!newVal.match(/^[^ /]+$/)) {
+                                        field.setValue(null);
+                                    }
+                                }
+                            }
                         },
                         {
                             xtype: 'textfield',
