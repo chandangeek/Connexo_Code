@@ -1,5 +1,24 @@
 package com.energyict.mdc.device.lifecycle.impl;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.sql.SQLException;
+import java.time.Clock;
+import java.time.Instant;
+import java.util.Optional;
+import java.util.Properties;
+
+import org.osgi.framework.BundleContext;
+import org.osgi.service.event.EventAdmin;
+import org.osgi.service.log.LogService;
+
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.appserver.impl.AppServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
@@ -109,6 +128,7 @@ public class InMemoryIntegrationPersistence {
     private PropertySpecService propertySpecService;
     private LicenseService licenseService;
     private Injector injector;
+    private IssueService issueService;
 
     public InMemoryIntegrationPersistence() {
         super();
@@ -180,7 +200,7 @@ public class InMemoryIntegrationPersistence {
             StateTransitionTriggerEventTopicHandler stateTransitionTriggerEventTopicHandler = new StateTransitionTriggerEventTopicHandler(this.injector.getInstance(EventService.class));
             ((EventServiceImpl) this.injector.getInstance(EventService.class)).addTopicHandler(stateTransitionTriggerEventTopicHandler);
             com.elster.jupiter.metering.impl.StateTransitionChangeEventTopicHandler meteringTopicHandler =
-                    new com.elster.jupiter.metering.impl.StateTransitionChangeEventTopicHandler(
+                    new com.elster.jupiter.metering.impl.StateTransitionChangeEventTopicHandler(Clock.systemDefaultZone(),
                             this.injector.getInstance(FiniteStateMachineService.class),
                             this.injector.getInstance(MeteringService.class));
             ((EventServiceImpl) this.injector.getInstance(EventService.class)).addTopicHandler(meteringTopicHandler);
@@ -205,9 +225,10 @@ public class InMemoryIntegrationPersistence {
         this.eventAdmin = mock(EventAdmin.class);
         this.principal = mock(User.class);
         when(this.principal.getName()).thenReturn(testName);
-        when(this.principal.hasPrivilege(any(Privilege.class))).thenReturn(true);
+        when(this.principal.hasPrivilege(Matchers.matches("MDC"), any(Privilege.class))).thenReturn(true);
         this.licenseService = mock(LicenseService.class);
         when(this.licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.<License>empty());
+        this.issueService = mock(IssueService.class);
     }
 
     public BundleContext getBundleContext() {
@@ -262,6 +283,10 @@ public class InMemoryIntegrationPersistence {
         return this.injector.getInstance(serviceClass);
     }
 
+    public IssueService getIssueService() {
+        return issueService;
+    }
+
     private class MockModule extends AbstractModule {
         @Override
         protected void configure() {
@@ -273,7 +298,7 @@ public class InMemoryIntegrationPersistence {
             bind(LicenseService.class).toInstance(licenseService);
             bind(LogService.class).toInstance(mock(LogService.class));
             bind(CronExpressionParser.class).toInstance(mock(CronExpressionParser.class, RETURNS_DEEP_STUBS));
-            bind(IssueService.class).toInstance(mock(IssueService.class, RETURNS_DEEP_STUBS));
+            bind(IssueService.class).toInstance(issueService);
             bind(FileSystem.class).toInstance(FileSystems.getDefault());
             bind(Thesaurus.class).toInstance(mock(Thesaurus.class));
         }

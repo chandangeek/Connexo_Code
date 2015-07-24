@@ -1,7 +1,6 @@
 package com.energyict.mdc.device.lifecycle.impl;
 
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.impl.tasks.Chopper;
 import com.energyict.mdc.device.lifecycle.ActionDoesNotRelateToDeviceStateException;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolation;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolationException;
@@ -318,7 +317,7 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
 
     private boolean isAuthorized(AuthorizedAction.Level level, User user) {
         Optional<Privilege> privilege = this.deviceLifeCycleConfigurationService.findInitiateActionPrivilege(level.getPrivilege());
-        return privilege.isPresent() && user.hasPrivilege(privilege.get());
+        return privilege.isPresent() && user.hasPrivilege("MDC", privilege.get());
     }
 
     private SecurityException newSecurityException(MessageSeeds messageSeed) {

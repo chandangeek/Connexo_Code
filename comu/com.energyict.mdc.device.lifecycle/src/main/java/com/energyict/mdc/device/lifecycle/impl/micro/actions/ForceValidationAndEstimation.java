@@ -1,5 +1,8 @@
 package com.energyict.mdc.device.lifecycle.impl.micro.actions;
 
+import com.elster.jupiter.cbo.QualityCodeIndex;
+import com.elster.jupiter.cbo.QualityCodeSystem;
+import com.elster.jupiter.metering.ReadingQualityType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
@@ -13,6 +16,7 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.util.exception.BaseException;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.validation.ValidationService;
+import com.google.common.collect.Range;
 
 import java.time.Instant;
 import java.util.Collections;
@@ -34,7 +38,7 @@ public class ForceValidationAndEstimation implements ServerMicroAction {
 
     private Device device;
 
-    public ForceValidationAndEstimation(ValidationService validationService, EstimationService estimationService){
+    public ForceValidationAndEstimation(ValidationService validationService, EstimationService estimationService) {
         this.validationService = validationService;
         this.estimationService = estimationService;
     }
@@ -48,29 +52,29 @@ public class ForceValidationAndEstimation implements ServerMicroAction {
     @Override
     public void execute(Device device, Instant effectiveTimestamp, List<ExecutableActionProperty> properties) {
         this.device = device;
-        if (!this.device.forValidation().isValidationActive()) {
-            throw new ForceValidationAndEstimationException(MessageSeeds.VALIDATION_NOT_SET_ON_DEVICE);
+        if (this.device.forValidation().isValidationActive() && this.device.forEstimation().isEstimationActive()) {
+            this.device.getLoadProfiles().forEach(loadProfile -> this.setLastReading(loadProfile, effectiveTimestamp));
+            this.device.getCurrentMeterActivation().ifPresent(this::validateAndEstimate);
         }
-        if (!this.device.forEstimation().isEstimationActive()) {
-            throw new ForceValidationAndEstimationException(MessageSeeds.ESTIMATION_NOT_SET_ON_DEVICE);
-        }
-        this.device.getLoadProfiles().forEach(loadProfile -> this.setLastReading(loadProfile,  effectiveTimestamp));
-        this.device.getCurrentMeterActivation().ifPresent(this::validateAndEstimate);
     }
 
     private void setLastReading(LoadProfile loadProfile, Instant newlastReading) {
         device.getLoadProfileUpdaterFor(loadProfile).setLastReadingIfLater(newlastReading).update();
     }
 
-    private void validateAndEstimate(MeterActivation meterActivation){
+    private void validateAndEstimate(MeterActivation meterActivation) {
         validationService.validate(meterActivation);
         estimationService.estimate(meterActivation, meterActivation.getRange());
-        if (!validationService.getEvaluator().isAllDataValidated(meterActivation)) {
+        long nrOfSuspects = meterActivation.getChannels().stream()
+                .flatMap(channel ->
+                        channel.findActualReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT), Range.<Instant>all()).stream())
+                .count();
+        if (nrOfSuspects > 0) {
             throw new ForceValidationAndEstimationException(MessageSeeds.NOT_ALL_DATA_VALID_FOR_DEVICE);
         }
     }
 
-    public class ForceValidationAndEstimationException extends BaseException{
+    public class ForceValidationAndEstimationException extends BaseException {
         protected ForceValidationAndEstimationException(MessageSeed messageSeed) {
             super(messageSeed, device.getName());
         }
