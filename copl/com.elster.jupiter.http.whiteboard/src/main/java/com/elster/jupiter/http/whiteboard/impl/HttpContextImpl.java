@@ -153,7 +153,7 @@ public class HttpContextImpl implements HttpContext {
         Optional<User> user = Optional.empty();
 
         String authentication = request.getHeader("Authorization");
-        Optional<Cookie> xsrf = Arrays.asList(request.getCookies()).stream().filter(cookie -> cookie.getName().equals("X-CONNEXO-XSRF")).findFirst();
+        Optional<Cookie> xsrf = Arrays.asList(request.getCookies()).stream().filter(cookie -> cookie.getName().equals("X-CONNEXO-TOKEN")).findFirst();
 
         if (authentication == null) {
             if(xsrf.isPresent()){
@@ -206,13 +206,17 @@ public class HttpContextImpl implements HttpContext {
             request.getSession(false).setAttribute("user", user);
             response.setHeader("Cache-Control", "max-age=86400");
 
-            response.setHeader("Authorization", "Bearer " + token);
+            // Send both as header and httponly cookie
+            // Static resources will be accessed based on the cookie
+            // REST calls will be accessed based on the Authorization header
 
-            // TODO: this is the alternative implementation using cookies to send the token back to the client
-            /*Cookie tokenCookie = new Cookie("X_CONNEXO_TOKEN", token);
+            //response.setHeader("Authorization", "Bearer " + token);
+            response.setHeader("X-AUTH-TOKEN", token);
+
+            Cookie tokenCookie = new Cookie("X-CONNEXO-TOKEN", token);
             tokenCookie.setPath("/");
-            //tokenCookie.setHttpOnly(true);
-            response.addCookie(tokenCookie);*/
+            tokenCookie.setHttpOnly(true);
+            response.addCookie(tokenCookie);
 
             userService.addLoggedInUser(user);
 
