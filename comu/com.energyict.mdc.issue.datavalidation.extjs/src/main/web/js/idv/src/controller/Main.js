@@ -13,6 +13,7 @@ Ext.define('Idv.controller.Main', {
 
         'Cfg.privileges.Validation',
         'Ddv.controller.ValidationOverview',
+        'Ddv.controller.Main',
         'Ddv.model.ValidationOverviewFilter'
 
     ],
