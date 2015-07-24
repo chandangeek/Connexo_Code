@@ -18,52 +18,19 @@ Ext.define('Uni.view.search.field.Combobox', {
     extend: 'Ext.form.field.ComboBox',
     requires: [
         'Ext.grid.Panel'
-        //'Ext.grid.feature.Summary'
     ],
     xtype: 'search-combo',
     queryMode: 'local',
     editable: false,
-    //fieldStyle: {
-    //    background: '#71adc7'
-    //},
     getDisplayValue: function() {
-        return this.rendered ? this.getPicker().selection.count() + ' selected' : this.emptyText;
+        return this.rendered && this.getPicker().selection.count()
+            ? this.getPicker().selection.count() + ' selected'
+            : null;
     },
     disableKeyFilter: true,
     enableKeyEvents: false,
     forceSelection: true,
-    store: Ext.create('Ext.data.Store', {
-        fields: ['name', 'value'],
-        data: [
-            {'name': 'Value1', 'value': '1'},
-            {'name': 'Value2', 'value': '2'},
-            {'name': 'Value3', 'value': '1'},
-            {'name': 'Value4', 'value': '2'},
-            {'name': 'Value5', 'value': '1'},
-            {'name': 'Value6', 'value': '2'},
-            {'name': 'Value7', 'value': '1'},
-            {'name': 'Value8', 'value': '2'},
-            {'name': 'Value9', 'value': '1'},
-            {'name': 'Value10', 'value': '2'},
-            {'name': 'Value11', 'value': '1'},
-            {'name': 'Value12', 'value': '2'},
-            {'name': 'Zalue13', 'value': '1'},
-            {'name': 'Zalue14', 'value': '2'},
-            {'name': 'Zalue15', 'value': '1'},
-            {'name': 'Zalue16', 'value': '2'},
-            {'name': 'Zalue17', 'value': '1'},
-            {'name': 'Zalue18', 'value': '2'},
-            {'name': 'Zalue19', 'value': '1'},
-            {'name': 'Zalue20', 'value': '2'},
-            {'name': 'Zalue21', 'value': '1'},
-            {'name': 'Zalue22', 'value': '2'},
-            {'name': 'Zalue23', 'value': '1'},
-            {'name': 'Zalue24', 'value': '2'},
-            {'name': 'Zalue25', 'value': '1'},
-            {'name': 'Zalue26', 'value': '2'}
-        ],
-        limit: 10,
-    }),
+    store: null,
 
     initComponent: function () {
         var me = this;
@@ -75,9 +42,6 @@ Ext.define('Uni.view.search.field.Combobox', {
                 },
                 items: {
                     dataIndex: me.displayField,
-                    //summaryRenderer: function(value, summaryData, dataIndex) {
-                    //    return 'Only first 100 records are displayed';
-                    //},
                     flex: 1
                 }
             }
@@ -90,15 +54,16 @@ Ext.define('Uni.view.search.field.Combobox', {
             picker,
             menuCls = Ext.baseCSSPrefix + 'menu',
             selection = Ext.create('Ext.data.Store', {
-                fields: ['name', 'value'],
+                fields: [me.displayField, me.valueField],
                 listeners: {
                     datachanged: function() {
                         picker.down('#filter-selected').setDisabled( !this.count() );
                     }
                 }
-            });
+            }),
             opts = Ext.apply({
                 selModel: {
+                    store: me.store,
                     selType: 'checkboxmodel',
                     mode: me.multiSelect ? 'SIMPLE' : 'SINGLE',
                     showHeaderCheckbox: true,
@@ -141,13 +106,9 @@ Ext.define('Uni.view.search.field.Combobox', {
                     listeners: {
                         beforeselect: function(s, record) {
                             selection.add(record);
-                            //selection.remove(s.getStore().getRange());
-                            //
                         },
                         beforedeselect: function(s, record) {
                             selection.remove(record);
-                            //selection.remove(s.getStore().getRange());
-                            //
                         }
 
                     }
@@ -190,7 +151,11 @@ Ext.define('Uni.view.search.field.Combobox', {
                             items: [
                                 {
                                     itemId: 'filter-operator',
-                                    text: '='
+                                    xtype: 'combo',
+                                    value: '=',
+                                    width: 50,
+                                    margin: '0 5 0 0',
+                                    disabled: true
                                 },
                                 {
                                     xtype: 'fieldset',
@@ -235,6 +200,7 @@ Ext.define('Uni.view.search.field.Combobox', {
                                             itemId: 'filter-input',
                                             xtype: 'textfield',
                                             flex: 1,
+                                            emptyText: 'Start typing to find devices...',
                                             fieldStyle: {
                                                 border: 0,
                                                 margin: 0
@@ -273,6 +239,7 @@ Ext.define('Uni.view.search.field.Combobox', {
                         {
                             xtype: 'container',
                             itemId: 'limit-notification',
+                            hidden: true,
                             html: 'Only the first 100 records are displayed. Use filter to narrow down.'
                         },
                         {

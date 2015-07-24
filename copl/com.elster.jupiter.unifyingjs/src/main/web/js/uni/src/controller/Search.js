@@ -17,6 +17,7 @@ Ext.define('Uni.controller.Search', {
         'Uni.view.search.Overview',
         'Uni.view.search.Adapter',
         'Uni.util.Filters',
+        'Uni.view.search.field.Combobox',
         // Grid columns.
         'Uni.grid.column.search.DeviceType',
         'Uni.grid.column.search.DeviceConfiguration'
@@ -228,6 +229,7 @@ Ext.define('Uni.controller.Search', {
 
     onChangeSearchDomain: function (field, value) {
         var me = this,
+            container = me.getSearchOverview(),
             router = this.getController('Uni.controller.history.Router'),
             searchDomains = Ext.getStore('Uni.store.search.Domains'),
             searchResults = Ext.getStore('Uni.store.search.Results'),
@@ -235,13 +237,19 @@ Ext.define('Uni.controller.Search', {
             fields = Ext.getStore('Uni.store.search.Fields'),
             searchDomain = searchDomains.findRecord('id', value, 0, true, true);
 
+        container.setLoading(true);
         if (searchDomain !== null && Ext.isDefined(searchDomain)) {
             Uni.util.History.suspendEventsForNextCall();
             router.getRoute().forward(null, {searchDomain: searchDomain.get('displayValue')});
 
             searchProperties.removeAll();
             searchProperties.getProxy().url = searchDomain.get('glossaryHref');
-            searchProperties.load();
+            searchProperties.load({
+                callback: function () {
+                    container.setLoading(false);
+                },
+                scope: me
+            });
 
             fields.removeAll();
             fields.getProxy().url = searchDomain.get('describedByHref');
@@ -457,7 +465,7 @@ Ext.define('Uni.controller.Search', {
             me.filters.remove(filterResult);
             container.remove(filterResult);
 
-            Uni.util.Filters.updateHistoryState(me.filters);
+            //Uni.util.Filters.updateHistoryState(me.filters);
             //me.updateRemovableContainerVisibility();
         }
     },
@@ -532,7 +540,7 @@ Ext.define('Uni.controller.Search', {
                 }
             });
 
-            widget = Ext.create('Uni.grid.filtertop.ComboBox', {
+            widget = Ext.create('Uni.view.search.field.Combobox', {
                 emptyText: displayValue,
                 store: store,
                 valueField: 'id',
@@ -540,9 +548,9 @@ Ext.define('Uni.controller.Search', {
                 multiSelect: true
             });
 
-            widget.on('afterrender', function () {
+            //widget.on('afterrender', function () {
                 store.load();
-            }, me);
+            //}, me);
         } else {
             switch (type) {
                 case 'String':

@@ -3,7 +3,9 @@
  */
 Ext.define('Uni.model.search.Property', {
     extend: 'Ext.data.Model',
-
+    removeDomain: function (url) {
+        return url.replace(/http:\/\/.*:\d+(\/.*)/, '$1');
+    },
     fields: [
         {name: 'name', type: 'string'},
         {name: 'displayValue', type: 'string'},
@@ -24,7 +26,7 @@ Ext.define('Uni.model.search.Property', {
                 result = undefined;
 
             if(Ext.isDefined(linkParams)) {
-                result = linkParams.href;
+                result = record.removeDomain(linkParams.href);
             }
 
             return result;
