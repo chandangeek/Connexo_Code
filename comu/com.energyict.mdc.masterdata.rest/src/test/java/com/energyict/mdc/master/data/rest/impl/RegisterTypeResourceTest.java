@@ -82,17 +82,15 @@ public class RegisterTypeResourceTest extends MasterDataApplicationJerseyTest {
         when(deviceConfigurationService.findActiveRegisterSpecsByDeviceTypeAndRegisterType(any(DeviceType.class), any(RegisterType.class))).thenReturn(registerSpecs);
 
         Map<String, Object> map = target("/registertypes/13").request().get(Map.class);
-        assertThat(map).hasSize(8)
+        assertThat(map).hasSize(5)
             .containsKey("id")
             .containsKey("obisCode")
             .containsKey("isLinkedByDeviceType")
-            .containsKey("isLinkedByActiveRegisterConfig")
-            .containsKey("isLinkedByInactiveRegisterConfig")
-            .containsKey("readingType");
-        assertThat((Map)map.get("readingType")).hasSize(24)
+            .containsKey("readingType")
+            .containsKey("unitOfMeasure");
+        assertThat((Map)map.get("readingType")).hasSize(22)
             .containsKey("mRID")
             .containsKey("aliasName")
-            .containsKey("name")
             .containsKey("macroPeriod")
             .containsKey("aggregate")
             .containsKey("measuringPeriod")
@@ -111,7 +109,6 @@ public class RegisterTypeResourceTest extends MasterDataApplicationJerseyTest {
             .containsKey("metricMultiplier")
             .containsKey("unit")
             .containsKey("currency")
-            .containsKey("fullAliasName")
             .containsKey("version")
             .containsKey("names");
 
