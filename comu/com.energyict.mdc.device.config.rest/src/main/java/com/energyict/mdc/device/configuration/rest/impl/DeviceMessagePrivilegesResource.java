@@ -39,7 +39,7 @@ public class DeviceMessagePrivilegesResource {
         Multimap<DeviceMessageUserAction, Group> privilegesMap = ArrayListMultimap.create();
 
         for (Group group : userService.getGroups()) {
-            group.getPrivileges().stream()
+            group.getPrivileges("MDC").stream()
                 .map(p -> DeviceMessageUserAction.forPrivilege(p.getName()))
                 .filter(action -> action.isPresent())
                 .forEach(action -> privilegesMap.put(action.get(), group));

@@ -24,7 +24,7 @@ public class DeviceMessagePrivilegesResourceTest extends DeviceConfigurationAppl
         when(level3.getName()).thenReturn(DeviceMessageUserAction.EXECUTEDEVICEMESSAGE3.getPrivilege());
         Group group = mock(Group.class);
         when(group.getName()).thenReturn("Administrators");
-        when(group.getPrivileges()).thenReturn(Arrays.asList(level1, level3));
+        when(group.getPrivileges("MDC")).thenReturn(Arrays.asList(level1, level3));
         when(userService.getGroups()).thenReturn(Arrays.asList(group));
 
         String response = target("/devicemessageprivileges").request().get(String.class);

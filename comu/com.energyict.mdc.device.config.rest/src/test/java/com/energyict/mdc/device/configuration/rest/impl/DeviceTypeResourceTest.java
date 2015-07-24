@@ -71,10 +71,7 @@ import org.mockito.Matchers;
 import org.mockito.Mockito;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -390,7 +387,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         assertThat(map.get("total")).describedAs("JSon representation of a field, JavaScript impact if it changed").isEqualTo(1);
         assertThat((List) map.get("deviceConfigurations")).hasSize(1).describedAs("JSon representation of a field, JavaScript impact if it changed");
         Map jsonDeviceConfiguration = (Map) ((List) map.get("deviceConfigurations")).get(0);
-        assertThat(jsonDeviceConfiguration).hasSize(12);
+        assertThat(jsonDeviceConfiguration).hasSize(13);
         assertThat(jsonDeviceConfiguration.get("id")).isEqualTo(113).describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceConfiguration.get("name")).isEqualTo("defcon").describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceConfiguration.get("active")).isEqualTo(true).describedAs("JSon representation of a field, JavaScript impact if it changed");
@@ -645,6 +642,36 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         verify(deviceConfigurationBuilder).canActAsGateway(true);
         verify(deviceConfigurationBuilder).isDirectlyAddressable(false);
         verify(deviceConfigurationBuilder).description("desc");
+    }
+
+    @Test
+    public void testCloneDeviceConfiguration() throws Exception {
+        DeviceType deviceType = mockDeviceType("clone", 31L);
+        DeviceConfiguration deviceConfiguration101 = mock(DeviceConfiguration.class);
+        DeviceConfiguration deviceConfiguration102 = mock(DeviceConfiguration.class);
+
+        when(deviceConfiguration101.getId()).thenReturn(101L);
+        when(deviceConfiguration101.getDeviceType()).thenReturn(deviceType);
+        when(deviceConfiguration101.getName()).thenReturn("old name");
+
+        when(deviceConfiguration102.getId()).thenReturn(102L);
+        when(deviceConfiguration102.getDeviceType()).thenReturn(deviceType);
+        when(deviceConfiguration102.getName()).thenReturn("new name");
+
+        when(deviceConfigurationService.findDeviceType(31L)).thenReturn(Optional.of(deviceType));
+        when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(anyLong(), anyLong())).thenReturn(Optional.of(deviceConfiguration101));
+        when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration101, deviceConfiguration102));
+
+        DeviceConfigurationInfo deviceConfigurationInfo = new DeviceConfigurationInfo(deviceConfiguration101);
+        deviceConfigurationInfo.name = "new name";
+
+        when(deviceConfigurationService.cloneDeviceConfiguration(deviceConfiguration101, deviceConfigurationInfo.name)).thenReturn(deviceConfiguration102);
+        Entity<DeviceConfigurationInfo> json = Entity.json(deviceConfigurationInfo);
+        Response response = target("/devicetypes/31/deviceconfigurations/101").request().post(json);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        assertThat(deviceConfiguration101.getId()).isNotEqualTo(deviceConfiguration102.getId());
+        assertThat(deviceConfiguration101.getName()).isNotEqualTo(deviceConfiguration102.getName());
+        assertThat(deviceConfiguration101.getDeviceType()).isEqualTo(deviceConfiguration102.getDeviceType());
     }
 
     @Test
@@ -1199,7 +1226,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         when(deviceConfigurationService.findDeviceType(deviceType_id)).thenReturn(Optional.of(deviceType));
         PartialScheduledConnectionTask partialConnectionTask = mock(PartialScheduledConnectionTask.class);
         when(partialConnectionTask.getId()).thenReturn(connectionMethodId);
-        when(deviceConfigurationService.getPartialConnectionTask(connectionMethodId)).thenReturn(Optional.<PartialConnectionTask>of(partialConnectionTask));
+        when(deviceConfigurationService.findPartialConnectionTask(connectionMethodId)).thenReturn(Optional.<PartialConnectionTask>of(partialConnectionTask));
         ConnectionTypePluggableClass connectionTypePluggableClass = mock(ConnectionTypePluggableClass.class);
         when(protocolPluggableService.findConnectionTypePluggableClassByName("ConnType")).thenReturn(Optional.of(connectionTypePluggableClass));
         when(partialConnectionTask.getPluggableClass()).thenReturn(connectionTypePluggableClass); // it will not be set in the PUT!

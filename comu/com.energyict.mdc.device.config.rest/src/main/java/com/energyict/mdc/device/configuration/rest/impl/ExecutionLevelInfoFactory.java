@@ -31,7 +31,7 @@ public class ExecutionLevelInfoFactory {
                                 userAction.getPrivilege(),
                                 thesaurus.getString(userAction.getPrivilege(), userAction.getPrivilege()),
                                 userService.getGroups().stream()
-                                        .filter(group -> group.hasPrivilege(userAction.getPrivilege()))
+                                        .filter(group -> group.hasPrivilege("MDC", userAction.getPrivilege()))
                                         .sorted((group1, group2) -> group1.getName().compareToIgnoreCase(group2.getName()))
                                         .map(group -> new IdWithNameInfo(group.getId(), group.getName()))
                                         .collect(toList())))

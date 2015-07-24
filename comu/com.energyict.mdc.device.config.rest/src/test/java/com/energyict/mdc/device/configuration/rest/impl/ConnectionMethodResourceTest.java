@@ -146,7 +146,7 @@ public class ConnectionMethodResourceTest extends DeviceConfigurationApplication
         PropertySpec propertySpec = new BasicPropertySpec("connectionTimeOut",false, new TimeDurationValueFactory());
         when(pluggableClass.getPropertySpecs()).thenReturn(Arrays.asList(propertySpec));
         when(protocolPluggableService.findConnectionTypePluggableClassByName("pluggableClass")).thenReturn(Optional.of(pluggableClass));
-        when(deviceConfigurationService.getPartialConnectionTask(id)).thenReturn(Optional.of(partialConnectionTask));
+        when(deviceConfigurationService.findPartialConnectionTask(id)).thenReturn(Optional.of(partialConnectionTask));
         InboundComPortPool comPortPool = mock(InboundComPortPool.class);
         when(comPortPool.getName()).thenReturn("com port pool");
         when(partialConnectionTask.getComPortPool()).thenReturn(comPortPool);
@@ -165,7 +165,7 @@ public class ConnectionMethodResourceTest extends DeviceConfigurationApplication
         ConnectionTypePluggableClass pluggableClass = mock(ConnectionTypePluggableClass.class);
         when(pluggableClass.getName()).thenReturn("pluggableClass");
         when(protocolPluggableService.findConnectionTypePluggableClassByName("pluggableClass")).thenReturn(Optional.of(pluggableClass));
-        when(deviceConfigurationService.getPartialConnectionTask(id)).thenReturn(Optional.of(partialConnectionTask));
+        when(deviceConfigurationService.findPartialConnectionTask(id)).thenReturn(Optional.of(partialConnectionTask));
         OutboundComPortPool comPortPool = mock(OutboundComPortPool.class);
         when(comPortPool.getName()).thenReturn("com port pool");
         when(partialConnectionTask.getComPortPool()).thenReturn(comPortPool);
