@@ -80,8 +80,13 @@ Ext.define('Login.controller.Login', {
             },
             scope: this,
             success: function (response, opt) {
-                var resTokens = response.getResponseHeader('Authorization').split(" ");
-                Ext.util.Cookies.set('X-CONNEXO-XSRF', resTokens[1]);
+                var token = response.getResponseHeader('X-AUTH-TOKEN');
+                localStorage.setItem('X-AUTH-TOKEN', token);
+
+                Ext.Ajax.defaultHeaders = {
+                    'Authorization': 'Bearer ' + token
+                };
+
                 me.loginOK();
             },
             failure: function (response, opt) {
