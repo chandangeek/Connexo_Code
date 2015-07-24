@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.impl.kpi;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
@@ -162,6 +163,7 @@ public class DataCollectionKpiImplTest {
             bind(InboundDeviceProtocolService.class).toInstance(mock(InboundDeviceProtocolService.class));
             bind(LicensedProtocolService.class).toInstance(mock(LicensedProtocolService.class));
             bind(LogService.class).toInstance(mock(LogService.class));
+            bind(Thesaurus.class).toInstance(mock(Thesaurus.class));
         }
     }
 

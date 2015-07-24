@@ -135,11 +135,15 @@ public class DeviceDeleteTest {
 
     @Test
     public void deleteDeviceTest() {
+        Meter meter = mock(Meter.class);
+        when(meter.getCurrentMeterActivation()).thenReturn(Optional.empty());
+        when(this.amrSystem.findMeter(anyString())).thenReturn(Optional.of(meter));
         DeviceImpl device = getNewDeviceWithMockedServices();
         device.delete();
 
         verify(eventService).postEvent(EventType.DEVICE_BEFORE_DELETE.topic(), device);
         verify(securityPropertyService).deleteSecurityPropertiesFor(device);
+        verify(meter).makeObsolete();
         verify(dataMapper).remove(device);
     }
 
