@@ -6,7 +6,6 @@ import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.multisense.api.impl.utils.FieldSelection;
 import com.energyict.mdc.multisense.api.impl.utils.PagedInfoList;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
-import com.energyict.mdc.tasks.TaskService;
 import java.util.List;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
@@ -29,13 +28,11 @@ import static java.util.stream.Collectors.toList;
 @Path("/categories")
 public class DeviceMessageCategoryResource {
 
-    private final TaskService taskService;
     private final DeviceMessageCategoryInfoFactory deviceMessageCategoriesInfoFactory;
     private final DeviceMessageSpecificationService deviceMessageSpecificationService;
 
     @Inject
-    public DeviceMessageCategoryResource(TaskService taskService, DeviceMessageCategoryInfoFactory deviceMessageCategoriesInfoFactory, DeviceMessageSpecificationService deviceMessageSpecificationService) {
-        this.taskService = taskService;
+    public DeviceMessageCategoryResource(DeviceMessageCategoryInfoFactory deviceMessageCategoriesInfoFactory, DeviceMessageSpecificationService deviceMessageSpecificationService) {
         this.deviceMessageCategoriesInfoFactory = deviceMessageCategoriesInfoFactory;
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
     }

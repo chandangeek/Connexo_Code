@@ -1,7 +1,6 @@
 package com.energyict.mdc.multisense.api.impl;
 
 import com.energyict.mdc.device.config.GatewayType;
-import com.energyict.mdc.device.configuration.rest.GatewayTypeAdapter;
 import java.util.List;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;

@@ -36,31 +36,11 @@
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
-            <artifactId>mdc.masterdata.rest</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.energyict</groupId>
-            <artifactId>mdc.pluggable.rest</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.energyict</groupId>
             <artifactId>mdc.device.data.imp</artifactId>
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.device.lifecycle</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.energyict</groupId>
-            <artifactId>mdc.device.config.rest</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.energyict</groupId>
-            <artifactId>mdc.scheduling.rest</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.energyict</groupId>
-            <artifactId>comserver.core.rest</artifactId>
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
@@ -81,10 +61,6 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>systemadmin</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>metering.rest</artifactId>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
@@ -163,7 +139,18 @@
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
-            <artifactId>mdc.device.data.rest</artifactId>
+            <artifactId>mdc.pluggable.rest</artifactId> <!-- MdcPropertyUtils -->
+            <version>2.0.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.tasks.rest</artifactId> <!-- Categories -->
+            <version>1.1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>validation.rest</artifactId> <!-- PropertyType :: TODO REMOVE -->
+            <version>2.0.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
 

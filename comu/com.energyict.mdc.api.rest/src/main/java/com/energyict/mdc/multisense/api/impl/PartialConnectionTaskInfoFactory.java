@@ -9,7 +9,6 @@ import com.energyict.mdc.multisense.api.impl.utils.PropertyCopier;
 import com.energyict.mdc.multisense.api.impl.utils.SelectableFieldFactory;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
-import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;

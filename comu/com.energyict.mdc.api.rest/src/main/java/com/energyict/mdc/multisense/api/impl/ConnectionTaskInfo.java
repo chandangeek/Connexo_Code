@@ -4,7 +4,6 @@ import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
 import java.util.List;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
