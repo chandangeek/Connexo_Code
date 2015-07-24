@@ -3,6 +3,7 @@ package com.energyict.mdc.device.config.impl;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
+import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.device.config.exceptions.OverFlowValueCanNotExceedNumberOfDigitsException;
 import com.energyict.mdc.device.config.exceptions.OverFlowValueHasIncorrectFractionDigitsException;
@@ -20,16 +21,16 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 
-@ValidNumericalRegisterSpec(groups = { Save.Update.class })
+@ValidNumericalRegisterSpec(groups = {Save.Update.class})
 public class NumericalRegisterSpecImpl extends RegisterSpecImpl<NumericalRegisterSpec> implements NumericalRegisterSpec {
 
-    @Range(min = 1, max = 20, groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.REGISTER_SPEC_INVALID_NUMBER_OF_DIGITS + "}")
+    @Range(min = 1, max = 20, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.REGISTER_SPEC_INVALID_NUMBER_OF_DIGITS + "}")
     private int numberOfDigits;
-    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.REGISTER_SPEC_INVALID_NUMBER_OF_FRACTION_DIGITS + "}")
-    @Range(min=0, max = 6, groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.REGISTER_SPEC_INVALID_NUMBER_OF_FRACTION_DIGITS + "}")
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.REGISTER_SPEC_INVALID_NUMBER_OF_FRACTION_DIGITS + "}")
+    @Range(min = 0, max = 6, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.REGISTER_SPEC_INVALID_NUMBER_OF_FRACTION_DIGITS + "}")
     private Integer numberOfFractionDigits;
-    @Min(value=1, groups = { Save.Create.class, Save.Update.class }, message = "{"+MessageSeeds.Keys.REGISTER_SPEC_INVALID_OVERFLOW_VALUE + "}")
-    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{"+MessageSeeds.Keys.REGISTER_SPEC_OVERFLOW_IS_REQUIRED + "}")
+    @Min(value = 1, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.REGISTER_SPEC_INVALID_OVERFLOW_VALUE + "}")
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.REGISTER_SPEC_OVERFLOW_IS_REQUIRED + "}")
     private BigDecimal overflowValue;
 
     @Inject
@@ -84,22 +85,22 @@ public class NumericalRegisterSpecImpl extends RegisterSpecImpl<NumericalRegiste
         if (this.overflowValue != null) {
             int scale = this.overflowValue.scale();
             if (scale > this.numberOfFractionDigits) {
-                throw new OverFlowValueHasIncorrectFractionDigitsException(this.thesaurus, this.overflowValue, scale, this.numberOfFractionDigits);
+                throw new OverFlowValueHasIncorrectFractionDigitsException(this.getThesaurus(), this.overflowValue, scale, this.numberOfFractionDigits);
             }
         }
     }
 
     /**
-     * We need to validate the OverFlow value and the NumberOfDigits together
+     * We need to validate the OverFlow value and the NumberOfDigits together.
      */
     private void validateOverFlowAndNumberOfDigits() {
         if (this.overflowValue != null && this.numberOfDigits > 0) {
-            if (this.overflowValue.compareTo(BigDecimal.valueOf(10).pow(numberOfDigits))==1) {
-                throw new OverFlowValueCanNotExceedNumberOfDigitsException(this.thesaurus, this.overflowValue, Math.pow(10, this.numberOfDigits), this.numberOfDigits);
+            if (this.overflowValue.compareTo(BigDecimal.valueOf(10).pow(numberOfDigits)) == 1) {
+                throw new OverFlowValueCanNotExceedNumberOfDigitsException(this.getThesaurus(), this.overflowValue, Math.pow(10, this.numberOfDigits), this.numberOfDigits);
             }
             // should be covered by field validation
             //else if (this.overflowValue.compareTo(BigDecimal.ZERO) <= 0) {
-             //   throw InvalidValueException.registerSpecOverFlowValueShouldBeLargerThanZero(this.thesaurus, this.overflowValue);
+            //   throw InvalidValueException.registerSpecOverFlowValueShouldBeLargerThanZero(this.thesaurus, this.overflowValue);
             //}
         }
     }
@@ -151,7 +152,7 @@ public class NumericalRegisterSpecImpl extends RegisterSpecImpl<NumericalRegiste
         }
 
         private void applyDefaultsIfApplicable() {
-            if (this.registerSpec.getOverflowValue()==null && registerSpec.getNumberOfDigits()>0) {
+            if (this.registerSpec.getOverflowValue() == null && registerSpec.getNumberOfDigits() > 0) {
                 registerSpec.setOverflowValue(BigDecimal.TEN.pow(registerSpec.getNumberOfDigits()));
             }
         }
@@ -175,6 +176,7 @@ public class NumericalRegisterSpecImpl extends RegisterSpecImpl<NumericalRegiste
             this.registerSpec.setOverruledObisCode(overruledObisCode);
             return this;
         }
+
         @Override
         public Updater setNumberOfDigits(int numberOfDigits) {
             this.registerSpec.setNumberOfDigits(numberOfDigits);
@@ -201,4 +203,13 @@ public class NumericalRegisterSpecImpl extends RegisterSpecImpl<NumericalRegiste
 
     }
 
+    @Override
+    public RegisterSpec cloneForDeviceConfig(DeviceConfiguration deviceConfiguration) {
+        Builder builder = deviceConfiguration.createNumericalRegisterSpec(getRegisterType());
+        builder.setNumberOfDigits(getNumberOfDigits());
+        builder.setNumberOfFractionDigits(getNumberOfFractionDigits());
+        builder.setOverflowValue(getOverflowValue());
+        builder.setOverruledObisCode(getObisCode().equals(getDeviceObisCode()) ? null : getDeviceObisCode());
+        return builder.add();
+    }
 }

@@ -1,8 +1,9 @@
 package com.energyict.mdc.device.config.impl;
 
 import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
-import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.device.config.PartialInboundConnectionTaskBuilder;
 import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -15,7 +16,7 @@ import com.elster.jupiter.orm.DataModel;
 import javax.inject.Inject;
 
 /**
- * Provides an implementation for an {@link PartialInboundConnectionTask}
+ * Provides an implementation for the {@link PartialInboundConnectionTask} interface.
  *
  * @author sva
  * @since 21/01/13 - 16:43
@@ -59,7 +60,7 @@ public class PartialInboundConnectionTaskImpl extends PartialConnectionTaskImpl 
 
     @Override
     protected void doDelete() {
-        dataModel.mapper(PartialInboundConnectionTaskImpl.class).remove(this);
+        this.getDataMapper().remove(this);
     }
 
     @Override
@@ -73,8 +74,11 @@ public class PartialInboundConnectionTaskImpl extends PartialConnectionTaskImpl 
     }
 
     @Override
-    protected Class<InboundComPortPool> expectedComPortPoolType () {
-        return InboundComPortPool.class;
+    public PartialConnectionTask cloneForDeviceConfig(DeviceConfiguration deviceConfiguration) {
+        PartialInboundConnectionTaskBuilder builder = deviceConfiguration.newPartialInboundConnectionTask(getName(), getPluggableClass());
+        builder.asDefault(isDefault());
+        getProperties().stream().forEach(partialConnectionTaskProperty -> builder.addProperty(partialConnectionTaskProperty.getName(), partialConnectionTaskProperty.getValue()));
+        builder.comPortPool(getComPortPool());
+        return builder.build();
     }
-
 }

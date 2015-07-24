@@ -9,8 +9,10 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.events.EventType;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.device.config.events.PartialConnectionTaskUpdateDetails;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
@@ -108,15 +110,13 @@ import java.util.Optional;
 import org.junit.*;
 import org.junit.rules.*;
 import org.junit.runner.*;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PartialOutboundConnectionTaskCrudIT {
@@ -326,7 +326,7 @@ public class PartialOutboundConnectionTaskCrudIT {
                 .asDefault(true).build();
         deviceConfiguration.save();
 
-        Optional<PartialConnectionTask> found = deviceConfigurationService.getPartialConnectionTask(outboundConnectionTask.getId());
+        Optional<PartialConnectionTask> found = deviceConfigurationService.findPartialConnectionTask(outboundConnectionTask.getId());
         assertThat(found.isPresent()).isTrue();
 
         PartialConnectionTask partialConnectionTask = found.get();
@@ -372,8 +372,8 @@ public class PartialOutboundConnectionTaskCrudIT {
                 .asDefault(true).build();
         deviceConfiguration.save();
 
-        Optional<PartialConnectionTask> foundTheNotDefault = deviceConfigurationService.getPartialConnectionTask(notTheDefault.getId());
-        Optional<PartialConnectionTask> foundTheDefault = deviceConfigurationService.getPartialConnectionTask(theDefault.getId());
+        Optional<PartialConnectionTask> foundTheNotDefault = deviceConfigurationService.findPartialConnectionTask(notTheDefault.getId());
+        Optional<PartialConnectionTask> foundTheDefault = deviceConfigurationService.findPartialConnectionTask(theDefault.getId());
         assertThat(foundTheNotDefault.isPresent()).isTrue();
         assertThat(foundTheDefault.isPresent()).isTrue();
         assertThat(foundTheNotDefault.get().isDefault()).isFalse();
@@ -403,8 +403,8 @@ public class PartialOutboundConnectionTaskCrudIT {
                 .asDefault(true).build();
         deviceConfiguration.save();
 
-        Optional<PartialConnectionTask> foundTheNotDefault = deviceConfigurationService.getPartialConnectionTask(notTheDefault.getId());
-        Optional<PartialConnectionTask> foundTheDefault = deviceConfigurationService.getPartialConnectionTask(theDefault.getId());
+        Optional<PartialConnectionTask> foundTheNotDefault = deviceConfigurationService.findPartialConnectionTask(notTheDefault.getId());
+        Optional<PartialConnectionTask> foundTheDefault = deviceConfigurationService.findPartialConnectionTask(theDefault.getId());
         assertThat(foundTheNotDefault.isPresent()).isTrue();
         assertThat(foundTheDefault.isPresent()).isTrue();
         assertThat(foundTheNotDefault.get().isDefault()).isFalse();
@@ -429,6 +429,7 @@ public class PartialOutboundConnectionTaskCrudIT {
                 .nextExecutionSpec().temporalExpression(new TimeDuration(6, TimeDuration.TimeUnit.HOURS),new TimeDuration(1, TimeDuration.TimeUnit.HOURS)).set()
                 .asDefault(true).build();
         deviceConfiguration.save();
+        reset(eventService.getSpy());
 
         ComWindow newComWindow = new ComWindow(DateTimeConstants.SECONDS_PER_HOUR * 2, DateTimeConstants.SECONDS_PER_HOUR * 3);
         PartialScheduledConnectionTask task;
@@ -441,15 +442,11 @@ public class PartialOutboundConnectionTaskCrudIT {
         task.setName("Changed");
         task.save();
 
-        Optional<PartialConnectionTask> found = deviceConfigurationService.getPartialConnectionTask(outboundConnectionTask.getId());
+        Optional<PartialConnectionTask> found = deviceConfigurationService.findPartialConnectionTask(outboundConnectionTask.getId());
         assertThat(found.isPresent()).isTrue();
-
         PartialConnectionTask partialConnectionTask = found.get();
-
         assertThat(partialConnectionTask).isInstanceOf(PartialScheduledConnectionTaskImpl.class);
-
         PartialScheduledConnectionTaskImpl reloadedPartialOutboundConnectionTask = (PartialScheduledConnectionTaskImpl) partialConnectionTask;
-
         assertThat(reloadedPartialOutboundConnectionTask.getComPortPool().getId()).isEqualTo(outboundComPortPool1.getId());
         assertThat(reloadedPartialOutboundConnectionTask.isDefault()).isFalse();
         assertThat(reloadedPartialOutboundConnectionTask.getConfiguration().getId()).isEqualTo(deviceConfiguration.getId());
@@ -459,8 +456,10 @@ public class PartialOutboundConnectionTaskCrudIT {
         assertThat(reloadedPartialOutboundConnectionTask.getTemporalExpression().getEvery().getTimeUnit()).isEqualTo(TimeDuration.TimeUnit.HOURS);
         assertThat(reloadedPartialOutboundConnectionTask.getName()).isEqualTo("Changed");
 
-        verify(eventService.getSpy()).postEvent(EventType.PARTIAL_SCHEDULED_CONNECTION_TASK_UPDATED.topic(), task);
-
+        ArgumentCaptor<PartialConnectionTaskUpdateDetails> updateDetailsArgumentCaptor = ArgumentCaptor.forClass(PartialConnectionTaskUpdateDetails.class);
+        verify(eventService.getSpy()).postEvent(eq(EventType.PARTIAL_SCHEDULED_CONNECTION_TASK_UPDATED.topic()), updateDetailsArgumentCaptor.capture());
+        PartialConnectionTaskUpdateDetails updateDetails = updateDetailsArgumentCaptor.getValue();
+        assertThat(updateDetails.getPartialConnectionTask()).isEqualTo(task);
     }
 
     @Test
@@ -536,15 +535,6 @@ public class PartialOutboundConnectionTaskCrudIT {
         assertThat(partialConnectionTask2.isDefault()).isTrue();
     }
 
-    private PartialScheduledConnectionTask getConnectionTaskWithName(DeviceConfiguration deviceConfiguration, String connectionTaskName) {
-        for (PartialScheduledConnectionTask partialScheduledConnectionTask : deviceConfiguration.getPartialOutboundConnectionTasks()) {
-            if(partialScheduledConnectionTask.getName().equals(connectionTaskName)){
-                return partialScheduledConnectionTask;
-            }
-        }
-        return null;
-    }
-
     @Test
     @Transactional
     public void testUpdateNextExecutionSpecsWithMinimizeConnections() {
@@ -573,7 +563,7 @@ public class PartialOutboundConnectionTaskCrudIT {
         task.setNextExecutionSpecs(instance);
         task.save();
 
-        Optional<PartialConnectionTask> found = deviceConfigurationService.getPartialConnectionTask(outboundConnectionTask.getId());
+        Optional<PartialConnectionTask> found = deviceConfigurationService.findPartialConnectionTask(outboundConnectionTask.getId());
         assertThat(found.isPresent()).isTrue();
 
         PartialConnectionTask partialConnectionTask = found.get();
@@ -583,7 +573,6 @@ public class PartialOutboundConnectionTaskCrudIT {
         PartialScheduledConnectionTaskImpl partialOutboundConnectionTask = (PartialScheduledConnectionTaskImpl) partialConnectionTask;
 
         assertThat(partialOutboundConnectionTask.getNextExecutionSpecs().getTemporalExpression()).isEqualTo(new TemporalExpression(ONE_HOUR_IN_MINUTES, ONE_HOUR_IN_MINUTES));
-
     }
 
     @Test
@@ -609,7 +598,6 @@ public class PartialOutboundConnectionTaskCrudIT {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.NEXT_EXECUTION_SPEC_NOT_ALLOWED_FOR_ASAP + "}", property = "nextExecutionSpecs")
     public void testCanNotCreateConnectionTaskWithNextExecutionSpecIfAsSoonAsPossible() {
-
         DeviceConfiguration deviceConfiguration;
         DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
         deviceType.save();
@@ -652,7 +640,7 @@ public class PartialOutboundConnectionTaskCrudIT {
         instance.save();
         task.save();
 
-        Optional<PartialConnectionTask> found = deviceConfigurationService.getPartialConnectionTask(outboundConnectionTask.getId());
+        Optional<PartialConnectionTask> found = deviceConfigurationService.findPartialConnectionTask(outboundConnectionTask.getId());
         assertThat(found.isPresent()).isTrue();
 
         PartialConnectionTask partialConnectionTask = found.get();
@@ -662,7 +650,6 @@ public class PartialOutboundConnectionTaskCrudIT {
         PartialScheduledConnectionTaskImpl partialOutboundConnectionTask = (PartialScheduledConnectionTaskImpl) partialConnectionTask;
 
         assertThat(partialOutboundConnectionTask.getNextExecutionSpecs()).isNull();
-
     }
 
     @Test
@@ -688,7 +675,7 @@ public class PartialOutboundConnectionTaskCrudIT {
         deviceConfiguration.remove(partialOutboundConnectionTask);
         deviceConfiguration.save();
 
-        Optional<PartialConnectionTask> found = deviceConfigurationService.getPartialConnectionTask(outboundConnectionTask.getId());
+        Optional<PartialConnectionTask> found = deviceConfigurationService.findPartialConnectionTask(outboundConnectionTask.getId());
         assertThat(found.isPresent()).isFalse();
 
         verify(eventService.getSpy()).postEvent(EventType.PARTIAL_SCHEDULED_CONNECTION_TASK_DELETED.topic(), partialOutboundConnectionTask);
@@ -723,7 +710,7 @@ public class PartialOutboundConnectionTaskCrudIT {
                 .asDefault(true).build();
         deviceConfiguration.save();
 
-        Optional<PartialConnectionTask> found = deviceConfigurationService.getPartialConnectionTask(outboundConnectionTask.getId());
+        Optional<PartialConnectionTask> found = deviceConfigurationService.findPartialConnectionTask(outboundConnectionTask.getId());
         assertThat(found.isPresent()).isTrue();
 
         PartialConnectionTask partialConnectionTask = found.get();
@@ -768,7 +755,6 @@ public class PartialOutboundConnectionTaskCrudIT {
     @Transactional
     @ExpectedConstraintViolation(messageId = '{' + MessageSeeds.Keys.NEXT_EXECUTION_SPEC_REQUIRED_FOR_MINIMIZE_CONNECTIONS + '}')
     public void testCreateMinimizingConnectionsWithoutNextExecutionSpecs() {
-
         DeviceConfiguration deviceConfiguration;
         DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
         deviceType.save();
@@ -788,7 +774,6 @@ public class PartialOutboundConnectionTaskCrudIT {
     @Transactional
     @ExpectedConstraintViolation(messageId = '{' + MessageSeeds.Keys.NEXT_EXECUTION_SPEC_INVALID_FOR_COM_WINDOW + '}')
     public void testCreateWithNextExecutionSpecsOffsetNotWithinComWindowTest() {
-
         DeviceConfiguration deviceConfiguration;
         DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
         deviceType.save();
@@ -809,7 +794,6 @@ public class PartialOutboundConnectionTaskCrudIT {
     @Transactional
     @ExpectedConstraintViolation(messageId = '{' + MessageSeeds.Keys.UNDER_MINIMUM_RESCHEDULE_DELAY + '}')
     public void testCreateWithTooLowReschedulingRetryDelayTest() {
-
         DeviceConfiguration deviceConfiguration;
         DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
         deviceType.save();
@@ -888,7 +872,7 @@ public class PartialOutboundConnectionTaskCrudIT {
                 .asDefault(true).build();
         deviceConfiguration.save();
 
-        Optional<PartialConnectionTask> found = deviceConfigurationService.getPartialConnectionTask(outboundConnectionTask.getId());
+        Optional<PartialConnectionTask> found = deviceConfigurationService.findPartialConnectionTask(outboundConnectionTask.getId());
         assertThat(found.isPresent()).isTrue();
 
         PartialConnectionTask partialConnectionTask = found.get();
@@ -922,6 +906,54 @@ public class PartialOutboundConnectionTaskCrudIT {
         deviceConfiguration.save();
     }
 
+    @Test
+    @Transactional
+    public void cloneTest() {
+        PartialScheduledConnectionTaskImpl outboundConnectionTask;
+        DeviceConfiguration deviceConfiguration;
+        DeviceConfiguration clonedDeviceConfig;
+        DeviceType deviceType = deviceConfigurationService.newDeviceType("CloneCreate", deviceProtocolPluggableClass);
+        deviceType.save();
+
+        deviceConfiguration = deviceType.newConfiguration("Original").add();
+        deviceConfiguration.setDirectlyAddressable(true);
+        deviceConfiguration.save();
+        clonedDeviceConfig = deviceType.newConfiguration("Clone").add();
+        clonedDeviceConfig.setDirectlyAddressable(true);
+        clonedDeviceConfig.save();
+
+        outboundConnectionTask = deviceConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.MINIMIZE_CONNECTIONS)
+                .comPortPool(outboundComPortPool)
+                .comWindow(COM_WINDOW)
+                .nextExecutionSpec().temporalExpression(TimeDuration.days(1), NINETY_MINUTES).set()
+                .asDefault(true).build();
+        deviceConfiguration.save();
+
+        PartialConnectionTask clonedPartialConnectionTask = outboundConnectionTask.cloneForDeviceConfig(clonedDeviceConfig);
+
+        PartialScheduledConnectionTaskImpl partialOutboundConnectionTask = (PartialScheduledConnectionTaskImpl) clonedPartialConnectionTask;
+
+        assertThat(partialOutboundConnectionTask.getComPortPool().getId()).isEqualTo(outboundComPortPool.getId());
+        assertThat(partialOutboundConnectionTask.isDefault()).isTrue();
+        assertThat(partialOutboundConnectionTask.getConfiguration().getId()).isEqualTo(clonedDeviceConfig.getId());
+        assertThat(partialOutboundConnectionTask.getConnectionType()).isEqualTo(connectionTypePluggableClass.getConnectionType());
+        assertThat(partialOutboundConnectionTask.getCommunicationWindow()).isEqualTo(COM_WINDOW);
+        assertThat(partialOutboundConnectionTask.getNextExecutionSpecs()).isNotNull();
+        assertThat(partialOutboundConnectionTask.getNextExecutionSpecs().getTemporalExpression()).isEqualTo(new TemporalExpression(TimeDuration.days(1), NINETY_MINUTES));
+        assertThat(partialOutboundConnectionTask.getName()).isEqualTo("MyOutbound");
+        assertThat(partialOutboundConnectionTask.getRescheduleDelay()).isEqualTo(SIXTY_SECONDS);
+        assertThat(partialOutboundConnectionTask.getConnectionStrategy()).isEqualTo(ConnectionStrategy.MINIMIZE_CONNECTIONS);
+    }
+
+    private PartialScheduledConnectionTask getConnectionTaskWithName(DeviceConfiguration deviceConfiguration, String connectionTaskName) {
+        for (PartialScheduledConnectionTask partialScheduledConnectionTask : deviceConfiguration.getPartialOutboundConnectionTasks()) {
+            if(partialScheduledConnectionTask.getName().equals(connectionTaskName)){
+                return partialScheduledConnectionTask;
+            }
+        }
+        return null;
+    }
+
     public interface MyDeviceProtocolPluggableClass extends DeviceProtocolPluggableClass {
 
     }
@@ -937,11 +969,11 @@ public class PartialOutboundConnectionTaskCrudIT {
         public Class valueDomain() {
             return null;
         }
-
         @Override
         public Optional findByPrimaryKey(long id) {
             return null;
         }
+
     }
 
     private static void createOracleAliases(Connection connection) {
@@ -965,6 +997,4 @@ public class PartialOutboundConnectionTaskCrudIT {
             throw new UnderlyingSQLFailedException(e);
         }
     }
-
-
 }

@@ -1,10 +1,26 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.elster.jupiter.domain.util.DefaultFinder;
-import com.elster.jupiter.domain.util.Finder;
-import com.energyict.mdc.device.config.*;
+import com.energyict.mdc.device.config.ChannelSpec;
+import com.energyict.mdc.device.config.ChannelSpecLinkType;
+import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.device.config.DeviceConfValidationRuleSetUsage;
+import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationEstimationRuleSetUsage;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.DeviceMessageUserAction;
+import com.energyict.mdc.device.config.DeviceSecurityUserAction;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.DeviceTypeFields;
+import com.energyict.mdc.device.config.IncompatibleDeviceLifeCycleChangeException;
+import com.energyict.mdc.device.config.LoadProfileSpec;
+import com.energyict.mdc.device.config.LogBookSpec;
+import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.device.config.SecurityPropertySet;
+import com.energyict.mdc.device.config.events.EventType;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
+import com.energyict.mdc.device.config.security.Privileges;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.engine.config.ComPortPool;
@@ -24,6 +40,9 @@ import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
+
+import com.elster.jupiter.domain.util.DefaultFinder;
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.estimation.EstimationService;
@@ -40,8 +59,8 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.users.Privilege;
-import com.elster.jupiter.users.Resource;
+import com.elster.jupiter.users.PrivilegesProvider;
+import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
@@ -52,14 +71,12 @@ import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Multiset;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
-
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
-
 import java.security.Principal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -70,14 +87,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
+import static java.util.stream.Collectors.toList;
 
 /**
  * Provides an implementation for the {@link DeviceConfigurationService} interface.
@@ -85,8 +101,8 @@ import static com.elster.jupiter.util.conditions.Where.where;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-01-30 (15:38)
  */
-@Component(name = "com.energyict.mdc.device.config", service = {DeviceConfigurationService.class, ServerDeviceConfigurationService.class, InstallService.class, TranslationKeyProvider.class}, property = "name=" + DeviceConfigurationService.COMPONENTNAME, immediate = true)
-public class DeviceConfigurationServiceImpl implements ServerDeviceConfigurationService, InstallService, TranslationKeyProvider {
+@Component(name = "com.energyict.mdc.device.config", service = {DeviceConfigurationService.class, ServerDeviceConfigurationService.class, InstallService.class, TranslationKeyProvider.class, PrivilegesProvider.class}, property = "name=" + DeviceConfigurationService.COMPONENTNAME, immediate = true)
+public class DeviceConfigurationServiceImpl implements ServerDeviceConfigurationService, InstallService, TranslationKeyProvider, PrivilegesProvider {
 
     private volatile ProtocolPluggableService protocolPluggableService;
 
@@ -106,8 +122,6 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     private volatile ValidationService validationService;
     private volatile EstimationService estimationService;
     private volatile QueryService queryService;
-
-    private final Set<Privilege> privileges = new HashSet<>();
 
     public DeviceConfigurationServiceImpl() {
         super();
@@ -359,7 +373,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Override
-    public Optional<PartialConnectionTask> getPartialConnectionTask(long id) {
+    public Optional<PartialConnectionTask> findPartialConnectionTask(long id) {
         return dataModel.mapper(PartialConnectionTask.class).getOptional(id);
     }
 
@@ -439,19 +453,11 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     @Reference
     public void setUserService(UserService userService) {
         this.userService = userService;
-        initPrivileges();
     }
 
     @Reference
     public void setSchedulingService(SchedulingService schedulingService) {
         this.schedulingService = schedulingService;
-    }
-
-    Optional<Privilege> findPrivilege(String userActionPrivilege) {
-        return this.privileges
-                .stream()
-                .filter(privilege -> privilege.getName().equals(userActionPrivilege))
-                .findAny();
     }
 
     private Module getModule() {
@@ -499,7 +505,6 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     @Override
     public void install() {
         new Installer(this.dataModel, this.eventService, userService).install(true);
-        initPrivileges();
     }
 
     @Override
@@ -659,23 +664,6 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         return new LinkableConfigResolverBySql(queryService.wrap(dataModel.query(DeviceConfiguration.class, DeviceType.class))).getLinkableDeviceConfigurations(validationRuleSet);
     }
 
-    private void initPrivileges() {
-        privileges.clear();
-        List<Resource> resources = userService.getResources("MDC");
-        for (Resource resource : resources) {
-            for (Privilege privilege : resource.getPrivileges()) {
-                Optional<DeviceSecurityUserAction> found = DeviceSecurityUserAction.forPrivilege(privilege.getName());
-                if (found.isPresent()) {
-                    privileges.add(privilege);
-                }
-                Optional<DeviceMessageUserAction> deviceMessageUserAction = DeviceMessageUserAction.forPrivilege(privilege.getName());
-                if(deviceMessageUserAction.isPresent()){
-                    privileges.add(privilege);
-                }
-            }
-        }
-    }
-
     @Override
     public List<SecurityPropertySet> findUniqueSecurityPropertySets() {
         List<SecurityPropertySet> securityPropertySets = dataModel.mapper(SecurityPropertySet.class).find();
@@ -698,4 +686,24 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
                     .isEmpty();
     }
 
+    @Override
+    public String getModuleName() {
+        return DeviceConfigurationService.COMPONENTNAME;
+    }
+
+    @Override
+    public List<ResourceDefinition> getModuleResources() {
+        return Arrays.asList(
+                this.userService.createModuleResourceWithPrivileges(DeviceConfigurationService.COMPONENTNAME, "masterData.masterData", "masterData.masterData.description", Arrays.asList(Privileges.ADMINISTRATE_MASTER_DATA, Privileges.VIEW_MASTER_DATA)),
+                this.userService.createModuleResourceWithPrivileges(DeviceConfigurationService.COMPONENTNAME, "deviceType.deviceTypes", "deviceType.deviceTypes.description", Arrays.asList(Privileges.ADMINISTRATE_DEVICE_TYPE, Privileges.VIEW_DEVICE_TYPE)),
+                this.userService.createModuleResourceWithPrivileges(DeviceConfigurationService.COMPONENTNAME, "deviceSecurity.deviceSecurities", "deviceSecurity.deviceSecurities.description", Arrays.asList(DeviceSecurityUserAction.values()).stream().map(DeviceSecurityUserAction::getPrivilege).collect(toList())),
+                this.userService.createModuleResourceWithPrivileges(DeviceConfigurationService.COMPONENTNAME, "deviceCommand.deviceCommands", "deviceCommand.deviceCommands.description", Arrays.asList(DeviceMessageUserAction.values()).stream().map(DeviceMessageUserAction::getPrivilege).collect(toList()))
+        );
+    }
+
+    @Override
+    public DeviceConfiguration cloneDeviceConfiguration(DeviceConfiguration templateDeviceConfiguration, String name) {
+        return ((ServerDeviceConfiguration) templateDeviceConfiguration).clone(name);
+
+    }
 }

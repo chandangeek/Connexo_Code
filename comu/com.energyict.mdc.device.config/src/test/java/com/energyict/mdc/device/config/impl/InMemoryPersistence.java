@@ -107,6 +107,7 @@ public class InMemoryPersistence {
     private Injector injector;
     private ValidationService validationService;
     private EstimationService estimationService;
+    private PluggableService pluggableService;
 
     private boolean mockProtocolPluggableService;
     private ProtocolPluggableService protocolPluggableService;
@@ -123,9 +124,6 @@ public class InMemoryPersistence {
     private LicensedProtocolService licensedProtocolService;
     private ConnectionTypeService connectionTypeService;
     private InMemoryBootstrapModule bootstrapModule;
-
-    public InMemoryPersistence() {
-    }
 
     public void initializeDatabaseWithMockedProtocolPluggableService(String testName, boolean showSqlLogging) {
         this.initializeDatabase(testName, showSqlLogging, true);
@@ -156,7 +154,7 @@ public class InMemoryPersistence {
             this.validationService = injector.getInstance(ValidationService.class);
             this.estimationService = injector.getInstance(EstimationService.class);
             this.propertySpecService = injector.getInstance(PropertySpecService.class);
-            this.injector.getInstance(PluggableService.class);
+            this.pluggableService = this.injector.getInstance(PluggableService.class);
             if (!mockedProtocolPluggableService) {
                 this.protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
                 this.protocolPluggableService.addLicensedProtocolService(this.licensedProtocolService);
@@ -284,6 +282,14 @@ public class InMemoryPersistence {
 
     public PropertySpecService getPropertySpecService() {
         return propertySpecService;
+    }
+
+    public PluggableService getPluggableService(){
+        return pluggableService;
+    }
+
+    public LicensedProtocolService getLicensedProtocolService(){
+        return licensedProtocolService;
     }
 
     public ProtocolPluggableService getProtocolPluggableService() {

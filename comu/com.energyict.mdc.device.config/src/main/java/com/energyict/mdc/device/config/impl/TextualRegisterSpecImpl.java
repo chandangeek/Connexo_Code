@@ -2,6 +2,7 @@ package com.energyict.mdc.device.config.impl;
 
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.TextualRegisterSpec;
 import com.energyict.mdc.masterdata.RegisterType;
 
@@ -13,7 +14,7 @@ import com.elster.jupiter.orm.DataModel;
 import javax.inject.Inject;
 import javax.inject.Provider;
 
-@ValidTextualRegisterSpec(groups = { Save.Update.class })
+@ValidTextualRegisterSpec(groups = {Save.Update.class})
 public class TextualRegisterSpecImpl extends RegisterSpecImpl<TextualRegisterSpec> implements TextualRegisterSpec {
 
     @Inject
@@ -81,4 +82,10 @@ public class TextualRegisterSpecImpl extends RegisterSpecImpl<TextualRegisterSpe
 
     }
 
+    @Override
+    public RegisterSpec cloneForDeviceConfig(DeviceConfiguration deviceConfiguration) {
+        Builder builder = deviceConfiguration.createTextualRegisterSpec(getRegisterType());
+        builder.setOverruledObisCode(getObisCode().equals(getDeviceObisCode()) ? null : getDeviceObisCode());
+        return builder.add();
+    }
 }

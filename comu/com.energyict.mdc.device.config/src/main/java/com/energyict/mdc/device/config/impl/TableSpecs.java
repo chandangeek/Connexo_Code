@@ -545,7 +545,7 @@ public enum TableSpecs {
             Column partialConnectionTask = table.column("PARTIALCONNECTIONTASK").number().add();
             table.column("USEDEFAULTCONNECTIONTASK").number().notNull().conversion(NUMBER2BOOLEAN).map(ComTaskEnablementImpl.Fields.USE_DEFAULT_CONNECTION_TASK.fieldName()).add();
             table.column("PRIORITY").number().notNull().conversion(NUMBER2INT).map(ComTaskEnablementImpl.Fields.PRIORITY.fieldName()).add();
-            Column dialectConfigurationProperties = table.column("DIALECTCONFIGPROPERTIES").number().add();
+            Column dialectConfigurationProperties = table.column("DIALECTCONFIGPROPERTIES").number().notNull().add();
             table.column("IGNORENEXTEXECSPECS").number().notNull().conversion(NUMBER2BOOLEAN).map(ComTaskEnablementImpl.Fields.IGNORE_NEXT_EXECUTION_SPECS_FOR_INBOUND.fieldName()).add();
             table.
                 foreignKey("FK_DTC_COMTASKENABLMNT_OPARTCT").

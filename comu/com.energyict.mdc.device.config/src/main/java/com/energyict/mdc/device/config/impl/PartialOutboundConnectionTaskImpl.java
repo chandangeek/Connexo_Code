@@ -3,7 +3,6 @@ package com.energyict.mdc.device.config.impl;
 import com.energyict.mdc.common.rest.MinTimeDuration;
 import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
-import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -51,7 +50,7 @@ public abstract class PartialOutboundConnectionTaskImpl extends PartialConnectio
     private Reference<NextExecutionSpecs> nextExecutionSpecs = ValueReference.absent();
 
     /**
-     * Defines the delay to wait before retrying when this connectionTask failed
+     * Defines the delay to wait before retrying when this connectionTask failed.
      */
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = '{' + MessageSeeds.Keys.UNDER_MINIMUM_RESCHEDULE_DELAY + '}')
     @MinTimeDuration(value = 60, groups = {Save.Create.class, Save.Update.class}, message = '{' + MessageSeeds.Keys.UNDER_MINIMUM_RESCHEDULE_DELAY + '}')
@@ -102,11 +101,6 @@ public abstract class PartialOutboundConnectionTaskImpl extends PartialConnectio
     @Override
     protected CreateEventType createEventType() {
         return CreateEventType.PARTIAL_SCHEDULED_CONNECTION_TASK;
-    }
-
-    @Override
-    protected Class<OutboundComPortPool> expectedComPortPoolType () {
-        return OutboundComPortPool.class;
     }
 
     @Override

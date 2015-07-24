@@ -87,6 +87,7 @@ import static com.energyict.mdc.device.config.DeviceSecurityUserAction.VIEWDEVIC
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -135,7 +136,7 @@ public class SecurityPropertySetImplCrudIT {
         initializeStaticMocks();
         User principal = mock(User.class);
         when(principal.getName()).thenReturn(SecurityPropertySetImplCrudIT.class.getSimpleName());
-        when(principal.hasPrivilege(any(Privilege.class))).thenReturn(true);
+        when(principal.hasPrivilege(anyString(), anyString())).thenReturn(true);
         Injector injector = null;
         try {
             injector = Guice.createInjector(
@@ -245,6 +246,32 @@ public class SecurityPropertySetImplCrudIT {
         assertThat(reloaded.getEncryptionDeviceAccessLevel()).isEqualTo(encLevel);
         assertThat(reloaded.getUserActions()).isEqualTo(EnumSet.of(EDITDEVICESECURITYPROPERTIES1, EDITDEVICESECURITYPROPERTIES2));
 
+    }
+
+    @Test
+    @Transactional
+    public void cloneTest() {
+        SecurityPropertySet propertySet;
+        DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
+        deviceType.save();
+
+        DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("Normal").add();
+        deviceConfiguration.save();
+
+        propertySet = deviceConfiguration.createSecurityPropertySet("Name")
+                .authenticationLevel(1)
+                .encryptionLevel(2)
+                .addUserAction(EDITDEVICESECURITYPROPERTIES1)
+                .addUserAction(EDITDEVICESECURITYPROPERTIES2)
+                .build();
+        DeviceConfiguration clonedDeviceConfig = deviceType.newConfiguration("Clone").add();
+        SecurityPropertySet clonedSecurityPropertySet = ((ServerSecurityPropertySet) propertySet).cloneForDeviceConfig(clonedDeviceConfig);
+
+        assertThat(propertySet.getAuthenticationDeviceAccessLevel()).isEqualTo(clonedSecurityPropertySet.getAuthenticationDeviceAccessLevel());
+        assertThat(propertySet.getEncryptionDeviceAccessLevel()).isEqualTo(clonedSecurityPropertySet.getEncryptionDeviceAccessLevel());
+        assertThat(propertySet.getName()).isEqualTo(clonedSecurityPropertySet.getName());
+        assertThat(clonedSecurityPropertySet.getDeviceConfiguration().getId()).isEqualTo(clonedDeviceConfig.getId());
+        assertThat(clonedSecurityPropertySet.getUserActions()).containsOnly(EDITDEVICESECURITYPROPERTIES1, EDITDEVICESECURITYPROPERTIES2);
     }
 
     @Test
