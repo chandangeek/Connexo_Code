@@ -1,24 +1,5 @@
 package com.energyict.mdc.device.lifecycle.impl;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
-import java.sql.SQLException;
-import java.time.Clock;
-import java.time.Instant;
-import java.util.Optional;
-import java.util.Properties;
-
-import org.osgi.framework.BundleContext;
-import org.osgi.service.event.EventAdmin;
-import org.osgi.service.log.LogService;
-
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.appserver.impl.AppServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
@@ -41,6 +22,7 @@ import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
@@ -92,6 +74,23 @@ import com.energyict.mdc.tasks.impl.TasksModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.sql.SQLException;
+import java.time.Clock;
+import java.time.Instant;
+import java.util.Optional;
+import java.util.Properties;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.event.EventAdmin;
+import org.osgi.service.log.LogService;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Insert your comments here.
@@ -276,6 +275,7 @@ public class InMemoryIntegrationPersistence {
             bind(CronExpressionParser.class).toInstance(mock(CronExpressionParser.class, RETURNS_DEEP_STUBS));
             bind(IssueService.class).toInstance(mock(IssueService.class, RETURNS_DEEP_STUBS));
             bind(FileSystem.class).toInstance(FileSystems.getDefault());
+            bind(Thesaurus.class).toInstance(mock(Thesaurus.class));
         }
     }
 
