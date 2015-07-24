@@ -7,7 +7,7 @@ import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.config.impl.EventType;
+import com.energyict.mdc.device.config.events.EventType;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
 import com.energyict.mdc.tasks.ComTask;
@@ -73,8 +73,8 @@ public class ComTaskEnablementConnectionMessageHandlerTest {
         when(this.partialConnectionTask2.getConfiguration()).thenReturn(this.deviceConfiguration);
         when(this.deviceConfiguration.getPartialConnectionTasks()).thenReturn(Arrays.asList(this.partialConnectionTask1, this.partialConnectionTask2));
         when(this.deviceConfigurationService.findComTaskEnablement(COMTASK_ENABLEMENT_ID)).thenReturn(Optional.of(this.comTaskEnablement));
-        when(this.deviceConfigurationService.getPartialConnectionTask(PARTIAL_CONNECTION_TASK_ID1)).thenReturn(Optional.of(this.partialConnectionTask1));
-        when(this.deviceConfigurationService.getPartialConnectionTask(PARTIAL_CONNECTION_TASK_ID2)).thenReturn(Optional.of(this.partialConnectionTask2));
+        when(this.deviceConfigurationService.findPartialConnectionTask(PARTIAL_CONNECTION_TASK_ID1)).thenReturn(Optional.of(this.partialConnectionTask1));
+        when(this.deviceConfigurationService.findPartialConnectionTask(PARTIAL_CONNECTION_TASK_ID2)).thenReturn(Optional.of(this.partialConnectionTask2));
     }
 
     /**

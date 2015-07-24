@@ -6,6 +6,7 @@ import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.events.EventType;
 import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
 import org.osgi.service.event.EventConstants;
 
@@ -19,7 +20,7 @@ import java.util.Map;
  */
 public class ComTaskEnablementPriorityMessageHandler implements MessageHandler {
 
-    private static final String TOPIC = "com/energyict/mdc/device/config/comtaskenablement/PRIORITY_UPDATED";
+    private static final String TOPIC = EventType.COMTASKENABLEMENT_PRIORITY_UPDATED.topic();
 
     private final JsonService jsonService;
     private final DeviceConfigurationService deviceConfigurationService;

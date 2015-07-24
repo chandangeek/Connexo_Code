@@ -12,16 +12,7 @@ import com.energyict.mdc.device.config.security.Privileges;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.io.ComChannel;
-import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.protocol.api.DeviceFunction;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.DeviceProtocolCache;
-import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
-import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.api.LoadProfileReader;
-import com.energyict.mdc.protocol.api.LogBookReader;
-import com.energyict.mdc.protocol.api.ManufacturerInformation;
+import com.energyict.mdc.protocol.api.*;
 import com.energyict.mdc.protocol.api.device.data.*;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
@@ -34,20 +25,14 @@ import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
-import java.math.BigDecimal;
-import java.time.Instant;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -70,10 +55,10 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
         deviceProtocolPluggableClass.save();
 
         Group group = inMemoryPersistence.getUserService().createGroup("MyDefaultGroup", "just for testing");
-        group.grant(Privileges.EXECUTE_DEVICE_MESSAGE_1);
-        group.grant(Privileges.EXECUTE_DEVICE_MESSAGE_2);
-        group.grant(Privileges.EXECUTE_DEVICE_MESSAGE_3);
-        group.grant(Privileges.EXECUTE_DEVICE_MESSAGE_4);
+        group.grant("MDC", Privileges.EXECUTE_DEVICE_MESSAGE_1);
+        group.grant("MDC", Privileges.EXECUTE_DEVICE_MESSAGE_2);
+        group.grant("MDC", Privileges.EXECUTE_DEVICE_MESSAGE_3);
+        group.grant("MDC", Privileges.EXECUTE_DEVICE_MESSAGE_4);
         group.save();
         testUser = inMemoryPersistence.getUserService().createUser("TestUser", "This user is just to satisfy the foreign key ...");
         testUser.join(group);
@@ -617,7 +602,7 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
 
     private void createAndSetPrincipleForUserWithLimitedPrivileges() {
         Group group = inMemoryPersistence.getUserService().createGroup("MyPrimitiveGroup", "Useless group");
-        group.grant(Privileges.EXECUTE_DEVICE_MESSAGE_4);
+        group.grant("MDC", Privileges.EXECUTE_DEVICE_MESSAGE_4);
         group.save();
         User primitiveUser = inMemoryPersistence.getUserService().createUser("PrimitiveUser", "User with incorrect privilege");
         primitiveUser.join(group);

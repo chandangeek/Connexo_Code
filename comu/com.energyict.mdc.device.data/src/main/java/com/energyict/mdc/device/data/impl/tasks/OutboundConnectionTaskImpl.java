@@ -10,9 +10,7 @@ import com.elster.jupiter.time.TimeDuration;
 
 import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
 import com.energyict.mdc.device.data.ConnectionTaskFields;
-import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
-import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -31,7 +29,7 @@ public abstract class OutboundConnectionTaskImpl<PCTT extends PartialOutboundCon
         implements OutboundConnectionTask<PCTT> {
 
     /**
-     * The Default amount of seconds a ComTask should wait before retrying
+     * The Default amount of seconds a ComTask should wait before retrying.
      */
     public static final int DEFAULT_COMTASK_FAILURE_RESCHEDULE_DELAY_SECONDS = 300;
     protected static final int DEFAULT_MAX_NUMBER_OF_TRIES = 3;
@@ -39,8 +37,8 @@ public abstract class OutboundConnectionTaskImpl<PCTT extends PartialOutboundCon
     private int currentRetryCount;
     private boolean lastExecutionFailed;
 
-    protected OutboundConnectionTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, ServerConnectionTaskService connectionTaskService, ServerCommunicationTaskService communicationTaskService, DeviceService deviceService, ProtocolPluggableService protocolPluggableService, RelationService relationService) {
-        super(dataModel, eventService, thesaurus, clock, connectionTaskService, communicationTaskService, deviceService, protocolPluggableService, relationService);
+    protected OutboundConnectionTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, ServerConnectionTaskService connectionTaskService, ServerCommunicationTaskService communicationTaskService, ProtocolPluggableService protocolPluggableService) {
+        super(dataModel, eventService, thesaurus, clock, connectionTaskService, communicationTaskService, protocolPluggableService);
     }
 
     @Override

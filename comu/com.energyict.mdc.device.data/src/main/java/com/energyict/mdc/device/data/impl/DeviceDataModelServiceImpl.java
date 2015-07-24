@@ -18,6 +18,9 @@ import java.util.stream.Stream;
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 
+import com.elster.jupiter.users.PrivilegesProvider;
+import com.elster.jupiter.users.ResourceDefinition;
+import com.energyict.mdc.device.data.security.Privileges;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.annotations.Activate;
@@ -80,8 +83,9 @@ import com.google.inject.Module;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-09-30 (17:33)
  */
-@Component(name="com.energyict.mdc.device.data", service = {DeviceDataModelService.class, ReferencePropertySpecFinderProvider.class, InstallService.class, TranslationKeyProvider.class}, property = {"name=" + DeviceDataServices.COMPONENT_NAME,"osgi.command.scope=mdc.service.testing", "osgi.command.function=testSearch",}, immediate = true)
-public class DeviceDataModelServiceImpl implements DeviceDataModelService, ReferencePropertySpecFinderProvider, InstallService, TranslationKeyProvider {
+@Component(name="com.energyict.mdc.device.data", service = {DeviceDataModelService.class, ReferencePropertySpecFinderProvider.class,
+        InstallService.class, TranslationKeyProvider.class, PrivilegesProvider.class}, property = {"name=" + DeviceDataServices.COMPONENT_NAME,"osgi.command.scope=mdc.service.testing", "osgi.command.function=testSearch",}, immediate = true)
+public class DeviceDataModelServiceImpl implements DeviceDataModelService, ReferencePropertySpecFinderProvider, InstallService, TranslationKeyProvider, PrivilegesProvider {
 
     private volatile DataModel dataModel;
     private volatile EventService eventService;
@@ -402,8 +406,8 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     }
 
     private void createRealServices() {
-        this.connectionTaskService = new ConnectionTaskServiceImpl(this, eventService, meteringService, protocolPluggableService);
-        this.communicationTaskService = new CommunicationTaskServiceImpl(this, meteringService);
+        this.connectionTaskService = new ConnectionTaskServiceImpl(this, eventService, meteringService, protocolPluggableService, clock);
+        this.communicationTaskService = new CommunicationTaskServiceImpl(this, meteringService, clock);
         this.deviceService = new DeviceServiceImpl(this, protocolPluggableService, queryService, thesaurus);
         this.loadProfileService = new LoadProfileServiceImpl(this);
         this.logBookService = new LogBookServiceImpl(this);
@@ -561,5 +565,23 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
 
     public void testSearch(){
         this.deviceService.findDevicesByConnectionTypeAndProperty(null, "", "");
+    }
+
+    @Override
+    public String getModuleName() {
+        return DeviceDataServices.COMPONENT_NAME;
+    }
+
+    @Override
+    public List<ResourceDefinition> getModuleResources() {
+
+        return Arrays.asList(
+            this.userService.createModuleResourceWithPrivileges(DeviceDataServices.COMPONENT_NAME, "device.devices", "device.devices.description", Arrays.asList(Privileges.ADD_DEVICE, Privileges.VIEW_DEVICE, Privileges.REMOVE_DEVICE, Privileges.ADMINISTRATE_DEVICE_ATTRIBUTE)),
+            this.userService.createModuleResourceWithPrivileges(DeviceDataServices.COMPONENT_NAME, "deviceData.deviceData", "deviceData.deviceData.description", Arrays.asList(Privileges.ADMINISTRATE_DEVICE_DATA, Privileges.ADMINISTER_DECOMMISSIONED_DEVICE_DATA)),
+            this.userService.createModuleResourceWithPrivileges(DeviceDataServices.COMPONENT_NAME, "deviceCommunication.deviceCommunications", "deviceCommunication.deviceCommunications.description", Arrays.asList(Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.OPERATE_DEVICE_COMMUNICATION)),
+            this.userService.createModuleResourceWithPrivileges(DeviceDataServices.COMPONENT_NAME, "deviceGroup.deviceGroups", "deviceGroup.deviceGroups.description", Arrays.asList(Privileges.ADMINISTRATE_DEVICE_GROUP, Privileges.ADMINISTRATE_DEVICE_ENUMERATED_GROUP, Privileges.VIEW_DEVICE_GROUP_DETAIL)),
+            this.userService.createModuleResourceWithPrivileges(DeviceDataServices.COMPONENT_NAME, "inventoryManagement.inventoryManagements", "inventoryManagement.inventoryManagements.description", Arrays.asList(Privileges.IMPORT_INVENTORY_MANAGEMENT, Privileges.REVOKE_INVENTORY_MANAGEMENT))
+        );
+
     }
 }

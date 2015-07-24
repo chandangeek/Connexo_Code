@@ -341,7 +341,16 @@ public class DeviceImpl implements Device, CanLock {
         deleteSecuritySettings();
         removeDeviceFromStaticGroups();
         closeCurrentMeterActivation();
+        this.obsoleteKoreDevice();
         this.getDataMapper().remove(this);
+    }
+
+    private void obsoleteKoreDevice() {
+        getMdcAmrSystem().ifPresent(this::obsoleteKoreDevice);
+    }
+
+    private void obsoleteKoreDevice(AmrSystem amrSystem) {
+        this.findKoreMeter(amrSystem).ifPresent(Meter::makeObsolete);
     }
 
     private void removeDeviceFromStaticGroups() {
@@ -353,11 +362,11 @@ public class DeviceImpl implements Device, CanLock {
 
     private void removeDeviceFromGroup(EnumeratedEndDeviceGroup group, EndDevice endDevice) {
         group
-                .getEntries()
-                .stream()
-                .filter(each -> each.getEndDevice().getId() == endDevice.getId())
-                .findFirst()
-                .ifPresent(group::remove);
+            .getEntries()
+            .stream()
+            .filter(each -> each.getEndDevice().getId() == endDevice.getId())
+            .findFirst()
+            .ifPresent(group::remove);
     }
 
     private void deleteAllIssues() {
