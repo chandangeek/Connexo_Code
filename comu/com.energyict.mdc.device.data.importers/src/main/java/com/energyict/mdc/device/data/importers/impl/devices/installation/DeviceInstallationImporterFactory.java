@@ -1,4 +1,4 @@
-package com.energyict.mdc.device.data.importers.impl.devices.shipment;
+package com.energyict.mdc.device.data.importers.impl.devices.installation;
 
 import com.elster.jupiter.fileimport.FileImporter;
 import com.elster.jupiter.fileimport.FileImporterFactory;
@@ -22,18 +22,18 @@ import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterPro
 import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.DELIMITER;
 import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.TIME_ZONE;
 
-@Component(name = "com.energyict.mdc.device.data.importers." + DeviceShipmentImporterFactory.NAME,
+@Component(name = "com.energyict.mdc.device.data.importers." + DeviceInstallationImporterFactory.NAME,
         service = FileImporterFactory.class,
         immediate = true)
-public class DeviceShipmentImporterFactory extends AbstractDeviceDataFileImporterFactory {
-    public static final String NAME = "DeviceShipmentImporterFactory";
+public class DeviceInstallationImporterFactory extends AbstractDeviceDataFileImporterFactory {
+    public static final String NAME = "DeviceInstallationImporterFactory";
 
     private volatile DeviceDataImporterContext context;
 
-    public DeviceShipmentImporterFactory() {}
+    public DeviceInstallationImporterFactory() {}
 
     @Inject
-    public DeviceShipmentImporterFactory(DeviceDataImporterContext context) {
+    public DeviceInstallationImporterFactory(DeviceDataImporterContext context) {
         super();
         setDeviceDataImporterContext(context);
     }
@@ -45,7 +45,7 @@ public class DeviceShipmentImporterFactory extends AbstractDeviceDataFileImporte
 
     @Override
     public String getDefaultFormat() {
-        return TranslationKeys.DEVICE_SHIPMENT_IMPORTER.getDefaultFormat();
+        return TranslationKeys.DEVICE_INSTALLATION_IMPORTER.getDefaultFormat();
     }
 
     @Override
@@ -54,9 +54,9 @@ public class DeviceShipmentImporterFactory extends AbstractDeviceDataFileImporte
         String dateFormat = (String) properties.get(DATE_FORMAT.getPropertyKey());
         String timeZone = (String) properties.get(TIME_ZONE.getPropertyKey());
 
-        FileImportParser<DeviceShipmentImportRecord> parser = new FileImportDescriptionBasedParser(
-                new DeviceShipmentImportDescription(dateFormat, timeZone));
-        FileImportProcessor<DeviceShipmentImportRecord> processor = new DeviceShipmentImportProcessor(getContext());
+        FileImportParser<DeviceInstallationImportRecord> parser = new FileImportDescriptionBasedParser(
+                new DeviceInstallationImportDescription(dateFormat, timeZone));
+        FileImportProcessor<DeviceInstallationImportRecord> processor = new DeviceInstallationImportProcessor(getContext());
         return DeviceDataCsvImporter.withParser(parser).withProcessor(processor).withDelimiter(delimiter.charAt(0)).build(getContext());
     }
 

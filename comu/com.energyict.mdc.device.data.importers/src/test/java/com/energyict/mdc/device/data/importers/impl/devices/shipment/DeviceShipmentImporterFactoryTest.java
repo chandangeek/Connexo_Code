@@ -110,6 +110,7 @@ public class DeviceShipmentImporterFactoryTest {
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceShipmentImporter();
 
+        when(deviceService.findByUniqueMrid("VPB0001")).thenReturn(Optional.empty());
         DeviceType deviceType = mock(DeviceType.class);
         when(deviceConfigurationService.findDeviceTypeByName("Iskra 382")).thenReturn(Optional.of(deviceType));
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
@@ -148,7 +149,7 @@ public class DeviceShipmentImporterFactoryTest {
     }
 
     @Test
-    public void testMissingMandatoryValueCase() {
+    public void testMissingMandatoryDeviceTypeValueCase() {
         String csv = "mrid;device type;device configuration;shipment date; serial number; year of certification;batch\n" +
                 "VPB0001; ;Default;01/08/2015 00:30;0001;2015;batch";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
@@ -162,12 +163,41 @@ public class DeviceShipmentImporterFactoryTest {
     }
 
     @Test
+    public void testMissingMandatoryDeviceConfigurationValueCase() {
+        String csv = "mrid;device type;device configuration;shipment date; serial number; year of certification;batch\n" +
+                "VPB0001;Iskra 382;    ;01/08/2015 00:30;0001;2015;batch";
+        FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
+        FileImporter importer = createDeviceShipmentImporter();
+
+        importer.process(importOccurrence);
+        verify(importOccurrence).markFailure(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED.getTranslated(thesaurus));
+        verify(logger, never()).info(Matchers.anyString());
+        verify(logger, never()).warning(Matchers.anyString());
+        verify(logger, times(1)).severe(MessageSeeds.LINE_MISSING_VALUE_ERROR.getTranslated(thesaurus, 2, "device configuration"));
+    }
+
+    @Test
+    public void testMissingMandatoryShipmentDateValueCase() {
+        String csv = "mrid;device type;device configuration;shipment date; serial number; year of certification;batch\n" +
+                "VPB0001;Iskra 382;Default;   ;0001;2015;batch";
+        FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
+        FileImporter importer = createDeviceShipmentImporter();
+
+        importer.process(importOccurrence);
+        verify(importOccurrence).markFailure(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED.getTranslated(thesaurus));
+        verify(logger, never()).info(Matchers.anyString());
+        verify(logger, never()).warning(Matchers.anyString());
+        verify(logger, times(1)).severe(MessageSeeds.LINE_MISSING_VALUE_ERROR.getTranslated(thesaurus, 2, "shipment date"));
+    }
+
+    @Test
     public void testBadDeviceTypeName() {
         String csv = "mrid;device type;device configuration;shipment date; serial number; year of certification;batch\n" +
                 "VPB0001;Iskra 382;Default;01/08/2015 00:30;0001;2015;batch";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceShipmentImporter();
 
+        when(deviceService.findByUniqueMrid("VPB0001")).thenReturn(Optional.empty());
         when(deviceConfigurationService.findDeviceTypeByName("Iskra 382")).thenReturn(Optional.empty());
 
         importer.process(importOccurrence);
@@ -184,6 +214,7 @@ public class DeviceShipmentImporterFactoryTest {
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceShipmentImporter();
 
+        when(deviceService.findByUniqueMrid("VPB0001")).thenReturn(Optional.empty());
         DeviceType deviceType = mock(DeviceType.class);
         when(deviceConfigurationService.findDeviceTypeByName("Iskra 382")).thenReturn(Optional.of(deviceType));
         when(deviceType.getConfigurations()).thenReturn(Collections.<DeviceConfiguration>emptyList());
@@ -201,6 +232,7 @@ public class DeviceShipmentImporterFactoryTest {
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceShipmentImporter();
 
+        when(deviceService.findByUniqueMrid("VPB0001")).thenReturn(Optional.empty());
         DeviceType deviceType = mock(DeviceType.class);
         when(deviceConfigurationService.findDeviceTypeByName("Iskra 382")).thenReturn(Optional.of(deviceType));
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
@@ -214,6 +246,23 @@ public class DeviceShipmentImporterFactoryTest {
         verify(logger, never()).info(Matchers.anyString());
         verify(logger, times(1)).warning(TranslationKeys.IMPORT_DEFAULT_PROCESSOR_ERROR_TEMPLATE
                 .getTranslated(thesaurus, 2, "VPB0001", "Error!"));
+        verify(logger, never()).severe(Matchers.anyString());
+    }
+
+    @Test
+    public void testDeviceWithMridAlreadyExists() {
+        String csv = "mrid;device type;device configuration;shipment date; serial number; year of certification;batch\n" +
+                "VPB0001;Iskra 382;Default;01/08/2015 00:30;0001;2015;batch";
+        FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
+        FileImporter importer = createDeviceShipmentImporter();
+
+        Device device = mock(Device.class);
+        when(deviceService.findByUniqueMrid("VPB0001")).thenReturn(Optional.of(device));
+
+        importer.process(importOccurrence);
+        verify(importOccurrence).markSuccessWithFailures(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS.getTranslated(thesaurus, 0, 1));
+        verify(logger, never()).info(Matchers.anyString());
+        verify(logger, times(1)).warning(MessageSeeds.DEVICE_ALREADY_EXISTS.getTranslated(thesaurus, 2, "VPB0001"));
         verify(logger, never()).severe(Matchers.anyString());
     }
 }

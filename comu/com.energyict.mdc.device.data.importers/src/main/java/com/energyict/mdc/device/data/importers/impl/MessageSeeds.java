@@ -21,6 +21,15 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
 
     NO_DEVICE_TYPE(7, "ImportProcessorNoDeviceType", "Error in line {0}: No device type found with name: {1}.", Level.WARNING),
     NO_DEVICE_CONFIGURATION(8, "ImportProcessorNoDeviceConfiguration", "Error in line {0}: No device configuration found with name: {1}.", Level.WARNING),
+    NO_DEVICE(9, "ImportProcessorNoDevice", "Error in line {0}: No device found with MRID: {1}.", Level.WARNING),
+    NO_MASTER_DEVICE(10, "ImportProcessorNoMasterDevice", "Error in line {0}: Master device with MRID: {1} was not found.", Level.WARNING),
+    DEVICE_CAN_NOT_BE_MASTER(11, "ImportProcessorDeviceCanNotBeMaster", "Error in line {0}: Master device with MRID: {0} is not configured to act as master device", Level.WARNING),
+    NO_USAGE_POINT(12, "ImportProcessorNoUsagePoint", "Error in line {0}: Usage point with MRID: {1} is not found. " +
+            "New usage point can't be created because of incorrect value of Service category. The list of available Service categories: {2}", Level.WARNING),
+    DEVICE_ALREADY_EXISTS(13, "ImportProcessorDeviceAlreadyExists", "Error in line {0}: The device (MRID: {1}) is already in use", Level.WARNING),
+    DEVICE_ALREADY_IN_THAT_STATE(13, "ImportProcessorDeviceAlreadyInThatState", "Error in line {0}: The device is already in {1} state", Level.WARNING),
+    DEVICE_CAN_NOT_BE_MOVED_TO_STATE(13, "ImportProcessorDeviceCanNotBeMovedToState", "Error in line {0}: The device can't be moved to {1} from {2} state", Level.WARNING),
+    PRE_TRANSITION_CHECKS_FAILED(14, "ImportProcessorPreTransitionsChecksFailed", "Error in line {0}: Pre-transition check(s) failed: {1}", Level.WARNING),
     ;
 
     private final int number;

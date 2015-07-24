@@ -40,9 +40,13 @@ public class FileImportRecordContext {
     }
 
     public String getHeaderColumn(int position){
-        if (position > 0 && position < this.headers.size()){
+        if (position >= 0 && position < this.headers.size()){
             return this.headers.get(position);
         }
         return null;
+    }
+
+    public String translate(String key){
+        return this.thesaurus.getStringBeyondComponent(key, key);
     }
 }

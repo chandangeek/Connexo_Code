@@ -2,6 +2,7 @@ package com.energyict.mdc.device.data.importers.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
+import com.energyict.mdc.device.data.importers.impl.devices.installation.DeviceInstallationImporterFactory;
 import com.energyict.mdc.device.data.importers.impl.devices.shipment.DeviceShipmentImporterFactory;
 import com.energyict.mdc.device.data.importers.impl.readingsimport.DeviceReadingsImporterFactory;
 
@@ -28,9 +29,13 @@ public enum TranslationKeys implements TranslationKey {
     DEVICE_DATA_IMPORTER_TIMEZONE(DeviceDataImporterProperty.TIME_ZONE.getPropertyKey(), "Time zone"),
     DEVICE_DATA_IMPORTER_NUMBER_FORMAT(DeviceDataImporterProperty.NUMBER_FORMAT.getPropertyKey(), "Number format"),
 
+    MASTER_WILL_BE_OVERRIDDEN("MasterWillBeOverridden", "Warning for line {0}: Master device (MRID: {1}) was overridden by new one (MRID: {2})"),
+    NEW_USAGE_POINT_WILL_BE_CREATED("NewUsagePointWillBeCreated", "Warning for line {0}: Usage point with MRID: {1} is not found. New usage point was created based on Service Category value"),
+
     //Translations for importer names
     DEVICE_READINGS_IMPORTER(DeviceReadingsImporterFactory.NAME, "Device readings importer"),
     DEVICE_SHIPMENT_IMPORTER(DeviceShipmentImporterFactory.NAME, "Devices shipment importer"),
+    DEVICE_INSTALLATION_IMPORTER(DeviceInstallationImporterFactory.NAME, "Devices installation importer"),
     ;
 
     private final String key;

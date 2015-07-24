@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.data.importers.impl;
 
+import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -7,6 +9,8 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.imp.DeviceImportService;
+import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
+import com.energyict.mdc.device.topology.TopologyService;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -18,6 +22,10 @@ public class DeviceDataImporterContext {
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile DeviceService deviceService;
     private volatile DeviceImportService deviceImportService;
+    private volatile TopologyService topologyService;
+    private volatile MeteringService meteringService;
+    private volatile DeviceLifeCycleService deviceLifeCycleService;
+    private volatile FiniteStateMachineService finiteStateMachineService;
 
     public PropertySpecService getPropertySpecService() {
         return propertySpecService;
@@ -62,5 +70,41 @@ public class DeviceDataImporterContext {
     @Reference
     public void setDeviceImportService(DeviceImportService deviceImportService) {
         this.deviceImportService = deviceImportService;
+    }
+
+    public TopologyService getTopologyService() {
+        return topologyService;
+    }
+
+    @Reference
+    public void setTopologyService(TopologyService topologyService) {
+        this.topologyService = topologyService;
+    }
+
+    public MeteringService getMeteringService() {
+        return meteringService;
+    }
+
+    @Reference
+    public void setMeteringService(MeteringService meteringService) {
+        this.meteringService = meteringService;
+    }
+
+    public DeviceLifeCycleService getDeviceLifeCycleService() {
+        return deviceLifeCycleService;
+    }
+
+    @Reference
+    public void setDeviceLifeCycleService(DeviceLifeCycleService deviceLifeCycleService) {
+        this.deviceLifeCycleService = deviceLifeCycleService;
+    }
+
+    public FiniteStateMachineService getFiniteStateMachineService() {
+        return finiteStateMachineService;
+    }
+
+    @Reference
+    public void setFiniteStateMachineService(FiniteStateMachineService finiteStateMachineService) {
+        this.finiteStateMachineService = finiteStateMachineService;
     }
 }

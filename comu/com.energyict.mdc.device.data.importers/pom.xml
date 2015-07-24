@@ -50,6 +50,18 @@
       <artifactId>mdc.device.config</artifactId>
     </dependency>
     <dependency>
+      <groupId>com.energyict</groupId>
+      <artifactId>mdc.device.topology</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.elster.jupiter</groupId>
+      <artifactId>metering</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.energyict</groupId>
+      <artifactId>mdc.device.lifecycle</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-csv</artifactId>
     </dependency>
