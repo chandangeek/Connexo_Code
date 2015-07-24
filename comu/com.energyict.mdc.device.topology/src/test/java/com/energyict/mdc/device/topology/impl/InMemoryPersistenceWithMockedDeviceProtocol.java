@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.topology.impl;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
@@ -127,6 +128,7 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
     private ValidationService validationService;
     private DataVaultService dataVaultService;
     private InMemoryBootstrapModule bootstrapModule;
+    private Thesaurus thesaurus;
 
     public InMemoryPersistenceWithMockedDeviceProtocol() {
         this(Clock.systemDefaultZone());
@@ -212,6 +214,7 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
         this.principal = mock(Principal.class);
         when(this.principal.getName()).thenReturn(testName);
         this.protocolPluggableService = mock(ProtocolPluggableService.class);
+        this.thesaurus = mock(Thesaurus.class);
     }
 
     public void cleanUpDataBase() throws SQLException {
@@ -274,6 +277,7 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
             bind(LogService.class).toInstance(mock(LogService.class));
             bind(IssueService.class).toInstance(mock(IssueService.class, RETURNS_DEEP_STUBS));
             bind(DataModel.class).toProvider(() -> dataModel);
+            bind(Thesaurus.class).toInstance(thesaurus);
         }
 
     }

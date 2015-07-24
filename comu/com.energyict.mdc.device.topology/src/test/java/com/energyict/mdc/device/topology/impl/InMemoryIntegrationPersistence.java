@@ -146,6 +146,7 @@ public class InMemoryIntegrationPersistence {
     private ConnectionTypeService connectionTypeService;
     private DataVaultService dataVaultService;
     private IssueService issueService;
+    private Thesaurus thesaurus;
 
     public InMemoryIntegrationPersistence(Clock clock) {
         super();
@@ -275,6 +276,7 @@ public class InMemoryIntegrationPersistence {
         this.licenseService = mock(LicenseService.class);
         when(this.licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.<License>empty());
         this.dataVaultService = mock(DataVaultService.class);
+        this.thesaurus = mock(Thesaurus.class);
     }
 
     public void cleanUpDataBase() throws SQLException {
@@ -405,6 +407,7 @@ public class InMemoryIntegrationPersistence {
             bind(LogService.class).toInstance(mock(LogService.class));
             bind(IssueService.class).toInstance(mock(IssueService.class, RETURNS_DEEP_STUBS));
             bind(DataModel.class).toProvider(() -> dataModel);
+            bind(Thesaurus.class).toInstance(thesaurus);
         }
     }
 

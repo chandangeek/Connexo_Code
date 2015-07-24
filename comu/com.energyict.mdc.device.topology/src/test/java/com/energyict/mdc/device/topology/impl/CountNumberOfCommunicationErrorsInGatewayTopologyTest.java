@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.topology.impl;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.Translator;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -147,6 +148,7 @@ public class CountNumberOfCommunicationErrorsInGatewayTopologyTest {
             bind(LicenseService.class).toInstance(licenseService);
             bind(LogService.class).toInstance(mock(LogService.class));
             bind(IssueService.class).toInstance(mock(IssueService.class, RETURNS_DEEP_STUBS));
+            bind(Thesaurus.class).toInstance(mock(Thesaurus.class, RETURNS_DEEP_STUBS));
         }
 
     }
