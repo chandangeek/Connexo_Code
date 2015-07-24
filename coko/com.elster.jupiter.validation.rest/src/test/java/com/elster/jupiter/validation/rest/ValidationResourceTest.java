@@ -529,11 +529,11 @@ public class ValidationResourceTest extends BaseValidationRestTest {
         when(rule.getReadingTypes()).thenReturn(readingTypes);
 
         List<PropertySpec> propertySpes = Arrays.asList(
-                mockPropertySpec(PropertyType.NUMBER, "number", true),
-                mockPropertySpec(PropertyType.NULLABLE_BOOLEAN, "nullableboolean", true),
-                mockPropertySpec(PropertyType.BOOLEAN, "boolean", true),
-                mockPropertySpec(PropertyType.TEXT, "text", true),
-                mockPropertySpec(PropertyType.LISTVALUE, "listvalue", true));
+                mockPropertySpec(BasicPropertyTypes.NUMBER, "number", true),
+                mockPropertySpec(BasicPropertyTypes.NULLABLE_BOOLEAN, "nullableboolean", true),
+                mockPropertySpec(BasicPropertyTypes.BOOLEAN, "boolean", true),
+                mockPropertySpec(BasicPropertyTypes.TEXT, "text", true),
+                mockPropertySpec(BasicPropertyTypes.LISTVALUE, "listvalue", true));
         when(rule.getPropertySpecs()).thenReturn(propertySpes);
 
         Map<String, Object> props = new HashMap<>();
@@ -587,7 +587,7 @@ public class ValidationResourceTest extends BaseValidationRestTest {
         return infos;
     }
 
-    private PropertySpec mockPropertySpec(PropertyType propertyType, String name, boolean isRequired) {
+    private PropertySpec mockPropertySpec(BasicPropertyTypes propertyType, String name, boolean isRequired) {
         PropertySpec propertySpec = null;
         switch (propertyType) {
         case NUMBER:
@@ -615,7 +615,7 @@ public class ValidationResourceTest extends BaseValidationRestTest {
         Validator validator = mock(Validator.class);
         when(validator.getDisplayName()).thenReturn(displayName);
 
-        List<PropertySpec> propertySpecs = Arrays.asList(mockPropertySpec(PropertyType.LISTVALUE, "listvalue", false));
+        List<PropertySpec> propertySpecs = Arrays.asList(mockPropertySpec(BasicPropertyTypes.LISTVALUE, "listvalue", false));
         when(validator.getPropertySpecs()).thenReturn(propertySpecs);
 
         return validator;

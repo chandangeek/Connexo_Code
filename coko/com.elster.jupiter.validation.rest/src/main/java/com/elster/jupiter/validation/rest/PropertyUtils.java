@@ -52,7 +52,7 @@ public class PropertyUtils {
 
     private PropertyInfo createPropertyInfo(PropertySpec propertySpec, Map<String, Object> values) {
         PropertyValueInfo<?> propertyValueInfo = getPropertyValueInfo(propertySpec, values);
-        PropertyType propertyType = PropertyType.getTypeFrom(propertySpec.getValueFactory());
+        BasicPropertyTypes propertyType = BasicPropertyTypes.getTypeFrom(propertySpec.getValueFactory());
         PropertyTypeInfo propertyTypeInfo = getPropertyTypeInfo(propertySpec, propertyType);
         return new PropertyInfo(getTranslatedPropertyName(propertySpec), propertySpec.getName(), propertyValueInfo, propertyTypeInfo, propertySpec.isRequired());
     }
@@ -81,11 +81,11 @@ public class PropertyUtils {
         return propertyInfoFactory.asInfoObject(possibleValues.getDefault());
     }
 
-    private PropertyTypeInfo getPropertyTypeInfo(PropertySpec propertySpec, PropertyType propertyType) {
+    private PropertyTypeInfo getPropertyTypeInfo(PropertySpec propertySpec, BasicPropertyTypes propertyType) {
         return new PropertyTypeInfo(propertyType, null, getPredefinedPropertyValueInfo(propertySpec, propertyType), null);
     }
 
-    private PredefinedPropertyValuesInfo<?> getPredefinedPropertyValueInfo(PropertySpec propertySpec, PropertyType propertyType) {
+    private PredefinedPropertyValuesInfo<?> getPredefinedPropertyValueInfo(PropertySpec propertySpec, BasicPropertyTypes propertyType) {
         PropertySpecPossibleValues possibleValues = propertySpec.getPossibleValues();
         if (possibleValues == null) {
             return null;
@@ -100,7 +100,7 @@ public class PropertyUtils {
         }
 
         PropertySelectionMode selectionMode = PropertySelectionMode.UNSPECIFIED;
-        if ( PropertyType.LISTVALUE == propertyType ) {
+        if ( BasicPropertyTypes.LISTVALUE == propertyType ) {
             selectionMode = PropertySelectionMode.LIST;
         }
 
