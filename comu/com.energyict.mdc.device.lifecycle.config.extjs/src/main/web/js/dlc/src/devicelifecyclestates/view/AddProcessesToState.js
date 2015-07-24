@@ -4,7 +4,6 @@ Ext.define('Dlc.devicelifecyclestates.view.AddProcessesToState', {
     requires: ['Dlc.devicelifecyclestates.view.AddProcessesToStateGrid',
                'Dlc.devicelifecyclestates.store.AvailableTransitionBusinessProcesses'],
     overflowY: true,
-    returnLink: null,
     storeToUpdate: null,
     content: [
         {

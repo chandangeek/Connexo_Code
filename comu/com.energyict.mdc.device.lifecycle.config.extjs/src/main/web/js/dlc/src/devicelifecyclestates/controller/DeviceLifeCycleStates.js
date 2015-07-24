@@ -80,7 +80,7 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
             }
         });
     },
-
+    editLifeCyclePathArguments: null,
     configureMenu: function (menu) {
         var initialAction = menu.down('#initialAction'),
             isInitial = menu.record.get('isInitial');
@@ -292,7 +292,8 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
     },
     addTransitionBusinessProcessesToState: function (storeToUpdate){
         var router = this.getController('Uni.controller.history.Router');
-        router.getRoute('administration/devicelifecycles/devicelifecycle/states/edit'+(storeToUpdate === 'onEntry' ? '/addEntryProcesses' : '/addExitProcesses')).forward(router.arguments);
+        this.editLifeCyclePathArguments = router.arguments;
+        router.getRoute('administration/devicelifecycles/devicelifecycle/states/edit'+(storeToUpdate === 'onEntry' ? '/addEntryProcesses' : '/addExitProcesses')).forward();
     },
     showAvailableEntryTransitionProcesses: function (){
         this.showAvailableTransitionProcesses('onEntry');
@@ -303,15 +304,14 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
     showAvailableTransitionProcesses: function(storeToUpdate){
         var router = this.getController('Uni.controller.history.Router'),
             store =  Ext.data.StoreManager.lookup(storeToUpdate),
-            widget = Ext.widget('AddProcessesToState', {
-                         returnLink: router.getRoute().buildUrl()
-            });
+            widget = Ext.widget('AddProcessesToState');
         if (store){
              widget.storeToUpdate = store;
              widget.exclude(store.data.items);
         }
         this.getApplication().fireEvent('changecontentevent', widget );
     },
+    //Just like go back to next page????
     forwardToPreviousPage: function () {
         var me = this;
         var router = me.getController('Uni.controller.history.Router'),
@@ -335,7 +335,23 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
             });
             console.log(store.storeId +' after :'+store.count()+' processes set');
         }
-        this.forwardToPreviousPage();
+
+        // HELP, I NEED SOMEBODY
+        // HELP, NOT JUST ANYBODE
+        // HELP, YOU KNOW I NEED SOMEONE, HEEEEELP
+        // The Beatles...
+
+        // Is following code correct: I try to go back to the editPage
+        // By doing this the controller's showDeviceLifeCycleStateEdit method is called
+        // This will reload the state => my changes (added a entry/exit process) are lost ????
+        router.arguments = this.editLifeCyclePathArguments;
+        router.getRoute('administration/devicelifecycles/devicelifecycle/states/edit').forward();
+        // Problem !!!!!!!!!
+        // Here I am trying to update the deviceLifeCycle state used as model for the LifecycleStatesEditForm
+        // This does not work as getLifeCylceStatesEditForm() returns null ???
+        // As I'm not on the editPage => this doesn't work...
+        // How do I update the 'model'
+        getLifeCycleStatesEditForm().updateRecord(); // This is needed so the model reflects the situation on the screen
     }
 
 });
