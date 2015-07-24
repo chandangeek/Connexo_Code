@@ -55,12 +55,13 @@ Ext.define('Uni.view.search.Overview', {
                                 defaults: {
                                     margin: '0 10 10 0'
                                 },
+                                padding: 0,
                                 items: [
                                     {
-
                                         xtype: 'label',
                                         text: Uni.I18n.translate('search.overview.searchDomains.label', 'UNI', 'Search for'),
-                                        width: 100
+                                        width: 100,
+                                        margin: 0
                                     },
                                     {
                                         itemId: 'search-object-selector',
@@ -84,12 +85,19 @@ Ext.define('Uni.view.search.Overview', {
                                     {
                                         xtype: 'uni-view-search-field-number-range'
                                     },
+                                    //{
+                                    //    xtype: 'uni-view-search-field-yesno'
+                                    //},
                                     '->',
                                     {
                                         disabled: true,
-                                        xtype: 'search-criteria-selector'
+                                        xtype: 'search-criteria-selector',
+                                        margin: 0
                                     }
                                 ]
+                            },
+                            {
+                                xtype: 'menuseparator'
                             },
                             {
                                 // Sticky criteria.
@@ -105,6 +113,7 @@ Ext.define('Uni.view.search.Overview', {
                                 defaults: {
                                     margin: '0 10 10 0'
                                 },
+                                margin: '10 0 0 0',
                                 layout: 'column'
                             },
                             {

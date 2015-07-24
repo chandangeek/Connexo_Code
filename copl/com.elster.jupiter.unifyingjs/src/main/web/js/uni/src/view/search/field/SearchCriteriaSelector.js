@@ -12,6 +12,12 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
     arrowAlign: 'right',
     menuAlign: 'tr-br',
 
+    setChecked: function(property, value, suppressEvents) {
+        var item = this.menu.items.findBy(function(i){return i.criteria === property;});
+        if (item) {
+            item.setChecked(value, suppressEvents);
+        }
+    },
 
     initComponent: function () {
         var me = this;
@@ -134,6 +140,24 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
             this.setText(item.text);
             this.fireEvent('change', this);
         }
-    }
+    },
+
+
+    //onUpdateRemovablesStore: function () {
+    //    var me = this,
+    //        emptyText = Uni.I18n.translate('search.overview.addCriteria.emptyText', 'UNI', 'Add criteria'),
+    //        addCriteriaCombo = me.getAddCriteriaCombo(),
+    //        criteriaStore = Ext.getStore('Uni.store.search.Removables');
+    //
+    //    if (addCriteriaCombo) {
+    //        addCriteriaCombo = me.getAddCriteriaCombo().down('#addcriteria');
+    //        if (criteriaStore.count() === 0) {
+    //            emptyText = Uni.I18n.translate('search.overview.addCriteria.emptyText.none', 'UNI', 'No criteria to add');
+    //        }
+    //        if (addCriteriaCombo.text !== emptyText) {
+    //            addCriteriaCombo.text = emptyText;
+    //        }
+    //    }
+    //},
 });
 
