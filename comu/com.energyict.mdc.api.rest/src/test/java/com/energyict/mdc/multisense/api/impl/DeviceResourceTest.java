@@ -8,7 +8,7 @@ import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.elster.jupiter.rest.util.properties.PropertyTypeInfo;
 import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
 import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.validation.rest.PropertyType;
+import com.elster.jupiter.validation.rest.BasicPropertyTypes;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
@@ -152,7 +152,7 @@ public class DeviceResourceTest extends MultisensePublicApiJerseyTest {
         info.properties.add(propertyInfo);
         propertyInfo.key = "string.property";
         propertyInfo.propertyTypeInfo = new PropertyTypeInfo();
-        propertyInfo.propertyTypeInfo.simplePropertyType = PropertyType.TEXT;
+        propertyInfo.propertyTypeInfo.simplePropertyType = BasicPropertyTypes.TEXT;
         propertyInfo.propertyValueInfo = new PropertyValueInfo<>("abcdefg", null);
         when(deviceLifeCycleService.toExecutableActionProperty("abcdefg", stringPropertySpec)).
                 thenAnswer(invocationOnMock -> new ExecutableActionPropertyImpl((PropertySpec) invocationOnMock.getArguments()[1], invocationOnMock.getArguments()[0]));
@@ -186,7 +186,7 @@ public class DeviceResourceTest extends MultisensePublicApiJerseyTest {
         info.properties.add(propertyInfo);
         propertyInfo.key = "string.property";
         propertyInfo.propertyTypeInfo = new PropertyTypeInfo();
-        propertyInfo.propertyTypeInfo.simplePropertyType = PropertyType.TEXT;
+        propertyInfo.propertyTypeInfo.simplePropertyType = BasicPropertyTypes.TEXT;
         propertyInfo.propertyValueInfo = new PropertyValueInfo<>("abcdefg", null);
         when(deviceLifeCycleService.toExecutableActionProperty("abcdefg", stringPropertySpec)).
                 thenAnswer(invocationOnMock -> new ExecutableActionPropertyImpl((PropertySpec) invocationOnMock.getArguments()[1], invocationOnMock.getArguments()[0]));
