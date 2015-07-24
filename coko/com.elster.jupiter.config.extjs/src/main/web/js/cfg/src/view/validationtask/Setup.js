@@ -38,7 +38,6 @@ Ext.define('Cfg.view.validationtask.Setup', {
                             {
                                 text: Uni.I18n.translate('validationTasks.general.addValidationTask', 'CFG', 'Add validation task'),
                                 privileges : Cfg.privileges.Validation.admin,
-                                ui: 'action',
                                 href: '#/administration/validationtasks/add'
                             }
                         ]
