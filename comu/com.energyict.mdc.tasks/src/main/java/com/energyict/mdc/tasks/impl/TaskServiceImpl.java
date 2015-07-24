@@ -12,6 +12,7 @@ import com.elster.jupiter.orm.callback.InstallService;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.MasterDataService;
+import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.tasks.BasicCheckTask;
 import com.energyict.mdc.tasks.ClockTask;
@@ -249,6 +250,18 @@ public class TaskServiceImpl implements ServerTaskService, InstallService {
                         .mapper(LoadProfileTypeUsageInProtocolTask.class)
                         .find(LoadProfileTypeUsageInProtocolTaskImpl.Fields.LOADPROFILE_TYPE_REFERENCE.fieldName(), loadProfileType);
         return usages.stream().map(LoadProfileTypeUsageInProtocolTask::getLoadProfilesTask).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<RegistersTask> findTasksUsing(RegisterGroup registerGroup) {
+        List<RegisterGroupUsage> usages =
+                this.dataModel
+                        .mapper(RegisterGroupUsage.class)
+                        .find(RegisterGroupUsageImpl.Fields.REGISTERS_GROUP_REFERENCE.fieldName(), registerGroup);
+        return usages
+                .stream()
+                .map(RegisterGroupUsage::getRegistersTask)
+                .collect(Collectors.toList());
     }
 
 }
