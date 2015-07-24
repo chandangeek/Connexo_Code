@@ -72,7 +72,7 @@ Ext.onReady(function () {
 
         Ext.Ajax.defaultHeaders = {
             'X-CONNEXO-APPLICATION-NAME': 'MDC', // a function that return the main application
-            'Authorization': 'Bearer ' + Ext.util.Cookies.get('X-CONNEXO-XSRF')
+            'Authorization': 'Bearer ' + localStorage.getItem('X-AUTH-TOKEN')
         };
 
         Ext.Loader.setConfig({
