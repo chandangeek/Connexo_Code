@@ -303,7 +303,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
                 }
                 return deviceProtocolPluggableClasses;
             }
-        }.maxPageSize(thesaurus,20);
+        };
     }
 
     @Override
