@@ -1,6 +1,7 @@
 package com.energyict.mdc.dashboard.impl;
 
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.domain.util.QueryParameters;
 import com.energyict.mdc.dashboard.ComCommandCompletionCodeOverview;
 import com.energyict.mdc.dashboard.ComPortPoolBreakdown;
 import com.energyict.mdc.dashboard.ComScheduleBreakdown;
@@ -332,7 +333,8 @@ public class DashboardServiceImplTest {
         when(finder.find()).thenReturn(Collections.<DeviceType>emptyList());
         when(this.deviceConfigurationService.findAllDeviceTypes()).thenReturn(finder);
         List<ComTask> comTasks = new ArrayList<>(0);
-        when(this.taskService.findAllComTasks()).thenReturn(comTasks);
+        Finder<ComTask> comTaskFinder = mockFinder(comTasks);
+        when(this.taskService.findAllComTasks()).thenReturn(comTaskFinder);
 
         // Business methods
         ComTaskBreakdown breakdown = this.dashboardService.getCommunicationTasksBreakdown();
@@ -357,7 +359,8 @@ public class DashboardServiceImplTest {
         when(comTask.getId()).thenReturn(97L);
         when(comTask.getName()).thenReturn("testComTaskExecutionsDeviceTypeBreakdownWithDeviceTypesButNoComTaskExecutions");
         comTasks.add(comTask);
-        when(this.taskService.findAllComTasks()).thenReturn(comTasks);
+        Finder<ComTask> comTaskFinder = mockFinder(comTasks);
+        when(this.taskService.findAllComTasks()).thenReturn(comTaskFinder);
         Map<TaskStatus, Long> statusCounters = new EnumMap<>(TaskStatus.class);
         for (TaskStatus taskStatus : TaskStatus.values()) {
             statusCounters.put(taskStatus, EXPECTED_STATUS_COUNT_VALUE);
@@ -446,6 +449,17 @@ public class DashboardServiceImplTest {
             assertThat(completionCodeCounter.getCount()).isEqualTo(EXPECTED_STATUS_COUNT_VALUE);
         }
         assertThat(overview.getTotalCount()).isEqualTo(EXPECTED_STATUS_COUNT_VALUE * CompletionCode.values().length);
+    }
+
+    private <T> Finder<T> mockFinder(List<T> list) {
+        Finder<T> finder = mock(Finder.class);
+
+        when(finder.paged(anyInt(), anyInt())).thenReturn(finder);
+        when(finder.sorted(anyString(), any(Boolean.class))).thenReturn(finder);
+        when(finder.from(any(QueryParameters.class))).thenReturn(finder);
+        when(finder.find()).thenReturn(list);
+        when(finder.stream()).thenReturn(list.stream());
+        return finder;
     }
 
 }
