@@ -348,7 +348,9 @@ import static com.elster.jupiter.util.conditions.Where.where;
     	container.moveLastCheckedBefore(ranges);
     	if (isValidationActiveOnStorage(meterActivation)) {
     		container.validate();
-    	}
+    	} else {
+            container.update();
+        }
     }
 
     private boolean isValidationActive(MeterActivation meterActivation) {
