@@ -10,7 +10,7 @@ Ext.define('Ddv.view.Grid', {
         var me = this;
         me.columns = [
             {
-                header: Uni.I18n.translate('validation.validationOverview.mRID', 'DDV', 'Name'),
+                header: Uni.I18n.translate('validation.validationOverview.mRID', 'DDV', 'MRID'),
                 dataIndex: 'mrid',
                 renderer: function (value, b, record) {
                     return '<a href="#/devices/' + record.get('mrid') + '/validationresults/data">' + Ext.String.htmlEncode(value) + '</a>';
@@ -46,13 +46,13 @@ Ext.define('Ddv.view.Grid', {
                     store: me.store,
                     dock: 'top',
                     displayMsg: Uni.I18n.translate('validation.validationOverview.pagingtoolbartop.displayMsg', 'DDV', '{0} - {1} of {2} devices with suspects per page'),
-                    displayMoreMsg: Uni.I18n.translate('validation.validationOverview.pagingtoolbartop.displayMoreMsg', 'DDV', '{0} - {1} of more than {2} devices with suspects lines'),
+                    displayMoreMsg: Uni.I18n.translate('validation.validationOverview.pagingtoolbartop.displayMoreMsg', 'DDV', '{0} - {1} of more than {2} devices with suspects'),
                     emptyMsg: Uni.I18n.translate('validation.validationOverview.pagingtoolbartop.emptyMsg', 'DDV', 'There are no devices with suspects to display')
                 },
                 {
                     xtype: 'pagingtoolbarbottom',
                     store: me.store,
-                    itemsPerPageMsg: Uni.I18n.translate('validation.validationOverview.pagingtoolbarbottom.itemsPerPage', 'DDV', 'Devices with suspects lines per page'),
+                    itemsPerPageMsg: Uni.I18n.translate('validation.validationOverview.pagingtoolbarbottom.itemsPerPage', 'DDV', 'Devices with suspects per page'),
                     dock: 'bottom'
                 }
             ];
