@@ -16,6 +16,8 @@ Ext.define('Uni.grid.filtertop.ComboBox', {
     displayField: 'display',
     forceSelection: true,
     margins: '0 16 0 0',
+    highlightedDisplayValue: null,
+    highlightedValue: null,
 
     initComponent: function () {
         var me = this;
@@ -41,10 +43,33 @@ Ext.define('Uni.grid.filtertop.ComboBox', {
         me.callParent(arguments);
         me.on('specialkey', function (field, event) {
             if (event.getKey() === event.ENTER) {
+                if (me.highlightedValue !== null && !_.contains(me.getFilterValue(), me.highlightedValue)) {
+                    var prevValue = me.getFilterValue();
+                    if (prevValue && Ext.isArray(prevValue)) {
+                        prevValue.push(me.highlightedValue);
+                        me.setFilterValue(prevValue);
+                    } else {
+                        me.setFilterValue(me.highlightedValue);
+                    }
+                }
                 me.assertValue();
                 me.fireFilterUpdateEvent();
+            } else if (event.getKey() === event.ESC) {
+                me.highlightedDisplayValue = null;
+                me.highlightedValue = null;
             }
         }, me);
+        me.getPicker().on('highlightitem', function(view, node, eOpts) {
+            me.highlightedDisplayValue = node.innerText;
+            me.highlightedValue = me.getValueForDisplayValue(node.innerText);
+        }, me);
+        me.getPicker().on('unhighlightitem', function(view, node, eOpts) {
+            if (me.highlightedDisplayValue === node.innerText) {
+                me.highlightedDisplayValue = null;
+                me.highlightedValue = null;
+            }
+        }, me);
+
     },
 
     setFilterValue: function (data) {
@@ -93,5 +118,18 @@ Ext.define('Uni.grid.filtertop.ComboBox', {
         });
 
         return store;
+    },
+
+    getValueForDisplayValue: function(displayValue) {
+        var me = this,
+            result = null;
+
+        Ext.Array.each(me.store.data.items, function(arrayItem) {
+            if (arrayItem.get(me.displayField) === displayValue) {
+                result = arrayItem.get(me.valueField);
+                return false; // stop iterating
+            }
+        });
+        return result;
     }
 });
