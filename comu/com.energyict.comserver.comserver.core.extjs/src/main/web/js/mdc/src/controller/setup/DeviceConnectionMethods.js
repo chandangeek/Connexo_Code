@@ -138,6 +138,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
 
     previewDeviceConnectionMethod: function () {
         var connectionMethod = this.getDeviceConnectionMethodsGrid().getSelectionModel().getSelection();
+        Ext.suspendLayouts();
         if (connectionMethod.length == 1) {
             if (!!this.getToggleDefaultMenuItem()) {
                 this.getToggleDefaultMenuItem().setText(connectionMethod[0].get('isDefault') === true ? Uni.I18n.translate('deviceconnectionmethod.unsetAsDefault', 'MDC', 'Remove as default') : Uni.I18n.translate('deviceconnectionmethod.setAsDefault', 'MDC', 'Set as default'));
@@ -147,7 +148,6 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
                 } else {
                     this.getToggleActiveMenuItem().setVisible(true);
                 }
-                this.getToggleActiveMenuItem().updateLayout();
             }
             this.getDeviceConnectionMethodPreviewForm().loadRecord(connectionMethod[0]);
             var connectionMethodName = connectionMethod[0].get('name');
@@ -171,6 +171,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
         } else {
             this.getDeviceConnectionMethodPreview().getLayout().setActiveItem(0);
         }
+        Ext.resumeLayouts(true);
     },
 
     addOutboundConnectionMethodHistory: function () {
