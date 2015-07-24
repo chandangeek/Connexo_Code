@@ -52,8 +52,10 @@ public class SchedulingResourceTest extends SchedulingApplicationJerseyTest {
     public void testGetSingleScheduleList() throws Exception {
         ComSchedule mockedSchedule = mock(ComSchedule.class);
         when(mockedSchedule.getId()).thenReturn(1L);
+        when(mockedSchedule.getStartDate()).thenReturn(Instant.now());
         when(mockedSchedule.getName()).thenReturn("name");
-        when(mockedSchedule.getPlannedDate()).thenReturn(Optional.<Instant>empty());
+        when(mockedSchedule.getmRID()).thenReturn("mRID");
+        when(mockedSchedule.getPlannedDate()).thenReturn(Optional.of(Instant.now()));
         when(mockedSchedule.getSchedulingStatus()).thenReturn(SchedulingStatus.ACTIVE);
         when(mockedSchedule.getNextTimestamp(any(Calendar.class))).thenReturn(new Date());
         when(mockedSchedule.getTemporalExpression()).thenReturn(new TemporalExpression(new TimeDuration("10 minutes")));
