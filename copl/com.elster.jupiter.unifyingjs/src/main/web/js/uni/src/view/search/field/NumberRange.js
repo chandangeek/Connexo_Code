@@ -30,7 +30,8 @@ Ext.define('Uni.view.search.field.NumberRange', {
             margin: '5px 0px 0px 0px',
             items: [
                 {
-                    xtype: 'uni-view-search-field-number-line'
+                    xtype: 'uni-view-search-field-number-line',
+                    operator: '>'
                 }
             ]
         });
@@ -39,7 +40,8 @@ Ext.define('Uni.view.search.field.NumberRange', {
             margin: '0px 0px 0px 0px',
             items: [
                 {
-                    xtype: 'uni-view-search-field-number-line'
+                    xtype: 'uni-view-search-field-number-line',
+                    operator: '<'
                 }
             ]
         });
@@ -56,18 +58,34 @@ Ext.define('Uni.view.search.field.NumberRange', {
             minWidth: 273,
             items: [
                 {
-                    xtype: 'uni-view-search-field-number-line'
+                    xtype: 'uni-view-search-field-number-line',
+                    default: true,
+                    operator: '='
                 },
                 {
-                    xtype: 'menuseparator'
+                    xtype: 'menuseparator',
+                    default: true
                 },
                 {
-                    xtype: 'uni-view-search-field-number-line'
+                    xtype: 'uni-view-search-field-number-line',
+                    default: true,
+                    operator: '>'
                 },
                 {
-                    xtype: 'uni-view-search-field-number-line'
+                    xtype: 'uni-view-search-field-number-line',
+                    default: true,
+                    operator: '<'
                 }
             ],
+            listeners: {
+                hide: function (menu) {
+                    Ext.each(menu.items.items, function (item) {
+                        if (item && !item.default && item.down('numberfield').getValue() == 0) {
+                            menu.remove(item);
+                        }
+                    });
+                }
+            },
             dockedItems: [
                 {
                     xtype: 'toolbar',
@@ -108,8 +126,9 @@ Ext.define('Uni.view.search.field.NumberRange', {
 
         this.callParent(arguments);
         Ext.suspendLayouts();
-        this.menu.items.items[0].down('combo').setValue('=');
-        this.menu.items.items[3].down('combo').setValue('<');
+        this.menu.items.items[0].down('combo').setValue(this.menu.items.items[0].operator);
+        this.menu.items.items[2].down('combo').setValue(this.menu.items.items[2].operator);
+        this.menu.items.items[3].down('combo').setValue(this.menu.items.items[3].operator);
         Ext.resumeLayouts(true);
     }
 });

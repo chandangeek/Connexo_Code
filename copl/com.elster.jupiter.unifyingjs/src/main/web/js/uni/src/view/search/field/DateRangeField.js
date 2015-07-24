@@ -29,7 +29,9 @@ Ext.define('Uni.view.search.field.DateRangeField', {
             margin: '5px 0px 0px 0px',
             items: [
                 {
-                    xtype: 'uni-view-search-field-range-line'
+                    xtype: 'uni-view-search-field-range-line',
+                    operator: '>',
+                    timeVisible: true
                 }
             ]
         });
@@ -38,7 +40,9 @@ Ext.define('Uni.view.search.field.DateRangeField', {
             margin: '0px 0px 0px 0px',
             items: [
                 {
-                    xtype: 'uni-view-search-field-range-line'
+                    xtype: 'uni-view-search-field-range-line',
+                    operator: '<',
+                    timeVisible: true
                 }
             ]
         });
@@ -55,18 +59,38 @@ Ext.define('Uni.view.search.field.DateRangeField', {
             },
             minWidth: 440,
             arrowAlign: 'left',
+            listeners: {
+                hide: function (menu) {
+                    Ext.each(menu.items.items, function (item) {
+                        if (item && !item.default && (item.down('datefield').getValue() == null && item.down('#hours').getValue() == 0 && item.down('#minutes').getValue() == 0)) {
+                            menu.remove(item);
+                        }
+                    },this);
+                }
+            },
             items: [
                 {
-                    xtype: 'uni-view-search-field-range-line'
+                    xtype: 'uni-view-search-field-range-line',
+                    default: true,
+                    operator: '=',
+                    timeVisible: false
                 },
                 {
-                    xtype: 'menuseparator'
+                    xtype: 'menuseparator',
+                    default:true
                 },
                 {
-                    xtype: 'uni-view-search-field-range-line'
+                    xtype: 'uni-view-search-field-range-line',
+                    default: true,
+                    operator: '>',
+                    timeVisible: true
+
                 },
                 {
-                    xtype: 'uni-view-search-field-range-line'
+                    xtype: 'uni-view-search-field-range-line',
+                    default: true,
+                    operator: '<',
+                    timeVisible: true
                 }
             ],
             dockedItems: [
@@ -109,12 +133,13 @@ Ext.define('Uni.view.search.field.DateRangeField', {
         this.callParent(arguments);
         Ext.suspendLayouts();
         var firstItem = this.menu.items.items[0];
-        firstItem.down('combo').setValue('=');
-        firstItem.down('label').hidden = true;
-        firstItem.down('#hours').hidden = true;
-        firstItem.down('#minutes').hidden = true;
-        firstItem.down('#flex').hidden = false;
-        this.menu.items.items[3].down('combo').setValue('<');
+        firstItem.down('combo').setValue(firstItem.operator);
+        firstItem.down('label').hidden = !firstItem.timeVisible;
+        firstItem.down('#hours').hidden = !firstItem.timeVisible;
+        firstItem.down('#minutes').hidden = !firstItem.timeVisible;
+        firstItem.down('#flex').hidden = firstItem.timeVisible;
+        this.menu.items.items[2].down('combo').setValue(this.menu.items.items[2].operator);
+        this.menu.items.items[3].down('combo').setValue(this.menu.items.items[3].operator);
         Ext.resumeLayouts(true);
     }
 });
