@@ -4,10 +4,11 @@ import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 
 import javax.inject.Inject;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
- * This factory will load and cache a list of
- * {@link SecuritySupportAdapterMapping securitySupportAdapterMappings}.
+ * This factory will load and cache a list of {@link SecuritySupportAdapterMapping}s.
  * The factory is not foreseen to create mappings,
  * only for fetching them. These mappings
  * are created during migration.
@@ -18,7 +19,7 @@ import javax.inject.Inject;
  */
 public class SecuritySupportAdapterMappingFactoryImpl implements SecuritySupportAdapterMappingFactory {
 
-    private DataMapper<SecuritySupportAdapterMapping> mapper;
+    private Map<String, String> cache;
 
     @Inject
     public SecuritySupportAdapterMappingFactoryImpl(DataModel dataModel) {
@@ -27,18 +28,18 @@ public class SecuritySupportAdapterMappingFactoryImpl implements SecuritySupport
 
     private SecuritySupportAdapterMappingFactoryImpl(DataMapper<SecuritySupportAdapterMapping> mapper) {
         super();
-        this.mapper = mapper;
+        this.cache =
+            mapper
+                .find()
+                .stream()
+                .collect(Collectors.toMap(
+                        SecuritySupportAdapterMapping::getDeviceProtocolJavaClassName,
+                        SecuritySupportAdapterMapping::getSecuritySupportJavaClassName));
     }
 
     @Override
     public String getSecuritySupportJavaClassNameForDeviceProtocol(String deviceProtocolJavaClassName) {
-        SecuritySupportAdapterMapping mapping = this.mapper.getUnique("deviceProtocolJavaClassName", deviceProtocolJavaClassName).orElse(null);
-        if (mapping == null) {
-            return null;
-        }
-        else {
-            return mapping.getSecuritySupportJavaClassName();
-        }
+        return this.cache.get(deviceProtocolJavaClassName);
     }
 
 }

@@ -35,10 +35,12 @@ import com.energyict.mdc.protocol.pluggable.MeterProtocolAdapter;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.AbstractDeviceProtocolSecuritySupportAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.AdapterDeviceProtocolDialect;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.common.CapabilityAdapterMappingFactory;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.ComChannelInputStreamAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.ComChannelOutputStreamAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.DeviceProtocolAdapterImpl;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.DeviceProtocolTopologyAdapter;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.common.MessageAdapterMappingFactory;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.PropertiesAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactory;
 
@@ -51,7 +53,7 @@ import java.util.*;
 import java.util.logging.Logger;
 
 /**
- * Adapter between a {@link MeterProtocol} and a {@link DeviceProtocol}
+ * Adapter between a {@link MeterProtocol} and a {@link DeviceProtocol}.
  *
  * @author gna
  * @since 29/03/12 - 9:08
@@ -67,7 +69,7 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
      * The use <code>IssueService</code> which can be used for this adapter
      */
     private final IssueService issueService;
-
+    private final MessageAdapterMappingFactory messageAdapterMappingFactory;
     private final CollectedDataFactory collectedDataFactory;
 
     private final MeteringService meteringService;
@@ -137,8 +139,9 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
      */
     private HHUEnabler hhuEnabler;
 
-    public MeterProtocolAdapterImpl(MeterProtocol meterProtocol, PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory, DataModel dataModel, IssueService issueService, CollectedDataFactory collectedDataFactory, MeteringService meteringService) {
-        super(propertySpecService, protocolPluggableService, securitySupportAdapterMappingFactory, dataModel);
+    public MeterProtocolAdapterImpl(MeterProtocol meterProtocol, PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory, CapabilityAdapterMappingFactory capabilityAdapterMappingFactory, MessageAdapterMappingFactory messageAdapterMappingFactory, DataModel dataModel, IssueService issueService, CollectedDataFactory collectedDataFactory, MeteringService meteringService) {
+        super(propertySpecService, protocolPluggableService, securitySupportAdapterMappingFactory, dataModel, capabilityAdapterMappingFactory);
+        this.messageAdapterMappingFactory = messageAdapterMappingFactory;
         this.meteringService = meteringService;
         this.protocolLogger = Logger.getAnonymousLogger(); // default for now
         this.meterProtocol = meterProtocol;
@@ -174,7 +177,7 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
         this.deviceProtocolTopologyAdapter = new DeviceProtocolTopologyAdapter(issueService, collectedDataFactory);
 
         if (!DeviceMessageSupport.class.isAssignableFrom(this.meterProtocol.getClass())) {
-            this.meterProtocolMessageAdapter = new MeterProtocolMessageAdapter(meterProtocol, this.getDataModel(), this.getProtocolPluggableService(), this.issueService, this.collectedDataFactory);
+            this.meterProtocolMessageAdapter = new MeterProtocolMessageAdapter(meterProtocol, this.getDataModel(), this.messageAdapterMappingFactory, this.getProtocolPluggableService(), this.issueService, this.collectedDataFactory);
         }
         else {
             this.deviceMessageSupport = (DeviceMessageSupport) this.meterProtocol;
@@ -518,7 +521,7 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
     }
 
     /**
-     * Casts the current MeterProtocol to a DeviceSecuritySupport component
+     * Casts the current MeterProtocol to a DeviceSecuritySupport component.
      *
      * @return the deviceSecuritySupport component
      */
@@ -531,7 +534,7 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
     }
 
     /**
-     * Casts the current MeterProtocol to a DeviceMessageSupport component
+     * Casts the current MeterProtocol to a DeviceMessageSupport component.
      *
      * @return the deviceMessageSupport component
      */

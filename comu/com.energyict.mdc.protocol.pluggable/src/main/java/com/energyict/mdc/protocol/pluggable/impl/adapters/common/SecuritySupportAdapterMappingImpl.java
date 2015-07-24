@@ -1,7 +1,5 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.common;
 
-import com.elster.jupiter.orm.DataModel;
-
 import javax.inject.Inject;
 
 /**
@@ -11,18 +9,16 @@ import javax.inject.Inject;
  */
 public class SecuritySupportAdapterMappingImpl implements SecuritySupportAdapterMapping {
 
-    private DataModel dataModel;
     private String deviceProtocolJavaClassName;
     private String securitySupportJavaClassName;
 
     @Inject
-    public SecuritySupportAdapterMappingImpl(DataModel dataModel) {
+    public SecuritySupportAdapterMappingImpl() {
         super();
-        this.dataModel = dataModel;
     }
 
     public SecuritySupportAdapterMappingImpl(String deviceProtocolJavaClassName, String securitySupportJavaClassName) {
-        super();
+        this();
         this.deviceProtocolJavaClassName = deviceProtocolJavaClassName;
         this.securitySupportJavaClassName = securitySupportJavaClassName;
     }
@@ -37,7 +33,4 @@ public class SecuritySupportAdapterMappingImpl implements SecuritySupportAdapter
         return securitySupportJavaClassName;
     }
 
-    public void save() {
-
-    }
 }

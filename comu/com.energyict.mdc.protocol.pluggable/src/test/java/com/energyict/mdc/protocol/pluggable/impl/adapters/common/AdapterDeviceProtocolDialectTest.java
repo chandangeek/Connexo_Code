@@ -16,11 +16,10 @@ import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
-import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
-import com.elster.jupiter.metering.impl.MeteringModule;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
@@ -60,7 +59,6 @@ import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-
 /**
  * Tests the {@link AdapterDeviceProtocolDialect} component.
  * <p/>
@@ -83,6 +81,10 @@ public class AdapterDeviceProtocolDialectTest {
     private EventAdmin eventAdmin;
     @Mock
     private LicenseService licenseService;
+    @Mock
+    private FiniteStateMachineService finiteStateMachineService;
+    @Mock
+    private MeteringService meteringService;
 
     private PropertySpecService propertySpecService;
     private ProtocolPluggableService protocolPluggableService;
@@ -105,8 +107,6 @@ public class AdapterDeviceProtocolDialectTest {
                 new IdsModule(),
                 new UserModule(),
                 new PartyModule(),
-                new FiniteStateMachineModule(),
-                new MeteringModule(),
                 new DomainUtilModule(),
                 new InMemoryMessagingModule(),
                 new OrmModule(),
@@ -242,6 +242,8 @@ public class AdapterDeviceProtocolDialectTest {
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(BundleContext.class).toInstance(bundleContext);
             bind(LicenseService.class).toInstance(licenseService);
+            bind(FiniteStateMachineService.class).toInstance(finiteStateMachineService);
+            bind(MeteringService.class).toInstance(meteringService);
             bind(DataModel.class).toProvider(() -> dataModel);
         }
     }

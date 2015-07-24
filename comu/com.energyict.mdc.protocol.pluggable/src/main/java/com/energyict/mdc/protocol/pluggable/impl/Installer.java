@@ -9,14 +9,13 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupport
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.users.UserService;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * Installs the protocol pluggable bundle.
@@ -33,13 +32,11 @@ public class Installer {
 
     private final DataModel dataModel;
     private final EventService eventService;
-    private final UserService userService;
 
-    public Installer(DataModel dataModel, EventService eventService, UserService userService) {
+    public Installer(DataModel dataModel, EventService eventService) {
         super();
         this.dataModel = dataModel;
         this.eventService = eventService;
-        this.userService = userService;
     }
 
     public void install(boolean executeDdl, boolean createMasterData) {
@@ -67,10 +64,11 @@ public class Installer {
                 properties.remove(existingMapping.getDeviceProtocolJavaClassName());
             }
         }
-        List<DeviceCapabilityMapping> capabilityAdapterMappings = new ArrayList<>(properties.size());
-        for (String key : properties.stringPropertyNames()) {
-            capabilityAdapterMappings.add(new DeviceCapabilityAdapterMappingImpl(key, Integer.valueOf(properties.getProperty(key))));
-        }
+        List<DeviceCapabilityMapping> capabilityAdapterMappings =
+                properties.stringPropertyNames()
+                    .stream()
+                    .map(key -> new DeviceCapabilityAdapterMappingImpl(key, Integer.valueOf(properties.getProperty(key))))
+                    .collect(Collectors.toList());
         dataModel.mapper(DeviceCapabilityMapping.class).persist(capabilityAdapterMappings);
     }
 
@@ -83,10 +81,12 @@ public class Installer {
                 properties.remove(existingMapping.getDeviceProtocolJavaClassName());
             }
         }
-        List<MessageAdapterMapping> messageAdapterMappings = new ArrayList<>(properties.size());
-        for (String key : properties.stringPropertyNames()) {
-            messageAdapterMappings.add(new MessageAdapterMappingImpl(key, properties.getProperty(key)));
-        }
+        List<MessageAdapterMapping> messageAdapterMappings =
+                properties
+                        .stringPropertyNames()
+                        .stream()
+                        .map(key -> new MessageAdapterMappingImpl(key, properties.getProperty(key)))
+                        .collect(Collectors.toList());
         dataModel.mapper(MessageAdapterMapping.class).persist(messageAdapterMappings);
     }
 
@@ -96,14 +96,15 @@ public class Installer {
         List<SecuritySupportAdapterMapping> existingMappings = dataModel.mapper(SecuritySupportAdapterMapping.class).find();
         for (SecuritySupportAdapterMapping existingMapping : existingMappings) {
             Object existingMappingForDeviceProtocol = properties.get(existingMapping.getDeviceProtocolJavaClassName());
-            if(existingMappingForDeviceProtocol != null){
+            if (existingMappingForDeviceProtocol != null) {
                 properties.remove(existingMapping.getDeviceProtocolJavaClassName());
             }
         }
-        List<SecuritySupportAdapterMapping> securitySupportAdapterMappings = new ArrayList<>(properties.size());
-        for (String key : properties.stringPropertyNames()) {
-            securitySupportAdapterMappings.add(new SecuritySupportAdapterMappingImpl(key, properties.getProperty(key)));
-        }
+        List<SecuritySupportAdapterMapping> securitySupportAdapterMappings =
+                properties.stringPropertyNames()
+                    .stream()
+                    .map(key -> new SecuritySupportAdapterMappingImpl(key, properties.getProperty(key)))
+                    .collect(Collectors.toList());
         dataModel.mapper(SecuritySupportAdapterMapping.class).persist(securitySupportAdapterMappings);
     }
 

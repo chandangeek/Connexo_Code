@@ -3,6 +3,10 @@ package com.energyict.mdc.protocol.pluggable.impl.adapters.common;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 
+import javax.inject.Inject;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 /**
  * Copyrights EnergyICT
  * Date: 15/04/13
@@ -10,26 +14,27 @@ import com.elster.jupiter.orm.DataModel;
  */
 public class CapabilityAdapterMappingFactoryImpl implements CapabilityAdapterMappingFactory {
 
-    private DataMapper<DeviceCapabilityMapping> mapper;
+    private Map<String, Integer> cache;
 
+    @Inject
     public CapabilityAdapterMappingFactoryImpl(DataModel dataModel) {
         this(dataModel.mapper(DeviceCapabilityMapping.class));
     }
 
     private CapabilityAdapterMappingFactoryImpl(DataMapper<DeviceCapabilityMapping> mapper) {
         super();
-        this.mapper = mapper;
+        this.cache =
+                mapper
+                    .find()
+                    .stream()
+                    .collect(Collectors.toMap(
+                            DeviceCapabilityMapping::getDeviceProtocolJavaClassName,
+                            DeviceCapabilityMapping::getDeviceProtocolCapabilities));
     }
 
     @Override
     public Integer getCapabilitiesMappingForDeviceProtocol(String deviceProtocolJavaClassName) {
-        DeviceCapabilityMapping mapping = this.mapper.getUnique("deviceProtocolJavaClassName", deviceProtocolJavaClassName).orElse(null);
-        if (mapping == null) {
-            return null;
-        }
-        else {
-            return mapping.getDeviceProtocolCapabilities();
-        }
+        return this.cache.get(deviceProtocolJavaClassName);
     }
 
 }
