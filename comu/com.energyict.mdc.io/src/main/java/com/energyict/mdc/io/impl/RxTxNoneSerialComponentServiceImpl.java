@@ -60,7 +60,7 @@ public class RxTxNoneSerialComponentServiceImpl extends RxTxSerialComponentServi
     }
 
     @Override
-    public ModemComponent newModemComponent(String phoneNumber, String commandPrefix, TimeDuration connectTimeout, TimeDuration delayAfterConnect, TimeDuration delayBeforeSend, TimeDuration commandTimeout, BigDecimal commandTry, List<String> modemInitStrings, String addressSelector, TimeDuration lineToggleDelay, String postDialCommands) {
+    public ModemComponent newModemComponent(String phoneNumber, String commandPrefix, TimeDuration connectTimeout, TimeDuration delayAfterConnect, TimeDuration delayBeforeSend, TimeDuration commandTimeout, BigDecimal commandTry, List<String> modemInitStrings, List<String> globalModemInitStrings, String addressSelector, TimeDuration lineToggleDelay, String postDialCommands) {
         // What part of ModemType.Target.NONE did the client code NOT understand?
         throw new UnsupportedOperationException(RxTxNoneSerialComponentServiceImpl.class.getName() + " does not support modem operations");
     }

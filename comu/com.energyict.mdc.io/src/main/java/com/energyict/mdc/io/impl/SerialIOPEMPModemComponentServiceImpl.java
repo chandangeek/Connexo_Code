@@ -52,7 +52,7 @@ public class SerialIOPEMPModemComponentServiceImpl extends SerialIOComponentServ
     }
 
     @Override
-    public ModemComponent newModemComponent(String phoneNumber, String commandPrefix, TimeDuration connectTimeout, TimeDuration delayAfterConnect, TimeDuration delayBeforeSend, TimeDuration commandTimeout, BigDecimal commandTry, List<String> modemInitStrings, String addressSelector, TimeDuration lineToggleDelay, String postDialCommands) {
+    public ModemComponent newModemComponent(String phoneNumber, String commandPrefix, TimeDuration connectTimeout, TimeDuration delayAfterConnect, TimeDuration delayBeforeSend, TimeDuration commandTimeout, BigDecimal commandTry, List<String> modemInitStrings, List<String> globalModemInitStrings, String addressSelector, TimeDuration lineToggleDelay, String postDialCommands) {
         return new PEMPModemComponent(
                 this.newPEMPModemProperties(
                         phoneNumber,
@@ -63,6 +63,7 @@ public class SerialIOPEMPModemComponentServiceImpl extends SerialIOComponentServ
                         commandTimeout,
                         commandTry,
                         modemInitStrings,
+                        globalModemInitStrings,
                         lineToggleDelay,
                         PEMPModemConfiguration.getPEMPModemConfiguration("TODO")));
     }

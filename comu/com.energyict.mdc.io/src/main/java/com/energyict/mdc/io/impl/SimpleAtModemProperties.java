@@ -19,12 +19,13 @@ public class SimpleAtModemProperties implements AtModemProperties {
     private TimeDuration delayBeforeSend;
     private TimeDuration atCommandTimeout;
     private BigDecimal atCommandTry;
+    private List<String> globalModemInitStrings;
     private List<String> modemInitStrings;
     private String addressSelector;
     private TimeDuration lineToggleDelay;
     private List<AtPostDialCommand> postDialCommands;
 
-    public SimpleAtModemProperties(String phoneNumber, String atCommandPrefix, TimeDuration connectTimeout, TimeDuration delayAfterConnect, TimeDuration delayBeforeSend, TimeDuration atCommandTimeout, BigDecimal atCommandTry, List<String> modemInitStrings, String addressSelector, TimeDuration lineToggleDelay, List<AtPostDialCommand> postDialCommands) {
+    public SimpleAtModemProperties(String phoneNumber, String atCommandPrefix, TimeDuration connectTimeout, TimeDuration delayAfterConnect, TimeDuration delayBeforeSend, TimeDuration atCommandTimeout, BigDecimal atCommandTry, List<String> modemInitStrings, String addressSelector, TimeDuration lineToggleDelay, List<AtPostDialCommand> postDialCommands, List<String> globalModemInitStrings) {
         this.phoneNumber = phoneNumber;
         this.atCommandPrefix = atCommandPrefix;
         this.connectTimeout = connectTimeout;
@@ -32,6 +33,7 @@ public class SimpleAtModemProperties implements AtModemProperties {
         this.delayBeforeSend = delayBeforeSend;
         this.atCommandTimeout = atCommandTimeout;
         this.atCommandTry = atCommandTry;
+        this.globalModemInitStrings = globalModemInitStrings;
         this.modemInitStrings = modemInitStrings;
         this.addressSelector = addressSelector;
         this.lineToggleDelay = lineToggleDelay;
@@ -71,6 +73,11 @@ public class SimpleAtModemProperties implements AtModemProperties {
     @Override
     public BigDecimal getCommandTry() {
         return atCommandTry;
+    }
+
+    @Override
+    public List<String> getGlobalModemInitStrings() {
+        return globalModemInitStrings;
     }
 
     @Override

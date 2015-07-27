@@ -27,6 +27,7 @@ public class TypedAtModemProperties implements AtModemProperties, HasDynamicProp
     public static final String AT_COMMAND_TIMEOUT = "atmodem_command_timeout";  // timeout for regular AT commands
     public static final String AT_CONNECT_TIMEOUT = "atmodem_connect_timeout";  // timeout for the AT connect command
     public static final String AT_COMMAND_TRIES = "atmodem_command_tries";      // the number of attempts a command should be send to the modem before
+    public static final String AT_MODEM_GLOBAL_INIT_STRINGS = "atmodem_global_init_string";   // the initialization strings for this modem type (separated by a colon
     public static final String AT_MODEM_INIT_STRINGS = "atmodem_init_string";   // the initialization strings for this modem type (separated by a colon
     public static final String AT_MODEM_DIAL_PREFIX = "atmodem_dial_prefix";    // the prefix at command which goes between the "ATD" and the actual phoneNumber
     public static final String AT_MODEM_ADDRESS_SELECTOR = "atmodem_address_select";     // the address selector to use after a physical connect
@@ -35,7 +36,8 @@ public class TypedAtModemProperties implements AtModemProperties, HasDynamicProp
 
     private static final String DEFAULT_AT_MODEM_ADDRESS_SELECTOR = "";
     private static final String DEFAULT_AT_MODEM_POST_DIAL_COMMANDS = "";
-    private static final String DEFAULT_AT_MODEM_INIT_STRINGS = "ATS0=0E0V1";   // Auto-answer disabled: modem will not answer incoming calls
+    private static final String DEFAULT_AT_MODEM_GLOBAL_INIT_STRINGS = "ATS0=0E0V1";   // Auto-answer disabled: modem will not answer incoming calls
+    private static final String DEFAULT_AT_MODEM_INIT_STRINGS = "";
     private static final BigDecimal DEFAULT_AT_COMMAND_TRIES = new BigDecimal(3);
     private static final TimeDuration DEFAULT_AT_COMMAND_TIMEOUT = new TimeDuration(5, TimeDuration.TimeUnit.SECONDS);
     private static final TimeDuration DEFAULT_DELAY_BEFORE_SEND = new TimeDuration(500, TimeDuration.TimeUnit.MILLISECONDS);
@@ -82,6 +84,7 @@ public class TypedAtModemProperties implements AtModemProperties, HasDynamicProp
         propertySpecs.put(AT_MODEM_ADDRESS_SELECTOR, atModemAddressSelectorSpec(this.propertySpecService));
         propertySpecs.put(AT_CONNECT_TIMEOUT, atConnectTimeoutSpec(this.propertySpecService));
         propertySpecs.put(AT_MODEM_DIAL_PREFIX, atCommandPrefixSpec(this.propertySpecService));
+        propertySpecs.put(AT_MODEM_GLOBAL_INIT_STRINGS, atGlobalModemInitStringSpec(this.propertySpecService));
         propertySpecs.put(AT_MODEM_INIT_STRINGS, atModemInitStringSpec(this.propertySpecService));
         propertySpecs.put(AT_COMMAND_TRIES, atCommandTriesSpec(this.propertySpecService));
         propertySpecs.put(AT_COMMAND_TIMEOUT, atCommandTimeoutSpec(this.propertySpecService));
@@ -133,6 +136,17 @@ public class TypedAtModemProperties implements AtModemProperties, HasDynamicProp
     }
 
     @Override
+    public List<String> getGlobalModemInitStrings() {
+        Object value = getProperty(AT_MODEM_GLOBAL_INIT_STRINGS);
+        String globalInitStringSpecs = value != null ? (String) value : DEFAULT_AT_MODEM_GLOBAL_INIT_STRINGS;
+        if (!globalInitStringSpecs.isEmpty()) {
+            return Arrays.asList(globalInitStringSpecs.split(AtModemComponent.SEPARATOR));
+        } else {
+            return new ArrayList<>();
+        }
+    }
+
+    @Override
     public List<String> getModemInitStrings() {
         String initStringSpecs = (String) getProperty(AT_MODEM_INIT_STRINGS);
         if (!initStringSpecs.isEmpty()) {
@@ -174,6 +188,10 @@ public class TypedAtModemProperties implements AtModemProperties, HasDynamicProp
 
     public static PropertySpec atModemPostDialCommandsSpec(PropertySpecService propertySpecService) {
         return propertySpecService.stringPropertySpec(AT_MODEM_POST_DIAL_COMMANDS, false, DEFAULT_AT_MODEM_POST_DIAL_COMMANDS);
+    }
+
+    public static PropertySpec atGlobalModemInitStringSpec(PropertySpecService propertySpecService) {
+        return propertySpecService.stringPropertySpec(AT_MODEM_GLOBAL_INIT_STRINGS, false, DEFAULT_AT_MODEM_GLOBAL_INIT_STRINGS);
     }
 
     public static PropertySpec atModemInitStringSpec(PropertySpecService propertySpecService) {

@@ -9,6 +9,7 @@ import com.energyict.mdc.io.ModemTimeoutException;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.io.SerialComChannel;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -106,7 +107,9 @@ public class CaseModemComponent implements ModemComponent {
             sendNext = writeSingleInitString(comChannel, ERROR_CORRECTING_MODE_COMMAND, ERROR_CORRECTING_MODE);
         }
 
-        final List<String> modemInitStringValues = modemProperties.getModemInitStrings();
+        List<String> modemInitStringValues = new ArrayList<>();
+        modemInitStringValues.addAll(modemProperties.getGlobalModemInitStrings());
+        modemInitStringValues.addAll(modemProperties.getModemInitStrings());
         Iterator<String> initStringIterator = modemInitStringValues.listIterator();
         while (initStringIterator.hasNext() && sendNext) {
             sendNext = writeSingleInitString(comChannel, initStringIterator.next(), CONFIRM);

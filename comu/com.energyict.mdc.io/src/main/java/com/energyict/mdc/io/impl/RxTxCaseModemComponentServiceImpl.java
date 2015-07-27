@@ -51,7 +51,7 @@ public class RxTxCaseModemComponentServiceImpl extends RxTxSerialComponentServic
     }
 
     @Override
-    public ModemComponent newModemComponent(String phoneNumber, String commandPrefix, TimeDuration connectTimeout, TimeDuration delayAfterConnect, TimeDuration delayBeforeSend, TimeDuration commandTimeout, BigDecimal commandTry, List<String> modemInitStrings, String addressSelector, TimeDuration lineToggleDelay, String postDialCommands) {
+    public ModemComponent newModemComponent(String phoneNumber, String commandPrefix, TimeDuration connectTimeout, TimeDuration delayAfterConnect, TimeDuration delayBeforeSend, TimeDuration commandTimeout, BigDecimal commandTry, List<String> modemInitStrings, List<String> globalModemInitStrings, String addressSelector, TimeDuration lineToggleDelay, String postDialCommands) {
         return new CaseModemComponent(
                 this.newCaseModemProperties(
                         phoneNumber,
@@ -62,6 +62,7 @@ public class RxTxCaseModemComponentServiceImpl extends RxTxSerialComponentServic
                         commandTimeout,
                         commandTry,
                         modemInitStrings,
+                        globalModemInitStrings,
                         addressSelector,
                         lineToggleDelay));
     }

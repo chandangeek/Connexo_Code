@@ -18,10 +18,11 @@ public class SimplePaknetModemProperties implements PaknetModemProperties {
     private TimeDuration delayBeforeSend;
     private TimeDuration commandTimeout;
     private BigDecimal commandTry;
+    private List<String> globalModemInitStrings;
     private List<String> modemInitStrings;
     private TimeDuration lineToggleDelay;
 
-    public SimplePaknetModemProperties(String phoneNumber, String commandPrefix, TimeDuration connectTimeout, TimeDuration delayAfterConnect, TimeDuration delayBeforeSend, TimeDuration commandTimeout, BigDecimal commandTry, List<String> modemInitStrings, TimeDuration lineToggleDelay) {
+    public SimplePaknetModemProperties(String phoneNumber, String commandPrefix, TimeDuration connectTimeout, TimeDuration delayAfterConnect, TimeDuration delayBeforeSend, TimeDuration commandTimeout, BigDecimal commandTry, List<String> modemInitStrings, TimeDuration lineToggleDelay, List<String> globalModemInitStrings) {
         this.phoneNumber = phoneNumber;
         this.commandPrefix = commandPrefix;
         this.connectTimeout = connectTimeout;
@@ -31,6 +32,7 @@ public class SimplePaknetModemProperties implements PaknetModemProperties {
         this.commandTry = commandTry;
         this.modemInitStrings = modemInitStrings;
         this.lineToggleDelay = lineToggleDelay;
+        this.globalModemInitStrings = globalModemInitStrings;
     }
 
     @Override
@@ -66,6 +68,12 @@ public class SimplePaknetModemProperties implements PaknetModemProperties {
     @Override
     public BigDecimal getCommandTry() {
         return this.commandTry;
+    }
+
+
+    @Override
+    public List<String> getGlobalModemInitStrings() {
+        return globalModemInitStrings;
     }
 
     @Override

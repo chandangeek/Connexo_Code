@@ -1,14 +1,13 @@
 package com.energyict.mdc.io.impl;
 
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.LibraryType;
 import com.energyict.mdc.io.ModemComponent;
 import com.energyict.mdc.io.ModemType;
 import com.energyict.mdc.io.SerialComponentService;
-
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.time.TimeDuration;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -47,12 +46,14 @@ public class SerialIONoModemComponentServiceImpl extends SerialIOComponentServic
 
     @Override
     public ModemComponent newModemComponent(TypedProperties properties) {
-        return null;
+        // What part of ModemType.Target.NONE did the client code NOT understand?
+        throw new UnsupportedOperationException(SerialIONoModemComponentServiceImpl.class.getName() + " does not support modem operations");
     }
 
     @Override
-    public ModemComponent newModemComponent(String phoneNumber, String commandPrefix, TimeDuration connectTimeout, TimeDuration delayAfterConnect, TimeDuration delayBeforeSend, TimeDuration commandTimeout, BigDecimal commandTry, List<String> modemInitStrings, String addressSelector, TimeDuration lineToggleDelay, String postDialCommands) {
-        return null;
+    public ModemComponent newModemComponent(String phoneNumber, String commandPrefix, TimeDuration connectTimeout, TimeDuration delayAfterConnect, TimeDuration delayBeforeSend, TimeDuration commandTimeout, BigDecimal commandTry, List<String> modemInitStrings, List<String> globalModemInitStrings, String addressSelector, TimeDuration lineToggleDelay, String postDialCommands) {
+        // What part of ModemType.Target.NONE did the client code NOT understand?
+        throw new UnsupportedOperationException(SerialIONoModemComponentServiceImpl.class.getName() + " does not support modem operations");
     }
 
     @Override

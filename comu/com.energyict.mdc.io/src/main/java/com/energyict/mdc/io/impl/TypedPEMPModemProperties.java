@@ -10,10 +10,7 @@ import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.time.TimeDuration;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author sva
@@ -27,11 +24,13 @@ public class TypedPEMPModemProperties implements PEMPModemProperties, HasDynamic
     public static final String DELAY_BEFORE_SEND = "modem_senddelay";           // delay to wait before we send a command
     public static final String COMMAND_TIMEOUT = "modem_command_timeout";       // timeout for regular commands
     public static final String COMMAND_TRIES = "modem_command_tries";           // the number of attempts a command should be send to the modem before
+    public static final String GLOBAL_MODEM_INIT_STRINGS = "modem_global_init_string";   // the initialization strings for this modem type (separated by a colon
     public static final String MODEM_INIT_STRINGS = "modem_init_string";        // the initialization strings for this modem type modem
     public static final String DTR_TOGGLE_DELAY = "disconnect_line_toggle_delay";// the delay between DTR line toggles, which are used to disconnect the active connection.
     public static final String MODEM_CONFIGURATION_KEY = "modem_configuration_key";// the PEMPModemConfiguration to use
 
-    private static final String DEFAULT_MODEM_INIT_STRINGS = "1:0,2:0,3:0,4:10,5:0,6:5";
+    private static final String DEFAULT_GLOBAL_MODEM_INIT_STRINGS = "";
+    private static final String DEFAULT_MODEM_INIT_STRINGS = "";
     private static final BigDecimal DEFAULT_COMMAND_TRIES = new BigDecimal(5);
     private static final TimeDuration DEFAULT_COMMAND_TIMEOUT = new TimeDuration(10, TimeDuration.TimeUnit.SECONDS);
     private static final TimeDuration DEFAULT_DELAY_BEFORE_SEND = new TimeDuration(500, TimeDuration.TimeUnit.MILLISECONDS);
@@ -87,6 +86,7 @@ public class TypedPEMPModemProperties implements PEMPModemProperties, HasDynamic
     private void initializePropertySpecs(Map<String, PropertySpec> propertySpecs) {
         propertySpecs.put(CONNECT_TIMEOUT, atConnectTimeoutSpec(this.propertySpecService));
         propertySpecs.put(MODEM_DIAL_PREFIX, atCommandPrefixSpec(this.propertySpecService));
+        propertySpecs.put(GLOBAL_MODEM_INIT_STRINGS, atGlobalModemInitStringSpec(this.propertySpecService));
         propertySpecs.put(MODEM_INIT_STRINGS, atModemInitStringSpec(this.propertySpecService));
         propertySpecs.put(COMMAND_TRIES, atCommandTriesSpec(this.propertySpecService));
         propertySpecs.put(COMMAND_TIMEOUT, atCommandTimeoutSpec(this.propertySpecService));
@@ -146,6 +146,16 @@ public class TypedPEMPModemProperties implements PEMPModemProperties, HasDynamic
     }
 
     @Override
+    public List<String> getGlobalModemInitStrings() {
+        String globalInitStringSpecs = (String) getProperty(GLOBAL_MODEM_INIT_STRINGS);
+        if (!globalInitStringSpecs.isEmpty()) {
+            return Arrays.asList(globalInitStringSpecs.split(AtModemComponent.SEPARATOR));
+        } else {
+            return new ArrayList<>();
+        }
+    }
+
+    @Override
     public TimeDuration getLineToggleDelay() {
         return (TimeDuration) getProperty(DTR_TOGGLE_DELAY);
     }
@@ -165,6 +175,10 @@ public class TypedPEMPModemProperties implements PEMPModemProperties, HasDynamic
 
     protected void setProperty(String propertyName, Object value) {
         this.properties.setProperty(propertyName, value);
+    }
+
+    public static PropertySpec atGlobalModemInitStringSpec(PropertySpecService propertySpecService) {
+        return propertySpecService.stringPropertySpec(GLOBAL_MODEM_INIT_STRINGS, false, DEFAULT_GLOBAL_MODEM_INIT_STRINGS);
     }
 
     public static PropertySpec atModemInitStringSpec(PropertySpecService propertySpecService) {

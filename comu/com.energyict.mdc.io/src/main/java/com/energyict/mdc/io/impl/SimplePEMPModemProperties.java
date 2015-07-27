@@ -20,11 +20,12 @@ public class SimplePEMPModemProperties implements PEMPModemProperties {
     private TimeDuration delayBeforeSend;
     private TimeDuration commandTimeout;
     private BigDecimal commandTry;
+    private List<String> globalModemInitStrings;
     private List<String> modemInitStrings;
     private TimeDuration lineToggleDelay;
     private PEMPModemConfiguration modemConfiguration;
 
-    public SimplePEMPModemProperties(String phoneNumber, String commandPrefix, TimeDuration connectTimeout, TimeDuration delayAfterConnect, TimeDuration delayBeforeSend, TimeDuration commandTimeout, BigDecimal commandTry, List<String> modemInitStrings, TimeDuration lineToggleDelay, PEMPModemConfiguration modemConfiguration) {
+    public SimplePEMPModemProperties(String phoneNumber, String commandPrefix, TimeDuration connectTimeout, TimeDuration delayAfterConnect, TimeDuration delayBeforeSend, TimeDuration commandTimeout, BigDecimal commandTry, List<String> modemInitStrings, TimeDuration lineToggleDelay, PEMPModemConfiguration modemConfiguration, List<String> globalModemInitStrings) {
         this.phoneNumber = phoneNumber;
         this.commandPrefix = commandPrefix;
         this.connectTimeout = connectTimeout;
@@ -35,6 +36,7 @@ public class SimplePEMPModemProperties implements PEMPModemProperties {
         this.modemInitStrings = modemInitStrings;
         this.lineToggleDelay = lineToggleDelay;
         this.modemConfiguration = modemConfiguration;
+        this.globalModemInitStrings = globalModemInitStrings;
     }
 
     @Override
@@ -75,6 +77,11 @@ public class SimplePEMPModemProperties implements PEMPModemProperties {
     @Override
     public List<String> getModemInitStrings() {
         return this.modemInitStrings;
+    }
+
+    @Override
+    public List<String> getGlobalModemInitStrings() {
+        return globalModemInitStrings;
     }
 
     @Override

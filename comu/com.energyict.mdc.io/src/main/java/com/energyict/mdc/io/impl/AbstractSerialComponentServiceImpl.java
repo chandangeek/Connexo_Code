@@ -12,9 +12,7 @@ import com.energyict.mdc.io.ServerSerialPort;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.Checks;
-import org.osgi.service.component.annotations.Reference;
 
-import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -67,32 +65,32 @@ public abstract class AbstractSerialComponentServiceImpl implements SerialCompon
         return new TypedAtModemProperties(simpleProperties, postDialCommands, this.propertySpecService);
     }
 
-    protected AtModemProperties newAtModemProperties(String phoneNumber, String atCommandPrefix, TimeDuration connectTimeout, TimeDuration delayAfterConnect, TimeDuration delayBeforeSend, TimeDuration atCommandTimeout, BigDecimal atCommandTry, List<String> modemInitStrings, String addressSelector, TimeDuration lineToggleDelay, List<AtPostDialCommand> postDialCommands) {
-        return new SimpleAtModemProperties(phoneNumber, atCommandPrefix, connectTimeout, delayAfterConnect, delayBeforeSend, atCommandTimeout, atCommandTry, modemInitStrings, addressSelector, lineToggleDelay, postDialCommands);
+    protected AtModemProperties newAtModemProperties(String phoneNumber, String atCommandPrefix, TimeDuration connectTimeout, TimeDuration delayAfterConnect, TimeDuration delayBeforeSend, TimeDuration atCommandTimeout, BigDecimal atCommandTry, List<String> modemInitStrings, List<String> globalModemInitStrings, String addressSelector, TimeDuration lineToggleDelay, List<AtPostDialCommand> postDialCommands) {
+        return new SimpleAtModemProperties(phoneNumber, atCommandPrefix, connectTimeout, delayAfterConnect, delayBeforeSend, atCommandTimeout, atCommandTry, modemInitStrings, addressSelector, lineToggleDelay, postDialCommands, globalModemInitStrings);
     }
 
     protected CaseModemProperties newCaseModemProperties(TypedProperties properties) {
         return new TypedCaseModemProperties(TypedProperties.copyOf(properties), this.propertySpecService);
     }
 
-    protected CaseModemProperties newCaseModemProperties(String phoneNumber, String atCommandPrefix, TimeDuration connectTimeout, TimeDuration delayAfterConnect, TimeDuration delayBeforeSend, TimeDuration atCommandTimeout, BigDecimal atCommandTry, List<String> modemInitStrings, String addressSelector, TimeDuration lineToggleDelay) {
-        return new SimpleCaseModemProperties(phoneNumber, atCommandPrefix, connectTimeout, delayAfterConnect, delayBeforeSend, atCommandTimeout, atCommandTry, modemInitStrings, addressSelector, lineToggleDelay);
+    protected CaseModemProperties newCaseModemProperties(String phoneNumber, String atCommandPrefix, TimeDuration connectTimeout, TimeDuration delayAfterConnect, TimeDuration delayBeforeSend, TimeDuration atCommandTimeout, BigDecimal atCommandTry, List<String> modemInitStrings, List<String> globalModemInitStrings, String addressSelector, TimeDuration lineToggleDelay) {
+        return new SimpleCaseModemProperties(phoneNumber, atCommandPrefix, connectTimeout, delayAfterConnect, delayBeforeSend, atCommandTimeout, atCommandTry, modemInitStrings, addressSelector, lineToggleDelay, globalModemInitStrings);
     }
 
     protected PaknetModemProperties newPaknetModemProperties(TypedProperties properties) {
         return new TypedPaknetModemProperties(TypedProperties.copyOf(properties), this.propertySpecService);
     }
 
-    protected PaknetModemProperties newPaknetModemProperties(String phoneNumber, String commandPrefix, TimeDuration connectTimeout, TimeDuration delayAfterConnect, TimeDuration delayBeforeSend, TimeDuration commandTimeout, BigDecimal commandTry, List<String> modemInitStrings, TimeDuration lineToggleDelay) {
-        return new SimplePaknetModemProperties(phoneNumber, commandPrefix, connectTimeout, delayAfterConnect, delayBeforeSend, commandTimeout, commandTry, modemInitStrings, lineToggleDelay);
+    protected PaknetModemProperties newPaknetModemProperties(String phoneNumber, String commandPrefix, TimeDuration connectTimeout, TimeDuration delayAfterConnect, TimeDuration delayBeforeSend, TimeDuration commandTimeout, BigDecimal commandTry, List<String> modemInitStrings, List<String> globalModemInitStrings, TimeDuration lineToggleDelay) {
+        return new SimplePaknetModemProperties(phoneNumber, commandPrefix, connectTimeout, delayAfterConnect, delayBeforeSend, commandTimeout, commandTry, modemInitStrings, lineToggleDelay, globalModemInitStrings);
     }
 
     protected PEMPModemProperties newPEMPModemProperties(TypedProperties properties) {
         return new TypedPEMPModemProperties(TypedProperties.copyOf(properties), this.propertySpecService);
     }
 
-    protected PEMPModemProperties newPEMPModemProperties(String phoneNumber, String commandPrefix, TimeDuration connectTimeout, TimeDuration delayAfterConnect, TimeDuration delayBeforeSend, TimeDuration commandTimeout, BigDecimal commandTry, List<String> modemInitStrings, TimeDuration lineToggleDelay, PEMPModemConfiguration modemConfiguration) {
-        return new SimplePEMPModemProperties(phoneNumber, commandPrefix, connectTimeout, delayAfterConnect, delayBeforeSend, commandTimeout, commandTry, modemInitStrings, lineToggleDelay, modemConfiguration);
+    protected PEMPModemProperties newPEMPModemProperties(String phoneNumber, String commandPrefix, TimeDuration connectTimeout, TimeDuration delayAfterConnect, TimeDuration delayBeforeSend, TimeDuration commandTimeout, BigDecimal commandTry, List<String> modemInitStrings, List<String> globalModemInitStrings, TimeDuration lineToggleDelay, PEMPModemConfiguration modemConfiguration) {
+        return new SimplePEMPModemProperties(phoneNumber, commandPrefix, connectTimeout, delayAfterConnect, delayBeforeSend, commandTimeout, commandTry, modemInitStrings, lineToggleDelay, modemConfiguration, globalModemInitStrings);
     }
 
     protected List<AtPostDialCommand> parseAndValidatePostDialCommands(String commands) {

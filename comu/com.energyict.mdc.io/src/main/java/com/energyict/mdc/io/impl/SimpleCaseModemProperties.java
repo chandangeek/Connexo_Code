@@ -18,11 +18,12 @@ public class SimpleCaseModemProperties implements CaseModemProperties {
     private TimeDuration delayBeforeSend;
     private TimeDuration commandTimeout;
     private BigDecimal commandTry;
+    private List<String> globalModemInitStrings;
     private List<String> modemInitStrings;
     private String addressSelector;
     private TimeDuration lineToggleDelay;
 
-    public SimpleCaseModemProperties(String phoneNumber, String commandPrefix, TimeDuration connectTimeout, TimeDuration delayAfterConnect, TimeDuration delayBeforeSend, TimeDuration commandTimeout, BigDecimal commandTry, List<String> modemInitStrings, String addressSelector, TimeDuration lineToggleDelay) {
+    public SimpleCaseModemProperties(String phoneNumber, String commandPrefix, TimeDuration connectTimeout, TimeDuration delayAfterConnect, TimeDuration delayBeforeSend, TimeDuration commandTimeout, BigDecimal commandTry, List<String> modemInitStrings, String addressSelector, TimeDuration lineToggleDelay, List<String> globalModemInitStrings) {
         super();
         this.phoneNumber = phoneNumber;
         this.commandPrefix = commandPrefix;
@@ -34,6 +35,7 @@ public class SimpleCaseModemProperties implements CaseModemProperties {
         this.modemInitStrings = modemInitStrings;
         this.addressSelector = addressSelector;
         this.lineToggleDelay = lineToggleDelay;
+        this.globalModemInitStrings = globalModemInitStrings;
     }
 
     @Override
@@ -69,6 +71,11 @@ public class SimpleCaseModemProperties implements CaseModemProperties {
     @Override
     public BigDecimal getCommandTry() {
         return this.commandTry;
+    }
+
+    @Override
+    public List<String> getGlobalModemInitStrings() {
+        return globalModemInitStrings;
     }
 
     @Override

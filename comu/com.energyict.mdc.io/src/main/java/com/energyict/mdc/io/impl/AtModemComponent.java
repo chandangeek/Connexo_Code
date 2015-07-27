@@ -11,6 +11,7 @@ import com.energyict.mdc.io.SignalController;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -121,7 +122,9 @@ public class AtModemComponent implements ModemComponent {
      * @return true if all commands succeeded, false otherwise
      */
     public boolean sendInitStrings(ComChannel comChannel) {
-        final List<String> modemInitStringValues = atModemProperties.getModemInitStrings();
+        List<String> modemInitStringValues = new ArrayList<>();
+        modemInitStringValues.addAll(atModemProperties.getGlobalModemInitStrings());
+        modemInitStringValues.addAll(atModemProperties.getModemInitStrings());
         boolean sendNext = true;
         Iterator<String> initStringIterator = modemInitStringValues.listIterator();
         while (initStringIterator.hasNext() && sendNext) {

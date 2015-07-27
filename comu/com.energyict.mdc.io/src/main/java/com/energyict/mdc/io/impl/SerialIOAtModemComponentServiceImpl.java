@@ -51,7 +51,7 @@ public class SerialIOAtModemComponentServiceImpl extends SerialIOComponentServic
     }
 
     @Override
-    public ModemComponent newModemComponent(String phoneNumber, String commandPrefix, TimeDuration connectTimeout, TimeDuration delayAfterConnect, TimeDuration delayBeforeSend, TimeDuration commandTimeout, BigDecimal commandTry, List<String> modemInitStrings, String addressSelector, TimeDuration lineToggleDelay, String postDialCommands) {
+    public ModemComponent newModemComponent(String phoneNumber, String commandPrefix, TimeDuration connectTimeout, TimeDuration delayAfterConnect, TimeDuration delayBeforeSend, TimeDuration commandTimeout, BigDecimal commandTry, List<String> modemInitStrings, List<String> globalModemInitStrings, String addressSelector, TimeDuration lineToggleDelay, String postDialCommands) {
         return new AtModemComponent(
                 this.newAtModemProperties(
                         phoneNumber,
@@ -62,6 +62,7 @@ public class SerialIOAtModemComponentServiceImpl extends SerialIOComponentServic
                         commandTimeout,
                         commandTry,
                         modemInitStrings,
+                        globalModemInitStrings,
                         addressSelector,
                         lineToggleDelay,
                         this.parseAndValidatePostDialCommands(postDialCommands)));

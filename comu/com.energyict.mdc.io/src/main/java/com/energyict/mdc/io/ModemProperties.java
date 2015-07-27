@@ -63,11 +63,25 @@ public interface ModemProperties {
     public BigDecimal getCommandTry();
 
     /**
+     * Getter for the global initialization strings for this modem type
+     * <br></br>
+     * <b>Note: </b> These global initialization strings will be handled before handling of
+     * the regular initialization strings (which are defined in {@link #getModemInitStrings()})
+     *
+     * @return the global initialization strings for this modem type
+     */
+    public List<String> getGlobalModemInitStrings();
+
+    /**
      * Getter for the initialization strings for this modem type
+     * <br></br>
+     * <b>Note: </b> These regular initialization strings will be handled after handling of
+     * the global initialization strings (which are defined in {@link #getGlobalModemInitStrings()})
      *
      * @return the initialization strings for this modem type
      */
     public List<String> getModemInitStrings();
+
 
     /**
      * Getter for the delay between DTR line toggles, which are used to disconnect the active connection.
