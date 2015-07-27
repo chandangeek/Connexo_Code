@@ -10,4 +10,6 @@ public interface FileImportField<R> {
     Consumer<R> getResultConsumer();
 
     FieldParser<R> getParser();
+
+    boolean isRepetitive();
 }

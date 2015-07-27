@@ -9,6 +9,7 @@ public class CommonField<R> implements FileImportField<R>{
     private boolean mandatory;
     private Consumer<R> consumer;
     private FieldParser<R> parser;
+    private boolean repetitive;
 
     private CommonField(){}
 
@@ -27,6 +28,15 @@ public class CommonField<R> implements FileImportField<R>{
         return this.parser;
     }
 
+    @Override
+    public boolean isRepetitive() {
+        return this.repetitive;
+    }
+
+    public void setRepetitive(boolean repetitive) {
+        this.repetitive = repetitive;
+    }
+
     public static <T> FieldBuilder<T> withParser(FieldParser<T> parser){
         FieldBuilder<T> builder = new FieldBuilder<>();
         builder.field.parser = parser;
@@ -42,6 +52,11 @@ public class CommonField<R> implements FileImportField<R>{
 
         public FieldBuilder<R> markMandatory(){
             this.field.mandatory = true;
+            return this;
+        }
+
+        public FieldBuilder<R> markRepetitive(){
+            this.field.repetitive = true;
             return this;
         }
 
