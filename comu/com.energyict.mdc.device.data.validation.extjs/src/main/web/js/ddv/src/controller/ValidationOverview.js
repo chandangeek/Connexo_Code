@@ -3,6 +3,7 @@ Ext.define('Ddv.controller.ValidationOverview', {
 
     requires: [
         //'Dsh.model.Filterable'
+        'Dsh.view.widget.HeaderSection'
     ],
 
     views: [
@@ -15,7 +16,7 @@ Ext.define('Ddv.controller.ValidationOverview', {
     models: [
         'Ddv.model.ValidationOverview',
         'Ddv.model.ValidationOverviewResult',
-        'Dsh.view.widget.HeaderSection'
+
     ],
 
     refs: [
