@@ -52,8 +52,8 @@ public class DeviceInstallationImportProcessor implements FileImportProcessor<De
                 .orElseThrow(() -> new ProcessorException(MessageSeeds.DEVICE_CAN_NOT_BE_MOVED_TO_STATE, data.getLineNumber(),
                         recordContext.translate(targetStateName), recordContext.translate(device.getState().getName())));
         try {
-            executableAction.execute(data.getInstallationDate().toInstant(),
-                    getExecutableActionProperties(data, getAllPropertySpecsForAction(executableAction)));
+//            executableAction.execute(data.getInstallationDate().toInstant(),
+//                    getExecutableActionProperties(data, getAllPropertySpecsForAction(executableAction)));
         } catch (MultipleMicroCheckViolationsException ex){
             // TODO translate violations!
             throw new ProcessorException(MessageSeeds.PRE_TRANSITION_CHECKS_FAILED, data.getLineNumber(), "");
@@ -89,11 +89,11 @@ public class DeviceInstallationImportProcessor implements FileImportProcessor<De
             try {
                 executableProperties.add(context.getDeviceLifeCycleService().toExecutableActionProperty(data.getStartValidationDate(), propertySpec));
             } catch (InvalidValueException e) {
-                //TODO rethrow!!!
-                e.printStackTrace();
+                throw new ProcessorException(MessageSeeds.START_VALIDATION_DATE_IS_INCORRECT,
+                        data.getLineNumber(), data.getStartValidationDate(), e.getLocalizedMessage());
             }
         }
-        return Collections.emptyList();
+        return executableProperties;
     }
 
     private void processMasterMrid(Device device, DeviceInstallationImportRecord data, FileImportRecordContext recordContext) {
@@ -105,7 +105,7 @@ public class DeviceInstallationImportProcessor implements FileImportProcessor<De
             }
             Optional<Device> oldMasterDeviceRef = this.context.getTopologyService().getPhysicalGateway(device);
             if (oldMasterDeviceRef.isPresent()) {
-                if (oldMasterDeviceRef.get().getmRID() != masterDevice.getmRID()) {
+                if (!oldMasterDeviceRef.get().getmRID().equals(masterDevice.getmRID())) {
                     recordContext.warning(TranslationKeys.MASTER_WILL_BE_OVERRIDDEN, data.getLineNumber(),
                             oldMasterDeviceRef.get().getmRID(), masterDevice.getmRID());
                     setNewMasterDevice(device, masterDevice);
@@ -134,7 +134,7 @@ public class DeviceInstallationImportProcessor implements FileImportProcessor<De
     }
 
     private UsagePoint createNewUsagePoint(DeviceInstallationImportRecord data) {
-        return Arrays.stream(ServiceKind.values())
+        UsagePoint usagePoint = Arrays.stream(ServiceKind.values())
                 .filter(candidate -> candidate.getDisplayName().equalsIgnoreCase(data.getServiceCategory()))
                 .map(serviceKind -> this.context.getMeteringService().getServiceCategory(serviceKind))
                 .findFirst()
@@ -142,7 +142,9 @@ public class DeviceInstallationImportProcessor implements FileImportProcessor<De
                 .map(Optional::get)
                 .orElseThrow(() -> new ProcessorException(MessageSeeds.NO_USAGE_POINT, data.getLineNumber(),
                         data.getUsagePointMrid(), Arrays.stream(ServiceKind.values()).map(ServiceKind::getDisplayName).collect(Collectors.joining(", "))))
-                        .newUsagePoint(data.getUsagePointMrid());
+                .newUsagePoint(data.getUsagePointMrid());
+        usagePoint.save();
+        return usagePoint;
     }
 
     private void setUsagePoint(Device device, UsagePoint usagePoint, DeviceInstallationImportRecord data) {
