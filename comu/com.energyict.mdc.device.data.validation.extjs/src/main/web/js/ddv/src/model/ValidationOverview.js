@@ -1,8 +1,8 @@
 Ext.define('Ddv.model.ValidationOverview', {
-    extend: 'Dsh.model.Filterable',
+    extend: 'Ext.data.Model',
     requires: [
-        'Ddv.model.ValidationOverviewResult',
-        'Dsh.model.Filterable'
+        'Ddv.model.ValidationOverviewResult'//,
+        //'Dsh.model.Filterable'
     ],
     proxy: {
         type: 'ajax',
