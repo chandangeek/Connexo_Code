@@ -24,6 +24,11 @@ Ext.define('Mdc.view.setup.comservercomports.SerialForm', {
         },
         {
             xtype: 'textfield',
+            fieldLabel: Uni.I18n.translate('comServerComPorts.form.globalModemInitStrings', 'MDC', 'Global modem initialization'),
+            name: 'globalModemInitStrings'
+        },
+        {
+            xtype: 'textfield',
             fieldLabel: Uni.I18n.translate('comServerComPorts.form.modemInit', 'MDC', 'Modem initialization'),
             name: 'modemInitStrings'
         },
@@ -340,6 +345,7 @@ Ext.define('Mdc.view.setup.comservercomports.SerialForm', {
 
     showInbound: function(){
         this.down('#comportpoolid').hide();
+        this.down('textfield[name=globalModemInitStrings]').show();
         this.down('textfield[name=modemInitStrings]').show();
         this.down('textfield[name=addressSelector]').show();
         this.down('#inboundPool').show();
@@ -356,7 +362,9 @@ Ext.define('Mdc.view.setup.comservercomports.SerialForm', {
 
     showOutbound: function(){
         this.down('#comportpoolid').show();
+        this.down('textfield[name=globalModemInitStrings]').hide();
         this.down('textfield[name=modemInitStrings]').hide();
+        this.down('textfield[name=globalModemInitStrings]').disable();
         this.down('textfield[name=modemInitStrings]').disable();
 
         this.down('textfield[name=addressSelector]').hide();

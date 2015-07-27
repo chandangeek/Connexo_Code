@@ -313,6 +313,23 @@ Ext.define('Mdc.model.ComServerComPort', {
                 }
                 return result;
             }
+        },
+        {
+            name: 'globalModemInitStrings',
+            type: 'string',
+            mapping: function (data) {
+                var val = data.globalModemInitStrings,
+                    result = undefined;
+                if (Ext.isArray(val)) {
+                    if (val.length) {
+                        result = '';
+                        Ext.Array.each(val, function (item) {
+                            result += item.globalModemInitString + '<br>';
+                        })
+                    }
+                }
+                return result;
+            }
         }
     ],
     proxy: {

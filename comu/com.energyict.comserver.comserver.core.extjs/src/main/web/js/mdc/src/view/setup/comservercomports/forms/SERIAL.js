@@ -29,6 +29,10 @@ Ext.define('Mdc.view.setup.comservercomports.forms.SERIAL', {
                     name: 'direction'
                 },
                 {
+                    fieldLabel: Uni.I18n.translate('comports.preview.globalModemInitialization', 'MDC', 'Global modem initialization'),
+                    name: 'globalModemInitStrings'
+                },
+                {
                     fieldLabel: Uni.I18n.translate('comports.preview.modemInitialization', 'MDC', 'Modem initialization'),
                     name: 'modemInitStrings'
                 },
@@ -101,6 +105,7 @@ Ext.define('Mdc.view.setup.comservercomports.forms.SERIAL', {
     showData: function (direction) {
         var isInbound = direction === 'Inbound';
 
+        this.down('displayfield[name=globalModemInitStrings]').setVisible(isInbound);
         this.down('displayfield[name=modemInitStrings]').setVisible(isInbound);
         this.down('displayfield[name=addressSelector]').setVisible(isInbound);
         this.down('displayfield[name=serialPortConf]').setVisible(isInbound);

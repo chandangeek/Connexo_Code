@@ -1,14 +1,14 @@
-Ext.define('Mdc.view.setup.comport.ModemInitStrings', {
+Ext.define('Mdc.view.setup.comport.GlobalModemInitStrings', {
     extend: 'Ext.grid.Panel',
-    alias: 'widget.modemInitStrings',
+    alias: 'widget.globalModemInitStrings',
     layout: 'auto',
-    itemId: 'modeminitstringgrid',
+    itemId: 'globalmodeminitstringgrid',
 
     initComponent: function () {
         this.columns = [
             {
                 header: 'Modem init strings',
-                dataIndex: 'modemInitString',
+                dataIndex: 'globalModemInitString',
                 flex:1,
                 editor: 'textfield'
             }

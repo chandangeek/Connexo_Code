@@ -30,6 +30,14 @@ Ext.define('Mdc.model.InboundComPort', {
                 } else {
                     return data.modemInitStrings;
                 }
+            }},
+        {name: 'globalModemInitStrings', type: 'auto',
+            mapping: function (data) {
+                if (!data.globalModemInitStrings){
+                    return [];
+                } else {
+                    return data.globalModemInitStrings;
+                }
             }}
     ],
     associations: [

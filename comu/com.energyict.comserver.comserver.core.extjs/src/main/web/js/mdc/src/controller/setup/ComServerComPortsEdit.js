@@ -242,6 +242,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
             formErrorsPanel = form.down('[name=form-errors]'),
             comPortPool = this.getStore('Mdc.store.AddComPortPools'),
             modemInit = [],
+            globalModemInitStrings = [],
             typeModel,
             record,
             actionType,
@@ -278,10 +279,14 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
             if (values.modemInitStrings) {
                 modemInit = me.parseModemStringToArray(values.modemInitStrings);
             }
+            if (values.globalModemInitStrings) {
+                globalModemInitStrings = me.parseGlobalModemStringToArray(values.globalModemInitStrings);
+            }
             if (!values.useHttps) {
                 record.set('useHttps', false);
             }
             record.set('modemInitStrings', modemInit);
+            record.set('globalModemInitStrings', globalModemInitStrings);
             ids && (record.set('outboundComPortPoolIds', ids));
             record.save({
                 callback: function (records, operation, success) {
@@ -311,6 +316,25 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
         var string = '';
         Ext.Array.each(array, function (value) {
             string += value.modemInitString + ';';
+        });
+
+        return string;
+    },
+
+    parseGlobalModemStringToArray: function (string) {
+        var stringsArray = string.split(';'),
+            returnedArray = [];
+        Ext.Array.each(stringsArray, function (str) {
+            returnedArray.push({'globalModemInitString': str});
+        });
+
+        return returnedArray;
+    },
+
+    parseGlobalModemArrayToString: function (array) {
+        var string = '';
+        Ext.Array.each(array, function (value) {
+            string += value.globalModemInitString + ';';
         });
 
         return string;
@@ -429,6 +453,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
                                 sendDelayUnit = widget.down('#addFormNest').down('#sendDelayUnit'),
                                 atCommandTimeoutCount = widget.down('#addFormNest').down('#atCommandTimeoutCount'),
                                 atCommandTimeoutUnit = widget.down('#addFormNest').down('#atCommandTimeoutUnit'),
+                                globalInitModem = widget.down('#addFormNest').down('textfield[name=globalModemInitStrings]'),
                                 initModem = widget.down('#addFormNest').down('textfield[name=modemInitStrings]');
                             connectTimeoutCount.setValue(recordData.connectTimeout.count);
                             connectTimeoutUnit.setValue(recordData.connectTimeout.timeUnit);
@@ -438,6 +463,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
                             sendDelayUnit.setValue(recordData.delayBeforeSend.timeUnit);
                             atCommandTimeoutCount.setValue(recordData.atCommandTimeout.count);
                             atCommandTimeoutUnit.setValue(recordData.atCommandTimeout.timeUnit);
+                            globalInitModem.setValue(me.parseGlobalModemArrayToString(recordData.globalModemInitStrings));
                             initModem.setValue(me.parseModemArrayToString(recordData.modemInitStrings));
                         }
 
