@@ -252,7 +252,7 @@ public class LoadProfileConfigurationResource {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
         ChannelSpec channelSpec = findChannelSpecByIdOrThrowException(channelId);
-        deviceConfiguration.deleteChannelSpec(channelSpec);
+        deviceConfiguration.removeChannelSpec(channelSpec);
         return Response.ok().build();
     }
 

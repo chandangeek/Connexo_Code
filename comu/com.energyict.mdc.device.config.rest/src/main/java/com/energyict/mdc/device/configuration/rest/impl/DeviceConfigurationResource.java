@@ -2,7 +2,6 @@ package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.rest.util.COPY;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
@@ -205,7 +204,7 @@ public class DeviceConfigurationResource {
         if (logBookSpec == null) {
             throw new TranslatableApplicationException(thesaurus, MessageSeeds.NO_LOGBOOK_TYPE_FOUND, logBookSpecId);
         }
-        deviceConfiguration.deleteLogBookSpec(logBookSpec);
+        deviceConfiguration.removeLogBookSpec(logBookSpec);
         return Response.ok().build();
     }
 

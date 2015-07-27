@@ -290,7 +290,7 @@ public class DeviceTypeResource {
             List<LogBookSpec> logBookSpecs = new ArrayList<>(deviceConfiguration.getLogBookSpecs());
             for (LogBookSpec logBookSpec : logBookSpecs) {
                 if (logBookSpec.getLogBookType().getId() == logBookType.getId()) {
-                    deviceConfiguration.deleteLogBookSpec(logBookSpec);
+                    deviceConfiguration.removeLogBookSpec(logBookSpec);
                     break;
                 }
             }
