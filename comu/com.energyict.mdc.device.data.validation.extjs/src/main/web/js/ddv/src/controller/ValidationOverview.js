@@ -14,7 +14,8 @@ Ext.define('Ddv.controller.ValidationOverview', {
 
     models: [
         'Ddv.model.ValidationOverview',
-        'Ddv.model.ValidationOverviewResult'
+        'Ddv.model.ValidationOverviewResult',
+        'Dsh.view.widget.HeaderSection'
     ],
 
     refs: [
