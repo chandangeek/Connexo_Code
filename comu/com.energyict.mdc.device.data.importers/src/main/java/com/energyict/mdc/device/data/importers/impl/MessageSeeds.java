@@ -30,7 +30,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     DEVICE_ALREADY_IN_THAT_STATE(13, "ImportProcessorDeviceAlreadyInThatState", "Error in line {0}: The device is already in {1} state", Level.WARNING),
     DEVICE_CAN_NOT_BE_MOVED_TO_STATE(13, "ImportProcessorDeviceCanNotBeMovedToState", "Error in line {0}: The device can't be moved to {1} from {2} state", Level.WARNING),
     PRE_TRANSITION_CHECKS_FAILED(14, "ImportProcessorPreTransitionsChecksFailed", "Error in line {0}: Pre-transition check(s) failed: {1}", Level.WARNING),
-    START_VALIDATION_DATE_IS_INCORRECT(14, "ImportProcessorStartValidationDateIsIncorrect", "Error in line {0}: The start validation date has incorrect value: {1}, {2}", Level.WARNING),
+    TRANSITION_ACTION_DATE_IS_INCORRECT(14, "ImportProcessorTransitionActionDateIsIncorrect", "Error in line {0}: The transition action date has incorrect value: {1}, {2}", Level.WARNING),
     ;
 
     private final int number;

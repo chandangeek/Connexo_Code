@@ -2,6 +2,7 @@ package com.energyict.mdc.device.data.importers.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
+import com.energyict.mdc.device.data.importers.impl.devices.commission.DeviceCommissioningImportFactory;
 import com.energyict.mdc.device.data.importers.impl.devices.installation.DeviceInstallationImporterFactory;
 import com.energyict.mdc.device.data.importers.impl.devices.shipment.DeviceShipmentImporterFactory;
 import com.energyict.mdc.device.data.importers.impl.readingsimport.DeviceReadingsImporterFactory;
@@ -36,6 +37,7 @@ public enum TranslationKeys implements TranslationKey {
     DEVICE_READINGS_IMPORTER(DeviceReadingsImporterFactory.NAME, "Device readings importer"),
     DEVICE_SHIPMENT_IMPORTER(DeviceShipmentImporterFactory.NAME, "Devices shipment importer"),
     DEVICE_INSTALLATION_IMPORTER(DeviceInstallationImporterFactory.NAME, "Devices installation importer"),
+    DEVICE_COMMISSIONING_IMPORTER(DeviceCommissioningImportFactory.NAME, "Devices commissioning  importer"),
     ;
 
     private final String key;
