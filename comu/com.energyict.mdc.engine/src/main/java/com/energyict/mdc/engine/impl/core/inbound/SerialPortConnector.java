@@ -99,8 +99,9 @@ public class SerialPortConnector implements InboundComPortConnector {
                 comPort.getAtCommandTimeout(),
                 comPort.getAtCommandTry(),
                 comPort.getModemInitStrings(),
+                comPort.getGlobalModemInitStrings(),
                 comPort.getAddressSelector(),
-                null,   //Use the default line toggle delay
+                null,//Use the default line toggle delay
                 comPort.getPostDialCommands());
         atModemComponent.initializeModem(comPort.getName(), comChannel);
         return atModemComponent;
