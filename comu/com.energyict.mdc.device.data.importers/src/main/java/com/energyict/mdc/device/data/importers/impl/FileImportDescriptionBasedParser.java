@@ -27,10 +27,14 @@ public class FileImportDescriptionBasedParser<T extends FileImportRecord> implem
         if (rawValues.size() < fields.size()){
             throw new FileImportParserException(MessageSeeds.FILE_FORMAT_ERROR, csvRecord.getRecordNumber(), fields.size(), rawValues.size());
         }
+        int repetitiveColumnCount = 0;
         for (int i = 0; i < rawValues.size(); i++) {
             String rawValue = rawValues.get(i);
-            int currentFieldIdx = i < fields.size() ? i : fields.size() - 1;
+            int currentFieldIdx = i < fields.size() ? i : i - (i-1) / repetitiveColumnCount * repetitiveColumnCount;
             FileImportField<?> currentField = fields.get(currentFieldIdx);
+            if (i < fields.size() && currentField.isRepetitive()){
+                repetitiveColumnCount++;
+            }
             if (currentField.isMandatory() && Checks.is(rawValue).emptyOrOnlyWhiteSpace()){
                 throw new FileImportParserException(MessageSeeds.LINE_MISSING_VALUE_ERROR, csvRecord.getRecordNumber(), recordContext.getHeaderColumn(i));
             }
