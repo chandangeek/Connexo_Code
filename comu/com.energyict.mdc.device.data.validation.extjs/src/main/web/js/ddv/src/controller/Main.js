@@ -3,8 +3,8 @@ Ext.define('Ddv.controller.Main', {
 
     requires: [
         'Uni.controller.Navigation',
-        //'Dsh.model.Filterable',
-        'Dsh.view.widget.HeaderSection',
+
+        //'Dsh.view.widget.HeaderSection',
         'Uni.Auth',
     ],
 

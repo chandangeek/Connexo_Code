@@ -1,7 +1,7 @@
 Ext.define('Ddv.view.ValidationOverview', {
     extend: 'Ext.container.Container',
     requires: [
-        'Dsh.view.widget.HeaderSection',
+        //'Dsh.view.widget.HeaderSection',
         'Ddv.view.Setup'
     ],
     alias: 'widget.ddv-validation-overview',

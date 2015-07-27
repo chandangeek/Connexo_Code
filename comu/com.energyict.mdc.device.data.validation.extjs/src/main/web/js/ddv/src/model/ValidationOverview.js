@@ -3,7 +3,7 @@ Ext.define('Ddv.model.ValidationOverview', {
     requires: [
         'Ddv.model.ValidationOverviewResult',
         //'Dsh.model.Filterable'
-        'Dsh.view.widget.HeaderSection'
+        //'Dsh.view.widget.HeaderSection'
     ],
     proxy: {
         type: 'ajax',
