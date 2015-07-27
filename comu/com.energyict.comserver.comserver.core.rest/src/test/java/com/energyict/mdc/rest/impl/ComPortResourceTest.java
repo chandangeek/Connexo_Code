@@ -251,15 +251,21 @@ public class ComPortResourceTest extends ComserverCoreApplicationJerseyTest {
         when(modemBasedInboundComPort.getPostDialCommands()).thenReturn("byebye");
         when(modemBasedInboundComPort.getRingCount()).thenReturn(11);
         when(modemBasedInboundComPort.getModemInitStrings()).thenReturn(Arrays.asList("comme ci", "comme ca"));
+        when(modemBasedInboundComPort.getGlobalModemInitStrings()).thenReturn(Arrays.asList("G1", "G2"));
         when(modemBasedInboundComPort.getAtCommandTimeout()).thenReturn(atCommandTimeout);
         when(modemBasedInboundComPort.getSerialPortConfiguration()).thenReturn(new SerialPortConfiguration("modem inbound", BaudrateValue.BAUDRATE_1200, NrOfDataBits.FIVE, NrOfStopBits.TWO, Parities.EVEN, FlowControl.XONXOFF));
 
         doReturn(Optional.of(modemBasedInboundComPort)).when(engineConfigurationService).findComPort(comPort_id);
         final Map<String, Object> response = target(COMPORTS_RESOURCE_URL + "/" + comPort_id).request().get(Map.class); // Using MAP instead of *Info to resemble JS
-        HashMap<String, String> map = new HashMap<String, String>();
-        HashMap<String, String> map2 = new HashMap<String, String>();
+        HashMap<String, String> map = new HashMap<>();
+        HashMap<String, String> map2 = new HashMap<>();
         map.put("modemInitString", "comme ci");
         map2.put("modemInitString", "comme ca");
+
+        HashMap<String, String> map3 = new HashMap<>();
+        HashMap<String, String> map4 = new HashMap<>();
+        map3.put("globalModemInitString", "G1");
+        map4.put("globalModemInitString", "G2");
         assertThat(response).contains(
                 MapEntry.entry("id", comPort_id),
                 MapEntry.entry("name", "modem inbound"),
@@ -277,6 +283,7 @@ public class ComPortResourceTest extends ComserverCoreApplicationJerseyTest {
                 MapEntry.entry("maximumNumberOfDialErrors", 10),
                 MapEntry.entry("postDialCommands", "byebye"),
                 MapEntry.entry("ringCount", 11),
+                MapEntry.entry("globalModemInitStrings", Arrays.asList(map3, map4)),
                 MapEntry.entry("modemInitStrings", Arrays.asList(map, map2)),
                 MapEntry.entry("baudrate", "1200"),
                 MapEntry.entry("nrOfDataBits", "5"),

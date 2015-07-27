@@ -22,7 +22,8 @@ import java.util.Map;
 
 public class ModemInboundComPortInfo extends InboundComPortInfo<ModemBasedInboundComPort, ModemBasedInboundComPort.ModemBasedInboundComPortBuilder> {
 
-    public static final String MAP_KEY = "modemInitString";
+    public static final String MODEM_INIT_MAP_KEY = "modemInitString";
+    public static final String GLOBAL_MODEM_INIT_MAP_KEY = "globalModemInitString";
 
     public ModemInboundComPortInfo() {
         this.comPortType = ComPortType.SERIAL;
@@ -37,7 +38,8 @@ public class ModemInboundComPortInfo extends InboundComPortInfo<ModemBasedInboun
         this.delayBeforeSend = TimeDurationInfo.of(comPort.getDelayBeforeSend());
         this.atCommandTimeout = TimeDurationInfo.of(comPort.getAtCommandTimeout());
         this.atCommandTry = comPort.getAtCommandTry();
-        this.modemInitStrings = asMap(MAP_KEY, comPort.getModemInitStrings());
+        this.modemInitStrings = asMap(MODEM_INIT_MAP_KEY, comPort.getModemInitStrings());
+        this.globalModemInitStrings = asMap(GLOBAL_MODEM_INIT_MAP_KEY, comPort.getGlobalModemInitStrings());
         this.addressSelector = comPort.getAddressSelector();
         this.postDialCommands = comPort.getPostDialCommands();
         if (comPort.getSerialPortConfiguration()!=null) {
@@ -82,7 +84,11 @@ public class ModemInboundComPortInfo extends InboundComPortInfo<ModemBasedInboun
         }
         Optional<List<Map<String, String>>> modemInitStrings = Optional.ofNullable(this.modemInitStrings);
         if(modemInitStrings.isPresent()) {
-            source.setModemInitStrings(fromMaps(MAP_KEY,modemInitStrings.get()));
+            source.setModemInitStrings(fromMaps(MODEM_INIT_MAP_KEY,modemInitStrings.get()));
+        }
+        Optional<List<Map<String, String>>> globalModemInitStrings = Optional.ofNullable(this.globalModemInitStrings);
+        if(globalModemInitStrings.isPresent()){
+            source.setGlobalModemInitStrings(fromMaps(GLOBAL_MODEM_INIT_MAP_KEY, globalModemInitStrings.get()));
         }
         Optional<String> addressSelector = Optional.ofNullable(this.addressSelector);
         if(addressSelector.isPresent()) {
@@ -133,7 +139,8 @@ public class ModemInboundComPortInfo extends InboundComPortInfo<ModemBasedInboun
             builder.delayBeforeSend(delayBeforeSend.get().asTimeDuration());
         }
         builder.atCommandTry(this.atCommandTry);
-        builder.atModemInitStrings(fromMaps(MAP_KEY, this.modemInitStrings));
+        builder.atModemInitStrings(fromMaps(MODEM_INIT_MAP_KEY, this.modemInitStrings));
+        builder.globalAtModemInitStrings(fromMaps(GLOBAL_MODEM_INIT_MAP_KEY, this.globalModemInitStrings));
         builder.addressSelector(this.addressSelector);
         builder.postDialCommands(this.postDialCommands);
         return super.build(builder, engineConfigurationService);

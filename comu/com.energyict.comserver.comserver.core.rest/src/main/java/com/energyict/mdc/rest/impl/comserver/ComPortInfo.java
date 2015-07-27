@@ -52,6 +52,7 @@ public abstract class ComPortInfo<T extends ComPort, B extends ComPort.Builder<B
     public TimeDurationInfo atCommandTimeout;
     public BigDecimal atCommandTry;
     public List<Map<String, String>> modemInitStrings;
+    public List<Map<String, String>> globalModemInitStrings;
     public String addressSelector;
     public String postDialCommands;
     @XmlJavaTypeAdapter(BaudrateAdapter.class)

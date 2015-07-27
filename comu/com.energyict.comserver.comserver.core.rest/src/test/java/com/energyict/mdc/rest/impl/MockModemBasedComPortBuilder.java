@@ -15,6 +15,7 @@ public class MockModemBasedComPortBuilder implements ModemBasedInboundComPort.Mo
     public TimeDuration atCommandTimeout;
     public BigDecimal atCommandTry;
     public List<String> initStrings;
+    public List<String> globalInitStrings;
     public String addressSelector;
     public String postDialCommands;
     public InboundComPortPool comPortPool;
@@ -43,6 +44,12 @@ public class MockModemBasedComPortBuilder implements ModemBasedInboundComPort.Mo
     @Override
     public ModemBasedInboundComPort.ModemBasedInboundComPortBuilder atModemInitStrings(List<String> initStrings) {
         this.initStrings = initStrings;
+        return this;
+    }
+
+    @Override
+    public ModemBasedInboundComPort.ModemBasedInboundComPortBuilder globalAtModemInitStrings(List<String> globalAtModemInitStrings) {
+        this.globalInitStrings = globalAtModemInitStrings;
         return this;
     }
 
