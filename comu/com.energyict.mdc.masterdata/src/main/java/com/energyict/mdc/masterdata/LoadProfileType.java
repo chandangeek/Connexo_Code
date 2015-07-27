@@ -5,6 +5,7 @@ import com.energyict.mdc.common.ObisCode;
 
 import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.util.HasName;
 
 import java.util.List;
 import java.util.Optional;
@@ -15,21 +16,7 @@ import java.util.Optional;
  * Time: 15:55:54
  */
 @ProviderType
-public interface LoadProfileType extends HasId {
-
-    /**
-     * Returns number that uniquely identifies this LoadProfileType.
-     *
-     * @return the id
-     */
-    public long getId();
-
-    /**
-     * Returns the name that uniquely identifies this LoadProfileType.
-     *
-     * @return the name
-     */
-    public String getName();
+public interface LoadProfileType extends HasId, HasName {
 
     public void setName (String newName);
 
@@ -61,7 +48,7 @@ public interface LoadProfileType extends HasId {
     public void setInterval(TimeDuration timeDuration);
 
     /**
-     * Gets the list of ChannelTypes for this LoadProfileType
+     * Gets the list of ChannelTypes for this LoadProfileType.
      *
      * @return a list of ChannelTypes
      */

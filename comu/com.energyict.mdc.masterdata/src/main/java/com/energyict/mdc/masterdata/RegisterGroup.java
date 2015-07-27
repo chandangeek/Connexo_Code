@@ -3,6 +3,7 @@ package com.energyict.mdc.masterdata;
 import com.energyict.mdc.common.HasId;
 
 import aQute.bnd.annotation.ProviderType;
+import com.elster.jupiter.util.HasName;
 
 import java.util.List;
 
@@ -12,21 +13,7 @@ import java.util.List;
  * @author Geert
  */
 @ProviderType
-public interface RegisterGroup extends HasId {
-
-    /**
-     * Returns number that uniquely identifies this RegisterGroup.
-     *
-     * @return the id
-     */
-    public long getId();
-
-    /**
-     * Returns the name that uniquely identifies this RegisterGroup.
-     *
-     * @return the name
-     */
-    public String getName();
+public interface RegisterGroup extends HasId, HasName {
 
     public void setName (String newName);
 
