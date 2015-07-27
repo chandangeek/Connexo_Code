@@ -139,10 +139,6 @@ public interface ComServer extends HasId, HasName {
         }
     }
 
-    public long getId();
-
-    public String getName();
-
     public void setName(String name);
 
     /**
