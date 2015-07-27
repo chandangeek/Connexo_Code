@@ -26,19 +26,10 @@ public interface DeviceConfiguration extends HasId, HasName, DeviceCommunication
 
     void setName(String name);
 
-    /**
-     * Returns a description of the receiver
-     *
-     * @return description
-     */
     String getDescription();
 
     void setDescription(String description);
-    /**
-     * Returns the <code>DeviceType</code> this device config belongs to
-     *
-     * @return the <code>DeviceType</code> this device config belongs to
-     */
+
     DeviceType getDeviceType();
 
     List<RegisterSpec> getRegisterSpecs();
@@ -61,7 +52,7 @@ public interface DeviceConfiguration extends HasId, HasName, DeviceCommunication
 
     ChannelSpec.ChannelSpecUpdater getChannelSpecUpdaterFor(ChannelSpec channelSpec);
 
-    void deleteChannelSpec(ChannelSpec channelSpec);
+    void removeChannelSpec(ChannelSpec channelSpec);
 
     List<LoadProfileSpec> getLoadProfileSpecs();
 
@@ -77,7 +68,7 @@ public interface DeviceConfiguration extends HasId, HasName, DeviceCommunication
 
     LogBookSpec.LogBookSpecUpdater getLogBookSpecUpdaterFor(LogBookSpec logBookSpec);
 
-    void deleteLogBookSpec(LogBookSpec logBookSpec);
+    void removeLogBookSpec(LogBookSpec logBookSpec);
 
     /**
      * Tests if the receiver is active.

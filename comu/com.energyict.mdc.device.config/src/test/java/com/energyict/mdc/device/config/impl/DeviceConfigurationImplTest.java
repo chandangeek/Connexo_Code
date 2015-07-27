@@ -5,6 +5,7 @@ import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceCommunicationFunction;
 import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceMessageEnablement;
 import com.energyict.mdc.device.config.DeviceMessageUserAction;
 import com.energyict.mdc.device.config.DeviceType;
@@ -20,13 +21,13 @@ import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
+import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import com.elster.jupiter.cbo.Accumulation;
 import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
-import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
@@ -38,13 +39,12 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.*;
-import org.junit.rules.*;
 import org.mockito.Matchers;
 
 import static com.elster.jupiter.cbo.Commodity.ELECTRICITY_SECONDARY_METERED;
@@ -68,6 +68,62 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
 
     @Rule
     public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
+
+    @Test
+    @Transactional
+    public void testAddSecondLoadProfileSpec() throws SQLException {
+        final TimeDuration INTERVAL_15_MINUTES = new TimeDuration(15, TimeDuration.TimeUnit.MINUTES);
+        final ObisCode OBIS_CODE = ObisCode.fromString("1.0.99.1.0.255");
+        final ObisCode OBIS_CODE2 = ObisCode.fromString("1.0.99.2.0.255");
+
+        MasterDataService masterDataService = PersistenceTest.inMemoryPersistence.getMasterDataService();
+        DeviceConfigurationService deviceConfigurationService = PersistenceTest.inMemoryPersistence.getDeviceConfigurationService();
+        String loadProfileTypeName = "testAddSecondLoadProfileSpec1";
+        String loadProfileTypeName2 = "testAddSecondLoadProfileSpec2";
+
+        LoadProfileType loadProfileType;
+        ReadingType readingType = setupReadingTypeInExistingTransaction();
+
+        // Setup RegisterType
+        RegisterType registerType = masterDataService.findRegisterTypeByReadingType(readingType).get();
+
+        // Setup LoadProfileType 1
+        loadProfileType = masterDataService.newLoadProfileType(loadProfileTypeName, OBIS_CODE, INTERVAL_15_MINUTES, Arrays.asList(registerType));
+        loadProfileType.setDescription("For testing purposes only");
+        ChannelType channelTypeForRegisterType = loadProfileType.findChannelType(registerType).get();
+        loadProfileType.save();
+
+        // Setup LoadProfileType 2
+        LoadProfileType loadProfileType2 = masterDataService.newLoadProfileType(loadProfileTypeName2, OBIS_CODE2, INTERVAL_15_MINUTES, Arrays.asList(registerType));
+        loadProfileType2.setDescription("For testing purposes only");
+        loadProfileType2.save();
+
+        // Setup DeviceType with a DeviceConfiguration and LoadProfileSpec and ChannelSpec that uses the LoadProfileType
+        DeviceType deviceType = deviceConfigurationService.newDeviceType("testUpdateIntervalWhileInUse", this.deviceProtocolPluggableClass);
+        deviceType.addRegisterType(registerType);
+        deviceType.addLoadProfileType(loadProfileType);
+        deviceType.addLoadProfileType(loadProfileType2);
+        deviceType.save();
+        DeviceType.DeviceConfigurationBuilder configurationBuilder = deviceType.newConfiguration("Configuration");
+        LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = configurationBuilder.newLoadProfileSpec(loadProfileType);
+        configurationBuilder.newChannelSpec(channelTypeForRegisterType, loadProfileSpecBuilder);
+        LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder2 = configurationBuilder.newLoadProfileSpec(loadProfileType2);
+
+        // Business method
+        configurationBuilder.add();
+
+        // Asserts
+    }
+
+    private ReadingType setupReadingTypeInExistingTransaction() {
+        String code = ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED)
+                .flow(FORWARD)
+                .measure(ENERGY)
+                .in(KILO, WATTHOUR)
+                .accumulate(Accumulation.BULKQUANTITY)
+                .code();
+        return PersistenceTest.inMemoryPersistence.getMeteringService().getReadingType(code).get();
+    }
 
     @Test
     @Transactional

@@ -1,15 +1,5 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.associations.IsPresent;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.validation.ValidationRule;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -26,6 +16,17 @@ import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.MeasurementType;
 import com.energyict.mdc.protocol.api.device.ReadingMethod;
 import com.energyict.mdc.protocol.api.device.ValueCalculationMethod;
+
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.IsPresent;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.validation.ValidationRule;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -51,7 +52,7 @@ public class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements 
     private final Reference<DeviceConfiguration> deviceConfiguration = ValueReference.absent();
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CHANNEL_SPEC_CHANNEL_TYPE_IS_REQUIRED + "}")
     private final Reference<ChannelType> channelType = ValueReference.absent();
-    private final Reference<LoadProfileSpec> loadProfileSpec = ValueReference.absent();
+    private final Reference<LoadProfileSpecImpl> loadProfileSpec = ValueReference.absent();
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CHANNEL_SPEC_READING_METHOD_IS_REQUIRED + "}")
     private ReadingMethod readingMethod = ReadingMethod.ENGINEERING_UNIT;
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CHANNEL_SPEC_VALUE_CALCULATION_METHOD_IS_REQUIRED + "}")
@@ -76,7 +77,7 @@ public class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements 
         this.deviceConfigurationService = deviceConfigurationService;
     }
 
-    private ChannelSpecImpl initialize(DeviceConfiguration deviceConfiguration, ChannelType channelType, LoadProfileSpec loadProfileSpec) {
+    private ChannelSpecImpl initialize(DeviceConfiguration deviceConfiguration, ChannelType channelType, LoadProfileSpecImpl loadProfileSpec) {
         this.initialize(deviceConfiguration, channelType);
         setLoadProfileSpec(loadProfileSpec);
         return this;
@@ -224,7 +225,7 @@ public class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements 
 
     @Override
     protected void doDelete() {
-        getDeviceConfiguration().deleteChannelSpec(this);
+        getDeviceConfiguration().removeChannelSpec(this);
     }
 
     private void validateUpdate() {
@@ -302,8 +303,7 @@ public class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements 
         this.valueCalculationMethod = valueCalculationMethod;
     }
 
-    @Override
-    public void setLoadProfileSpec(LoadProfileSpec loadProfileSpec) {
+    public void setLoadProfileSpec(LoadProfileSpecImpl loadProfileSpec) {
         validateLoadProfileSpecForUpdate(loadProfileSpec);
         this.loadProfileSpec.set(loadProfileSpec);
         setInterval(getLoadProfileSpec().getInterval());    // if the channel is linked to a LoadProfileSpec, then the interval must be the same as that of the LoadProfileType
@@ -322,9 +322,11 @@ public class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements 
 
     abstract static class ChannelSpecBuilder implements ChannelSpec.ChannelSpecBuilder {
 
+        LoadProfileSpecImpl loadProfileSpec;
         final ChannelSpecImpl channelSpec;
 
-        ChannelSpecBuilder(Provider<ChannelSpecImpl> channelSpecProvider, DeviceConfiguration deviceConfiguration, ChannelType channelType, LoadProfileSpec loadProfileSpec) {
+        ChannelSpecBuilder(Provider<ChannelSpecImpl> channelSpecProvider, DeviceConfiguration deviceConfiguration, ChannelType channelType, LoadProfileSpecImpl loadProfileSpec) {
+            this.loadProfileSpec = loadProfileSpec;
             this.channelSpec = channelSpecProvider.get().initialize(deviceConfiguration, channelType, loadProfileSpec);
         }
 
@@ -335,7 +337,8 @@ public class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements 
 
         @Override
         public void loadProfileSpecBuildingProcessCompleted(LoadProfileSpec loadProfileSpec) {
-            this.channelSpec.setLoadProfileSpec(loadProfileSpec);
+            this.loadProfileSpec = (LoadProfileSpecImpl) loadProfileSpec;
+            this.channelSpec.setLoadProfileSpec(this.loadProfileSpec);
         }
 
         @Override
@@ -378,6 +381,7 @@ public class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements 
         public ChannelSpec add() {
             this.channelSpec.validateBeforeAdd();
             this.channelSpec.validate();
+            this.loadProfileSpec.addChannelSpec(this.channelSpec);
             return this.channelSpec;
         }
     }

@@ -20,8 +20,6 @@ import java.util.List;
 @ProviderType
 public interface RegisterSpec extends HasId {
 
-    public long getId();
-
     /**
      * Return the spec's <code>DeviceConfiguration</code>
      *

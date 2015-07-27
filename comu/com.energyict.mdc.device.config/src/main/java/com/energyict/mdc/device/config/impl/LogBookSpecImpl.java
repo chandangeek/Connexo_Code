@@ -107,7 +107,7 @@ public class LogBookSpecImpl extends PersistentIdObject<LogBookSpec> implements 
 
     @Override
     protected void doDelete() {
-        this.getDeviceConfiguration().deleteLogBookSpec(this);
+        this.getDeviceConfiguration().removeLogBookSpec(this);
     }
 
     @Override

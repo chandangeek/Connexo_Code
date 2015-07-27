@@ -14,13 +14,6 @@ import aQute.bnd.annotation.ProviderType;
 @ProviderType
 public interface LogBookSpec extends HasId {
 
-    /**
-     * Returns the object's unique id
-     *
-     * @return the id
-     */
-    public long getId();
-
     public DeviceConfiguration getDeviceConfiguration();
 
     public LogBookType getLogBookType();
@@ -51,14 +44,14 @@ public interface LogBookSpec extends HasId {
     void save();
 
     /**
-     * Defines a Builder interface to construct a {@link LogBookSpec}
+     * Defines a Builder interface to construct a {@link LogBookSpec}.
      */
     interface LogBookSpecBuilder {
 
         LogBookSpecBuilder setOverruledObisCode(ObisCode overruledObisCode);
 
         /**
-         * Does final validation and <i>creates</i> the {@link LogBookSpec}
+         * Does final validation and <i>creates</i> the {@link LogBookSpec}.
          *
          * @return the LogBookSpec
          */
@@ -66,15 +59,16 @@ public interface LogBookSpec extends HasId {
     }
 
     /**
-     * Defines an <i>update</i> component to update a {@link LogBookSpec} implementation
+     * Defines an <i>update</i> component to update a {@link LogBookSpec} implementation.
      */
     interface LogBookSpecUpdater {
 
         LogBookSpecUpdater setOverruledObisCode(ObisCode overruledObisCode);
 
         /**
-         * Updates the LogBookSpec, preferably via his DeviceConfiguration
+         * Updates the LogBookSpec.
          */
         void update();
     }
+
 }

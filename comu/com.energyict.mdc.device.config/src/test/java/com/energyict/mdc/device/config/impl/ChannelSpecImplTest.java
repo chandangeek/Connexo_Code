@@ -41,7 +41,7 @@ import static com.elster.jupiter.cbo.ReadingTypeUnit.WATTHOUR;
 import static org.fest.assertions.Assertions.assertThat;
 
 /**
- * Tests the {@link ChannelSpecImpl} component
+ * Tests the {@link ChannelSpecImpl} component.
  * Copyrights EnergyICT
  * Date: 17/02/14
  * Time: 15:48
@@ -411,7 +411,7 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     public void successfulDeleteTest() {
         LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
         ChannelSpec channelSpec = createDefaultChannelSpec(loadProfileSpec);
-        getReloadedDeviceConfiguration().deleteChannelSpec(channelSpec);
+        getReloadedDeviceConfiguration().removeChannelSpec(channelSpec);
 
         assertThat(getReloadedDeviceConfiguration().getChannelSpecs()).hasSize(0);
     }
@@ -422,7 +422,7 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
         ChannelSpec channelSpec = createDefaultChannelSpec(loadProfileSpec);
         getReloadedDeviceConfiguration().activate();
-        getReloadedDeviceConfiguration().deleteChannelSpec(channelSpec);
+        getReloadedDeviceConfiguration().removeChannelSpec(channelSpec);
     }
 
 

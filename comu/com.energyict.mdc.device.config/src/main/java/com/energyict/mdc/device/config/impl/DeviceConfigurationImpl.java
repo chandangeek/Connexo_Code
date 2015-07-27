@@ -12,7 +12,6 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.collections.KPermutation;
 import com.elster.jupiter.validation.ValidationRule;
@@ -105,9 +104,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     @Valid
     private List<RegisterSpec> registerSpecs = new ArrayList<>();
     @Valid
-    private List<ChannelSpec> channelSpecs = new ArrayList<>();
-    @Valid
-    private List<LoadProfileSpec> loadProfileSpecs = new ArrayList<>();
+    private List<LoadProfileSpecImpl> loadProfileSpecs = new ArrayList<>();
     @Valid
     private List<LogBookSpec> logBookSpecs = new ArrayList<>();
     private List<SecurityPropertySet> securityPropertySets = new ArrayList<>();
@@ -138,7 +135,6 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     private final Provider<TextualRegisterSpecImpl> textualRegisterSpecProvider;
     private final Provider<LogBookSpecImpl> logBookSpecProvider;
     private final Provider<ChannelSpecImpl> channelSpecProvider;
-    private final DeviceConfigurationService deviceConfigurationService;
     private final SchedulingService schedulingService;
     private final ThreadPrincipalService threadPrincipalService;
 
@@ -158,7 +154,6 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
                         Provider<ChannelSpecImpl> channelSpecProvider,
                         Provider<DeviceConfValidationRuleSetUsageImpl> deviceConfValidationRuleSetUsageFactory,
                         Provider<DeviceConfigurationEstimationRuleSetUsageImpl> deviceConfEstimationRuleSetUsageFactory,
-                        DeviceConfigurationService deviceConfigurationService,
                         SchedulingService schedulingService,
                         ThreadPrincipalService threadPrincipalService) {
         super(DeviceConfiguration.class, dataModel, eventService, thesaurus);
@@ -169,7 +164,6 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         this.channelSpecProvider = channelSpecProvider;
         this.deviceConfValidationRuleSetUsageFactory = deviceConfValidationRuleSetUsageFactory;
         this.deviceConfigEstimationRuleSetUsageFactory = deviceConfEstimationRuleSetUsageFactory;
-        this.deviceConfigurationService = deviceConfigurationService;
         this.schedulingService = schedulingService;
         this.threadPrincipalService = threadPrincipalService;
     }
@@ -328,7 +322,6 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     @Override
     public void prepareDelete() {
         this.registerSpecs.clear();
-        this.channelSpecs.clear();
         this.logBookSpecs.clear();
         this.configurationPropertiesList.clear();
         this.deviceConfValidationRuleSetUsages.clear();
@@ -490,11 +483,18 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
 
     @Override
     public List<ChannelSpec> getChannelSpecs() {
-        return Collections.unmodifiableList(this.channelSpecs);
+        return this.loadProfileSpecs
+                .stream()
+                .flatMap(each -> each.getChannelSpecs().stream())
+                .collect(Collectors.toList());
     }
 
     @Override
     public ChannelSpec.ChannelSpecBuilder createChannelSpec(ChannelType channelType, LoadProfileSpec loadProfileSpec) {
+        return this.createChannelSpec(channelType, (LoadProfileSpecImpl) loadProfileSpec);
+    }
+
+    private ChannelSpec.ChannelSpecBuilder createChannelSpec(ChannelType channelType, LoadProfileSpecImpl loadProfileSpec) {
         return new ChannelSpecBuilderForConfig(channelSpecProvider, this, channelType, loadProfileSpec);
     }
 
@@ -505,7 +505,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
 
     class ChannelSpecBuilderForConfig extends ChannelSpecImpl.ChannelSpecBuilder {
 
-        ChannelSpecBuilderForConfig(Provider<ChannelSpecImpl> channelSpecProvider, DeviceConfiguration deviceConfiguration, ChannelType channelType, LoadProfileSpec loadProfileSpec) {
+        ChannelSpecBuilderForConfig(Provider<ChannelSpecImpl> channelSpecProvider, DeviceConfiguration deviceConfiguration, ChannelType channelType, LoadProfileSpecImpl loadProfileSpec) {
             super(channelSpecProvider, deviceConfiguration, channelType, loadProfileSpec);
         }
 
@@ -518,7 +518,6 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
             ChannelSpec channelSpec = super.add();
             validateActiveDeviceConfiguration(CannotAddToActiveDeviceConfigurationException.aNewChannelSpec(getThesaurus()));
             validateUniqueChannelSpecPerLoadProfileSpec(channelSpec);
-            DeviceConfigurationImpl.this.channelSpecs.add(channelSpec);
             return channelSpec;
         }
     }
@@ -542,7 +541,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     }
 
     private void validateUniqueChannelSpecPerLoadProfileSpec(ChannelSpec channelSpec) {
-        for (ChannelSpec spec : channelSpecs) {
+        for (ChannelSpec spec : getChannelSpecs()) {
             if (!isSameIdObject(spec, channelSpec)) {
                 if (channelSpec.getLoadProfileSpec() == null) {
                     if (spec.getLoadProfileSpec() == null && channelSpec.getDeviceObisCode().equals(spec.getDeviceObisCode())) {
@@ -557,13 +556,14 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         }
     }
 
-    public void deleteChannelSpec(ChannelSpec channelSpec) {
+    public void removeChannelSpec(ChannelSpec channelSpec) {
         if (isActive()) {
             throw CannotDeleteFromActiveDeviceConfigurationException.forChannelSpec(this.getThesaurus(), channelSpec, this);
         }
         channelSpec.validateDelete();
-        removeFromHasIdList(this.channelSpecs, channelSpec);
-        this.getEventService().postEvent(EventType.DEVICETYPE_DELETED.topic(), channelSpec);
+        ServerLoadProfileSpec loadProfileSpec = (ServerLoadProfileSpec) channelSpec.getLoadProfileSpec();
+        loadProfileSpec.removeChannelSpec(channelSpec);
+        this.getEventService().postEvent(EventType.CHANNELSPEC_DELETED.topic(), channelSpec);
     }
 
     @Override
@@ -583,7 +583,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         }
 
         public LoadProfileSpec add() {
-            LoadProfileSpec loadProfileSpec = super.add();
+            LoadProfileSpecImpl loadProfileSpec = (LoadProfileSpecImpl) super.add();
             validateActiveDeviceConfiguration(CannotAddToActiveDeviceConfigurationException.aNewLoadProfileSpec(getThesaurus()));
             validateUniqueLoadProfileType(loadProfileSpec);
             validateUniqueLoadProfileObisCode(loadProfileSpec);
@@ -705,7 +705,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         }
     }
 
-    public void deleteLogBookSpec(LogBookSpec logBookSpec) {
+    public void removeLogBookSpec(LogBookSpec logBookSpec) {
         if (isActive()) {
             throw CannotDeleteFromActiveDeviceConfigurationException.forLogbookSpec(this.getThesaurus(), logBookSpec, this);
         }

@@ -29,7 +29,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 /**
- * Tests the {@link LoadProfileSpecImpl} component
+ * Tests the {@link LoadProfileSpecImpl} component.
  * <p/>
  * Copyrights EnergyICT
  * Date: 17/02/14
