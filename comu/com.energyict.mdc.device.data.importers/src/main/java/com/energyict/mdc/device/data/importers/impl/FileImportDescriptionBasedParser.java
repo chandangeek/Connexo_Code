@@ -29,24 +29,23 @@ public class FileImportDescriptionBasedParser<T extends FileImportRecord> implem
             throw new FileImportParserException(MessageSeeds.FILE_FORMAT_ERROR, csvRecord.getRecordNumber(), fields.size(), rawValues.size());
         }
         int repetitiveColumnCount = 0;
-        for (int i = 0; i < rawValues.size(); i++) {
+        for (int i = 0; i < rawValues.size() && (i < fields.size() || repetitiveColumnCount > 0); i++) {
             String rawValue = rawValues.get(i);
+            // note: here we use division without remnant
             int currentFieldIdx = i < fields.size() ? i : i - (i-1) / repetitiveColumnCount * repetitiveColumnCount;
-            if (currentFieldIdx < fields.size()) {
-                FileImportField<?> currentField = fields.get(currentFieldIdx);
-                if (i < fields.size() && currentField.isRepetitive()) {
-                    repetitiveColumnCount++;
-                }
-                if (currentField.isMandatory() && Checks.is(rawValue).emptyOrOnlyWhiteSpace()) {
-                    throw new FileImportParserException(MessageSeeds.LINE_MISSING_VALUE_ERROR, csvRecord.getRecordNumber(), recordContext.getHeaderColumn(i));
-                }
-                Consumer resultConsumer = currentField.getResultConsumer();
-                try {
-                    resultConsumer.accept(currentField.getParser().parse(rawValue));
-                } catch (ValueParserException ex) {
-                    throw new FileImportParserException(MessageSeeds.LINE_FORMAT_ERROR,
-                            csvRecord.getRecordNumber(), recordContext.getHeaderColumn(i), ex.getExpected());
-                }
+            FileImportField<?> currentField = fields.get(currentFieldIdx);
+            if (i < fields.size() && currentField.isRepetitive()) {
+                repetitiveColumnCount++;
+            }
+            if (currentField.isMandatory() && Checks.is(rawValue).emptyOrOnlyWhiteSpace()) {
+                throw new FileImportParserException(MessageSeeds.LINE_MISSING_VALUE_ERROR, csvRecord.getRecordNumber(), recordContext.getHeaderColumn(i));
+            }
+            Consumer resultConsumer = currentField.getResultConsumer();
+            try {
+                resultConsumer.accept(currentField.getParser().parse(rawValue));
+            } catch (ValueParserException ex) {
+                throw new FileImportParserException(MessageSeeds.LINE_FORMAT_ERROR,
+                        csvRecord.getRecordNumber(), recordContext.getHeaderColumn(i), ex.getExpected());
             }
         }
         return record;
