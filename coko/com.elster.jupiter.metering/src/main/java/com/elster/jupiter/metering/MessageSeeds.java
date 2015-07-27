@@ -18,7 +18,9 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     CANNOT_DELETE_METER_METER_ACTIVATIONS_EXIST(2005, "meter.cannot.delete.with.activations", "Cannot delete meter {0} because meter activations are linked to the meter", Level.SEVERE),
     READING_TIMESTAMP_NOT_IN_MEASUREMENT_PERIOD(2006, "reading.timesatmp.not.in.measurement.period", "Measurement time should be in measurement period", Level.SEVERE),
     METER_ALREADY_ACTIVE(2007, "meter.alreadyactive", "Meter {0} is already active at {1}", Level.SEVERE),
-    METER_ALREADY_LINKED_TO_USAGEPOINT(2008, "meter.alreadyhasusagepoint", "Meter {0} is already linked to a usage point {1}, cannot link to another.", Level.SEVERE);
+    METER_ALREADY_LINKED_TO_USAGEPOINT(2008, "meter.alreadyhasusagepoint", "Meter {0} is already linked to a usage point {1}, cannot link to another.", Level.SEVERE),
+	
+    DUPLICATE_USAGEPOINT(3001, Constants.DUPLICATE_USAGEPOINT, "Name must be unique", Level.SEVERE);
 
     private final int number;
     private final String key;
@@ -65,5 +67,10 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     public void log(Logger logger, Thesaurus thesaurus, Throwable t, Object... args) {
         NlsMessageFormat format = thesaurus.getFormat(this);
         logger.log(getLevel(), format.format(args), t);
+    }
+    
+    public enum Constants {
+    	;
+		public static final String DUPLICATE_USAGEPOINT = "usagepoint.namealreadyexists";
     }
 }

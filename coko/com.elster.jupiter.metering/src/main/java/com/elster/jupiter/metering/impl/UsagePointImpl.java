@@ -11,11 +11,13 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 
 import com.elster.jupiter.cbo.MarketRoleKind;
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.ElectricityDetailBuilder;
 import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.GasDetailBuilder;
+import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingContainer;
@@ -42,6 +44,8 @@ import com.elster.jupiter.util.time.Interval;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
 
+
+@UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_USAGEPOINT + "}")
 public class UsagePointImpl implements UsagePoint {
 	// persistent fields
 	private long id;
@@ -291,10 +295,10 @@ public class UsagePointImpl implements UsagePoint {
 	@Override
 	public void save() {
 		if (id == 0) {
-			dataModel.persist(this);
+			Save.CREATE.save(dataModel, this);
             eventService.postEvent(EventType.USAGEPOINT_CREATED.topic(), this);
 		} else {
-            dataModel.update(this);
+			Save.UPDATE.save(dataModel, this);
             eventService.postEvent(EventType.USAGEPOINT_UPDATED.topic(), this);
 		}
 	}
