@@ -56,14 +56,14 @@ Ext.define('Idv.controller.history.Workspace', {
                             }
                         }
                     }
-                },
+                }/*,
                 datavalidationoverview: {
                     title: Uni.I18n.translate('validation.validationOverview.title', 'DDV', 'Validation overview'),
                     route: 'datavalidationoverview',
                     controller: 'Ddv.controller.ValidationOverview',
                     action: 'showOverview',
                     filter: 'Ddv.model.ValidationOverviewFilter'
-                }
+                }*/
             }
 
         }

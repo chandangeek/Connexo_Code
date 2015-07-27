@@ -13,8 +13,8 @@ Ext.define('Idv.controller.Main', {
 
         'Cfg.privileges.Validation',
         //'Ddv.controller.ValidationOverview',
-        'Ddv.controller.Main',
-        'Ddv.model.ValidationOverviewFilter'
+        //'Ddv.controller.Main',
+        //'Ddv.model.ValidationOverviewFilter'
 
     ],
 
@@ -76,14 +76,14 @@ Ext.define('Idv.controller.Main', {
                     href: router.getRoute('workspace/datavalidationissues').buildUrl({}, {myopenissues: true})
                 });
             }
-
+/*
             if (Cfg.privileges.Validation.canView()) {
                 items.push( {
                     text: Uni.I18n.translate('validation.validationOverview.title', 'DDV', 'Validation overview'),
                     href: '#/workspace/datavalidationoverview'
                 });
             }
-
+*/
             dataCollection = Ext.create('Uni.model.PortalItem', {
                 title: 'Data validation',
                 portal: 'workspace',
