@@ -1,6 +1,5 @@
 package com.energyict.protocols.impl.channels.serial.direct.rxtx;
 
-import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.SerialComChannel;
 import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.io.SerialPortConfiguration;
