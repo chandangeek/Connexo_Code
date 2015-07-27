@@ -2,8 +2,8 @@ Ext.define('Ddv.controller.ValidationOverview', {
     extend: 'Ext.app.Controller',
 
     requires: [
-        'Dsh.model.Filterable',
-        'Dsh.view.widget.HeaderSection'
+        //'Dsh.model.Filterable',
+        //'Dsh.view.widget.HeaderSection'
     ],
 
     views: [
@@ -14,8 +14,8 @@ Ext.define('Ddv.controller.ValidationOverview', {
     ],
 
     models: [
-        'Ddv.model.ValidationOverview',
-        'Ddv.model.ValidationOverviewResult',
+        'Ddv.model.ValidationOverview'//,
+        //'Ddv.model.ValidationOverviewResult',
 
     ],
 

@@ -9,8 +9,8 @@
     "format": "1",
     "local": true,
     "requires": [
-		"com.elster.jupiter.unifyingjs",
-        "com.energyict.comserver.comserver.core.extjs",
-        "com.energyict.mdc.dashboard.extjs"
+		"com.elster.jupiter.unifyingjs"//,
+        //"com.energyict.comserver.comserver.core.extjs"
+
     ]
 }
