@@ -6,6 +6,8 @@ import com.energyict.mdc.device.data.importers.impl.AbstractDeviceDataFileImport
 import com.energyict.mdc.device.data.importers.impl.DeviceDataCsvImporter;
 import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterContext;
 import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty;
+import com.energyict.mdc.device.data.importers.impl.FileImportDescriptionBasedParser;
+import com.energyict.mdc.device.data.importers.impl.FileImportParser;
 import com.energyict.mdc.device.data.importers.impl.TranslationKeys;
 import com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat;
 import org.osgi.service.component.annotations.Component;
@@ -16,20 +18,19 @@ import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
 
-import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.DATE_FORMAT;
-import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.DELIMITER;
-import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.NUMBER_FORMAT;
-import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.TIME_ZONE;
+import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.*;
 
 @Component(name = "com.energyict.mdc.device.data.importers.impl.DeviceReadingsImporterFactory",
         service = FileImporterFactory.class,
         immediate = true)
 public class DeviceReadingsImporterFactory extends AbstractDeviceDataFileImporterFactory {
+
     public static final String NAME = "DeviceReadingsImporterFactory";
 
     private volatile DeviceDataImporterContext context;
 
-    public DeviceReadingsImporterFactory() {}
+    public DeviceReadingsImporterFactory() {
+    }
 
     @Inject
     public DeviceReadingsImporterFactory(DeviceDataImporterContext context) {
@@ -43,8 +44,9 @@ public class DeviceReadingsImporterFactory extends AbstractDeviceDataFileImporte
         String timeZone = (String) properties.get(TIME_ZONE.getPropertyKey());
         SupportedNumberFormat numberFormat = ((SupportedNumberFormat.SupportedNumberFormatInfo) properties.get(NUMBER_FORMAT.getPropertyKey())).getFormat();
 
-        DeviceReadingsImportParser parser = new DeviceReadingsImportParser(dateFormat, timeZone, numberFormat);
-        DeviceReadingsImportProcessor processor = new DeviceReadingsImportProcessor();
+        FileImportParser<DeviceReadingsImportRecord> parser = new FileImportDescriptionBasedParser(
+                new DeviceReadingsImportDescription(dateFormat, timeZone, numberFormat));
+        DeviceReadingsImportProcessor processor = new DeviceReadingsImportProcessor(getContext());
         return DeviceDataCsvImporter.withParser(parser).withProcessor(processor).withDelimiter(delimiter.charAt(0)).build(getContext());
     }
 
@@ -55,7 +57,7 @@ public class DeviceReadingsImporterFactory extends AbstractDeviceDataFileImporte
 
     @Override
     public String getDefaultFormat() {
-        return TranslationKeys.DEVICE_SHIPMENT_IMPORTER.getDefaultFormat();
+        return TranslationKeys.DEVICE_READINGS_IMPORTER.getDefaultFormat();
     }
 
     @Override

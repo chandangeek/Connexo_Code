@@ -1,7 +1,6 @@
-package com.energyict.mdc.device.data.importers.parsers;
+package com.energyict.mdc.device.data.importers.impl.parsers;
 
 import com.energyict.mdc.device.data.importers.impl.exceptions.ValueParserException;
-import com.energyict.mdc.device.data.importers.impl.parsers.BigDecimalParser;
 import com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat;
 import org.junit.Test;
 

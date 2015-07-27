@@ -4,6 +4,7 @@ import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.device.data.importers.impl.exceptions.FileImportParserException;
 import com.energyict.mdc.device.data.importers.impl.exceptions.ValueParserException;
 import com.energyict.mdc.device.data.importers.impl.fields.FileImportField;
+import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 
 import java.util.ArrayList;
@@ -43,6 +44,23 @@ public class FileImportDescriptionBasedParser<T extends FileImportRecord> implem
             }
         }
         return record;
+    }
+
+    @Override
+    public List<String> parseHeaders(CSVParser parser) {
+        List<String> headers = FileImportParser.super.parseHeaders(parser);
+        long numberOfMandatoryColumns = getNumberOfMandatoryColumns();
+        if (headers.size() < numberOfMandatoryColumns){
+            throw new FileImportParserException(MessageSeeds.MISSING_TITLE_ERROR, numberOfMandatoryColumns, headers.size());
+        }
+        return headers;
+    }
+
+    public long getNumberOfMandatoryColumns() {
+        return this.descriptor.getFields(this.descriptor.getFileImportRecord())
+                .stream()
+                .filter(FileImportField::isMandatory)
+                .count();
     }
 
     private List<String> getRawValues(CSVRecord csvRecord){

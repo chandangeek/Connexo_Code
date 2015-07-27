@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.data.importers.impl.readingsimport;
 
-import com.elster.jupiter.util.Pair;
 import com.energyict.mdc.device.data.importers.impl.FileImportRecord;
 
 import java.math.BigDecimal;
@@ -12,17 +11,18 @@ public class DeviceReadingsImportRecord extends FileImportRecord {
 
     private ZonedDateTime readingDateTime;
 
-    private List<Pair<String, BigDecimal>> readingsPerChannel = new ArrayList<>();
-
-    public DeviceReadingsImportRecord(long lineNumber) {
-        super(lineNumber);
-    }
+    private List<String> readingTypes = new ArrayList<>();
+    private List<BigDecimal> values = new ArrayList<>();
 
     public void setReadingDateTime(ZonedDateTime readingDateTime) {
         this.readingDateTime = readingDateTime;
     }
 
-    public void addReading(String readingType, BigDecimal value) {
-        readingsPerChannel.add(Pair.of(readingType, value));
+    public void addReadingType(String readingType) {
+        readingTypes.add(readingType);
+    }
+
+    public void addReadingValue(BigDecimal value) {
+        values.add(value);
     }
 }

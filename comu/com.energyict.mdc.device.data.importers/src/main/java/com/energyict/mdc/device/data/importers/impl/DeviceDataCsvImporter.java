@@ -11,7 +11,6 @@ import org.apache.commons.csv.CSVRecord;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class DeviceDataCsvImporter<T extends FileImportRecord> implements FileImporter {
 
@@ -92,12 +91,7 @@ public class DeviceDataCsvImporter<T extends FileImportRecord> implements FileIm
     }
 
     private List<String> getCSVFileHeaders(CSVParser csvParser) {
-        return csvParser.getHeaderMap().entrySet()
-                .stream()
-                .filter(entry -> entry.getKey() != null && entry.getValue() != null)
-                .sorted((e1, e2) -> e1.getValue().compareTo(e2.getValue()))
-                .map(entry -> entry.getKey())
-                .collect(Collectors.toList());
+        return this.parser.parseHeaders(csvParser);
     }
 
     private void failImportProcess(FileImportOccurrence importOccurrence, Exception exception) {
