@@ -23,8 +23,7 @@ import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
 import com.energyict.mdc.device.lifecycle.MultipleMicroCheckViolationsException;
 import com.energyict.mdc.device.lifecycle.RequiredMicroActionPropertiesException;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
-import com.energyict.mdc.device.lifecycle.config.DefaultState;
-import com.energyict.mdc.device.lifecycle.config.rest.i18n.MicroCheckTranslationKey;
+import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -39,7 +38,6 @@ import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -149,14 +147,9 @@ public class DeviceLifeCycleActionResource {
         wizardResult.microChecks = DecoratedStream.decorate(microChecksViolationEx.getViolations().stream())
                 .map(violation -> {
                     IdWithNameInfo microCheckInfo = new IdWithNameInfo();
-                    microCheckInfo.id = violation.getCheck().name();
-                    MicroCheckTranslationKey.getNameTranslation(violation.getCheck()).ifPresent(microCheckName ->
-                        microCheckInfo.id = thesaurus.getStringBeyondComponent(microCheckName.getKey(), microCheckName.getDefaultFormat())
-                    );
-                    microCheckInfo.name = violation.getCheck().name();
-                    MicroCheckTranslationKey.getDescriptionTranslation(violation.getCheck()).ifPresent(microCheckDescription ->
-                        microCheckInfo.name = thesaurus.getStringBeyondComponent(microCheckDescription.getKey(), microCheckDescription.getDefaultFormat())
-                    );
+                    MicroCheck microCheck = violation.getCheck();
+                    microCheckInfo.id = deviceLifeCycleService.getName(microCheck);
+                    microCheckInfo.name = deviceLifeCycleService.getDescription(microCheck);
                     return microCheckInfo;
                 })
                 .distinct(check -> check.id)
