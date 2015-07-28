@@ -132,14 +132,18 @@ public class ChannelResource {
     @Path("/{channelid}/data")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.ADMINISTRATE_DEVICE_DATA, Privileges.ADMINISTER_DECOMMISSIONED_DEVICE_DATA})
-    public Response getChannelData(@PathParam("mRID") String mRID, @PathParam("channelid") long channelId, @QueryParam("intervalStart") Long intervalStart, @QueryParam("intervalEnd") Long intervalEnd, @BeanParam JsonQueryParameters queryParameters, @Context UriInfo uriInfo) {
+    public Response getChannelData(
+            @PathParam("mRID") String mRID,
+            @PathParam("channelid") long channelId,
+            @BeanParam JsonQueryFilter filter,
+            @BeanParam JsonQueryParameters queryParameters) {
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(mRID, channelId);
         DeviceValidation deviceValidation = channel.getDevice().forValidation();
         boolean isValidationActive = deviceValidation.isValidationActive(channel, clock.instant());
-        if (intervalStart != null && intervalEnd != null) {
-            List<LoadProfileReading> channelData = channel.getChannelData(Ranges.openClosed(Instant.ofEpochMilli(intervalStart), Instant.ofEpochMilli(intervalEnd)));
+        if (filter.hasProperty("intervalStart") && filter.hasProperty("intervalEnd")) {
+            List<LoadProfileReading> channelData = channel.getChannelData(Ranges.openClosed(filter.getInstant("intervalStart"), filter.getInstant("intervalEnd")));
             List<ChannelDataInfo> infos = channelData.stream().map(loadProfileReading -> deviceDataInfoFactory.createChannelDataInfo(channel, loadProfileReading, isValidationActive, deviceValidation)).collect(Collectors.toList());
-            infos = filter(infos, uriInfo.getQueryParameters());
+            infos = filter(infos, filter);
             List<ChannelDataInfo> paginatedChannelData = ListPager.of(infos).from(queryParameters).find();
             PagedInfoList pagedInfoList = PagedInfoList.fromPagedList("data", paginatedChannelData, queryParameters);
             return Response.ok(pagedInfoList).build();
@@ -147,30 +151,31 @@ public class ChannelResource {
         return Response.status(Response.Status.BAD_REQUEST).build();
     }
 
-    private List<ChannelDataInfo> filter(List<ChannelDataInfo> infos, MultivaluedMap<String, String> queryParameters) {
-        Predicate<ChannelDataInfo> fromParams = getFilter(queryParameters);
+    private List<ChannelDataInfo> filter(List<ChannelDataInfo> infos, JsonQueryFilter filter) {
+        Predicate<ChannelDataInfo> fromParams = getFilter(filter);
         return infos.stream().filter(fromParams).collect(Collectors.toList());
     }
 
-    private Predicate<ChannelDataInfo> getFilter(MultivaluedMap<String, String> queryParameters) {
+    private Predicate<ChannelDataInfo> getFilter(JsonQueryFilter filter) {
         ImmutableList.Builder<Predicate<ChannelDataInfo>> list = ImmutableList.builder();
-        boolean onlySuspect = filterActive(queryParameters, "onlySuspect");
-        boolean onlyNonSuspect = filterActive(queryParameters, "onlyNonSuspect");
-        if (onlySuspect ^ onlyNonSuspect) {
-            if (onlySuspect) {
-                list.add(this::hasSuspects);
-            } else {
-                list.add(not(this::hasSuspects));
+        if (filter.hasProperty("suspect")){
+            List<String> suspectFilters = filter.getStringList("suspect");
+            if (suspectFilters.size() == 0) {
+                if ("suspect".equals(filter.getString("suspect"))) {
+                    list.add(this::hasSuspects);
+                } else {
+                    list.add(not(this::hasSuspects));
+                }
             }
         }
-        if (filterActive(queryParameters, "hideMissing")) {
+        if (filterActive(filter, "hideMissing")) {
             list.add(this::hasMissingData);
         }
         return cdi -> list.build().stream().allMatch(p -> p.test(cdi));
     }
 
-    private boolean filterActive(MultivaluedMap<String, String> queryParameters, String key) {
-        return queryParameters.containsKey(key) && Boolean.parseBoolean(queryParameters.getFirst(key));
+    private boolean filterActive(JsonQueryFilter filter, String key) {
+        return filter.hasProperty(key) && filter.getBoolean(key);
     }
 
 

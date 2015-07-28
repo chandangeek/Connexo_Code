@@ -40,6 +40,7 @@ import org.mockito.Mock;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.math.BigDecimal;
+import java.net.URLEncoder;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -215,9 +216,10 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
 
     @Test
     public void testChannelData() {
+        String filter = URLEncoder.encode("[{\"property\":\"intervalStart\",\"value\":1410774630000},{\"property\":\"intervalEnd\",\"value\":1410828630000}]");
+
         String json = target("devices/1/channels/" + CHANNEL_ID1 + "/data")
-                .queryParam("intervalStart", "1410774630000")
-                .queryParam("intervalEnd", "1410828630000")
+                .queryParam("filter", filter)
                 .request().get(String.class);
 
         System.out.println(json);
@@ -305,10 +307,9 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(evaluator.getValidationResult(any())).thenReturn(ValidationResult.VALID);
         when(deviceValidation.getValidationResult(any())).thenReturn(ValidationResult.VALID);
 
+        String filter = URLEncoder.encode("[{\"property\":\"intervalStart\",\"value\":1410774630000},{\"property\":\"intervalEnd\",\"value\":1410828630000},{\"property\":\"suspect\",\"value\":\"suspect\"}]");
         String json = target("devices/1/channels/" + CHANNEL_ID1 + "/data")
-                .queryParam("intervalStart", "1410774630000")
-                .queryParam("intervalEnd", "1410828630000")
-                .queryParam("onlySuspect", "true")
+                .queryParam("filter", filter)
                 .request().get(String.class);
 
         System.out.println(json);
@@ -320,10 +321,11 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
 
     @Test
     public void testChannelDataFilteredMatches() {
+
+        String filter = URLEncoder.encode("[{\"property\":\"intervalStart\",\"value\":1410774630000},{\"property\":\"intervalEnd\",\"value\":1410828630000},{\"property\":\"suspect\",\"value\":\"suspect\"}]");
+
         String json = target("devices/1/channels/" + CHANNEL_ID1 + "/data")
-                .queryParam("intervalStart", "1410774630000")
-                .queryParam("intervalEnd", "1410828630000")
-                .queryParam("onlySuspect", "true")
+                .queryParam("filter", filter)
                 .request().get(String.class);
 
         System.out.println(json);

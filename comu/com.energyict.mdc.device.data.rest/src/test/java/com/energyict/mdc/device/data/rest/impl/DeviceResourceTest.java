@@ -572,10 +572,9 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         }
         when(channel1.getChannelData(any(Range.class))).thenReturn(loadProfileReadings);
 
-
+        String filter = URLEncoder.encode("[{\"property\":\"intervalStart\",\"value\":1410774630000},{\"property\":\"intervalEnd\",\"value\":1410828630000}]");
         Map response = target("/devices/mrid2/channels/7/data")
-                .queryParam("intervalStart", startTime)
-                .queryParam("intervalEnd", 1391212800000L)
+                .queryParam("filter", filter)
                 .queryParam("start", 0)
                 .queryParam("limit", 10)
                 .request().get(Map.class);
