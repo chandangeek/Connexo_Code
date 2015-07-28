@@ -4,10 +4,16 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
     itemId: 'tabbedDeviceChannelsView',
     requires: [
         'Uni.view.toolbar.PreviousNextNavigation',
-        'Mdc.view.setup.devicechannels.SideFilter',
         'Mdc.view.setup.devicechannels.TableView',
-        'Mdc.view.setup.devicechannels.GraphView'
+        'Mdc.view.setup.devicechannels.GraphView',
+        'Uni.grid.FilterPanelTop'
     ],
+
+    store: 'Mdc.store.ChannelOfLoadProfileOfDeviceData',
+
+    mixins: {
+        bindable: 'Ext.util.Bindable'
+    },
 
     prevNextstore: null,
     routerIdArgument: null,
@@ -20,25 +26,7 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
     activeTab: null,
     indexLocation: null,
     contentName: null,
-
-    setFilterView: function (filter, durationsStore) {
-        var me = this,
-            filterView = me.down('#deviceloadprofileschanneldatafilterpanel'),
-            intervalStart = filter.get('intervalStart'),
-            intervalEnd = durationsStore.getById(filter.get('duration')).get('localizeValue'),
-            suspect = Uni.I18n.translate('validationStatus.suspect', 'MDC', 'Suspect'),
-            nonSuspect = Uni.I18n.translate('validationStatus.ok', 'MDC', 'Not suspect'),
-            eventDateText = intervalEnd + ' ' + Uni.I18n.translate('deviceloadprofiles.filter.from', 'MDC', 'From').toLowerCase() + ' '
-                + Uni.DateTime.formatDateShort(intervalStart);
-        filterView.setFilter('eventDateChanged', Uni.I18n.translate('deviceloadprofiles.interval', 'MDC', 'Interval'), eventDateText, true);
-        filterView.down('#Reset').setText('Reset');
-        if (filter.get('onlySuspect')) {
-            filterView.setFilter('onlySuspect', Uni.I18n.translate('deviceregisterconfiguration.validation.result', 'MDC', 'Validation result'), suspect);
-        }
-        if (filter.get('onlyNonSuspect')) {
-            filterView.setFilter('onlyNonSuspect', Uni.I18n.translate('deviceregisterconfiguration.validation.result', 'MDC', 'Validation result'), nonSuspect);
-        }
-    },
+    filterDefault: {},
 
     initComponent: function () {
         var me = this;
@@ -63,9 +51,31 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
                         itemId: 'deviceLoadProfileChannelData',
                         items: [
                             {
-                                xtype: 'filter-top-panel',
-                                itemId: 'deviceloadprofileschanneldatafilterpanel',
-                                emptyText: Uni.I18n.translate('general.none', 'MDC', 'None')
+                                xtype: 'uni-grid-filterpaneltop',
+                                itemId: 'mdc-device-channels-topfilter',
+                                store: 'Mdc.store.ChannelOfLoadProfileOfDeviceData',
+                                filters: [
+                                    {
+                                        type: 'duration',
+                                        dataIndex: 'interval',
+                                        dataIndexFrom: 'intervalStart',
+                                        dataIndexTo: 'intervalEnd',
+                                        defaultFromDate: me.filterDefault.fromDate,
+                                        defaultDuration: me.filterDefault.duration,
+                                        text: Uni.I18n.translate('general.startDate', 'MDC', 'Start date'),
+                                        durationStore: me.filterDefault.durationStore,
+                                        loadStore: false,
+                                        hideDateTtimeSelect: me.filterDefault.hideDateTtimeSelect
+                                    },
+                                    {
+                                        type: 'checkbox',
+                                        dataIndex: 'suspect',
+                                        layout: 'hbox',
+                                        defaults: {margin: '0 10 0 0'},
+                                        emptyText: Uni.I18n.translate('communications.widget.topfilter.validationResult', 'MDC', 'Validation result'),
+                                        options: me.filterDefault.options
+                                    }
+                                ]
                             },
                             {
                                 xtype: 'deviceLoadProfileChannelGraphView'
@@ -120,16 +130,153 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
                                 toggleId: 'channelsLink'
                             }
                         ]
-                    },
-                    {
-                        xtype: 'deviceLoadProfileChannelDataSideFilter',
-                        contentName: me.contentName,
-                        hidden: (me.activeTab === 0)
                     }
                 ]
             }
 
         ];
         me.callParent(arguments);
+        me.bindStore(me.store || 'ext-empty-store', true);
+        me.on('beforedestroy', me.onBeforeDestroy, me);
+    },
+
+    getStoreListeners: function () {
+        return {
+            beforeload: this.onBeforeLoad,
+            load: this.onLoad
+        };
+    },
+
+    onBeforeLoad: function () {
+        this.setLoading(true);
+    },
+
+    onLoad: function () {
+        this.setLoading(false);
+        this.showGraphView();
+        this.store.rejectChanges();
+    },
+
+    onBeforeDestroy: function () {
+        this.bindStore('ext-empty-store');
+    },
+
+    showGraphView: function () {
+        var me = this,
+            dataStore = me.store,
+            channelRecord = me.channel,
+            container = me.down('deviceLoadProfileChannelGraphView'),
+            zoomLevelsStore = Ext.getStore('Mdc.store.DataIntervalAndZoomLevels'),
+            channelName = channelRecord.get('name'),
+            unitOfMeasure = channelRecord.get('unitOfMeasure').unit,
+            seriesObject = {marker: {
+                enabled: false
+            },
+                name: channelName
+            },
+            yAxis = {
+                opposite: false,
+                gridLineDashStyle: 'Dot',
+                showEmpty: false,
+                title: {
+                    rotation: 270,
+                    text: unitOfMeasure
+                }
+            },
+            series = [],
+            intervalRecord,
+            zoomLevels,
+            intervalLengthInMs;
+
+        seriesObject['data'] = [];
+
+        intervalRecord = zoomLevelsStore.getIntervalRecord(channelRecord.get('interval'));
+        intervalLengthInMs = zoomLevelsStore.getIntervalInMs(channelRecord.get('interval'));
+        zoomLevels = intervalRecord.get('zoomLevels');
+
+        switch (channelRecord.get('flowUnit')) {
+            case 'flow':
+                seriesObject['type'] = 'line';
+                seriesObject['step'] = false;
+                break;
+            case 'volume':
+                seriesObject['type'] = 'column';
+                seriesObject['step'] = true;
+                break;
+        }
+
+        Ext.suspendLayouts();
+        if (dataStore.getTotalCount() > 0) {
+            var data = me.formatData();
+            seriesObject['data'] = data.data;
+            seriesObject['turboThreshold'] = Number.MAX_VALUE;
+
+            series.push(seriesObject);
+            container.down('#graphContainer').show();
+            container.drawGraph(yAxis, series, intervalLengthInMs, channelName, unitOfMeasure, zoomLevels, data.missedValues);
+        } else {
+            container.down('#graphContainer').hide();
+        }
+        me.doLayout();
+        Ext.resumeLayouts(true);
+    },
+
+    formatData: function () {
+        var me = this,
+            data = [],
+            missedValues = [],
+            mesurementType = me.channel.get('unitOfMeasure'),
+            okColor = "#70BB51",
+            estimatedColor = "#568343",
+            suspectColor = 'rgba(235, 86, 66, 1)',
+            informativeColor = "#dedc49",
+            notValidatedColor = "#71adc7",
+            tooltipOkColor = 'rgba(255, 255, 255, 0.85)',
+            tooltipSuspectColor = 'rgba(235, 86, 66, 0.3)',
+            tooltipEstimatedColor = 'rgba(86, 131, 67, 0.3)',
+            tooltipInformativeColor = 'rgba(222, 220, 73, 0.3)',
+            tooltipNotValidatedColor = 'rgba(0, 131, 200, 0.3)';
+
+        me.store.each(function (record) {
+            var point = {},
+                validationInfo = record.getValidationInfo(),
+                interval = record.get('interval'),
+                mainValidationInfo = validationInfo.getMainValidationInfo(),
+                bulkValidationInfo = validationInfo.getBulkValidationInfo(),
+                properties = record.get('readingProperties');
+
+            point.x = interval.start;
+            point.id = point.x;
+            point.y = parseFloat(record.get('value'));
+            point.intervalEnd = interval.end;
+            point.collectedValue = record.get('collectedValue');
+            point.mesurementType = mesurementType;
+            point.color = okColor;
+            point.tooltipColor = tooltipOkColor;
+
+            if (mainValidationInfo.get('valueModificationFlag') == 'EDITED') {
+                point.edited = true;
+            } else if (mainValidationInfo.get('estimatedByRule')) {
+                point.color = estimatedColor;
+                point.tooltipColor = tooltipEstimatedColor;
+            } else if (properties.delta.notValidated) {
+                point.color = notValidatedColor;
+                point.tooltipColor = tooltipNotValidatedColor
+            } else if (properties.delta.suspect) {
+                point.color = suspectColor;
+                point.tooltipColor = tooltipSuspectColor
+            } else if (properties.delta.informative) {
+                point.color = informativeColor;
+                point.tooltipColor = tooltipInformativeColor;
+            }
+
+            if (bulkValidationInfo.get('valueModificationFlag') == 'EDITED') {
+                point.bulkEdited = true;
+            }
+
+            Ext.merge(point, properties);
+            data.unshift(point);
+        });
+        return {data: data, missedValues: missedValues};
     }
 });

@@ -69,21 +69,11 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 edit: this.resumeEditorFieldValidation,
                 canceledit: this.resumeEditorFieldValidation
             },
-            '#deviceLoadProfileChannelDataSideFilter #deviceLoadProfileDataFilterApplyBtn': {
-                click: this.applyFilter
-            },
-            '#deviceLoadProfileChannelDataSideFilter #deviceLoadProfileDataFilterResetBtn': {
-                click: this.clearFilter
-            },
             '#deviceLoadProfileChannelData #deviceLoadProfileChannelGraphView': {
                 resize: this.onGraphResize
             },
             '#tabbedDeviceChannelsView #channelTabPanel': {
                 tabchange: this.onTabChange
-            },
-            '#deviceLoadProfileChannelData #deviceloadprofileschanneldatafilterpanel': {
-                removeFilter: this.removeFilterItem,
-                clearAllFilters: this.clearFilter
             },
             'deviceLoadProfileChannelDataActionMenu': {
                 beforeshow: this.checkSuspect,
@@ -152,16 +142,6 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 });
                 channel.load(channelId, {
                     success: function (channel) {
-                        if (contentName == 'block' && router.filter && router.filter.get('duration').length == 0 && router.queryParams['validationBlock']) {
-                            var intervalStore = me.getStore('Mdc.store.DataIntervalAndZoomLevels'),
-                                intervalRecord = intervalStore.getIntervalRecord(channel.get('interval')),
-                                all = intervalRecord.get('all'),
-                                duration =  intervalStore.getIntervalRecord(intervalRecord.get('all')).get('intervalInMs');
-                            var startDate = parseInt(router.queryParams['validationBlock']) - Math.floor(duration / 2),
-                                intervalStart = Ext.Date.format(new Date(startDate), 'Y-m-dTH:i:s');
-                            router.filter.set('intervalStart', intervalStart);
-                            router.filter.set('duration', all.count + all.timeUnit);
-                        }
                         me.getApplication().fireEvent('channelOfLoadProfileOfDeviceLoad', channel);
                         var widget = Ext.widget('tabbedDeviceChannelsView', {
                             router: router,
@@ -173,7 +153,8 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                             activeTab: activeTab,
                             prevNextstore: prevNextstore,
                             routerIdArgument: routerIdArgument,
-                            isFullTotalCount: isFullTotalCount
+                            isFullTotalCount: isFullTotalCount,
+                            filterDefault: activeTab === 1 ? me.setDataFilter(channel, contentName, router) : {}
                         });
                         widget.down('#channelTabPanel').setTitle(channel.get('name'));
                         me.getApplication().fireEvent('changecontentevent', widget);
@@ -197,31 +178,15 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 
     setupReadingsTab: function (device, channel) {
         var me = this,
-            router = me.getController('Uni.controller.history.Router'),
             viewport = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
-            dataIntervalAndZoomLevels = me.getStore('Mdc.store.DataIntervalAndZoomLevels').getIntervalRecord(channel.get('interval')),
-            durationsStore = me.getStore('Mdc.store.LoadProfileDataDurations'),
-            dataGrid = me.getPage().down('#deviceLoadProfileChannelDataGrid'),
             dataStore = me.getStore('Mdc.store.ChannelOfLoadProfileOfDeviceData');
-        durationsStore.loadData(dataIntervalAndZoomLevels.get('duration'));
-        if (Ext.isEmpty(router.filter.data.intervalStart)) {
-            me.setDefaults(channel, dataIntervalAndZoomLevels, (router.queryParams.onlySuspect === 'true'));
-            router.queryParams.onlySuspect = undefined;
-        }
-        me.getTabbedDeviceChannelsView().setFilterView(router.filter, durationsStore);
-        viewport.setLoading(false);
-        me.getSideFilterForm().loadRecord(router.filter);
-        dataGrid.setLoading(true);
-        dataStore.setFilterModel(router.filter);
+
         dataStore.getProxy().setUrl({
             mRID: device.get('mRID'),
             channelId: channel.getId()
         });
-        dataStore.load(function () {
-            dataGrid.setLoading(false);
-            dataStore.rejectChanges();
-            me.showGraphView(channel, dataStore)
-        });
+        viewport.setLoading(false);
+        dataStore.load();
     },
 
 
@@ -237,135 +202,35 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         return Ext.String.format(link, router.getRoute('workspace/datavalidationissues/view').buildUrl({issueId: issueId}));
     },
 
-    showGraphView: function (channelRecord, dataStore) {
+    setDataFilter: function (channel, contentName, router) {
         var me = this,
-            container = this.getDeviceLoadProfileChannelGraphView(),
-            zoomLevelsStore = me.getStore('Mdc.store.DataIntervalAndZoomLevels'),
-            channelName = channelRecord.get('name'),
-            unitOfMeasure = channelRecord.get('unitOfMeasure').unit,
-            seriesObject = {marker: {
-                enabled: false
-            },
-                name: channelName
-            },
-            yAxis = {
-                opposite: false,
-                gridLineDashStyle: 'Dot',
-                showEmpty: false,
-                title: {
-                    rotation: 270,
-                    text: unitOfMeasure
-                }
-            },
-            series = [],
-            intervalRecord,
-            zoomLevels,
-            intervalLengthInMs;
-
-        seriesObject['data'] = [];
-
-        intervalRecord = zoomLevelsStore.getIntervalRecord(channelRecord.get('interval'));
-        intervalLengthInMs = zoomLevelsStore.getIntervalInMs(channelRecord.get('interval'));
-        zoomLevels = intervalRecord.get('zoomLevels');
-
-        switch (channelRecord.get('flowUnit')) {
-            case 'flow':
-                seriesObject['type'] = 'line';
-                seriesObject['step'] = false;
-                break;
-            case 'volume':
-                seriesObject['type'] = 'column';
-                seriesObject['step'] = true;
-                break;
-        }
-
-        if (dataStore.getTotalCount() > 0) {
-            var data = me.formatData(dataStore, channelRecord);
-            seriesObject['data'] = data.data;
-            seriesObject['turboThreshold'] = Number.MAX_VALUE;
-
-            series.push(seriesObject);
-            Ext.suspendLayouts();
-            container.down('#graphContainer').show();
-            container.drawGraph(yAxis, series, intervalLengthInMs, channelName, unitOfMeasure, zoomLevels, data.missedValues);
-            Ext.resumeLayouts(true);
-        } else {
-            Ext.suspendLayouts();
-            container.down('#graphContainer').hide();
-            Ext.resumeLayouts(true);
-        }
-        me.getPage().doLayout();
-    },
-
-    formatData: function (dataStore, channelRecord) {
-        var data = [],
-            missedValues = [],
-            mesurementType = channelRecord.get('unitOfMeasure'),
-            okColor = "#70BB51",
-            estimatedColor = "#568343",
-            suspectColor = 'rgba(235, 86, 66, 1)',
-            informativeColor = "#dedc49",
-            notValidatedColor = "#71adc7",
-            tooltipOkColor = 'rgba(255, 255, 255, 0.85)',
-            tooltipSuspectColor = 'rgba(235, 86, 66, 0.3)',
-            tooltipEstimatedColor = 'rgba(86, 131, 67, 0.3)',
-            tooltipInformativeColor = 'rgba(222, 220, 73, 0.3)',
-            tooltipNotValidatedColor = 'rgba(0, 131, 200, 0.3)';
-
-        dataStore.each(function (record) {
-            var point = {},
-                mainValidationInfo = record.getValidationInfo().getMainValidationInfo(),
-                bulkValidationInfo = record.getValidationInfo().getBulkValidationInfo(),
-                properties = record.get('readingProperties');
-
-            point.x = record.get('interval').start;
-            point.id = point.x;
-            point.y = parseFloat(record.get('value'));
-            point.intervalEnd = record.get('interval').end;
-            point.collectedValue = record.get('collectedValue');
-            point.mesurementType = mesurementType;
-            point.color = okColor;
-            point.tooltipColor = tooltipOkColor;
-
-            if (mainValidationInfo.get('valueModificationFlag') == 'EDITED') {
-                point.edited = true;
-            } else if (mainValidationInfo.get('estimatedByRule')) {
-                point.color = estimatedColor;
-                point.tooltipColor = tooltipEstimatedColor;
-            } else if (properties.delta.notValidated) {
-                point.color = notValidatedColor;
-                point.tooltipColor = tooltipNotValidatedColor
-            } else if (properties.delta.suspect) {
-                point.color = suspectColor;
-                point.tooltipColor = tooltipSuspectColor
-            } else if (properties.delta.informative) {
-                point.color = informativeColor;
-                point.tooltipColor = tooltipInformativeColor;
-            }
-
-            if (bulkValidationInfo.get('valueModificationFlag') == 'EDITED') {
-                point.bulkEdited = true;
-            }
-
-            Ext.merge(point, properties);
-            data.unshift(point);
-        });
-        return {data: data, missedValues: missedValues};
-    },
-
-    setDefaults: function (channel, dataIntervalAndZoomLevels, viewOnlySuspects) {
-        var me = this,
-            router = me.getController('Uni.controller.history.Router'),
+            intervalStore = me.getStore('Mdc.store.DataIntervalAndZoomLevels'),
+            dataIntervalAndZoomLevels = intervalStore.getIntervalRecord(channel.get('interval')),
             all = dataIntervalAndZoomLevels.get('all'),
-            intervalStart = dataIntervalAndZoomLevels.getIntervalStart((channel.get('lastReading') || new Date().getTime()));
-        router.filter = Ext.create('Mdc.model.ChannelOfLoadProfilesOfDeviceDataFilter');
-        router.filter.beginEdit();
-        router.filter.set('intervalStart', intervalStart);
-        router.filter.set('duration', all.count + all.timeUnit);
-        router.filter.set('onlySuspect', viewOnlySuspects);
-        router.filter.set('onlyNonSuspect', false);
-        router.filter.endEdit();
-        me.getSideFilter().down('#suspect').setValue(viewOnlySuspects);
+            durationsStore = me.getStore('Mdc.store.LoadProfileDataDurations'),
+            filter = {};
+
+        durationsStore.loadData(dataIntervalAndZoomLevels.get('duration'));
+        filter.options = [
+            {
+                display: Uni.I18n.translate('validationStatus.suspect', 'MDC', 'Suspect'),
+                value: 'suspect'
+            }
+        ];
+        if (contentName === 'block') {
+            filter.fromDate = new Date(parseInt(router.queryParams['validationBlock']));
+            filter.hideDateTtimeSelect = true;
+        } else {
+            filter.options.push({
+                display: Uni.I18n.translate('validationStatus.ok', 'MDC', 'Not suspect'),
+                value: 'nonSuspect'
+            });
+            filter.fromDate = dataIntervalAndZoomLevels.getIntervalStart((channel.get('lastReading') || new Date()));
+        }
+        filter.duration = all.count + all.timeUnit;
+        filter.durationStore = durationsStore;
+
+        return filter;
     },
 
     onTabChange: function (tabPanel, newTab) {
@@ -392,27 +257,6 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             previewPanel = me.getDeviceLoadProfileChannelDataPreview();
 
         previewPanel.updateForm(record);
-    },
-
-    applyFilter: function () {
-        Ext.ComponentQuery.query('viewport > #contentPanel')[0].setLoading();
-        var filterForm = this.getSideFilterForm();
-        filterForm.updateRecord();
-        filterForm.getRecord().save();
-    },
-
-    clearFilter: function () {
-        this.getSideFilterForm().getRecord().getProxy().destroy();
-    },
-
-    removeFilterItem: function (key) {
-        var router = this.getController('Uni.controller.history.Router'),
-            record = router.filter;
-
-        if (key === 'onlySuspect' || key === 'onlyNonSuspect') {
-            record.set(key, false);
-        }
-        record.save();
     },
 
     onGraphResize: function (graphView, width, height) {
@@ -834,4 +678,3 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         me.getPage().down('#save-changes-button').isHidden() && me.showButtons();
     }
 });
-

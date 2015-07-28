@@ -18,7 +18,6 @@ Ext.define('Mdc.view.setup.devicechannels.GraphView', {
         }
     ],
 
-
     drawGraph: function (yAxis, series, intervalLength, channelName, unitOfMeasure, zoomLevels, missedValues) {
         var me = this;
 
