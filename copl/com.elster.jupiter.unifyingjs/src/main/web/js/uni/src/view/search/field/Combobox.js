@@ -17,7 +17,8 @@
 Ext.define('Uni.view.search.field.Combobox', {
     extend: 'Ext.form.field.ComboBox',
     requires: [
-        'Ext.grid.Panel'
+        'Ext.grid.Panel',
+        'Uni.view.search.field.Input'
     ],
     xtype: 'search-combo',
     //queryMode: 'local',
@@ -158,96 +159,61 @@ Ext.define('Uni.view.search.field.Combobox', {
                                     disabled: true
                                 },
                                 {
-                                    xtype: 'fieldset',
-                                    layout: 'hbox',
-                                    flex: 1,
-                                    padding: 0,
-                                    style: {
-                                        borderRadius: '5px'
-                                    },
+                                    xtype: 'search-criteria-input',
                                     tooltip: 'Specify filter to narrow down selection list. Maximum 100 records are displayed.',
-                                    items: [
-                                        {
-                                            xtype: 'button',
-                                            itemId: 'filter-selected',
-                                            iconCls: 'icon-checkbox-unchecked2',
-                                            iconClsUnpressed: 'icon-checkbox-unchecked2',
-                                            iconClsPressed: 'icon-checkbox',
-                                            enableToggle: true,
-                                            style: {
-                                                fontSize: '16px'
-                                            },
-                                            padding: 5,
-                                            margin: 0,
-                                            tooltip: 'Filter all selected values',
-                                            ui: 'plain',
-                                            disabled: true,
-                                            handler: function () {
-                                                var store = me.picker.getStore();
-                                                Ext.suspendLayouts();
-                                                if (this.pressed) {
-                                                    this.setIconCls(this.iconClsPressed);
-                                                    store.clearFilter(true);
-                                                    if (store.remoteFilter) {
-                                                        store.filter(me.valueField, _.pluck(selection.getRange(),'id'));
-                                                    } else {
-                                                        store.filter({
-                                                            filterFn: function(item) { return selection.getRange().indexOf(item) >= 0; }
-                                                        });
-                                                    }
+                                    emptyText: 'Start typing to find devices...',
+                                    lbar: {
+                                        xtype: 'button',
+                                        itemId: 'filter-selected',
+                                        iconCls: 'icon-checkbox-unchecked2',
+                                        iconClsUnpressed: 'icon-checkbox-unchecked2',
+                                        iconClsPressed: 'icon-checkbox',
+                                        enableToggle: true,
+                                        style: {
+                                            fontSize: '16px'
+                                        },
+                                        padding: 5,
+                                        margin: 0,
+                                        tooltip: 'Filter all selected values',
+                                        ui: 'plain',
+                                        disabled: true,
+                                        handler: function () {
+                                            var store = me.picker.getStore();
+                                            Ext.suspendLayouts();
+                                            if (this.pressed) {
+                                                this.setIconCls(this.iconClsPressed);
+                                                store.clearFilter(true);
+                                                if (store.remoteFilter) {
+                                                    store.filter(me.valueField, _.pluck(selection.getRange(),'id'));
                                                 } else {
-                                                    this.setIconCls(this.iconClsUnpressed);
-                                                    store.clearFilter();
+                                                    store.filter({
+                                                        filterFn: function(item) { return selection.getRange().indexOf(item) >= 0; }
+                                                    });
                                                 }
-                                                Ext.resumeLayouts(true);
+                                            } else {
+                                                this.setIconCls(this.iconClsUnpressed);
+                                                store.clearFilter();
                                             }
-                                        },
-                                        {
-                                            itemId: 'filter-input',
-                                            xtype: 'textfield',
-                                            flex: 1,
-                                            emptyText: 'Start typing to find devices...',
-                                            fieldStyle: {
-                                                border: 0,
-                                                margin: 0
-                                            },
-                                            listeners: {
-                                                change: function (elm, value) {
-                                                    var store = me.picker.getStore();
-                                                    Ext.suspendLayouts();
-                                                    store.clearFilter(true);
-                                                    if (store.remoteFilter) {
-                                                        store.filter(me.displayField, value);
-                                                    } else {
-                                                        me.enableRegEx
-                                                            ? store.filter(me.displayField, new RegExp(value))
-                                                            : store.filter(me.displayField, value);
-                                                    }
-
-                                                    me.picker.down('#filter-clear').setVisible(!!value);
-                                                    Ext.resumeLayouts(true);
-                                                }
-                                            }
-                                        },
-                                        {
-                                            xtype: 'button',
-                                            itemId: 'filter-clear',
-                                            hidden: true,
-                                            ui: 'plain',
-                                            tooltip: 'Clear filter',
-                                            iconCls: ' icon-close4',
-                                            padding: 6,
-                                            margin: 0,
-                                            style: {
-                                                fontSize: '16px'
-                                            },
-                                            listeners: {
-                                                click: function () {
-                                                    me.picker.down('#filter-input').reset();
-                                                }
-                                            }
+                                            Ext.resumeLayouts(true);
                                         }
-                                    ]
+                                    },
+                                    listeners: {
+                                        change: function (elm, value) {
+                                            var store = me.picker.getStore();
+                                            Ext.suspendLayouts();
+                                            store.clearFilter(true);
+                                            if (store.remoteFilter) {
+                                                store.filter(me.displayField, value);
+                                            } else {
+                                                me.enableRegEx
+                                                    ? store.filter(me.displayField, new RegExp(value))
+                                                    : store.filter(me.displayField, value);
+                                            }
+
+                                            me.picker.down('#filter-clear').setVisible(!!value);
+                                            Ext.resumeLayouts(true);
+                                        }
+                                    }
                                 }
                             ]
                         },

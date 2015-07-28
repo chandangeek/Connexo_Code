@@ -26,7 +26,7 @@ Ext.define('Uni.view.search.field.Input', {
             itemId: 'filter-input',
             xtype: 'textfield',
             flex: 1,
-            emptyText: 'Start typing to find devices...',
+            emptyText: me.emptyText,
             fieldStyle: {
             border: 0,
                 margin: 0
