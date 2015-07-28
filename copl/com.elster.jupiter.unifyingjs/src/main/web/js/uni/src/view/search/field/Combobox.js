@@ -20,7 +20,7 @@ Ext.define('Uni.view.search.field.Combobox', {
         'Ext.grid.Panel'
     ],
     xtype: 'search-combo',
-    queryMode: 'local',
+    //queryMode: 'local',
     editable: false,
     getDisplayValue: function() {
         return this.rendered && this.getPicker().selection.count()
@@ -54,10 +54,10 @@ Ext.define('Uni.view.search.field.Combobox', {
             picker,
             menuCls = Ext.baseCSSPrefix + 'menu',
             selection = Ext.create('Ext.data.Store', {
-                fields: [me.displayField, me.valueField],
+                fields: this.store.model.getFields(),
                 listeners: {
                     datachanged: function() {
-                        picker.down('#filter-selected').setDisabled( !this.count() );
+                        picker.down('#filter-selected').setDisabled( !selection.count() );
                     }
                 }
             }),
@@ -184,16 +184,22 @@ Ext.define('Uni.view.search.field.Combobox', {
                                             disabled: true,
                                             handler: function () {
                                                 var store = me.picker.getStore();
+                                                Ext.suspendLayouts();
                                                 if (this.pressed) {
                                                     this.setIconCls(this.iconClsPressed);
                                                     store.clearFilter(true);
-                                                    store.filter({
-                                                        filterFn: function(item) { return selection.getRange().indexOf(item) >= 0; }
-                                                    });
+                                                    if (store.remoteFilter) {
+                                                        store.filter(me.valueField, _.pluck(selection.getRange(),'id'));
+                                                    } else {
+                                                        store.filter({
+                                                            filterFn: function(item) { return selection.getRange().indexOf(item) >= 0; }
+                                                        });
+                                                    }
                                                 } else {
                                                     this.setIconCls(this.iconClsUnpressed);
                                                     store.clearFilter();
                                                 }
+                                                Ext.resumeLayouts(true);
                                             }
                                         },
                                         {
@@ -208,9 +214,18 @@ Ext.define('Uni.view.search.field.Combobox', {
                                             listeners: {
                                                 change: function (elm, value) {
                                                     var store = me.picker.getStore();
+                                                    Ext.suspendLayouts();
                                                     store.clearFilter(true);
-                                                    store.filter(me.displayField, new RegExp(value));
+                                                    if (store.remoteFilter) {
+                                                        store.filter(me.displayField, value);
+                                                    } else {
+                                                        me.enableRegEx
+                                                            ? store.filter(me.displayField, new RegExp(value))
+                                                            : store.filter(me.displayField, value);
+                                                    }
+
                                                     me.picker.down('#filter-clear').setVisible(!!value);
+                                                    Ext.resumeLayouts(true);
                                                 }
                                             }
                                         },

@@ -527,11 +527,12 @@ Ext.define('Uni.controller.Search', {
 
         if (property.get('exhaustive')) {
             var store = Ext.create('Uni.store.search.PropertyValues', {
+                pageSize: 10,
                 proxy: {
                     type: 'ajax',
-                    pageParam: undefined,
-                    startParam: undefined,
-                    limitParam: undefined,
+                    //pageParam: undefined,
+                    //startParam: undefined,
+                    //limitParam: undefined,
                     url: property.get('linkHref'),
                     reader: {
                         type: 'json',

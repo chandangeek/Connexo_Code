@@ -17,7 +17,8 @@ Ext.define('Uni.view.search.Overview', {
         'Uni.view.search.field.SearchCriteriaSelector',
         'Uni.view.search.field.DateRangeField',
         'Uni.view.search.field.NumberRange',
-        'Uni.view.search.field.Combobox'
+        'Uni.view.search.field.Combobox',
+        'Uni.view.search.field.Simple'
     ],
 
     padding: '16 16 16 16',
@@ -109,6 +110,10 @@ Ext.define('Uni.view.search.Overview', {
                                     },
                                     {
                                         xtype: 'uni-view-search-field-number-range'
+                                    },
+                                    {
+                                        xtype: 'search-criteria-simple',
+                                        text: 'Sup'
                                     },
                                     //{
                                     //    xtype: 'uni-view-search-field-yesno'
