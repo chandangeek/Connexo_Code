@@ -21,6 +21,7 @@ Ext.define('Uni.grid.filtertop.Duration', {
     defaultFromDate: undefined,
     defaultDuration: undefined,
     durationStore: null,
+    hideDateTtimeSelect: false,
 
     initComponent: function () {
         var me = this;
@@ -31,7 +32,8 @@ Ext.define('Uni.grid.filtertop.Duration', {
                 dataIndex: me.dataIndexFrom,
                 value: me.defaultFromDate,
                 text: me.text,
-                margin: '0 10 0 0'
+                margin: '0 10 0 0',
+                hidden: me.hideDateTtimeSelect
             },
             {
                 xtype: 'uni-grid-filtertop-combobox',
@@ -99,8 +101,9 @@ Ext.define('Uni.grid.filtertop.Duration', {
 
     applyParamValue: function (params, includeUndefined, flattenObjects) {
         var me = this,
-            fromValue = me.getFromDateValue(),
-            toValue   = me.createToDate(fromValue, me.getDurationValue());
+            durationValue = me.getDurationValue(),
+            fromValue = me.hideDateTtimeSelect ? me.createFromDate(me.getFromDateValue(), durationValue) : me.getFromDateValue(),
+            toValue   = me.createToDate(fromValue, durationValue);
 
         if (!includeUndefined && Ext.isDefined(fromValue) && Ext.isDefined(toValue)) {
             params[me.dataIndexFrom] = fromValue;
@@ -109,6 +112,17 @@ Ext.define('Uni.grid.filtertop.Duration', {
             params[me.dataIndexFrom] = undefined;
             params[me.dataIndexTo] = undefined;
         }
+    },
+
+    createFromDate: function (date, durationValue) {
+        var me = this, duration;
+
+        if (Ext.isDefined(date) && !Ext.isEmpty(date) && Ext.isDefined(durationValue)) {
+            duration = me.getDurationCombo().getStore().getById(durationValue);
+            return date - (date - moment(date).subtract(duration.get('count'), duration.get('timeUnit')).valueOf()) / 2;
+        }
+
+        return undefined;
     },
 
     createToDate: function (date, durationValue) {
