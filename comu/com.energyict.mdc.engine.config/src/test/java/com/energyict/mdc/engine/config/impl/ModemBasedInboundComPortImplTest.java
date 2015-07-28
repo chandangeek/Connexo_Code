@@ -55,6 +55,7 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
     private static final TimeDuration DELAY_BEFORE_SEND = new TimeDuration(500, TimeDuration.TimeUnit.MILLISECONDS);
     private static final TimeDuration AT_COMMAND_TIMEOUT = new TimeDuration(5, TimeDuration.TimeUnit.SECONDS);
     private static final BigDecimal AT_COMMAND_TRY = new BigDecimal(5);
+    private static final List<String> GLOBAL_MODEM_INIT_STRINGS = Arrays.asList("ATZ");
     private static final List<String> MODEM_INIT_STRINGS = Arrays.asList("ATM0");
     private static final String ADDRESS_SELECTOR = "Selector";
     private static final String POST_DIAL_COMMANDS = "(D)(F)()W:+++)";
@@ -128,6 +129,7 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
         assertEquals("Delay before send does not match", DELAY_BEFORE_SEND, comPort.getDelayBeforeSend());
         assertEquals("At command timeout does not match", AT_COMMAND_TIMEOUT, comPort.getAtCommandTimeout());
         assertEquals("At command try does not match", AT_COMMAND_TRY, comPort.getAtCommandTry());
+        assertEquals("Global modem initialization strings do not match", GLOBAL_MODEM_INIT_STRINGS, comPort.getGlobalModemInitStrings());
         assertEquals("Modem initialization strings do not match", MODEM_INIT_STRINGS, comPort.getModemInitStrings());
         assertEquals("Address selector does not match", ADDRESS_SELECTOR, comPort.getAddressSelector());
         assertEquals("Post dial commands does not match", POST_DIAL_COMMANDS, comPort.getPostDialCommands());
@@ -157,6 +159,8 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
         // asserts
         assertThat(comPort.getModemInitStrings()).isEmpty();
         assertThat(reloaded.getModemInitStrings()).isEmpty();
+        assertThat(comPort.getGlobalModemInitStrings()).isEmpty();
+        assertThat(reloaded.getGlobalModemInitStrings()).isEmpty();
     }
 
     @Test
@@ -413,6 +417,9 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
         final List<String> newModemInitStrings = new ArrayList<String>() {{
             add("ATM1");
         }};
+        final List<String> newGlobalModemInitStrings = new ArrayList<String>() {{
+            add("+++");
+        }};
         final String newAddressSelector = "NewSelector";
 
         ModemBasedInboundComPortImpl comPort = (ModemBasedInboundComPortImpl) this.createSimpleComPort();
@@ -428,6 +435,7 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
         comPort.setAtCommandTimeout(newAtCommandTimeout);
         comPort.setAtCommandTry(newAtCommandTry);
         comPort.setModemInitStrings(newModemInitStrings);
+        comPort.setGlobalModemInitStrings(newGlobalModemInitStrings);
         comPort.setAddressSelector(newAddressSelector);
         comPort.setSerialPortConfiguration(new SerialPortConfiguration(newName,
                 newBaudRate,
@@ -451,6 +459,7 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
         assertEquals("Delay before send does not match", newDelayBeforeSend, updatedComPort.getDelayBeforeSend());
         assertEquals("At command timeout does not match", newAtCommandTimeout, updatedComPort.getAtCommandTimeout());
         assertEquals("At command try does not match", newAtCommandTry, updatedComPort.getAtCommandTry());
+        assertEquals("Global modem initialization strings do not match", newGlobalModemInitStrings, updatedComPort.getGlobalModemInitStrings());
         assertEquals("Modem initialization strings do not match", newModemInitStrings, updatedComPort.getModemInitStrings());
         assertEquals("Address selector does not match", newAddressSelector, updatedComPort.getAddressSelector());
         assertEquals("Baud rate does nt match", newBaudRate, comPort.getSerialPortConfiguration().getBaudrate());
@@ -512,7 +521,7 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
 
     private ModemBasedInboundComPort createSimpleComPort(ComServer comServer) {
         return comServer.newModemBasedInboundComport(COMPORT_NAME, RING_COUNT, MAXIMUM_NUMBER_OF_DIAL_ERRORS,
-                        CONNECT_TIMEOUT, AT_COMMAND_TIMEOUT, getSerialPortConfiguration(COMPORT_NAME))
+                CONNECT_TIMEOUT, AT_COMMAND_TIMEOUT, getSerialPortConfiguration(COMPORT_NAME))
                 .description(DESCRIPTION)
                 .active(ACTIVE)
                 .comPortPool(createComPortPool())
@@ -520,6 +529,7 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
                 .delayAfterConnect(DELAY_AFTER_CONNECT)
                 .delayBeforeSend(DELAY_BEFORE_SEND)
                 .atModemInitStrings(MODEM_INIT_STRINGS)
+                .globalAtModemInitStrings(GLOBAL_MODEM_INIT_STRINGS)
                 .addressSelector(ADDRESS_SELECTOR)
                 .postDialCommands(POST_DIAL_COMMANDS)
                 .add();

@@ -52,6 +52,8 @@ public class ModemBasedInboundComPortImpl extends InboundComPortImpl implements 
     @Size(max= Table.SHORT_DESCRIPTION_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "{"+MessageSeeds.Keys.MDC_FIELD_TOO_LONG+"}")
     private String modemInitStrings;
     @Size(max= Table.SHORT_DESCRIPTION_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "{"+MessageSeeds.Keys.MDC_FIELD_TOO_LONG+"}")
+    private String globalModemInitStrings;
+    @Size(max= Table.SHORT_DESCRIPTION_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "{"+MessageSeeds.Keys.MDC_FIELD_TOO_LONG+"}")
     private String addressSelector;
     @Size(max= Table.SHORT_DESCRIPTION_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "{"+MessageSeeds.Keys.MDC_FIELD_TOO_LONG+"}")
     private String postDialCommands;
@@ -166,6 +168,26 @@ public class ModemBasedInboundComPortImpl extends InboundComPortImpl implements 
     }
 
     @Override
+    public List<String> getGlobalModemInitStrings() {
+        if (Checks.is(globalModemInitStrings).emptyOrOnlyWhiteSpace()) {
+            return Collections.emptyList();
+        }
+        return Arrays.asList(globalModemInitStrings.split(";")); // TODO Fix AtModemComponent location
+    }
+
+    @Override
+    public void setGlobalModemInitStrings(List<String> globalModemInitStrings) {
+        StringBuilder composedString = new StringBuilder();
+        if (globalModemInitStrings != null && !globalModemInitStrings.isEmpty()) {
+            for (String each : globalModemInitStrings) {
+                composedString.append(each);
+                composedString.append(";"); // TODO Fix AtModemComponent location
+            }
+            this.globalModemInitStrings = composedString.substring(0, composedString.length() - 1);
+        }
+    }
+
+    @Override
     public String getAddressSelector() {
         return addressSelector;
     }
@@ -250,6 +272,12 @@ public class ModemBasedInboundComPortImpl extends InboundComPortImpl implements 
         @Override
         public ModemBasedInboundComPortBuilder atModemInitStrings(List<String> initStrings) {
             comPort.setModemInitStrings(initStrings);
+            return this;
+        }
+
+        @Override
+        public ModemBasedInboundComPortBuilder globalAtModemInitStrings(List<String> globalAtModemInitStrings) {
+            comPort.setGlobalModemInitStrings(globalAtModemInitStrings);
             return this;
         }
 
