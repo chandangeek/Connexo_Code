@@ -357,7 +357,7 @@ public class DeviceImpl implements Device, CanLock {
         getMdcAmrSystem().ifPresent(amrSystem ->
                 findKoreMeter(amrSystem).ifPresent(meter ->
                         this.meteringGroupsService.findEnumeratedEndDeviceGroupsContaining(meter).stream()
-                            .forEach(enumeratedEndDeviceGroup -> removeDeviceFromGroup(enumeratedEndDeviceGroup, meter))));
+                                .forEach(enumeratedEndDeviceGroup -> removeDeviceFromGroup(enumeratedEndDeviceGroup, meter))));
     }
 
     private void removeDeviceFromGroup(EnumeratedEndDeviceGroup group, EndDevice endDevice) {
@@ -698,26 +698,7 @@ public class DeviceImpl implements Device, CanLock {
 
     @Override
     public void setSecurityProperties(SecurityPropertySet securityPropertySet, TypedProperties typedProperties) {
-        try {
-            DeviceProtocolPluggableClass deviceProtocolPluggableClass = this.getDeviceConfiguration().getDeviceType().getDeviceProtocolPluggableClass();
-            RelationType relationType = protocolPluggableService.findSecurityPropertyRelationType(deviceProtocolPluggableClass);
-            RelationTransaction transaction = relationType.newRelationTransaction();
-            transaction.setFrom(clock.instant());
-            transaction.setTo(null);
-            transaction.set(DEVICE_ATTRIBUTE_NAME, this);
-            transaction.set(SECURITY_PROPERTY_SET_ATTRIBUTE_NAME, securityPropertySet);
-            typedProperties.propertyNames().stream().forEach(p -> transaction.set(p, typedProperties.getLocalValue(p)));
-            transaction.set(STATUS_ATTRIBUTE_NAME, isSecurityPropertySetComplete(securityPropertySet,typedProperties));
-            transaction.execute();
-        } catch (BusinessException | SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private boolean isSecurityPropertySetComplete(SecurityPropertySet securityPropertySet, TypedProperties typedProperties){
-        return !securityPropertySet.getPropertySpecs()
-                    .stream()
-                    .anyMatch(p -> p.isRequired() && !typedProperties.hasLocalValueFor(p.getName()));
+        this.securityPropertyService.setSecurityProperties(this, securityPropertySet, typedProperties);
     }
 
     private void addDeviceProperty(String name, String propertyValue) {
@@ -1624,11 +1605,6 @@ public class DeviceImpl implements Device, CanLock {
     }
 
     @Override
-    public List<SecurityProperty> getAllSecurityProperties(SecurityPropertySet securityPropertySet) {
-        return this.getAllSecurityProperties(clock.instant(), securityPropertySet);
-    }
-
-    @Override
     public List<ProtocolDialectConfigurationProperties> getProtocolDialects() {
         return this.getDeviceConfiguration().getProtocolDialectConfigurationPropertiesList();
     }
@@ -1637,13 +1613,13 @@ public class DeviceImpl implements Device, CanLock {
         return this.securityPropertyService.getSecurityProperties(this, when, securityPropertySet);
     }
 
-    private List<SecurityProperty> getAllSecurityProperties(Instant when, SecurityPropertySet securityPropertySet) {
-        return this.securityPropertyService.getSecurityPropertiesIgnoringPrivileges(this, when, securityPropertySet);
-    }
-
     @Override
     public boolean hasSecurityProperties(SecurityPropertySet securityPropertySet) {
         return this.hasSecurityProperties(clock.instant(), securityPropertySet);
+    }
+
+    private boolean hasSecurityProperties(Instant when, SecurityPropertySet securityPropertySet) {
+        return this.securityPropertyService.hasSecurityProperties(this, when, securityPropertySet);
     }
 
     @Override
@@ -1848,10 +1824,6 @@ public class DeviceImpl implements Device, CanLock {
             DeviceImpl.this.deviceMessages.add(this.deviceMessage);
             return this.deviceMessage;
         }
-    }
-
-    private boolean hasSecurityProperties(Instant when, SecurityPropertySet securityPropertySet) {
-        return this.securityPropertyService.hasSecurityProperties(this, when, securityPropertySet);
     }
 
     private class ConnectionInitiationTaskBuilderForDevice extends ConnectionInitiationTaskImpl.AbstractConnectionInitiationTaskBuilder {

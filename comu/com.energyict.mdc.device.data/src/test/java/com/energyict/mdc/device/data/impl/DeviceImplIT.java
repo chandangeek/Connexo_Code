@@ -72,13 +72,13 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests the {@link com.energyict.mdc.device.data.impl.DeviceImpl} component.
+ * Tests the {@link DeviceImpl} component.
  * <p/>
  * Copyrights EnergyICT
  * Date: 05/03/14
  * Time: 13:49
  */
-public class DeviceImplTest extends PersistenceIntegrationTest {
+public class DeviceImplIT extends PersistenceIntegrationTest {
 
     private static final String DEVICENAME = "deviceName";
     private static final String MRID = "MyUniqueMRID";

@@ -1,46 +1,18 @@
 package com.energyict.mdc.device.data.impl.security;
 
-import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
-import com.elster.jupiter.datavault.impl.DataVaultModule;
-import com.elster.jupiter.domain.util.impl.DomainUtilModule;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.events.impl.EventsModule;
-import com.elster.jupiter.license.License;
-import com.elster.jupiter.license.LicenseService;
-import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.impl.NlsModule;
-import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.impl.OrmModule;
-import com.elster.jupiter.orm.impl.OrmServiceImpl;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.StringFactory;
-import com.elster.jupiter.properties.impl.BasicPropertiesModule;
-import com.elster.jupiter.pubsub.impl.PubSubModule;
-import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
-import com.elster.jupiter.transaction.TransactionContext;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.transaction.impl.TransactionModule;
-import com.elster.jupiter.util.UtilModule;
-import com.energyict.mdc.common.CanFindByLongPrimaryKey;
-import com.energyict.mdc.common.HasId;
+import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.impl.finders.ConnectionTaskFinder;
-import com.energyict.mdc.device.data.impl.finders.DeviceFinder;
-import com.energyict.mdc.device.data.impl.finders.SecuritySetFinder;
-import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
+import com.energyict.mdc.device.data.exceptions.NestedRelationTransactionException;
+import com.energyict.mdc.device.data.exceptions.SecurityPropertyException;
 import com.energyict.mdc.dynamic.relation.Relation;
 import com.energyict.mdc.dynamic.relation.RelationSearchFilter;
-import com.energyict.mdc.dynamic.relation.RelationService;
+import com.energyict.mdc.dynamic.relation.RelationTransaction;
 import com.energyict.mdc.dynamic.relation.RelationType;
-import com.energyict.mdc.issues.impl.IssuesModule;
 import com.energyict.mdc.pluggable.PluggableClassType;
 import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
@@ -54,35 +26,38 @@ import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.SecurityPropertySetRelationAttributeTypeNames;
-import com.google.common.collect.Range;
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.event.EventAdmin;
 
-import java.security.Principal;
-import java.sql.PreparedStatement;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.StringFactory;
+import com.google.common.collect.Range;
+
+import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests the {@link SecurityPropertyServiceImpl} component.
@@ -133,8 +108,8 @@ public class SecurityPropertyServiceImplTest {
     private LicensedProtocolService licensedProtocolService;
     @Mock
     private DeviceCacheMarshallingService deviceCacheMarshallingService;
-
-    private InMemoryPersistence inMemoryPersistence;
+    @Mock
+    private NlsService nlsService;
 
     @Before
     public void initializeMocks () {
@@ -177,8 +152,68 @@ public class SecurityPropertyServiceImplTest {
     }
 
     @Test
+    public void hasSecurityPropertiesForUserThatIsNotAllowedToView () {
+        Relation relation = mock(Relation.class);
+        Instant relationFrom = Instant.ofEpochSecond(97L);
+        Instant relationTo = relationFrom.plusSeconds(10);
+        when(relation.getPeriod()).thenReturn(Range.closedOpen(relationFrom, relationTo));
+        when(relation.get(USERNAME_SECURITY_PROPERTY_NAME)).thenReturn("user");
+        when(relation.get(PASSWORD_SECURITY_PROPERTY_NAME)).thenReturn("password");
+        when(this.securityPropertyRelationType.findByFilter(any(RelationSearchFilter.class))).thenReturn(Arrays.asList(relation));
+        when(this.securityPropertySet1.currentUserIsAllowedToViewDeviceProperties()).thenReturn(false);
+
+        // Business method
+        boolean hasSecurityProperties = this.testService().hasSecurityProperties(this.device, relationFrom.plusSeconds(1), this.securityPropertySet1);
+
+        // Asserts
+        assertThat(hasSecurityProperties).isTrue();
+    }
+
+    @Test
+    public void hasSecurityPropertiesForUserThatIsAllowedToView () {
+        Relation relation = mock(Relation.class);
+        Instant relationFrom = Instant.ofEpochSecond(97L);
+        Instant relationTo = relationFrom.plusSeconds(10);
+        when(relation.getPeriod()).thenReturn(Range.closedOpen(relationFrom, relationTo));
+        when(relation.get(USERNAME_SECURITY_PROPERTY_NAME)).thenReturn("user");
+        when(relation.get(PASSWORD_SECURITY_PROPERTY_NAME)).thenReturn("password");
+        when(this.securityPropertyRelationType.findByFilter(any(RelationSearchFilter.class))).thenReturn(Arrays.asList(relation));
+        when(this.securityPropertySet1.currentUserIsAllowedToViewDeviceProperties()).thenReturn(true);
+
+        // Business method
+        boolean hasSecurityProperties = this.testService().hasSecurityProperties(this.device, relationFrom.plusSeconds(1), this.securityPropertySet1);
+
+        // Asserts
+        assertThat(hasSecurityProperties).isTrue();
+    }
+
+    @Test
+    public void hasSecurityPropertiesForRelationsInThePast() {
+        Instant relation1From = Instant.ofEpochSecond(97L);
+        Instant relation1To = relation1From.plusSeconds(10);
+        Relation relation1 = mock(Relation.class);
+        when(relation1.getPeriod()).thenReturn(Range.closedOpen(relation1From, relation1To));
+        when(relation1.get(USERNAME_SECURITY_PROPERTY_NAME)).thenReturn("old user");
+        when(relation1.get(PASSWORD_SECURITY_PROPERTY_NAME)).thenReturn("old password");
+        Instant relation2From = relation1To;
+        Instant relation2To = relation2From.plusSeconds(100);
+        Relation relation2 = mock(Relation.class);
+        when(relation2.getPeriod()).thenReturn(Range.closedOpen(relation2From, relation2To));
+        when(this.securityPropertyRelationType.findByFilter(any(RelationSearchFilter.class))).thenReturn(Arrays.asList(relation1, relation2));
+        when(this.securityPropertySet1.currentUserIsAllowedToViewDeviceProperties()).thenReturn(true);
+
+        // Business method
+        boolean hasSecurityProperties = this.testService().hasSecurityProperties(this.device, relation2To.plusSeconds(1), this.securityPropertySet1);
+
+        // Asserts
+        assertThat(hasSecurityProperties).isFalse();
+    }
+
+    @Test
     public void getSecurityPropertiesForUserThatIsNotAllowedToView () {
-        when(this.securityPropertySet1.currentUserIsAllowedToEditDeviceProperties()).thenReturn(false);
+        Relation relation = mock(Relation.class);
+        when(this.securityPropertyRelationType.findByFilter(any(RelationSearchFilter.class))).thenReturn(Arrays.asList(relation));
+        when(this.securityPropertySet1.currentUserIsAllowedToViewDeviceProperties()).thenReturn(false);
 
         // Business method
         List<SecurityProperty> securityProperties = this.testService().getSecurityProperties(this.device, Instant.now(), this.securityPropertySet1);
@@ -201,21 +236,139 @@ public class SecurityPropertyServiceImplTest {
     }
 
     @Test
-    public void getSecurityProperties () throws SQLException {
-        try {
-            this.initializeDatabase();
+    public void getSecurityPropertiesReturnsOnlyActiveProperties () throws SQLException {
+        Instant oldRelationFrom = Instant.ofEpochSecond(97L);
+        Instant oldRelationTo = oldRelationFrom.plusSeconds(10);
+        Relation oldRelation = mock(Relation.class);
+        when(oldRelation.getPeriod()).thenReturn(Range.closedOpen(oldRelationFrom, oldRelationTo));
+        when(oldRelation.get(USERNAME_SECURITY_PROPERTY_NAME)).thenReturn("old user");
+        when(oldRelation.get(PASSWORD_SECURITY_PROPERTY_NAME)).thenReturn("old password");
+        Instant currentRelationFrom = oldRelationTo;
+        Instant currentRelationTo = currentRelationFrom.plusSeconds(100);
+        Relation currentRelation = mock(Relation.class);
+        when(currentRelation.getPeriod()).thenReturn(Range.closedOpen(currentRelationFrom, currentRelationTo));
+        String expectedUser = "current user";
+        String expectedPassword = "current password";
+        when(currentRelation.get(USERNAME_SECURITY_PROPERTY_NAME)).thenReturn(expectedUser);
+        when(currentRelation.get(PASSWORD_SECURITY_PROPERTY_NAME)).thenReturn(expectedPassword);
+        when(this.securityPropertyRelationType.findByFilter(any(RelationSearchFilter.class))).thenReturn(Arrays.asList(oldRelation, currentRelation));
+        when(this.securityPropertySet1.currentUserIsAllowedToViewDeviceProperties()).thenReturn(true);
+        when(this.clock.instant()).thenReturn(currentRelationFrom.plusSeconds(10));
 
-            // Business method
-            List<SecurityProperty> securityProperties = this.testService().getSecurityProperties(this.device, Instant.now(), this.securityPropertySet1);
+        // Business method
+        List<SecurityProperty> securityProperties = this.testService().getSecurityProperties(this.device, this.clock.instant(), this.securityPropertySet1);
 
-            // Asserts
-            verify(this.protocolPluggableService).findSecurityPropertyRelationType(this.deviceProtocolPluggableClass);
-            assertThat(securityProperties).isEmpty();
-        } finally {
-            if (this.inMemoryPersistence != null) {
-                this.inMemoryPersistence.cleanUpDataBase();
-            }
-        }
+        // Asserts
+        verify(this.protocolPluggableService).findSecurityPropertyRelationType(this.deviceProtocolPluggableClass);
+        Map<String, Object> propertyNames =
+                securityProperties
+                        .stream()
+                        .collect(Collectors.toMap(
+                            SecurityProperty::getName,
+                            SecurityProperty::getValue));
+        assertThat(propertyNames.keySet()).containsOnly(USERNAME_SECURITY_PROPERTY_NAME, PASSWORD_SECURITY_PROPERTY_NAME);
+        assertThat(propertyNames.get(USERNAME_SECURITY_PROPERTY_NAME)).isEqualTo(expectedUser);
+        assertThat(propertyNames.get(PASSWORD_SECURITY_PROPERTY_NAME)).isEqualTo(expectedPassword);
+    }
+
+    @Test
+    public void getSecurityPropertiesWithOnlyPropertiesInThePast () throws SQLException {
+        Instant oldRelationFrom = Instant.ofEpochSecond(97L);
+        Instant oldRelationTo = oldRelationFrom.plusSeconds(10);
+        Relation oldRelation = mock(Relation.class);
+        when(oldRelation.getPeriod()).thenReturn(Range.closedOpen(oldRelationFrom, oldRelationTo));
+        when(oldRelation.get(USERNAME_SECURITY_PROPERTY_NAME)).thenReturn("old user");
+        when(oldRelation.get(PASSWORD_SECURITY_PROPERTY_NAME)).thenReturn("old password");
+        Instant currentRelationFrom = oldRelationTo;
+        Instant currentRelationTo = currentRelationFrom.plusSeconds(100);
+        Relation currentRelation = mock(Relation.class);
+        when(currentRelation.getPeriod()).thenReturn(Range.closedOpen(currentRelationFrom, currentRelationTo));
+        String expectedUser = "current user";
+        String expectedPassword = "current password";
+        when(currentRelation.get(USERNAME_SECURITY_PROPERTY_NAME)).thenReturn(expectedUser);
+        when(currentRelation.get(PASSWORD_SECURITY_PROPERTY_NAME)).thenReturn(expectedPassword);
+        when(this.securityPropertyRelationType.findByFilter(any(RelationSearchFilter.class))).thenReturn(Arrays.asList(oldRelation, currentRelation));
+        when(this.securityPropertySet1.currentUserIsAllowedToViewDeviceProperties()).thenReturn(true);
+        when(this.clock.instant()).thenReturn(currentRelationTo.plusSeconds(10));
+
+        // Business method
+        List<SecurityProperty> securityProperties = this.testService().getSecurityProperties(this.device, this.clock.instant(), this.securityPropertySet1);
+
+        // Asserts
+        verify(this.protocolPluggableService).findSecurityPropertyRelationType(this.deviceProtocolPluggableClass);
+        assertThat(securityProperties).isEmpty();
+    }
+
+    @Test(expected = SecurityPropertyException.class)
+    public void setSecurityPropertiesForUserThatIsNotAllowedToEdit () {
+        when(this.securityPropertySet1.currentUserIsAllowedToEditDeviceProperties()).thenReturn(false);
+
+        // Business method
+        this.testService().setSecurityProperties(this.device, this.securityPropertySet1, TypedProperties.empty());
+
+        // Asserts
+        verify(this.securityPropertySet1).currentUserIsAllowedToEditDeviceProperties();
+    }
+
+    @Test
+    public void setSecurityProperties () throws SQLException, BusinessException {
+        Instant now = Instant.ofEpochSecond(97L);
+        when(this.clock.instant()).thenReturn(now);
+        when(this.securityPropertySet1.currentUserIsAllowedToEditDeviceProperties()).thenReturn(true);
+        RelationTransaction transaction = mock(RelationTransaction.class);
+        when(this.securityPropertyRelationType.newRelationTransaction()).thenReturn(transaction);
+        TypedProperties properties = TypedProperties.empty();
+        properties.setProperty("One", BigDecimal.ONE);
+        properties.setProperty("Two", "Due");
+
+        // Business method
+        this.testService().setSecurityProperties(this.device, this.securityPropertySet1, properties);
+
+        // Asserts
+        verify(transaction).setFrom(now);
+        verify(transaction).setTo(null);
+        verify(transaction).set(SecurityPropertySetRelationAttributeTypeNames.DEVICE_ATTRIBUTE_NAME, this.device);
+        verify(transaction).set(SecurityPropertySetRelationAttributeTypeNames.SECURITY_PROPERTY_SET_ATTRIBUTE_NAME, this.securityPropertySet1);
+        verify(transaction).set("One", BigDecimal.ONE);
+        verify(transaction).set("Two", "Due");
+        verify(transaction).execute();
+    }
+
+    @Test(expected = NestedRelationTransactionException.class)
+    public void setSecurityPropertiesWrapsBusinessException () throws SQLException, BusinessException {
+        Instant now = Instant.ofEpochSecond(97L);
+        when(this.clock.instant()).thenReturn(now);
+        when(this.securityPropertySet1.currentUserIsAllowedToEditDeviceProperties()).thenReturn(true);
+        RelationTransaction transaction = mock(RelationTransaction.class);
+        when(transaction.getRelationType()).thenReturn(this.securityPropertyRelationType);
+        when(this.securityPropertyRelationType.newRelationTransaction()).thenReturn(transaction);
+        TypedProperties properties = TypedProperties.empty();
+        properties.setProperty("One", BigDecimal.ONE);
+        properties.setProperty("Two", "Due");
+        doThrow(BusinessException.class).when(transaction).execute();
+
+        // Business method
+        this.testService().setSecurityProperties(this.device, this.securityPropertySet1, properties);
+
+        // Asserts: see expected exception rule
+    }
+
+    @Test(expected = UnderlyingSQLFailedException.class)
+    public void setSecurityPropertiesWrapsSqlException () throws SQLException, BusinessException {
+        Instant now = Instant.ofEpochSecond(97L);
+        when(this.clock.instant()).thenReturn(now);
+        when(this.securityPropertySet1.currentUserIsAllowedToEditDeviceProperties()).thenReturn(true);
+        RelationTransaction transaction = mock(RelationTransaction.class);
+        when(this.securityPropertyRelationType.newRelationTransaction()).thenReturn(transaction);
+        TypedProperties properties = TypedProperties.empty();
+        properties.setProperty("One", BigDecimal.ONE);
+        properties.setProperty("Two", "Due");
+        doThrow(SQLException.class).when(transaction).execute();
+
+        // Business method
+        this.testService().setSecurityProperties(this.device, this.securityPropertySet1, properties);
+
+        // Asserts: see expected exception rule
     }
 
     @Test
@@ -374,142 +527,39 @@ public class SecurityPropertyServiceImplTest {
         assertThat(securityPropertiesAreValid).isTrue();
     }
 
+    @Test
+    public void deleteSecurityProperties() throws SQLException, BusinessException {
+        Instant now = Instant.ofEpochSecond(1430523600L);
+        when(this.clock.instant()).thenReturn(now);
+        Range<Instant> period = Range.closedOpen(now, Instant.ofEpochMilli(ETERNITY));
+        SecurityPropertyService service = this.testService();
+        Relation relationForSecurityPropertySet1 = mock(Relation.class);
+        when(relationForSecurityPropertySet1.getPeriod()).thenReturn(period);
+        when(relationForSecurityPropertySet1.get(SecurityPropertySetRelationAttributeTypeNames.STATUS_ATTRIBUTE_NAME)).thenReturn(true);
+        when(relationForSecurityPropertySet1.get(USERNAME_SECURITY_PROPERTY_NAME)).thenReturn("test");
+        when(relationForSecurityPropertySet1.get(PASSWORD_SECURITY_PROPERTY_NAME)).thenReturn("pass");
+        Relation relationForSecurityPropertySet2 = mock(Relation.class);
+        when(relationForSecurityPropertySet2.getPeriod()).thenReturn(period);
+        when(relationForSecurityPropertySet2.get(SecurityPropertySetRelationAttributeTypeNames.STATUS_ATTRIBUTE_NAME)).thenReturn(true);
+        when(relationForSecurityPropertySet2.get(SOME_KEY_SECURITY_PROPERTY_NAME)).thenReturn("something");
+        when(this.securityPropertyRelationType
+                .findByFilter(any(RelationSearchFilter.class)))
+                .thenReturn(
+                        Arrays.asList(relationForSecurityPropertySet1),
+                        Arrays.asList(relationForSecurityPropertySet2));
+
+        // Business method
+        service.deleteSecurityPropertiesFor(this.device);
+
+        // Asserts
+        verify(this.protocolPluggableService).findSecurityPropertyRelationType(this.deviceProtocolPluggableClass);
+        verify(this.securityPropertyRelationType, times(2)).findByFilter(any(RelationSearchFilter.class));
+        verify(relationForSecurityPropertySet1).delete();
+        verify(relationForSecurityPropertySet2).delete();
+    }
+
     private SecurityPropertyService testService () {
-        return new SecurityPropertyServiceImpl(this.clock, this.protocolPluggableService);
+        return new SecurityPropertyServiceImpl(this.clock, this.protocolPluggableService, this.nlsService);
     }
 
-    private void initializeDatabase () throws SQLException {
-        this.inMemoryPersistence = new InMemoryPersistence();
-        this.inMemoryPersistence.initializeDatabase();
-        this.inMemoryPersistence.newDeviceProtocolPluggableClass("SecurityPropertyServiceImplTest", TestProtocolWithOnlySecurityProperties.class.getName());
-        when(this.deviceProtocolPluggableClass.getProperties(anyListOf(PropertySpec.class))).thenReturn(TypedProperties.empty());
-        when(this.deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(new TestProtocolWithOnlySecurityProperties(inMemoryPersistence.propertySpecService));
-        when(this.deviceProtocolPluggableClass.getJavaClassName()).thenReturn(TestProtocolWithOnlySecurityProperties.class.getName());
-    }
-
-    private class InMemoryPersistence {
-        private BundleContext bundleContext;
-        private Principal principal;
-        private EventAdmin eventAdmin;
-        private TransactionService transactionService;
-        private OrmService ormService;
-        private EventService eventService;
-        private NlsService nlsService;
-        private RelationService relationService;
-        private InMemoryBootstrapModule bootstrapModule;
-        private PropertySpecService propertySpecService;
-        private LicenseService licenseService;
-        private DeviceConfigurationService deviceConfigurationService;
-
-        public RelationService getRelationService() {
-            return relationService;
-        }
-
-        public ProtocolPluggableService getProtocolPluggableService() {
-            return protocolPluggableService;
-        }
-
-        private void initializeDatabase () throws SQLException {
-            this.initializeMocks();
-            this.bootstrapModule = new InMemoryBootstrapModule();
-            Injector injector = Guice.createInjector(
-                    new AbstractModule() {
-                        @Override
-                        protected void configure() {
-                            bind(EventAdmin.class).toInstance(eventAdmin);
-                            bind(LicenseService.class).toInstance(licenseService);
-                            bind(BundleContext.class).toInstance(bundleContext);
-                            bind(PluggableService.class).toInstance(pluggableService);
-                            bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);
-                            bind(DeviceProtocolService.class).toInstance(deviceProtocolService);
-                            bind(DeviceProtocolMessageService.class).toInstance(deviceProtocolMessageService);
-                            bind(DeviceProtocolSecurityService.class).toInstance(deviceProtocolSecurityService);
-                            bind(InboundDeviceProtocolService.class).toInstance(inboundDeviceProtocolService);
-                            bind(ConnectionTypeService.class).toInstance(connectionTypeService);
-                            bind(LicensedProtocolService.class).toInstance(licensedProtocolService);
-                            bind(DeviceCacheMarshallingService.class).toInstance(deviceCacheMarshallingService);
-                            bind(DeviceConfigurationService.class).toInstance(deviceConfigurationService);
-                        }
-                    },
-                    this.bootstrapModule,
-                    new UtilModule(clock),
-                    new ThreadSecurityModule(this.principal),
-                    new EventsModule(),
-                    new PubSubModule(),
-                    new TransactionModule(),
-                    new NlsModule(),
-                    new DomainUtilModule(),
-                    new InMemoryMessagingModule(),
-                    new OrmModule(),
-                    new DataVaultModule(),
-                    new IssuesModule(),
-                    new BasicPropertiesModule(),
-                    new MdcDynamicModule());
-            this.transactionService = injector.getInstance(TransactionService.class);
-            try (TransactionContext ctx = this.transactionService.getContext()) {
-                this.ormService = injector.getInstance(OrmService.class);
-                this.transactionService = injector.getInstance(TransactionService.class);
-                this.eventService = injector.getInstance(EventService.class);
-                this.nlsService = injector.getInstance(NlsService.class);
-                this.relationService = injector.getInstance(RelationService.class);
-                this.ormService = injector.getInstance(OrmService.class);
-                this.propertySpecService = injector.getInstance(PropertySpecService.class);
-                this.deviceConfigurationService = injector.getInstance(DeviceConfigurationService.class);
-                createOracleAliases((OrmServiceImpl) this.ormService);
-                initializeFactoryProviders();
-                ctx.commit();
-            }
-        }
-
-        private void initializeFactoryProviders() {
-            this.propertySpecService.addFactoryProvider(() -> {
-                List<CanFindByLongPrimaryKey<? extends HasId>> finders = new ArrayList<>();
-                finders.add(new ConnectionTaskFinder(ormService.getDataModels().get(0)));
-                finders.add(new DeviceFinder(ormService.getDataModels().get(0)));
-                finders.add(new SecuritySetFinder(deviceConfigurationService));
-                return finders;
-            });
-        }
-
-        private void initializeMocks() {
-            this.bundleContext = mock(BundleContext.class);
-            this.eventAdmin = mock(EventAdmin.class);
-            this.principal = mock(Principal.class);
-            this.deviceConfigurationService = mock(DeviceConfigurationService.class);
-            when(this.principal.getName()).thenReturn("SecurityPropertyServiceImplTest");
-            this.licenseService = mock(LicenseService.class);
-            when(this.licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.<License>empty());
-            when(deviceProtocolService.createProtocol(TestProtocolWithOnlySecurityProperties.class.getName())).thenReturn(new TestProtocolWithOnlySecurityProperties(propertySpecService));
-        }
-
-        private void createOracleAliases(OrmServiceImpl ormService) throws SQLException {
-            try (PreparedStatement preparedStatement = ormService.getConnection(true).prepareStatement(
-                    "CREATE VIEW IF NOT EXISTS USER_TABLES AS select table_name from INFORMATION_SCHEMA.TABLES where table_schema = 'PUBLIC'"
-            )) {
-                preparedStatement.execute();
-            }
-            try (PreparedStatement preparedStatement = ormService.getConnection(true).prepareStatement(
-                    "CREATE VIEW IF NOT EXISTS USER_IND_COLUMNS AS select index_name, table_name, column_name, ordinal_position AS column_position from INFORMATION_SCHEMA.INDEXES where table_schema = 'PUBLIC'"
-            )) {
-                preparedStatement.execute();
-            }
-            try (PreparedStatement preparedStatement = ormService.getConnection(true).prepareStatement(
-                    "CREATE TABLE IF NOT EXISTS USER_SEQUENCES ( SEQUENCE_NAME VARCHAR2 (30) NOT NULL, MIN_VALUE NUMBER, MAX_VALUE NUMBER, INCREMENT_BY NUMBER NOT NULL, CYCLE_FLAG VARCHAR2 (1), ORDER_FLAG VARCHAR2 (1), CACHE_SIZE NUMBER NOT NULL, LAST_NUMBER NUMBER NOT NULL)"
-            )) {
-                preparedStatement.execute();
-            }
-        }
-
-        public void cleanUpDataBase() throws SQLException {
-            this.bootstrapModule.deactivate();
-        }
-
-        public void newDeviceProtocolPluggableClass(String name, String javaClassName) {
-            try (TransactionContext ctx = this.transactionService.getContext()) {
-                protocolPluggableService.newDeviceProtocolPluggableClass(name, javaClassName);
-                ctx.commit();
-            }
-
-        }
-    }
 }
