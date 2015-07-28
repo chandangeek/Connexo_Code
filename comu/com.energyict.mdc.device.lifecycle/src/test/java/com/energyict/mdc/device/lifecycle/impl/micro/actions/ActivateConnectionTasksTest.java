@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.lifecycle.impl.micro.actions;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.PartialConnectionTask;
@@ -54,6 +55,8 @@ public class ActivateConnectionTasksTest {
     private PartialConnectionTask partialConnectionTask1;
     @Mock
     private PartialConnectionTask partialConnectionTask2;
+    @Mock
+    private Thesaurus thesaurus;
 
     @Before
     public void setup() {
@@ -97,7 +100,7 @@ public class ActivateConnectionTasksTest {
     }
 
     private ActivateConnectionTasks getTestInstance() {
-        return new ActivateConnectionTasks();
+        return new ActivateConnectionTasks(thesaurus);
     }
 
 }

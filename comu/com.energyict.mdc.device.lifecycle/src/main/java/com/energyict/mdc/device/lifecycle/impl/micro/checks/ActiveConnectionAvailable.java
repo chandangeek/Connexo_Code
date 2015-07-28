@@ -14,12 +14,15 @@ import java.util.Optional;
 /**
  * Check if at least one connection is available on the device with the status: "Active".
  */
-public class ActiveConnectionAvailable implements ServerMicroCheck {
-
-    private final Thesaurus thesaurus;
+public class ActiveConnectionAvailable extends TranslatableServerMicroCheck {
 
     public ActiveConnectionAvailable(Thesaurus thesaurus){
-        this.thesaurus = thesaurus;
+       super(thesaurus);
+    }
+
+    @Override
+    protected MicroCheck getMicroCheck() {
+        return MicroCheck.AT_LEAST_ONE_ACTIVE_CONNECTION_AVAILABLE;
     }
 
     @Override

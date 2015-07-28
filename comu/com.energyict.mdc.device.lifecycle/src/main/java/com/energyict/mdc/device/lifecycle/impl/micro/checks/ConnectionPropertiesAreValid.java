@@ -22,13 +22,10 @@ import java.util.Optional;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-04-15 (09:48)
  */
-public class ConnectionPropertiesAreValid implements ServerMicroCheck {
-
-    private final Thesaurus thesaurus;
+public class ConnectionPropertiesAreValid extends ConsolidatedServerMicroCheck {
 
     public ConnectionPropertiesAreValid(Thesaurus thesaurus) {
-        super();
-        this.thesaurus = thesaurus;
+        super(thesaurus);
     }
 
     @Override

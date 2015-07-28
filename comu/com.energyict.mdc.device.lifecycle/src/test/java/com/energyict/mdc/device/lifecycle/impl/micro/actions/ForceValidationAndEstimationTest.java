@@ -2,6 +2,7 @@ package com.energyict.mdc.device.lifecycle.impl.micro.actions;
 
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ReadingQualityRecord;
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceEstimation;
 import com.energyict.mdc.device.data.DeviceValidation;
@@ -57,6 +58,8 @@ public class ForceValidationAndEstimationTest {
     private PropertySpecService propertySpecService;
     @Mock
     private Device device;
+    @Mock
+    private Thesaurus thesaurus;
 
     @Before
     public void setUp() {
@@ -180,7 +183,7 @@ public class ForceValidationAndEstimationTest {
     }
 
     public ForceValidationAndEstimation getTestInstance() {
-        return new ForceValidationAndEstimation(this.validationService, this.estimationService);
+        return new ForceValidationAndEstimation(thesaurus, this.validationService, this.estimationService);
     }
 
 }

@@ -3,9 +3,11 @@ package com.energyict.mdc.device.lifecycle.impl.micro.actions;
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.ReadingQualityType;
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
+import com.energyict.mdc.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.lifecycle.impl.MessageSeeds;
 import com.energyict.mdc.device.lifecycle.impl.ServerMicroAction;
 
@@ -30,7 +32,7 @@ import java.util.List;
  *
  * @see {@link com.energyict.mdc.device.lifecycle.config.MicroAction#FORCE_VALIDATION_AND_ESTIMATION}
  */
-public class ForceValidationAndEstimation implements ServerMicroAction {
+public class ForceValidationAndEstimation extends TranslatableServerMicroAction {
 
     //Required services
     private final ValidationService validationService;
@@ -38,7 +40,8 @@ public class ForceValidationAndEstimation implements ServerMicroAction {
 
     private Device device;
 
-    public ForceValidationAndEstimation(ValidationService validationService, EstimationService estimationService) {
+    public ForceValidationAndEstimation(Thesaurus thesaurus, ValidationService validationService, EstimationService estimationService) {
+        super(thesaurus);
         this.validationService = validationService;
         this.estimationService = estimationService;
     }
@@ -72,6 +75,11 @@ public class ForceValidationAndEstimation implements ServerMicroAction {
         if (nrOfSuspects > 0) {
             throw new ForceValidationAndEstimationException(MessageSeeds.NOT_ALL_DATA_VALID_FOR_DEVICE);
         }
+    }
+
+    @Override
+    protected MicroAction getMicroAction() {
+        return MicroAction.FORCE_VALIDATION_AND_ESTIMATION;
     }
 
     public class ForceValidationAndEstimationException extends BaseException {

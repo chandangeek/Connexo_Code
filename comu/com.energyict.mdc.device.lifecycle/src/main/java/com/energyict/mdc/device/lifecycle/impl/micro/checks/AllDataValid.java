@@ -22,15 +22,13 @@ import java.util.Optional;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-05-13 (11:24)
  */
-public class AllDataValid implements ServerMicroCheck {
+public class AllDataValid extends TranslatableServerMicroCheck {
 
     private final ValidationService validationService;
-    private final Thesaurus thesaurus;
 
     public AllDataValid(ValidationService validationService, Thesaurus thesaurus) {
-        super();
+        super(thesaurus);
         this.validationService = validationService;
-        this.thesaurus = thesaurus;
     }
 
     @Override
@@ -54,4 +52,8 @@ public class AllDataValid implements ServerMicroCheck {
     }
 
 
+    @Override
+    protected MicroCheck getMicroCheck() {
+        return MicroCheck.ALL_DATA_VALID;
+    }
 }

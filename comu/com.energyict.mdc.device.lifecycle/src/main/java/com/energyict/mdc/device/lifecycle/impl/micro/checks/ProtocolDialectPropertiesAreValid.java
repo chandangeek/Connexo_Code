@@ -20,13 +20,11 @@ import java.util.stream.Collectors;
  *The check will verify that when an attribute is marked as mandatory, a value is foreseen. If no value foreseen on at least one mandatory attribute, the check will fail.
  *Only the protocol dialects that are used on one of the communication tasks of the device are checked
  */
-public class ProtocolDialectPropertiesAreValid implements ServerMicroCheck {
+public class ProtocolDialectPropertiesAreValid extends ConsolidatedServerMicroCheck {
 
-    private final Thesaurus thesaurus;
 
     public ProtocolDialectPropertiesAreValid(Thesaurus thesaurus) {
-        super();
-        this.thesaurus = thesaurus;
+        super(thesaurus);
     }
 
     @Override

@@ -34,6 +34,7 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.streams.Functions;
+import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 import com.google.common.collect.Range;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -384,4 +385,33 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
             .publish();
     }
 
+    @Override
+    public String getName(MicroCheck microCheck) {
+        return this.microCheckFactory.from(microCheck).getName();
+    }
+
+    @Override
+    public String getDescription(MicroCheck microCheck) {
+        return this.microCheckFactory.from(microCheck).getDescription();
+    }
+
+    @Override
+    public String getName(MicroAction microAction) {
+        return this.microActionFactory.from(microAction).getName();
+    }
+
+    @Override
+    public String getDescription(MicroAction microAction) {
+        return this.microActionFactory.from(microAction).getDescription();
+    }
+
+    @Override
+    public String getCategoryName(MicroCheck microCheck) {
+        return this.microCheckFactory.from(microCheck).getCategoryName();
+    }
+
+    @Override
+    public String getCategoryName(MicroAction microAction) {
+        return this.microActionFactory.from(microAction).getCategoryName();
+    }
 }

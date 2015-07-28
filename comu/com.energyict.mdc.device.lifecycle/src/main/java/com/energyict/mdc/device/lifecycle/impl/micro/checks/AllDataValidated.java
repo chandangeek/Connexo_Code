@@ -17,15 +17,13 @@ import java.util.Optional;
  * Date: 16/06/2015
  * Time: 14:17
  */
-public class AllDataValidated implements ServerMicroCheck {
+public class AllDataValidated extends TranslatableServerMicroCheck {
 
     private final ValidationService validationService;
-    private final Thesaurus thesaurus;
 
     public AllDataValidated(ValidationService validationService, Thesaurus thesaurus) {
-        super();
+        super(thesaurus);
         this.validationService = validationService;
-        this.thesaurus = thesaurus;
     }
 
     @Override
@@ -48,4 +46,8 @@ public class AllDataValidated implements ServerMicroCheck {
                 MicroCheck.ALL_DATA_VALIDATED);
     }
 
+    @Override
+    protected MicroCheck getMicroCheck() {
+        return MicroCheck.ALL_DATA_VALIDATED;
+    }
 }

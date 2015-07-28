@@ -6,6 +6,7 @@ import com.energyict.mdc.device.lifecycle.config.MicroAction;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.energyict.mdc.device.lifecycle.impl.micro.i18n.MicroActionTranslationKey;
 
 import java.time.Instant;
 import java.util.Collections;
@@ -39,5 +40,12 @@ public interface ServerMicroAction {
      * @param properties The List of
      */
     public void execute(Device device, Instant effectiveTimestamp, List<ExecutableActionProperty> properties);
+
+    String getName();
+
+    String getDescription();
+
+    String getCategoryName();
+
 
 }

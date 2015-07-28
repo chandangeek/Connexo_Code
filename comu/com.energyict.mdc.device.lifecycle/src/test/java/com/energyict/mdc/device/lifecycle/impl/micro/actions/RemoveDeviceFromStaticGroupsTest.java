@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.lifecycle.impl.micro.actions;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.data.Device;
 
 import com.elster.jupiter.metering.AmrSystem;
@@ -55,6 +56,8 @@ public class RemoveDeviceFromStaticGroupsTest {
     private Meter endDevice;
     @Mock
     private Device device;
+    @Mock
+    private Thesaurus thesaurus;
 
     @Before
     public void initializeMocks() {
@@ -137,7 +140,7 @@ public class RemoveDeviceFromStaticGroupsTest {
     }
 
     private RemoveDeviceFromStaticGroups getTestInstance() {
-        return new RemoveDeviceFromStaticGroups(this.meteringService, this.meteringGroupsService);
+        return new RemoveDeviceFromStaticGroups(thesaurus, this.meteringService, this.meteringGroupsService);
     }
 
 }

@@ -1,7 +1,9 @@
 package com.energyict.mdc.device.lifecycle.impl.micro.actions;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
+import com.energyict.mdc.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.lifecycle.impl.ServerMicroAction;
 
 import com.elster.jupiter.properties.PropertySpec;
@@ -20,7 +22,11 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-05-2 5(14:19)
  */
-public class CreateMeterActivation implements ServerMicroAction {
+public class CreateMeterActivation extends TranslatableServerMicroAction {
+
+    public CreateMeterActivation(Thesaurus thesaurus) {
+        super(thesaurus);
+    }
 
     @Override
     public List<PropertySpec> getPropertySpecs(PropertySpecService propertySpecService) {
@@ -33,4 +39,8 @@ public class CreateMeterActivation implements ServerMicroAction {
         device.activate(effectiveTimestamp);
     }
 
+    @Override
+    protected MicroAction getMicroAction() {
+        return MicroAction.CREATE_METER_ACTIVATION;
+    }
 }

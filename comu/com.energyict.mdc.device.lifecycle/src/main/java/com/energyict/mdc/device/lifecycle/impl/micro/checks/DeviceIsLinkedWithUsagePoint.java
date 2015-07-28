@@ -18,13 +18,15 @@ import java.util.Optional;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-04-17 (12:47)
  */
-public class DeviceIsLinkedWithUsagePoint implements ServerMicroCheck {
-
-    private final Thesaurus thesaurus;
+public class DeviceIsLinkedWithUsagePoint extends TranslatableServerMicroCheck {
 
     public DeviceIsLinkedWithUsagePoint(Thesaurus thesaurus) {
-        super();
-        this.thesaurus = thesaurus;
+        super(thesaurus);
+    }
+
+    @Override
+    protected MicroCheck getMicroCheck() {
+        return MicroCheck.LINKED_WITH_USAGE_POINT;
     }
 
     @Override

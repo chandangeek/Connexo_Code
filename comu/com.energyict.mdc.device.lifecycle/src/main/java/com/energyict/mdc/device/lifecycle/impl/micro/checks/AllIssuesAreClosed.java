@@ -19,13 +19,15 @@ import java.util.Optional;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-04-17 (12:47)
  */
-public class AllIssuesAreClosed implements ServerMicroCheck {
-
-    private final Thesaurus thesaurus;
+public class AllIssuesAreClosed extends TranslatableServerMicroCheck {
 
     public AllIssuesAreClosed(Thesaurus thesaurus) {
-        super();
-        this.thesaurus = thesaurus;
+        super(thesaurus);
+    }
+
+    @Override
+    protected MicroCheck getMicroCheck() {
+        return MicroCheck.ALL_ISSUES_AND_ALARMS_ARE_CLOSED;
     }
 
     @Override

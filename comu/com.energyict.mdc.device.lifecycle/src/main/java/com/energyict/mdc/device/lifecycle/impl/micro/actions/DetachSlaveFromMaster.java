@@ -1,7 +1,9 @@
 package com.energyict.mdc.device.lifecycle.impl.micro.actions;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
+import com.energyict.mdc.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.lifecycle.impl.ServerMicroAction;
 import com.energyict.mdc.device.topology.TopologyService;
 
@@ -23,12 +25,12 @@ import java.util.List;
  * action bits: 512
  * @since 2015-05-06 (15:11)
  */
-public class DetachSlaveFromMaster implements ServerMicroAction {
+public class DetachSlaveFromMaster extends TranslatableServerMicroAction {
 
     private final TopologyService topologyService;
 
-    public DetachSlaveFromMaster(TopologyService topologyService) {
-        super();
+    public DetachSlaveFromMaster(Thesaurus thesaurus, TopologyService topologyService) {
+        super(thesaurus);
         this.topologyService = topologyService;
     }
 
@@ -43,4 +45,8 @@ public class DetachSlaveFromMaster implements ServerMicroAction {
         this.topologyService.getPhysicalGateway(device).ifPresent(master -> this.topologyService.clearPhysicalGateway(device));
     }
 
+    @Override
+    protected MicroAction getMicroAction() {
+        return MicroAction.DETACH_SLAVE_FROM_MASTER;
+    }
 }

@@ -22,13 +22,15 @@ import java.util.Optional;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-05-13 (09:00)
  */
-public class SharedScheduledCommunicationTaskAvailable implements ServerMicroCheck {
-
-    private final Thesaurus thesaurus;
+public class SharedScheduledCommunicationTaskAvailable extends TranslatableServerMicroCheck {
 
     public SharedScheduledCommunicationTaskAvailable(Thesaurus thesaurus) {
-        super();
-        this.thesaurus = thesaurus;
+        super(thesaurus);
+    }
+
+    @Override
+    protected MicroCheck getMicroCheck() {
+        return MicroCheck.AT_LEAST_ONE_SHARED_COMMUNICATION_SCHEDULE_AVAILABLE;
     }
 
     @Override
