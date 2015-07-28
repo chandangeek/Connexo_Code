@@ -237,16 +237,27 @@ Ext.define('Dlc.devicelifecycletransitions.controller.DeviceLifeCycleTransitions
             autoActionComponent = page.down('#actions-property-form'),
             pretransitionCheckComponent = page.down('#checks-property-form'),
             record = me.transition || Ext.create('Dlc.devicelifecycletransitions.model.DeviceLifeCycleTransition'),
-            privilegesArray = [];
+            privilegesArray = [],
+            microActions = [],
+            microChecks = [];
 
         if (!formErrorsPanel.isHidden()) {
             formErrorsPanel.setText(formErrorsPanel.defaultText);
             form.getForm().clearInvalid();
             formErrorsPanel.hide();
         }
+
         Ext.Array.each(privilegesCheckboxgroupValue.privilege, function (transitionPrivilege) {
             privilegesArray.push({ privilege: transitionPrivilege});
         });
+
+        if (!!autoActionComponent) {
+            microActions = autoActionComponent.getValue();
+        }
+
+        if (!!pretransitionCheckComponent) {
+            microChecks = pretransitionCheckComponent.getValue();
+        }
 
         !me.transition && record.getProxy().setUrl(router.arguments);
         record.beginEdit();
@@ -255,8 +266,8 @@ Ext.define('Dlc.devicelifecycletransitions.controller.DeviceLifeCycleTransitions
         record.set('toState', { id: form.down('#transition-to-combo').getValue() });
         record.set('triggeredBy', { symbol: form.down('#transition-triggered-by-combo').getValue() });
         record.set('privileges', privilegesArray);
-        record.set('microActions', autoActionComponent.getValue());
-        record.set('microChecks', pretransitionCheckComponent.getValue());
+        record.set('microActions', microActions);
+        record.set('microChecks', microChecks);
         record.endEdit();
         page.setLoading();
         record.save({
