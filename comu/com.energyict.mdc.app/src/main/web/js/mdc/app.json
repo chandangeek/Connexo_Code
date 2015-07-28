@@ -12,6 +12,7 @@
         "com.energyict.comserver.comserver.core.extjs",
         "com.energyict.mdc.dashboard.extjs",
         "com.energyict.mdc.device.data.imp.extjs",
+        "com.energyict.mdc.device.data.validation.extjs",
         "com.elster.jupiter.yellowfin.extjs",
         "com.energyict.mdc.firmware.extjs",
         "com.energyict.mdc.device.lifecycle.config.extjs",
