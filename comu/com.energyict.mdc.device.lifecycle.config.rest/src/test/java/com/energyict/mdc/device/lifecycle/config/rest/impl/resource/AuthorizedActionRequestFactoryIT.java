@@ -13,8 +13,8 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.common.rest.ExceptionFactory;
-import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
@@ -45,7 +45,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -77,6 +76,8 @@ public class AuthorizedActionRequestFactoryIT {
     private AuthorizedActionInfoFactory authorizedActionInfoFactory;
     @Mock
     private DeviceConfigurationService deviceConfigurationService;
+    @Mock
+    private DeviceLifeCycleService deviceLifeCycleService;
 
     @BeforeClass
     public static void initialize() {
@@ -142,7 +143,7 @@ public class AuthorizedActionRequestFactoryIT {
                         inMemoryPersistence.getService(FiniteStateMachineService.class),
                         new ExceptionFactory(this.thesaurus),
                         inMemoryPersistence.getService(EventService.class));
-        microActionAndCheckInfoFactory = new MicroActionAndCheckInfoFactory(thesaurus);
+        microActionAndCheckInfoFactory = new MicroActionAndCheckInfoFactory(deviceLifeCycleService, thesaurus);
         authorizedActionInfoFactory = new AuthorizedActionInfoFactory(thesaurus, microActionAndCheckInfoFactory);
     }
 

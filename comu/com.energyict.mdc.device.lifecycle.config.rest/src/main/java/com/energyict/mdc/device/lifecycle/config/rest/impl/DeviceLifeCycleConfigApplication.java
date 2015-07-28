@@ -15,12 +15,14 @@ import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
+import com.energyict.mdc.device.lifecycle.config.rest.impl.i18n.ConflictGroupTranslationKey;
 import com.energyict.mdc.device.lifecycle.config.rest.impl.i18n.DefaultLifeCycleTranslationKey;
 import com.energyict.mdc.device.lifecycle.config.rest.impl.i18n.MessageSeeds;
-import com.energyict.mdc.device.lifecycle.config.rest.i18n.MicroActionTranslationKey;
-import com.energyict.mdc.device.lifecycle.config.rest.i18n.MicroCategoryTranslationKey;
-import com.energyict.mdc.device.lifecycle.config.rest.i18n.MicroCheckTranslationKey;
+import com.energyict.mdc.device.lifecycle.impl.micro.i18n.MicroActionTranslationKey;
+import com.energyict.mdc.device.lifecycle.impl.micro.i18n.MicroCategoryTranslationKey;
+import com.energyict.mdc.device.lifecycle.impl.micro.i18n.MicroCheckTranslationKey;
 import com.energyict.mdc.device.lifecycle.config.rest.impl.resource.DeviceLifeCycleActionResource;
 import com.energyict.mdc.device.lifecycle.config.rest.impl.resource.DeviceLifeCycleResource;
 import com.energyict.mdc.device.lifecycle.config.rest.impl.resource.DeviceLifeCycleStateResource;
@@ -58,6 +60,7 @@ public class DeviceLifeCycleConfigApplication extends Application implements Tra
     private volatile FiniteStateMachineService finiteStateMachineService;
     private volatile EventService eventService;
     private volatile DeviceConfigurationService deviceConfigurationService;
+    private volatile DeviceLifeCycleService deviceLifeCycleService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -111,6 +114,11 @@ public class DeviceLifeCycleConfigApplication extends Application implements Tra
         this.deviceConfigurationService = deviceConfigurationService;
     }
 
+    @Reference
+    public void setDeviceLifeCycleService(DeviceLifeCycleService deviceLifeCycleService) {
+        this.deviceLifeCycleService = deviceLifeCycleService;
+    }
+
     @Override
     public String getComponentName() {
         return DEVICE_CONFIG_LIFECYCLE_COMPONENT;
@@ -125,9 +133,7 @@ public class DeviceLifeCycleConfigApplication extends Application implements Tra
     public List<TranslationKey> getKeys() {
         List<TranslationKey> keys = new ArrayList<>(Arrays.<TranslationKey>asList(MessageSeeds.values()));
         keys.addAll(Arrays.<TranslationKey>asList(DefaultLifeCycleTranslationKey.values()));
-        keys.addAll(Arrays.<TranslationKey>asList(MicroActionTranslationKey.values()));
-        keys.addAll(Arrays.<TranslationKey>asList(MicroCheckTranslationKey.values()));
-        keys.addAll(Arrays.<TranslationKey>asList(MicroCategoryTranslationKey.values()));
+        keys.addAll(Arrays.<TranslationKey>asList(ConflictGroupTranslationKey.values()));
         return keys;
     }
 
@@ -162,6 +168,7 @@ public class DeviceLifeCycleConfigApplication extends Application implements Tra
             bind(finiteStateMachineService).to(FiniteStateMachineService.class);
             bind(eventService).to(EventService.class);
             bind(deviceConfigurationService).to(DeviceConfigurationService.class);
+            bind(deviceLifeCycleService).to(DeviceLifeCycleService.class);
         }
     }
 }
