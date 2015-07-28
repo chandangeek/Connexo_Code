@@ -18,7 +18,7 @@ Ext.define('Uni.controller.Search', {
         'Uni.view.search.Adapter',
         'Uni.util.Filters',
         'Uni.view.search.field.Combobox',
-        // Grid columns.
+        'Uni.view.search.field.Simple',
         'Uni.grid.column.search.DeviceType',
         'Uni.grid.column.search.DeviceConfiguration'
     ],
@@ -555,7 +555,8 @@ Ext.define('Uni.controller.Search', {
         } else {
             switch (type) {
                 case 'String':
-                    widget = Ext.create('Uni.grid.filtertop.Text', {
+                    widget = Ext.create('Uni.view.search.field.Simple', {
+                        text: displayValue,
                         emptyText: displayValue
                     });
                     break;

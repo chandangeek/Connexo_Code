@@ -32,7 +32,8 @@ Ext.define('Uni.view.search.field.Simple', {
                         disabled: true
                     },
                     {
-                        xtype: 'search-criteria-input'
+                        xtype: 'search-criteria-input',
+                        emptyText: me.emptyText
                     }
                 ]
             }
