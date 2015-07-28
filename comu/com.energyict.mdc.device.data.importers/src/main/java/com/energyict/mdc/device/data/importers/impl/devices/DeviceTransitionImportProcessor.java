@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 public abstract  class DeviceTransitionImportProcessor<T extends DeviceTransitionRecord> implements FileImportProcessor<T> {
@@ -65,8 +66,12 @@ public abstract  class DeviceTransitionImportProcessor<T extends DeviceTransitio
             executableAction.execute(data.getTransitionActionDate().orElse(getContext().getClock().instant()),
                     getExecutableActionProperties(data, getAllPropertySpecsForAction(executableAction)));
         } catch (MultipleMicroCheckViolationsException ex){
-            // TODO translate violations!
-            throw new ProcessorException(MessageSeeds.PRE_TRANSITION_CHECKS_FAILED, data.getLineNumber(), "");
+            throw new ProcessorException(MessageSeeds.PRE_TRANSITION_CHECKS_FAILED, data.getLineNumber(),
+                    ex.getViolations()
+                            .stream()
+                            .map(violation -> context.getDeviceLifeCycleService().getName(violation.getCheck()))
+                            .distinct()
+                            .collect(Collectors.joining(", ")));
         }
     }
 
