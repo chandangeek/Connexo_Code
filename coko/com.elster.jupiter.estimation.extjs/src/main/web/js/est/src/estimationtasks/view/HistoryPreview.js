@@ -2,6 +2,7 @@ Ext.define('Est.estimationtasks.view.HistoryPreview', {
     extend: 'Ext.panel.Panel',
     frame: true,
     alias: 'widget.estimationtasks-history-preview',
+    title: ' ',
 
     requires: [
         'Est.estimationtasks.view.HistoryPreviewForm',

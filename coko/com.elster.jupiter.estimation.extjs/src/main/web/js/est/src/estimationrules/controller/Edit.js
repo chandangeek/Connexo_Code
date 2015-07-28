@@ -53,10 +53,11 @@ Ext.define('Est.estimationrules.controller.Edit', {
                     ? router.queryParams.previousRoute
                     : router.getRoute('administration/estimationrulesets/estimationruleset/rules').buildUrl()
             }),
-            dependencies = 2,
-            checkDependencies = function () {
-                dependencies--;
-                if (!dependencies) {
+            waitBeforeLoadingTheRule = 2,
+            // the following function loads the estimation rule into the form the 2nd time this method is called
+            checkFlagAndEventuallyLoadTheRuleIntoTheForm = function () {
+                waitBeforeLoadingTheRule--;
+                if (!waitBeforeLoadingTheRule) {
                     if (rule) {
                         widget.down('estimation-rule-edit-form').loadRecord(rule);
                     }
@@ -79,20 +80,20 @@ Ext.define('Est.estimationrules.controller.Edit', {
                 me.getApplication().fireEvent('loadEstimationRuleSet', record);
             }
         });
-        if (savedState) {
+        if (savedState) { // Coming back after having been to the "Add reading types" page
             rule = savedState;
             clipboard.clear('estimationRule');
-            checkDependencies();
-        } else if (!ruleId) {
+            checkFlagAndEventuallyLoadTheRuleIntoTheForm();
+        } else if (!ruleId) { // Adding a new estimation rule
             rule = Ext.create('Est.estimationrules.model.Rule');
-            checkDependencies();
-        } else {
+            checkFlagAndEventuallyLoadTheRuleIntoTheForm();
+        } else { // Editing an existing estimation rule
             ruleModel.load(ruleId, {
                 success: function (record) {
                     rule = record;
                     me.getApplication().fireEvent('loadEstimationRule', record);
                     if (widget.rendered) {
-                        checkDependencies();
+                        checkFlagAndEventuallyLoadTheRuleIntoTheForm();
                     }
                 },
                 failure: function () {
@@ -100,7 +101,7 @@ Ext.define('Est.estimationrules.controller.Edit', {
                 }
             });
         }
-        me.getStore('Est.estimationrules.store.Estimators').load(checkDependencies);
+        me.getStore('Est.estimationrules.store.Estimators').load(checkFlagAndEventuallyLoadTheRuleIntoTheForm);
 
     },
 
@@ -119,8 +120,8 @@ Ext.define('Est.estimationrules.controller.Edit', {
                 page.setLoading(false);
                 if (success) {
                     me.getApplication().fireEvent('acknowledge', operation.action === 'create'
-                        ? Uni.I18n.translate('estimationrules.addRuleSuccess', 'EST', 'Estimation rule added')
-                        : Uni.I18n.translate('estimationrules.saveRuleSuccess', 'EST', 'Estimation rule saved'));
+                        ? Uni.I18n.translate('estimationrules.addRuleSuccess', 'EST', 'Estimation rule successfully added')
+                        : Uni.I18n.translate('estimationrules.saveRuleSuccess', 'EST', 'Estimation rule successfully saved'));
                     if (page.rendered) {
                         window.location.href = page.returnLink;
                     }

@@ -3,10 +3,10 @@ Ext.define('Est.estimationtasks.view.History', {
     alias: 'widget.estimationtasks-history',
     requires: [
         'Est.estimationtasks.view.SideMenu',
-        'Est.estimationtasks.view.HistoryFilterForm',
         'Est.estimationtasks.view.HistoryGrid',
         'Est.estimationtasks.view.HistoryPreview',
-        'Uni.component.filter.view.FilterTopPanel',
+        'Est.estimationtasks.view.TaskHistoryTopFilter',
+        'Est.estimationtasks.store.EstimationTasksHistory',
         'Uni.view.notifications.NoItemsFoundPanel'
     ],
     router: null,
@@ -25,11 +25,6 @@ Ext.define('Est.estimationtasks.view.History', {
                         itemId: 'estimationtasks-side-menu',
                         taskId: me.taskId,
                         router: me.router
-                    },
-                    {
-                        xtype: 'estimationtasks-history-filter-form',
-                        itemId: 'side-filter',
-                        router: me.router
                     }
                 ]
             }
@@ -41,8 +36,7 @@ Ext.define('Est.estimationtasks.view.History', {
             title: Uni.I18n.translate('estimationtasks.general.history', 'EST', 'History'),
             items: [
                 {
-                    xtype: 'filter-top-panel',
-                    itemId: 'estimationtasks-history-filter-top-panel'
+                    xtype: 'est-tasks-view-taskhistorytopfilter'
                 },
                 {
                     xtype: 'preview-container',
@@ -54,7 +48,8 @@ Ext.define('Est.estimationtasks.view.History', {
                         xtype: 'no-items-found-panel',
                         title: Uni.I18n.translate('estimationtasks.estimationtasksHistory.empty.title', 'EST', 'No estimation history found'),
                         reasons: [
-                            Uni.I18n.translate('estimationtasks.estimationtasksHistory.empty.list.item1', 'EST', 'There is no history available for this estimation task.')
+                            Uni.I18n.translate('estimationtasks.estimationtasksHistory.empty.list.item1', 'EST', 'There is no history available for this estimation task.'),
+                            Uni.I18n.translate('estimationtasks.estimationtasksHistory.empty.list.item2', 'EST', 'The filter criteria are too narrow.')
                         ]
                     },
                     previewComponent: {

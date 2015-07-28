@@ -1,7 +1,10 @@
 Ext.define('Est.main.store.ReadingTypes', {
     extend: 'Ext.data.Store',
     model: 'Est.main.model.ReadingType',
-    storeId: 'ReadingTypesToAddForRule',
+    storeId: 'ReadingTypesToAddToEstimationRule',
+    requires: [
+        'Est.main.model.ReadingType'
+    ],
 
     buffered: true,
     pageSize: 200,
