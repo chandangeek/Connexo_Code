@@ -1,7 +1,7 @@
 Ext.define('Ddv.view.ValidationOverview', {
     extend: 'Ext.container.Container',
     requires: [
-        //'Dsh.view.widget.HeaderSection',
+        'Dsh.view.widget.HeaderSection',
         'Ddv.view.Setup'
     ],
     alias: 'widget.ddv-validation-overview',
@@ -24,12 +24,11 @@ Ext.define('Ddv.view.ValidationOverview', {
     initComponent: function () {
         var me = this;
         me.items = [
-            /*
             {
                 xtype: 'header-section',
                 router: me.router,
                 style: 'none'
-            },*/
+            },
             {
                 xtype: 'panel',
                 layout: {
