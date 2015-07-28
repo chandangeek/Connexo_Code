@@ -184,19 +184,6 @@ public class LoadProfileSpecImplTest extends DeviceTypeProvidingPersistenceTest 
         this.getReloadedDeviceConfiguration().deleteLoadProfileSpec(loadProfileSpec);
     }
 
-    @Test
-    @Transactional
-    public void buildingCompletionListenerTest() {
-        LoadProfileSpec.BuildingCompletionListener buildingCompletionListener = mock(LoadProfileSpec.BuildingCompletionListener.class);
-        LoadProfileSpec loadProfileSpec;
-        LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = getReloadedDeviceConfiguration().createLoadProfileSpec(this.loadProfileType);
-        loadProfileSpecBuilder.setOverruledObisCode(overruledLoadProfileSpecObisCode);
-        loadProfileSpecBuilder.notifyOnAdd(buildingCompletionListener);
-        loadProfileSpec = loadProfileSpecBuilder.add();
-
-        verify(buildingCompletionListener).loadProfileSpecBuildingProcessCompleted(loadProfileSpec);
-    }
-
     private void setupReadingTypeInExistingTransaction() {
         String code = ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED)
                 .flow(FORWARD)

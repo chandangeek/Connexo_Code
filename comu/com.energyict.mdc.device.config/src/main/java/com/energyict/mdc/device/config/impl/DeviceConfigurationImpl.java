@@ -500,6 +500,10 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
 
     @Override
     public ChannelSpec.ChannelSpecBuilder createChannelSpec(ChannelType channelType, LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder) {
+        return this.createChannelSpec(channelType, (ServerLoadProfileSpecBuilder) loadProfileSpecBuilder);
+    }
+
+    private ChannelSpec.ChannelSpecBuilder createChannelSpec(ChannelType channelType, ServerLoadProfileSpecBuilder loadProfileSpecBuilder) {
         return new ChannelSpecBuilderForConfig(channelSpecProvider, this, channelType, loadProfileSpecBuilder);
     }
 
@@ -509,7 +513,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
             super(channelSpecProvider, deviceConfiguration, channelType, loadProfileSpec);
         }
 
-        ChannelSpecBuilderForConfig(Provider<ChannelSpecImpl> channelSpecProvider, DeviceConfiguration deviceConfiguration, ChannelType channelType, LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder) {
+        ChannelSpecBuilderForConfig(Provider<ChannelSpecImpl> channelSpecProvider, DeviceConfiguration deviceConfiguration, ChannelType channelType, ServerLoadProfileSpecBuilder loadProfileSpecBuilder) {
             super(channelSpecProvider, deviceConfiguration, channelType, loadProfileSpecBuilder);
         }
 

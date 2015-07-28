@@ -320,7 +320,7 @@ public class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements 
         this.interval = interval;
     }
 
-    abstract static class ChannelSpecBuilder implements ChannelSpec.ChannelSpecBuilder {
+    abstract static class ChannelSpecBuilder implements ChannelSpec.ChannelSpecBuilder, BuildingCompletionListener {
 
         LoadProfileSpecImpl loadProfileSpec;
         final ChannelSpecImpl channelSpec;
@@ -330,7 +330,7 @@ public class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements 
             this.channelSpec = channelSpecProvider.get().initialize(deviceConfiguration, channelType, loadProfileSpec);
         }
 
-        ChannelSpecBuilder(Provider<ChannelSpecImpl> channelSpecProvider, DeviceConfiguration deviceConfiguration, ChannelType channelType, LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder) {
+        ChannelSpecBuilder(Provider<ChannelSpecImpl> channelSpecProvider, DeviceConfiguration deviceConfiguration, ChannelType channelType, ServerLoadProfileSpecBuilder loadProfileSpecBuilder) {
             this.channelSpec = channelSpecProvider.get().initialize(deviceConfiguration, channelType);
             loadProfileSpecBuilder.notifyOnAdd(this);
         }

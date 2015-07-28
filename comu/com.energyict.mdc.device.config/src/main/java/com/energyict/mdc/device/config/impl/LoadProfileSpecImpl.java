@@ -203,7 +203,7 @@ public class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> imp
         return loadProfileSpec;
     }
 
-    abstract static class LoadProfileSpecBuilder implements LoadProfileSpec.LoadProfileSpecBuilder {
+    abstract static class LoadProfileSpecBuilder implements LoadProfileSpec.LoadProfileSpecBuilder, ServerLoadProfileSpecBuilder {
 
         private final LoadProfileSpecImpl loadProfileSpec;
         private final List<BuildingCompletionListener> buildingCompletionListeners = new ArrayList<>();
@@ -212,7 +212,6 @@ public class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> imp
             this.loadProfileSpec = loadProfileSpecProvider.get().initialize(deviceConfiguration, loadProfileType);
         }
 
-        @Override
         public void notifyOnAdd(BuildingCompletionListener buildingCompletionListener) {
             this.buildingCompletionListeners.add(buildingCompletionListener);
         }

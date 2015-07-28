@@ -66,7 +66,7 @@ public interface ChannelSpec extends HasId {
     /**
      * Defines a Builder interface to construct a {@link ChannelSpec}.
      */
-    interface ChannelSpecBuilder extends LoadProfileSpec.BuildingCompletionListener {
+    interface ChannelSpecBuilder {
 
         ChannelSpecBuilder setOverruledObisCode(ObisCode overruledObisCode);
 
