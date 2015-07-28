@@ -202,11 +202,13 @@ Ext.define('Est.estimationrules.view.EditForm', {
                 readingTypesFieldError.show();
             }
             baseForm.markInvalid(errors);
+            me.down('property-form').markInvalid(errors);
         } else {
             errorsPanel.hide();
             readingTypesField.removeCls('error-border');
             readingTypesFieldError.hide();
             baseForm.clearInvalid();
+            me.down('property-form').clearInvalid(errors);
         }
         Ext.resumeLayouts(true);
     }
