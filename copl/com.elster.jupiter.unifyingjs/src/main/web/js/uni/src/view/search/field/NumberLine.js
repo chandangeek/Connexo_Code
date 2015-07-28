@@ -27,6 +27,7 @@ Ext.define('Uni.view.search.field.NumberLine', {
                                 me.up('container').down('button').disable(true)
                             } else {
                                 me.up('container').down('button').enable(true)
+                                me.up('button').setText( me.up('button').defaultText + '*')
                             }
 
                         }

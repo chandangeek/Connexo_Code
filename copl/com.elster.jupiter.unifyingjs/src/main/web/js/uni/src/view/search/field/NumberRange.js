@@ -3,6 +3,7 @@ Ext.define('Uni.view.search.field.NumberRange', {
     alias: 'widget.uni-view-search-field-number-range',
     xtype: 'uni-view-search-field-number-range',
     text: Uni.I18n.translate('search.overview.lastReadingDate.emptyText', 'UNI', 'Interval'),
+    defaultText: Uni.I18n.translate('search.overview.lastReadingDate.emptyText', 'UNI', 'Interval'),
     arrowAlign: 'right',
     menuAlign: 'tr-br',
     requires: [
@@ -22,6 +23,7 @@ Ext.define('Uni.view.search.field.NumberRange', {
         Ext.each(items, function (item) {
             if (item.down('numberfield')) item.down('numberfield').reset();
         });
+        me.setText( me.defaultText)
     },
     addRangeHandler: function () {
         var me = this;

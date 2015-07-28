@@ -7,6 +7,7 @@ Ext.define('Uni.view.search.field.DateRangeField', {
     ],
     itemId: 'date',
     text: Uni.I18n.translate('search.overview.lastReadingDate.emptyText', 'UNI', 'Last reading date'),
+    defaultText: Uni.I18n.translate('search.overview.lastReadingDate.emptyText', 'UNI', 'Last reading date'),
     arrowAlign: 'right',
     menuAlign: 'tr-br',
     style: {
@@ -21,6 +22,7 @@ Ext.define('Uni.view.search.field.DateRangeField', {
             if (item.down('#hours')) item.down('#hours').reset();
             if (item.down('#minutes')) item.down('#minutes').reset();
         });
+        me.setText( me.defaultText)
     },
     addRangeHandler: function () {
         var me = this;

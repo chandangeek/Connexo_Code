@@ -24,7 +24,8 @@ Ext.define('Uni.view.search.field.RangeLine', {
                             if (me.value === null) {
                                 me.up('container').down('button').disable(true)
                             } else {
-                                me.up('container').down('button').enable(true)
+                                me.up('container').down('button').enable(true);
+                                me.up('button').setText( me.up('button').defaultText + '*');
                             }
 
                         }
@@ -49,7 +50,8 @@ Ext.define('Uni.view.search.field.RangeLine', {
                             if (me.value === 0 || me.hidden) {
                                 me.up('container').down('button').disable(true)
                             } else {
-                                me.up('container').down('button').enable(true)
+                                me.up('container').down('button').enable(true);
+                                me.up('button').setText( me.up('button').defaultText + '*');
                             }
 
                         }
@@ -69,7 +71,8 @@ Ext.define('Uni.view.search.field.RangeLine', {
                             if (me.value === 0 || me.hidden) {
                                 me.up('container').down('button').disable(true)
                             } else {
-                                me.up('container').down('button').enable(true)
+                                me.up('container').down('button').enable(true);
+                                me.up('button').setText( me.up('button').defaultText + '*');
                             }
 
                         }
