@@ -10,6 +10,7 @@ import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.estimation.EstimationTask;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fileimport.FileImportService;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
@@ -66,11 +67,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 
 import static com.elster.jupiter.devtools.tests.assertions.JupiterAssertions.assertThat;
-import static com.elster.jupiter.time.RelativeField.DAY;
-import static com.elster.jupiter.time.RelativeField.HOUR;
-import static com.elster.jupiter.time.RelativeField.MINUTES;
-import static com.elster.jupiter.time.RelativeField.MONTH;
-import static com.elster.jupiter.time.RelativeField.YEAR;
+import static com.elster.jupiter.time.RelativeField.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EstimationTaskImplIT {
@@ -157,7 +154,10 @@ public class EstimationTaskImplIT {
                     new InMemoryMessagingModule(),
                     new IdsModule(),
                     new FiniteStateMachineModule(),
-                    new MeteringModule(),
+                    new MeteringModule(false,
+                            "0.0.5.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0",
+                            "0.0.2.1.19.1.12.0.0.0.0.0.0.0.0.0.72.0"
+                    ),
                     new PartyModule(),
                     new EventsModule(),
                     new DomainUtilModule(),
@@ -178,6 +178,7 @@ public class EstimationTaskImplIT {
         }
         transactionService = injector.getInstance(TransactionService.class);
         transactionService.execute(() -> {
+            injector.getInstance(FiniteStateMachineService.class);
             estimationService = (IEstimationService) injector.getInstance(EstimationService.class);
             timeService = injector.getInstance(TimeService.class);
             meteringService = injector.getInstance(MeteringService.class);

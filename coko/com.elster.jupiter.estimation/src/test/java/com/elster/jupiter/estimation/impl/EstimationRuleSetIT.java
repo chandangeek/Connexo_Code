@@ -1,6 +1,8 @@
 package com.elster.jupiter.estimation.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.cbo.QualityCodeCategory;
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationRuleSet;
@@ -8,10 +10,12 @@ import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.estimation.EstimatorFactory;
 import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
@@ -55,7 +59,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class EstimationRuleSetImplTest {
+public class EstimationRuleSetIT {
 
     public static final String ZERO_FILL = "zeroFill";
     private Injector injector;
@@ -74,7 +78,7 @@ public class EstimationRuleSetImplTest {
     private PropertySpec maxConsecutive;
 
     private TransactionService transactionService;
-    
+
     private EstimationService estimationService;
 
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
@@ -103,7 +107,7 @@ public class EstimationRuleSetImplTest {
                     new InMemoryMessagingModule(),
                     new IdsModule(),
                     new FiniteStateMachineModule(),
-                    new MeteringModule(),
+                    new MeteringModule(false, "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0"),
                     new MeteringGroupsModule(),
                     new TaskModule(),
                     new TimeModule(),
@@ -130,6 +134,7 @@ public class EstimationRuleSetImplTest {
         when(maxConsecutive.getValueFactory()).thenReturn(valueFactory);
         transactionService = injector.getInstance(TransactionService.class);
         transactionService.execute(VoidTransaction.of(() -> {
+                    injector.getInstance(FiniteStateMachineService.class);
                     estimationService = injector.getInstance(EstimationService.class);
                     EstimationServiceImpl instance = (EstimationServiceImpl) estimationService;
                     injector.getInstance(MeteringService.class);
@@ -244,5 +249,25 @@ public class EstimationRuleSetImplTest {
         assertThat(found.get().getRules()).hasSize(2);
         assertThat(found.get().getRules().get(0).getImplementation()).isEqualTo(MIN_MAX);
         assertThat(found.get().getRules().get(1).getImplementation()).isEqualTo(ZERO_FILL);
+    }
+
+    @Test
+    public void testFindEstimationRuleByQualityType() {
+        UpdatableHolder<Long> ruleId = new UpdatableHolder<>(null);
+        transactionService.execute(VoidTransaction.of(() -> {
+                    EstimationRuleSet estimationRuleSet = estimationService.createEstimationRuleSet("myRuleSet");
+                    EstimationRule zeroesRule = estimationRuleSet.addRule(ZERO_FILL, "consecutiveZeroes");
+                    zeroesRule.addReadingType(readingType);
+                    zeroesRule.addProperty(MAX_NUMBER_IN_SEQUENCE, BigDecimal.valueOf(20));
+                    zeroesRule.activate();
+                    estimationRuleSet.save();
+                    ruleId.update(zeroesRule.getId());
+                }
+        ));
+
+        Optional<? extends EstimationRule> foundEstimationRule = estimationService.findEstimationRuleByQualityType(
+                ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.ESTIMATED, ruleId.get().intValue()));
+        assertThat(foundEstimationRule.isPresent()).isTrue();
+        assertThat(foundEstimationRule.get().getId()).isEqualTo(ruleId.get());
     }
 }

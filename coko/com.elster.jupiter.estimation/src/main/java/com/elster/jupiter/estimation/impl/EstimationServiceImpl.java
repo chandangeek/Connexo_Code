@@ -16,11 +16,13 @@ import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.estimation.EstimatorFactory;
 import com.elster.jupiter.estimation.EstimatorNotFoundException;
 import com.elster.jupiter.estimation.MessageSeeds;
+import com.elster.jupiter.estimation.security.Privileges;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
@@ -35,7 +37,10 @@ import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.users.PrivilegesProvider;
+import com.elster.jupiter.users.Resource;
 import com.elster.jupiter.util.UpdatableHolder;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
@@ -55,13 +60,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import javax.validation.MessageInterpolator;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Predicate;
 import java.util.logging.Logger;
@@ -71,8 +70,8 @@ import java.util.stream.Stream;
 import static com.elster.jupiter.util.conditions.Where.where;
 import static com.elster.jupiter.util.streams.DecoratedStream.decorate;
 
-@Component(name = "com.elster.jupiter.estimation", service = {InstallService.class, EstimationService.class, TranslationKeyProvider.class}, property = "name=" + EstimationService.COMPONENTNAME, immediate = true)
-public class EstimationServiceImpl implements IEstimationService, InstallService, TranslationKeyProvider {
+@Component(name = "com.elster.jupiter.estimation", service = {InstallService.class, EstimationService.class, TranslationKeyProvider.class, PrivilegesProvider.class}, property = "name=" + EstimationService.COMPONENTNAME, immediate = true)
+public class EstimationServiceImpl implements IEstimationService, InstallService, TranslationKeyProvider, PrivilegesProvider {
 
     static final String DESTINATION_NAME = "EstimationTask";
     static final String SUBSCRIBER_NAME = "EstimationTask";
@@ -230,7 +229,12 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
     public EstimationReport estimate(MeterActivation meterActivation, Range<Instant> period, Logger logger) {
         EstimationReportImpl report = previewEstimate(meterActivation, period, logger);
         estimationEngine.applyEstimations(report);
+        logEstimationReport(meterActivation, period, logger, report);
+        postEvents(report);
+        return report;
+    }
 
+    private void logEstimationReport(MeterActivation meterActivation, Range<Instant> period, Logger logger, EstimationReportImpl report) {
         long notEstimated = report.getResults().values().stream()
                 .map(EstimationResult::remainingToBeEstimated)
                 .flatMap(Collection::stream)
@@ -244,8 +248,15 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
         String to = period.hasUpperBound() ? formatter.format(period.upperEndpoint()) : "now";
         String message = "{0} blocks estimated.\nSuccessful estimations {1}, failed estimations {2}\nPeriod of estimation from {3} until {4}";
         LoggingContext.get().info(logger, message, estimated + notEstimated, estimated, notEstimated, from, to);
-
-        return report;
+    }
+    
+    private void postEvents(EstimationReportImpl report) {
+        report.getResults().values().stream()
+                .map(EstimationResult::remainingToBeEstimated)
+                .flatMap(Collection::stream)
+                .forEach(estimationBlock -> {
+                    eventService.postEvent(EventType.ESTIMATIONBLOCK_FAILURE.topic(), EstimationBlockEventInfo.forFailure(estimationBlock));
+                });
     }
 
     @Override
@@ -478,6 +489,28 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
     @Override
     public Layer getLayer() {
         return Layer.DOMAIN;
+    }
+    @Override
+    public String getModuleName() {
+        return EstimationService.COMPONENTNAME;
+    }
+
+    @Override
+    public List<ResourceDefinition> getModuleResources() {
+        List<ResourceDefinition> resources = new ArrayList<>();
+        resources.add(userService.createModuleResourceWithPrivileges(EstimationService.COMPONENTNAME, "estimation.estimations", "estimation.estimations.description",
+                Arrays.asList(
+                        Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION,
+                        Privileges.Constants.UPDATE_ESTIMATION_CONFIGURATION,Privileges.Constants.UPDATE_SCHEDULE_ESTIMATION_TASK,
+                        Privileges.Constants.RUN_ESTIMATION_TASK, Privileges.Constants.VIEW_ESTIMATION_TASK,
+                        Privileges.Constants.ADMINISTRATE_ESTIMATION_TASK, Privileges.Constants.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE,
+                        Privileges.Constants.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE_CONFIGURATION)));
+        return resources;
+    }
+
+    @Override
+    public Optional<? extends EstimationRule> findEstimationRuleByQualityType(ReadingQualityType readingQualityType) {
+        return getEstimationRule(readingQualityType.getIndexCode());
     }
 
     class DefaultEstimatorCreator implements EstimatorCreator {

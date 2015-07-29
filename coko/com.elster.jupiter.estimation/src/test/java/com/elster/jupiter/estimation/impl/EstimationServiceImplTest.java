@@ -210,6 +210,4 @@ public class EstimationServiceImplTest {
         assertThat(estimationResult.remainingToBeEstimated()).hasSize(3);
         assertThat(logRecorder).hasRecordWithMessage(message -> message.endsWith(" could not be estimated."));
     }
-
-
 }

@@ -2,7 +2,6 @@ package com.elster.jupiter.estimation.impl;
 
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.estimation.MessageSeeds;
-import com.elster.jupiter.estimation.security.Privileges;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
@@ -66,7 +65,6 @@ class InstallerImpl {
         ExceptionCatcher.executing(
                 this::installDataModel,
                 this::createDestinationAndSubscriber,
-                this::createPrivileges,
                 this::createRelativePeriodCategory,
                 this::createTranslations,
                 this::createRelativePeriods,
@@ -128,10 +126,6 @@ class InstallerImpl {
 
     private void installDataModel() {
         dataModel.install(true, true);
-    }
-
-    private void createPrivileges() {
-        this.userService.createResourceWithPrivileges("MDC", ESTIMATIONS_PRIVILEGE_CATEGORY_NAME, ESTIMATIONS_PRIVILEGE_CATEGORY_DESCRIPTION, Privileges.keys());
     }
 
     private RelativePeriodCategory getCategory() {
