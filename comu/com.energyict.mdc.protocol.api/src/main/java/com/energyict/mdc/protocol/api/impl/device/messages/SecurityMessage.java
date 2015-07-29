@@ -199,6 +199,13 @@ public enum SecurityMessage implements DeviceMessageSpecEnum {
             propertySpecs.add(propertySpecService.stringPropertySpecWithValues(authenticationLevelAttributeName, true, DlmsAuthenticationLevelMessageValues.getNames()));
         }
     },
+    DISABLE_DLMS_AUTHENTICATION_LEVEL_P3(DeviceMessageId.SECURITY_DISABLE_DLMS_AUTHENTICATION_LEVEL_P3, "Disable authentication level P3") {
+        @Override
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+            super.addPropertySpecs(propertySpecs, propertySpecService);
+            propertySpecs.add(propertySpecService.stringPropertySpecWithValues(authenticationLevelAttributeName, true, DlmsAuthenticationLevelMessageValues.getNames()));
+        }
+    },
     ENABLE_DLMS_AUTHENTICATION_LEVEL_P0(DeviceMessageId.SECURITY_ENABLE_DLMS_AUTHENTICATION_LEVEL_P0, "Enable authentication level P0") {
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
@@ -207,6 +214,13 @@ public enum SecurityMessage implements DeviceMessageSpecEnum {
         }
     },
     ENABLE_DLMS_AUTHENTICATION_LEVEL_P1(DeviceMessageId.SECURITY_ENABLE_DLMS_AUTHENTICATION_LEVEL_P1, "Enable authentication level P1") {
+        @Override
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+            super.addPropertySpecs(propertySpecs, propertySpecService);
+            propertySpecs.add(propertySpecService.stringPropertySpecWithValues(authenticationLevelAttributeName, true, DlmsAuthenticationLevelMessageValues.getNames()));
+        }
+    },
+    ENABLE_DLMS_AUTHENTICATION_LEVEL_P3(DeviceMessageId.SECURITY_ENABLE_DLMS_AUTHENTICATION_LEVEL_P3, "Enable authentication level P3") {
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
             super.addPropertySpecs(propertySpecs, propertySpecService);
