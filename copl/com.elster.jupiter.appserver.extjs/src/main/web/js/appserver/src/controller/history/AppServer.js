@@ -12,17 +12,20 @@ Ext.define('Apr.controller.history.AppServer', {
                 appservers: {
                     title: Uni.I18n.translate('general.applicationServers', 'APR', 'Application servers'),
                     route: 'appservers',
+                    privileges: Apr.privileges.AppServer.view,
                     controller: 'Apr.controller.AppServers',
                     action: 'showAppServers',
                     items: {
                         add: {
                             title: Uni.I18n.translate('general.addApplicationServer', 'APR', 'Add application server'),
                             route: 'add',
+                            privileges: Apr.privileges.AppServer.admin,
                             controller: 'Apr.controller.AppServers',
                             action: 'showAddEditAppServer'
                         },
                         edit: {
                             route: '{appServerName}/edit',
+                            privileges: Apr.privileges.AppServer.admin,
                             title: Uni.I18n.translate('general.edit', 'APR', 'Edit'),
                             controller: 'Apr.controller.AppServers',
                             action: 'showAddEditAppServer',

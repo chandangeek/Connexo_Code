@@ -34,6 +34,7 @@ Ext.define('Apr.view.appservers.Setup', {
                             {
                                 text: Uni.I18n.translate('general.addApplicationServer', 'APR', 'Add application server'),
                                 itemId: 'empty-grid-add-app-server',
+                                privileges: Apr.privileges.AppServer.admin,
                                 href: '#/administration/appservers/add'
                             }
                         ]

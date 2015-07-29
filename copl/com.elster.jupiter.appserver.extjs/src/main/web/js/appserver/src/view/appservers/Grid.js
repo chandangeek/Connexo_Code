@@ -23,6 +23,7 @@ Ext.define('Apr.view.appservers.Grid', {
             },
             {
                 xtype: 'uni-actioncolumn',
+                privileges: Apr.privileges.AppServer.admin,
                 menu: {
                     xtype: 'appservers-action-menu',
                     itemId: 'appservers-action-menu'
@@ -42,6 +43,7 @@ Ext.define('Apr.view.appservers.Grid', {
                     {
                         xtype: 'button',
                         text: Uni.I18n.translate('general.addApplicationServer', 'APR', 'Add application server'),
+                        privileges: Apr.privileges.AppServer.admin,
                         itemId: 'add-app-server',
                         href: '#/administration/appservers/add'
                     }

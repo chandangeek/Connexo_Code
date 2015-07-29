@@ -116,8 +116,10 @@ Ext.define('Apr.controller.AppServers', {
 
         preview.setTitle(appServerName);
         previewForm.updateAppServerPreview(record);
-        preview.down('appservers-action-menu').record = record;
-        me.setupMenuItems(record);
+        if(preview.down('appservers-action-menu')) {
+            preview.down('appservers-action-menu').record = record;
+            me.setupMenuItems(record);
+        }
     },
 
     setupMenuItems: function (record) {
