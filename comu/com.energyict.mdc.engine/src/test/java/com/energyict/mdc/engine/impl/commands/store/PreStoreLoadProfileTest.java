@@ -318,6 +318,68 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
         }
     }
 
+    @Test
+    @Transactional
+    public void removeLastReadingIntervalTest() {
+        Device device = this.deviceCreator.name(DEVICE_NAME).mRDI("preStoreWithNegativeScalingAndOverflowExceededTest").loadProfileTypes(this.loadProfileType).create();
+        LoadProfile loadProfile = device.getLoadProfiles().get(0);
+        device.getLoadProfileUpdaterFor(loadProfile).setLastReading(intervalEndTime1.toInstant()).update();
+        CollectedLoadProfile collectedLoadProfile =
+                enhanceCollectedLoadProfile(loadProfile, createCollectedLoadProfile(loadProfile));
+        OfflineLoadProfile offlineLoadProfile = createMockedOfflineLoadProfile(device);
+
+        final ComServerDAOImpl comServerDAO = mockComServerDAOWithOfflineLoadProfile(offlineLoadProfile);
+        freezeClock(currentTimeStamp);
+        PreStoreLoadProfile loadProfilePreStorer = new PreStoreLoadProfile(getClock(), getMdcReadingTypeUtilService(), comServerDAO);
+        Pair<DeviceIdentifier<Device>, PreStoreLoadProfile.LocalLoadProfile> localLoadProfile = loadProfilePreStorer.preStore(collectedLoadProfile);
+
+        assertThat(localLoadProfile.getLast().getIntervalBlocks().get(0).getIntervals()).hasSize(3);
+        assertThat(localLoadProfile.getLast().getIntervalBlocks().get(0).getIntervals().get(0).getTimeStamp()).isEqualTo(intervalEndTime2.toInstant());
+        assertThat(localLoadProfile.getLast().getIntervalBlocks().get(0).getIntervals().get(1).getTimeStamp()).isEqualTo(intervalEndTime3.toInstant());
+        assertThat(localLoadProfile.getLast().getIntervalBlocks().get(0).getIntervals().get(2).getTimeStamp()).isEqualTo(intervalEndTime4.toInstant());
+    }
+
+    @Test
+    @Transactional
+    public void testUpperRangeValueWithCurrentTimeStamp() {
+        Device device = this.deviceCreator.name(DEVICE_NAME).mRDI("preStoreWithNegativeScalingAndOverflowExceededTest").loadProfileTypes(this.loadProfileType).create();
+        LoadProfile loadProfile = device.getLoadProfiles().get(0);
+        device.getLoadProfileUpdaterFor(loadProfile).setLastReading(intervalEndTime1.toInstant()).update();
+        CollectedLoadProfile collectedLoadProfile =
+                enhanceCollectedLoadProfile(loadProfile, createCollectedLoadProfile(loadProfile));
+        OfflineLoadProfile offlineLoadProfile = createMockedOfflineLoadProfile(device);
+
+        final ComServerDAOImpl comServerDAO = mockComServerDAOWithOfflineLoadProfile(offlineLoadProfile);
+        freezeClock(intervalEndTime4);
+        PreStoreLoadProfile loadProfilePreStorer = new PreStoreLoadProfile(getClock(), getMdcReadingTypeUtilService(), comServerDAO);
+        Pair<DeviceIdentifier<Device>, PreStoreLoadProfile.LocalLoadProfile> localLoadProfile = loadProfilePreStorer.preStore(collectedLoadProfile);
+
+        assertThat(localLoadProfile.getLast().getIntervalBlocks().get(0).getIntervals()).hasSize(3);
+        assertThat(localLoadProfile.getLast().getIntervalBlocks().get(0).getIntervals().get(0).getTimeStamp()).isEqualTo(intervalEndTime2.toInstant());
+        assertThat(localLoadProfile.getLast().getIntervalBlocks().get(0).getIntervals().get(1).getTimeStamp()).isEqualTo(intervalEndTime3.toInstant());
+        assertThat(localLoadProfile.getLast().getIntervalBlocks().get(0).getIntervals().get(2).getTimeStamp()).isEqualTo(intervalEndTime4.toInstant());
+    }
+
+    @Test
+    @Transactional
+    public void testUpperRangeValueAfterCurrentTimeStamp() {
+        Device device = this.deviceCreator.name(DEVICE_NAME).mRDI("preStoreWithNegativeScalingAndOverflowExceededTest").loadProfileTypes(this.loadProfileType).create();
+        LoadProfile loadProfile = device.getLoadProfiles().get(0);
+        device.getLoadProfileUpdaterFor(loadProfile).setLastReading(intervalEndTime1.toInstant()).update();
+        CollectedLoadProfile collectedLoadProfile =
+                enhanceCollectedLoadProfile(loadProfile, createCollectedLoadProfile(loadProfile));
+        OfflineLoadProfile offlineLoadProfile = createMockedOfflineLoadProfile(device);
+
+        final ComServerDAOImpl comServerDAO = mockComServerDAOWithOfflineLoadProfile(offlineLoadProfile);
+        freezeClock(intervalEndTime3);
+        PreStoreLoadProfile loadProfilePreStorer = new PreStoreLoadProfile(getClock(), getMdcReadingTypeUtilService(), comServerDAO);
+        Pair<DeviceIdentifier<Device>, PreStoreLoadProfile.LocalLoadProfile> localLoadProfile = loadProfilePreStorer.preStore(collectedLoadProfile);
+
+        assertThat(localLoadProfile.getLast().getIntervalBlocks().get(0).getIntervals()).hasSize(2);
+        assertThat(localLoadProfile.getLast().getIntervalBlocks().get(0).getIntervals().get(0).getTimeStamp()).isEqualTo(intervalEndTime2.toInstant());
+        assertThat(localLoadProfile.getLast().getIntervalBlocks().get(0).getIntervals().get(1).getTimeStamp()).isEqualTo(intervalEndTime3.toInstant());
+    }
+
     protected ComServerDAOImpl mockComServerDAOWithOfflineLoadProfile(OfflineLoadProfile offlineLoadProfile) {
         final ComServerDAOImpl comServerDAO = mock(ComServerDAOImpl.class);
         doCallRealMethod().when(comServerDAO).storeMeterReadings(any(DeviceIdentifier.class), any(MeterReading.class));

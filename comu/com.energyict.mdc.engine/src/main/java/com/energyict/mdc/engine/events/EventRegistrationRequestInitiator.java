@@ -18,7 +18,7 @@ public interface EventRegistrationRequestInitiator {
 
     /**
      * Gets the URL that should be used by the client application
-     * to stup a WebSocket to complete the registration process,
+     * to setup a WebSocket to complete the registration process,
      * register interests for events and start receiving events
      * as and when they occur in the {@link ComServer}.
      * Note that only {@link OnlineComServer}s and {@link RemoteComServer}s
@@ -32,7 +32,7 @@ public interface EventRegistrationRequestInitiator {
 
     /**
      * Gets the URL that should be used by the client application
-     * to stup a WebSocket to complete the registration process,
+     * to setup a WebSocket to complete the registration process,
      * register interests for events and start receiving events
      * as and when they occur in the {@link ComServer} with the specified name.
      * Note that only {@link OnlineComServer}s and {@link RemoteComServer}s

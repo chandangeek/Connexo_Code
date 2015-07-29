@@ -206,11 +206,16 @@ public class SerialPortConnectorTest {
         TestableSerialComChannel serialComChannel = getTestableComChannel();
         SerialPortConnector portConnector = Mockito.spy(new SerialPortConnector(comPort, serialComponentService, this.hexService, eventPublisher, this.clock));
         doReturn(serialComChannel).when(portConnector).getNewComChannel();
+        when(comPort.getGlobalModemInitStrings()).thenReturn(
+                new ArrayList<String>() {{
+                    add("GLOBAL INIT");
+                }});
         when(comPort.getModemInitStrings()).thenReturn(Arrays.asList("FIRST INIT", "2TH INIT"));
 
         serialComChannel.setResponses(Arrays.asList(
             "OK",      // Answer at modem hang up command
             "OK",      // Answer at modem restore profile settings
+            "OK",      // Answer at global modem init string
             "OK",      // Answer at modem init string 1
             "OK",      // Answer at modem init string 2
             "RING",    // First ring
@@ -221,6 +226,7 @@ public class SerialPortConnectorTest {
         serialComChannel.setResponseTimings(Arrays.asList(
             0,    // Answer at modem hang up command
             0,    // Answer at modem restore profile settings
+            0,    // Answer at global modem init string
             0,    // Answer at modem init string 1
             0,    // Answer at modem init string 2
             0,    // First ring
@@ -431,6 +437,7 @@ public class SerialPortConnectorTest {
     private int calculateExpectedAcceptTime(ModemBasedInboundComPort comPort, List<Integer> responseTimings) {
         long expectedTime = comPort.getAtCommandTimeout().getMilliSeconds();    // Delay before reinitialization of the modem
         expectedTime += (2 * comPort.getDelayBeforeSend().getMilliSeconds());   // Delay before the send of modem hang up & modem reinitialization
+        expectedTime += (comPort.getGlobalModemInitStrings().size() * comPort.getDelayBeforeSend().getMilliSeconds()); // Delay before the send of all init strings
         expectedTime += (comPort.getModemInitStrings().size() * comPort.getDelayBeforeSend().getMilliSeconds()); // Delay before the send of all init strings
         for (Integer i : responseTimings) {                                     // Delay before the receive of each response
             expectedTime += (i * 1000);

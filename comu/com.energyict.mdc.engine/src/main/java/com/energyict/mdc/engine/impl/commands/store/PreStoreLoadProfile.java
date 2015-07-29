@@ -16,6 +16,7 @@ import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.collections.DualIterable;
+import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
 import java.time.Clock;
@@ -49,6 +50,7 @@ public class PreStoreLoadProfile {
      *     <li>Scale value according to unit</li>
      *     <li>OverFlow calculation</li>
      *     <li>Calculate last reading</li>
+     *     <li>Remove the entry which corresponds with the lastReading (because we already have it)</li>
      * </ul>
      *
      * @param collectedLoadProfile the collected data from a LoadProfile to (pre)Store
@@ -58,7 +60,7 @@ public class PreStoreLoadProfile {
         OfflineLoadProfile offlineLoadProfile = this.comServerDAO.findOfflineLoadProfile(collectedLoadProfile.getLoadProfileIdentifier());
         List<IntervalBlock> processedBlocks = new ArrayList<>();
         Instant lastReading = null;
-        Instant currentDate = clock.instant();
+        Range<Instant> range = getRangeForNewIntervalStorage(offlineLoadProfile);
         for (Pair<IntervalBlock, ChannelInfo> intervalBlockChannelInfoPair : DualIterable.endWithLongest(MeterDataFactory.createIntervalBlocksFor(collectedLoadProfile), collectedLoadProfile.getChannelInfo())) {
             IntervalBlock intervalBlock = intervalBlockChannelInfoPair.getFirst();
             ChannelInfo channelInfo = intervalBlockChannelInfoPair.getLast();
@@ -68,7 +70,7 @@ public class PreStoreLoadProfile {
             BigDecimal channelOverFlowValue = getChannelOverFlowValue(channelInfo, offlineLoadProfile);
             IntervalBlockImpl processingBlock = IntervalBlockImpl.of(intervalBlock.getReadingTypeCode());
             for (IntervalReading intervalReading : intervalBlock.getIntervals()) {
-                if (!intervalReading.getTimeStamp().isAfter(currentDate)) {
+                if (range.contains(intervalReading.getTimeStamp())) {
                     IntervalReading scaledIntervalReading = getScaledIntervalReading(scaler, intervalReading);
                     IntervalReading overflowCheckedReading = getOverflowCheckedReading(channelOverFlowValue, scaledIntervalReading);
                     processingBlock.addIntervalReading(overflowCheckedReading);
@@ -78,6 +80,10 @@ public class PreStoreLoadProfile {
             processedBlocks.add(processingBlock);
         }
         return Pair.of(collectedLoadProfile.getLoadProfileIdentifier().getDeviceIdentifier(), new LocalLoadProfile(processedBlocks, lastReading));
+    }
+
+    private Range<Instant> getRangeForNewIntervalStorage(OfflineLoadProfile offlineLoadProfile) {
+        return Range.openClosed(offlineLoadProfile.getLastReading().orElse(Instant.EPOCH), clock.instant());
     }
 
     private IntervalReading getOverflowCheckedReading(BigDecimal channelOverFlowValue, IntervalReading scaledIntervalReading) {

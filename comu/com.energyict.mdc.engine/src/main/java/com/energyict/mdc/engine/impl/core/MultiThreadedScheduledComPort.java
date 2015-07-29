@@ -18,7 +18,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -72,18 +71,18 @@ public class MultiThreadedScheduledComPort extends ScheduledComPortImpl {
 
     @Override
     public void shutdown () {
-        this.shutdown(false);
+        this.shutdownJobScheduler();
         super.shutdown();
     }
 
     @Override
     public void shutdownImmediate () {
-        this.shutdown(true);
+        this.shutdownJobScheduler();
         super.shutdownImmediate();
     }
 
-    private void shutdown (boolean immediate) {
-        this.jobScheduler.shutdown(immediate);
+    private void shutdownJobScheduler () {
+        this.jobScheduler.shutdown();
     }
 
     @Override
@@ -154,19 +153,8 @@ public class MultiThreadedScheduledComPort extends ScheduledComPortImpl {
             }
         }
 
-        private void shutdown (boolean immediate) {
-            if (immediate) {
-                this.executorService.shutdownNow(); // Not interested in the jobs that have not been picked up
-            }
-            else {
-                this.executorService.shutdown();
-                try {
-                    this.executorService.awaitTermination(1, TimeUnit.MINUTES);
-                }
-                catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
-            }
+        private void shutdown () {
+            this.executorService.shutdownNow(); // Not interested in the jobs that have not been picked up
         }
 
         @Override
