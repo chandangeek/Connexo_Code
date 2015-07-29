@@ -178,6 +178,7 @@ public enum TableSpecs {
             table.column("PENDING").number().map(DevicesInFirmwareCampaignStatusImpl.Fields.STATUS_PENDING.fieldName()).conversion(ColumnConversion.NUMBER2LONG).add();
             table.column("FAILED").number().map(DevicesInFirmwareCampaignStatusImpl.Fields.STATUS_FAILED.fieldName()).conversion(ColumnConversion.NUMBER2LONG).add();
             table.column("CONFIGURATIONERROR").number().map(DevicesInFirmwareCampaignStatusImpl.Fields.STATUS_CONFIGURATION_ERROR.fieldName()).conversion(ColumnConversion.NUMBER2LONG).add();
+            table.column("CANCELLED").number().map(DevicesInFirmwareCampaignStatusImpl.Fields.STATUS_CANCELLED.fieldName()).conversion(ColumnConversion.NUMBER2LONG).add();
 
             table.foreignKey("FK_FWC_STATUS_TO_CAMPAIGN")
                     .on(campaign)

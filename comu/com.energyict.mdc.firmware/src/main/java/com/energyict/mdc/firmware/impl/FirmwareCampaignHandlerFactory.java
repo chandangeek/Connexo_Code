@@ -7,6 +7,7 @@ import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.firmware.FirmwareService;
+import com.energyict.mdc.tasks.TaskService;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -25,6 +26,7 @@ public class FirmwareCampaignHandlerFactory implements MessageHandlerFactory {
     private volatile DeviceService deviceService;
     private volatile Clock clock;
     private volatile EventService eventService;
+    private volatile TaskService taskService;
 
     // OSGI
     @SuppressWarnings("unused")
@@ -38,7 +40,7 @@ public class FirmwareCampaignHandlerFactory implements MessageHandlerFactory {
 
     @Override
     public MessageHandler newMessageHandler() {
-        FirmwareCampaignHandlerContext handlerContext = new FirmwareCampaignHandlerContext((FirmwareServiceImpl) firmwareService, meteringGroupsService, deviceService, clock, eventService);
+        FirmwareCampaignHandlerContext handlerContext = new FirmwareCampaignHandlerContext((FirmwareServiceImpl) firmwareService, meteringGroupsService, deviceService, clock, eventService, taskService);
         return new FirmwareCampaignHandler(jsonService, handlerContext);
     }
 
@@ -70,5 +72,10 @@ public class FirmwareCampaignHandlerFactory implements MessageHandlerFactory {
     @Reference
     public void setEventService(EventService eventService) {
         this.eventService = eventService;
+    }
+
+    @Reference
+    public void setTaskService(TaskService taskService){
+        this.taskService = taskService;
     }
 }

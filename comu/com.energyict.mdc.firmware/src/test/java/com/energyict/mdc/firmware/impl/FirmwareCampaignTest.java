@@ -23,6 +23,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+import com.energyict.mdc.tasks.TaskService;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -188,7 +189,8 @@ public class FirmwareCampaignTest extends PersistenceTest {
                 meteringGroupsService,
                 deviceService,
                 inMemoryPersistence.getInjector().getInstance(Clock.class),
-                inMemoryPersistence.getInjector().getInstance(EventService.class));
+                inMemoryPersistence.getInjector().getInstance(EventService.class),
+                inMemoryPersistence.getInjector().getInstance(TaskService.class));
         Map<String, Object> properties = new HashMap<>();
         properties.put("id", 1L);
         properties.put("deviceGroupId", 1L);
@@ -232,7 +234,8 @@ public class FirmwareCampaignTest extends PersistenceTest {
                 meteringGroupsService,
                 deviceService,
                 inMemoryPersistence.getInjector().getInstance(Clock.class),
-                inMemoryPersistence.getInjector().getInstance(EventService.class));
+                inMemoryPersistence.getInjector().getInstance(EventService.class),
+                inMemoryPersistence.getInjector().getInstance(TaskService.class));
         Map<String, Object> properties = new HashMap<>();
         properties.put("id", 1L);
         properties.put("deviceGroupId", 1L);

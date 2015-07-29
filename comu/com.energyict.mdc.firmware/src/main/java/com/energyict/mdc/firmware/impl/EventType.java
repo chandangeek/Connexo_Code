@@ -46,6 +46,15 @@ public enum EventType {
             return super.addCustomProperties(eventTypeBuilder).shouldPublish();
         }
     },
+    DEVICE_IN_FIRMWARE_CAMPAIGN_CANCEL("firmwarecampaign/device/CANCEL"){
+        @Override
+        protected EventTypeBuilder addCustomProperties(EventTypeBuilder eventTypeBuilder) {
+            return eventTypeBuilder
+                    .withProperty("deviceId", ValueType.LONG, "device.id")
+                    .withProperty("firmwareCampaignId", ValueType.LONG, "firmwareCampaign.id")
+                    .shouldPublish();
+        }
+    }
     ;
 
     private static final String NAMESPACE = "com/energyict/mdc/firmware/";

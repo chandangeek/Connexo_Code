@@ -3,9 +3,7 @@ package com.energyict.mdc.firmware;
 import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.device.config.DeviceType;
 
-public interface FirmwareVersion extends HasId{
-
-    long getId();
+public interface FirmwareVersion extends HasId {
 
     FirmwareType getFirmwareType();
 
@@ -32,4 +30,5 @@ public interface FirmwareVersion extends HasId{
     void save();
 
     void deprecate();
+
 }

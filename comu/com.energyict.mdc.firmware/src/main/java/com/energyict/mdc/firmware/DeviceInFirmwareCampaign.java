@@ -8,9 +8,7 @@ public interface DeviceInFirmwareCampaign {
     FirmwareManagementDeviceStatus getStatus();
     void setStatus(FirmwareManagementDeviceStatus status);
     Device getDevice();
-
-    FirmwareManagementDeviceStatus updateStatus();
-
     Instant getStartedOn();
     Instant getFinishedOn();
+    void cancel();
 }

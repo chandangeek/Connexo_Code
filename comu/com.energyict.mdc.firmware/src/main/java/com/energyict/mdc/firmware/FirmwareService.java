@@ -60,4 +60,14 @@ public interface FirmwareService extends ReferencePropertySpecFinderProvider {
     Finder<FirmwareCampaign> getFirmwareCampaigns();
     FirmwareCampaign newFirmwareCampaign(DeviceType deviceType, EndDeviceGroup endDeviceGroup);
     Finder<DeviceInFirmwareCampaign> getDevicesForFirmwareCampaign(FirmwareCampaign firmwareCampaign);
+    void cancelFirmwareCampaign(FirmwareCampaign firmwareCampaign);
+
+    /**
+     * Tries to cancel the current FirmwareComTaskExecution on the device if it was still pending.
+     *
+     * @param device the device to cancel the firmware upload
+     * @return true if we did a cancel, false if no action was required
+     */
+    boolean cancelFirmwareUploadForDevice(Device device);
+    Optional<DeviceInFirmwareCampaign> getDeviceInFirmwareCampaignsForDevice(FirmwareCampaign firmwareCampaign, Device device);
 }

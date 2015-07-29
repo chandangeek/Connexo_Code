@@ -18,6 +18,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
@@ -58,13 +59,11 @@ import com.energyict.mdc.tasks.impl.TasksModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.google.inject.Provider;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.event.EventAdmin;
-
 import java.security.Principal;
 import java.sql.SQLException;
 import java.util.Optional;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.event.EventAdmin;
 
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
@@ -88,6 +87,7 @@ public class InMemoryPersistence {
     private InMemoryBootstrapModule bootstrapModule;
     private FirmwareServiceImpl firmwareService;
     private LicenseService licenseService;
+    private Thesaurus thesaurus;
 
     public void initializeDatabase(String testName, boolean showSqlLogging, boolean createDefaults) {
         this.initializeMocks(testName);
@@ -158,6 +158,7 @@ public class InMemoryPersistence {
         this.eventAdmin = mock(EventAdmin.class);
         this.principal = mock(Principal.class);
         this.licenseService = mock(LicenseService.class);
+        this.thesaurus = mock(Thesaurus.class);
         when(this.licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.empty());
         when(this.principal.getName()).thenReturn(testName);
     }
@@ -181,12 +182,9 @@ public class InMemoryPersistence {
             bind(BundleContext.class).toInstance(bundleContext);
             bind(LicenseService.class).toInstance(licenseService);
             bind(IssueService.class).toInstance(mock(IssueService.class, RETURNS_DEEP_STUBS));
-            bind(DataModel.class).toProvider(new Provider<DataModel>() {
-                @Override
-                public DataModel get() {
-                    return dataModel;
-                }
-            });
+            bind(DataModel.class).toProvider(() -> dataModel);
+            bind(Thesaurus.class).toInstance(thesaurus);
         }
     }
+
 }
