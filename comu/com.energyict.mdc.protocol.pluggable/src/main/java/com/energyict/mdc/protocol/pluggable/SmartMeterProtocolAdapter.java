@@ -29,10 +29,12 @@ import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.AbstractDeviceProtocolSecuritySupportAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.AdapterDeviceProtocolDialect;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.common.CapabilityAdapterMappingFactory;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.ComChannelInputStreamAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.ComChannelOutputStreamAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.DeviceProtocolAdapterImpl;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.DeviceProtocolTopologyAdapter;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.common.MessageAdapterMappingFactory;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.PropertiesAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactory;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.SmartMeterProtocolClockAdapter;
@@ -54,10 +56,8 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
-import static com.elster.jupiter.util.Checks.is;
-
 /**
- * Adapter between a {@link SmartMeterProtocol} and a {@link DeviceProtocol}
+ * Adapter between a {@link SmartMeterProtocol} and a {@link DeviceProtocol}.
  *
  * @author gna
  * @since 5/04/12 - 13:13
@@ -73,7 +73,7 @@ public class SmartMeterProtocolAdapter extends DeviceProtocolAdapterImpl impleme
      * The use <code>IssueService</code> which can be used for this adapter
      */
     private final IssueService issueService;
-
+    private final MessageAdapterMappingFactory messageAdapterMappingFactory;
     private final CollectedDataFactory collectedDataFactory;
 
     private final MeteringService meteringService;
@@ -143,8 +143,9 @@ public class SmartMeterProtocolAdapter extends DeviceProtocolAdapterImpl impleme
      */
     private PropertiesAdapter propertiesAdapter;
 
-    public SmartMeterProtocolAdapter(SmartMeterProtocol meterProtocol, PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory, DataModel dataModel, IssueService issueService, CollectedDataFactory collectedDataFactory, MeteringService meteringService) {
-        super(propertySpecService, protocolPluggableService, securitySupportAdapterMappingFactory, dataModel);
+    public SmartMeterProtocolAdapter(SmartMeterProtocol meterProtocol, PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory, CapabilityAdapterMappingFactory capabilityAdapterMappingFactory, MessageAdapterMappingFactory messageAdapterMappingFactory, DataModel dataModel, IssueService issueService, CollectedDataFactory collectedDataFactory, MeteringService meteringService) {
+        super(propertySpecService, protocolPluggableService, securitySupportAdapterMappingFactory, dataModel, capabilityAdapterMappingFactory);
+        this.messageAdapterMappingFactory = messageAdapterMappingFactory;
         this.meteringService = meteringService;
         this.protocolLogger = Logger.getAnonymousLogger(); // default for now
         this.meterProtocol = meterProtocol;
@@ -155,7 +156,7 @@ public class SmartMeterProtocolAdapter extends DeviceProtocolAdapterImpl impleme
     }
 
     /**
-     * Initializes the inheritance classes
+     * Initializes the inheritance classes.
      */
     private void initInheritors() {
         if (this.meterProtocol instanceof HHUEnabler) {
@@ -164,7 +165,7 @@ public class SmartMeterProtocolAdapter extends DeviceProtocolAdapterImpl impleme
     }
 
     /**
-     * Initializes the adapters so they can be used in the {@link DeviceProtocol} calls
+     * Initializes the adapters so they can be used in the {@link DeviceProtocol} calls.
      */
     protected void initializeAdapters() {
         this.propertiesAdapter = new PropertiesAdapter();
@@ -176,7 +177,7 @@ public class SmartMeterProtocolAdapter extends DeviceProtocolAdapterImpl impleme
 
         if (!DeviceMessageSupport.class.isAssignableFrom(getProtocolClass())) {
             // we only instantiate the adapter if the protocol needs it
-            this.smartMeterProtocolMessageAdapter = new SmartMeterProtocolMessageAdapter(getSmartMeterProtocol(), this.getDataModel(), this.getProtocolPluggableService(), issueService, this.collectedDataFactory);
+            this.smartMeterProtocolMessageAdapter = new SmartMeterProtocolMessageAdapter(getSmartMeterProtocol(), this.getDataModel(), this.messageAdapterMappingFactory, this.getProtocolPluggableService(), issueService, this.collectedDataFactory);
         }
         else {
             this.deviceMessageSupport = (DeviceMessageSupport) this.meterProtocol;
@@ -537,7 +538,7 @@ public class SmartMeterProtocolAdapter extends DeviceProtocolAdapterImpl impleme
     }
 
     /**
-     * Casts the current MeterProtocol to a DeviceMessageSupport component
+     * Casts the current MeterProtocol to a DeviceMessageSupport component.
      *
      * @return the deviceMessageSupport component
      */

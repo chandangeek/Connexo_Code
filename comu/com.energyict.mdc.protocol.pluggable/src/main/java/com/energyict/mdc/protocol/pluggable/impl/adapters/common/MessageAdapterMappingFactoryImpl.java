@@ -4,6 +4,8 @@ import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 
 import javax.inject.Inject;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Copyrights EnergyICT
@@ -12,7 +14,7 @@ import javax.inject.Inject;
  */
 public class MessageAdapterMappingFactoryImpl implements MessageAdapterMappingFactory {
 
-    private DataMapper<MessageAdapterMapping> mapper;
+    private Map<String, String> cache;
 
     @Inject
     public MessageAdapterMappingFactoryImpl(DataModel dataModel) {
@@ -21,17 +23,17 @@ public class MessageAdapterMappingFactoryImpl implements MessageAdapterMappingFa
 
     private MessageAdapterMappingFactoryImpl(DataMapper<MessageAdapterMapping> mapper) {
         super();
-        this.mapper = mapper;
+        this.cache =
+                mapper
+                    .find()
+                    .stream()
+                    .collect(Collectors.toMap(
+                            MessageAdapterMapping::getDeviceProtocolJavaClassName,
+                            MessageAdapterMapping::getMessageAdapterJavaClassName));
     }
 
     public String getMessageMappingJavaClassNameForDeviceProtocol(String deviceProtocolJavaClassName) {
-        MessageAdapterMapping mapping = this.mapper.getUnique("deviceProtocolJavaClassName", deviceProtocolJavaClassName).orElse(null);
-        if (mapping == null) {
-            return null;
-        }
-        else {
-            return mapping.getMessageAdapterJavaClassName();
-        }
+        return this.cache.get(deviceProtocolJavaClassName);
     }
 
 }

@@ -48,6 +48,10 @@ import com.energyict.mdc.protocol.pluggable.ProtocolDeploymentListener;
 import com.energyict.mdc.protocol.pluggable.ProtocolDeploymentListenerRegistration;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.UnknownPluggableClassPropertiesException;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.common.CapabilityAdapterMappingFactory;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.common.CapabilityAdapterMappingFactoryImpl;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.common.MessageAdapterMappingFactory;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.common.MessageAdapterMappingFactoryImpl;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactory;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactoryImpl;
 import com.energyict.mdc.protocol.pluggable.impl.relations.SecurityPropertySetRelationSupport;
@@ -72,6 +76,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
+import com.google.inject.Singleton;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -852,7 +857,9 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
                 bind(MeteringService.class).toInstance(meteringService);
                 bind(DataVaultService.class).toInstance(dataVaultService);
                 bind(CollectedDataFactory.class).toInstance(new CompositeCollectedDataFactory());
-                bind(SecuritySupportAdapterMappingFactory.class).to(SecuritySupportAdapterMappingFactoryImpl.class);
+                bind(MessageAdapterMappingFactory.class).to(MessageAdapterMappingFactoryImpl.class).in(Singleton.class);
+                bind(SecuritySupportAdapterMappingFactory.class).to(SecuritySupportAdapterMappingFactoryImpl.class).in(Singleton.class);
+                bind(CapabilityAdapterMappingFactory.class).to(CapabilityAdapterMappingFactoryImpl.class).in(Singleton.class);
                 bind(ProtocolPluggableService.class).toInstance(ProtocolPluggableServiceImpl.this);
             }
         };
@@ -911,7 +918,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     @Override
     public void install() {
         if (!dataModel.isInstalled()) {
-            new Installer(this.dataModel, this.eventService, this.userService).install(true, true);
+            new Installer(this.dataModel, this.eventService).install(true, true);
         }
     }
 

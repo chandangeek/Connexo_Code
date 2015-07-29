@@ -7,6 +7,7 @@ import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import com.energyict.mdc.protocol.api.messaging.LegacyMessageConverter;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.AbstractDeviceMessageConverterAdapter;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.common.MessageAdapterMappingFactory;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.NonExistingMessageConverter;
 
 import com.elster.jupiter.orm.DataModel;
@@ -20,8 +21,8 @@ import com.elster.jupiter.orm.DataModel;
  */
 public class SmartMeterProtocolMessageAdapter extends AbstractDeviceMessageConverterAdapter {
 
-    public SmartMeterProtocolMessageAdapter(SmartMeterProtocol smartMeterProtocol, DataModel dataModel, ProtocolPluggableService protocolPluggableService, IssueService issueService, CollectedDataFactory collectedDataFactory) {
-        super(dataModel, protocolPluggableService, issueService, collectedDataFactory);
+    public SmartMeterProtocolMessageAdapter(SmartMeterProtocol smartMeterProtocol, DataModel dataModel, MessageAdapterMappingFactory messageAdapterMappingFactory, ProtocolPluggableService protocolPluggableService, IssueService issueService, CollectedDataFactory collectedDataFactory) {
+        super(dataModel, messageAdapterMappingFactory, protocolPluggableService, issueService, collectedDataFactory);
         if (MessageProtocol.class.isAssignableFrom(smartMeterProtocol.getClass())) {
             setMessageProtocol((MessageProtocol) smartMeterProtocol);
             Object messageConverter = createNewMessageConverterInstance(getDeviceMessageConverterMappingFor(smartMeterProtocol.getClass().getName()));

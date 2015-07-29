@@ -7,6 +7,7 @@ import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.AbstractDeviceMessageConverterAdapter;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.common.MessageAdapterMappingFactory;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.NonExistingMessageConverter;
 import com.energyict.mdc.protocol.api.messaging.LegacyMessageConverter;
 
@@ -19,8 +20,8 @@ import com.energyict.mdc.protocol.api.messaging.LegacyMessageConverter;
  */
 public class MeterProtocolMessageAdapter extends AbstractDeviceMessageConverterAdapter {
 
-    public MeterProtocolMessageAdapter(final MeterProtocol meterProtocol, DataModel dataModel, ProtocolPluggableService protocolPluggableService, IssueService issueService, CollectedDataFactory collectedDataFactory) {
-        super(dataModel, protocolPluggableService, issueService, collectedDataFactory);
+    public MeterProtocolMessageAdapter(MeterProtocol meterProtocol, DataModel dataModel, MessageAdapterMappingFactory messageAdapterMappingFactory, ProtocolPluggableService protocolPluggableService, IssueService issueService, CollectedDataFactory collectedDataFactory) {
+        super(dataModel, messageAdapterMappingFactory, protocolPluggableService, issueService, collectedDataFactory);
         if (MessageProtocol.class.isAssignableFrom(meterProtocol.getClass())) {
             setMessageProtocol((MessageProtocol) meterProtocol);
             Object messageConverter = createNewMessageConverterInstance(getDeviceMessageConverterMappingFor(meterProtocol.getClass().getName()));
