@@ -51,6 +51,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     FIRMWARE_MANAGEMENT_DEVICE_STATUS_ONGOING(103, Keys.FIRMWARE_MANAGEMENT_DEVICE_STATUS_PREFIX + FirmwareManagementDeviceStatus.Constants.ONGOING, "Ongoing"),
     FIRMWARE_MANAGEMENT_DEVICE_STATUS_PENDING(104, Keys.FIRMWARE_MANAGEMENT_DEVICE_STATUS_PREFIX + FirmwareManagementDeviceStatus.Constants.PENDING, "Pending"),
     FIRMWARE_MANAGEMENT_DEVICE_STATUS_CONFIGURATION_ERROR(105, Keys.FIRMWARE_MANAGEMENT_DEVICE_STATUS_PREFIX + FirmwareManagementDeviceStatus.Constants.CONFIGURATION_ERROR, "Configuration error"),
+    FIRMWARE_MANAGEMENT_DEVICE_STATUS_CANCELLED(106, Keys.FIRMWARE_MANAGEMENT_DEVICE_STATUS_PREFIX + FirmwareManagementDeviceStatus.Constants.CANCELLED, "Cancelled"),
 
 
     SUPPORTED_FIRMWARE_UPGRADE_OPTIONS_NOT_FOUND(1001, "SupportedFirmwareUpgradeOptionsNotFound", "There is no such supported firmware upgrade option"),
@@ -62,9 +63,8 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     FIRMWARE_UPLOAD_NOT_FOUND(1007, "FirmwareUploadNotFound", "No firmware upload process with id {0} could be found"),
     FIRMWARE_CANNOT_BE_ACTIVATED(1008, "FirmwareCannotBeActivated", "Firmware version cannot be activated"),
     FIRMWARE_CHECK_TASK_IS_NOT_ACTIVE(1009, "FirmwareCheckTaskIsNotActive", "It is impossible to check firmware version because Check firmware version communication task is not active on device configuration"),
-
-
-    
+    COM_TASK_IS_NOT_ENABLED_FOR_THIS_DEVICE(1010, "comTaskNotFound", "Could not find communication task with id {0}"),
+    FIRMWARE_ACTIVATION_DATE_IS_BEFORE_UPLOAD(1011, "FirmwareActivationDateIsBeforeUpload", "This date should be after the ''Upload file'' date"),
     ;
     private final int number;
     private final String key;

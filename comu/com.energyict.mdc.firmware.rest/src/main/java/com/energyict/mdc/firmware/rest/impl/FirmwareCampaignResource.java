@@ -2,10 +2,9 @@ package com.energyict.mdc.firmware.rest.impl;
 
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
-import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
-import com.energyict.mdc.firmware.FirmwareCampaign;
-import com.energyict.mdc.firmware.FirmwareService;
+import com.energyict.mdc.firmware.*;
 import com.energyict.mdc.firmware.security.Privileges;
+import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -29,13 +28,15 @@ public class FirmwareCampaignResource {
     private final ResourceHelper resourceHelper;
     private final FirmwareCampaignInfoFactory campaignInfoFactory;
     private final DeviceInFirmwareCampaignInfoFactory deviceInCampaignInfoFactory;
+    private final MdcPropertyUtils mdcPropertyUtils;
 
     @Inject
-    public FirmwareCampaignResource(FirmwareService firmwareService, ResourceHelper resourceHelper, FirmwareCampaignInfoFactory campaignInfoFactory, DeviceInFirmwareCampaignInfoFactory deviceInCampaignInfoFactory) {
+    public FirmwareCampaignResource(FirmwareService firmwareService, ResourceHelper resourceHelper, FirmwareCampaignInfoFactory campaignInfoFactory, DeviceInFirmwareCampaignInfoFactory deviceInCampaignInfoFactory, MdcPropertyUtils mdcPropertyUtils) {
         this.firmwareService = firmwareService;
         this.resourceHelper = resourceHelper;
         this.campaignInfoFactory = campaignInfoFactory;
         this.deviceInCampaignInfoFactory = deviceInCampaignInfoFactory;
+        this.mdcPropertyUtils = mdcPropertyUtils;
     }
 
     @GET
@@ -75,8 +76,12 @@ public class FirmwareCampaignResource {
     @RolesAllowed({Privileges.ADMINISTRATE_FIRMWARE_CAMPAIGN})
     public Response editFirmwareCampaign(FirmwareCampaignInfo info){
         FirmwareCampaign firmwareCampaign = resourceHelper.findFirmwareCampaignOrThrowException(info.id);
-        info.writeTo(firmwareCampaign);
-        firmwareCampaign.save();
+        if(info.status.id.equals(FirmwareCampaignStatus.CANCELLED.name())){
+            this.firmwareService.cancelFirmwareCampaign(firmwareCampaign);
+        } else {
+            info.writeTo(firmwareCampaign, mdcPropertyUtils);
+            firmwareCampaign.save();
+        }
         return Response.ok(campaignInfoFactory.from(firmwareCampaign)).build();
     }
 
