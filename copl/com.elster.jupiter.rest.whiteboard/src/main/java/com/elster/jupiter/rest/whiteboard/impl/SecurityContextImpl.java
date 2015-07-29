@@ -11,9 +11,11 @@ public class SecurityContextImpl implements SecurityContext {
 	
 	private final SecurityContext oldContext;
 	private final ThreadPrincipalService threadPrincipalService;
+	private final String applicationName;
 	
 	SecurityContextImpl(ContainerRequestContext request, ThreadPrincipalService threadPrincipalService) {
 		this.oldContext = request.getSecurityContext();
+		this.applicationName = request.getHeaders().getFirst("X-CONNEXO-APPLICATION-NAME");
 		this.threadPrincipalService = threadPrincipalService;
 	}
 	
@@ -34,8 +36,8 @@ public class SecurityContextImpl implements SecurityContext {
 
 	@Override
 	public boolean isUserInRole(String role) {		
-		User user = (User) getUserPrincipal();		
-		return user == null ? false : user.hasPrivilege(role);
+		User user = (User) getUserPrincipal();
+		return user == null ? false : user.hasPrivilege(applicationName, role);
 	}
 
 }
