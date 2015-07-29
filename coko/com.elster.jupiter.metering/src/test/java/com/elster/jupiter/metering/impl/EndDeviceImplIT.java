@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fsm.CustomStateTransitionEventType;
@@ -14,12 +15,15 @@ import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineServiceImpl;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
+import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.LifecycleDates;
+import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.nls.impl.NlsModule;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
@@ -29,7 +33,6 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
-import com.elster.jupiter.util.time.Interval;
 import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
@@ -100,6 +103,7 @@ public class EndDeviceImplIT {
                     new ThreadSecurityModule(),
                     new PubSubModule(),
                     new TransactionModule(),
+                    new BpmModule(),
                     new FiniteStateMachineModule(),
                     new NlsModule()
             );
@@ -171,7 +175,7 @@ public class EndDeviceImplIT {
             ServerEndDevice endDevice = (ServerEndDevice) meteringService.findAmrSystem(1).get().newEndDevice("amrID", "mRID");
 
             // Business method
-            endDevice.changeState(stateMachine.getInitialState());
+            endDevice.changeState(stateMachine.getInitialState(), Instant.now());
 
             // Asserts: see expected exception rule
         }
@@ -187,7 +191,7 @@ public class EndDeviceImplIT {
             ServerEndDevice endDevice = (ServerEndDevice) meteringService.findAmrSystem(1).get().newEndDevice(stateMachine, "amrID", "mRID");
 
             // Business method
-            endDevice.changeState(otherStateMachine.getInitialState());
+            endDevice.changeState(otherStateMachine.getInitialState(), Instant.now());
 
             // Asserts: see expected exception rule
         }
@@ -208,7 +212,7 @@ public class EndDeviceImplIT {
             // Business method
             State second = stateMachine.getState("Second").get();
             stateId = second.getId();
-            endDevice.changeState(second);
+            endDevice.changeState(second, Instant.now());
             context.commit();
         }
 
@@ -241,7 +245,7 @@ public class EndDeviceImplIT {
             when(this.clock.instant()).thenReturn(april1st);
 
             // Business method
-            endDevice.changeState(changedState);
+            endDevice.changeState(changedState, april1st);
             context.commit();
         }
 
@@ -276,7 +280,7 @@ public class EndDeviceImplIT {
             deviceId = endDevice.getId();
             changedStateId = changedState.getId();
             when(this.clock.instant()).thenReturn(april1st);
-            endDevice.changeState(changedState);
+            endDevice.changeState(changedState, april1st);
             context.commit();
         }
         EndDevice endDevice = meteringService.findEndDevice(deviceId).get();
@@ -411,6 +415,100 @@ public class EndDeviceImplIT {
             assertThat(lifecycleDates.getInstalledDate()).contains(installedDate);
             assertThat(lifecycleDates.getRemovedDate()).contains(removedDate);
             assertThat(lifecycleDates.getRetiredDate()).contains(retiredDate);
+        }
+    }
+
+    @Test
+    public void newDeviceIsNotObsolete() {
+        TransactionService transactionService = injector.getInstance(TransactionService.class);
+        MeteringService meteringService = injector.getInstance(MeteringService.class);
+        try (TransactionContext context = transactionService.getContext()) {
+            EndDevice endDevice = meteringService.findAmrSystem(1).get().newEndDevice("amrID", "newDeviceIsNotObsolete");
+
+            // Business method
+            endDevice.save();
+
+            // Asserts
+            assertThat(endDevice.isObsolete()).isFalse();
+        }
+    }
+
+    @Test
+    public void makeObsolete() {
+        Instant now = Instant.ofEpochSecond(10000);
+        when(this.clock.instant()).thenReturn(now);
+        TransactionService transactionService = injector.getInstance(TransactionService.class);
+        MeteringService meteringService = injector.getInstance(MeteringService.class);
+        try (TransactionContext context = transactionService.getContext()) {
+            EndDevice endDevice = meteringService.findAmrSystem(1).get().newEndDevice("amrID", "makeObsolete");
+            endDevice.save();
+
+            // Business method
+            endDevice.makeObsolete();
+
+            // Asserts
+            assertThat(endDevice.isObsolete()).isTrue();
+            assertThat(endDevice.getObsoleteTime()).contains(now);
+        }
+    }
+
+    @Test
+    public void findByIdAfterMakeObsolete() {
+        Instant now = Instant.ofEpochSecond(10000);
+        when(this.clock.instant()).thenReturn(now);
+        TransactionService transactionService = injector.getInstance(TransactionService.class);
+        MeteringService meteringService = injector.getInstance(MeteringService.class);
+        try (TransactionContext context = transactionService.getContext()) {
+            AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
+            Meter meter = amrSystem.newMeter("amrID", "findByIdAfterMakeObsolete");
+            meter.save();
+            meter.makeObsolete();
+
+            // Business method
+            Optional<Meter> shouldBeObsolete = amrSystem.findMeter(meter.getAmrId());
+
+            // Asserts
+            assertThat(shouldBeObsolete).isPresent();
+            assertThat(shouldBeObsolete.get().isObsolete()).isTrue();
+            assertThat(meter.getObsoleteTime()).contains(now);
+        }
+    }
+
+    @Test
+    public void reuseSameMRID() {
+        String mRID = "reuseSameMRID";
+        TransactionService transactionService = injector.getInstance(TransactionService.class);
+        MeteringService meteringService = injector.getInstance(MeteringService.class);
+        try (TransactionContext context = transactionService.getContext()) {
+            AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
+            EndDevice willBeObsolete = amrSystem.newEndDevice("amrID", mRID);
+            willBeObsolete.save();
+            willBeObsolete.makeObsolete();
+
+            // Business method
+            EndDevice endDevice = amrSystem.newEndDevice("amrID", mRID);
+
+            // Asserts
+            assertThat(endDevice).isNotNull();
+            assertThat(endDevice.getMRID()).isEqualTo(mRID);
+        }
+    }
+
+    @Test(expected = UnderlyingSQLFailedException.class)
+    public void mRIDIsUnique() {
+        String mRID = "mRIDIsUnique";
+        TransactionService transactionService = injector.getInstance(TransactionService.class);
+        MeteringService meteringService = injector.getInstance(MeteringService.class);
+        try (TransactionContext context = transactionService.getContext()) {
+            AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
+            EndDevice first = amrSystem.newEndDevice("amrID", mRID);
+            first.save();
+            EndDevice second = amrSystem.newEndDevice("amrID", mRID);
+
+            // Business method
+            second.save();
+
+            // Asserts: see expected exception rule
         }
     }
 

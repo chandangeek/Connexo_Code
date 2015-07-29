@@ -126,7 +126,36 @@ public enum EventType {
                     .withProperty("endDeviceEventType", ValueType.STRING, "eventTypeCode")
                     .withProperty("eventTimestamp", ValueType.LONG, "createdDateTime.epochSecond")
                     .create().save();
-
+        }
+    },
+    SWITCH_STATE_MACHINE_FAILED("enddevice/fsm/switch/FAILED") {
+        @Override
+        public void install(EventService eventService) {
+            eventService.buildEventTypeWithTopic(topic())
+                    .name(name())
+                    .component(MeteringService.COMPONENTNAME)
+                    .category("fsm")
+                    .scope("System")
+                    .withProperty("endDeviceId", ValueType.LONG, "endDeviceId")
+                    .withProperty("endDeviceMRID", ValueType.STRING, "endDevice.mRID")
+                    .withProperty("endDeviceStateName", ValueType.STRING, "endDeviceStateName")
+                    .withProperty("oldFiniteStateMachineId", ValueType.LONG, "oldFiniteStateMachineId")
+                    .withProperty("newFiniteStateMachineId", ValueType.LONG, "newFiniteStateMachineId")
+                    .shouldPublish()
+                    .create()
+                    .save();
+        }
+    },
+    METER_ACTIVATION_ADVANCED("meteractivation/ADVANCED") {
+        @Override
+        public void install(EventService eventService) {
+            eventService.buildEventTypeWithTopic(topic())
+                    .name(name())
+                    .component(MeteringService.COMPONENTNAME)
+                    .category("Crud")
+                    .scope("System")
+                    .shouldNotPublish()
+                    .create().save();
         }
     };
 

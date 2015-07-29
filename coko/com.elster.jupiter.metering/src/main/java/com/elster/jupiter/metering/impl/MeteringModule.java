@@ -2,18 +2,19 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.users.UserService;
-import java.time.Clock;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 import com.google.inject.name.Names;
+
+import java.time.Clock;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class MeteringModule extends AbstractModule {
 
@@ -35,6 +36,11 @@ public class MeteringModule extends AbstractModule {
         this.createReadingTypes = this.readingTypes != null && this.readingTypes.length() > 0;
     }
 
+    public MeteringModule(boolean createAll, String readingType, String... requiredReadingTypes) {
+        this.readingTypes = Stream.concat(Stream.of(readingType), Stream.of(requiredReadingTypes)).collect(Collectors.joining(";"));
+        this.createReadingTypes = createAll;
+    }
+
     @Override
     protected void configure() {
         requireBinding(Clock.class);
@@ -44,9 +50,11 @@ public class MeteringModule extends AbstractModule {
         requireBinding(PartyService.class);
         requireBinding(QueryService.class);
         requireBinding(UserService.class);
+        requireBinding(FiniteStateMachineService.class);
 
         bindConstant().annotatedWith(Names.named("requiredReadingTypes")).to(readingTypes);
         bindConstant().annotatedWith(Names.named("createReadingTypes")).to(createReadingTypes);
         bind(MeteringService.class).to(MeteringServiceImpl.class).in(Scopes.SINGLETON);
+        bind(ServerMeteringService.class).to(MeteringServiceImpl.class).in(Scopes.SINGLETON);
     }
 }

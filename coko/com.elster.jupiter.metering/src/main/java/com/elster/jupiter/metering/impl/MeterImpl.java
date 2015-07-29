@@ -29,6 +29,7 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -92,27 +93,31 @@ public class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter
     }
 
     void adopt(MeterActivationImpl meterActivation) {
-        if (!meterActivations.isEmpty()) {
-            MeterActivationImpl last = meterActivations.get(meterActivations.size() - 1);
-            if (last.getRange().lowerEndpoint().isAfter(meterActivation.getRange().lowerEndpoint())) {
-                throw new IllegalArgumentException("Invalid start instant");
-            } else {
-                if (!last.getRange().hasUpperBound() || last.getRange().upperEndpoint().isAfter(meterActivation.getRange().lowerEndpoint())) {
-                    last.endAt(meterActivation.getRange().lowerEndpoint());
-                }
-            }
+        meterActivations.stream()
+                .filter(activation -> activation.getId() != meterActivation.getId())
+                .reduce((m1, m2) -> m2)
+                .ifPresent(last -> {
+                    if (last.getRange().lowerEndpoint().isAfter(meterActivation.getRange().lowerEndpoint())) {
+                        throw new IllegalArgumentException("Invalid start date");
+                    } else {
+                        if (!last.getRange().hasUpperBound() || last.getRange().upperEndpoint().isAfter(meterActivation.getRange().lowerEndpoint())) {
+                            last.endAt(meterActivation.getRange().lowerEndpoint());
+                        }
+                    }
+                });
+        Optional<MeterActivationImpl> first = meterActivations.stream().filter(activation -> activation.getId() != meterActivation.getId()).findFirst();
+        if (!first.isPresent()) {
+            meterActivations.add(meterActivation);
         }
-        meterActivations.add(meterActivation);
     }
+
 
     @Override
     public Optional<MeterActivation> getCurrentMeterActivation() {
-        for (MeterActivation meterActivation : meterActivations) {
-            if (meterActivation.isCurrent()) {
-                return Optional.of(meterActivation);
-            }
-        }
-        return Optional.empty();
+        return meterActivations.stream()
+                .map(MeterActivation.class::cast)
+                .filter(MeterActivation::isCurrent)
+                .findAny();
     }
 
     @Override
@@ -126,6 +131,11 @@ public class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter
     @Override
     public List<? extends BaseReadingRecord> getReadings(Range<Instant> range, ReadingType readingType) {
         return MeterActivationsImpl.from(meterActivations, range).getReadings(range, readingType);
+    }
+
+    @Override
+    public List<? extends BaseReadingRecord> getReadingsUpdatedSince(Range<Instant> range, ReadingType readingType, Instant since) {
+        return MeterActivationsImpl.from(meterActivations, range).getReadingsUpdatedSince(range, readingType, since);
     }
 
     @Override
@@ -182,5 +192,12 @@ public class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter
     @Override
     public Optional<UsagePoint> getUsagePoint(Instant instant) {
         return getMeterActivation(instant).flatMap(MeterActivation::getUsagePoint);
+    }
+
+    @Override
+    public ZoneId getZoneId() {
+        return getCurrentMeterActivation()
+                .map(MeterActivation::getZoneId)
+                .orElse(ZoneId.systemDefault());
     }
 }

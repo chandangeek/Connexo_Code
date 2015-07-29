@@ -1,14 +1,18 @@
 package com.elster.jupiter.metering;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.orm.JournalEntry;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Subquery;
 
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
+@ProviderType
 public interface MeteringService {
     String COMPONENTNAME = "MTR";
 
@@ -81,4 +85,25 @@ public interface MeteringService {
     ReadingType createReadingType(String mRID, String aliasName);
 
     void purge(PurgeConfiguration purgeConfiguration);
+
+    /**
+     * Changes the state of the devices identified by the <code>deviceAmrIdSubquery</code>
+     * from the old {@link FiniteStateMachine} to a compatible {@link com.elster.jupiter.fsm.State}
+     * in the new FiniteStateMachine. Currently, two States are considered compatible if
+     * they have the same name. This means that changing to another FiniteStateMachine
+     * maps the current State of each device to the State with the same name
+     * in the new FiniteStateMachine.
+     * Note that the effective timestamp cannot be in the future and if it is
+     * this will throw an IllegalArgumentException.
+     *
+     * @param effective The instant in time on which the switch over was effective
+     * @param oldStateMachine The old FiniteStateMachine
+     * @param newStateMachine The new FiniteStateMachine
+     * @param deviceAmrIdSubquery The query that returns the amrId of each device to which the change should be applied
+     */
+    void changeStateMachine(Instant effective, FiniteStateMachine oldStateMachine, FiniteStateMachine newStateMachine, Subquery deviceAmrIdSubquery);
+
+    List<ReadingType> getAvailableEquidistantReadingTypes();
+
+    List<ReadingType> getAvailableNonEquidistantReadingTypes();
 }

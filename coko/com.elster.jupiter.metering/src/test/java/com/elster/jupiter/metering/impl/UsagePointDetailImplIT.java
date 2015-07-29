@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.cbo.PhaseCode;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
@@ -109,6 +110,7 @@ public class UsagePointDetailImplIT {
                         new ThreadSecurityModule(),
                         new PubSubModule(),
                         new TransactionModule(false),
+                        new BpmModule(),
                         new FiniteStateMachineModule(),
                         new NlsModule()
                 );
@@ -135,8 +137,8 @@ public class UsagePointDetailImplIT {
         TransactionService transactionService = injector.getInstance(TransactionService.class);
 
         try (TransactionContext context = transactionService.getContext()) {
-            MeteringService meteringService = injector.getInstance(MeteringService.class);
-            DataModel dataModel = ((MeteringServiceImpl) meteringService).getDataModel();
+            ServerMeteringService meteringService = injector.getInstance(ServerMeteringService.class);
+            DataModel dataModel = meteringService.getDataModel();
             ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
             UsagePoint usagePoint = serviceCategory.newUsagePoint("mrID");
             usagePoint.save();
@@ -196,8 +198,8 @@ public class UsagePointDetailImplIT {
         TransactionService transactionService = injector.getInstance(TransactionService.class);
 
         try (TransactionContext context = transactionService.getContext()) {
-            MeteringService meteringService = injector.getInstance(MeteringService.class);
-            DataModel dataModel = ((MeteringServiceImpl) meteringService).getDataModel();
+            ServerMeteringService meteringService = injector.getInstance(ServerMeteringService.class);
+            DataModel dataModel = meteringService.getDataModel();
             ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.GAS).get();
             UsagePoint usagePoint = serviceCategory.newUsagePoint("mrID");
             usagePoint.save();

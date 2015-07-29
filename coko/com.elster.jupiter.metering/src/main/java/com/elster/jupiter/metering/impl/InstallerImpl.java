@@ -9,6 +9,9 @@ import com.elster.jupiter.cbo.MarketRoleKind;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.ids.Vault;
+import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.MessageSeeds;
@@ -18,11 +21,13 @@ import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.nls.SimpleNlsKey;
+import com.elster.jupiter.nls.SimpleTranslation;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.Translation;
 import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Pair;
+import com.elster.jupiter.util.exception.ExceptionCatcher;
 import com.elster.jupiter.util.streams.BufferedReaderIterable;
 
 import java.io.BufferedReader;
@@ -45,6 +50,7 @@ public class InstallerImpl {
 
     private static final Logger LOGGER = Logger.getLogger(InstallerImpl.class.getName());
 
+    private static final int DEFAULT_RETRY_DELAY_IN_SECONDS = 60;
     private static final int SLOT_COUNT = 8;
     private static final String IMPORT_FILE_NAME = "enddeviceeventtypes.csv";
     private static final String NOT_APPLICABLE = "n/a";
@@ -55,16 +61,18 @@ public class InstallerImpl {
     private final UserService userService;
     private final EventService eventService;
     private final Thesaurus thesaurus;
+    private final MessageService messageService;
     private final boolean createAllReadingTypes;
     private final String[] requiredReadingTypes;
 
-    public InstallerImpl(MeteringServiceImpl meteringService, IdsService idsService, PartyService partyService, UserService userService, EventService eventService, Thesaurus thesaurus, boolean createAllReadingTypes, String[] requiredReadingTypes) {
+    public InstallerImpl(MeteringServiceImpl meteringService, IdsService idsService, PartyService partyService, UserService userService, EventService eventService, Thesaurus thesaurus, MessageService messageService, boolean createAllReadingTypes, String[] requiredReadingTypes) {
         this.meteringService = meteringService;
         this.idsService = idsService;
         this.partyService = partyService;
         this.userService = userService;
         this.eventService = eventService;
         this.thesaurus = thesaurus;
+        this.messageService = messageService;
         this.createAllReadingTypes = createAllReadingTypes;
         this.requiredReadingTypes = requiredReadingTypes;
     }
@@ -75,11 +83,12 @@ public class InstallerImpl {
         List<ServiceCategoryImpl> serviceCategories = createServiceCategories();
         createReadingTypes();
         createPartyRoles();
-        createPrivileges();
         createAmrSystems();
         createEndDeviceEventTypes();
         createEventTypes();
         createTranslations(serviceCategories);
+        createQueueTranslations();
+        createQueues();
     }
 
     private void createEventTypes() {
@@ -175,10 +184,10 @@ public class InstallerImpl {
         }
     }
 
-    private void createPartitions(Vault vault) {    	
+    private void createPartitions(Vault vault) {
     	Instant start = YearMonth.now().atDay(1).atStartOfDay(ZoneOffset.UTC).toInstant();
     	vault.activate(start);
-    	vault.extendTo(start.plus(360, ChronoUnit.DAYS), Logger.getLogger(getClass().getPackage().getName()));        
+    	vault.extendTo(start.plus(360, ChronoUnit.DAYS), Logger.getLogger(getClass().getPackage().getName()));
     }
 
     private void createRecordSpecs() {
@@ -226,16 +235,6 @@ public class InstallerImpl {
         }
     }
 
-    private void createPrivileges() {
-        //TODO: privilege structure has been modified; add all privileges here
-//        for (String each : getPrivileges()) {
-//            try {
-//                userService.createPrivilege(MeteringService.COMPONENTNAME, each, "");
-//            } catch (Exception e) {
-//                LOGGER.log(Level.SEVERE, "Error creating privilege \'" + each + "\': " + e.getMessage(), e);
-//            }
-//        }
-    }
 
     private List<String> getPrivileges() {
         Field[] fields = Privileges.class.getFields();
@@ -248,38 +247,44 @@ public class InstallerImpl {
             }
         }
         return result;
+
     }
 
     private void createTranslations(List<ServiceCategoryImpl> serviceCategories) {
-        List<Translation> translations = new ArrayList<>(MessageSeeds.values().length);
-        for (MessageSeeds messageSeed : MessageSeeds.values()) {
-            SimpleNlsKey nlsKey = SimpleNlsKey.key(MeteringService.COMPONENTNAME, Layer.DOMAIN, messageSeed.getKey()).defaultMessage(messageSeed.getDefaultFormat());
-            translations.add(toTranslation(nlsKey, Locale.ENGLISH, messageSeed.getDefaultFormat()));
-        }
+        List<Translation> translations = new ArrayList<>(serviceCategories.size());
         for (ServiceCategoryImpl serviceCategory : serviceCategories) {
             SimpleNlsKey nlsKey = SimpleNlsKey.key(MeteringService.COMPONENTNAME, Layer.DOMAIN, serviceCategory.getTranslationKey()).defaultMessage(serviceCategory.getKind().getDisplayName());
-            translations.add(toTranslation(nlsKey, Locale.ENGLISH, serviceCategory.getKind().getDisplayName()));
+            translations.add(SimpleTranslation.translation(nlsKey, Locale.ENGLISH, serviceCategory.getKind().getDisplayName()));
         }
         thesaurus.addTranslations(translations);
     }
 
-    private Translation toTranslation(final SimpleNlsKey nlsKey, final Locale locale, final String translation) {
-        return new Translation() {
-            @Override
-            public NlsKey getNlsKey() {
-                return nlsKey;
-            }
+    private void createQueueTranslations() {
+        this.thesaurus.addTranslations(
+                Arrays.asList(
+                        SimpleTranslation.translation(
+                                SimpleNlsKey.key(
+                                        MeteringService.COMPONENTNAME,
+                                        Layer.DOMAIN,
+                                        SwitchStateMachineEvent.SUBSCRIBER).defaultMessage(SwitchStateMachineEvent.SUBSCRIBER_TRANSLATION),
+                                Locale.ENGLISH, SwitchStateMachineEvent.SUBSCRIBER_TRANSLATION)));
+    }
 
-            @Override
-            public Locale getLocale() {
-                return locale;
-            }
 
-            @Override
-            public String getTranslation() {
-                return translation;
-            }
-        };
+    private void createQueues() {
+        this.createQueue(SwitchStateMachineEvent.DESTINATION, SwitchStateMachineEvent.SUBSCRIBER);
+    }
+
+    private void createQueue(String queueDestination, String queueSubscriber) {
+        try {
+            QueueTableSpec defaultQueueTableSpec = this.messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
+            DestinationSpec destinationSpec = defaultQueueTableSpec.createDestinationSpec(queueDestination, DEFAULT_RETRY_DELAY_IN_SECONDS);
+            destinationSpec.activate();
+            destinationSpec.subscribe(queueSubscriber);
+        }
+        catch (Exception e) {
+            LOGGER.log(Level.WARNING, e.getMessage(), e);
+        }
     }
 
 }

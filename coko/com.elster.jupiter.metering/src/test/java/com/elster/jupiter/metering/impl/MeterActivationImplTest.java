@@ -1,5 +1,7 @@
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
+import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.ids.RecordSpec;
@@ -13,9 +15,12 @@ import com.elster.jupiter.metering.MeterAlreadyLinkedToUsagePoint;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.google.common.collect.Range;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
@@ -24,7 +29,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 import javax.inject.Provider;
 import java.time.Clock;
 import java.time.Instant;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Optional;
@@ -37,14 +41,18 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class MeterActivationImplTest {
 
+    @Rule
+    public TestRule timeZoneNeutral = Using.timeZoneOfMcMurdo();
+
     private static final String MRID1 = "13.2.2.4.0.8.12.8.16.9.11.12.13.14.128.3.72.124";
     private static final String MRID2 = "13.2.2.1.0.8.12.9.16.9.11.12.13.14.128.3.72.124";
     private static final String MRID3 = "13.2.3.4.0.8.12.10.16.9.11.12.13.14.128.3.72.124";
     private static final String MRID4 = "13.2.3.4.0.8.12.10.16.9.11.12.13.14.128.3.72.124";
-    private static final Instant ACTIVATION_TIME = ZonedDateTime.of(1984, 11, 5, 13, 37, 3, 14_000_000, ZoneId.systemDefault()).toInstant();
+    private static final ZonedDateTime ACTIVATION_TIME_BASE = ZonedDateTime.of(1984, 11, 5, 13, 37, 3, 14_000_000, TimeZoneNeutral.getMcMurdo());
+    private static final Instant ACTIVATION_TIME = ACTIVATION_TIME_BASE.toInstant();
     private static final long USAGEPOINT_ID = 6546L;
     private static final long METER_ID = 46335L;
-    private static final Instant END = ZonedDateTime.of(2166, 8, 6, 8, 35, 0, 0, ZoneId.systemDefault()).toInstant();
+    private static final Instant END = ZonedDateTime.of(2166, 8, 6, 8, 35, 0, 0, TimeZoneNeutral.getMcMurdo()).toInstant();
     private static final long ID = 154177L;
 
     private MeterActivationImpl meterActivation;
@@ -163,6 +171,79 @@ public class MeterActivationImplTest {
         meterActivation = new MeterActivationImpl(dataModel,eventService,clock,channelBuilder, thesaurus).init(meter, usagePoint, ACTIVATION_TIME);
 
         meterActivation.setUsagePoint(usagePoint);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testAdvanceStartDateMustNotBeLater() {
+        meterActivation = new MeterActivationImpl(dataModel,eventService,clock,channelBuilder, thesaurus).init(meter, usagePoint, ACTIVATION_TIME);
+
+        meterActivation.advanceStartDate(ACTIVATION_TIME_BASE.plusSeconds(1).toInstant());
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testAdvanceStartDateMustBeEarlier() {
+        meterActivation = new MeterActivationImpl(dataModel,eventService,clock,channelBuilder, thesaurus).init(meter, usagePoint, ACTIVATION_TIME);
+
+        meterActivation.advanceStartDate(ACTIVATION_TIME);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testAdvanceStartDateMustNotOverlapWithMeterActivationOfMeter() {
+        meterActivation = new MeterActivationImpl(dataModel,eventService,clock,channelBuilder, thesaurus).init(meter, usagePoint, ACTIVATION_TIME);
+
+        MeterActivation earlier = mock(MeterActivation.class);
+
+        doReturn(Arrays.asList(earlier, meterActivation)).when(meter).getMeterActivations();
+        when(earlier.getId()).thenReturn(516501L);
+        when(earlier.getRange()).thenReturn(Range.closedOpen(ACTIVATION_TIME_BASE.minusYears(1).toInstant(), ACTIVATION_TIME));
+
+        meterActivation.advanceStartDate(ACTIVATION_TIME_BASE.minusDays(5).toInstant());
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testAdvanceStartDateMustNotOverlapWithMeterActivationOfUsagePoint() {
+        meterActivation = new MeterActivationImpl(dataModel,eventService,clock,channelBuilder, thesaurus).init(meter, usagePoint, ACTIVATION_TIME);
+
+        MeterActivation earlier = mock(MeterActivation.class);
+
+        doReturn(Arrays.asList(earlier, meterActivation)).when(usagePoint).getMeterActivations();
+        when(earlier.getId()).thenReturn(516501L);
+        when(earlier.getRange()).thenReturn(Range.closedOpen(ACTIVATION_TIME_BASE.minusYears(1).toInstant(), ACTIVATION_TIME));
+
+        meterActivation.advanceStartDate(ACTIVATION_TIME_BASE.minusDays(5).toInstant());
+    }
+
+    public void testAdvanceStartDateSuccess() {
+        meterActivation = new MeterActivationImpl(dataModel,eventService,clock,channelBuilder, thesaurus).init(meter, usagePoint, ACTIVATION_TIME);
+        field("id").ofType(Long.TYPE).in(meterActivation).set(987987L);
+
+        MeterActivation earlier = mock(MeterActivation.class);
+
+        doReturn(Arrays.asList(earlier, meterActivation)).when(usagePoint).getMeterActivations();
+        when(earlier.getId()).thenReturn(516501L);
+        when(earlier.getRange()).thenReturn(Range.closedOpen(ACTIVATION_TIME_BASE.minusYears(1).toInstant(), ACTIVATION_TIME_BASE.minusMonths(8).toInstant()));
+
+        meterActivation.advanceStartDate(ACTIVATION_TIME_BASE.minusDays(5).toInstant());
+
+        verify(dataModel.mapper(MeterActivation.class)).update(meterActivation);
+        assertThat(meterActivation.getRange()).isEqualTo(Range.atLeast(ACTIVATION_TIME_BASE.minusDays(5).toInstant()));
+    }
+
+    public void testAdvanceStartDateSuccessOnClosedPeriod() {
+        meterActivation = new MeterActivationImpl(dataModel,eventService,clock,channelBuilder, thesaurus).init(meter, usagePoint, ACTIVATION_TIME);
+        field("id").ofType(Long.TYPE).in(meterActivation).set(987987L);
+        meterActivation.endAt(ACTIVATION_TIME_BASE.plusYears(1).toInstant());
+
+        MeterActivation earlier = mock(MeterActivation.class);
+
+        doReturn(Arrays.asList(earlier, meterActivation)).when(usagePoint).getMeterActivations();
+        when(earlier.getId()).thenReturn(516501L);
+        when(earlier.getRange()).thenReturn(Range.closedOpen(ACTIVATION_TIME_BASE.minusYears(1).toInstant(), ACTIVATION_TIME_BASE.minusMonths(8).toInstant()));
+
+        meterActivation.advanceStartDate(ACTIVATION_TIME_BASE.minusDays(5).toInstant());
+
+        verify(dataModel.mapper(MeterActivation.class)).update(meterActivation);
+        assertThat(meterActivation.getRange()).isEqualTo(Range.closedOpen(ACTIVATION_TIME_BASE.minusDays(5).toInstant(), ACTIVATION_TIME_BASE.plusYears(1).toInstant()));
     }
 
     private void simulateSavedMeterActivation() {

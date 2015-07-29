@@ -5,11 +5,11 @@ import com.elster.jupiter.cbo.MarketRoleKind;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.users.User;
-import java.util.Optional;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 public interface UsagePoint extends IdentifiedObject , ReadingContainer {
 	long getId();
@@ -20,10 +20,10 @@ public interface UsagePoint extends IdentifiedObject , ReadingContainer {
 	String getReadRoute();
 	String getServicePriority();
     List<? extends MeterActivation> getMeterActivations();
-	MeterActivation getCurrentMeterActivation();
+	Optional<MeterActivation> getCurrentMeterActivation();
 
 	long getServiceLocationId();
-	ServiceLocation getServiceLocation();
+	Optional<ServiceLocation> getServiceLocation();
 	ServiceCategory getServiceCategory();
 
 	void setServiceLocation(ServiceLocation serviceLocation);

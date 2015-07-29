@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.cbo.Accumulation;
 import com.elster.jupiter.cbo.Commodity;
 import com.elster.jupiter.cbo.FlowDirection;
@@ -85,6 +86,7 @@ public class ReadingEstimateTest {
                 inMemoryBootstrapModule,
                 new InMemoryMessagingModule(),
                 new IdsModule(),
+                new BpmModule(),
                 new FiniteStateMachineModule(),
                 new MeteringModule(true),
                 new PartyModule(),

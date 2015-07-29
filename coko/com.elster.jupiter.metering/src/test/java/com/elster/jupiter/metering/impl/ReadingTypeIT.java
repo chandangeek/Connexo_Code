@@ -4,21 +4,17 @@ import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
-import com.elster.jupiter.fsm.FiniteStateMachine;
-import com.elster.jupiter.fsm.FiniteStateMachineBuilder;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
-import com.elster.jupiter.fsm.impl.FiniteStateMachineServiceImpl;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
-import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
-import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
@@ -36,17 +32,13 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static com.elster.jupiter.devtools.tests.assertions.JupiterAssertions.assertThat;
 
-/**
- * Integration test for the {@link MeterImpl} component.
- *
- * @author Rudi Vankeirsbilck (rudi)
- * @since 2015-03-16 (11:03)
- */
 @RunWith(MockitoJUnitRunner.class)
-public class MeterImplIT {
+public class ReadingTypeIT {
 
     private Injector injector;
 
@@ -79,7 +71,14 @@ public class MeterImplIT {
                     inMemoryBootstrapModule,
                     new InMemoryMessagingModule(),
                     new IdsModule(),
-                    new MeteringModule(false),
+                    new MeteringModule(false,
+                            "0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0", // no macro period, no measuring period
+                            "0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0", // no macro period, measuring period =  15 min
+                            "11.0.0.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0", // macro period = day, no measuring period
+                            "13.0.0.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0", // macro period = month, no measuring period
+                            "11.0.2.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0", // macro period = day, measuring period =  15 min
+                            "24.0.0.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0" // macro period = weekly, no measuring period
+                    ),
                     new PartyModule(),
                     new EventsModule(),
                     new DomainUtilModule(),
@@ -108,30 +107,24 @@ public class MeterImplIT {
     }
 
     @Test
-    public void createEndDeviceWithManagedState() {
-        TransactionService transactionService = injector.getInstance(TransactionService.class);
+    public void testFindEquidistantReadingTypes() {
         MeteringService meteringService = injector.getInstance(MeteringService.class);
-        try (TransactionContext context = transactionService.getContext()) {
-            FiniteStateMachine stateMachine = this.createTinyFiniteStateMachine();
-            Meter meter = meteringService.findAmrSystem(1).get().newMeter(stateMachine, "amrID", "mRID");
 
-            // Business method
-            meter.save();
+        List<ReadingType> equidistantTypes = meteringService.getAvailableEquidistantReadingTypes();
+        List<ReadingType> nonEquidistantTypes = meteringService.getAvailableNonEquidistantReadingTypes();
+        List<ReadingType> allTypes = meteringService.getAvailableReadingTypes();
 
-            // Asserts
-            assertThat(meter.getFiniteStateMachine().isPresent()).isTrue();
-            assertThat(meter.getFiniteStateMachine().get().getId()).isEqualTo(stateMachine.getId());
-            assertThat(meter.getState().isPresent()).isTrue();
-            assertThat(meter.getState().get().getId()).isEqualTo(stateMachine.getInitialState().getId());
-        }
+        assertThat(equidistantTypes).isNotEmpty().isSubsetOf(allTypes);
+        assertThat(nonEquidistantTypes).isNotEmpty().isSubsetOf(allTypes);
+
+        List<ReadingType> intersection = new ArrayList<>(equidistantTypes);
+        intersection.retainAll(nonEquidistantTypes);
+        assertThat(intersection).isEmpty();
+
+        List<ReadingType> union = new ArrayList<>(equidistantTypes);
+        union.addAll(nonEquidistantTypes);
+        assertThat(union).containsAll(allTypes);
     }
 
-    private FiniteStateMachine createTinyFiniteStateMachine() {
-        FiniteStateMachineServiceImpl finiteStateMachineService = this.injector.getInstance(FiniteStateMachineServiceImpl.class);
-        FiniteStateMachineBuilder builder = finiteStateMachineService.newFiniteStateMachine("Tiny");
-        FiniteStateMachine stateMachine = builder.complete(builder.newCustomState("TheOneAndOnly").complete());
-        stateMachine.save();
-        return stateMachine;
-    }
 
 }

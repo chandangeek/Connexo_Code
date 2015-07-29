@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.cbo.EndDeviceDomain;
 import com.elster.jupiter.cbo.EndDeviceEventTypeCodeBuilder;
 import com.elster.jupiter.cbo.EndDeviceEventorAction;
@@ -121,6 +122,7 @@ public class EndDeviceEventRecordImplTest extends EqualsContractTest {
                 new ThreadSecurityModule(principal),
                 new PubSubModule(),
                 new TransactionModule(),
+                new BpmModule(),
                 new FiniteStateMachineModule(),
                 new NlsModule());
         when(principal.getName()).thenReturn("Test");
@@ -144,7 +146,7 @@ public class EndDeviceEventRecordImplTest extends EqualsContractTest {
             protected void doPerform() {
                 when(subscriber.getClasses()).thenReturn(new Class[]{LocalEventImpl.class});
                 ((PublisherImpl) injector.getInstance(Publisher.class)).addHandler(subscriber);
-                MeteringServiceImpl meteringService = (MeteringServiceImpl) getMeteringService();
+                ServerMeteringService meteringService = getMeteringService();
                 DataModel dataModel = meteringService.getDataModel();
                 Instant date = ZonedDateTime.of(2001, 1, 1, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
                 String code = EndDeviceEventTypeCodeBuilder.type(EndDeviceType.ELECTRIC_METER).domain(EndDeviceDomain.BATTERY).subDomain(EndDeviceSubDomain.CHARGE).eventOrAction(EndDeviceEventorAction.DECREASED).toCode();
@@ -177,7 +179,7 @@ public class EndDeviceEventRecordImplTest extends EqualsContractTest {
         getTransactionService().execute(new VoidTransaction() {
             @Override
             protected void doPerform() {
-                MeteringServiceImpl meteringService = (MeteringServiceImpl) getMeteringService();
+                ServerMeteringService meteringService = getMeteringService();
                 DataModel dataModel = meteringService.getDataModel();
                 Instant date = ZonedDateTime.of(2001, 1, 1, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
                 String code = EndDeviceEventTypeCodeBuilder.type(EndDeviceType.ELECTRIC_METER).domain(EndDeviceDomain.BATTERY).subDomain(EndDeviceSubDomain.CHARGE).eventOrAction(EndDeviceEventorAction.DECREASED).toCode();
@@ -199,14 +201,13 @@ public class EndDeviceEventRecordImplTest extends EqualsContractTest {
 
     }
 
-    private MeteringService getMeteringService() {
-        return injector.getInstance(MeteringService.class);
+    private ServerMeteringService getMeteringService() {
+        return injector.getInstance(ServerMeteringService.class);
     }
 
     private TransactionService getTransactionService() {
         return injector.getInstance(TransactionService.class);
     }
-
 
     @Override
     protected boolean canBeSubclassed() {

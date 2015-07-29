@@ -184,8 +184,10 @@ public enum TableSpecs {
             Column mRidColumn = table.column("MRID").varChar(NAME_LENGTH).notNull().map("mRID").add();
             table.column("ALIASNAME").varChar(SHORT_DESCRIPTION_LENGTH).map("aliasName").add();
             table.column("DESCRIPTION").varChar(SHORT_DESCRIPTION_LENGTH).map("description").add();
+            Column equidistantColumn = table.column("EQUIDISTANT").bool().map("equidistant").add();
             table.addAuditColumns();
             table.primaryKey("MTR_PK_READINGTYPE").on(mRidColumn).add();
+            table.index("MTR_READINGTYPE_EQUIDISTANT").on(equidistantColumn).add();
         }
     },
     MTR_ENDDEVICE {
@@ -198,7 +200,7 @@ public enum TableSpecs {
             Column mRIDColumn = table.column("MRID").varChar(NAME_LENGTH).map("mRID").add();
             Column amrSystemIdColumn = table.column("AMRSYSTEMID").type("number").notNull().conversion(NUMBER2INT).map("amrSystemId").add();
             Column amrIdColumn = table.column("AMRID").varChar(SHORT_DESCRIPTION_LENGTH).notNull().map("amrId").add();
-            table.column("NAME").varChar(NAME_LENGTH).map("name").add();
+            Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).map("name").add();
             table.column("ALIASNAME").varChar(NAME_LENGTH).map("aliasName").add();
             table.column("DESCRIPTION").varChar(SHORT_DESCRIPTION_LENGTH).map("description").add();
             table.column("SERIALNUMBER").varChar(NAME_LENGTH).map("serialNumber").add();
@@ -217,10 +219,11 @@ public enum TableSpecs {
             table.column("INSTALLEDDATE").number().map("installedDate").conversion(ColumnConversion.NUMBER2INSTANT).add();
             table.column("REMOVEDDATE").number().map("removedDate").conversion(ColumnConversion.NUMBER2INSTANT).add();
             table.column("RETIREDDATE").number().map("retiredDate").conversion(ColumnConversion.NUMBER2INSTANT).add();
+            Column obsoleteTime = table.column("OBSOLETETIME").number().map("obsoleteTime").conversion(ColumnConversion.NUMBER2INSTANT).add();
             Column stateMachine = table.column("FSM").number().add();
             table.addAuditColumns();
             table.primaryKey("MTR_PK_METER").on(idColumn).add();
-            table.unique("MTR_U_METER").on(mRIDColumn).add();
+            table.unique("MTR_U_METER").on(mRIDColumn, obsoleteTime).add();
             table.unique("MTR_U_METERAMR").on(amrSystemIdColumn, amrIdColumn).add();
             table.foreignKey("MTR_FK_METERAMRSYSTEM").references(MTR_AMRSYSTEM.name()).onDelete(RESTRICT).map("amrSystem").on(amrSystemIdColumn).add();
             table.foreignKey("MTR_FK_ENDDEVICE_FSM")
@@ -228,6 +231,7 @@ public enum TableSpecs {
                     .references(FiniteStateMachineService.COMPONENT_NAME, "FSM_FINITE_STATE_MACHINE")
                     .map("stateMachine")
                     .add();
+            table.index("MTR_IDX_ENDDEVICE_NAME").on(nameColumn).add();
         }
     },
     MTR_ENDDEVICESTATUS {

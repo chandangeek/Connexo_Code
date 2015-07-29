@@ -1,11 +1,7 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.cbo.IdentifiedObject;
-import com.elster.jupiter.metering.AmrSystem;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.*;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
@@ -15,19 +11,28 @@ import com.elster.jupiter.util.conditions.Condition;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import java.time.Instant;
+
 @Component(name = "com.elster.jupiter.metering.console", service = ConsoleCommands.class, property = {
         "osgi.command.scope=metering",
         "osgi.command.function=printDdl",
         "osgi.command.function=meters",
+        "osgi.command.function=usagePoints",
         "osgi.command.function=readingTypes",
         "osgi.command.function=createMeter",
+        "osgi.command.function=createUsagePoint",
         "osgi.command.function=channelConfig",
         "osgi.command.function=meterActivations",
+        "osgi.command.function=renameMeter",
+        "osgi.command.function=activateMeter",
+        "osgi.command.function=addUsagePointToCurrentMeterActivation",
+        "osgi.command.function=endCurrentMeterActivation",
+        "osgi.command.function=advanceStartDate",
         "osgi.command.function=explain"
 }, immediate = true)
 public class ConsoleCommands {
 
-    private volatile MeteringService meteringService;
+    private volatile ServerMeteringService meteringService;
     private volatile DataModel dataModel;
     private volatile TransactionService transactionService;
     private volatile ThreadPrincipalService threadPrincipalService;
@@ -47,6 +52,12 @@ public class ConsoleCommands {
     public void meters() {
         meteringService.getMeterQuery().select(Condition.TRUE).stream()
                 .map(meter -> meter.getId() + " " + meter.getMRID())
+                .forEach(System.out::println);
+    }
+
+    public void usagePoints() {
+        meteringService.getUsagePointQuery().select(Condition.TRUE).stream()
+                .map(usagePoint -> usagePoint.getId() + " " + usagePoint.getMRID())
                 .forEach(System.out::println);
     }
 
@@ -80,6 +91,80 @@ public class ConsoleCommands {
         }
     }
 
+    public void renameMeter(String mrId, String newName) {
+        threadPrincipalService.set(() -> "Console");
+        try (TransactionContext context = transactionService.getContext()) {
+            Meter meter = meteringService.findMeter(mrId).get();
+            meter.setName(newName);
+            meter.save();
+            context.commit();
+        } finally {
+            threadPrincipalService.clear();
+        }
+    }
+
+    public void activateMeter(String mrId, long epochMilli) {
+        threadPrincipalService.set(() -> "Console");
+        try (TransactionContext context = transactionService.getContext()) {
+            Meter meter = meteringService.findMeter(mrId).get();
+            Instant activationDate = Instant.ofEpochMilli(epochMilli);
+            meter.activate(activationDate);
+            meter.save();
+            context.commit();
+        } finally {
+            threadPrincipalService.clear();
+        }
+    }
+
+    public void addUsagePointToCurrentMeterActivation(String mrId, long usagePointId) {
+        threadPrincipalService.set(() -> "Console");
+        try (TransactionContext context = transactionService.getContext()) {
+            Meter meter = meteringService.findMeter(mrId).get();
+            UsagePoint usagePoint = meteringService.findUsagePoint(usagePointId).get();
+            meter.getCurrentMeterActivation().get().setUsagePoint(usagePoint);
+            context.commit();
+        } finally {
+            threadPrincipalService.clear();
+        }
+    }
+
+    public void endCurrentMeterActivation(String mrId, long epochMilli) {
+        threadPrincipalService.set(() -> "Console");
+        try (TransactionContext context = transactionService.getContext()) {
+            Meter meter = meteringService.findMeter(mrId).get();
+            Instant endDate = Instant.ofEpochMilli(epochMilli);
+            meter.getCurrentMeterActivation().get().endAt(endDate);
+//            meter.save();
+            context.commit();
+        } finally {
+            threadPrincipalService.clear();
+        }
+    }
+
+    public void advanceStartDate(String mrId, long epochMilli) {
+        threadPrincipalService.set(() -> "Console");
+        try (TransactionContext context = transactionService.getContext()) {
+            Meter meter = meteringService.findMeter(mrId).get();
+            Instant newStartDate = Instant.ofEpochMilli(epochMilli);
+            meter.getCurrentMeterActivation().get().advanceStartDate(newStartDate);
+//            meter.save();
+            context.commit();
+        } finally {
+            threadPrincipalService.clear();
+        }
+    }
+
+    public void createUsagePoint(String mrId) {
+        threadPrincipalService.set(() -> "Console");
+        try (TransactionContext context = transactionService.getContext()) {
+            UsagePointImpl usagePoint = (UsagePointImpl) meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get().newUsagePoint(mrId);
+            usagePoint.save();
+            context.commit();
+        } finally {
+            threadPrincipalService.clear();
+        }
+    }
+
     public void readingTypes() {
         meteringService.getAvailableReadingTypes().stream()
                 .map(IdentifiedObject::getMRID)
@@ -87,9 +172,9 @@ public class ConsoleCommands {
     }
 
     @Reference
-    public void setMeteringService(MeteringService meteringService) {
+    public void setMeteringService(ServerMeteringService meteringService) {
         this.meteringService = meteringService;
-        this.dataModel = ((MeteringServiceImpl) meteringService).getDataModel();
+        this.dataModel = meteringService.getDataModel();
     }
 
     @Reference

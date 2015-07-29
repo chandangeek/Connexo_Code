@@ -28,6 +28,7 @@ import com.google.common.collect.Range;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -52,7 +53,6 @@ public class UsagePointImpl implements UsagePoint {
 	@SuppressWarnings("unused")
 	private String userName;
 
-
     private TemporalReference<UsagePointDetailImpl> detail = Temporals.absent();
 
     // associations
@@ -60,29 +60,29 @@ public class UsagePointImpl implements UsagePoint {
 	private final Reference<ServiceLocation> serviceLocation = ValueReference.absent();
 	private final List<MeterActivationImpl> meterActivations = new ArrayList<>();
 	private final List<UsagePointAccountability> accountabilities = new ArrayList<>();
-	
+
     private final DataModel dataModel;
     private final EventService eventService;
     private final Provider<MeterActivationImpl> meterActivationFactory;
     private final Provider<UsagePointAccountabilityImpl> accountabilityFactory;
 
     @Inject
-	UsagePointImpl(DataModel dataModel, EventService eventService, 
-			Provider<MeterActivationImpl> meterActivationFactory, 
+	UsagePointImpl(DataModel dataModel, EventService eventService,
+			Provider<MeterActivationImpl> meterActivationFactory,
 			Provider<UsagePointAccountabilityImpl> accountabilityFactory) {
         this.dataModel = dataModel;
         this.eventService = eventService;
         this.meterActivationFactory = meterActivationFactory;
         this.accountabilityFactory = accountabilityFactory;
     }
-	
+
 	UsagePointImpl init(String mRID , ServiceCategory serviceCategory) {
 		this.mRID = mRID;
 		this.serviceCategory.set(serviceCategory);
 		this.isSdp = true;
         return this;
 	}
-	
+
 	@Override
 	public long getId() {
 		return id;
@@ -90,10 +90,9 @@ public class UsagePointImpl implements UsagePoint {
 
 	@Override 
 	public long getServiceLocationId() {
-		ServiceLocation location = getServiceLocation();
-		return location == null ? 0 : location.getId();
+		return getServiceLocation().map(ServiceLocation::getId).orElse(0L);
 	}
-	
+
 	@Override
 	public String getAliasName() {
 		return aliasName;
@@ -150,8 +149,8 @@ public class UsagePointImpl implements UsagePoint {
 	}
 
 	@Override
-	public ServiceLocation getServiceLocation() {
-		return serviceLocation.get();
+	public Optional<ServiceLocation> getServiceLocation() {
+		return serviceLocation.getOptional();
 	}
 
 	@Override
@@ -230,22 +229,20 @@ public class UsagePointImpl implements UsagePoint {
 	public List<MeterActivationImpl> getMeterActivations() {
 		return ImmutableList.copyOf(meterActivations);
 	}
-	
+
 	@Override
-	public MeterActivation getCurrentMeterActivation() {
-		for (MeterActivation each : meterActivations) {
-			if (each.isCurrent()) {
-				return each;
-			}
-		}
-		return null;
-	}
-	
+	public Optional<MeterActivation> getCurrentMeterActivation() {
+        return meterActivations.stream()
+                .filter(MeterActivation::isCurrent)
+                .map(MeterActivation.class::cast)
+                .findAny();
+    }
+
 	@Override
 	public Instant getCreateDate() {
 		return createTime;
 	}
-	
+
 	@Override
 	public Instant getModificationDate() {
 		return modTime; 
@@ -254,7 +251,7 @@ public class UsagePointImpl implements UsagePoint {
 	public long getVersion() {
 		return version;
 	}
-	
+
 	@Override
 	public List<UsagePointAccountability> getAccountabilities() {
         return ImmutableList.copyOf(accountabilities);
@@ -267,7 +264,7 @@ public class UsagePointImpl implements UsagePoint {
 		adopt(result);
 		return result;
 	}
-    
+
     @Override
 	public MeterActivation activate(Meter meter, Instant start) {
 		MeterActivationImpl result = meterActivationFactory.get().init(meter, this, start);
@@ -275,7 +272,7 @@ public class UsagePointImpl implements UsagePoint {
 		adopt(result);
 		return result;
 	}
-    
+
     public void adopt(MeterActivationImpl meterActivation) {
         meterActivations.stream()
                 .filter(activation -> activation.getId() != meterActivation.getId())
@@ -291,11 +288,14 @@ public class UsagePointImpl implements UsagePoint {
                 });
     	Optional<Meter> meter = meterActivation.getMeter();
     	if (meter.isPresent()) {
-    		((MeterImpl) meter.get()).adopt(meterActivation);
-    	}
+			// if meter happens to be the same meter of the last meteractivation that we just closed a few lines above,
+			// best is to refresh the meter so the updated meteractivations are refetched from db. see COPL-854
+			Meter existing = dataModel.mapper(Meter.class).getExisting(meter.get().getId());
+			((MeterImpl) existing).adopt(meterActivation);
+		}
     	meterActivations.add(meterActivation);
     }
-	
+
 	@Override
 	public UsagePointAccountability addAccountability(PartyRole role , Party party , Instant start) {
 		UsagePointAccountability accountability = accountabilityFactory.get().init(this, party, role, start);
@@ -357,7 +357,7 @@ public class UsagePointImpl implements UsagePoint {
         touch();
         return toUpdate;
     }
-    
+
     private void validateAddingDetail(UsagePointDetail candidate) {
         for (UsagePointDetail usagePointDetail : detail.effective(candidate.getRange())) {
             if (candidate.conflictsWith(usagePointDetail)) {
@@ -372,18 +372,23 @@ public class UsagePointImpl implements UsagePoint {
 	}
 
 	@Override
+	public List<? extends BaseReadingRecord> getReadingsUpdatedSince(Range<Instant> range, ReadingType readingType, Instant since) {
+		return MeterActivationsImpl.from(meterActivations, range).getReadingsUpdatedSince(range, readingType, since);
+	}
+
+	@Override
 	public Set<ReadingType> getReadingTypes(Range<Instant> range) {
 		return MeterActivationsImpl.from(meterActivations, range).getReadingTypes(range);
 	}
 
 	@Override
 	public List<? extends BaseReadingRecord> getReadingsBefore(Instant when, ReadingType readingType, int count) {
-		return MeterActivationsImpl.from(meterActivations).getReadingsBefore(when,readingType,count);
+		return MeterActivationsImpl.from(meterActivations).getReadingsBefore(when, readingType, count);
 	}
 
 	@Override
 	public List<? extends BaseReadingRecord> getReadingsOnOrBefore(Instant when, ReadingType readingType, int count) {
-		return MeterActivationsImpl.from(meterActivations).getReadingsOnOrBefore(when,readingType,count);
+		return MeterActivationsImpl.from(meterActivations).getReadingsOnOrBefore(when, readingType, count);
 	}
 
     @Override
@@ -393,7 +398,7 @@ public class UsagePointImpl implements UsagePoint {
 
 	@Override
 	public Optional<Party> getCustomer(Instant when) {
-		return getResponsibleParty(when,MarketRoleKind.ENERGYSERVICECONSUMER);
+		return getResponsibleParty(when, MarketRoleKind.ENERGYSERVICECONSUMER);
 	}
 
 	@Override
@@ -427,4 +432,11 @@ public class UsagePointImpl implements UsagePoint {
     public Optional<UsagePoint> getUsagePoint(Instant instant) {
         return Optional.of(this);
     }
+
+	@Override
+	public ZoneId getZoneId() {
+		return getCurrentMeterActivation()
+				.map(MeterActivation::getZoneId)
+				.orElse(ZoneId.systemDefault());
+	}
 }

@@ -73,4 +73,22 @@ public interface EndDevice extends IdentifiedObject {
 
     LifecycleDates getLifecycleDates();
 
+    void setName(String name);
+
+    boolean isObsolete();
+
+    /**
+     * Makes this EndDevice obsolete.
+     * This EndDevice will no longer show up in queries
+     * except the one that is looking for an EndDevice by its database id.
+     */
+    void makeObsolete();
+
+    /**
+     * The Instant in time when this EndDevice was made obsolete.
+     *
+     * @return The instant in time or <code>Optional.empty()</code> if this EndDevice is not obsolete
+     */
+    Optional<Instant> getObsoleteTime();
+
 }

@@ -22,16 +22,14 @@ import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.util.Holder;
 import com.elster.jupiter.util.units.Quantity;
 
-import java.util.Optional;
-
 import javax.inject.Inject;
-
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.Period;
 import java.time.temporal.TemporalAmount;
 import java.util.Currency;
+import java.util.Optional;
 
 import static com.elster.jupiter.util.HolderBuilder.first;
 
@@ -56,7 +54,11 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
     private static final int MULTIPLIER = 15;
     private static final int UNIT = 16;
     private static final int CURRENCY = 17;
-    
+
+    static enum Fields {
+        mRID, aliasName, description, version, createTime, modTime, userName, equidistant
+    }
+
     // persistent fields
 	private String mRID;
 	private String aliasName;
@@ -68,7 +70,8 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
 	private Instant modTime;
 	@SuppressWarnings("unused")
 	private String userName;
-	
+    private boolean equidistant;
+
 	// transient fields
 	private MacroPeriod macroPeriod;
 	private Aggregate aggregate;
@@ -160,6 +163,7 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
         } catch (IllegalEnumValueException | IllegalCurrencyCodeException e) {
             throw new IllegalMRIDFormatException(mRID, e, thesaurus);
         }
+        equidistant = getIntervalLength().isPresent();
     }
 		
 	private int parse(String intString) {
@@ -305,7 +309,7 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
 
     @Override 
     public boolean isRegular() {
-    	return getIntervalLength().isPresent();
+    	return equidistant;
     }
 
 	@Override

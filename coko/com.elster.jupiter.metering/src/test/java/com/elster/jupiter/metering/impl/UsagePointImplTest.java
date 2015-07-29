@@ -31,10 +31,14 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.fest.reflect.core.Reflection.field;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 
 @RunWith(MockitoJUnitRunner.class)
@@ -207,7 +211,7 @@ public class UsagePointImplTest {
         when(serviceLocation.getId()).thenReturn(15L);
         usagePoint.setServiceLocation(serviceLocation);
 
-        assertThat(usagePoint.getServiceLocation()).isEqualTo(serviceLocation);
+        assertThat(usagePoint.getServiceLocation()).isEqualTo(Optional.of(serviceLocation));
     }
 
     @Test
@@ -249,8 +253,8 @@ public class UsagePointImplTest {
     	when(activation1.isCurrent()).thenReturn(false);
         when(activation2.isCurrent()).thenReturn(true);
 
-        MeterActivation meterActivation1 = usagePoint.getCurrentMeterActivation();
-        MeterActivation meterActivation2 = usagePoint.getCurrentMeterActivation();
+        MeterActivation meterActivation1 = usagePoint.getCurrentMeterActivation().get();
+        MeterActivation meterActivation2 = usagePoint.getCurrentMeterActivation().get();
 
         assertThat(meterActivation1).isEqualTo(activation2);
         assertThat(meterActivation2).isEqualTo(activation2);
