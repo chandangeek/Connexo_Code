@@ -38,8 +38,6 @@ public abstract class AbstractDeviceDataFileImporterFactory implements FileImpor
         return DeviceDataImporterMessageHandler.DESTINATION_NAME;
     }
 
-    protected abstract Set<DeviceDataImporterProperty> getProperties();
-
     @Override
     public List<String> getRequiredProperties() {
         return getProperties()
@@ -89,6 +87,8 @@ public abstract class AbstractDeviceDataFileImporterFactory implements FileImpor
     @Override
     public void init(Logger logger) {//not used
     }
+
+    protected abstract Set<DeviceDataImporterProperty> getProperties();
 
     protected abstract DeviceDataImporterContext getContext();
 

@@ -6,6 +6,8 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.imp.DeviceImportService;
@@ -26,6 +28,8 @@ public class DeviceDataImporterContext {
     private volatile MeteringService meteringService;
     private volatile DeviceLifeCycleService deviceLifeCycleService;
     private volatile FiniteStateMachineService finiteStateMachineService;
+    private volatile UserService userService;
+    private volatile ThreadPrincipalService threadPrincipalService;
 
     public PropertySpecService getPropertySpecService() {
         return propertySpecService;
@@ -106,5 +110,23 @@ public class DeviceDataImporterContext {
     @Reference
     public void setFiniteStateMachineService(FiniteStateMachineService finiteStateMachineService) {
         this.finiteStateMachineService = finiteStateMachineService;
+    }
+
+    @Reference
+    public void setUserService(UserService userService) {
+        this.userService = userService;
+    }
+
+    public UserService getUserService() {
+        return userService;
+    }
+
+    @Reference
+    public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
+        this.threadPrincipalService = threadPrincipalService;
+    }
+
+    public ThreadPrincipalService getThreadPrincipalService() {
+        return threadPrincipalService;
     }
 }

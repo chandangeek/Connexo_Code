@@ -20,7 +20,7 @@ public class BigDecimalParser implements FieldParser<BigDecimal> {
 
     public BigDecimal parse(String value) throws ValueParserException {
         if (Checks.is(value).emptyOrOnlyWhiteSpace()) {
-            return null;
+            throw new ValueParserException(value, numberFormat.getExample());
         }
         return parseNonEmptyBigDecimalString(value);
     }

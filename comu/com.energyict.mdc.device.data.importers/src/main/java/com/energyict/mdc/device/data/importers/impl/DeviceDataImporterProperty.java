@@ -3,12 +3,20 @@ package com.energyict.mdc.device.data.importers.impl;
 import com.elster.jupiter.fileimport.FileImporterProperty;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.PropertySpecBuilder;
+import com.elster.jupiter.properties.StringReferenceFactory;
+import com.elster.jupiter.users.FormatKey;
+import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserPreference;
+import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.device.data.importers.impl.properties.DateFormatPropertySpec;
 import com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat;
 import com.energyict.mdc.device.data.importers.impl.properties.TimeZonePropertySpec;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 public enum DeviceDataImporterProperty {
     DELIMITER("delimiter") {
@@ -36,8 +44,39 @@ public enum DeviceDataImporterProperty {
     NUMBER_FORMAT("numberFormat") {
         @Override
         public PropertySpec getPropertySpec(DeviceDataImporterContext context) {
-            return context.getPropertySpecService().stringReferencePropertySpec(getPropertyKey(), true,
-                    new SupportedNumberFormat.SupportedNumberFormatFinder(), SupportedNumberFormat.valuesAsInfo());
+            PropertySpecBuilder builder = context.getPropertySpecService()
+                    .newPropertySpecBuilder(new StringReferenceFactory(new SupportedNumberFormat.SupportedNumberFormatFinder()));
+            builder.name(getPropertyKey())
+                    .markRequired()
+                    .addValues(SupportedNumberFormat.valuesAsInfo())
+                    .markExhaustive();
+            SupportedNumberFormat defaultNumberFormat = getDefaultNumberFormat(context);
+            if (defaultNumberFormat != null) {
+                builder.setDefaultValue(new SupportedNumberFormat.SupportedNumberFormatInfo(defaultNumberFormat));
+            }
+            return builder.finish();
+        }
+
+        private SupportedNumberFormat getDefaultNumberFormat(DeviceDataImporterContext context) {
+            Optional<User> user = context.getUserService().findUser(context.getThreadPrincipalService().getPrincipal().getName());
+            if (user.isPresent()) {
+                Optional<UserPreference> decimalSeparator = context.getUserService().getUserPreferencesService().getPreferenceByKey(user.get(), FormatKey.DECIMAL_SEPARATOR);
+                Optional<UserPreference> thousandsSeparator = context.getUserService().getUserPreferencesService().getPreferenceByKey(user.get(), FormatKey.THOUSANDS_SEPARATOR);
+                Stream<SupportedNumberFormat> stream = Arrays.asList(SupportedNumberFormat.values()).stream();
+                if (decimalSeparator.isPresent()) {
+                    stream = stream.filter(numberFormat -> numberFormat.getDecimalSeparator().toString().equals(decimalSeparator.get().getFormatFE()));
+                }
+                if (thousandsSeparator.isPresent()) {
+                    stream = stream.filter(numberFormat -> {
+                        if (numberFormat.hasGroupSeparator()) {
+                            return numberFormat.getGroupSeparator().toString().equals(thousandsSeparator.get().getFormatFE());
+                        }
+                        return Checks.is(thousandsSeparator.get().getFormatFE()).empty();
+                    });
+                }
+                return stream.findFirst().orElse(null);
+            }
+            return null;
         }
 
         @Override
@@ -53,8 +92,7 @@ public enum DeviceDataImporterProperty {
                 }
             }
         }
-    },
-    ;
+    },;
 
     private String propertySuffix;
 
@@ -66,13 +104,13 @@ public enum DeviceDataImporterProperty {
         return AbstractDeviceDataFileImporterFactory.IMPORTER_FACTORY_PROPERTY_PREFIX + "." + this.propertySuffix;
     }
 
-    public boolean isMatchKey(String candidate){
+    public boolean isMatchKey(String candidate) {
         return candidate != null && getPropertyKey().equals(candidate);
     }
 
     public abstract PropertySpec getPropertySpec(DeviceDataImporterContext context);
 
-    public void validateProperties(List<FileImporterProperty> properties, DeviceDataImporterContext context){
+    public void validateProperties(List<FileImporterProperty> properties, DeviceDataImporterContext context) {
         // do nothing by default
     }
 }

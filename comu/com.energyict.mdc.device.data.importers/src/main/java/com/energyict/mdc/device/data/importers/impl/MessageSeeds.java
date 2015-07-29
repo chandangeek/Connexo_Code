@@ -31,6 +31,17 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     DEVICE_ALREADY_IN_THAT_STATE(15, "ImportProcessorDeviceAlreadyInThatState", "Error in line {0}: The device is already in {1} state", Level.WARNING),
     DEVICE_CAN_NOT_BE_MOVED_TO_STATE(16, "ImportProcessorDeviceCanNotBeMovedToState", "Error in line {0}: The device can't be moved to {1} from {2} state", Level.WARNING),
     PRE_TRANSITION_CHECKS_FAILED(17, "ImportProcessorPreTransitionsChecksFailed", "Error in line {0}: Pre-transition check(s) failed: {1}", Level.WARNING),
+
+    READING_DATE_BEFORE_METER_ACTIVATION(101, "ReadingDateBeforeMeterActivation", "Warning for line {0}: Reading date: {1} is before the first meter activation start date and will not be stored.", Level.WARNING),
+    READING_DATE_AFTER_METER_ACTIVATION(102, "ReadingDateAfterMeterActivation", "Warning for line {0}: Reading date: {1} is after the last meter activation end date and will not be stored.", Level.WARNING),
+    NO_SUCH_READING_TYPE(103, "NoSuchReadingType", "Error in line {0}: Reading type {1} doesn''t exist", Level.WARNING),
+    NOT_SUPPORTED_READING_TYPE(104, "NotSupportedReadingType", "Error in line {0}: Reading type {1} is not supported. Supported reading types: registers and channels with integration time >= day.", Level.WARNING),
+    DEVICE_DOES_NOT_SUPPORT_READING_TYPE(105, "DeviceDoesNotSupportReadingType", "Error in line {0}: Reading type {1} is not available for the device with MRID: {2}", Level.WARNING),
+    READING_VALUE_DOES_NOT_MATCH_REGISTER_CONFIG_OVERFLOW(106, "ReadingValueDoesNotMatchRegisterConfigOverflow", "Error in line {0}: Reading value for reading type {1} of device with MRID: {2} doesn''t match with register configuration settings (overflow)", Level.WARNING),
+    READING_VALUE_DOES_NOT_MATCH_CHANNEL_CONFIG_OVERFLOW(107, "ReadingValueDoesNotMatchChannelConfigOverflow", "Error in line {0}: Reading value for reading type {1} of device with MRID: {2} doesn''t match with channel configuration settings (overflow)", Level.WARNING),
+    READING_VALUE_WAS_TRUNCATED_TO_REGISTER_CONFIG(108, "ReadingValueWasTruncatedToRegisterConfig", "Warning for line {0}: Reading value was truncated to {1} accordingly to register configuration.", Level.INFO),
+    READING_VALUE_WAS_TRUNCATED_TO_CHANNEL_CONFIG(109, "ReadingValueWasTruncatedToChannelConfig", "Warning for line {0}: Reading value was truncated to {1} accordingly to channel configuration.", Level.INFO),
+
     ;
 
     private final int number;

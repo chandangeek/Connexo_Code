@@ -44,11 +44,13 @@ public class DeviceReadingsImportDescription implements FileImportDescription<De
         fields.add(CommonField.withParser(stringParser)
                 .withConsumer(record::addReadingType)
                 .markMandatory()
+                .markRepetitive()
                 .build());
         //Reading value
         fields.add(CommonField.withParser(bigDecimalParser)
                 .withConsumer(record::addReadingValue)
                 .markMandatory()
+                .markRepetitive()
                 .build());
         return fields;
     }

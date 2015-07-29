@@ -38,6 +38,10 @@ public enum SupportedNumberFormat {
         return groupSeparator;
     }
 
+    public boolean hasGroupSeparator() {
+        return getGroupSeparator() != null;
+    }
+
     public String getExample() {
         return example;
     }
@@ -63,7 +67,7 @@ public enum SupportedNumberFormat {
 
         SupportedNumberFormat format;
 
-        SupportedNumberFormatInfo(SupportedNumberFormat format) {
+        public SupportedNumberFormatInfo(SupportedNumberFormat format) {
             this.format = format;
         }
 

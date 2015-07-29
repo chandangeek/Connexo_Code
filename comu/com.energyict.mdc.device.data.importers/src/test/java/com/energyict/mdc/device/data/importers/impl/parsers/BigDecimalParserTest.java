@@ -7,6 +7,7 @@ import org.junit.Test;
 import java.math.BigDecimal;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class BigDecimalParserTest {
 
@@ -40,10 +41,8 @@ public class BigDecimalParserTest {
 
     @Test
     public void testParseEmptyString() {
-        BigDecimal value = parserFormat1.parse(null);
-        assertThat(value).isNull();
-        value = parserFormat1.parse("");
-        assertThat(value).isNull();
+        assertThatThrownBy(() -> parserFormat1.parse(null)).isInstanceOf(ValueParserException.class);
+        assertThatThrownBy(() -> parserFormat1.parse("")).isInstanceOf(ValueParserException.class);
     }
 
     @Test
@@ -52,8 +51,8 @@ public class BigDecimalParserTest {
         assertThat(value).isEqualTo(BigDecimal.valueOf(123456789.012));
     }
 
-    @Test(expected = ValueParserException.class)
+    @Test
     public void testParsedException() {
-        parserFormat1.parse("text");
+        assertThatThrownBy(() -> parserFormat1.parse("text")).isInstanceOf(ValueParserException.class);
     }
 }

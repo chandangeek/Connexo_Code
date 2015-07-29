@@ -14,7 +14,7 @@ public interface FileImportParser<T extends FileImportRecord>{
     default List<String> parseHeaders(CSVParser parser) {
         return parser.getHeaderMap().entrySet()
                 .stream()
-                .filter(entry -> entry.getKey() != null && entry.getValue() != null)
+                .filter(entry -> entry.getKey() != null && !entry.getKey().isEmpty() && entry.getValue() != null)
                 .sorted((e1, e2) -> e1.getValue().compareTo(e2.getValue()))
                 .map(entry -> entry.getKey())
                 .collect(Collectors.toList());

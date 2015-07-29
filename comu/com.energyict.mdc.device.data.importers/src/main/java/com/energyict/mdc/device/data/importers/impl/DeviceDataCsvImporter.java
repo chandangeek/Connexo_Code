@@ -86,7 +86,7 @@ public class DeviceDataCsvImporter<T extends FileImportRecord> implements FileIm
     }
 
     private CSVParser getCSVParser(FileImportOccurrence fileImportOccurrence) throws IOException {
-        CSVFormat csvFormat =  CSVFormat.DEFAULT.withHeader().withIgnoreSurroundingSpaces(true).withDelimiter(csvDelimiter).withCommentMarker(COMMENT_MARKER);
+        CSVFormat csvFormat =  CSVFormat.DEFAULT.withHeader().withAllowMissingColumnNames(true).withIgnoreSurroundingSpaces(true).withDelimiter(csvDelimiter).withCommentMarker(COMMENT_MARKER);
         return new CSVParser(new InputStreamReader(fileImportOccurrence.getContents()), csvFormat);
     }
 

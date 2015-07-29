@@ -43,7 +43,7 @@ public class FileImportRecordContext {
         if (position >= 0 && position < this.headers.size()){
             return this.headers.get(position);
         }
-        return null;
+        return "#" + (position+1);
     }
 
     public String translate(String key){

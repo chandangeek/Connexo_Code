@@ -8,6 +8,7 @@ import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -24,15 +25,14 @@ public class FileImportDescriptionBasedParser<T extends FileImportRecord> implem
         T record = this.descriptor.getFileImportRecord();
         record.setLineNumber(csvRecord.getRecordNumber());
         List<FileImportField<?>> fields = this.descriptor.getFields(record);
-        List<String> rawValues = getRawValues(csvRecord);
-        if (rawValues.size() < fields.size()){
+        List<String> rawValues = getRawValuesSkipTrailingNulls(csvRecord);
+        if (rawValues.size() < fields.size()) {
             throw new FileImportParserException(MessageSeeds.FILE_FORMAT_ERROR, csvRecord.getRecordNumber(), fields.size(), rawValues.size());
         }
         int repetitiveColumnCount = 0;
         for (int i = 0; i < rawValues.size() && (i < fields.size() || repetitiveColumnCount > 0); i++) {
             String rawValue = rawValues.get(i);
-            // note: here we use division without remnant
-            int currentFieldIdx = i < fields.size() ? i : i - (i-1) / repetitiveColumnCount * repetitiveColumnCount;
+            int currentFieldIdx = i < fields.size() ? i : fields.size() - repetitiveColumnCount + (i - fields.size()) % repetitiveColumnCount;
             FileImportField<?> currentField = fields.get(currentFieldIdx);
             if (i < fields.size() && currentField.isRepetitive()) {
                 repetitiveColumnCount++;
@@ -44,8 +44,7 @@ public class FileImportDescriptionBasedParser<T extends FileImportRecord> implem
             try {
                 resultConsumer.accept(currentField.getParser().parse(rawValue));
             } catch (ValueParserException ex) {
-                throw new FileImportParserException(MessageSeeds.LINE_FORMAT_ERROR,
-                        csvRecord.getRecordNumber(), recordContext.getHeaderColumn(i), ex.getExpected());
+                throw new FileImportParserException(MessageSeeds.LINE_FORMAT_ERROR, csvRecord.getRecordNumber(), recordContext.getHeaderColumn(i), ex.getExpected());
             }
         }
         return record;
@@ -68,9 +67,15 @@ public class FileImportDescriptionBasedParser<T extends FileImportRecord> implem
                 .count();
     }
 
-    private List<String> getRawValues(CSVRecord csvRecord){
+    private List<String> getRawValuesSkipTrailingNulls(CSVRecord csvRecord) {
         List<String> rawValues = new ArrayList<>();
-        csvRecord.forEach(rawValues::add);
+        for (int i = csvRecord.size() - 1; i >= 0; i--) {//reverse bypass
+            String value = csvRecord.get(i);
+            if (!Checks.is(value).empty() || !rawValues.isEmpty()) {
+                rawValues.add(value);
+            }
+        }
+        Collections.reverse(rawValues);
         return rawValues;
     }
 }

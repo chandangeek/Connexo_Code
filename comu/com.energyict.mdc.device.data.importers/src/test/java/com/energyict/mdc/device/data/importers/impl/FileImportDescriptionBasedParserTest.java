@@ -21,13 +21,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class FileImportDescriptionBasedParserTest {
@@ -140,6 +134,52 @@ public class FileImportDescriptionBasedParserTest {
         verify(record, times(3)).addValue(Matchers.startsWith("v"));
     }
 
+    @Test
+    public void testProcessRepetitiveColumnsDeviceReadingsCase() throws Exception {
+        String csv = "Device MRID;Reading date;Reading1;Value1;Reading2;Value2;Reading3;Value3\n"
+                + "SPE001;28/07/2015 09:14;r1;v1;r2;v2;r3;v3";
+        FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
+        RepetitiveRecord record = spy(new RepetitiveRecord());
+        FileImportParser<FileImportRecord> parser = new FileImportDescriptionBasedParser(new FileImportDescription<RepetitiveRecord>(){
+            @Override
+            public RepetitiveRecord getFileImportRecord() {
+                return record;
+            }
+
+            @Override
+            public List<FileImportField<?>> getFields(RepetitiveRecord record) {
+                List<FileImportField<?>> fields = new ArrayList<>();
+                LiteralStringParser stringParser = new LiteralStringParser();
+                fields.add(CommonField.withParser(stringParser)
+                        .withConsumer(record::setDeviceMRID)
+                        .markMandatory()
+                        .build());
+                fields.add(CommonField.withParser(stringParser)
+                        .withConsumer(record::setDeviceMRID)
+                        .markMandatory()
+                        .build());
+                fields.add(CommonField.withParser(stringParser)
+                        .withConsumer(record::addReading)
+                        .markMandatory()
+                        .markRepetitive()
+                        .build());
+                fields.add(CommonField.withParser(stringParser)
+                        .withConsumer(record::addValue)
+                        .markMandatory()
+                        .markRepetitive()
+                        .build());
+                return fields;
+            }
+        });
+        FileImportProcessor<FileImportRecord> processor = mock(FileImportProcessor.class);
+        DeviceDataCsvImporter<FileImportRecord> importer = DeviceDataCsvImporter.withParser(parser).withProcessor(processor).withDelimiter(';').build(context);
+
+        importer.process(importOccurrence);
+
+        verify(importOccurrence).markSuccess(TranslationKeys.IMPORT_RESULT_SUCCESS.getTranslated(thesaurus, 1));
+        verify(record, times(3)).addReading(Matchers.startsWith("r"));
+        verify(record, times(3)).addValue(Matchers.startsWith("v"));
+    }
 
     @Test
     public void testProcessRepetitiveColumnsWithoutDescriptionSupport() throws Exception {

@@ -25,4 +25,16 @@ public class DeviceReadingsImportRecord extends FileImportRecord {
     public void addReadingValue(BigDecimal value) {
         values.add(value);
     }
+
+    public ZonedDateTime getReadingDateTime() {
+        return readingDateTime;
+    }
+
+    public List<BigDecimal> getValues() {
+        return values;
+    }
+
+    public List<String> getReadingTypes() {
+        return readingTypes;
+    }
 }

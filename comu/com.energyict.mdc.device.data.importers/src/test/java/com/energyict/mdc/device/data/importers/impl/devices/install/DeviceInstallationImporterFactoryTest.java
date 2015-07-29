@@ -64,6 +64,7 @@ public class DeviceInstallationImporterFactoryTest {
 
     @Mock
     private Thesaurus thesaurus;
+
     private DeviceDataImporterContext context;
     @Mock
     private DeviceService deviceService;

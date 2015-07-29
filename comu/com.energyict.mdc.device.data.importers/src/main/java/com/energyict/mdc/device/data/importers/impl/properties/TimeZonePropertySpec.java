@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
 
 public class TimeZonePropertySpec extends BasicPropertySpec {
 
-    static final String DEFAULT;
+    public static final String DEFAULT;
     static {
         TimeZone timeZone = TimeZone.getDefault();
         int rawOffset = timeZone.getRawOffset();
