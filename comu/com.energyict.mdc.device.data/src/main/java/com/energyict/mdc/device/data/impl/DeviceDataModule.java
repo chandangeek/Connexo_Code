@@ -2,6 +2,7 @@ package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.transaction.TransactionService;
@@ -50,6 +51,7 @@ public class DeviceDataModule extends AbstractModule {
         requireBinding(ProtocolPluggableService.class);
         requireBinding(SchedulingService.class);
         requireBinding(DeviceMessageSpecificationService.class);
+        requireBinding(NlsService.class);
 
         bind(SecurityPropertyService.class).to(SecurityPropertyServiceImpl.class).in(Scopes.SINGLETON);
         bind(DeviceDataModelService.class).to(DeviceDataModelServiceImpl.class).in(Scopes.SINGLETON);

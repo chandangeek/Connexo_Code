@@ -29,7 +29,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     DEVICE_CONFIGURATION_IS_REQUIRED(1010, Keys.DEVICE_CONFIGURATION_REQUIRED, "The device configuration is required", Level.SEVERE),
     FIELD_TOO_LONG(1011, Keys.FIELD_TOO_LONG, "Field length must not exceed {max} characters", Level.SEVERE),
     VETO_COMPORTPOOL_DELETION(1012, "comPortPoolXstillInUseByY", "ComPortPool {0} is still in use by at least one device", SEVERE),
-    VETO_DEVICEGROUP_DELETION(1013, "deviceGroupXstillInUse", "Device group {0} is still in use by at data collection KPI", SEVERE),
+    VETO_DEVICEGROUP_DELETION(1013, "deviceGroupXstillInUse", "Device group {0} is still in use by a data collection KPI", SEVERE),
     FIELD_IS_REQUIRED(1014, Keys.FIELD_REQUIRED, "This field is required", Level.SEVERE),
     CONNECTION_TASK_DEVICE_REQUIRED(2000, Keys.CONNECTION_TASK_DEVICE_REQUIRED, "A connection type should be linked to a device", Level.SEVERE),
     CONNECTION_TASK_PARTIAL_CONNECTION_TASK_REQUIRED(2001, Keys.CONNECTION_TASK_PARTIAL_CONNECTION_TASK_REQUIRED, "A connection type should be linked to a partial connection task from the device configuration", Level.SEVERE),
@@ -105,7 +105,8 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     DUPLICATE_DEVICE_MRID(2071, Keys.DUPLICATE_DEVICE_MRID, "MRID must be unique", Level.SEVERE),
     FIRMWARE_COMTASKEXEC_NEEDS_FIRMAWARE_COMTASKENABLEMENT(2072, Keys.FIRMWARE_COMTASKEXEC_NEEDS_FIRMAWARE_COMTASKENABLEMENT, "The firmware comtask execution needs to have the 'Firmware management' ComTask", Level.SEVERE),
     DEVICE_GROUP_MUST_BE_UNIQUE(2073, Keys.DEVICE_GROUP_MUST_BE_UNIQUE, "There is already a KPI for this device group", Level.SEVERE),
-    CAN_NOT_CHANGE_FREQUENCY(2074, Keys.CAN_NOT_CHANGE_FREQUENCY, "The frequency can not be changed", Level.SEVERE);
+    CAN_NOT_CHANGE_FREQUENCY(2074, Keys.CAN_NOT_CHANGE_FREQUENCY, "The frequency can not be changed", Level.SEVERE),
+    USER_IS_NOT_ALLOWED_TO_EDIT_SECURITY_PROPERTIES(2075, Keys.USER_IS_NOT_ALLOWED_TO_EDIT_SECURITY_PROPERTIES, "You are not allowed to edit the security properties", Level.SEVERE);
 
     private final int number;
     private final String key;
@@ -238,5 +239,6 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
         public static final String FIRMWARE_COMTASKEXEC_NEEDS_FIRMAWARE_COMTASKENABLEMENT = "firmware.comtaskexec.needs.firmware.comtaskenablement";
         public static final String DEVICE_GROUP_MUST_BE_UNIQUE = "kpi.deviceGroup.unique";
         public static final String CAN_NOT_CHANGE_FREQUENCY = "kpi.frequency.immutable";
+        public static final String USER_IS_NOT_ALLOWED_TO_EDIT_SECURITY_PROPERTIES = "securityPropertySet.edit.notAllowed";
     }
 }

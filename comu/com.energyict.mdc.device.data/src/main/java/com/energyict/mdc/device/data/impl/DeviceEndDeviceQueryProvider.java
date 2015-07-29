@@ -63,5 +63,15 @@ public class DeviceEndDeviceQueryProvider implements EndDeviceQueryProvider {
         }
     }
 
+    @Override
+    public Condition getQueryCondition(Condition conditions) {
+        Subquery subQuery = deviceService.deviceQuery().asSubquery(conditions, "id");
+        Condition amrCondition = Where.where("amrSystemId").isEqualTo(KnownAmrSystem.MDC.getId());
+        amrCondition = amrCondition.and(ListOperator.IN.contains(subQuery, "amrId"));
+        return amrCondition;
+    }
+
+
+
 }
 

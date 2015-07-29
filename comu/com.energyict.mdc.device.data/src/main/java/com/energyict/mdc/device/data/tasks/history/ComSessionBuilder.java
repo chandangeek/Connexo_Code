@@ -6,6 +6,8 @@ import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.tasks.ComTask;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Optional;
@@ -15,6 +17,7 @@ import java.util.Optional;
  * Date: 28/04/2014
  * Time: 17:02
  */
+@ProviderType
 public interface ComSessionBuilder extends BuildsStatistics<ComSessionBuilder> {
 
     ConnectionTask getConnectionTask();

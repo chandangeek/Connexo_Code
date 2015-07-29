@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.issue.share.entity.IssueStatus;
+import com.elster.jupiter.transaction.TransactionContext;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
@@ -10,10 +12,13 @@ import com.energyict.mdc.masterdata.LogBookType;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 
 import java.time.Instant;
+import java.util.Optional;
 
 import org.junit.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests the {@link com.energyict.mdc.device.data.impl.LogBookImpl} component
@@ -29,6 +34,15 @@ public class LogBookImplTest extends PersistenceIntegrationTest {
     private DeviceConfiguration deviceConfigurationWithLogBooks;
 
     private LogBookType logBookType;
+
+    @BeforeClass
+    public static void setup() {
+        try (TransactionContext context = getTransactionService().getContext()) {
+            deviceProtocolPluggableClass = inMemoryPersistence.getProtocolPluggableService().newDeviceProtocolPluggableClass("MyTestProtocol", TestProtocol.class.getName());
+            deviceProtocolPluggableClass.save();
+            context.commit();
+        }
+    }
 
     private Device createSimpleDeviceWithLogBook() {
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfigurationWithLogBooks, "DeviceName", "MyUniqueID");
@@ -51,6 +65,8 @@ public class LogBookImplTest extends PersistenceIntegrationTest {
     @Before
     public void initBefore() {
         deviceConfigurationWithLogBooks = createDeviceConfigurationWithLogBookSpec();
+        IssueStatus wontFix = mock(IssueStatus.class);
+        when(inMemoryPersistence.getIssueService().findStatus(IssueStatus.WONT_FIX)).thenReturn(Optional.of(wontFix));
     }
 
     @Test

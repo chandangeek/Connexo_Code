@@ -3,6 +3,7 @@ package com.energyict.mdc.device.data;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.protocol.api.device.BaseRegister;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.util.time.Interval;
 
@@ -30,6 +31,7 @@ import java.util.Optional;
  * Date: 11/03/14
  * Time: 10:32
  */
+@ProviderType
 public interface Register<R extends Reading> extends BaseRegister {
 
     public Device getDevice();

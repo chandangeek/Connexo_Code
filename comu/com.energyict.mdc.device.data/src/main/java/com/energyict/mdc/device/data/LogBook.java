@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.google.common.collect.Range;
@@ -20,6 +21,7 @@ import java.util.Optional;
  * Date: 25/03/14
  * Time: 15:26
  */
+@ProviderType
 public interface LogBook extends BaseLogBook, HasId {
 
     Device getDevice();

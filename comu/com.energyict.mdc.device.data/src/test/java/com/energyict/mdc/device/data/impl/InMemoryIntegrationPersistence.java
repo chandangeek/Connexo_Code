@@ -1,10 +1,14 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.users.PrivilegesProvider;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.common.SqlBuilder;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.DeviceMessageUserAction;
+import com.energyict.mdc.device.config.DeviceSecurityUserAction;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
+import com.energyict.mdc.device.config.security.Privileges;
 import com.energyict.mdc.device.data.impl.events.TestProtocolWithRequiredStringAndOptionalNumericDialectProperties;
 import com.energyict.mdc.device.data.impl.finders.ConnectionTaskFinder;
 import com.energyict.mdc.device.data.impl.finders.ProtocolDialectPropertiesFinder;
@@ -43,6 +47,7 @@ import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
+
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
@@ -93,23 +98,22 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Provider;
-
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.log.LogService;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.security.Principal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.Clock;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Properties;
+import java.util.*;
 
+import static java.util.stream.Collectors.toList;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -158,6 +162,8 @@ public class InMemoryIntegrationPersistence {
     private UserService userService;
     private ThreadPrincipalService threadPrincipalService;
     private MeteringGroupsService meteringGroupsService;
+    private IssueService issueService;
+    private Thesaurus thesaurus;
 
     public InMemoryIntegrationPersistence() {
         super();
@@ -179,7 +185,7 @@ public class InMemoryIntegrationPersistence {
         when(inboundDeviceProtocolService.createInboundDeviceProtocolFor(any(PluggableClass.class))).thenReturn(new SimpleDiscoveryProtocol());
         deviceProtocolService = mock(DeviceProtocolService.class);
         when(deviceProtocolService.createProtocol(DeviceMessageImplTest.MessageTestDeviceProtocol.class.getName())).thenReturn(new DeviceMessageImplTest.MessageTestDeviceProtocol());
-        when(deviceProtocolService.createProtocol(ProtocolDialectPropertiesImplIT.TestProtocol.class.getName())).thenReturn(new ProtocolDialectPropertiesImplIT.TestProtocol());
+        when(deviceProtocolService.createProtocol(TestProtocol.class.getName())).thenReturn(new TestProtocol());
         TestProtocolWithRequiredStringAndOptionalNumericDialectProperties testProtocolThatUseMocking = new TestProtocolWithRequiredStringAndOptionalNumericDialectProperties();
         when(deviceProtocolService.createProtocol(TestProtocolWithRequiredStringAndOptionalNumericDialectProperties.class.getName())).thenReturn(testProtocolThatUseMocking);
         Properties properties = new Properties();
@@ -256,11 +262,18 @@ public class InMemoryIntegrationPersistence {
             when(connectionTypeService.createConnectionType(ModemConnectionType.class.getName())).thenReturn(new ModemConnectionType(propertySpecService));
             this.userService = injector.getInstance(UserService.class);
             this.threadPrincipalService = injector.getInstance(ThreadPrincipalService.class);
+            this.issueService = injector.getInstance(IssueService.class);
             this.dataModel = this.deviceDataModelService.dataModel();
             initializeFactoryProviders();
             createOracleAliases(dataModel.getConnection(true));
+            initializePrivileges();
             ctx.commit();
         }
+    }
+
+    private void initializePrivileges() {
+        ((PrivilegesProvider)deviceConfigurationService).getModuleResources().stream()
+                .forEach(definition -> this.userService.saveResourceWithPrivileges(definition.getComponentName(), definition.getName(), definition.getDescription(), definition.getPrivilegeNames().stream().toArray(String[]::new)));
     }
 
     private void initializeFactoryProviders() {
@@ -297,6 +310,7 @@ public class InMemoryIntegrationPersistence {
         when(this.principal.getName()).thenReturn(testName);
         this.licenseService = mock(LicenseService.class);
         when(this.licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.<License>empty());
+        this.thesaurus = mock(Thesaurus.class);
     }
 
     public void cleanUpDataBase() throws SQLException {
@@ -419,12 +433,14 @@ public class InMemoryIntegrationPersistence {
             bind(JsonService.class).toInstance(new JsonServiceImpl());
             bind(BeanService.class).toInstance(new BeanServiceImpl());
             bind(Clock.class).toInstance(clock);
+            bind(FileSystem.class).toInstance(FileSystems.getDefault());
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(LicenseService.class).toInstance(licenseService);
             bind(BundleContext.class).toInstance(bundleContext);
             bind(LogService.class).toInstance(mock(LogService.class));
             bind(CronExpressionParser.class).toInstance(mock(CronExpressionParser.class, RETURNS_DEEP_STUBS));
             bind(IssueService.class).toInstance(mock(IssueService.class, RETURNS_DEEP_STUBS));
+            bind(Thesaurus.class).toInstance(thesaurus);
             bind(DataModel.class).toProvider(new Provider<DataModel>() {
                 @Override
                 public DataModel get() {
@@ -448,5 +464,9 @@ public class InMemoryIntegrationPersistence {
 
     public DeviceMessageSpecificationService getDeviceMessageSpecificationService() {
         return deviceMessageSpecificationService;
+    }
+
+    public IssueService getIssueService() {
+        return issueService;
     }
 }

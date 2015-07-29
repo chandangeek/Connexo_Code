@@ -4,6 +4,7 @@ import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.events.EventType;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -16,9 +17,10 @@ import org.osgi.service.component.annotations.Reference;
  * @since 2014-06-13 (16:09)
  */
 @Component(name = "com.energyict.mdc.device.data.deactivate.deviceconfiguration.eventhandler", service = TopicHandler.class, immediate = true)
+@SuppressWarnings("unused")
 public class DeviceConfigurationDeactivationHandler implements TopicHandler {
 
-    static final String TOPIC = "com/energyict/mdc/device/config/deviceconfiguration/VALIDATEDEACTIVATE";
+    private static final String TOPIC = EventType.DEVICECONFIGURATION_VALIDATEDEACTIVATE.topic();
 
     private volatile DeviceDataModelService deviceDataModelService;
     private Thesaurus thesaurus;

@@ -2,6 +2,8 @@ package com.energyict.mdc.device.data.tasks;
 
 import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * Models a {@link ConnectionTask} that is designed to initiate
  * the setup of a connection with a device.
@@ -13,6 +15,7 @@ import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-07-11 (11:36)
  */
+@ProviderType
 public interface ConnectionInitiationTask extends OutboundConnectionTask<PartialConnectionInitiationTask> {
 
     /**

@@ -8,6 +8,8 @@ import com.energyict.mdc.protocol.pluggable.DeviceProtocolDialectProperty;
 import com.energyict.mdc.protocol.pluggable.DeviceProtocolDialectPropertyProvider;
 import com.energyict.mdc.protocol.pluggable.DeviceProtocolDialectUsagePluggableClass;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * Models the fact that a {@link com.energyict.mdc.protocol.api.device.BaseDevice} uses a {@link DeviceProtocolDialect}
  * and will specify the values of the properties of the DeviceProtocolDialect.
@@ -15,6 +17,7 @@ import com.energyict.mdc.protocol.pluggable.DeviceProtocolDialectUsagePluggableC
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-04-24 (11:32)
  */
+@ProviderType
 public interface ProtocolDialectProperties
     extends
         PluggableClassUsage<

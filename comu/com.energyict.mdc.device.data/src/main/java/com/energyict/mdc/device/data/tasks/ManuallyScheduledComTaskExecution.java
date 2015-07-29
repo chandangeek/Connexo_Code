@@ -1,7 +1,6 @@
 package com.energyict.mdc.device.data.tasks;
 
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
-import com.energyict.mdc.tasks.ComTask;
+import aQute.bnd.annotation.ProviderType;
 
 /**
  * Models a {@link ComTaskExecution} that executes a single
@@ -11,22 +10,10 @@ import com.energyict.mdc.tasks.ComTask;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-06-30 (10:59)
  */
-public interface ManuallyScheduledComTaskExecution extends ComTaskExecution {
-
-    /**
-     * Gets the {@link ComTask} that specifies
-     * the details of this ComTaskExecution.
-     *
-     * @return The ComTask
-     */
-    public ComTask getComTask();
-
-    /**
-     * Gets the {@link ProtocolDialectConfigurationProperties}.
-     */
-    public ProtocolDialectConfigurationProperties getProtocolDialectConfigurationProperties();
+@ProviderType
+public interface ManuallyScheduledComTaskExecution extends SingleComTaskComTaskExecution {
 
     @Override
-    public ManuallyScheduledComTaskExecutionUpdater getUpdater();
+    ManuallyScheduledComTaskExecutionUpdater getUpdater();
 
 }

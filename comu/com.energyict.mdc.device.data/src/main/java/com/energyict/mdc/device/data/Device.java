@@ -3,8 +3,8 @@ package com.energyict.mdc.device.data;
 import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTimeline;
+import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
-import com.elster.jupiter.metering.LifecycleDates;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
@@ -166,8 +166,6 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
     boolean securityPropertiesAreValid();
 
     List<SecurityProperty> getSecurityProperties(SecurityPropertySet securityPropertySet);
-
-    List<SecurityProperty> getAllSecurityProperties(SecurityPropertySet securityPropertySet);
 
     void setSecurityProperties(SecurityPropertySet securityPropertySet, TypedProperties properties);
 
@@ -341,9 +339,15 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
     public boolean hasOpenIssues();
 
     /**
+     * @return a list of Issues which have the status open
+     */
+    public List<OpenIssue> getOpenIssues();
+
+    /**
      * Gets the current {@link State} of this Device.
      *
      * @return The current State
+     * @since 2.0
      */
     public State getState();
 
@@ -355,19 +359,39 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      *
      * @param instant The point in time
      * @return The State
+     * @since 2.0
      */
     public Optional<State> getState(Instant instant);
 
     public long getVersion();
 
+    public Instant getCreateTime();
+
     /**
      * Gets the {@link StateTimeline} for this Device.
      *
      * @return The StateTimeline
+     * @since 2.0
      */
     public StateTimeline getStateTimeline();
 
-    public LifecycleDates getLifecycleDates();
+    /**
+     * Gets the List of {@link DeviceLifeCycleChangeEvent}s for this Device.
+     * Note that the elements of the {@link StateTimeline} are also included
+     * and will have type {@link DeviceLifeCycleChangeEvent.Type#STATE}.
+     *
+     * @return The List of DeviceLifeCycleChangeEvent
+     * @since 2.0
+     */
+    public List<DeviceLifeCycleChangeEvent> getDeviceLifeCycleChangeEvents();
+
+    /**
+     * Gets the CIM dates that relate to thie life cycle of this Device.
+     *
+     * @return The CIMLifecycleDates
+     * @since 2.0
+     */
+    public CIMLifecycleDates getLifecycleDates();
 
     /**
      * Builder that support basic value setters for a ScheduledConnectionTask.

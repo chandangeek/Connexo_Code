@@ -1,7 +1,8 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.issue.share.entity.IssueStatus;
+import com.elster.jupiter.transaction.TransactionContext;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.GatewayType;
@@ -37,10 +38,10 @@ import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViol
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeterAlreadyActive;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
@@ -67,24 +68,23 @@ import org.junit.*;
 import org.junit.rules.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests the {@link com.energyict.mdc.device.data.impl.DeviceImpl} component.
+ * Tests the {@link DeviceImpl} component.
  * <p/>
  * Copyrights EnergyICT
  * Date: 05/03/14
  * Time: 13:49
  */
-public class DeviceImplTest extends PersistenceIntegrationTest {
+public class DeviceImplIT extends PersistenceIntegrationTest {
 
     private static final String DEVICENAME = "deviceName";
     private static final String MRID = "MyUniqueMRID";
     private static final ObisCode loadProfileObisCode = ObisCode.fromString("1.0.99.1.0.255");
     private final TimeZone testDefaultTimeZone = TimeZone.getTimeZone("Canada/East-Saskatchewan");
     private final TimeDuration interval = TimeDuration.minutes(15);
-    private final Unit unit1 = Unit.get("kWh");
-    private final Unit unit2 = Unit.get("MWh");
 
     private ReadingType forwardEnergyReadingType;
     private ReadingType reverseEnergyReadingType;
@@ -92,14 +92,24 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
     private ObisCode averageForwardEnergyObisCode;
     private ObisCode forwardEnergyObisCode;
     private ObisCode reverseEnergyObisCode;
-    private LoadProfileType loadProfileType;
 
     @Rule
     public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
 
+    @BeforeClass
+    public static void setup() {
+        try (TransactionContext context = getTransactionService().getContext()) {
+            deviceProtocolPluggableClass = inMemoryPersistence.getProtocolPluggableService().newDeviceProtocolPluggableClass("MyTestProtocol", TestProtocol.class.getName());
+            deviceProtocolPluggableClass.save();
+            context.commit();
+        }
+    }
+
     @Before
     public void setupMasterData() {
         this.setupReadingTypes();
+        IssueStatus wontFix = mock(IssueStatus.class);
+        when(inMemoryPersistence.getIssueService().findStatus(IssueStatus.WONT_FIX)).thenReturn(Optional.of(wontFix));
     }
 
     private Device createSimpleDevice() {
@@ -282,23 +292,8 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
         assertThat(reloadedDevice.getmRID()).isEqualTo(mRID);
     }
 
-    @Test
-    @Transactional
-    public void canReuseMridAfterDeviceDeletionTest() {
-        String mRID = "Strawberries";
-        Device device = createSimpleDeviceWithName("MyName", mRID);
-        device.save();
-
-        Device reloadedDevice = getReloadedDevice(device);
-        reloadedDevice.delete();
-
-        Device newDevice = createSimpleDeviceWithName("NewDevice", mRID);
-        Device lastDevice = getReloadedDevice(newDevice);
-        assertThat(lastDevice.getmRID()).isEqualTo(mRID);
-    }
-
     /**
-     * This test will get the default TimeZone of the system
+     * This test will get the default TimeZone of the system.
      */
     @Test
     @Transactional
@@ -1048,20 +1043,6 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
         assertThat(device.getCurrentMeterActivation().get().getStart()).isEqualTo(expectedStart);
     }
 
-    @Test(expected = MeterAlreadyActive.class)
-    @Transactional
-    public void activateMeterSecondTime() {
-        Device device = this.createSimpleDevice();
-        Instant initialStart = Instant.ofEpochMilli(97L);
-        Instant restart = Instant.ofEpochMilli(970079L);
-        device.activate(initialStart);
-
-        // Business method
-        device.activate(restart);
-
-        // Asserts: see expected exception rule
-    }
-
     @Test
     @Transactional
     public void deactivateNowOnMeterThatWasNotActive() {
@@ -1120,9 +1101,41 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
         assertThat(device.getCurrentMeterActivation().get().getStart()).isEqualTo(expectedStart);
     }
 
+    @Test
+    @Transactional
+    public void updateCimLifecycleDates() {
+        Device device = this.createSimpleDevice();
+        Instant expectedInstalledDate = Instant.ofEpochSecond(1L);
+        Instant expectedManufacturedDate = Instant.ofEpochSecond(2L);
+        Instant expectedPurchasedDate = Instant.ofEpochSecond(3L);
+        Instant expectedReceivedDate = Instant.ofEpochSecond(4L);
+        Instant expectedRetiredDate = Instant.ofEpochSecond(5L);
+        Instant expectedRemovedDate = Instant.ofEpochSecond(6L);
+
+        // Business method(s)
+        device
+            .getLifecycleDates()
+            .setInstalledDate(expectedInstalledDate)
+            .setManufacturedDate(expectedManufacturedDate)
+            .setPurchasedDate(expectedPurchasedDate)
+            .setReceivedDate(expectedReceivedDate)
+            .setRetiredDate(expectedRetiredDate)
+            .setRemovedDate(expectedRemovedDate)
+            .save();
+
+        // Asserts: assert the dates on the EndDevice
+        EndDevice endDevice = inMemoryPersistence.getMeteringService().findEndDevice(device.getmRID()).get();
+        assertThat(endDevice.getLifecycleDates().getInstalledDate()).contains(expectedInstalledDate);
+        assertThat(endDevice.getLifecycleDates().getManufacturedDate()).contains(expectedManufacturedDate);
+        assertThat(endDevice.getLifecycleDates().getPurchasedDate()).contains(expectedPurchasedDate);
+        assertThat(endDevice.getLifecycleDates().getReceivedDate()).contains(expectedReceivedDate);
+        assertThat(endDevice.getLifecycleDates().getRetiredDate()).contains(expectedRetiredDate);
+        assertThat(endDevice.getLifecycleDates().getRemovedDate()).contains(expectedRemovedDate);
+    }
+
     private DeviceConfiguration createDeviceConfigurationWithTwoRegisterSpecs() {
-        RegisterType registerType1 = this.createRegisterTypeIfMissing("RegisterType1", forwardEnergyObisCode, unit1, forwardEnergyReadingType, 0);
-        RegisterType registerType2 = this.createRegisterTypeIfMissing("RegisterType2", reverseEnergyObisCode, unit2, reverseEnergyReadingType, 0);
+        RegisterType registerType1 = this.createRegisterTypeIfMissing(forwardEnergyObisCode, forwardEnergyReadingType);
+        RegisterType registerType2 = this.createRegisterTypeIfMissing(reverseEnergyObisCode, reverseEnergyReadingType);
         deviceType.addRegisterType(registerType1);
         deviceType.addRegisterType(registerType2);
         DeviceType.DeviceConfigurationBuilder configurationWithRegisterTypes = deviceType.newConfiguration("ConfigurationWithRegisterTypes");
@@ -1139,9 +1152,10 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
     }
 
     private DeviceConfiguration createDeviceConfigurationWithTwoChannelSpecs(TimeDuration myInterval) {
-        RegisterType registerType1 = createRegisterTypeIfMissing("ChannelType1", forwardEnergyObisCode, unit1, forwardEnergyReadingType, 0);
-        RegisterType registerType2 = createRegisterTypeIfMissing("ChannelType2", reverseEnergyObisCode, unit2, reverseEnergyReadingType, 0);
-        loadProfileType = inMemoryPersistence.getMasterDataService().newLoadProfileType("LoadProfileType", loadProfileObisCode, myInterval, Arrays.asList(registerType1, registerType2));
+        RegisterType registerType1 = createRegisterTypeIfMissing(forwardEnergyObisCode, forwardEnergyReadingType);
+        RegisterType registerType2 = createRegisterTypeIfMissing(reverseEnergyObisCode, reverseEnergyReadingType);
+        LoadProfileType loadProfileType = inMemoryPersistence.getMasterDataService()
+                .newLoadProfileType("LoadProfileType", loadProfileObisCode, myInterval, Arrays.asList(registerType1, registerType2));
         loadProfileType.save();
         ChannelType channelTypeForRegisterType1 = loadProfileType.findChannelType(registerType1).get();
         ChannelType channelTypeForRegisterType2 = loadProfileType.findChannelType(registerType2).get();
@@ -1156,7 +1170,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
         return deviceConfiguration;
     }
 
-    private RegisterType createRegisterTypeIfMissing(String name, ObisCode obisCode, Unit unit, ReadingType readingType, int timeOfUse) {
+    private RegisterType createRegisterTypeIfMissing(ObisCode obisCode, ReadingType readingType) {
         Optional<RegisterType> xRegisterType = inMemoryPersistence.getMasterDataService().findRegisterTypeByReadingType(readingType);
         RegisterType measurementType;
         if (xRegisterType.isPresent()) {

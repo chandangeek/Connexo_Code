@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.impl.security;
 
+import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
@@ -28,18 +29,6 @@ public interface SecurityPropertyService {
     public List<SecurityProperty> getSecurityProperties(Device device, Instant when, SecurityPropertySet securityPropertySet);
 
     /**
-     * Gets the List of {@link SecurityProperty SecurityProperties},
-     * ignoring the user's privileges,
-     * that have been created for the specified {@link Device}
-     * and that were active on the specified Date.
-     *
-     * @param device The Device
-     * @param securityPropertySet The SecurityPropertySet
-     * @return The List of SecurityProperties
-     */
-    public List<SecurityProperty> getSecurityPropertiesIgnoringPrivileges(Device device, Instant when, SecurityPropertySet securityPropertySet);
-
-    /**
      * Tests if the {@link Device} has properties for the specified {@link SecurityPropertySet}
      * on the specified Date regardless of the user's privileges.
      *
@@ -63,5 +52,23 @@ public interface SecurityPropertyService {
      * @return A flag that indicates if all security properties are valid for the Device
      */
     public boolean securityPropertiesAreValid(Device device);
+
+    /**
+     * Sets the {@link SecurityProperty SecurityProperties}
+     * for the specified {@link SecurityPropertySet}
+     * on the {@link Device}.
+     *
+     * @param device The Device
+     * @param securityPropertySet The SecurityPropertySet
+     * @param properties The properties
+     */
+    public void setSecurityProperties(Device device, SecurityPropertySet securityPropertySet, TypedProperties properties);
+
+    /**
+     * Removes all securityProperties for the given Device.
+     *
+     * @param device the device whose properties need to be deleted
+     */
+    public void deleteSecurityPropertiesFor(Device device);
 
 }
