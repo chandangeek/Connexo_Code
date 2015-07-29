@@ -44,7 +44,7 @@ Ext.define('Dsh.view.widget.DeviceGroupFilter', {
                     if (item) {
                         item.setActive();
                         this.setText(this.label + item.text);
-                        this.groupName = Ext.isNumber(item.value) ? item.text: null;
+                        this.groupName = Ext.isNumber(item.value) ? Ext.String.htmlEncode(item.text): null;
                         this.fireEvent('change', this); // the event is handled by CommOverview and ConnOverview controllers to update quick links.
                     }
 
@@ -67,7 +67,7 @@ Ext.define('Dsh.view.widget.DeviceGroupFilter', {
 
             store.each(function (item) {
                 menu.add({
-                    text: item.get('name'),
+                    text: Ext.String.htmlEncode(item.get('name')),
                     value: item.get('id')
                 })
             });

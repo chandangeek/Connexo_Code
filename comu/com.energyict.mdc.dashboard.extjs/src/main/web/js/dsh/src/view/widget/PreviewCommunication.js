@@ -77,10 +77,10 @@ Ext.define('Dsh.view.widget.PreviewCommunication', {
                             val.devType.id + '/deviceconfigurations/' +
                             val.config.id +
                             '">' +
-                            val.config.name +
+                            Ext.String.htmlEncode(val.config.name) +
                             '</a>');
                         if (res !== '' && !Mdc.privileges.DeviceType.canView()) {
-                            res = val.config.name;
+                            res = Ext.String.htmlEncode(val.config.name);
                         }
                         return res
                     }

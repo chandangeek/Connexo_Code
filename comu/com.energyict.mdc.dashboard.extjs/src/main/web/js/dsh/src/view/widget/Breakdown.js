@@ -110,7 +110,7 @@ Ext.define('Dsh.view.widget.Breakdown', {
                         '<tr>' +
                         '<td width="50%"> ' +
                         '<a>' +
-                        '<div style="overflow: hidden; text-overflow: ellipsis; padding-right: 20px">{displayName}</div>' +
+                        '<div style="overflow: hidden; text-overflow: ellipsis; padding-right: 20px">{displayName:htmlEncode}</div>' +
                         '</a>' +
                         '</td>' +
                         '<td width="50%" id="bar-{#}"></td>' +

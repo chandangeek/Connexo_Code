@@ -58,7 +58,7 @@ Ext.define('Dsh.controller.OperatorDashboard', {
         });
     },
 
-    showMyFavorieDeviceGroups: function () {
+    showMyFavoriteDeviceGroups: function () {
         this.getApplication().fireEvent('changecontentevent', Ext.widget('my-favorite-device-groups'));
     },
 
@@ -169,7 +169,11 @@ Ext.define('Dsh.controller.OperatorDashboard', {
                             },
                             callback: function () {
                                 if (lastUpdateField) {
-                                    lastUpdateField.update('Last updated at ' + Uni.DateTime.formatTimeShort(new Date()));
+                                    lastUpdateField.update(
+                                        Ext.String.format(
+                                            Uni.I18n.translate('operator.dashboard.lastUpdatedAt', 'DSH', 'Last updated at {0}'), Uni.DateTime.formatTimeShort(new Date())
+                                        )
+                                    );
                                 }
                                 dashboard.setLoading(false);
                             }

@@ -92,7 +92,6 @@ Ext.define('Dsh.view.widget.HeatMap', {
             var me = this,
                 ycat = [],
                 xcat = store.collect('displayValue');
-
             Ext.each(store.getAt(0).data.data, function (item) {
                 ycat.push(item.displayName);
             });

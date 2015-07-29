@@ -25,10 +25,6 @@ Ext.define('Dsh.view.Connections', {
             ]
         },
         {
-            xtype: 'filter-top-panel',
-            itemId: 'dshconnectionsfilterpanel'
-        },
-        {
             xtype: 'panel',
             items: {
                 xtype: 'preview-container',
