@@ -116,17 +116,54 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
         me.bindStore('ext-empty-store', true);
     },
 
+    createMenuItem: function (criteria) {
+        var menuitem = {
+            xtype: 'menucheckitem',
+            text: criteria.get('displayValue'),
+            value: criteria.get('name'),
+            criteria: criteria
+        };
+
+        if (criteria.get('constraints') && criteria.get('constraints').length) {
+            Ext.apply(menuitem, {
+                disabled: true,
+                tooltip: {
+                    title: 'Enable connection properties',
+                    text: 'Connection properties become available as soon as a search value has been specified for Device type, Device configuration and Connection properties.',
+                    maxWidth: 150
+                }
+            })
+        }
+        return menuitem
+    },
+
     onBindStore: function (store) {
         var me = this;
         me.setDisabled(!store.count());
         Ext.suspendLayouts();
         me.menu.removeAll();
+        store.group('group');
+
         if (store.count()) {
             store.each(function (item) {
+                if (!item.get('group')) {
+                    me.menu.add(me.createMenuItem(item));
+                }
+            });
+
+            store.getGroups().map(function(group) {
+                var items = [];
+                group.children.map(function(item) {
+                    items.push(me.createMenuItem(item));
+                });
+
                 me.menu.add({
-                    text: item.get('displayValue'),
-                    value: item.get('name'),
-                    criteria: item
+                    xtype: 'menuitem',
+                    text: group.name,
+                    value: group.name,
+                    menu: {
+                        items: items
+                    }
                 })
             });
         }
@@ -140,8 +177,7 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
             this.setText(item.text);
             this.fireEvent('change', this);
         }
-    },
-
+    }
 
     //onUpdateRemovablesStore: function () {
     //    var me = this,

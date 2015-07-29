@@ -14,7 +14,8 @@ Ext.define('Uni.model.search.Property', {
         {name: 'link', type: 'auto'},
         {name: 'selectionMode', type: 'string'},
         {name: 'visibility', type: 'string'},
-        {name: 'constrains', type: 'auto'},
+        {name: 'constraints', type: 'auto'},
+        {name: 'group', type: 'string'},
         {
             name: 'sticky', type: 'boolean', convert: function (v, record) {
             return record.raw.visibility === 'sticky';
