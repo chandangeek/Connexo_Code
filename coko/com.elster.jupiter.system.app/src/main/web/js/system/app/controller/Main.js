@@ -9,7 +9,8 @@ Ext.define('SystemApp.controller.Main', {
         'Sam.privileges.DataPurge',
         'Sam.privileges.License',
         'Tme.privileges.Period',
-        'Fim.privileges.DataImport'
+        'Fim.privileges.DataImport',
+        'Apr.privileges.AppServer'
     ],
 
     applicationTitle: 'Connexo Admin',
@@ -21,7 +22,8 @@ Ext.define('SystemApp.controller.Main', {
         Sam.privileges.DataPurge.all(),
         Sam.privileges.License.all(),
         Tme.privileges.Period.all(),
-        Fim.privileges.DataImport.all()
+        Fim.privileges.DataImport.all(),
+        Apr.privileges.AppServer.all()
     ),
 
     controllers: [
