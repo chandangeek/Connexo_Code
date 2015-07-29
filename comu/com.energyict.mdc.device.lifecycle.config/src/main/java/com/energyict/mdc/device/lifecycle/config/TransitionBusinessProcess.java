@@ -1,6 +1,6 @@
 package com.energyict.mdc.device.lifecycle.config;
 
-import com.energyict.mdc.common.HasId;
+import com.elster.jupiter.util.HasId;
 
 import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.fsm.State;

@@ -2,8 +2,8 @@ package com.energyict.mdc.device.lifecycle.config;
 
 import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
-import com.energyict.mdc.common.HasId;
 
 import java.time.Instant;
 import java.util.Optional;
@@ -43,7 +43,7 @@ public interface AuthorizedAction extends HasId, HasName {
 
         private String privilege;
 
-        Level (String privilege) {
+        Level(String privilege) {
             this.privilege = privilege;
         }
 

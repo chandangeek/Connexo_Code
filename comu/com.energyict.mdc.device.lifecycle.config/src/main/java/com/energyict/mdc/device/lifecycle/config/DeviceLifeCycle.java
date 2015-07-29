@@ -3,10 +3,9 @@ package com.energyict.mdc.device.lifecycle.config;
 import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.State;
-import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
-import com.energyict.mdc.common.HasId;
 
 import java.time.Instant;
 import java.util.List;
