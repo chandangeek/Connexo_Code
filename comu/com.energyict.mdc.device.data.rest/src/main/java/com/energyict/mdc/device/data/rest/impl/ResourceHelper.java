@@ -12,7 +12,9 @@ import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.util.conditions.Condition;
 
 import javax.inject.Inject;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
 import java.util.List;
 
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -31,6 +33,10 @@ public class ResourceHelper {
 
     public Device findDeviceByMrIdOrThrowException(String mRID) {
         return deviceService.findByUniqueMrid(mRID).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_DEVICE, mRID));
+    }
+
+    public Device findDeviceAndLock(long id, long version) {
+        return deviceService.findAndLockDeviceByIdAndVersion(id, version).orElseThrow(() -> new WebApplicationException(Response.Status.CONFLICT));
     }
 
     public Register findRegisterOrThrowException(Device device, long registerSpecId) {

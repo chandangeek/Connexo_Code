@@ -30,6 +30,15 @@ public class SecurityPropertySetInfoFactory {
     private final MdcPropertyUtils mdcPropertyUtils;
     private final Thesaurus thesaurus;
 
+    enum CompletionState {
+        COMPLETE(MessageSeeds.COMPLETE), INCOMPLETE(MessageSeeds.INCOMPLETE);
+        private final MessageSeeds seed;
+
+        CompletionState(MessageSeeds seed) {
+            this.seed = seed;
+        }
+    }
+
     @Inject
     public SecurityPropertySetInfoFactory(MdcPropertyUtils mdcPropertyUtils, Thesaurus thesaurus) {
         this.mdcPropertyUtils = mdcPropertyUtils;
@@ -79,14 +88,10 @@ public class SecurityPropertySetInfoFactory {
         if (securityPropertySet.getPropertySpecs().isEmpty()) {
             return true;
         }
-        if (device.getAllSecurityProperties(securityPropertySet).isEmpty()) {
-            if (typedProperties == TypedProperties.empty()) {
-                return true;
-            } else {
-                return false;
-            }
+        if (device.getSecurityProperties(securityPropertySet).isEmpty()) {
+            return typedProperties.size() == 0;
         } else {
-            for (SecurityProperty securityProperty : device.getAllSecurityProperties(securityPropertySet)) {
+            for (SecurityProperty securityProperty : device.getSecurityProperties(securityPropertySet)) {
                 if (!securityProperty.isComplete()) {
                     return false;
                 }
@@ -97,20 +102,12 @@ public class SecurityPropertySetInfoFactory {
 
     private TypedProperties getTypedPropertiesForSecurityPropertySet(Device device, SecurityPropertySet securityPropertySet) {
         TypedProperties typedProperties = TypedProperties.empty();
-        for (SecurityProperty securityProperty : device.getAllSecurityProperties(securityPropertySet)) {
+        for (SecurityProperty securityProperty : device.getSecurityProperties(securityPropertySet)) {
             typedProperties.setProperty(securityProperty.getName(), securityProperty.getValue());
         }
         return typedProperties;
     }
 
-    static enum CompletionState {
-        COMPLETE(MessageSeeds.COMPLETE), INCOMPLETE(MessageSeeds.INCOMPLETE);
-        private final MessageSeeds seed;
-
-        CompletionState(MessageSeeds seed) {
-            this.seed = seed;
-        }
-    }
 }
 
 

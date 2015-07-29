@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.energyict.mdc.common.services.ListPager;
@@ -77,7 +78,7 @@ public class LoadProfileResource {
         List<LoadProfile> allLoadProfiles = device.getLoadProfiles();
         List<LoadProfile> loadProfilesOnPage = ListPager.of(allLoadProfiles, LOAD_PROFILE_COMPARATOR_BY_NAME).from(queryParameters).find();
         List<LoadProfileInfo> loadProfileInfos = LoadProfileInfo.from(loadProfilesOnPage);
-        return Response.ok(PagedInfoList.fromPagedList("loadProfiles", loadProfileInfos, queryParameters)).build();
+        return Response.ok(PagedInfoList.fromPagedList("loadProfiles", loadProfileInfos.stream().sorted((o1, o2) -> o1.name.compareToIgnoreCase(o2.name)).collect(Collectors.toList()), queryParameters)).build();
     }
 
     @GET
@@ -148,13 +149,17 @@ public class LoadProfileResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Path("{lpid}/data")
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
-    public Response getLoadProfileData(@PathParam("mRID") String mrid, @PathParam("lpid") long loadProfileId, @QueryParam("intervalStart") Long intervalStart, @QueryParam("intervalEnd") Long intervalEnd, @BeanParam JsonQueryParameters queryParameters, @Context UriInfo uriInfo) {
+    public Response getLoadProfileData(
+            @PathParam("mRID") String mrid,
+            @PathParam("lpid") long loadProfileId,
+            @BeanParam JsonQueryFilter filter,
+            @BeanParam JsonQueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         LoadProfile loadProfile = resourceHelper.findLoadProfileOrThrowException(device, loadProfileId);
-        if (intervalStart != null && intervalEnd != null) {
-            List<LoadProfileReading> loadProfileData = loadProfile.getChannelData(Ranges.openClosed(Instant.ofEpochMilli(intervalStart), Instant.ofEpochMilli(intervalEnd)));
+        if (filter.hasProperty("intervalStart") && filter.hasProperty("intervalEnd")) {
+            List<LoadProfileReading> loadProfileData = loadProfile.getChannelData(Ranges.openClosed(filter.getInstant("intervalStart"), filter.getInstant("intervalEnd")));
             List<LoadProfileDataInfo> infos = loadProfileData.stream().map(loadProfileReading -> deviceDataInfoFactory.createLoadProfileDataInfo(loadProfileReading, device.forValidation(), loadProfile.getChannels())).collect(Collectors.toList());
-            infos = filter(infos, uriInfo.getQueryParameters());
+            infos = filter(infos, filter);
             List<LoadProfileDataInfo> paginatedLoadProfileData = ListPager.of(infos).from(queryParameters).find();
             PagedInfoList pagedInfoList = PagedInfoList.fromPagedList("data", paginatedLoadProfileData, queryParameters);
             return Response.ok(pagedInfoList).build();
@@ -182,38 +187,40 @@ public class LoadProfileResource {
     }
 
     private boolean hasSuspects(LoadProfileDataInfo info) {
-        return info.channelValidationData.values().stream().anyMatch(v -> ValidationStatus.SUSPECT.equals(v.validationResult));
+        return info.channelValidationData.values().stream().anyMatch(v -> ValidationStatus.SUSPECT.equals(v.mainValidationInfo.validationResult) ||
+                ValidationStatus.SUSPECT.equals(v.bulkValidationInfo.validationResult));
     }
 
     private boolean hasMissingData(LoadProfileDataInfo info) {
         return info.channelData.values().stream().anyMatch(Objects::isNull);
     }
 
-    private List<LoadProfileDataInfo> filter(List<LoadProfileDataInfo> infos, MultivaluedMap<String, String> queryParameters) {
-        Predicate<LoadProfileDataInfo> toKeep = getFilter(queryParameters);
+    private List<LoadProfileDataInfo> filter(List<LoadProfileDataInfo> infos, JsonQueryFilter filter) {
+        Predicate<LoadProfileDataInfo> toKeep = getFilter(filter);
         infos.removeIf(not(toKeep));
         return infos;
     }
 
-    private Predicate<LoadProfileDataInfo> getFilter(MultivaluedMap<String, String> queryParameters) {
+    private Predicate<LoadProfileDataInfo> getFilter(JsonQueryFilter filter) {
         ImmutableList.Builder<Predicate<LoadProfileDataInfo>> list = ImmutableList.builder();
-        boolean onlySuspect = filterActive(queryParameters, "onlySuspect");
-        boolean onlyNonSuspect = filterActive(queryParameters, "onlyNonSuspect");
-        if (onlySuspect ^ onlyNonSuspect) {
-            if (onlySuspect) {
-                list.add(this::hasSuspects);
-            } else {
-                list.add(not(this::hasSuspects));
+        if (filter.hasProperty("suspect")){
+            List<String> suspectFilters = filter.getStringList("suspect");
+            if (suspectFilters.size() == 0) {
+                if ("suspect".equals(filter.getString("suspect"))) {
+                    list.add(this::hasSuspects);
+                } else {
+                    list.add(not(this::hasSuspects));
+                }
             }
         }
-        if (filterActive(queryParameters, "hideMissing")) {
+        if (filterActive(filter, "hideMissing")) {
             list.add(not(this::hasMissingData));
         }
         return lpi -> list.build().stream().allMatch(p -> p.test(lpi));
     }
 
-    private boolean filterActive(MultivaluedMap<String, String> queryParameters, String key) {
-        return queryParameters.containsKey(key) && Boolean.parseBoolean(queryParameters.getFirst(key));
+    private boolean filterActive(JsonQueryFilter filter, String key) {
+        return filter.hasProperty(key) && filter.getBoolean(key);
     }
 
     @Path("{lpid}/validationstatus")

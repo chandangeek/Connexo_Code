@@ -12,6 +12,7 @@ import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
 import com.energyict.mdc.tasks.ComTask;
 import com.jayway.jsonpath.JsonModel;
+import java.time.Instant;
 import org.junit.Test;
 
 import javax.ws.rs.client.Entity;
@@ -52,17 +53,13 @@ public class DeviceScheduleResourceTest extends DeviceDataRestApplicationJerseyT
         when(deviceConfiguration.getComTaskEnablements()).thenReturn(Arrays.asList(comTaskEnablement));
         ComTask comTask = mock(ComTask.class);
         when(comTaskEnablement.getComTask()).thenReturn(comTask);
+        when(comTaskEnablement.getComTask()).thenReturn(comTask);
         Map<String, Object> response = target("/devices/1/schedules").request().get(Map.class);
         assertThat(response).hasSize(2).containsKey("total").containsKey("schedules");
         List<Map<String, Object>> schedules = (List<Map<String, Object>>) response.get("schedules");
         assertThat(schedules).hasSize(1);
         assertThat(schedules.get(0))
-                .containsKey("name")
                 .containsKey("id")
-                .containsKey("masterScheduleId")
-                .containsKey("schedule")
-                .containsKey("plannedDate")
-                .containsKey("nextCommunication")
                 .containsKey("comTaskInfos")
                 .containsKey("type");
     }
@@ -90,15 +87,6 @@ public class DeviceScheduleResourceTest extends DeviceDataRestApplicationJerseyT
         List<Map<String, Object>> schedules = (List<Map<String, Object>>) response.get("schedules");
         assertThat(schedules).hasSize(1);
         assertThat(schedules.get(0).get("type")).isEqualTo("ADHOC");
-        assertThat(schedules.get(0))
-                .containsKey("name")
-                .containsKey("id")
-                .containsKey("masterScheduleId")
-                .containsKey("schedule")
-                .containsKey("plannedDate")
-                .containsKey("nextCommunication")
-                .containsKey("comTaskInfos")
-                .containsKey("type");
     }
 
     @Test
@@ -127,15 +115,6 @@ public class DeviceScheduleResourceTest extends DeviceDataRestApplicationJerseyT
         List<Map<String, Object>> schedules = (List<Map<String, Object>>) response.get("schedules");
         assertThat(schedules).hasSize(1);
         assertThat(schedules.get(0).get("type")).isEqualTo("INDIVIDUAL");
-        assertThat(schedules.get(0))
-                .containsKey("name")
-                .containsKey("id")
-                .containsKey("masterScheduleId")
-                .containsKey("schedule")
-                .containsKey("plannedDate")
-                .containsKey("nextCommunication")
-                .containsKey("comTaskInfos")
-                .containsKey("type");
     }
 
     @Test
@@ -155,10 +134,14 @@ public class DeviceScheduleResourceTest extends DeviceDataRestApplicationJerseyT
         when(comTaskEnablement.getComTask()).thenReturn(comTask);
         when(comTaskExecution.getComTasks()).thenReturn(Arrays.asList(comTask));
         when(comTaskExecution.usesSharedSchedule()).thenReturn(true);
-        when(comTaskExecution.getComSchedule()).thenReturn(mock(ComSchedule.class));
+        ComSchedule comSchedule = mock(ComSchedule.class);
+        when(comSchedule.getName()).thenReturn("com schedule");
+        when(comTaskExecution.getComSchedule()).thenReturn(comSchedule);
         NextExecutionSpecs nextExecutionSpecs = mock(NextExecutionSpecs.class);
         when(nextExecutionSpecs.getTemporalExpression()).thenReturn(new TemporalExpression(TimeDuration.hours(5), TimeDuration.minutes(5)));
         when(comTaskExecution.getNextExecutionSpecs()).thenReturn(Optional.of(nextExecutionSpecs));
+        when(comTaskExecution.getPlannedNextExecutionTimestamp()).thenReturn(Instant.now());
+        when(comTaskExecution.getNextExecutionTimestamp()).thenReturn(Instant.now());
 
         Map<String, Object> response = target("/devices/1/schedules").request().get(Map.class);
         assertThat(response).hasSize(2).containsKey("total").containsKey("schedules");
@@ -377,7 +360,7 @@ public class DeviceScheduleResourceTest extends DeviceDataRestApplicationJerseyT
         Response response = target("/devices/1/schedules").request().post(Entity.json(schedulingInfo));
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
         JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
-        assertThat(jsonModel.<String>get("$.error")).isEqualTo(MessageSeeds.CAN_NOT_PERFOMR_ACTION_ON_SYSTEM_COMTASK.getKey());
+        assertThat(jsonModel.<String>get("$.error")).isEqualTo(MessageSeeds.CAN_NOT_PERFORM_ACTION_ON_SYSTEM_COMTASK.getKey());
     }
 
     @Test
@@ -387,7 +370,7 @@ public class DeviceScheduleResourceTest extends DeviceDataRestApplicationJerseyT
         Response response = target("/devices/1/schedules").request().put(Entity.json(schedulingInfo));
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
         JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
-        assertThat(jsonModel.<String>get("$.error")).isEqualTo(MessageSeeds.CAN_NOT_PERFOMR_ACTION_ON_SYSTEM_COMTASK.getKey());
+        assertThat(jsonModel.<String>get("$.error")).isEqualTo(MessageSeeds.CAN_NOT_PERFORM_ACTION_ON_SYSTEM_COMTASK.getKey());
     }
 
     @Test
@@ -397,6 +380,6 @@ public class DeviceScheduleResourceTest extends DeviceDataRestApplicationJerseyT
         Response response = target("/devices/1/schedules/"+firmwareComTaskId).request().delete();
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
         JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
-        assertThat(jsonModel.<String>get("$.error")).isEqualTo(MessageSeeds.CAN_NOT_PERFOMR_ACTION_ON_SYSTEM_COMTASK.getKey());
+        assertThat(jsonModel.<String>get("$.error")).isEqualTo(MessageSeeds.CAN_NOT_PERFORM_ACTION_ON_SYSTEM_COMTASK.getKey());
     }
 }

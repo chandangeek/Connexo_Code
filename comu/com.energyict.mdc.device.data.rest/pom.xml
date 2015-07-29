@@ -68,6 +68,10 @@
             <artifactId>mdc.favorites</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.device.lifecycle</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>rest.util</artifactId>
         </dependency>
@@ -120,6 +124,14 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.issue.datavalidation</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>estimation.rest</artifactId>
         </dependency>
 
         <!--INTEGRATION TESTS-->

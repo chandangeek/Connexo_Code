@@ -200,7 +200,14 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     IMPOSSIBLE_TO_SET_MASTER_DEVICE(229, "ImpossibleToSetMasterDevice", "Device {0} is directly addressable. It is not possible to set master device"),
     FIELD_CAN_NOT_BE_EMPTY(230, Keys.FIELD_CAN_NOT_BE_EMPTY, "Field can not be empty"),
     NO_SUCH_COM_TASK_EXEC(231, "NoSuchComTaskExec" , "No such communication task execution exists"),
-    CAN_NOT_PERFOMR_ACTION_ON_SYSTEM_COMTASK(232, "CanNotPerformActionOnSystemComTask" , "You can not perform an action on a system communication task");
+    CAN_NOT_PERFORM_ACTION_ON_SYSTEM_COMTASK(232, "CanNotPerformActionOnSystemComTask" , "You can not perform an action on a system communication task"),
+    ESTIMATOR_REQUIRED(233, "EstimatorRequired" , "Please select an estimator"),
+    ESTIMATOR_NOT_FOUND(234, "EstimatorNotValid" , "Provided estimator is not valid"),
+    METER_ACTIVATION_NOT_FOUND(235, "MeterActivationNotFound" , "No meter activation is found"),
+    NO_SUCH_DEVICE_LIFE_CYCLE_ACTION(236, "NoSuchDeviceLifeCycleAction" , "No device life cycle action with id = {0}"),
+    THIS_FIELD_IS_REQUIRED(237, "ThisFieldIsRequired" , "This field is required"),
+    CIM_DATE_SHOULD_BE_AFTER_X(238, "CIMDateShouldBeAfterX" , "This date should be greater than (or equal) ''{0}''"),
+    ;
     private final int number;
     private final String key;
     private final String format;

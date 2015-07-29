@@ -1,19 +1,76 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import com.elster.jupiter.cbo.EndDeviceDomain;
+import com.elster.jupiter.cbo.EndDeviceEventorAction;
+import com.elster.jupiter.cbo.EndDeviceSubDomain;
+import com.elster.jupiter.cbo.EndDeviceType;
+import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.issue.share.entity.IssueStatus;
+import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
+import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.KnownAmrSystem;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.events.EndDeviceEventRecord;
+import com.elster.jupiter.metering.events.EndDeviceEventType;
+import com.elster.jupiter.metering.readings.ProfileStatus;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.time.TemporalExpression;
+import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.util.Ranges;
+import com.energyict.mdc.common.ComWindow;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.device.config.ChannelSpec;
+import com.energyict.mdc.device.config.ConnectionStrategy;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.LoadProfileSpec;
+import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.device.config.PartialInboundConnectionTask;
+import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.device.data.CIMLifecycleDates;
+import com.energyict.mdc.device.data.Channel;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceEstimation;
+import com.energyict.mdc.device.data.DeviceValidation;
+import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.device.data.LoadProfileReading;
+import com.energyict.mdc.device.data.LogBook;
+import com.energyict.mdc.device.data.rest.DevicePrivileges;
+import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
+import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.energyict.mdc.device.lifecycle.config.DefaultState;
+import com.energyict.mdc.device.topology.TopologyTimeline;
+import com.energyict.mdc.engine.config.InboundComPortPool;
+import com.energyict.mdc.engine.config.OutboundComPortPool;
+import com.energyict.mdc.masterdata.LoadProfileType;
+import com.energyict.mdc.masterdata.LogBookType;
+import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
+import com.energyict.mdc.scheduling.NextExecutionSpecs;
+import com.energyict.mdc.scheduling.model.ComSchedule;
+import com.google.common.collect.Range;
+import com.jayway.jsonpath.JsonModel;
+import org.assertj.core.data.MapEntry;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Matchers;
 
+import javax.validation.ConstraintViolationException;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Response;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -25,59 +82,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import javax.validation.ConstraintViolationException;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Response;
-
-import org.assertj.core.data.MapEntry;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Matchers;
-
-import com.elster.jupiter.cbo.EndDeviceDomain;
-import com.elster.jupiter.cbo.EndDeviceEventorAction;
-import com.elster.jupiter.cbo.EndDeviceSubDomain;
-import com.elster.jupiter.cbo.EndDeviceType;
-import com.elster.jupiter.fsm.State;
-import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
-import com.elster.jupiter.metering.IntervalReadingRecord;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.events.EndDeviceEventRecord;
-import com.elster.jupiter.metering.events.EndDeviceEventType;
-import com.elster.jupiter.metering.readings.ProfileStatus;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.util.Ranges;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.device.config.ChannelSpec;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.LoadProfileSpec;
-import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.config.PartialInboundConnectionTask;
-import com.energyict.mdc.device.data.Channel;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceEstimation;
-import com.energyict.mdc.device.data.DeviceValidation;
-import com.energyict.mdc.device.data.LoadProfile;
-import com.energyict.mdc.device.data.LoadProfileReading;
-import com.energyict.mdc.device.data.LogBook;
-import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
-import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
-import com.energyict.mdc.device.topology.TopologyTimeline;
-import com.energyict.mdc.engine.config.InboundComPortPool;
-import com.energyict.mdc.masterdata.LoadProfileType;
-import com.energyict.mdc.masterdata.LogBookType;
-import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
-import com.energyict.mdc.scheduling.model.ComSchedule;
-import com.google.common.collect.Range;
-import com.jayway.jsonpath.JsonModel;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.*;
 
 /**
  * Created by bvn on 6/19/14.
@@ -88,19 +96,33 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     public ReadingType readingType;
 
     @Before
-    public void setupStubs(){
+    public void setupStubs() {
         readingType = mockReadingType("0.1.2.3.5.6.7.8.9.1.2.3.4.5.6.7.8");
+        when(readingType.getCalculatedReadingType()).thenReturn(Optional.of(readingType));
     }
 
     @Test
     public void testGetConnectionMethodsJsonBindings() throws Exception {
         Device device = mock(Device.class);
         when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
-        InboundConnectionTask connectionTask = mock(InboundConnectionTask.class);
-        PartialInboundConnectionTask partialConnectionTask = mock(PartialInboundConnectionTask.class);
+        ScheduledConnectionTask connectionTask = mock(ScheduledConnectionTask.class);
+        PartialScheduledConnectionTask partialConnectionTask = mock(PartialScheduledConnectionTask.class);
         ConnectionTypePluggableClass pluggableClass = mock(ConnectionTypePluggableClass.class);
         ConnectionType connectionType = mock(ConnectionType.class);
+        when(connectionTask.getCommunicationWindow()).thenReturn(new ComWindow(100,200));
+        when(connectionTask.isSimultaneousConnectionsAllowed()).thenReturn(true);
+        when(connectionTask.getConnectionStrategy()).thenReturn(ConnectionStrategy.AS_SOON_AS_POSSIBLE);
+        when(connectionTask.getRescheduleDelay()).thenReturn(TimeDuration.minutes(15));
+        when(connectionTask.getProperties()).thenReturn(Collections.emptyList());
+        OutboundComPortPool comPortPool = mock(OutboundComPortPool.class);
+        when(comPortPool.getName()).thenReturn("occp");
+        when(connectionTask.getComPortPool()).thenReturn(comPortPool);
+        NextExecutionSpecs nextExecSpecs = mock(NextExecutionSpecs.class);
+        when(nextExecSpecs.getTemporalExpression()).thenReturn(new TemporalExpression(TimeDuration.minutes(60)));
+        when(connectionTask.getNextExecutionSpecs()).thenReturn(nextExecSpecs);
         when(connectionTask.getPartialConnectionTask()).thenReturn(partialConnectionTask);
+        when(connectionTask.getName()).thenReturn("sct");
+        when(connectionTask.getStatus()).thenReturn(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE);
         when(connectionTask.getConnectionType()).thenReturn(connectionType);
         when(connectionType.getPropertySpecs()).thenReturn(Collections.<PropertySpec>emptyList());
         when(pluggableClass.getName()).thenReturn("ctpc");
@@ -366,7 +388,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(device1.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         when(device1.newScheduledComTaskExecution(any(ComSchedule.class))).thenReturn(builder);
         when(deviceService.findByUniqueMrid("mrid1")).thenReturn(Optional.of(device1));
-        when(thesaurus.getString(anyString(), anyString())).thenReturn("translated");
+        doReturn("translated").when(thesaurus).getString(anyString(), anyString());
 
         Device device2 = mock(Device.class);
         when(device2.getmRID()).thenReturn("mrid2");
@@ -397,7 +419,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         LoadProfile loadProfile3 = mockLoadProfile("lp1", 1, new TimeDuration(10, TimeDuration.TimeUnit.MINUTES), channel1);
         when(device1.getLoadProfiles()).thenReturn(Arrays.asList(loadProfile1, loadProfile2, loadProfile3));
         when(deviceService.findByUniqueMrid("mrid1")).thenReturn(Optional.of(device1));
-        when(thesaurus.getString(anyString(), anyString())).thenReturn("translated");
+        doReturn("translated").when(thesaurus).getString(anyString(), anyString());
         when(channel1.getReadingType()).thenReturn(readingType);
 
         Map response = target("/devices/mrid1/loadprofiles").request().get(Map.class);
@@ -419,7 +441,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         LoadProfile loadProfile3 = mockLoadProfile("lp1", 1, new TimeDuration(10, TimeDuration.TimeUnit.MINUTES), channel1);
         when(device1.getLoadProfiles()).thenReturn(Arrays.asList(loadProfile1, loadProfile2, loadProfile3));
         when(deviceService.findByUniqueMrid("mrid1")).thenReturn(Optional.of(device1));
-        when(thesaurus.getString(anyString(), anyString())).thenReturn("translated");
+        doReturn("translated").when(thesaurus).getString(anyString(), anyString());
     }
 
     @Test
@@ -432,7 +454,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         LoadProfile loadProfile3 = mockLoadProfile("lp3", 3, new TimeDuration(15, TimeDuration.TimeUnit.MINUTES));
         when(device1.getLoadProfiles()).thenReturn(Arrays.asList(loadProfile1, loadProfile2, loadProfile3));
         when(deviceService.findByUniqueMrid("mrid1")).thenReturn(Optional.of(device1));
-        when(thesaurus.getString(anyString(), anyString())).thenReturn("translated");
+        doReturn("translated").when(thesaurus).getString(anyString(), anyString());
         when(clock.instant()).thenReturn(NOW);
         when(channel1.getDevice()).thenReturn(device1);
         when(channel2.getDevice()).thenReturn(device1);
@@ -474,7 +496,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         LoadProfile loadProfile3 = mockLoadProfile("lp3", 3, new TimeDuration(15, TimeDuration.TimeUnit.MINUTES));
         when(device1.getLoadProfiles()).thenReturn(Arrays.asList(loadProfile1, loadProfile2, loadProfile3));
         when(deviceService.findByUniqueMrid("mrid1")).thenReturn(Optional.of(device1));
-        when(thesaurus.getString(anyString(), anyString())).thenReturn("translated");
+        doReturn("translated").when(thesaurus).getString(anyString(), anyString());
 
         Response response = target("/devices/mrid1/loadprofiles/7").request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
@@ -503,10 +525,9 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         }
         when(loadProfile3.getChannelData(any(Range.class))).thenReturn(loadProfileReadings);
 
-
+        String filter = URLEncoder.encode("[{\"property\":\"intervalStart\",\"value\":" + startTime + "},{\"property\":\"intervalEnd\",\"value\":1391212800000}]");
         Map response = target("/devices/mrid2/loadprofiles/3/data")
-                .queryParam("intervalStart", startTime)
-                .queryParam("intervalEnd", 1391212800000L)
+                .queryParam("filter", filter)
                 .queryParam("start", 0)
                 .queryParam("limit", 10)
                 .request().get(Map.class);
@@ -538,6 +559,8 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(channel1.getChannelSpec()).thenReturn(channelSpec);
         LoadProfile loadProfile3 = mockLoadProfile("lp3", 3, new TimeDuration(15, TimeDuration.TimeUnit.MINUTES), channel1);
         when(channel1.getLoadProfile()).thenReturn(loadProfile3);
+        when(channel1.getReadingType()).thenReturn(readingType);
+        when(readingType.getCalculatedReadingType()).thenReturn(Optional.empty());
         when(device1.getLoadProfiles()).thenReturn(Arrays.asList(loadProfile3));
         when(deviceService.findByUniqueMrid("mrid2")).thenReturn(Optional.of(device1));
         List<LoadProfileReading> loadProfileReadings = new ArrayList<>();
@@ -549,10 +572,9 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         }
         when(channel1.getChannelData(any(Range.class))).thenReturn(loadProfileReadings);
 
-
+        String filter = URLEncoder.encode("[{\"property\":\"intervalStart\",\"value\":1410774630000},{\"property\":\"intervalEnd\",\"value\":1410828630000}]");
         Map response = target("/devices/mrid2/channels/7/data")
-                .queryParam("intervalStart", startTime)
-                .queryParam("intervalEnd", 1391212800000L)
+                .queryParam("filter", filter)
                 .queryParam("start", 0)
                 .queryParam("limit", 10)
                 .request().get(Map.class);
@@ -641,7 +663,6 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(endDeviceEventType.getSubDomain()).thenReturn(EndDeviceSubDomain.VOLTAGE);
         when(endDeviceEventType.getEventOrAction()).thenReturn(EndDeviceEventorAction.DECREASED);
         when(nlsService.getThesaurus(Matchers.anyString(), Matchers.<Layer>any())).thenReturn(thesaurus);
-        when(thesaurus.getString(Matchers.anyString(), Matchers.anyString())).thenAnswer(invocation -> invocation.getArguments()[1]);
 
         LogBookInfo info = target("/devices/mrid/logbooks/1").request().get(LogBookInfo.class);
 
@@ -765,7 +786,6 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(endDeviceType.getEventOrAction()).thenReturn(eventorAction);
 
         when(nlsService.getThesaurus(Matchers.anyString(), Matchers.<Layer>any())).thenReturn(thesaurus);
-        when(thesaurus.getString(Matchers.anyString(), Matchers.anyString())).thenAnswer(invocation -> invocation.getArguments()[1]);
 
         Map<?, ?> response = target("/devices/mrid/logbooks/1/data")
                 .queryParam("filter", ("[{\"property\":\"intervalStart\",\"value\":1},"
@@ -782,7 +802,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
                 .contains(MapEntry.entry("eventDate", start.toEpochMilli()))
                 .contains(MapEntry.entry("deviceCode", deviceCode))
                 .contains(MapEntry.entry("eventLogId", eventLogId))
-                .contains(MapEntry.entry("readingDate", start.toEpochMilli()))
+                .contains(MapEntry.entry("readingDate", end.toEpochMilli()))
                 .contains(MapEntry.entry("message", message));
 
         Map<String, Object> eventType = (Map<String, Object>) ((Map<String, Object>) infos.get(0)).get("eventType");
@@ -1108,6 +1128,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     public void testActivateEstimationOnDevice() {
         Device device = mockDeviceForTopologyTest("device");
         when(deviceService.findAndLockDeviceByIdAndVersion(1L, 13L)).thenReturn(Optional.of(device));
+        when(deviceService.findByUniqueMrid("device")).thenReturn(Optional.of(device));
         when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.empty());
         when(deviceImportService.findBatch(Matchers.anyLong())).thenReturn(Optional.empty());
         when(device.getCurrentMeterActivation()).thenReturn(Optional.empty());
@@ -1118,7 +1139,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         info.estimationStatus = new DeviceEstimationStatusInfo();
         info.estimationStatus.active = true;
 
-        Response response = target("/devices/1").request().put(Entity.json(info));
+        Response response = target("/devices/device/estimationrulesets/esimationstatus").request().put(Entity.json(info));
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(device.forEstimation()).activateEstimation();
@@ -1128,6 +1149,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     public void testDeactivateEstimationOnDevice() {
         Device device = mockDeviceForTopologyTest("device");
         when(deviceService.findAndLockDeviceByIdAndVersion(1L, 13L)).thenReturn(Optional.of(device));
+        when(deviceService.findByUniqueMrid("device")).thenReturn(Optional.of(device));
         when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.empty());
         when(deviceImportService.findBatch(Matchers.anyLong())).thenReturn(Optional.empty());
         when(device.getCurrentMeterActivation()).thenReturn(Optional.empty());
@@ -1138,7 +1160,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         info.estimationStatus = new DeviceEstimationStatusInfo();
         info.estimationStatus.active = false;
 
-        Response response = target("/devices/1").request().put(Entity.json(info));
+        Response response = target("/devices/device/estimationrulesets/esimationstatus").request().put(Entity.json(info));
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(device.forEstimation()).deactivateEstimation();
@@ -1160,8 +1182,16 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(pluggableClass.getId()).thenReturn(10L);
         DeviceEstimation deviceEstimation = mock(DeviceEstimation.class);
         when(device.forEstimation()).thenReturn(deviceEstimation);
+        mockForCountDataValidationIssues();
         State state = mockDeviceState("In stock");
         when(device.getState()).thenReturn(state);
+        Instant now = Instant.now();
+        CIMLifecycleDates dates = mock(CIMLifecycleDates.class);
+        when(dates.getReceivedDate()).thenReturn(Optional.of(now.minus(5, ChronoUnit.DAYS)));
+        when(dates.getInstalledDate()).thenReturn(Optional.of(now.minus(4, ChronoUnit.DAYS)));
+        when(dates.getRemovedDate()).thenReturn(Optional.of(now.minus(3, ChronoUnit.DAYS)));
+        when(dates.getRetiredDate()).thenReturn(Optional.of(now.minus(2, ChronoUnit.DAYS)));
+        when(device.getLifecycleDates()).thenReturn(dates);
         return device;
     }
 
@@ -1189,6 +1219,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         ReadingType readingType = mock(ReadingType.class);
         when(readingType.getMRID()).thenReturn(mrid);
         when(mock.getReadingType()).thenReturn(readingType);
+        when(mock.getReadingType().getCalculatedReadingType()).thenReturn(Optional.of(readingType));
         when(mock.getInterval()).thenReturn(new TimeDuration("15 minutes"));
         Unit unit = Unit.get("kWh");
         when(mock.getLastReading()).thenReturn(Optional.empty());
@@ -1232,5 +1263,100 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         State state = mock(State.class);
         when(state.getName()).thenReturn(name);
         return state;
+    }
+
+    private void mockForCountDataValidationIssues() {
+        AmrSystem amrSystem = mock(AmrSystem.class);
+        when(meteringService.findAmrSystem(KnownAmrSystem.MDC.getId())).thenReturn(Optional.of(amrSystem));
+        Meter meter = mock(Meter.class);
+        when(amrSystem.findMeter(Matchers.anyString())).thenReturn(Optional.of(meter));
+        IssueStatus status = mock(IssueStatus.class);
+        when(issueService.findStatus(Matchers.anyString())).thenReturn(Optional.of(status));
+        Finder finder = mock(Finder.class);
+        when(issueDataValidationService.findAllDataValidationIssues(Matchers.any())).thenReturn(finder);
+        when(finder.find()).thenReturn(Collections.emptyList());
+    }
+
+    @Test
+    public void testPrivilegesForInStockState(){
+        State state = mock(State.class);
+        when(state.getName()).thenReturn(DefaultState.IN_STOCK.getKey());
+        Device device = mock(Device.class);
+        when(device.getState()).thenReturn(state);
+        when(deviceService.findByUniqueMrid(anyString())).thenReturn(Optional.of(device));
+
+        String response = target("/devices/1/privileges").request().get(String.class);
+        JsonModel model = JsonModel.create(response);
+        assertThat(model.<Number>get("$.total")).isEqualTo(16);
+        List<String> privileges = model.<List<String>>get("$.privileges[*].name");
+        assertThat(privileges).contains(
+                DevicePrivileges.DEVICES_WIDGET_COMMUNICATION_TOPOLOGY,
+                DevicePrivileges.DEVICES_WIDGET_CONNECTION,
+                DevicePrivileges.DEVICES_WIDGET_COMMUNICATION_TASKS,
+                DevicePrivileges.DEVICES_ACTIONS_VALIDATION_RULE_SETS,
+                DevicePrivileges.DEVICES_ACTIONS_ESTIMATION_RULE_SETS,
+                DevicePrivileges.DEVICES_ACTIONS_COMMUNICATION_PLANNING,
+                DevicePrivileges.DEVICES_ACTIONS_COMMUNICATION_TOPOLOGY,
+                DevicePrivileges.DEVICES_ACTIONS_DEVICE_COMMANDS,
+                DevicePrivileges.DEVICES_ACTIONS_SECURITY_SETTINGS,
+                DevicePrivileges.DEVICES_ACTIONS_PROTOCOL_DIALECTS,
+                DevicePrivileges.DEVICES_ACTIONS_GENERAL_ATTRIBUTES,
+                DevicePrivileges.DEVICES_ACTIONS_COMMUNICATION_TASKS,
+                DevicePrivileges.DEVICES_ACTIONS_CONNECTION_METHODS,
+                DevicePrivileges.DEVICES_ACTIONS_DATA_EDIT,
+                DevicePrivileges.DEVICES_ACTIONS_FIRMWARE_MANAGEMENT,
+                DevicePrivileges.DEVICES_PAGES_COMMUNICATION_PLANNING
+        );
+    }
+
+    @Test
+    public void testPrivilegesForInDecommissionedState(){
+        State state = mock(State.class);
+        when(state.getName()).thenReturn(DefaultState.DECOMMISSIONED.getKey());
+        Device device = mock(Device.class);
+        when(device.getState()).thenReturn(state);
+        when(deviceService.findByUniqueMrid(anyString())).thenReturn(Optional.of(device));
+
+        String response = target("/devices/1/privileges").request().get(String.class);
+        JsonModel model = JsonModel.create(response);
+        assertThat(model.<Number>get("$.total")).isEqualTo(0);
+        List<String> privileges = model.<List<String>>get("$.privileges[*].name");
+        assertThat(privileges).isEmpty();
+    }
+
+    @Test
+    public void testPrivilegesForCustomState(){
+        State state = mock(State.class);
+        when(state.getName()).thenReturn("Custom state");
+        Device device = mock(Device.class);
+        when(device.getState()).thenReturn(state);
+        when(deviceService.findByUniqueMrid(anyString())).thenReturn(Optional.of(device));
+
+        String response = target("/devices/1/privileges").request().get(String.class);
+        JsonModel model = JsonModel.create(response);
+        assertThat(model.<Number>get("$.total")).isEqualTo(20);
+        List<String> privileges = model.<List<String>>get("$.privileges[*].name");
+        assertThat(privileges).contains(
+                DevicePrivileges.DEVICES_WIDGET_ISSUES,
+                DevicePrivileges.DEVICES_WIDGET_VALIDATION,
+                DevicePrivileges.DEVICES_WIDGET_COMMUNICATION_TOPOLOGY,
+                DevicePrivileges.DEVICES_WIDGET_CONNECTION,
+                DevicePrivileges.DEVICES_WIDGET_COMMUNICATION_TASKS,
+                DevicePrivileges.DEVICES_ACTIONS_VALIDATION,
+                DevicePrivileges.DEVICES_ACTIONS_ESTIMATION,
+                DevicePrivileges.DEVICES_ACTIONS_VALIDATION_RULE_SETS,
+                DevicePrivileges.DEVICES_ACTIONS_ESTIMATION_RULE_SETS,
+                DevicePrivileges.DEVICES_ACTIONS_COMMUNICATION_PLANNING,
+                DevicePrivileges.DEVICES_ACTIONS_COMMUNICATION_TOPOLOGY,
+                DevicePrivileges.DEVICES_ACTIONS_DEVICE_COMMANDS,
+                DevicePrivileges.DEVICES_ACTIONS_SECURITY_SETTINGS,
+                DevicePrivileges.DEVICES_ACTIONS_PROTOCOL_DIALECTS,
+                DevicePrivileges.DEVICES_ACTIONS_GENERAL_ATTRIBUTES,
+                DevicePrivileges.DEVICES_ACTIONS_COMMUNICATION_TASKS,
+                DevicePrivileges.DEVICES_ACTIONS_CONNECTION_METHODS,
+                DevicePrivileges.DEVICES_ACTIONS_DATA_EDIT,
+                DevicePrivileges.DEVICES_ACTIONS_FIRMWARE_MANAGEMENT,
+                DevicePrivileges.DEVICES_PAGES_COMMUNICATION_PLANNING
+        );
     }
 }

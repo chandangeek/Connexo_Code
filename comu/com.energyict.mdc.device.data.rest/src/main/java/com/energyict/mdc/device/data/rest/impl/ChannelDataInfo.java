@@ -2,7 +2,6 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
-import com.elster.jupiter.validation.rest.ValidationRuleInfo;
 import com.energyict.mdc.common.rest.IntervalInfo;
 import com.energyict.mdc.device.data.rest.BigDecimalAsStringAdapter;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -21,9 +20,6 @@ public class ChannelDataInfo {
     public IntervalInfo interval;
     @JsonProperty("readingTime")
     public Instant readingTime;
-    @JsonProperty("modificationFlag")
-    @XmlJavaTypeAdapter(ReadingModificationFlagAdapter.class)
-    public ReadingModificationFlag modificationFlag;
     @JsonProperty("reportedDateTime")
     public Instant reportedDateTime;
     @JsonProperty("intervalFlags")
@@ -38,18 +34,18 @@ public class ChannelDataInfo {
     @JsonProperty("validationStatus")
     public Boolean validationStatus;
 
-    @JsonProperty("dataValidated")
-    public Boolean dataValidated;
-
-    @JsonProperty("validationResult")
-    @XmlJavaTypeAdapter(ValidationStatusAdapter.class)
-    public ValidationStatus validationResult;
-
-    @JsonProperty("suspectReason")
-    public Set<ValidationRuleInfo> suspectReason;
+    @JsonProperty("validationInfo")
+    public VeeReadingInfo validationInfo;
 
     public BaseReading createNew() {
         return IntervalReadingImpl.of(Instant.ofEpochMilli(this.interval.end), this.value);
     }
 
+    public BaseReading createNewBulk() {
+        return IntervalReadingImpl.of(Instant.ofEpochMilli(this.interval.end), this.collectedValue);
+    }
+
+    public BaseReading createConfirm() {
+        return IntervalReadingImpl.of(Instant.ofEpochMilli(this.interval.end), null);
+    }
 }

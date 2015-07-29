@@ -7,9 +7,11 @@ import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.rest.DeviceConnectionTaskInfo;
 import com.energyict.mdc.device.data.rest.DeviceConnectionTaskInfoFactory;
+import com.energyict.mdc.device.data.rest.DeviceStatesRestricted;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.engine.config.ComPortPool;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,6 +20,7 @@ import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.HttpMethod;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -27,6 +30,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+@DeviceStatesRestricted(value = {DefaultState.DECOMMISSIONED}, methods = {HttpMethod.POST, HttpMethod.PUT, HttpMethod.DELETE})
 public class ConnectionResource {
 
     private final ResourceHelper resourceHelper;

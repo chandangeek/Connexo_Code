@@ -17,10 +17,10 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.rest.util.RestValidationExceptionMapper;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.validation.ValidationService;
-import com.elster.jupiter.validation.rest.PropertyUtils;
 import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
 import com.elster.jupiter.yellowfin.groups.YellowfinGroupsService;
 import com.elster.jupiter.rest.util.ExceptionFactory;
@@ -36,12 +36,15 @@ import com.energyict.mdc.device.data.kpi.rest.DataCollectionKpiInfoFactory;
 import com.energyict.mdc.device.data.kpi.rest.KpiResource;
 import com.energyict.mdc.device.data.rest.DeviceConnectionTaskInfoFactory;
 import com.energyict.mdc.device.data.rest.DeviceInfoFactory;
+import com.energyict.mdc.device.data.rest.DeviceStateAccessFeature;
 import com.energyict.mdc.device.data.rest.SecurityPropertySetInfoFactory;
+import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleStateFactory;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.favorites.FavoritesService;
 import com.energyict.mdc.firmware.FirmwareService;
+import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
@@ -49,17 +52,19 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 import com.google.common.collect.ImmutableSet;
+import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+
+import javax.ws.rs.core.Application;
 import java.time.Clock;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
-import javax.ws.rs.core.Application;
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
 
 @Component(name = "com.energyict.ddr.rest", service = {Application.class, TranslationKeyProvider.class}, immediate = true, property = {"alias=/ddr", "app=MDC", "name=" + DeviceApplication.COMPONENT_NAME})
 public class DeviceApplication extends Application implements TranslationKeyProvider {
@@ -78,6 +83,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     private volatile ProtocolPluggableService protocolPluggableService;
     private volatile DeviceImportService deviceImportService;
     private volatile IssueService issueService;
+    private volatile IssueDataValidationService issueDataValidationService;
     private volatile TransactionService transactionService;
     private volatile YellowfinGroupsService yellowfinGroupsService;
     private volatile NlsService nlsService;
@@ -98,11 +104,13 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     private volatile DataCollectionKpiService dataCollectionKpiService;
     private volatile License license;
     private volatile FirmwareService firmwareService;
+    private volatile DeviceLifeCycleService deviceLifeCycleService;
 
     @Override
     public Set<Class<?>> getClasses() {
         return ImmutableSet.of(
                 TransactionWrapper.class,
+                RestValidationExceptionMapper.class,
                 ExceptionLogger.class,
                 DeviceResource.class,
                 ProtocolDialectResource.class,
@@ -128,7 +136,9 @@ public class DeviceApplication extends Application implements TranslationKeyProv
                 KpiResource.class,
                 AdhocGroupResource.class,
                 DeviceEstimationResource.class,
-                DeviceHistoryResource.class
+                DeviceHistoryResource.class,
+                DeviceLifeCycleActionResource.class,
+                DeviceStateAccessFeature.class
         );
     }
 
@@ -173,6 +183,11 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     @Reference
     public void setIssueService(IssueService issueService) {
         this.issueService = issueService;
+    }
+
+    @Reference
+    public void setIssueDataValidationService(IssueDataValidationService issueDataValidationService) {
+        this.issueDataValidationService = issueDataValidationService;
     }
 
     @Reference
@@ -243,6 +258,8 @@ public class DeviceApplication extends Application implements TranslationKeyProv
                 keys.add(new SimpleTranslationKey(eventOrAction.toString(), eventOrAction.getMnemonic()));
             }
         }
+        Arrays.stream(DefaultTranslationKey.values())
+                .forEach(keys::add);
         return keys;
     }
 
@@ -326,6 +343,11 @@ public class DeviceApplication extends Application implements TranslationKeyProv
         this.firmwareService = firmwareService;
     }
 
+    @Reference
+    public void setDeviceLifeCycleService(DeviceLifeCycleService deviceLifeCycleService) {
+        this.deviceLifeCycleService = deviceLifeCycleService;
+    }
+
     class HK2Binder extends AbstractBinder {
 
         @Override
@@ -337,8 +359,10 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(protocolPluggableService).to(ProtocolPluggableService.class);
             bind(transactionService).to(TransactionService.class);
             bind(issueService).to(IssueService.class);
+            bind(issueDataValidationService).to(IssueDataValidationService.class);
             bind(ResourceHelper.class).to(ResourceHelper.class);
             bind(ChannelResourceHelper.class).to(ChannelResourceHelper.class);
+            bind(EstimationHelper.class).to(EstimationHelper.class);
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
             bind(ConnectionMethodInfoFactory.class).to(ConnectionMethodInfoFactory.class);
             bind(MdcPropertyUtils.class).to(MdcPropertyUtils.class);
@@ -379,11 +403,16 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(firmwareService).to(FirmwareService.class);
             bind(DeviceLifeCycleStateFactory.class).to(DeviceLifeCycleStateFactory.class);
             bind(DeviceInfoFactory.class).to(DeviceInfoFactory.class);
-            bind(DeviceLifeCycleStateHistoryInfoFactory.class).to(DeviceLifeCycleStateHistoryInfoFactory.class);
+            bind(DeviceLifeCycleHistoryInfoFactory.class).to(DeviceLifeCycleHistoryInfoFactory.class);
             bind(ValidationInfoFactory.class).to(ValidationInfoFactory.class);
             bind(ValidationRuleInfoFactory.class).to(ValidationRuleInfoFactory.class);
             bind(DeviceDataInfoFactory.class).to(DeviceDataInfoFactory.class);
-            bind(PropertyUtils.class).to(PropertyUtils.class);
+            bind(com.elster.jupiter.validation.rest.PropertyUtils.class).to(com.elster.jupiter.validation.rest.PropertyUtils.class);
+            bind(deviceLifeCycleService).to(DeviceLifeCycleService.class);
+            bind(DeviceLifeCycleActionInfoFactory.class).to(DeviceLifeCycleActionInfoFactory.class);
+            bind(EstimationRuleInfoFactory.class).to(EstimationRuleInfoFactory.class);
+            bind(com.elster.jupiter.estimation.rest.PropertyUtils.class).to(com.elster.jupiter.estimation.rest.PropertyUtils.class);
+            bind(DeviceAttributesInfoFactory.class).to(DeviceAttributesInfoFactory.class);
         }
     }
 

@@ -7,11 +7,13 @@ import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.rest.DeviceStatesRestricted;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
+import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
 
@@ -31,6 +33,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+@DeviceStatesRestricted({DefaultState.DECOMMISSIONED})
 public class DeviceScheduleResource {
 
     private final ResourceHelper resourceHelper;
@@ -60,7 +63,7 @@ public class DeviceScheduleResource {
         Optional<ComTask> comTask = taskService.findComTask(comTaskId);
         comTask.ifPresent(comTask1 -> {
             if(comTask1.isSystemComTask()){
-                throw exceptionFactory.newException(MessageSeeds.CAN_NOT_PERFOMR_ACTION_ON_SYSTEM_COMTASK);
+                throw exceptionFactory.newException(MessageSeeds.CAN_NOT_PERFORM_ACTION_ON_SYSTEM_COMTASK);
             }
         });
     }

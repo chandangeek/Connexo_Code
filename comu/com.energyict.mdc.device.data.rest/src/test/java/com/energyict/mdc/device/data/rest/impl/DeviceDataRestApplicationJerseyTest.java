@@ -1,16 +1,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.cbo.Accumulation;
-import com.elster.jupiter.cbo.Aggregate;
-import com.elster.jupiter.cbo.Commodity;
-import com.elster.jupiter.cbo.FlowDirection;
-import com.elster.jupiter.cbo.MacroPeriod;
-import com.elster.jupiter.cbo.MeasurementKind;
-import com.elster.jupiter.cbo.MetricMultiplier;
-import com.elster.jupiter.cbo.Phase;
-import com.elster.jupiter.cbo.RationalNumber;
-import com.elster.jupiter.cbo.ReadingTypeUnit;
-import com.elster.jupiter.cbo.TimeAttribute;
+import com.elster.jupiter.cbo.*;
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.issue.share.service.IssueService;
@@ -28,27 +18,30 @@ import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.imp.DeviceImportService;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
+import com.energyict.mdc.device.data.rest.DeviceStateAccessFeature;
+import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.favorites.FavoritesService;
 import com.energyict.mdc.firmware.FirmwareService;
+import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
-
-import java.time.Clock;
-import java.util.Currency;
-import java.util.Optional;
-
-import javax.ws.rs.core.Application;
-
 import com.energyict.mdc.tasks.impl.SystemComTask;
 import org.junit.Before;
 import org.mockito.Mock;
+
+import javax.ws.rs.core.Application;
+import java.time.Clock;
+import java.util.Currency;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
@@ -78,6 +71,8 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
     EngineConfigurationService engineConfigurationService;
     @Mock
     IssueService issueService;
+    @Mock
+    IssueDataValidationService issueDataValidationService;
     @Mock
     SchedulingService schedulingService;
     @Mock
@@ -114,7 +109,8 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
     YellowfinGroupsService yellowfinGroupsService;
     @Mock
     FirmwareService firmwareService;
-
+    @Mock
+    DeviceLifeCycleService deviceLifeCycleService;
 
     @Before
     public void setup() {
@@ -130,9 +126,22 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         return MessageSeeds.values();
     }
 
+    protected boolean disableDeviceConstraintsBasedOnDeviceState(){
+        return true;
+    }
+
     @Override
     protected Application getApplication() {
-        DeviceApplication application = new DeviceApplication();
+        DeviceApplication application = new DeviceApplication(){
+            @Override
+            public Set<Class<?>> getClasses() {
+                Set<Class<?>> classes = new HashSet<>(super.getClasses());
+                if (disableDeviceConstraintsBasedOnDeviceState()){
+                    classes.remove(DeviceStateAccessFeature.class);
+                }
+                return classes;
+            }
+        };
         application.setNlsService(nlsService);
         application.setTransactionService(transactionService);
         application.setMasterDataService(masterDataService);
@@ -146,6 +155,7 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         application.setDeviceImportService(deviceImportService);
         application.setEngineConfigurationService(engineConfigurationService);
         application.setIssueService(issueService);
+        application.setIssueDataValidationService(issueDataValidationService);
         application.setMeteringGroupsService(meteringGroupService);
         application.setMeteringService(meteringService);
         application.setSchedulingService(schedulingService);
@@ -159,6 +169,7 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         application.setDataCollectionKpiService(dataCollectionKpiService);
         application.setYellowfinGroupsService(yellowfinGroupsService);
         application.setFirmwareService(firmwareService);
+        application.setDeviceLifeCycleService(deviceLifeCycleService);
         return application;
     }
 
@@ -181,8 +192,6 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         when(readingType.getMultiplier()).thenReturn(MetricMultiplier.CENTI);
         when(readingType.getUnit()).thenReturn(ReadingTypeUnit.AMPERE);
         when(readingType.getCurrency()).thenReturn(Currency.getInstance("EUR"));
-        when(readingType.getCalculatedReadingType()).thenReturn(Optional.<ReadingType>empty());
-        when(readingType.isCumulative()).thenReturn(true);
         return readingType;
     }
 

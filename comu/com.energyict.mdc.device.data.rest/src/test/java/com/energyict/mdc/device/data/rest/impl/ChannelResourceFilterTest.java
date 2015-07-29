@@ -112,12 +112,21 @@ public class ChannelResourceFilterTest extends DeviceDataRestApplicationJerseyTe
     @Test
     public void testGetChannelsFilterByLoadProfileName() throws Exception{
         String json = target("devices/" + DEIVICE_MRID + "/channels")
-                .queryParam("filter", URLEncoder.encode("[{\"property\":\"loadProfileName\",\"value\":\"*nergy*\"}]", "UTF-8"))
+                .queryParam("filter", URLEncoder.encode("[{\"property\":\"loadProfileName\",\"value\":[\"*nergy*\"]}]", "UTF-8"))
                 .request().get(String.class);
         JsonModel jsonModel = JsonModel.create(json);
         assertThat(jsonModel.<Number>get("$.total")).isEqualTo(2);
         assertThat(jsonModel.<Number>get("$.channels[0].id")).isEqualTo(3);
         assertThat(jsonModel.<Number>get("$.channels[1].id")).isEqualTo(4);
+    }
+
+    @Test
+    public void testGetChannelsFilterByLoadProfileNames() throws Exception{
+        String json = target("devices/" + DEIVICE_MRID + "/channels")
+            .queryParam("filter", URLEncoder.encode("[{\"property\":\"loadProfileName\",\"value\":[\"*nergy*\",\"*Profile*\"]}]", "UTF-8"))
+            .request().get(String.class);
+        JsonModel jsonModel = JsonModel.create(json);
+        assertThat(jsonModel.<Number>get("$.total")).isEqualTo(4);
     }
 
     @Test
@@ -135,7 +144,7 @@ public class ChannelResourceFilterTest extends DeviceDataRestApplicationJerseyTe
         String json = target("devices/" + DEIVICE_MRID + "/channels")
                 .queryParam("filter", URLEncoder.encode(
                         "[{\"property\":\"channelName\",\"value\":\"*A+*\"}," +
-                         "{\"property\":\"loadProfileName\",\"value\":\"*nergy*\"}]", "UTF-8"))
+                         "{\"property\":\"loadProfileName\",\"value\":[\"*nergy*\"]}]", "UTF-8"))
                 .request().get(String.class);
         JsonModel jsonModel = JsonModel.create(json);
         assertThat(jsonModel.<Number>get("$.total")).isEqualTo(1);
