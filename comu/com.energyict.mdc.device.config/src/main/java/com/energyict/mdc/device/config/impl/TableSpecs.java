@@ -28,6 +28,8 @@ import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 
+import java.util.List;
+
 import static com.elster.jupiter.orm.ColumnConversion.*;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
 import static com.elster.jupiter.orm.DeleteRule.RESTRICT;
@@ -52,13 +54,33 @@ public enum TableSpecs {
             table.column("DESCRIPTION").varChar().map("description").add();
             table.column("DEVICEPROTOCOLPLUGGABLEID").number().conversion(ColumnConversion.NUMBER2LONG).map(DeviceTypeFields.DEVICE_PROTOCOL_PLUGGABLE_CLASS.fieldName()).add();
             table.column("DEVICEUSAGETYPE").number().conversion(ColumnConversion.NUMBER2INT).map("deviceUsageTypeId").add();
-            Column deviceLifeCycle = table.column("DEVICELIFECYCLE").number().notNull().add();
             table.unique("UK_DTC_DEVICETYPE").on(name).add();
             table.primaryKey("PK_DTC_DEVICETYPE").on(id).add();
-            table.foreignKey("FK_DTC_DECTYPE_DEVLIFECYCLE")
+        }
+    },
+    DTC_DEVICETYPE_DLC {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<DeviceLifeCycleInDeviceType> table = dataModel.addTable(name(), DeviceLifeCycleInDeviceType.class);
+            table.map(DeviceLifeCycleInDeviceTypeImpl.class);
+            Column deviceType = table.column("DEVICETYPE").notNull().number().add();
+            List<Column> intervalColumns = table.addIntervalColumns("interval");
+            table.addAuditColumns();
+            Column deviceLifeCycle = table.column("DEVICELIFECYCLE").notNull().number().add();
+            table.primaryKey("PK_DTC_DEVTYPE_DLC").on(deviceType, intervalColumns.get(0)).add();
+            table.foreignKey("FK_DTC_DLCINDT_DLC")
                     .on(deviceLifeCycle)
                     .references(DeviceLifeCycleConfigurationService.COMPONENT_NAME, "DLD_DEVICE_LIFE_CYCLE")
+                    .onDelete(RESTRICT)
                     .map("deviceLifeCycle")
+                    .add();
+            table.foreignKey("FK_DTC_DLCINDT_DT")
+                    .on(deviceType)
+                    .references(DTC_DEVICETYPE.name())
+                    .onDelete(CASCADE)
+                    .map("deviceType")
+                    .reverseMap("deviceLifeCycle")
+                    .composition()
                     .add();
         }
     },
@@ -147,7 +169,7 @@ public enum TableSpecs {
             table.addAuditColumns();
             table.column("NAME").varChar().notNull().map("name").add();
             table.column("DESCRIPTION").varChar().map("description").add();
-            Column deviceTypeId = table.column("DEVICETYPEID").number().notNull().add();
+            Column deviceType = table.column("DEVICETYPEID").number().notNull().add();
             table.column("ACTIVE").number().conversion(ColumnConversion.NUMBER2BOOLEAN).map("active").add();
             table.column("COMMUNICATIONFUNCTIONMASK").number().conversion(ColumnConversion.NUMBER2INT).map("communicationFunctionMask").add();
             table.column("SUPPORTALLCATEGORIES").number().conversion(NUMBER2BOOLEAN).notNull().map("supportsAllProtocolMessages").add();
@@ -155,7 +177,7 @@ public enum TableSpecs {
             table.column("GATEWAY_TYPE").number().conversion(ColumnConversion.NUMBER2ENUM).map(DeviceConfigurationImpl.Fields.GATEWAY_TYPE.fieldName()).notNull().add();
             table.primaryKey("PK_DTC_DEVICECONFIG").on(id).add();
             table.foreignKey("FK_DTC_DEVCONFIG_DEVTYPE").
-                    on(deviceTypeId).
+                    on(deviceType).
                     references(DTC_DEVICETYPE.name()).
                     map("deviceType").
                     reverseMap("deviceConfigurations").
@@ -200,7 +222,7 @@ public enum TableSpecs {
             Column id = table.addAutoIdColumn();
             table.addAuditColumns();
             Column deviceConfiguration = table.column("DEVICECONFIGID").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
-            Column channelTypeId = table.column("CHANNELTYPEID").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
+            Column channelType = table.column("CHANNELTYPEID").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
             table.column("OBISCODE").varChar(80).map("overruledObisCodeString").add();
             table.column("FRACTIONDIGITS").number().conversion(ColumnConversion.NUMBER2INT).map("nbrOfFractionDigits").add();
             table.column("OVERFLOWVALUE").number().map("overflow").add();
@@ -214,12 +236,10 @@ public enum TableSpecs {
                     on(deviceConfiguration).
                     references(DTC_DEVICECONFIG.name()).
                     map("deviceConfiguration").
-                    reverseMap("channelSpecs").
-                    composition().
                     onDelete(CASCADE).
                     add();
             table.foreignKey("FK_DTC_CHANNELSPEC_REGMAP").
-                    on(channelTypeId).
+                    on(channelType).
                     references(MasterDataService.COMPONENTNAME, "MDS_MEASUREMENTTYPE").
                     map("channelType").
                     add();
@@ -227,6 +247,8 @@ public enum TableSpecs {
                     on(loadProfileSpec).
                     references(DTC_LOADPROFILESPEC.name()).
                     map("loadProfileSpec").
+                    reverseMap("channelSpecs").
+                    composition().
                     add();
         }
     },
@@ -523,7 +545,7 @@ public enum TableSpecs {
             Column partialConnectionTask = table.column("PARTIALCONNECTIONTASK").number().add();
             table.column("USEDEFAULTCONNECTIONTASK").number().notNull().conversion(NUMBER2BOOLEAN).map(ComTaskEnablementImpl.Fields.USE_DEFAULT_CONNECTION_TASK.fieldName()).add();
             table.column("PRIORITY").number().notNull().conversion(NUMBER2INT).map(ComTaskEnablementImpl.Fields.PRIORITY.fieldName()).add();
-            Column dialectConfigurationProperties = table.column("DIALECTCONFIGPROPERTIES").number().add();
+            Column dialectConfigurationProperties = table.column("DIALECTCONFIGPROPERTIES").number().notNull().add();
             table.column("IGNORENEXTEXECSPECS").number().notNull().conversion(NUMBER2BOOLEAN).map(ComTaskEnablementImpl.Fields.IGNORE_NEXT_EXECUTION_SPECS_FOR_INBOUND.fieldName()).add();
             table.
                 foreignKey("FK_DTC_COMTASKENABLMNT_OPARTCT").
@@ -566,7 +588,7 @@ public enum TableSpecs {
             Table<DeviceConfValidationRuleSetUsage> table = dataModel.addTable(name(), DeviceConfValidationRuleSetUsage.class);
             table.map(DeviceConfValidationRuleSetUsageImpl.class);
             table.setJournalTableName("DTC_DEVCFGVALRULESETUSAGEJRNL");
-            Column validationRuleSetIdColumn = 
+            Column validationRuleSetIdColumn =
                     table.column("VALIDATIONRULESETID").type("number").notNull().conversion(NUMBER2LONG).map("validationRuleSetId").add();
             Column deviceConfigurationIdColumn =
                     table.column("DEVICECONFIGID").type("number").notNull().conversion(NUMBER2LONG).map("deviceConfigurationId").add();
@@ -576,7 +598,7 @@ public enum TableSpecs {
             table.foreignKey("DTC_FK_DEVICECONFIG").references("DTC_DEVICECONFIG").reverseMap("deviceConfValidationRuleSetUsages").composition().map("deviceConfiguration").on(deviceConfigurationIdColumn).add();
         }
     },
-    
+
     //deviceConfEstimationRuleSetUsages
     DTC_DEVCFGESTRULESETUSAGE {
         @Override
@@ -588,15 +610,15 @@ public enum TableSpecs {
             Column deviceConfigurationColumn = table.column("DEVICECONFIG").type("number").notNull().conversion(NUMBER2LONG).add();
             table.column("POSITION").number().notNull().conversion(NUMBER2INT).map(DeviceConfigurationEstimationRuleSetUsageImpl.Fields.POSITION.fieldName()).add();
             table.addAuditColumns();
-            
+
             table.primaryKey("DTC_PK_ESTRULESETUSAGE").on(estimationRuleSetColumn, deviceConfigurationColumn).add();
-            
+
             table.foreignKey("DTC_FK_ESTIMATIONRULESET").
                     references(EstimationService.COMPONENTNAME, "EST_ESTIMATIONRULESET").
                     onDelete(RESTRICT).
                     map(DeviceConfigurationEstimationRuleSetUsageImpl.Fields.ESTIMATIONRULESET.fieldName()).on(estimationRuleSetColumn).
                     add();
-            
+
             table.foreignKey("DTC_FK_ESTRSUSAGE_DEVICECONF").
                     references(DTC_DEVICECONFIG.name()).
                     reverseMap(DeviceConfigurationImpl.Fields.DEVICECONF_ESTIMATIONRULESET_USAGES.fieldName()).

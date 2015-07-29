@@ -39,7 +39,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Tests the peristence aspects of the {@link com.energyict.mdc.masterdata.MeasurementType} component
+ * Tests the persistence aspects of the {@link com.energyict.mdc.masterdata.MeasurementType} component
  * that impact the {@link DeviceConfigurationServiceImpl}.
  *
  * @author Rudi Vankeirsbilck (rudi)

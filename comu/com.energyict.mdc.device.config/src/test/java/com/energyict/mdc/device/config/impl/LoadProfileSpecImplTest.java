@@ -29,7 +29,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 /**
- * Tests the {@link LoadProfileSpecImpl} component
+ * Tests the {@link LoadProfileSpecImpl} component.
  * <p/>
  * Copyrights EnergyICT
  * Date: 17/02/14
@@ -184,19 +184,6 @@ public class LoadProfileSpecImplTest extends DeviceTypeProvidingPersistenceTest 
         this.getReloadedDeviceConfiguration().deleteLoadProfileSpec(loadProfileSpec);
     }
 
-    @Test
-    @Transactional
-    public void buildingCompletionListenerTest() {
-        LoadProfileSpec.BuildingCompletionListener buildingCompletionListener = mock(LoadProfileSpec.BuildingCompletionListener.class);
-        LoadProfileSpec loadProfileSpec;
-        LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = getReloadedDeviceConfiguration().createLoadProfileSpec(this.loadProfileType);
-        loadProfileSpecBuilder.setOverruledObisCode(overruledLoadProfileSpecObisCode);
-        loadProfileSpecBuilder.notifyOnAdd(buildingCompletionListener);
-        loadProfileSpec = loadProfileSpecBuilder.add();
-
-        verify(buildingCompletionListener).loadProfileSpecBuildingProcessCompleted(loadProfileSpec);
-    }
-
     private void setupReadingTypeInExistingTransaction() {
         String code = ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED)
                 .flow(FORWARD)
@@ -206,6 +193,32 @@ public class LoadProfileSpecImplTest extends DeviceTypeProvidingPersistenceTest 
                 .code();
         ReadingType readingType = PersistenceTest.inMemoryPersistence.getMeteringService().getReadingType(code).get();
         registerType = PersistenceTest.inMemoryPersistence.getMasterDataService().findRegisterTypeByReadingType(readingType).get();
+    }
+
+    @Test
+    @Transactional
+    public void cloneWithOverruledObisCodeTest() {
+        LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
+        DeviceConfiguration clone = deviceType.newConfiguration("MyClone").add();
+
+        LoadProfileSpec clonedLoadProfileSpec = ((ServerLoadProfileSpec) loadProfileSpec).cloneForDeviceConfig(clone);
+
+        assertThat(clonedLoadProfileSpec.getDeviceConfiguration().getId()).isEqualTo(clone.getId());
+        assertThat(clonedLoadProfileSpec.getDeviceObisCode()).isEqualTo(overruledLoadProfileSpecObisCode);
+        assertThat(clonedLoadProfileSpec.getObisCode()).isEqualTo(loadProfileTypeObisCode);
+    }
+
+    @Test
+    @Transactional
+    public void cloneWithoutOverruledObisCodeTest() {
+        LoadProfileSpec loadProfileSpec = getReloadedDeviceConfiguration().createLoadProfileSpec(this.loadProfileType).add();
+        DeviceConfiguration clone = deviceType.newConfiguration("MyClone").add();
+
+        LoadProfileSpec clonedLoadProfileSpec = ((ServerLoadProfileSpec) loadProfileSpec).cloneForDeviceConfig(clone);
+
+        assertThat(clonedLoadProfileSpec.getDeviceConfiguration().getId()).isEqualTo(clone.getId());
+        assertThat(clonedLoadProfileSpec.getDeviceObisCode()).isEqualTo(loadProfileTypeObisCode);
+        assertThat(clonedLoadProfileSpec.getObisCode()).isEqualTo(loadProfileTypeObisCode);
     }
 
 }

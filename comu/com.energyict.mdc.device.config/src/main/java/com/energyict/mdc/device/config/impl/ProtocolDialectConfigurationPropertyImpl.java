@@ -1,15 +1,14 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.energyict.mdc.device.config.events.EventType;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperty;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 
 import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 
-import javax.inject.Inject;
 import javax.validation.constraints.Size;
 import java.time.Instant;
 

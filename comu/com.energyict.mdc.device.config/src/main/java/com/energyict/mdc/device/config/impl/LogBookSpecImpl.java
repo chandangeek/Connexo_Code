@@ -16,6 +16,7 @@ import com.energyict.mdc.device.config.exceptions.CannotChangeLogbookTypeOfLogbo
 import com.energyict.mdc.device.config.exceptions.LogbookTypeIsNotConfiguredOnDeviceTypeException;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.masterdata.LogBookType;
+
 import javax.inject.Inject;
 import javax.inject.Provider;
 import java.time.Instant;
@@ -25,16 +26,20 @@ import java.time.Instant;
  * Date: 12/11/12
  * Time: 13:30
  */
-public class LogBookSpecImpl extends PersistentIdObject<LogBookSpec> implements LogBookSpec {
+public class LogBookSpecImpl extends PersistentIdObject<LogBookSpec> implements ServerLogBookSpec {
 
     private final Reference<DeviceConfiguration> deviceConfiguration = ValueReference.absent();
-    @IsPresent(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.LOGBOOK_SPEC_LOGBOOK_TYPE_IS_REQUIRED + "}")
+    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.LOGBOOK_SPEC_LOGBOOK_TYPE_IS_REQUIRED + "}")
     private final Reference<LogBookType> logBookType = ValueReference.absent();
     private String overruledObisCodeString;
     private ObisCode overruledObisCode;
+    @SuppressWarnings("unused")
     private String userName;
+    @SuppressWarnings("unused")
     private long version;
+    @SuppressWarnings("unused")
     private Instant createTime;
+    @SuppressWarnings("unused")
     private Instant modTime;
 
     @Inject
@@ -78,8 +83,8 @@ public class LogBookSpecImpl extends PersistentIdObject<LogBookSpec> implements 
         super.save();
     }
 
-    private void validateBeforeAddToConfiguration () {
-        Save.CREATE.validate(this.dataModel.getValidatorFactory().getValidator(), this);
+    private void validateBeforeAddToConfiguration() {
+        Save.CREATE.validate(this.getDataModel(), this);
         this.validateDeviceTypeContainsLogbookType();
     }
 
@@ -89,20 +94,20 @@ public class LogBookSpecImpl extends PersistentIdObject<LogBookSpec> implements 
         DeviceType deviceType = getDeviceConfiguration().getDeviceType();
         long expectedLogBookTypeId = getLogBookType().getId();
         for (LogBookType lbType : deviceType.getLogBookTypes()) {
-            if (lbType.getId() == expectedLogBookTypeId){
+            if (lbType.getId() == expectedLogBookTypeId) {
                 return;
             }
         }
-        throw new LogbookTypeIsNotConfiguredOnDeviceTypeException(this.thesaurus, getLogBookType());
+        throw new LogbookTypeIsNotConfiguredOnDeviceTypeException(this.getThesaurus(), getLogBookType());
     }
 
-    private void validateUpdate () {
-        Save.UPDATE.validate(this.dataModel.getValidatorFactory().getValidator(), this);
+    private void validateUpdate() {
+        Save.UPDATE.validate(this.getDataModel(), this);
     }
 
     @Override
     protected void doDelete() {
-        this.getDeviceConfiguration().deleteLogBookSpec(this);
+        this.getDeviceConfiguration().removeLogBookSpec(this);
     }
 
     @Override
@@ -137,7 +142,7 @@ public class LogBookSpecImpl extends PersistentIdObject<LogBookSpec> implements 
 
     private void validateLogbookTypeForUpdate(LogBookType loadProfileType) {
         if (this.logBookType.isPresent() && this.getLogBookType().getId() != loadProfileType.getId()) {
-            throw new CannotChangeLogbookTypeOfLogbookSpecException(this.thesaurus);
+            throw new CannotChangeLogbookTypeOfLogbookSpecException(this.getThesaurus());
         }
     }
 
@@ -151,6 +156,13 @@ public class LogBookSpecImpl extends PersistentIdObject<LogBookSpec> implements 
         this.overruledObisCode = overruledObisCode;
     }
 
+    @Override
+    public LogBookSpec cloneForDeviceConfig(DeviceConfiguration deviceConfiguration) {
+        LogBookSpec.LogBookSpecBuilder builder = deviceConfiguration.createLogBookSpec(getLogBookType());
+        builder.setOverruledObisCode(getObisCode().equals(getDeviceObisCode()) ? null : getDeviceObisCode());
+        return builder.add();
+    }
+
     abstract static class LogBookSpecBuilder implements LogBookSpec.LogBookSpecBuilder {
 
         final LogBookSpecImpl logBookSpec;
@@ -160,13 +172,13 @@ public class LogBookSpecImpl extends PersistentIdObject<LogBookSpec> implements 
         }
 
         @Override
-        public LogBookSpec.LogBookSpecBuilder setOverruledObisCode(ObisCode overruledObisCode){
+        public LogBookSpec.LogBookSpecBuilder setOverruledObisCode(ObisCode overruledObisCode) {
             this.logBookSpec.setOverruledObisCode(overruledObisCode);
             return this;
         }
 
         @Override
-        public LogBookSpecImpl add(){
+        public LogBookSpecImpl add() {
             this.logBookSpec.validateBeforeAddToConfiguration();
             return this.logBookSpec;
         }

@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.config;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.time.TimeDuration;
 
 /**
@@ -7,6 +8,7 @@ import com.elster.jupiter.time.TimeDuration;
  * Date: 13/03/14
  * Time: 13:23
  */
+@ProviderType
 public interface NextExecutionSpecBuilder<S> {
 
     NextExecutionSpecBuilder<S> temporalExpression(TimeDuration frequency, TimeDuration offset);

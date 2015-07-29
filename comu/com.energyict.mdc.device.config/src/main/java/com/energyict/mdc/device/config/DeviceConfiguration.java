@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.config;
 
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.util.HasName;
@@ -20,38 +21,15 @@ import java.util.Set;
  * User: gde
  * Date: 5/11/12
  */
+@ProviderType
 public interface DeviceConfiguration extends HasId, HasName, DeviceCommunicationConfiguration {
-
-
-    /**
-     * Returns the object's unique id
-     *
-     * @return the id
-     */
-    public long getId();
-
-    /**
-     * Returns the object's name
-     *
-     * @return the name
-     */
-    public String getName();
 
     void setName(String name);
 
-    /**
-     * Returns a description of the receiver
-     *
-     * @return description
-     */
     String getDescription();
 
     void setDescription(String description);
-    /**
-     * Returns the <code>DeviceType</code> this device config belongs to
-     *
-     * @return the <code>DeviceType</code> this device config belongs to
-     */
+
     DeviceType getDeviceType();
 
     List<RegisterSpec> getRegisterSpecs();
@@ -74,7 +52,7 @@ public interface DeviceConfiguration extends HasId, HasName, DeviceCommunication
 
     ChannelSpec.ChannelSpecUpdater getChannelSpecUpdaterFor(ChannelSpec channelSpec);
 
-    void deleteChannelSpec(ChannelSpec channelSpec);
+    void removeChannelSpec(ChannelSpec channelSpec);
 
     List<LoadProfileSpec> getLoadProfileSpecs();
 
@@ -90,7 +68,7 @@ public interface DeviceConfiguration extends HasId, HasName, DeviceCommunication
 
     LogBookSpec.LogBookSpecUpdater getLogBookSpecUpdaterFor(LogBookSpec logBookSpec);
 
-    void deleteLogBookSpec(LogBookSpec logBookSpec);
+    void removeLogBookSpec(LogBookSpec logBookSpec);
 
     /**
      * Tests if the receiver is active.
@@ -128,15 +106,15 @@ public interface DeviceConfiguration extends HasId, HasName, DeviceCommunication
     public List<ValidationRuleSet> getValidationRuleSets();
 
     public List<DeviceConfValidationRuleSetUsage> getDeviceConfValidationRuleSetUsages();
-    
+
     DeviceConfigurationEstimationRuleSetUsage addEstimationRuleSet(EstimationRuleSet estimationRuleSet);
-    
+
     void removeEstimationRuleSet(EstimationRuleSet estimationRuleSet);
-    
+
     void reorderEstimationRuleSets(KPermutation kpermutation);
-    
+
     List<EstimationRuleSet> getEstimationRuleSets();
-    
+
     List<DeviceConfigurationEstimationRuleSetUsage> getDeviceConfigEstimationRuleSetUsages();
 
     public List<ValidationRule> getValidationRules(Iterable<? extends ReadingType> readingTypes);

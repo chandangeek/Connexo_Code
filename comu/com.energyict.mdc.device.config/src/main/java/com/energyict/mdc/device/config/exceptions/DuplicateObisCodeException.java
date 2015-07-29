@@ -33,7 +33,7 @@ public class DuplicateObisCodeException extends LocalizedException {
     }
 
     public static DuplicateObisCodeException forChannelSpecInLoadProfileSpec(Thesaurus thesaurus, DeviceConfiguration deviceConfiguration, ObisCode obisCode, LoadProfileSpec loadProfileSpec) {
-        return new DuplicateObisCodeException(thesaurus, MessageSeeds.DEVICE_CONFIGURATION_DUPLICATE_OBIS_CODE_FOR_CHANNEL_SPEC_IN_LOAD_PROFILE_SPEC, loadProfileSpec.getId(), deviceConfiguration.getName(), obisCode);
+        return new DuplicateObisCodeException(thesaurus, MessageSeeds.DEVICE_CONFIGURATION_DUPLICATE_OBIS_CODE_FOR_CHANNEL_SPEC_IN_LOAD_PROFILE_SPEC, loadProfileSpec.getLoadProfileType().getName(), deviceConfiguration.getName(), obisCode);
     }
 
     public static DuplicateObisCodeException forChannelSpecConfigWithoutLoadProfileSpec(Thesaurus thesaurus, DeviceConfiguration deviceConfiguration, ObisCode obisCode) {

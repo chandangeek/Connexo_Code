@@ -9,45 +9,16 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.collections.KPermutation;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.device.config.ChannelSpec;
-import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.config.ComTaskEnablementBuilder;
-import com.energyict.mdc.device.config.ConnectionStrategy;
-import com.energyict.mdc.device.config.DeviceCommunicationFunction;
-import com.energyict.mdc.device.config.DeviceConfigurationEstimationRuleSetUsage;
-import com.energyict.mdc.device.config.DeviceConfValidationRuleSetUsage;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.DeviceMessageEnablement;
-import com.energyict.mdc.device.config.DeviceMessageEnablementBuilder;
-import com.energyict.mdc.device.config.DeviceMessageUserAction;
-import com.energyict.mdc.device.config.DeviceProtocolConfigurationProperties;
-import com.energyict.mdc.device.config.DeviceSecurityUserAction;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.GatewayType;
-import com.energyict.mdc.device.config.LoadProfileSpec;
-import com.energyict.mdc.device.config.LogBookSpec;
-import com.energyict.mdc.device.config.NumericalRegisterSpec;
-import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
-import com.energyict.mdc.device.config.PartialConnectionInitiationTaskBuilder;
-import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.config.PartialInboundConnectionTask;
-import com.energyict.mdc.device.config.PartialInboundConnectionTaskBuilder;
-import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
-import com.energyict.mdc.device.config.PartialScheduledConnectionTaskBuilder;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
-import com.energyict.mdc.device.config.RegisterSpec;
-import com.energyict.mdc.device.config.SecurityPropertySet;
-import com.energyict.mdc.device.config.SecurityPropertySetBuilder;
-import com.energyict.mdc.device.config.TextualRegisterSpec;
+import com.energyict.mdc.device.config.*;
+import com.energyict.mdc.device.config.events.EventType;
 import com.energyict.mdc.device.config.exceptions.CannotAddToActiveDeviceConfigurationException;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteFromActiveDeviceConfigurationException;
 import com.energyict.mdc.device.config.exceptions.CannotDisableComTaskThatWasNotEnabledException;
@@ -67,15 +38,12 @@ import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.ComTask;
-import com.google.common.collect.ImmutableList;
-
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.validation.Valid;
 import javax.validation.constraints.Size;
-
 import java.security.Principal;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -90,6 +58,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 /**
@@ -135,9 +104,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     @Valid
     private List<RegisterSpec> registerSpecs = new ArrayList<>();
     @Valid
-    private List<ChannelSpec> channelSpecs = new ArrayList<>();
-    @Valid
-    private List<LoadProfileSpec> loadProfileSpecs = new ArrayList<>();
+    private List<LoadProfileSpecImpl> loadProfileSpecs = new ArrayList<>();
     @Valid
     private List<LogBookSpec> logBookSpecs = new ArrayList<>();
     private List<SecurityPropertySet> securityPropertySets = new ArrayList<>();
@@ -153,6 +120,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     private int communicationFunctionMask;
     @SuppressWarnings("unused")
     private String userName;
+    @SuppressWarnings("unused")
     private long version;
     @SuppressWarnings("unused")
     private Instant createTime;
@@ -167,13 +135,12 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     private final Provider<TextualRegisterSpecImpl> textualRegisterSpecProvider;
     private final Provider<LogBookSpecImpl> logBookSpecProvider;
     private final Provider<ChannelSpecImpl> channelSpecProvider;
-    private final DeviceConfigurationService deviceConfigurationService;
     private final SchedulingService schedulingService;
     private final ThreadPrincipalService threadPrincipalService;
 
     private List<DeviceConfValidationRuleSetUsage> deviceConfValidationRuleSetUsages = new ArrayList<>();
     private final Provider<DeviceConfValidationRuleSetUsageImpl> deviceConfValidationRuleSetUsageFactory;
-    
+
     private List<DeviceConfigurationEstimationRuleSetUsage> deviceConfigurationEstimationRuleSetUsages = new ArrayList<>();
     private final Provider<DeviceConfigurationEstimationRuleSetUsageImpl> deviceConfigEstimationRuleSetUsageFactory;
 
@@ -187,7 +154,6 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
                         Provider<ChannelSpecImpl> channelSpecProvider,
                         Provider<DeviceConfValidationRuleSetUsageImpl> deviceConfValidationRuleSetUsageFactory,
                         Provider<DeviceConfigurationEstimationRuleSetUsageImpl> deviceConfEstimationRuleSetUsageFactory,
-                        DeviceConfigurationService deviceConfigurationService,
                         SchedulingService schedulingService,
                         ThreadPrincipalService threadPrincipalService) {
         super(DeviceConfiguration.class, dataModel, eventService, thesaurus);
@@ -198,7 +164,6 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         this.channelSpecProvider = channelSpecProvider;
         this.deviceConfValidationRuleSetUsageFactory = deviceConfValidationRuleSetUsageFactory;
         this.deviceConfigEstimationRuleSetUsageFactory = deviceConfEstimationRuleSetUsageFactory;
-        this.deviceConfigurationService = deviceConfigurationService;
         this.schedulingService = schedulingService;
         this.threadPrincipalService = threadPrincipalService;
     }
@@ -323,7 +288,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
                 loadProfileObisCodes.add(obisCodeValue);
             }
             else {
-                throw new DuplicateLoadProfileTypeException(this.thesaurus, this, loadProfileType, each);
+                throw new DuplicateLoadProfileTypeException(this.getThesaurus(), this, loadProfileType, each);
             }
         }
     }
@@ -343,7 +308,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
                 obisCodeAndNameMap.put(obisCodeValue, logBookSpecName);
             }
             else {
-                throw DuplicateObisCodeException.forLogBookSpec(this.thesaurus, this, each.getDeviceObisCode());
+                throw DuplicateObisCodeException.forLogBookSpec(this.getThesaurus(), this, each.getDeviceObisCode());
             }
         }
     }
@@ -357,15 +322,10 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     @Override
     public void prepareDelete() {
         this.registerSpecs.clear();
-        this.channelSpecs.clear();
         this.logBookSpecs.clear();
         this.configurationPropertiesList.clear();
-        List<DeviceConfValidationRuleSetUsage> usageCopy = ImmutableList.copyOf(deviceConfValidationRuleSetUsages);
-        for(DeviceConfValidationRuleSetUsage usage : usageCopy) {
-            if (usage.getDeviceConfiguration().getId() == this.getId()) {
-                deviceConfValidationRuleSetUsages.remove(usage);
-            }
-        }
+        this.deviceConfValidationRuleSetUsages.clear();
+        this.deviceConfigurationEstimationRuleSetUsages.clear();
     }
 
     private void validateAllChannelSpecsHaveUniqueObisCodes() {
@@ -384,7 +344,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
             }
             else {
                 if (!obisCode.anyChannel()) {
-                    throw DuplicateObisCodeException.forChannelSpecInLoadProfileSpec(this.thesaurus, this, each.getDeviceObisCode(), each.getLoadProfileSpec());
+                    throw DuplicateObisCodeException.forChannelSpecInLoadProfileSpec(this.getThesaurus(), this, each.getDeviceObisCode(), each.getLoadProfileSpec());
                 }
             }
         }
@@ -398,7 +358,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
                 obisCodeSet.add(obisCodeValue);
             }
             else {
-                throw DuplicateObisCodeException.forRegisterSpec(this.thesaurus, this, registerSpec.getDeviceObisCode());
+                throw DuplicateObisCodeException.forRegisterSpec(this.getThesaurus(), this, registerSpec.getDeviceObisCode());
             }
         }
     }
@@ -507,42 +467,53 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     private void validateUniqueRegisterSpecObisCode(RegisterSpec registerSpec) {
         for (RegisterSpec spec : registerSpecs) {
             if (!isSameIdObject(registerSpec, spec) && spec.getDeviceObisCode().equals(registerSpec.getDeviceObisCode())) {
-                throw DuplicateObisCodeException.forRegisterSpec(thesaurus, this, registerSpec.getDeviceObisCode());
+                throw DuplicateObisCodeException.forRegisterSpec(this.getThesaurus(), this, registerSpec.getDeviceObisCode());
             }
         }
     }
 
     public void deleteRegisterSpec(RegisterSpec registerSpec) {
         if (isActive()) {
-            throw CannotDeleteFromActiveDeviceConfigurationException.canNotDeleteRegisterSpec(this.thesaurus, this, registerSpec);
+            throw CannotDeleteFromActiveDeviceConfigurationException.canNotDeleteRegisterSpec(this.getThesaurus(), this, registerSpec);
         }
         registerSpec.validateDelete();
         removeFromHasIdList(this.registerSpecs,registerSpec);
-        this.eventService.postEvent(EventType.DEVICETYPE_DELETED.topic(),registerSpec);
+        this.getEventService().postEvent(EventType.DEVICETYPE_DELETED.topic(), registerSpec);
     }
 
     @Override
     public List<ChannelSpec> getChannelSpecs() {
-        return Collections.unmodifiableList(this.channelSpecs);
+        return this.loadProfileSpecs
+                .stream()
+                .flatMap(each -> each.getChannelSpecs().stream())
+                .collect(Collectors.toList());
     }
 
     @Override
     public ChannelSpec.ChannelSpecBuilder createChannelSpec(ChannelType channelType, LoadProfileSpec loadProfileSpec) {
+        return this.createChannelSpec(channelType, (LoadProfileSpecImpl) loadProfileSpec);
+    }
+
+    private ChannelSpec.ChannelSpecBuilder createChannelSpec(ChannelType channelType, LoadProfileSpecImpl loadProfileSpec) {
         return new ChannelSpecBuilderForConfig(channelSpecProvider, this, channelType, loadProfileSpec);
     }
 
     @Override
     public ChannelSpec.ChannelSpecBuilder createChannelSpec(ChannelType channelType, LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder) {
+        return this.createChannelSpec(channelType, (ServerLoadProfileSpecBuilder) loadProfileSpecBuilder);
+    }
+
+    private ChannelSpec.ChannelSpecBuilder createChannelSpec(ChannelType channelType, ServerLoadProfileSpecBuilder loadProfileSpecBuilder) {
         return new ChannelSpecBuilderForConfig(channelSpecProvider, this, channelType, loadProfileSpecBuilder);
     }
 
     class ChannelSpecBuilderForConfig extends ChannelSpecImpl.ChannelSpecBuilder {
 
-        ChannelSpecBuilderForConfig(Provider<ChannelSpecImpl> channelSpecProvider, DeviceConfiguration deviceConfiguration, ChannelType channelType, LoadProfileSpec loadProfileSpec) {
+        ChannelSpecBuilderForConfig(Provider<ChannelSpecImpl> channelSpecProvider, DeviceConfiguration deviceConfiguration, ChannelType channelType, LoadProfileSpecImpl loadProfileSpec) {
             super(channelSpecProvider, deviceConfiguration, channelType, loadProfileSpec);
         }
 
-        ChannelSpecBuilderForConfig(Provider<ChannelSpecImpl> channelSpecProvider, DeviceConfiguration deviceConfiguration, ChannelType channelType, LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder) {
+        ChannelSpecBuilderForConfig(Provider<ChannelSpecImpl> channelSpecProvider, DeviceConfiguration deviceConfiguration, ChannelType channelType, ServerLoadProfileSpecBuilder loadProfileSpecBuilder) {
             super(channelSpecProvider, deviceConfiguration, channelType, loadProfileSpecBuilder);
         }
 
@@ -551,7 +522,6 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
             ChannelSpec channelSpec = super.add();
             validateActiveDeviceConfiguration(CannotAddToActiveDeviceConfigurationException.aNewChannelSpec(getThesaurus()));
             validateUniqueChannelSpecPerLoadProfileSpec(channelSpec);
-            DeviceConfigurationImpl.this.channelSpecs.add(channelSpec);
             return channelSpec;
         }
     }
@@ -575,28 +545,29 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     }
 
     private void validateUniqueChannelSpecPerLoadProfileSpec(ChannelSpec channelSpec) {
-        for (ChannelSpec spec : channelSpecs) {
+        for (ChannelSpec spec : getChannelSpecs()) {
             if (!isSameIdObject(spec, channelSpec)) {
                 if (channelSpec.getLoadProfileSpec() == null) {
                     if (spec.getLoadProfileSpec() == null && channelSpec.getDeviceObisCode().equals(spec.getDeviceObisCode())) {
-                        throw DuplicateObisCodeException.forChannelSpecConfigWithoutLoadProfileSpec(thesaurus, this, channelSpec.getDeviceObisCode());
+                        throw DuplicateObisCodeException.forChannelSpecConfigWithoutLoadProfileSpec(this.getThesaurus(), this, channelSpec.getDeviceObisCode());
                     }
                 } else if (channelSpec.getLoadProfileSpec().getId() == spec.getLoadProfileSpec().getId()) {
                     if (channelSpec.getDeviceObisCode().equals(spec.getDeviceObisCode())) {
-                        throw DuplicateObisCodeException.forChannelSpecInLoadProfileSpec(thesaurus, this, channelSpec.getDeviceObisCode(), channelSpec.getLoadProfileSpec());
+                        throw DuplicateObisCodeException.forChannelSpecInLoadProfileSpec(this.getThesaurus(), this, channelSpec.getDeviceObisCode(), channelSpec.getLoadProfileSpec());
                     }
                 }
             }
         }
     }
 
-    public void deleteChannelSpec(ChannelSpec channelSpec) {
+    public void removeChannelSpec(ChannelSpec channelSpec) {
         if (isActive()) {
-            throw CannotDeleteFromActiveDeviceConfigurationException.forChannelSpec(this.thesaurus, channelSpec, this);
+            throw CannotDeleteFromActiveDeviceConfigurationException.forChannelSpec(this.getThesaurus(), channelSpec, this);
         }
         channelSpec.validateDelete();
-        removeFromHasIdList(this.channelSpecs, channelSpec);
-        this.eventService.postEvent(EventType.DEVICETYPE_DELETED.topic(),channelSpec);
+        ServerLoadProfileSpec loadProfileSpec = (ServerLoadProfileSpec) channelSpec.getLoadProfileSpec();
+        loadProfileSpec.removeChannelSpec(channelSpec);
+        this.getEventService().postEvent(EventType.CHANNELSPEC_DELETED.topic(), channelSpec);
     }
 
     @Override
@@ -616,7 +587,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         }
 
         public LoadProfileSpec add() {
-            LoadProfileSpec loadProfileSpec = super.add();
+            LoadProfileSpecImpl loadProfileSpec = (LoadProfileSpecImpl) super.add();
             validateActiveDeviceConfiguration(CannotAddToActiveDeviceConfigurationException.aNewLoadProfileSpec(getThesaurus()));
             validateUniqueLoadProfileType(loadProfileSpec);
             validateUniqueLoadProfileObisCode(loadProfileSpec);
@@ -647,7 +618,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         for (LoadProfileSpec profileSpec : loadProfileSpecs) {
             if (!isSameIdObject(loadProfileSpec, profileSpec)
                 && profileSpec.getDeviceObisCode().equals(loadProfileSpec.getDeviceObisCode())) {
-                throw DuplicateObisCodeException.forLoadProfileSpec(thesaurus, this, loadProfileSpec.getDeviceObisCode());
+                throw DuplicateObisCodeException.forLoadProfileSpec(this.getThesaurus(), this, loadProfileSpec.getDeviceObisCode());
             }
         }
     }
@@ -655,7 +626,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     private void validateUniqueLoadProfileType(LoadProfileSpec loadProfileSpec) {
         for (LoadProfileSpec profileSpec : loadProfileSpecs) {
             if (profileSpec.getLoadProfileType().getId() == loadProfileSpec.getLoadProfileType().getId()) {
-                throw new DuplicateLoadProfileTypeException(thesaurus, this, loadProfileSpec.getLoadProfileType(), loadProfileSpec);
+                throw new DuplicateLoadProfileTypeException(this.getThesaurus(), this, loadProfileSpec.getLoadProfileType(), loadProfileSpec);
             }
         }
     }
@@ -663,11 +634,11 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     @Override
     public void deleteLoadProfileSpec(LoadProfileSpec loadProfileSpec) {
         if (isActive()) {
-            throw CannotDeleteFromActiveDeviceConfigurationException.forLoadProfileSpec(this.thesaurus, loadProfileSpec, this);
+            throw CannotDeleteFromActiveDeviceConfigurationException.forLoadProfileSpec(this.getThesaurus(), loadProfileSpec, this);
         }
         loadProfileSpec.validateDelete();
         removeFromHasIdList(this.loadProfileSpecs,loadProfileSpec);
-        this.eventService.postEvent(EventType.DEVICETYPE_DELETED.topic(),loadProfileSpec);
+        this.getEventService().postEvent(EventType.DEVICETYPE_DELETED.topic(), loadProfileSpec);
     }
 
     @Override
@@ -724,7 +695,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     private void validateUniqueLogBookType(LogBookSpecImpl logBookSpec) {
         for (LogBookSpec spec : logBookSpecs) {
             if (spec.getLogBookType().getId() == logBookSpec.getLogBookType().getId()) {
-                throw new DuplicateLogBookTypeException(thesaurus, this, logBookSpec.getLogBookType(), logBookSpec);
+                throw new DuplicateLogBookTypeException(this.getThesaurus(), this, logBookSpec.getLogBookType(), logBookSpec);
             }
         }
     }
@@ -733,18 +704,18 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         for (LogBookSpec bookSpec : logBookSpecs) {
             if (!isSameIdObject(bookSpec, logBookSpec)
                     && bookSpec.getDeviceObisCode().equals(logBookSpec.getDeviceObisCode())) {
-                throw DuplicateObisCodeException.forLogBookSpec(thesaurus, this, logBookSpec.getDeviceObisCode());
+                throw DuplicateObisCodeException.forLogBookSpec(this.getThesaurus(), this, logBookSpec.getDeviceObisCode());
             }
         }
     }
 
-    public void deleteLogBookSpec(LogBookSpec logBookSpec) {
+    public void removeLogBookSpec(LogBookSpec logBookSpec) {
         if (isActive()) {
-            throw CannotDeleteFromActiveDeviceConfigurationException.forLogbookSpec(this.thesaurus, logBookSpec, this);
+            throw CannotDeleteFromActiveDeviceConfigurationException.forLogbookSpec(this.getThesaurus(), logBookSpec, this);
         }
         logBookSpec.validateDelete();
         removeFromHasIdList(this.logBookSpecs,logBookSpec);
-        this.eventService.postEvent(EventType.DEVICETYPE_DELETED.topic(), logBookSpec);
+        this.getEventService().postEvent(EventType.DEVICETYPE_DELETED.topic(), logBookSpec);
     }
 
     @Override
@@ -770,7 +741,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         super.save();
         if (creating) {
             for (PartialConnectionTask partialConnectionTask : partialConnectionTasks) {
-                eventService.postEvent(((PersistentIdObject) partialConnectionTask).createEventType().topic(), partialConnectionTask);
+                this.getEventService().postEvent(((PersistentIdObject) partialConnectionTask).createEventType().topic(), partialConnectionTask);
             }
         }
     }
@@ -787,7 +758,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
 
     private void validateDeviceTypeExists() {
         if (!this.deviceType.isPresent()) {
-            throw new DeviceTypeIsRequiredException(this.thesaurus);
+            throw new DeviceTypeIsRequiredException(this.getThesaurus());
         }
     }
 
@@ -814,7 +785,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     @Override
     protected void validateDelete() {
         if (isActive()) {
-            throw new DeviceConfigurationIsActiveException(this.thesaurus, this);
+            throw new DeviceConfigurationIsActiveException(this.getThesaurus(), this);
         }
     }
 
@@ -837,7 +808,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     private void remove(PartialConnectionTaskImpl partialConnectionTask) {
         partialConnectionTask.validateDelete();
         if (partialConnectionTasks.remove(partialConnectionTask) && getId() > 0) {
-            eventService.postEvent(partialConnectionTask.deleteEventType().topic(), partialConnectionTask);
+            this.getEventService().postEvent(partialConnectionTask.deleteEventType().topic(), partialConnectionTask);
         }
     }
 
@@ -906,7 +877,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
 
     @Override
     public void addSecurityPropertySet(SecurityPropertySet securityPropertySet) {
-        Save.CREATE.validate(dataModel, securityPropertySet);
+        Save.CREATE.validate(this.getDataModel(), securityPropertySet);
         securityPropertySets.add(securityPropertySet);
     }
 
@@ -953,20 +924,9 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
                 return candidate;
             }
         }
-        ProtocolDialectConfigurationPropertiesImpl properties = ProtocolDialectConfigurationPropertiesImpl.from(dataModel, this, protocolDialect);
+        ProtocolDialectConfigurationPropertiesImpl properties = ProtocolDialectConfigurationPropertiesImpl.from(this.getDataModel(), this, protocolDialect);
         configurationPropertiesList.add(properties);
         return properties;
-    }
-
-    public void removeProtocolDialectConfigurationProperties(DeviceProtocolDialect protocolDialect) {
-        Iterator<ProtocolDialectConfigurationPropertiesImpl> propertiesIterator = this.configurationPropertiesList.iterator();
-        while (propertiesIterator.hasNext()) {
-            ProtocolDialectConfigurationPropertiesImpl candidate = propertiesIterator.next();
-            if (candidate.getDeviceProtocolDialect().getDeviceProtocolDialectName().equals(protocolDialect.getDeviceProtocolDialectName())) {
-                candidate.validateDelete();
-                propertiesIterator.remove();
-            }
-        }
     }
 
     @Override
@@ -994,7 +954,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
 
     @Override
     public PartialScheduledConnectionTaskBuilder newPartialScheduledConnectionTask(String name, ConnectionTypePluggableClass connectionType, TimeDuration rescheduleRetryDelay, ConnectionStrategy connectionStrategy) {
-        return new PartialScheduledConnectionTaskBuilderImpl(dataModel, this, schedulingService, eventService).name(name)
+        return new PartialScheduledConnectionTaskBuilderImpl(this.getDataModel(), this, this.schedulingService, this.getEventService()).name(name)
                 .pluggableClass(connectionType)
                 .rescheduleDelay(rescheduleRetryDelay)
                 .connectionStrategy(connectionStrategy);
@@ -1002,27 +962,27 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
 
     @Override
     public PartialInboundConnectionTaskBuilder newPartialInboundConnectionTask(String name, ConnectionTypePluggableClass connectionType) {
-        return new PartialInboundConnectionTaskBuilderImpl(dataModel, this)
+        return new PartialInboundConnectionTaskBuilderImpl(this.getDataModel(), this)
                 .name(name)
                 .pluggableClass(connectionType);
     }
 
     @Override
     public PartialConnectionInitiationTaskBuilder newPartialConnectionInitiationTask(String name, ConnectionTypePluggableClass connectionType, TimeDuration rescheduleRetryDelay) {
-        return new PartialConnectionInitiationTaskBuilderImpl(dataModel, this, schedulingService, eventService)
+        return new PartialConnectionInitiationTaskBuilderImpl(this.getDataModel(), this, this.schedulingService, this.getEventService())
                 .name(name)
                 .pluggableClass(connectionType)
                 .rescheduleDelay(rescheduleRetryDelay);
     }
 
     public void addPartialConnectionTask(PartialConnectionTask partialConnectionTask) {
-        Save.CREATE.validate(dataModel, partialConnectionTask);
+        Save.CREATE.validate(this.getDataModel(), partialConnectionTask);
         partialConnectionTasks.add(partialConnectionTask);
     }
 
     @Override
     public ComTaskEnablementBuilder enableComTask(ComTask comTask, SecurityPropertySet securityPropertySet, ProtocolDialectConfigurationProperties configurationProperties) {
-        ComTaskEnablementImpl underConstruction = dataModel.getInstance(ComTaskEnablementImpl.class).initialize(this, comTask, securityPropertySet, configurationProperties);
+        ComTaskEnablementImpl underConstruction = this.getDataModel().getInstance(ComTaskEnablementImpl.class).initialize(this, comTask, securityPropertySet, configurationProperties);
         return new ComTaskEnablementBuilderImpl(underConstruction);
     }
 
@@ -1056,7 +1016,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
 
     private void addComTaskEnablement(ComTaskEnablementImpl comTaskEnablement) {
         comTaskEnablement.adding();
-        Save.CREATE.validate(this.dataModel, comTaskEnablement);
+        Save.CREATE.validate(this.getDataModel(), comTaskEnablement);
         this.comTaskEnablements.add(comTaskEnablement);
         comTaskEnablement.added();
     }
@@ -1077,7 +1037,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     }
 
     private void addDeviceMessageEnablement(DeviceMessageEnablement singleDeviceMessageEnablement) {
-        Save.CREATE.validate(dataModel, singleDeviceMessageEnablement);
+        Save.CREATE.validate(this.getDataModel(), singleDeviceMessageEnablement);
         this.deviceMessageEnablements.add(singleDeviceMessageEnablement);
         this.setSupportsAllProtocolMessagesWithUserActions(false);
         this.save();
@@ -1102,8 +1062,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     }
 
     private boolean isUserAuthorizedForAction(DeviceMessageUserAction action, User user) {
-        Optional<Privilege> privilege = ((DeviceConfigurationServiceImpl) deviceConfigurationService).findPrivilege(action.getPrivilege());
-        return privilege.isPresent() && user.hasPrivilege(privilege.get().getName());
+        return user.hasPrivilege("MDC",action.getPrivilege());
     }
 
     private Optional<User> getCurrentUser() {
@@ -1160,7 +1119,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         }
         return result;
     }
-    
+
     @Override
     public DeviceConfigurationEstimationRuleSetUsage addEstimationRuleSet(EstimationRuleSet estimationRuleSet) {
         return findEstimationRuleSetUsage(estimationRuleSet).orElseGet(() -> {
@@ -1169,19 +1128,19 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
             return usage;
         });
     }
-    
+
     private Optional<DeviceConfigurationEstimationRuleSetUsage> findEstimationRuleSetUsage(EstimationRuleSet estimationRuleSet) {
         return deviceConfigurationEstimationRuleSetUsages.stream().filter(usage -> usage.getEstimationRuleSet().getId() == estimationRuleSet.getId()).findFirst();
     }
-    
+
     @Override
     public void removeEstimationRuleSet(EstimationRuleSet estimationRuleSet) {
         deviceConfigurationEstimationRuleSetUsages.stream()
             .filter((usage) -> usage.getEstimationRuleSet().getId() == estimationRuleSet.getId())
             .findFirst()
-            .ifPresent(usage -> deviceConfigurationEstimationRuleSetUsages.remove(usage));
+            .ifPresent(deviceConfigurationEstimationRuleSetUsages::remove);
     }
-    
+
     @Override
     public List<EstimationRuleSet> getEstimationRuleSets() {
         return deviceConfigurationEstimationRuleSetUsages.stream()
@@ -1189,12 +1148,12 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
                 .map(DeviceConfigurationEstimationRuleSetUsage::getEstimationRuleSet)
                 .collect(Collectors.toList());
     }
-    
+
     @Override
     public List<DeviceConfigurationEstimationRuleSetUsage> getDeviceConfigEstimationRuleSetUsages() {
         return deviceConfigurationEstimationRuleSetUsages;
     }
-    
+
     @Override
     public void reorderEstimationRuleSets(KPermutation kpermutation) {
         List<DeviceConfigurationEstimationRuleSetUsage> usages = getDeviceConfigEstimationRuleSetUsages();
@@ -1202,7 +1161,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
             throw new IllegalArgumentException();
         }
         List<DeviceConfigurationEstimationRuleSetUsage> target = kpermutation.perform(usages);
-        dataModel.reorder(usages, target);
+        this.getDataModel().reorder(usages, target);
     }
 
     public GatewayType getGetwayType(){
@@ -1221,11 +1180,11 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     public DeviceProtocolConfigurationProperties getDeviceProtocolProperties() {
         return new DeviceProtocolConfigurationPropertiesImpl(this);
     }
-    
+
     @Override
     public long getVersion() {
         return version;
-    };
+    }
 
     List<DeviceProtocolConfigurationProperty> getProtocolPropertyList() {
         return protocolProperties;
@@ -1287,7 +1246,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         private final SecurityPropertySetImpl underConstruction;
 
         private InternalSecurityPropertySetBuilder(String name) {
-            this.underConstruction = SecurityPropertySetImpl.from(dataModel, DeviceConfigurationImpl.this, name);
+            this.underConstruction = SecurityPropertySetImpl.from(getDataModel(), DeviceConfigurationImpl.this, name);
         }
 
         @Override
@@ -1320,7 +1279,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         private final DeviceMessageEnablement underConstruction;
 
         private InternalDeviceMessageEnablementBuilder(DeviceMessageId deviceMessageId) {
-            this.underConstruction = DeviceMessageEnablementImpl.from(dataModel, DeviceConfigurationImpl.this, deviceMessageId);
+            this.underConstruction = DeviceMessageEnablementImpl.from(getDataModel(), DeviceConfigurationImpl.this, deviceMessageId);
         }
 
         @Override
@@ -1414,4 +1373,49 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         }
     }
 
+    @Override
+    public DeviceConfiguration clone(String nameOfClone) {
+        DeviceConfiguration clone = getDeviceType().newConfiguration(nameOfClone)
+                .canActAsGateway(canActAsGateway())
+                .description(getDescription())
+                .gatewayType(getGetwayType())
+                .isDirectlyAddressable(isDirectlyAddressable())
+                .add();
+        this.getDeviceProtocolProperties().getPropertySpecs().stream().forEach(cloneDeviceProtocolProperties(clone));
+        this.getProtocolDialectConfigurationPropertiesList().stream().forEach(cloneDeviceProtocolDialectProperties(clone));
+        getSecurityPropertySets().forEach(securityPropertySet -> ((ServerSecurityPropertySet) securityPropertySet).cloneForDeviceConfig(clone));
+        getPartialConnectionTasks().forEach(partialConnectionTask -> ((ServerPartialConnectionTask) partialConnectionTask).cloneForDeviceConfig(clone));
+        getComTaskEnablements().forEach(comTaskEnablement -> ((ServerComTaskEnablement) comTaskEnablement).cloneForDeviceConfig(clone));
+        getDeviceMessageEnablements().forEach(deviceMessageEnablement -> ((ServerDeviceMessageEnablement) deviceMessageEnablement).cloneForDeviceConfig(clone));
+        getRegisterSpecs().forEach(registerSpec -> ((ServerRegisterSpec) registerSpec).cloneForDeviceConfig(clone));
+        getLogBookSpecs().forEach(logBookSpec -> ((ServerLogBookSpec) logBookSpec).cloneForDeviceConfig(clone));
+        getLoadProfileSpecs().forEach(loadProfileSpec -> ((ServerLoadProfileSpec) loadProfileSpec).cloneForDeviceConfig(clone));
+        getValidationRuleSets().forEach(clone::addValidationRuleSet);
+        getEstimationRuleSets().forEach(clone::addEstimationRuleSet);
+        clone.save();
+        return clone;
+    }
+
+    private Consumer<ProtocolDialectConfigurationProperties> cloneDeviceProtocolDialectProperties(DeviceConfiguration clone) {
+        return protocolDialectConfigurationProperties -> protocolDialectConfigurationProperties.getPropertySpecs().stream().forEach(copyDeviceProtocolDialectProperty(clone, protocolDialectConfigurationProperties));
+    }
+
+    private Consumer<PropertySpec> copyDeviceProtocolDialectProperty(DeviceConfiguration clone, ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties) {
+        return propertySpec -> {
+            Object propertyValue = protocolDialectConfigurationProperties.getProperty(propertySpec.getName());
+            if (propertyValue != null) {
+                clone.findOrCreateProtocolDialectConfigurationProperties(protocolDialectConfigurationProperties.getDeviceProtocolDialect())
+                        .setProperty(propertySpec.getName(), propertyValue);
+            }
+        };
+    }
+
+    private Consumer<PropertySpec> cloneDeviceProtocolProperties(DeviceConfiguration clone) {
+        return propertySpec -> {
+            Object propertyValue = this.getDeviceProtocolProperties().getProperty(propertySpec.getName());
+            if(propertyValue != null){
+                clone.getDeviceProtocolProperties().setProperty(propertySpec.getName(), propertyValue);
+            }
+        };
+    }
 }

@@ -2,6 +2,7 @@ package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.events.EventService;
 import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.device.config.events.EventType;
 
 /**
  * Models the data that is involved in events that relate to

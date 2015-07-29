@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.config;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.HasName;
 import com.elster.jupiter.util.HasId;
@@ -21,6 +22,7 @@ import java.util.Set;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-12-14 (10:29)
  */
+@ProviderType
 public interface SecurityPropertySet extends HasName, HasId, RelationParticipant {
 
     public void setName (String name);

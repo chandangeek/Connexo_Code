@@ -46,4 +46,12 @@ public interface ServerDeviceConfiguration extends DeviceConfiguration {
      */
     public void prepareDelete();
 
+    /**
+     * Clones the current DeviceConfiguration and sets the given 'nameOfClone' as name for the cloned DeviceConfiguration
+     *
+     * @param nameOfClone the name of the cloned DeviceConfiguration
+     * @return the cloned DeviceConfiguration
+     */
+    public DeviceConfiguration clone(String nameOfClone);
+
 }

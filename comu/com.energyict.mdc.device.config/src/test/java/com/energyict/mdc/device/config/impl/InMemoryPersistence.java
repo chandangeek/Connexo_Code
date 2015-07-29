@@ -2,9 +2,6 @@ package com.energyict.mdc.device.config.impl;
 
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
-import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
-import com.elster.jupiter.tasks.impl.TaskModule;
-import com.elster.jupiter.time.impl.TimeModule;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
@@ -22,11 +19,11 @@ import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
 import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
-import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableServiceImpl;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
+
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
@@ -43,6 +40,7 @@ import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.impl.NlsModule;
@@ -54,6 +52,8 @@ import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.tasks.impl.TaskModule;
+import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
@@ -67,8 +67,6 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
-import com.google.inject.Provider;
-
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
@@ -109,6 +107,7 @@ public class InMemoryPersistence {
     private Injector injector;
     private ValidationService validationService;
     private EstimationService estimationService;
+    private PluggableService pluggableService;
 
     private boolean mockProtocolPluggableService;
     private ProtocolPluggableService protocolPluggableService;
@@ -121,14 +120,10 @@ public class InMemoryPersistence {
     private MeasurementTypeUpdateEventHandler measurementTypeUpdateEventHandler;
     private MeasurementTypeDeletionEventHandler measurementTypeDeletionEventHandler;
     private ChannelTypeDeleteFromLoadProfileTypeEventHandler channelTypeDeleteFromLoadProfileTypeEventHandler;
-    private OrmService ormService;
     private LicenseService licenseService;
     private LicensedProtocolService licensedProtocolService;
     private ConnectionTypeService connectionTypeService;
     private InMemoryBootstrapModule bootstrapModule;
-
-    public InMemoryPersistence() {
-    }
 
     public void initializeDatabaseWithMockedProtocolPluggableService(String testName, boolean showSqlLogging) {
         this.initializeDatabase(testName, showSqlLogging, true);
@@ -159,11 +154,11 @@ public class InMemoryPersistence {
             this.validationService = injector.getInstance(ValidationService.class);
             this.estimationService = injector.getInstance(EstimationService.class);
             this.propertySpecService = injector.getInstance(PropertySpecService.class);
-            this.injector.getInstance(PluggableService.class);
+            this.pluggableService = this.injector.getInstance(PluggableService.class);
             if (!mockedProtocolPluggableService) {
                 this.protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
-                ((ProtocolPluggableServiceImpl) this.protocolPluggableService).addLicensedProtocolService(this.licensedProtocolService);
-                ((ProtocolPluggableServiceImpl) this.protocolPluggableService).addConnectionTypeService(this.connectionTypeService);
+                this.protocolPluggableService.addLicensedProtocolService(this.licensedProtocolService);
+                this.protocolPluggableService.addConnectionTypeService(this.connectionTypeService);
             }
             this.dataModel = this.createNewDeviceConfigurationService();
             ctx.commit();
@@ -264,7 +259,7 @@ public class InMemoryPersistence {
     public ValidationService getValidationService() {
         return validationService;
     }
-    
+
     public EstimationService getEstimationService() {
         return estimationService;
     }
@@ -287,6 +282,14 @@ public class InMemoryPersistence {
 
     public PropertySpecService getPropertySpecService() {
         return propertySpecService;
+    }
+
+    public PluggableService getPluggableService(){
+        return pluggableService;
+    }
+
+    public LicensedProtocolService getLicensedProtocolService(){
+        return licensedProtocolService;
     }
 
     public ProtocolPluggableService getProtocolPluggableService() {
@@ -355,12 +358,7 @@ public class InMemoryPersistence {
             if (mockProtocolPluggableService) {
                 bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);
             }
-            bind(DataModel.class).toProvider(new Provider<DataModel>() {
-                @Override
-                public DataModel get() {
-                    return dataModel;
-                }
-            });
+            bind(DataModel.class).toProvider(() -> dataModel);
         }
 
     }

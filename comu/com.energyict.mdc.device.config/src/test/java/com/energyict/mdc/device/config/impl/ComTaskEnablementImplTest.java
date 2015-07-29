@@ -11,6 +11,7 @@ import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceSecurityUserAction;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.events.EventType;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.SecurityPropertySet;
@@ -700,5 +701,42 @@ public class ComTaskEnablementImplTest extends PersistenceWithRealProtocolPlugga
 
     private Optional<ComTaskEnablement> getReloadedComTaskEnablement(ComTaskEnablement comTaskEnablement) {
         return inMemoryPersistence.getDeviceConfigurationService().findComTaskEnablement(comTaskEnablement.getId());
+    }
+
+    @Test
+    @Transactional
+    public void cloneTest() {
+        this.partialConnectionTask1.setDefault(true);
+        this.partialConnectionTask1.save();
+        prepareDeviceConfigForCloning();
+
+        ComTaskEnablementBuilder comTaskEnablementBuilder = this.deviceConfiguration1.enableComTask(this.comTask1, this.securityPropertySet1, properties);
+        comTaskEnablementBuilder.useDefaultConnectionTask(true);
+        ComTaskEnablement comTaskEnablement = comTaskEnablementBuilder.add();
+
+        ComTaskEnablement clonedComTaskEnablement = ((ServerComTaskEnablement) comTaskEnablement).cloneForDeviceConfig(deviceConfiguration2);
+
+        // Asserts
+        assertThat(clonedComTaskEnablement.getComTask()).isNotNull();
+        assertThat(clonedComTaskEnablement.getComTask().getId()).isEqualTo(this.comTask1.getId());
+        assertThat(clonedComTaskEnablement.getDeviceConfiguration()).isNotNull();
+        assertThat(clonedComTaskEnablement.getDeviceConfiguration().getId()).isEqualTo(this.deviceConfiguration2.getId());
+        assertThat(clonedComTaskEnablement.getSecurityPropertySet().getId()).isNotEqualTo(securityPropertySet1.getId());
+        assertThat(clonedComTaskEnablement.getSecurityPropertySet().getAuthenticationDeviceAccessLevel()).isEqualTo(securityPropertySet1.getAuthenticationDeviceAccessLevel());
+        assertThat(clonedComTaskEnablement.getSecurityPropertySet().getEncryptionDeviceAccessLevel()).isEqualTo(securityPropertySet1.getEncryptionDeviceAccessLevel());
+        assertThat(clonedComTaskEnablement.getPriority()).isEqualTo(ComTaskEnablement.DEFAULT_PRIORITY);
+    }
+
+    private void prepareDeviceConfigForCloning() {
+        ((ServerPartialConnectionTask) partialConnectionTask1).cloneForDeviceConfig(deviceConfiguration2);
+        ((ServerSecurityPropertySet) securityPropertySet1).cloneForDeviceConfig(deviceConfiguration2);
+        deviceConfiguration2.findOrCreateProtocolDialectConfigurationProperties(properties.getDeviceProtocolDialect());
+        properties.getPropertySpecs().stream().forEach(propertySpec -> {
+            Object propertyValue = properties.getProperty(propertySpec.getName());
+            if(propertyValue != null){
+                deviceConfiguration2.getDeviceProtocolProperties().setProperty(propertySpec.getName(), propertyValue);
+            }
+        });
+        deviceConfiguration2.save();
     }
 }

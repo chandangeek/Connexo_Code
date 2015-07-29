@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.config;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.util.HasName;
 import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.common.TypedProperties;
@@ -22,6 +23,7 @@ import java.util.List;
  * @author sva
  * @since 21/01/13 - 15:04
  */
+@ProviderType
 public interface PartialConnectionTask extends HasName, HasId {
 
     /**
@@ -43,7 +45,7 @@ public interface PartialConnectionTask extends HasName, HasId {
 
     /**
      * Gets the list of {@link PartialConnectionTaskProperty PartialConnectionTaskProperties}
-     * for this {@link PartialConnectionTask}
+     * for this {@link PartialConnectionTask}.
      *
      * @return The List of PartialConnectionTaskProperties
      */
@@ -66,7 +68,7 @@ public interface PartialConnectionTask extends HasName, HasId {
     public PartialConnectionTaskProperty getProperty(String name);
 
     /**
-     * Gets the {@link DeviceCommunicationConfiguration} that owns this {@link PartialConnectionTask}
+     * Gets the {@link DeviceCommunicationConfiguration} that owns this {@link PartialConnectionTask}.
      *
      * @return The DeviceConfiguration
      */

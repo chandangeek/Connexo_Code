@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.config;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
@@ -17,6 +18,7 @@ import java.util.Set;
  * @since 2013-02-15 (10:27)
  */
 
+@ProviderType
 public interface DeviceCommunicationConfiguration {
 
     void remove(PartialConnectionTask partialConnectionTask);

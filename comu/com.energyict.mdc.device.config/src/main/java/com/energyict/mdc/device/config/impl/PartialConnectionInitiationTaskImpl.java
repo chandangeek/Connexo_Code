@@ -2,7 +2,8 @@ package com.energyict.mdc.device.config.impl;
 
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
-import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.device.config.PartialConnectionInitiationTaskBuilder;
+import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 
@@ -13,7 +14,7 @@ import com.elster.jupiter.orm.DataModel;
 import javax.inject.Inject;
 
 /**
- *  Provides an implementation for an {@link PartialConnectionInitiationTask}
+ * Provides an implementation for the {@link PartialConnectionInitiationTask} interface.
  *
  *  @author sva
  * @since 22/01/13 - 14:35
@@ -21,7 +22,7 @@ import javax.inject.Inject;
 public class PartialConnectionInitiationTaskImpl extends PartialOutboundConnectionTaskImpl implements PartialConnectionInitiationTask {
 
     @Inject
-    PartialConnectionInitiationTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, EngineConfigurationService engineConfigurationService, ProtocolPluggableService protocolPluggableService, SchedulingService schedulingService) {
+    PartialConnectionInitiationTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, ProtocolPluggableService protocolPluggableService, SchedulingService schedulingService) {
         super(dataModel, eventService, thesaurus, protocolPluggableService, schedulingService);
     }
 
@@ -56,7 +57,14 @@ public class PartialConnectionInitiationTaskImpl extends PartialOutboundConnecti
 
     @Override
     protected void doDelete() {
-        dataModel.mapper(PartialConnectionInitiationTaskImpl.class).remove(this);
+        this.getDataModel().mapper(PartialConnectionInitiationTaskImpl.class).remove(this);
     }
 
+    @Override
+    public PartialConnectionTask cloneForDeviceConfig(DeviceConfiguration deviceConfiguration) {
+        PartialConnectionInitiationTaskBuilder builder = deviceConfiguration.newPartialConnectionInitiationTask(getName(), getPluggableClass(), getRescheduleDelay());
+        getProperties().stream().forEach(partialConnectionTaskProperty -> builder.addProperty(partialConnectionTaskProperty.getName(), partialConnectionTaskProperty.getValue()));
+        builder.comPortPool(getComPortPool());
+        return builder.build();
+    }
 }

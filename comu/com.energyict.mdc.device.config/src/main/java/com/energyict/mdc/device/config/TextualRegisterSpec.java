@@ -3,11 +3,14 @@ package com.energyict.mdc.device.config;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.masterdata.RegisterType;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * Models the specification of a register that contains numerical data.
  *
  * @author Geert
  */
+@ProviderType
 public interface TextualRegisterSpec extends RegisterSpec {
 
     /**

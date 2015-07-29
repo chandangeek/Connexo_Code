@@ -163,7 +163,7 @@ public class LogBookSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     public void successfulDeleteTest() {
         LogBookSpec logBookSpec = createDefaultTestingLogBookSpecWithOverruledObisCode();
 
-        getReloadedDeviceConfiguration().deleteLogBookSpec(logBookSpec);
+        getReloadedDeviceConfiguration().removeLogBookSpec(logBookSpec);
     }
 
     @Test(expected = CannotDeleteFromActiveDeviceConfigurationException.class)
@@ -172,7 +172,32 @@ public class LogBookSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         LogBookSpec logBookSpec = createDefaultTestingLogBookSpecWithOverruledObisCode();
 
         this.getReloadedDeviceConfiguration().activate();
-        this.getReloadedDeviceConfiguration().deleteLogBookSpec(logBookSpec);
+        this.getReloadedDeviceConfiguration().removeLogBookSpec(logBookSpec);
     }
 
+    @Test
+    @Transactional
+    public void cloneWithOverruledObisCodeTest() {
+        LogBookSpec logBookSpec = createDefaultTestingLogBookSpecWithOverruledObisCode();
+        DeviceConfiguration clone = deviceType.newConfiguration("MyClone").add();
+
+        LogBookSpec clonedLogBookSpec = ((ServerLogBookSpec) logBookSpec).cloneForDeviceConfig(clone);
+
+        assertThat(clonedLogBookSpec.getDeviceConfiguration().getId()).isEqualTo(clone.getId());
+        assertThat(clonedLogBookSpec.getObisCode()).isEqualTo(logBookTypeObisCode);
+        assertThat(clonedLogBookSpec.getDeviceObisCode()).isEqualTo(overruledLogBookSpecObisCode);
+    }
+
+    @Test
+    @Transactional
+    public void cloneWithoutOverruledObisCodeTest() {
+        LogBookSpec logBookSpec = getReloadedDeviceConfiguration().createLogBookSpec(this.logBookType).add();
+        DeviceConfiguration clone = deviceType.newConfiguration("MyClone").add();
+
+        LogBookSpec clonedLogBookSpec = ((ServerLogBookSpec) logBookSpec).cloneForDeviceConfig(clone);
+
+        assertThat(clonedLogBookSpec.getDeviceConfiguration().getId()).isEqualTo(clone.getId());
+        assertThat(clonedLogBookSpec.getObisCode()).isEqualTo(logBookTypeObisCode);
+        assertThat(clonedLogBookSpec.getDeviceObisCode()).isEqualTo(logBookTypeObisCode);
+    }
 }
