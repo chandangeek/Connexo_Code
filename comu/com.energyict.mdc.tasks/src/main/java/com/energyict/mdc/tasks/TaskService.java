@@ -1,8 +1,11 @@
 package com.energyict.mdc.tasks;
 
+import aQute.bnd.annotation.ProviderType;
+import com.elster.jupiter.domain.util.Finder;
 import java.util.List;
 import java.util.Optional;
 
+@ProviderType
 public interface TaskService {
 
     String COMPONENT_NAME = "CTS";
@@ -32,9 +35,14 @@ public interface TaskService {
      * @see #findAllUserComTasks
      * @see #findAllSystemComTasks()
      */
-    public List<ComTask> findAllComTasks();
+    public Finder<ComTask> findAllComTasks();
 
     public Optional<ProtocolTask> findProtocolTask(long id);
+
+    /**
+     * @return a list of <b>all</b> ProtocolTasks, paging is mandatory in this method
+     */
+    public Finder<ProtocolTask> findAllProtocolTasks();
 
     public Optional<ComTask> findFirmwareComTask();
 

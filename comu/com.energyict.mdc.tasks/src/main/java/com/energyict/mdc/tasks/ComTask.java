@@ -14,9 +14,6 @@ import java.util.List;
  */
 public interface ComTask extends HasId, HasName {
 
-    public long getId();
-
-    public String getName();
     /**
      * @return true if collected data can be stored, false otherwise
      */

@@ -1,5 +1,7 @@
 package com.energyict.mdc.tasks.impl;
 
+import com.elster.jupiter.domain.util.DefaultFinder;
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
@@ -10,6 +12,7 @@ import com.elster.jupiter.orm.callback.InstallService;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.MasterDataService;
+import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.tasks.BasicCheckTask;
 import com.energyict.mdc.tasks.ClockTask;
@@ -25,18 +28,17 @@ import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.TopologyTask;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-
-import javax.inject.Inject;
-import javax.validation.MessageInterpolator;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import javax.inject.Inject;
+import javax.validation.MessageInterpolator;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 @Component(name = "com.energyict.mdc.tasks", service = {TaskService.class, ServerTaskService.class, InstallService.class}, property = "name=" + TaskService.COMPONENT_NAME, immediate = true)
 public class TaskServiceImpl implements ServerTaskService, InstallService {
@@ -202,6 +204,11 @@ public class TaskServiceImpl implements ServerTaskService, InstallService {
     }
 
     @Override
+    public Finder<ProtocolTask> findAllProtocolTasks() {
+        return DefaultFinder.of(ProtocolTask.class, dataModel).defaultSortColumn("id").maxPageSize(thesaurus, 100);
+    }
+
+    @Override
     public List<ComTask> findAllUserComTasks() {
         return dataModel.mapper(ComTaskDefinedByUserImpl.class).find().stream().map(userComTask -> (ComTask) userComTask).collect(Collectors.toList());
     }
@@ -212,8 +219,8 @@ public class TaskServiceImpl implements ServerTaskService, InstallService {
     }
 
     @Override
-    public List<ComTask> findAllComTasks() {
-        return dataModel.mapper(ComTask.class).find();
+    public Finder<ComTask> findAllComTasks() {
+        return DefaultFinder.of(ComTask.class, dataModel).defaultSortColumn(ComTaskImpl.Fields.NAME.fieldName());
     }
 
     @Override
@@ -243,6 +250,18 @@ public class TaskServiceImpl implements ServerTaskService, InstallService {
                         .mapper(LoadProfileTypeUsageInProtocolTask.class)
                         .find(LoadProfileTypeUsageInProtocolTaskImpl.Fields.LOADPROFILE_TYPE_REFERENCE.fieldName(), loadProfileType);
         return usages.stream().map(LoadProfileTypeUsageInProtocolTask::getLoadProfilesTask).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<RegistersTask> findTasksUsing(RegisterGroup registerGroup) {
+        List<RegisterGroupUsage> usages =
+                this.dataModel
+                        .mapper(RegisterGroupUsage.class)
+                        .find(RegisterGroupUsageImpl.Fields.REGISTERS_GROUP_REFERENCE.fieldName(), registerGroup);
+        return usages
+                .stream()
+                .map(RegisterGroupUsage::getRegistersTask)
+                .collect(Collectors.toList());
     }
 
 }
