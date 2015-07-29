@@ -16,20 +16,6 @@ import java.util.List;
  */
 public interface PluggableClass extends HasId, HasName {
 
-    /**
-     * Returns the object that uniquely identifies this PluggableClass.
-     *
-     * @return The unique identifier
-     */
-    public long getId();
-
-    /**
-     * Returns the name of this PluggableClass.
-     *
-     * @return The name
-     */
-    public String getName();
-
     public void setName(String name);
 
     /**
