@@ -33,7 +33,7 @@
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>appserver</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
+                <version>2.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
@@ -122,6 +122,11 @@
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
+                <artifactId>fsm.handler</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.elster.jupiter</groupId>
                 <artifactId>fsm.rest</artifactId>
                 <version>1.0.0-SNAPSHOT</version>
             </dependency>
@@ -178,7 +183,7 @@
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>properties</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
+                <version>2.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
@@ -239,7 +244,7 @@
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>time</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
+                <version>2.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
@@ -264,7 +269,7 @@
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>users</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
+                <version>2.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
@@ -280,6 +285,11 @@
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>util</artifactId>
                 <version>2.0.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.elster.jupiter</groupId>
+                <artifactId>mail</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
             </dependency>
 
         </dependencies>
@@ -357,6 +367,10 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>fsm</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>fsm.handler</artifactId>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
@@ -487,6 +501,16 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>util</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>mail</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.google.jimfs</groupId>
+            <artifactId>jimfs</artifactId>
+            <version>1.0</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>
