@@ -25,8 +25,6 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     LOG_BOOK_TYPE_STILL_IN_USE_BY_LOG_BOOK_SPECS(1105, "logBookType.XstillInUseByLogBookSpecsY", "The logbook type {0} cannot be removed because it is still in use by the following logbook spec(s): {1}", SEVERE),
     LOG_BOOK_TYPE_STILL_IN_USE_BY_DEVICE_TYPES(1106, "logBookType.XstillInUseByDeviceTypesY", "The logbook type {0} cannot be removed because it is still in use by the following device type(s): {1}", SEVERE),
 
-    REGISTER_GROUP_STILL_IN_USE(1200, "registerGroup.XstillInUseByY", "The register group with name \"{0}\" cannot be removed because it is still in use by the following register mappings: {1}", SEVERE),
-
     REGISTER_MAPPING_NAME_IS_REQUIRED(1400, "registerType.name.required", "The name of a register type is required", SEVERE),
     REGISTER_MAPPING_OBIS_CODE_IS_REQUIRED(1402, Keys.REGISTER_TYPE_OBIS_CODE_IS_REQUIRED, "The obis code of a register type is required", SEVERE),
     REGISTER_MAPPING_OBIS_CODE_CANNOT_BE_UPDATED(1404, "registerType.cannotUpdateObisCode", "The obis code of the register mapping \"{0}\" cannot be updated because it is in use", SEVERE),

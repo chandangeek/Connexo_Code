@@ -10,7 +10,7 @@ import java.time.Instant;
 
 /**
  * Provides code reuse opportunities for entities in this bundle
- * that are persistable and have a unique ID
+ * that are persistable and have a unique ID.
  * <p/>
  * Copyrights EnergyICT
  * Date: 31/01/14
@@ -18,10 +18,15 @@ import java.time.Instant;
  */
 public abstract class PersistentIdObject<T> {
 
+    @SuppressWarnings("unused")
     private long id;
+    @SuppressWarnings("unused")
     private String userName;
+    @SuppressWarnings("unused")
     private long version;
+    @SuppressWarnings("unused")
     private Instant createTime;
+    @SuppressWarnings("unused")
     private Instant modTime;
 
     protected final Class<T> domainClass;
@@ -48,8 +53,12 @@ public abstract class PersistentIdObject<T> {
         return this.dataModel.mapper(api);
     }
 
+    protected EventService getEventService() {
+        return eventService;
+    }
+
     public void save () {
-        if (this.id > 0) {
+        if (this.getId() > 0) {
             this.post();
             this.notifyUpdated();
         }

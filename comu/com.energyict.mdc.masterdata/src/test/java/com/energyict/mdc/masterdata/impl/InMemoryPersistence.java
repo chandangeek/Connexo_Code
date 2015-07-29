@@ -19,6 +19,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
+import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -30,7 +31,6 @@ import com.elster.jupiter.util.UtilModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.google.inject.Provider;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
@@ -100,7 +100,7 @@ public class InMemoryPersistence {
     }
 
     private DataModel createNewMasterDataService(boolean createDefaults) {
-        this.masterDataService = new MasterDataServiceImpl(this.ormService, this.eventService, this.nlsService, this.meteringService, this.mdcReadingTypeUtilService, createDefaults);
+        this.masterDataService = new MasterDataServiceImpl(this.ormService, this.eventService, this.nlsService, this.meteringService, this.injector.getInstance(Publisher.class), this.mdcReadingTypeUtilService, createDefaults);
         return this.masterDataService.getDataModel();
     }
 
@@ -140,12 +140,7 @@ public class InMemoryPersistence {
         protected void configure() {
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(BundleContext.class).toInstance(bundleContext);
-            bind(DataModel.class).toProvider(new Provider<DataModel>() {
-                @Override
-                public DataModel get() {
-                    return dataModel;
-                }
-            });
+            bind(DataModel.class).toProvider(() -> dataModel);
         }
 
     }

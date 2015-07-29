@@ -3,26 +3,16 @@ package com.energyict.mdc.masterdata;
 import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.common.ObisCode;
 
+import aQute.bnd.annotation.ProviderType;
+import com.elster.jupiter.util.HasName;
+
 /**
  * Copyrights EnergyICT
  * Date: 24/10/12
  * Time: 9:38
  */
-public interface LogBookType extends HasId {
-
-    /**
-     * Returns number that uniquely identifies this LogBookType.
-     *
-     * @return the id
-     */
-    public long getId();
-
-    /**
-     * Returns the name that uniquely identifies this LogBookType.
-     *
-     * @return the name
-     */
-    public String getName();
+@ProviderType
+public interface LogBookType extends HasId, HasName {
 
     public void setName (String newName);
 

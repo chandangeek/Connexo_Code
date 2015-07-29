@@ -96,6 +96,7 @@ public enum TableSpecs {
                     onDelete(CASCADE).
                     map("registerGroup").
                     reverseMap("registerTypeInGroups").
+                    composition().
                     add();
         }
     },

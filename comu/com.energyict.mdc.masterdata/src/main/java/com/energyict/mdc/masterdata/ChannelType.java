@@ -1,5 +1,6 @@
 package com.energyict.mdc.masterdata;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.time.TimeDuration;
 
 /**
@@ -7,6 +8,7 @@ import com.elster.jupiter.time.TimeDuration;
  * Date: 7/15/14
  * Time: 9:53 AM
  */
+@ProviderType
 public interface ChannelType extends MeasurementType {
 
     TimeDuration getInterval();

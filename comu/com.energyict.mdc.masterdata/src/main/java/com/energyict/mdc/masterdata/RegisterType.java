@@ -1,5 +1,7 @@
 package com.energyict.mdc.masterdata;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.util.List;
 
 /**
@@ -7,6 +9,7 @@ import java.util.List;
  * Date: 7/16/14
  * Time: 9:35 AM
  */
+@ProviderType
 public interface RegisterType extends MeasurementType {
 
     /**

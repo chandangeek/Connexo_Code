@@ -2,7 +2,9 @@ package com.energyict.mdc.masterdata;
 
 import com.elster.jupiter.util.HasId;
 
-import java.util.HashMap;
+import aQute.bnd.annotation.ProviderType;
+import com.elster.jupiter.util.HasName;
+
 import java.util.List;
 
 /**
@@ -10,21 +12,8 @@ import java.util.List;
  *
  * @author Geert
  */
-public interface RegisterGroup extends HasId {
-
-    /**
-     * Returns number that uniquely identifies this RegisterGroup.
-     *
-     * @return the id
-     */
-    public long getId();
-
-    /**
-     * Returns the name that uniquely identifies this RegisterGroup.
-     *
-     * @return the name
-     */
-    public String getName();
+@ProviderType
+public interface RegisterGroup extends HasId, HasName {
 
     public void setName (String newName);
 
@@ -38,7 +27,6 @@ public interface RegisterGroup extends HasId {
 
     public void removeRegisterType(RegisterType registerType);
 
-    public void removeRegisterTypes();
+    public void updateRegisterTypes(List<RegisterType> registerTypes);
 
-    public boolean updateRegisterTypes(HashMap<Long, RegisterType> registerTypes);
 }
