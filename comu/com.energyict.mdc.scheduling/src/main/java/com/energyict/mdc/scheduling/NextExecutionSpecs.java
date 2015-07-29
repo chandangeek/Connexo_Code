@@ -1,5 +1,6 @@
 package com.energyict.mdc.scheduling;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.time.TemporalExpression;
 
 /**
@@ -12,6 +13,7 @@ import com.elster.jupiter.time.TemporalExpression;
  * @see NextExecutionCalculator
  * @since 2012-04-11 (17:51)
  */
+@ProviderType
 public interface NextExecutionSpecs extends NextExecutionCalculator {
 
     /**

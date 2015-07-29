@@ -1,5 +1,6 @@
 package com.energyict.mdc.scheduling;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.time.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.scheduling.model.ComScheduleBuilder;
@@ -7,6 +8,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
+@ProviderType
 public interface SchedulingService {
     public static final String COMPONENT_NAME="SCH";
 

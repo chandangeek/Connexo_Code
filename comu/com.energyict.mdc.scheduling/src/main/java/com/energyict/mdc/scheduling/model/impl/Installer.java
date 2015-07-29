@@ -7,7 +7,6 @@ import com.elster.jupiter.orm.TransactionRequired;
 import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.events.EventType;
-import com.energyict.mdc.scheduling.security.Privileges;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -39,12 +38,7 @@ public class Installer {
         } catch (Exception e) {
             logger.log(Level.SEVERE, e.getMessage(), e);
         }
-        createPrivileges();
         createEventTypes();
-    }
-
-    private void createPrivileges() {
-        this.userService.createResourceWithPrivileges("MDC", "sharedCommunicationSchedule.sharedCommunicationSchedules", "sharedCommunicationSchedule.sharedCommunicationSchedules.description", new String[]{Privileges.ADMINISTRATE_SHARED_COMMUNICATION_SCHEDULE, Privileges.VIEW_SHARED_COMMUNICATION_SCHEDULE});
     }
 
     private void createEventTypes() {
