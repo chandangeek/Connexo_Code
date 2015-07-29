@@ -1,7 +1,5 @@
 package com.elster.jupiter.properties;
 
-import java.sql.SQLException;
-
 public class StringReferenceFactory<T extends HasIdAndName> extends AbstractValueFactory<T> {
 
     private CanFindByStringKey<T> finder;
@@ -41,7 +39,7 @@ public class StringReferenceFactory<T extends HasIdAndName> extends AbstractValu
     }
 
     @Override
-    public T valueFromDatabase(Object object) throws SQLException {
+    public T valueFromDatabase(Object object) {
         return fromStringValue((String) object);
     }
 
