@@ -88,6 +88,7 @@ Ext.define('Uni.grid.filtertop.DateTimeSelect', {
 
         applyButton.on('click', me.onApplyInterval, me);
         clearButton.on('click', me.onClearInterval, me);
+        me.updateTitle();
     },
 
     onApplyInterval: function () {
@@ -95,6 +96,7 @@ Ext.define('Uni.grid.filtertop.DateTimeSelect', {
 
         me.fireFilterUpdateEvent();
         me.getChooseIntervalButton().hideMenu();
+        me.updateTitle();
     },
 
     setFilterValue: function (date) {
@@ -127,5 +129,16 @@ Ext.define('Uni.grid.filtertop.DateTimeSelect', {
 
     getDateTime: function () {
         return this.down('uni-grid-filtertop-datetime');
+    },
+
+    updateTitle: function () {
+        var me = this,
+            fromValue = me.getParamValue();
+
+        if (Ext.isDefined(fromValue)) {
+            me.down('button').setText( Uni.DateTime.formatDateTimeShort(new Date(fromValue)) );
+        } else {
+            me.down('button').setText( me.text );
+        }
     }
 });
