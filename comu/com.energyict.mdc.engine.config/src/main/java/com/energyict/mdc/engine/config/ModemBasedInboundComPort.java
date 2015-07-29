@@ -44,6 +44,9 @@ public interface ModemBasedInboundComPort extends InboundComPort {
     public List<String> getModemInitStrings();
     public void setModemInitStrings(List<String> initStrings);
 
+    public List<String> getGlobalModemInitStrings();
+    public void setGlobalModemInitStrings(List<String> globalModemInitStrings);
+
     public String getAddressSelector();
     public void setAddressSelector(String addressSelector);
 
@@ -58,6 +61,7 @@ public interface ModemBasedInboundComPort extends InboundComPort {
         public ModemBasedInboundComPortBuilder delayBeforeSend(TimeDuration delayBeforeSend);
         public ModemBasedInboundComPortBuilder atCommandTry(BigDecimal atCommandTry);
         public ModemBasedInboundComPortBuilder atModemInitStrings(List<String> initStrings);
+        public ModemBasedInboundComPortBuilder globalAtModemInitStrings(List<String> globalAtModemInitStrings);
         public ModemBasedInboundComPortBuilder addressSelector(String addressSelector);
         public ModemBasedInboundComPortBuilder postDialCommands(String postDialCommands);
     }

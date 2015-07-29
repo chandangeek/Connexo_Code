@@ -118,6 +118,7 @@ public enum TableSpecs {
             table.column("CONTEXTPATH").varChar().map("contextPath").add();
 
             table.column("BUFFERSIZE").number().conversion(ColumnConversion.NUMBER2INT).map("bufferSize").add();
+            table.column("GLOBALMODEMINITS").varChar().map("globalModemInitStrings").add();
             table.column("MODEMINITS").varChar().map("modemInitStrings").add();
             Column inboundComPortPoolId = table.column("COMPORTPOOL").number().conversion(ColumnConversion.NUMBER2LONG).add(); // DO NOT MAP
 
