@@ -9,7 +9,6 @@ import java.util.List;
 
 import static com.elster.jupiter.issue.rest.MessageSeeds.ISSUE_ASSIGNEE_ME;
 import static com.elster.jupiter.issue.rest.MessageSeeds.ISSUE_ASSIGNEE_UNASSIGNED;
-import static com.elster.jupiter.issue.rest.MessageSeeds.getString;
 
 public class AssigneeFilterListInfo {
     private List<IssueAssigneeInfo> data = new ArrayList<>();
@@ -36,11 +35,11 @@ public class AssigneeFilterListInfo {
         AssigneeFilterListInfo info = new AssigneeFilterListInfo();
         if (currentUser != null && findMe) {
             // Adding 'Me'
-            String meText = getString(ISSUE_ASSIGNEE_ME, thesaurus);
+            String meText = ISSUE_ASSIGNEE_ME.getTranslated(thesaurus);
             info.data.add(new IssueAssigneeInfo(IssueAssignee.Types.USER, currentUser.getId(), currentUser.getName()));
         }  else {
             // Adding 'Unassigned'
-            String unassignedText = getString(ISSUE_ASSIGNEE_UNASSIGNED, thesaurus);
+            String unassignedText = ISSUE_ASSIGNEE_UNASSIGNED.getTranslated(thesaurus);
             info.data.add(new IssueAssigneeInfo("UnexistingType", -1L, unassignedText));
         }
         return info;

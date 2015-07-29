@@ -14,7 +14,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class IssueTypeResourceTest extends Mocks {
+public class IssueTypeResourceTest extends IssueRestApplicationJerseyTest {
 
     @Test
     public void testgetIssueTypesEmpty(){
@@ -40,6 +40,6 @@ public class IssueTypeResourceTest extends Mocks {
         assertThat(map.get("total")).isEqualTo(1);
         List data = (List) map.get("data");
         assertThat(data).hasSize(1);
-        assertThat(((Map) data.get(0)).get("uid")).isEqualTo(type.getUUID());
+        assertThat(((Map) data.get(0)).get("uid")).isEqualTo(type.getKey());
     }
 }

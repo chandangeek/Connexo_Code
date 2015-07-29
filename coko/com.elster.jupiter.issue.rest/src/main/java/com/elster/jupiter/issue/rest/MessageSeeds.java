@@ -14,6 +14,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     ISSUE_ASSIGNEE_ME (1, "IssueAssigneeMe", "Me", Level.SEVERE),
     ISSUE_ASSIGNEE_UNASSIGNED (2, "IssueAssigneeUnassigned", "Unassigned", Level.SEVERE),
     ISSUE_DOES_NOT_EXIST (3, "IssueDoesNotExist", "Issue doesn't exist", Level.SEVERE),
+    ISSUE_ALREADY_CLOSED(4, "IssueAlreadyClosed", "Issue already closed", Level.SEVERE),
     ISSUE_ACTION_CLASS_LOAD_FAIL(5, "IssueActionClassLoadFail", "Unable to load Action class \"{0}\" for \"{1}\" action type", Level.SEVERE),
     ISSUE_ACTION_PHASE_CREATE(6, "IssueActionPhaseCreation", "Issue creation", Level.INFO),
     ISSUE_ACTION_PHASE_OVERDUE(7, "IssueActionPhaseOverdue", "Issue overdue", Level.INFO),
@@ -62,11 +63,10 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
         return MessageFormat.format(this.getDefaultFormat(), args);
     }
 
-    public static String getString(MessageSeed messageSeed, Thesaurus thesaurus, Object... args){
-        String text = thesaurus.getString(messageSeed.getKey(), messageSeed.getDefaultFormat());
+    public String getTranslated(Thesaurus thesaurus, Object... args){
+        String text = thesaurus.getString(getKey(), getDefaultFormat());
         return MessageFormat.format(text, args);
     }
-
 
     public static MessageSeeds getByKey(String key) {
         if (key != null) {

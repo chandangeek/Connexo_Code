@@ -1,127 +1,138 @@
 package com.elster.jupiter.issue.rest;
 
-import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.issue.share.entity.IssueActionType;
-import com.elster.jupiter.issue.share.entity.IssueType;
-import com.elster.jupiter.util.conditions.Condition;
-import org.junit.Test;
-import org.mockito.Matchers;
-
-import javax.ws.rs.core.Response;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
 import static com.elster.jupiter.issue.rest.request.RequestHelper.ISSUE_TYPE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class ActionResourceTest extends Mocks {
-    @Test
-    public void testGetAllActionPhases(){
-        when(thesaurus.getString(MessageSeeds.ISSUE_ACTION_PHASE_CREATE.getKey(), MessageSeeds.ISSUE_ACTION_PHASE_CREATE.getDefaultFormat())).thenReturn("Create");
-        when(thesaurus.getString(MessageSeeds.ISSUE_ACTION_PHASE_OVERDUE.getKey(), MessageSeeds.ISSUE_ACTION_PHASE_OVERDUE.getDefaultFormat())).thenReturn("Overdue");
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
-        Map<String, Object> map = target("/actions/phases").request().get(Map.class);
-        assertThat(map.get("total")).isEqualTo(2);
-        List data = (List) map.get("data");
-        assertThat(data).hasSize(2);
-        assertThat(((Map) data.get(0)).get("title")).isEqualTo("Create");
-        assertThat(((Map) data.get(0)).get("uuid")).isEqualTo("CREATE");
-        assertThat(((Map) data.get(1)).get("title")).isEqualTo("Overdue");
-        assertThat(((Map) data.get(1)).get("uuid")).isEqualTo("OVERDUE");
+import javax.ws.rs.core.Response;
+
+import org.junit.Test;
+import org.mockito.Matchers;
+
+import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.issue.share.entity.IssueActionType;
+import com.elster.jupiter.issue.share.entity.IssueType;
+import com.elster.jupiter.util.conditions.Condition;
+import com.jayway.jsonpath.JsonModel;
+
+public class ActionResourceTest extends IssueRestApplicationJerseyTest {
+
+    @Test
+    public void testGetAllActionPhases() {
+        String response = target("/actions/phases").request().get(String.class);
+
+        JsonModel json = JsonModel.model(response);
+
+        assertThat(json.<Number> get("$.total")).isEqualTo(2);
+        assertThat(json.<List<?>> get("$.creationRuleActionPhases")).hasSize(2);
+        assertThat(json.<List<String>> get("$.creationRuleActionPhases[*].uuid")).containsExactly("CREATE", "OVERDUE");
+        assertThat(json.<List<String>> get("$.creationRuleActionPhases[*].title")).containsExactly("Issue creation", "Issue overdue");
     }
 
     @Test
-    public void testGetAllActionTypesWOIssueType(){
+    public void testGetAllActionTypesWOIssueType() {
+        @SuppressWarnings("unchecked")
         Query<IssueActionType> query = mock(Query.class);
-        when(query.select(Matchers.<Condition>anyObject())).thenReturn(Collections.<IssueActionType>emptyList());
+        when(query.select(Matchers.<Condition> anyObject())).thenReturn(Collections.emptyList());
         when(issueActionService.getActionTypeQuery()).thenReturn(query);
         when(issueService.findIssueType(null)).thenReturn(Optional.empty());
         when(issueService.findReason(null)).thenReturn(Optional.empty());
+        
         Response response = target("/actions").request().get();
+        
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
 
     @Test
-    public void testGetAllActionTypesWithUnexistingIssueType(){
+    public void testGetAllActionTypesWithUnexistingIssueType() {
         IssueType issueType = mockIssueType("unexisting", "name");
+        @SuppressWarnings("unchecked")
         Query<IssueActionType> query = mock(Query.class);
-        when(query.select(Matchers.<Condition>anyObject())).thenReturn(Collections.<IssueActionType>emptyList());
+        when(query.select(Matchers.<Condition> anyObject())).thenReturn(Collections.emptyList());
         when(issueActionService.getActionTypeQuery()).thenReturn(query);
-        when(issueService.findIssueType(issueType.getUUID())).thenReturn(Optional.empty());
+        when(issueService.findIssueType(issueType.getKey())).thenReturn(Optional.empty());
         when(issueService.findReason(null)).thenReturn(Optional.empty());
 
-        Map<String, Object> map = target("/actions")
-                .queryParam(ISSUE_TYPE, issueType.getUUID()).request().get(Map.class);
-        assertThat(map.get("total")).isEqualTo(0);
-        assertThat((List) map.get("data")).isEmpty();
+        String response = target("/actions").queryParam(ISSUE_TYPE, issueType.getKey()).request().get(String.class);
+        
+        JsonModel json = JsonModel.model(response);
+        assertThat(json.<Number>get("$.total")).isEqualTo(0);
+        assertThat(json.<List<?>>get("$.ruleActionTypes")).isEmpty();
     }
 
     @Test
-    public void testGetAllActionTypesWithWrongIssueType(){
+    public void testGetAllActionTypesWithWrongIssueType() {
         IssueType issueType = mockIssueType("some", "name");
+        @SuppressWarnings("unchecked")
         Query<IssueActionType> query = mock(Query.class);
 
-        when(query.select(Matchers.<Condition>anyObject())).thenReturn(Collections.<IssueActionType>emptyList());
+        when(query.select(Matchers.<Condition> anyObject())).thenReturn(Collections.emptyList());
         when(issueActionService.getActionTypeQuery()).thenReturn(query);
-        when(issueService.findIssueType(issueType.getUUID())).thenReturn(Optional.of(issueType));
+        when(issueService.findIssueType(issueType.getKey())).thenReturn(Optional.of(issueType));
         when(issueService.findReason(null)).thenReturn(Optional.empty());
 
-        Map<String, Object> map = target("/actions")
-                .queryParam(ISSUE_TYPE, issueType.getUUID()).request().get(Map.class);
-        assertThat(map.get("total")).isEqualTo(0);
-        assertThat((List) map.get("data")).isEmpty();
+        String response = target("/actions").queryParam(ISSUE_TYPE, issueType.getKey()).request().get(String.class);
+        
+        JsonModel json = JsonModel.model(response);
+        assertThat(json.<Number>get("$.total")).isEqualTo(0);
+        assertThat(json.<List<?>>get("$.ruleActionTypes")).isEmpty();
     }
 
     @Test
-    public void testGetAllActionTypes(){
+    public void testGetAllActionTypes() {
         IssueType issueType = getDefaultIssueType();
-        List<IssueActionType> actionTypes = new ArrayList<>(2);
-        actionTypes.add(mockIssueActionType(1, "one", issueType));
-        actionTypes.add(mockIssueActionType(2, "two", issueType));
-        
+        List<IssueActionType> actionTypes = Arrays.asList(
+                mockIssueActionType(1, "first", issueType),
+                mockIssueActionType(2, "second", issueType));
+        @SuppressWarnings("unchecked")
         Query<IssueActionType> query = mock(Query.class);
 
-        when(query.select(Matchers.<Condition>anyObject())).thenReturn(actionTypes);
+        when(query.select(Matchers.<Condition> anyObject())).thenReturn(actionTypes);
         when(issueActionService.getActionTypeQuery()).thenReturn(query);
-        when(issueService.findIssueType(issueType.getUUID())).thenReturn(Optional.of(issueType));
+        when(issueService.findIssueType(issueType.getKey())).thenReturn(Optional.of(issueType));
         when(issueService.findReason(null)).thenReturn(Optional.empty());
 
-        Map<String, Object> map = target("/actions")
-                .queryParam(ISSUE_TYPE, issueType.getUUID()).request().get(Map.class);
-        assertThat(map.get("total")).isEqualTo(2);
-        List data = (List) map.get("data");
-        assertThat(data).hasSize(2);
-        assertThat(((Map) data.get(0)).get("id")).isEqualTo(1);
-        assertThat(((Map) data.get(0)).get("name")).isEqualTo("one");
+        String response = target("/actions").queryParam(ISSUE_TYPE, issueType.getKey()).request().get(String.class);
+
+        JsonModel json = JsonModel.model(response);
+        assertThat(json.<Number>get("$.total")).isEqualTo(2);
+        assertThat(json.<List<?>>get("$.ruleActionTypes")).hasSize(2);
+        assertThat(json.<List<Number>>get("$.ruleActionTypes[*].id")).containsExactly(1, 2);
+        assertThat(json.<List<String>>get("$.ruleActionTypes[*].name")).containsExactly("first", "second");
+        assertThat(json.<List<?>>get("$.ruleActionTypes[0].properties")).hasSize(1);
+        assertThat(json.<String>get("$.ruleActionTypes[0].properties[0].key")).isEqualTo("property");
     }
-    
+
     @Test
-    public void testGetActionsThatCanBeInstantiated(){
+    public void testGetActionsThatCanBeInstantiated() {
         IssueType issueType = getDefaultIssueType();
-        List<IssueActionType> actionTypes = new ArrayList<>(2);
-        actionTypes.add(mockIssueActionType(1, "one", issueType));
-        actionTypes.add(mockIssueActionType(2, "two", issueType));
-        
-        IssueActionType actionTypeNotLicensed = mockIssueActionType(3, "three", issueType);
+        List<IssueActionType> actionTypes = Arrays.asList(
+                mockIssueActionType(1, "first", issueType),
+                mockIssueActionType(2, "second", issueType));
+
+        IssueActionType actionTypeNotLicensed = mockIssueActionType(3, "not licensed", issueType);
         when(actionTypeNotLicensed.createIssueAction()).thenReturn(Optional.empty());
-        
+
+        @SuppressWarnings("unchecked")
         Query<IssueActionType> query = mock(Query.class);
 
-        when(query.select(Matchers.<Condition>anyObject())).thenReturn(actionTypes);
+        when(query.select(Matchers.<Condition> anyObject())).thenReturn(actionTypes);
         when(issueActionService.getActionTypeQuery()).thenReturn(query);
-        when(issueService.findIssueType(issueType.getUUID())).thenReturn(Optional.of(issueType));
+        when(issueService.findIssueType(issueType.getKey())).thenReturn(Optional.of(issueType));
         when(issueService.findReason(null)).thenReturn(Optional.empty());
 
-        Map<String, Object> map = target("/actions").queryParam(ISSUE_TYPE, issueType.getUUID()).request().get(Map.class);
-        assertThat(map.get("total")).isEqualTo(2);
-        List data = (List) map.get("data");
-        assertThat(data).hasSize(2);
-        assertThat(((Map) data.get(0)).get("name")).isEqualTo("one");
-        assertThat(((Map) data.get(1)).get("name")).isEqualTo("two");
+        String response = target("/actions").queryParam(ISSUE_TYPE, issueType.getKey()).request().get(String.class);
+
+        JsonModel json = JsonModel.model(response);
+        assertThat(json.<Number>get("$.total")).isEqualTo(2);
+        assertThat(json.<List<?>>get("$.ruleActionTypes")).hasSize(2);
+        assertThat(json.<List<Number>>get("$.ruleActionTypes[*].id")).containsExactly(1, 2);
+        assertThat(json.<List<String>>get("$.ruleActionTypes[*].name")).containsExactly("first", "second");
     }
 }
