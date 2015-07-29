@@ -373,12 +373,8 @@ public class TopologyServiceImpl implements ServerTopologyService, InstallServic
 
     @Override
     public void clearPhysicalGateway(Device slave) {
-        this.clearPhysicalGateway(slave, this.clock.instant());
-    }
-
-    @Override
-    public void clearPhysicalGateway(Device slave, Instant when) {
-        this.getPhysicalGatewayReference(slave, when).ifPresent(r -> terminateTemporal(r, when));
+        Instant instant = this.clock.instant();
+        this.getPhysicalGatewayReference(slave, instant).ifPresent(r -> terminateTemporal(r, instant));
         this.slaveTopologyChanged(slave, Optional.empty());
     }
 

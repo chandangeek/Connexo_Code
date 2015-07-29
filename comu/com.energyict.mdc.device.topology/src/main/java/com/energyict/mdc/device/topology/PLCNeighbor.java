@@ -2,6 +2,7 @@ package com.energyict.mdc.device.topology;
 
 import com.energyict.mdc.device.data.Device;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.orm.associations.Effectivity;
 
 /**
@@ -11,6 +12,7 @@ import com.elster.jupiter.orm.associations.Effectivity;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-12-15 (13:53)
  */
+@ProviderType
 public interface PLCNeighbor extends Effectivity {
 
     public ModulationScheme getModulationScheme();

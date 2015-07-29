@@ -1,7 +1,7 @@
 package com.energyict.mdc.device.topology.impl;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.TypedProperties;
-import com.elster.jupiter.domain.util.Finder;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.data.impl.DeviceDataModelServiceImpl;
@@ -43,8 +43,10 @@ import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
+
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.datavault.DataVaultService;
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.estimation.impl.EstimationModule;
 import com.elster.jupiter.events.EventService;
@@ -74,24 +76,18 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.impl.UserModule;
-import com.elster.jupiter.util.beans.BeanService;
-import com.elster.jupiter.util.beans.impl.BeanServiceImpl;
-import com.elster.jupiter.util.cron.CronExpressionParser;
-import com.elster.jupiter.util.json.JsonService;
-import com.elster.jupiter.util.json.impl.JsonServiceImpl;
+import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Scopes;
-
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.log.LogService;
 
 import javax.inject.Inject;
-
 import java.security.Principal;
 import java.sql.SQLException;
 import java.time.Clock;
@@ -132,6 +128,7 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
     private ValidationService validationService;
     private DataVaultService dataVaultService;
     private InMemoryBootstrapModule bootstrapModule;
+    private Thesaurus thesaurus;
 
     public InMemoryPersistenceWithMockedDeviceProtocol() {
         this(Clock.systemDefaultZone());
@@ -148,6 +145,7 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
         Injector injector = Guice.createInjector(
                 new MockModule(),
                 bootstrapModule,
+                new UtilModule(clock),
                 new ThreadSecurityModule(this.principal),
                 new EventsModule(),
                 new PubSubModule(),
@@ -216,6 +214,7 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
         this.principal = mock(Principal.class);
         when(this.principal.getName()).thenReturn(testName);
         this.protocolPluggableService = mock(ProtocolPluggableService.class);
+        this.thesaurus = mock(Thesaurus.class);
     }
 
     public void cleanUpDataBase() throws SQLException {
@@ -270,17 +269,15 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
         @Override
         protected void configure() {
             bind(DataVaultService.class).toInstance(dataVaultService);
-            bind(JsonService.class).toInstance(new JsonServiceImpl());
-            bind(BeanService.class).toInstance(new BeanServiceImpl());
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(Clock.class).toInstance(clock);
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(BundleContext.class).toInstance(bundleContext);
             bind(ProtocolPluggableService.class).to(MockProtocolPluggableService.class).in(Scopes.SINGLETON);
-            bind(CronExpressionParser.class).toInstance(mock(CronExpressionParser.class, RETURNS_DEEP_STUBS));
             bind(LogService.class).toInstance(mock(LogService.class));
             bind(IssueService.class).toInstance(mock(IssueService.class, RETURNS_DEEP_STUBS));
             bind(DataModel.class).toProvider(() -> dataModel);
+            bind(Thesaurus.class).toInstance(thesaurus);
         }
 
     }

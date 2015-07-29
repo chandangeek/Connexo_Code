@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.topology.impl;
 
+import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceSecurityUserAction;
@@ -25,6 +26,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.Optional;
 import java.util.TimeZone;
 
 import org.junit.*;
@@ -109,6 +111,8 @@ public abstract class PersistenceIntegrationTest {
         when(encryptionAccessLevel.getId()).thenReturn(anySecurityLevel);
         when(this.deviceProtocol.getEncryptionAccessLevels()).thenReturn(Arrays.asList(encryptionAccessLevel));
         when(this.deviceProtocol.getDeviceProtocolCapabilities()).thenReturn(Arrays.asList(DeviceProtocolCapabilities.values()));
+        when(clock.getZone()).thenReturn(utcTimeZone.toZoneId());
+        when(clock.instant()).thenReturn(Instant.ofEpochMilli(0L));  // Create DeviceType as early as possible to support unit tests that go back in time
         deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(DEVICE_TYPE_NAME, deviceProtocolPluggableClass);
         deviceType.save();
         DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration(DEVICE_CONFIGURATION_NAME);
@@ -133,7 +137,8 @@ public abstract class PersistenceIntegrationTest {
         securityPropertySetBuilder.encryptionLevel(anySecurityLevel);
         this.securityPropertySet = securityPropertySetBuilder.build();
         this.resetClock();
-    }
+        IssueStatus wontFix = mock(IssueStatus.class);
+        when(inMemoryPersistence.getIssueService().findStatus(IssueStatus.WONT_FIX)).thenReturn(Optional.of(wontFix));   }
 
     @After
     public void resetClock () {

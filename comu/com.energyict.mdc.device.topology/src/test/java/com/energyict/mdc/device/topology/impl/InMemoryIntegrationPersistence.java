@@ -36,6 +36,7 @@ import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
+
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
@@ -75,17 +76,13 @@ import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
-import com.elster.jupiter.util.beans.BeanService;
-import com.elster.jupiter.util.beans.impl.BeanServiceImpl;
-import com.elster.jupiter.util.cron.CronExpressionParser;
+import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.json.JsonService;
-import com.elster.jupiter.util.json.impl.JsonServiceImpl;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.log.LogService;
@@ -148,6 +145,8 @@ public class InMemoryIntegrationPersistence {
     private ThreadPrincipalService threadPrincipalService;
     private ConnectionTypeService connectionTypeService;
     private DataVaultService dataVaultService;
+    private IssueService issueService;
+    private Thesaurus thesaurus;
 
     public InMemoryIntegrationPersistence(Clock clock) {
         super();
@@ -169,6 +168,7 @@ public class InMemoryIntegrationPersistence {
         Injector injector = Guice.createInjector(
                 new MockModule(),
                 bootstrapModule,
+                new UtilModule(clock),
                 new ThreadSecurityModule(this.principal),
                 new EventsModule(),
                 new PubSubModule(),
@@ -233,6 +233,7 @@ public class InMemoryIntegrationPersistence {
             this.propertySpecService = injector.getInstance(PropertySpecService.class);
             this.userService = injector.getInstance(UserService.class);
             this.threadPrincipalService = injector.getInstance(ThreadPrincipalService.class);
+            this.issueService = injector.getInstance(IssueService.class);
             this.dataModel = this.deviceDataModelService.dataModel();
             initializeFactoryProviders();
             createOracleAliases(dataModel.getConnection(true));
@@ -275,6 +276,7 @@ public class InMemoryIntegrationPersistence {
         this.licenseService = mock(LicenseService.class);
         when(this.licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.<License>empty());
         this.dataVaultService = mock(DataVaultService.class);
+        this.thesaurus = mock(Thesaurus.class);
     }
 
     public void cleanUpDataBase() throws SQLException {
@@ -391,20 +393,21 @@ public class InMemoryIntegrationPersistence {
         }
     }
 
+    public IssueService getIssueService() {
+        return this.issueService;
+    }
+
     private class MockModule extends AbstractModule {
         @Override
         protected void configure() {
             bind(DataVaultService.class).toInstance(dataVaultService);
-            bind(JsonService.class).toInstance(new JsonServiceImpl());
-            bind(BeanService.class).toInstance(new BeanServiceImpl());
-            bind(Clock.class).toInstance(clock);
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(LicenseService.class).toInstance(licenseService);
             bind(BundleContext.class).toInstance(bundleContext);
             bind(LogService.class).toInstance(mock(LogService.class));
-            bind(CronExpressionParser.class).toInstance(mock(CronExpressionParser.class, RETURNS_DEEP_STUBS));
             bind(IssueService.class).toInstance(mock(IssueService.class, RETURNS_DEEP_STUBS));
             bind(DataModel.class).toProvider(() -> dataModel);
+            bind(Thesaurus.class).toInstance(thesaurus);
         }
     }
 
