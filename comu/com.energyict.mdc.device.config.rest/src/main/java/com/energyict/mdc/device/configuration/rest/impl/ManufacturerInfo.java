@@ -4,10 +4,9 @@ import com.energyict.mdc.protocol.api.Manufacturer;
 import com.energyict.mdc.protocol.api.Model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 public class ManufacturerInfo {

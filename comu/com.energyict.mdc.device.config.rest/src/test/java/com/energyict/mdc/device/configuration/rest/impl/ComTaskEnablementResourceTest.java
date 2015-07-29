@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
+import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.domain.util.QueryParameters;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
@@ -18,6 +20,8 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -41,7 +45,8 @@ public class ComTaskEnablementResourceTest extends DeviceConfigurationApplicatio
     public void getAllowedComTasksWhichAreNotDefinedYetNoComTasksWithFirmwareTest() {
         mockDeviceTypeWithConfigWhichAllowsFirmwareUpgrade();
         ComTask firmwareComTask = mockFirmwareComTask();
-        when(taskService.findAllComTasks()).thenReturn(Arrays.asList(firmwareComTask));
+        Finder<ComTask> comTaskFinder = mockFinder(Arrays.asList(firmwareComTask));
+        when(taskService.findAllComTasks()).thenReturn(comTaskFinder);
         Map<String, Object> map = target("devicetypes/1/deviceconfigurations/1/comtasks").queryParam("available", true).request().get(Map.class);
 
         assertThat(map.get("total")).isEqualTo(1);
@@ -52,7 +57,8 @@ public class ComTaskEnablementResourceTest extends DeviceConfigurationApplicatio
     public void getAllowedComTasksWhichAreNotDefinedYetNoComTasksWithFirmwareButDisallowTest() {
         mockSimpleDeviceTypeAndConfig();
         ComTask firmwareComTask = mockFirmwareComTask();
-        when(taskService.findAllComTasks()).thenReturn(Arrays.asList(firmwareComTask));
+        Finder<ComTask> comTaskFinder = mockFinder(Arrays.asList(firmwareComTask));
+        when(taskService.findAllComTasks()).thenReturn(comTaskFinder);
         Map<String, Object> map = target("devicetypes/1/deviceconfigurations/1/comtasks").queryParam("available", true).request().get(Map.class);
 
         assertThat(map.get("total")).isEqualTo(0);
@@ -69,7 +75,8 @@ public class ComTaskEnablementResourceTest extends DeviceConfigurationApplicatio
         ComTask registersComTask = mockRegistersComTask();
         ComTaskEnablement registersComTaskEnablement = mockRegistersComTaskEnablement(registersComTask);
         ComTask topologyComTask = mockTopologyComTask();
-        when(taskService.findAllComTasks()).thenReturn(Arrays.asList(firmwareComTask, loadProfilesComTask, registersComTask, topologyComTask));
+        Finder<ComTask> comTaskFinder = mockFinder(Arrays.asList(firmwareComTask, loadProfilesComTask, registersComTask, topologyComTask));
+        when(taskService.findAllComTasks()).thenReturn(comTaskFinder);
         when(deviceConfiguration.getComTaskEnablements()).thenReturn(Arrays.asList(loadProfilesComTaskEnablement, registersComTaskEnablement));
 
         Map<String, Object> map = target("devicetypes/1/deviceconfigurations/1/comtasks").queryParam("available", true).request().get(Map.class);
@@ -90,7 +97,8 @@ public class ComTaskEnablementResourceTest extends DeviceConfigurationApplicatio
         ComTask registersComTask = mockRegistersComTask();
         ComTaskEnablement registersComTaskEnablement = mockRegistersComTaskEnablement(registersComTask);
         ComTask topologyComTask = mockTopologyComTask();
-        when(taskService.findAllComTasks()).thenReturn(Arrays.asList(firmwareComTask, loadProfilesComTask, registersComTask, topologyComTask));
+        Finder<ComTask> comTaskFinder = mockFinder(Arrays.asList(firmwareComTask, loadProfilesComTask, registersComTask, topologyComTask));
+        when(taskService.findAllComTasks()).thenReturn(comTaskFinder);
         when(deviceConfiguration.getComTaskEnablements()).thenReturn(Arrays.asList(loadProfilesComTaskEnablement, registersComTaskEnablement));
 
         Map<String, Object> map = target("devicetypes/1/deviceconfigurations/1/comtasks").queryParam("available", true).request().get(Map.class);
@@ -111,7 +119,8 @@ public class ComTaskEnablementResourceTest extends DeviceConfigurationApplicatio
         ComTaskEnablement registersComTaskEnablement = mockRegistersComTaskEnablement(registersComTask);
         ComTask topologyComTask = mockTopologyComTask();
         ComTaskEnablement firmwareComTaskEnablement = mockFirmwareComTaskEnablement(firmwareComTask);
-        when(taskService.findAllComTasks()).thenReturn(Arrays.asList(firmwareComTask, loadProfilesComTask, registersComTask, topologyComTask));
+        Finder<ComTask> comTaskFinder = mockFinder(Arrays.asList(firmwareComTask, loadProfilesComTask, registersComTask, topologyComTask));
+        when(taskService.findAllComTasks()).thenReturn(comTaskFinder);
         when(deviceConfiguration.getComTaskEnablements()).thenReturn(Arrays.asList(loadProfilesComTaskEnablement, registersComTaskEnablement, firmwareComTaskEnablement));
 
         Map<String, Object> map = target("devicetypes/1/deviceconfigurations/1/comtasks").queryParam("available", true).request().get(Map.class);
@@ -133,7 +142,8 @@ public class ComTaskEnablementResourceTest extends DeviceConfigurationApplicatio
         ComTask topologyComTask = mockTopologyComTask();
         ComTaskEnablement topologyComTaskEnablement = mockTopologyComTaskEnablement(topologyComTask);
         ComTaskEnablement firmwareComTaskEnablement = mockFirmwareComTaskEnablement(firmwareComTask);
-        when(taskService.findAllComTasks()).thenReturn(Arrays.asList(firmwareComTask, loadProfilesComTask, registersComTask, topologyComTask));
+        Finder<ComTask> comTaskFinder = mockFinder(Arrays.asList(firmwareComTask, loadProfilesComTask, registersComTask, topologyComTask));
+        when(taskService.findAllComTasks()).thenReturn(comTaskFinder);
         when(deviceConfiguration.getComTaskEnablements()).thenReturn(Arrays.asList(loadProfilesComTaskEnablement, topologyComTaskEnablement, registersComTaskEnablement, firmwareComTaskEnablement));
 
         Map<String, Object> map = target("devicetypes/1/deviceconfigurations/1/comtasks").queryParam("available", true).request().get(Map.class);
@@ -153,7 +163,8 @@ public class ComTaskEnablementResourceTest extends DeviceConfigurationApplicatio
         ComTaskEnablement registersComTaskEnablement = mockRegistersComTaskEnablement(registersComTask);
         ComTask topologyComTask = mockTopologyComTask();
         ComTaskEnablement topologyComTaskEnablement = mockTopologyComTaskEnablement(topologyComTask);
-        when(taskService.findAllComTasks()).thenReturn(Arrays.asList(firmwareComTask, loadProfilesComTask, registersComTask, topologyComTask));
+        Finder<ComTask> comTaskFinder = mockFinder(Arrays.asList(firmwareComTask, loadProfilesComTask, registersComTask, topologyComTask));
+        when(taskService.findAllComTasks()).thenReturn(comTaskFinder);
         when(deviceConfiguration.getComTaskEnablements()).thenReturn(Arrays.asList(loadProfilesComTaskEnablement, topologyComTaskEnablement, registersComTaskEnablement));
 
         Map<String, Object> map = target("devicetypes/1/deviceconfigurations/1/comtasks").queryParam("available", true).request().get(Map.class);
@@ -250,4 +261,17 @@ public class ComTaskEnablementResourceTest extends DeviceConfigurationApplicatio
         when(deviceConfiguration.getDeviceType()).thenReturn(deviceType);
         return deviceConfiguration;
     }
+
+    <T> Finder<T> mockFinder(List<T> list) {
+        Finder<T> finder = mock(Finder.class);
+
+        when(finder.paged(anyInt(), anyInt())).thenReturn(finder);
+        when(finder.sorted(anyString(), any(Boolean.class))).thenReturn(finder);
+        when(finder.from(any(QueryParameters.class))).thenReturn(finder);
+        when(finder.find()).thenReturn(list);
+        when(finder.stream()).thenReturn(list.stream());
+        return finder;
+    }
+
+
 }

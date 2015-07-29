@@ -20,12 +20,11 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import javax.ws.rs.core.UriInfo;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
-import javax.ws.rs.core.UriInfo;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 /**
  * This Info element represents the PartialConnectionTask in the domain model

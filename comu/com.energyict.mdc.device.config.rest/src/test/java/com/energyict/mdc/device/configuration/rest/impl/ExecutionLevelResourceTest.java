@@ -18,6 +18,7 @@ import org.mockito.Matchers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.matches;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -154,7 +155,7 @@ public class ExecutionLevelResourceTest extends DeviceConfigurationApplicationJe
 
     private Group mockUserGroup(long id, String name) {
         Group mock = mock(Group.class);
-        when(mock.hasPrivilege(Matchers.<String>anyObject())).thenReturn(true);
+        when(mock.hasPrivilege(Matchers.matches("MDC"), Matchers.<String>anyObject())).thenReturn(true);
         when(mock.getName()).thenReturn(name);
         when(mock.getId()).thenReturn(id);
         return mock;

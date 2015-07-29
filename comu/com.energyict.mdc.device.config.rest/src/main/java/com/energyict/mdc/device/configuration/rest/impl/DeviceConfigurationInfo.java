@@ -10,7 +10,6 @@ import com.fasterxml.jackson.annotation.JsonUnwrapped;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,6 +25,7 @@ public class DeviceConfigurationInfo {
     public Integer logBookCount;
     public Boolean canBeGateway;
     public Boolean isDirectlyAddressable;
+    public long version;
     @XmlJavaTypeAdapter(GatewayTypeAdapter.class)
     public GatewayType gatewayType;
     @JsonUnwrapped // As requested by ExtJS people
@@ -47,6 +47,7 @@ public class DeviceConfigurationInfo {
         canBeGateway = deviceConfiguration.canActAsGateway();
         gatewayType = deviceConfiguration.getGetwayType();
         isDirectlyAddressable = deviceConfiguration.isDirectlyAddressable();
+        version = deviceConfiguration.getVersion();
 
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = deviceConfiguration.getDeviceType().getDeviceProtocolPluggableClass();
         if (deviceProtocolPluggableClass!=null) {

@@ -1,9 +1,8 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 public class DeviceMessageEnablementInfo {

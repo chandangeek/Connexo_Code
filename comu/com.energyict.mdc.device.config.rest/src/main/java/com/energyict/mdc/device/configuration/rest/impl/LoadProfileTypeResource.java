@@ -1,17 +1,16 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.common.TranslatableApplicationException;
-import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.PagedInfoList;
+import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.security.Privileges;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.rest.LoadProfileTypeInfo;
-import com.energyict.mdc.device.config.security.Privileges;
 import com.google.common.base.Function;
-import java.util.Optional;
 import com.google.common.collect.Iterables;
 
 import javax.annotation.security.RolesAllowed;
@@ -32,6 +31,7 @@ import javax.ws.rs.core.UriInfo;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 public class LoadProfileTypeResource {

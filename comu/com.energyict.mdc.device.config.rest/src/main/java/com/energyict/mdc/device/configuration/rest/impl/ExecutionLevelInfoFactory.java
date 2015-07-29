@@ -4,9 +4,10 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.device.config.DeviceSecurityUserAction;
+
+import javax.inject.Inject;
 import java.util.Collection;
 import java.util.List;
-import javax.inject.Inject;
 
 import static java.util.stream.Collectors.toList;
 
@@ -30,7 +31,7 @@ public class ExecutionLevelInfoFactory {
                                 userAction.getPrivilege(),
                                 thesaurus.getString(userAction.getPrivilege(), userAction.getPrivilege()),
                                 userService.getGroups().stream()
-                                        .filter(group -> group.hasPrivilege(userAction.getPrivilege()))
+                                        .filter(group -> group.hasPrivilege("MDC", userAction.getPrivilege()))
                                         .sorted((group1, group2) -> group1.getName().compareToIgnoreCase(group2.getName()))
                                         .map(group -> new IdWithNameInfo(group.getId(), group.getName()))
                                         .collect(toList())))

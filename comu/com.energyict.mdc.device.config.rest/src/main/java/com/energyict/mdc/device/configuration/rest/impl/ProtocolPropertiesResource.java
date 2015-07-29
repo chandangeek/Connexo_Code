@@ -6,8 +6,7 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceProtocolConfigurationProperties;
 import com.energyict.mdc.device.configuration.rest.ProtocolInfo;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
-import java.util.Collections;
-import java.util.List;
+
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -17,6 +16,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.List;
 
 /**
  * Created by bvn on 12/2/14.

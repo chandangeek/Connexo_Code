@@ -2,7 +2,6 @@ package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
-import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleInfo;
 import com.energyict.mdc.masterdata.MeasurementType;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.rest.RegisterTypeInfo;
@@ -34,6 +33,7 @@ public class DeviceTypeInfo {
     public List<RegisterTypeInfo> registerTypes;
     public Long deviceLifeCycleId;
     public String deviceLifeCycleName;
+    public long version;
 
     public DeviceTypeInfo() {
     }
@@ -67,6 +67,7 @@ public class DeviceTypeInfo {
             deviceTypeInfo.deviceLifeCycleId = deviceLifeCycle.getId();
             deviceTypeInfo.deviceLifeCycleName = deviceLifeCycle.getName();
         }
+        deviceTypeInfo.version = deviceType.getVersion();
         return deviceTypeInfo;
     }
 

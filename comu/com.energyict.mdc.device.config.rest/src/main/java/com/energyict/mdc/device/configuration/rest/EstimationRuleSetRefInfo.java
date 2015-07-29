@@ -1,9 +1,9 @@
 package com.energyict.mdc.device.configuration.rest;
 
-import javax.xml.bind.annotation.XmlRootElement;
-
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.energyict.mdc.device.config.DeviceConfiguration;
+
+import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 public class EstimationRuleSetRefInfo {

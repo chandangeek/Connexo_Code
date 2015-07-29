@@ -13,31 +13,38 @@ import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.devtools.ExtjsFilter;
 import com.elster.jupiter.devtools.tests.Answers;
+import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.metering.IncompatibleFiniteStateMachineChangeException;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.time.TemporalExpression;
+import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.Unit;
-import com.elster.jupiter.rest.util.JsonQueryParameters;
-import com.elster.jupiter.domain.util.Finder;
+import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.GatewayType;
+import com.energyict.mdc.device.config.IncompatibleDeviceLifeCycleChangeException;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.RegisterSpec;
-import com.energyict.mdc.device.config.TextualRegisterSpec;
 import com.energyict.mdc.device.configuration.rest.RegisterConfigInfo;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
+import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleInfo;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.rest.RegisterTypeInfo;
@@ -46,6 +53,7 @@ import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
+import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.jayway.jsonpath.JsonModel;
 import java.io.ByteArrayInputStream;
 import java.math.BigDecimal;
@@ -70,7 +78,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -385,7 +395,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         assertThat(map.get("total")).describedAs("JSon representation of a field, JavaScript impact if it changed").isEqualTo(1);
         assertThat((List) map.get("deviceConfigurations")).hasSize(1).describedAs("JSon representation of a field, JavaScript impact if it changed");
         Map jsonDeviceConfiguration = (Map) ((List) map.get("deviceConfigurations")).get(0);
-        assertThat(jsonDeviceConfiguration).hasSize(12);
+        assertThat(jsonDeviceConfiguration).hasSize(13);
         assertThat(jsonDeviceConfiguration.get("id")).isEqualTo(113).describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceConfiguration.get("name")).isEqualTo("defcon").describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceConfiguration.get("active")).isEqualTo(true).describedAs("JSon representation of a field, JavaScript impact if it changed");
@@ -408,12 +418,17 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         when(deviceConfiguration.getId()).thenReturn(113L);
         RegisterType registerType = mock(RegisterType.class);
         ReadingType readingType = mockReadingType();
+        when(readingType.getAliasName()).thenReturn("alias");
         when(registerType.getReadingType()).thenReturn(readingType);
-        TextualRegisterSpec registerSpec = mock(TextualRegisterSpec.class);
-        when(registerSpec.isTextual()).thenReturn(true);
+        NumericalRegisterSpec registerSpec = mock(NumericalRegisterSpec.class);
+        when(registerSpec.isTextual()).thenReturn(false);
         when(registerSpec.getId()).thenReturn(1L);
         when(registerSpec.getRegisterType()).thenReturn(registerType);
         when(registerSpec.getUnit()).thenReturn(unit);
+        when(registerSpec.getDeviceObisCode()).thenReturn(new ObisCode());
+        when(registerSpec.getNumberOfDigits()).thenReturn(4);
+        when(registerSpec.getOverflowValue()).thenReturn(BigDecimal.ONE);
+        when(registerSpec.getNumberOfFractionDigits()).thenReturn(1);
         ObisCode obisCode = mockObisCode();
         when(registerSpec.getObisCode()).thenReturn(obisCode);
         when(deviceConfiguration.getRegisterSpecs()).thenReturn(Arrays.<RegisterSpec>asList(registerSpec));
@@ -422,20 +437,10 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         when(deviceConfigurationService.findDeviceType(6)).thenReturn(Optional.of(deviceType));
 
         Map<String, Object> jsonRegisterConfiguration = target("/devicetypes/6/deviceconfigurations/113/registerconfigurations/1").request().get(Map.class);
-        assertThat(jsonRegisterConfiguration).hasSize(13);
-        assertThat(jsonRegisterConfiguration.get("id")).describedAs("JSon representation of a field, JavaScript impact if it changed");
-        assertThat(jsonRegisterConfiguration.get("name")).describedAs("JSon representation of a field, JavaScript impact if it changed");
-        assertThat(jsonRegisterConfiguration.get("readingType")).describedAs("JSon representation of a field, JavaScript impact if it changed");
-        assertThat(jsonRegisterConfiguration.get("registerType")).describedAs("JSon representation of a field, JavaScript impact if it changed");
-        assertThat(jsonRegisterConfiguration.get("obisCode")).describedAs("JSon representation of a field, JavaScript impact if it changed");
-        assertThat(jsonRegisterConfiguration.get("overruledObisCode")).describedAs("JSon representation of a field, JavaScript impact if it changed");
-        assertThat(jsonRegisterConfiguration.get("obisCodeDescription")).describedAs("JSon representation of a field, JavaScript impact if it changed");
-        assertThat(jsonRegisterConfiguration.get("unitOfMeasure")).describedAs("JSon representation of a field, JavaScript impact if it changed");
-        assertThat(jsonRegisterConfiguration.get("numberOfDigits")).describedAs("JSon representation of a field, JavaScript impact if it changed");
-        assertThat(jsonRegisterConfiguration.get("numberOfFractionDigits")).describedAs("JSon representation of a field, JavaScript impact if it changed");
-        assertThat(jsonRegisterConfiguration.get("overflowValue")).describedAs("JSon representation of a field, JavaScript impact if it changed");
-        assertThat(jsonRegisterConfiguration.get("timeOfUse")).describedAs("JSon representation of a field, JavaScript impact if it changed");
-        assertThat(jsonRegisterConfiguration.get("asText")).describedAs("JSon representation of a field, JavaScript impact if it changed");
+//        assertThat(jsonRegisterConfiguration.keySet()).hasSize(13);
+        assertThat(jsonRegisterConfiguration.keySet()).containsOnly("id", "name", "readingType", "registerType", "obisCode", "overruledObisCode",
+                "obisCodeDescription", "unitOfMeasure", "numberOfDigits", "numberOfFractionDigits", "overflow", "timeOfUse", "asText")
+                .describedAs("JSon representation of a field, JavaScript impact if it changed");
     }
 
     @Test
@@ -640,6 +645,36 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         verify(deviceConfigurationBuilder).canActAsGateway(true);
         verify(deviceConfigurationBuilder).isDirectlyAddressable(false);
         verify(deviceConfigurationBuilder).description("desc");
+    }
+
+    @Test
+    public void testCloneDeviceConfiguration() throws Exception {
+        DeviceType deviceType = mockDeviceType("clone", 31L);
+        DeviceConfiguration deviceConfiguration101 = mock(DeviceConfiguration.class);
+        DeviceConfiguration deviceConfiguration102 = mock(DeviceConfiguration.class);
+
+        when(deviceConfiguration101.getId()).thenReturn(101L);
+        when(deviceConfiguration101.getDeviceType()).thenReturn(deviceType);
+        when(deviceConfiguration101.getName()).thenReturn("old name");
+
+        when(deviceConfiguration102.getId()).thenReturn(102L);
+        when(deviceConfiguration102.getDeviceType()).thenReturn(deviceType);
+        when(deviceConfiguration102.getName()).thenReturn("new name");
+
+        when(deviceConfigurationService.findDeviceType(31L)).thenReturn(Optional.of(deviceType));
+        when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(anyLong(), anyLong())).thenReturn(Optional.of(deviceConfiguration101));
+        when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration101, deviceConfiguration102));
+
+        DeviceConfigurationInfo deviceConfigurationInfo = new DeviceConfigurationInfo(deviceConfiguration101);
+        deviceConfigurationInfo.name = "new name";
+
+        when(deviceConfigurationService.cloneDeviceConfiguration(deviceConfiguration101, deviceConfigurationInfo.name)).thenReturn(deviceConfiguration102);
+        Entity<DeviceConfigurationInfo> json = Entity.json(deviceConfigurationInfo);
+        Response response = target("/devicetypes/31/deviceconfigurations/101").request().post(json);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        assertThat(deviceConfiguration101.getId()).isNotEqualTo(deviceConfiguration102.getId());
+        assertThat(deviceConfiguration101.getName()).isNotEqualTo(deviceConfiguration102.getName());
+        assertThat(deviceConfiguration101.getDeviceType()).isEqualTo(deviceConfiguration102.getDeviceType());
     }
 
     @Test
@@ -933,7 +968,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         when(deviceConfigurationService.findDeviceType(deviceType_id)).thenReturn(Optional.of(deviceType));
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
 
-        Response response = target("/devicetypes/31/registertypes").queryParam("start",10).queryParam("limit",10).queryParam("filter",  ExtjsFilter.filter().property("available", "true").property("deviceconfigurationid", 41l).create()).request().get();
+        Response response = target("/devicetypes/31/registertypes").queryParam("start",10).queryParam("limit", 10).queryParam("filter",  ExtjsFilter.filter().property("available", "true").property("deviceconfigurationid", 41l).create()).request().get();
         JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
         assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(21);
         assertThat(jsonModel.<List<RegisterType>>get("$.registerTypes")).hasSize(10);
@@ -1113,7 +1148,6 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
     }
 
     @Test
-//    @Ignore // TODO Re-enable once Environement is removed from SimplePropertyType
     public void testGetAllConnectionMethodJavaScriptMappings() throws Exception {
         long deviceType_id = 41L;
         long deviceConfig_id = 51L;
@@ -1123,13 +1157,21 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         DeviceType deviceType = mock(DeviceType.class);
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
         when(deviceConfigurationService.findDeviceType(deviceType_id)).thenReturn(Optional.of(deviceType));
-        PartialInboundConnectionTask partialConnectionTask = mock(PartialInboundConnectionTask.class);
+        PartialScheduledConnectionTask partialConnectionTask = mock(PartialScheduledConnectionTask.class);
         ConnectionTypePluggableClass connectionTypePluggableClass = mock(ConnectionTypePluggableClass.class);
         when(connectionTypePluggableClass.getName()).thenReturn("connection type PC");
         ConnectionType connectionType = mock(ConnectionType.class);
         when(partialConnectionTask.getConnectionType()).thenReturn(connectionType);
         when(partialConnectionTask.getId()).thenReturn(connectionMethodId);
         when(partialConnectionTask.getName()).thenReturn("connection method");
+        when(partialConnectionTask.getCommunicationWindow()).thenReturn(new ComWindow(100,200));
+        when(partialConnectionTask.isSimultaneousConnectionsAllowed()).thenReturn(true);
+        when(partialConnectionTask.getConnectionStrategy()).thenReturn(ConnectionStrategy.AS_SOON_AS_POSSIBLE);
+        when(partialConnectionTask.getRescheduleDelay()).thenReturn(TimeDuration.minutes(15));
+        when(partialConnectionTask.getProperties()).thenReturn(Collections.emptyList());
+        NextExecutionSpecs nextExecSpecs = mock(NextExecutionSpecs.class);
+        when(nextExecSpecs.getTemporalExpression()).thenReturn(new TemporalExpression(TimeDuration.minutes(60)));
+        when(partialConnectionTask.getNextExecutionSpecs()).thenReturn(nextExecSpecs);
         PropertySpec propertySpec1 = mock(PropertySpec.class);
         when(propertySpec1.getName()).thenReturn("macAddress");
         when(propertySpec1.getValueFactory()).thenReturn(new StringFactory());
@@ -1138,7 +1180,6 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         when(partialConnectionTask.getTypedProperties()).thenReturn(typedProperties);
         when(connectionType.getPropertySpecs()).thenReturn(Arrays.<PropertySpec>asList(propertySpec1));
         when(partialConnectionTask.getPluggableClass()).thenReturn(connectionTypePluggableClass);
-        when(partialConnectionTask.getPluggableClass()).thenReturn(connectionTypePluggableClass);
         when(deviceConfiguration.getPartialConnectionTasks()).thenReturn(Arrays.<PartialConnectionTask>asList(partialConnectionTask));
         Map<String, Object> response = target("/devicetypes/41/deviceconfigurations/51/connectionmethods").request().get(Map.class);
         assertThat(response).hasSize(2);
@@ -1146,7 +1187,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         List<Map<String, Object>> connectionMethods = (List<Map<String, Object>>) response.get("data");
         assertThat(connectionMethods).hasSize(1);
         Map<String, Object> connectionMethod = connectionMethods.get(0);
-        assertThat(connectionMethod).hasSize(13)
+        assertThat(connectionMethod).hasSize(12)
                 .containsKey("id")
                 .containsKey("name")
                 .containsKey("direction")
@@ -1168,18 +1209,6 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
                 .containsKey("propertyValueInfo")
                 .containsKey("propertyTypeInfo")
                 .containsKey("required");
-        Map<String, Object> propertyValueInfo = (Map<String, Object>) macAddressProperty.get("propertyValueInfo");
-        assertThat(propertyValueInfo).hasSize(4)
-                .containsKey("inheritedValue")
-                .containsKey("defaultValue")
-                .containsKey("propertyHasValue")
-                .containsKey("value");
-        Map<String, Object> propertyTypeInfo = (Map<String, Object>) macAddressProperty.get("propertyTypeInfo");
-        assertThat(propertyTypeInfo).hasSize(4)
-                .containsKey("simplePropertyType")
-                .containsKey("propertyValidationRule")
-                .containsKey("predefinedPropertyValuesInfo")
-                .containsKey("referenceUri");
     }
 
     @Test
@@ -1194,7 +1223,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         when(deviceConfigurationService.findDeviceType(deviceType_id)).thenReturn(Optional.of(deviceType));
         PartialScheduledConnectionTask partialConnectionTask = mock(PartialScheduledConnectionTask.class);
         when(partialConnectionTask.getId()).thenReturn(connectionMethodId);
-        when(deviceConfigurationService.getPartialConnectionTask(connectionMethodId)).thenReturn(Optional.<PartialConnectionTask>of(partialConnectionTask));
+        when(deviceConfigurationService.findPartialConnectionTask(connectionMethodId)).thenReturn(Optional.<PartialConnectionTask>of(partialConnectionTask));
         ConnectionTypePluggableClass connectionTypePluggableClass = mock(ConnectionTypePluggableClass.class);
         when(protocolPluggableService.findConnectionTypePluggableClassByName("ConnType")).thenReturn(Optional.of(connectionTypePluggableClass));
         when(partialConnectionTask.getPluggableClass()).thenReturn(connectionTypePluggableClass); // it will not be set in the PUT!
@@ -1291,11 +1320,6 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         Entity<DeviceTypeInfo> json = Entity.json(deviceTypeInfo);
         Response response = target("/devicetypes/31").request().put(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        ByteArrayInputStream entity = (ByteArrayInputStream) response.getEntity();
-        byte[] bytes = new byte[entity.available()];
-        entity.read(bytes, 0, entity.available());
-        String answer = new String(bytes);
-        assertThat(answer).contains("\"message\"").contains("\"errors\"");
     }
 
     @Test
@@ -1323,6 +1347,98 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         assertThat(data.get(0).get("id")).isEqualTo(104);
         assertThat(response).isNotNull();
 
+    }
+
+    @Test
+    public void testUpdateDeviceLifeCycleForDeviceTypeSuccess() throws Exception {
+        DeviceType deviceType = mock(DeviceType.class);
+        when(deviceType.getId()).thenReturn(1L);
+        when(deviceType.getName()).thenReturn("Device Type 1");
+        when(deviceType.getLoadProfileTypes()).thenReturn(Collections.emptyList());
+        when(deviceType.getRegisterTypes()).thenReturn(Collections.emptyList());
+        when(deviceType.getLogBookTypes()).thenReturn(Collections.emptyList());
+        when(deviceType.getConfigurations()).thenReturn(Collections.emptyList());
+        when(deviceType.canActAsGateway()).thenReturn(true);
+        when(deviceType.isDirectlyAddressable()).thenReturn(true);
+        when(deviceType.getVersion()).thenReturn(1L);
+        DeviceLifeCycle targetDeviceLifeCycle = mock(DeviceLifeCycle.class);
+        when(targetDeviceLifeCycle.getId()).thenReturn(2L);
+        when(targetDeviceLifeCycle.getName()).thenReturn("Device life cycle 2");
+        when(deviceConfigurationService.findAndLockDeviceType(1L, 1)).thenReturn(Optional.of(deviceType));
+        when(deviceLifeCycleConfigurationService.findDeviceLifeCycle(2L)).thenReturn(Optional.of(targetDeviceLifeCycle));
+        when(deviceType.getDeviceLifeCycle()).thenReturn(targetDeviceLifeCycle);
+
+        ChangeDeviceLifeCycleInfo info = new ChangeDeviceLifeCycleInfo();
+        info.targetDeviceLifeCycle = new DeviceLifeCycleInfo();
+        info.targetDeviceLifeCycle.id = 2;
+        info.version = 1;
+        Entity<ChangeDeviceLifeCycleInfo> json = Entity.json(info);
+        Response response = target("/devicetypes/1/devicelifecycle").request().put(json);
+        assertThat(response.getStatus()).isEqualTo(200);
+        verify(deviceConfigurationService).changeDeviceLifeCycle(deviceType, targetDeviceLifeCycle);
+    }
+    @Test
+    public void testUpdateDeviceLifeCycleForDeviceTypeFail() throws Exception {
+        DeviceType deviceType = mock(DeviceType.class);
+        when(deviceType.getId()).thenReturn(1L);
+        when(deviceType.getName()).thenReturn("Device Type 1");
+        when(deviceType.getLoadProfileTypes()).thenReturn(Collections.emptyList());
+        when(deviceType.getRegisterTypes()).thenReturn(Collections.emptyList());
+        when(deviceType.getLogBookTypes()).thenReturn(Collections.emptyList());
+        when(deviceType.getConfigurations()).thenReturn(Collections.emptyList());
+        when(deviceType.canActAsGateway()).thenReturn(true);
+        when(deviceType.isDirectlyAddressable()).thenReturn(true);
+        when(deviceType.getVersion()).thenReturn(1L);
+
+        DeviceLifeCycle targetDeviceLifeCycle = mock(DeviceLifeCycle.class, RETURNS_DEEP_STUBS);
+        when(targetDeviceLifeCycle.getId()).thenReturn(2L);
+        when(targetDeviceLifeCycle.getName()).thenReturn("Device life cycle 2");
+
+        DeviceLifeCycle oldDeviceLifeCycle = mock(DeviceLifeCycle.class, RETURNS_DEEP_STUBS);
+        when(oldDeviceLifeCycle.getId()).thenReturn(1L);
+        when(oldDeviceLifeCycle.getName()).thenReturn("Device life cycle 1");
+
+        when(deviceConfigurationService.findAndLockDeviceType(1L, 1)).thenReturn(Optional.of(deviceType));
+        when(deviceLifeCycleConfigurationService.findDeviceLifeCycle(2L)).thenReturn(Optional.of(targetDeviceLifeCycle));
+        when(deviceType.getDeviceLifeCycle()).thenReturn(oldDeviceLifeCycle);
+
+        State state = mock(State.class, RETURNS_DEEP_STUBS);
+        when(state.getId()).thenReturn(1L);
+        when(state.getName()).thenReturn("Some state");
+
+        IncompatibleFiniteStateMachineChangeException fsmEx = new IncompatibleFiniteStateMachineChangeException(state);
+        IncompatibleDeviceLifeCycleChangeException dldEx = IncompatibleDeviceLifeCycleChangeException.wrapping(fsmEx);
+        doThrow(dldEx).when(deviceConfigurationService).changeDeviceLifeCycle(deviceType, targetDeviceLifeCycle);
+        ChangeDeviceLifeCycleInfo info = new ChangeDeviceLifeCycleInfo();
+        info.targetDeviceLifeCycle = new DeviceLifeCycleInfo();
+        info.targetDeviceLifeCycle.id = 2;
+        info.version = 1;
+        Entity<ChangeDeviceLifeCycleInfo> json = Entity.json(info);
+        Response response = target("/devicetypes/1/devicelifecycle").request().put(json);
+        assertThat(response.getStatus()).isEqualTo(400);
+        verify(deviceConfigurationService).changeDeviceLifeCycle(deviceType, targetDeviceLifeCycle);
+        JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
+        assertThat(jsonModel.<Boolean>get("$.success")).isEqualTo(false);
+        assertThat(jsonModel.<String>get("$.message")).isNotEmpty();
+        assertThat(jsonModel.<Number>get("$.currentDeviceLifeCycle.id")).isEqualTo(1);
+        assertThat(jsonModel.<String>get("$.currentDeviceLifeCycle.name")).isEqualTo("Device life cycle 1");
+        assertThat(jsonModel.<Number>get("$.targetDeviceLifeCycle.id")).isEqualTo(2);
+        assertThat(jsonModel.<String>get("$.targetDeviceLifeCycle.name")).isEqualTo("Device life cycle 2");
+        assertThat(jsonModel.<List>get("$.notMappableStates")).isNotEmpty();
+        assertThat(jsonModel.<String>get("$.notMappableStates.[0].name")).isEqualTo("Some state");
+    }
+
+    @Test
+    public void testUpdateDeviceLifeCycleForDeviceTypeVersionicFail() throws Exception {
+        when(deviceConfigurationService.findAndLockDeviceType(1L, 100)).thenReturn(Optional.empty());
+
+        ChangeDeviceLifeCycleInfo info = new ChangeDeviceLifeCycleInfo();
+        info.targetDeviceLifeCycle = new DeviceLifeCycleInfo();
+        info.targetDeviceLifeCycle.id = 2;
+        info.version = 100;
+        Entity<ChangeDeviceLifeCycleInfo> json = Entity.json(info);
+        Response response = target("/devicetypes/1/devicelifecycle").request().put(json);
+        assertThat(response.getStatus()).isEqualTo(409);
     }
 
     private ConnectionTask<?, ?> mockConnectionTask(long partialConnectionTaskId) {
