@@ -1,5 +1,6 @@
 package com.elster.jupiter.fileimport.rest.impl;
 
+import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
@@ -16,15 +17,18 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.ws.rs.core.Application;
+import java.nio.file.FileSystem;
 import java.util.*;
 
 @Component(name = "com.elster.jupiter.fileimport.rest", service = {Application.class, InstallService.class}, immediate = true, property = {"alias=/fir", "app=SYS", "name=" + FileImportApplication.COMPONENT_NAME})
 public class FileImportApplication extends Application implements InstallService {
     public static final String COMPONENT_NAME = "FIR";
     private volatile FileImportService fileImportService;
+    private volatile AppService appService;
     private volatile TransactionService transactionService;
     private volatile RestQueryService restQueryService;
     private volatile CronExpressionParser cronExpressionParser;
+    private volatile FileSystem fileSystem;
 
     private NlsService nlsService;
     private volatile Thesaurus thesaurus;
@@ -46,6 +50,11 @@ public class FileImportApplication extends Application implements InstallService
     }
 
     @Reference
+    public void setFileSystem(FileSystem fileSystem) {
+        this.fileSystem = fileSystem;
+    }
+
+    @Reference
     public void setRestQueryService(RestQueryService restQueryService) {
         this.restQueryService = restQueryService;
     }
@@ -53,6 +62,11 @@ public class FileImportApplication extends Application implements InstallService
     @Reference
     public void setCronExpressionParser(CronExpressionParser cronExpressionParser) {
         this.cronExpressionParser = cronExpressionParser;
+    }
+
+    @Reference
+    public void setAppService(AppService appService) {
+        this.appService = appService;
     }
 
     @Reference
@@ -99,6 +113,8 @@ public class FileImportApplication extends Application implements InstallService
                 bind(cronExpressionParser).to(CronExpressionParser.class);
                 bind(thesaurus).to(Thesaurus.class);
                 bind(transactionService).to(TransactionService.class);
+                bind(fileSystem).to(FileSystem.class);
+                bind(appService).to(AppService.class);
             }
         });
         return Collections.unmodifiableSet(hashSet);

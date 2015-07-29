@@ -1,18 +1,12 @@
-package com.elster.upiter.fileimport.rest.impl;
+package com.elster.jupiter.fileimport.rest.impl;
 
-import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.fileimport.FileImporter;
 import com.elster.jupiter.fileimport.FileImporterFactory;
 import com.elster.jupiter.fileimport.ImportSchedule;
 import com.elster.jupiter.fileimport.ImportScheduleBuilder;
-import com.elster.jupiter.fileimport.rest.impl.FileImportScheduleInfo;
-import com.elster.jupiter.fileimport.rest.impl.FileImportScheduleInfos;
-import com.elster.jupiter.fileimport.rest.impl.FileImporterInfo;
 import com.elster.jupiter.messaging.DestinationSpec;
-import com.elster.jupiter.rest.util.QueryParameters;
-import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.transaction.Transaction;
-import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.time.ScheduleExpression;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -24,8 +18,9 @@ import org.mockito.stubbing.Answer;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
-import java.io.File;
+import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -44,7 +39,7 @@ public class FileImportScheduleResourceTest  extends FileImportApplicationTest {
     @Test
     public void testGetImportSchedules() {
         mockImportSchedules(mockImportSchedule(1));
-        Response response = target("/importservices").queryParam("application", "SYS").request().get();
+        Response response = target("/importservices").request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
 
         FileImportScheduleInfos infos = response.readEntity(FileImportScheduleInfos.class);
@@ -69,7 +64,7 @@ public class FileImportScheduleResourceTest  extends FileImportApplicationTest {
     @Test
     public void testAddImportSchedules() {
         ImportSchedule schedule = mockImportSchedule(1);
-        FileImportScheduleInfo info = new FileImportScheduleInfo(schedule, thesaurus, propertyUtils);
+        FileImportScheduleInfo info = new FileImportScheduleInfo(schedule, appService, thesaurus, propertyUtils);
         info.importerInfo = new FileImporterInfo();
         info.importerInfo.name = "Test importer";
         info.importerInfo.displayName = "Display test importer";
@@ -81,10 +76,10 @@ public class FileImportScheduleResourceTest  extends FileImportApplicationTest {
         when(builder.setName(any(String.class))).thenReturn(builder);
         when(builder.setDestination(any(String.class))).thenReturn(builder);
         when(builder.setPathMatcher(any(String.class))).thenReturn(builder);
-        when(builder.setImportDirectory(any(File.class))).thenReturn(builder);
-        when(builder.setFailureDirectory(any(File.class))).thenReturn(builder);
-        when(builder.setProcessingDirectory(any(File.class))).thenReturn(builder);
-        when(builder.setSuccessDirectory(any(File.class))).thenReturn(builder);
+        when(builder.setImportDirectory(any(Path.class))).thenReturn(builder);
+        when(builder.setFailureDirectory(any(Path.class))).thenReturn(builder);
+        when(builder.setProcessingDirectory(any(Path.class))).thenReturn(builder);
+        when(builder.setSuccessDirectory(any(Path.class))).thenReturn(builder);
         when(builder.setImporterName(any(String.class))).thenReturn(builder);
         when(builder.setScheduleExpression(any(ScheduleExpression.class))).thenReturn(builder);
 
@@ -102,7 +97,7 @@ public class FileImportScheduleResourceTest  extends FileImportApplicationTest {
     public void testEditImportSchedule() {
         ImportSchedule schedule = mockImportSchedule(1);
 
-        FileImportScheduleInfo info = new FileImportScheduleInfo(schedule, thesaurus, propertyUtils);
+        FileImportScheduleInfo info = new FileImportScheduleInfo(schedule, appService, thesaurus, propertyUtils);
         info.importerInfo = new FileImporterInfo();
         info.name = "New name";
         info.importDirectory = "New folder";
@@ -146,26 +141,25 @@ public class FileImportScheduleResourceTest  extends FileImportApplicationTest {
     private void mockImporters() {
         FileImporterFactory importerFactory = mock(FileImporterFactory.class);
         FileImporter importer = mock(FileImporter.class);
-
+        when(appService.getImportScheduleAppServers(Matchers.anyLong())).thenReturn(Collections.emptyList());
         when(fileImportService.getAvailableImporters("SYS")).thenReturn(ImmutableList.of(importerFactory));
         when(importerFactory.getApplicationName()).thenReturn("SYS");
         when(importerFactory.getName()).thenReturn("Test importer");
         when(importerFactory.getDestinationName()).thenReturn("TestDestination");
-        when(importerFactory.getProperties()).thenReturn(ImmutableList.of());
+        when(importerFactory.getPropertySpecs()).thenReturn(ImmutableList.of());
         when(importerFactory.createImporter(anyMap())).thenReturn(importer);
     }
 
     private void mockImportSchedules(ImportSchedule... importSchedules) {
-        Query<ImportSchedule> query = mock(Query.class);
-        when(fileImportService.getImportSchedulesQuery()).thenReturn(query);
-        RestQuery<ImportSchedule> restQuery = mock(RestQuery.class);
-        when(restQueryService.wrap(query)).thenReturn(restQuery);
-        when(restQuery.select(any(QueryParameters.class), any(Order.class))).thenReturn(Arrays.asList(importSchedules));
+        Finder<ImportSchedule> finder = mock(Finder.class);
+        when(fileImportService.findImportSchedules(Matchers.anyString())).thenReturn(finder);
+        when(finder.from(any())).thenReturn(finder);
+        when(finder.find()).thenReturn(Arrays.asList(importSchedules));
     }
 
     private ImportSchedule mockImportSchedule(long id) {
-        File testFolder = mock(File.class);
-        when(testFolder.getAbsolutePath()).thenReturn("//test/path");
+        Path testFolder = mock(Path.class);
+        when(testFolder.toString()).thenReturn("//test/path");
 
         ImportSchedule schedule = mock(ImportSchedule.class);
         when(schedule.getId()).thenReturn(id);
@@ -181,6 +175,9 @@ public class FileImportScheduleResourceTest  extends FileImportApplicationTest {
         when(schedule.getSuccessDirectory()).thenReturn(testFolder);
         when(schedule.getPropertySpecs()).thenReturn(ImmutableList.of());
         when(schedule.getProperties()).thenReturn(ImmutableMap.of());
+        when(schedule.isImporterAvailable()).thenReturn(true);
+        when(schedule.isDeleted()).thenReturn(false);
+        when(schedule.isActive()).thenReturn(true);
 
         return  schedule;
     }

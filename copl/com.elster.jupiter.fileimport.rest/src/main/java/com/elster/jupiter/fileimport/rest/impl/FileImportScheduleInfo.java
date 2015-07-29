@@ -1,5 +1,6 @@
 package com.elster.jupiter.fileimport.rest.impl;
 
+import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.fileimport.ImportSchedule;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
@@ -21,7 +22,10 @@ public class FileImportScheduleInfo {
     public long id;
     public String name;
     public Boolean active;
-    public String destinationName;
+    public Boolean deleted;
+    public Boolean scheduled;
+    public Boolean importerAvailable;
+    //public String destinationName;
     public String importDirectory;
     public String inProcessDirectory;
     public String successDirectory;
@@ -37,19 +41,19 @@ public class FileImportScheduleInfo {
     public FileImportScheduleInfo(){
 
     }
-    public FileImportScheduleInfo(ImportSchedule importSchedule, Thesaurus thesaurus, PropertyUtils propertyUtils) {
-
+    public FileImportScheduleInfo(ImportSchedule importSchedule, AppService appService, Thesaurus thesaurus, PropertyUtils propertyUtils) {
         id = importSchedule.getId();
         active = importSchedule.isActive();
         name = importSchedule.getName();
-        destinationName = importSchedule.getDestination().getName();
-        importDirectory = importSchedule.getImportDirectory().getAbsolutePath();
-        inProcessDirectory = importSchedule.getInProcessDirectory().getAbsolutePath();
-        successDirectory = importSchedule.getSuccessDirectory().getAbsolutePath();
-        failureDirectory = importSchedule.getFailureDirectory().getAbsolutePath();
+        importDirectory = importSchedule.getImportDirectory().toString();
+        inProcessDirectory = importSchedule.getInProcessDirectory().toString();
+        successDirectory = importSchedule.getSuccessDirectory().toString();
+        failureDirectory = importSchedule.getFailureDirectory().toString();
         pathMatcher = importSchedule.getPathMatcher();
         importerName = importSchedule.getImporterName();
         application = importSchedule.getApplicationName();
+        deleted = importSchedule.isDeleted();
+        importerAvailable = importSchedule.isImporterAvailable();
 
         importerInfo = new FileImporterInfo(importerName,
                 thesaurus.getStringBeyondComponent(importerName, importerName), Collections.<PropertyInfo>emptyList() );
@@ -71,7 +75,11 @@ public class FileImportScheduleInfo {
             }
         }
 
+        scheduled = appService.getImportScheduleAppServers(id).size() > 0;
+
+
         properties = propertyUtils.convertPropertySpecsToPropertyInfos(importSchedule.getPropertySpecs(), importSchedule.getProperties());
 
     }
+
 }

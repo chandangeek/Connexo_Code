@@ -1,15 +1,10 @@
-package com.elster.upiter.fileimport.rest.impl;
+package com.elster.jupiter.fileimport.rest.impl;
 
 import com.elster.jupiter.fileimport.FileImporter;
 import com.elster.jupiter.fileimport.FileImporterFactory;
-import com.elster.jupiter.fileimport.rest.impl.FileImporterInfos;
-import com.elster.jupiter.transaction.Transaction;
 import com.google.common.collect.ImmutableList;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Matchers;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 import javax.ws.rs.core.Response;
 
@@ -27,7 +22,7 @@ public class FileImportersResourceTest extends FileImportApplicationTest {
 
     @Test
     public void testSysGetImporters() {
-        Response response = target("/importers").queryParam("application", "SYS").request().get();
+        Response response = target("/importers").request().header("X-CONNEXO-APPLICATION-NAME", "SYS").get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
 
         FileImporterInfos infos = response.readEntity(FileImporterInfos.class);
@@ -40,7 +35,7 @@ public class FileImportersResourceTest extends FileImportApplicationTest {
 
     @Test
     public void testMdcGetImporters() {
-        Response response = target("/importers").queryParam("application", "MDC").request().get();
+        Response response = target("/importers").request().header("X-CONNEXO-APPLICATION-NAME", "MDC").get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
 
         FileImporterInfos infos = response.readEntity(FileImporterInfos.class);
@@ -57,7 +52,7 @@ public class FileImportersResourceTest extends FileImportApplicationTest {
         when(importerFactory.getApplicationName()).thenReturn("SYS");
         when(importerFactory.getName()).thenReturn("Test importer");
         when(importerFactory.getDestinationName()).thenReturn("TestDestination");
-        when(importerFactory.getProperties()).thenReturn(ImmutableList.of());
+        when(importerFactory.getPropertySpecs()).thenReturn(ImmutableList.of());
         when(importerFactory.createImporter(anyMap())).thenReturn(importer);
     }
 }

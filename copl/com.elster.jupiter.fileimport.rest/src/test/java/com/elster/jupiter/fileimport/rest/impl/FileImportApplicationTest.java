@@ -1,5 +1,6 @@
-package com.elster.upiter.fileimport.rest.impl;
+package com.elster.jupiter.fileimport.rest.impl;
 
+import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fileimport.rest.impl.FileImportApplication;
@@ -12,6 +13,8 @@ import org.mockito.Mock;
 
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.SecurityContext;
+
+import java.nio.file.FileSystem;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
@@ -27,7 +30,12 @@ public class FileImportApplicationTest extends FelixRestApplicationJerseyTest {
     @Mock
     static SecurityContext securityContext;
     @Mock
+    static FileSystem fileSystem;
+    @Mock
     PropertyUtils propertyUtils;
+
+    @Mock
+    public AppService appService;
 
     @Override
     protected MessageSeed[] getMessageSeeds() {
@@ -44,6 +52,8 @@ public class FileImportApplicationTest extends FelixRestApplicationJerseyTest {
         application.setTransactionService(transactionService);
         application.setCronExpressionParser(cronExpressionParser);
         application.setNlsService(nlsService);
+        application.setFileSystem(fileSystem);
+        application.setAppService(appService);
 
         return application;
     }
