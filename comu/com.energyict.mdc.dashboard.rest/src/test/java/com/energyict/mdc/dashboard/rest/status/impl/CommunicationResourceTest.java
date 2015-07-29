@@ -22,7 +22,7 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecutionFilterSpecificationMe
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskFilterSpecification;
 import com.energyict.mdc.device.data.tasks.ItemizeCommunicationsFilterQueueMessage;
-import com.energyict.mdc.device.data.tasks.ItemizeConnectionFilterQueueMessage;
+import com.energyict.mdc.device.data.tasks.ItemizeConnectionFilterRescheduleQueueMessage;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
@@ -143,7 +143,8 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
         when(comTask2.getId()).thenReturn(12L);
         ComTask comTask3 = mock(ComTask.class);
         when(comTask3.getId()).thenReturn(13L);
-        when(taskService.findAllComTasks()).thenReturn(Arrays.asList(comTask1, comTask2, comTask3));
+        Finder<ComTask> comTaskFinder = mockFinder(Arrays.asList(comTask1, comTask2, comTask3));
+        when(taskService.findAllComTasks()).thenReturn(comTaskFinder);
 
         Map<String, Object> map = target("/communications").queryParam("filter", ExtjsFilter.filter("comTasks", Arrays.asList(13l, 12l))).queryParam("start", 0).queryParam("limit", 10).request().get(Map.class);
 
@@ -422,7 +423,7 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
 
         ArgumentCaptor<Object> argumentCaptor = ArgumentCaptor.forClass(Object.class);
         verify(jsonService).serialize(argumentCaptor.capture());
-        assertThat(argumentCaptor.getValue() instanceof ItemizeConnectionFilterQueueMessage);
+        assertThat(argumentCaptor.getValue() instanceof ItemizeConnectionFilterRescheduleQueueMessage);
         ItemizeCommunicationsFilterQueueMessage itemizeConnectionFilterQueueMessage = (ItemizeCommunicationsFilterQueueMessage) argumentCaptor.getValue();
         assertThat(itemizeConnectionFilterQueueMessage.comTaskExecutionFilterSpecificationMessage.currentStates).containsOnly(TaskStatus.OnHold.name());
         assertThat(itemizeConnectionFilterQueueMessage.comTaskExecutionFilterSpecificationMessage.deviceGroups).containsOnly(1003L);

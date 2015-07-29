@@ -44,11 +44,14 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.FilterFactory;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.status.StatusService;
 import com.energyict.mdc.favorites.FavoritesService;
+import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
+import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
@@ -97,6 +100,7 @@ public class DashboardApplication extends Application implements TranslationKeyP
     private volatile MessageService messageService;
     private volatile JsonService jsonService;
     private volatile AppService appService;
+    private volatile FirmwareService firmwareService;
 
     private Clock clock = Clock.systemDefaultZone();
 
@@ -221,6 +225,11 @@ public class DashboardApplication extends Application implements TranslationKeyP
         this.appService = appService;
     }
 
+    @Reference
+    public void setFirmwareService(FirmwareService firmwareService) {
+        this.firmwareService = firmwareService;
+    }
+
     // Only for testing purposes
     public void setClock(Clock clock) {
         this.clock = clock;
@@ -291,6 +300,9 @@ public class DashboardApplication extends Application implements TranslationKeyP
             bind(clock).to(Clock.class);
             bind(jsonService).to(JsonService.class);
             bind(appService).to(AppService.class);
+            bind(MdcPropertyUtils.class).to(MdcPropertyUtils.class);
+            bind(firmwareService).to(FirmwareService.class);
+            bind(FilterFactory.class).to(FilterFactory.class);
         }
     }
 

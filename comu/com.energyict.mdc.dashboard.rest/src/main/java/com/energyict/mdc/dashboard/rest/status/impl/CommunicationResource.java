@@ -215,7 +215,7 @@ public class CommunicationResource {
         filter.comTasks = new HashSet<>();
         if (jsonQueryFilter.hasProperty(FilterOption.comTasks.name())) {
             List<Long> comTaskIds = jsonQueryFilter.getLongList(FilterOption.comTasks.name());
-            filter.comTasks.addAll(getObjectsByIdFromList(comTaskIds, taskService.findAllComTasks()));
+            filter.comTasks.addAll(getObjectsByIdFromList(comTaskIds, taskService.findAllComTasks().find()));
         }
 
         filter.deviceTypes = new HashSet<>();

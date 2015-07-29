@@ -4,9 +4,15 @@ import com.elster.jupiter.devtools.ExtjsFilter;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageBuilder;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
+import com.elster.jupiter.properties.BasicPropertySpec;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.StringFactory;
+import com.elster.jupiter.rest.util.properties.PropertyInfo;
+import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.ComWindow;
+import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.interval.PartialTime;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -18,7 +24,7 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskFilterSpecification;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskFilterSpecificationMessage;
-import com.energyict.mdc.device.data.tasks.ItemizeConnectionFilterQueueMessage;
+import com.energyict.mdc.device.data.tasks.ItemizeConnectionFilterRescheduleQueueMessage;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
@@ -29,6 +35,7 @@ import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
+import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.model.ComSchedule;
@@ -39,7 +46,9 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -191,23 +200,23 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         ConnectionsBulkRequestInfo info = new ConnectionsBulkRequestInfo();
         info.filter = message;
         Response response = target("/connections/run").request().put(Entity.json(info));
-        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        assertThat(response.getStatus()).isEqualTo(Response.Status.ACCEPTED.getStatusCode());
 
         ArgumentCaptor<Object> argumentCaptor = ArgumentCaptor.forClass(Object.class);
         verify(jsonService).serialize(argumentCaptor.capture());
-        assertThat(argumentCaptor.getValue() instanceof ItemizeConnectionFilterQueueMessage);
-        ItemizeConnectionFilterQueueMessage itemizeConnectionFilterQueueMessage = (ItemizeConnectionFilterQueueMessage) argumentCaptor.getValue();
-        assertThat(itemizeConnectionFilterQueueMessage.connectionTaskFilterSpecification.comPortPools).containsOnly(1001L);
-        assertThat(itemizeConnectionFilterQueueMessage.connectionTaskFilterSpecification.currentStates).containsOnly(TaskStatus.OnHold.name());
-        assertThat(itemizeConnectionFilterQueueMessage.connectionTaskFilterSpecification.connectionTypes).containsOnly(1002L);
-        assertThat(itemizeConnectionFilterQueueMessage.connectionTaskFilterSpecification.deviceGroups).containsOnly(1003L);
-        assertThat(itemizeConnectionFilterQueueMessage.connectionTaskFilterSpecification.latestResults).containsOnly(ComSession.SuccessIndicator.Broken.name());
-        assertThat(itemizeConnectionFilterQueueMessage.connectionTaskFilterSpecification.latestStates).containsOnly( ConnectionTask.SuccessIndicator.FAILURE.name());
-        assertThat(itemizeConnectionFilterQueueMessage.connectionTaskFilterSpecification.deviceTypes).containsOnly(1004L, 1005L);
-        assertThat(itemizeConnectionFilterQueueMessage.connectionTaskFilterSpecification.startIntervalFrom).isEqualTo(now);
-        assertThat(itemizeConnectionFilterQueueMessage.connectionTaskFilterSpecification.startIntervalTo).isEqualTo(now);
-        assertThat(itemizeConnectionFilterQueueMessage.connectionTaskFilterSpecification.finishIntervalFrom).isEqualTo(now);
-        assertThat(itemizeConnectionFilterQueueMessage.connectionTaskFilterSpecification.finishIntervalTo).isEqualTo(now);
+        assertThat(argumentCaptor.getValue() instanceof ItemizeConnectionFilterRescheduleQueueMessage);
+        ItemizeConnectionFilterRescheduleQueueMessage itemizeConnectionFilterRescheduleQueueMessage = (ItemizeConnectionFilterRescheduleQueueMessage) argumentCaptor.getValue();
+        assertThat(itemizeConnectionFilterRescheduleQueueMessage.connectionTaskFilterSpecification.comPortPools).containsOnly(1001L);
+        assertThat(itemizeConnectionFilterRescheduleQueueMessage.connectionTaskFilterSpecification.currentStates).containsOnly(TaskStatus.OnHold.name());
+        assertThat(itemizeConnectionFilterRescheduleQueueMessage.connectionTaskFilterSpecification.connectionTypes).containsOnly(1002L);
+        assertThat(itemizeConnectionFilterRescheduleQueueMessage.connectionTaskFilterSpecification.deviceGroups).containsOnly(1003L);
+        assertThat(itemizeConnectionFilterRescheduleQueueMessage.connectionTaskFilterSpecification.latestResults).containsOnly(ComSession.SuccessIndicator.Broken.name());
+        assertThat(itemizeConnectionFilterRescheduleQueueMessage.connectionTaskFilterSpecification.latestStates).containsOnly( ConnectionTask.SuccessIndicator.FAILURE.name());
+        assertThat(itemizeConnectionFilterRescheduleQueueMessage.connectionTaskFilterSpecification.deviceTypes).containsOnly(1004L, 1005L);
+        assertThat(itemizeConnectionFilterRescheduleQueueMessage.connectionTaskFilterSpecification.startIntervalFrom).isEqualTo(now);
+        assertThat(itemizeConnectionFilterRescheduleQueueMessage.connectionTaskFilterSpecification.startIntervalTo).isEqualTo(now);
+        assertThat(itemizeConnectionFilterRescheduleQueueMessage.connectionTaskFilterSpecification.finishIntervalFrom).isEqualTo(now);
+        assertThat(itemizeConnectionFilterRescheduleQueueMessage.connectionTaskFilterSpecification.finishIntervalTo).isEqualTo(now);
     }
 
     @Test
@@ -371,6 +380,140 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         assertThat(jsonModel.<String>get("$.connectionTasks[0].connectionStrategy.displayValue")).isEqualTo("As soon as possible");
         assertThat(jsonModel.<String>get("$.connectionTasks[0].window")).isEqualTo("09:00 - 17:00");
         assertThat(jsonModel.<Long>get("$.connectionTasks[0].nextExecution")).isEqualTo(plannedNext.toEpochMilli());
+    }
+
+    @Test
+    public void testGetConnectionAttributesIfNoConnectionTypesMatchFilter() throws Exception {
+        when(connectionTaskService.findConnectionTypeByFilter(any())).thenReturn(Collections.emptyList());
+
+        Response response = target("/connections/properties").queryParam("filter",
+                ExtjsFilter.filter()
+                        .property("startIntervalFrom", 1407916436000L).property("startIntervalTo", 1407916784000L)
+                        .property("finishIntervalFrom", 1407916436000L).property("finishIntervalTo", 1407916784000L)
+                        .create()).request().get();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+    }
+
+    @Test
+    public void testGetConnectionAttributesIfMultipleConnectionTypesMatchFilter() throws Exception {
+        ConnectionTypePluggableClass connectionTypePluggableClass = mockConnectionType();
+        ConnectionTypePluggableClass connectionTypePluggableClass2 = mockConnectionType();
+        when(connectionTaskService.findConnectionTypeByFilter(any())).thenReturn(Arrays.asList(connectionTypePluggableClass, connectionTypePluggableClass2));
+
+        Response response = target("/connections/properties").queryParam("filter",
+                ExtjsFilter.filter()
+                        .property("startIntervalFrom", 1407916436000L).property("startIntervalTo", 1407916784000L)
+                        .property("finishIntervalFrom", 1407916436000L).property("finishIntervalTo", 1407916784000L)
+                        .create()).request().get();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+    }
+
+    @Test
+    public void testGetConnectionAttributesWithFilter() throws Exception {
+        ConnectionTypePluggableClass connectionTypePluggableClass = mockConnectionType();
+
+        when(connectionTaskService.findConnectionTypeByFilter(any())).thenReturn(Arrays.asList(connectionTypePluggableClass));
+
+        Response response = target("/connections/properties").queryParam("filter",
+                ExtjsFilter.filter()
+                        .property("startIntervalFrom", 1407916436000L).property("startIntervalTo", 1407916784000L)
+                        .property("finishIntervalFrom", 1407916436000L).property("finishIntervalTo", 1407916784000L)
+                        .create()).request().get();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+    }
+
+    @Test
+    public void testGetConnectionAttributesWithListMultipleConnectionTypes() throws Exception {
+        Optional<ConnectionTask> connectionTask1 = mockConnectionTask("someClass");
+        Optional<ConnectionTask> connectionTask2 = mockConnectionTask("someClassBis");
+        Optional<ConnectionTask> connectionTask3 = mockConnectionTask("someClassTris");
+        when(connectionTaskService.findConnectionTask(1L)).thenReturn(connectionTask1);
+        when(connectionTaskService.findConnectionTask(2L)).thenReturn(connectionTask2);
+        when(connectionTaskService.findConnectionTask(3L)).thenReturn(connectionTask3);
+        ConnectionTypePluggableClass pluggableClass = mockPluggableClass("someClass");
+        ConnectionTypePluggableClass pluggableClass1 = mockPluggableClass("someClassBis");
+        ConnectionTypePluggableClass pluggableClass2 = mockPluggableClass("someClassTris");
+        ConnectionTypePluggableClass pluggableClass3 = mockPluggableClass("someClass4");
+        when(protocolPluggableService.findAllConnectionTypePluggableClasses()).thenReturn(Arrays.asList(pluggableClass, pluggableClass1, pluggableClass3, pluggableClass2));
+        Response response = target("/connections/properties").queryParam("connections", "[1,2,3]").request().get();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+    }
+
+    @Test
+    public void testGetConnectionAttributesWithList() throws Exception {
+        Optional<ConnectionTask> connectionTask1 = mockConnectionTask("someClass");
+        Optional<ConnectionTask> connectionTask2 = mockConnectionTask("someClass");
+        Optional<ConnectionTask> connectionTask3 = mockConnectionTask("someClass");
+        when(connectionTaskService.findConnectionTask(1L)).thenReturn(connectionTask1);
+        when(connectionTaskService.findConnectionTask(2L)).thenReturn(connectionTask2);
+        when(connectionTaskService.findConnectionTask(3L)).thenReturn(connectionTask3);
+        ConnectionTypePluggableClass pluggableClass = mockPluggableClass("someClass");
+        ConnectionTypePluggableClass pluggableClass1 = mockPluggableClass("someClassBis");
+        ConnectionTypePluggableClass pluggableClass2 = mockPluggableClass("someClassTris");
+        ConnectionTypePluggableClass pluggableClass3 = mockPluggableClass("someClass4");
+        when(protocolPluggableService.findAllConnectionTypePluggableClasses()).thenReturn(Arrays.asList(pluggableClass, pluggableClass1, pluggableClass3, pluggableClass2));
+        Response response = target("/connections/properties").queryParam("connections", "[1,2,3]").request().get();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+    }
+
+    @Test
+    public void testUpdateConnectionAttributesWithFilter() throws Exception {
+        mockAppServers(ConnectionTaskService.FILTER_ITEMIZER_PROPERTIES_QUEUE_DESTINATION, ConnectionTaskService.CONNECTION_PROP_UPDATER_QUEUE_DESTINATION);
+        when(jsonService.serialize(any())).thenReturn("json");
+        DestinationSpec destinationSpec = mock(DestinationSpec.class);
+        when(messageService.getDestinationSpec("ItemizeConnPropFilterQD")).thenReturn(Optional.of(destinationSpec));
+        MessageBuilder messageBuilder = mock(MessageBuilder.class);
+        when(destinationSpec.message("json")).thenReturn(messageBuilder);
+
+        Optional<ConnectionTask> connectionTask1 = mockConnectionTask("someClass");
+        when(connectionTaskService.findConnectionTask(1L)).thenReturn(connectionTask1);
+        ConnectionTypePluggableClass pluggableClass = mockPluggableClass("someClass");
+//        when(protocolPluggableService.findAllConnectionTypePluggableClasses()).thenReturn(Arrays.asList(pluggableClass));
+        when(connectionTaskService.findConnectionTypeByFilter(any())).thenReturn(Arrays.asList(pluggableClass));
+
+        PropertiesBulkRequestInfo info = new PropertiesBulkRequestInfo();
+        info.properties= new ArrayList<>();
+        info.properties.add(new PropertyInfo("hostName", "hostName", new PropertyValueInfo<>("google.com", null), null, false));
+        info.filter = new ConnectionTaskFilterSpecificationMessage();
+        info.filter.currentStates.add("Busy");
+
+        Response response = target("/connections/properties").
+                request().put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.ACCEPTED.getStatusCode());
+    }
+
+    private ConnectionTypePluggableClass mockPluggableClass(String name) {
+        ConnectionTypePluggableClass pluggableClass = mock(ConnectionTypePluggableClass.class);
+        PropertySpec hostName = mock(PropertySpec.class);
+        when(hostName.getName()).thenReturn("hostName");
+        when(hostName.getValueFactory()).thenReturn(new StringFactory());
+        when(pluggableClass.getPropertySpecs()).thenReturn(Arrays.asList(hostName));
+        when(pluggableClass.getJavaClassName()).thenReturn(name);
+        TypedProperties properties = TypedProperties.empty();
+        when(pluggableClass.getProperties(any())).thenReturn(properties);
+        return pluggableClass;
+    }
+
+    private Optional<ConnectionTask> mockConnectionTask(String javaClassName) {
+        ConnectionTask mock = mock(ConnectionTask.class);
+        PluggableClass pluggableClass = mockConnectionType();
+        when(mock.getPluggableClass()).thenReturn(pluggableClass);
+        when(pluggableClass.getJavaClassName()).thenReturn(javaClassName);
+        return Optional.of(mock);
+    }
+
+    private ConnectionTypePluggableClass mockConnectionType() {
+        ConnectionTypePluggableClass mock = mock(ConnectionTypePluggableClass.class);
+        BasicPropertySpec name = new BasicPropertySpec("name", new StringFactory());
+        BasicPropertySpec id = new BasicPropertySpec("id", new StringFactory());
+
+        when(mock.getPropertySpecs()).thenReturn(Arrays.asList(id, name));
+        TypedProperties inheritedProperties = TypedProperties.empty();
+        inheritedProperties.setProperty("name", "MyName");
+        inheritedProperties.setProperty("id", "HXG7-OPW1");
+        TypedProperties typedProperties = TypedProperties.inheritingFrom(inheritedProperties);
+        when(mock.getProperties(any())).thenReturn(typedProperties);
+        return mock;
     }
 
     private OutboundComPortPool mockComPortPool() {

@@ -129,7 +129,7 @@ public class DashboardFieldResource extends FieldResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Object getComTasks() {
-        return Response.ok(asInfoMap("comTasks", taskService.findAllComTasks())).build();
+        return Response.ok(asInfoMap("comTasks", taskService.findAllComTasks().find())).build();
     }
 
     @GET
