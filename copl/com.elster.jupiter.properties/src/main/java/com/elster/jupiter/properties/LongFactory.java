@@ -1,5 +1,7 @@
 package com.elster.jupiter.properties;
 
+import com.elster.jupiter.util.Checks;
+
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
@@ -34,7 +36,7 @@ public class LongFactory extends AbstractValueFactory<Long> {
 
     @Override
     public Long fromStringValue (String stringValue) {
-        if (stringValue == null) {
+        if (Checks.is(stringValue).emptyOrOnlyWhiteSpace()) {
             return null;
         }
         else {

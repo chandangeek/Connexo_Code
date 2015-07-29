@@ -5,11 +5,11 @@ import java.util.List;
 
 import java.util.Optional;
 
-public class ListValuePropertySpec<T extends ListValueEntry> extends BasicPropertySpec {
+public class ListValuePropertySpec<T extends HasIdAndName> extends BasicPropertySpec {
 
     private static final long serialVersionUID = 1L;
 
-    public ListValuePropertySpec(String name, boolean required, FindById<T> finder, T... possibleValues) {
+    public ListValuePropertySpec(String name, boolean required, CanFindByStringKey<T> finder, T... possibleValues) {
         super(name, required, new ListValueFactory<>(finder));
         List<ListValue<T>> values = new ArrayList<>(possibleValues.length);
         for (T t : possibleValues) {

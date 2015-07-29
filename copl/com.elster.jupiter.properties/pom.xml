@@ -11,7 +11,7 @@
 
     <artifactId>properties</artifactId>
     <packaging>bundle</packaging>
-    <version>1.1.0-SNAPSHOT</version>
+    <version>2.0.0-SNAPSHOT</version>
     <name>[Jupiter] com.elster.jupiter.properties</name>
     <description>
         Provides support for dynamic attributes
@@ -36,7 +36,7 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>time</artifactId>
-            <version>1.1.0-SNAPSHOT</version>
+            <version>2.0.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.osgi</groupId>

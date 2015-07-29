@@ -3,8 +3,9 @@ package com.elster.jupiter.properties;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.stream.Collectors;
 
-public class ListValue<T extends ListValueEntry> {
+public class ListValue<T extends HasIdAndName> {
 
     private List<T> values = new ArrayList<>();
 
@@ -32,12 +33,8 @@ public class ListValue<T extends ListValueEntry> {
         values.addAll(value.getValues());
     }
 
-    public List<String> getIds() {
-        List<String> keys = new ArrayList<>(values.size());
-        for (T t : values) {
-            keys.add(t.getId());
-        }
-        return keys;
+    public List<Object> getIds() {
+        return values.stream().map(HasIdAndName::getId).collect(Collectors.toList());
     }
     
     public boolean hasSingleValue() {

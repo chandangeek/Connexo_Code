@@ -119,38 +119,37 @@ public class ListValueTest {
         assertThat(listValue4).isNotEqualTo(listValue3);
         
         assertThat(listValue1.hashCode() == listValue2.hashCode()).isTrue();
-        assertThat(listValue1.hashCode() != new ListValue<ListValueEntry>(bean1).hashCode()).isTrue();
+        assertThat(listValue1.hashCode() != new ListValue<HasIdAndName>(bean1).hashCode()).isTrue();
         
         assertThat(listValue3.hashCode() != listValue4.hashCode()).isTrue();
     }
 
-    private static class TestBean implements ListValueEntry {
-
-        private String id;
+    private static class TestBean extends HasIdAndName {
+        
+        private Object id;
         private String name;
-
+        
         public TestBean(String id, String name) {
             this.id = id;
             this.name = name;
         }
-
+        
         @Override
-        public String getId() {
+        public Object getId() {
             return id;
         }
-
+        
         @Override
         public String getName() {
             return name;
         }
-
     }
 
-    private static class TestBeanFinder implements FindById<TestBean> {
+    private static class TestBeanFinder implements CanFindByStringKey<TestBean> {
 
         @Override
-        public Optional<TestBean> findById(final String id) {
-            switch (id) {
+        public Optional<TestBean> find(String key) {
+            switch (key) {
             case "1":
                 return Optional.of(bean1);
             case "2":
@@ -159,6 +158,11 @@ public class ListValueTest {
                 break;
             }
             return Optional.empty();
+        }
+
+        @Override
+        public Class<TestBean> valueDomain() {
+            return TestBean.class;
         }
     }
 

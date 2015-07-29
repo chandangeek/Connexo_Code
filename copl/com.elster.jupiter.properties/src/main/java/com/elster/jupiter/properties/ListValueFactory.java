@@ -4,14 +4,14 @@ import com.google.common.base.Joiner;
 
 import java.util.Optional;
 
-public class ListValueFactory<T extends ListValueEntry> extends AbstractValueFactory<ListValue<T>> {
+public class ListValueFactory<T extends HasIdAndName> extends AbstractValueFactory<ListValue<T>> {
 
     public static final int MAX_SIZE = 4000;
     private static final String LIST_SEPARATOR = ",";
 
-    private FindById<T> finder;
+    private CanFindByStringKey<T> finder;
 
-    public ListValueFactory(FindById<T> finder) {
+    public ListValueFactory(CanFindByStringKey<T> finder) {
         this.finder = finder;
     }
 
@@ -39,7 +39,7 @@ public class ListValueFactory<T extends ListValueEntry> extends AbstractValueFac
         String[] keys = stringValue.split(LIST_SEPARATOR);
         ListValue<T> result = new ListValue<T>();
         for (String key : keys) {
-            Optional<T> value = finder.findById(key);
+            Optional<T> value = finder.find(key);
             if (value.isPresent()) {
                 result.addValue(value.get());
             }

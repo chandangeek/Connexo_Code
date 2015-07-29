@@ -1,6 +1,7 @@
 package com.elster.jupiter.properties;
 
 import aQute.bnd.annotation.ProviderType;
+
 import com.elster.jupiter.time.RelativePeriod;
 
 import java.math.BigDecimal;
@@ -97,7 +98,7 @@ public interface PropertySpecService {
      * @param values The list of possible values
      * @return The PropertySpec
      */
-    public <T extends ListValueEntry> PropertySpec listValuePropertySpec(String name, boolean required, FindById<T> finder, T... values);
+    public <T extends HasIdAndName> PropertySpec listValuePropertySpec(String name, boolean required, CanFindByStringKey<T> finder, T... values);
 
     /**
      * Creates a new {@link PropertySpecBuilder} for building a custom
@@ -119,4 +120,5 @@ public interface PropertySpecService {
 
     public PropertySpec boundedLongPropertySpec (String name, boolean required, Long lowerLimit, Long upperLimit);
 
+    public <T extends HasIdAndName> PropertySpec stringReferencePropertySpec(String name, boolean required, CanFindByStringKey<T> finder, T... values);
 }
