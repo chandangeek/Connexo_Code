@@ -1,6 +1,6 @@
 package com.elster.jupiter.search;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 import com.elster.jupiter.properties.PropertySpec;
 
 import java.util.List;
@@ -66,7 +66,7 @@ import java.util.Optional;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-05-26 (14:34)
  */
-@ProviderType
+@ConsumerType
 public interface SearchableProperty {
 
     /**
