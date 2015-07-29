@@ -66,6 +66,10 @@ public enum DeviceTypeTpl implements Template<DeviceType, DeviceTypeBuilder> {
         this.logBookTypes = logBookTypes;
     }
 
+    public void tuneDeviceCountForSpeedTest() {
+        this.deviceCount = 1;
+    }
+
     @Override
     public Class<DeviceTypeBuilder> getBuilderClass(){
         return DeviceTypeBuilder.class;

@@ -398,9 +398,9 @@ public class DemoServiceImpl {
                 toRunInsideTransaction.run();
                 return null;
             });
-            System.out.println("Transaction was finished successfully");
+            System.out.println("Transaction completed successfully");
         } catch (Exception ex) {
-            System.out.println("Transaction was failed!");
+            System.out.println("Transaction failed!");
             ex.printStackTrace();
             if (reThrowEx) throw ex;
         } finally {
@@ -417,7 +417,7 @@ public class DemoServiceImpl {
     }
 
     private Principal getPrincipal() {
-        return () -> "console";
+        return new ConsoleUser();
     }
 
     @SuppressWarnings("unused")
@@ -584,4 +584,5 @@ public class DemoServiceImpl {
             command.run();
         });
     }
+
 }
