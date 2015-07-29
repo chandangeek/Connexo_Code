@@ -1,5 +1,6 @@
 package com.energyict.mdc.dynamic.relation;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.transaction.Transaction;
 import com.google.common.collect.Range;
 
@@ -15,6 +16,7 @@ import java.util.Map;
  *
  * @see Transaction
  */
+@ProviderType
 public interface RelationTransaction extends Transaction<Relation>, VersionedDynamicAttributeOwner {
 
     public Object get(RelationAttributeType attribType);

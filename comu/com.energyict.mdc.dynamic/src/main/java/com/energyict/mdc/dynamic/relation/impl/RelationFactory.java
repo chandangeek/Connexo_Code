@@ -296,7 +296,7 @@ public final class RelationFactory {
     private SqlBuilder deleteSqlBuilder(Relation relation) {
         SqlBuilder builder = new SqlBuilder("delete from ");
         builder.append(this.getTableName());
-        builder.append("where id = ?");
+        builder.append(" where id = ?");
         builder.bindInt(relation.getId());
         return builder;
     }

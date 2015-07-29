@@ -3,6 +3,8 @@ package com.energyict.mdc.dynamic;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.elster.jupiter.util.HasId;
 
+import aQute.bnd.annotation.ConsumerType;
+
 import java.util.List;
 
 /**
@@ -14,6 +16,7 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-05-15 (17:01)
  */
+@ConsumerType
 public interface ReferencePropertySpecFinderProvider {
 
     /**

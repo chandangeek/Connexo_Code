@@ -3,6 +3,7 @@ package com.energyict.mdc.dynamic;
 import java.util.List;
 import java.util.TimeZone;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecBuilder;
 import com.elster.jupiter.properties.ValueFactory;
@@ -16,6 +17,7 @@ import com.energyict.mdc.common.ObisCode;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-01-17 (10:54)
  */
+@ProviderType
 public interface PropertySpecService extends com.elster.jupiter.properties.PropertySpecService {
 
     /**
