@@ -17,6 +17,7 @@ public class StateTransitionEventTypeFactory {
 
     public StateTransitionEventTypeInfo from(StateTransitionEventType eventType){
         Objects.requireNonNull(eventType);
-        return new StateTransitionEventTypeInfo(thesaurus, eventType);
+        String symbol = eventType.getSymbol();
+        return new StateTransitionEventTypeInfo(symbol, thesaurus.getString(symbol, symbol));
     }
 }

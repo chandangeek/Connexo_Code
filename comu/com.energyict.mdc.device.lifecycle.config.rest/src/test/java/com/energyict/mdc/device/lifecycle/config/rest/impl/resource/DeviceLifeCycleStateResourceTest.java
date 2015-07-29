@@ -6,21 +6,19 @@ import com.elster.jupiter.fsm.FiniteStateMachineUpdater;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransition;
 import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.rest.DeviceLifeCycleConfigApplicationJerseyTest;
 import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleStateInfo;
 import com.jayway.jsonpath.JsonModel;
-import org.junit.Test;
-import org.mockito.Matchers;
-
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Response;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Response;
+import org.junit.Test;
+import org.mockito.Matchers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -48,7 +46,7 @@ public class DeviceLifeCycleStateResourceTest extends DeviceLifeCycleConfigAppli
         assertThat(model.<String>get("$.deviceLifeCycleStates[0].name")).isEqualTo("Commissioning");
         assertThat(model.<Number>get("$.deviceLifeCycleStates[2].id")).isEqualTo(3);
         assertThat(model.<String>get("$.deviceLifeCycleStates[2].name")).isEqualTo("In stock");
-        assertThat(model.<Boolean>get("$.deviceLifeCycleStates[2].isCustom")).isEqualTo(true);
+        assertThat(model.<Boolean>get("$.deviceLifeCycleStates[2].isCustom")).isEqualTo(false);
         assertThat(model.<Boolean>get("$.deviceLifeCycleStates[2].isInitial")).isEqualTo(false);
     }
 
