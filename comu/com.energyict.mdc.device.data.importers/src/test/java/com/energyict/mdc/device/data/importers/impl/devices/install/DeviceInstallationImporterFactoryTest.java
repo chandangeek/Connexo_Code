@@ -37,6 +37,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.ByteArrayInputStream;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
@@ -78,6 +79,8 @@ public class DeviceInstallationImporterFactoryTest {
     private FiniteStateMachineService finiteStateMachineService;
     @Mock
     private Logger logger;
+    @Mock
+    private Clock clock;
 
     @Before
     public void beforeTest() {
@@ -103,6 +106,7 @@ public class DeviceInstallationImporterFactoryTest {
         context.setMeteringService(meteringService);
         context.setDeviceLifeCycleService(deviceLifeCycleService);
         context.setFiniteStateMachineService(finiteStateMachineService);
+        context.setClock(clock);
         when(context.getThesaurus()).thenReturn(thesaurus);
     }
 

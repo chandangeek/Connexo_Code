@@ -16,8 +16,9 @@ import com.energyict.mdc.device.topology.TopologyService;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-@Component(name = "com.energyict.mdc.device.data.importers.DeviceDataImporterContext",
-        service = {DeviceDataImporterContext.class})
+import java.time.Clock;
+
+@Component(name = "com.energyict.mdc.device.data.importers.DeviceDataImporterContext", service = {DeviceDataImporterContext.class})
 public class DeviceDataImporterContext {
     private volatile PropertySpecService propertySpecService;
     private volatile Thesaurus thesaurus;
@@ -30,6 +31,7 @@ public class DeviceDataImporterContext {
     private volatile FiniteStateMachineService finiteStateMachineService;
     private volatile UserService userService;
     private volatile ThreadPrincipalService threadPrincipalService;
+    private volatile Clock clock;
 
     public PropertySpecService getPropertySpecService() {
         return propertySpecService;
@@ -128,5 +130,14 @@ public class DeviceDataImporterContext {
 
     public ThreadPrincipalService getThreadPrincipalService() {
         return threadPrincipalService;
+    }
+
+    public Clock getClock() {
+        return clock;
+    }
+
+    @Reference
+    public void setClock(Clock clock) {
+        this.clock = clock;
     }
 }

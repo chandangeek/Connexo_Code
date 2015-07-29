@@ -27,10 +27,12 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     DEVICE_CAN_NOT_BE_MASTER(12, "ImportProcessorDeviceCanNotBeMaster", "Error in line {0}: Master device with MRID: {0} is not configured to act as master device", Level.WARNING),
     NO_USAGE_POINT(13, "ImportProcessorNoUsagePoint", "Error in line {0}: Usage point with MRID: {1} is not found. " +
             "New usage point can't be created because of incorrect value of Service category. The list of available Service categories: {2}", Level.WARNING),
+
     DEVICE_ALREADY_EXISTS(14, "ImportProcessorDeviceAlreadyExists", "Error in line {0}: The device (MRID: {1}) is already in use", Level.WARNING),
     DEVICE_ALREADY_IN_THAT_STATE(15, "ImportProcessorDeviceAlreadyInThatState", "Error in line {0}: The device is already in {1} state", Level.WARNING),
     DEVICE_CAN_NOT_BE_MOVED_TO_STATE(16, "ImportProcessorDeviceCanNotBeMovedToState", "Error in line {0}: The device can't be moved to {1} from {2} state", Level.WARNING),
     PRE_TRANSITION_CHECKS_FAILED(17, "ImportProcessorPreTransitionsChecksFailed", "Error in line {0}: Pre-transition check(s) failed: {1}", Level.WARNING),
+    TRANSITION_ACTION_DATE_IS_INCORRECT(18, "ImportProcessorTransitionActionDateIsIncorrect", "Error in line {0}: The transition action date has incorrect value: {1}, {2}", Level.WARNING),
 
     READING_DATE_BEFORE_METER_ACTIVATION(101, "ReadingDateBeforeMeterActivation", "Warning for line {0}: Reading date: {1} is before the first meter activation start date and will not be stored.", Level.WARNING),
     READING_DATE_AFTER_METER_ACTIVATION(102, "ReadingDateAfterMeterActivation", "Warning for line {0}: Reading date: {1} is after the last meter activation end date and will not be stored.", Level.WARNING),
@@ -40,9 +42,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     READING_VALUE_DOES_NOT_MATCH_REGISTER_CONFIG_OVERFLOW(106, "ReadingValueDoesNotMatchRegisterConfigOverflow", "Error in line {0}: Reading value for reading type {1} of device with MRID: {2} doesn''t match with register configuration settings (overflow)", Level.WARNING),
     READING_VALUE_DOES_NOT_MATCH_CHANNEL_CONFIG_OVERFLOW(107, "ReadingValueDoesNotMatchChannelConfigOverflow", "Error in line {0}: Reading value for reading type {1} of device with MRID: {2} doesn''t match with channel configuration settings (overflow)", Level.WARNING),
     READING_VALUE_WAS_TRUNCATED_TO_REGISTER_CONFIG(108, "ReadingValueWasTruncatedToRegisterConfig", "Warning for line {0}: Reading value was truncated to {1} accordingly to register configuration.", Level.INFO),
-    READING_VALUE_WAS_TRUNCATED_TO_CHANNEL_CONFIG(109, "ReadingValueWasTruncatedToChannelConfig", "Warning for line {0}: Reading value was truncated to {1} accordingly to channel configuration.", Level.INFO),
-
-    ;
+    READING_VALUE_WAS_TRUNCATED_TO_CHANNEL_CONFIG(109, "ReadingValueWasTruncatedToChannelConfig", "Warning for line {0}: Reading value was truncated to {1} accordingly to channel configuration.", Level.INFO),;
 
     private final int number;
     private final String key;
@@ -81,7 +81,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
         return level;
     }
 
-    public String getTranslated(Thesaurus thesaurus, Object... args){
+    public String getTranslated(Thesaurus thesaurus, Object... args) {
         String translated = thesaurus.getString(this.getKey(), this.getDefaultFormat());
         return MessageFormat.format(translated, args);
     }

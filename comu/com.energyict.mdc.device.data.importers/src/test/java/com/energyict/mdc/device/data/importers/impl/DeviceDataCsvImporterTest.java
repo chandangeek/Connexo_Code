@@ -17,6 +17,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.ByteArrayInputStream;
 import java.io.Serializable;
+import java.time.Clock;
 import java.util.logging.Logger;
 
 import static org.mockito.Matchers.anyString;
