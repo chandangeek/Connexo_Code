@@ -136,7 +136,7 @@ public class MeteringCommands {
         final Optional<Meter> endDevice = meteringService.findMeter(id);
         if (endDevice.isPresent()) {
             try {
-                final Instant activationDate = Instant.from(dateFormat.parse(date));
+                final Instant activationDate = LocalDate.from(dateFormat.parse(date)).atStartOfDay().atZone(ZoneId.systemDefault()).toInstant();
                 MeterActivation activation = executeTransaction(new Transaction<MeterActivation>() {
                     @Override
                     public MeterActivation perform() {
