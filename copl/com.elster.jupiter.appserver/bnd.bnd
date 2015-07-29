@@ -2,4 +2,4 @@
 -dsannotations: *
 Include-Resource: README.HTML
 Private-Package: com.elster.jupiter.appserver.impl
-Export-Package: com.elster.jupiter.appserver
+Export-Package: com.elster.jupiter.appserver, com.elster.jupiter.appserver.security

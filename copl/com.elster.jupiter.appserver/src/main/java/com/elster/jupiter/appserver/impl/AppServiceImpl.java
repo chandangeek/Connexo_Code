@@ -1,6 +1,7 @@
 package com.elster.jupiter.appserver.impl;
 
 import com.elster.jupiter.appserver.*;
+import com.elster.jupiter.appserver.security.Privileges;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.fileimport.FileImportService;
@@ -19,6 +20,8 @@ import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.pubsub.Subscriber;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.users.PrivilegesProvider;
+import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Registration;
 import com.elster.jupiter.util.cron.CronExpression;
@@ -49,8 +52,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-@Component(name = "com.elster.jupiter.appserver", service = {InstallService.class, AppService.class}, property = {"name=" + AppService.COMPONENT_NAME}, immediate = true)
-public class AppServiceImpl implements InstallService, IAppService, Subscriber {
+@Component(name = "com.elster.jupiter.appserver", service = {InstallService.class, AppService.class, PrivilegesProvider.class}, property = {"name=" + AppService.COMPONENT_NAME}, immediate = true)
+public class AppServiceImpl implements InstallService, IAppService, Subscriber, PrivilegesProvider {
 
     private static final Logger LOGGER = Logger.getLogger(AppServiceImpl.class.getName());
 
@@ -453,5 +456,19 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber {
     @Override
     public Query<AppServer> getAppServerQuery() {
         return queryService.wrap(dataModel.query(AppServer.class));
+    }
+
+    @Override
+    public String getModuleName() {
+        return AppService.COMPONENT_NAME;
+    }
+
+    @Override
+    public List<ResourceDefinition> getModuleResources() {
+        List<ResourceDefinition> resources = new ArrayList<>();
+        resources.add(userService.createModuleResourceWithPrivileges(getModuleName(),
+                "appServer.appServers", "appServer.appServers.description",
+                Arrays.asList(Privileges.ADMINISTRATE_APPSEVER, Privileges.VIEW_APPSEVER)));
+        return resources;
     }
 }
