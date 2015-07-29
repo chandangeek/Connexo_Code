@@ -89,7 +89,7 @@ final class UpdateUsagePointTransaction implements Transaction<UsagePoint> {
     }
 
     private boolean hasEditAllPrivilege() {
-        return principal instanceof User && ((User) principal).hasPrivilege(Privileges.ADMIN_ANY);
+        return principal instanceof User && ((User) principal).hasPrivilege("MDC", Privileges.ADMIN_ANY);
     }
 
     private boolean isOwn(UsagePoint usagePoint) {
@@ -102,4 +102,5 @@ final class UpdateUsagePointTransaction implements Transaction<UsagePoint> {
         }
         return false;
     }
+
 }

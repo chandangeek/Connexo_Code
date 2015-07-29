@@ -25,7 +25,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class UsagePointInfo {
 
     private UsagePoint usagePoint;
-	
+
 	public long id;
 	public ServiceKind serviceCategory;
     public long serviceLocationId;
@@ -54,12 +54,12 @@ public class UsagePointInfo {
 	public long createTime;
 	public long modTime;
 	public ServiceLocationInfo serviceLocation;
-	
+
 	public UsagePointInfo() {
 	}
-	
+
 	public UsagePointInfo(UsagePoint usagePoint, Clock clock) {
-		this.usagePoint = usagePoint;		
+		this.usagePoint = usagePoint;
 		id = usagePoint.getId();
 		mRID = usagePoint.getMRID();
 		serviceCategory = usagePoint.getServiceCategory().getKind();
@@ -80,7 +80,7 @@ public class UsagePointInfo {
 		if (detailHolder.isPresent()) {
 			UsagePointDetail detail = detailHolder.get();
 			minimalUsageExpected = detail.isMinimalUsageExpected();
-			amiBillingReady = detail.getAmiBillingReady();	
+			amiBillingReady = detail.getAmiBillingReady();
 			checkBilling = detail.isCheckBilling();
 			connectionState = detail.getConnectionState();
 			serviceDeliveryRemark = detail.getServiceDeliveryRemark();
@@ -94,13 +94,11 @@ public class UsagePointInfo {
 				ratedPower = eDetail.getRatedPower();
 			}
 		}
-		
+
 	}
-	
+
 	public void addServiceLocationInfo() {
-		ServiceLocation location = usagePoint.getServiceLocation();
-		if (location != null) {
-			serviceLocation = new ServiceLocationInfo(location);
-		}
+		usagePoint.getServiceLocation().ifPresent(location ->  serviceLocation = new ServiceLocationInfo(location));
 	}
+
 }

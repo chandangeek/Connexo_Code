@@ -237,7 +237,8 @@ public class UsagePointResource {
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
         UsagePoint usagePoint = found.get();
-        if (!usagePoint.hasAccountability((User) securityContext.getUserPrincipal()) && !((User) securityContext.getUserPrincipal()).hasPrivilege(Privileges.BROWSE_ANY)) {
+        User user = (User) securityContext.getUserPrincipal();
+        if (!usagePoint.hasAccountability(user) && !(user).hasPrivilege("MDC", Privileges.BROWSE_ANY)) {
             throw new WebApplicationException(Response.Status.FORBIDDEN);
         }
         return usagePoint;
@@ -247,7 +248,7 @@ public class UsagePointResource {
 
         private final MRIDMatcher mridMatcher;
 
-        public HasReadingType(String mRID) {
+        private HasReadingType(String mRID) {
             mridMatcher = new MRIDMatcher(mRID);
         }
 
