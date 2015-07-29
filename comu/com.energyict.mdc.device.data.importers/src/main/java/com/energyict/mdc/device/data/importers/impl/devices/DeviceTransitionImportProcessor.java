@@ -63,7 +63,7 @@ public abstract  class DeviceTransitionImportProcessor<T extends DeviceTransitio
         }
         ExecutableAction executableAction = getExecutableAction(device, data, recordContext);
         try {
-            executableAction.execute(data.getTransitionActionDate().orElse(getContext().getClock().instant()),
+            executableAction.execute(data.getTransitionDate().orElse(getContext().getClock().instant()),
                     getExecutableActionProperties(data, getAllPropertySpecsForAction(executableAction)));
         } catch (MultipleMicroCheckViolationsException ex){
             throw new ProcessorException(MessageSeeds.PRE_TRANSITION_CHECKS_FAILED, data.getLineNumber(),
