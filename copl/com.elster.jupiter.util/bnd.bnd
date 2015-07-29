@@ -19,6 +19,7 @@ Export-Package: com.elster.jupiter.util.conditions,\
 	com.elster.jupiter.util.osgi
 Private-Package: com.elster.jupiter.util.time.impl,\
 	com.elster.jupiter.util.cron.impl,\
+	com.elster.jupiter.util.files.impl,\
 	com.elster.jupiter.util.json.impl,\
 	com.elster.jupiter.util.beans.impl
 Include-Resource: README.HTML
