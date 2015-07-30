@@ -1,15 +1,18 @@
 Ext.define('Uni.view.search.field.DateRangeField', {
     extend: 'Ext.button.Button',
-    alias: 'widget.uni-view-search-field-date-range',
-    xtype: 'uni-view-search-field-date-range',
+    alias: 'widget.uni-view-search-field-date-field',
+    xtype: 'uni-view-search-field-date-field',
     requires: [
-        'Uni.view.search.field.RangeLine'
+        'Uni.view.search.field.DateLine',
+        'Uni.view.search.field.DateRange'
     ],
     itemId: 'date',
+    textAlign: 'left',
     text: Uni.I18n.translate('search.overview.lastReadingDate.emptyText', 'UNI', 'Last reading date'),
     defaultText: Uni.I18n.translate('search.overview.lastReadingDate.emptyText', 'UNI', 'Last reading date'),
     arrowAlign: 'right',
     menuAlign: 'tr-br',
+    width: 150,
     style: {
         'background-color': '#71adc7'
     },
@@ -18,83 +21,105 @@ Ext.define('Uni.view.search.field.DateRangeField', {
         var me = this;
         var items = me.down('menu').items.items;
         Ext.each(items, function (item) {
-            if (item.down('datefield')) item.down('datefield').reset();
-            if (item.down('#hours')) item.down('#hours').reset();
-            if (item.down('#minutes')) item.down('#minutes').reset();
+            if (item.xtype != 'menuseparator') {
+                if (item.xtype == 'uni-view-search-field-date-line')
+                    if (item.down('datefield')) item.down('datefield').reset();
+                    if (item.down('#hours')) item.down('#hours').reset();
+                    if (item.down('#minutes')) item.down('#minutes').reset();
+                if (item.xtype == 'uni-view-search-field-date-range') {
+                    if (item.items.items[0].down('datefield')) item.items.items[0].down('datefield').reset();
+                    if (item.items.items[0].down('#hours')) item.items.items[0].down('#hours').reset();
+                    if (item.items.items[0].down('#minutes')) item.items.items[0].down('#minutes').reset();
+                    if (item.items.items[1].down('datefield')) item.items.items[1].down('datefield').reset();
+                    if (item.items.items[1].down('#hours')) item.items.items[1].down('#hours').reset();
+                    if (item.items.items[1].down('#minutes')) item.items.items[1].down('#minutes').reset();
+                }
+            }
         });
         me.setText( me.defaultText)
     },
     addRangeHandler: function () {
         var me = this;
         me.down('menu').add({
-            xtype: 'container',
-            margin: '5px 0px 0px 0px',
-            items: [
-                {
-                    xtype: 'uni-view-search-field-range-line',
-                    operator: '>',
-                    timeVisible: true
-                }
-            ]
-        });
-        me.down('menu').add({
-            xtype: 'container',
-            margin: '0px 0px 0px 0px',
-            items: [
-                {
-                    xtype: 'uni-view-search-field-range-line',
-                    operator: '<',
-                    timeVisible: true
-                }
-            ]
+            xtype: 'uni-view-search-field-date-range',
         });
     },
-
     initComponent: function () {
         var me = this;
         me.menu = {
-            cls: 'x-menu-body-custom',
             plain: true,
             style: {
-                overflow: 'visible',
-                arrowAlign: 'left'
+                overflow: 'visible'
             },
-            minWidth: 440,
-            arrowAlign: 'left',
-            listeners: {
-                hide: function (menu) {
-                    Ext.each(menu.items.items, function (item) {
-                        if (item && !item.default && (item.down('datefield').getValue() == null && item.down('#hours').getValue() == 0 && item.down('#minutes').getValue() == 0)) {
-                            menu.remove(item);
-                        }
-                    },this);
-                }
-            },
+            cls: 'x-menu-body-custom',
+            minWidth: 300,
             items: [
                 {
-                    xtype: 'uni-view-search-field-range-line',
+                    xtype: 'uni-view-search-field-date-line',
+                    margin: '5px 5px 3px 5px',
                     default: true,
                     operator: '=',
-                    timeVisible: false
+                    hideTime: true
                 },
                 {
                     xtype: 'menuseparator',
-                    default:true
+                    default: true
                 },
                 {
-                    xtype: 'uni-view-search-field-range-line',
-                    default: true,
-                    operator: '>',
-                    timeVisible: true
-
-                },
-                {
-                    xtype: 'uni-view-search-field-range-line',
-                    default: true,
-                    operator: '<',
-                    timeVisible: true
+                    xtype: 'uni-view-search-field-date-range',
+                    margin: '5px 0px 5px 5px'
                 }
             ],
+            listeners: {
+                hide: function (menu) {
+                    if (menu.items.length > 2) {
+                        menu.items.each(function (item, index) {
+                            if (item && !item.default &&
+                                item.items.items[0].down('datefield').getValue() == null &&
+                                item.items.items[0].down('#hours').getValue() == 0 &&
+                                item.items.items[0].down('#minutes').getValue() == 0 &&
+                                item.items.items[1].down('datefield').getValue() == null &&
+                                item.items.items[1].down('#hours').getValue() == 0 &&
+                                item.items.items[1].down('#minutes').getValue() == 0) {
+                                menu.remove(item);
+                            }
+                        });
+                        if (menu.items.length == 2)
+                            menu.add({
+                                xtype: 'uni-view-search-field-date-range',
+                                margin: '10px 0px 5px 5px'
+                            });
+                    }
+
+                },
+                click: function (menu) {
+                    // setting of text to component button (+ * logic) and enable/disable 'clear all' button
+                    var edited = false;
+                    menu.items.each(function (item, index) {
+                        if (item.xtype != 'menuseparator') {
+                            if (item.xtype == 'uni-view-search-field-date-line')
+                                if (item.down('datefield').getValue() != null || item.down('#hours').getValue() != 0 || item.down('#minutes').getValue() != 0) edited = true
+                            if (item.xtype == 'uni-view-search-field-date-range') {
+                                if (item.items.items[0].down('datefield').getValue() != null || item.items.items[0].down('#hours').getValue() != 0 ||
+                                    item.items.items[0].down('#minutes').getValue() != 0 ||
+                                    item.items.items[1].down('datefield').getValue() != null || item.items.items[1].down('#hours').getValue() != 0 ||
+                                    item.items.items[1].down('#minutes').getValue() != 0) edited = true;
+
+                                // setting date constraints
+                                if (item.items.items[0].down('datefield').getValue() != null) item.items.items[1].down('datefield').setMinValue(item.items.items[0].down('datefield').getValue())
+                                if (item.items.items[1].down('datefield').getValue() != null) item.items.items[0].down('datefield').setMaxValue(item.items.items[0].down('datefield').getValue())
+                            }
+                        }
+                    });
+                    if (edited) {
+                        menu.up('uni-view-search-field-date-field').setText(me.defaultText + '*');
+                        menu.down('#clearall').enable(true)
+                    } else {
+                        menu.up('uni-view-search-field-date-field').setText(me.defaultText);
+                        menu.down('#clearall').disable(true)
+                    }
+                }
+            },
             dockedItems: [
                 {
                     xtype: 'toolbar',
@@ -107,8 +132,13 @@ Ext.define('Uni.view.search.field.DateRangeField', {
                         },
                         {
                             xtype: 'button',
+                            itemId: 'clearall',
                             text: Uni.I18n.translate('general.clearAll', 'UNI', 'Clear all'),
                             align: 'right',
+                            disabled: true,
+                            style: {
+                                'background-color': '#71adc7'
+                            },
                             handler: function () {
                                 me.clearAllHandler();
                             }
@@ -124,7 +154,7 @@ Ext.define('Uni.view.search.field.DateRangeField', {
                             }
                         },
                         {
-                            flex: 0.9,
+                            flex: 1,
                             cls: 'x-spacers'
                         }
                     ]
@@ -133,15 +163,5 @@ Ext.define('Uni.view.search.field.DateRangeField', {
         };
 
         this.callParent(arguments);
-        Ext.suspendLayouts();
-        var firstItem = this.menu.items.items[0];
-        firstItem.down('combo').setValue(firstItem.operator);
-        firstItem.down('label').hidden = !firstItem.timeVisible;
-        firstItem.down('#hours').hidden = !firstItem.timeVisible;
-        firstItem.down('#minutes').hidden = !firstItem.timeVisible;
-        firstItem.down('#flex').hidden = firstItem.timeVisible;
-        this.menu.items.items[2].down('combo').setValue(this.menu.items.items[2].operator);
-        this.menu.items.items[3].down('combo').setValue(this.menu.items.items[3].operator);
-        Ext.resumeLayouts(true);
     }
 });

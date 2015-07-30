@@ -2,6 +2,7 @@ Ext.define('Uni.view.search.field.NumberField', {
     extend: 'Ext.button.Button',
     alias: 'widget.uni-view-search-field-number-field',
     xtype: 'uni-view-search-field-number-field',
+    textAlign: 'left',
     text: Uni.I18n.translate('search.overview.lastReadingDate.emptyText', 'UNI', 'Interval'),
     defaultText: Uni.I18n.translate('search.overview.lastReadingDate.emptyText', 'UNI', 'Interval'),
     arrowAlign: 'right',
@@ -11,7 +12,7 @@ Ext.define('Uni.view.search.field.NumberField', {
         'Uni.view.search.field.NumberRange'
     ],
     layout: 'hbox',
-    width: 100,
+    width: 150,
     style: {
         'background-color': '#71adc7'
     },
@@ -119,6 +120,7 @@ Ext.define('Uni.view.search.field.NumberField', {
                             itemId: 'clearall',
                             text: Uni.I18n.translate('general.clearAll', 'UNI', 'Clear all'),
                             align: 'right',
+                            disabled: true,
                             style: {
                                 'background-color': '#71adc7'
                             },

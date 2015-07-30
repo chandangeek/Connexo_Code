@@ -47,13 +47,11 @@ Ext.define('Uni.view.search.field.NumberLine', {
                 },
                 handler: function () {
                     var me = this;
-                    me.up('menu').focus().down('numberfield').reset();
+                    me.up('uni-view-search-field-number-line').down('numberfield').reset();
                 }
             }
         ]
-    }
-
-    ,
+    },
     listeners: {
         render: function (c) {
             var button = c.down('#filter-clear');

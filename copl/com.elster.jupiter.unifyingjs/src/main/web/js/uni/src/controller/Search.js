@@ -561,13 +561,15 @@ Ext.define('Uni.controller.Search', {
                     });
                     break;
                 case 'BigDecimal':
-                    widget = Ext.create('Uni.grid.filtertop.Number', {
+                    widget = Ext.create('Uni.view.search.field.NumberField', {
+                        text: displayValue,
                         emptyText: displayValue
                     });
                     break;
                 case 'Boolean':
                     widget = Ext.create('Uni.view.search.field.YesNo', {
-                        emptyText: displayValue
+                        emptyText: displayValue,
+                        defaultText: displayValue
                     });
                     break;
                 default:
