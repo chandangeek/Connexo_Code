@@ -154,7 +154,10 @@ Ext.define('Fim.view.importservices.AddImportService', {
                                 minValue: 1,
                                 defaultValue: 1,
                                 name: 'scanFrequency',
-                                itemId: 'num-folder-scan-frequency'
+                                itemId: 'num-folder-scan-frequency',
+                                listeners: {
+                                    blur: me.frequencyScanNumberFieldValidation
+                                }
                             },
                             {
                                 xtype: 'label',
@@ -226,6 +229,13 @@ Ext.define('Fim.view.importservices.AddImportService', {
         ];
         me.callParent(arguments);
         me.setEdit(me.edit, me.returnLink);
+    },
+    frequencyScanNumberFieldValidation: function (field) {
+        var value = field.getValue();
+
+        if (Ext.isEmpty(value) || value < field.minValue) {
+            field.setValue(field.minValue);
+        }
     }
 });
 
