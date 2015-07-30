@@ -6,6 +6,7 @@ Ext.define('InsightApp.controller.Main', {
 
     requires: [
         'Uni.controller.Navigation',
+        'Mtr.controller.Main',
         'InsightApp.controller.insight.Main'
     ],
 
@@ -18,6 +19,7 @@ Ext.define('InsightApp.controller.Main', {
 
     controllers: [
         'InsightApp.controller.insight.Main',
+        'Mtr.controller.Main',
         'Cfg.controller.Main'
     ]
 });
