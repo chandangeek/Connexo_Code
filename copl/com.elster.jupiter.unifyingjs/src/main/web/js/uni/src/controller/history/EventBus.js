@@ -7,13 +7,14 @@ Ext.define('Uni.controller.history.EventBus', {
     requires: [
         'Ext.util.History',
         'Uni.store.MenuItems',
-        'Uni.store.PortalItems'
+        'Uni.store.PortalItems',
+        'Uni.util.History'
     ],
 
     config: {
         defaultToken: '',
         previousPath: null,
-        currentPath: null
+        previousQueryString: null
     },
 
     onLaunch: function () {
@@ -62,22 +63,43 @@ Ext.define('Uni.controller.history.EventBus', {
     },
 
     onHistoryChange: function (token) {
-        var queryStringIndex = token.indexOf('?');
+        var queryString,
+            queryStringIndex = token.indexOf('?'),
+            queryStringChanged = false,
+            pathChanged = false;
 
         if (typeof token === 'undefined' || token === null || token === '') {
             token = this.getDefaultToken();
             Ext.util.History.add(token);
         }
-
+        queryString = queryStringIndex===-1 ? null : token.substring(queryStringIndex+1, token.length);
+        if(queryString !== this.getPreviousQueryString()){
+            this.setPreviousQueryString(queryString);
+            if (!Uni.util.History.isSuspended()) {
+                queryStringChanged = true;
+            }
+        }
         if (queryStringIndex > 0) {
             token = token.substring(0, queryStringIndex);
         }
-
-        if (this.getCurrentPath() !== null) {
-            this.setPreviousPath(this.getCurrentPath());
+        if (this.getPreviousPath()===null || token !== this.getPreviousPath()) {
+            this.setPreviousPath(token);
+            if (!Uni.util.History.isSuspended()) {
+                pathChanged = true;
+            }
         }
-        this.setCurrentPath(token);
+        if (Uni.util.History.isParsePath() || pathChanged) {
+            crossroads.parse(token);
+            this.setPreviousQueryString(null);
+        } else if (queryStringChanged) {
+            Uni.util.QueryString.changed(queryString);
+        }
 
-        crossroads.parse(token);
+        if (Uni.util.History.isSuspended()) {
+            Uni.util.History.setSuspended(false);
+        }
+        if (!Uni.util.History.isParsePath()) {
+            Uni.util.History.setParsePath(true);
+        }
     }
 });

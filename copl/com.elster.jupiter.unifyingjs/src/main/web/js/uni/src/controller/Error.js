@@ -59,8 +59,13 @@ Ext.define('Uni.controller.Error', {
         //</debug>
 
         var me = scope || this,
-            title = Uni.I18n.translate('error.requestFailed', 'UNI', 'Request failed');
+            title;
 
+        if(Ext.isObject(error) && Ext.isDefined(error.title)) {
+            title = error.title;
+        } else {
+            title = Uni.I18n.translate('error.requestFailed', 'UNI', 'Request failed');
+        }
         if(Ext.isObject(error) && Ext.isDefined(error.msg)) {
             error = error.msg;
         }

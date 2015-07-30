@@ -16,12 +16,16 @@ Ext.define('Uni.grid.filtertop.ComboBox', {
     displayField: 'display',
     forceSelection: true,
     margins: '0 16 0 0',
+    highlightedDisplayValue: null,
+    highlightedValue: null,
 
     initComponent: function () {
         var me = this;
 
         if (Ext.isDefined(me.options) && !Ext.isDefined(me.store)) {
             me.store = me.createStoreFromOptions();
+        } else {
+            me.store = Ext.getStore(me.store) || Ext.create(me.store);
         }
 
         me.listConfig = me.listConfig || {};
@@ -37,28 +41,52 @@ Ext.define('Uni.grid.filtertop.ComboBox', {
         }
 
         me.callParent(arguments);
-
         me.on('specialkey', function (field, event) {
             if (event.getKey() === event.ENTER) {
+                if (me.highlightedValue !== null && !_.contains(me.getFilterValue(), me.highlightedValue)) {
+                    var prevValue = me.getFilterValue();
+                    if (prevValue && Ext.isArray(prevValue)) {
+                        prevValue.push(me.highlightedValue);
+                        me.setFilterValue(prevValue);
+                    } else {
+                        me.setFilterValue(me.highlightedValue);
+                    }
+                }
                 me.assertValue();
                 me.fireFilterUpdateEvent();
+            } else if (event.getKey() === event.ESC) {
+                me.highlightedDisplayValue = null;
+                me.highlightedValue = null;
             }
         }, me);
+        me.getPicker().on('highlightitem', function(view, node, eOpts) {
+            me.highlightedDisplayValue = node.innerText;
+            me.highlightedValue = me.getValueForDisplayValue(node.innerText);
+        }, me);
+        me.getPicker().on('unhighlightitem', function(view, node, eOpts) {
+            if (me.highlightedDisplayValue === node.innerText) {
+                me.highlightedDisplayValue = null;
+                me.highlightedValue = null;
+            }
+        }, me);
+
     },
 
     setFilterValue: function (data) {
         var me = this;
-
-        if (Ext.isArray(data) && me.isArrayOfNumbers(data)) {
-            for (var i = 0; i < data.length; i++) {
-                data[i] = parseInt(data[i]);
+        if (Ext.isArray(data)) {
+            if (me.isArrayOfNumerics(data)) {
+                for (var i = 0; i < data.length; i++) {
+                    data[i] = parseInt(data[i]);
+                }
             }
+            me.setValue(data);
+        } else {
+            Ext.isNumeric(data) ? me.setValue(parseInt(data)) : me.setValue(data);
         }
-
-        me.setValue(data);
     },
 
-    isArrayOfNumbers: function (array) {
+    isArrayOfNumerics: function (array) {
         for (var i = 0; i < array.length; i++) {
             if (!Ext.isNumeric(array[i])) {
                 return false;
@@ -90,5 +118,18 @@ Ext.define('Uni.grid.filtertop.ComboBox', {
         });
 
         return store;
+    },
+
+    getValueForDisplayValue: function(displayValue) {
+        var me = this,
+            result = null;
+
+        Ext.Array.each(me.store.data.items, function(arrayItem) {
+            if (arrayItem.get(me.displayField) === displayValue) {
+                result = arrayItem.get(me.valueField);
+                return false; // stop iterating
+            }
+        });
+        return result;
     }
 });

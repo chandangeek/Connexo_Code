@@ -187,13 +187,6 @@ Ext.define('Uni.controller.history.Router', {
              */
             buildUrl: function (arguments, queryParams) {
                 arguments = Ext.applyIf(arguments || {}, me.arguments);
-
-                Object.keys(arguments).forEach(function (key) {
-                    if (typeof arguments[key] === 'string') {
-                        arguments[key] = encodeURIComponent(arguments[key]);
-                    }
-                });
-
                 var url = this.crossroad ?
                 '#' + this.crossroad.interpolate(arguments) :
                 '#' + this.path;
@@ -223,7 +216,6 @@ Ext.define('Uni.controller.history.Router', {
         if (!config.disabled) {
             me.routes[key].crossroad = crossroads.addRoute(route, function () {
                 me.currentRoute = key;
-
                 // todo: this will not work with optional params
                 me.queryParams = Ext.Object.fromQueryString(me.getQueryString());
                 me.arguments = _.object(
@@ -253,13 +245,19 @@ Ext.define('Uni.controller.history.Router', {
                     // fire the controller action with this route params as arguments
                     var controller = me.getController(config.controller);
 
+                    var applyAction = function() {
+                        me.fireEvent('routematch', me);
+                        controller[action].apply(controller, routeArguments);
+                    };
+
                     var dispatch = function () {
                         if (!Uni.Auth.checkPrivileges(config.privileges)) {
                             crossroads.parse("/error/notfound");
-                            return;
+                        } else if (config.dynamicPrivilegeStores){
+                            Uni.DynamicPrivileges.loadPage(config.dynamicPrivilegeStores, config.dynamicPrivilege, applyAction, me);
+                        } else {
+                            applyAction();
                         }
-                        me.fireEvent('routematch', me);
-                        controller[action].apply(controller, routeArguments);
                     };
 
                     // load filter
@@ -304,7 +302,6 @@ Ext.define('Uni.controller.history.Router', {
             items.push(route);
             path.pop();
         } while (path.length);
-
         return items;
     },
 

@@ -30,6 +30,13 @@ Ext.define('Uni.form.field.EditedDisplay', {
                         + ' ' + Uni.I18n.translate('general.at', 'UNI', 'At').toLowerCase() + ' '
                         + Uni.DateTime.formatTimeLong(date);
                     break;
+                case 'ESTIMATED':
+                    iconClass = 'uni-icon-edit';
+                    tooltipText = Uni.I18n.translate('general.estimatedOn', 'UNI', 'Estimated on') + ' '
+                        + Uni.DateTime.formatDateLong(date)
+                        + ' ' + Uni.I18n.translate('general.at', 'UNI', 'At').toLowerCase() + ' '
+                        + Uni.DateTime.formatTimeLong(date);
+                    break;
                 case 'REMOVED':
                     iconClass = 'uni-icon-remove';
                     tooltipText = Uni.I18n.translate('general.removedOn', 'UNI', 'Removed on') + ' '

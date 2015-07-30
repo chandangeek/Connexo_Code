@@ -2,10 +2,7 @@ Ext.define('Uni.property.view.property.Reference', {
     extend: 'Uni.property.view.property.BaseCombo',
 
     referencesStore: Ext.create('Ext.data.Store', {
-        fields: [
-            {name: 'key', type: 'number'},
-            {name: 'value', type: 'string'}
-        ]
+        fields: ['key', 'value']
     }),
 
     getEditCmp: function () {
@@ -27,7 +24,8 @@ Ext.define('Uni.property.view.property.Reference', {
             valueField: 'key',
             width: me.width,
             forceSelection: me.getProperty().getExhaustive(),
-            readOnly: me.isReadOnly
+            readOnly: me.isReadOnly,
+            allowBlank: me.allowBlank
         }
     },
 
@@ -37,7 +35,8 @@ Ext.define('Uni.property.view.property.Reference', {
         return {
             xtype: 'displayfield',
             name: me.getName(),
-            itemId: me.key + 'displayfield'
+            itemId: me.key + 'displayfield',
+            cls: 'uni-property-displayfield'
         }
     },
 
@@ -63,12 +62,12 @@ Ext.define('Uni.property.view.property.Reference', {
             } else {
                 this.getField().emptyText = '';
             }
-            this.getField().setValue(value.id);
+            this.getField().setValue(!Ext.isEmpty(value) ? Ext.isObject(value) ? value.id : value : null);
         } else {
             if (this.getProperty().get('hasValue')) {
                 this.getDisplayField().setValue('********');
             } else {
-                this.getDisplayField().setValue(value.name);
+                this.getDisplayField().setValue(!Ext.isEmpty(value) ? Ext.isObject(value) ? value.name : value : '');
             }
         }
     }

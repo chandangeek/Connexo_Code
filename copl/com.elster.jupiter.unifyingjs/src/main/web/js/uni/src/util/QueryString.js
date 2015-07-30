@@ -4,6 +4,10 @@
 Ext.define('Uni.util.QueryString', {
     singleton: true,
 
+    mixins: {
+        observable: 'Ext.util.Observable'
+    },
+
     buildQueryString: function (config, recursive) {
         var me = this,
             queryString = me.getQueryString(),
@@ -40,6 +44,11 @@ Ext.define('Uni.util.QueryString', {
         var me = this,
             url = location.href.split('?')[0],
             queryString = me.buildQueryString(config, recursive);
+
+        if (Ext.isEmpty(queryString)) {
+            return url;
+        }
+
         return url + '?' + queryString;
     },
 
@@ -53,5 +62,13 @@ Ext.define('Uni.util.QueryString', {
         recursive = typeof recursive === 'undefined' ? true : recursive;
 
         return Ext.Object.fromQueryString(this.getQueryString(), recursive);
+    },
+
+    changed: function(queryString){
+        this.fireEvent('querystringchanged', queryString);
+    },
+
+    constructor: function(){
+        this.mixins.observable.constructor.call(this);
     }
 });

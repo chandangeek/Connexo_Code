@@ -38,6 +38,8 @@ Ext.define('Uni.property.model.Property', {
         }
     ],
 
+    isEdited: false,
+
     /**
      * Sets property values and defaults based on property associated objects
      */

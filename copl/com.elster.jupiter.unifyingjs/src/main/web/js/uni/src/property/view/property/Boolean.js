@@ -22,21 +22,16 @@ Ext.define('Uni.property.view.property.Boolean', {
 
     setValue: function (value) {
         if (!this.isEdit) {
-             value = value ? 'Yes' : 'No';
+             value = value ? Uni.I18n.translate('general.yes', this.translationKey, 'Yes') : Uni.I18n.translate('general.no', this.translationKey, 'No');
         }
         this.callParent([value]);
     },
 
     getDisplayCmp: function () {
-        var me = this;
-
-        return {
-            xtype: 'displayfield',
-            name: this.getName(),
-            itemId: me.key + 'displayfield',
-            width: me.width,
-            msgTarget: 'under'
-        }
+        var displayCmp = this.callParent();
+        displayCmp.width = this.width;
+        displayCmp.msgTarget = 'under';
+        return displayCmp;
     },
 
 

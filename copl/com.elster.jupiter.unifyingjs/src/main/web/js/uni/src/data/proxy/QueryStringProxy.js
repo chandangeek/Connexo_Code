@@ -103,7 +103,7 @@ Ext.define('Uni.data.proxy.QueryStringProxy', {
         delete router.queryParams[this.root];
 
         //should redirect be performed via proxy? How it will work with another models, like sorting?
-        router.getRoute().forward();
+        router.getRoute().forward(router.arguments, router.queryParams);
     },
 
     /**
@@ -115,7 +115,7 @@ Ext.define('Uni.data.proxy.QueryStringProxy', {
      */
     setQueryParams: function (operation, callback, model) {
         var router = this.router,
-            queryParams = {};
+            queryParams = Ext.merge({}, router.queryParams);
         operation.setStarted();
         var data = this.hydrator
             ? this.hydrator.extract(model)

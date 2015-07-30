@@ -12,9 +12,12 @@ Ext.define('Uni.grid.FilterPanelTop', {
         'Uni.grid.filtertop.ComboBox',
         'Uni.grid.filtertop.Date',
         'Uni.grid.filtertop.Interval',
-        'Uni.grid.filtertop.Number',
         'Uni.grid.filtertop.Radio',
-        'Uni.grid.filtertop.Text'
+        'Uni.grid.filtertop.Text',
+        'Uni.grid.filtertop.DateTime',
+        'Uni.grid.filtertop.DateTimeSelect',
+        'Uni.grid.filtertop.Duration',
+        'Uni.grid.filtertop.NoUi'
     ],
 
     /**
@@ -77,12 +80,14 @@ Ext.define('Uni.grid.FilterPanelTop', {
                     xtype: 'button',
                     ui: 'action',
                     text: Uni.I18n.translate('general.apply', 'UNI', 'Apply'),
-                    action: 'applyAll'
+                    action: 'applyAll',
+                    itemId: 'filter-apply-all'
                 },
                 {
                     xtype: 'button',
                     text: Uni.I18n.translate('general.clearAll', 'UNI', 'Clear all'),
-                    action: 'clearAll'
+                    action: 'clearAll',
+                    itemId: 'filter-clear-all'
                 }
             ]
         }
@@ -96,6 +101,40 @@ Ext.define('Uni.grid.FilterPanelTop', {
 
         me.reconfigureStore(store);
         me.initActions();
+
+        Uni.util.QueryString.on('querystringchanged', me.onQueryStringChanged, me);
+    },
+
+    onDestroy: function () {
+        var me = this;
+
+        Uni.util.QueryString.un('querystringchanged', me.onQueryStringChanged, me);
+        if (me.store && me.storeListeners) {
+            me.store.un(me.storeListeners);
+        }
+        me.callParent(arguments);
+    },
+
+    onQueryStringChanged: function (queryString) {
+        this.applyQueryObject(Uni.util.QueryString.getQueryStringValues(false), true);
+    },
+
+    applyQueryObject: function (queryObject, doApply) {
+        var me = this;
+        // Adapt the filters visually
+        if (Ext.isArray(me.filters.items)) {
+            Ext.Array.each(me.filters.items, function (filter) {
+                if (filter && filter.dataIndex && queryObject[filter.dataIndex]) {
+                    filter.setFilterValue(queryObject[filter.dataIndex]);
+                } else {
+                    filter.resetValue();
+                }
+            }, me);
+
+            if (doApply) {
+                me.applyFilters();
+            }
+        }
     },
 
     reconfigureStore: function (store) {
@@ -144,8 +183,16 @@ Ext.define('Uni.grid.FilterPanelTop', {
     },
 
     applyFilters: function () {
-        var me = this;
+        var me = this,
+            pagingToolbarTop = this.up('contentcontainer').down('pagingtoolbartop'),
+            pagingToolbarBottom = this.up('contentcontainer').down('pagingtoolbarbottom');
 
+        if (Ext.isDefined(pagingToolbarTop) && pagingToolbarTop !== null) {
+            pagingToolbarTop.resetPaging();
+        }
+        if (Ext.isDefined(pagingToolbarBottom) && pagingToolbarBottom !== null) {
+            pagingToolbarBottom.resetPaging();
+        }
         if (Ext.isDefined(me.store)) {
             me.store.load();
         }
@@ -325,8 +372,8 @@ Ext.define('Uni.grid.FilterPanelTop', {
         var me = this,
             params = me.getFilterParams(true, true),
             href = Uni.util.QueryString.buildHrefWithQueryString(params, false);
-
         if (location.href !== href) {
+            Uni.util.History.setParsePath(false);
             Uni.util.History.suspendEventsForNextCall();
             location.href = href;
         }
@@ -359,7 +406,6 @@ Ext.define('Uni.grid.FilterPanelTop', {
             } else {
                 var dataIndex = filter.dataIndex,
                     paramValue = filter.getParamValue();
-
                 if (!includeUndefined && Ext.isDefined(paramValue) && !Ext.isEmpty(paramValue)) {
                     params[dataIndex] = paramValue;
                 } else {
@@ -371,7 +417,6 @@ Ext.define('Uni.grid.FilterPanelTop', {
                 }
             }
         }, me);
-
         return params;
     },
 
@@ -404,8 +449,9 @@ Ext.define('Uni.grid.FilterPanelTop', {
 
         if (Ext.isDefined(component)) {
             me.filters.add(component);
-            me.add(component);
-
+            if (filter.type !== 'noui') {
+                me.add(component);
+            }
             component.on('filterupdate', me.applyFilters, me);
         }
     },
@@ -422,12 +468,26 @@ Ext.define('Uni.grid.FilterPanelTop', {
             store = widget.store;
 
             if (Ext.isDefined(store) && store.isStore && !store.isLoading()) {
-                store.load();
+                if (!filter.hasOwnProperty('loadStore') || Boolean(filter.loadStore)) {
+                    store.load();
+                }
             }
 
             return widget;
         }
         return undefined;
+    },
+
+    getFilterByItemId: function (itemId) {
+        var me = this,
+            resultFilter;
+        Ext.each(me.filters.items, function (filter) {
+            if (filter.itemId === itemId) {
+                resultFilter = filter;
+                return false;
+            }
+        });
+        return resultFilter;
     },
 
     getFilterType: function (type) {
@@ -444,6 +504,14 @@ Ext.define('Uni.grid.FilterPanelTop', {
                 return 'Uni.grid.filtertop.Radio';
             case 'text':
                 return 'Uni.grid.filtertop.Text';
+            case 'datetime':
+                return 'Uni.grid.filtertop.DateTime';
+            case 'datetimeselect':
+                return 'Uni.grid.filtertop.DateTimeSelect';
+            case 'duration':
+                return 'Uni.grid.filtertop.Duration';
+            case 'noui':
+                return 'Uni.grid.filtertop.NoUi';
             default:
                 return undefined;
         }
