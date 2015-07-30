@@ -21,7 +21,7 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-02-18 (16:36)
  */
-public interface ServerDeviceConfigurationService extends DeviceConfigurationService, ReferencePropertySpecFinderProvider {
+public interface ServerDeviceConfigurationService extends DeviceConfigurationService {
 
     public Thesaurus getThesaurus();
 
@@ -31,7 +31,7 @@ public interface ServerDeviceConfigurationService extends DeviceConfigurationSer
 
     /**
      * Finds a list of {@link RegisterSpec RegisterSpecs} which are linked to the given {@link ChannelSpec} and
-     * has the given {@link ChannelSpecLinkType}
+     * has the given {@link ChannelSpecLinkType}.
      *
      * @param channelSpec the {@link com.energyict.mdc.device.config.ChannelSpec}
      * @param linkType    the {@link com.energyict.mdc.device.config.ChannelSpecLinkType}
@@ -40,7 +40,7 @@ public interface ServerDeviceConfigurationService extends DeviceConfigurationSer
     public List<RegisterSpec> findRegisterSpecsByChannelSpecAndLinkType(ChannelSpec channelSpec, ChannelSpecLinkType linkType);
 
     /**
-     * Finds a list of {@link ChannelSpec ChannelSpecs} which are linked to the given {@link LoadProfileSpec}
+     * Finds a list of {@link ChannelSpec ChannelSpecs} which are linked to the given {@link LoadProfileSpec}.
      *
      * @param loadProfileSpec the LoadProfileSpec
      * @return the list of ChannelSpecs
