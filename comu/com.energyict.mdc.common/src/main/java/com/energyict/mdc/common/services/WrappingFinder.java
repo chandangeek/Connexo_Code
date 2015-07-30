@@ -8,7 +8,7 @@ import com.elster.jupiter.util.sql.SqlFragment;
 import java.util.List;
 
 /**
- * Wraps an actual finder to allow post processing
+ * Wraps an actual finder to allow post processing.
  */
 public abstract class WrappingFinder<T, S> implements Finder<T> {
     private final Finder<S> delegate;
