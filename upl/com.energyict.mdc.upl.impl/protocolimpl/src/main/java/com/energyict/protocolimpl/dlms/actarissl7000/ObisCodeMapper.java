@@ -6,12 +6,21 @@
 
 package com.energyict.protocolimpl.dlms.actarissl7000;
 
+import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
-import com.energyict.dlms.cosem.CosemObject;
-import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.BitString;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.cosem.*;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocolimpl.dlms.DLMSLNSL7000;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
 import java.util.Date;
@@ -21,14 +30,14 @@ import java.util.Date;
  */
 public class ObisCodeMapper {
     
-    CosemObjectFactory cof;
+    DLMSLNSL7000 meterProtocol;
     RegisterProfileMapper registerProfileMapper=null;
     
     
     /** Creates a new instance of ObisCodeMapper */
-    public ObisCodeMapper(CosemObjectFactory cof) {
-        this.cof=cof;
-        registerProfileMapper = new RegisterProfileMapper(cof);
+    public ObisCodeMapper(DLMSLNSL7000 meterProtocol) {
+        this.meterProtocol = meterProtocol;
+        registerProfileMapper = new RegisterProfileMapper(meterProtocol.getCosemObjectFactory(), meterProtocol);
         
     }
     
@@ -44,158 +53,186 @@ public class ObisCodeMapper {
 			throw new NoSuchRegisterException("Problems while reading " + obisCode + ": " + e.getMessage());
 		}
 
-		if ((regValue.getEventTime() != null) && (regValue.getEventTime().getTime() <= 0))
+		if ((regValue.getEventTime() != null) && (regValue.getEventTime().getTime() <= 0) ||
+                (regValue.getToTime() != null) && (regValue.getToTime().getTime() <= 0)) {
         	throw new NoSuchRegisterException("Value with obiscode: "+obisCode+" contains a uninitialized eventDate: " + regValue.getEventTime());
-		
+        }
 		return regValue;
     }
     
     private Object doGetRegister(ObisCode obisCode) throws IOException {
-        
-        RegisterValue registerValue=null;
-        int billingPoint=-1;
-        
-        // obis F code
-        if ((obisCode.getF()  >=0) && (obisCode.getF() <= 99))
-            billingPoint = obisCode.getF();
-        else if ((obisCode.getF()  <=0) && (obisCode.getF() >= -99))
-            billingPoint = obisCode.getF()*-1;
-        else if (obisCode.getF() == 255)
-            billingPoint = -1;
-        else throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
+        int billingPoint;
         
         // ********************************************************************************* 
-        // General purpose ObisRegisters & abstract general service
-        if ((obisCode.toString().indexOf("1.1.0.1.0.255") != -1) || (obisCode.toString().indexOf("1.0.0.1.0.255") != -1)) { // billing counter
-            registerValue = new RegisterValue(obisCode,new Quantity(new Integer(cof.getStoredValues().getBillingPointCounter()),Unit.get(""))); 
-            return registerValue;
-        } // billing counter
-        else if ((obisCode.toString().indexOf("1.1.0.1.2.") != -1) || (obisCode.toString().indexOf("1.0.0.1.2.") != -1)) { // billing point timestamp
-            if ((billingPoint >= 0) && (billingPoint < 99)) {
-               registerValue = new RegisterValue(obisCode,
-                                                 cof.getStoredValues().getBillingPointTimeDate(billingPoint)); 
-               return registerValue;
-            }
-            else throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
-        } // // billing point timestamp
-      
-        // *********************************************************************************
-        // Abstract ObisRegisters
-        try {
-            CosemObject cosemObject = cof.getCosemObject(obisCode);
-            
-            if (cosemObject==null)
+        // Historical data
+        if (obisCode.getF() != 255) {
+            billingPoint = Math.abs(obisCode.getF());
+            // Billing point timestamp
+            if ((obisCode.toString().indexOf("1.1.0.1.2.") != -1) || (obisCode.toString().indexOf("1.0.0.1.2.") != -1)) {
+                return new RegisterValue(obisCode, meterProtocol.getCosemObjectFactory().getStoredValues().getBillingPointTimeDate(billingPoint));
+            } else { // billing register
+                // Electricity related ObisRegisters mapped to a registerProfile
+                if ((obisCode.getA() == 1) && (obisCode.getB() == 1) || (obisCode.getA() == 1) && (obisCode.getC() == 1)) {
+                    ObisCode profileObisCode = registerProfileMapper.getMDProfileObisCode(obisCode);
+                    if (profileObisCode == null) {
                 throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!"); 
-
-            Date captureTime = null;
-            Date billingDate = null;
-            String text = null;
-            Quantity quantityValue = null;
-            
-            try {captureTime = cosemObject.getCaptureTime();} catch (Exception e) {}
-			try {billingDate = cosemObject.getBillingDate();} catch (Exception e) {}
-			try {quantityValue = cosemObject.getQuantityValue();} catch (Exception e) {}
-			try {text = cosemObject.getText();} catch (Exception e) {}
-
-			registerValue = new RegisterValue(obisCode, quantityValue,
-					captureTime == null ? billingDate : captureTime, null,
-					billingDate, new Date(), 0, text
-			);
-
-			return registerValue;      
-        } catch (NoSuchRegisterException e) {
-            // Absorb the exception and continue.
-            // This indicates the register should be mapped to a registerProfile.
+                    }
+                    HistoricalValue historicalValue = meterProtocol.getCosemObjectFactory().getStoredValues().getHistoricalValue(profileObisCode);
+                    return new RegisterValue(obisCode, historicalValue.getQuantityValue(), historicalValue.getEventTime(), historicalValue.getBillingDate());
+                } else {    // Other billing registers
+                    ObisCode baseObisCode = ProtocolTools.setObisCodeField(obisCode, 5, (byte) 0xFF);
+                    HistoricalValue historicalValue = meterProtocol.getCosemObjectFactory().getStoredValues().getHistoricalValue(baseObisCode);
+                    return new RegisterValue(obisCode, historicalValue.getQuantityValue(), historicalValue.getEventTime(), historicalValue.getBillingDate());
+                }
+            }
         }
         
         // *********************************************************************************
+        // Billing counter
+        if ((obisCode.toString().indexOf("1.1.0.1.0.255") != -1) || (obisCode.toString().indexOf("1.0.0.1.0.255") != -1)) {
+            return new RegisterValue(obisCode, new Quantity(new Integer(meterProtocol.getCosemObjectFactory().getStoredValues().getBillingPointCounter()), Unit.getUndefined()));
+        }
+        // Firmware version
+        if (obisCode.equals(meterProtocol.getMeterConfig().getVersionObject().getObisCode())) {
+            return new RegisterValue(obisCode, meterProtocol.getFirmwareVersion());
+        }
+        // Serial number
+        if(obisCode.equals(meterProtocol.getMeterConfig().getSerialNumberObject().getObisCode())) {
+            return new RegisterValue(obisCode,  meterProtocol.getSerialNumber());
+        }
+        // Programming ID
+        if (obisCode.equals(ObisCode.fromString("0.0.96.2.0.255"))) {
+             final ExtendedRegister register = meterProtocol.getCosemObjectFactory().getExtendedRegister(obisCode);
+            return new RegisterValue(obisCode, null, register.getCaptureTime(), null, null, new Date(), 0, register.getStatusText().trim());
+        }
+        // Number of configurations
+         if (obisCode.equals(ObisCode.fromString("0.0.96.1.4.255"))) {
+             final ExtendedRegister register = meterProtocol.getCosemObjectFactory().getExtendedRegister(ObisCode.fromString("0.0.96.2.0.255"));
+            return new RegisterValue(obisCode, register.getQuantityValue());
+        }
+        // Number of channels
+        if (obisCode.equals(ObisCode.fromString("0.0.96.3.0.255"))) {
+            int numberOfChannels = meterProtocol.getNumberOfChannels();
+            return new RegisterValue(obisCode,  new Quantity(numberOfChannels, Unit.getUndefined()));
+        }
+        // Profile interval
+        if (obisCode.equals(ObisCode.fromString("0.0.136.0.1.255"))) {
+            int profileInterval = meterProtocol.getProfileInterval();
+            return new RegisterValue(obisCode,  new Quantity(profileInterval,  Unit.get(BaseUnit.SECOND)));
+        }
+        // DST working mode
+        if (obisCode.equals(ObisCode.fromString("0.0.131.0.4.255"))) {
+            return getDSTWorkingMode(obisCode);
+        }
+        // DST switching times
+        if (obisCode.equals(ObisCode.fromString("0.0.131.0.6.255")) | obisCode.equals(ObisCode.fromString("0.0.131.0.7.255"))) {
+            return getDSTSwitchingTime(obisCode);
+        }
+        // Battery end of life date
+        if (obisCode.equals(ObisCode.fromString("0.0.96.6.2.255"))) {
+            return getBatteryExpiryDate(obisCode);
+        }
+        // Operation status fatal alarms
+        if (obisCode.equals(ObisCode.fromString("0.0.97.97.1.255"))) {
+            return getOperationStatus(obisCode, 1);
+        }
+        // Operation status non-fatal alarms
+        if (obisCode.equals(ObisCode.fromString("0.0.97.97.2.255"))) {
+            return getOperationStatus(obisCode, 5);
+        }
         // Electricity related ObisRegisters mapped to a registerProfile
-        if ((obisCode.getA() == 1) && (obisCode.getB() == 1)) {
-            CosemObject cosemObject=null;
-            if (obisCode.getF() != 255) {
-                ObisCode profileObisCode = registerProfileMapper.getMDProfileObisCode(obisCode);
-                if (profileObisCode==null)
-                    throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!"); 
-                cosemObject = cof.getStoredValues().getHistoricalValue(profileObisCode);
+        if ((obisCode.getA() == 1) && (obisCode.getB() == 1) || (obisCode.getA() == 1) && (obisCode.getC() == 1)) {
+            CosemObject cosemObject = registerProfileMapper.getRegister(obisCode);
+            if (cosemObject == null) {
+                    throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
             }
-            else cosemObject = registerProfileMapper.getRegister(obisCode);
-            
-            if (cosemObject==null)
-                throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!"); 
-            
-            
             Date captureTime = cosemObject.getCaptureTime();
             Date billingDate = cosemObject.getBillingDate();
-            registerValue = new RegisterValue(obisCode,
-                                              cosemObject.getQuantityValue(),
-                                              captureTime==null?billingDate:captureTime,
-                                              null,
-                                              cosemObject.getBillingDate(),
-                                              new Date(),
-                                              0,
-                                              cosemObject.getText());
-            return registerValue;
+            return new RegisterValue(obisCode, cosemObject.getQuantityValue(), captureTime == null ? billingDate : captureTime, null,
+                    cosemObject.getBillingDate(), new Date(), 0, cosemObject.getText());
         }
         
-        throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");  
-/*        
-        // obis C code
-        if ((obisCode.getC() == 1) || (obisCode.getC() == 2) || (obisCode.getC() == 5) ||
-            (obisCode.getC() == 6) || (obisCode.getC() == 7) || (obisCode.getC() == 8)) {
-            // *************************************************************************************************************
-            // C U M U L A T I V E  M A X I M U M  D E M A N D (OBIC D field 'Cumulative maximum 1' DLMS UA 1000-1 ed.5 page 87/101) 
-            if ((obisCode.getD() == ObisCode.CODE_D_CUMULATIVE_MAXUMUM_DEMAND) && (obisCode.getB() == 1)) {
-                CosemObject cosemObject = cof.getCosemObject(obisCode);
-                registerValue = new RegisterValue(obisCode,
-                                                 cosemObject.getQuantityValue(),
-                                                 cosemObject.getBillingDate(),
-                                                 cosemObject.getBillingDate());
-                return registerValue;
+        // *********************************************************************************
+        // All other registers
+        final UniversalObject uo = meterProtocol.getMeterConfig().findObject(obisCode);
+        if (uo.getClassID() == DLMSClassId.REGISTER.getClassId()) {
+            final com.energyict.dlms.cosem.Register register = meterProtocol.getCosemObjectFactory().getRegister(obisCode);
+            return new RegisterValue(obisCode, register.getQuantityValue());
+        } else if (uo.getClassID() == DLMSClassId.DEMAND_REGISTER.getClassId()) {
+            final DemandRegister register = meterProtocol.getCosemObjectFactory().getDemandRegister(obisCode);
+            return new RegisterValue(obisCode, register.getQuantityValue());
+        } else if (uo.getClassID() == DLMSClassId.EXTENDED_REGISTER.getClassId()) {
+            final ExtendedRegister register = meterProtocol.getCosemObjectFactory().getExtendedRegister(obisCode);
+            return new RegisterValue(obisCode, register.getQuantityValue());
+        } else if (uo.getClassID() == DLMSClassId.DATA.getClassId()) {
+            final Data register = meterProtocol.getCosemObjectFactory().getData(obisCode);
+            OctetString octetString = register.getValueAttr().getOctetString();
+            if (octetString != null && octetString.stringValue() != null) {
+                return new RegisterValue(obisCode, octetString.stringValue());
             }
-            // *************************************************************************************************************
-            // R I S I N G  D E M A N D (OBIC D field 'Current average 1' DLMS UA 1000-1 ed.5 page 87/101) 
-            else if ((obisCode.getD() == ObisCode.CODE_D_RISING_DEMAND) && (obisCode.getB() == 1)) {
-                CosemObject cosemObject = cof.getCosemObject(obisCode);
-                registerValue = new RegisterValue(obisCode,
-                                                 cosemObject.getQuantityValue(),
-                                                 cosemObject.getBillingDate(),
-                                                 cosemObject.getBillingDate());
-                return registerValue;
+            throw new NoSuchRegisterException();
+        } else {
+            throw new NoSuchRegisterException();
             }
-            // *************************************************************************************************************
-            // R I S I N G  D E M A N D (OBIC D field 'Current average 1' DLMS UA 1000-1 ed.5 page 87/101) 
-            else if ((obisCode.getD() == ObisCode.CODE_D_RISING_DEMAND) && (obisCode.getB() == 1)) {
-                CosemObject cosemObject = cof.getCosemObject(obisCode);
-                registerValue = new RegisterValue(obisCode,
-                                                 cosemObject.getQuantityValue(),
-                                                 cosemObject.getBillingDate(),
-                                                 cosemObject.getBillingDate());
-                return registerValue;
             }
-            // *************************************************************************************************************
-            // M A X I M U M  D E M A N D (OBIC D field 'Maximum 1' DLMS UA 1000-1 ed.5 page 87/101) 
-            else if ((obisCode.getD() == ObisCode.CODE_D_MAXIMUM_DEMAND) && (obisCode.getB() == 1)) {
-                CosemObject cosemObject = cof.getCosemObject(obisCode);
-                registerValue = new RegisterValue(obisCode,
-                                                 cosemObject.getQuantityValue(),
-                                                 cosemObject.getBillingDate(),
-                                                 cosemObject.getBillingDate());
-                return registerValue;
+
+    private RegisterValue getDSTWorkingMode(ObisCode obisCode) throws IOException {
+        final Data data = meterProtocol.getCosemObjectFactory().getData(obisCode);
+            long mode = data.getValue();
+            String text;
+            if (mode == 0) {
+                text = "DST switching disabled.";
+            } else if (mode == 1) {
+                text = "DST switching enabled - generic mode";
+            } else if (mode == 2) {
+                text = "DST switching enabled - programmed mode";
+            } else if (mode == 3) {
+                text = "DST switching enabled - generic mode with season";
+            } else if (mode == 4) {
+                text = "DST switching enabled - programmed mode with season";
+            } else {
+                text = "Invalid mode";
             }
-            // *************************************************************************************************************
-            // T O T A L & R A T E (OBIC D field 'Time integral 1' DLMS UA 1000-1 ed.5 page 87/101) 
-            else if (obisCode.getD() == ObisCode.CODE_D_TIME_INTEGRAL) {// time integral 1 TOTAL & RATE 
-                CosemObject cosemObject = cof.getCosemObject(obisCode);
-                registerValue = new RegisterValue(obisCode,
-                                                 cosemObject.getQuantityValue(),
-                                                 cosemObject.getBillingDate(),
-                                                 cosemObject.getBillingDate());
-                return registerValue;
+            return new RegisterValue(obisCode, new Quantity(mode,  Unit.getUndefined()), null, null, null, new Date(), 0, text);
             }
-            else throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
+
+    private RegisterValue getDSTSwitchingTime(ObisCode obisCode) throws IOException {
+        ObisCode baseObis = ObisCode.fromString("0.0.131.0.6.255");
+
+        // 1: date and time summer becomes active
+        // 0: date and time we go back to normal time
+        int element = obisCode.equals(baseObis) ? 0 : 1;
+
+        final Data data = meterProtocol.getCosemObjectFactory().getData(baseObis);
+            Structure dataSequence = (Structure) data.getValueAttr();
+            Structure innerStruct = ((Array) dataSequence.getStructure().getDataType(1)).getDataType(element).getStructure();
+            byte[] dateAndTime = innerStruct.getDataType(0).getOctetString().getOctetStr();
+
+        String text = "";
+        text += (dateAndTime[0] == 0x7F) ? "Year: *" : "Year: " + dateAndTime[0];
+        text += " - ";
+        text += (dateAndTime[1] == 0x7F) ? "month: *" : "month: " + dateAndTime[1];
+        text += " - ";
+        text += (dateAndTime[2] == 0x7F) ? "day of month: *" : "day of month: " + dateAndTime[2];
+        text += " - ";
+        text += (dateAndTime[3] == 0x7F) ? "day of week: *" : "day of week: " + (dateAndTime[3] == 7 ? 0 : dateAndTime[3]);
+        text += " - ";
+        text += "hour: " + dateAndTime[4];
+        return new RegisterValue(obisCode,  text);
         }
-        else throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
-  */      
         
-    }     
+    private RegisterValue getBatteryExpiryDate(ObisCode obisCode) throws IOException {
+        Data data = meterProtocol.getCosemObjectFactory().getData(obisCode);
+        OctetString octetString = data.getValueAttr().getOctetString();
+
+        String info = octetString.getOctetStr()[3] + "/" + octetString.getOctetStr()[2] + "/" +
+                (short) (((octetString.getOctetStr()[0] & 0xFF) << 8) | (octetString.getOctetStr()[1] & 0xFF));
+        return new RegisterValue(obisCode, info);
+    }
+
+    private RegisterValue getOperationStatus(ObisCode obisCode, int length) throws IOException {
+        com.energyict.dlms.cosem.Register register = meterProtocol.getCosemObjectFactory().getRegister(obisCode);
+        BitString alarmStatuses = (BitString) register.getValueAttr();
+        return new RegisterValue(obisCode, "0x" + ProtocolTools.getHexStringFromBytes(ProtocolTools.getBytesFromLong(alarmStatuses.longValue(), length), " "));
+    }
 }

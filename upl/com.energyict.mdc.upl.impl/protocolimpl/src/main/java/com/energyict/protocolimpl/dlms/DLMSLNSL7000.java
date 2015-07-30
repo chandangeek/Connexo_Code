@@ -34,20 +34,7 @@ import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dialer.core.SerialCommunicationChannel;
-import com.energyict.dlms.DLMSCOSEMGlobals;
-import com.energyict.dlms.DLMSCache;
-import com.energyict.dlms.DLMSConnection;
-import com.energyict.dlms.DLMSConnectionException;
-import com.energyict.dlms.DLMSMeterConfig;
-import com.energyict.dlms.DLMSObis;
-import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.DataContainer;
-import com.energyict.dlms.DataStructure;
-import com.energyict.dlms.HDLCConnection;
-import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.ScalerUnit;
-import com.energyict.dlms.TCPIPConnection;
-import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.*;
 import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.axrdencoding.AxdrType;
 import com.energyict.dlms.cosem.CapturedObject;
@@ -142,15 +129,13 @@ public class DLMSLNSL7000 extends PluggableMeterProtocol implements HHUEnabler, 
     // filled in when getTime is invoked!
 //    private int dstFlag; // -1=unknown, 0=not set, 1=set
 
-    private DLMSMeterConfig meterConfig = DLMSMeterConfig.getInstance("SLB");
+    private DLMSMeterConfig meterConfig = DLMSMeterConfig.getInstance("SLB::SL7000");
     private DLMSCache dlmsCache = new DLMSCache();
     private int extendedLogging;
     int addressingMode;
     int connectionMode;
 
-    /**
-     * Creates a new instance of DLMSLNSL7000, empty constructor
-     */
+    /** Creates a new instance of DLMSLNSL7000, empty constructor*/
     public DLMSLNSL7000() {
     } // public DLMSLNSL7000(...)
 
@@ -158,9 +143,7 @@ public class DLMSLNSL7000 extends PluggableMeterProtocol implements HHUEnabler, 
         return dlmsConnection;
     }
 
-    /**
-     * initializes the receiver
-     *
+    /** initializes the receiver
      * @param inputStream  <br>
      * @param outputStream <br>
      * @param timeZone     <br>
@@ -182,9 +165,10 @@ public class DLMSLNSL7000 extends PluggableMeterProtocol implements HHUEnabler, 
             cosemObjectFactory = new CosemObjectFactory(this);
             storedValuesImpl = new StoredValuesImpl(cosemObjectFactory);
             if (connectionMode == 0) {
-                dlmsConnection = new HDLCConnection(inputStream, outputStream, iHDLCTimeoutProperty, 100, iProtocolRetriesProperty, iClientMacAddress, iServerLowerMacAddress, iServerUpperMacAddress, addressingMode);
+//				dlmsConnection=new HDLCConnection(inputStream,outputStream,iHDLCTimeoutProperty,100,iProtocolRetriesProperty,iClientMacAddress,iServerLowerMacAddress,iServerUpperMacAddress,addressingMode);
+                dlmsConnection = new HDLC2Connection(inputStream, outputStream, iHDLCTimeoutProperty, 100, iProtocolRetriesProperty, iClientMacAddress, iServerLowerMacAddress, iServerUpperMacAddress, addressingMode, -1, -1);
             } else {
-                dlmsConnection = new TCPIPConnection(inputStream, outputStream, iHDLCTimeoutProperty, 100, iProtocolRetriesProperty, iClientMacAddress, iServerLowerMacAddress, getLogger());
+				dlmsConnection=new TCPIPConnection(inputStream,outputStream,iHDLCTimeoutProperty,100,iProtocolRetriesProperty,iClientMacAddress,iServerLowerMacAddress, getLogger());
             }
         } catch (DLMSConnectionException e) {
             //logger.severe ("dlms: Device clock is outside tolerance window. Setting clock");
@@ -286,8 +270,7 @@ public class DLMSLNSL7000 extends PluggableMeterProtocol implements HHUEnabler, 
 
     /**
      * Method to request the Application Association Establishment for a DLMS session.
-     *
-     * @throws IOException
+ * @exception IOException
      */
     public void requestApplAssoc() throws IOException {
         byte[] aarq;
@@ -1085,7 +1068,7 @@ public class DLMSLNSL7000 extends PluggableMeterProtocol implements HHUEnabler, 
                             iConf = requestConfigurationProgramChanges();
                         } catch (IOException e) {
                             iConf = -1;
-                            logger.severe("DLMSZMD: Configuration change count not accessible, request object list.");
+                            logger.severe("DLMSLNSL7000: Configuration change count not accessible, request object list.");
                             requestObjectList();
                             dlmsCache.saveObjectList(meterConfig.getInstantiatedObjectList());  // save object list in cache
                         }
@@ -1101,7 +1084,7 @@ public class DLMSLNSL7000 extends PluggableMeterProtocol implements HHUEnabler, 
                             dlmsCache.setConfProgChange(iConf);  // set new configuration program change
                         }
                     } else { // Cache not exist
-                        logger.info("DLMSZMD: Cache does not exist, request object list.");
+                        logger.info("DLMSLNSL7000: Cache does not exist, request object list.");
                         requestObjectList();
                         try {
                             iConf = requestConfigurationProgramChanges();
@@ -1381,7 +1364,13 @@ public class DLMSLNSL7000 extends PluggableMeterProtocol implements HHUEnabler, 
             iHDLCTimeoutProperty = Integer.parseInt(properties.getProperty("Timeout", "10000").trim());
             iProtocolRetriesProperty = Integer.parseInt(properties.getProperty("Retries", "5").trim());
             //iDelayAfterFailProperty=Integer.parseInt(properties.getProperty("DelayAfterfail","3000").trim());
-            iSecurityLevelProperty = Integer.parseInt(properties.getProperty("SecurityLevel", "1").trim());
+            final String securityLevel = properties.getProperty("SecurityLevel", "1").trim();
+            try {
+                iSecurityLevelProperty = Integer.parseInt(securityLevel);
+            } catch (NumberFormatException e) {
+                //E.g. 1:0 is level 1, 0:0 is level 0
+                iSecurityLevelProperty = Integer.parseInt(securityLevel.substring(0, 1));
+            }
             iRequestTimeZone = 0;
             //iRequestTimeZone=Integer.parseInt(properties.getProperty("RequestTimeZone","0").trim());
             iRoundtripCorrection = Integer.parseInt(properties.getProperty("RoundtripCorrection", "0").trim());
@@ -1507,7 +1496,9 @@ public class DLMSLNSL7000 extends PluggableMeterProtocol implements HHUEnabler, 
     }
 
     public void setCache(Object cacheObject) {
-        this.dlmsCache = (DLMSCache) cacheObject;
+        if (cacheObject != null) {
+            this.dlmsCache = (DLMSCache) cacheObject;
+        }
     }
 
     public Object getCache() {
@@ -1610,7 +1601,7 @@ public class DLMSLNSL7000 extends PluggableMeterProtocol implements HHUEnabler, 
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         try {
             if (ocm == null) {
-                ocm = new ObisCodeMapper(getCosemObjectFactory());
+                ocm = new ObisCodeMapper(this);
             }
             return ocm.getRegisterValue(obisCode);
         } catch (Exception e) {

@@ -10,6 +10,7 @@ import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.cosem.*;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocolimpl.dlms.DLMSLNSL7000;
 
 import java.io.IOException;
 import java.util.*;
@@ -34,10 +35,12 @@ public class RegisterProfileMapper {
     DataContainer dcTotalEnergies=null;  // cached
     DataContainer dcEnergyRates=null;  // cached
 
+    DLMSLNSL7000 meterProtocol;
 
     /** Creates a new instance of RegisterProfileMapper */
-    public RegisterProfileMapper(CosemObjectFactory cof) {
+    public RegisterProfileMapper(CosemObjectFactory cof, DLMSLNSL7000 meterProtocol) {
         this.cof=cof;
+        this.meterProtocol = meterProtocol;
     }
 
     public ObisCode getProfileObisCode(ObisCode obisCode) throws IOException {
@@ -77,7 +80,7 @@ public class RegisterProfileMapper {
             if (channelIndex < dcMaximumDemand.getRoot().getNrOfElements()) {
                 int value = dcMaximumDemand.getRoot().getStructure(channelIndex).getInteger(0);
                 ScalerUnit scalerUnit = new ScalerUnit(dcMaximumDemand.getRoot().getStructure(channelIndex).getStructure(1).getInteger(0),dcMaximumDemand.getRoot().getStructure(channelIndex).getStructure(1).getInteger(1));
-                Date date = dcMaximumDemand.getRoot().getStructure(channelIndex).getOctetString(2).toUTCDate();
+                Date date = dcMaximumDemand.getRoot().getStructure(channelIndex).getOctetString(2).toDate(meterProtocol.getTimeZone());
                 ExtendedRegister extendedRegister = new ExtendedRegister(cof.getProtocolLink(),new ObjectReference(obisCode.getLN(),DLMSClassId.PROFILE_GENERIC.getClassId()));
                 extendedRegister.setValue(new Long(value));
                 extendedRegister.setCaptureTime(date);
@@ -178,7 +181,7 @@ public class RegisterProfileMapper {
     }
 
     static public void main(String[] args) {
-        RegisterProfileMapper rpm = new RegisterProfileMapper(null);
+        RegisterProfileMapper rpm = new RegisterProfileMapper(null, null);
         rpm.test();
 
 

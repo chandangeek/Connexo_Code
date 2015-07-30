@@ -37,7 +37,7 @@ public class StoredValuesImpl implements StoredValues {
     private static final int ENERGY_RATES=2;
     private static final int MAXIMUM_DEMANDS=3;
     private static final int MD_RANGE=24; // 48 entries. ObisCode followed by struct, 24 times = 48 entries in the datacontainer
-    private static final int CUMULATIVE_DEMAND=51; // unised for the moment...
+    private static final int CUMULATIVE_DEMAND=51; // unused for the moment...
     
     
     CosemObjectFactory cof;
@@ -224,69 +224,4 @@ if (DEBUG>=1) System.out.println("**********************************************
             billingSets.add(billingSet);
         } // for (billingSetId=0;billingSetId<nrOfBillingSets;billingSetId++)
     } // private void processDataContainer(DataContainer dc)
-    
-    
-//    private void parseDataContainerDebug(DataContainer dc) {
-//        int[] count=new int[dc.getMaxLevel()+1];
-//        int level=0;
-//        boolean ret=true;
-//        DataStructure root = dc.getRoot();
-//        
-//        while(true) {
-//            int i;
-//            for (i=count[level];i<root.getNrOfElements();i++) {
-//                if (root.isStructure(i)) {
-//                    root=root.getStructure(i); 
-//                    count[level]=i+1;
-//                    level++;
-//                    System.out.println("level "+level+", elements : "+root.getNrOfElements());
-//                    i=0;
-//                    break;
-//                }
-//                else {
-//                    if (root.isOctetString(i)) {
-//                        System.out.print("NumberOfElements "+i+" = ");
-//                        ProtocolUtils.printResponseDataFormatted(root.getOctetString(i).getArray());
-//                    }
-//                    else
-//                        System.out.println("NumberOfElements "+i+" = "+root.getElement(i));
-//                }
-//            } // for (i=count[level];i<root.getNrOfElements();i++)
-//            
-//            if (i == (root.getNrOfElements())) {
-//                root=root.getParent();
-//                count[level]=0;
-//                level--;
-//                if (root == null) {
-//                    System.out.println("****************** RETURN ******************");
-//                    //ret=false;
-//                    break;
-//                }
-//            } // if (i == (root.getNrOfElements()))
-//        } // while(true)
-//    } // private void parseDataContainerDebug()
-//    
-//    
-//    static public DataContainer getDataContainerDebug() {
-//        DataContainer dc=null;
-//        try {
-//            File file = new File("datacontainer.bin");
-//            ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
-//            dc = (DataContainer)ois.readObject();
-//            ois.close();
-//        }
-//        catch(Exception e) {
-//            e.printStackTrace();
-//        }
-//        return dc;
-//    }
-    
-    /**
-     * @param args the command line arguments
-     */
-//    public static void main(String[] args) {
-//        // TODO code application logic here
-//        StoredValuesImpl dcp = new StoredValuesImpl(StoredValuesImpl.getDataContainerDebug());
-//    }
-    
 }
