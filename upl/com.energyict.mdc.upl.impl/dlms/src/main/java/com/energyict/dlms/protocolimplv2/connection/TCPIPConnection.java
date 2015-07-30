@@ -25,7 +25,7 @@ public class TCPIPConnection implements DlmsV2Connection {
 
     private static final long TIMEOUT = 300000;
     private static final int WRAPPER_VERSION = 0x0001;
-    private final ServerComChannel comChannel;
+    private final ComChannel comChannel;
 
     private boolean boolTCPIPConnected;
 
@@ -49,7 +49,7 @@ public class TCPIPConnection implements DlmsV2Connection {
     private String meterId = "";
 
     public TCPIPConnection(ComChannel comChannel, CommunicationSessionProperties properties) {
-        this.comChannel = (ServerComChannel) comChannel;
+        this.comChannel = comChannel;
         this.maxRetries = properties.getRetries();
         this.timeout = properties.getTimeout();
         this.clientAddress = properties.getClientMacAddress();
@@ -116,13 +116,13 @@ public class TCPIPConnection implements DlmsV2Connection {
             wpdu.setLength(length);
 
             byte[] frame = new byte[length];
-            int readBytes = comChannel.read(frame);
+            int readBytes = readFixedNumberOfBytes(frame);
             if (readBytes != length) {
                 throw MdcManager.getComServerExceptionFactory().createProtocolParseException(new ProtocolException("Attempted to read out full frame (" + length + " bytes), but received " + readBytes + " bytes instead..."));
             }
 
             byte[] hdlcLegacyBytes = new byte[3];
-            wpdu.setData(ProtocolTools.concatByteArrays(header.array(), hdlcLegacyBytes, frame));
+            wpdu.setData(ProtocolTools.concatByteArrays(hdlcLegacyBytes, frame));
 
             return wpdu;
         } else {
@@ -250,6 +250,28 @@ public class TCPIPConnection implements DlmsV2Connection {
         }
     } // private byte waitForTCPIPFrameStateMachine()
 
+    /**
+     * Read in a fixed number of bytes, or throw an IOException in case of a timeout
+     */
+    private int readFixedNumberOfBytes(byte[] frame) throws IOException {
+        final long timeoutMoment = System.currentTimeMillis() + timeout;
+
+        while (comChannel.available() == 0) {
+            if (System.currentTimeMillis() > timeoutMoment) {
+                throw new IOException("receiveResponse() response timeout error");
+            } else {
+                try {
+                    Thread.sleep(50);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+                }
+            }
+        }
+
+        return comChannel.read(frame);
+    }
+
     private void readDestinationField(WPDU wpdu, ByteBuffer header) throws ProtocolException {
         wpdu.setDestination(header.getShort());
         int address = switchAddresses ? this.clientAddress : this.serverAddress;
@@ -273,9 +295,9 @@ public class TCPIPConnection implements DlmsV2Connection {
         }
     }
 
-    private ByteBuffer readHeader() {
+    private ByteBuffer readHeader() throws IOException {
         byte[] header = new byte[8];
-        int readBytes = comChannel.read(header);
+        int readBytes = readFixedNumberOfBytes(header);
         if (readBytes != 8) {
             throw MdcManager.getComServerExceptionFactory().createProtocolParseException(new ProtocolException("Attempted to read out 8 header bytes but received " + readBytes + " bytes instead..."));
         }
@@ -475,7 +497,9 @@ public class TCPIPConnection implements DlmsV2Connection {
     @Override
     public void prepareComChannelForReceiveOfNextPacket() {
         comChannel.startWriting();
-        comChannel.sessionCountersStartWriting();
+        if (comChannel instanceof ServerComChannel) {
+            ((ServerComChannel) comChannel).sessionCountersStartWriting();
+        }
     }
 
     private enum State {

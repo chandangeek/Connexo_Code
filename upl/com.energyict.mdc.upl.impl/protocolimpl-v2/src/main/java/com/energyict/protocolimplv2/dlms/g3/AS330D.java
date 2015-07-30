@@ -59,12 +59,19 @@ import java.util.Random;
  */
 public class AS330D extends AbstractDlmsProtocol {
 
+    //TODO mirror logical device ID & real logical device ID  + switch between both when necessary + daisy chained logon....
+    //TODO Create 2 DlmsSessions, 1 to the mirror logical device, and 1 to the gateway transparent logical device.
+    //TODO Both use the same security keys, but a different ServerUpperMacAddress: either MIRROR_LOGICAL_DEVICE_ID or GATEWAY_LOGICAL_DEVICE_ID
+    //TODO both sessions need to read out the FC first, this is in the same register
+
     private static final ObisCode FRAMECOUNTER_OBISCODE = ObisCode.fromString("0.3.43.0.0.255");
     private static final BigDecimal PUBLIC_CLIENT = BigDecimal.valueOf(16);
 
     private RegisterFactory registerFactory;
     private LogBookFactory logBookFactory;
     private ProfileDataFactory profileDataFactory;
+
+    private String cachedMeterSerialNumber = null;
 
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
@@ -77,26 +84,36 @@ public class AS330D extends AbstractDlmsProtocol {
             comChannel.addProperties(comChannelProperties);
         }
 
-        readFrameCounter(comChannel);
-        setDlmsSession(new DlmsSession(comChannel, getDlmsSessionProperties()));
+        DlmsSession publicDlmsSession = createPublicDlmsSession(comChannel);
+        readFrameCounter(publicDlmsSession);
+
+        //Now read out the serial number using the public client
+        readMeterSerialNumber(publicDlmsSession);
+
+        setDlmsSession(new DlmsSession(comChannel, getDlmsSessionProperties()));    //Session to the mirror logical device
+    }
+
+    private DlmsSession createPublicDlmsSession(ComChannel comChannel) {
+        TypedProperties clone = getDlmsSessionProperties().getProperties().clone();
+        clone.setProperty(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, PUBLIC_CLIENT);
+        AS330DProperties publicClientProperties = new AS330DProperties(false);  //Use gateway logical device ID
+        publicClientProperties.addProperties(clone);
+        publicClientProperties.setSecurityPropertySet(new DeviceProtocolSecurityPropertySetImpl(0, 0, clone));    //SecurityLevel 0:0
+
+        DlmsSession publicDlmsSession = new DlmsSession(comChannel, publicClientProperties);
+        publicDlmsSession.assumeConnected(publicClientProperties.getMaxRecPDUSize(), publicClientProperties.getConformanceBlock());
+        return publicDlmsSession;
     }
 
     /**
      * First read out the frame counter for the management client, using the public client.
      * Note that this happens without setting up an association, since the it's pre-established for the public client.
+     * Note that we use the gateway logical device ID for this, because the FC is only in the actual e-meter, not in the mirorred meter data.
      */
-    protected void readFrameCounter(ComChannel comChannel) {
-        TypedProperties clone = getDlmsSessionProperties().getProperties().clone();
-        clone.setProperty(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, PUBLIC_CLIENT);
-        AS330DProperties publicClientProperties = new AS330DProperties();
-        publicClientProperties.addProperties(clone);
-        publicClientProperties.setSecurityPropertySet(new DeviceProtocolSecurityPropertySetImpl(0, 0, clone));    //SecurityLevel 0:0
-
-        DlmsSession publicDlmsSession = new DlmsSession(comChannel, publicClientProperties);
+    //TODO ok, we now read out the FC using the  gateway logical device ID. Now do this for everything that is not meterdata (and thus not cached in the DC)
+    protected void readFrameCounter(DlmsSession publicDlmsSession) {
 
         //Read out the frame counter using the public client, it has a pre-established association
-        publicDlmsSession.assumeConnected(publicClientProperties.getMaxRecPDUSize(), publicClientProperties.getConformanceBlock());
-
         long frameCounter;
         try {
             Structure frameCountersStructure = publicDlmsSession.getCosemObjectFactory().getData(FRAMECOUNTER_OBISCODE).getValueAttr().getStructure();
@@ -128,15 +145,21 @@ public class AS330D extends AbstractDlmsProtocol {
 
     @Override
     public String getSerialNumber() {
+        if (cachedMeterSerialNumber == null) {
+            readMeterSerialNumber(getDlmsSession());
+        }
+        return cachedMeterSerialNumber;
+    }
+
+    private void readMeterSerialNumber(DlmsSession dlmsSession) {
+        final G3DeviceInfo g3DeviceInfo = new G3DeviceInfo(dlmsSession.getCosemObjectFactory());
         try {
-            G3DeviceInfo g3DeviceInfo = new G3DeviceInfo(getDlmsSession().getCosemObjectFactory());
-            return g3DeviceInfo.getSerialNumber();
+            cachedMeterSerialNumber = g3DeviceInfo.getSerialNumber();
         } catch (DataAccessResultException | ProtocolException | ExceptionResponseException e) {
             throw MdcManager.getComServerExceptionFactory().createUnexpectedResponse(e);   //Received error code from the meter, instead of the expected value
         } catch (IOException e) {
             throw MdcManager.getComServerExceptionFactory().createNumberOfRetriesReached(e, getDlmsSessionProperties().getRetries() + 1);
         }
-
     }
 
     public AS330DProperties getDlmsSessionProperties() {
@@ -213,6 +236,21 @@ public class AS330D extends AbstractDlmsProtocol {
      * If the request was rejected because by the meter the previous association was still open, this retry mechanism will solve the problem.
      */
     private void connectWithRetries() {
+
+        //TODO revise this release mechanism
+        try {
+            getDlmsSession().getAso().releaseAssociation();
+        } catch (Throwable e) {
+            //Ignore
+        }
+        try {
+            getDlmsSession().getAso().releaseAssociation();
+        } catch (Throwable e) {
+            //Ignore
+        }
+        getDlmsSession().getAso().setAssociationState(0);
+
+
         int tries = 0;
         while (true) {
             ComServerExecutionException exception;

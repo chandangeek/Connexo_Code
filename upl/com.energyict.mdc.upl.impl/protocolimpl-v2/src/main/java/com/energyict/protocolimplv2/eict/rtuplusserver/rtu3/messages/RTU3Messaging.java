@@ -136,9 +136,11 @@ public class RTU3Messaging extends AbstractMessageExecutor implements DeviceMess
             return collectedMessage;
         }
 
+        //TODO split message: one for config data, one for assigning devices (reduces bandwith load)
         syncSchedules(allMasterData);
         syncClientTypes(allMasterData);
         syncDeviceTypes(allMasterData);
+
         syncDevices(allMasterData);
         return collectedMessage;
     }
@@ -361,6 +363,8 @@ public class RTU3Messaging extends AbstractMessageExecutor implements DeviceMess
             final int logicalDeviceId = 1;  //TODO is this always 1? probably yes
             int clientTypeId = getClientTypeId(device, comTaskExecution);
 
+            //TODO fetch data from device config, not from device itself
+
             ArrayList<ObisCode> loadProfileObisCodes = getLoadProfileObisCodesForComTask(device, comTaskExecution);
             ArrayList<ObisCode> registerObisCodes = getRegisterObisCodesForComTask(device, comTaskExecution);
             ArrayList<ObisCode> logBookObisCodes = getLogBookObisCodesForComTask(device, comTaskExecution);
@@ -391,7 +395,7 @@ public class RTU3Messaging extends AbstractMessageExecutor implements DeviceMess
 
     private ArrayList<ObisCode> getLogBookObisCodesForComTask(Device device, ComTaskExecution comTaskExecution) {
         Set<ObisCode> logBookObisCodes = new HashSet<>();
-        if (((ServerComTask) comTaskExecution.getComTask()).isConfiguredToCollectEvents()) {
+        if (((ServerComTask) comTaskExecution.getComTask()).isConfiguredToCollectEvents()) {        //TODO avoid cast to server interface?
             for (ProtocolTask protocolTask : comTaskExecution.getComTask().getProtocolTasks()) {
                 if (protocolTask instanceof LogBooksTask) {
                     final List<LogBookType> logBookTypes = ((LogBooksTask) protocolTask).getLogBookTypes();
@@ -412,7 +416,7 @@ public class RTU3Messaging extends AbstractMessageExecutor implements DeviceMess
 
     private ArrayList<ObisCode> getRegisterObisCodesForComTask(Device device, ComTaskExecution comTaskExecution) {
         Set<ObisCode> registerObisCodes = new HashSet<>();
-        if (((ServerComTask) comTaskExecution.getComTask()).isConfiguredToCollectRegisterData()) {
+        if (((ServerComTask) comTaskExecution.getComTask()).isConfiguredToCollectRegisterData()) {      //TODO avoid cast to server interface?
             for (ProtocolTask protocolTask : comTaskExecution.getComTask().getProtocolTasks()) {
                 if (protocolTask instanceof RegistersTask) {
                     final List<RegisterGroup> registerGroups = ((RegistersTask) protocolTask).getRegisterGroups();
@@ -438,7 +442,7 @@ public class RTU3Messaging extends AbstractMessageExecutor implements DeviceMess
 
     private ArrayList<ObisCode> getLoadProfileObisCodesForComTask(Device device, ComTaskExecution comTaskExecution) {
         Set<ObisCode> loadProfileObisCodes = new HashSet<>();
-        if (((ServerComTask) comTaskExecution.getComTask()).isConfiguredToCollectLoadProfileData()) {
+        if (((ServerComTask) comTaskExecution.getComTask()).isConfiguredToCollectLoadProfileData()) {   //TODO avoid cast to server interface?
             for (ProtocolTask protocolTask : comTaskExecution.getComTask().getProtocolTasks()) {
                 if (protocolTask instanceof LoadProfilesTask) {
                     final List<LoadProfileType> loadProfileTypes = ((LoadProfilesTask) protocolTask).getLoadProfileTypes();

@@ -2,16 +2,13 @@ package com.energyict.protocolimplv2.nta.dsmr23;
 
 import com.energyict.cbo.TimeDuration;
 import com.energyict.cpo.TypedProperties;
-import com.energyict.dlms.CipheringType;
-import com.energyict.dlms.DLMSReference;
-import com.energyict.dlms.IncrementalInvokeIdAndPriorityHandler;
-import com.energyict.dlms.InvokeIdAndPriorityHandler;
-import com.energyict.dlms.NonIncrementalInvokeIdAndPriorityHandler;
+import com.energyict.dlms.*;
 import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.dlms.protocolimplv2.SecurityProvider;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdw.core.TimeZoneInUse;
+import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocolimplv2.nta.abstractnta.NTASecurityProvider;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
 
@@ -32,10 +29,10 @@ import static com.energyict.dlms.common.DlmsProtocolProperties.*;
  */
 public class DlmsProperties implements DlmsSessionProperties {
 
-    private TypedProperties properties;
+    protected SecurityProvider securityProvider;
+    private final TypedProperties properties;
     private DeviceProtocolSecurityPropertySet securityPropertySet;
     private String serialNumber = "";
-    protected SecurityProvider securityProvider;
 
     public DlmsProperties() {
         this.properties = TypedProperties.empty();
@@ -67,12 +64,12 @@ public class DlmsProperties implements DlmsSessionProperties {
         return DLMSReference.LN;
     }
 
-    public void setSecurityPropertySet(DeviceProtocolSecurityPropertySet securityPropertySet) {
-        this.securityPropertySet = securityPropertySet;
-    }
-
     public DeviceProtocolSecurityPropertySet getSecurityPropertySet() {
         return securityPropertySet;
+    }
+
+    public void setSecurityPropertySet(DeviceProtocolSecurityPropertySet securityPropertySet) {
+        this.securityPropertySet = securityPropertySet;
     }
 
     @Override
@@ -231,6 +228,9 @@ public class DlmsProperties implements DlmsSessionProperties {
 
     @Override
     public String getSerialNumber() {
+        if (serialNumber == null || serialNumber.isEmpty()) {
+            serialNumber = properties.getTypedProperty(MeterProtocol.SERIALNUMBER, "");
+        }
         return serialNumber;
     }
 
@@ -260,6 +260,10 @@ public class DlmsProperties implements DlmsSessionProperties {
 
     protected int parseBigDecimalProperty(String key, BigDecimal defaultValue) {
         return properties.<BigDecimal>getTypedProperty(key, defaultValue).intValue();
+    }
+
+    protected int parseBigDecimalProperty(String key) {
+        return properties.<BigDecimal>getTypedProperty(key).intValue();
     }
 
     @Override

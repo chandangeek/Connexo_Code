@@ -22,13 +22,13 @@ import java.io.IOException;
  */
 public class HDLCConnection extends HDLC2Connection implements DlmsV2Connection {
 
-    private final ServerComChannel comChannel;
+    private final ComChannel comChannel;
     private boolean useGeneralBlockTransfer;
     private int generalBlockTransferWindowSize;
 
     public HDLCConnection(ComChannel comChannel, CommunicationSessionProperties properties) {
         super(properties);
-        this.comChannel = (ServerComChannel) comChannel;
+        this.comChannel = comChannel;
         this.iMaxRetries = properties.getRetries();
         this.iProtocolTimeout = properties.getTimeout();
         this.NR = 0;
@@ -190,6 +190,8 @@ public class HDLCConnection extends HDLC2Connection implements DlmsV2Connection 
     @Override
     public void prepareComChannelForReceiveOfNextPacket() {
         comChannel.startWriting();
-        comChannel.sessionCountersStartWriting();
+        if (comChannel instanceof ServerComChannel) {
+            ((ServerComChannel) comChannel).sessionCountersStartWriting();
+        }
     }
 }
