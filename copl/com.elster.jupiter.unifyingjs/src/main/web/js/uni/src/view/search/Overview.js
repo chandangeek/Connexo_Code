@@ -16,7 +16,7 @@ Ext.define('Uni.view.search.Overview', {
         'Uni.view.search.field.SearchObjectSelector',
         'Uni.view.search.field.SearchCriteriaSelector',
         'Uni.view.search.field.DateRangeField',
-        'Uni.view.search.field.NumberRange',
+        'Uni.view.search.field.NumberField',
         'Uni.view.search.field.Combobox',
         'Uni.view.search.field.Simple'
     ],
@@ -109,7 +109,7 @@ Ext.define('Uni.view.search.Overview', {
                                         xtype: 'uni-view-search-field-date-range'
                                     },
                                     {
-                                        xtype: 'uni-view-search-field-number-range'
+                                        xtype: 'uni-view-search-field-number-field'
                                     },
                                     {
                                         xtype: 'search-criteria-simple',
