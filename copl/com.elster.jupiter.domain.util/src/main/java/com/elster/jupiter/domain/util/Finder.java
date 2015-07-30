@@ -1,5 +1,6 @@
 package com.elster.jupiter.domain.util;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.sql.SqlFragment;
@@ -7,7 +8,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 /**
- * Generic finder interfaces adding pagability and sortability to any query
+ * Generic finder interfaces adding pagability and sortability to any query.
  */
 public interface Finder<T> {
 
@@ -51,5 +52,7 @@ public interface Finder<T> {
      * For the use of Subquery, see the documentation there
      */
     SqlFragment asFragment(String... fieldNames);
+
+    default Finder<T> maxPageSize(Thesaurus thesaurus, int maxPageSize) { return this; }
 
 }
