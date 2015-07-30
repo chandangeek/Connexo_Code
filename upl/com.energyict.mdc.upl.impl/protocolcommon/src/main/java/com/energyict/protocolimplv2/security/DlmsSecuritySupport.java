@@ -133,7 +133,7 @@ public class DlmsSecuritySupport implements LegacyDeviceProtocolSecurityCapabili
     public DeviceProtocolSecurityPropertySet convertFromTypedProperties(final TypedProperties oldTypedProperties) {
         String securityLevelProperty = oldTypedProperties.getStringProperty(SECURITY_LEVEL_PROPERTY_NAME);
         if (securityLevelProperty == null) {
-            securityLevelProperty = "0:0";
+            securityLevelProperty = getLegacySecurityLevelDefault();
         }
         if (!securityLevelProperty.contains(":")) {
             securityLevelProperty += ":0";
@@ -177,6 +177,10 @@ public class DlmsSecuritySupport implements LegacyDeviceProtocolSecurityCapabili
                 return result;
             }
         };
+    }
+
+    protected String getLegacySecurityLevelDefault() {
+        return "0:0";
     }
 
     private boolean isRequiredOnThisLevel(String newPropertyKey, int authenticationLevel, int encryptionLevel) {
