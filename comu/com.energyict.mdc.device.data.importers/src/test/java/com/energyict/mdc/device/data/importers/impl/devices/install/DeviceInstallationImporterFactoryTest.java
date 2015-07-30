@@ -439,7 +439,7 @@ public class DeviceInstallationImporterFactoryTest {
 
         importer.process(importOccurrence);
 
-        verify(importOccurrence).markSuccessWithFailures(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_WARN_AND_ERRORS.getTranslated(thesaurus, 0, 1, 1));
+        verify(importOccurrence).markSuccessWithFailures(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS.getTranslated(thesaurus, 0, 1));
         verify(logger, times(1)).info(TranslationKeys.NEW_USAGE_POINT_WILL_BE_CREATED.getTranslated(thesaurus, 2, "Usage MRID"));
         verify(logger, times(1)).warning(MessageSeeds.NO_USAGE_POINT.getTranslated(thesaurus, 2, "Usage MRID",
                 Arrays.stream(ServiceKind.values()).map(ServiceKind::getDisplayName).collect(Collectors.joining(", "))));
@@ -478,7 +478,7 @@ public class DeviceInstallationImporterFactoryTest {
 
         importer.process(importOccurrence);
 
-        verify(importOccurrence).markSuccessWithFailures(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_WARN_AND_ERRORS.getTranslated(thesaurus, 0, 1, 1));
+        verify(importOccurrence).markSuccessWithFailures(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS.getTranslated(thesaurus, 0, 1));
         verify(logger, times(1)).info(TranslationKeys.NEW_USAGE_POINT_WILL_BE_CREATED.getTranslated(thesaurus, 2, "Usage MRID"));
         verify(logger, times(1)).warning(MessageSeeds.NO_USAGE_POINT.getTranslated(thesaurus, 2, "Usage MRID",
                 Arrays.stream(ServiceKind.values()).map(ServiceKind::getDisplayName).collect(Collectors.joining(", "))));

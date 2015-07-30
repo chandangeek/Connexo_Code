@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.importers.impl.readingsimport;
 
+import com.elster.jupiter.nls.TranslationKey;
 import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterContext;
 import com.energyict.mdc.device.data.importers.impl.FileImportLoggerImpl;
 import com.energyict.mdc.device.data.importers.impl.TranslationKeys;
@@ -9,6 +10,7 @@ import java.util.Map;
 
 public class DeviceReadingsImportLogger extends FileImportLoggerImpl<DeviceReadingsImportRecord> {
 
+    private int warnings = 0;
     private Map<String, Long> readingsAddedSuccessfully = new HashMap<>();
     private Map<String, Long> readingsFailedToImport = new HashMap<>();
 
@@ -26,6 +28,12 @@ public class DeviceReadingsImportLogger extends FileImportLoggerImpl<DeviceReadi
     public void importLineFinished(DeviceReadingsImportRecord data) {
         super.importLineFinished(data);
         addReadingsSuccess(data.getDeviceMrid(), data.getReadingTypes().size());
+    }
+
+    @Override
+    public void warning(TranslationKey message, Object... arguments) {
+        super.warning(message, arguments);
+        warnings++;
     }
 
     private void addReadingsSuccess(String device, long numberOfSuccessReadings) {

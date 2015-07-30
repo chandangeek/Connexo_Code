@@ -8,8 +8,6 @@ import java.text.MessageFormat;
 
 public abstract class FileImportLoggerImpl<T extends FileImportRecord> implements FileImportLogger<T> {
 
-    protected int warnings = 0;
-
     protected DeviceDataImporterContext context;
     protected FileImportOccurrence fileImportOccurrence;
 
@@ -29,7 +27,6 @@ public abstract class FileImportLoggerImpl<T extends FileImportRecord> implement
             msg = MessageFormat.format(msg, arguments);
         }
         fileImportOccurrence.getLogger().info(msg);
-        warnings++;
     }
 
     @Override
