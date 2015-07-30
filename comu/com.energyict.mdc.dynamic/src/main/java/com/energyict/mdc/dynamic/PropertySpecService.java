@@ -1,15 +1,16 @@
 package com.energyict.mdc.dynamic;
 
-import java.util.List;
-import java.util.TimeZone;
+import com.energyict.mdc.common.FactoryIds;
+import com.energyict.mdc.common.ObisCode;
 
 import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecBuilder;
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.common.FactoryIds;
-import com.energyict.mdc.common.ObisCode;
+
+import java.util.List;
+import java.util.TimeZone;
 
 /**
  * Provides services to build {@link PropertySpec}s.

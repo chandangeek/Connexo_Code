@@ -13,8 +13,8 @@ import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.BooleanFactory;
-import com.elster.jupiter.properties.FindById;
-import com.elster.jupiter.properties.ListValueEntry;
+import com.elster.jupiter.properties.CanFindByStringKey;
+import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecBuilder;
 import com.elster.jupiter.properties.RelativePeriodFactory;
@@ -34,7 +34,6 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
@@ -53,7 +52,7 @@ public class PropertySpecServiceImpl implements PropertySpecService {
     private volatile DataModel dataModel;
     private volatile DataVaultService dataVaultService;
     private volatile TimeService timeService;
-    private volatile Map<Class, List<CanFindByLongPrimaryKey<? extends HasId>>> finders = new ConcurrentHashMap<>();
+    private volatile Map<Class<? extends CanFindByLongPrimaryKey>, CanFindByLongPrimaryKey<? extends HasId>> finders = new ConcurrentHashMap<>();
     private volatile com.elster.jupiter.properties.PropertySpecService basicPropertySpecService;
 
     @Reference
@@ -191,12 +190,12 @@ public class PropertySpecServiceImpl implements PropertySpecService {
     }
 
     private CanFindByLongPrimaryKey<? extends HasId> finderFor(FactoryIds factoryId) {
-        return this.finders.values()
-                .stream()
-                .flatMap(Collection::stream)
-                .filter(finder -> factoryId.equals(finder.factoryId()))
-                .findAny()
-                .orElseThrow(() -> new NoFinderComponentFoundException(factoryId));
+        for (CanFindByLongPrimaryKey<? extends HasId> finder : finders.values()) {
+            if (factoryId.equals(finder.factoryId())) {
+                return finder;
+            }
+        }
+        throw new NoFinderComponentFoundException(factoryId);
     }
 
     @Override
@@ -207,7 +206,9 @@ public class PropertySpecServiceImpl implements PropertySpecService {
     @Override
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addFactoryProvider(ReferencePropertySpecFinderProvider factoryProvider) {
-        this.finders.put(factoryProvider.getClass(), factoryProvider.finders());
+        for (CanFindByLongPrimaryKey<? extends HasId> finder : factoryProvider.finders()) {
+            finders.put(finder.getClass(), finder);
+        }
     }
 
     @Reference
@@ -217,11 +218,13 @@ public class PropertySpecServiceImpl implements PropertySpecService {
 
     @SuppressWarnings("unused")
     public void removeFactoryProvider(ReferencePropertySpecFinderProvider factoryProvider) {
-        this.finders.remove(factoryProvider.getClass());
+        for (CanFindByLongPrimaryKey<? extends HasId> finder : factoryProvider.finders()) {
+            this.finders.remove(finder);
+        }
     }
 
     @Override
-    public <T extends ListValueEntry> PropertySpec listValuePropertySpec(String name, boolean required, FindById<T> finder, T... values) {
+    public <T extends HasIdAndName> PropertySpec listValuePropertySpec(String name, boolean required, CanFindByStringKey<T> finder, T... values) {
         return basicPropertySpecService.listValuePropertySpec(name, required, finder, values);
     }
 
@@ -277,17 +280,21 @@ public class PropertySpecServiceImpl implements PropertySpecService {
 
     @Override
     public PropertySpec longPropertySpecWithValues(String name, boolean required, Long... values) {
-        return basicPropertySpecService.longPropertySpecWithValues(name,required,values);
+        return basicPropertySpecService.longPropertySpecWithValues(name, required, values);
     }
 
     @Override
     public PropertySpec positiveLongPropertySpec(String name, boolean required) {
-        return basicPropertySpecService.positiveLongPropertySpec(name,required);
+        return basicPropertySpecService.positiveLongPropertySpec(name, required);
     }
 
     @Override
     public PropertySpec boundedLongPropertySpec(String name, boolean required, Long lowerLimit, Long upperLimit) {
-        return basicPropertySpecService.boundedLongPropertySpec(name,required,lowerLimit,upperLimit);
+        return basicPropertySpecService.boundedLongPropertySpec(name, required, lowerLimit, upperLimit);
     }
 
+    @Override
+    public <T extends HasIdAndName> PropertySpec stringReferencePropertySpec(String name, boolean required, CanFindByStringKey<T> finder, T... values) {
+        return basicPropertySpecService.stringReferencePropertySpec(name, required, finder, values);
+    }
 }
