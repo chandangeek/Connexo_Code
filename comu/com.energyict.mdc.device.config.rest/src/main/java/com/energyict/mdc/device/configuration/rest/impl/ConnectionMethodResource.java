@@ -161,7 +161,7 @@ public class ConnectionMethodResource {
         updateProperties(connectionMethodInfo, partialConnectionTask);
         partialConnectionTask.save();
 
-        return Response.ok(connectionMethodInfoFactory.asInfo(deviceConfigurationService.getPartialConnectionTask(partialConnectionTask.getId()).get(), uriInfo)).build();
+        return Response.ok(connectionMethodInfoFactory.asInfo(deviceConfigurationService.findPartialConnectionTask(partialConnectionTask.getId()).get(), uriInfo)).build();
     }
 
     /**
