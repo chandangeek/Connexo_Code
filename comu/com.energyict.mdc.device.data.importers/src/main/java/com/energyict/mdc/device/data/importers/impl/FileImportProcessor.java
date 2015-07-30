@@ -4,6 +4,6 @@ import com.energyict.mdc.device.data.importers.impl.exceptions.ProcessorExceptio
 
 public interface FileImportProcessor<T extends FileImportRecord> {
 
-    void process(T data, FileImportRecordContext recordContext) throws ProcessorException;
+    void process(T data, FileImportLogger logger) throws ProcessorException;
 
 }

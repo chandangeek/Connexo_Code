@@ -6,12 +6,12 @@ import com.energyict.mdc.device.data.importers.impl.AbstractDeviceDataFileImport
 import com.energyict.mdc.device.data.importers.impl.DeviceDataCsvImporter;
 import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterContext;
 import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty;
+import com.energyict.mdc.device.data.importers.impl.DevicePerLineFileImportLogger;
 import com.energyict.mdc.device.data.importers.impl.FileImportDescriptionBasedParser;
+import com.energyict.mdc.device.data.importers.impl.FileImportLogger;
 import com.energyict.mdc.device.data.importers.impl.FileImportParser;
 import com.energyict.mdc.device.data.importers.impl.FileImportProcessor;
 import com.energyict.mdc.device.data.importers.impl.TranslationKeys;
-import com.energyict.mdc.device.data.importers.impl.devices.DeviceTransitionRecord;
-import com.energyict.mdc.device.data.importers.impl.devices.decommission.DeviceDecommissioningImportDescription;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -20,9 +20,7 @@ import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
 
-import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.DATE_FORMAT;
-import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.DELIMITER;
-import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.TIME_ZONE;
+import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.*;
 
 @Component(name = "com.energyict.mdc.device.data.importers." + DeviceActivationDeactivationImportFactory.NAME,
         service = FileImporterFactory.class,
@@ -32,7 +30,8 @@ public class DeviceActivationDeactivationImportFactory extends AbstractDeviceDat
 
     private volatile DeviceDataImporterContext context;
 
-    public DeviceActivationDeactivationImportFactory() {}
+    public DeviceActivationDeactivationImportFactory() {
+    }
 
     @Inject
     public DeviceActivationDeactivationImportFactory(DeviceDataImporterContext context) {
@@ -59,7 +58,8 @@ public class DeviceActivationDeactivationImportFactory extends AbstractDeviceDat
         FileImportParser<DeviceActivationDeactivationRecord> parser = new FileImportDescriptionBasedParser(
                 new DeviceActivationDeactivationImportDescription(dateFormat, timeZone));
         FileImportProcessor<DeviceActivationDeactivationRecord> processor = new DeviceActivationDeactivationImportProcessor(getContext());
-        return DeviceDataCsvImporter.withParser(parser).withProcessor(processor).withDelimiter(delimiter.charAt(0)).build(getContext());
+        FileImportLogger logger = new DevicePerLineFileImportLogger(getContext());
+        return DeviceDataCsvImporter.withParser(parser).withProcessor(processor).withLogger(logger).withDelimiter(delimiter.charAt(0)).build(getContext());
     }
 
     @Override

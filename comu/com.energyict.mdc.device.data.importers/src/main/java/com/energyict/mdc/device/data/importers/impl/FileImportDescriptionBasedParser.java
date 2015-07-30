@@ -11,17 +11,23 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 public class FileImportDescriptionBasedParser<T extends FileImportRecord> implements FileImportParser<T> {
 
     private final FileImportDescription<T> descriptor;
+    private List<String> headers;
 
     public FileImportDescriptionBasedParser(FileImportDescription<T> descriptor) {
         this.descriptor = descriptor;
     }
 
+    public void init(CSVParser csvParser) {
+        initHeaders(csvParser);
+    }
+
     @Override
-    public T parse(CSVRecord csvRecord, FileImportRecordContext recordContext) throws FileImportParserException {
+    public T parse(CSVRecord csvRecord) throws FileImportParserException {
         T record = this.descriptor.getFileImportRecord();
         record.setLineNumber(csvRecord.getRecordNumber());
         List<FileImportField<?>> fields = this.descriptor.getFields(record);
@@ -38,33 +44,43 @@ public class FileImportDescriptionBasedParser<T extends FileImportRecord> implem
                 repetitiveColumnCount++;
             }
             if (currentField.isMandatory() && Checks.is(rawValue).emptyOrOnlyWhiteSpace()) {
-                throw new FileImportParserException(MessageSeeds.LINE_MISSING_VALUE_ERROR, csvRecord.getRecordNumber(), recordContext.getHeaderColumn(i));
+                throw new FileImportParserException(MessageSeeds.LINE_MISSING_VALUE_ERROR, csvRecord.getRecordNumber(), getHeaderColumn(i));
             }
             Consumer resultConsumer = currentField.getResultConsumer();
             try {
                 resultConsumer.accept(currentField.getParser().parse(rawValue));
             } catch (ValueParserException ex) {
-                throw new FileImportParserException(MessageSeeds.LINE_FORMAT_ERROR, csvRecord.getRecordNumber(), recordContext.getHeaderColumn(i), ex.getExpected());
+                throw new FileImportParserException(MessageSeeds.LINE_FORMAT_ERROR, csvRecord.getRecordNumber(), getHeaderColumn(i), ex.getExpected());
             }
         }
         return record;
     }
 
-    @Override
-    public List<String> parseHeaders(CSVParser parser) {
-        List<String> headers = FileImportParser.super.parseHeaders(parser);
+    private void initHeaders(CSVParser parser) {
+        headers = parser.getHeaderMap().entrySet()
+                .stream()
+                .filter(entry -> entry.getKey() != null && !entry.getKey().isEmpty() && entry.getValue() != null)
+                .sorted((e1, e2) -> e1.getValue().compareTo(e2.getValue()))
+                .map(entry -> entry.getKey())
+                .collect(Collectors.toList());
         long numberOfMandatoryColumns = getNumberOfMandatoryColumns();
-        if (headers.size() < numberOfMandatoryColumns){
+        if (headers.size() < numberOfMandatoryColumns) {
             throw new FileImportParserException(MessageSeeds.MISSING_TITLE_ERROR, numberOfMandatoryColumns, headers.size());
         }
-        return headers;
     }
 
-    public long getNumberOfMandatoryColumns() {
+    private long getNumberOfMandatoryColumns() {
         return this.descriptor.getFields(this.descriptor.getFileImportRecord())
                 .stream()
                 .filter(FileImportField::isMandatory)
                 .count();
+    }
+
+    private String getHeaderColumn(int position) {
+        if (position >= 0 && position < this.headers.size()) {
+            return this.headers.get(position);
+        }
+        return "#" + (position + 1);
     }
 
     private List<String> getRawValuesSkipTrailingNulls(CSVRecord csvRecord) {

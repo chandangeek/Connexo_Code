@@ -41,6 +41,7 @@ public class FileImportDescriptionBasedParserTest {
     private static class RepetitiveRecord extends FileImportRecord {
         private List<String> readings;
         private List<String> values;
+
         public RepetitiveRecord() {
             this.readings = new ArrayList<>();
             this.values = new ArrayList<>();
@@ -54,14 +55,15 @@ public class FileImportDescriptionBasedParserTest {
             return values;
         }
 
-        public void addReading(String reading){
+        public void addReading(String reading) {
             this.readings.add(reading);
         }
 
-        public void addValue(String value){
+        public void addValue(String value) {
             this.values.add(value);
         }
     }
+
     private static class RepetitiveDescription implements FileImportDescription<RepetitiveRecord> {
 
         @Override
@@ -124,14 +126,14 @@ public class FileImportDescriptionBasedParserTest {
                 + "SPE001;r1;v1;r2;v2;r3;v3";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         RepetitiveRecord record = spy(new RepetitiveRecord());
-        FileImportParser<FileImportRecord> parser = new FileImportDescriptionBasedParser(new RepetitiveDescription(){
+        FileImportParser<FileImportRecord> parser = new FileImportDescriptionBasedParser(new RepetitiveDescription() {
             @Override
             public RepetitiveRecord getFileImportRecord() {
                 return record;
             }
         });
         FileImportProcessor<FileImportRecord> processor = mock(FileImportProcessor.class);
-        DeviceDataCsvImporter<FileImportRecord> importer = DeviceDataCsvImporter.withParser(parser).withProcessor(processor).withDelimiter(';').build(context);
+        DeviceDataCsvImporter<FileImportRecord> importer = DeviceDataCsvImporter.withParser(parser).withProcessor(processor).withLogger(new DevicePerLineFileImportLogger(context)).withDelimiter(';').build(context);
 
         importer.process(importOccurrence);
 
@@ -146,7 +148,7 @@ public class FileImportDescriptionBasedParserTest {
                 + "SPE001;28/07/2015 09:14;r1;v1;r2;v2;r3;v3";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         RepetitiveRecord record = spy(new RepetitiveRecord());
-        FileImportParser<FileImportRecord> parser = new FileImportDescriptionBasedParser(new FileImportDescription<RepetitiveRecord>(){
+        FileImportParser<FileImportRecord> parser = new FileImportDescriptionBasedParser(new FileImportDescription<RepetitiveRecord>() {
             @Override
             public RepetitiveRecord getFileImportRecord() {
                 return record;
@@ -178,7 +180,7 @@ public class FileImportDescriptionBasedParserTest {
             }
         });
         FileImportProcessor<FileImportRecord> processor = mock(FileImportProcessor.class);
-        DeviceDataCsvImporter<FileImportRecord> importer = DeviceDataCsvImporter.withParser(parser).withProcessor(processor).withDelimiter(';').build(context);
+        DeviceDataCsvImporter<FileImportRecord> importer = DeviceDataCsvImporter.withParser(parser).withProcessor(processor).withLogger(new DevicePerLineFileImportLogger(context)).withDelimiter(';').build(context);
 
         importer.process(importOccurrence);
 
@@ -193,7 +195,7 @@ public class FileImportDescriptionBasedParserTest {
                 + "SPE001;r1;v1;r2;v2;r3;v3";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         RepetitiveRecord record = spy(new RepetitiveRecord());
-        FileImportParser<FileImportRecord> parser = new FileImportDescriptionBasedParser(new FileImportDescription<RepetitiveRecord>(){
+        FileImportParser<FileImportRecord> parser = new FileImportDescriptionBasedParser(new FileImportDescription<RepetitiveRecord>() {
             @Override
             public RepetitiveRecord getFileImportRecord() {
                 return record;
@@ -219,7 +221,7 @@ public class FileImportDescriptionBasedParserTest {
             }
         });
         FileImportProcessor<FileImportRecord> processor = mock(FileImportProcessor.class);
-        DeviceDataCsvImporter<FileImportRecord> importer = DeviceDataCsvImporter.withParser(parser).withProcessor(processor).withDelimiter(';').build(context);
+        DeviceDataCsvImporter<FileImportRecord> importer = DeviceDataCsvImporter.withParser(parser).withProcessor(processor).withLogger(new DevicePerLineFileImportLogger(context)).withDelimiter(';').build(context);
 
         importer.process(importOccurrence);
 

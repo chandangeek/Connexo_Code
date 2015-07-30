@@ -6,8 +6,8 @@ import com.energyict.mdc.device.data.CIMLifecycleDates;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.imp.Batch;
 import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterContext;
+import com.energyict.mdc.device.data.importers.impl.FileImportLogger;
 import com.energyict.mdc.device.data.importers.impl.FileImportProcessor;
-import com.energyict.mdc.device.data.importers.impl.FileImportRecordContext;
 import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
 import com.energyict.mdc.device.data.importers.impl.exceptions.ProcessorException;
 
@@ -20,7 +20,7 @@ public class DeviceShipmentImportProcessor implements FileImportProcessor<Device
     }
 
     @Override
-    public void process(DeviceShipmentImportRecord data, FileImportRecordContext recordContext) throws ProcessorException {
+    public void process(DeviceShipmentImportRecord data, FileImportLogger logger) throws ProcessorException {
         if (this.context.getDeviceService().findByUniqueMrid(data.getDeviceMrid()).isPresent()){
             throw new ProcessorException(MessageSeeds.DEVICE_ALREADY_EXISTS, data.getLineNumber(), data.getDeviceMrid());
         }

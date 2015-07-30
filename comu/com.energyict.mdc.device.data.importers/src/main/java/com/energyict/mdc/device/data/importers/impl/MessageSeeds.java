@@ -42,7 +42,9 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     READING_VALUE_DOES_NOT_MATCH_REGISTER_CONFIG_OVERFLOW(106, "ReadingValueDoesNotMatchRegisterConfigOverflow", "Error in line {0}: Reading value for reading type {1} of device with MRID: {2} doesn''t match with register configuration settings (overflow)", Level.WARNING),
     READING_VALUE_DOES_NOT_MATCH_CHANNEL_CONFIG_OVERFLOW(107, "ReadingValueDoesNotMatchChannelConfigOverflow", "Error in line {0}: Reading value for reading type {1} of device with MRID: {2} doesn''t match with channel configuration settings (overflow)", Level.WARNING),
     READING_VALUE_WAS_TRUNCATED_TO_REGISTER_CONFIG(108, "ReadingValueWasTruncatedToRegisterConfig", "Warning for line {0}: Reading value was truncated to {1} accordingly to register configuration.", Level.INFO),
-    READING_VALUE_WAS_TRUNCATED_TO_CHANNEL_CONFIG(109, "ReadingValueWasTruncatedToChannelConfig", "Warning for line {0}: Reading value was truncated to {1} accordingly to channel configuration.", Level.INFO),;
+    READING_VALUE_WAS_TRUNCATED_TO_CHANNEL_CONFIG(109, "ReadingValueWasTruncatedToChannelConfig", "Warning for line {0}: Reading value was truncated to {1} accordingly to channel configuration.", Level.INFO),
+    READING_IMPORT_NOT_ALLOWED_FOR_DECOMMISSIONED_DEVICE(110, "ReadingImportIsNotAllowedForDecommissionedDevices", "Error in line {0}: Readings import is not allowed for device {1} since it is decommissioned.", Level.WARNING),
+    ;
 
     private final int number;
     private final String key;

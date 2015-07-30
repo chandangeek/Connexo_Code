@@ -17,18 +17,10 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.ByteArrayInputStream;
 import java.io.Serializable;
-import java.time.Clock;
 import java.util.logging.Logger;
 
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DeviceDataCsvImporterTest {
@@ -98,10 +90,10 @@ public class DeviceDataCsvImporterTest {
     public FileImportParser<FileImportRecord> mockParserWithExceptionOnLine(Integer lineNumber) {
         FileImportParser<FileImportRecord> parser = mock(FileImportParser.class);
         doAnswer(invocationOnMock -> new FileImportRecord(((CSVRecord) invocationOnMock.getArguments()[0]).getRecordNumber()))
-                .when(parser).parse(Matchers.any(CSVRecord.class), Matchers.any(FileImportRecordContext.class));
+                .when(parser).parse(Matchers.any(CSVRecord.class));
         if (lineNumber != null) {
             doThrow(new FileImportParserException(MessageSeeds.FILE_FORMAT_ERROR, 0, 0, 0))
-                    .when(parser).parse(Matchers.argThat(new CSVLineMatcher(lineNumber)), Matchers.any(FileImportRecordContext.class));
+                    .when(parser).parse(Matchers.argThat(new CSVLineMatcher(lineNumber)));
         }
         return parser;
     }
@@ -110,13 +102,13 @@ public class DeviceDataCsvImporterTest {
         FileImportProcessor<FileImportRecord> processor = mock(FileImportProcessor.class);
         if (errorLineNumber != null) {
             doThrow(new ProcessorException(MessageSeeds.FILE_FORMAT_ERROR, 0, 0, 0))
-                .when(processor).process(Matchers.argThat(new RecordLineMatcher(errorLineNumber)), Matchers.any(FileImportRecordContext.class));
+                    .when(processor).process(Matchers.argThat(new RecordLineMatcher(errorLineNumber)), Matchers.any(FileImportLogger.class));
         }
         if (warningLineNumber != null) {
             doAnswer(invocationOnMock -> {
-                ((FileImportRecordContext) invocationOnMock.getArguments()[1]).warning(TranslationKeys.IMPORT_RESULT_FAIL);
+                ((FileImportLogger) invocationOnMock.getArguments()[1]).warning(TranslationKeys.IMPORT_RESULT_FAIL);
                 return null;
-            }).when(processor).process(Matchers.argThat(new RecordLineMatcher(warningLineNumber)), Matchers.any(FileImportRecordContext.class));
+            }).when(processor).process(Matchers.argThat(new RecordLineMatcher(warningLineNumber)), Matchers.any(FileImportLogger.class));
         }
         return processor;
     }
@@ -129,7 +121,7 @@ public class DeviceDataCsvImporterTest {
     }
 
     private DeviceDataCsvImporter<FileImportRecord> mockImporter(FileImportParser<FileImportRecord> parser, FileImportProcessor<FileImportRecord> processor) {
-        return DeviceDataCsvImporter.withParser(parser).withProcessor(processor).withDelimiter(';').build(context);
+        return DeviceDataCsvImporter.withParser(parser).withProcessor(processor).withLogger(new DevicePerLineFileImportLogger(context)).withDelimiter(';').build(context);
     }
 
     @Test

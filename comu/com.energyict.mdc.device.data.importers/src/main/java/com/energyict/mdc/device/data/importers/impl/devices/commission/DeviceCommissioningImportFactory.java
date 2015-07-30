@@ -6,7 +6,9 @@ import com.energyict.mdc.device.data.importers.impl.AbstractDeviceDataFileImport
 import com.energyict.mdc.device.data.importers.impl.DeviceDataCsvImporter;
 import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterContext;
 import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty;
+import com.energyict.mdc.device.data.importers.impl.DevicePerLineFileImportLogger;
 import com.energyict.mdc.device.data.importers.impl.FileImportDescriptionBasedParser;
+import com.energyict.mdc.device.data.importers.impl.FileImportLogger;
 import com.energyict.mdc.device.data.importers.impl.FileImportParser;
 import com.energyict.mdc.device.data.importers.impl.FileImportProcessor;
 import com.energyict.mdc.device.data.importers.impl.TranslationKeys;
@@ -19,9 +21,7 @@ import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
 
-import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.DATE_FORMAT;
-import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.DELIMITER;
-import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.TIME_ZONE;
+import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.*;
 
 @Component(name = "com.energyict.mdc.device.data.importers." + DeviceCommissioningImportFactory.NAME,
         service = FileImporterFactory.class,
@@ -31,7 +31,8 @@ public class DeviceCommissioningImportFactory extends AbstractDeviceDataFileImpo
 
     private volatile DeviceDataImporterContext context;
 
-    public DeviceCommissioningImportFactory() {}
+    public DeviceCommissioningImportFactory() {
+    }
 
     @Inject
     public DeviceCommissioningImportFactory(DeviceDataImporterContext context) {
@@ -58,7 +59,8 @@ public class DeviceCommissioningImportFactory extends AbstractDeviceDataFileImpo
         FileImportParser<DeviceTransitionRecord> parser = new FileImportDescriptionBasedParser(
                 new DeviceCommissioningImportDescription(dateFormat, timeZone));
         FileImportProcessor<DeviceTransitionRecord> processor = new DeviceCommissioningImportProcessor(getContext());
-        return DeviceDataCsvImporter.withParser(parser).withProcessor(processor).withDelimiter(delimiter.charAt(0)).build(getContext());
+        FileImportLogger logger = new DevicePerLineFileImportLogger(getContext());
+        return DeviceDataCsvImporter.withParser(parser).withProcessor(processor).withLogger(logger).withDelimiter(delimiter.charAt(0)).build(getContext());
     }
 
     @Override

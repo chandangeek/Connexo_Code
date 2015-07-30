@@ -5,7 +5,7 @@ import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterContext;
-import com.energyict.mdc.device.data.importers.impl.FileImportRecordContext;
+import com.energyict.mdc.device.data.importers.impl.FileImportLogger;
 import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
 import com.energyict.mdc.device.data.importers.impl.TranslationKeys;
 import com.energyict.mdc.device.data.importers.impl.devices.DeviceTransitionImportProcessor;
@@ -24,9 +24,9 @@ public class DeviceInstallationImportProcessor extends DeviceTransitionImportPro
     }
 
     @Override
-    protected void afterTransition(Device device, DeviceInstallationImportRecord data, FileImportRecordContext recordContext) throws ProcessorException {
-        super.afterTransition(device, data, recordContext);
-        processUsagePoint(device, data, recordContext);
+    protected void afterTransition(Device device, DeviceInstallationImportRecord data, FileImportLogger logger) throws ProcessorException {
+        super.afterTransition(device, data, logger);
+        processUsagePoint(device, data, logger);
     }
 
     protected DefaultCustomStateTransitionEventType getTransitionEventType(DeviceInstallationImportRecord data) {
@@ -38,14 +38,14 @@ public class DeviceInstallationImportProcessor extends DeviceTransitionImportPro
         return data.isInstallInactive() ? DefaultState.INACTIVE.getKey() : DefaultState.ACTIVE.getKey();
     }
 
-    private void processUsagePoint(Device device, DeviceInstallationImportRecord data, FileImportRecordContext recordContext) {
+    private void processUsagePoint(Device device, DeviceInstallationImportRecord data, FileImportLogger logger) {
         if (data.getUsagePointMrid() != null) {
             Optional<UsagePoint> usagePointRef = getContext().getMeteringService().findUsagePoint(data.getUsagePointMrid());
             if (usagePointRef.isPresent()) {
                 setUsagePoint(device, usagePointRef.get(), data);
             } else {
                 // If not found, than create the light version of the usage point using usage point MRID + Service category
-                recordContext.warning(TranslationKeys.NEW_USAGE_POINT_WILL_BE_CREATED, data.getLineNumber(), data.getUsagePointMrid());
+                logger.warning(TranslationKeys.NEW_USAGE_POINT_WILL_BE_CREATED, data.getLineNumber(), data.getUsagePointMrid());
                 setUsagePoint(device, createNewUsagePoint(data), data);
             }
         }

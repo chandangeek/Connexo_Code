@@ -6,12 +6,13 @@ import com.energyict.mdc.device.data.importers.impl.AbstractDeviceDataFileImport
 import com.energyict.mdc.device.data.importers.impl.DeviceDataCsvImporter;
 import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterContext;
 import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty;
+import com.energyict.mdc.device.data.importers.impl.DevicePerLineFileImportLogger;
 import com.energyict.mdc.device.data.importers.impl.FileImportDescriptionBasedParser;
+import com.energyict.mdc.device.data.importers.impl.FileImportLogger;
 import com.energyict.mdc.device.data.importers.impl.FileImportParser;
 import com.energyict.mdc.device.data.importers.impl.FileImportProcessor;
 import com.energyict.mdc.device.data.importers.impl.TranslationKeys;
 import com.energyict.mdc.device.data.importers.impl.devices.DeviceTransitionRecord;
-import com.energyict.mdc.device.data.importers.impl.devices.decommission.DeviceDecommissioningImportDescription;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -20,9 +21,7 @@ import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
 
-import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.DATE_FORMAT;
 import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.DELIMITER;
-import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.TIME_ZONE;
 
 @Component(name = "com.energyict.mdc.device.data.importers." + DeviceRemoveImportFactory.NAME,
         service = FileImporterFactory.class,
@@ -32,7 +31,8 @@ public class DeviceRemoveImportFactory extends AbstractDeviceDataFileImporterFac
 
     private volatile DeviceDataImporterContext context;
 
-    public DeviceRemoveImportFactory() {}
+    public DeviceRemoveImportFactory() {
+    }
 
     @Inject
     public DeviceRemoveImportFactory(DeviceDataImporterContext context) {
@@ -56,7 +56,8 @@ public class DeviceRemoveImportFactory extends AbstractDeviceDataFileImporterFac
 
         FileImportParser<DeviceTransitionRecord> parser = new FileImportDescriptionBasedParser(new DeviceRemoveImportDescription());
         FileImportProcessor<DeviceTransitionRecord> processor = new DeviceRemoveImportProcessor(getContext());
-        return DeviceDataCsvImporter.withParser(parser).withProcessor(processor).withDelimiter(delimiter.charAt(0)).build(getContext());
+        FileImportLogger logger = new DevicePerLineFileImportLogger(getContext());
+        return DeviceDataCsvImporter.withParser(parser).withProcessor(processor).withLogger(logger).withDelimiter(delimiter.charAt(0)).build(getContext());
     }
 
     @Override

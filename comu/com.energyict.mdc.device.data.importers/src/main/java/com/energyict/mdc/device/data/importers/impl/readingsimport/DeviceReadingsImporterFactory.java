@@ -7,6 +7,7 @@ import com.energyict.mdc.device.data.importers.impl.DeviceDataCsvImporter;
 import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterContext;
 import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty;
 import com.energyict.mdc.device.data.importers.impl.FileImportDescriptionBasedParser;
+import com.energyict.mdc.device.data.importers.impl.FileImportLogger;
 import com.energyict.mdc.device.data.importers.impl.FileImportParser;
 import com.energyict.mdc.device.data.importers.impl.TranslationKeys;
 import com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat;
@@ -47,7 +48,8 @@ public class DeviceReadingsImporterFactory extends AbstractDeviceDataFileImporte
         FileImportParser<DeviceReadingsImportRecord> parser = new FileImportDescriptionBasedParser(
                 new DeviceReadingsImportDescription(dateFormat, timeZone, numberFormat));
         DeviceReadingsImportProcessor processor = new DeviceReadingsImportProcessor(getContext());
-        return DeviceDataCsvImporter.withParser(parser).withProcessor(processor).withDelimiter(delimiter.charAt(0)).build(getContext());
+        FileImportLogger logger = new DeviceReadingsImportLogger(getContext());
+        return DeviceDataCsvImporter.withParser(parser).withProcessor(processor).withLogger(logger).withDelimiter(delimiter.charAt(0)).build(getContext());
     }
 
     @Override
