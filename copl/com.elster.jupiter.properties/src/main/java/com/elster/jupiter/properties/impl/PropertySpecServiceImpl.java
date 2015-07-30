@@ -1,17 +1,26 @@
 package com.elster.jupiter.properties.impl;
 
-import com.elster.jupiter.properties.*;
+import com.elster.jupiter.properties.BasicPropertySpec;
+import com.elster.jupiter.properties.BigDecimalFactory;
+import com.elster.jupiter.properties.BoundedBigDecimalPropertySpecImpl;
+import com.elster.jupiter.properties.BoundedLongPropertySpecImpl;
+import com.elster.jupiter.properties.CanFindByStringKey;
+import com.elster.jupiter.properties.HasIdAndName;
+import com.elster.jupiter.properties.ListValuePropertySpec;
+import com.elster.jupiter.properties.LongFactory;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.PropertySpecBuilder;
+import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.properties.RelativePeriodFactory;
+import com.elster.jupiter.properties.StringFactory;
+import com.elster.jupiter.properties.StringReferenceFactory;
+import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeService;
+import java.math.BigDecimal;
+import javax.inject.Inject;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-
-import javax.inject.Inject;
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Provides an implementation for the {@link PropertySpecService} interface
@@ -125,7 +134,7 @@ public class PropertySpecServiceImpl implements PropertySpecService {
     }
 
     @Override
-    public <T extends ListValueEntry> PropertySpec listValuePropertySpec(String name, boolean required, FindById<T> finder, T... values) {
+    public <T extends HasIdAndName> PropertySpec listValuePropertySpec(String name, boolean required, CanFindByStringKey<T> finder, T... values) {
         return new ListValuePropertySpec<>(name, required, finder, values);
     }
 
@@ -165,4 +174,12 @@ public class PropertySpecServiceImpl implements PropertySpecService {
         propertySpec.setRequired(required);
         return propertySpec;
     }
-}
+
+
+    public <T extends HasIdAndName> PropertySpec stringReferencePropertySpec(String name, boolean required, CanFindByStringKey<T> finder, T[] values) {
+        PropertySpecBuilder builder = PropertySpecBuilderImpl.forClass(new StringReferenceFactory<T>(finder));
+        if (required) {
+            builder.markRequired();
+        }
+        return builder.name(name).addValues(values).markExhaustive().finish();
+    };}
