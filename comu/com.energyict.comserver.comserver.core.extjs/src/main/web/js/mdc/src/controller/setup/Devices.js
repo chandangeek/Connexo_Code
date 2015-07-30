@@ -38,7 +38,8 @@ Ext.define('Mdc.controller.setup.Devices', {
         {ref: 'dataCollectionIssuesLink', selector: '#dataCollectionIssuesLink'},
         {ref: 'deviceValidationResultFieldLink', selector: '#lnk-validation-result'},
         {ref: 'validationFromDate', selector: '#validationFromDate'},
-        {ref: 'deviceActionsMenu', selector: 'deviceSetup #deviceActionMenu'}
+        {ref: 'deviceActionsMenu', selector: 'deviceSetup #deviceActionMenu'},
+        {ref: 'addDevicePage', selector: 'deviceAdd'}
     ],
 
     init: function () {
@@ -298,6 +299,7 @@ Ext.define('Mdc.controller.setup.Devices', {
         if (!form.down('#deviceAddConfig').getValue()) {
             form.getRecord().set('deviceConfigurationId', null);
         }
+        me.getAddDevicePage().setLoading();
         form.getRecord().save({
             success: function (record) {
                 me.getApplication().fireEvent('acknowledge',
@@ -320,6 +322,9 @@ Ext.define('Mdc.controller.setup.Devices', {
                     me.showErrorPanel(form);
                     form.getForm().markInvalid(errorsToShow);
                 }
+            },
+            callback: function () {
+                me.getAddDevicePage().setLoading(false);
             }
         });
     },
