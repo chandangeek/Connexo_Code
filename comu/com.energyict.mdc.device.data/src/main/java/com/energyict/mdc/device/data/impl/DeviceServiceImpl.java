@@ -188,8 +188,7 @@ public class DeviceServiceImpl implements ServerDeviceService {
     @Override
     public Finder<Device> findAllDevices(Condition condition) {
         return DefaultFinder.of(Device.class, condition, this.deviceDataModelService.dataModel(), DeviceConfiguration.class, DeviceType.class).
-                defaultSortColumn("name").
-                maxPageSize(thesaurus, 10000);
+                defaultSortColumn("name");
     }
 
     @Override
