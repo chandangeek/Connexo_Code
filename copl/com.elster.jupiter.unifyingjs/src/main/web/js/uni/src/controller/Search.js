@@ -574,6 +574,13 @@ Ext.define('Uni.controller.Search', {
                         defaultText: displayValue
                     });
                     break;
+                case 'TimeDuration':
+                    widget = Ext.create('Uni.view.search.field.DateRangeField', {
+                        emptyText: displayValue,
+                        text: displayValue,
+                        defaultText: displayValue
+                    });
+                    break;
                 default:
                     // <debug>
                     console.log('Unknown search property type: ' + type);

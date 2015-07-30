@@ -50,13 +50,13 @@ Ext.define('Uni.view.search.field.YesNo', {
                     menu.items.each(function (item) {
 
                         if (item.xtype != 'menuseparator') {
-                            if(item.down('radiofield').checked && item.items.items[0].itemId == 'radio-no') edited = true
+                            if(item.down('radiofield').checked) edited = true
                         }
                     });
                     if (edited) {
-                        menu.up('uni-view-search-field-yesno').setText(me.defaultText + '*');
+                        menu.up('uni-view-search-field-yesno').setText(menu.up('uni-view-search-field-yesno').defaultText + '*');
                     } else {
-                        menu.up('uni-view-search-field-yesno').setText(me.defaultText);
+                        menu.up('uni-view-search-field-yesno').setText(menu.up('uni-view-search-field-yesno').defaultText);
                     }
                 }
             }

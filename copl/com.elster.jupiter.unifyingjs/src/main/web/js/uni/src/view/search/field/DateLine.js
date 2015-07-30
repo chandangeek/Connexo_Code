@@ -98,6 +98,8 @@ Ext.define('Uni.view.search.field.DateLine', {
                 handler: function () {
                     var me = this;
                     me.up('uni-view-search-field-date-line').down('datefield').reset();
+                    if (me.up('uni-view-search-field-date-line').down('datefield').minValue) me.up('uni-view-search-field-date-line').down('datefield').minValue = null;
+                    if (me.up('uni-view-search-field-date-line').down('datefield').maxValue) me.up('uni-view-search-field-date-line').down('datefield').maxValue = null;
                     me.up('uni-view-search-field-date-line').down('#hours').reset();
                     me.up('uni-view-search-field-date-line').down('#minutes').reset();
                 }

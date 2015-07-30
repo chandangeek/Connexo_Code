@@ -27,10 +27,18 @@ Ext.define('Uni.view.search.field.DateRangeField', {
                     if (item.down('#hours')) item.down('#hours').reset();
                     if (item.down('#minutes')) item.down('#minutes').reset();
                 if (item.xtype == 'uni-view-search-field-date-range') {
-                    if (item.items.items[0].down('datefield')) item.items.items[0].down('datefield').reset();
+                    if (item.items.items[0].down('datefield')) {
+                        item.items.items[0].down('datefield').reset();
+                        if (item.items.items[0].down('datefield').minValue) item.items.items[0].down('datefield').minValue = null;
+                        if (item.items.items[0].down('datefield').maxValue) item.items.items[0].down('datefield').maxValue = null;
+                    }
                     if (item.items.items[0].down('#hours')) item.items.items[0].down('#hours').reset();
                     if (item.items.items[0].down('#minutes')) item.items.items[0].down('#minutes').reset();
-                    if (item.items.items[1].down('datefield')) item.items.items[1].down('datefield').reset();
+                    if (item.items.items[1].down('datefield')) {
+                        item.items.items[1].down('datefield').reset();
+                        if (item.items.items[1].down('datefield').minValue) item.items.items[1].down('datefield').minValue = null;
+                        if (item.items.items[1].down('datefield').maxValue) item.items.items[1].down('datefield').maxValue = null;
+                    }
                     if (item.items.items[1].down('#hours')) item.items.items[1].down('#hours').reset();
                     if (item.items.items[1].down('#minutes')) item.items.items[1].down('#minutes').reset();
                 }
@@ -107,7 +115,7 @@ Ext.define('Uni.view.search.field.DateRangeField', {
 
                                 // setting date constraints
                                 if (item.items.items[0].down('datefield').getValue() != null) item.items.items[1].down('datefield').setMinValue(item.items.items[0].down('datefield').getValue())
-                                if (item.items.items[1].down('datefield').getValue() != null) item.items.items[0].down('datefield').setMaxValue(item.items.items[0].down('datefield').getValue())
+                                if (item.items.items[1].down('datefield').getValue() != null) item.items.items[0].down('datefield').setMaxValue(item.items.items[1].down('datefield').getValue())
                             }
                         }
                     });
@@ -154,7 +162,7 @@ Ext.define('Uni.view.search.field.DateRangeField', {
                             }
                         },
                         {
-                            flex: 1,
+                            flex: 0.8,
                             cls: 'x-spacers'
                         }
                     ]
