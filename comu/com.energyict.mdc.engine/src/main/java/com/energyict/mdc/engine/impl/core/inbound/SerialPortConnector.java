@@ -91,7 +91,8 @@ public class SerialPortConnector implements InboundComPortConnector {
     }
 
     private ModemComponent initializeAtModemComponent(SerialComChannel comChannel) {
-        ModemComponent atModemComponent = this.serialComponentService.newModemComponent("",
+        ModemComponent atModemComponent = this.serialComponentService.newModemComponent(
+                "",
                 "",
                 comPort.getConnectTimeout(),
                 comPort.getDelayAfterConnect(),
@@ -121,8 +122,8 @@ public class SerialPortConnector implements InboundComPortConnector {
     }
 
     /**
-     * Creates a new {@link ComChannel}
-     * that uses a {@link ServerSerialPort} as the interface with the physical ComPort
+     * Creates a new {@link ComChannel} that uses a {@link ServerSerialPort}
+     * as the interface with the physical ComPort.
      *
      * @param serialPortConfiguration the configuration of the serialPort
      * @return the ComChannel
