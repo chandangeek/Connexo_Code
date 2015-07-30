@@ -180,8 +180,8 @@ Ext.define('Fim.controller.ImportServices', {
             confirmText: isActive ? Uni.I18n.translate('importService.deactivate.button', 'FIM', 'Deactivate') :
                 Uni.I18n.translate('importService.activate.button', 'FIM', 'Activate')
         }).show({
-            title: isActive ? Ext.String.format(Uni.I18n.translate('importService.deactivate.title', 'FIM', 'Deactivate \'{0}?\''), record.get('name')) :
-                Ext.String.format(Uni.I18n.translate('importService.activate.title', 'FIM', 'Activate \'{0}?\''), record.get('name')),
+            title: isActive ? Ext.String.format(Uni.I18n.translate('importService.deactivate.title', 'FIM', 'Deactivate \'{0}\'?'), record.get('name')) :
+                Ext.String.format(Uni.I18n.translate('importService.activate.title', 'FIM', 'Activate \'{0}\'?'), record.get('name')),
             msg: isActive ? Uni.I18n.translate('importService.deactivate.message', 'FIM', 'Files in the import folder will no longer be imported.') :
                 Uni.I18n.translate('importService.activate.message', 'FIM', 'Files will be imported as soon as they are placed in the import folder.'),
             fn: function (state) {
