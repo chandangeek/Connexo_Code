@@ -238,8 +238,10 @@ Ext.define('Uni.controller.Search', {
             searchDomain = searchDomains.findRecord('id', value, 0, true, true);
 
         container.setLoading(true);
+
         if (searchDomain !== null && Ext.isDefined(searchDomain)) {
             Uni.util.History.suspendEventsForNextCall();
+            Uni.util.History.setParsePath(false); //todo: this is probably a bug un unifying, so this line shouldn't be here
             router.getRoute().forward(null, {searchDomain: searchDomain.get('displayValue')});
 
             searchProperties.removeAll();
