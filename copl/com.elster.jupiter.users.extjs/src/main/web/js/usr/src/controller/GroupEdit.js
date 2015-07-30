@@ -122,20 +122,17 @@ Ext.define('Usr.controller.GroupEdit', {
                 for (var i = 0; i < this.data.items.length; i++) {
                     allPrivileges = this.data.items[i].privileges();
                     for (var j = 0; j < allPrivileges.data.items.length; j++) {
-                        index = currentPrivileges.indexOf(allPrivileges.data.items[j]);
-                        if (index >= 0) {
-                            for(var k = 0; k < currentPrivileges.data.items.length; k++){
-                                if(allPrivileges.data.items[j].id == currentPrivileges.data.items[k].id){
-                                    if(this.data.items[i].get('componentName') == currentPrivileges.data.items[k].get('applicationName')){
-                                        allPrivileges.data.items[j].set('selected', true);
-                                        previousPermissions = this.data.items[i].data.permissions;
-                                        if (previousPermissions) {
-                                            previousPermissions += ', ';
-                                        }
-                                        name = currentPrivileges.data.items[index].data.name;
-                                        this.data.items[i].set('permissions', previousPermissions + Uni.I18n.translate(name, 'USR', name));
-                                        this.data.items[i].set('selected', this.data.items[i].data.selected + 1);
+                        for(var k = 0; k < currentPrivileges.data.items.length; k++){
+                            if(currentPrivileges.data.items[k].data.name ==allPrivileges.data.items[j].data.name ){
+                                if(this.data.items[i].get('componentName') == currentPrivileges.data.items[k].get('applicationName')){
+                                    allPrivileges.data.items[j].set('selected', true);
+                                    previousPermissions = this.data.items[i].data.permissions;
+                                    if (previousPermissions) {
+                                        previousPermissions += ', ';
                                     }
+                                    name = currentPrivileges.data.items[k].data.name;
+                                    this.data.items[i].set('permissions', previousPermissions + Uni.I18n.translate(name, 'USR', name));
+                                    this.data.items[i].set('selected', this.data.items[i].data.selected + 1);
                                 }
                             }
                         }

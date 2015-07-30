@@ -7,7 +7,12 @@ Ext.define('Usr.model.Privilege', {
             name: 'selected',
             type: 'boolean',
             defaultValue: false
+        },
+        {
+            name: 'id', type: 'string', convert: function (value, record) {
+            return record.get('name') +'.'+ record.get('applicationName')
+        }
         }
     ],
-    idProperty: 'name'
+    idProperty: 'id'
 });
