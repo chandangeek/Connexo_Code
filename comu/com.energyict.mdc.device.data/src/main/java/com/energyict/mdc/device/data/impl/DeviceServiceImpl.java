@@ -1,7 +1,6 @@
 package com.energyict.mdc.device.data.impl;
 
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
-import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
@@ -28,9 +27,11 @@ import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.sql.SqlBuilder;
@@ -57,13 +58,15 @@ public class DeviceServiceImpl implements ServerDeviceService {
     private final DeviceDataModelService deviceDataModelService;
     private final ProtocolPluggableService protocolPluggableService;
     private final QueryService queryService;
+    private final Thesaurus thesaurus;
 
     @Inject
-    public DeviceServiceImpl(DeviceDataModelService deviceDataModelService, ProtocolPluggableService protocolPluggableService, QueryService queryService) {
+    public DeviceServiceImpl(DeviceDataModelService deviceDataModelService, ProtocolPluggableService protocolPluggableService, QueryService queryService, Thesaurus thesaurus) {
         super();
         this.deviceDataModelService = deviceDataModelService;
         this.protocolPluggableService = protocolPluggableService;
         this.queryService = queryService;
+        this.thesaurus = thesaurus;
     }
 
     public DataModel dataModel() {
@@ -170,6 +173,16 @@ public class DeviceServiceImpl implements ServerDeviceService {
     }
 
     @Override
+    public Optional<Device> findAndLockDeviceBymRIDAndVersion(String mrid, long version) {
+        Optional<Device> deviceOptional = this.deviceDataModelService.dataModel().mapper(Device.class).getUnique(DeviceFields.MRID.fieldName(), mrid);
+        if (deviceOptional.isPresent()) {
+            return this.deviceDataModelService.dataModel().mapper(Device.class).lockObjectIfVersion(version, deviceOptional.get().getId());
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    @Override
     public Optional<Device> findByUniqueMrid(String mrId) {
         return this.deviceDataModelService.dataModel().mapper(Device.class).getUnique(DeviceFields.MRID.fieldName(), mrId);
     }
@@ -181,7 +194,9 @@ public class DeviceServiceImpl implements ServerDeviceService {
 
     @Override
     public Finder<Device> findAllDevices(Condition condition) {
-        return DefaultFinder.of(Device.class, condition, this.deviceDataModelService.dataModel(), DeviceConfiguration.class, DeviceType.class);
+        return DefaultFinder.of(Device.class, condition, this.deviceDataModelService.dataModel(), DeviceConfiguration.class, DeviceType.class).
+                defaultSortColumn("name").
+                maxPageSize(thesaurus, 10000);
     }
 
     @Override
