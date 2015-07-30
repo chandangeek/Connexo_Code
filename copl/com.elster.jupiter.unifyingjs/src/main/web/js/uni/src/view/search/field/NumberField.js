@@ -11,6 +11,7 @@ Ext.define('Uni.view.search.field.NumberField', {
         'Uni.view.search.field.NumberRange'
     ],
     layout: 'hbox',
+    width: 100,
     style: {
         'background-color': '#71adc7'
     },
@@ -74,11 +75,33 @@ Ext.define('Uni.view.search.field.NumberField', {
                             }
                         });
                         if (menu.items.length == 2)
-                        menu.add({
-                            xtype: 'uni-view-search-field-number-range',
-                        });
+                            menu.add({
+                                xtype: 'uni-view-search-field-number-range',
+                                margin: '5px 0px 5px 5px'
+                            });
                     }
 
+                },
+                click: function (menu) {
+                    var edited = false;
+                    menu.items.each(function (item, index) {
+
+                        if (item.xtype != 'menuseparator') {
+                            if (item.xtype == 'uni-view-search-field-number-line')
+                                if (item.down('numberfield').getValue() != 0) edited = true
+                            if (item.xtype == 'uni-view-search-field-number-range') {
+                                if (item.items.items[0].down('numberfield').getValue() != 0 ||
+                                    item.items.items[1].down('numberfield').getValue() != 0) edited = true;
+                            }
+                        }
+                    });
+                    if (edited) {
+                        menu.up('uni-view-search-field-number-field').setText(me.defaultText + '*');
+                        menu.down('#clearall').enable(true)
+                    } else {
+                        menu.up('uni-view-search-field-number-field').setText(me.defaultText);
+                        menu.down('#clearall').disable(true)
+                    }
                 }
             },
             dockedItems: [
@@ -96,6 +119,9 @@ Ext.define('Uni.view.search.field.NumberField', {
                             itemId: 'clearall',
                             text: Uni.I18n.translate('general.clearAll', 'UNI', 'Clear all'),
                             align: 'right',
+                            style: {
+                                'background-color': '#71adc7'
+                            },
                             handler: function () {
                                 me.clearAllHandler();
                             }
