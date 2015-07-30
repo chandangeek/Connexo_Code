@@ -17,4 +17,6 @@ public interface ServerMeteringService extends MeteringService {
 
     Thesaurus getThesaurus();
 
+    EndDeviceEventTypeImpl createEndDeviceEventType(String mRID);
+
 }

@@ -3,12 +3,14 @@ package com.elster.jupiter.metering.impl;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.ids.Vault;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
@@ -23,9 +25,12 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointAccountability;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
+import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.JournalEntry;
 import com.elster.jupiter.orm.OrmService;
@@ -34,11 +39,14 @@ import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRepresentation;
 import com.elster.jupiter.parties.PartyService;
+import com.elster.jupiter.users.PrivilegesProvider;
+import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
-import com.elster.jupiter.util.conditions.Where;
+import com.elster.jupiter.util.conditions.Subquery;
+import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.streams.DecoratedStream;
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
@@ -52,6 +60,7 @@ import javax.validation.MessageInterpolator;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.Period;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -59,8 +68,10 @@ import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-@Component(name = "com.elster.jupiter.metering", service = {MeteringService.class, ServerMeteringService.class, InstallService.class}, property = "name=" + MeteringService.COMPONENTNAME)
-public class MeteringServiceImpl implements ServerMeteringService, InstallService {
+import static com.elster.jupiter.util.conditions.Where.where;
+
+@Component(name = "com.elster.jupiter.metering", service = {MeteringService.class, ServerMeteringService.class, InstallService.class, PrivilegesProvider.class, TranslationKeyProvider.class}, property = "name=" + MeteringService.COMPONENTNAME)
+public class MeteringServiceImpl implements ServerMeteringService, InstallService, PrivilegesProvider, TranslationKeyProvider {
 
     private volatile IdsService idsService;
     private volatile QueryService queryService;
@@ -70,7 +81,8 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     private volatile EventService eventService;
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
-    private volatile FiniteStateMachineService finiteStateMachineService;
+    private volatile MessageService messageService;
+    private volatile JsonService jsonService;
 
     private volatile boolean createAllReadingTypes;
     private volatile String[] requiredReadingTypes;
@@ -80,8 +92,9 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     }
 
     @Inject
-    public MeteringServiceImpl(Clock clock, OrmService ormService, IdsService idsService, EventService eventService, PartyService partyService, QueryService queryService, UserService userService, NlsService nlsService, FiniteStateMachineService finiteStateMachineService,
-                               @Named("createReadingTypes") boolean createAllReadingTypes,@Named("requiredReadingTypes") String requiredReadingTypes) {
+    public MeteringServiceImpl(
+            Clock clock, OrmService ormService, IdsService idsService, EventService eventService, PartyService partyService, QueryService queryService, UserService userService, NlsService nlsService, MessageService messageService, JsonService jsonService,
+            @Named("createReadingTypes") boolean createAllReadingTypes, @Named("requiredReadingTypes") String requiredReadingTypes) {
         this.clock = clock;
         this.createAllReadingTypes = createAllReadingTypes;
         this.requiredReadingTypes = requiredReadingTypes.split(";");
@@ -92,7 +105,8 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
         setQueryService(queryService);
         setUserService(userService);
         setNlsService(nlsService);
-        setFiniteStateMachineService(finiteStateMachineService);
+        setMessageService(messageService);
+        setJsonService(jsonService);
         activate();
         if (!dataModel.isInstalled()) {
             install();
@@ -100,8 +114,13 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     }
 
     @Reference
-    public void setFiniteStateMachineService(FiniteStateMachineService finiteStateMachineService) {
-        this.finiteStateMachineService = finiteStateMachineService;
+    public void setMessageService(MessageService messageService) {
+        this.messageService = messageService;
+    }
+
+    @Reference
+    public void setJsonService(JsonService jsonService) {
+        this.jsonService = jsonService;
     }
 
     @Override
@@ -121,7 +140,7 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
         } catch (Exception e) {
             e.printStackTrace();
         }
-        new InstallerImpl(this, idsService, partyService, userService, eventService, thesaurus, createAllReadingTypes, requiredReadingTypes).install();
+        new InstallerImpl(this, idsService, partyService, userService, eventService, thesaurus, messageService, createAllReadingTypes, requiredReadingTypes).install();
     }
 
     @Override
@@ -325,9 +344,9 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     @Override
     public Condition hasAccountability(Instant when) {
         return
-                Where.where("accountabilities.interval").isEffective(when).and(
-                        Where.where("accountabilities.party.representations.interval").isEffective(when).and(
-                                Where.where("accountabilities.party.representations.delegate").
+                where("accountabilities.interval").isEffective(when).and(
+                        where("accountabilities.party.representations.interval").isEffective(when).and(
+                                where("accountabilities.party.representations.delegate").
                                         isEqualTo(dataModel.getPrincipal().getName())));
     }
 
@@ -371,8 +390,20 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     }
 
     @Override
+    public List<ReadingType> getAvailableEquidistantReadingTypes() {
+        return dataModel.stream(ReadingType.class).filter(where(ReadingTypeImpl.Fields.equidistant.name()).isEqualTo(true))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ReadingType> getAvailableNonEquidistantReadingTypes() {
+        return dataModel.stream(ReadingType.class).filter(where(ReadingTypeImpl.Fields.equidistant.name()).isEqualTo(false))
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public List<ReadingType> getAllReadingTypesWithoutInterval() {
-        Condition withoutIntervals = Where.where("mRID").matches("^0.[0-9]+.0", "");
+        Condition withoutIntervals = where(ReadingTypeImpl.Fields.mRID.name()).matches("^0.[0-9]+.0", "");
         return dataModel.mapper(ReadingType.class).select(withoutIntervals);
     }
 
@@ -397,7 +428,8 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
         return system;
     }
 
-    EndDeviceEventTypeImpl createEndDeviceEventType(String mRID) {
+    @Override
+    public EndDeviceEventTypeImpl createEndDeviceEventType(String mRID) {
         EndDeviceEventTypeImpl endDeviceEventType = dataModel.getInstance(EndDeviceEventTypeImpl.class).init(mRID);
         dataModel.persist(endDeviceEventType);
         return endDeviceEventType;
@@ -453,20 +485,67 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
 
     List<Vault> registerVaults() {
         return idsService.getVault(MeteringService.COMPONENTNAME, ChannelImpl.IRREGULARVAULTID)
-                .map(vault -> Arrays.asList(vault))
+                .map(Arrays::asList)
                 .orElse(Collections.emptyList());
     }
 
     List<Vault> intervalVaults() {
         return idsService.getVault(MeteringService.COMPONENTNAME, ChannelImpl.INTERVALVAULTID)
-                .map(vault -> Arrays.asList(vault))
+                .map(Arrays::asList)
                 .orElse(Collections.emptyList());
     }
 
     List<Vault> dailyVaults() {
         return idsService.getVault(MeteringService.COMPONENTNAME, ChannelImpl.DAILYVAULTID)
-                .map(vault -> Arrays.asList(vault))
+                .map(Arrays::asList)
                 .orElse(Collections.emptyList());
+    }
+
+    @Override
+    public void changeStateMachine(Instant effective, FiniteStateMachine oldStateMachine, FiniteStateMachine newStateMachine, Subquery deviceAmrIdSubquery) {
+        if (effective.isAfter(this.clock.instant())) {
+            throw new IllegalArgumentException("Effective timestamp of the statemachine switch over cannot be in the future");
+        }
+        StateMachineSwitcher
+            .forValidation(this.dataModel)
+            .validate(effective, oldStateMachine, newStateMachine, deviceAmrIdSubquery);
+        StateMachineSwitcher
+            .forPublishing(this.dataModel, this.messageService, this.jsonService)
+            .publishEvents(effective, oldStateMachine, newStateMachine, deviceAmrIdSubquery);
+    }
+
+    @Override
+    public String getModuleName() {
+        return MeteringService.COMPONENTNAME;
+    }
+
+    @Override
+    public List<ResourceDefinition> getModuleResources() {
+        List<ResourceDefinition> resources = new ArrayList<>();
+        resources.add(userService.createModuleResourceWithPrivileges(MeteringService.COMPONENTNAME, DefaultTranslationKey.PRIVILEGE_USAGE_POINT_NAME.getKey(), DefaultTranslationKey.PRIVILEGE_USAGE_POINT_DESCRIPTION.getKey(),
+                Arrays.asList(
+                        Privileges.BROWSE_ANY, Privileges.ADMIN_ANY,
+                        Privileges.BROWSE_OWN, Privileges.ADMIN_OWN)));
+
+        return resources;
+    }
+
+
+    @Override
+    public String getComponentName() {
+        return MeteringService.COMPONENTNAME;
+    }
+
+    public Layer getLayer() {
+        return Layer.DOMAIN;
+    }
+
+    @Override
+    public List<TranslationKey> getKeys() {
+        List<TranslationKey> translationKeys = new ArrayList<>();
+        Arrays.stream(MessageSeeds.values()).forEach(translationKeys::add);
+        Arrays.stream(DefaultTranslationKey.values()).forEach(translationKeys::add);
+        return translationKeys;
     }
 
 }
