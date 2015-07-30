@@ -2,9 +2,7 @@ Ext.define('InsightApp.controller.insight.Main', {
     extend: 'Ext.app.Controller',
 
     controllers: [
-        'InsightApp.controller.insight.History',
-        'InsightApp.controller.insight.UsagePoint',
-        'InsightApp.usagepointmanagement.controller.UsagePoint'
+        'InsightApp.controller.insight.History'
     ],
 
     refs: [

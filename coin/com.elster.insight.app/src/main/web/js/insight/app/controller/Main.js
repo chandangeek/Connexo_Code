@@ -18,8 +18,8 @@ Ext.define('InsightApp.controller.Main', {
     privileges: [],
 
     controllers: [
-        'InsightApp.controller.insight.Main',
+        'Cfg.controller.Main',
         'Mtr.controller.Main',
-        'Cfg.controller.Main'
+        'InsightApp.controller.insight.Main',
     ]
 });

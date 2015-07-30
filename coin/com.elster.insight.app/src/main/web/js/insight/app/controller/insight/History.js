@@ -12,18 +12,18 @@ Ext.define('InsightApp.controller.insight.History', {
                 usagepoints: {
                 	title: Uni.I18n.translate('general.usagepoints', 'INS', 'Usage Points'),
                     route: 'usagepoints',
-                    controller: 'InsightApp.controller.insight.UsagePoint',
-                    action: 'test'
+                    controller: 'Mtr.usagepointmanagement.controller.Edit',
+                    action: 'editUsagePoint'
                 },
                 viewusagepoints: {
                 	title: Uni.I18n.translate('general.usagepoints', 'INS', 'View Usage Points'),
                     route: 'viewusagepoints',
-                   	controller: 'InsightApp.usagepointmanagement.controller.UsagePoint',
+                   	controller: 'Mtr.usagepointmanagement.controller.View',
                    	action: 'showUsagePoints',
                    	items: {
                    		usagepoint: {
                    			route: '{mRID}',
-                   			controller: 'InsightApp.usagepointmanagement.controller.UsagePoint',
+                   			controller: 'Mtr.usagepointmanagement.controller.View',
                    			action: 'showUsagePoint'
                    		}
                    	}

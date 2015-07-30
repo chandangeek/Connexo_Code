@@ -4,7 +4,6 @@
     "requires": [
         "com.elster.jupiter.loaderjs",
         "com.elster.jupiter.unifyingjs",
-        "com.elster.jupiter.insight.app.extjs",
         "com.elster.jupiter.config.extjs",
         "com.elster.jupiter.metering.extjs"
     ],
