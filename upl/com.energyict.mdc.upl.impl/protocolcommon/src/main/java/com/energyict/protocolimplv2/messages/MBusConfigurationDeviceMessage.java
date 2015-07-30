@@ -17,17 +17,19 @@ import java.util.List;
  */
 public enum MBusConfigurationDeviceMessage implements DeviceMessageSpec {
 
-    SetMBusEvery(0,PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetMBusEveryAttributeName)),
-    SetMBusInterFrameTime(1,PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetMBusInterFrameTimeAttributeName)),
-    SetMBusConfig(2,PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetMBusConfigAttributeName)),
-    SetMBusVIF(3,PropertySpecFactory.fixedLengthHexStringPropertySpec(DeviceMessageConstants.SetMBusVIFAttributeName, 16));
+    SetMBusEvery(0, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetMBusEveryAttributeName)),
+    SetMBusInterFrameTime(1, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetMBusInterFrameTimeAttributeName)),
+    SetMBusConfig(2, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetMBusConfigAttributeName)),
+    SetMBusVIF(3, PropertySpecFactory.fixedLengthHexStringPropertySpec(DeviceMessageConstants.SetMBusVIFAttributeName, 16)),
+    MBusSetOption(4, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.singleOptionAttributeName)),
+    MBusClrOption(5, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.singleOptionAttributeName));
 
     private static final DeviceMessageCategory category = DeviceMessageCategories.MBUS_CONFIGURATION;
 
     private final List<PropertySpec> deviceMessagePropertySpecs;
     private final int id;
 
-    private MBusConfigurationDeviceMessage(int id,PropertySpec... deviceMessagePropertySpecs) {
+    private MBusConfigurationDeviceMessage(int id, PropertySpec... deviceMessagePropertySpecs) {
         this.id = id;
         this.deviceMessagePropertySpecs = Arrays.asList(deviceMessagePropertySpecs);
     }

@@ -14,16 +14,7 @@ import com.energyict.mdw.offline.OfflineDeviceMessageAttribute;
 import com.energyict.mdw.offlineimpl.OfflineDeviceMessageAttributeImpl;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocolimplv2.messages.*;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiweb.AnalogOutMessageEntry;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiweb.ChangeAdminPasswordMessageEntry;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiweb.ChannelMessageEntry;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiweb.EIWebConfigurationMessageEntry;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiweb.SetLoadMessageEntry;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiweb.SetSetpointMessageEntry;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiweb.SetSwitchTimeMessageEntry;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiweb.SimpleEIWebMessageEntry;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiweb.SimplePeakShaverMessageEntry;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiweb.TotalizerEIWebMessageEntry;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiweb.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -136,6 +127,12 @@ public class EIWebMessageConverterTest {
     private OfflineDeviceMessage setOutputToggle;
     @Mock
     private OfflineDeviceMessage setAnalogOut;
+    @Mock
+    private OfflineDeviceMessage eiWebClrOption;
+    @Mock
+    private OfflineDeviceMessage pop3SetOption;
+    @Mock
+    private OfflineDeviceMessage xmlMessage;
 
     @Before
     public void mockMessages() {
@@ -183,6 +180,9 @@ public class EIWebMessageConverterTest {
         setOutputOn = createMessage(OutputConfigurationMessage.SetOutputOn);
         setOutputToggle = createMessage(OutputConfigurationMessage.SetOutputToggle);
         setAnalogOut = createMessage(DeviceActionMessage.SetAnalogOut);
+        eiWebClrOption = createMessage(EIWebConfigurationDeviceMessage.EIWebClrOption);
+        pop3SetOption = createMessage(MailConfigurationDeviceMessage.POP3SetOption);
+        xmlMessage = createMessage(GeneralDeviceMessage.SEND_XML_MESSAGE);
     }
 
     @Test
@@ -318,8 +318,16 @@ public class EIWebMessageConverterTest {
 
         messageEntry = new AnalogOutMessageEntry().createMessageEntry(null, setAnalogOut);
         assertEquals("<AnalOut id=\"1\"><value>1</value></AnalOut>", messageEntry.getContent());
-    }
 
+        messageEntry = new SimpleEIWebMessageEntry().createMessageEntry(null, eiWebClrOption);
+        assertEquals("<EIWebClrOption>1</EIWebClrOption>", messageEntry.getContent());
+
+        messageEntry = new SimpleEIWebMessageEntry().createMessageEntry(null, pop3SetOption);
+        assertEquals("<POP3SetOption>1</POP3SetOption>", messageEntry.getContent());
+
+        messageEntry = new XMLAttributeDeviceMessageEntry().createMessageEntry(null, xmlMessage);
+        assertEquals("<tag>value</tag>", messageEntry.getContent());
+    }
 
     private void mockProviders() {
         DataVaultProvider.instance.set(new KeyStoreDataVaultProvider());
@@ -337,7 +345,11 @@ public class EIWebMessageConverterTest {
 
         for (PropertySpec propertySpec : messageSpec.getPropertySpecs()) {
             TypedProperties propertyStorage = TypedProperties.empty();
-            propertyStorage.setProperty(propertySpec.getName(), "1");
+            if (messageSpec == GeneralDeviceMessage.SEND_XML_MESSAGE) {
+                propertyStorage.setProperty(propertySpec.getName(), "<tag>value</tag>");
+            } else {
+                propertyStorage.setProperty(propertySpec.getName(), "1");
+            }
             attributes.add(new OfflineDeviceMessageAttributeImpl(new DeviceMessageAttributeImpl(propertySpec, deviceMessage, propertyStorage), new EIWeb()));
         }
         when(message.getDeviceMessageAttributes()).thenReturn(attributes);

@@ -16,9 +16,3 @@
 
 -- Use the following template to insert your keys:
 -- insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('your key', 'english translation', 'L', 'Y', 'N', 'MDW', sysdate);
-
-insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('protocol.eventvalue', 'Protocol event value', 'L', 'Y', 'N', 'MDW', sysdate);
-insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('DeviceActionMessage.SyncMasterdataForDC', 'Sync master data for DC', 'L', 'Y', 'N', 'MDW', sysdate);
-insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('DeviceActionMessage.dcDeviceID', 'DC device ID', 'L', 'Y', 'N', 'MDW', sysdate);
-insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('DeviceActionMessage.PauseDCScheduler', 'Pause DC scheduler', 'L', 'Y', 'N', 'MDW', sysdate);
-insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('DeviceActionMessage.ResumeDCScheduler', 'Resume DC scheduler', 'L', 'Y', 'N', 'MDW', sysdate);

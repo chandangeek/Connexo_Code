@@ -115,6 +115,8 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpec {
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.zeroCrossDelay, BigDecimal.valueOf(-1)),
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.synchronisationBit, BigDecimal.valueOf(-1))
     ),
+    UpgradeSetOption(46, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.singleOptionAttributeName)),
+    UpgradeClrOption(47, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.singleOptionAttributeName)),
     ;
 
     private final List<PropertySpec> deviceMessagePropertySpecs;

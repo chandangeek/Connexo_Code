@@ -24,7 +24,8 @@ public enum GeneralDeviceMessage implements DeviceMessageSpec {
             PropertySpecFactory.boundedDecimalPropertySpec(DeviceMessageConstants.IEC1107ClassIdAttributeName, BigDecimal.valueOf(0), BigDecimal.valueOf(9999)),
             PropertySpecFactory.boundedDecimalPropertySpec(DeviceMessageConstants.OffsetAttributeName, BigDecimal.valueOf(0), BigDecimal.valueOf(9999)),
             PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.RawDataAttributeName)),
-    WRITE_FULL_CONFIGURATION(1,PropertySpecFactory.userFileReferencePropertySpec(DeviceMessageConstants.configUserFileAttributeName));
+    WRITE_FULL_CONFIGURATION(1,PropertySpecFactory.userFileReferencePropertySpec(DeviceMessageConstants.configUserFileAttributeName)),
+    SEND_XML_MESSAGE(2, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.xmlMessageAttributeName));
 
     private static final DeviceMessageCategory generalCategory = DeviceMessageCategories.GENERAL;
 

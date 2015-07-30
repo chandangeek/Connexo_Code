@@ -18,7 +18,9 @@ public enum OpusConfigurationDeviceMessage implements DeviceMessageSpec {
     SetOpusOSNbr(0, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetOpusOSNbrAttributeName)),
     SetOpusPassword(1, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetOpusPasswordAttributeName)),
     SetOpusTimeout(2, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetOpusTimeoutAttributeName)),
-    SetOpusConfig(3, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetOpusConfigAttributeName));
+    SetOpusConfig(3, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetOpusConfigAttributeName)),
+    OpusSetOption(4, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.singleOptionAttributeName)),
+    OpusClrOption(5, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.singleOptionAttributeName));
 
     private static final DeviceMessageCategory category = DeviceMessageCategories.OPUS_CONFIGURATION;
 

@@ -3,16 +3,7 @@ package com.energyict.protocolimplv2.messages.convertor;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.protocolimplv2.messages.*;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiweb.AnalogOutMessageEntry;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiweb.ChangeAdminPasswordMessageEntry;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiweb.ChannelMessageEntry;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiweb.EIWebConfigurationMessageEntry;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiweb.SetLoadMessageEntry;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiweb.SetSetpointMessageEntry;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiweb.SetSwitchTimeMessageEntry;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiweb.SimpleEIWebMessageEntry;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiweb.SimplePeakShaverMessageEntry;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiweb.TotalizerEIWebMessageEntry;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiweb.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -44,6 +35,8 @@ public class EIWebMessageConverter extends AbstractMessageConverter {
         registry.put(ConfigurationChangeDeviceMessage.SetCommOffset, new SimpleEIWebMessageEntry());
         registry.put(ConfigurationChangeDeviceMessage.SetAggIntv, new SimpleEIWebMessageEntry());
         registry.put(ConfigurationChangeDeviceMessage.SetPulseTimeTrue, new SimpleEIWebMessageEntry());
+        registry.put(ConfigurationChangeDeviceMessage.UpgradeSetOption, new SimpleEIWebMessageEntry());
+        registry.put(ConfigurationChangeDeviceMessage.UpgradeClrOption, new SimpleEIWebMessageEntry());
 
         // Network Parameters
         registry.put(NetworkConnectivityMessage.SetProxyServer, new SimpleEIWebMessageEntry());
@@ -64,6 +57,8 @@ public class EIWebMessageConverter extends AbstractMessageConverter {
         registry.put(ClockDeviceMessage.SetNTPServer, new SimpleEIWebMessageEntry());
         registry.put(ClockDeviceMessage.SetRefreshClockEvery, new SimpleEIWebMessageEntry());
         registry.put(ClockDeviceMessage.SetNTPOptions, new SimpleEIWebMessageEntry());
+        registry.put(ClockDeviceMessage.NTPSetOption, new SimpleEIWebMessageEntry());
+        registry.put(ClockDeviceMessage.NTPClrOption, new SimpleEIWebMessageEntry());
 
         // EIWeb Parameters
         registry.put(EIWebConfigurationDeviceMessage.SetEIWebPassword, new EIWebConfigurationMessageEntry());
@@ -73,6 +68,8 @@ public class EIWebMessageConverter extends AbstractMessageConverter {
         registry.put(EIWebConfigurationDeviceMessage.SetEIWebCurrentInterval, new EIWebConfigurationMessageEntry());
         registry.put(EIWebConfigurationDeviceMessage.SetEIWebDatabaseID, new EIWebConfigurationMessageEntry());
         registry.put(EIWebConfigurationDeviceMessage.SetEIWebOptions, new EIWebConfigurationMessageEntry());
+        registry.put(EIWebConfigurationDeviceMessage.EIWebSetOption, new EIWebConfigurationMessageEntry());
+        registry.put(EIWebConfigurationDeviceMessage.EIWebClrOption, new EIWebConfigurationMessageEntry());
 
         // Read Mail (POP3) Parameters
         registry.put(MailConfigurationDeviceMessage.SetPOPUsername, new SimpleEIWebMessageEntry());
@@ -89,6 +86,10 @@ public class EIWebMessageConverter extends AbstractMessageConverter {
         registry.put(MailConfigurationDeviceMessage.SetSMTPCurrentInterval, new SimpleEIWebMessageEntry());
         registry.put(MailConfigurationDeviceMessage.SetSMTPDatabaseID, new SimpleEIWebMessageEntry());
         registry.put(MailConfigurationDeviceMessage.SetSMTPOptions, new SimpleEIWebMessageEntry());
+        registry.put(MailConfigurationDeviceMessage.POP3SetOption, new SimpleEIWebMessageEntry());
+        registry.put(MailConfigurationDeviceMessage.POP3ClrOption, new SimpleEIWebMessageEntry());
+        registry.put(MailConfigurationDeviceMessage.SMTPSetOption, new SimpleEIWebMessageEntry());
+        registry.put(MailConfigurationDeviceMessage.SMTPClrOption, new SimpleEIWebMessageEntry());
 
         // SMS
         registry.put(SMSConfigurationDeviceMessage.SetSmsDataNbr, new SimpleEIWebMessageEntry());
@@ -97,6 +98,8 @@ public class EIWebMessageConverter extends AbstractMessageConverter {
         registry.put(SMSConfigurationDeviceMessage.SetSmsNbr, new SimpleEIWebMessageEntry());
         registry.put(SMSConfigurationDeviceMessage.SetSmsCorrection, new SimpleEIWebMessageEntry());
         registry.put(SMSConfigurationDeviceMessage.SetSmsConfig, new SimpleEIWebMessageEntry());
+        registry.put(SMSConfigurationDeviceMessage.SMSSetOption, new SimpleEIWebMessageEntry());
+        registry.put(SMSConfigurationDeviceMessage.SMSClrOption, new SimpleEIWebMessageEntry());
 
         //DLMS
         registry.put(DLMSConfigurationDeviceMessage.SetDLMSDeviceID, new SimpleEIWebMessageEntry());
@@ -129,6 +132,8 @@ public class EIWebMessageConverter extends AbstractMessageConverter {
         registry.put(PPPConfigurationDeviceMessage.SetPPPIdleTimeout, new SimpleEIWebMessageEntry());
         registry.put(PPPConfigurationDeviceMessage.SetPPPRetryInterval, new SimpleEIWebMessageEntry());
         registry.put(PPPConfigurationDeviceMessage.SetPPPOptions, new SimpleEIWebMessageEntry());
+        registry.put(PPPConfigurationDeviceMessage.PPPSetOption, new SimpleEIWebMessageEntry());
+        registry.put(PPPConfigurationDeviceMessage.PPPClrOption, new SimpleEIWebMessageEntry());
 
         // Channels
         registry.put(ChannelConfigurationDeviceMessage.SetFunction, new ChannelMessageEntry());
@@ -179,6 +184,8 @@ public class EIWebMessageConverter extends AbstractMessageConverter {
         registry.put(OpusConfigurationDeviceMessage.SetOpusPassword, new SimpleEIWebMessageEntry());
         registry.put(OpusConfigurationDeviceMessage.SetOpusTimeout, new SimpleEIWebMessageEntry());
         registry.put(OpusConfigurationDeviceMessage.SetOpusConfig, new SimpleEIWebMessageEntry());
+        registry.put(OpusConfigurationDeviceMessage.OpusSetOption, new SimpleEIWebMessageEntry());
+        registry.put(OpusConfigurationDeviceMessage.OpusClrOption, new SimpleEIWebMessageEntry());
 
         // Modbus Master
         registry.put(ModbusConfigurationDeviceMessage.SetMmEvery, new SimpleEIWebMessageEntry());
@@ -186,11 +193,15 @@ public class EIWebMessageConverter extends AbstractMessageConverter {
         registry.put(ModbusConfigurationDeviceMessage.SetMmInstant, new SimpleEIWebMessageEntry());
         registry.put(ModbusConfigurationDeviceMessage.SetMmOverflow, new SimpleEIWebMessageEntry());
         registry.put(ModbusConfigurationDeviceMessage.SetMmConfig, new SimpleEIWebMessageEntry());
+        registry.put(ModbusConfigurationDeviceMessage.MmSetOption, new SimpleEIWebMessageEntry());
+        registry.put(ModbusConfigurationDeviceMessage.MmClrOption, new SimpleEIWebMessageEntry());
 
         // MBus Master
         registry.put(MBusConfigurationDeviceMessage.SetMBusEvery, new SimpleEIWebMessageEntry());
         registry.put(MBusConfigurationDeviceMessage.SetMBusInterFrameTime, new SimpleEIWebMessageEntry());
         registry.put(MBusConfigurationDeviceMessage.SetMBusConfig, new SimpleEIWebMessageEntry());
+        registry.put(MBusConfigurationDeviceMessage.MBusSetOption, new SimpleEIWebMessageEntry());
+        registry.put(MBusConfigurationDeviceMessage.MBusClrOption, new SimpleEIWebMessageEntry());
 
         // General Commands
         registry.put(DeviceActionMessage.SetFTIONReboot, new SimpleEIWebMessageEntry());
@@ -208,6 +219,7 @@ public class EIWebMessageConverter extends AbstractMessageConverter {
         registry.put(OutputConfigurationMessage.SetOutputToggle, new SimpleEIWebMessageEntry());
         registry.put(OutputConfigurationMessage.SetOutputPulse, new SimpleEIWebMessageEntry());
         registry.put(DeviceActionMessage.SetAnalogOut, new AnalogOutMessageEntry());
+        registry.put(GeneralDeviceMessage.SEND_XML_MESSAGE, new XMLAttributeDeviceMessageEntry());
     }
 
     /**

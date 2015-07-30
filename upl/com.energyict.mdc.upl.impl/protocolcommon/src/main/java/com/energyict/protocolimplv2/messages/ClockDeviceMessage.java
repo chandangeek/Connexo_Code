@@ -70,7 +70,9 @@ public enum ClockDeviceMessage implements DeviceMessageSpec {
             PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.enableDSTAttributeName),
             PropertySpecFactory.datePropertySpec(DeviceMessageConstants.StartOfDSTAttributeName),
             PropertySpecFactory.datePropertySpec(DeviceMessageConstants.EndOfDSTAttributeName)
-    );
+    ),
+    NTPSetOption(19, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.singleOptionAttributeName)),
+    NTPClrOption(20, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.singleOptionAttributeName));
 
     private static final DeviceMessageCategory clockCategory = DeviceMessageCategories.CLOCK;
 

@@ -326,6 +326,7 @@ public class DeviceMessageConstants {
     public static final String second = "second";
     public static final String id = "id";
     public static final String tariff = "tariff";
+    public static final String singleOptionAttributeName = "option";
 
     public static final String loadIdAttributeName = "PeakShaverConfigurationDeviceMessage.loadid";
     public static final String MaxOffAttributeName = "PeakShaverConfigurationDeviceMessage.maxoff";
@@ -482,6 +483,7 @@ public class DeviceMessageConstants {
     public static final String alarmBitMaskAttributeName = "AlarmConfigurationMessage.alarmBitMask";
     public static final String alarmFilterAttributeName = "AlarmConfigurationMessage.alarmfilter";
     public static final String configUserFileAttributeName = "GeneralDeviceMessage.configuserfile";
+    public static final String xmlMessageAttributeName = "GeneralDeviceMessage.xmlMessage";
     public static final String transportTypeAttributeName = "AlarmConfigurationMessage.transportType";
     public static final String objectDefinitionsAttributeName = "AlarmConfigurationMessage.objectDefinitions";
     public static final String typeAttributeName = "type";

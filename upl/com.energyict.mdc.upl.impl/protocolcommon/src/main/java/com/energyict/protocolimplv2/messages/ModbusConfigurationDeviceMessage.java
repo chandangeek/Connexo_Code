@@ -27,7 +27,9 @@ public enum ModbusConfigurationDeviceMessage implements DeviceMessageSpec {
             PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.RegisterValueAttributeName)),
     WriteMultipleRegisters(6, PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.RadixFormatAttributeName, "DEC", "HEX"),
             PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.RegisterAddressAttributeName),
-            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.RegisterValueAttributeName));
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.RegisterValueAttributeName)),
+    MmSetOption(7, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.singleOptionAttributeName)),
+    MmClrOption(8, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.singleOptionAttributeName));
 
     private static final DeviceMessageCategory category = DeviceMessageCategories.MODBUS_CONFIGURATION;
 

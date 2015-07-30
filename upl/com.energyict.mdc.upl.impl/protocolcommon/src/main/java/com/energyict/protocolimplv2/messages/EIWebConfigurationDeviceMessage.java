@@ -3,7 +3,9 @@ package com.energyict.protocolimplv2.messages;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.cuo.core.UserEnvironment;
-import com.energyict.mdc.messages.*;
+import com.energyict.mdc.messages.DeviceMessageCategory;
+import com.energyict.mdc.messages.DeviceMessageSpec;
+import com.energyict.mdc.messages.DeviceMessageSpecPrimaryKey;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -37,7 +39,9 @@ public enum EIWebConfigurationDeviceMessage implements DeviceMessageSpec {
     SetEIWebOptions(6,
             PropertySpecFactory.bigDecimalPropertySpecWithValues(DeviceMessageConstants.id, BigDecimal.valueOf(1), BigDecimal.valueOf(2)),
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetEIWebOptionsAttributeName)),
-    UpdateEIWebSSLCertificate(7, PropertySpecFactory.userFileReferencePropertySpec(DeviceMessageConstants.sslCertificateUserFile));
+    UpdateEIWebSSLCertificate(7, PropertySpecFactory.userFileReferencePropertySpec(DeviceMessageConstants.sslCertificateUserFile)),
+    EIWebSetOption(8, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.singleOptionAttributeName)),
+    EIWebClrOption(21, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.singleOptionAttributeName));
 
     private static final DeviceMessageCategory eiWebCategory = DeviceMessageCategories.EIWEB_PARAMETERS;
 

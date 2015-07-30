@@ -3,7 +3,9 @@ package com.energyict.protocolimplv2.messages;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.cuo.core.UserEnvironment;
-import com.energyict.mdc.messages.*;
+import com.energyict.mdc.messages.DeviceMessageCategory;
+import com.energyict.mdc.messages.DeviceMessageSpec;
+import com.energyict.mdc.messages.DeviceMessageSpecPrimaryKey;
 
 import java.util.Arrays;
 import java.util.List;
@@ -20,7 +22,9 @@ public enum SMSConfigurationDeviceMessage implements DeviceMessageSpec {
     SetSmsEvery(2, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetSmsEveryAttributeName)),
     SetSmsNbr(3, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetSmsNbrAttributeName)),
     SetSmsCorrection(4, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetSmsCorrectionAttributeName)),
-    SetSmsConfig(5, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetSmsConfigAttributeName));
+    SetSmsConfig(5, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetSmsConfigAttributeName)),
+    SMSSetOption(6, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.singleOptionAttributeName)),
+    SMSClrOption(7, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.singleOptionAttributeName));
 
     private static final DeviceMessageCategory category = DeviceMessageCategories.SMS_CONFIGURATION;
 
