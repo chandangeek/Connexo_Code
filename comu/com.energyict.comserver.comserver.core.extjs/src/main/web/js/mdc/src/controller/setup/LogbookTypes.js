@@ -120,7 +120,7 @@ Ext.define('Mdc.controller.setup.LogbookTypes', {
 
         var widget = Ext.widget('logbookTypeEdit', {
             edit: true,
-            returnLink: me.getApplication().getController('Mdc.controller.history.Setup').tokenizePreviousTokens()
+            returnLink: me.getController('Uni.controller.history.Router').getRoute('administration/logbooktypes').buildUrl()
         });
         this.getApplication().fireEvent('changecontentevent', widget);
         widget.setLoading(true);

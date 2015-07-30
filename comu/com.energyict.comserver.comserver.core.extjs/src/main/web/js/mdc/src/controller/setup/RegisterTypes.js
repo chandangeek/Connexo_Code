@@ -167,9 +167,10 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
         var me = this,
             widget = Ext.widget('registerTypeEdit', {
                 edit: true,
-                returnLink: me.getApplication().getController('Mdc.controller.history.Setup').tokenizePreviousTokens()
+                returnLink: me.getController('Uni.controller.history.Router').getRoute('administration/registertypes').buildUrl()
             }),
             readingTypeStore;
+
         this.getApplication().fireEvent('changecontentevent', widget);
         widget.setLoading(true);
         Ext.ModelManager.getModel('Mdc.model.RegisterType').load(registerMapping, {
