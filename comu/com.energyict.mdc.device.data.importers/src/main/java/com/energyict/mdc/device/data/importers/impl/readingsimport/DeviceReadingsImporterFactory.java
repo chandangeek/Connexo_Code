@@ -49,7 +49,7 @@ public class DeviceReadingsImporterFactory extends AbstractDeviceDataFileImporte
                 new DeviceReadingsImportDescription(dateFormat, timeZone, numberFormat));
         DeviceReadingsImportProcessor processor = new DeviceReadingsImportProcessor(getContext());
         FileImportLogger logger = new DeviceReadingsImportLogger(getContext());
-        return DeviceDataCsvImporter.withParser(parser).withProcessor(processor).withLogger(logger).withDelimiter(delimiter.charAt(0)).build(getContext());
+        return DeviceDataCsvImporter.withParser(parser).withProcessor(processor).withLogger(logger).withDelimiter(delimiter.charAt(0)).build();
     }
 
     @Override

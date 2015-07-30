@@ -13,7 +13,9 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public abstract class AbstractDeviceDataFileImporterFactory implements FileImporterFactory {
+
     public static final String IMPORTER_FACTORY_PROPERTY_PREFIX = "DeviceDataFileImporterFactory";
+
     public static final char DOT = '.';
     public static final char COMMA = ',';
     public static final char SEMICOLON = ';';

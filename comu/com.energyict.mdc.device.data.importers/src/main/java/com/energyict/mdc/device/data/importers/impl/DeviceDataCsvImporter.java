@@ -25,7 +25,7 @@ public class DeviceDataCsvImporter<T extends FileImportRecord> implements FileIm
             return this;
         }
 
-        public Builder<T> withLogger(FileImportLogger logger) {
+        public Builder<T> withLogger(FileImportLogger<FileImportRecord> logger) {
             this.importer.logger = logger;
             return this;
         }
@@ -35,8 +35,7 @@ public class DeviceDataCsvImporter<T extends FileImportRecord> implements FileIm
             return this;
         }
 
-        public DeviceDataCsvImporter<T> build(DeviceDataImporterContext context) {
-            this.importer.context = context;
+        public DeviceDataCsvImporter<T> build() {
             return this.importer;
         }
     }
@@ -44,11 +43,10 @@ public class DeviceDataCsvImporter<T extends FileImportRecord> implements FileIm
     public static final char COMMENT_MARKER = '#';
 
     private char csvDelimiter;
-    private DeviceDataImporterContext context;
 
     private FileImportParser<T> parser;
     private FileImportProcessor<T> processor;
-    private FileImportLogger<T> logger;
+    private FileImportLogger<FileImportRecord> logger;
 
     public static <T extends FileImportRecord> Builder<T> withParser(FileImportParser<T> parser) {
         Builder<T> builder = new Builder<>();

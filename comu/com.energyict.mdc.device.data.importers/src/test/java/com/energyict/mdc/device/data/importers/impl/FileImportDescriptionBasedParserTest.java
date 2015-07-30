@@ -133,7 +133,7 @@ public class FileImportDescriptionBasedParserTest {
             }
         });
         FileImportProcessor<FileImportRecord> processor = mock(FileImportProcessor.class);
-        DeviceDataCsvImporter<FileImportRecord> importer = DeviceDataCsvImporter.withParser(parser).withProcessor(processor).withLogger(new DevicePerLineFileImportLogger(context)).withDelimiter(';').build(context);
+        DeviceDataCsvImporter<FileImportRecord> importer = DeviceDataCsvImporter.withParser(parser).withProcessor(processor).withLogger(new DevicePerLineFileImportLogger(context)).withDelimiter(';').build();
 
         importer.process(importOccurrence);
 
@@ -180,7 +180,7 @@ public class FileImportDescriptionBasedParserTest {
             }
         });
         FileImportProcessor<FileImportRecord> processor = mock(FileImportProcessor.class);
-        DeviceDataCsvImporter<FileImportRecord> importer = DeviceDataCsvImporter.withParser(parser).withProcessor(processor).withLogger(new DevicePerLineFileImportLogger(context)).withDelimiter(';').build(context);
+        DeviceDataCsvImporter<FileImportRecord> importer = DeviceDataCsvImporter.withParser(parser).withProcessor(processor).withLogger(new DevicePerLineFileImportLogger(context)).withDelimiter(';').build();
 
         importer.process(importOccurrence);
 
@@ -221,7 +221,7 @@ public class FileImportDescriptionBasedParserTest {
             }
         });
         FileImportProcessor<FileImportRecord> processor = mock(FileImportProcessor.class);
-        DeviceDataCsvImporter<FileImportRecord> importer = DeviceDataCsvImporter.withParser(parser).withProcessor(processor).withLogger(new DevicePerLineFileImportLogger(context)).withDelimiter(';').build(context);
+        DeviceDataCsvImporter<FileImportRecord> importer = DeviceDataCsvImporter.withParser(parser).withProcessor(processor).withLogger(new DevicePerLineFileImportLogger(context)).withDelimiter(';').build();
 
         importer.process(importOccurrence);
 

@@ -11,6 +11,7 @@ import com.energyict.mdc.device.data.importers.impl.FileImportDescriptionBasedPa
 import com.energyict.mdc.device.data.importers.impl.FileImportLogger;
 import com.energyict.mdc.device.data.importers.impl.FileImportParser;
 import com.energyict.mdc.device.data.importers.impl.FileImportProcessor;
+import com.energyict.mdc.device.data.importers.impl.FileImportRecord;
 import com.energyict.mdc.device.data.importers.impl.TranslationKeys;
 import com.energyict.mdc.device.data.importers.impl.devices.DeviceTransitionRecord;
 import org.osgi.service.component.annotations.Component;
@@ -59,8 +60,8 @@ public class DeviceCommissioningImportFactory extends AbstractDeviceDataFileImpo
         FileImportParser<DeviceTransitionRecord> parser = new FileImportDescriptionBasedParser(
                 new DeviceCommissioningImportDescription(dateFormat, timeZone));
         FileImportProcessor<DeviceTransitionRecord> processor = new DeviceCommissioningImportProcessor(getContext());
-        FileImportLogger logger = new DevicePerLineFileImportLogger(getContext());
-        return DeviceDataCsvImporter.withParser(parser).withProcessor(processor).withLogger(logger).withDelimiter(delimiter.charAt(0)).build(getContext());
+        FileImportLogger<FileImportRecord> logger = new DevicePerLineFileImportLogger(getContext());
+        return DeviceDataCsvImporter.withParser(parser).withProcessor(processor).withLogger(logger).withDelimiter(delimiter.charAt(0)).build();
     }
 
     @Override

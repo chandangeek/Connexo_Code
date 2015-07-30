@@ -1,4 +1,4 @@
-package com.energyict.mdc.device.data.importers.impl.devices.remove;
+package com.energyict.mdc.device.data.importers.impl.attributes.connection;
 
 import com.elster.jupiter.fileimport.FileImporter;
 import com.elster.jupiter.fileimport.FileImporterFactory;
@@ -13,7 +13,7 @@ import com.energyict.mdc.device.data.importers.impl.FileImportParser;
 import com.energyict.mdc.device.data.importers.impl.FileImportProcessor;
 import com.energyict.mdc.device.data.importers.impl.FileImportRecord;
 import com.energyict.mdc.device.data.importers.impl.TranslationKeys;
-import com.energyict.mdc.device.data.importers.impl.devices.DeviceTransitionRecord;
+import com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -23,20 +23,21 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.DELIMITER;
+import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.NUMBER_FORMAT;
 
-@Component(name = "com.energyict.mdc.device.data.importers." + DeviceRemoveImportFactory.NAME,
+@Component(name = "com.energyict.mdc.device.data.importers." + ConnectionAttributesImportFactory.NAME,
         service = FileImporterFactory.class,
         immediate = true)
-public class DeviceRemoveImportFactory extends AbstractDeviceDataFileImporterFactory {
-    public static final String NAME = "DeviceRemoveImportFactory";
+public class ConnectionAttributesImportFactory extends AbstractDeviceDataFileImporterFactory {
+    public static final String NAME = "ConnectionAttributesImportFactory";
 
     private volatile DeviceDataImporterContext context;
 
-    public DeviceRemoveImportFactory() {
+    public ConnectionAttributesImportFactory() {
     }
 
     @Inject
-    public DeviceRemoveImportFactory(DeviceDataImporterContext context) {
+    public ConnectionAttributesImportFactory(DeviceDataImporterContext context) {
         super();
         setDeviceDataImporterContext(context);
     }
@@ -48,22 +49,23 @@ public class DeviceRemoveImportFactory extends AbstractDeviceDataFileImporterFac
 
     @Override
     public String getDefaultFormat() {
-        return TranslationKeys.DEVICE_REMOVE_IMPORTER.getDefaultFormat();
+        return TranslationKeys.DEVICE_CONNECTION_ATTRIBUTES_IMPORTER.getDefaultFormat();
     }
 
     @Override
     public FileImporter createImporter(Map<String, Object> properties) {
         String delimiter = (String) properties.get(DELIMITER.getPropertyKey());
+        SupportedNumberFormat numberFormat = ((SupportedNumberFormat.SupportedNumberFormatInfo) properties.get(NUMBER_FORMAT.getPropertyKey())).getFormat();
 
-        FileImportParser<DeviceTransitionRecord> parser = new FileImportDescriptionBasedParser(new DeviceRemoveImportDescription());
-        FileImportProcessor<DeviceTransitionRecord> processor = new DeviceRemoveImportProcessor(getContext());
+        FileImportParser<ConnectionAttributesImportRecord> parser = new FileImportDescriptionBasedParser(new ConnectionAttributesImportDescription());
+        FileImportProcessor<ConnectionAttributesImportRecord> processor = new ConnectionAttributesImportProcessor(getContext());
         FileImportLogger<FileImportRecord> logger = new DevicePerLineFileImportLogger(getContext());
         return DeviceDataCsvImporter.withParser(parser).withProcessor(processor).withLogger(logger).withDelimiter(delimiter.charAt(0)).build();
     }
 
     @Override
     protected Set<DeviceDataImporterProperty> getProperties() {
-        return EnumSet.of(DELIMITER);
+        return EnumSet.of(DELIMITER, NUMBER_FORMAT);
     }
 
     @Override
