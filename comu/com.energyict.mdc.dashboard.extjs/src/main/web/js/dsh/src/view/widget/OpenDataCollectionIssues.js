@@ -65,14 +65,16 @@ Ext.define('Dsh.view.widget.OpenDataCollectionIssues', {
             });
         }
 
-        var assignedFilter = Ext.apply(assigned.get('filter'), {
+        var assignedFilter = {
             assignee: assigned.get('filter').assigneeId + ':' + assigned.get('filter').assigneeType,
-            status: ['status.open']
-        });
+            status: 'status.open',
+            groupingType: 'none'
+        };
 
         var unassignedFilter = {
             assignee: unassigned.get('filter').assigneeId + ':' + unassigned.get('filter').assigneeType,
-            status: ['status.open']
+            status: 'status.open',
+            groupingType: 'none'
         };
 
         dockedLinksContainer.add([
@@ -81,14 +83,14 @@ Ext.define('Dsh.view.widget.OpenDataCollectionIssues', {
                 itemId: 'lnk-assigned-issues-link',
                 text: Ext.String.format(Uni.I18n.translate('overview.widget.openDataCollectionIssues.assignedToMe', 'DSH', 'Assigned to me ({0})'), assigned.get('total')),
                 ui: 'link',
-                href: me.router.getRoute('workspace/datacollectionissues').buildUrl(null, {filter: assignedFilter})
+                href: me.router.getRoute('workspace/datacollectionissues').buildUrl(null, assignedFilter)
             },
             {
                 xtype: 'button',
                 itemId: 'lnk-unassigned-issues-link',
                 text: Ext.String.format(Uni.I18n.translate('overview.widget.openDataCollectionIssues.unassigned', 'DSH', 'Unassigned ({0})'), unassigned.get('total')),
                 ui: 'link',
-                href: me.router.getRoute('workspace/datacollectionissues').buildUrl(null, {filter: unassignedFilter})
+                href: me.router.getRoute('workspace/datacollectionissues').buildUrl(null, unassignedFilter)
             }
         ]);
         Ext.resumeLayouts(true);
