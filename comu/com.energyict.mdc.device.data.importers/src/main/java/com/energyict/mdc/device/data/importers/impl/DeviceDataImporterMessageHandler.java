@@ -15,6 +15,7 @@ import com.elster.jupiter.util.exception.ExceptionCatcher;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -36,6 +37,12 @@ public class DeviceDataImporterMessageHandler implements MessageHandlerFactory, 
     private volatile FileImportService fileImportService;
 
     public DeviceDataImporterMessageHandler() {}
+
+    @Inject
+    public DeviceDataImporterMessageHandler(MessageService messageService, FileImportService fileImportService) {
+        setMessageService(messageService);
+        setFileImportService(fileImportService);
+    }
 
     @Override
     public String getComponentName() {
@@ -65,7 +72,7 @@ public class DeviceDataImporterMessageHandler implements MessageHandlerFactory, 
 
     @Override
     public List<String> getPrerequisiteModules() {
-        return Arrays.asList(OrmService.COMPONENTNAME, MessageService.COMPONENTNAME);
+        return Arrays.asList(OrmService.COMPONENTNAME, MessageService.COMPONENTNAME, FileImportService.COMPONENT_NAME);
     }
 
     private void createDestinationAndSubscriber() {
@@ -77,12 +84,12 @@ public class DeviceDataImporterMessageHandler implements MessageHandlerFactory, 
     }
 
     @Reference
-    public void setMessageService(MessageService messageService) {
+    public final void setMessageService(MessageService messageService) {
         this.messageService = messageService;
     }
 
     @Reference
-    public void setFileImportService(FileImportService fileImportService) {
+    public final void setFileImportService(FileImportService fileImportService) {
         this.fileImportService = fileImportService;
     }
 
