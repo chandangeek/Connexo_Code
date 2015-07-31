@@ -35,7 +35,7 @@ public class DeviceShipmentImporterFactory extends AbstractDeviceDataFileImporte
 
     @Inject
     public DeviceShipmentImporterFactory(DeviceDataImporterContext context) {
-        super();
+        this();
         setDeviceDataImporterContext(context);
     }
 

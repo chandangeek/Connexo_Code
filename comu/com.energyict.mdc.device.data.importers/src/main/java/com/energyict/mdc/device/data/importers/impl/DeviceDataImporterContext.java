@@ -16,6 +16,7 @@ import com.energyict.mdc.device.topology.TopologyService;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import javax.inject.Inject;
 import java.time.Clock;
 
 @Component(name = "com.energyict.mdc.device.data.importers.DeviceDataImporterContext", service = {DeviceDataImporterContext.class})
@@ -33,12 +34,42 @@ public class DeviceDataImporterContext {
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile Clock clock;
 
+    public DeviceDataImporterContext() {
+    }
+
+    @Inject
+    public DeviceDataImporterContext(PropertySpecService propertySpecService,
+                                     NlsService nlsService,
+                                     DeviceConfigurationService deviceConfigurationService,
+                                     DeviceService deviceService,
+                                     DeviceImportService deviceImportService,
+                                     TopologyService topologyService,
+                                     MeteringService meteringService,
+                                     DeviceLifeCycleService deviceLifeCycleService,
+                                     FiniteStateMachineService finiteStateMachineService,
+                                     UserService userService,
+                                     ThreadPrincipalService threadPrincipalService,
+                                     Clock clock) {
+        setPropertySpecService(propertySpecService);
+        setNlsService(nlsService);
+        setDeviceConfigurationService(deviceConfigurationService);
+        setDeviceService(deviceService);
+        setDeviceImportService(deviceImportService);
+        setTopologyService(topologyService);
+        setMeteringService(meteringService);
+        setDeviceLifeCycleService(deviceLifeCycleService);
+        setFiniteStateMachineService(finiteStateMachineService);
+        setUserService(userService);
+        setThreadPrincipalService(threadPrincipalService);
+        setClock(clock);
+    }
+
     public PropertySpecService getPropertySpecService() {
         return propertySpecService;
     }
 
     @Reference
-    public void setPropertySpecService(PropertySpecService propertySpecService) {
+    public final void setPropertySpecService(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
     }
 
@@ -47,7 +78,7 @@ public class DeviceDataImporterContext {
     }
 
     @Reference
-    public void setNlsService(NlsService nlsService) {
+    public final void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(DeviceDataImporterMessageHandler.COMPONENT, Layer.DOMAIN);
     }
 
@@ -56,7 +87,7 @@ public class DeviceDataImporterContext {
     }
 
     @Reference
-    public void setDeviceConfigurationService(DeviceConfigurationService deviceConfigurationService) {
+    public final void setDeviceConfigurationService(DeviceConfigurationService deviceConfigurationService) {
         this.deviceConfigurationService = deviceConfigurationService;
     }
 
@@ -65,7 +96,7 @@ public class DeviceDataImporterContext {
     }
 
     @Reference
-    public void setDeviceService(DeviceService deviceService) {
+    public final void setDeviceService(DeviceService deviceService) {
         this.deviceService = deviceService;
     }
 
@@ -74,7 +105,7 @@ public class DeviceDataImporterContext {
     }
 
     @Reference
-    public void setDeviceImportService(DeviceImportService deviceImportService) {
+    public final void setDeviceImportService(DeviceImportService deviceImportService) {
         this.deviceImportService = deviceImportService;
     }
 
@@ -83,7 +114,7 @@ public class DeviceDataImporterContext {
     }
 
     @Reference
-    public void setTopologyService(TopologyService topologyService) {
+    public final void setTopologyService(TopologyService topologyService) {
         this.topologyService = topologyService;
     }
 
@@ -92,7 +123,7 @@ public class DeviceDataImporterContext {
     }
 
     @Reference
-    public void setMeteringService(MeteringService meteringService) {
+    public final void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
     }
 
@@ -101,7 +132,7 @@ public class DeviceDataImporterContext {
     }
 
     @Reference
-    public void setDeviceLifeCycleService(DeviceLifeCycleService deviceLifeCycleService) {
+    public final void setDeviceLifeCycleService(DeviceLifeCycleService deviceLifeCycleService) {
         this.deviceLifeCycleService = deviceLifeCycleService;
     }
 
@@ -110,12 +141,12 @@ public class DeviceDataImporterContext {
     }
 
     @Reference
-    public void setFiniteStateMachineService(FiniteStateMachineService finiteStateMachineService) {
+    public final void setFiniteStateMachineService(FiniteStateMachineService finiteStateMachineService) {
         this.finiteStateMachineService = finiteStateMachineService;
     }
 
     @Reference
-    public void setUserService(UserService userService) {
+    public final void setUserService(UserService userService) {
         this.userService = userService;
     }
 
@@ -124,7 +155,7 @@ public class DeviceDataImporterContext {
     }
 
     @Reference
-    public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
+    public final void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
         this.threadPrincipalService = threadPrincipalService;
     }
 
@@ -137,7 +168,7 @@ public class DeviceDataImporterContext {
     }
 
     @Reference
-    public void setClock(Clock clock) {
+    public final void setClock(Clock clock) {
         this.clock = clock;
     }
 }

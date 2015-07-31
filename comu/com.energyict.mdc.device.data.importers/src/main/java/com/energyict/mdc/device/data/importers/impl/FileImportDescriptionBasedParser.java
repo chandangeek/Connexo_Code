@@ -32,7 +32,7 @@ public class FileImportDescriptionBasedParser<T extends FileImportRecord> implem
         record.setLineNumber(csvRecord.getRecordNumber());
         List<FileImportField<?>> fields = this.descriptor.getFields(record);
         List<String> rawValues = getRawValuesSkipTrailingNulls(csvRecord);
-        if (rawValues.size() < fields.size()) {
+        if (rawValues.size() < getNumberOfMandatoryColumns(fields)) {
             throw new FileImportParserException(MessageSeeds.FILE_FORMAT_ERROR, csvRecord.getRecordNumber(), fields.size(), rawValues.size());
         }
         int repetitiveColumnCount = 0;
@@ -70,7 +70,11 @@ public class FileImportDescriptionBasedParser<T extends FileImportRecord> implem
     }
 
     private long getNumberOfMandatoryColumns() {
-        return this.descriptor.getFields(this.descriptor.getFileImportRecord())
+        return getNumberOfMandatoryColumns(this.descriptor.getFields(this.descriptor.getFileImportRecord()));
+    }
+
+    private long getNumberOfMandatoryColumns(List<FileImportField<?>> fields) {
+        return fields
                 .stream()
                 .filter(FileImportField::isMandatory)
                 .count();
