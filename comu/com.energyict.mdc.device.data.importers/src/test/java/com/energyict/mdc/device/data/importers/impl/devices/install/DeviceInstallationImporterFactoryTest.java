@@ -169,7 +169,7 @@ public class DeviceInstallationImporterFactoryTest {
     @Test
     public void testBadColumnNumberCase() {
         String csv = "mrid;installation date;master mrid;usage point;service category;install inactive;start validation\n" +
-                "VPB0002;01/08/2015 00:30;VPB0001;Usage MRID;electricity;false";
+                "VPB0002;";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceInstallImporter();
 
@@ -177,7 +177,7 @@ public class DeviceInstallationImporterFactoryTest {
         verify(importOccurrence).markFailure(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED.getTranslated(thesaurus));
         verify(logger, never()).info(Matchers.anyString());
         verify(logger, never()).warning(Matchers.anyString());
-        verify(logger, times(1)).severe(MessageSeeds.FILE_FORMAT_ERROR.getTranslated(thesaurus, 2, 7, 6));
+        verify(logger, times(1)).severe(MessageSeeds.FILE_FORMAT_ERROR.getTranslated(thesaurus, 2, 2, 1));
     }
 
     @Test

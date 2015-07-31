@@ -34,7 +34,8 @@ public class FileImportDescriptionBasedParser<T extends FileImportRecord> implem
         List<FileImportField<?>> fields = this.descriptor.getFields(record);
         List<String> rawValues = getRawValuesSkipTrailingNulls(csvRecord);
         if (rawValues.size() < getNumberOfMandatoryColumns(fields)) {
-            throw new FileImportParserException(MessageSeeds.FILE_FORMAT_ERROR, csvRecord.getRecordNumber(), fields.size(), rawValues.size());
+            throw new FileImportParserException(MessageSeeds.FILE_FORMAT_ERROR, csvRecord.getRecordNumber(),
+                    getNumberOfMandatoryColumns(fields), rawValues.size());
         }
         int repetitiveColumnCount = 0;
         for (int i = 0; i < rawValues.size() && (i < fields.size() || repetitiveColumnCount > 0); i++) {

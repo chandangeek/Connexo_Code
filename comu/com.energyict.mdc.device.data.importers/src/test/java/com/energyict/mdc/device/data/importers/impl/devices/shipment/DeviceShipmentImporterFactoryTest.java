@@ -137,7 +137,7 @@ public class DeviceShipmentImporterFactoryTest {
     @Test
     public void testBadColumnNumberCase() {
         String csv = "mrid;device type;device configuration;shipment date; serial number; year of certification;batch\n" +
-                "VPB0001;Iskra 382;Default;01/08/2015 00:30;0001;2015";
+                "VPB0001;Iskra 382";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceShipmentImporter();
 
@@ -145,7 +145,7 @@ public class DeviceShipmentImporterFactoryTest {
         verify(importOccurrence).markFailure(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED.getTranslated(thesaurus));
         verify(logger, never()).info(Matchers.anyString());
         verify(logger, never()).warning(Matchers.anyString());
-        verify(logger, times(1)).severe(MessageSeeds.FILE_FORMAT_ERROR.getTranslated(thesaurus, 2, 7, 6));
+        verify(logger, times(1)).severe(MessageSeeds.FILE_FORMAT_ERROR.getTranslated(thesaurus, 2, 4, 2));
     }
 
     @Test
