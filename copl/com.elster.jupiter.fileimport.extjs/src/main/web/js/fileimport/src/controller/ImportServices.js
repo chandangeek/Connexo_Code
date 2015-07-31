@@ -384,45 +384,42 @@ Ext.define('Fim.controller.ImportServices', {
             if (!formErrorsPanel.isHidden()) {
                 formErrorsPanel.hide();
             }
-        }
 
-
-        if (!formErrorsPanel.isHidden()) {
-            formErrorsPanel.hide();
-        }
-
-        addImportServiceForm.updateRecord(importServiceRecord);
-        importServiceRecord.beginEdit();
-        if (propertyForm.getRecord()) {
-            importServiceRecord.propertiesStore = propertyForm.getRecord().properties();
-        }
-
-        importServiceRecord.set('importerInfo', {
-            name: addImportServiceForm.down('#cbo-file-importer').getValue()
-        });
-        importServiceRecord.endEdit();
-
-        importServiceRecord.save({
-            success: function () {
-                //if (button.action === 'edit') {
-                me.getController('Uni.controller.history.Router').getRoute('administration/importservices/importservice').forward({importServiceId: importServiceRecord.getId()});
-                //} else {
-                //	me.getController('Uni.controller.history.Router').getRoute('administration/importservices').forward();
-                //}
-                if (button.action === 'edit') {
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('importService.successMsg.saved', 'FIM', 'Import service saved'));
-                } else {
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('importService.successMsg.added', 'FIM', 'Import service added'));
-                }
-            },
-            failure: function (record, operation) {
-                var json = Ext.decode(operation.response.responseText, true);
-                if (json && json.errors) {
-                    addImportServiceForm.getForm().markInvalid(json.errors);
-                }
-                formErrorsPanel.show();
+            addImportServiceForm.updateRecord(importServiceRecord);
+            importServiceRecord.beginEdit();
+            if (propertyForm.getRecord()) {
+                importServiceRecord.propertiesStore = propertyForm.getRecord().properties();
             }
-        })
+
+            importServiceRecord.set('importerInfo', {
+                name: addImportServiceForm.down('#cbo-file-importer').getValue()
+            });
+            importServiceRecord.endEdit();
+
+            importServiceRecord.save({
+                success: function () {
+                    me.getController('Uni.controller.history.Router').getRoute('administration/importservices/importservice').forward({importServiceId: importServiceRecord.getId()});
+
+                    if (button.action === 'edit') {
+                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('importService.successMsg.saved', 'FIM', 'Import service saved'));
+                    } else {
+                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('importService.successMsg.added', 'FIM', 'Import service added'));
+                    }
+                },
+                failure: function (record, operation) {
+                    var json = Ext.decode(operation.response.responseText, true);
+                    if (json && json.errors) {
+                        addImportServiceForm.getForm().markInvalid(json.errors);
+                    }
+                    formErrorsPanel.show();
+                }
+            })
+        }
+
+/*
+
+*/
+
 
     },
 

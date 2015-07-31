@@ -51,6 +51,7 @@ Ext.define('Fim.view.importservices.AddImportService', {
                         itemId: 'txt-name',
                         required: true,
                         width: 600,
+                        allowBlank: false,
                         fieldLabel: Uni.I18n.translate('general.name', 'FIM', 'Name'),
                         enforceMaxLength: true
                     },
@@ -70,7 +71,7 @@ Ext.define('Fim.view.importservices.AddImportService', {
                                 editable: false,
                                 disabled: false,
                                 emptyText: Uni.I18n.translate('importService.fileImporterPrompt', 'FIM', 'Select a file importer...'),
-                                //allowBlank: false,
+                                allowBlank: false,
                                 queryMode: 'local',
                                 displayField: 'displayName',
                                 valueField: 'name'
@@ -90,6 +91,7 @@ Ext.define('Fim.view.importservices.AddImportService', {
                         itemId: 'txt-import-folder',
                         maskRe: /\S/,
                         required: true,
+                        allowBlank: false,
                         width: 600,
                         fieldLabel: Uni.I18n.translate('importService.importFolder', 'FIM', 'Import folder'),
                         enforceMaxLength: true
@@ -173,6 +175,7 @@ Ext.define('Fim.view.importservices.AddImportService', {
                         itemId: 'txt-in-progress-folder',
                         maskRe: /\S/,
                         required: true,
+                        allowBlank: false,
                         width: 600,
                         fieldLabel: Uni.I18n.translate('importService.inProgressFolder', 'FIM', 'In progress folder'),
                         enforceMaxLength: true
@@ -183,6 +186,7 @@ Ext.define('Fim.view.importservices.AddImportService', {
                         itemId: 'txt-success-folder',
                         maskRe: /\S/,
                         required: true,
+                        allowBlank: false,
                         width: 600,
                         fieldLabel: Uni.I18n.translate('importService.successFolder', 'FIM', 'Success folder'),
                         enforceMaxLength: true
@@ -193,6 +197,7 @@ Ext.define('Fim.view.importservices.AddImportService', {
                         itemId: 'txt-failure-folder',
                         maskRe: /\S/,
                         required: true,
+                        allowBlank: false,
                         width: 600,
                         fieldLabel: Uni.I18n.translate('importService.failureFolder', 'FIM', 'Failure folder'),
                         enforceMaxLength: true
