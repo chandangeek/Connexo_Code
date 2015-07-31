@@ -10,7 +10,7 @@ Ext.define('InsightApp.controller.insight.History', {
             disabled: true,
             items: {
                 usagepoints: {
-                	title: Uni.I18n.translate('general.usagepoints', 'INS', 'Usage Points'),
+                	title: Uni.I18n.translate('general.usagePointAdd', 'INS', 'Add Usage Point'),
                     route: 'usagepoints',
                     controller: 'Mtr.usagepointmanagement.controller.Edit',
                     action: 'editUsagePoint'
@@ -27,7 +27,7 @@ Ext.define('InsightApp.controller.insight.History', {
                    			action: 'showUsagePoint'
                    		}
                    	}
-                },
+                }
             }
         }
     }
