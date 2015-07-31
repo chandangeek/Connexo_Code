@@ -26,8 +26,11 @@ Ext.define('Uni.view.search.field.NumberField', {
                 if (item.xtype == 'uni-view-search-field-number-line')
                     item.down('numberfield').reset();
                 if (item.xtype == 'uni-view-search-field-number-range') {
-                    item.items.items[0].down('numberfield').reset();
-                    item.items.items[1].down('numberfield').reset();
+                    var moreNumber = item.down('#more-value').down('numberfield');
+                    var smallerNumber = item.down('#smaller-value').down('numberfield');
+
+                    moreNumber.reset();
+                    smallerNumber.reset();
                 }
             }
         });
@@ -69,9 +72,13 @@ Ext.define('Uni.view.search.field.NumberField', {
                 hide: function (menu) {
                     if (menu.items.length > 2) {
                         menu.items.each(function (item, index) {
-                            if (item && !item.default &&
-                                item.items.items[0].down('numberfield').getValue() === 0 &&
-                                item.items.items[1].down('numberfield').getValue() === 0) {
+                            if (!item.default) {
+                                var moreNumber = item.down('#more-value').down('numberfield');
+                                var smallerNumber = item.down('#smaller-value').down('numberfield');
+                            }
+                            if (item && !item.default
+                                && moreNumber.getValue() === 0
+                                && smallerNumber.getValue() === 0) {
                                 menu.remove(item);
                             }
                         });
@@ -88,20 +95,32 @@ Ext.define('Uni.view.search.field.NumberField', {
                     menu.items.each(function (item, index) {
 
                         if (item.xtype != 'menuseparator') {
-                            if (item.xtype == 'uni-view-search-field-number-line')
-                                if (item.down('numberfield').getValue() != 0) edited = true
+                            if (item.xtype == 'uni-view-search-field-number-line') {
+                                if (item.down('numberfield').getValue() != 0) {
+                                    edited = true
+                                }
+                            }
+
                             if (item.xtype == 'uni-view-search-field-number-range') {
-                                if (item.items.items[0].down('numberfield').getValue() != 0 ||
-                                    item.items.items[1].down('numberfield').getValue() != 0) edited = true;
+                                var moreNumber = item.down('#more-value').down('numberfield');
+                                var smallerNumber = item.down('#smaller-value').down('numberfield');
+
+                                if (moreNumber.getValue() != 0
+                                    || smallerNumber.getValue() != 0) {
+                                    edited = true;
+                                }
                             }
                         }
                     });
+                    var mainButton = menu.up('uni-view-search-field-number-field');
+                    var clearAllButton = menu.down('#clearall');
+
                     if (edited) {
-                        menu.up('uni-view-search-field-number-field').setText(me.defaultText + '*');
-                        menu.down('#clearall').enable(true)
+                        mainButton.setText(me.defaultText + '*');
+                        clearAllButton.enable(true)
                     } else {
-                        menu.up('uni-view-search-field-number-field').setText(me.defaultText);
-                        menu.down('#clearall').disable(true)
+                        mainButton.setText(me.defaultText);
+                        clearAllButton.disable(true)
                     }
                 }
             },

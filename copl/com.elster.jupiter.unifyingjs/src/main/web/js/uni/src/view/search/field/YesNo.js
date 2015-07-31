@@ -53,10 +53,11 @@ Ext.define('Uni.view.search.field.YesNo', {
                             if(item.down('radiofield').checked) edited = true
                         }
                     });
+                    var button = menu.up('uni-view-search-field-yesno');
                     if (edited) {
-                        menu.up('uni-view-search-field-yesno').setText(menu.up('uni-view-search-field-yesno').defaultText + '*');
+                        button.setText(button.defaultText + '*');
                     } else {
-                        menu.up('uni-view-search-field-yesno').setText(menu.up('uni-view-search-field-yesno').defaultText);
+                        button.setText(button.defaultText);
                     }
                 }
             }

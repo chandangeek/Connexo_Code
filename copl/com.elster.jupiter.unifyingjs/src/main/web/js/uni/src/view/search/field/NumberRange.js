@@ -6,21 +6,22 @@ Ext.define('Uni.view.search.field.NumberRange', {
         'Uni.view.search.field.NumberLine'
     ],
     layout: 'vbox',
-    items:
-        [
-            {
-                xtype: 'uni-view-search-field-number-line',
-                default: true,
-                operator: '>',
-                margin: '0 0 3 0'
-            },
-            {
-                xtype: 'uni-view-search-field-number-line',
-                default: true,
-                operator: '<',
-                margin: '0 0 3 0'
-            }
-        ],
+    items: [
+        {
+            xtype: 'uni-view-search-field-number-line',
+            itemId: 'more-value',
+            default: true,
+            operator: '>',
+            margin: '0 0 3 0'
+        },
+        {
+            xtype: 'uni-view-search-field-number-line',
+            itemId: 'smaller-value',
+            default: true,
+            operator: '<',
+            margin: '0 0 3 0'
+        }
+    ],
 
     initComponent: function () {
         this.callParent(arguments);

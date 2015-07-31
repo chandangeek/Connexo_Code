@@ -18,11 +18,15 @@ Ext.define('Uni.view.search.field.NumberLine', {
             listeners: {
                 change: function () {
                     me = this;
+                    var panel = me.up('uni-view-search-field-number-line');
+                    var mainButton = me.up('uni-view-search-field-number-field');
+                    var clearAllButton = panel.down('#filter-clear');
+
                     if (me.value === 0) {
-                        me.up('container').down('button').disable(true)
+                        clearAllButton.disable(true)
                     } else {
-                        me.up('container').down('button').enable(true)
-                        me.up('button').setText(me.up('button').defaultText + '*')
+                        clearAllButton.enable(true)
+                        mainButton.setText(mainButton.defaultText + '*')
                     }
 
                 }

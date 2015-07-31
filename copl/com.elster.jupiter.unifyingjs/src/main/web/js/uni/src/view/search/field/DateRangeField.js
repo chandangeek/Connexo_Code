@@ -22,29 +22,66 @@ Ext.define('Uni.view.search.field.DateRangeField', {
         var items = me.down('menu').items.items;
         Ext.each(items, function (item) {
             if (item.xtype != 'menuseparator') {
-                if (item.xtype == 'uni-view-search-field-date-line')
-                    if (item.down('datefield')) item.down('datefield').reset();
-                    if (item.down('#hours')) item.down('#hours').reset();
-                    if (item.down('#minutes')) item.down('#minutes').reset();
+                if (item.xtype == 'uni-view-search-field-date-line') {
+                    var date = item.down('datefield');
+                    var hours = item.down('#hours');
+                    var minutes = item.down('#minutes');
+
+                    if (date) {
+                        date.reset();
+                    }
+                    if (hours) {
+                        hours.reset();
+                    }
+                    if (minutes) {
+                        minutes.reset();
+                    }
+                }
                 if (item.xtype == 'uni-view-search-field-date-range') {
-                    if (item.items.items[0].down('datefield')) {
-                        item.items.items[0].down('datefield').reset();
-                        if (item.items.items[0].down('datefield').minValue) item.items.items[0].down('datefield').minValue = null;
-                        if (item.items.items[0].down('datefield').maxValue) item.items.items[0].down('datefield').maxValue = null;
+                    // reset more block
+                    var moreLine = item.down('#more-value');
+                    var moreDate = moreLine.down('datefield');
+                    if (moreDate) {
+                        moreDate.reset();
+                        // reset picker border values
+                        if (moreDate.minValue) {
+                            moreDate.setMinValue(null);
+                        }
+                        if (moreDate.maxValue) {
+                            moreDate.setMaxValue(null);
+                        }
                     }
-                    if (item.items.items[0].down('#hours')) item.items.items[0].down('#hours').reset();
-                    if (item.items.items[0].down('#minutes')) item.items.items[0].down('#minutes').reset();
-                    if (item.items.items[1].down('datefield')) {
-                        item.items.items[1].down('datefield').reset();
-                        if (item.items.items[1].down('datefield').minValue) item.items.items[1].down('datefield').minValue = null;
-                        if (item.items.items[1].down('datefield').maxValue) item.items.items[1].down('datefield').maxValue = null;
+                    if (moreLine.down('#hours')) {
+                        moreLine.down('#hours').reset();
                     }
-                    if (item.items.items[1].down('#hours')) item.items.items[1].down('#hours').reset();
-                    if (item.items.items[1].down('#minutes')) item.items.items[1].down('#minutes').reset();
+                    if (moreLine.down('#minutes')) {
+                        moreLine.down('#minutes').reset();
+                    }
+                    // reset smaller block
+                    var smallerLine = item.down('#smaller-value');
+                    var smollerDate = smallerLine.down('datefield');
+
+                    if (smollerDate) {
+                        smollerDate.reset();
+
+                        // reset picker border values
+                        if (smollerDate.minValue) {
+                            smollerDate.setMinValue(null);
+                        }
+                        if (smollerDate.maxValue) {
+                            smollerDate.setMaxValue(null);
+                        }
+                    }
+                    if (smallerLine.down('#hours')) {
+                        smallerLine.down('#hours').reset();
+                    }
+                    if (smallerLine.down('#minutes')) {
+                        smallerLine.down('#minutes').reset();
+                    }
                 }
             }
         });
-        me.setText( me.defaultText)
+        me.setText(me.defaultText)
     },
     addRangeHandler: function () {
         var me = this;
@@ -82,20 +119,22 @@ Ext.define('Uni.view.search.field.DateRangeField', {
                 hide: function (menu) {
                     if (menu.items.length > 2) {
                         menu.items.each(function (item, index) {
-                            if (item && !item.default &&
-                                item.items.items[0].down('datefield').getValue() == null &&
-                                item.items.items[0].down('#hours').getValue() == 0 &&
-                                item.items.items[0].down('#minutes').getValue() == 0 &&
-                                item.items.items[1].down('datefield').getValue() == null &&
-                                item.items.items[1].down('#hours').getValue() == 0 &&
-                                item.items.items[1].down('#minutes').getValue() == 0) {
+                            var moreLine = item.down('#more-value');
+                            var smallerLine = item.down('#smaller-value');
+                            if (item && !item.default
+                                && moreLine.down('datefield').getValue() == null
+                                && moreLine.down('#hours').getValue() == 0
+                                && moreLine.down('#minutes').getValue() == 0
+                                && smallerLine.down('datefield').getValue() == null
+                                && smallerLine.down('#hours').getValue() == 0
+                                && smallerLine.down('#minutes').getValue() == 0) {
                                 menu.remove(item);
                             }
                         });
                         if (menu.items.length == 2)
                             menu.add({
                                 xtype: 'uni-view-search-field-date-range',
-                                margin: '10px 0px 5px 5px'
+                                margin: '5px 0px 5px 5px'
                             });
                     }
 
@@ -106,25 +145,45 @@ Ext.define('Uni.view.search.field.DateRangeField', {
                     menu.items.each(function (item, index) {
                         if (item.xtype != 'menuseparator') {
                             if (item.xtype == 'uni-view-search-field-date-line')
-                                if (item.down('datefield').getValue() != null || item.down('#hours').getValue() != 0 || item.down('#minutes').getValue() != 0) edited = true
+                                if (item.down('datefield').getValue() != null
+                                    || item.down('#hours').getValue() != 0
+                                    || item.down('#minutes').getValue() != 0) {
+                                    edited = true
+                                }
                             if (item.xtype == 'uni-view-search-field-date-range') {
-                                if (item.items.items[0].down('datefield').getValue() != null || item.items.items[0].down('#hours').getValue() != 0 ||
-                                    item.items.items[0].down('#minutes').getValue() != 0 ||
-                                    item.items.items[1].down('datefield').getValue() != null || item.items.items[1].down('#hours').getValue() != 0 ||
-                                    item.items.items[1].down('#minutes').getValue() != 0) edited = true;
+                                var moreLine = item.down('#more-value');
+                                var smallerLine = item.down('#smaller-value');
+
+                                if (moreLine.down('datefield').getValue() != null || moreLine.down('#hours').getValue() != 0
+                                    || moreLine.down('#minutes').getValue() != 0 || smallerLine.down('datefield').getValue() != null
+                                    || smallerLine.down('#hours').getValue() != 0 || smallerLine.down('#minutes').getValue() != 0) {
+                                    edited = true;
+                                }
 
                                 // setting date constraints
-                                if (item.items.items[0].down('datefield').getValue() != null) item.items.items[1].down('datefield').setMinValue(item.items.items[0].down('datefield').getValue())
-                                if (item.items.items[1].down('datefield').getValue() != null) item.items.items[0].down('datefield').setMaxValue(item.items.items[1].down('datefield').getValue())
+                                var valueOfMore = moreLine.down('datefield').getValue();
+
+                                if (valueOfMore != null) {
+                                    smallerLine.down('datefield').setMinValue(valueOfMore)
+                                }
+                                var valueOfSmaller = smallerLine.down('datefield').getValue();
+
+                                if (valueOfSmaller != null) {
+                                    moreLine.down('datefield').setMaxValue(valueOfSmaller)
+                                }
                             }
                         }
                     });
+
+                    var mainButton = menu.up('uni-view-search-field-date-field');
+                    var clearAllButton = menu.down('#clearall');
+
                     if (edited) {
-                        menu.up('uni-view-search-field-date-field').setText(me.defaultText + '*');
-                        menu.down('#clearall').enable(true)
+                        mainButton.setText(me.defaultText + '*');
+                        clearAllButton.enable(true)
                     } else {
-                        menu.up('uni-view-search-field-date-field').setText(me.defaultText);
-                        menu.down('#clearall').disable(true)
+                        mainButton.setText(me.defaultText);
+                        clearAllButton.disable(true)
                     }
                 }
             },

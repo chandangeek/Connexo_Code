@@ -16,11 +16,15 @@ Ext.define('Uni.view.search.field.DateLine', {
             listeners: {
                 change: function () {
                     me = this;
-                    if (me.value === null) {
-                        me.up('container').down('button').disable(true)
+                    var panel = me.up('uni-view-search-field-date-line');
+                    var mainButton = me.up('uni-view-search-field-date-field');
+                    var clearAllButton = panel.down('#filter-clear');
+
+                    if (me.getValue() === null) {
+                        clearAllButton.disable(true)
                     } else {
-                        me.up('container').down('button').enable(true);
-                        me.up('button').setText(me.up('button').defaultText + '*');
+                        clearAllButton.enable(true);
+                        mainButton.setText(mainButton.defaultText + '*');
                     }
 
                 }
@@ -28,6 +32,7 @@ Ext.define('Uni.view.search.field.DateLine', {
         },
         {
             xtype: 'label',
+            itemId: 'label',
             text: 'at',
             margin: '5px 10px 0px 20px'
         },
@@ -42,11 +47,15 @@ Ext.define('Uni.view.search.field.DateLine', {
             listeners: {
                 change: function () {
                     me = this;
+                    var panel = me.up('uni-view-search-field-date-line');
+                    var mainButton = me.up('uni-view-search-field-date-field');
+                    var clearAllButton = panel.down('#filter-clear');
+
                     if (me.value === 0 || me.hidden) {
-                        me.up('container').down('button').disable(true)
+                        clearAllButton.disable(true)
                     } else {
-                        me.up('container').down('button').enable(true);
-                        me.up('button').setText(me.up('button').defaultText + '*');
+                        clearAllButton.enable(true);
+                        mainButton.setText(mainButton.defaultText + '*');
                     }
 
                 }
@@ -64,11 +73,15 @@ Ext.define('Uni.view.search.field.DateLine', {
             listeners: {
                 change: function () {
                     me = this;
+                    var panel = me.up('uni-view-search-field-date-line');
+                    var mainButton = me.up('uni-view-search-field-date-field');
+                    var clearAllButton = panel.down('#filter-clear');
+
                     if (me.value === 0 || me.hidden) {
-                        me.up('container').down('button').disable(true)
+                        clearAllButton.disable(true)
                     } else {
-                        me.up('container').down('button').enable(true);
-                        me.up('button').setText(me.up('button').defaultText + '*');
+                        clearAllButton.enable(true);
+                        mainButton.setText(mainButton.defaultText + '*');
                     }
 
                 }
@@ -97,11 +110,19 @@ Ext.define('Uni.view.search.field.DateLine', {
                 },
                 handler: function () {
                     var me = this;
-                    me.up('uni-view-search-field-date-line').down('datefield').reset();
-                    if (me.up('uni-view-search-field-date-line').down('datefield').minValue) me.up('uni-view-search-field-date-line').down('datefield').minValue = null;
-                    if (me.up('uni-view-search-field-date-line').down('datefield').maxValue) me.up('uni-view-search-field-date-line').down('datefield').maxValue = null;
-                    me.up('uni-view-search-field-date-line').down('#hours').reset();
-                    me.up('uni-view-search-field-date-line').down('#minutes').reset();
+                    var dateField = me.up('uni-view-search-field-date-line').down('datefield');
+                    var hoursField = me.up('uni-view-search-field-date-line').down('#hours');
+                    var minutesField = me.up('uni-view-search-field-date-line').down('#minutes');
+
+                    dateField.reset();
+                    if (dateField.minValue) {
+                        dateField.setMinValue(null);
+                    }
+                    if (dateField.maxValue) {
+                        dateField.setMaxValue(null);
+                    }
+                    hoursField.reset();
+                    minutesField.reset();
                 }
             }
 
@@ -119,12 +140,13 @@ Ext.define('Uni.view.search.field.DateLine', {
         }
 
     },
+
     initComponent: function () {
         me = this;
         me.callParent(arguments);
         me.down('combo').setValue(this.operator);
-        if(this.hideTime) {
-            me.down('label').hide();
+        if (this.hideTime) {
+            me.down('#label').hide();
             me.down('#hours').hide();
             me.down('#minutes').hide();
             me.down('#flex').show();
