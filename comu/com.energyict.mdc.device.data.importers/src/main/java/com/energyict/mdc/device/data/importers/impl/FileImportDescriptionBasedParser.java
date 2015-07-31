@@ -3,14 +3,15 @@ package com.energyict.mdc.device.data.importers.impl;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.device.data.importers.impl.exceptions.FileImportParserException;
 import com.energyict.mdc.device.data.importers.impl.exceptions.ValueParserException;
+import com.energyict.mdc.device.data.importers.impl.fields.FieldSetter;
 import com.energyict.mdc.device.data.importers.impl.fields.FileImportField;
+import com.energyict.mdc.device.data.importers.impl.parsers.FieldParser;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public class FileImportDescriptionBasedParser<T extends FileImportRecord> implements FileImportParser<T> {
@@ -46,9 +47,10 @@ public class FileImportDescriptionBasedParser<T extends FileImportRecord> implem
             if (currentField.isMandatory() && Checks.is(rawValue).emptyOrOnlyWhiteSpace()) {
                 throw new FileImportParserException(MessageSeeds.LINE_MISSING_VALUE_ERROR, csvRecord.getRecordNumber(), getHeaderColumn(i));
             }
-            Consumer resultConsumer = currentField.getResultConsumer();
             try {
-                resultConsumer.accept(currentField.getParser().parse(rawValue));
+                FieldSetter fieldSetter = currentField.getSetter();
+                FieldParser parser = currentField.getParser();
+                fieldSetter.setFieldWithHeader(getHeaderColumn(i), parser.parse(rawValue));
             } catch (ValueParserException ex) {
                 throw new FileImportParserException(MessageSeeds.LINE_FORMAT_ERROR, csvRecord.getRecordNumber(), getHeaderColumn(i), ex.getExpected());
             }

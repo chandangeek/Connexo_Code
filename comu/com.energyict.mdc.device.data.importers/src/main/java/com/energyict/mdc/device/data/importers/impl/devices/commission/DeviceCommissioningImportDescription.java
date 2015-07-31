@@ -2,7 +2,6 @@ package com.energyict.mdc.device.data.importers.impl.devices.commission;
 
 import com.energyict.mdc.device.data.importers.impl.FileImportDescription;
 import com.energyict.mdc.device.data.importers.impl.devices.DeviceTransitionRecord;
-import com.energyict.mdc.device.data.importers.impl.devices.installation.DeviceInstallationImportRecord;
 import com.energyict.mdc.device.data.importers.impl.fields.CommonField;
 import com.energyict.mdc.device.data.importers.impl.fields.FileImportField;
 import com.energyict.mdc.device.data.importers.impl.parsers.DateParser;
@@ -28,15 +27,15 @@ public class DeviceCommissioningImportDescription implements FileImportDescripti
         List<FileImportField<?>> fields = new ArrayList<>();
         LiteralStringParser stringParser = new LiteralStringParser();
         fields.add(CommonField.withParser(stringParser)
-                .withConsumer(record::setDeviceMRID)
+                .withSetter(record::setDeviceMRID)
                 .markMandatory()
                 .build());
         fields.add(CommonField.withParser(dateParser)
-                .withConsumer(record::setTransitionDate)
+                .withSetter(record::setTransitionDate)
                 .markMandatory()
                 .build());
         fields.add(CommonField.withParser(stringParser)
-                .withConsumer(record::setMasterDeviceMrid)
+                .withSetter(record::setMasterDeviceMrid)
                 .build());
         return fields;
     }

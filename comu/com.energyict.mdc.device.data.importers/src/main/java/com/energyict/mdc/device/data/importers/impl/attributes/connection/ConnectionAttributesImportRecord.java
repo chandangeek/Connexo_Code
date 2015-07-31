@@ -2,27 +2,27 @@ package com.energyict.mdc.device.data.importers.impl.attributes.connection;
 
 import com.energyict.mdc.device.data.importers.impl.FileImportRecord;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ConnectionAttributesImportRecord extends FileImportRecord {
 
     private String connectionMethodName;
-    private List<String> connectionAttributes = new ArrayList<>();
+    private Map<String, String> connectionAttributes = new HashMap<>();
 
     public void setConnectionMethodName(String connectionMethodName) {
         this.connectionMethodName = connectionMethodName;
     }
 
-    public void addConnectionAttribute(String connectionAttribute) {
-        connectionAttributes.add(connectionAttribute);
+    public void addConnectionAttribute(String name, String value) {
+        connectionAttributes.put(name, value);
     }
 
-    public String getConnectionMethodName() {
+    public String getConnectionMethod() {
         return connectionMethodName;
     }
 
-    public List<String> getConnectionAttributes() {
+    public Map<String, String> getConnectionAttributes() {
         return connectionAttributes;
     }
 }

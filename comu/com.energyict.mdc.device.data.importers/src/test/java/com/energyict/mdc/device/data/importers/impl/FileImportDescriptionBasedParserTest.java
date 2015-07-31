@@ -76,16 +76,16 @@ public class FileImportDescriptionBasedParserTest {
             List<FileImportField<?>> fields = new ArrayList<>();
             LiteralStringParser stringParser = new LiteralStringParser();
             fields.add(CommonField.withParser(stringParser)
-                    .withConsumer(record::setDeviceMRID)
+                    .withSetter(record::setDeviceMRID)
                     .markMandatory()
                     .build());
             fields.add(CommonField.withParser(stringParser)
-                    .withConsumer(record::addReading)
+                    .withSetter(record::addReading)
                     .markMandatory()
                     .markRepetitive()
                     .build());
             fields.add(CommonField.withParser(stringParser)
-                    .withConsumer(record::addValue)
+                    .withSetter(record::addValue)
                     .markMandatory()
                     .markRepetitive()
                     .build());
@@ -159,20 +159,20 @@ public class FileImportDescriptionBasedParserTest {
                 List<FileImportField<?>> fields = new ArrayList<>();
                 LiteralStringParser stringParser = new LiteralStringParser();
                 fields.add(CommonField.withParser(stringParser)
-                        .withConsumer(record::setDeviceMRID)
+                        .withSetter(record::setDeviceMRID)
                         .markMandatory()
                         .build());
                 fields.add(CommonField.withParser(stringParser)
-                        .withConsumer(record::setDeviceMRID)
+                        .withSetter(record::setDeviceMRID)
                         .markMandatory()
                         .build());
                 fields.add(CommonField.withParser(stringParser)
-                        .withConsumer(record::addReading)
+                        .withSetter(record::addReading)
                         .markMandatory()
                         .markRepetitive()
                         .build());
                 fields.add(CommonField.withParser(stringParser)
-                        .withConsumer(record::addValue)
+                        .withSetter(record::addValue)
                         .markMandatory()
                         .markRepetitive()
                         .build());
@@ -206,15 +206,15 @@ public class FileImportDescriptionBasedParserTest {
                 List<FileImportField<?>> fields = new ArrayList<>();
                 LiteralStringParser stringParser = new LiteralStringParser();
                 fields.add(CommonField.withParser(stringParser)
-                        .withConsumer(record::setDeviceMRID)
+                        .withSetter(record::setDeviceMRID)
                         .markMandatory()
                         .build());
                 fields.add(CommonField.withParser(stringParser)
-                        .withConsumer(record::addReading)
+                        .withSetter(record::addReading)
                         .markMandatory()
                         .build());
                 fields.add(CommonField.withParser(stringParser)
-                        .withConsumer(record::addValue)
+                        .withSetter(record::addValue)
                         .markMandatory()
                         .build());
                 return fields;

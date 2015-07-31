@@ -2,6 +2,7 @@ package com.energyict.mdc.device.data.importers.impl.attributes.connection;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
+import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
@@ -13,15 +14,17 @@ import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
 import com.energyict.mdc.device.data.importers.impl.exceptions.ProcessorException;
 import com.energyict.mdc.device.data.importers.impl.parsers.DynamicPropertyParser;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
+import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 
-import java.text.ParseException;
-import java.util.Iterator;
-import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class ConnectionAttributesImportProcessor implements FileImportProcessor<ConnectionAttributesImportRecord> {
 
     private final DeviceDataImporterContext context;
+
+    private String connectionMethod;
 
     ConnectionAttributesImportProcessor(DeviceDataImporterContext context) {
         this.context = context;
@@ -31,72 +34,97 @@ public class ConnectionAttributesImportProcessor implements FileImportProcessor<
     public void process(ConnectionAttributesImportRecord data, FileImportLogger logger) throws ProcessorException {
         Device device = context.getDeviceService().findByUniqueMrid(data.getDeviceMrid())
                 .orElseThrow(() -> new ProcessorException(MessageSeeds.NO_DEVICE, data.getLineNumber(), data.getDeviceMrid()));
+        validateConnectionMethodUniquenessInFile(data);
         Optional<ConnectionTask<?, ?>> connectionTask = device.getConnectionTasks().stream()
-                .filter(task -> task.getName().equals(data.getConnectionMethodName())).findFirst();
+                .filter(task -> task.getName().equals(data.getConnectionMethod())).findFirst();
         if (connectionTask.isPresent()) {
-            Iterator<PropertySpec> propertySpecs = connectionTask.get().getConnectionType().getPropertySpecs().iterator();
-            Iterator<String> connectionAttributes = data.getConnectionAttributes().iterator();
-            while (connectionAttributes.hasNext() && propertySpecs.hasNext()) {
-                PropertySpec propertySpec = propertySpecs.next();
-                connectionTask.get().setProperty(propertySpec.getName(), parseStringToValue(propertySpec.getValueFactory(), connectionAttributes.next()));
-            }
-            connectionTask.get().save();
+            ConnectionTask task = connectionTask.get();
+            data.getConnectionAttributes().forEach((key, value) -> {
+                task.setProperty(key, parseStringToValue(task.getConnectionType().getPropertySpec(key).getValueFactory(), key, value, data));
+            });
+            task.save();
+            checkConnectionTaskStatus(task, data, logger);
         } else {
-//            PartialConnectionTask partialConnectionTask = device.getDeviceConfiguration().getPartialConnectionTasks()
-//                    .stream().filter(task -> task.getName().equals(data.getConnectionMethodName()))
-//                    .findFirst()
-//                    .orElseThrow(() -> new ProcessorException(ProcessorException.Type.CONNECTIONTYPE_NOT_FOUND, mRID, ""));
-//            createConnectionTaskOnDevice(device, partialConnectionTask, data);
+            PartialConnectionTask partialConnectionTask = device.getDeviceConfiguration().getPartialConnectionTasks()
+                    .stream().filter(task -> task.getName().equals(data.getConnectionMethod()))
+                    .findFirst()
+                    .orElseThrow(() -> new ProcessorException(MessageSeeds.NO_CONNECTION_METHOD_ON_DEVICE, data.getLineNumber(), data.getConnectionMethod()));
+            createConnectionTaskOnDevice(device, partialConnectionTask, data, logger);
         }
     }
 
-    private Object parseStringToValue(ValueFactory<?> valueFactory, String value) {
+    private void checkConnectionTaskStatus(ConnectionTask<?, ?> connectionTask, ConnectionAttributesImportRecord data, FileImportLogger logger) {
+        if (connectionTask.getStatus().equals(ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE)) {
+            TypedProperties properties = connectionTask.getTypedProperties();
+            String missingRequiredProperties = connectionTask.getConnectionType().getPropertySpecs().stream()
+                    .filter(PropertySpec::isRequired)
+                    .map(PropertySpec::getName)
+                    .filter(propertySpec -> !properties.hasValueFor(propertySpec))
+                    .collect(Collectors.joining(","));
+            if (!missingRequiredProperties.isEmpty()) {
+                logger.warning(MessageSeeds.REQUIRED_CONNECTION_ATTRIBUTES_MISSED, data.getLineNumber(), missingRequiredProperties);
+            }
+        }
+    }
+
+    private void validateConnectionMethodUniquenessInFile(ConnectionAttributesImportRecord data) {
+        if (connectionMethod == null) {
+            connectionMethod = data.getConnectionMethod();
+        } else if (!connectionMethod.equals(data.getConnectionMethod())) {
+            throw new ProcessorException(MessageSeeds.CONNECTION_METHOD_IS_NOT_UNIQUE_IN_FILE, data.getLineNumber()).andStopImport();
+        }
+    }
+
+    private Object parseStringToValue(ValueFactory<?> valueFactory, String key, String value, ConnectionAttributesImportRecord data) {
         Optional<DynamicPropertyParser> propertyParser = DynamicPropertyParser.of(valueFactory.getClass());
-        Object parsedValue = null;
+        Object parsedValue;
         try {
             if (propertyParser.isPresent()) {
                 parsedValue = propertyParser.get().parse(value);
             } else {
                 parsedValue = valueFactory.fromStringValue(value);
             }
-        } catch (ParseException e) {
-//            throw new ProcessorException(ProcessorException.Type.UNPARSEABLE_VALUE, e, "", "");
+        } catch (Exception e) {
+            String expectedFormat = propertyParser.isPresent() ? propertyParser.get().getExpectedFormat(context.getThesaurus()) : valueFactory.getValueType().getName();
+            throw new ProcessorException(MessageSeeds.LINE_FORMAT_ERROR, data.getLineNumber(), key, expectedFormat);
         }
         return parsedValue;
     }
 
-    private void createConnectionTaskOnDevice(Device device, PartialConnectionTask partialConnectionTask, Map<String, String> data) {
+    private void createConnectionTaskOnDevice(Device device, PartialConnectionTask partialConnectionTask, ConnectionAttributesImportRecord data, FileImportLogger logger) {
         if (partialConnectionTask instanceof PartialOutboundConnectionTask) {
-            addScheduledConnectionTaskToDevice(device, data, (PartialOutboundConnectionTask) partialConnectionTask);
+            addScheduledConnectionTaskToDevice(device, (PartialOutboundConnectionTask) partialConnectionTask, data, logger);
         } else if (partialConnectionTask instanceof PartialInboundConnectionTask) {
-            addInboundConnectionTaskToDevice(device, data, (PartialInboundConnectionTask) partialConnectionTask);
+            addInboundConnectionTaskToDevice(device, (PartialInboundConnectionTask) partialConnectionTask, data, logger);
         }
     }
 
-    private void addInboundConnectionTaskToDevice(Device device, Map<String, String> data, PartialInboundConnectionTask partialConnectionTask) throws ProcessorException {
+    private void addInboundConnectionTaskToDevice(Device device, PartialInboundConnectionTask partialConnectionTask, ConnectionAttributesImportRecord data, FileImportLogger logger) throws ProcessorException {
         Device.InboundConnectionTaskBuilder inboundConnectionTaskBuilder = device.getInboundConnectionTaskBuilder(partialConnectionTask);
         try {
-            data.forEach((key, value) -> inboundConnectionTaskBuilder.setProperty(key, parseStringToValue(partialConnectionTask.getConnectionType().getPropertySpec(key).getValueFactory(), value)));
+            data.getConnectionAttributes().forEach((key, value) -> inboundConnectionTaskBuilder.setProperty(key, parseStringToValue(partialConnectionTask.getConnectionType().getPropertySpec(key).getValueFactory(), key, value, data)));
             inboundConnectionTaskBuilder.setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE).add();
         } catch (Exception e) {
             try {
-                inboundConnectionTaskBuilder.setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE).add();
+                InboundConnectionTask connectionTask = inboundConnectionTaskBuilder.setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE).add();
+                checkConnectionTaskStatus(connectionTask, data, logger);
             } catch (Exception ex) {
-//                throw new ProcessorException(ProcessorException.Type.CONNECTION_ATTRIBUTES_NOT_CREATED, ex, device.getmRID(), "");
+                throw new ProcessorException(MessageSeeds.CONNECTION_ATTRIBUTES_NOT_CREATED, data.getLineNumber(), device.getmRID());
             }
         }
     }
 
-    private void addScheduledConnectionTaskToDevice(Device device, Map<String, String> data, PartialOutboundConnectionTask partialConnectionTask) throws ProcessorException {
+    private void addScheduledConnectionTaskToDevice(Device device, PartialOutboundConnectionTask partialConnectionTask, ConnectionAttributesImportRecord data, FileImportLogger logger) throws ProcessorException {
         Device.ScheduledConnectionTaskBuilder scheduledConnectionTaskBuilder = device.getScheduledConnectionTaskBuilder(partialConnectionTask);
-        data.forEach((key, value) -> scheduledConnectionTaskBuilder.setProperty(key, parseStringToValue(partialConnectionTask.getConnectionType().getPropertySpec(key).getValueFactory(), value)));
+        data.getConnectionAttributes().forEach((key, value) -> scheduledConnectionTaskBuilder.setProperty(key, parseStringToValue(partialConnectionTask.getConnectionType().getPropertySpec(key).getValueFactory(), key, value, data)));
         try {
             scheduledConnectionTaskBuilder.setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE).add();
         } catch (Exception e) {
             try {
-                scheduledConnectionTaskBuilder.setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE).add();
+                ScheduledConnectionTask connectionTask = scheduledConnectionTaskBuilder.setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE).add();
+                checkConnectionTaskStatus(connectionTask, data, logger);
             } catch (Exception ex) {
-//                throw new ProcessorException(ProcessorException.Type.CONNECTION_ATTRIBUTES_NOT_CREATED, ex, device.getmRID(), "");
+                throw new ProcessorException(MessageSeeds.CONNECTION_ATTRIBUTES_NOT_CREATED, data.getLineNumber(), device.getmRID());
             }
         }
     }

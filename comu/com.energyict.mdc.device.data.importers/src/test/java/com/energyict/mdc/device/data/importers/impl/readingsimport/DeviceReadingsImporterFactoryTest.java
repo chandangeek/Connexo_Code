@@ -171,7 +171,7 @@ public class DeviceReadingsImporterFactoryTest {
     public void testGetDefaultNumberFormatProperties() {
         User user = mockUser("admin");
         mockUserPreference(user, FormatKey.DECIMAL_SEPARATOR, ",");
-        mockUserPreference(user, FormatKey.THOUSANDS_SEPARATOR, "");
+        when(userPreferencesService.getPreferenceByKey(user, FormatKey.THOUSANDS_SEPARATOR)).thenReturn(Optional.empty());
 
         DeviceReadingsImporterFactory factory = new DeviceReadingsImporterFactory(context);
         List<PropertySpec> propertySpecs = factory.getPropertySpecs();

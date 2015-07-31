@@ -8,7 +8,6 @@ import com.elster.jupiter.properties.StringReferenceFactory;
 import com.elster.jupiter.users.FormatKey;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserPreference;
-import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.device.data.importers.impl.properties.DateFormatPropertySpec;
 import com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat;
 import com.energyict.mdc.device.data.importers.impl.properties.TimeZonePropertySpec;
@@ -66,14 +65,13 @@ public enum DeviceDataImporterProperty {
                 if (decimalSeparator.isPresent()) {
                     stream = stream.filter(numberFormat -> numberFormat.getDecimalSeparator().toString().equals(decimalSeparator.get().getFormatFE()));
                 }
-                if (thousandsSeparator.isPresent()) {
-                    stream = stream.filter(numberFormat -> {
-                        if (numberFormat.hasGroupSeparator()) {
-                            return numberFormat.getGroupSeparator().toString().equals(thousandsSeparator.get().getFormatFE());
-                        }
-                        return Checks.is(thousandsSeparator.get().getFormatFE()).empty();
-                    });
-                }
+                stream = stream.filter(numberFormat -> {
+                    if (thousandsSeparator.isPresent()) {
+                        return numberFormat.hasGroupSeparator() && numberFormat.getGroupSeparator().toString().equals(thousandsSeparator.get().getFormatFE());
+                    } else {
+                        return !numberFormat.hasGroupSeparator();
+                    }
+                });
                 return stream.findFirst().orElse(null);
             }
             return null;

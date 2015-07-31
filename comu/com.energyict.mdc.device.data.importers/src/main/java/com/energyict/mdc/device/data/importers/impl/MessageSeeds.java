@@ -44,6 +44,11 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     READING_VALUE_WAS_TRUNCATED_TO_REGISTER_CONFIG(108, "ReadingValueWasTruncatedToRegisterConfig", "Warning for line {0}: Reading value was truncated to {1} accordingly to register configuration.", Level.INFO),
     READING_VALUE_WAS_TRUNCATED_TO_CHANNEL_CONFIG(109, "ReadingValueWasTruncatedToChannelConfig", "Warning for line {0}: Reading value was truncated to {1} accordingly to channel configuration.", Level.INFO),
     READING_IMPORT_NOT_ALLOWED_FOR_DECOMMISSIONED_DEVICE(110, "ReadingImportIsNotAllowedForDecommissionedDevices", "Error in line {0}: Readings import is not allowed for device {1} since it is decommissioned.", Level.WARNING),
+
+    NO_CONNECTION_METHOD_ON_DEVICE(201, "NoSuchConnectionMethodOnDevice", "Error in line {0}: Connection method {1} is not supported on the device.", Level.WARNING),
+    CONNECTION_ATTRIBUTES_NOT_CREATED(202, "ConnectionAttributesNotCreated", "Error in line {0}: Connection attributes are not created on the device {1}.", Level.WARNING),
+    CONNECTION_METHOD_IS_NOT_UNIQUE_IN_FILE(203, "ConnectionMethodIsNotUniqueInFile", "Failure in line {0}: Connection method name is not unique in the file.", Level.SEVERE),
+    REQUIRED_CONNECTION_ATTRIBUTES_MISSED(204, "RequiredConnectionAttributesMissed", "Warning for line {0}: Next required attribute(s) is(are) missed: {1}. The state of the connection method is \"Incomplete\".", Level.INFO)
     ;
 
     private final int number;

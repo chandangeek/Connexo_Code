@@ -27,29 +27,29 @@ public class DeviceShipmentImportDescription implements FileImportDescription<De
         List<FileImportField<?>> fields = new ArrayList<>();
         LiteralStringParser stringParser = new LiteralStringParser();
         fields.add(CommonField.withParser(stringParser)
-                .withConsumer(record::setDeviceMRID)
+                .withSetter(record::setDeviceMRID)
                 .markMandatory()
                 .build());
         fields.add(CommonField.withParser(stringParser)
-                .withConsumer(record::setDeviceType)
+                .withSetter(record::setDeviceType)
                 .markMandatory()
                 .build());
         fields.add(CommonField.withParser(stringParser)
-                .withConsumer(record::setDeviceConfiguration)
+                .withSetter(record::setDeviceConfiguration)
                 .markMandatory()
                 .build());
         fields.add(CommonField.withParser(dateParser)
-                .withConsumer(record::setShipmentDate)
+                .withSetter(record::setShipmentDate)
                 .markMandatory()
                 .build());
         fields.add(CommonField.withParser(stringParser)
-                .withConsumer(record::setSerialNumber)
+                .withSetter(record::setSerialNumber)
                 .build());
         fields.add(CommonField.withParser(new NumberParser())
-                .withConsumer(number -> record.setYearOfCertification(number != null ? number.intValue() : null))
+                .withSetter(number -> record.setYearOfCertification(number != null ? number.intValue() : null))
                 .build());
         fields.add(CommonField.withParser(stringParser)
-                .withConsumer(record::setBatch)
+                .withSetter(record::setBatch)
                 .build());
         return fields;
     }

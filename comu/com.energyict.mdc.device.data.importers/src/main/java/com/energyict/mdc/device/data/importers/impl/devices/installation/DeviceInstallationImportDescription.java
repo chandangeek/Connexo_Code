@@ -27,27 +27,27 @@ public class DeviceInstallationImportDescription implements FileImportDescriptio
         List<FileImportField<?>> fields = new ArrayList<>();
         LiteralStringParser stringParser = new LiteralStringParser();
         fields.add(CommonField.withParser(stringParser)
-                .withConsumer(record::setDeviceMRID)
+                .withSetter(record::setDeviceMRID)
                 .markMandatory()
                 .build());
         fields.add(CommonField.withParser(dateParser)
-                .withConsumer(record::setTransitionDate)
+                .withSetter(record::setTransitionDate)
                 .markMandatory()
                 .build());
         fields.add(CommonField.withParser(stringParser)
-                .withConsumer(record::setMasterDeviceMrid)
+                .withSetter(record::setMasterDeviceMrid)
                 .build());
         fields.add(CommonField.withParser(stringParser)
-                .withConsumer(record::setUsagePointMrid)
+                .withSetter(record::setUsagePointMrid)
                 .build());
         fields.add(CommonField.withParser(stringParser)
-                .withConsumer(record::setServiceCategory)
+                .withSetter(record::setServiceCategory)
                 .build());
         fields.add(CommonField.withParser(new BooleanParser())
-                .withConsumer(record::setInstallInactive)
+                .withSetter(record::setInstallInactive)
                 .build());
         fields.add(CommonField.withParser(dateParser)
-                .withConsumer(record::setStartValidationDate)
+                .withSetter(record::setStartValidationDate)
                 .build());
         return fields;
     }

@@ -2,7 +2,6 @@ package com.energyict.mdc.device.data.importers.impl.devices.decommission;
 
 import com.energyict.mdc.device.data.importers.impl.FileImportDescription;
 import com.energyict.mdc.device.data.importers.impl.devices.DeviceTransitionRecord;
-import com.energyict.mdc.device.data.importers.impl.devices.installation.DeviceInstallationImportRecord;
 import com.energyict.mdc.device.data.importers.impl.fields.CommonField;
 import com.energyict.mdc.device.data.importers.impl.fields.FileImportField;
 import com.energyict.mdc.device.data.importers.impl.parsers.DateParser;
@@ -28,11 +27,11 @@ public class DeviceDecommissioningImportDescription implements FileImportDescrip
         List<FileImportField<?>> fields = new ArrayList<>();
         LiteralStringParser stringParser = new LiteralStringParser();
         fields.add(CommonField.withParser(stringParser)
-                .withConsumer(record::setDeviceMRID)
+                .withSetter(record::setDeviceMRID)
                 .markMandatory()
                 .build());
         fields.add(CommonField.withParser(dateParser)
-                .withConsumer(record::setTransitionDate)
+                .withSetter(record::setTransitionDate)
                 .markMandatory()
                 .build());
         return fields;

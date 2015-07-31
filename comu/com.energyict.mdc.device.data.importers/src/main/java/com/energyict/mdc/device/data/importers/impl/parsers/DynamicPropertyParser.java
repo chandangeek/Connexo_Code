@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.importers.impl.parsers;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.BooleanFactory;
 import com.elster.jupiter.properties.StringFactory;
@@ -12,6 +13,7 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeOfDay;
 import com.energyict.mdc.common.ean.Ean13;
 import com.energyict.mdc.common.ean.Ean18;
+import com.energyict.mdc.device.data.importers.impl.TranslationKeys;
 import com.energyict.mdc.dynamic.DateAndTimeFactory;
 import com.energyict.mdc.dynamic.DateFactory;
 import com.energyict.mdc.dynamic.Ean13Factory;
@@ -36,10 +38,14 @@ public enum DynamicPropertyParser {
         public Object parse(String stringValue) throws ParseException {
             if (stringValue == null || stringValue.isEmpty()) {
                 return null;
-            }
-            else {
+            } else {
                 return Constants.DATE_AND_TIME_FORMAT.parse(stringValue);
             }
+        }
+
+        @Override
+        public String getExpectedFormat(Thesaurus thesaurus) {
+            return Constants.DATE_AND_TIME_PATTERN;
         }
     },
     DATE(DateFactory.class) {
@@ -47,10 +53,14 @@ public enum DynamicPropertyParser {
         public Object parse(String stringValue) throws ParseException {
             if (stringValue == null || stringValue.isEmpty()) {
                 return null;
-            }
-            else {
+            } else {
                 return Constants.DATE_FORMAT.parse(stringValue);
             }
+        }
+
+        @Override
+        public String getExpectedFormat(Thesaurus thesaurus) {
+            return Constants.DATE_PATTERN;
         }
     },
     TIME_OF_DAY(TimeOfDayFactory.class) {
@@ -58,32 +68,44 @@ public enum DynamicPropertyParser {
         public Object parse(String value) throws ParseException {
             if (value == null || value.isEmpty()) {
                 return new TimeOfDay(0);
-            }
-            else {
+            } else {
                 return new TimeOfDay(Integer.parseInt(value));
             }
+        }
 
+        @Override
+        public String getExpectedFormat(Thesaurus thesaurus) {
+            return TranslationKeys.INTEGER_FORMAT.getTranslated(thesaurus);
         }
     },
     EAN13(Ean13Factory.class) {
         @Override
         public Object parse(String stringValue) throws ParseException {
-            if (stringValue!=null) {
+            if (stringValue != null) {
                 return new Ean13(stringValue);
             } else {
                 return null;
             }
         }
+
+        @Override
+        public String getExpectedFormat(Thesaurus thesaurus) {
+            return "EAN-13";
+        }
     },
     EAN18(Ean18Factory.class) {
         @Override
         public Object parse(String stringValue) throws ParseException {
-            if (stringValue == null || stringValue.length() != 18) {
+            if (stringValue == null) {
                 return null;
-            }
-            else {
+            } else {
                 return new Ean18(stringValue);
             }
+        }
+
+        @Override
+        public String getExpectedFormat(Thesaurus thesaurus) {
+            return "EAN-18";
         }
     },
     TIME_ZONE(TimeZoneFactory.class) {
@@ -91,22 +113,29 @@ public enum DynamicPropertyParser {
         public Object parse(String stringValue) throws ParseException {
             if (stringValue == null) {
                 return null;
-            }
-            else {
+            } else {
                 return TimeZone.getTimeZone(stringValue);
             }
+        }
+
+        @Override
+        public String getExpectedFormat(Thesaurus thesaurus) {
+            return TranslationKeys.INTEGER_FORMAT.getTranslated(thesaurus);
         }
     },
     THREE_STATE_FACTORY(ThreeStateFactory.class) {
         @Override
         public Object parse(String stringValue) throws ParseException {
-            if (   !is(stringValue).emptyOrOnlyWhiteSpace()
-                && "1".equals(stringValue.trim())) {
+            if (!is(stringValue).emptyOrOnlyWhiteSpace() && "1".equals(stringValue.trim())) {
                 return Boolean.TRUE;
-            }
-            else {
+            } else {
                 return Boolean.FALSE;
             }
+        }
+
+        @Override
+        public String getExpectedFormat(Thesaurus thesaurus) {
+            return TranslationKeys.BOOLEAN_FORMAT.getTranslated(thesaurus);
         }
     },
     OBIS_CODE(ObisCodeValueFactory.class) {
@@ -114,10 +143,14 @@ public enum DynamicPropertyParser {
         public Object parse(String stringValue) throws ParseException {
             if (stringValue == null || stringValue.isEmpty()) {
                 return null;
-            }
-            else {
+            } else {
                 return ObisCode.fromString(stringValue);
             }
+        }
+
+        @Override
+        public String getExpectedFormat(Thesaurus thesaurus) {
+            return TranslationKeys.OBIS_CODE_FORMAT.getTranslated(thesaurus);
         }
     },
     TIME_DURATION(TimeDurationValueFactory.class) {
@@ -125,11 +158,14 @@ public enum DynamicPropertyParser {
         public Object parse(String value) throws ParseException {
             if (value == null) {
                 return null;
-            }
-            else {
+            } else {
                 return new TimeDuration(Integer.parseInt(value), TimeDuration.TimeUnit.SECONDS.getCode());
             }
+        }
 
+        @Override
+        public String getExpectedFormat(Thesaurus thesaurus) {
+            return TranslationKeys.INTEGER_FORMAT.getTranslated(thesaurus);
         }
     },
     STRING(StringFactory.class) {
@@ -137,24 +173,36 @@ public enum DynamicPropertyParser {
         public Object parse(String value) throws ParseException {
             return value;
         }
+
+        @Override
+        public String getExpectedFormat(Thesaurus thesaurus) {
+            return TranslationKeys.STRING_FORMAT.getTranslated(thesaurus);
+        }
     },
     LARGE_STRING(LargeStringFactory.class) {
         @Override
         public Object parse(String value) throws ParseException {
             return value;
         }
+
+        @Override
+        public String getExpectedFormat(Thesaurus thesaurus) {
+            return TranslationKeys.STRING_FORMAT.getTranslated(thesaurus);
+        }
     },
     BOOLEAN(BooleanFactory.class) {
         @Override
         public Object parse(String stringValue) throws ParseException {
-            if (!is(stringValue).emptyOrOnlyWhiteSpace()
-                    && "1".equals(stringValue.trim())) {
+            if (!is(stringValue).emptyOrOnlyWhiteSpace() && "1".equals(stringValue.trim())) {
                 return Boolean.TRUE;
-            }
-            else {
+            } else {
                 return Boolean.FALSE;
             }
+        }
 
+        @Override
+        public String getExpectedFormat(Thesaurus thesaurus) {
+            return TranslationKeys.BOOLEAN_FORMAT.getTranslated(thesaurus);
         }
     },
     BIG_DECIMAL(BigDecimalFactory.class) {
@@ -162,11 +210,14 @@ public enum DynamicPropertyParser {
         public Object parse(String stringValue) throws ParseException {
             if (stringValue == null) {
                 return null;
-            }
-            else {
+            } else {
                 return new BigDecimal(stringValue);
             }
+        }
 
+        @Override
+        public String getExpectedFormat(Thesaurus thesaurus) {
+            return TranslationKeys.NUMBER_FORMAT.getTranslated(thesaurus);
         }
     },
     HEX(HexStringFactory.class) {
@@ -174,20 +225,27 @@ public enum DynamicPropertyParser {
         public Object parse(String stringValue) throws ParseException {
             if (stringValue == null) {
                 return null;
-            }
-            else {
+            } else {
                 return new HexString(stringValue);
             }
+        }
 
+        @Override
+        public String getExpectedFormat(Thesaurus thesaurus) {
+            return TranslationKeys.HEX_STRING_FORMAT.getTranslated(thesaurus);
         }
     };
+
     private final Class<? extends ValueFactory<?>> clazz;
+    private Thesaurus thesaurus;
 
     DynamicPropertyParser(Class<? extends ValueFactory<?>> clazz) {
         this.clazz = clazz;
     }
 
     public abstract Object parse(String value) throws ParseException;
+
+    public abstract String getExpectedFormat(Thesaurus thesaurus);
 
     public static Optional<DynamicPropertyParser> of(Class<? extends ValueFactory> clazz) {
         for (DynamicPropertyParser cvsPropertyParser : DynamicPropertyParser.values()) {
@@ -199,7 +257,11 @@ public enum DynamicPropertyParser {
     }
 
     private static class Constants {
-        public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
-        public static final SimpleDateFormat DATE_AND_TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+
+        public static final String DATE_PATTERN = "yyyy-MM-dd";
+        public static final String DATE_AND_TIME_PATTERN = "yyyy-MM-dd HH:mm";
+
+        public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat(DATE_PATTERN);
+        public static final SimpleDateFormat DATE_AND_TIME_FORMAT = new SimpleDateFormat(DATE_AND_TIME_PATTERN);
     }
 }

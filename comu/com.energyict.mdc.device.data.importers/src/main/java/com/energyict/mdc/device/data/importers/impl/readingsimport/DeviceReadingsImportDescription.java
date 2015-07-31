@@ -32,23 +32,23 @@ public class DeviceReadingsImportDescription implements FileImportDescription<De
         LiteralStringParser stringParser = new LiteralStringParser();
         //Device mRID
         fields.add(CommonField.withParser(stringParser)
-                .withConsumer(record::setDeviceMRID)
+                .withSetter(record::setDeviceMRID)
                 .markMandatory()
                 .build());
         //Reading date
         fields.add(CommonField.withParser(dateParser)
-                .withConsumer(record::setReadingDateTime)
+                .withSetter(record::setReadingDateTime)
                 .markMandatory()
                 .build());
         //Reading type mRID
         fields.add(CommonField.withParser(stringParser)
-                .withConsumer(record::addReadingType)
+                .withSetter(record::addReadingType)
                 .markMandatory()
                 .markRepetitive()
                 .build());
         //Reading value
         fields.add(CommonField.withParser(bigDecimalParser)
-                .withConsumer(record::addReadingValue)
+                .withSetter(record::addReadingValue)
                 .markMandatory()
                 .markRepetitive()
                 .build());

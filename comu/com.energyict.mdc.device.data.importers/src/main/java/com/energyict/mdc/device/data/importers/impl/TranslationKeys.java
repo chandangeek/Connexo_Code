@@ -55,7 +55,14 @@ public enum TranslationKeys implements TranslationKey {
     DEVICE_DECOMMISSIONING_IMPORTER(DeviceDecommissioningImportFactory.NAME, "Devices decommissioning  importer"),
     DEVICE_ACTIVATION_DEACTIVATION_IMPORTER(DeviceActivationDeactivationImportFactory.NAME, "Devices activation / deactivation importer"),
     DEVICE_REMOVE_IMPORTER(DeviceRemoveImportFactory.NAME, "Devices remove importer"),
-    DEVICE_CONNECTION_ATTRIBUTES_IMPORTER(ConnectionAttributesImportFactory.NAME, "Device connection attributes importer")
+    DEVICE_CONNECTION_ATTRIBUTES_IMPORTER(ConnectionAttributesImportFactory.NAME, "Device connection attributes importer"),
+
+    STRING_FORMAT("StringFormat", "string"),
+    NUMBER_FORMAT("NumberFormat", "number"),
+    HEX_STRING_FORMAT("HexStringFormat", "hex string"),
+    BOOLEAN_FORMAT("BooleanFormat", "boolean: 0 or 1"),
+    INTEGER_FORMAT("IntegerFormat", "integer"),
+    OBIS_CODE_FORMAT("ObisCodeFormat", "obis code")
     ;
 
     private final String key;
