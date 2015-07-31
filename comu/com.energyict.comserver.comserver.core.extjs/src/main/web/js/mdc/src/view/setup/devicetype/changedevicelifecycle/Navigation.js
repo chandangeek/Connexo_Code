@@ -1,6 +1,7 @@
 Ext.define('Mdc.view.setup.devicetype.changedevicelifecycle.Navigation', {
     extend: 'Uni.view.menu.NavigationMenu',
     alias: 'widget.change-device-life-cycle-navigation',
+    width: 256,
     jumpForward: false,
     jumpBack: false,
     items: [
