@@ -192,8 +192,8 @@ Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskEdit', {
                         allowBlank: false,
                         required: true,
                         items: [
-                            {boxLabel: Uni.I18n.translate('general.yes', 'MDC', 'Yes'), inputValue: false},
-                            {boxLabel: Uni.I18n.translate('general.no', 'MDC', 'No'), inputValue: true, checked: true}
+                            {boxLabel: Uni.I18n.translate('general.yes', 'MDC', 'Yes'), inputValue: true},
+                            {boxLabel: Uni.I18n.translate('general.no', 'MDC', 'No'), inputValue: false, checked: true}
                         ]
                     },
                     {
