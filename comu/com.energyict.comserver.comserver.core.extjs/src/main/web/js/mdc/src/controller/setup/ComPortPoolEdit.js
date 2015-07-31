@@ -83,7 +83,6 @@ Ext.define('Mdc.controller.setup.ComPortPoolEdit', {
         form.down('[name=discoveryProtocolPluggableClassId]').setVisible(isInbound);
         form.down('[name=discoveryProtocolPluggableClassId]').setDisabled(!isInbound);
         form.loadRecord(model);
-        me.comPortPoolModel = model;
     },
 
     showEditView: function (id) {
@@ -103,8 +102,6 @@ Ext.define('Mdc.controller.setup.ComPortPoolEdit', {
                     isInbound = (record.get('direction').toLowerCase() === 'inbound'),
                     protocolDetectionCombo = form.down('combobox[name=discoveryProtocolPluggableClassId]'),
                     title;
-
-                me.comPortPoolModel = record;
 
                 me.getApplication().fireEvent('loadComPortPool', record);
 
@@ -135,16 +132,16 @@ Ext.define('Mdc.controller.setup.ComPortPoolEdit', {
             page = me.getComPortPoolEditPage(),
             form = page.down('form'),
             formErrorsPanel = form.down('uni-form-error-message'),
-            model;
+            record;
 
         if (form.getForm().isValid()) {
-            form.updateRecord(me.comPortPoolModel);
-            model = me.comPortPoolModel;
+            form.updateRecord();
+            record = form.getRecord();
 
             button.setDisabled(true);
             page.setLoading(Uni.I18n.translate('general.saving', 'MDC', 'Saving...'));
 
-            model.save({
+            record.save({
                 callback: function (model, operation, success) {
                     page.setLoading(false);
                     button.setDisabled(false);
