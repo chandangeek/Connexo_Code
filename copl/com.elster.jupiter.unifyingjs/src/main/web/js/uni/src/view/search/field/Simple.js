@@ -2,9 +2,10 @@ Ext.define('Uni.view.search.field.Simple', {
     extend: 'Ext.button.Button',
     xtype: 'search-criteria-simple',
     menuAlign: 'tr-br',
-    style: {
-        'background-color': '#71adc7'
-    },
+    //style: {
+    //    'background-color': '#71adc7'
+    //},
+    //ui: 'primary',
     requires: [
         'Uni.view.search.field.Input'
     ],

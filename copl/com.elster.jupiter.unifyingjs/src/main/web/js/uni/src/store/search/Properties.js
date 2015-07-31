@@ -20,7 +20,28 @@ Ext.define('Uni.store.search.Properties', {
     sorters: [
         {
             sorterFn: function (o1, o2) {
-                // TODO Implement custom sorting based on constraints, if it is sticky. Just on name if not.
+                if (    !(o1.get('constraints') && o1.get('constraints').length)
+                    &&  !(o2.get('constraints') && o2.get('constraints').length)
+                ) {
+                    return 0;
+                }
+                if (o1.get('constraints').length) {
+                    if (o1.get('constraints').indexOf(o2.get('name')) >= 0) {
+                        return 1;
+                    }
+                }
+
+                if (o2.get('constraints').length) {
+                    if (o2.get('constraints').indexOf(o1.get('name')) >= 0) {
+                        return -1;
+                    }
+                }
+
+                return 0;
+            }
+        },
+        {
+            sorterFn: function (o1, o2) {
                 return o1.get('displayValue') < o2.get('displayValue') ? -1 : 1;
             }
         }

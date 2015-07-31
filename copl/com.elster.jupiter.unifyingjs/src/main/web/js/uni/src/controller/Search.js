@@ -65,6 +65,15 @@ Ext.define('Uni.controller.Search', {
         return o ? o.dataIndex : null;
     }),
 
+    criteriaMap: {
+        'String': 'search-criteria-simple',
+        'Boolean': 'uni-view-search-field-yesno',
+        'TimeDuration': 'uni-view-search-field-date-field',
+        'BigDecimal': 'uni-view-search-field-number-field',
+        'DeviceType': 'search-combo',
+        'DeviceConfiguration': 'search-combo'
+    },
+
     init: function () {
         var me = this;
 
@@ -378,7 +387,7 @@ Ext.define('Uni.controller.Search', {
     addProperty: function (property, container, removable) {
         var me = this,
             filter = me.createWidgetForProperty(property, removable),
-            constraints = property.get('constraints'),
+            //constraints = property.get('constraints'),
             widget = removable ? filter.widget : filter;
 
         if (Ext.isDefined(filter)) {
@@ -386,60 +395,32 @@ Ext.define('Uni.controller.Search', {
             container.add(filter);
 
             widget.on('filterupdate', me.applyFilters, me);
-            //me.applyConstraintListeners(property, widget);
-            //me.updateRemovableContainerVisibility();
         }
     },
 
-    applyConstraintListeners: function (property, widget) {
-        var me = this,
-            constraints,
-            removable;
-
-        me.filters.each(function (filter) {
-            constraints = filter.property.get('constraints');
-            removable = !filter.property.get('sticky');
-
-            if (Ext.isArray(constraints) && !Ext.isEmpty(constraints)) {
-                for (var i = 0; i < constraints.length; i++) {
-                    if (property.get('name') === constraints[i]) {
-                        widget.on('change', function () {
-                            me.updateConstraints(removable ? filter.widget : filter, property.get('name'), widget.getParamValue());
-                        }, me);
-                    }
-                }
-            }
+    updateConstraints: function (widget, value) {
+        var me = this;
+        var deps = me.filters.filterBy(function(filter){
+            return !!(filter.property.get('constraints')
+            && filter.property.get('constraints').length
+            && filter.property.get('constraints').indexOf(widget.property.get('name')) >= 0);
         });
 
-        constraints = property.get('constraints');
-        removable = !property.get('sticky');
-
-        for (var i = 0; i < constraints.length; i++) {
-            me.filters.each(function (filter) {
-                if (filter.property.get('name') === constraints[i]) {
-                    if (removable) {
-                        filter.widget.on('change', function () {
-                            me.updateConstraints(widget, filter.property.get('name'), filter.widget.getParamValue());
-                        }, me);
-                    } else {
-                        filter.on('change', function () {
-                            me.updateConstraints(widget, filter.property.get('name'), filter.getParamValue());
-                        }, me);
+        if (deps.length) {
+            deps.each(function(item) {
+                if (!Ext.isEmpty(value)) {
+                    item.setDisabled(false);
+                    if (item.store) {
+                        item.getStore().clearFilter(true);
+                        item.getStore().filter('id', value);
+                    }
+                } else {
+                    item.setDisabled(true);
+                    if (item.store) {
+                        item.getStore().clearFilter();
                     }
                 }
             });
-        }
-    },
-
-    updateConstraints: function (widget, filterName, filterValues) {
-        var store = widget.store;
-
-        if (Ext.isDefined(store)) {
-            if (!Ext.isEmpty(filterValues)) {
-                store.filter(filterName, filterValues);
-            } else {
-                store.clearFilter();
-            }
         }
     },
 
@@ -468,7 +449,6 @@ Ext.define('Uni.controller.Search', {
             container.remove(filterResult);
 
             //Uni.util.Filters.updateHistoryState(me.filters);
-            //me.updateRemovableContainerVisibility();
         }
     },
 
@@ -525,7 +505,25 @@ Ext.define('Uni.controller.Search', {
         var me = this,
             type = property.get('type'),
             displayValue = property.get('displayValue'),
-            widget = undefined;
+            widgetConfig = me.criteriaMap[type],
+            widget = undefined,
+            config = {
+                text: displayValue,
+                emptyText: displayValue,
+                dataIndex: property.get('name'),
+                property: property
+            };
+
+        if (!widgetConfig) {
+            console.log('Unknown search property type: ' + type);
+            return false;
+        }
+
+        if (property.get('constraints') && property.get('constraints').length) {
+            Ext.apply(config, {
+                disabled: true
+            });
+        }
 
         if (property.get('exhaustive')) {
             var store = Ext.create('Uni.store.search.PropertyValues', {
@@ -543,57 +541,73 @@ Ext.define('Uni.controller.Search', {
                 }
             });
 
-            widget = Ext.create('Uni.view.search.field.Combobox', {
+            store.load();
+
+            Ext.apply(config, {
+                xtype: 'search-combo',
                 emptyText: displayValue,
                 store: store,
                 valueField: 'id',
                 displayField: 'displayValue',
-                multiSelect: true
+                multiSelect: true,
+                listeners: {
+                    'change': {
+                        fn: me.updateConstraints,
+                        scope: me
+                    }
+                }
             });
-
-            //widget.on('afterrender', function () {
-                store.load();
-            //}, me);
-        } else {
-            switch (type) {
-                case 'String':
-                    widget = Ext.create('Uni.view.search.field.Simple', {
-                        text: displayValue,
-                        emptyText: displayValue
-                    });
-                    break;
-                case 'BigDecimal':
-                    widget = Ext.create('Uni.view.search.field.NumberField', {
-                        text: displayValue,
-                        emptyText: displayValue
-                    });
-                    break;
-                case 'Boolean':
-                    widget = Ext.create('Uni.view.search.field.YesNo', {
-                        emptyText: displayValue,
-                        defaultText: displayValue
-                    });
-                    break;
-                case 'TimeDuration':
-                    widget = Ext.create('Uni.view.search.field.DateRangeField', {
-                        emptyText: displayValue,
-                        text: displayValue,
-                        defaultText: displayValue
-                    });
-                    break;
-                default:
-                    // <debug>
-                    console.log('Unknown search property type: ' + type);
-                    // </debug>
-                    return undefined;
-                    break;
-            }
         }
 
-        Ext.apply(widget, {
-            dataIndex: property.get('name'),
-            property: property
-        });
+            //widget = Ext.create('Uni.view.search.field.Combobox', {
+            //
+            //});
+
+            //widget.on('afterrender', function () {
+
+            //}, me);
+            //} else {
+            //    switch (type) {
+            //        case 'String':
+            //            widget = Ext.create('Uni.view.search.field.Simple', {
+            //                text: displayValue,
+            //                emptyText: displayValue
+            //            });
+            //            break;
+            //        case 'BigDecimal':
+            //            widget = Ext.create('Uni.view.search.field.NumberField', {
+            //                text: displayValue,
+            //                emptyText: displayValue
+            //            });
+            //            break;
+            //        case 'Boolean':
+            //            widget = Ext.create('Uni.view.search.field.YesNo', {
+            //                emptyText: displayValue,
+            //                defaultText: displayValue
+            //            });
+            //            break;
+            //        case 'TimeDuration':
+            //            widget = Ext.create('Uni.view.search.field.DateRangeField', {
+            //                emptyText: displayValue,
+            //                text: displayValue,
+            //                defaultText: displayValue
+            //            });
+            //            break;
+            //        default:
+            //            // <debug>
+            //            console.log('Unknown search property type: ' + type);
+            //            // </debug>
+            //            return undefined;
+            //            break;
+            //    }
+            //}
+            //{
+            //    text: displayValue,
+            //        emptyText: displayValue
+            //}
+        widget = Ext.isString(widgetConfig)
+            ? Ext.widget(Ext.apply({xtype: widgetConfig}, config))
+            : Ext.create(Ext.apply(widgetConfig, config));
 
         if (removable) {
             widget = Ext.create('Uni.view.search.Adapter', {

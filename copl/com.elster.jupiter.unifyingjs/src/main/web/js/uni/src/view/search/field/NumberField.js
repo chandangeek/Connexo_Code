@@ -1,6 +1,5 @@
 Ext.define('Uni.view.search.field.NumberField', {
     extend: 'Ext.button.Button',
-    alias: 'widget.uni-view-search-field-number-field',
     xtype: 'uni-view-search-field-number-field',
     textAlign: 'left',
     text: Uni.I18n.translate('search.overview.lastReadingDate.emptyText', 'UNI', 'Interval'),

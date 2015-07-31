@@ -1,6 +1,5 @@
 Ext.define('Uni.view.search.field.DateRangeField', {
     extend: 'Ext.button.Button',
-    alias: 'widget.uni-view-search-field-date-field',
     xtype: 'uni-view-search-field-date-field',
     requires: [
         'Uni.view.search.field.DateLine',
