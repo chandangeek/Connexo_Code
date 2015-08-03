@@ -54,13 +54,17 @@ Ext.define('Uni.grid.column.Action', {
         });
     },
   
-    handler: function (grid, rowIndex, colIndex) {
+    handler: function (grid, rowIndex, colIndex, item, e, record) {
         var me = this,
-            record = grid.getStore().getAt(rowIndex),
+            rec,
             cell = grid.getCellByPosition({row: rowIndex, column: colIndex}),
             selectionModel = grid.getSelectionModel(),
             selection = selectionModel.getSelection(),
             selectedRecord;
+        rec = record;
+        if(rec === undefined){
+            rec = grid.getStore().getAt(rowIndex);
+        }
 
         if (selection.length > 0) {
             selectedRecord = selection[0];
@@ -76,9 +80,9 @@ Ext.define('Uni.grid.column.Action', {
             me.menu.hide();
             me.menu.cell = null;
         } else {
-            if(me.fireEvent('beforeshow', grid, cell, colIndex, rowIndex, record)) {
+            if(me.fireEvent('beforeshow', grid, cell, colIndex, rowIndex, rec)) {
                 cell.addCls('active');
-                me.menu.record = record;
+                me.menu.record = rec;
                 me.menu.showBy(cell);
                 me.menu.cell = cell;
             }
