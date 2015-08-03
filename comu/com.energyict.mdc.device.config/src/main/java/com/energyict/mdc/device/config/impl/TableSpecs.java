@@ -496,7 +496,7 @@ public enum TableSpecs {
             Table<SecurityPropertySet> table = dataModel.addTable(name(), SecurityPropertySet.class);
             table.map(SecurityPropertySetImpl.class);
             Column id = table.addAutoIdColumn();
-            table.column("NAME").varChar().notNull().map("name").add();
+            Column name = table.column("NAME").varChar().notNull().map("name").add();
             Column deviceConfiguration = table.column("DEVICECONFIG").conversion(NUMBER2LONG).number().notNull().add();
             table.column("AUTHENTICATIONLEVEL").number().conversion(NUMBER2INT).notNull().map("authenticationLevelId").add();
             table.column("ENCRYPTIONLEVEL").number().conversion(NUMBER2INT).notNull().map("encryptionLevelId").add();
@@ -510,6 +510,7 @@ public enum TableSpecs {
                     composition().
                     add();
             table.primaryKey("PK_DTC_SECURITYPROPERTYSET").on(id).add();
+            table.unique("UK_DTC_SECPROPSET_NAME").on(deviceConfiguration, name).add();
         }
     },
     DTC_SECURITYPROPSETUSERACTION {

@@ -50,8 +50,6 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
 
     private static final String DEVICE_CONFIGURATION_NAME = ChannelSpecImplTest.class.getName() + "Config";
     private static final String LOAD_PROFILE_TYPE_NAME = ChannelSpecImplTest.class.getSimpleName() + "LoadProfileType";
-    private static final String CHANNEL_TYPE_NAME = ChannelSpecImplTest.class.getSimpleName() + "ChannelType";
-    private static final String DEFAULT_CHANNEL_SPEC_NAME = ChannelSpecImplTest.class.getName() + "ChannelSpec";
 
     private final ObisCode channelTypeObisCode = ObisCode.fromString("1.0.1.8.0.255");
     private final ObisCode loadProfileTypeObisCode = ObisCode.fromString("1.0.99.1.0.255");
