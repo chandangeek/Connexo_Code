@@ -119,7 +119,9 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
             deviceConfigurationsLink.setText(deviceTypes[0].get('deviceConfigurationCount') + ' ' + Uni.I18n.translatePlural('devicetype.deviceconfigurations', deviceTypes[0].get('deviceConfigurationCount'), 'MDC', 'device configurations'));
 
             this.getDeviceTypePreviewForm().loadRecord(deviceTypes[0]);
-            this.getDeviceTypePreview().down('device-type-action-menu').record = deviceTypes[0];
+
+            if(this.getDeviceTypePreview().down('device-type-action-menu'))
+                this.getDeviceTypePreview().down('device-type-action-menu').record = deviceTypes[0];
 
             this.getDeviceTypePreview().setTitle(deviceTypes[0].get('name'));
             Ext.resumeLayouts(true);
