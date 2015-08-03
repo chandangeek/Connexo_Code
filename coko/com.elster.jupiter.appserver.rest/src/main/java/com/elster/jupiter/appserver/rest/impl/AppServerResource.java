@@ -22,10 +22,7 @@ import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.streams.Functions;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -287,7 +284,12 @@ public class AppServerResource {
     @RolesAllowed({Privileges.VIEW_APPSEVER, Privileges.ADMINISTRATE_APPSEVER})
     public ImportScheduleInfos getServedImportSchedules(@PathParam("appserverName") String appServerName) {
         List<ImportSchedule> served = getImportSchedulesOnAppServer(appServerName);
-
+        for (Iterator<ImportSchedule> iterator = served.listIterator(); iterator.hasNext(); ) {
+            ImportSchedule importSchedule = iterator.next();
+            if (importSchedule.getObsoleteTime() != null) {
+                iterator.remove();
+            }
+        }
         ImportScheduleInfos importScheduleInfos = new ImportScheduleInfos(served);
         importScheduleInfos.importServices.sort(Comparator.comparing(ImportScheduleInfo::getName));
         return importScheduleInfos;
@@ -299,7 +301,12 @@ public class AppServerResource {
     @RolesAllowed({Privileges.VIEW_APPSEVER, Privileges.ADMINISTRATE_APPSEVER})
     public ImportScheduleInfos getUnservedImportSchedules(@PathParam("appserverName") String appServerName) {
         List<ImportSchedule> served = getImportSchedulesOnAppServer(appServerName);
-
+        for (Iterator<ImportSchedule> iterator = served.listIterator(); iterator.hasNext(); ) {
+            ImportSchedule importSchedule = iterator.next();
+            if (importSchedule.getObsoleteTime() != null) {
+                iterator.remove();
+            }
+        }
         List<ImportSchedule> unserved = fileImportService.getImportSchedules().stream()
                 .filter(schedule -> served.stream()
                                 .noneMatch(s -> schedule.getName().equals(s.getName()))

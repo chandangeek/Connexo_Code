@@ -33,6 +33,7 @@ public class AppServerInfo {
                 .map(ImportScheduleOnAppServer::getImportSchedule)
                 .flatMap(Functions.asStream())
                 .map(ImportScheduleInfo::of)
+                .filter(s -> !s.deleted)
                 .collect(Collectors.toList());
     }
 
