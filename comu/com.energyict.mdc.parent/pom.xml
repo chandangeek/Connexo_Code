@@ -51,13 +51,17 @@
     <dependencyManagement>
         <dependencies>
 
-            <!-- Project modules
-                 Please keep this alphabetically sorted and
-                 DO NOT add rest or extjs bundles.
-                 By default we do not allow reuse between rest bundles.
-                 We allow it on a case by case basis and the management
-                 is done in the depending POM.
-             -->
+            <!-- Project modules -->
+            <dependency>
+                <groupId>com.energyict</groupId>
+                <artifactId>mdc</artifactId>
+                <version>1.1.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.energyict</groupId>
+                <artifactId>mdc.issues</artifactId>
+                <version>1.1.0-SNAPSHOT</version>
+            </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.common</artifactId>
@@ -65,33 +69,33 @@
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
-                <artifactId>mdc.dashboard</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.energyict</groupId>
-                <artifactId>mdc.device.config</artifactId>
+                <artifactId>mdc.dynamic</artifactId>
                 <version>2.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
-                <artifactId>mdc.device.data</artifactId>
+                <artifactId>mdc.metering</artifactId>
+                <version>1.2.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.energyict</groupId>
+                <artifactId>mdc.protocols.api</artifactId>
                 <version>2.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
-                <artifactId>mdc.device.data.rest</artifactId>
+                <artifactId>mdc.io</artifactId>
                 <version>2.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
-                <artifactId>mdc.device.data.imp</artifactId>
+                <artifactId>mdc.pluggable</artifactId>
                 <version>2.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
-                <artifactId>mdc.device.data.validation</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
+                <artifactId>mdc.pluggable.rest</artifactId>
+                <version>2.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
@@ -101,11 +105,6 @@
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.device.lifecycle.config</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.energyict</groupId>
-                <artifactId>mdc.device.lifecycle.config.bpmhandler</artifactId>
                 <version>1.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
@@ -130,8 +129,43 @@
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
-                <artifactId>mdc.dynamic</artifactId>
+                <artifactId>mdc.device.data</artifactId>
                 <version>2.0.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.energyict</groupId>
+                <artifactId>mdc.favorites</artifactId>
+                <version>1.1.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.energyict</groupId>
+                <artifactId>mdc.device.data.imp</artifactId>
+                <version>2.0.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.energyict</groupId>
+                <artifactId>mdc.scheduling</artifactId>
+                <version>1.1.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.energyict</groupId>
+                <artifactId>mdc.scheduling.rest</artifactId>
+                <version>1.1.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.energyict</groupId>
+                <artifactId>comserver.core.rest</artifactId>
+                <version>1.1.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.energyict</groupId>
+                <artifactId>mdc.masterdata</artifactId>
+                <version>2.0.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.energyict</groupId>
+                <artifactId>mdc.masterdata.rest</artifactId>
+                <version>1.1.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
@@ -145,23 +179,18 @@
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
-                <artifactId>mdc.favorites</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.energyict</groupId>
-                <artifactId>mdc.firmware</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.energyict</groupId>
-                <artifactId>mdc.io</artifactId>
+                <artifactId>mdc.device.config</artifactId>
                 <version>2.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
-                <artifactId>mdc.issues</artifactId>
+                <artifactId>mdc.device.config.rest</artifactId>
                 <version>1.1.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.energyict</groupId>
+                <artifactId>mdc.tasks</artifactId>
+                <version>2.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
@@ -175,38 +204,13 @@
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
-                <artifactId>mdc.masterdata</artifactId>
-                <version>2.0.0-SNAPSHOT</version>
+                <artifactId>mdc.firmware</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
-                <artifactId>mdc.metering</artifactId>
-                <version>1.2.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.energyict</groupId>
-                <artifactId>mdc.pluggable</artifactId>
-                <version>2.0.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.energyict</groupId>
-                <artifactId>mdc.protocols.api</artifactId>
-                <version>2.0.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.energyict</groupId>
-                <artifactId>mdc.protocol.pluggable</artifactId>
-                <version>2.0.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.energyict</groupId>
-                <artifactId>mdc.scheduling</artifactId>
+                <artifactId>mdc.dashboard</artifactId>
                 <version>1.1.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.energyict</groupId>
-                <artifactId>mdc.tasks</artifactId>
-                <version>2.0.0-SNAPSHOT</version>
             </dependency>
 
             <!-- Kore (and by import also Platform) -->
@@ -401,7 +405,6 @@
                 <module>../com.energyict.comserver.comserver.core.extjs</module>
                 <module>../com.energyict.comserver.comserver.core.rest</module>
                 <module>../com.energyict.mdc.app</module>
-                <module>../com.energyict.mdc.api.rest</module>
                 <module>../com.energyict.mdc.app.help</module>
                 <module>../com.energyict.mdc.common</module>
                 <module>../com.energyict.mdc.dashboard</module>
@@ -412,7 +415,6 @@
                 <module>../com.energyict.mdc.device.data</module>
                 <module>../com.energyict.mdc.device.lifecycle</module>
                 <module>../com.energyict.mdc.device.lifecycle.config</module>
-                <module>../com.energyict.mdc.device.lifecycle.config.bpmhandler</module>
                 <module>../com.energyict.mdc.device.lifecycle.config.rest</module>
                 <module>../com.energyict.mdc.device.lifecycle.config.extjs</module>
                 <module>../com.energyict.mdc.device.topology</module>
@@ -421,9 +423,6 @@
                 <module>../com.energyict.mdc.device.data.imp.messagehandlers</module>
                 <module>../com.energyict.mdc.device.data.imp.rest</module>
                 <module>../com.energyict.mdc.device.data.imp.extjs</module>
-                <module>../com.energyict.mdc.device.data.validation</module>
-                <module>../com.energyict.mdc.device.data.validation.rest</module>
-                <module>../com.energyict.mdc.device.data.validation.extjs</module>
                 <module>../com.energyict.mdc.dynamic</module>
                 <module>../com.energyict.mdc.engine</module>
                 <module>../com.energyict.mdc.engine.config</module>
@@ -436,9 +435,6 @@
                 <module>../com.energyict.mdc.issue.datacollection</module>
                 <module>../com.energyict.mdc.issue.datacollection.rest</module>
                 <module>../com.energyict.mdc.issue.datacollection.extjs</module>
-                <module>../com.energyict.mdc.issue.datavalidation</module>
-                <module>../com.energyict.mdc.issue.datavalidation.extjs</module>
-                <module>../com.energyict.mdc.issue.datavalidation.rest</module>
                 <module>../com.energyict.mdc.issues</module>
                 <module>../com.energyict.mdc.masterdata</module>
                 <module>../com.energyict.mdc.masterdata.rest</module>
