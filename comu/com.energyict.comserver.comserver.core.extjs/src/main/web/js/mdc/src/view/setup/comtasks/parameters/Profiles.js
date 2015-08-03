@@ -2,28 +2,16 @@ Ext.define('Mdc.view.setup.comtasks.parameters.Profiles', {
     extend: 'Ext.form.Panel',
     requires: [
         'Mdc.view.setup.comtasks.parameters.TimeCombo',
-        'Mdc.util.ComboSelectedCount'
+        'Mdc.view.setup.comtasks.parameters.ComboWithToolbar'
     ],
     alias: 'widget.communication-tasks-profilescombo',
     name: 'profiles',
     items: [
         {
-            xtype: 'combobox',
+            xtype: 'combo-with-toolbar',
             fieldLabel: 'Load profile type',
-            plugins: ['selectedCount'],
-            queryMode: 'local',
-            multiSelect: true,
             itemId: 'checkProfileTypes',
-            labelWidth: 200,
-            required: true,
-            width: 400,
-            store: 'Mdc.store.LoadProfileTypes',
-            displayField: 'name',
-            valueField: 'id',
-            allowBlank: false,
-            editable: false,
-            validateOnBlur: false,
-            validateOnChange: false
+            store: 'Mdc.store.LoadProfileTypes'
         },
         {
             xtype: 'container',
