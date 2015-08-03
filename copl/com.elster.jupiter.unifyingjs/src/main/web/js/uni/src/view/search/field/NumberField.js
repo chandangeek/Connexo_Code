@@ -20,17 +20,14 @@ Ext.define('Uni.view.search.field.NumberField', {
         var me = this;
         var items = me.down('menu').items.items;
         Ext.each(items, function (item) {
-            if (item.xtype != 'menuseparator') {
+            if (item.xtype == 'uni-view-search-field-number-line' && item.xtype != 'menuseparator')
+                item.down('numberfield').reset();
+            if (item.xtype == 'uni-view-search-field-number-range' && item.xtype != 'menuseparator') {
+                var moreNumber = item.down('#more-value').down('numberfield');
+                var smallerNumber = item.down('#smaller-value').down('numberfield');
 
-                if (item.xtype == 'uni-view-search-field-number-line')
-                    item.down('numberfield').reset();
-                if (item.xtype == 'uni-view-search-field-number-range') {
-                    var moreNumber = item.down('#more-value').down('numberfield');
-                    var smallerNumber = item.down('#smaller-value').down('numberfield');
-
-                    moreNumber.reset();
-                    smallerNumber.reset();
-                }
+                moreNumber.reset();
+                smallerNumber.reset();
             }
         });
         me.setText(me.defaultText)
@@ -93,21 +90,21 @@ Ext.define('Uni.view.search.field.NumberField', {
                     var edited = false;
                     menu.items.each(function (item, index) {
 
-                        if (item.xtype != 'menuseparator') {
-                            if (item.xtype == 'uni-view-search-field-number-line') {
-                                if (item.down('numberfield').getValue() != 0) {
-                                    edited = true
-                                }
-                            }
+                        if (item.down('numberfield').getValue() != 0
+                            && item.xtype == 'uni-view-search-field-number-line'
+                            && item.xtype != 'menuseparator') {
+                            edited = true
+                        }
 
-                            if (item.xtype == 'uni-view-search-field-number-range') {
-                                var moreNumber = item.down('#more-value').down('numberfield');
-                                var smallerNumber = item.down('#smaller-value').down('numberfield');
 
-                                if (moreNumber.getValue() != 0
-                                    || smallerNumber.getValue() != 0) {
-                                    edited = true;
-                                }
+                        if (item.xtype == 'uni-view-search-field-number-range'
+                            && item.xtype != 'menuseparator') {
+                            var moreNumber = item.down('#more-value').down('numberfield');
+                            var smallerNumber = item.down('#smaller-value').down('numberfield');
+
+                            if (moreNumber.getValue() != 0
+                                || smallerNumber.getValue() != 0) {
+                                edited = true;
                             }
                         }
                     });

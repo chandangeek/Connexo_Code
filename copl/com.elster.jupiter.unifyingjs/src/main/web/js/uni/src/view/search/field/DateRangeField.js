@@ -20,63 +20,63 @@ Ext.define('Uni.view.search.field.DateRangeField', {
         var me = this;
         var items = me.down('menu').items.items;
         Ext.each(items, function (item) {
-            if (item.xtype != 'menuseparator') {
-                if (item.xtype == 'uni-view-search-field-date-line') {
-                    var date = item.down('datefield');
-                    var hours = item.down('#hours');
-                    var minutes = item.down('#minutes');
+            if (item.xtype == 'uni-view-search-field-date-line'
+                && item.xtype != 'menuseparator') {
+                var date = item.down('datefield');
+                var hours = item.down('#hours');
+                var minutes = item.down('#minutes');
 
-                    if (date) {
-                        date.reset();
+                if (date) {
+                    date.reset();
+                }
+                if (hours) {
+                    hours.reset();
+                }
+                if (minutes) {
+                    minutes.reset();
+                }
+            }
+            if (item.xtype == 'uni-view-search-field-date-range'
+                && item.xtype != 'menuseparator') {
+                // reset more block
+                var moreLine = item.down('#more-value');
+                var moreDate = moreLine.down('datefield');
+                if (moreDate) {
+                    moreDate.reset();
+                    // reset picker border values
+                    if (moreDate.minValue) {
+                        moreDate.setMinValue(null);
                     }
-                    if (hours) {
-                        hours.reset();
-                    }
-                    if (minutes) {
-                        minutes.reset();
+                    if (moreDate.maxValue) {
+                        moreDate.setMaxValue(null);
                     }
                 }
-                if (item.xtype == 'uni-view-search-field-date-range') {
-                    // reset more block
-                    var moreLine = item.down('#more-value');
-                    var moreDate = moreLine.down('datefield');
-                    if (moreDate) {
-                        moreDate.reset();
-                        // reset picker border values
-                        if (moreDate.minValue) {
-                            moreDate.setMinValue(null);
-                        }
-                        if (moreDate.maxValue) {
-                            moreDate.setMaxValue(null);
-                        }
-                    }
-                    if (moreLine.down('#hours')) {
-                        moreLine.down('#hours').reset();
-                    }
-                    if (moreLine.down('#minutes')) {
-                        moreLine.down('#minutes').reset();
-                    }
-                    // reset smaller block
-                    var smallerLine = item.down('#smaller-value');
-                    var smollerDate = smallerLine.down('datefield');
+                if (moreLine.down('#hours')) {
+                    moreLine.down('#hours').reset();
+                }
+                if (moreLine.down('#minutes')) {
+                    moreLine.down('#minutes').reset();
+                }
+                // reset smaller block
+                var smallerLine = item.down('#smaller-value');
+                var smollerDate = smallerLine.down('datefield');
 
-                    if (smollerDate) {
-                        smollerDate.reset();
+                if (smollerDate) {
+                    smollerDate.reset();
 
-                        // reset picker border values
-                        if (smollerDate.minValue) {
-                            smollerDate.setMinValue(null);
-                        }
-                        if (smollerDate.maxValue) {
-                            smollerDate.setMaxValue(null);
-                        }
+                    // reset picker border values
+                    if (smollerDate.minValue) {
+                        smollerDate.setMinValue(null);
                     }
-                    if (smallerLine.down('#hours')) {
-                        smallerLine.down('#hours').reset();
+                    if (smollerDate.maxValue) {
+                        smollerDate.setMaxValue(null);
                     }
-                    if (smallerLine.down('#minutes')) {
-                        smallerLine.down('#minutes').reset();
-                    }
+                }
+                if (smallerLine.down('#hours')) {
+                    smallerLine.down('#hours').reset();
+                }
+                if (smallerLine.down('#minutes')) {
+                    smallerLine.down('#minutes').reset();
                 }
             }
         });
@@ -142,34 +142,34 @@ Ext.define('Uni.view.search.field.DateRangeField', {
                     // setting of text to component button (+ * logic) and enable/disable 'clear all' button
                     var edited = false;
                     menu.items.each(function (item, index) {
-                        if (item.xtype != 'menuseparator') {
-                            if (item.xtype == 'uni-view-search-field-date-line')
-                                if (item.down('datefield').getValue() != null
-                                    || item.down('#hours').getValue() != 0
-                                    || item.down('#minutes').getValue() != 0) {
-                                    edited = true
-                                }
-                            if (item.xtype == 'uni-view-search-field-date-range') {
-                                var moreLine = item.down('#more-value');
-                                var smallerLine = item.down('#smaller-value');
+                        if (item.xtype == 'uni-view-search-field-date-line'
+                            && item.xtype != 'menuseparator')
+                            if (item.down('datefield').getValue() != null
+                                || item.down('#hours').getValue() != 0
+                                || item.down('#minutes').getValue() != 0) {
+                                edited = true
+                            }
+                        if (item.xtype == 'uni-view-search-field-date-range'
+                            && item.xtype != 'menuseparator') {
+                            var moreLine = item.down('#more-value');
+                            var smallerLine = item.down('#smaller-value');
 
-                                if (moreLine.down('datefield').getValue() != null || moreLine.down('#hours').getValue() != 0
-                                    || moreLine.down('#minutes').getValue() != 0 || smallerLine.down('datefield').getValue() != null
-                                    || smallerLine.down('#hours').getValue() != 0 || smallerLine.down('#minutes').getValue() != 0) {
-                                    edited = true;
-                                }
+                            if (moreLine.down('datefield').getValue() != null || moreLine.down('#hours').getValue() != 0
+                                || moreLine.down('#minutes').getValue() != 0 || smallerLine.down('datefield').getValue() != null
+                                || smallerLine.down('#hours').getValue() != 0 || smallerLine.down('#minutes').getValue() != 0) {
+                                edited = true;
+                            }
 
-                                // setting date constraints
-                                var valueOfMore = moreLine.down('datefield').getValue();
+                            // setting date constraints
+                            var valueOfMore = moreLine.down('datefield').getValue();
 
-                                if (valueOfMore != null) {
-                                    smallerLine.down('datefield').setMinValue(valueOfMore)
-                                }
-                                var valueOfSmaller = smallerLine.down('datefield').getValue();
+                            if (valueOfMore != null) {
+                                smallerLine.down('datefield').setMinValue(valueOfMore)
+                            }
+                            var valueOfSmaller = smallerLine.down('datefield').getValue();
 
-                                if (valueOfSmaller != null) {
-                                    moreLine.down('datefield').setMaxValue(valueOfSmaller)
-                                }
+                            if (valueOfSmaller != null) {
+                                moreLine.down('datefield').setMaxValue(valueOfSmaller)
                             }
                         }
                     });

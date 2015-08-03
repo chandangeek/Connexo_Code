@@ -22,12 +22,6 @@ Ext.define('Uni.view.search.field.DateRange', {
             margin: '0 0 3 0'
         }
     ],
-    listeners: {
-        focus: function (comp) {
-            me = this;
-            debugger;
-        }
-    },
 
     initComponent: function () {
         this.callParent(arguments);

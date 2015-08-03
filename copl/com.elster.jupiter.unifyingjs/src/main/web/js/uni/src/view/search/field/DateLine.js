@@ -15,7 +15,7 @@ Ext.define('Uni.view.search.field.DateLine', {
             margin: '1px 5px 1px 0px',
             listeners: {
                 change: function () {
-                    me = this;
+                    var me = this;
                     var panel = me.up('uni-view-search-field-date-line');
                     var mainButton = me.up('uni-view-search-field-date-field');
                     var clearAllButton = panel.down('#filter-clear');
@@ -46,7 +46,7 @@ Ext.define('Uni.view.search.field.DateLine', {
             margin: '1px 10px 1px 0px',
             listeners: {
                 change: function () {
-                    me = this;
+                    var me = this;
                     var panel = me.up('uni-view-search-field-date-line');
                     var mainButton = me.up('uni-view-search-field-date-field');
                     var clearAllButton = panel.down('#filter-clear');
@@ -72,7 +72,7 @@ Ext.define('Uni.view.search.field.DateLine', {
             margin: '1px 5px 1px 0px',
             listeners: {
                 change: function () {
-                    me = this;
+                    var me = this;
                     var panel = me.up('uni-view-search-field-date-line');
                     var mainButton = me.up('uni-view-search-field-date-field');
                     var clearAllButton = panel.down('#filter-clear');
@@ -123,6 +123,17 @@ Ext.define('Uni.view.search.field.DateLine', {
                     }
                     hoursField.reset();
                     minutesField.reset();
+
+                    var rangeBlock = me.up('uni-view-search-field-date-range');
+                    if (rangeBlock && (me.up('#smaller-value'))) {
+                        rangeBlock.down('#more-value').down('datefield').setMaxValue(null);
+                        rangeBlock.down('#more-value').down('datefield').setMinValue(null);
+                    }
+                    if (rangeBlock && (me.up('#more-value'))) {
+                        rangeBlock.down('#smaller-value').down('datefield').setMaxValue(null);
+                        rangeBlock.down('#smaller-value').down('datefield').setMinValue(null);
+                    }
+
                 }
             }
 
