@@ -14,6 +14,7 @@ import com.energyict.mdc.common.TimeOfDay;
 import com.energyict.mdc.common.ean.Ean13;
 import com.energyict.mdc.common.ean.Ean18;
 import com.energyict.mdc.device.data.importers.impl.TranslationKeys;
+import com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat;
 import com.energyict.mdc.dynamic.DateAndTimeFactory;
 import com.energyict.mdc.dynamic.DateFactory;
 import com.energyict.mdc.dynamic.Ean13Factory;
@@ -210,6 +211,8 @@ public enum DynamicPropertyParser {
         public Object parse(String stringValue) throws ParseException {
             if (stringValue == null) {
                 return null;
+            } else if (this.config != null) {
+                return new BigDecimalParser(this.config.numberFormat).parse(stringValue);
             } else {
                 return new BigDecimal(stringValue);
             }
@@ -217,7 +220,7 @@ public enum DynamicPropertyParser {
 
         @Override
         public String getExpectedFormat(Thesaurus thesaurus) {
-            return TranslationKeys.NUMBER_FORMAT.getTranslated(thesaurus);
+            return this.config != null ? this.config.numberFormat.getExample() : TranslationKeys.NUMBER_FORMAT.getTranslated(thesaurus);
         }
     },
     HEX(HexStringFactory.class) {
@@ -237,10 +240,16 @@ public enum DynamicPropertyParser {
     };
 
     private final Class<? extends ValueFactory<?>> clazz;
-    private Thesaurus thesaurus;
+
+    PropertiesParserConfig config;
 
     DynamicPropertyParser(Class<? extends ValueFactory<?>> clazz) {
         this.clazz = clazz;
+    }
+
+    public DynamicPropertyParser configure(PropertiesParserConfig config) {
+        this.config = config;
+        return this;
     }
 
     public abstract Object parse(String value) throws ParseException;
@@ -263,5 +272,22 @@ public enum DynamicPropertyParser {
 
         public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat(DATE_PATTERN);
         public static final SimpleDateFormat DATE_AND_TIME_FORMAT = new SimpleDateFormat(DATE_AND_TIME_PATTERN);
+    }
+
+    public static class PropertiesParserConfig {
+
+        private SupportedNumberFormat numberFormat = SupportedNumberFormat.FORMAT3;//default is 123456789.012
+
+        private PropertiesParserConfig() {
+        }
+
+        public static PropertiesParserConfig newConfig() {
+            return new PropertiesParserConfig();
+        }
+
+        public PropertiesParserConfig withNumberFormat(SupportedNumberFormat numberFormat) {
+            this.numberFormat = numberFormat;
+            return this;
+        }
     }
 }

@@ -13,6 +13,8 @@ import com.energyict.mdc.device.data.importers.impl.FileImportProcessor;
 import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
 import com.energyict.mdc.device.data.importers.impl.exceptions.ProcessorException;
 import com.energyict.mdc.device.data.importers.impl.parsers.DynamicPropertyParser;
+import com.energyict.mdc.device.data.importers.impl.parsers.DynamicPropertyParser.PropertiesParserConfig;
+import com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
@@ -23,11 +25,13 @@ import java.util.stream.Collectors;
 public class ConnectionAttributesImportProcessor implements FileImportProcessor<ConnectionAttributesImportRecord> {
 
     private final DeviceDataImporterContext context;
+    private final PropertiesParserConfig propertiesParserConfig;
 
     private String connectionMethod;
 
-    ConnectionAttributesImportProcessor(DeviceDataImporterContext context) {
+    ConnectionAttributesImportProcessor(DeviceDataImporterContext context, SupportedNumberFormat numberFormat) {
         this.context = context;
+        this.propertiesParserConfig = PropertiesParserConfig.newConfig().withNumberFormat(numberFormat);
     }
 
     @Override
@@ -60,7 +64,7 @@ public class ConnectionAttributesImportProcessor implements FileImportProcessor<
                     .filter(PropertySpec::isRequired)
                     .map(PropertySpec::getName)
                     .filter(propertySpec -> !properties.hasValueFor(propertySpec))
-                    .collect(Collectors.joining(","));
+                    .collect(Collectors.joining(", "));
             if (!missingRequiredProperties.isEmpty()) {
                 logger.warning(MessageSeeds.REQUIRED_CONNECTION_ATTRIBUTES_MISSED, data.getLineNumber(), missingRequiredProperties);
             }
@@ -80,7 +84,7 @@ public class ConnectionAttributesImportProcessor implements FileImportProcessor<
         Object parsedValue;
         try {
             if (propertyParser.isPresent()) {
-                parsedValue = propertyParser.get().parse(value);
+                parsedValue = propertyParser.get().configure(propertiesParserConfig).parse(value);
             } else {
                 parsedValue = valueFactory.fromStringValue(value);
             }

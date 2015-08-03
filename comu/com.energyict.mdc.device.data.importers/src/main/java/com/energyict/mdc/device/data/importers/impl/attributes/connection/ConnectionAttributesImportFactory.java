@@ -58,7 +58,7 @@ public class ConnectionAttributesImportFactory extends AbstractDeviceDataFileImp
         SupportedNumberFormat numberFormat = ((SupportedNumberFormat.SupportedNumberFormatInfo) properties.get(NUMBER_FORMAT.getPropertyKey())).getFormat();
 
         FileImportParser<ConnectionAttributesImportRecord> parser = new FileImportDescriptionBasedParser(new ConnectionAttributesImportDescription());
-        FileImportProcessor<ConnectionAttributesImportRecord> processor = new ConnectionAttributesImportProcessor(getContext());
+        FileImportProcessor<ConnectionAttributesImportRecord> processor = new ConnectionAttributesImportProcessor(getContext(), numberFormat);
         FileImportLogger<FileImportRecord> logger = new DevicePerLineFileImportLogger(getContext());
         return DeviceDataCsvImporter.withParser(parser).withProcessor(processor).withLogger(logger).withDelimiter(delimiter.charAt(0)).build();
     }
