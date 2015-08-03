@@ -3,96 +3,21 @@ Ext.define('Uni.view.search.field.DateLine', {
     xtype: 'uni-view-search-field-date-line',
     layout: 'hbox',
     width: '440',
-    items: [
-        {
-            xtype: 'combo',
-            disabled: true,
-            width: 55,
-            margin: '1px 30px 1px 5px'
-        },
-        {
-            xtype: 'datefield',
-            margin: '1px 5px 1px 0px',
-            listeners: {
-                change: function () {
-                    var me = this;
-                    var panel = me.up('uni-view-search-field-date-line');
-                    var mainButton = me.up('uni-view-search-field-date-field');
-                    var clearAllButton = panel.down('#filter-clear');
+    changeButtonText: function () {
+        var me = this;
+        var panel = me.up('uni-view-search-field-date-line');
+        var mainButton = me.up('uni-view-search-field-date-field');
+        var clearAllButton = panel.down('#filter-clear');
 
-                    if (me.getValue() === null) {
-                        clearAllButton.disable(true)
-                    } else {
-                        clearAllButton.enable(true);
-                        mainButton.setText(mainButton.defaultText + '*');
-                    }
+        if (me.getValue() === null || (me.value === 0 || me.hidden)) {
+            clearAllButton.disable(true)
+        } else {
+            clearAllButton.enable(true);
+            mainButton.setText(mainButton.defaultText + '*');
+        }
 
-                }
-            }
-        },
-        {
-            xtype: 'label',
-            itemId: 'label',
-            text: 'at',
-            margin: '5px 10px 0px 20px'
-        },
-        {
-            xtype: 'numberfield',
-            itemId: 'hours',
-            value: 0,
-            maxValue: 23,
-            minValue: 0,
-            width: 55,
-            margin: '1px 10px 1px 0px',
-            listeners: {
-                change: function () {
-                    var me = this;
-                    var panel = me.up('uni-view-search-field-date-line');
-                    var mainButton = me.up('uni-view-search-field-date-field');
-                    var clearAllButton = panel.down('#filter-clear');
+    },
 
-                    if (me.value === 0 || me.hidden) {
-                        clearAllButton.disable(true)
-                    } else {
-                        clearAllButton.enable(true);
-                        mainButton.setText(mainButton.defaultText + '*');
-                    }
-
-                }
-            }
-
-        },
-        {
-            xtype: 'numberfield',
-            itemId: 'minutes',
-            value: 0,
-            maxValue: 59,
-            minValue: 0,
-            width: 55,
-            margin: '1px 5px 1px 0px',
-            listeners: {
-                change: function () {
-                    var me = this;
-                    var panel = me.up('uni-view-search-field-date-line');
-                    var mainButton = me.up('uni-view-search-field-date-field');
-                    var clearAllButton = panel.down('#filter-clear');
-
-                    if (me.value === 0 || me.hidden) {
-                        clearAllButton.disable(true)
-                    } else {
-                        clearAllButton.enable(true);
-                        mainButton.setText(mainButton.defaultText + '*');
-                    }
-
-                }
-            }
-
-        },
-        {
-            itemId: 'flex',
-            hidden: true,
-            flex: 0.09,
-        }],
     rbar: {
         width: 30,
         items: [
@@ -153,7 +78,60 @@ Ext.define('Uni.view.search.field.DateLine', {
     },
 
     initComponent: function () {
-        me = this;
+        var me = this;
+
+        me.items = [
+            {
+                xtype: 'combo',
+                disabled: true,
+                width: 55,
+                margin: '1px 30px 1px 5px'
+            },
+            {
+                xtype: 'datefield',
+                margin: '1px 5px 1px 0px',
+                listeners: {
+                    change: me.changeButtonText
+                }
+            },
+            {
+                xtype: 'label',
+                itemId: 'label',
+                text: 'at',
+                margin: '5px 10px 0px 20px'
+            },
+            {
+                xtype: 'numberfield',
+                itemId: 'hours',
+                value: 0,
+                maxValue: 23,
+                minValue: 0,
+                width: 55,
+                margin: '1px 10px 1px 0px',
+                listeners: {
+                    change: me.changeButtonText
+                }
+
+            },
+            {
+                xtype: 'numberfield',
+                itemId: 'minutes',
+                value: 0,
+                maxValue: 59,
+                minValue: 0,
+                width: 55,
+                margin: '1px 5px 1px 0px',
+                listeners: {
+                    change: me.changeButtonText
+                }
+
+            },
+            {
+                itemId: 'flex',
+                hidden: true,
+                flex: 0.09,
+            }];
+
         me.callParent(arguments);
         me.down('combo').setValue(this.operator);
         if (this.hideTime) {
