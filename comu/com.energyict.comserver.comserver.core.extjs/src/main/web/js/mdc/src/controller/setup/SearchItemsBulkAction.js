@@ -188,7 +188,6 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             params;
 
         finishBtn.disable();
-        debugger;
         switch (me.operation) {
             case 'add':
                 method = 'PUT';
