@@ -1,6 +1,8 @@
 package com.energyict.protocolimpl.dlms;
 
+import com.energyict.dlms.cosem.GenericRead;
 import com.energyict.mdc.common.NotFoundException;
+import com.energyict.mdc.protocol.api.*;
 import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec;
 import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpecFactory;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
@@ -37,12 +39,7 @@ import com.energyict.mdc.protocol.api.device.data.ProfileData;
 
 import com.energyict.protocols.mdc.services.impl.OrmClient;
 import com.energyict.protocols.util.CacheMechanism;
-import com.energyict.mdc.protocol.api.HHUEnabler;
-import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
-import com.energyict.mdc.protocol.api.MissingPropertyException;
-import com.energyict.mdc.protocol.api.NoSuchRegisterException;
-import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 
 import javax.inject.Inject;
@@ -162,10 +159,8 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
      * "password"  (MeterProtocol.PASSWORD) </p>
      *
      * @param properties contains a set of protocol specific key value pairs
-     * @throws InvalidPropertyException
-     *          if a property value is not compatible with the device type
-     * @throws MissingPropertyException
-     *          if a required property is not present
+     * @throws InvalidPropertyException if a property value is not compatible with the device type
+     * @throws MissingPropertyException if a required property is not present
      */
     public void setProperties(Properties properties) throws InvalidPropertyException, MissingPropertyException {
         this.properties = properties;
@@ -300,7 +295,7 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
         }
 
         XdlmsAse xdlmsAse = new XdlmsAse(isCiphered() ? localSecurityProvider.getDedicatedKey() : null, true, PROPOSED_QOS, PROPOSED_DLMS_VERSION, this.conformanceBlock, MAX_PDU_SIZE);
-        aso = new ApplicationServiceObject(xdlmsAse, this, securityContext, getContextId());
+        aso = new ApplicationServiceObject(xdlmsAse, this, securityContext, getContextId(), serialNumber.getBytes(), null);
         dlmsConnection = new SecureConnection(aso, connection);
         InvokeIdAndPriorityHandler iiapHandler = buildInvokeIdAndPriorityHandler();
         this.dlmsConnection.setInvokeIdAndPriorityHandler(iiapHandler);
@@ -528,7 +523,7 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
      * {@link com.energyict.dlms.ProtocolLink}.SN_REFERENCE or {@link com.energyict.dlms.ProtocolLink}.LN_REFERENCE
      *
      * @return {@link com.energyict.dlms.ProtocolLink}.SN_REFERENCE for short name or
-     *         {@link com.energyict.dlms.ProtocolLink}.LN_REFERENCE for long name
+     * {@link com.energyict.dlms.ProtocolLink}.LN_REFERENCE for long name
      */
     public int getReference() {
         return ProtocolLink.LN_REFERENCE;
@@ -597,8 +592,8 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
      * @param includeEvents indicates whether events need to be included
      * @return profile data containing interval records and optional meter events
      */
-    public ProfileData getProfileData(boolean includeEvents) throws UnsupportedException {
-        throw new UnsupportedException();
+    public ProfileData getProfileData(boolean includeEvents) throws IOException {
+        return getProfileData(new Date(), includeEvents);
     }
 
     /**
@@ -617,8 +612,8 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
      * @param lastReading   retrieve all data younger than lastReading
      * @return profile data containing interval records and optional meter events
      */
-    public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws UnsupportedException {
-        throw new UnsupportedException();
+    public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
+        return getProfileData(lastReading, new Date(), includeEvents);
     }
 
     /**
@@ -637,11 +632,12 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
      * @param from          retrieve all data starting with from date
      * @param to            retrieve all data until to date
      * @return profile data containing interval records and optional meter events between from and to
-     * @throws UnsupportedException
-     *                             if meter does not support a to date to request the profile data
+     * @throws UnsupportedException if meter does not support a to date to request the profile data
      */
-    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws UnsupportedException {
-        throw new UnsupportedException();
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
+        GenericRead genericRead = getCosemObjectFactory().getGenericRead(ObisCode.fromString("0.0.99.98.0.255"), 2);
+        genericRead.getResponseData();
+        return new ProfileData();
     }
 
     /**
@@ -649,8 +645,7 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
      *
      * @param channelId index of the channel. Indexes start with 1
      * @return meter register value as Quantity
-     * @throws UnsupportedException
-     *                             if the device does not support this operation
+     * @throws UnsupportedException if the device does not support this operation
      * @deprecated Replaced by the RegisterProtocol interface method readRegister(...)
      */
     public Quantity getMeterReading(int channelId) throws UnsupportedException {
@@ -662,8 +657,7 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
      *
      * @param name register name
      * @return meter register value as Quantity
-     * @throws UnsupportedException
-     *                             Thrown if the method is not supported by the protocol
+     * @throws UnsupportedException Thrown if the method is not supported by the protocol
      * @deprecated Replaced by the RegisterProtocol interface method readRegister(...)
      */
     public Quantity getMeterReading(String name) throws UnsupportedException {
@@ -698,12 +692,10 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
      *             should use the OBIS code as register name
      *             </p>
      * @return the value for the specified register
-     *         </p><p>
-     * @throws java.io.IOException <br>
-     * @throws UnsupportedException
-     *                             if the device does not support this operation
-     * @throws NoSuchRegisterException
-     *                             if the device does not support the specified register
+     * </p><p>
+     * @throws java.io.IOException     <br>
+     * @throws UnsupportedException    if the device does not support this operation
+     * @throws NoSuchRegisterException if the device does not support the specified register
      */
     public String getRegister(String name) throws IOException {
         return doGetRegister(name);
@@ -763,11 +755,9 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
      *              should use the OBIS code as register name
      * @param value to set the register.
      *              </p>
-     * @throws java.io.IOException <br>
-     * @throws UnsupportedException
-     *                             if the device does not support this operation
-     * @throws NoSuchRegisterException
-     *                             if the device does not support the specified register
+     * @throws java.io.IOException     <br>
+     * @throws UnsupportedException    if the device does not support this operation
+     * @throws NoSuchRegisterException if the device does not support the specified register
      */
     public void setRegister(String name, String value) throws IOException {
         boolean classSpecified = false;
@@ -803,8 +793,7 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
     /**
      * Initializes the device, typically clearing all profile data
      *
-     * @throws UnsupportedException
-     *                             if the device does not support this operation
+     * @throws UnsupportedException if the device does not support this operation
      */
     public void initializeDevice() throws UnsupportedException {
         throw new UnsupportedException();
@@ -840,8 +829,7 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
      * @param rtuid Database ID of the RTU
      * @return the protocol specific cache object
      * @throws java.sql.SQLException Thrown in case of an SQLException
-     * @throws BusinessException
-     *                               Thrown in case of an BusinessException
+     * @throws BusinessException     Thrown in case of an BusinessException
      */
     public Object fetchCache(int rtuid) throws SQLException, BusinessException {
         if (rtuid != 0) {
@@ -863,8 +851,7 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
      * @param rtuid       Database ID of the RTU
      * @param cacheObject the protocol specific cach object
      * @throws java.sql.SQLException Thrown in case of an SQLException
-     * @throws BusinessException
-     *                               Thrown in case of an BusinessException
+     * @throws BusinessException     Thrown in case of an BusinessException
      */
     public void updateCache(int rtuid, Object cacheObject) throws SQLException, BusinessException {
         if (rtuid != 0) {
@@ -941,6 +928,7 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
         optionalKeys.add(NTASecurityProvider.DATATRANSPORT_ENCRYPTIONKEY);
         optionalKeys.add(NTASecurityProvider.DATATRANSPORT_AUTHENTICATIONKEY);
         optionalKeys.add(NTASecurityProvider.MASTERKEY);
+//        optionalKeys.add(DlmsProtocolProperties.NTA_SIMULATION_TOOL);
         return optionalKeys;
     }
 
