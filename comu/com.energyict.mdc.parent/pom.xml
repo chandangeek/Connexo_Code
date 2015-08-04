@@ -430,6 +430,9 @@
                 <module>../com.energyict.mdc.device.data.imp.messagehandlers</module>
                 <module>../com.energyict.mdc.device.data.imp.rest</module>
                 <module>../com.energyict.mdc.device.data.imp.extjs</module>
+                <module>../com.energyict.mdc.device.data.validation</module>
+                <module>../com.energyict.mdc.device.data.validation.rest</module>
+                <module>../com.energyict.mdc.device.data.validation.extjs</module>
                 <module>../com.energyict.mdc.dynamic</module>
                 <module>../com.energyict.mdc.engine</module>
                 <module>../com.energyict.mdc.engine.config</module>
@@ -443,6 +446,8 @@
                 <module>../com.energyict.mdc.issue.datacollection.rest</module>
                 <module>../com.energyict.mdc.issue.datacollection.extjs</module>
                 <module>../com.energyict.mdc.issue.datavalidation</module>
+                <module>../com.energyict.mdc.issue.datavalidation.extjs</module>
+                <module>../com.energyict.mdc.issue.datavalidation.rest</module>
                 <module>../com.energyict.mdc.issues</module>
                 <module>../com.energyict.mdc.masterdata</module>
                 <module>../com.energyict.mdc.masterdata.rest</module>
