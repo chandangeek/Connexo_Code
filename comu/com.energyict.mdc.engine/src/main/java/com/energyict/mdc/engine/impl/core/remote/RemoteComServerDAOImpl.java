@@ -100,15 +100,6 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public ComPort refreshComPort (ComPort comPort) {
-        Map<String, Object> queryParameters = new HashMap<>();
-        queryParameters.put(RemoteComServerQueryJSonPropertyNames.COMPORT, comPort.getId());
-        queryParameters.put(RemoteComServerQueryJSonPropertyNames.MODIFICATION_DATE, comPort.getModificationDate());
-        JSONObject response = this.post(QueryMethod.RefreshComPort, queryParameters);
-        return this.toComPort(response);
-    }
-
-    @Override
     public List<ComJob> findExecutableOutboundComTasks (OutboundComPort comPort) {
         return null;
     }

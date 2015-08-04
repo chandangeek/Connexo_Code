@@ -149,7 +149,7 @@ public class RunningComServerChangesTest {
         this.initializeEventPublisher(runningComServer);
         runningComServer.start();
 
-        // Add an active outbound ComPort with zero simultaneous connection
+        // Add an active outbound ComPort with zero simultaneous connections
         OutboundComPort newOutboundComPort = comServerDAO.createOutbound(0, true, 0);
 
         this.waitForComServerToPickupChanges(runningComServer);

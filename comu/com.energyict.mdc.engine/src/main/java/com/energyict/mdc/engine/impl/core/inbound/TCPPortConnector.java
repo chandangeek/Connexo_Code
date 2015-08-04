@@ -1,17 +1,16 @@
 package com.energyict.mdc.engine.impl.core.inbound;
 
-import com.energyict.mdc.engine.exceptions.MessageSeeds;
-import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannel;
-import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannelImpl;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.InboundComPort;
 import com.energyict.mdc.engine.config.TCPBasedInboundComPort;
+import com.energyict.mdc.engine.exceptions.MessageSeeds;
+import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannel;
+import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannelImpl;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
-import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.io.InboundCommunicationException;
-import com.energyict.mdc.protocol.api.services.HexService;
-
 import com.energyict.mdc.io.SocketService;
+import com.energyict.mdc.protocol.api.ComPortType;
+import com.energyict.mdc.protocol.api.services.HexService;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -20,7 +19,7 @@ import java.time.Clock;
 
 /**
  * Implementation of an {@link InboundComPortConnector} for a {@link ComPort} of the type {@link ComPortType#TCP}.
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 18/10/12
  * Time: 13:49
@@ -28,7 +27,7 @@ import java.time.Clock;
 public class TCPPortConnector implements InboundComPortConnector {
 
     /**
-     * The ServerSocket which will be used to accept incoming sessions and create a Socket for them
+     * The ServerSocket which will be used to accept incoming sessions and create a Socket for them.
      */
     private final ServerSocket serverSocket;
     private final SocketService socketService;
@@ -60,6 +59,18 @@ public class TCPPortConnector implements InboundComPortConnector {
         }
         catch (IOException e) {
             throw new InboundCommunicationException(MessageSeeds.UNEXPECTED_INBOUND_COMMUNICATION_EXCEPTION, e);
+        }
+    }
+
+    @Override
+    public void close() {
+        if (this.serverSocket != null) {
+            try {
+                this.serverSocket.close();
+            }
+            catch (IOException e) {
+                throw new InboundCommunicationException(MessageSeeds.UNEXPECTED_INBOUND_COMMUNICATION_EXCEPTION, e);
+            }
         }
     }
 

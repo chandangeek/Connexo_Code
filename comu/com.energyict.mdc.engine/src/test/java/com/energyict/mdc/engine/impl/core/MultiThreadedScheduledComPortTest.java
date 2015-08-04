@@ -379,7 +379,6 @@ public class MultiThreadedScheduledComPortTest {
     public void testExecuteTasksWithNoWork() throws InterruptedException {
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
         OutboundComPort comPort = this.mockComPort("testExecuteTasksWithNoWork");
-        when(comServerDAO.refreshComPort(comPort)).thenReturn(comPort);
         MultiThreadedScheduledComPort scheduledComPort = new MultiThreadedScheduledComPort(comPort, comServerDAO, deviceCommandExecutor, this.serviceProvider);
         final CountDownLatch stopLatch = new CountDownLatch(NUMBER_OF_SIMULTANEOUS_CONNECTIONS);
         when(comServerDAO.findExecutableOutboundComTasks(comPort)).then(invocation -> {
@@ -405,7 +404,6 @@ public class MultiThreadedScheduledComPortTest {
     public void testExecuteTasksInParallel() throws InterruptedException, BusinessException, SQLException, ConnectionException {
         ComServerDAO comServerDAOMock = mock(ComServerDAO.class);
         OutboundComPort comPort = this.mockComPort("testExecuteTasksInParallel");
-        when(comServerDAOMock.refreshComPort(comPort)).thenReturn(comPort);
         when(comServerDAOMock.isStillPending(anyLong())).thenReturn(true);
         when(comServerDAOMock.areStillPending(anyCollection())).thenReturn(true);
         this.comChannel = new ComPortRelatedComChannelImpl(mock(ComChannel.class), comPort, clock, this.hexService, eventPublisher);
@@ -451,7 +449,6 @@ public class MultiThreadedScheduledComPortTest {
     public void testExecuteTasksInParallelWithConnectionFailure() throws InterruptedException, BusinessException, SQLException, ConnectionException {
         ComServerDAO comServerDAOMock = mock(ComServerDAO.class);
         OutboundComPort comPort = this.mockComPort("testExecuteTasksInParallelWithConnectionFailure");
-        when(comServerDAOMock.refreshComPort(comPort)).thenReturn(comPort);
         when(comServerDAOMock.isStillPending(anyLong())).thenReturn(true);
         when(comServerDAOMock.areStillPending(anyCollection())).thenReturn(true);
         // Force the connection to fail
@@ -497,7 +494,6 @@ public class MultiThreadedScheduledComPortTest {
     public void testExecuteTasksOneByOne() throws InterruptedException, BusinessException, SQLException, ConnectionException {
         ComServerDAO comServerDAOMock = mock(ComServerDAO.class);
         OutboundComPort comPort = this.mockComPort("testExecuteTasksOneByOne");
-        when(comServerDAOMock.refreshComPort(comPort)).thenReturn(comPort);
         when(comServerDAOMock.isStillPending(anyLong())).thenReturn(true);
         when(comServerDAOMock.areStillPending(anyCollection())).thenReturn(true);
         this.comChannel = new ComPortRelatedComChannelImpl(mock(ComChannel.class), comPort, clock, this.hexService, eventPublisher);
@@ -544,7 +540,6 @@ public class MultiThreadedScheduledComPortTest {
     public void testExecuteTasksOneByOneWithConnectionFailure() throws InterruptedException, BusinessException, SQLException, ConnectionException {
         ComServerDAO comServerDAOMock = mock(ComServerDAO.class);
         OutboundComPort comPort = this.mockComPort("testExecuteTasksOneByOneWithConnectionFailure");
-        when(comServerDAOMock.refreshComPort(comPort)).thenReturn(comPort);
         when(comServerDAOMock.isStillPending(anyLong())).thenReturn(true);
         when(comServerDAOMock.areStillPending(anyCollection())).thenReturn(true);
         // Force the connection to fail
@@ -591,7 +586,6 @@ public class MultiThreadedScheduledComPortTest {
     public void testExecuteTasksInParallelWithWorkThatIsAlwaysStolenByOtherComponents() throws InterruptedException, BusinessException, SQLException, ConnectionException {
         ComServerDAO comServerDAOMock = mock(ComServerDAO.class);
         OutboundComPort comPort = this.mockComPort("testExecuteTasksInParallelWithWorkThatIsAlwaysStolenByOtherComponents");
-        when(comServerDAOMock.refreshComPort(comPort)).thenReturn(comPort);
         when(comServerDAOMock.isStillPending(anyLong())).thenReturn(true);
         when(comServerDAOMock.areStillPending(anyCollection())).thenReturn(true);
         this.comChannel = new ComPortRelatedComChannelImpl(mock(ComChannel.class), comPort, clock, this.hexService, eventPublisher);
@@ -639,7 +633,6 @@ public class MultiThreadedScheduledComPortTest {
     public void testExecuteTasksOneByOneWithWorkThatIsAlwaysStolenByOtherComponents() throws InterruptedException, BusinessException, SQLException, ConnectionException {
         ComServerDAO comServerDAOMock = mock(ComServerDAO.class);
         OutboundComPort comPort = this.mockComPort("testExecuteTasksOneByOneWithWorkThatIsAlwaysStolenByOtherComponents");
-        when(comServerDAOMock.refreshComPort(comPort)).thenReturn(comPort);
         when(comServerDAOMock.isStillPending(anyLong())).thenReturn(true);
         when(comServerDAOMock.areStillPending(anyCollection())).thenReturn(true);
         this.comChannel = new ComPortRelatedComChannelImpl(mock(ComChannel.class), comPort, clock, this.hexService, eventPublisher);
@@ -691,7 +684,6 @@ public class MultiThreadedScheduledComPortTest {
     public void testExecuteTasksInParallelWithWorkThatWasAlreadyExecutedByOtherComponents() throws InterruptedException, BusinessException, SQLException, ConnectionException {
         ComServerDAO comServerDAOMock = mock(ComServerDAO.class);
         OutboundComPort comPort = this.mockComPort("testExecuteTasksInParallelWithWorkThatIsAlwaysStolenByOtherComponents");
-        when(comServerDAOMock.refreshComPort(comPort)).thenReturn(comPort);
         when(comServerDAOMock.isStillPending(anyLong())).thenReturn(false);
         when(comServerDAOMock.areStillPending(anyCollection())).thenReturn(false);
         this.comChannel = new ComPortRelatedComChannelImpl(mock(ComChannel.class), comPort, clock, this.hexService, eventPublisher);
@@ -736,7 +728,6 @@ public class MultiThreadedScheduledComPortTest {
     public void testExecuteTasksOneByOneWithWorkThatWasAlreadyExecutedByOtherComponents() throws InterruptedException, BusinessException, SQLException, ConnectionException {
         ComServerDAO comServerDAOMock = mock(ComServerDAO.class);
         OutboundComPort comPort = this.mockComPort("testExecuteTasksOneByOneWithWorkThatIsAlwaysStolenByOtherComponents");
-        when(comServerDAOMock.refreshComPort(comPort)).thenReturn(comPort);
         when(comServerDAOMock.isStillPending(anyLong())).thenReturn(false);
         when(comServerDAOMock.areStillPending(anyCollection())).thenReturn(false);
         this.comChannel = new ComPortRelatedComChannelImpl(mock(ComChannel.class), comPort, clock, this.hexService, eventPublisher);
@@ -784,7 +775,6 @@ public class MultiThreadedScheduledComPortTest {
     public void testConnectionFailureReschedulesTask() throws InterruptedException, BusinessException, SQLException, ConnectionException {
         ComServerDAO comServerDAOMock = mock(ComServerDAO.class);
         OutboundComPort comPort = this.mockComPort("testConnectionFailureReschedulesTask");
-        when(comServerDAOMock.refreshComPort(comPort)).thenReturn(comPort);
         when(comServerDAOMock.isStillPending(anyLong())).thenReturn(true);
         when(comServerDAOMock.areStillPending(anyCollection())).thenReturn(true);
         doThrow(ConnectionException.class).when(this.serialConnectionTask1).connect(eq(comPort), anyList());

@@ -1,9 +1,10 @@
 package com.energyict.mdc.engine.impl.core;
 
+import com.energyict.mdc.engine.config.InboundComPort;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServer;
-import com.energyict.mdc.engine.config.InboundComPort;
 
+import java.time.Clock;
 import java.util.concurrent.ThreadFactory;
 
 /**
@@ -17,11 +18,12 @@ import java.util.concurrent.ThreadFactory;
  */
 public abstract class ServletBasedComPortListenerImpl extends ComPortListenerImpl{
 
-    protected ServletBasedComPortListenerImpl(InboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor) {
-        super(comPort, comServerDAO, deviceCommandExecutor);
+    protected ServletBasedComPortListenerImpl(InboundComPort comPort, Clock clock, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor) {
+        super(comPort, clock, comServerDAO, deviceCommandExecutor);
     }
 
-    protected ServletBasedComPortListenerImpl(InboundComPort comPort, ComServerDAO comServerDAO, ThreadFactory threadFactory, DeviceCommandExecutor deviceCommandExecutor) {
-        super(comPort, comServerDAO, threadFactory, deviceCommandExecutor);
+    protected ServletBasedComPortListenerImpl(InboundComPort comPort, Clock clock, ComServerDAO comServerDAO, ThreadFactory threadFactory, DeviceCommandExecutor deviceCommandExecutor) {
+        super(comPort, clock, comServerDAO, threadFactory, deviceCommandExecutor);
     }
+
 }

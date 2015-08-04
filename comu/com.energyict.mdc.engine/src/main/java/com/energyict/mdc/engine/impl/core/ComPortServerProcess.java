@@ -2,6 +2,8 @@ package com.energyict.mdc.engine.impl.core;
 
 import com.energyict.mdc.engine.config.ComPort;
 
+import java.time.Instant;
+
 /**
  * Models the fact that a {@link com.energyict.mdc.engine.config.ComPort ComPort}
  * <i>(in- or outbound)</i> is a {@link ServerProcess} and is easily
@@ -28,8 +30,10 @@ public interface ComPortServerProcess extends ServerProcess {
     public String getThreadName();
 
     /**
-     * Check whether the persistent {@link ComPort} has changed in the Database and apply if so.
+     * Gets the instant in time of the last registered activity for this process.
+     *
+     * @return The instant in time
      */
-    public void checkAndApplyChanges();
+    public Instant getLastActivityTimestamp();
 
 }

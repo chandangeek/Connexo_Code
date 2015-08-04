@@ -1,11 +1,11 @@
 package com.energyict.mdc.engine.impl.core;
 
-import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.config.InboundComPort;
+import com.energyict.mdc.engine.exceptions.MessageSeeds;
+import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.inbound.InboundComPortConnector;
 import com.energyict.mdc.io.ComChannel;
-import com.energyict.mdc.io.SerialComponentService;
-
+import com.energyict.mdc.io.InboundCommunicationException;
 import com.energyict.mdc.io.SocketService;
 
 import java.util.concurrent.ThreadFactory;
@@ -22,17 +22,21 @@ public abstract class ComChannelBasedComPortListenerImpl extends ComPortListener
 
     public interface ServiceProvider extends InboundComPortExecutorImpl.ServiceProvider {
 
-        public SerialComponentService serialAtComponentService();
-
         public SocketService socketService();
+
+        public ComServerDAO comServerDAO();
+
+        public ThreadFactory threadFactory();
+
+        public InboundComPortConnectorFactory inboundComPortConnectorFactory();
 
     }
 
     private final InboundComPortConnector inboundComPortConnector;
 
-    protected ComChannelBasedComPortListenerImpl(InboundComPort comPort, ComServerDAO comServerDAO, InboundComPortConnectorFactory inboundComPortConnectorFactory, ThreadFactory threadFactory, DeviceCommandExecutor deviceCommandExecutor) {
-        super(comPort, comServerDAO, threadFactory, deviceCommandExecutor);
-        this.inboundComPortConnector = inboundComPortConnectorFactory.connectorFor(comPort);
+    protected ComChannelBasedComPortListenerImpl(InboundComPort comPort, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider) {
+        super(comPort, serviceProvider.clock(), serviceProvider.comServerDAO(), serviceProvider.threadFactory(), deviceCommandExecutor);
+        this.inboundComPortConnector = serviceProvider.inboundComPortConnectorFactory().connectorFor(comPort);
     }
 
     protected InboundComPortConnector getInboundComPortConnector() {
@@ -42,8 +46,22 @@ public abstract class ComChannelBasedComPortListenerImpl extends ComPortListener
     protected ComPortRelatedComChannel listen() {
         this.getLogger().listening(this.getThreadName());
         ComPortRelatedComChannel comChannel = getInboundComPortConnector().accept();
+        this.registerActivity();
         comChannel.setComPort(this.getComPort());
         return comChannel;
+    }
+
+    @Override
+    protected void doShutdown() {
+        if (this.inboundComPortConnector != null) {
+            try {
+                this.inboundComPortConnector.close();
+            }
+            catch (Exception e) {
+                throw new InboundCommunicationException(MessageSeeds.UNEXPECTED_INBOUND_COMMUNICATION_EXCEPTION, e);
+            }
+        }
+        super.doShutdown();
     }
 
 }

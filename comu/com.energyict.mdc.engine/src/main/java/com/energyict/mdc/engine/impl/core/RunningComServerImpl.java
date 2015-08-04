@@ -7,8 +7,10 @@ import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.config.IPBasedInboundComPort;
 import com.energyict.mdc.engine.config.InboundCapable;
 import com.energyict.mdc.engine.config.InboundComPort;
+import com.energyict.mdc.engine.config.ModemBasedInboundComPort;
 import com.energyict.mdc.engine.config.OnlineComServer;
 import com.energyict.mdc.engine.config.OutboundCapable;
 import com.energyict.mdc.engine.config.OutboundCapableComServer;
@@ -57,6 +59,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
@@ -97,7 +100,7 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
 
         MeteringService meteringService();
 
-        FirmwareService getFirmwareService();
+        FirmwareService firmwareService();
 
     }
 
@@ -233,13 +236,14 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
         outboundComPorts.forEach(this::add);
     }
 
-    private ScheduledComPort add(OutboundComPort comPort) {
+    private Optional<ScheduledComPort> add(OutboundComPort comPort) {
         ScheduledComPort scheduledComPort = this.getScheduledComPortFactory().newFor(comPort);
         if (scheduledComPort == null) {
-            return null;
-        } else {
+            return Optional.empty();
+        }
+        else {
             this.add(scheduledComPort);
-            return scheduledComPort;
+            return Optional.of(scheduledComPort);
         }
     }
 
@@ -271,18 +275,17 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
     }
 
     private void addInboundComPorts(List<InboundComPort> inboundComPorts) {
-        for (InboundComPort comPort : inboundComPorts) {
-            this.add(comPort);
-        }
+        inboundComPorts.forEach(this::add);
     }
 
-    private ComPortListener add(InboundComPort comPort) {
+    private Optional<ComPortListener> add(InboundComPort comPort) {
         ComPortListener comPortListener = getComPortListenerFactory().newFor(comPort);
         if (comPortListener == null) {
-            return null;
-        } else {
+            return Optional.empty();
+        }
+        else {
             this.add(comPortListener);
-            return comPortListener;
+            return Optional.of(comPortListener);
         }
     }
 
@@ -621,20 +624,23 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
 
     private void restartChangedInboundComPorts(InboundCapable newVersion) {
         for (InboundComPort changedComPort : this.changedInboundComPortsIn(newVersion)) {
-            ComPortListener oldListener = this.getListenerFor(changedComPort);
-            oldListener.shutdown();
-            this.comPortListeners.remove(oldListener);
-            ComPortListener rescheduled = this.add(changedComPort);
-            rescheduled.start();
+            this.getListenerFor(changedComPort).ifPresent(this::shutdownAndRemove);
+            this.add(changedComPort).ifPresent(ComPortListener::start);
         }
+    }
+
+    private void shutdownAndRemove(ComPortListener oldListener) {
+        oldListener.shutdown();
+        this.comPortListeners.remove(oldListener);
     }
 
     private void addAndStartNewInboundComPorts(InboundCapable newVersion) {
         for (InboundComPort comPort : this.newActivatedInboundComPortsIn(newVersion)) {
-            ComPortListener comPortListener = this.add(comPort);
-            if (comPortListener != null) {
-                comPortListener.start();
-            } else {
+            Optional<ComPortListener> comPortListener = this.add(comPort);
+            if (comPortListener.isPresent()) {
+                comPortListener.get().start();
+            }
+            else {
                 this.ignored(comPort);
             }
         }
@@ -650,8 +656,8 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
         List<InboundComPort> newVersionInboundComPorts = newVersion.getInboundComPorts();
         Collection<InboundComPort> changed = new ArrayList<>(newVersionInboundComPorts.size());    // at most all ComPorts in the new version can have changed
         for (InboundComPort inboundComPort : newVersionInboundComPorts) {
-            ComPortListener existingListener = this.getListenerFor(inboundComPort);
-            if (existingListener != null && this.hasChanged(existingListener.getComPort(), inboundComPort)) {
+            Optional<ComPortListener> existingListener = this.getListenerFor(inboundComPort);
+            if (existingListener.isPresent() && this.hasChanged(existingListener.get().getComPort(), inboundComPort)) {
                 changed.add(inboundComPort);
             }
         }
@@ -660,7 +666,18 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
     }
 
     private boolean hasChanged(InboundComPort existingComPort, InboundComPort newVersion) {
-        return existingComPort.getNumberOfSimultaneousConnections() != newVersion.getNumberOfSimultaneousConnections()
+        if (existingComPort instanceof ModemBasedInboundComPort) {
+            // Any change will need a restart of the ModemBasedInboundComPort
+            return true;
+        }
+        else {
+            return this.hasChanged((IPBasedInboundComPort) existingComPort, (IPBasedInboundComPort) newVersion);
+        }
+    }
+
+    private boolean hasChanged(IPBasedInboundComPort existingComPort, IPBasedInboundComPort newVersion) {
+        return existingComPort.getPortNumber() != newVersion.getPortNumber()
+            || existingComPort.getNumberOfSimultaneousConnections() != newVersion.getNumberOfSimultaneousConnections()
             || !existingComPort.getName().equals(newVersion.getName());
     }
 
@@ -672,21 +689,18 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
      */
     private Collection<InboundComPort> newActivatedInboundComPortsIn(InboundCapable newVersion) {
         List<InboundComPort> newVersionInboundComPorts = newVersion.getInboundComPorts();
-        Collection<InboundComPort> newlyActivated = new ArrayList<>(newVersionInboundComPorts.size());    // at most all ComPorts in the new version can be activated
-        for (InboundComPort inboundComPort : newVersionInboundComPorts) {
-            if (inboundComPort.isActive() && !this.isAlreadyActive(inboundComPort)) {
-                newlyActivated.add(inboundComPort);
-            }
-        }
+        Collection<InboundComPort> newlyActivated =
+                newVersionInboundComPorts
+                        .stream()
+                        .filter(inboundComPort -> inboundComPort.isActive() && !this.isAlreadyActive(inboundComPort))
+                        .collect(Collectors.toList());
         this.getLogger().newInboundComPortsDetected(newlyActivated.size());
         return newlyActivated;
     }
 
     private void shutdownAndRemoveOldInboundComPorts(InboundCapable newVersion) {
         for (InboundComPort comPort : this.deactivatedInboundComPortsIn(newVersion)) {
-            ComPortListener listener = this.getListenerFor(comPort);
-            this.comPortListeners.remove(listener);
-            listener.shutdown();
+            this.getListenerFor(comPort).ifPresent(this::shutdownAndRemove);
         }
         List<Long> actualComPortIds =
                 newVersion.getInboundComPorts()
@@ -711,45 +725,47 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
      */
     private Collection<InboundComPort> deactivatedInboundComPortsIn(InboundCapable newVersion) {
         List<InboundComPort> newVersionInboundComPorts = newVersion.getInboundComPorts();
-        Collection<InboundComPort> deactivated = new ArrayList<>(newVersionInboundComPorts.size());    // at most all ComPorts in the new version can be activated
-        for (InboundComPort inboundComPort : newVersionInboundComPorts) {
-            if (this.isAlreadyActive(inboundComPort) && !inboundComPort.isActive()) {
-                deactivated.add(inboundComPort);
-            }
-        }
+        Collection<InboundComPort> deactivated =
+                newVersionInboundComPorts
+                        .stream()
+                        .filter(inboundComPort -> this.isAlreadyActive(inboundComPort) && !inboundComPort.isActive())
+                        .collect(Collectors.toList());
         this.getLogger().inboundComPortsDeactivated(deactivated.size());
         return deactivated;
     }
 
-    private ComPortListener getListenerFor(InboundComPort comPort) {
+    private Optional<ComPortListener> getListenerFor(InboundComPort comPort) {
         for (ComPortListener listener : this.comPortListeners) {
             if (comPort.getId() == listener.getComPort().getId()) {
-                return listener;
+                return Optional.of(listener);
             }
         }
-        return null;
+        return Optional.empty();
     }
 
     private boolean isAlreadyActive(InboundComPort comPort) {
-        return this.getListenerFor(comPort) != null;
+        return this.getListenerFor(comPort).isPresent();
     }
 
     private void restartChangedOutboundComPorts(OutboundCapable newVersion) {
         for (OutboundComPort changedComPort : this.changedOutboundComPortsIn(newVersion)) {
-            ScheduledComPort previouslyScheduledComPort = this.getSchedulerFor(changedComPort);
-            previouslyScheduledComPort.shutdown();
-            this.scheduledComPorts.remove(previouslyScheduledComPort);
-            ScheduledComPort rescheduled = this.add(changedComPort);
-            rescheduled.start();
+            this.getSchedulerFor(changedComPort).ifPresent(this::shutdownAndRemove);
+            this.add(changedComPort).ifPresent(ScheduledComPort::start);
         }
+    }
+
+    private void shutdownAndRemove(ScheduledComPort previouslyScheduledComPort) {
+        previouslyScheduledComPort.shutdown();
+        this.scheduledComPorts.remove(previouslyScheduledComPort);
     }
 
     private void addAndStartNewOutboundComPorts(OutboundCapable newVersion) {
         for (OutboundComPort comPort : this.newActivatedOutboundComPortsIn(newVersion)) {
-            ScheduledComPort scheduledComPort = this.add(comPort);
-            if (scheduledComPort != null) {
-                scheduledComPort.start();
-            } else {
+            Optional<ScheduledComPort> scheduledComPort = this.add(comPort);
+            if (scheduledComPort.isPresent()) {
+                scheduledComPort.get().start();
+            }
+            else {
                 this.ignored(comPort);
             }
         }
@@ -765,8 +781,8 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
         List<OutboundComPort> newVersionOutboundComPorts = newVersion.getOutboundComPorts();
         Collection<OutboundComPort> changed = new ArrayList<>(newVersionOutboundComPorts.size());    // at most all ComPorts in the new version can have changed
         for (OutboundComPort outboundComPort : newVersionOutboundComPorts) {
-            ScheduledComPort existingScheduledComPort = this.getSchedulerFor(outboundComPort);
-            if (existingScheduledComPort != null && this.hasChanged(existingScheduledComPort.getComPort(), outboundComPort)) {
+            Optional<ScheduledComPort> existingScheduledComPort = this.getSchedulerFor(outboundComPort);
+            if (existingScheduledComPort.isPresent() && this.hasChanged(existingScheduledComPort.get().getComPort(), outboundComPort)) {
                 changed.add(outboundComPort);
             }
         }
@@ -787,21 +803,18 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
      */
     private Collection<OutboundComPort> newActivatedOutboundComPortsIn(OutboundCapable newVersion) {
         List<OutboundComPort> newVersionOutboundComPorts = newVersion.getOutboundComPorts();
-        Collection<OutboundComPort> newlyActivated = new ArrayList<>(newVersionOutboundComPorts.size());    // at most all ComPorts in the new version can be activated
-        for (OutboundComPort outboundComPort : newVersionOutboundComPorts) {
-            if (outboundComPort.isActive() && !this.isAlreadyActive(outboundComPort)) {
-                newlyActivated.add(outboundComPort);
-            }
-        }
+        Collection<OutboundComPort> newlyActivated =
+                newVersionOutboundComPorts
+                        .stream()
+                        .filter(outboundComPort -> outboundComPort.isActive() && !this.isAlreadyActive(outboundComPort))
+                        .collect(Collectors.toList());
         this.getLogger().newOutboundComPortsDetected(newlyActivated.size());
         return newlyActivated;
     }
 
     private void shutdownAndRemoveOldOutboundComPorts(OutboundCapable newVersion) {
         for (OutboundComPort comPort : this.deactivatedOutboundComPortsIn(newVersion)) {
-            ScheduledComPort scheduledComPort = this.getSchedulerFor(comPort);
-            this.scheduledComPorts.remove(scheduledComPort);
-            scheduledComPort.shutdown();
+            this.getSchedulerFor(comPort).ifPresent(this::shutdownAndRemove);
         }
         List<Long> actualComPortIds =
                 newVersion.getOutboundComPorts()
@@ -826,27 +839,26 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
      */
     private Collection<OutboundComPort> deactivatedOutboundComPortsIn(OutboundCapable newVersion) {
         List<OutboundComPort> newVersionOutboundComPorts = newVersion.getOutboundComPorts();
-        Collection<OutboundComPort> deactivated = new ArrayList<>(newVersionOutboundComPorts.size());    // at most all ComPorts in the new version can be activated
-        for (OutboundComPort outboundComPort : newVersionOutboundComPorts) {
-            if (this.isAlreadyActive(outboundComPort) && !outboundComPort.isActive()) {
-                deactivated.add(outboundComPort);
-            }
-        }
+        Collection<OutboundComPort> deactivated =
+                newVersionOutboundComPorts
+                        .stream()
+                        .filter(outboundComPort -> this.isAlreadyActive(outboundComPort) && !outboundComPort.isActive())
+                        .collect(Collectors.toList());
         this.getLogger().outboundComPortsDeactivated(deactivated.size());
         return deactivated;
     }
 
-    private ScheduledComPort getSchedulerFor(OutboundComPort comPort) {
+    private Optional<ScheduledComPort> getSchedulerFor(OutboundComPort comPort) {
         for (ScheduledComPort scheduledComPort : this.scheduledComPorts) {
             if (comPort.getId() == scheduledComPort.getComPort().getId()) {
-                return scheduledComPort;
+                return Optional.of(scheduledComPort);
             }
         }
-        return null;
+        return Optional.empty();
     }
 
     private boolean isAlreadyActive(OutboundComPort comPort) {
-        return this.getSchedulerFor(comPort) != null;
+        return this.getSchedulerFor(comPort).isPresent();
     }
 
     private int getChangesInterPollDelayMillis() {
@@ -859,8 +871,6 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
                     new ComPortListenerFactoryImpl(
                             this.comServerDAO,
                             this.deviceCommandExecutor,
-                            this.threadFactory,
-                            this.eventMechanism.getEventPublisher(),
                             new ComPortListenerServiceProvider());
         }
         return this.comPortListenerFactory;
@@ -1011,11 +1021,6 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
     private class ComPortListenerServiceProvider implements ComChannelBasedComPortListenerImpl.ServiceProvider {
 
         @Override
-        public SerialComponentService serialAtComponentService() {
-            return serviceProvider.serialAtComponentService();
-        }
-
-        @Override
         public SocketService socketService() {
             return serviceProvider.socketService();
         }
@@ -1120,6 +1125,25 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
             return serviceProvider.issueService();
         }
 
+        @Override
+        public ComServerDAO comServerDAO() {
+            return comServerDAO;
+        }
+
+        @Override
+        public ThreadFactory threadFactory() {
+            return threadFactory;
+        }
+
+        @Override
+        public InboundComPortConnectorFactory inboundComPortConnectorFactory() {
+            return new InboundComPortConnectorFactoryImpl(
+                    serviceProvider.serialAtComponentService(),
+                    serviceProvider.socketService(),
+                    serviceProvider.hexService(),
+                    eventMechanism.eventPublisher,
+                    serviceProvider.clock());
+        }
     }
 
     private class ScheduledComPortFactoryServiceProvider implements ScheduledComPortImpl.ServiceProvider {

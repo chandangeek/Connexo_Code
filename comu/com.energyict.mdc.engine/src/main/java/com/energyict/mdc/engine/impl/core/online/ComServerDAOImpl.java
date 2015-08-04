@@ -170,27 +170,10 @@ public class ComServerDAOImpl implements ComServerDAO {
         if (reloaded.isPresent()) {
             if (reloaded.get().isObsolete()) {
                 return null;
-            } else if (reloaded.get().getModificationDate().isAfter(comServer.getModificationDate())) {
+            } else if (reloaded.get().getVersion() > comServer.getVersion()) {
                 return reloaded.get();
             } else {
                 return comServer;
-            }
-        } else {
-            return null;
-        }
-    }
-
-    @Override
-    public ComPort refreshComPort(ComPort comPort) {
-        Optional<? extends ComPort> reloaded = getEngineModelService().findComPort(comPort.getId());
-        if (reloaded.isPresent()) {
-            ComPort reloadedPort = reloaded.get();
-            if (reloadedPort.isObsolete()) {
-                return null;
-            } else if (reloadedPort.getModificationDate().isAfter(comPort.getModificationDate())) {
-                return reloadedPort;
-            } else {
-                return comPort;
             }
         } else {
             return null;
@@ -705,7 +688,7 @@ public class ComServerDAOImpl implements ComServerDAO {
     public void updateFirmwareVersions(CollectedFirmwareVersion collectedFirmwareVersions) {
         Optional<Device> optionalDevice = getOptionalDeviceByIdentifier(collectedFirmwareVersions.getDeviceIdentifier());
         optionalDevice.ifPresent(device -> {
-            FirmwareStorage firmwareStorage = new FirmwareStorage(serviceProvider);
+            FirmwareStorage firmwareStorage = new FirmwareStorage(serviceProvider.firmwareService(), serviceProvider.clock());
             firmwareStorage.updateMeterFirmwareVersion(collectedFirmwareVersions.getActiveMeterFirmwareVersion(), device);
             firmwareStorage.updateCommunicationFirmwareVersion(collectedFirmwareVersions.getActiveCommunicationFirmwareVersion(), device);
         });

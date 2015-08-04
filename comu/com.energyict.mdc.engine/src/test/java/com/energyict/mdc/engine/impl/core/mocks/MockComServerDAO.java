@@ -204,24 +204,6 @@ public class MockComServerDAO implements ComServerDAO {
     }
 
     @Override
-    public ComPort refreshComPort (ComPort comPort) {
-        MockComPort mockComPort = (MockComPort) comPort;
-        if (mockComPort.isDirty()) {
-            mockComPort.setDirty(false);
-            try {
-                return (ComPort) mockComPort.clone();
-            }
-            catch (CloneNotSupportedException e) {
-                // Silly bugger, the class implements Cloneable
-                return comPort;
-            }
-        }
-        else {
-            return comPort;
-        }
-    }
-
-    @Override
     public List<ComJob> findExecutableOutboundComTasks(com.energyict.mdc.engine.config.OutboundComPort comPort) {
         return Collections.emptyList();
     }

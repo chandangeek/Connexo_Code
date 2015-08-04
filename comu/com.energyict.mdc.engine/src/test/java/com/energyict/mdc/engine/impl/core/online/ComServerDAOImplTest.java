@@ -45,7 +45,6 @@ public class ComServerDAOImplTest {
     private static final long COMSERVER_ID = 1;
     private static final long COMPORT_ID = 2;
     private static final long SCHEDULED_COMTASK_ID = 3;
-    private static final int YEAR = 2012;
     private static final String IP_ADDRESS = "192.168.2.100";
     private static final String IP_ADDRESS_PROPERTY_NAME = "ipAddress";
 
@@ -126,10 +125,8 @@ public class ComServerDAOImplTest {
     @Test
     public void testRefreshComServerThatChanged() {
         ComServer changed = mock(ComServer.class);
-        Date january1st2012 = this.newDate(YEAR, Calendar.JANUARY, 1);
-        Date february1st2012 = this.newDate(YEAR, Calendar.FEBRUARY, 1);
-        when(this.comServer.getModificationDate()).thenReturn(january1st2012.toInstant());
-        when(changed.getModificationDate()).thenReturn(february1st2012.toInstant());
+        when(this.comServer.getVersion()).thenReturn(1L);
+        when(changed.getVersion()).thenReturn(2L);
         when(this.engineConfigurationService.findComServer(COMSERVER_ID)).thenReturn(Optional.of(changed));
 
         // Business method and asserts
@@ -152,51 +149,6 @@ public class ComServerDAOImplTest {
 
         // Business method and asserts
         assertThat(this.comServerDAO.refreshComServer(this.comServer)).isNull();
-    }
-
-    @Test
-    public void testRefreshComPortThatHasNotChanged() {
-        Instant modificationDate = Instant.now();
-        OutboundComPort reloaded = mock(OutboundComPort.class);
-        when(reloaded.getModificationDate()).thenReturn(modificationDate);
-        doReturn(Optional.of(reloaded)).when(this.engineConfigurationService).findComPort(COMPORT_ID);
-        when(this.comPort.getModificationDate()).thenReturn(modificationDate);
-
-        // Business method and asserts
-        ComPort refreshed = this.comServerDAO.refreshComPort(this.comPort);
-        assertThat(refreshed).isNotNull();
-        assertThat(refreshed).isSameAs(this.comPort);
-    }
-
-    @Test
-    public void testRefreshComPortThatChanged() {
-        OutboundComPort changed = mock(OutboundComPort.class);
-        Date january1st2012 = this.newDate(YEAR, Calendar.JANUARY, 1);
-        Date february1st2012 = this.newDate(YEAR, Calendar.FEBRUARY, 1);
-        when(this.comPort.getModificationDate()).thenReturn(january1st2012.toInstant());
-        when(changed.getModificationDate()).thenReturn(february1st2012.toInstant());
-        doReturn(Optional.of(changed)).when(this.engineConfigurationService).findComPort(COMPORT_ID);
-
-        // Business method and asserts
-        assertThat(this.comServerDAO.refreshComPort(this.comPort)).isSameAs(changed);
-    }
-
-    @Test
-    public void testRefreshComPortThatWasMadeObsolete() {
-        ComPort obsolete = mock(ComPort.class);
-        when(obsolete.isObsolete()).thenReturn(true);
-        doReturn(Optional.of(obsolete)).when(this.engineConfigurationService).findComPort(COMPORT_ID);
-
-        // Business method and asserts
-        assertThat(this.comServerDAO.refreshComPort(this.comPort)).isNull();
-    }
-
-    @Test
-    public void testRefreshComPortThatWasDeleted() {
-        when(this.engineConfigurationService.findComPort(COMPORT_ID)).thenReturn(Optional.empty());
-
-        // Business method and asserts
-        assertThat(this.comServerDAO.refreshComPort(this.comPort)).isNull();
     }
 
     @Test
@@ -323,16 +275,6 @@ public class ComServerDAOImplTest {
         verify(connectionTask).getTypedProperties();
         verify(properties).setProperty(IP_ADDRESS_PROPERTY_NAME, IP_ADDRESS);
         // Todo (JP-1123) verify(connectionTask).updateProperties(properties);
-    }
-
-    private Date newDate(int year, int month, int day) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(year, month, day);
-        calendar.set(Calendar.HOUR, 0);
-        calendar.set(Calendar.MINUTE, 0);
-        calendar.set(Calendar.SECOND, 0);
-        calendar.set(Calendar.MILLISECOND, 0);
-        return calendar.getTime();
     }
 
     @Test
