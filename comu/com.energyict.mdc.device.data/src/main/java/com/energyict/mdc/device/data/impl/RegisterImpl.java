@@ -223,13 +223,13 @@ public abstract class RegisterImpl<R extends Reading> implements Register<R> {
             this.activationDate.ifPresent(this.register.device::ensureActiveOn);
             this.edited.forEach(this::addOrEdit);
             this.confirmed.forEach(this::confirm);
+            this.obsolete.forEach(Channel::removeReadings);
         }
 
         private void addOrEdit(BaseReading reading) {
             this.register.device
                 .findOrCreateKoreChannel(reading.getTimeStamp(), this.register)
                 .editReadings(Arrays.asList(reading));
-            this.obsolete.forEach(Channel::removeReadings);
         }
 
         private void confirm(BaseReading reading) {
