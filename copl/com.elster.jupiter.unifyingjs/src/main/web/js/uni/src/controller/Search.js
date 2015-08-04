@@ -86,7 +86,7 @@ Ext.define('Uni.controller.Search', {
             },
             'search-criteria-selector menu menucheckitem': {
                 checkchange: me.onCriteriaChange
-            }
+            },
 
             //removablePropertiesContainer.on({
             //    add: me.updateRemovableContainerVisibility,
@@ -94,10 +94,9 @@ Ext.define('Uni.controller.Search', {
             //    scope: me
             //});
             //
-            //searchButton.on({
-            //    click: me.applyFilters,
-            //    scope: me
-            //});
+            'uni-view-search-overview button[action=search]': {
+                click: me.applyFilters
+            }
             //
             //clearFiltersButton.on({
             //    click: me.clearFilters,
@@ -412,7 +411,7 @@ Ext.define('Uni.controller.Search', {
                     item.setDisabled(false);
                     if (item.store) {
                         item.getStore().clearFilter(true);
-                        item.getStore().filter('id', value);
+                        item.getStore().filter(widget.getFilter());
                     }
                 } else {
                     item.setDisabled(true);
@@ -488,6 +487,7 @@ Ext.define('Uni.controller.Search', {
         var me = this,
             searchResults = Ext.getStore('Uni.store.search.Results');
 
+        debugger;
         searchResults.removeAll();
 
         if (me.lastRequest) {
@@ -515,8 +515,12 @@ Ext.define('Uni.controller.Search', {
             };
 
         if (!widgetConfig) {
-            console.log('Unknown search property type: ' + type);
-            return false;
+            if (property.get('selectionMode') === 'single') {
+                widgetConfig = 'search-criteria-simple'
+            } else {
+                console.log('Unknown search property type: ' + type);
+                return false;
+            }
         }
 
         if (property.get('constraints') && property.get('constraints').length) {

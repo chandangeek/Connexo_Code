@@ -1,43 +1,42 @@
 Ext.define('Uni.view.search.field.Simple', {
-    extend: 'Ext.button.Button',
+    extend: 'Uni.view.search.field.internal.CriteriaButton',
     xtype: 'search-criteria-simple',
     menuAlign: 'tr-br',
-    //style: {
-    //    'background-color': '#71adc7'
-    //},
-    //ui: 'primary',
     requires: [
-        'Uni.view.search.field.Input'
+        'Uni.view.search.field.internal.Input'
     ],
 
     initComponent: function () {
         var me = this;
-        me.menu = {
-            plain: true,
-            bodyStyle: {
-                background: '#fff'
-            },
-            padding: 0,
-            minWidth: 273,
-            items: {
-                xtype: 'toolbar',
-                layout: 'hbox',
-                padding: 5,
-                items: [
-                    {
-                        itemId: 'filter-operator',
-                        xtype: 'combo',
-                        value: '=',
-                        width: 50,
-                        margin: '0 5 0 0',
-                        disabled: true
-                    },
-                    {
-                        xtype: 'search-criteria-input',
-                        emptyText: me.emptyText
+
+        me.items = {
+            xtype: 'toolbar',
+            layout: 'hbox',
+            padding: 5,
+            items: [
+                {
+                    itemId: 'filter-operator',
+                    xtype: 'combo',
+                    value: '=',
+                    width: 50,
+                    margin: '0 5 0 0',
+                    disabled: true
+                },
+                {
+                    xtype: 'search-criteria-input',
+                    emptyText: me.emptyText,
+                    listeners: {
+                        change: {
+                            fn: me.onChange,
+                            scope: me
+                        },
+                        reset: {
+                            fn: me.onReset,
+                            scope: me
+                        }
                     }
-                ]
-            }
+                }
+            ]
         };
 
         me.callParent(arguments);

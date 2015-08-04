@@ -1,4 +1,4 @@
-Ext.define('Uni.view.search.field.Input', {
+Ext.define('Uni.view.search.field.internal.Input', {
     extend: 'Ext.panel.Panel',
     xtype: 'search-criteria-input',
     layout: 'fit',
