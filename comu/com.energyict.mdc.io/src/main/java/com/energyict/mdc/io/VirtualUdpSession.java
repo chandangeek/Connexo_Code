@@ -11,24 +11,24 @@ import java.net.DatagramSocket;
  * Date: 9/11/12
  * Time: 10:56
  */
-public interface VirtualUdpSession {
+public interface VirtualUdpSession extends AutoCloseable {
 
     /**
-     * Provides the used DatagramSocket for this session
+     * Provides the used DatagramSocket for this session.
      *
      * @return the DatagramSocket
      */
     public DatagramSocket getDatagramSocket();
 
     /**
-     * Provides the used inputStream for this session
+     * Provides the used inputStream for this session.
      *
      * @return the InputStream
      */
     public InputStream getInputStream();
 
     /**
-     * Provides the used outputStream for this session
+     * Provides the used outputStream for this session.
      *
      * @return the OutputStream
      */

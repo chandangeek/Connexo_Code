@@ -65,6 +65,15 @@ public abstract class AbstractUdpSession implements VirtualUdpSession {
         this.outputStream = outputStream;
     }
 
+    @Override
+    public void close() throws IOException {
+        try (InputStream is = this.inputStream; OutputStream os = this.outputStream) {
+            if (this.datagramSocket != null) {
+                this.datagramSocket.close();
+            }
+        }
+    }
+
     /**
      * A DatagramInputStream is a <i>virtual</i> inputStream for an UDP <i>session</i>.
      * UDP sessions are stateless, so actually there is no existence of a <i>stream</i>.
