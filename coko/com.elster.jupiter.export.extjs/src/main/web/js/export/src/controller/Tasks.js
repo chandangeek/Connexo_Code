@@ -296,7 +296,6 @@ Ext.define('Dxp.controller.Tasks', {
             } else {
                 previewForm.down('#reason-field').hide();
             }
-
             previewForm.loadRecord(record);
 
             if (record.data.properties && record.data.properties.length) {

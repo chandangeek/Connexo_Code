@@ -38,7 +38,7 @@ Ext.define('Dxp.model.DataExportTaskHistory', {
             name: 'exportperiod',
             persist:false,
             mapping:  function (data) {
-                return data.task.exportperiod;
+                return data.task.standardDataSelector.exportPeriod;
             }
         },
 
@@ -46,7 +46,7 @@ Ext.define('Dxp.model.DataExportTaskHistory', {
             name: 'readingTypes',
             persist:false,
             mapping:  function (data) {
-                return data.task.readingTypes;
+                return data.task.standardDataSelector.readingTypes;
             }
         },
 
@@ -54,7 +54,7 @@ Ext.define('Dxp.model.DataExportTaskHistory', {
             name: 'deviceGroup',
             persist:false,
             mapping:  function (data) {
-                return data.task.deviceGroup;
+                return data.task.standardDataSelector.deviceGroup;
             }
         },
 
