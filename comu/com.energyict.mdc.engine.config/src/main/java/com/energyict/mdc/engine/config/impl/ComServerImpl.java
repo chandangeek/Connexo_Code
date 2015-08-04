@@ -89,6 +89,7 @@ public abstract class ComServerImpl implements ComServer {
         }
     }
 
+    @SuppressWarnings("unused")
     private long id;
     @NotEmpty(groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}")
     @Size(max= Table.NAME_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.MDC_FIELD_TOO_LONG+"}")
@@ -105,9 +106,13 @@ public abstract class ComServerImpl implements ComServer {
     @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}")
     @MinTimeDuration(value = 60 ,groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.MDC_VALUE_TOO_SMALL+"}")
     private TimeDuration schedulingInterPollDelay;
+    @SuppressWarnings("unused")
     private String userName;
+    @SuppressWarnings("unused")
     private long version;
+    @SuppressWarnings("unused")
     private Instant createTime;
+    @SuppressWarnings("unused")
     private Instant modTime;
     private final List<ComPort>  comPorts = new ArrayList<>();
     @Null(groups = { Save.Update.class }, message = "{"+ MessageSeeds.Keys.MDC_COMSERVER_NO_UPDATE_ALLOWED+"}")
@@ -198,9 +203,6 @@ public abstract class ComServerImpl implements ComServer {
         return new OutboundComPortBuilder(name, numberOfSimultaneousConnections);
     }
 
-    /**
-     * Builders are used to facilitate validating ComPorts??
-     */
     private class OutboundComPortBuilder extends OutboundComPortImpl.OutboundComPortBuilderImpl {
 
         private OutboundComPortBuilder(String name, int numberOfSimultaneousConnections) {
@@ -314,6 +316,11 @@ public abstract class ComServerImpl implements ComServer {
 
     public Instant getModificationDate() {
         return this.modTime;
+    }
+
+    @Override
+    public long getVersion() {
+        return this.version;
     }
 
     @Override

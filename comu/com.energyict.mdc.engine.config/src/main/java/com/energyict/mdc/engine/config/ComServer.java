@@ -148,6 +148,8 @@ public interface ComServer extends HasId, HasName {
      */
     public Instant getModificationDate();
 
+    public long getVersion();
+
     /**
      * Returns <code>true</code> iff this ComServer is
      * actually an {@link OnlineComServer}.
