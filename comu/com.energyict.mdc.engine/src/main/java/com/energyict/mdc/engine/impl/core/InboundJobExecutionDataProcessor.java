@@ -160,7 +160,6 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
 
     private void addToRoot(ComCommand comCommand, CommandRoot root, ComTaskExecution comTaskExecution) {
         root.addUniqueCommand(comCommand, comTaskExecution);
-        this.getInboundDiscoveryContext().getComSessionBuilder().incrementNotExecutedTasks(comTaskExecution.getComTasks().size());
     }
 
     protected DeviceProtocol getDeviceProtocol() {
