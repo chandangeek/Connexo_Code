@@ -435,6 +435,7 @@
                 <module>../com.energyict.mdc.issue.datacollection</module>
                 <module>../com.energyict.mdc.issue.datacollection.rest</module>
                 <module>../com.energyict.mdc.issue.datacollection.extjs</module>
+                <module>../com.energyict.mdc.issue.datavalidation</module>
                 <module>../com.energyict.mdc.issues</module>
                 <module>../com.energyict.mdc.masterdata</module>
                 <module>../com.energyict.mdc.masterdata.rest</module>
