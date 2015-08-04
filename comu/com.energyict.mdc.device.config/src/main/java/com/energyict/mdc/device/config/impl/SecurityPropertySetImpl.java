@@ -424,6 +424,7 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
 
     @Override
     public void update() {
+        Save.UPDATE.validate(this.getDataModel(), this);
         this.getDataMapper().update(this);
     }
 

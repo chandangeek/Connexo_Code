@@ -356,8 +356,8 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     @Override
     public List<DeviceConfiguration> findDeviceConfigurationsUsingMeasurementType(MeasurementType measurementType) {
         return this.getDataModel().
-                query(DeviceConfiguration.class, ChannelSpec.class, RegisterSpec.class).
-                select(where("channelSpecs.channelType").isEqualTo(measurementType).
+                query(DeviceConfiguration.class, LoadProfileSpec.class, ChannelSpec.class, RegisterSpec.class).
+                select(where("loadProfileSpecs.channelSpecs.channelType").isEqualTo(measurementType).
                         or(where("registerSpecs.registerType").isEqualTo(measurementType)));
     }
 

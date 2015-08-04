@@ -5,12 +5,13 @@ import com.elster.jupiter.validation.ValidationRule;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.ObisCode;
 import com.elster.jupiter.time.TimeDuration;
+
 import com.energyict.mdc.masterdata.LoadProfileType;
 
 import java.util.List;
 
 /**
- * Represents a LoadProfile specification modeled by a {@link LoadProfileType}
+ * Represents a LoadProfile specification modeled by a {@link LoadProfileType}.
  * <p/>
  * Copyrights EnergyICT
  * Date: 9/11/12
@@ -18,8 +19,6 @@ import java.util.List;
  */
 @ProviderType
 public interface LoadProfileSpec extends HasId {
-
-    public long getId();
 
     public LoadProfileType getLoadProfileType();
 
@@ -44,46 +43,30 @@ public interface LoadProfileSpec extends HasId {
     public List<ChannelSpec> getChannelSpecs();
 
     /**
-     * Defines the behavior for a component that is interested
-     * to know about the completion of the building
-     * process of a LoadProfileSpec.
-     */
-    public interface BuildingCompletionListener {
-        /**
-         * Notifies the listener that the building process completed.
-         *
-         * @param loadProfileSpec The LoadProfileSpec that was completed by the building process
-         */
-        public void loadProfileSpecBuildingProcessCompleted(LoadProfileSpec loadProfileSpec);
-
-    }
-
-    /**
-     * Defines a Builder interface to construct a {@link LoadProfileSpec}
+     * Defines a Builder interface to construct a {@link LoadProfileSpec}.
      */
     interface LoadProfileSpecBuilder {
-
-        void notifyOnAdd(BuildingCompletionListener buildingCompletionListener);
 
         LoadProfileSpecBuilder setOverruledObisCode(ObisCode overruledObisCode);
 
         /**
-         * Does final validation and <i>creates</i> the {@link LoadProfileSpec}
+         * Does final validation and <i>creates</i> the {@link LoadProfileSpec}.
          * @return the LoadProfileSpec
          */
         LoadProfileSpec add();
     }
 
     /**
-     * Defines an <i>update</i> component to update a {@link LoadProfileSpec} implementation
+     * Defines an <i>update</i> component to update a {@link LoadProfileSpec} implementation.
      */
     interface LoadProfileSpecUpdater {
 
         LoadProfileSpecUpdater setOverruledObisCode(ObisCode overruledObisCode);
 
         /**
-         * Updates the LoadProfileSpec, preferably via his DeviceConfiguration
+         * Updates the LoadProfileSpec.
          */
         void update();
     }
+
 }

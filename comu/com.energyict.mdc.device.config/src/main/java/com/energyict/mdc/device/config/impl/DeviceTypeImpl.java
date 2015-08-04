@@ -678,10 +678,10 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     private class ConfigurationBuilder implements DeviceConfigurationBuilder {
 
         private BuildingMode mode;
-        private final DeviceConfiguration underConstruction;
+        private final DeviceConfigurationImpl underConstruction;
         private final List<NestedBuilder> nestedBuilders = new ArrayList<>();
 
-        private ConfigurationBuilder(DeviceConfiguration underConstruction) {
+        private ConfigurationBuilder(DeviceConfigurationImpl underConstruction) {
             super();
             this.mode = BuildingMode.UNDERCONSTRUCTION;
             this.underConstruction = underConstruction;
