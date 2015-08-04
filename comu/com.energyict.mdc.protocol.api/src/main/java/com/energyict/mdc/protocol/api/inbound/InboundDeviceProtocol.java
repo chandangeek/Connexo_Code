@@ -3,6 +3,7 @@ package com.energyict.mdc.protocol.api.inbound;
 import com.energyict.mdc.pluggable.Pluggable;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 
 import java.util.List;
 
@@ -95,7 +96,11 @@ public interface InboundDeviceProtocol extends Pluggable {
          * Indicates that the server is running at full capacity and that their is no free resource anymore to
          * properly handle the incoming data. <b>No</b> processing will be done and the connection will terminate.
          */
-        SERVER_BUSY
+        SERVER_BUSY,
+        /**
+         * Indicates that the server was not able to correctly store all the data
+         */
+        STORING_FAILURE
     }
 
     /**
@@ -103,7 +108,7 @@ public interface InboundDeviceProtocol extends Pluggable {
      *
      * @param context The InboundDiscoveryContext
      */
-    public void initializeDiscoveryContext (InboundDiscoveryContext context);
+    public void initializeDiscoveryContext(InboundDiscoveryContext context);
 
     /**
      * Gets the {@link InboundDiscoveryContext contextual information}
@@ -112,7 +117,7 @@ public interface InboundDeviceProtocol extends Pluggable {
      * @return The InboundDiscoveryContext
      * @see #initializeDiscoveryContext
      */
-    public InboundDiscoveryContext getContext ();
+    public InboundDiscoveryContext getContext();
 
     /**
      * Does the actual discovery and returns the type of the received data to the framework.
@@ -121,7 +126,7 @@ public interface InboundDeviceProtocol extends Pluggable {
      *
      * @return The type of the result, indicating if we just received the device identifier or also extra meter data.
      */
-    public DiscoverResultType doDiscovery ();
+    public DiscoverResultType doDiscovery();
 
     /**
      * Allows the protocol to provide a descent response/feedback to the actual Device after we processed the data.
@@ -136,7 +141,7 @@ public interface InboundDeviceProtocol extends Pluggable {
      *
      * @return The unique device identifier
      */
-    public DeviceIdentifier getDeviceIdentifier ();
+    public DeviceIdentifier getDeviceIdentifier();
 
     /**
      * Returns the data (registers, load profile entries, events, ...)
@@ -144,8 +149,9 @@ public interface InboundDeviceProtocol extends Pluggable {
      * Note that when only identification information was detected,
      * the protocol should return an empty list instead of <code>null</code>.
      *
+     * @param device the offline version of the device which is discovered
      * @return The CollectedData or an empty list when no data was detected
      */
-    public List<CollectedData> getCollectedData ();
+    public List<CollectedData> getCollectedData(OfflineDevice device);
 
 }
