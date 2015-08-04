@@ -15,9 +15,11 @@ import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.rest.InfoFactoryService;
 import com.elster.jupiter.search.rest.MessageSeeds;
 import com.elster.jupiter.util.HasId;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Predicate;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
@@ -158,9 +160,16 @@ public class DynamicSearchResource {
                 map(constrainingProperty -> asConstriction(constrainingProperty, jsonQueryFilter)).
                 collect(toList());
         searchableProperty.refreshWithConstrictions(searchablePropertyConstrictions);
-        PropertySpecPossibleValues possibleValues = searchableProperty.getSpecification().getPossibleValues();
-        List<?> allValues = possibleValues!=null?possibleValues.getAllValues():Collections.emptyList();
-        List allJsonValues = allValues.stream().map(v->asJsonValueObject(searchableProperty.toDisplay(v),v)).collect(toList());
+        PropertySpecPossibleValues possibleValuesOrNull = searchableProperty.getSpecification().getPossibleValues();
+        List<?> possibleValues = possibleValuesOrNull!=null?possibleValuesOrNull.getAllValues():Collections.emptyList();
+        String nameFilter = jsonQueryFilter.getString("name");
+        Predicate<IdWithDisplayValueInfo> nameFilterPredicate;
+        if (nameFilter!=null) {
+            nameFilterPredicate = dv -> dv.displayValue.toLowerCase().contains(nameFilter.toLowerCase());
+        } else {
+            nameFilterPredicate = dv-> true;
+        }
+        List allJsonValues = possibleValues.stream().map(v->asJsonValueObject(searchableProperty.toDisplay(v),v)).filter(nameFilterPredicate).collect(toList());
         return Response.ok().entity(PagedInfoList.fromCompleteList("values", allJsonValues, jsonQueryParameters)).build();
     }
 

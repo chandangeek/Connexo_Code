@@ -204,7 +204,29 @@ public class DynamicSearchResourceTest extends SearchApplicationTest {
     }
 
     @Test
-    public void testGetPreselectedDomainPropertyValues() throws Exception {
+    public void testGetDomainPropertyValuesFilterByNameCaseInsensitive() throws Exception {
+        Response response = target("/search/com.devices/searchcriteria/deviceConfig").queryParam("filter", ExtjsFilter.filter().property("name", "CONF").create()).request().accept("application/json").get();
+        JsonModel model = JsonModel.model((ByteArrayInputStream)response.getEntity());
+        assertThat(model.<Integer>get("$.total")).isEqualTo(2);
+        assertThat(model.<List>get("$.values")).hasSize(2);
+        assertThat(model.<Integer>get("$.values[0].id")).isEqualTo(1);
+        assertThat(model.<String>get("$.values[0].displayValue")).isEqualTo("device config 1");
+        assertThat(model.<Integer>get("$.values[1].id")).isEqualTo(2);
+        assertThat(model.<String>get("$.values[1].displayValue")).isEqualTo("device config 2");
+    }
+
+    @Test
+    public void testGetDomainPropertyValuesFilterByName() throws Exception {
+        Response response = target("/search/com.devices/searchcriteria/deviceConfig").queryParam("filter", ExtjsFilter.filter().property("name", "2").create()).request().accept("application/json").get();
+        JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
+        assertThat(model.<Integer>get("$.total")).isEqualTo(1);
+        assertThat(model.<List>get("$.values")).hasSize(1);
+        assertThat(model.<Integer>get("$.values[0].id")).isEqualTo(2);
+        assertThat(model.<String>get("$.values[0].displayValue")).isEqualTo("device config 2");
+    }
+
+    @Test
+    public void testGetPreselectedDomainPropertyValuesFilterByConstraint() throws Exception {
         Response response = target("/search/com.devices/searchcriteria/deviceConfig").queryParam("filter", ExtjsFilter.filter().property("deviceType", Collections.singletonList(13)).create()).request().accept("application/json").get();
 //        JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
         // Expect not to throw exceptions
