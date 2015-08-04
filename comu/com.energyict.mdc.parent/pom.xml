@@ -404,6 +404,7 @@
                 <!-- Can we please keep this list organized alphabetically -->
                 <module>../com.energyict.comserver.comserver.core.extjs</module>
                 <module>../com.energyict.comserver.comserver.core.rest</module>
+                <module>../com.energyict.mdc.api.rest</module>
                 <module>../com.energyict.mdc.app</module>
                 <module>../com.energyict.mdc.app.help</module>
                 <module>../com.energyict.mdc.common</module>
