@@ -250,6 +250,8 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
                         Ext.resumeLayouts();
                         container.doLayout();
                     }
+
+                    widget.down('deviceMenu #deviceOverviewLink').removeCls(widget.down('deviceMenu').activeItemCls);
                     widget.setLoading(false);
                 }
             });
