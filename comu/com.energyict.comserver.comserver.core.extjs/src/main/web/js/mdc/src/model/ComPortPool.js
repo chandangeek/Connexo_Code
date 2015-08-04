@@ -6,7 +6,7 @@ Ext.define('Mdc.model.ComPortPool', {
         'description',
         'active',
         'obsoleteFlag',
-        'type',
+        'comPortType',
         'direction',
         'taskExecutionTimeout',
         'discoveryProtocolPluggableClassId',
