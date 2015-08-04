@@ -32,6 +32,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     PROTOCOL_DIALECT_PROPERTY_NOT_IN_SPEC(2023, Keys.PROTOCOL_DIALECT_PROPERTY_NOT_IN_SPEC_KEY, "The protocol dialect ''{0}'' does not contain a specification for attribute ''{1}''", Level.SEVERE),
     PROTOCOL_DIALECT_PROPERTY_INVALID_VALUE(2024, Keys.PROTOCOL_DIALECT_PROPERTY_INVALID_VALUE_KEY, "Not a valid value for this attribute", Level.SEVERE),
     PROTOCOL_DIALECT_REQUIRED_PROPERTY_MISSING(2025, Keys.PROTOCOL_DIALECT_REQUIRED_PROPERTY_MISSING_KEY, "A value is missing for required attribute ''{0}'' of device protocol''{1}''", Level.SEVERE),
+    UNEXPECTED_IO_EXCEPTION(2026, "unexpectedIOException", "Exception occurred while communication with a device", Level.SEVERE),
     ;
 
     private final int number;
