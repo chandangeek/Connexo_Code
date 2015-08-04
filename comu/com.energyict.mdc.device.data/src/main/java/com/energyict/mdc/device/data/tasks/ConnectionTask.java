@@ -54,19 +54,19 @@ public interface ConnectionTask<CPPT extends ComPortPool, PCTT extends PartialCo
         PluggableClassUsage<ConnectionType, ConnectionTypePluggableClass, ConnectionTaskProperty>,
         ConnectionTaskExecutionAspects,
         HasId,
-        HasName{
+        HasName {
 
     public enum Type {
         /**
-         * For inbound connections
+         * For inbound connections.
          */
         INBOUND,
         /**
-         * For outbound connections
+         * For outbound connections.
          */
         OUTBOUND,
         /**
-         * For initiation of a connection
+         * For initiation of a connection.
          */
         CONNECTION_INITIATION
     }
@@ -89,21 +89,21 @@ public interface ConnectionTask<CPPT extends ComPortPool, PCTT extends PartialCo
         /**
          * Indicates that there is no last {@link ComSession}.
          */
-        NOT_APPLICABLE;
+        NOT_APPLICABLE
 
     }
 
     /**
-     * Represents the lifecycle state of a ConnectionTask
+     * Represents the lifecycle state of a ConnectionTask.
      */
     public enum ConnectionTaskLifecycleStatus {
 
         /**
-         * Active means the ConnectionTask is completely validated and ready to be used by the ComServer
+         * Active means the ConnectionTask is completely validated and ready to be used by the ComServer.
          */
         ACTIVE,
         /**
-         * InActive means the ConnectionTask is completely validated but not ready to be used by the ComServer (onhold/paused)
+         * InActive means the ConnectionTask is completely validated but not ready to be used by the ComServer (onhold/paused).
          */
         INACTIVE,
         /**
@@ -112,20 +112,6 @@ public interface ConnectionTask<CPPT extends ComPortPool, PCTT extends PartialCo
          */
         INCOMPLETE
     }
-
-    /**
-     * Returns the object's unique identifier.
-     *
-     * @return the id
-     */
-    public long getId();
-
-    /**
-     * Gets the ConnectionTask's name - this will be the name inherited from the {@link PartialConnectionTask}
-     *
-     * @return the name
-     */
-    public String getName();
 
     /**
      * Gets the {@link ConnectionType} that knows exactly how to connect
