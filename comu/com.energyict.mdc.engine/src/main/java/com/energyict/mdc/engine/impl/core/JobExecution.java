@@ -67,6 +67,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -209,14 +210,21 @@ public abstract class JobExecution implements ScheduledJob {
         this.getExecutionContext().fail(t, this.getFailureIndicatorFor(reason.toRescheduleReason()));
         this.getExecutionContext().getStoreCommand().add(new RescheduleFailedExecution(this, t, reason));
         this.getExecutionContext().getStoreCommand().add(new UnlockScheduledJobDeviceCommand(this, this.executionContext.getDeviceCommandServiceProvider()));
-        this.getDeviceCommandExecutor().execute(this.getExecutionContext().getStoreCommand(), getToken());
+        doExecuteStoreCommand();
     }
 
     protected void completeSuccessfulComSession() {
         this.getExecutionContext().complete();
         this.getExecutionContext().getStoreCommand().add(new RescheduleSuccessfulExecution(this));
         this.getExecutionContext().getStoreCommand().add(new UnlockScheduledJobDeviceCommand(this, this.executionContext.getDeviceCommandServiceProvider()));
-        this.getDeviceCommandExecutor().execute(this.getExecutionContext().getStoreCommand(), getToken());
+        doExecuteStoreCommand();
+    }
+
+    /**
+     * Store all the collected data and create a ComSession
+     */
+    protected Future<Boolean> doExecuteStoreCommand() {
+        return this.getDeviceCommandExecutor().execute(this.getExecutionContext().getStoreCommand(), getToken());
     }
 
     protected final void doReschedule(ComServerDAO comServerDAO, RescheduleBehavior.RescheduleReason rescheduleReason) {
@@ -380,7 +388,7 @@ public abstract class JobExecution implements ScheduledJob {
         return new ComCommandServiceProvider();
     }
 
-    private ComSession.SuccessIndicator getFailureIndicatorFor(RescheduleBehavior.RescheduleReason rescheduleReason) {
+    protected ComSession.SuccessIndicator getFailureIndicatorFor(RescheduleBehavior.RescheduleReason rescheduleReason) {
         if (RescheduleBehavior.RescheduleReason.CONNECTION_BROKEN.equals(rescheduleReason)) {
             return Broken;
         }

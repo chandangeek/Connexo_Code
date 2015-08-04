@@ -4,6 +4,7 @@ import com.energyict.mdc.engine.impl.core.ServerProcess;
 import com.energyict.mdc.engine.config.ComServer;
 
 import java.util.List;
+import java.util.concurrent.Future;
 
 /**
  * Models the behavior of a component that will execute {@link DeviceCommand}s.
@@ -84,7 +85,7 @@ public interface DeviceCommandExecutor extends ServerProcess {
      * @see #tryAcquireTokens(int)
      * @see #acquireTokens(int)
      */
-    public void execute (DeviceCommand command, DeviceCommandExecutionToken token);
+    public Future<Boolean> execute (DeviceCommand command, DeviceCommandExecutionToken token);
 
     /**
      * Returns a previously created {@link DeviceCommandExecutionToken}

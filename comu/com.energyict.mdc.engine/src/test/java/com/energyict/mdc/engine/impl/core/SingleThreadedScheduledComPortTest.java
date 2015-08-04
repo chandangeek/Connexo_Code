@@ -75,6 +75,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.LogManager;
@@ -899,9 +900,9 @@ public class SingleThreadedScheduledComPortTest {
         }
 
         @Override
-        public void execute(DeviceCommand command, DeviceCommandExecutionToken token) {
+        public Future<Boolean> execute(DeviceCommand command, DeviceCommandExecutionToken token) {
             try {
-                super.execute(command, token);
+                return super.execute(command, token);
             } finally {
                 this.executeLatch.countDown();
             }
@@ -929,9 +930,10 @@ public class SingleThreadedScheduledComPortTest {
         }
 
         @Override
-        public void execute(DeviceCommand command, DeviceCommandExecutionToken token) {
-            this.actualExecutor.execute(command, token);
+        public Future<Boolean> execute(DeviceCommand command, DeviceCommandExecutionToken token) {
+            Future<Boolean> execute = this.actualExecutor.execute(command, token);
             this.executeLatch.countDown();
+            return execute;
         }
 
         @Override

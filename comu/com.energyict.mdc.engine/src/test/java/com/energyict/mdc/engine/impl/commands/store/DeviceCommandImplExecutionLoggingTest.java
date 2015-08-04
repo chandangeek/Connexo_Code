@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
+import com.elster.jupiter.nls.NlsService;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
@@ -101,6 +102,11 @@ public class DeviceCommandImplExecutionLoggingTest {
 
         @Override
         public EngineService engineService() {
+            return null;
+        }
+
+        @Override
+        public NlsService nlsService() {
             return null;
         }
 

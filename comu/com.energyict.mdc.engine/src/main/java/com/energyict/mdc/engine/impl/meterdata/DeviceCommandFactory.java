@@ -1,8 +1,5 @@
 package com.energyict.mdc.engine.impl.meterdata;
 
-import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSessionBuilder;
-import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.engine.impl.commands.store.CompositeDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 
 import java.util.List;
@@ -15,18 +12,6 @@ import java.util.List;
  * @since 2012-08-22 (16:35)
  */
 public interface DeviceCommandFactory {
-
-    /**
-     * Creates a {@link CompositeDeviceCommand} for all
-     * the specified {@link ServerCollectedData}.
-     *
-     * @param collectedData The ServerCollectedData
-     * @param communicationLogLevel
-     * @param serviceProvider The {@link DeviceCommand.ServiceProvider}
-     * @param builder
-     * @return The CompositeDeviceCommand
-     */
-    public CompositeDeviceCommand newCompositeForAll(List<ServerCollectedData> collectedData, ComServer.LogLevel communicationLogLevel, DeviceCommand.ServiceProvider serviceProvider, ComTaskExecutionSessionBuilder builder);
 
     /**
      * Creates a {@link DeviceCommand} for every {@link ServerCollectedData}.

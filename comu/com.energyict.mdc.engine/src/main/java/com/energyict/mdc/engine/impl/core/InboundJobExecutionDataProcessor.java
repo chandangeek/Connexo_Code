@@ -9,10 +9,12 @@ import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.commands.store.core.CommandRootImpl;
+import com.energyict.mdc.engine.impl.commands.store.deviceactions.CreateComTaskExecutionSessionCommandImpl;
 import com.energyict.mdc.engine.impl.commands.store.deviceactions.inbound.InboundCollectedLoadProfileCommandImpl;
 import com.energyict.mdc.engine.impl.commands.store.deviceactions.inbound.InboundCollectedLogBookCommandImpl;
 import com.energyict.mdc.engine.impl.commands.store.deviceactions.inbound.InboundCollectedMessageListCommandImpl;
 import com.energyict.mdc.engine.impl.commands.store.deviceactions.inbound.InboundCollectedRegisterCommandImpl;
+import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
 import com.energyict.mdc.engine.impl.core.inbound.InboundDiscoveryContextImpl;
 import com.energyict.mdc.engine.impl.meterdata.ServerCollectedData;
 import com.energyict.mdc.io.ComChannel;
@@ -23,11 +25,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
-import com.energyict.mdc.tasks.LoadProfilesTask;
-import com.energyict.mdc.tasks.LogBooksTask;
-import com.energyict.mdc.tasks.MessagesTask;
-import com.energyict.mdc.tasks.ProtocolTask;
-import com.energyict.mdc.tasks.RegistersTask;
+import com.energyict.mdc.tasks.*;
 
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.transaction.TransactionService;
@@ -37,6 +35,8 @@ import java.time.Clock;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -58,8 +58,8 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
     private final ServiceProvider serviceProvider;
     private DeviceProtocol deviceProtocol;
 
-    public InboundJobExecutionDataProcessor(ComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, InboundDiscoveryContextImpl inboundDiscoveryContext, InboundDeviceProtocol inboundDeviceProtocol, OfflineDevice offlineDevice, ServiceProvider serviceProvider) {
-        super(comPort, comServerDAO, deviceCommandExecutor, inboundDiscoveryContext, serviceProvider);
+    public InboundJobExecutionDataProcessor(ComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, InboundDiscoveryContextImpl inboundDiscoveryContext, InboundDeviceProtocol inboundDeviceProtocol, OfflineDevice offlineDevice, ServiceProvider serviceProvider, InboundCommunicationHandler inboundCommunicationHandler) {
+        super(comPort, comServerDAO, deviceCommandExecutor, inboundDiscoveryContext, serviceProvider, inboundCommunicationHandler);
         this.inboundDeviceProtocol = inboundDeviceProtocol;
         this.offlineDevice = offlineDevice;
         this.serviceProvider = serviceProvider;
@@ -71,23 +71,53 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
         super.setExecutionContext(executionContext);
     }
 
+    /**
+     * Wait for the storing to finish (using a Future), provide a proper response to the meter once it's done.
+     * This is different from standard behavior: normally, the execution of the tasks and the storing of the results is not linked.
+     */
+    @Override
+    public Future<Boolean> doExecuteStoreCommand() {
+        boolean success = false;
+        try {
+            Future<Boolean> future = super.doExecuteStoreCommand();
+            try {
+                success = future.get();        //Blocking call until the device command is fully executed (= collected data is stored)
+            } catch (InterruptedException e) {
+                success = false;
+                Thread.currentThread().interrupt();
+            } catch (ExecutionException e) {
+                //Should never happen, since the Worker (Callable) already catches Throwable
+                success = false;
+            }
+            return future;
+        } finally {
+            inboundCommunicationHandler.provideResponse(inboundDeviceProtocol, success ? InboundDeviceProtocol.DiscoverResponseType.SUCCESS : InboundDeviceProtocol.DiscoverResponseType.STORING_FAILURE);
+        }
+    }
+
     @Override
     protected List<PreparedComTaskExecution> prepareAll(List<? extends ComTaskExecution> comTaskExecutions) {
         List<PreparedComTaskExecution> allPreparedComTaskExecutions = new ArrayList<>();
-        CommandRoot root = new CommandRootImpl(this.offlineDevice, getExecutionContext(), new CommandRootServiceProvider());
+        CommandRoot root = new CommandRootImpl(this.offlineDevice, getExecutionContext(), new CommandRootServiceProvider(), true);
         for (ComTaskExecution comTaskExecution : comTaskExecutions) {
             List<ServerCollectedData> data = this.receivedCollectedDataFor(comTaskExecution);
             if (!data.isEmpty()) {
                 this.postProcess(data);
-                allPreparedComTaskExecutions.addAll(
-                        this.supportedComCommandTypes()
-                                .map(commandType -> this.findProtocolTask(comTaskExecution, commandType))
-                                .flatMap(Functions.asStream())
-                                .map(protocolTask -> this.addCommandFor(comTaskExecution, protocolTask, root, data))
-                                .collect(Collectors.toList()));
+                addToRoot(new CreateComTaskExecutionSessionCommandImpl(
+                        new CreateComTaskExecutionSessionTask(getFirstComTask(comTaskExecution), comTaskExecution), root, comTaskExecution), root, comTaskExecution);
+                this.supportedComCommandTypes()
+                        .map(commandType -> this.findProtocolTask(comTaskExecution, commandType))
+                        .flatMap(Functions.asStream())
+                        .forEach(protocolTask -> this.addCommandFor(comTaskExecution, protocolTask, root, data));
+
+                allPreparedComTaskExecutions.add(new PreparedComTaskExecution(comTaskExecution, root, getDeviceProtocol()));
             }
         }
         return allPreparedComTaskExecutions;
+    }
+
+    private ComTask getFirstComTask(ComTaskExecution comTaskExecution) {
+        return comTaskExecution.getComTasks().get(0);
     }
 
     private Stream<ComCommandTypes> supportedComCommandTypes() {
@@ -103,15 +133,15 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
         return Optional.empty();
     }
 
-    private PreparedComTaskExecution addCommandFor(ComTaskExecution comTaskExecution, ProtocolTask protocolTask, CommandRoot root, List<ServerCollectedData> data) {
+    private void addCommandFor(ComTaskExecution comTaskExecution, ProtocolTask protocolTask, CommandRoot root, List<ServerCollectedData> data) {
         ComCommand command;
         if (ComCommandTypes.MESSAGES_COMMAND.appliesTo(protocolTask)) {
             command = new InboundCollectedMessageListCommandImpl(((MessagesTask) protocolTask), this.offlineDevice, root, data, comTaskExecution);
-            return this.prepare(command, root, comTaskExecution);
+            this.addToRoot(command, root, comTaskExecution);
         }
         else if (ComCommandTypes.LOGBOOKS_COMMAND.appliesTo(protocolTask)) {
             command = new InboundCollectedLogBookCommandImpl((LogBooksTask) protocolTask, this.offlineDevice, root, comTaskExecution, data, this.serviceProvider.deviceService());
-            return this.prepare(command, root, comTaskExecution);
+            this.addToRoot(command, root, comTaskExecution);
         }
         else if (ComCommandTypes.LOAD_PROFILE_COMMAND.appliesTo(protocolTask)) {
             command = new InboundCollectedLoadProfileCommandImpl((LoadProfilesTask) protocolTask, this.offlineDevice, root, comTaskExecution, data);
@@ -119,7 +149,7 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
         else {  // Must be ComCommandTypes.REGISTERS_COMMAND
             command = new InboundCollectedRegisterCommandImpl((RegistersTask) protocolTask, this.offlineDevice, root, comTaskExecution, data, this.serviceProvider.deviceService());
         }
-        return this.prepare(command, root, comTaskExecution);
+        this.addToRoot(command, root, comTaskExecution);
     }
 
     private void postProcess(List<ServerCollectedData> data) {
@@ -128,13 +158,12 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
         }
     }
 
-    private PreparedComTaskExecution prepare(ComCommand comCommand, CommandRoot root, ComTaskExecution comTaskExecution) {
+    private void addToRoot(ComCommand comCommand, CommandRoot root, ComTaskExecution comTaskExecution) {
         root.addUniqueCommand(comCommand, comTaskExecution);
         this.getInboundDiscoveryContext().getComSessionBuilder().incrementNotExecutedTasks(comTaskExecution.getComTasks().size());
-        return new PreparedComTaskExecution(comTaskExecution, root, getDeviceProtocol());
     }
 
-    private DeviceProtocol getDeviceProtocol() {
+    protected DeviceProtocol getDeviceProtocol() {
         if (this.deviceProtocol == null) {
             DeviceProtocolPluggableClass protocolPluggableClass = offlineDevice.getDeviceProtocolPluggableClass();
             this.deviceProtocol = protocolPluggableClass.getDeviceProtocol();
@@ -143,7 +172,7 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
     }
 
     private List<ServerCollectedData> receivedCollectedDataFor(ComTaskExecution comTaskExecution) {
-        return inboundDeviceProtocol.getCollectedData()
+        return inboundDeviceProtocol.getCollectedData(this.offlineDevice)
                 .stream()
                 .filter(collectedData -> collectedData.isConfiguredIn(comTaskExecution))
                 .map(ServerCollectedData.class::cast)

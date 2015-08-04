@@ -93,14 +93,20 @@ public class CommandRootImpl extends CompositeComCommandImpl implements CommandR
     private final OfflineDevice offlineDevice;
     private final ServiceProvider serviceProvider;
     private final ExecutionContext executionContext;
+    private final boolean exposeStoringException;
     private JobExecution.PreparedComTaskExecution preparedComTaskExecution;
     private Map<ComTaskExecution, ComTaskExecutionComCommand> comCommandsPerComTaskExecution = new HashMap<>();
 
     public CommandRootImpl(OfflineDevice offlineDevice, ExecutionContext executionContext, CommandRoot.ServiceProvider serviceProvider) {
+        this(offlineDevice, executionContext, serviceProvider, false);
+    }
+
+    public CommandRootImpl(OfflineDevice offlineDevice, ExecutionContext executionContext, CommandRoot.ServiceProvider serviceProvider, boolean exposeStoringException) {
         super(null);
         this.offlineDevice = offlineDevice;
         this.executionContext = executionContext;
         this.serviceProvider = serviceProvider;
+        this.exposeStoringException = exposeStoringException;
     }
 
     @Override
@@ -583,4 +589,9 @@ public class CommandRootImpl extends CompositeComCommandImpl implements CommandR
         return LogLevel.DEBUG;
     }
 
+
+    @Override
+    public boolean isExposeStoringException() {
+        return exposeStoringException;
+    }
 }

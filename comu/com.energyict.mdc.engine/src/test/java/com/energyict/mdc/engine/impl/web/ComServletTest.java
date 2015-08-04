@@ -1,5 +1,8 @@
 package com.energyict.mdc.engine.impl.web;
 
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.InboundComPortPool;
@@ -22,6 +25,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.time.Clock;
 import java.util.Collections;
+import java.util.Optional;
 
 import org.junit.*;
 import org.junit.runner.*;
@@ -55,6 +59,12 @@ public class ComServletTest {
     private ProtocolPluggableService protocolPluggableService;
     @Mock
     private EventPublisherImpl eventPublisher;
+    @Mock
+    private ThreadPrincipalService threadPrincipalService;
+    @Mock
+    private UserService userService;
+    @Mock
+    private User user;
     private Clock clock = Clock.systemDefaultZone();
 
     @Before
@@ -62,6 +72,9 @@ public class ComServletTest {
         when(serviceProvider.clock()).thenReturn(this.clock);
         when(serviceProvider.protocolPluggableService()).thenReturn(this.protocolPluggableService);
         when(serviceProvider.eventPublisher()).thenReturn(this.eventPublisher);
+        when(serviceProvider.threadPrincipalService()).thenReturn(this.threadPrincipalService);
+        when(serviceProvider.userService()).thenReturn(this.userService);
+        when(userService.findUser(any(String.class))).thenReturn(Optional.of(user));
         when(protocolPluggableService.findInboundDeviceProtocolPluggableClassByClassName(anyString())).thenReturn(Collections.<InboundDeviceProtocolPluggableClass>emptyList());
     }
 

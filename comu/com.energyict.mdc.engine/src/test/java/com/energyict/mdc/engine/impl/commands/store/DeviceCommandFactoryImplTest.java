@@ -12,6 +12,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -35,11 +37,11 @@ public class DeviceCommandFactoryImplTest {
         DeviceCommandFactory factory = new DeviceCommandFactoryImpl();
 
         // Business method
-        CompositeDeviceCommand compositeDeviceCommand = factory.newCompositeForAll(new ArrayList<ServerCollectedData>(0), ComServer.LogLevel.INFO, serviceProvider, builder);
+        List<DeviceCommand> deviceCommands = factory.newForAll(new ArrayList<>(0), serviceProvider);
 
         // Asserts
-        assertThat(compositeDeviceCommand).isNotNull();
-        assertThat(compositeDeviceCommand.getChildren()).isEmpty();
+        assertThat(deviceCommands).isNotNull();
+        assertThat(deviceCommands).isEmpty();
     }
 
     @Test
@@ -48,11 +50,11 @@ public class DeviceCommandFactoryImplTest {
         ServerCollectedData collectedData = mockCollectedData();
 
         // Business method
-        CompositeDeviceCommand compositeDeviceCommand = factory.newCompositeForAll(Arrays.asList(collectedData), ComServer.LogLevel.INFO, serviceProvider, builder);
+        List<DeviceCommand> deviceCommands = factory.newForAll(Collections.singletonList(collectedData), serviceProvider);
 
         // Asserts
-        assertThat(compositeDeviceCommand).isNotNull();
-        assertThat(compositeDeviceCommand.getChildren()).hasSize(2);
+        assertThat(deviceCommands).isNotNull();
+        assertThat(deviceCommands).hasSize(2);
         verify(collectedData).toDeviceCommand(any(MeterDataStoreCommand.class), eq(serviceProvider));
     }
 
@@ -70,11 +72,11 @@ public class DeviceCommandFactoryImplTest {
         when(collectedData3.toDeviceCommand(any(MeterDataStoreCommand.class), eq(serviceProvider))).thenReturn(deviceCommand3);
 
         // Business method
-        CompositeDeviceCommand compositeDeviceCommand = factory.newCompositeForAll(Arrays.asList(collectedData1, collectedData2, collectedData3), ComServer.LogLevel.INFO, serviceProvider, builder);
+        List<DeviceCommand> deviceCommands = factory.newForAll(Arrays.asList(collectedData1, collectedData2, collectedData3), serviceProvider);
 
         // Asserts
-        assertThat(compositeDeviceCommand).isNotNull();
-        assertThat(compositeDeviceCommand.getChildren()).contains(deviceCommand1, deviceCommand2, deviceCommand3);
+        assertThat(deviceCommands).isNotNull();
+        assertThat(deviceCommands).contains(deviceCommand1, deviceCommand2, deviceCommand3);
     }
 
     private ServerCollectedData mockCollectedData () {

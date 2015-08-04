@@ -4,7 +4,9 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskPropertyProvider;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
+import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
+import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
 import com.energyict.mdc.engine.impl.core.inbound.InboundDiscoveryContextImpl;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.io.ComChannel;
@@ -26,6 +28,7 @@ import java.util.List;
  */
 public class InboundJobExecutionGroup extends JobExecution {
 
+    protected final InboundCommunicationHandler inboundCommunicationHandler;
     private final InboundDiscoveryContextImpl inboundDiscoveryContext;
     private InboundConnectionTask connectionTask;
     private List<ComTaskExecution> comTaskExecutions;
@@ -33,9 +36,10 @@ public class InboundJobExecutionGroup extends JobExecution {
     private List<ComTaskExecution> failedComTaskExecutions = new ArrayList<>();
     private List<ComTaskExecution> successfulComTaskExecutions = new ArrayList<>();
 
-    public InboundJobExecutionGroup(ComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, InboundDiscoveryContextImpl inboundDiscoveryContext, ServiceProvider serviceProvider) {
+    public InboundJobExecutionGroup(ComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, InboundDiscoveryContextImpl inboundDiscoveryContext, ServiceProvider serviceProvider, InboundCommunicationHandler inboundCommunicationHandler) {
         super(comPort, comServerDAO, deviceCommandExecutor, serviceProvider);
         this.inboundDiscoveryContext = inboundDiscoveryContext;
+        this.inboundCommunicationHandler = inboundCommunicationHandler;
     }
 
     @Override
@@ -76,6 +80,23 @@ public class InboundJobExecutionGroup extends JobExecution {
                 this.getComPort().getComServer().getCommunicationLogLevel(),
                 getDeviceCommandExecutor());
         jobExecutor.execute(this);
+    }
+
+    @Override
+    public void completed() {
+        this.inboundCommunicationHandler.complete();
+        super.completed();
+    }
+
+    @Override
+    public void failed(Throwable t, ExecutionFailureReason reason) {
+        this.inboundCommunicationHandler.complete();
+        super.failed(t, reason);
+    }
+
+    @Override
+    protected ComSession.SuccessIndicator getFailureIndicatorFor(RescheduleBehavior.RescheduleReason rescheduleReason) {
+        return this.inboundCommunicationHandler.getFailureIndicator();
     }
 
     @Override
