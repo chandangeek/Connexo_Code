@@ -57,7 +57,10 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodsGrid', 
             },
             {
                 xtype: 'uni-actioncolumn',
-                items: 'Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodActionMenu'
+                menu: {
+                    xtype: 'device-connection-method-action-menu',
+                    itemId: 'device-connection-method-action-menu'
+                }
             }
 
         ];
