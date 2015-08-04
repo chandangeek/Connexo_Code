@@ -41,12 +41,12 @@ Ext.define('InsightApp.controller.insight.Main', {
             items: [
                 {
                     text: Uni.I18n.translate('general.usagePointAdd', 'INS', 'Add Usage Point'),
-                    href: '#/insight/usagepoints',
+                    href: '#/insight/usagepoints/add',
                     itemId: 'add-usagepoints'
                 },
                 {
                     text: Uni.I18n.translate('general.usagePointView', 'INS', 'View Usage Point'),
-                    href: '#/insight/viewusagepoints',
+                    href: '#/insight/usagepoints',
                     itemId: 'view-usagepoints'
                 },
             ]
