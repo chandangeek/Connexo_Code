@@ -43,8 +43,8 @@ public abstract class DeviceTransitionImportProcessor<T extends DeviceTransition
 
     @Override
     public void process(T data, FileImportLogger logger) throws ProcessorException {
-        Device device = getContext().getDeviceService().findByUniqueMrid(data.getDeviceMrid())
-                .orElseThrow(() -> new ProcessorException(MessageSeeds.NO_DEVICE, data.getLineNumber(), data.getDeviceMrid()));
+        Device device = getContext().getDeviceService().findByUniqueMrid(data.getDeviceMRID())
+                .orElseThrow(() -> new ProcessorException(MessageSeeds.NO_DEVICE, data.getLineNumber(), data.getDeviceMRID()));
         beforeTransition(device, data);
         performDeviceTransition(data, device);
         processMasterMrid(device, data, logger);

@@ -43,8 +43,8 @@ public class DeviceReadingsImportProcessor implements FileImportProcessor<Device
 
     @Override
     public void process(DeviceReadingsImportRecord data, FileImportLogger logger) throws ProcessorException {
-        Device device = this.context.getDeviceService().findByUniqueMrid(data.getDeviceMrid())
-                .orElseThrow(() -> new ProcessorException(MessageSeeds.NO_DEVICE, data.getLineNumber(), data.getDeviceMrid()));
+        Device device = this.context.getDeviceService().findByUniqueMrid(data.getDeviceMRID())
+                .orElseThrow(() -> new ProcessorException(MessageSeeds.NO_DEVICE, data.getLineNumber(), data.getDeviceMRID()));
 
         Instant readingDate = data.getReadingDateTime().toInstant();
         validateDeviceState(data, device);

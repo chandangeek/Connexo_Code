@@ -36,15 +36,15 @@ public class ConnectionAttributesImportProcessor implements FileImportProcessor<
 
     @Override
     public void process(ConnectionAttributesImportRecord data, FileImportLogger logger) throws ProcessorException {
-        Device device = context.getDeviceService().findByUniqueMrid(data.getDeviceMrid())
-                .orElseThrow(() -> new ProcessorException(MessageSeeds.NO_DEVICE, data.getLineNumber(), data.getDeviceMrid()));
+        Device device = context.getDeviceService().findByUniqueMrid(data.getDeviceMRID())
+                .orElseThrow(() -> new ProcessorException(MessageSeeds.NO_DEVICE, data.getLineNumber(), data.getDeviceMRID()));
         validateConnectionMethodUniquenessInFile(data);
         Optional<ConnectionTask<?, ?>> connectionTask = device.getConnectionTasks().stream()
                 .filter(task -> task.getName().equals(data.getConnectionMethod())).findFirst();
         if (connectionTask.isPresent()) {
             ConnectionTask task = connectionTask.get();
             data.getConnectionAttributes().forEach((key, value) -> {
-                task.setProperty(key, parseStringToValue(task.getConnectionType().getPropertySpec(key).getValueFactory(), key, value, data));
+                task.setProperty(key, parseStringToValue(task.getConnectionType().getPropertySpec(key), value, data));
             });
             task.save();
             checkConnectionTaskStatus(task, data, logger);
@@ -60,13 +60,13 @@ public class ConnectionAttributesImportProcessor implements FileImportProcessor<
     private void checkConnectionTaskStatus(ConnectionTask<?, ?> connectionTask, ConnectionAttributesImportRecord data, FileImportLogger logger) {
         if (connectionTask.getStatus().equals(ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE)) {
             TypedProperties properties = connectionTask.getTypedProperties();
-            String missingRequiredProperties = connectionTask.getConnectionType().getPropertySpecs().stream()
+            String missedRequiredProperties = connectionTask.getConnectionType().getPropertySpecs().stream()
                     .filter(PropertySpec::isRequired)
                     .map(PropertySpec::getName)
                     .filter(propertySpec -> !properties.hasValueFor(propertySpec))
                     .collect(Collectors.joining(", "));
-            if (!missingRequiredProperties.isEmpty()) {
-                logger.warning(MessageSeeds.REQUIRED_CONNECTION_ATTRIBUTES_MISSED, data.getLineNumber(), missingRequiredProperties);
+            if (!missedRequiredProperties.isEmpty()) {
+                logger.warning(MessageSeeds.REQUIRED_CONNECTION_ATTRIBUTES_MISSED, data.getLineNumber(), missedRequiredProperties);
             }
         }
     }
@@ -79,7 +79,8 @@ public class ConnectionAttributesImportProcessor implements FileImportProcessor<
         }
     }
 
-    private Object parseStringToValue(ValueFactory<?> valueFactory, String key, String value, ConnectionAttributesImportRecord data) {
+    private Object parseStringToValue(PropertySpec propertySpec, String value, ConnectionAttributesImportRecord data) {
+        ValueFactory<?> valueFactory = propertySpec.getValueFactory();
         Optional<DynamicPropertyParser> propertyParser = DynamicPropertyParser.of(valueFactory.getClass());
         Object parsedValue;
         try {
@@ -90,7 +91,7 @@ public class ConnectionAttributesImportProcessor implements FileImportProcessor<
             }
         } catch (Exception e) {
             String expectedFormat = propertyParser.isPresent() ? propertyParser.get().getExpectedFormat(context.getThesaurus()) : valueFactory.getValueType().getName();
-            throw new ProcessorException(MessageSeeds.LINE_FORMAT_ERROR, data.getLineNumber(), key, expectedFormat);
+            throw new ProcessorException(MessageSeeds.LINE_FORMAT_ERROR, data.getLineNumber(), propertySpec.getName(), expectedFormat);
         }
         return parsedValue;
     }
@@ -106,7 +107,7 @@ public class ConnectionAttributesImportProcessor implements FileImportProcessor<
     private void addInboundConnectionTaskToDevice(Device device, PartialInboundConnectionTask partialConnectionTask, ConnectionAttributesImportRecord data, FileImportLogger logger) throws ProcessorException {
         Device.InboundConnectionTaskBuilder inboundConnectionTaskBuilder = device.getInboundConnectionTaskBuilder(partialConnectionTask);
         try {
-            data.getConnectionAttributes().forEach((key, value) -> inboundConnectionTaskBuilder.setProperty(key, parseStringToValue(partialConnectionTask.getConnectionType().getPropertySpec(key).getValueFactory(), key, value, data)));
+            data.getConnectionAttributes().forEach((key, value) -> inboundConnectionTaskBuilder.setProperty(key, parseStringToValue(partialConnectionTask.getConnectionType().getPropertySpec(key), value, data)));
             inboundConnectionTaskBuilder.setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE).add();
         } catch (Exception e) {
             try {
@@ -120,7 +121,7 @@ public class ConnectionAttributesImportProcessor implements FileImportProcessor<
 
     private void addScheduledConnectionTaskToDevice(Device device, PartialOutboundConnectionTask partialConnectionTask, ConnectionAttributesImportRecord data, FileImportLogger logger) throws ProcessorException {
         Device.ScheduledConnectionTaskBuilder scheduledConnectionTaskBuilder = device.getScheduledConnectionTaskBuilder(partialConnectionTask);
-        data.getConnectionAttributes().forEach((key, value) -> scheduledConnectionTaskBuilder.setProperty(key, parseStringToValue(partialConnectionTask.getConnectionType().getPropertySpec(key).getValueFactory(), key, value, data)));
+        data.getConnectionAttributes().forEach((key, value) -> scheduledConnectionTaskBuilder.setProperty(key, parseStringToValue(partialConnectionTask.getConnectionType().getPropertySpec(key), value, data)));
         try {
             scheduledConnectionTaskBuilder.setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE).add();
         } catch (Exception e) {
