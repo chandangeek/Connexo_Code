@@ -195,6 +195,7 @@ Ext.define('Fwc.controller.Firmware', {
             record;
 
         form.down('uni-form-error-message').hide();
+        form.getForm().clearInvalid();
         record = form.updateRecord().getRecord();
         var input = form.down('filefield').button.fileInputEl.dom,
             file = input.files[0],
