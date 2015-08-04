@@ -375,7 +375,7 @@ public final class ExecutionContext implements JournalEntryFactory {
 
     public CompositeDeviceCommand getStoreCommand() {
         if (this.storeCommand == null) {
-            this.storeCommand = new ComSessionRootDeviceCommand(this.getComPort().getComServer().getCommunicationLogLevel());
+            this.storeCommand = new ComSessionRootDeviceCommand(this.getComPort().getComServer().getCommunicationLogLevel(), serviceProvider);
         }
         return this.storeCommand;
     }
@@ -620,8 +620,8 @@ public final class ExecutionContext implements JournalEntryFactory {
         }
     }
 
-    private List<DeviceCommand> toDeviceCommands(ComTaskExecutionComCommand commandRoot) {
-        List<CollectedData> collectedData = commandRoot.getCollectedData();
+    private List<DeviceCommand> toDeviceCommands(ComTaskExecutionComCommand comTaskExecutionComCommand) {
+        List<CollectedData> collectedData = comTaskExecutionComCommand.getCollectedData();
         List<ServerCollectedData> serverCollectedData = collectedData.stream().map(ServerCollectedData.class::cast).collect(Collectors.toList());
         return new DeviceCommandFactoryImpl().newForAll(serverCollectedData, getDeviceCommandServiceProvider());
     }
@@ -681,6 +681,11 @@ public final class ExecutionContext implements JournalEntryFactory {
         @Override
         public EngineService engineService() {
             return serviceProvider.engineService();
+        }
+
+        @Override
+        public NlsService nlsService() {
+            return serviceProvider.nlsService();
         }
 
         @Override

@@ -30,11 +30,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.PriorityBlockingQueue;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -124,7 +120,7 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
     }
 
     private void startExecutorService() {
-        this.executorService = new ThreadPoolExecutor(
+        this.executorService = new ExtendedThreadPoolExecutor(
                 this.numberOfThreads, this.numberOfThreads, // Fixed size
                 0L, TimeUnit.MILLISECONDS,                  // No need to terminate threads when fixed size
                 new PriorityBlockingQueue<>(                // Prioritize Workers as they are submitted
@@ -154,7 +150,7 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
         if (immediate) {
             List<Runnable> waiting = this.executorService.shutdownNow();
             for (Runnable runnable : waiting) {
-                Worker waitingWorker = (Worker) runnable;
+                Worker waitingWorker = (Worker) ((ExtendedFutureTask) runnable).getCallable();
                 waitingWorker.runDuringShutdown();
             }
         } else {
@@ -214,10 +210,11 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
     }
 
     @Override
-    public void execute(DeviceCommand command, DeviceCommandExecutionToken token) {
+    public Future<Boolean> execute(DeviceCommand command, DeviceCommandExecutionToken token) {
         if (this.isRunning()) {
-            this.doExecute(command, token);
+            Future<Boolean> future = this.doExecute(command, token);
             this.logger.executionQueued(this, command);
+            return future;
         } else {
             IllegalStateException illegalStateException = this.shouldBeRunning();
             this.logger.cannotExecuteWhenNotRunning(illegalStateException, this, command);
@@ -225,9 +222,9 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
         }
     }
 
-    private synchronized void doExecute(DeviceCommand command, DeviceCommandExecutionToken token) {
+    private synchronized Future<Boolean> doExecute(DeviceCommand command, DeviceCommandExecutionToken token) {
         this.workQueue.execute(command, token);
-        this.executorService.execute(new Worker(command, this.comServerDAO));
+        return this.executorService.submit(new Worker(command, this.comServerDAO));
     }
 
     @Override
@@ -339,7 +336,7 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
     private class WorkerComparator implements Comparator<Runnable> {
         @Override
         public int compare(Runnable o1, Runnable o2) {
-            return this.doCompare((Worker) o1, (Worker) o2);
+            return this.doCompare((Worker) ((ExtendedFutureTask) o1).getCallable(), (Worker) ((ExtendedFutureTask) o2).getCallable());
         }
 
         private int doCompare(Worker o1, Worker o2) {
@@ -359,6 +356,38 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
                     return 0;
                 }
             }
+        }
+    }
+
+    /**
+     * Extension of the normal ThreadPoolExecutor, wrapping any submitted Callables into ExtendedFutureTask instead of normal FutureTask.
+     */
+    private class ExtendedThreadPoolExecutor extends ThreadPoolExecutor {
+
+        public ExtendedThreadPoolExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit, BlockingQueue<Runnable> workQueue, ThreadFactory threadFactory) {
+            super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, threadFactory);
+        }
+
+        @Override
+        protected <T> RunnableFuture<T> newTaskFor(Callable<T> callable) {
+            return new ExtendedFutureTask<T>(callable);
+        }
+    }
+
+    /**
+     * Extension of the normal FutureTask, providing an extra getter for the original Callable
+     */
+    private class ExtendedFutureTask<V> extends FutureTask<V> {
+
+        private Callable callable = null;
+
+        public ExtendedFutureTask(Callable<V> callable) {
+            super(callable);
+            this.callable = callable;
+        }
+
+        public Callable getCallable() {
+            return callable;
         }
     }
 
@@ -410,7 +439,7 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
      * A Worker is only created or activated
      * when a DeviceCommand is ready to be executed.
      */
-    private final class Worker implements Runnable {
+    private final class Worker implements Callable<Boolean>  {
         private DeviceCommand command;
         private ComServerDAO comServerDAO;
 
@@ -424,7 +453,6 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
          * Need to do this so the Kore knows who did what in the database
          */
         private void assignThreadUser() {
-            // TODO in the future, a ComServer user will be created, we should use that one if it exists
             Optional<User> user = userService.findUser("batch executor");
             if (user.isPresent()) {
                 threadPrincipalService.set(user.get(), "ComServer", "Store", Locale.ENGLISH);
@@ -432,15 +460,18 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
         }
 
         @Override
-        public void run() {
-            this.doRun(false);
+        public Boolean call() {
+            return this.doCall(false);
         }
 
-        public void runDuringShutdown() {
-            this.doRun(true);
+        public Boolean runDuringShutdown() {
+            return this.doCall(true);
         }
 
-        private void doRun(boolean duringShutdown) {
+        /**
+         * Execute the command, return true if it succeeded, or false if it failed for any reason.
+         */
+        private Boolean doCall(boolean duringShutdown) {
             assignThreadUser();
             Throwable causeOfFailure = null;
             try {
@@ -449,11 +480,13 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
                 } else {
                     this.command.execute(this.comServerDAO);
                 }
+                return true;
             } catch (Throwable t) {
                 /* Use Throwable rather than Exception or BusinessException and SQLException
                  * to make sure that the Semaphore#release method is called
                  * even in the worst of situations. */
                 causeOfFailure = t;
+                return false;
             } finally {
                 if (causeOfFailure == null) {
                     workerCompleted(this);

@@ -1036,6 +1036,16 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
         }
 
         @Override
+        public UserService userService() {
+            return serviceProvider.userService();
+        }
+
+        @Override
+        public ThreadPrincipalService threadPrincipalService() {
+            return serviceProvider.threadPrincipalService();
+        }
+
+        @Override
         public DeviceConfigurationService deviceConfigurationService() {
             return serviceProvider.deviceConfigurationService();
         }

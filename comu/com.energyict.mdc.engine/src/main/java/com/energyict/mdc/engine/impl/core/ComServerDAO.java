@@ -304,16 +304,6 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
 
     public OfflineLogBook findOfflineLogBook(LogBookIdentifier logBookIdentifier);
 
-    //TODO enable once messages are ported
-//    /**
-//     * Finds the DeviceMessage that is uniquely identified
-//     * by the specified MessageIdentifier.
-//     *
-//     * @param identifier The MessageIdentifier
-//     * @return The offline version of the DeviceMessage that is identified by the MessageIdentifier
-//     */
-//    public OfflineDeviceMessage findDeviceMessage(MessageIdentifier identifier);
-
     /**
      * Updates the ip address of the BaseDevice device
      * that is configured in the specified ConnectionTask

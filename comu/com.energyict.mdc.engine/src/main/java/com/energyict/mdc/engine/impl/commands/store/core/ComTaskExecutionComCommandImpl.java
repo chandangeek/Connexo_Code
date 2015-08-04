@@ -44,7 +44,9 @@ public class ComTaskExecutionComCommandImpl extends CompositeComCommandImpl impl
                 new ComTaskExecutionCollectedData(
                         this.comTaskExecution,
                         this.getNestedCollectedData(),
-                        this.getCommandRoot().getExecutionContext().getComPort().getComServer().getCommunicationLogLevel()));
+                        this.getCommandRoot().getExecutionContext().getComPort().getComServer().getCommunicationLogLevel(),
+                        this.getCommandRoot().isExposeStoringException())
+        );
         return collectedData;
     }
 

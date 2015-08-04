@@ -368,19 +368,19 @@ public class ComServerDAOImpl implements ComServerDAO {
     @Override
     public void executionStarted(final ConnectionTask connectionTask, final ComServer comServer) {
         this.executeTransaction(() -> {
-            toServerConnectionTask(connectionTask).executionStarted(comServer);
+            connectionTask.executionStarted(comServer);
             return null;
         });
     }
 
     @Override
     public void executionCompleted(final ConnectionTask connectionTask) {
-        this.toServerConnectionTask(connectionTask).executionCompleted();
+        connectionTask.executionCompleted();
     }
 
     @Override
     public void executionFailed(final ConnectionTask connectionTask) {
-        this.toServerConnectionTask(connectionTask).executionFailed();
+        connectionTask.executionFailed();
     }
 
     @Override
@@ -622,10 +622,6 @@ public class ComServerDAOImpl implements ComServerDAO {
         } catch (CanNotFindForIdentifier e) {
             return null;
         }
-    }
-
-    private ScheduledConnectionTask toServerConnectionTask(ConnectionTask connectionTask) {
-        return (ScheduledConnectionTask) connectionTask;
     }
 
     @Override

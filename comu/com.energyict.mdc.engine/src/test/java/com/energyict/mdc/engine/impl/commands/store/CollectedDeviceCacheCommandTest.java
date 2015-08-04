@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
+import com.elster.jupiter.nls.NlsService;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
@@ -170,6 +171,11 @@ public class CollectedDeviceCacheCommandTest {
         @Override
         public EngineService engineService() {
             return engineService;
+        }
+
+        @Override
+        public NlsService nlsService() {
+            return null;
         }
     }
 

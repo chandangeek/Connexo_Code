@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Provides an implemenation for the {@link com.energyict.mdc.protocol.api.device.data.CollectedData} interface
+ * Provides an implementation for the {@link com.energyict.mdc.protocol.api.device.data.CollectedData} interface
  * that contains all the CollectedData that relates to the same {@link ComTaskExecution}.
  *
  * @author Rudi Vankeirsbilck (rudi)
@@ -21,17 +21,19 @@ import java.util.stream.Collectors;
  */
 public class ComTaskExecutionCollectedData extends CompositeCollectedData<ServerCollectedData> {
 
+    private final boolean exposeStoringException;
     private ComTaskExecution comTaskExecution;
     private ComServer.LogLevel communicationLogLevel;
 
     public ComTaskExecutionCollectedData(ComTaskExecution comTaskExecution, List<ServerCollectedData> relatedCollectedData) {
-        this(comTaskExecution, relatedCollectedData, ComServer.LogLevel.INFO);
+        this(comTaskExecution, relatedCollectedData, ComServer.LogLevel.INFO, false);
     }
 
-    public ComTaskExecutionCollectedData(ComTaskExecution comTaskExecution, List<ServerCollectedData> relatedCollectedData, ComServer.LogLevel communicationLogLevel) {
+    public ComTaskExecutionCollectedData(ComTaskExecution comTaskExecution, List<ServerCollectedData> relatedCollectedData, ComServer.LogLevel communicationLogLevel, boolean exposeStoringException) {
         super();
         this.comTaskExecution = comTaskExecution;
         this.communicationLogLevel = communicationLogLevel;
+        this.exposeStoringException = exposeStoringException;
         relatedCollectedData.forEach(this::add);
     }
 
@@ -59,7 +61,7 @@ public class ComTaskExecutionCollectedData extends CompositeCollectedData<Server
                         .stream()
                         .map(collectedData -> collectedData.toDeviceCommand(meterDataStoreCommand, serviceProvider))
                         .collect(Collectors.toList());
-        return new ComTaskExecutionRootDeviceCommand(this.comTaskExecution, this.communicationLogLevel, nestedCommands);
+        return new ComTaskExecutionRootDeviceCommand(this.comTaskExecution, this.communicationLogLevel, nestedCommands, exposeStoringException, serviceProvider);
     }
 
 }

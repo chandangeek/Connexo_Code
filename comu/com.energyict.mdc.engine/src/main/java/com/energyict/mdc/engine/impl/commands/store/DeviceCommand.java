@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
+import com.elster.jupiter.nls.NlsService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
@@ -72,6 +73,8 @@ public interface DeviceCommand {
         public MdcReadingTypeUtilService mdcReadingTypeUtilService();
 
         public EngineService engineService();
+
+        public NlsService nlsService();
 
     }
     /**

@@ -1,11 +1,14 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
+import com.elster.jupiter.transaction.VoidTransaction;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilderImpl;
 import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.exceptions.StoringFailedException;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 
 import com.elster.jupiter.util.time.StopWatch;
+import com.energyict.mdc.engine.impl.core.ExecutionContext;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -21,16 +24,20 @@ import java.util.List;
  */
 public class ComSessionRootDeviceCommand extends CompositeDeviceCommandImpl {
 
+    private static final String STORING_FAILURE = "Skipped storing of this collected data, because of a problem that occurred while storing data for another communication task";
+    private final ExecutionContext.ServiceProvider serviceProvider;
+
     private List<DeviceCommand> finalCommands = new ArrayList<>();
     private CreateComSessionDeviceCommand createComSessionDeviceCommand;
     private PublishConnectionTaskEventDeviceCommand publishConnectionTaskEventDeviceCommand;
 
-    public ComSessionRootDeviceCommand () {
-        this(ComServer.LogLevel.INFO);
+    public ComSessionRootDeviceCommand(ExecutionContext.ServiceProvider serviceProvider) {
+        this(ComServer.LogLevel.INFO, serviceProvider);
     }
 
-    public ComSessionRootDeviceCommand (ComServer.LogLevel communicationLogLevel) {
+    public ComSessionRootDeviceCommand(ComServer.LogLevel communicationLogLevel, ExecutionContext.ServiceProvider serviceProvider) {
         super(communicationLogLevel);
+        this.serviceProvider = serviceProvider;
     }
 
     @Override
@@ -39,6 +46,10 @@ public class ComSessionRootDeviceCommand extends CompositeDeviceCommandImpl {
         if (this.publishConnectionTaskEventDeviceCommand != null) {
             this.publishConnectionTaskEventDeviceCommand.setCreateComSessionDeviceCommand(command);
         }
+    }
+
+    public CreateComSessionDeviceCommand getCreateComSessionDeviceCommand() {
+        return createComSessionDeviceCommand;
     }
 
     @Override
@@ -76,10 +87,57 @@ public class ComSessionRootDeviceCommand extends CompositeDeviceCommandImpl {
     public void execute (final ComServerDAO comServerDAO) {
         this.startStopWatch();
         this.broadCastFailureLoggerIfAny();
-        comServerDAO.executeTransaction(() -> {
-            executeAll(comServerDAO);
-            return null;
+        executeAll(comServerDAO);
+    }
+
+    protected void executeAll(ComServerDAO comServerDAO) {
+        doExecuteAll(comServerDAO, false);
+    }
+
+    protected void executeAllDuringShutdown(ComServerDAO comServerDAO) {
+        doExecuteAll(comServerDAO, true);
+    }
+
+    /**
+     * Execute the nested DeviceCommands, and after that, the ComSession DeviceCommand.
+     * The ComSession DeviceCommand is always executed, at the end, regardless of any storing errors that occurred earlier.
+     * <p/>
+     * The full transaction is rolled back only if the execution of the ComSession DeviceCommand failed.
+     */
+    private void doExecuteAll(final ComServerDAO comServerDAO, final boolean shutDown) {
+        final StoringFailedException[] storingFailedException = new StoringFailedException[1];
+
+        comServerDAO.executeTransaction(new VoidTransaction(){
+            @Override
+            protected void doPerform() {
+                //First store all the collected data
+                for (DeviceCommand command : getChildren()) {
+                    try {
+                        if (storingFailedException[0] == null) {
+                            //Execute the next DeviceCommand, as long as no previous commands have failed
+                            if (shutDown) {
+                                command.executeDuringShutdown(comServerDAO);
+                            } else {
+                                command.execute(comServerDAO);
+                            }
+                        } else {
+                            //Set the remaining comtasks to failed if one of the devicecommands failed
+                            if (command instanceof ComTaskExecutionRootDeviceCommand) {
+                                ((ComTaskExecutionRootDeviceCommand) command).logErrorMessage(serviceProvider.issueService().newProblem(command, STORING_FAILURE), comServerDAO);
+                            }
+                        }
+                    } catch (StoringFailedException t) {
+                        //Note that this only occurs when storing INBOUND collected data, otherwise the exception is handled silently in the DeviceCommand itself
+                        storingFailedException[0] = t;
+                    }
+                }
+            }
         });
+
+        //Expose any exception that occurred while storing the collected data
+        if (storingFailedException[0] != null) {
+            throw storingFailedException[0];
+        }
     }
 
     private void startStopWatch() {
@@ -123,7 +181,13 @@ public class ComSessionRootDeviceCommand extends CompositeDeviceCommandImpl {
 
         if (this.isJournalingLevelEnabled(serverLogLevel, ComServer.LogLevel.INFO)) {
             StringBuilder stringBuilder = builder.addProperty("commands");
-            Iterator<DeviceCommand> commandIterator = this.getChildren().iterator();
+
+            List<DeviceCommand> deviceCommands = super.getChildren();
+            if (this.createComSessionDeviceCommand != null) {
+                deviceCommands.add(this.createComSessionDeviceCommand);
+            }
+
+            Iterator<DeviceCommand> commandIterator = deviceCommands.iterator();
             while (commandIterator.hasNext()) {
                 DeviceCommand command = commandIterator.next();
                 String messageDescription = command.toJournalMessageDescription(serverLogLevel);

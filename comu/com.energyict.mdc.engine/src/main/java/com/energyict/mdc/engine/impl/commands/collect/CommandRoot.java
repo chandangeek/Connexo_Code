@@ -274,4 +274,9 @@ public interface CommandRoot extends CompositeComCommand {
      */
     public ServiceProvider getServiceProvider();
 
+    /**
+     * Indicates if any exceptions (during storing of underlying collected data) should be exposed to the DeviceCommandExecutor
+     */
+    public boolean isExposeStoringException();
+
 }

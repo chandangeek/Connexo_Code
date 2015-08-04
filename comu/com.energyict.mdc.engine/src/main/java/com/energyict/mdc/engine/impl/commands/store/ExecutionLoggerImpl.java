@@ -54,7 +54,7 @@ public abstract class ExecutionLoggerImpl implements DeviceCommand.ExecutionLogg
 
     @Override
     public void logUnexpected (Throwable t, ComTaskExecution comTaskExecution) {
-        this.logFailure(t, this.findComTaskExecutionSession(comTaskExecution));
+        this.logFailure(StackTracePrinter.print(t), this.findComTaskExecutionSession(comTaskExecution));
     }
 
     private ComTaskExecutionSessionBuilder findComTaskExecutionSession (ComTaskExecution comTaskExecution) {
@@ -65,8 +65,8 @@ public abstract class ExecutionLoggerImpl implements DeviceCommand.ExecutionLogg
         throw CodingException.comTaskSessionMissing(comTaskExecution);
     }
 
-    private void logFailure (Throwable t, ComTaskExecutionSessionBuilder builder) {
-        builder.addComCommandJournalEntry(clock.instant(), CompletionCode.UnexpectedError, StackTracePrinter.print(t), "General");
+    private void logFailure(String errorMessage, ComTaskExecutionSessionBuilder builder){
+        builder.addComCommandJournalEntry(clock.instant(), CompletionCode.UnexpectedError, errorMessage, "General");
     }
 
     @Override

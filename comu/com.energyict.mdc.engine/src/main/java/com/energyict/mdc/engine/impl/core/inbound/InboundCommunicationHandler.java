@@ -1,5 +1,7 @@
 package com.energyict.mdc.engine.impl.core.inbound;
 
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.time.StopWatch;
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.device.data.Device;
@@ -101,6 +103,10 @@ public class InboundCommunicationHandler {
 
         public EventPublisher eventPublisher();
 
+        public UserService userService();
+
+        public ThreadPrincipalService threadPrincipalService();
+
     }
 
     private static final long NANOS_IN_MILLI = 1000000L;
@@ -164,6 +170,7 @@ public class InboundCommunicationHandler {
             if (device == null) {
                 this.handleUnknownDevice(inboundDeviceProtocol);
             } else {
+                this.logger.deviceIdentified(inboundDeviceProtocol.getDeviceIdentifier(), this.getComPort());
                 this.handleKnownDevice(inboundDeviceProtocol, context, discoverResultType, device);
             }
         } catch (NotFoundException e) {
@@ -209,7 +216,7 @@ public class InboundCommunicationHandler {
                 if (deviceIsReadyForInboundCommunicationOnThisPort(new OfflineDeviceImpl((Device) device, new DeviceOfflineFlags(), new OfflineDeviceServiceProvider()))) {
                     List<DeviceCommandExecutionToken> tokens = this.deviceCommandExecutor.tryAcquireTokens(1);
                     if (!tokens.isEmpty() && this.connectionTask != null) {
-                        CompositeDeviceCommand storeCommand = new ComSessionRootDeviceCommand();
+                        CompositeDeviceCommand storeCommand = new ComSessionRootDeviceCommand(serviceProvider);
                         storeCommand.add(createFailedInboundComSessionForDuplicateDevice(e));
                         this.deviceCommandExecutor.execute(storeCommand, tokens.get(0));
                     } else {
@@ -267,10 +274,11 @@ public class InboundCommunicationHandler {
             this.provideResponse(inboundDeviceProtocol, InboundDeviceProtocol.DiscoverResponseType.SERVER_BUSY);
         } else {
             DeviceCommandExecutionToken singleToken = tokens.get(0);
-            this.provideResponse(inboundDeviceProtocol, InboundDeviceProtocol.DiscoverResponseType.SUCCESS);
             if (InboundDeviceProtocol.DiscoverResultType.IDENTIFIER.equals(discoverResultType)) {
+                this.provideResponse(inboundDeviceProtocol, InboundDeviceProtocol.DiscoverResponseType.SUCCESS);
                 this.handOverToDeviceProtocol(singleToken);
             } else {
+                //Note that the provideResponse method is called in the storing service. Depending on the result of the storing, either success or failure is returned.
                 this.processCollectedData(inboundDeviceProtocol, singleToken, offlineDevice);
             }
         }
@@ -324,7 +332,7 @@ public class InboundCommunicationHandler {
         return LoggerFactory.getLoggerFor(ComPortDiscoveryLogger.class, this.getAnonymousLogger());
     }
 
-    private Logger getAnonymousLogger () {
+    private Logger getAnonymousLogger() {
         Logger logger = Logger.getAnonymousLogger();
         logger.setLevel(Level.FINEST);
         logger.addHandler(new ComPortDiscoveryLogHandler(this, this.serviceProvider.eventPublisher(), new ComServerEventServiceProvider()));
@@ -346,26 +354,22 @@ public class InboundCommunicationHandler {
     }
 
     private void closeContext() {
-        ComSessionBuilder sessionBuilder = context.getComSessionBuilder();
-        this.appendStatisticalInformationToComSession();
-        if (InboundDeviceProtocol.DiscoverResponseType.SUCCESS.equals(this.responseType)) {
-            this.markSuccessful(sessionBuilder);
-        } else {
-            this.markFailed(sessionBuilder, this.responseType);
-        }
         if (this.connectionTask != null) {
             this.publish(
                     new CloseConnectionEvent(
                             new ComServerEventServiceProvider(),
                             this.comPort,
                             this.connectionTask));
-        }
-        else {
+        } else {
             this.publish(
                     new UndiscoveredCloseConnectionEvent(
                             new ComServerEventServiceProvider(),
                             this.comPort));
         }
+    }
+
+    public void complete(){
+        this.appendStatisticalInformationToComSession();
     }
 
     private void appendStatisticalInformationToComSession() {
@@ -408,18 +412,14 @@ public class InboundCommunicationHandler {
         return this.context.getComChannel();
     }
 
-    private ComSessionBuilder.EndedComSessionBuilder markSuccessful(ComSessionBuilder comSessionBuilder) {
-        return comSessionBuilder.endSession(now(), ComSession.SuccessIndicator.Success);
-    }
-
-    private ComSessionBuilder.EndedComSessionBuilder markFailed(ComSessionBuilder comSessionBuilder, InboundDeviceProtocol.DiscoverResponseType reason) {
-        switch (reason) {
+    public ComSession.SuccessIndicator getFailureIndicator() {
+        switch (this.responseType) {
             case SUCCESS: {
                 assert false : "if-test that was supposed to verify that the discovery response type was NOT success clearly failed";
-                throw CodingException.unrecognizedEnumValue(reason);
+                throw CodingException.unrecognizedEnumValue(this.responseType);
             }
             case DEVICE_DOES_NOT_EXPECT_INBOUND: {
-                return comSessionBuilder.endSession(now(), ComSession.SuccessIndicator.SetupError);
+                return ComSession.SuccessIndicator.SetupError;
             }
             case DEVICE_NOT_FOUND: {
                 /* Todo: deal with unknown device situation in which no ComSession is built yet
@@ -427,19 +427,25 @@ public class InboundCommunicationHandler {
                 */
                 return null;
             }
+            case STORING_FAILURE: {
+                return ComSession.SuccessIndicator.Broken;
+            }
             case ENCRYPTION_REQUIRED: {
-                return comSessionBuilder.endSession(now(), ComSession.SuccessIndicator.SetupError);
+                return ComSession.SuccessIndicator.SetupError;
             }
             case SERVER_BUSY: {
-                return comSessionBuilder.endSession(now(), ComSession.SuccessIndicator.Broken);
+                return ComSession.SuccessIndicator.Broken;
+            }
+            case FAILURE: {
+                return ComSession.SuccessIndicator.Broken;
             }
             default: {
-                throw CodingException.unrecognizedEnumValue(reason);
+                throw CodingException.unrecognizedEnumValue(this.responseType);
             }
         }
     }
 
-    private void provideResponse(InboundDeviceProtocol inboundDeviceProtocol, InboundDeviceProtocol.DiscoverResponseType responseType) {
+    public void provideResponse(InboundDeviceProtocol inboundDeviceProtocol, InboundDeviceProtocol.DiscoverResponseType responseType) {
         this.publishResponse(inboundDeviceProtocol, responseType);
         inboundDeviceProtocol.provideResponse(responseType);
         this.responseType = responseType;
@@ -455,6 +461,10 @@ public class InboundCommunicationHandler {
                 this.logger.discoveryFailed(inboundDeviceProtocol.getClass().getName(), this.getComPort());
                 break;
             }
+            case STORING_FAILURE: {
+                //Storing error was already logged in the DeviceCommandExecutor
+                break;
+            }
             case DEVICE_DOES_NOT_EXPECT_INBOUND: {
                 this.logger.deviceNotConfiguredForInboundCommunication(inboundDeviceProtocol.getDeviceIdentifier(), this.getComPort());
                 break;
@@ -468,7 +478,7 @@ public class InboundCommunicationHandler {
                 break;
             }
             case SUCCESS: {
-                this.logger.deviceIdentified(inboundDeviceProtocol.getDeviceIdentifier(), this.getComPort());
+                // should already be logged
                 break;
             }
             default: {
@@ -492,13 +502,14 @@ public class InboundCommunicationHandler {
                         comServerDAO,
                         deviceCommandExecutor,
                         getContext(),
-                        this.serviceProvider);
+                        this.serviceProvider,
+                        this);
         inboundJobExecutionGroup.setToken(token);
         inboundJobExecutionGroup.setConnectionTask(this.connectionTask);
         inboundJobExecutionGroup.executeDeviceProtocol(this.deviceComTaskExecutions);
     }
 
-    private void processCollectedData(InboundDeviceProtocol inboundDeviceProtocol, DeviceCommandExecutionToken token, OfflineDevice offlineDevice) {
+    protected void processCollectedData(InboundDeviceProtocol inboundDeviceProtocol, DeviceCommandExecutionToken token, OfflineDevice offlineDevice) {
         this.publishComTaskExecutionStartedEvents();
         InboundJobExecutionDataProcessor inboundJobExecutionDataProcessor =
                 new InboundJobExecutionDataProcessor(
@@ -508,7 +519,8 @@ public class InboundCommunicationHandler {
                         getContext(),
                         inboundDeviceProtocol,
                         offlineDevice,
-                        this.serviceProvider);
+                        this.serviceProvider,
+                        this);
         inboundJobExecutionDataProcessor.setToken(token);
         inboundJobExecutionDataProcessor.setConnectionTask(this.connectionTask);
         inboundJobExecutionDataProcessor.executeDeviceProtocol(this.deviceComTaskExecutions);
@@ -551,22 +563,22 @@ public class InboundCommunicationHandler {
     }
 
     private Instant now() {
-    	return serviceProvider.clock().instant();
+        return serviceProvider.clock().instant();
     }
 
     protected LogLevel getServerLogLevel() {
         return this.getServerLogLevel(this.getComPort());
     }
 
-    private LogLevel getServerLogLevel (ComPort comPort) {
+    private LogLevel getServerLogLevel(ComPort comPort) {
         return this.getServerLogLevel(comPort.getComServer());
     }
 
-    private LogLevel getServerLogLevel (ComServer comServer) {
+    private LogLevel getServerLogLevel(ComServer comServer) {
         return LogLevelMapper.forComServerLogLevel().toLogLevel(comServer.getServerLogLevel());
     }
 
-    private void publish (ComServerEvent event) {
+    private void publish(ComServerEvent event) {
         this.serviceProvider.eventPublisher().publish(event);
     }
 

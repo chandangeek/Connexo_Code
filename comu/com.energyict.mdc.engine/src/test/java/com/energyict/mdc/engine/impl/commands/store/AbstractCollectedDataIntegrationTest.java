@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
+import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.data.impl.DeviceDataModule;
@@ -279,6 +280,11 @@ public abstract class AbstractCollectedDataIntegrationTest {
 
         @Override
         public EngineService engineService() {
+            return null;
+        }
+
+        @Override
+        public NlsService nlsService() {
             return null;
         }
     }

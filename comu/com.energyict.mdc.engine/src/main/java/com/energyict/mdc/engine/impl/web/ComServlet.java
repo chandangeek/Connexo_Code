@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.web;
 
+import com.elster.jupiter.users.User;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
@@ -15,6 +16,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Locale;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -73,12 +76,20 @@ public class ComServlet extends HttpServlet {
         throws
             IOException,
             ServletException {
+        this.setThreadPrinciple();
         this.statistics.doPost();
         try {
             this.handOverToInboundDeviceProtocol(request, response);
         } catch (Throwable t) {
             // Avoid that the current thread will stop because of e.g. NPE
             LOGGER.log(Level.SEVERE, t.getMessage(), t);
+        }
+    }
+
+    private void setThreadPrinciple() {
+        Optional<User> user = this.serviceProvider.userService().findUser("batch executor");
+        if (user.isPresent()) {
+            this.serviceProvider.threadPrincipalService().set(user.get(), "ComServlet", "doPost", Locale.ENGLISH);
         }
     }
 
@@ -107,6 +118,9 @@ public class ComServlet extends HttpServlet {
                 // Intentional fallthrough
             }
             case SERVER_BUSY: {
+                // Intentional fallthrough
+            }
+            case STORING_FAILURE: {
                 // Intentional fallthrough
             }
             default: {

@@ -31,13 +31,7 @@ import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
-import com.energyict.mdc.engine.impl.commands.store.CompositeDeviceCommand;
-import com.energyict.mdc.engine.impl.commands.store.CreateOutboundComSession;
-import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
-import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
-import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
-import com.energyict.mdc.engine.impl.commands.store.PublishConnectionCompletionEvent;
-import com.energyict.mdc.engine.impl.commands.store.PublishConnectionSetupFailureEvent;
+import com.energyict.mdc.engine.impl.commands.store.*;
 import com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.io.ComChannel;
@@ -73,6 +67,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Future;
 
 import org.assertj.core.api.Condition;
 import org.junit.*;
@@ -359,13 +354,9 @@ public class ScheduledJobImplTest {
         verify(this.deviceCommandExecutor).execute(deviceCommandArgumentCaptor.capture(), any(DeviceCommandExecutionToken.class));
         DeviceCommand deviceCommand = deviceCommandArgumentCaptor.getValue();
         assertThat(deviceCommand).isInstanceOf(CompositeDeviceCommand.class);
-        CompositeDeviceCommand compositeDeviceCommand = (CompositeDeviceCommand) deviceCommand;
-        CreateOutboundComSession createComSession = null;
-        for (DeviceCommand command : compositeDeviceCommand.getChildren()) {
-            if (command instanceof CreateOutboundComSession) {
-                createComSession = (CreateOutboundComSession) command;
-            }
-        }
+        ComSessionRootDeviceCommand compositeDeviceCommand = (ComSessionRootDeviceCommand) deviceCommand;
+        CreateComSessionDeviceCommand createComSession = compositeDeviceCommand.getCreateComSessionDeviceCommand();
+
         assertThat(createComSession).isNotNull();
         assertThat(createComSession.getComSessionBuilder()).isNotNull();
     }
@@ -574,9 +565,12 @@ public class ScheduledJobImplTest {
         }
 
         @Override
-        public void execute(DeviceCommand command, DeviceCommandExecutionToken token) {
-            this.actualExecutor.execute(command, token);
-            this.executeLatch.countDown();
+        public Future<Boolean> execute(DeviceCommand command, DeviceCommandExecutionToken token) {
+            try {
+                return this.actualExecutor.execute(command, token);
+            } finally {
+                this.executeLatch.countDown();
+            }
         }
 
         @Override
