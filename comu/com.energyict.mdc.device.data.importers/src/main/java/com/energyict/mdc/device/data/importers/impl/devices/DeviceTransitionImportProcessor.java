@@ -49,7 +49,6 @@ public abstract class DeviceTransitionImportProcessor<T extends DeviceTransition
         performDeviceTransition(data, device);
         processMasterMrid(device, data, logger);
         afterTransition(device, data, logger);
-        device.save();
     }
 
     protected void beforeTransition(Device device, T data) throws ProcessorException {
@@ -57,7 +56,7 @@ public abstract class DeviceTransitionImportProcessor<T extends DeviceTransition
     }
 
     protected void afterTransition(Device device, T data, FileImportLogger logger) throws ProcessorException {
-        // do nothing
+        device.save();
     }
 
     private void performDeviceTransition(T data, Device device) {

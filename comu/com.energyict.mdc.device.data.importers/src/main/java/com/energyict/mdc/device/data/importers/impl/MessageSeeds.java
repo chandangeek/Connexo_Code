@@ -30,7 +30,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
 
     DEVICE_ALREADY_EXISTS(14, "ImportProcessorDeviceAlreadyExists", "Error in line {0}: The device (MRID: {1}) is already in use", Level.WARNING),
     DEVICE_ALREADY_IN_THAT_STATE(15, "ImportProcessorDeviceAlreadyInThatState", "Error in line {0}: The device is already in {1} state", Level.WARNING),
-    DEVICE_CAN_NOT_BE_MOVED_TO_STATE(16, "ImportProcessorDeviceCanNotBeMovedToState", "Error in line {0}: The device can't be moved to {1} from {2} state", Level.WARNING),
+    DEVICE_CAN_NOT_BE_MOVED_TO_STATE(16, "ImportProcessorDeviceCanNotBeMovedToState", "Error in line {0}: The device can''t be moved to {1} from {2} state", Level.WARNING),
     PRE_TRANSITION_CHECKS_FAILED(17, "ImportProcessorPreTransitionsChecksFailed", "Error in line {0}: Pre-transition check(s) failed: {1}", Level.WARNING),
     TRANSITION_ACTION_DATE_IS_INCORRECT(18, "ImportProcessorTransitionActionDateIsIncorrect", "Error in line {0}: The transition action date has incorrect value: {1}, {2}", Level.WARNING),
 

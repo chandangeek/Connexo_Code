@@ -44,7 +44,7 @@ public class SecurityAttributesImportProcessor implements FileImportProcessor<Se
         } catch (Exception e) {
             throw new ProcessorException(MessageSeeds.SECURITY_ATTRIBUTES_NOT_SET, data.getLineNumber(), data.getDeviceMRID());
         }
-        if (device.getAllSecurityProperties(deviceConfigSecurityPropertySet).stream().anyMatch(securityProperty -> !securityProperty.isComplete())) {
+        if (device.getSecurityProperties(deviceConfigSecurityPropertySet).stream().anyMatch(securityProperty -> !securityProperty.isComplete())) {
             String missedRequiredProperties = deviceConfigSecurityPropertySet.getPropertySpecs().stream()
                     .filter(PropertySpec::isRequired)
                     .map(PropertySpec::getName)
@@ -71,7 +71,7 @@ public class SecurityAttributesImportProcessor implements FileImportProcessor<Se
 
     private TypedProperties getTypedPropertiesForSecurityPropertySet(Device device, SecurityPropertySet securityPropertySet) {
         TypedProperties typedProperties = TypedProperties.empty();
-        for (SecurityProperty securityProperty : device.getAllSecurityProperties(securityPropertySet)) {
+        for (SecurityProperty securityProperty : device.getSecurityProperties(securityPropertySet)) {
             typedProperties.setProperty(securityProperty.getName(), securityProperty.getValue());
         }
         return typedProperties;

@@ -179,7 +179,7 @@ public class SecurityAttributesImporterFactoryTest {
         SecurityPropertySet securityPropertySet = mockSecurityPropertySet("MD5", propertySpecs);
         when(deviceConfiguration.getSecurityPropertySets()).thenReturn(Arrays.asList(securityPropertySet));
         List<SecurityProperty> properties = Arrays.asList(mockSecurityProperty("attr1", null));
-        when(device.getAllSecurityProperties(securityPropertySet)).thenReturn(properties);
+        when(device.getSecurityProperties(securityPropertySet)).thenReturn(properties);
 
         createSecurityAttributesImporter().process(importOccurrence);
 
@@ -208,7 +208,7 @@ public class SecurityAttributesImporterFactoryTest {
                 mockSecurityProperty("attr1", "value"),
                 mockSecurityProperty("attr2", BigDecimal.valueOf(100.25)),
                 mockSecurityProperty("attr3", true));
-        when(device.getAllSecurityProperties(securityPropertySet)).thenReturn(properties);
+        when(device.getSecurityProperties(securityPropertySet)).thenReturn(properties);
         doAnswer(invocationOnMock -> {
             assertThat((SecurityPropertySet) invocationOnMock.getArguments()[0]).isEqualTo(securityPropertySet);
             TypedProperties typedProperties = (TypedProperties) invocationOnMock.getArguments()[1];
